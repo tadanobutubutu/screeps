@@ -470,6 +470,316 @@ function isLinkAccessible(link) {
   return { valid: errors.length === 0, errors };
 }
 
+// Form accessibility validation
+function validateFormAccessibility(form) {
+  const errors = [];
+
+  if (!form) {
+    return { valid: false, errors: ['Form element is required'] };
+  }
+
+  const inputs = form.querySelectorAll('input, select, textarea');
+  inputs.forEach((input, index) => {
+    const id = input.getAttribute('id');
+    const name = input.getAttribute('name');
+    const type = input.getAttribute('type');
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledby = input.getAttribute('aria-labelledby');
+
+    // Skip hidden inputs, submit buttons, and buttons
+    if (type === 'hidden' || type === 'submit' || type === 'button' || input.tagName === 'BUTTON') {
+      return;
+    }
+
+    // Check for associated label
+    let hasLabel = false;
+    if (id) {
+      const label = form.querySelector(`label[for="${id}"]`);
+      if (label) hasLabel = true;
+    }
+    // Check for wrapping label
+    if (!hasLabel && input.closest('label')) {
+      hasLabel = true;
+    }
+    // Check for aria-label or aria-labelledby
+    if (!hasLabel && (ariaLabel || ariaLabelledby)) {
+      hasLabel = true;
+    }
+
+    if (!hasLabel) {
+      errors.push(`Input at index ${index} is missing an associated label`);
+    }
+  });
+
+  // Check for fieldsets grouping related inputs
+  const radioGroups = {};
+  form.querySelectorAll('input[type="radio"]').forEach(radio => {
+    const name = radio.getAttribute('name');
+    if (name) {
+      if (!radioGroups[name]) radioGroups[name] = [];
+      radioGroups[name].push(radio);
+    }
+  });
+
+  Object.keys(radioGroups).forEach(name => {
+    if (radioGroups[name].length > 1) {
+      // Check if grouped in a fieldset with a legend
+      const firstRadio = radioGroups[name][0];
+      const fieldset = firstRadio.closest('fieldset');
+      if (!fieldset || !fieldset.querySelector('legend')) {
+        errors.push(`Radio group "${name}" should be wrapped in a fieldset with a legend`);
+      }
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+// Image accessibility validation
+function validateImageAccessibility(img) {
+  const errors = [];
+
+  if (!img) {
+    return { valid: false, errors: ['Image element is required'] };
+  }
+
+  const alt = img.getAttribute('alt');
+  const ariaLabel = img.getAttribute('aria-label');
+  const ariaLabelledby = img.getAttribute('aria-labelledby');
+  const role = img.getAttribute('role');
+
+  // Decorative images should have alt="" or role="presentation"
+  const isDecorative = role === 'presentation' || role === 'none';
+
+  if (isDecorative) {
+    // For decorative images, alt should be empty
+    if (alt !== '' && alt !== null) {
+      errors.push('Decorative image should have empty alt attribute');
+    }
+  } else {
+    // For content images, alt must be present
+    if (alt === null && !ariaLabel && !ariaLabelledby) {
+      errors.push('Image is missing alt attribute');
+    }
+
+    // Check for redundant alt text (e.g., "image of", "picture of")
+    if (alt) {
+      const lowerAlt = alt.toLowerCase().trim();
+      if (lowerAlt.startsWith('image of') || lowerAlt.startsWith('picture of') || lowerAlt.startsWith('photo of')) {
+        errors.push('Image alt text should not start with "image of", "picture of", or "photo of"');
+      }
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// Button accessibility validation
+function validateButtonAccessibility(button) {
+  const errors = [];
+
+  if (!button) {
+    return { valid: false, errors: ['Button element is required'] };
+  }
+
+  // Check for accessible name
+  const textContent = button.textContent ? button.textContent.trim() : '';
+  const ariaLabel = button.getAttribute('aria-label');
+  const ariaLabelledby = button.getAttribute('aria-labelledby');
+  const title = button.getAttribute('title');
+
+  if (!textContent && !ariaLabel && !ariaLabelledby) {
+    if (title) {
+      errors.push('Button relies on title attribute for accessible name, prefer aria-label or visible text');
+    } else {
+      errors.push('Button is missing accessible name (text content, aria-label, or aria-labelledby)');
+    }
+  }
+
+  // Check if it's actually a button or has button role
+  const tagName = button.tagName.toLowerCase();
+  const role = button.getAttribute('role');
+  if (tagName !== 'button' && role !== 'button') {
+    errors.push('Element is not a button or has role="button"');
+  }
+
+  // Check for disabled state accessibility
+  if (button.disabled || button.getAttribute('aria-disabled') === 'true') {
+    const hasDisabledAttr = button.disabled || button.getAttribute('aria-disabled') === 'true';
+    if (!hasDisabledAttr) {
+      errors.push('Disabled state should be communicated via disabled attribute or aria-disabled');
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// Render dependency graph for visualizing module dependencies
+function renderDependencyGraph(dependencies, options = {}) {
+  const {
+    container = document.body,
+    width = 800,
+    height = 600,
+    nodeRadius = 20,
+    nodeColor = '#4A90E2',
+    edgeColor = '#999'
+  } = options;
+
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  // Create SVG element for the graph
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Dependency graph visualization');
+
+  // Add accessible title
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  title.textContent = 'Dependency Graph';
+  svg.appendChild(title);
+
+  // Build node positions in a circular layout
+  const nodes = Object.keys(dependencies || {});
+  const nodeCount = nodes.length;
+  const positions = {};
+
+  nodes.forEach((node, index) => {
+    const angle = (2 * Math.PI * index) / nodeCount;
+    positions[node] = {
+      x: width / 2 + Math.cos(angle) * (Math.min(width, height) / 3),
+      y: height / 2 + Math.sin(angle) * (Math.min(width, height) / 3)
+    };
+  });
+
+  // Draw edges
+  nodes.forEach(source => {
+    const targets = dependencies[source] || [];
+    targets.forEach(target => {
+      if (!positions[target]) return;
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', positions[source].x);
+      line.setAttribute('y1', positions[source].y);
+      line.setAttribute('x2', positions[target].x);
+      line.setAttribute('y2', positions[target].y);
+      line.setAttribute('stroke', edgeColor);
+      line.setAttribute('stroke-width', '1');
+      svg.appendChild(line);
+    });
+  });
+
+  // Draw nodes
+  nodes.forEach(node => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('tabindex', '0');
+    g.setAttribute('role', 'button');
+    g.setAttribute('aria-label', `Module: ${node}`);
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', positions[node].x);
+    circle.setAttribute('cy', positions[node].y);
+    circle.setAttribute('r', nodeRadius);
+    circle.setAttribute('fill', nodeColor);
+    g.appendChild(circle);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', positions[node].x);
+    text.setAttribute('y', positions[node].y + nodeRadius + 14);
+    text.setAttribute('text-anchor', 'middle');
+    text.textContent = node;
+    g.appendChild(text);
+
+    svg.appendChild(g);
+  });
+
+  if (typeof container === 'string') {
+    const containerElement = document.querySelector(container);
+    if (containerElement) {
+      containerElement.appendChild(svg);
+    }
+  } else {
+    container.appendChild(svg);
+  }
+
+  return svg;
+}
+
+// Render index view for listing items
+function renderIndexView(items, options = {}) {
+  const {
+    container = document.body,
+    title = 'Index',
+    itemRenderer = null,
+    className = 'index-view',
+    listClassName = 'index-list'
+  } = options;
+
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  // Create main container
+  const wrapper = document.createElement('section');
+  wrapper.className = className;
+  wrapper.setAttribute('role', 'region');
+  wrapper.setAttribute('aria-label', title);
+
+  // Add heading
+  const heading = document.createElement('h2');
+  heading.textContent = title;
+  heading.id = `index-view-heading-${Date.now()}`;
+  wrapper.appendChild(heading);
+  wrapper.setAttribute('aria-labelledby', heading.id);
+
+  // Create list
+  const list = document.createElement('ul');
+  list.className = listClassName;
+
+  (items || []).forEach((item, index) => {
+    const li = document.createElement('li');
+
+    if (typeof itemRenderer === 'function') {
+      const rendered = itemRenderer(item, index);
+      if (rendered instanceof Node) {
+        li.appendChild(rendered);
+      } else if (typeof rendered === 'string') {
+        li.innerHTML = rendered;
+      }
+    } else if (item instanceof Node) {
+      li.appendChild(item);
+    } else if (typeof item === 'string') {
+      li.textContent = item;
+    } else if (item && typeof item === 'object') {
+      const label = item.name || item.title || item.label || `Item ${index + 1}`;
+      const link = document.createElement('a');
+      link.href = item.href || '#';
+      link.textContent = label;
+      if (item.description) {
+        link.setAttribute('aria-label', `${label}: ${item.description}`);
+      }
+      li.appendChild(link);
+    }
+
+    list.appendChild(li);
+  });
+
+  wrapper.appendChild(list);
+
+  if (typeof container === 'string') {
+    const containerElement = document.querySelector(container);
+    if (containerElement) {
+      containerElement.appendChild(wrapper);
+    }
+  } else {
+    container.appendChild(wrapper);
+  }
+
+  return wrapper;
+}
+
 // TODO: Implement tower defense
 function towerDefense() {
   // A simple tower defense game implementation
@@ -546,5 +856,10 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  validateFormAccessibility,
+  validateImageAccessibility,
+  validateButtonAccessibility,
+  renderDependencyGraph,
+  renderIndexView,
   towerDefense
 };

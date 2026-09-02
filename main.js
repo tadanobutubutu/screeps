@@ -278,6 +278,52 @@ function handleFakeLinks(link) {
   return null;
 }
 
+/**
+ * Creates a focus trap for keyboard navigation within a given element.
+ * @param {HTMLElement} container - The container element to trap focus within.
+ * @returns {Object} An object with methods to enable and disable the focus trap.
+ */
+function newFocusTrap(container) {
+  if (!container || typeof container !== 'object') return null;
+
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusableElements.length === 0) return null;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  function handleKeyDown(e) {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  }
+
+  container.addEventListener('keydown', handleKeyDown);
+
+  return {
+    enable: () => {
+      container.setAttribute('tabindex', '-1');
+      container.focus();
+    },
+    disable: () => {
+      container.removeEventListener('keydown', handleKeyDown);
+      container.removeAttribute('tabindex');
+    }
+  };
+}
+
 // REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
 
@@ -296,5 +342,6 @@ module.exports = {
   setSvgAttributes,
   ensureUniqueLandmarks,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  newFocusTrap
 };

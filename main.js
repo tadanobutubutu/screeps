@@ -31,6 +31,15 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Implement this new function for showing a modal
+function showModal(modalId, modalContent) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.innerHTML = modalContent;
+        modal.style.display = 'block';
+    }
+}
+
 // Spawn multiple buttons dynamically based on configuration
 function spawnButtons(buttonDefinitions) {
     buttonDefinitions.forEach(({ id, text, className }) => {

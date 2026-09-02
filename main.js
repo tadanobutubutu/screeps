@@ -86,10 +86,16 @@ function writeReport(report) {
 
 // TODO: Implement function for generating a report based on accessibility issues
 // Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
+async function generateAccessibilityReport() {
+  const report = await scanAccessibility();
   writeReport(report);
   return report;
+}
+
+async function scanAccessibility() {
+    const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+    const { report } = await axe.run({ html, rules: axe.commons.a11yRules });
+    return report;
 }
 
 // Utilities
@@ -109,10 +115,6 @@ if (require.main === module) {
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);
   }
-}
-
-async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
 }
 
 module.exports = {

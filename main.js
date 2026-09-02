@@ -168,8 +168,3 @@ function addLandmarkRegions(landmarks, regions) {
 
 // Export the new function
 module.exports.addLandmarkRegions = addLandmarkRegions;
-
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
-// This is the existing code that needs to be preserved
-// Version 1 implementation (HEAD branch)
-// Code for version 1 implementation goes here.

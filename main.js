@@ -161,7 +161,6 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureImageAccessibility();
 }
 
-// ... rest of the code ...
-```
+// Accessibility issues from insight report are addressed via ensureInteractiveElementsAccessible function
 
-I have added the new function `ensureInteractiveElementsAccessible` which calls the existing a11yStore functions, integrating them into this new function. This way, we are maintaining the functionality of both changes and resolving the merge conflict.
+// ... rest of the code ...

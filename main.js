@@ -60,7 +60,7 @@ function validateLandmark(landmark) {
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || ... {
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -149,10 +149,10 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if ... {
-          ... = true;
-        } else {
+        if (elementsById[landmark.id]) {
           landmark.id += '_duplicate';
+        } else {
+          elementsById[landmark.id] = true;
         }
       }
     }

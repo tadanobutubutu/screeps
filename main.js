@@ -163,7 +163,18 @@ const accessibilityUtils = {
   },
 };
 
+// Validate landmark structure for accessibility
+function validateLandmarkStructure() {
+  const requiredLandmarks = ['main', 'nav', 'header', 'footer'];
+  const missing = requiredLandmarks.filter(tag => !document.querySelector(tag));
+  if (missing.length > 0) {
+    console.warn('Accessibility: Missing landmark elements:', missing.join(', '));
+  } else {
+    console.log('Accessibility: All required landmarks present.');
+  }
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ScreepsBot, updateUI, accessibilityUtils };
+  module.exports = { ScreepsBot, updateUI, accessibilityUtils, validateLandmarkStructure };
 }

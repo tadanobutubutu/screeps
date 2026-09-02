@@ -32,12 +32,6 @@ const renderGraphIndex = (graphData) => {
 
 // TODO: Add a language attribute to the HTML element
 
-// Update the call to the new function in the existing context
-// For instance, if there was a call to `renderDependencyGraphs` somewhere in the codebase, replace it with `renderGraphIndex`
-// Example:
-// renderDependencyGraphs(graphData); // Before
-// renderGraphIndex(graphData); // After
-
 module.exports = {
   createInPageButton,
   createWebResourceButton,

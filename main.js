@@ -53,7 +53,7 @@ function newFunction2() {
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
-  const issues = [];
+  const issues = [];;
 
   // Check if HTML contains tables
   const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
@@ -257,6 +257,22 @@ function getSvgAccessibleName(svgElement) {
 
 // Main entry point
 function mainEntry() {
+  // Validate the accessibility report for issues
+  const htmlToCheck = `
+    <table>
+      <tr>
+        <th scope="col">Column 1</th>
+        <th scope="col">Column 2</th>
+      </tr>
+      <tr>
+        <td>Row 1 Data</td>
+        <td>Row 2 Data</td>
+      </tr>
+    </table>
+  `;
+  
+  const issues = validateTableAccessibility(htmlToCheck);
+  
   // Application initialization
   return 'main function executed';
 }

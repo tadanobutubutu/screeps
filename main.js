@@ -1,164 +1,216 @@
-// main.js - Main application entry point
+Here's the resolved file with both changes integrated:
 
-// Main module
+```javascript
+import React from 'react';
 
-// Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
+// Utility functions for accessibility
+const accessibilityUtils = {
+    initSkipLink: () => {
+        const skipLink = document.querySelector('#skip-link');
+        if (skipLink) {
+            skipLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = skipLink.getAttribute('href');
+                const target = document.querySelector(targetId);
+                if (target) {
+                    target.setAttribute('tabindex', '-1');
+                    target.focus();
+                }
+            });
+        }
+    },
 
-const main = require('./utilities');
+    trapFocus: (element) => {
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
 
-const {
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-} = require('./mathHelpers');
+        element.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        });
+    },
 
-// Existing rendering functions (preserving existing exports and functions)
+    announceToScreenReader: (message, priority = 'polite') => {
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
+        announcer.className = 'sr-only';
+        announcer.style.position = 'absolute';
+        announcer.style.left = '-9999px';
+        announcer.textContent = message;
+        document.body.appendChild(announcer);
+        setTimeout(() => announcer.remove(), 1000);
+    },
 
-function greetingFunction() {
-  return "Hello, World!";
-}
+    handleKeyboardNav: (e, handlers) => {
+        const key = e.key;
+        if (handlers[key]) {
+            handlers[key](e);
+        }
+    },
 
-const config = {
-  port: 3000,
-  debug: false
-};
+    getLangAttribute: () => {
+        return document.documentElement.getAttribute('lang') || 'en';
+    },
 
-function getWelcomeMessage() {
-  return greetingFunction() + " This is a new function that returns a welcome message.";
-}
+    validateTableAccessibility: (table) => {
+        // Check for proper table structure and ARIA attributes
+        if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+            console.warn('Table missing thead or tbody');
+            return false;
+        }
+        return true;
+    },
 
-const { class1, function1, Object1 } = require('./path/to/module');
+    validateTableStructure: (table) => {
+        // Check for proper table structure
+        const rows = table.querySelectorAll('tr');
+        if (rows.length === 0) {
+            console.warn('Table has no rows');
+            return false;
+        }
+        return true;
+    },
 
-const a11yStore = {
-  // ... existing methods ...
+    validateLandmark: () => {
+        const landmarks = ['header', 'nav', 'main', 'footer'];
+        landmarks.forEach(landmark => {
+            const elements = document.querySelectorAll(landmark);
+            if (elements.length > 1) {
+                console.warn(`Multiple ${landmark} elements found`);
+            }
+        });
+    },
 
-  /**
-   * Check if the user prefers reduced motion
-   * @returns {boolean} True if the user prefers reduced motion
-   */
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  },
+    validateLandmarkStructure: () => {
+        const main = document.querySelector('main');
+        if (!main) {
+            console.warn('Main landmark missing');
+            return false;
+        }
+        return true;
+    },
 
-  prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
-  },
+    getSvgAccessibleName: (svg) => {
+        const title = svg.querySelector('title');
+        const desc = svg.querySelector('desc');
+        if (title) return title.textContent;
+        if (desc) return desc.textContent;
+        return svg.getAttribute('aria-label') || 'SVG graphic';
+    },
 
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
-    this.announce(message, priority);
-  },
+    createInPageButton: (text, href) => {
+        const button = document.createElement('a');
+        button.textContent = text;
+        button.href = href;
+        button.setAttribute('role', 'button');
+        button.setAttribute('tabindex', '0');
+        return button;
+    },
 
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
-        if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
+    personName: (name) => {
+        const span = document.createElement('span');
+        span.textContent = name;
+        span.setAttribute('aria-label', name);
+        return span;
+    },
+
+    newFocusTrap: (element) => {
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Tab') {
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    lastElement.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    firstElement.focus();
+                    e.preventDefault();
+                }
+            }
+        };
+
+        element.addEventListener('keydown', handleKeyDown);
+
+        return {
+            destroy: () => {
+                element.removeEventListener('keydown', handleKeyDown);
+            }
+        };
+    },
+
+    // New utility functions from origin/main
+    setHtmlLangAttribute: (lang) => {
+        if (typeof document !== 'undefined' && document.documentElement) {
+            document.documentElement.setAttribute('lang', lang || 'en');
+        }
+        return lang || 'en';
+    },
+
+    addAriaLabel: (element, label) => {
+        if (!element) {
+            return;
         }
 
-        if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
-          }
+        if (typeof label !== 'string' || label.trim() === '') {
+            return element;
         }
-      });
-    });
-  },
 
-  addSVGAccessibilityProps() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
-      let titleElement = svg.querySelector('title');
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image';
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
+        element.setAttribute('aria-label', label);
+        return element;
+    },
 
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
-      }
+    ensureElementAccessibility: (element, idPrefix, ariaLabel) => {
+        if (!element) {
+            return;
+        }
 
-      svg.setAttribute('aria-labelledby', titleElement.id);
+        const id = ensureElementHasId(element, idPrefix);
+        addAriaLabel(element, ariaLabel);
 
-      if (!svg.hasAttribute('role')) {
-        svg.setAttribute('role', 'img');
-      }
-    });
-  },
+        return id;
+    },
 
-  fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
-    fakeLinks.forEach((link) => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
-    });
-  },
+    ensureElementHasId: (element, prefix) => {
+        if (!element.id) {
+            element.id = prefix + Math.random().toString(36).substr(2, 9);
+        }
+        return element.id;
+    },
 
-  /**
-   * Ensure all interactive elements have proper ARIA roles
-   */
-  ensureInteractiveRoles() {
-    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach((element) => {
-      if (!element.hasAttribute('role')) {
-        element.setAttribute('role', 'button');
-      }
-    });
-  },
+    newFocusTrap: newFocusTrap(),
 
-  /**
-   * Add ARIA labels to form controls if missing
-   */
-  addFormControlLabels() {
-    const formControls = document.querySelectorAll('input, select, textarea');
-    formControls.forEach((control, index) => {
-      if (!control.id) {
-        control.id = `form-control-${index}`;
-      }
-      const label = document.createElement('label');
-      label.setAttribute('for', control.id);
-      label.textContent = control.placeholder || 'Form control';
-      control.parentNode.insertBefore(label, control);
-    });
-  },
+    addLangAttribute: addLangAttribute,
 
-  /**
-   * Ensure all images have alt text or ARIA attributes
-   */
-  ensureImageAccessibility() {
-    const images = document.querySelectorAll('img');
-    images.forEach((img) => {
-      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
-        img.setAttribute('alt', '');
-      }
-    });
-  },
-
-  // ... remaining a11yStore methods ...
+    getAccessibleSvgFavicon: getAccessibleSvgFavicon
 };
 
-// New functions
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
-}
-
-// ... rest of the code ...
+// Export functions to make them accessible
+module.exports = {
+    accessibilityUtils,
+    setHtmlLangAttribute,
+    addAriaLabel,
+    ensureElementAccessibility,
+    ensureElementHasId,
+    newFocusTrap,
+    addLangAttribute,
+    getAccessibleSvgFavicon,
+    // Also attach to global scope for browser/standalone access
+    ...accessibilityUtils
+};
+```

@@ -11,7 +11,6 @@ const {
     getLangAttribute,
     validateAccessibilityReport,
     exportUtils,
-    addressAccessibilityIssues,
     handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
@@ -21,7 +20,6 @@ const {
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
     focusTrap,
-    checkAccessibility,
 } = main;
 
 // Implement the function for addressing accessibility issues from insight report
@@ -162,3 +160,27 @@ function checkAccessibility(content) {
 
 // _Commit: 5d1690822c7c7ecd204a67a127dd3a55568560de_
 // <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+
+module.exports = {
+    addressAccessibilityIssues,
+    checkAccessibility,
+    createInPageButton,
+    createWebResourceButton,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    getLangAttribute,
+    validateAccessibilityReport,
+    exportUtils,
+    handleCredentialResponse,
+    ensureElementHasId,
+    ensureElementHasIdOrigin,
+    addAriaLabel,
+    renderDependencyGraphs,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    focusTrap,
+};

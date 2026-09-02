@@ -269,6 +269,224 @@ function applyAccessibilityFixes(html) {
     return result;
 }
 
+/**
+ * Gets the lang attribute value from an HTML string
+ * @param {string} html - The HTML string to extract lang attribute from
+ * @returns {string|null} The lang attribute value or null if not found
+ */
+function getLangAttribute(html) {
+    if (typeof html !== 'string') return null;
+    const match = html.match(/<html[^>]*\slang=["']([^"']+)["']/i);
+    return match ? match[1] : null;
+}
+
+/**
+ * Validates table accessibility issues
+ * @returns {Array} Array of accessibility issues found in tables
+ */
+function validateTableAccessibility() {
+    const issues = [];
+    
+    if (typeof document === 'undefined') {
+        return issues;
+    }
+    
+    const tables = document.querySelectorAll('table');
+    
+    tables.forEach((table, index) => {
+        // Check if table has a caption
+        if (!table.querySelector('caption')) {
+            issues.push({
+                type: 'table-accessibility',
+                message: `Table ${index + 1} is missing a caption element`,
+                element: 'table',
+                suggestion: 'Add a <caption> element to describe the table content'
+            });
+        }
+        
+        // Check if th elements have scope attribute
+        const headers = table.querySelectorAll('th');
+        headers.forEach((header, hIndex) => {
+            if (!header.hasAttribute('scope')) {
+                issues.push({
+                    type: 'table-accessibility',
+                    message: `Table ${index + 1} header ${hIndex + 1} is missing scope attribute`,
+                    element: 'th',
+                    suggestion: 'Add scope="col" or scope="row" to header cells'
+                });
+            }
+        });
+    });
+    
+    return issues;
+}
+
+/**
+ * Validates table structure issues
+ * @returns {Array} Array of structure issues found in tables
+ */
+function validateTableStructure() {
+    const issues = [];
+    
+    if (typeof document === 'undefined') {
+        return issues;
+    }
+    
+    const tables = document.querySelectorAll('table');
+    
+    tables.forEach((table, index) => {
+        // Check if table has thead
+        if (!table.querySelector('thead')) {
+            issues.push({
+                type: 'table-structure',
+                message: `Table ${index + 1} is missing <thead> element`,
+                element: 'table',
+                suggestion: 'Wrap header rows in a <thead> element'
+            });
+        }
+        
+        // Check if table has tbody
+        if (!table.querySelector('tbody')) {
+            issues.push({
+                type: 'table-structure',
+                message: `Table ${index + 1} is missing <tbody> element`,
+                element: 'table',
+                suggestion: 'Wrap data rows in a <tbody> element'
+            });
+        }
+        
+        // Check for proper th usage in first row when no thead exists
+        const firstRow = table.querySelector('tr');
+        if (firstRow) {
+            const cells = firstRow.querySelectorAll('td');
+            const headers = firstRow.querySelectorAll('th');
+            if (cells.length > 0 && headers.length === 0) {
+                issues.push({
+                    type: 'table-structure',
+                    message: `Table ${index + 1} first row should use <th> for header cells`,
+                    element: 'tr',
+                    suggestion: 'Replace <td> with <th scope="col"> for header cells'
+                });
+            }
+        }
+    });
+    
+    return issues;
+}
+
+/**
+ * Validates link accessibility issues
+ * @returns {Array} Array of accessibility issues found in links
+ */
+function validateLinkAccessibility() {
+    const issues = [];
+    
+    if (typeof document === 'undefined') {
+        return issues;
+    }
+    
+    const links = document.querySelectorAll('a');
+    
+    links.forEach((link, index) => {
+        // Check if link has href
+        if (!link.hasAttribute('href')) {
+            issues.push({
+                type: 'link-accessibility',
+                message: `Link ${index + 1} is missing href attribute`,
+                element: 'a',
+                suggestion: 'Add a valid href attribute or convert to appropriate element'
+            });
+        }
+        
+        // Check if link has accessible text
+        const text = link.textContent.trim();
+        const hasAriaLabel = link.hasAttribute('aria-label');
+        const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
+        const hasTitle = link.hasAttribute('title');
+        
+        if (!text && !hasAriaLabel && !hasAriaLabelledBy && !hasTitle) {
+            issues.push({
+                type: 'link-accessibility',
+                message: `Link ${index + 1} has no accessible text`,
+                element: 'a',
+                suggestion: 'Add visible text, aria-label, aria-labelledby, or title attribute'
+            });
+        }
+        
+        // Check for generic link text
+        const genericTexts = ['click here', 'here', 'read more', 'learn more', 'more', 'link'];
+        if (genericTexts.includes(text.toLowerCase())) {
+            issues.push({
+                type: 'link-accessibility',
+                message: `Link ${index + 1} uses generic text "${text}"`,
+                element: 'a',
+                suggestion: 'Use descriptive link text that indicates the link destination'
+            });
+        }
+    });
+    
+    return issues;
+}
+
+/**
+ * Handles fake link issues (elements with onclick that act as links)
+ * @returns {Array} Array of fake link issues found
+ */
+function handleFakeLinks() {
+    const issues = [];
+    
+    if (typeof document === 'undefined') {
+        return issues;
+    }
+    
+    // Find elements with onclick that might be fake links
+    const clickableElements = document.querySelectorAll('[onclick]');
+    
+    clickableElements.forEach((element, index) => {
+        const tagName = element.tagName.toLowerCase();
+        const onclick = element.getAttribute('onclick') || '';
+        
+        // Check if it's a span or div with location change
+        if ((tagName === 'span' || tagName === 'div') && 
+            (onclick.includes('window.location') || 
+             onclick.includes('location.href') || 
+             onclick.includes('document.location'))) {
+            issues.push({
+                type: 'fake-link',
+                message: `Element ${index + 1} is a fake link using ${tagName} with onclick`,
+                element: tagName,
+                suggestion: 'Replace with <a> element for proper accessibility'
+            });
+        }
+        
+        // Check for navigation-related onclick
+        if (onclick.includes('navigate') || onclick.includes('goTo') || onclick.includes('redirect')) {
+            issues.push({
+                type: 'fake-link',
+                message: `Element ${index + 1} appears to be a navigation fake link`,
+                element: tagName,
+                suggestion: 'Use <a> element for navigation links'
+            });
+        }
+    });
+    
+    // Check for links without href (might be broken)
+    const allLinks = document.querySelectorAll('a');
+    allLinks.forEach((link, index) => {
+        const href = link.getAttribute('href');
+        if (href === '' || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
+            issues.push({
+                type: 'fake-link',
+                message: `Link ${index + 1} uses a non-navigable href value "${href}"`,
+                element: 'a',
+                suggestion: 'Use a valid URL or remove the link if it does not navigate'
+            });
+        }
+    });
+    
+    return issues;
+}
+
 // New function to address accessibility issues
 function addressAccessibilityIssues(insightReport) {
   // Apply accessibility fixes to HTML content based on insight report

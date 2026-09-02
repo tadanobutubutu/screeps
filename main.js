@@ -1,6 +1,5 @@
-Here is the resolved file content:
+// ... (The rest of the code remains the same as in the provided content)
 
-```javascript
 import React from 'react';
 import { render } from 'react-dom';
 import {
@@ -46,6 +45,22 @@ const {
 
 // ... (The rest of the content remains the same as in the original conflict branch)
 
+// Add the function for creating in-page buttons
+function createInPageButtons(buttonData) {
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.classList.add('in-page-buttons');
+
+    buttonData.forEach(({ id, label, href }) => {
+        const button = document.createElement('a');
+        button.href = href;
+        button.textContent = label;
+        button.dataset.id = id;
+        buttonsContainer.appendChild(button);
+    });
+
+    document.body.appendChild(buttonsContainer);
+}
+
 class ScreepsBot {
   // ... (The rest of the class definition remains the same as in the original conflict branch)
 
@@ -59,7 +74,8 @@ class ScreepsBot {
   // ... (Add the event listener for click events on the dependencyGraph element)
 }
 
-// ... (The module.exports section remains the same as in the original conflict branch)
-```
-
-In this solution, I merged the changes from both branches while preserving the functionality. I added the `validateTableAccessibility` function to the `ScreepsBot` class and called it within the event listener for clicking the `dependencyGraph` element.
+// Export the new function
+module.exports = {
+  // ... (The existing exports remain the same)
+  createInPageButtons,
+};

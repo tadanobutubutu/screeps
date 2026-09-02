@@ -253,12 +253,6 @@ function improveAccessibility() {
 
 async function scanAccessibility() {
     // ... Scanning and reporting accessibility issues using axe-core ...
-<<<<<<< HEAD
-    return {
-      timestamp: new Date().toISOString(),
-      issues: []
-    };
-=======
     return {
       timestamp: new Date().toISOString(),
       issues: []
@@ -423,4 +417,4 @@ module.exports = {
   improveAccessibility,
   scanAccessibility,
   writeReport,
->>>>>>> origin/main
+};

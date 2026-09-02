@@ -1,4 +1,4 @@
-const { dependencyGraphContent, indexContent } = require('./indexContent');
+// ... (The rest of the code remains the same as in the provided content)
 
 /**
  * Renders the dependency graph view
@@ -11,15 +11,20 @@ function renderDependencyGraph(deps, options = {}) {
     // ... (Updated code goes here)
 }
 
-/**
- * Renders the main index view
- * @param {Object} data - View data
- * @param {Object} options - Rendering options
- * @returns {string} Rendered index HTML
- */
-function renderIndex(data, options = {}) {
-    // Use indexContent from the imported module
-    return indexContent(data, options);
+// Add the function for creating in-page buttons
+function createInPageButtons(buttonData) {
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.classList.add('in-page-buttons');
+
+    buttonData.forEach(({ id, label, href }) => {
+        const button = document.createElement('a');
+        button.href = href;
+        button.textContent = label;
+        button.dataset.id = id;
+        buttonsContainer.appendChild(button);
+    });
+
+    document.body.appendChild(buttonsContainer);
 }
 
 // Add lang attribute to HTML element
@@ -70,4 +75,8 @@ const accessibilityUtils = {
     // Add more accessibility-related functions here
 };
 
-// ... (The rest of the code remains the same as in the original conflict branch)
+// Export the new function
+module.exports = {
+  // ... (The existing exports remain the same)
+  createInPageButtons,
+};

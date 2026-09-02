@@ -297,9 +297,9 @@ function getSvgAccessibleName(svg) {
   if (ariaLabel) return ariaLabel;
   const title = svg.querySelector('title');
   if (title && title.textContent) return title.textContent;
-  const aria-labelledby = svg.getAttribute('aria-labelledby');
-  if (aria-labelledby) {
-    const labelElement = document.getElementById(aria-labelledby);
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
     if (labelElement) return labelElement.textContent;
   }
   return 'SVG';

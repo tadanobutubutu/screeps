@@ -191,7 +191,90 @@ function validateLandmarkStructure(element) {
  */
 function getSvgAccessibleName(svg) {
   if (!svg || typeof svg !== 'object') return '';
-  return ... || svg.getAttribute('title') || '';
+  return svg.getAttribute('title') || svg.getAttribute('aria-label') || '';
+}
+
+/**
+ * Creates a focus trap for keyboard navigation within a container element.
+ * Focus trap prevents the user from tabbing outside the container until
+ * the trap is released, which is essential for modal dialogs and accessible navigation.
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @returns {Object} An object with an activate method to enable the trap and a deactivate method to release it
+ */
+function newFocusTrap(container) {
+  if (!container || typeof container !== 'object' || !(container instanceof HTMLElement)) {
+    return {
+      activate: function() {},
+      deactivate: function() {}
+    };
+  }
+
+  let previousActiveElement = null;
+  let isActive = false;
+
+  const focusableSelectors = [
+    'a[href]',
+    'button:not([disabled])',
+    'textarea:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(', ');
+
+  function getFocusableElements() {
+    return Array.from(container.querySelectorAll(focusableSelectors)).filter(
+      function(el) {
+        return el.offsetParent !== null;
+      }
+    );
+  }
+
+  function handleKeyDown(event) {
+    if (event.key !== 'Tab') return;
+
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (event.shiftKey) {
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  }
+
+  return {
+    activate: function() {
+      if (isActive) return;
+      isActive = true;
+      previousActiveElement = document.activeElement;
+
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      }
+
+      container.addEventListener('keydown', handleKeyDown);
+    },
+    deactivate: function() {
+      if (!isActive) return;
+      isActive = false;
+      container.removeEventListener('keydown', handleKeyDown);
+
+      if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+        previousActiveElement.focus();
+      }
+      previousActiveElement = null;
+    }
+  };
 }
 
 // REACT_015: Add lang attribute to HTML element
@@ -210,5 +293,6 @@ module.exports = {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName
+  getSvgAccessibleName,
+  newFocusTrap
 };

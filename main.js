@@ -338,6 +338,8 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   addProperLandmarkRegions,
+  generateAccessibilityReport,
+  addressAccessibilityIssues,
   existingFunction1,
   existingFunction2,
   newFunction

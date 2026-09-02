@@ -146,6 +146,11 @@ function setSvgAccessibleName(svg, allowContentSearch = true) {
   return ''
 }
 
+// Function for getting accessible name from SVG element
+function getSvgAccessibleName(svg) {
+  return setSvgAccessibleName(svg)
+}
+
 // Function for handling all link accessibility issues (e.g., missing 'href', duplicate links, etc.)
 function validateLinkAccessibility() {
   // Implementation for handling link accessibility issues
@@ -464,6 +469,80 @@ function createAccessibleLink(href, text, options = {}) {
   return link
 }
 
+/**
+ * Creates an accessible web resource button (e.g., for GitHub, Stack Overflow, etc.)
+ * @param {Object} options - Configuration options for the button
+ * @param {string} options.url - The URL for the web resource
+ * @param {string} options.label - The accessible label for the button (e.g., "GitHub", "Stack Overflow")
+ * @param {string} options.icon - Optional SVG icon HTML string or DOM element
+ * @param {string} options.className - Optional CSS class name for styling
+ * @param {string} options.ariaDescribedBy - Optional ID of element that describes the button
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createWebResourceButton(options = {}) {
+  const { url, label, icon, className, ariaDescribedBy } = options
+
+  if (!url || !label) {
+    throw new Error('Web resource button requires both url and label')
+  }
+
+  const button = document.createElement('button')
+  button.type = 'button'
+  button.setAttribute('role', 'button')
+  button.setAttribute('aria-label', label)
+
+  if (ariaDescribedBy) {
+    button.setAttribute('aria-describedby', ariaDescribedBy)
+  }
+
+  if (className) {
+    button.className = className
+  }
+
+  // Add icon if provided
+  if (icon) {
+    const iconContainer = document.createElement('span')
+    iconContainer.setAttribute('aria-hidden', 'true')
+    iconContainer.className = 'web-resource-button__icon'
+
+    if (typeof icon === 'string') {
+      iconContainer.innerHTML = icon
+    } else if (icon instanceof Node) {
+      iconContainer.appendChild(icon)
+    }
+
+    button.appendChild(iconContainer)
+  }
+
+  // Add label text
+  const labelElement = document.createElement('span')
+  labelElement.className = 'web-resource-button__label'
+  labelElement.textContent = label
+  button.appendChild(labelElement)
+
+  // Handle click to open URL in new tab with proper security attributes
+  button.addEventListener('click', () => {
+    const link = document.createElement('a')
+    link.href = url
+    link.target = '_blank'
+    link.rel = 'noopener noreferrer'
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  })
+
+  // Keyboard support for Enter and Space
+  button.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      button.click()
+    }
+  })
+
+  return button
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   setHtmlLangAttribute,
@@ -479,5 +558,6 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  towerDefense
+  towerDefense,
+  createWebResourceButton
 }

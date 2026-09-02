@@ -1,25 +1,61 @@
+const {
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  addSvgAccessibleName,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  renderGraphIndex,
+  trapFocus,
+  renderAdditionalContent,
+  checkAccessibilityForReport,
+  checkAccessibility,
+  anotherNewFunction,
+  newFunction
+} = require('./AccessibilityHelpers')
+
 function getAriaLabelForSVG(svgElement) {
   let title = svgElement.querySelector('title');
   let desc = svgElement.querySelector('desc');
 
   if (title) {
-    return title.textContent.trim();
-  }
+    if (title.textContent.trim() || desc) {
+      return title.textContent.trim() || desc.textContent.trim();
+    }
 
-  if (desc) {
-    return desc.textContent.trim();
-  }
+    const ariaLabel = svgElement.getAttribute('aria-label');
+    if (ariaLabel) {
+      return ariaLabel.trim();
+    }
 
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
+    const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+      const labeledElement = document.getElementById(ariaLabelledby);
+      if (labeledElement && labeledElement.textContent) {
+        return labeledElement.textContent.trim();
+      }
     }
   }
 
@@ -29,7 +65,7 @@ function getAriaLabelForSVG(svgElement) {
 function fixSVGAccessibleNames() {
   const svgElements = document.querySelectorAll("svg");
   svgElements.forEach((svg) => {
-    let accessibleName = getAriaLabelForSVG(svg);
+    const accessibleName = getAriaLabelForSVG(svg);
 
     if (svg.hasAttribute("aria-label")) {
       if (accessibleName !== svg.getAttribute("aria-label")) {
@@ -43,9 +79,6 @@ function fixSVGAccessibleNames() {
       } else {
         svg.setAttribute("aria-label", accessibleName);
       }
-    } else {
-      // Validate that there's either an aria-label or aria-labelledby attribute before setting new values
-      svg.setAttribute("aria-label", accessibleName);
     }
   });
 }
@@ -71,11 +104,11 @@ function fixReactSvgElementAccessibility() {
   const reactComponentsWithSvgs = document.querySelectorAll("[role='img']");
   reactComponentsWithSvgs.forEach((reactComponent) => {
     const svgs = reactComponent.querySelectorAll("svg");
-    if (svgs.length > 1) {
+    if (svgs.length === 1) {
+      reactComponent.setAttribute("aria-label", svgs[0].getAttribute("aria-label"));
+    } else {
       // Only add aria-label if there's only one svg inside the react component
-      if (!reactComponent.hasAttribute("aria-label")) {
-        reactComponent.setAttribute("aria-label", "Group of related graphics");
-      }
+      reactComponent.setAttribute("aria-label", "Group of related graphics");
     }
   });
 }
@@ -84,7 +117,6 @@ function enforceDependencyGraphRole() {
   const dependencyGraphContainers = document.querySelectorAll("[data-dependency-graph]");
   dependencyGraphContainers.forEach((container) => {
     if (container.hasAttribute("role")) {
-      // This check ensures that the role attribute is only set once
       if (container.getAttribute("role") !== "graph") {
         console.warn(`Warning: Dependency graph container already has a role attribute with value [${container.getAttribute("role")}]. Keeping current value and ignoring role update.`);
         return;
@@ -122,21 +154,14 @@ function ensureAllLandmarksHaveUniqueIds() {
   });
 }
 
-function preserveExistingCode() {
-  // Existing code preserved
-}
-
-function newFunction() {
-  // New function implementation from origin/main
-}
-
 module.exports = {
-  getLangAttribute,
-  enforceDependencyGraphRole,
-  addAriaLabelToReactDeploymentSvgs,
+  getAriaLabelForSVG,
   fixSVGAccessibleNames,
+  addAriaLabelToReactDeploymentSvgs,
   fixReactSvgElementAccessibility,
+  enforceDependencyGraphRole,
   ensureAllLandmarksHaveUniqueIds,
-  preserveExistingCode,
+  addressAccessibilityIssues,
+  anotherNewFunction,
   newFunction
 };

@@ -409,7 +409,7 @@ function createInPageButton(parent = document.body) {
 // New function to render dependency graphs
 function renderDependencyGraph(rootNode) {
   // Renders a dependency graph visualization
-  // This function traverses the root node and builds a hierarchical representation
+  // This function traverses the DOM tree and creates visual elements
   try {
     // In a real implementation, this would traverse the DOM tree and create visual elements
     // For now, we simulate the operation

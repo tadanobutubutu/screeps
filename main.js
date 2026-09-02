@@ -458,10 +458,6 @@ function initializeAccessibility() {
   addressAccessibilityIssues(sampleInsightReport);
 }
 
-/**
- * Main application entry point
- */
-
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
   sections: [
@@ -476,23 +472,41 @@ const sampleInsightReport = {
   ]
 };
 
-/**
- * Creates and starts the HTTP server
- * @returns {http.Server} The created server instance
- */
+function generateUniqueId(landmark) {
+  let uniqueId = landmark;
+  let counter = 0;
+  while (document.getElementById(uniqueId)) {
+    uniqueId = `${landmark}-${counter++}`;
+  }
+  return uniqueId;
+}
+
+function ensureUniqueIds() {
+  const landmarks = document.querySelectorAll('[role="landmark"]');
+  landmarks.forEach(landmark => {
+    if (!landmark.id) {
+      landmark.id = generateUniqueId(landmark.textContent);
+    }
+  });
+}
+
+function setDependencyGraphRole() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'application');
+  }
+}
+
 function createServer() {
   return http.createServer(app);
 }
 
-/**
- * Starts the application
- */
 function startApp() {
   const server = createServer();
-  server.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
-  });
-  server.on('listening', () => {
+  server.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
+    setDependencyGraphRole();
+    ensureUniqueIds();
     setARIARoleForDependencyGraph();
     newFunction();
   });
@@ -506,6 +520,9 @@ if (typeof module !== 'undefined' && module.exports) {
     startApp,
     config,
     validateLandmark,
+    generateUniqueId,
+    ensureUniqueIds,
+    setDependencyGraphRole,
     countDependencies: AddressabilityIssues.countDependencies,
     checkLandmarkElements,
     sampleInsightReport,

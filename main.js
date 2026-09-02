@@ -25,12 +25,12 @@ const {
 } = main
 
 // Import necessary dependencies
-import React from 'react'
-import { render } from 'react-dom'
-import {
+const React = require('react')
+const { render } = require('react-dom')
+const {
   googleSignIn,
   decodeJwtResponse
-} from './AccessibilityHelpers'
+} = require('./AccessibilityHelpers')
 
 // Implement the function for addressing accessibility issues from insight report
 function newFunction () {
@@ -189,7 +189,7 @@ function trapFocus(container) {
  * REACT_015: Add lang attribute to HTML element
  * Ensures the HTML element has a proper lang attribute for screen readers
  */
-export function addLangAttribute(element, lang = 'en') {
+function addLangAttribute(element, lang = 'en') {
   let htmlElement = element || document.documentElement;
   if (!htmlElement) {
     return null;
@@ -204,7 +204,7 @@ export function addLangAttribute(element, lang = 'en') {
  * REACT_027: Fix table structure issues
  * Ensures tables have proper structure with headers and captions
  */
-export function fixTableStructure(tableElement) {
+function fixTableStructure(tableElement) {
   if (!tableElement) return null;
   
   const headers = tableElement.querySelectorAll('th');
@@ -229,7 +229,7 @@ export function fixTableStructure(tableElement) {
 /**
  * REACT_017: Fix landmark issues - Add landmark regions
  */
-export function fixLandmarkIssues(container) {
+function fixLandmarkIssues(container) {
   if (!container) return null;
   
   const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
@@ -258,7 +258,7 @@ export function fixLandmarkIssues(container) {
 /**
  * REACT_017: Add main landmark
  */
-export function addMainLandmark(container) {
+function addMainLandmark(container) {
   if (!container) return null;
   
   let mainElement = container.querySelector('main');
@@ -281,7 +281,7 @@ export function addMainLandmark(container) {
 /**
  * REACT_017: Add landmark regions
  */
-export function addLandmarkRegions(container) {
+function addLandmarkRegions(container) {
   if (!container) return null;
   
   const landmarks = [
@@ -309,7 +309,7 @@ export function addLandmarkRegions(container) {
 /**
  * REACT_025: Ensure unique landmarks
  */
-export function ensureUniqueLandmarks(container) {
+function ensureUniqueLandmarks(container) {
   if (!container) return null;
   
   const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
@@ -330,14 +330,14 @@ export function ensureUniqueLandmarks(container) {
 /**
  * REACT_025: Unique landmarks helper
  */
-export function uniqueLandmarks(container) {
+function uniqueLandmarks(container) {
   return ensureUniqueLandmarks(container);
 }
 
 /**
  * REACT_041: Add accessible names to SVGs
  */
-export function addSvgAccessibleNames(svgElement, accessibleName) {
+function addSvgAccessibleNames(svgElement, accessibleName) {
   if (!svgElement) return null;
   
   let title = svgElement.querySelector('title');
@@ -361,7 +361,7 @@ export function addSvgAccessibleNames(svgElement, accessibleName) {
 /**
  * REACT_041: Add accessible names to all SVGs in container
  */
-export function addAccessibleNamesToSVGs(container) {
+function addAccessibleNamesToSVGs(container) {
   if (!container) return;
   
   const svgs = container.querySelectorAll('svg');
@@ -377,7 +377,7 @@ export function addAccessibleNamesToSVGs(container) {
 /**
  * REACT_036: Fix fake link issue
  */
-export function fixFakeLinkIssue(element) {
+function fixFakeLinkIssue(element) {
   if (!element) return null;
   
   const tagName = element.tagName.toLowerCase();
@@ -407,7 +407,7 @@ export function fixFakeLinkIssue(element) {
 /**
  * REACT_036: Fix all fake link issues in container
  */
-export function fixFakeLinkIssues(container) {
+function fixFakeLinkIssues(container) {
   if (!container) return null;
   
   const clickableElements = container.querySelectorAll('[onclick], [role="button"], [role="link"]');

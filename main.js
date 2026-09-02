@@ -5,13 +5,63 @@
 /**
  * Main application entry point with accessibility features
  */
-function renderDependencyGraphs(svgElements) {
-  const accessibleName = getSvgAccessibleName(svgElements);
+function initializeAccessibility() {
+  const accessibleName = getAccessibleName(document.body);
   if (accessibleName) {
-    // Use accessibleName
+    // Use accessibleName for screen readers
+    console.log('Accessible name found:', accessibleName);
   }
 
+  const svgElements = document.querySelectorAll('svg');
   setSvgAttributes(svgElements);
+  
+  checkLandmarkElements();
+}
+
+/**
+ * Gets the accessible name for an element
+ * @param {Element} element - The element to get accessible name for
+ * @returns {string|null} The accessible name or null
+ */
+function getAccessibleName(element) {
+  if (!element) return null;
+  
+  // Check for aria-label
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check for aria-labelledby
+  const ariaLabelledBy = element.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    const labelledElement = document.getElementById(ariaLabelledBy);
+    if (labelledElement) return labelledElement.textContent;
+  }
+  
+  // Check for title attribute
+  const title = element.getAttribute('title');
+  if (title) return title;
+  
+  return null;
+}
+
+/**
+ * Sets accessibility attributes on SVG elements
+ * @param {NodeList} svgElements - Collection of SVG elements
+ */
+function setSvgAttributes(svgElements) {
+  svgElements.forEach((svg, index) => {
+    if (!svg.id) {
+      svg.id = `svg-accessible-${index}`;
+    }
+    svg.setAttribute('role', 'img');
+    
+    const title = svg.querySelector('title');
+    if (title && !svg.getAttribute('aria-labelledby')) {
+      const titleId = `svg-title-${index}`;
+      title.id = titleId;
+      svg.setAttribute('aria-labelledby', titleId);
+    }
+  });
 }
 
 function checkLandmarkElements() {
@@ -37,13 +87,14 @@ function checkLandmarkElements() {
         return;
       }
 
-      if (!landmarkRoles.includes(landmarkRole)) {
+      const explicitRole = element.getAttribute('role');
+      if (explicitRole && explicitRole !== landmarkRole) {
         console.warn(`Invalid landmark role: ${landmarkRole} for ${tagName}`);
       }
     });
   };
 
-  checkLandmarkElement('[role="main"], main', 'main', {
+  checkLandmarkElement('main', 'main', {
     'main': 'main',
     'header': 'banner',
     'nav': 'navigation',
@@ -53,15 +104,15 @@ function checkLandmarkElements() {
     'section': 'region'
   });
 
-  checkLandmarkElement('[role="banner"], header', 'banner');
-  checkLandmarkElement('[role="navigation"], nav', 'navigation');
-  checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
-  checkLandmarkElement('[role="complementary"], aside', 'complementary');
-  checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+  checkLandmarkElement('header[role="banner"]', 'banner');
+  checkLandmarkElement('nav[role="navigation"]', 'navigation');
+  checkLandmarkElement('footer[role="contentinfo"]', 'contentinfo');
+  checkLandmarkElement('aside[role="complementary"]', 'complementary');
+  checkLandmarkElement('[role="form"]', 'form', 'form');
 }
 
 // Export the new function and sampleInsightReport (both versions agreed to do this)
-export { checkLandmarkElements, sampleInsightReport };
+export { checkLandmarkElements, sampleInsightReport, initializeAccessibility, getAccessibleName, setSvgAttributes };
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -79,15 +130,15 @@ const sampleInsightReport = {
 
 function countDependencies() {
   const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
+  const packageJsonPath = __dirname + '/package.json';
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
   const dependencies = packageJson.dependencies || {};
   const devDependencies = packageJson.devDependencies || {};
 
   return {
-    dependencies: Object.keys(dependencies).length,
-    devDependencies: Object.keys(devDependencies).length,
+    dependencies: Object.keys(dependencies),
+    devDependencies: Object.keys(devDependencies),
     total: Object.keys(dependencies).length + Object.keys(devDependencies).length
   };
 }

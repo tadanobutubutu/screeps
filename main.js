@@ -21,6 +21,20 @@ module.exports = {
     console.log('AnotherExport function called.');
   },
 
+  // New export function
+  accessibilityReportValidation: function() {
+    // Implementation of the accessibilityReportValidation function
+    // You can add your code here to validate the accessibility report
+    // For instance:
+    const report = getAccessibilityReport();
+
+    if (!report.isValid) {
+      console.error('Accessibility report is not valid:', report.message);
+    } else {
+      console.log('Accessibility report is valid.');
+    }
+  },
+
   getLangAttribute: function() {
     // Implementation of getLangAttribute
   },
@@ -69,5 +83,10 @@ module.exports = {
     // The function implementation should go here. It could look like this:
     // return someCodeOrFunctionThatImplementsTheRequirement;
     return 'newExportFunction executed';
+  },
+
+  // Add the new function to be called at the end
+  validateAccessibilityReport: function() {
+    accessibilityReportValidation();
   }
 };

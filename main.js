@@ -292,3 +292,4 @@ module.exports = {
   main,
   checkTableStructure,
   validateAccessibility
+};

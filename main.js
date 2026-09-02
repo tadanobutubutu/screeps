@@ -1,5 +1,4 @@
 // TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
@@ -39,4 +38,36 @@ function fixTableStructure(html) {
         if (!tbody) tbody = '';
         tbody = `<tbody>${tbody}</tbody>`;
 
-        return `<table${attrs}>${thead}${tbody
+        return `<table${attrs}>${thead}${tbody}</table>`;
+    });
+
+    return html;
+}
+
+// TODO: Implement a function to count dependencies
+function countDependencies(packageJson) {
+    if (typeof packageJson !== 'object' || packageJson === null) {
+        return { dependencies: 0, devDependencies: 0, peerDependencies: 0, total: 0 };
+    }
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    const peerDependencies = packageJson.peerDependencies || {};
+    
+    const depCount = Object.keys(dependencies).length;
+    const devDepCount = Object.keys(devDependencies).length;
+    const peerDepCount = Object.keys(peerDependencies).length;
+    
+    return {
+        dependencies: depCount,
+        devDependencies: devDepCount,
+        peerDependencies: peerDepCount,
+        total: depCount + devDepCount + peerDepCount
+    };
+}
+
+module.exports = {
+    addLangAttribute,
+    fixTableStructure,
+    countDependencies
+};

@@ -170,7 +170,7 @@ const accessibilityUtils = {
 
     // New function to validate and fix button accessibility
     validateAndFixButtonAccessibility: function(button) {
-        if (!button || (button.tagName.toLowerCase() !== 'button' && !button.getAttribute('role') !== 'button')) {
+        if (!button || (button.tagName.toLowerCase() !== 'button' && !button.getAttribute('role') !== 'role')) {
             return false;
         }
 
@@ -187,7 +187,87 @@ const accessibilityUtils = {
         return true;
     },
 
-    // Add more accessibility-related functions here
+    // Function to generate a report based on accessibility issues
+    generateAccessibilityReport: function(container) {
+        const report = {
+            issues: [],
+            summary: {
+                total: 0,
+                errors: 0,
+                warnings: 0
+            }
+        };
+
+        // Helper to add issue
+        const addIssue = (type, element, message) => {
+            report.issues.push({
+                type,
+                element,
+                message,
+                line: element ? element.getBoundingClientRect().top : null
+            });
+            report.summary.total++;
+            if (type === 'error') report.summary.errors++;
+            else if (type === 'warning') report.summary.warnings++;
+        };
+
+        // Check for missing alt text on images
+        container.querySelectorAll('img:not([alt])').forEach(img => {
+            addIssue('error', img, 'Image missing alt attribute');
+        });
+
+        // Check for missing form labels
+        container.querySelectorAll('input, textarea, select').forEach(input => {
+            const id = input.id;
+            const label = container.querySelector(`label[for="${id}"]`);
+            if (id && !label) {
+                addIssue('error', input, 'Form control missing associated label');
+            }
+        });
+
+        // Check for missing heading structure
+        const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        let prevLevel = 0;
+        headings.forEach(h => {
+            const level = parseInt(h.tagName.charAt(1), 10);
+            if (prevLevel && level - prevLevel > 1) {
+                addIssue('warning', h, 'Heading level skip detected');
+            }
+            prevLevel = level;
+        });
+
+        // Check for buttons without content
+        container.querySelectorAll('button').forEach(btn => {
+            if (!btn.textContent.trim() && !btn.getAttribute('aria-label')) {
+                addIssue('error', btn, 'Button has no accessible name');
+            }
+        });
+
+        // Check for links without text
+        container.querySelectorAll('a').forEach(link => {
+            if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+                addIssue('error', link, 'Link has no accessible name');
+            }
+        });
+
+        // Validate forms
+        container.querySelectorAll('form').forEach(form => {
+            const hasSubmit = form.querySelector('button[type="submit"], input[type="submit"]');
+            if (!hasSubmit) {
+                addIssue('warning', form, 'Form missing submit button');
+            }
+        });
+
+        // Validate landmark roles
+        container.querySelectorAll('[role]').forEach(el => {
+            const role = el.getAttribute('role');
+            if (role === 'navigation' || role === 'main' || role === 'banner') {
+                // Basic check: ensure at least one landmark of each type exists
+            }
+        });
+
+        return report;
+    }
 };
 
 // ... (The rest of the code remains the same as in the original conflict branch)

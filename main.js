@@ -276,6 +276,11 @@ function renderDependencyGraphs (container, dependencies, options = {}) {
   // Ensure container has an id for graph references
   const containerId = ensureElementHasId(container, 'graph-container')
 
+  // Ensure the dependencyGraph container has a proper ARIA role
+  if (!container.getAttribute('role')) {
+    container.setAttribute('role', 'img')
+  }
+
   // Add accessibility label if not present
   addAriaLabel(container, `Dependency graph: ${containerId}`)
 

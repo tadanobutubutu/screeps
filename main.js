@@ -98,6 +98,14 @@ class ScreepsBot {
     // Implement custom tab navigation logic
     console.log('Handling tab navigation');
   }
+
+  // New function to count dependencies
+  countDependencies() {
+    const dependencyCount = this.tasks.reduce((acc, task) => {
+      return acc + task.task.toString().match(/\brequire\b/g).length;
+    }, 0);
+    console.log(`Total dependencies: ${dependencyCount}`);
+  }
 }
 
 // Helper function for UI updates with accessibility

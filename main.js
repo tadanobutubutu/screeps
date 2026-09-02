@@ -100,7 +100,7 @@ const {
   fixFakeLinks: fixFakeLinksAlt,
   replaceButtonIds,
   ensureDependencyGraphAriaRole
-} = require('./accessibly-improvements');
+} = require('./accessibility-improvements');
 
 // Apply improvements to make the application more accessible
 function improveAccessibility() {

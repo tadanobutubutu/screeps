@@ -442,6 +442,77 @@ function validateTableStructureComprehensive () {
   return true
 }
 
+/**
+ * Adds landmark roles to appropriate elements and fixes landmark issues.
+ * Addresses REACT_017: Add landmark roles and fix landmark issues.
+ */
+function addLandmarkRoles () {
+  // Add role="main" to <main> elements
+  document.querySelectorAll('main').forEach(el => {
+    if (!el.hasAttribute('role')) {
+      el.setAttribute('role', 'main')
+    }
+  })
+  // Add role="navigation" to <nav> elements
+  document.querySelectorAll('nav').forEach(el => {
+    if (!el.hasAttribute('role')) {
+      el.setAttribute('role', 'navigation')
+    }
+  })
+  // Add role="complementary" to <aside> elements
+  document.querySelectorAll('aside').forEach(el => {
+    if (!el.hasAttribute('role')) {
+      el.setAttribute('role', 'complementary')
+    }
+  })
+  // Add role="banner" to <header> elements
+  document.querySelectorAll('header').forEach(el => {
+    if (!el.hasAttribute('role')) {
+      el.setAttribute('role', 'banner')
+    }
+  })
+  // Add role="contentinfo" to <footer> elements
+  document.querySelectorAll('footer').forEach(el => {
+    if (!el.hasAttribute('role')) {
+      el.setAttribute('role', 'contentinfo')
+    }
+  })
+  // Add role="region" to <section> elements that lack a role and have no accessible name
+  document.querySelectorAll('section').forEach(el => {
+    if (!el.hasAttribute('role') && !el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
+      el.setAttribute('role', 'region')
+    }
+  })
+
+  // Fix landmark issues: ensure landmarks have accessible names
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="complementary"], [role="banner"], [role="contentinfo"], [role="region"]')
+  landmarks.forEach(landmark => {
+    if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+      console.warn('Landmark missing accessible name:', landmark)
+    }
+  })
+}
+
+/**
+ * Ensures that landmark roles are unique across the page.
+ * Addresses REACT_025: Ensure unique landmarks.
+ */
+function ensureUniqueLandmarks () {
+  const landmarkRoles = ['main', 'navigation', 'complementary', 'banner', 'contentinfo', 'region']
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`)
+    if (elements.length > 1) {
+      console.warn(`Multiple elements with role="${role}" found. Landmarks should be unique.`)
+      // Optionally, add aria-label to differentiate them
+      elements.forEach((el, index) => {
+        if (!el.hasAttribute('aria-label')) {
+          el.setAttribute('aria-label', `${role} ${index + 1}`)
+        }
+      })
+    }
+  })
+}
+
 // Export functions for use in other modules
 module.exports = {
   initSkipLink: accessibilityUtils.initSkipLink,
@@ -456,5 +527,7 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
-  validateTableStructureComprehensive
+  validateTableStructureComprehensive,
+  addLandmarkRoles,
+  ensureUniqueLandmarks
 }

@@ -17,10 +17,18 @@ function createInPageButton(options) {
     const settings = Object.assign({}, defaults, options);
 
     const button = document.createElement('button');
+    button.type = 'button'; // Accessibility: prevent form submission
     button.textContent = settings.text;
     button.className = settings.className;
     button.setAttribute('title', settings.title);
-    button.disabled = settings.disabled;
+    
+    // Accessibility: use aria-disabled for better screen reader support
+    if (settings.disabled) {
+        button.setAttribute('aria-disabled', 'true');
+        button.disabled = true;
+    } else {
+        button.setAttribute('aria-disabled', 'false');
+    }
 
     if (settings.id) {
         button.id = settings.id;

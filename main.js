@@ -1,5 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -9,11 +7,18 @@
 // _Commit: dec99b86b66013fcd30722b40439605891dd0ad1_
 // _Commit: ca07afdb3852933670d8d59e11575814d1bda9e5_
 // <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+// _Commit: 9b0a0d6bb0214c2d74db539b8e33b7af757187a3_
+// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
+// _Commit: 8072b0a1a41bb31d4505af44a0271a796e3971a7_
+// <!-- todo-hash: 8072b0a1a41bb31d4505af44a0271a796e3971a7 -->
 
 // TODO: Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 
 // Import necessary dependencies
+const main = require('./utilities')
+
 import React from 'react'
 import { render } from 'react-dom'
 import {
@@ -25,6 +30,7 @@ import {
   ensureUniqueLandmarks,
   uniqueLandmarks,
   addSvgAccessibleName,
+  addSvgAccessibleNames,
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
   fixFakeLinkIssues,
@@ -32,12 +38,13 @@ import {
   decodeJwtResponse,
   fixButtonIdentifiers,
   ensureElementHasId,
+  ensureElementHasIdOrigin,
   addAriaLabel,
   renderDependencyGraphs
 } from './AccessibilityHelpers'
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.querySelector('#dependency-graph-container')
+const dependencyGraph = document.querySelector('#dependency-graph-container') || document.getElementById('dependencyGraph')
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
@@ -67,12 +74,14 @@ function addAccessibleName (svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
+  const parser = new DOMParser()
+  const svg = parser.parseFromString(svgString, 'image/svg+xml')
   const svgElement = svg.documentElement
-  if (!svgElement.hasAttribute('aria-label')) {
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
   }
-  return new XMLSerializer().serializeToString(svg)
+  const serializer = new XMLSerializer()
+  return serializer.serializeToString(svg)
 }
 
 // Example usage of the function
@@ -98,125 +107,6 @@ function validateTableStructure (tableData) {
   // Implementation placeholder - function to be implemented
   return true
 }
-
-// TODO: Update the existing function using the new functions for rendering graph/index
-// _Commit: 8072b0a1a41bb31d4505af44a0271a796e3971a7_
-// <!-- todo-hash: 8072b0a1a41bb31d4505af44a0271a796e3971a7 -->
-
-// Legacy function for rendering the dependency graph (updated to use new functions)
-function renderDependencyGraph (container, options) {
-  // Use the new renderDependencyGraphs function for rendering
-  return renderDependencyGraphs(container, options)
-}
-
-// Legacy function for rendering the index (placeholder for potential new implementation)
-function renderIndex (container, options) {
-  // This function can be extended to use new rendering functions if needed
-  if (!container) {
-    return null
-  }
-  
-  // Apply accessibility improvements to the index
-  if (options && options.applyAccessibility !== false) {
-    fixLandmarkIssues(container)
-    addMainLandmark(container)
-    addLandmarkRegions(container)
-    ensureUniqueLandmarks(container)
-  }
-  
-  return container
-}
-
-// Other code...
-
-// Preserve all existing exports
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  validateTableAccessibility,
-  validateTableStructure
-  // Preserve any other existing exports here
-}
-
-// New function or changes requested in the issue
-/**
- * New function to handle additional rendering logic
- * @param {Object} additionalData - Additional data for rendering
- * @returns {string} Rendered additional content HTML
- */
-function renderAdditionalContent (additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return additionalData ? additionalData.content || '' : ''
-=======
-// _Commit: 9b0a0d6bb0214c2d74db539b8e33b7af757187a3_
-// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
-
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-const main = require('./utilities')
-
-// Import necessary dependencies
-const {
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  addSvgAccessibleName,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel
-} = require('./AccessibilityHelpers')
-
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
-
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if (!dependencyGraph.hasAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region')
-  }
-
-  // Add accessible label if not already present
-  if (!dependencyGraph.hasAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
-  }
-
-  // Ensure element has an ID if not present
-  if (!dependencyGraph.id) {
-    dependencyGraph.id = 'dependencyGraph';
-  }
-}
-
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility
-} = main
 
 // Implement the function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport (container, report) {
@@ -346,7 +236,7 @@ function handleCredentialResponse(response) {
 function renderAdditionalContent(additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return ''
+  return '<div class="additional-content">' + (additionalData ? additionalData.content : '') + '</div>'
 }
 
 // Accessibility-related function to be added
@@ -391,6 +281,67 @@ function trapFocus(container) {
  * REACT_015: Add lang attribute to HTML element
  * Ensures the HTML element has a proper lang attribute for screen readers
  */
+export function addLangAttribute(element, lang = 'en') {
+  let htmlElement = element || document.documentElement
+  if (!htmlElement) {
+    return null
+  }
+
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang)
+  }
+  return htmlElement
+}
+
+export function fixTableStructure(tableElement) {
+  if (!tableElement) return null
+ 
+  const headers = tableElement.querySelectorAll('th')
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const row = th.closest('tr')
+      const cellIndex = Array.from(row.children).indexOf(th)
+      th.setAttribute('scope', 'col')
+    }
+  })
+  
+  const existingCaption = tableElement.querySelector('caption')
+  if (!existingCaption) {
+    const caption = document.createElement('caption')
+    caption.textContent = 'Data table'
+    tableElement.insertBefore(caption, tableElement.firstChild)
+  }
+  
+  return tableElement
+}
+
+// Legacy function for rendering the dependency graph (updated to use new functions)
+function renderDependencyGraph (container, options) {
+  // Use the new renderDependencyGraphs function for rendering
+  return renderDependencyGraphs(container, options)
+}
+
+// Legacy function for rendering the index (placeholder for potential new implementation)
+function renderIndex (container, options) {
+  // This function can be extended to use new rendering functions if needed
+  if (!container) {
+    return null
+  }
+  
+  // Apply accessibility improvements to the index
+  if (options && options.applyAccessibility !== false) {
+    fixLandmarkIssues(container)
+    addMainLandmark(container)
+    addLandmarkRegions(container)
+    ensureUniqueLandmarks(container)
+  }
+  
+  return container
+}
+
+/**
+ * Screeps Bot Class - Main bot logic for Screeps game
+ */
 class ScreepsBot {
   constructor() {
     this.network = null;
@@ -409,7 +360,7 @@ class ScreepsBot {
     // Ensure dependencyGraph container has proper ARIA role
     this.ensureDependencyGraphARIA();
 
-    console.log('Screenspider bot started');
+    console.log('Screeps bot started');
   }
 
   loadData() {
@@ -418,7 +369,7 @@ class ScreepsBot {
   }
 
   // Accessibility enhancement: Ensure the dependencyGraph container has a proper ARIA role
-  setDependencyGraphRole() {
+  ensureDependencyGraphARIA() {
     const dependencyGraph = document.getElementById('dependencyGraph');
     if (dependencyGraph) {
       dependencyGraph.setAttribute('role', 'graph');
@@ -461,3 +412,91 @@ class ScreepsBot {
   scheduleTasks() {
     // Sort tasks by priority (high > medium > low)
     this.tasks.sort((a, b) => {
+      const prioOrder = { high: 0, medium: 1, low: 2 };
+      return prioOrder[b.priority] - prioOrder[a.priority];
+    });
+
+    // Execute highest priority task
+    if (this.tasks.length > 0) {
+      const nextTask = this.tasks[0];
+      try {
+        nextTask.task();
+      } catch (err) {
+        console.error(`Task failed: ${err.message}`);
+      }
+    }
+  }
+
+  // New accessibility function: Keyboard event handler for accessibility
+  handleKeyboardNavigation(event) {
+    const key = event.key;
+    const activeElement = document.activeElement;
+
+    // Handle keyboard navigation (e.g., arrow keys, tab)
+    switch (key) {
+      case 'ArrowUp':
+      case 'ArrowDown':
+      case 'ArrowLeft':
+      case 'ArrowRight':
+        this.navigateWithArrows(key, activeElement);
+        break;
+      case 'Tab':
+        this.handleTabNavigation(event, activeElement);
+        break;
+      default:
+        break;
+    }
+  }
+
+  // Helper for arrow key navigation
+  navigateWithArrows(key, activeElement) {
+    // Implement custom navigation logic based on element type
+    console.log(`Navigating with ${key} key`);
+  }
+
+  // Helper for tab key navigation
+  handleTabNavigation(event, activeElement) {
+    // Implement custom tab navigation logic
+    console.log('Handling tab navigation');
+  }
+}
+
+// Call the functions to address the accessibility issues
+addLangAttribute()
+fixTableStructure()
+fixLandmarkIssues()
+addMainLandmark()
+ensureUniqueLandmarks()
+addSvgAccessibleNames()
+addAccessibleNamesToSVGs()
+fixFakeLinkIssue()
+fixFakeLinkIssues()
+googleSignIn()
+fixButtonIdentifiers()
+
+// Preserve all existing exports
+module.exports = {
+  ScreepsBot,
+  renderDependencyGraph,
+  renderIndex,
+  validateTableAccessibility,
+  validateTableStructure,
+  renderAdditionalContent,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLangAttribute,
+  fixTableStructure,
+  addAccessibleName
+  // Preserve any other existing exports here
+}
+
+// Add the new function to the exports
+module.exports.renderAdditionalContent = renderAdditionalContent
+module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport
+module.exports.checkAccessibilityForReport = checkAccessibilityForReport
+module.exports.renderGraphIndex = renderGraphIndex
+module.exports.trapFocus = trapFocus
+module.exports.addLangAttribute = addLangAttribute
+module.exports.fixTableStructure = fixTableStructure

@@ -1,4 +1,9 @@
-const fs = require('fs');
+const url = require('url');
+
+// Dependency imports
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
+
 const main = require('./utilities');
 
 const {
@@ -528,8 +533,16 @@ module.exports = {
   handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
   exportUtils,
   addressAccessibilityIssues,
-  ensureElementId: accessibilityUtils.ensureElementId,
+  handleCredentialResponse,
+  ensureElementIdOrigin,
+  ensureElementId,
   renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
+  transformInputData,
   getConfig,
   setConfig
 };

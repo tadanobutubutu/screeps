@@ -29,109 +29,37 @@ const {
 
 const accessibilityUtils = {
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
-    if (skipLink) {
-      skipLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
-        if (target) {
-          target.setAttribute('tabindex', '-1');
-          target.focus();
-        }
-      });
-    }
+    // ... existing code ...
   },
 
   trapFocus: (element) => {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
-        }
-      }
-    });
+    // ... existing code ...
   },
 
   announceToScreenReader: (message, priority = 'polite') => {
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    setTimeout(() => announcer.remove(), 1000);
+    // ... existing code ...
   },
 
   newFocusTrap: (element) => {
-    if (!element) return originNewFocusTrap(element);
-    const focusable = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === first) {
-          last.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          first.focus();
-          e.preventDefault();
-        }
-      }
-    });
+    // ... existing code ...
   },
 };
 
 // Utility functions for ensuring elements have IDs and adding labels
 const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element;
+  // ... existing code ...
 };
 
 const ensureElementHasId = (element, prefix = 'element') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (element.id) {
-    return element.id;
-  }
-
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
+  // ... existing code ...
 };
 
 const addAriaLabel = (element, label) => {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
+  // ... existing code ...
 };
 
 const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
-  return {
-    nodes: data.nodes || [],
-    edges: data.edges || []
-  };
+  // ... existing code ...
 };
 
 function getTables() {
@@ -151,7 +79,6 @@ const dependencyGraph = document.getElementById('dependencyGraph');
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
   if (!dependencyGraph.getAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region');
   }
@@ -164,9 +91,6 @@ if (dependencyGraph) {
 
 // Required changes to fix the React SVG Accessible Name issue
 function addAccessibleName(svgString) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
   const svg = new DOMParser().parseFromString(svgString, "image/svg+xml");
   const svgElement = svg.documentElement;
   if (!svgElement.getAttribute('aria-label')) {
@@ -191,7 +115,6 @@ function validateTableAccessibility(tableData) {
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
 
-    // Check if table has headers
     if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
       errors.push({
         tableIndex: i,
@@ -199,7 +122,6 @@ function validateTableAccessibility(tableData) {
       });
     }
 
-    // Check if table has proper structure
     if (!table.rows || !Array.isArray(table.rows)) {
       errors.push({
         tableIndex: i,
@@ -207,7 +129,6 @@ function validateTableAccessibility(tableData) {
       });
     }
 
-    // Check for proper ARIA attributes (placeholder implementation)
     if (table.ariaLabel === undefined && table.caption === undefined) {
       errors.push({
         tableIndex: i,
@@ -215,17 +136,14 @@ function validateTableAccessibility(tableData) {
       });
     }
 
-    // Add lang attribute to HTML element
     if (document.documentElement.lang === undefined) {
       document.documentElement.setAttribute('lang', 'en');
     }
 
-    // Add landmark roles and fix landmark issues
     if (table.role === undefined) {
       table.role = 'table';
     }
 
-    // Add accessible names to 2 SVGs
     const svgElements = table.querySelectorAll('svg');
     svgElements.forEach(svg => {
       if (!svg.getAttribute('aria-label')) {

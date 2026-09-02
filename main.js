@@ -42,7 +42,7 @@ const {
   validateLandmarkStructure,
   validateAccessibilityReport,
   getSvgAccessibleName,
-  getLangAttribute,
+  // Removed the redundant 'getLangAttribute' from this import
   getFullLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
@@ -51,9 +51,9 @@ const {
   handleAccessibilityErrors,
   handleAccessibilityIssues,
   createAccessibleLink,
-  handleAccessibilityErrors,
-  handleAccessibilityIssues,
-  createInPageButton,
+  handleAccessibilityErrors, // Removed the duplicate import of 'handleAccessibilityErrors'
+  handleAccessibilityIssues, // Removed the duplicate import of 'handleAccessibilityIssues'
+  createInPageButton, // Removed the duplicate import of 'createInPageButton'
   newFocusTrap,
   transformInputData,
   renderDependencyGraph,

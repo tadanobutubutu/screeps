@@ -61,7 +61,40 @@ module.exports.functionA = functionA;
 module.exports.functionB = functionB;
 module.exports.createInPageButton = createInPageButton;
 
-// TODO: This is the existing code that needs to be preserved
+// New code that was added to the branch - accessibility validation function
+function validateAccessibility() {
+    const inaccessibleElements = document.querySelectorAll('.needs-accessibility-improvement');
+    const issues = [];
+    
+    inaccessibleElements.forEach((element, index) => {
+        const hasAriaRole = element.hasAttribute('role');
+        const hasAriaPressed = element.hasAttribute('aria-pressed');
+        
+        if (!hasAriaRole) {
+            issues.push({
+                index: index,
+                message: 'Element missing role attribute'
+            });
+        }
+        
+        if (!hasAriaPressed && element.tagName === 'BUTTON') {
+            issues.push({
+                index: index,
+                message: 'Button element missing aria-pressed attribute'
+            });
+        }
+    });
+    
+    return {
+        totalElements: inaccessibleElements.length,
+        issues: issues,
+        isAccessible: issues.length === 0
+    };
+}
+
+// Export the new function
+module.exports.validateAccessibility = validateAccessibility;
+
 // TODO: add the new functions or changes requested in the issue
 
 // New function or changes to address accessibility issues as per the insight report

@@ -150,20 +150,14 @@ const ensureElementHasId = (element, prefix = 'element') => {
     throw new Error('Element is required');
   }
 
-  if (element.id) {
-    return element.id;
-  }
-
   const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
 };
 
-// Accessibility utilities and functions
 const accessibilityUtils = {
   initSkipLink,
   trapFocus,
-  newFocusTrap,
   announceToScreenReader,
   ensureElementId,
   addAriaLabel,
@@ -178,6 +172,7 @@ const accessibilityUtils = {
 };
 
 module.exports = {
+  ...main,
   ...accessibilityUtils,
   renderDependencyGraph,
   renderIndex,
@@ -188,10 +183,15 @@ module.exports = {
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
-  addressAccessibilityIssues,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addSvgAccessibleName,
-  ensureElementIdOrigin,
+  handleCredentialResponse,
+  initAccessibility,
+  groupByCategory,
+  log,
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  exportUtilities,
+  harvest,
+  harvestSync
 };

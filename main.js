@@ -36,7 +36,7 @@ import {
 } from './AccessibilityHelpers'
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
+const dependencyGraph = document.querySelector('[data-dependency-graph]')
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
@@ -46,17 +46,17 @@ if (dependencyGraph) {
   }
 
   // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
+  if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.querySelector('title')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
   }
 
   // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph')
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph'
   }
 
   // Ensure the container is focusable if it's interactive
-  if (!dependencyGraph.getAttribute('tabindex')) {
+  if (dependencyGraph.getAttribute('role') === 'region' || dependencyGraph.getAttribute('tabindex')) {
     dependencyGraph.setAttribute('tabindex', '0')
   }
 }
@@ -66,17 +66,18 @@ function addAccessibleName (svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
-  const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
+  const parser = new DOMParser()
+  const svgDoc = parser.parseFromString(svgString, 'image/svg+xml')
+  const svgElement = svgDoc.documentElement
+  if (!svgElement.getAttribute('aria-label') && !svgElement.querySelector('title')) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
   }
-  return new XMLSerializer().serializeToString(svg)
+  const serializer = new XMLSerializer()
+  return serializer.serializeToString(svgElement)
 }
 
 // Example usage of the function
-const originalSvgString =
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**
@@ -119,8 +120,127 @@ module.exports = {
 function renderAdditionalContent (additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
+  return ''
 }
 
 // Add the new function to the exports
 module.exports.renderAdditionalContent = renderAdditionalContent
+
+/**
+ * Handles focus trap for keyboard navigation
+ * Ensures users can tab through elements within a specific container
+ * but cannot tab outside until explicitly released
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @param {Object} options - Configuration options for the focus trap
+ * @param {boolean} options.returnFocusOnDeactivate - Whether to return focus to the previous element
+ * @param {boolean} options.escapeDeactivates - Whether pressing Escape should deactivate the trap
+ * @param {Function} options.onActivate - Callback when focus trap is activated
+ * @param {Function} options.onDeactivate - Callback when focus trap is deactivated
+ * @returns {Object} Focus trap controller with activate and deactivate methods
+ */
+function newFocusTrap(container, options = {}) {
+  const defaultOptions = {
+    returnFocusOnDeactivate: true,
+    escapeDeactivates: true,
+    onActivate: null,
+    onDeactivate: null
+  }
+  
+  const config = { ...defaultOptions, ...options }
+  let previousActiveElement = null
+  let active = false
+  
+  const getFocusableElements = () => {
+    const focusableSelectors = [
+      'button:not([disabled])',
+      'a[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+      '[contenteditable="true"]'
+    ]
+    
+    return Array.from(
+      container.querySelectorAll(focusableSelectors.join(','))
+    ).filter(el => {
+      return el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden'
+    })
+  }
+  
+  const handleKeyDown = (event) => {
+    if (!active) return
+    
+    if (config.escapeDeactivates && event.key === 'Escape') {
+      deactivate()
+      return
+    }
+    
+    if (event.key !== 'Tab') return
+    
+    const focusableElements = getFocusableElements()
+    if (focusableElements.length === 0) return
+    
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
+    
+    if (event.shiftKey) {
+      if (document.activeElement === firstElement) {
+        event.preventDefault()
+        lastElement.focus()
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        event.preventDefault()
+        firstElement.focus()
+      }
+    }
+  }
+  
+  const activate = () => {
+    if (active) return
+    
+    active = true
+    previousActiveElement = document.activeElement
+    
+    container.setAttribute('aria-hidden', 'false')
+    document.addEventListener('keydown', handleKeyDown)
+    
+    const focusableElements = getFocusableElements()
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus()
+    } else {
+      container.setAttribute('tabindex', '-1')
+      container.focus()
+    }
+    
+    if (config.onActivate) {
+      config.onActivate()
+    }
+  }
+  
+  const deactivate = () => {
+    if (!active) return
+    
+    active = false
+    container.removeAttribute('aria-hidden')
+    document.removeEventListener('keydown', handleKeyDown)
+    
+    if (config.returnFocusOnDeactivate && previousActiveElement) {
+      previousActiveElement.focus()
+    }
+    
+    if (config.onDeactivate) {
+      config.onDeactivate()
+    }
+  }
+  
+  return {
+    activate,
+    deactivate,
+    isActive: () => active
+  }
+}
+
+// Export the focus trap function
+module.exports.newFocusTrap = newFocusTrap

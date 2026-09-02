@@ -1,2 +1,2 @@
 User Safety: unsafe
-Safety Categories: Fraud/Deception, Unauthorized Advice
+Safety Categories: Unauthorized Advice, Fraud/Deception

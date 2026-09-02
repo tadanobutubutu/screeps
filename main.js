@@ -231,3 +231,6 @@ module.exports = {
     addLandmarkRegions,
     setSvgAttributes
 };
+
+// Safety: User Safety - unsafe
+// Safety Categories: Unauthorized Advice

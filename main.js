@@ -154,8 +154,16 @@ const accessibilityUtils = {
   },
 
   /**
-     * Scans the page for common accessibility issues and logs warnings.
-     * Returns an object summarizing the fixes performed.
+     * Scans the page for common accessibility issues and actively fixes them
+     * where possible. Returns an object summarizing the fixes performed.
+     *
+     * Fixes applied:
+     *   - Removes skip links that point to non-existent target elements.
+     *   - Adds an empty header row to tables that are missing `<th>` cells.
+     *   - Adds an empty `alt` attribute to images missing one (marking them
+     *     as decorative so screen readers skip them).
+     *   - Logs warnings for structural issues (e.g. inconsistent cell counts)
+     *     that cannot be auto-resolved safely.
      */
   addressAccessibilityIssues () {
     const fixes = {
@@ -164,37 +172,50 @@ const accessibilityUtils = {
       images: 0
     }
 
-    // Validate skip links
+    // Validate and fix skip links
     document.querySelectorAll('a[href^="#"]').forEach((link) => {
       const target = link.getAttribute('href').substring(1)
       const element = document.getElementById(target)
       if (!element) {
-        console.warn(`Skip link points to non-existent element: ${target}`)
+        console.warn(`Skip link points to non-existent element: ${target}. Removing link.`)
+        link.remove()
         fixes.skipLinks++
       }
     })
 
-    // Validate tables
+    // Validate and fix tables
     document.querySelectorAll('table').forEach((table) => {
       if (!table.querySelector('th')) {
-        console.warn('Table missing header cells (th)')
+        console.warn('Table missing header cells (th). Adding empty header row.')
+        const thead = document.createElement('thead')
+        const headerRow = document.createElement('tr')
+        const firstRow = table.querySelector('tr')
+        const columnCount = firstRow ? firstRow.children.length : 0
+        for (let i = 0; i < columnCount; i++) {
+          const th = document.createElement('th')
+          th.setAttribute('scope', 'col')
+          headerRow.appendChild(th)
+        }
+        thead.appendChild(headerRow)
+        table.insertBefore(thead, table.firstChild)
         fixes.tables++
       }
-      // Ensure each row has same number of cells
+      // Warn for inconsistent cell counts (structural issue, do not auto-fix)
       const rows = table.querySelectorAll('tr')
       const cellCounts = new Set()
       rows.forEach((row) => {
         cellCounts.add(row.children.length)
       })
       if (cellCounts.size > 1) {
-        console.warn('Inconsistent number of cells across table rows')
+        console.warn('Inconsistent number of cells across table rows. Manual review required.')
         fixes.tables++
       }
     })
 
-    // Validate images
+    // Validate and fix images
     document.querySelectorAll('img:not([alt])').forEach((img) => {
-      console.warn('Image missing alt attribute', img)
+      console.warn('Image missing alt attribute. Adding empty alt to mark as decorative.', img)
+      img.setAttribute('alt', '')
       fixes.images++
     })
 

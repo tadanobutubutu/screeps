@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -16,13 +13,51 @@ const appState = {
 
 function validateLandmark(landmark) {
   const errors = [];
-  // Existing code that should be preserved
-  // Update landmark validation logic if needed
-  const role = landmark.getAttribute('role');
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+  
+  // Check if landmark exists
+  if (!landmark) {
+    errors.push('Landmark element is required');
+    return errors;
   }
+  
+  // Get the role of the landmark
+  const role = landmark.role || (landmark.getAttribute ? landmark.getAttribute('role') : null);
+  
+  // Define valid landmark roles according to ARIA spec
+  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
+  
+  // Validate role attribute exists
+  if (!role) {
+    errors.push('Landmark must have a role attribute');
+  } else if (validLandmarks.indexOf(role) === -1) {
+    // Check if it's a valid landmark role
+    const validRoles = ['application', 'form', 'region'];
+    if (validRoles.indexOf(role) === -1) {
+      errors.push(`Invalid landmark role: ${role}`);
+    }
+  }
+  
+  // Additional validation for specific landmarks
+  if (role === 'main') {
+    // There should only be one main landmark per page
+    const existingMain = document.querySelector('[role="main"]');
+    if (existingMain && existingMain !== landmark) {
+      errors.push('Duplicate main landmark found');
+    }
+  }
+  
+  // Check for accessible name on landmarks that require it
+  const landmarksRequiringName = ['search', 'navigation', 'complementary'];
+  if (landmarksRequiringName.indexOf(role) !== -1) {
+    const hasLabel = landmark.getAttribute ? 
+      (landmark.getAttribute('aria-label') || 
+       landmark.getAttribute('aria-labelledby') ||
+       landmark.getAttribute('aria-description')) : false;
+    if (!hasLabel) {
+      errors.push(`Landmark with role "${role}" should have an accessible name`);
+    }
+  }
+  
   return errors;
 }
 
@@ -31,7 +66,7 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+const HTML = ({ lang }) => `<html lang="${lang}">{/* other children */}</html>`;
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -54,7 +89,12 @@ function getFullLangAttribute() {
 
 function validateTableAccessibility(tableElement) {
     // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement.querySelector('caption')) {
+    if (!tableElement || !tableElement.querySelector) {
+        console.warn('Table missing caption');
+        return false;
+    }
+    const caption = tableElement.querySelector('caption');
+    if (!caption) {
         console.warn('Table missing caption');
         return false;
     }
@@ -63,7 +103,7 @@ function validateTableAccessibility(tableElement) {
 
 function validateTableStructure(tableElement) {
     // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement.querySelectorAll('tr');
+    const rows = tableElement ? tableElement.querySelectorAll('tr') : [];
     if (rows.length === 0) {
         console.warn('Table has no rows');
         return false;
@@ -73,12 +113,12 @@ function validateTableStructure(tableElement) {
 
 function validateLandmarkStructure() {
     // Merged implementation (conflict resolved)
-    const landmarks = document.querySelectorAll('[role]');
+    const landmarks = document ? document.querySelectorAll('[role]') : [];
     let hasMain = false;
     let hasNavigation = false;
 
     landmarks.forEach(landmark => {
-        const role = landmark.getAttribute('role');
+        const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
         if (role === 'main') hasMain = true;
         if (role === 'navigation') hasNavigation = true;
     });
@@ -95,9 +135,9 @@ function addLandmarkRegions() {
 
 function getSvgAccessibleName() {
     // Merged implementation (conflict resolved)
-    const svgElement = ... // needs actual element reference
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
+    const svgElement = document ? document.querySelector('svg') : null;
+    const title = svgElement ? svgElement.querySelector('title') : null;
+    const ariaLabel = svgElement ? svgElement.getAttribute('aria-label') : null;
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
@@ -135,10 +175,10 @@ function ensureUniqueLandmarks(landmarksArg) {
 
   // Additional uniqueness check for landmark roles
   const landmarksByRole = {};
-  const allLandmarks = document.querySelectorAll('[role]');
+  const allLandmarks = document ? document.querySelectorAll('[role]') : [];
 
   allLandmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
+    const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
     if (landmarksByRole[role]) {
       console.warn(`Duplicate landmark role: ${role}`);
     } else {
@@ -194,21 +234,20 @@ function createAccessibleLink(href, text) {
 
 function handleAccessibilityIssues() {
     // Implementation to handle accessibility issues (conflict resolved: merged implementation)
-    const tables = document.querySelectorAll('table');
+    const tables = document ? document.querySelectorAll('table') : [];
     tables.forEach(table => {
         validateTableAccessibility(table);
         validateTableStructure(table);
     });
 
-    const landmarks = document.querySelectorAll('[role]');
+    const landmarks = document ? document.querySelectorAll('[role]') : [];
     landmarks.forEach(landmark => {
         validateLandmark(landmark);
     });
 
-    validateLandmarkStructure();
     ensureUniqueLandmarks();
 
-    const svgs = document.querySelectorAll('svg');
+    const svgs = document ? document.querySelectorAll('svg') : [];
     svgs.forEach(svg => {
         getSvgAccessibleName(svg);
     });
@@ -234,4 +273,3 @@ module.exports = {
     addLandmarkRegions,
     setSvgAttributes
 };
-```

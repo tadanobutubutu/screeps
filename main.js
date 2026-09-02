@@ -1,3 +1,5 @@
+const main = require('./utilities');
+
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 // TODO: Address accessibility issues from insight report:
@@ -373,20 +375,27 @@ function isLinkAccessible(link) {
     if (href.toLowerCase().startsWith('mailto:') && !ariaLabel && !textContent.includes('@')) {
       errors.push('Mailto link may need aria-label for clarity');
     }
-  }
 
-  // Check target="_blank" has rel="noopener noreferrer"
-  if (link.getAttribute('target') === '_blank') {
-    const rel = link.getAttribute('rel');
-    if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
-      errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
+    // Fix fake link issues (elements that look like links but are missing href)
+    const fakeLinks = (typeof link.querySelectorAll === 'function') ? link.querySelectorAll('a:not([href])') : [];
+    fakeLinks.forEach(fakeLink => {
+      fakeLink.setAttribute('href', '#' + (fakeLink.id || `link-${Date.now()}`));
+      fakeLink.setAttribute('role', 'link');
+    });
+
+    // Check target="_blank" has rel="noopener noreferrer"
+    if (link.getAttribute('target') === '_blank') {
+      const rel = link.getAttribute('rel');
+      if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
+        errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
+      }
     }
-  }
 
-  // Check for redundant title attribute
-  const title = link.getAttribute('title');
-  if (title && title === textContent) {
-    errors.push('Link title attribute duplicates link text');
+    // Check for redundant title attribute
+    const title = link.getAttribute('title');
+    if (title && title === textContent) {
+      errors.push('Link title attribute duplicates link text');
+    }
   }
 
   return { valid: errors.length === 0, errors };
@@ -406,7 +415,7 @@ function createInPageButton(parent = document.body) {
   return btn;
 }
 
-// New function to address new accessibility issues from insight report
+// New function to address ADD: Address new accessibility issues from insight report
 function addressNewAccessibilityIssues() {
   // This function addresses new accessibility issues identified in the insight report
   // It runs a series of checks and returns a comprehensive report
@@ -529,6 +538,206 @@ function addressNewAccessibilityIssues() {
   return report;
 }
 
+// New function to address ADD: Address new accessibility issues from insight report
+function validateFormAccessibility(form) {
+  // This function validates the accessibility of forms
+  const errors = [];
+
+  if (!form) {
+    return { valid: false, errors: ['Form element is required'] };
+  }
+
+  // Check for proper form labels
+  const inputs = form.querySelectorAll('input, textarea, select');
+  inputs.forEach((input, index) => {
+    const id = input.getAttribute('id');
+    const label = form.querySelector(`label[for="${id}"]`);
+
+    if (!id || !label) {
+      errors.push(`Input at index ${index} is missing proper label association`);
+    }
+
+    // Check for placeholder text that duplicates labels
+    const placeholder = input.getAttribute('placeholder');
+    const labelText = label ? label.textContent.trim() : '';
+    if (placeholder && labelText && placeholder === labelText) {
+      errors.push(`Input at index ${index} has placeholder text that duplicates label text`);
+    }
+  });
+
+  // Check for form submission button
+  const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+  if (submitButtons.length === 0) {
+    errors.push('Form is missing a submit button');
+  }
+
+  // Check for form title or heading
+  const formTitle = form.querySelector('h1, h2, h3, h4, h5, h6');
+  if (!formTitle) {
+    errors.push('Form is missing a title or heading');
+  }
+
+  // Check for error message structure
+  const errorMessages = form.querySelectorAll('.error-message, [role="alert"]');
+  errorMessages.forEach((error, index) => {
+    if (!error.getAttribute('aria-live') && error.getAttribute('role') !== 'alert') {
+      errors.push(`Error message at index ${index} should have aria-live or role="alert"`);
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address ADD: Address new accessibility issues from insight report
+function validateImageAccessibility(img) {
+  // This function validates the accessibility of images
+  const errors = [];
+
+  if (!img) {
+    return { valid: false, errors: ['Image element is required'] };
+  }
+
+  // Check for alt text
+  const alt = img.getAttribute('alt');
+  if (!alt) {
+    errors.push('Image is missing alt attribute');
+  } else if (alt === '') {
+    errors.push('Image has empty alt attribute');
+  } else if (alt.toLowerCase().includes('image') || alt.toLowerCase().includes('picture')) {
+    errors.push('Image alt text is too generic');
+  }
+
+  // Check for decorative images
+  const role = img.getAttribute('role');
+  if (role === 'presentation' && alt !== '') {
+    errors.push('Decorative image should have empty alt text');
+  }
+
+  // Check for SVG images
+  if (img.tagName === 'svg') {
+    const title = img.querySelector('title');
+    if (!title || !title.textContent.trim()) {
+      errors.push('SVG image is missing title element');
+    }
+  }
+
+  // Check for background images
+  if (img.tagName !== 'img' && !img.querySelector('img')) {
+    const ariaLabel = img.getAttribute('aria-label');
+    if (!ariaLabel) {
+      errors.push('Background image container is missing aria-label');
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address ADD: Address new accessibility issues from insight report
+function validateButtonAccessibility(button) {
+  // This function validates the accessibility of buttons
+  const errors = [];
+
+  if (!button) {
+    return { valid: false, errors: ['Button element is required'] };
+  }
+
+  // Check for proper button role
+  const role = button.getAttribute('role');
+  if (role && role !== 'button') {
+    errors.push(`Button has invalid role: ${role}`);
+  }
+
+  // Check for accessible name
+  const textContent = button.textContent ? button.textContent.trim() : '';
+  const ariaLabel = button.getAttribute('aria-label');
+  const ariaLabelledby = button.getAttribute('aria-labelledby');
+  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
+
+  if (!hasAccessibleName) {
+    errors.push('Button is missing accessible name (text content, aria-label, or aria-labelledby)');
+  }
+
+  // Check for redundant title attribute
+  const title = button.getAttribute('title');
+  if (title && title === textContent) {
+    errors.push('Button title attribute duplicates button text');
+  }
+
+  // Check for disabled state
+  if (button.hasAttribute('disabled')) {
+    const ariaDisabled = button.getAttribute('aria-disabled');
+    if (ariaDisabled !== 'true') {
+      errors.push('Disabled button should have aria-disabled="true"');
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to count dependencies
+function countDependencies(node, options = {}) {
+  // Counts dependencies in a dependency graph
+  // @param {Object} node - The root node to count dependencies from
+  // @param {Object} options - Optional configuration
+  // @param {boolean} options.recursive - Whether to count nested dependencies (default: true)
+  // @param {boolean} options.unique - Whether to count only unique dependencies (default: false)
+  // @returns {Object} Result with count and metadata
+  
+  try {
+    if (!node) {
+      return { count: 0, errors: ['Node is required'] };
+    }
+
+    const { recursive = true, unique = false } = options;
+    const dependencyMap = new Map();
+    let totalCount = 0;
+
+    // Recursive function to traverse and count dependencies
+    function traverse(currentNode, depth = 0) {
+      if (!currentNode) return;
+
+      // Get dependencies from various possible property names
+      const dependencies = currentNode.dependencies || 
+                          currentNode.deps || 
+                          currentNode.requires ||
+                          currentNode.children ||
+                          currentNode.modules ||
+                          [];
+
+      dependencies.forEach(dep => {
+        const depId = unique ? (dep.id || dep.name || dep) : totalCount;
+        
+        if (unique) {
+          if (!dependencyMap.has(depId)) {
+            dependencyMap.set(depId, { ...dep, depth });
+            totalCount++;
+          }
+        } else {
+          totalCount++;
+        }
+
+        // Recursively count nested dependencies if enabled
+        if (recursive && typeof dep === 'object' && dep !== null) {
+          traverse(dep, depth + 1);
+        }
+      });
+    }
+
+    traverse(node);
+
+    return {
+      count: totalCount,
+      uniqueCount: unique ? dependencyMap.size : totalCount,
+      success: true,
+      message: `Found ${totalCount} dependency${totalCount !== 1 ? 'ies' : 'y'}`,
+      dependencies: unique ? Array.from(dependencyMap.values()) : undefined
+    };
+  } catch (error) {
+    console.error('Error counting dependencies:', error);
+    return { count: 0, success: false, errors: [error.message] };
+  }
+}
+
 // New function to render dependency graphs
 function renderDependencyGraph(rootNode) {
   // Renders a dependency graph visualization
@@ -557,6 +766,14 @@ function renderIndexView(indexPath) {
     console.error('Error rendering index view:', error);
     return { success: false, errors: [error.message] };
   }
+}
+
+// Accessibility-related function to be added
+function checkAccessibilityNew(content) {
+  // Placeholder for accessibility checking logic
+  // This function should be implemented to check for accessibility issues
+  // For now, it just returns an empty array
+  return [];
 }
 
 // TODO: Implement tower defense
@@ -714,6 +931,7 @@ function towerDefense() {
 
 // Export all functions to maintain current exports
 module.exports = {
+  ...main,
   setHtmlLangAttribute,
   detectAndSetLang,
   getLangAttribute,
@@ -728,7 +946,12 @@ module.exports = {
   createAccessibleLink,
   isLinkAccessible,
   addressNewAccessibilityIssues,
+  validateFormAccessibility,
+  validateImageAccessibility,
+  validateButtonAccessibility,
+  countDependencies,
   renderDependencyGraph,
   renderIndexView,
+  checkAccessibilityNew,
   towerDefense
 };

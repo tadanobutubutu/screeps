@@ -16,12 +16,10 @@ const {
   validateAccessibilityReport,
   announceToScreenReader,
   handleKeyboardNav,
-  newFocusTrap: originNewFocusTrap,
+  newFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
-  handleCredentialResponse,
   ensureElementHasId: ensureElementIdOrigin,
-  ensureElementHasId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -72,10 +70,6 @@ const accessibilityUtils = {
   newFocusTrap,
   exportUtils,
   personName,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
   handleCredentialResponse,
   transformInputData,
   // Enhanced announceToScreenReader with priority support (from origin/main)
@@ -97,9 +91,9 @@ const accessibilityUtils = {
   }
 };
 
-const ensureElementIdOriginal = (element) => {
+const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).substr(2, 11);
+    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
   }
   return element;
 };
@@ -152,7 +146,7 @@ accessibilityUtils.trapFocus = (element) => {
   }
 
   const focusableElements = element.querySelectorAll(
-    'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
 
   if (focusableElements.length === 0) {
@@ -166,22 +160,21 @@ accessibilityUtils.trapFocus = (element) => {
   const handleKeyDown = (e) => {
     if (e.key === 'Tab') {
       if (e.shiftKey && document.activeElement === firstElement) {
-        e.preventDefault();
         lastElement.focus();
         e.preventDefault();
       } else if (!e.shiftKey && document.activeElement === lastElement) {
-        e.preventDefault();
         firstElement.focus();
         e.preventDefault();
       }
     }
 
     if (e.key === 'Escape') {
-      element.dispatchEvent(new KeyboardEvent('escape-pressed', { bubbles: true }));
+      element.dispatchEvent(new CustomEvent('focusTrapEscape'));
     }
   };
 
   element.addEventListener('keydown', handleKeyDown);
+  firstElement.focus();
 
   // Return cleanup function
   return () => {
@@ -239,7 +232,7 @@ const exportUtilities = {
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9.-]/gi, '_');
+  return filename.replace(/[^a-z0-9_.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
@@ -283,10 +276,11 @@ const initAccessibility = () => {
     if (element) {
       element.addEventListener('keydown', (e) => {
         const actions = {
-        Enter: () => element.click(),
-        ' ': () => element.click()
+          Enter: () => element.click(),
+          ' ': () => element.click()
+        });
       });
-    });
+    }
   });
 };
 

@@ -148,7 +148,80 @@ function extractSvgAccessibleName(svgContent) {
 }
 
 function addressAccessibilityIssues() {
-  // Your implementation here
+  const issues = loadLandmarks();
+  const processedLandmarks = processLandmarks(issues);
+  const report = {
+    timestamp: new Date().toISOString(),
+    totalIssues: processedLandmarks.length,
+    issues: processedLandmarks,
+    fixesApplied: []
+  };
+  
+  // Apply accessibility fixes to each landmark
+  processedLandmarks.forEach((landmark, index) => {
+    try {
+      // Ensure landmark has proper structure
+      if (fixTableStructureIssues && landmark.element) {
+        fixTableStructureIssues(landmark.element);
+        report.fixesApplied.push({ index, fix: 'table-structure' });
+      }
+      
+      // Add proper table header cell scope
+      if (fixTableHeaderCellScope && landmark.element) {
+        fixTableHeaderCellScope(landmark.element);
+        report.fixesApplied.push({ index, fix: 'header-cell-scope' });
+      }
+      
+      // Ensure SVG elements have accessible names
+      if (addSvgAccessibleNames && landmark.element) {
+        addSvgAccessibleNames(landmark.element);
+        report.fixesApplied.push({ index, fix: 'svg-accessible-names' });
+      }
+      
+      // Add landmark roles if missing
+      if (addLandmarkRoles && landmark.element) {
+        addLandmarkRoles(landmark.element);
+        report.fixesApplied.push({ index, fix: 'landmark-roles' });
+      }
+    } catch (error) {
+      console.error(`Error processing landmark ${index}:`, error.message);
+    }
+  });
+  
+  // Add main landmark to improve structure
+  if (addMainLandmark) {
+    try {
+      addMainLandmark();
+      report.fixesApplied.push({ fix: 'main-landmark' });
+    } catch (error) {
+      console.error('Error adding main landmark:', error.message);
+    }
+  }
+  
+  // Ensure unique landmarks to avoid duplicates
+  if (ensureUniqueLandmarks) {
+    try {
+      ensureUniqueLandmarks(processedLandmarks);
+      report.fixesApplied.push({ fix: 'unique-landmarks' });
+    } catch (error) {
+      console.error('Error ensuring unique landmarks:', error.message);
+    }
+  }
+  
+  // Fix fake links
+  if (fixFakeLinks) {
+    try {
+      fixFakeLinks();
+      report.fixesApplied.push({ fix: 'fake-links' });
+    } catch (error) {
+      console.error('Error fixing fake links:', error.message);
+    }
+  }
+  
+  // Write the report to a file
+  writeReport(report);
+  
+  return report;
 }
 
 function importAndExecute(modulePath, functionName, callback) {
@@ -171,7 +244,13 @@ function ensureUniqueLandmarksLocal(landmarks) {
     if (!landmark || typeof landmark.id === 'undefined') {
       continue;
     }
-    return element;
+    if (!seen.has(landmark.id)) {
+      seen.add(landmark.id);
+      uniqueLandmarks.push(landmark);
+    }
+  }
+
+  return uniqueLandmarks;
 }
 
 // TODO: Address accessibility issues from insight report:

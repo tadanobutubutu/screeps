@@ -1,6 +1,121 @@
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
 // main.js - Main application entry point
+
+// Add necessary new functions (without strict mode)
+
+/**
+ * Format a date to a readable string
+ * @param {Date|number|string} date - The date to format
+ * @param {Object} options - Formatting options
+ * @returns {string} Formatted date string
+ */
+function formatDate(date, options = {}) {
+  const d = new Date(date);
+  if (isNaN(d.getTime())) {
+    return 'Invalid Date';
+  }
+  const defaultOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    ...options
+  };
+  return d.toLocaleDateString('en-US', defaultOptions);
+}
+
+/**
+ * Validate an email address
+ * @param {string} email - Email to validate
+ * @returns {boolean} True if valid email
+ */
+function isValidEmail(email) {
+  if (!email || typeof email !== 'string') {
+    return false;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+}
+
+/**
+ * Deep clone an object
+ * @param {Object} obj - Object to clone
+ * @returns {Object} Cloned object
+ */
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => deepClone(item));
+  }
+  const cloned = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      cloned[key] = deepClone(obj[key]);
+    }
+  }
+  return cloned;
+}
+
+/**
+ * Debounce a function
+ * @param {Function} func - Function to debounce
+ * @param {number} wait - Wait time in milliseconds
+ * @returns {Function} Debounced function
+ */
+function debounce(func, wait = 250) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+/**
+ * Throttle a function
+ * @param {Function} func - Function to throttle
+ * @param {number} limit - Time limit in milliseconds
+ * @returns {Function} Throttled function
+ */
+function throttle(func, limit = 250) {
+  let inThrottle;
+  return function executedFunction(...args) {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+/**
+ * Check if an object is empty
+ * @param {Object} obj - Object to check
+ * @returns {boolean} True if object is empty
+ */
+function isEmptyObject(obj) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+    return false;
+  }
+  return Object.keys(obj).length === 0;
+}
+
+/**
+ * Generate a random string
+ * @param {number} length - Length of the string
+ * @returns {string} Random string
+ */
+function generateRandomString(length = 10) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
 
 // Main module
 
@@ -830,5 +945,12 @@ module.exports = {
   processData,
   ensureInteractiveRoles: a11yStore.ensureInteractiveRoles,
   addFormControlLabels: a11yStore.addFormControlLabels,
-  ensureImageAccessibility: a11yStore.ensureImageAccessibility
+  ensureImageAccessibility: a11yStore.ensureImageAccessibility,
+  formatDate,
+  isValidEmail,
+  deepClone,
+  debounce,
+  throttle,
+  isEmptyObject,
+  generateRandomString
 };

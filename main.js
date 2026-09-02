@@ -1,21 +1,8 @@
-Here is the updated file content, resolving the merge conflict while preserving and integrating both changes:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 /**
  * Main application entry point
  */
-
-// Import required modules
-const http = require('http');
-const path = require('path');
-
-// Application configuration
-const config = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
 
 /**
  * Adds a new book to the collection with accessibility improvements
@@ -96,6 +83,9 @@ function addAriaLabel(element, label) {
 }
 
 function addLangAttribute() {
+  if (typeof document === 'undefined') {
+    return;
+  }
   const htmlElement = document.querySelector('html');
   if (htmlElement) {
     htmlElement.setAttribute('lang', 'en');
@@ -103,6 +93,9 @@ function addLangAttribute() {
 }
 
 function addLandmarkRoles() {
+  if (typeof document === 'undefined') {
+    return;
+  }
   const mainContent = document.querySelector('#main-content');
   if (mainContent) {
     mainContent.setAttribute('role', 'main');
@@ -117,6 +110,9 @@ function addLandmarkRoles() {
 }
 
 function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') {
+    return;
+  }
   const landmarks = document.querySelectorAll('main, nav, aside, footer');
   landmarks.forEach((landmark, index) => {
     if (index === 0) {
@@ -128,6 +124,9 @@ function ensureUniqueLandmarks() {
 }
 
 function fixFakeLink() {
+  if (typeof document === 'undefined') {
+    return;
+  }
   const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach((link) => {
     link.setAttribute('role', 'link');
@@ -171,8 +170,34 @@ function startApp() {
   server.on('listening', () => {
     updateElementWithIdOrAriaLabel(document.getElementById('MyElement'), 'My Element'); // Example usage
     newFunction();
+    // Apply accessibility fixes
+    addLangAttribute();
+    addLandmarkRoles();
+    ensureUniqueLandmarks();
+    addAccessibleNamesToSVGs();
+    fixFakeLink();
   });
   return server;
+}
+
+/**
+ * Adds accessible names to the first two SVG elements found in the document
+ * if they don't already have an accessible name (via aria-label, aria-labelledby, or title element).
+ */
+function addAccessibleNamesToSVGs() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const svgs = document.querySelectorAll('svg');
+  for (let i = 0; i < Math.min(2, svgs.length); i++) {
+    const svg = svgs[i];
+    const hasAriaLabel = svg.hasAttribute('aria-label');
+    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby');
+    const hasTitleElement = svg.querySelector('title') !== null;
+    if (!hasAriaLabel && !hasAriaLabelledby && !hasTitleElement) {
+      svg.setAttribute('aria-label', `SVG ${i + 1}`);
+    }
+  }
 }
 
 // Export functions for testing
@@ -190,7 +215,8 @@ module.exports = {
   addLangAttribute,
   addLandmarkRoles,
   ensureUniqueLandmarks,
-  fixFakeLink
+  fixFakeLink,
+  addAccessibleNamesToSVGs
 };
 
 // Start the application if run directly
@@ -201,6 +227,3 @@ if (require.main === module) {
 // New functions to resolve conflicts
 
 // ... existing code ...
-```
-
-The updated file unifies the conflicted functions `ensureElementHasIdAndAddAriaLabel` and `updateElementWithIdOrAriaLabel`, and it also adjusts the startApp execution and event listeners to incorporate the new maintained function `newFunction`. Additionally, it imports new global functions from the Git base (by merging them with the existing functions with new names) to avoid naming collision.

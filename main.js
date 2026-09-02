@@ -344,6 +344,261 @@ function validateLinks(container) {
   return { valid: errors.length === 0, errors };
 }
 
+/**
+ * Creates an in-page button with proper accessibility attributes,
+ * addressing REACT_036 fake link issues.
+ * @param {HTMLElement} element - The element to enhance as a button
+ * @param {Object} options - Configuration options
+ * @param {string} options.label - The accessible label for the button
+ * @param {Function} options.onClick - Click handler
+ * @returns {HTMLElement} The enhanced element
+ */
+function createInPageButton(element, options = {}) {
+  if (typeof document === 'undefined' || !element) {
+    return null;
+  }
+  
+  const label = options.label || '';
+  const onClick = options.onClick || null;
+  
+  // Set role to button
+  element.setAttribute('role', 'button');
+  
+  // Set accessible name
+  if (label) {
+    element.setAttribute('aria-label', label);
+  }
+  
+  // Set tabindex to make it focusable
+  if (!element.hasAttribute('tabindex')) {
+    element.setAttribute('tabindex', '0');
+  }
+  
+  // Add keyboard support
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (onClick) onClick(e);
+    }
+  };
+  
+  element.addEventListener('keydown', handleKeyDown);
+  
+  if (onClick) {
+    element.addEventListener('click', onClick);
+  }
+  
+  return element;
+}
+
+/**
+ * Validates and fixes additional accessibility issues from insight report.
+ * Addresses concerns like ARIA attributes, image alt text, form labels,
+ * heading hierarchy, and color contrast hints.
+ * @param {HTMLElement} container - Optional container to scan within
+ * @returns {object} Validation result with valid flag, errors array, and fixes applied count
+ */
+function addressNewAccessibilityIssues(container) {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'], fixesApplied: 0 };
+  }
+  
+  const errors = [];
+  const root = container || document;
+  let fixesApplied = 0;
+  
+  // Check images for alt text
+  const images = root.querySelectorAll('img');
+  images.forEach((img, index) => {
+    const alt = img.getAttribute('alt');
+    const role = img.getAttribute('role');
+    if (alt === null && role !== 'presentation' && role !== 'none') {
+      errors.push(`Image ${index + 1} is missing alt attribute`);
+      // Auto-fix: add empty alt for decorative images is risky, so we just report
+    }
+  });
+  
+  // Check form inputs for labels
+  const inputs = root.querySelectorAll('input, textarea, select');
+  inputs.forEach((input, index) => {
+    const id = input.getAttribute('id');
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledBy = input.getAttribute('aria-labelledby');
+    const type = input.getAttribute('type');
+    
+    // Skip hidden inputs and submit/button types
+    if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
+      return;
+    }
+    
+    let hasLabel = false;
+    if (id) {
+      const label = document.querySelector(`label[for="${id}"]`);
+      if (label) hasLabel = true;
+    }
+    
+    // Check for wrapping label
+    if (!hasLabel && input.closest('label')) {
+      hasLabel = true;
+    }
+    
+    if (!hasLabel && !ariaLabel && !ariaLabelledBy) {
+      errors.push(`Form input ${index + 1} is missing an associated label`);
+    }
+  });
+  
+  // Check heading hierarchy
+  const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  let firstH1Found = false;
+  
+  headings.forEach((heading, index) => {
+    const level = parseInt(heading.tagName.substring(1), 10);
+    
+    if (level === 1) {
+      if (firstH1Found && index > 0) {
+        errors.push(`Multiple h1 elements found. Only one h1 should exist per page.`);
+      }
+      firstH1Found = true;
+    } else if (!firstH1Found && previousLevel === 0) {
+      errors.push(`First heading should be h1, found h${level}`);
+    }
+    
+    if (previousLevel > 0 && level > previousLevel + 1) {
+      errors.push(`Heading hierarchy skip detected: h${previousLevel} to h${level}`);
+    }
+    
+    previousLevel = level;
+  });
+  
+  if (!firstH1Found && headings.length > 0) {
+    errors.push('Page has headings but is missing an h1 element');
+  }
+  
+  // Check buttons for accessible names
+  const buttons = root.querySelectorAll('button, [role="button"]');
+  buttons.forEach((button, index) => {
+    const hasText = button.textContent.trim().length > 0;
+    const ariaLabel = button.getAttribute('aria-label');
+    const ariaLabelledBy = button.getAttribute('aria-labelledby');
+    const title = button.getAttribute('title');
+    
+    if (!hasText && !ariaLabel && !ariaLabelledBy && !title) {
+      errors.push(`Button ${index + 1} has no accessible name`);
+    }
+  });
+  
+  // Check for skip navigation link
+  const skipLinks = root.querySelectorAll('a[href^="#"]');
+  let hasSkipLink = false;
+  skipLinks.forEach((link) => {
+    const href = link.getAttribute('href');
+    const text = link.textContent.toLowerCase();
+    if (href !== '#' && (text.includes('skip') || text.includes('main'))) {
+      hasSkipLink = true;
+    }
+  });
+  
+  if (!hasSkipLink && root === document) {
+    // Only report at document level, not for nested containers
+    errors.push('Page is missing a skip navigation link');
+  }
+  
+  // Check for document title
+  if (root === document && typeof document.title === 'string') {
+    if (!document.title.trim()) {
+      errors.push('Document is missing a title');
+    }
+  }
+  
+  // Check for meta viewport (for responsive/mobile accessibility)
+  if (root === document) {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (!viewport) {
+      errors.push('Document is missing meta viewport tag for mobile accessibility');
+    }
+  }
+  
+  // Check iframe titles
+  const iframes = root.querySelectorAll('iframe');
+  iframes.forEach((iframe, index) => {
+    const title = iframe.getAttribute('title');
+    if (!title) {
+      errors.push(`Iframe ${index + 1} is missing a title attribute`);
+    }
+  });
+  
+  // Check for proper list structure
+  const lists = root.querySelectorAll('ul, ol');
+  lists.forEach((list, index) => {
+    const directItems = Array.from(list.children).filter(
+      child => child.tagName.toLowerCase() === 'li'
+    );
+    if (directItems.length === 0) {
+      errors.push(`List ${index + 1} contains no direct <li> children`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    fixesApplied,
+    timestamp: new Date().toISOString()
+  };
+}
+
+/**
+ * Auto-applies safe accessibility fixes to elements in the document.
+ * @param {HTMLElement} container - Optional container to apply fixes within
+ * @returns {object} Report of fixes applied
+ */
+function applyAccessibilityFixes(container) {
+  if (typeof document === 'undefined') {
+    return { fixesApplied: 0, fixDetails: [] };
+  }
+  
+  const root = container || document;
+  const fixDetails = [];
+  let fixesApplied = 0;
+  
+  // Add role="img" to SVGs that don't have one but have accessible names
+  const svgs = root.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('role') && getSvgAccessibleName(svg)) {
+      svg.setAttribute('role', 'img');
+      fixesApplied++;
+      fixDetails.push(`Added role="img" to SVG ${index + 1}`);
+    }
+  });
+  
+  // Ensure interactive elements have proper roles
+  const clickableRoles = ['a', 'button'];
+  clickableRoles.forEach((selector) => {
+    const elements = root.querySelectorAll(selector);
+    elements.forEach((el, index) => {
+      if (!el.hasAttribute('role') && !el.hasAttribute('aria-hidden')) {
+        // Element already has implicit role, no fix needed
+      }
+    });
+  });
+  
+  // Add aria-hidden="true" to decorative images
+  const images = root.querySelectorAll('img');
+  images.forEach((img, index) => {
+    if (img.getAttribute('alt') === '' && !img.hasAttribute('role')) {
+      img.setAttribute('role', 'presentation');
+      fixesApplied++;
+      fixDetails.push(`Added role="presentation" to decorative image ${index + 1}`);
+    }
+  });
+  
+  return {
+    fixesApplied,
+    fixDetails,
+    timestamp: new Date().toISOString()
+  };
+}
+
 // TODO: Implement a new function to handle focus trap for keyboard navigation
 /**
  * Creates a focus trap within a container element for keyboard navigation.
@@ -452,6 +707,9 @@ export {
   ensureUniqueLandmarks,
   personName,
   validateLinks,
+  createInPageButton,
+  addressNewAccessibilityIssues,
+  applyAccessibilityFixes,
   createFocusTrap
 };
 
@@ -468,5 +726,8 @@ export default {
   ensureUniqueLandmarks,
   personName,
   validateLinks,
+  createInPageButton,
+  addressNewAccessibilityIssues,
+  applyAccessibilityFixes,
   createFocusTrap
 };

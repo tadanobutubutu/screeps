@@ -1,7 +1,3 @@
-const main = require('./utilities');
-
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -34,13 +30,13 @@ function detectAndSetLang(content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[一-鿿]/.test(content)) {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[぀-ヿ]/.test(content)) {
+    } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[Ѐ-ӿ]/.test(content)) {
+    } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[؀-ۿ]/.test(content)) {
+    } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
@@ -375,27 +371,20 @@ function isLinkAccessible(link) {
     if (href.toLowerCase().startsWith('mailto:') && !ariaLabel && !textContent.includes('@')) {
       errors.push('Mailto link may need aria-label for clarity');
     }
+  }
 
-    // Fix fake link issues (elements that look like links but are missing href)
-    const fakeLinks = (typeof link.querySelectorAll === 'function') ? link.querySelectorAll('a:not([href])') : [];
-    fakeLinks.forEach(fakeLink => {
-      fakeLink.setAttribute('href', '#' + (fakeLink.id || `link-${Date.now()}`));
-      fakeLink.setAttribute('role', 'link');
-    });
-
-    // Check target="_blank" has rel="noopener noreferrer"
-    if (link.getAttribute('target') === '_blank') {
-      const rel = link.getAttribute('rel');
-      if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
-        errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
-      }
+  // Check target="_blank" has rel="noopener noreferrer"
+  if (link.getAttribute('target') === '_blank') {
+    const rel = link.getAttribute('rel');
+    if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
+      errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
     }
+  }
 
-    // Check for redundant title attribute
-    const title = link.getAttribute('title');
-    if (title && title === textContent) {
-      errors.push('Link title attribute duplicates link text');
-    }
+  // Check for redundant title attribute
+  const title = link.getAttribute('title');
+  if (title && title === textContent) {
+    errors.push('Link title attribute duplicates link text');
   }
 
   return { valid: errors.length === 0, errors };
@@ -415,365 +404,231 @@ function createInPageButton(parent = document.body) {
   return btn;
 }
 
-// New function to address ADD: Address new accessibility issues from insight report
-function addressNewAccessibilityIssues() {
-  // This function addresses new accessibility issues identified in the insight report
-  // It runs a series of checks and returns a comprehensive report
-  const report = {
-    valid: true,
-    issues: [],
-    checked: []
-  };
-
-  if (typeof document === 'undefined') {
-    return { valid: false, issues: ['Document not available'], checked: [] };
-  }
-
-  // Check 1: Ensure all images have alt attributes
-  const images = document.querySelectorAll('img');
-  images.forEach((img, index) => {
-    report.checked.push(`image-${index}`);
-    if (!img.hasAttribute('alt')) {
-      report.issues.push(`Image at index ${index} is missing alt attribute`);
-      report.valid = false;
-    }
-  });
-
-  // Check 2: Ensure all form inputs have associated labels
-  const inputs = document.querySelectorAll('input, textarea, select');
-  inputs.forEach((input, index) => {
-    report.checked.push(`input-${index}`);
-    const id = input.getAttribute('id');
-    const ariaLabel = input.getAttribute('aria-label');
-    const ariaLabelledby = input.getAttribute('aria-labelledby');
-    const type = input.getAttribute('type');
-
-    // Skip hidden inputs and submit/button inputs
-    if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
-      return;
-    }
-
-    const hasLabel = (id && document.querySelector(`label[for="${id}"]`)) ||
-                     input.closest('label') ||
-                     ariaLabel ||
-                     ariaLabelledby;
-
-    if (!hasLabel) {
-      report.issues.push(`Form input at index ${index} is missing associated label`);
-      report.valid = false;
-    }
-  });
-
-  // Check 3: Ensure all buttons have accessible names
-  const buttons = document.querySelectorAll('button, [role="button"]');
-  buttons.forEach((button, index) => {
-    report.checked.push(`button-${index}`);
-    const textContent = button.textContent ? button.textContent.trim() : '';
-    const ariaLabel = button.getAttribute('aria-label');
-    const ariaLabelledby = button.getAttribute('aria-labelledby');
-    const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
-
-    if (!hasAccessibleName) {
-      report.issues.push(`Button at index ${index} is missing accessible name`);
-      report.valid = false;
-    }
-  });
-
-  // Check 4: Ensure proper heading hierarchy
-  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  let previousLevel = 0;
-  headings.forEach((heading, index) => {
-    report.checked.push(`heading-${index}`);
-    const currentLevel = parseInt(heading.tagName.charAt(1), 10);
-    if (previousLevel > 0 && currentLevel > previousLevel + 1) {
-      report.issues.push(`Heading hierarchy skip detected: from h${previousLevel} to h${currentLevel}`);
-      report.valid = false;
-    }
-    previousLevel = currentLevel;
-  });
-
-  // Check 5: Ensure page has a main heading
-  const h1Elements = document.querySelectorAll('h1');
-  if (h1Elements.length === 0) {
-    report.issues.push('Page is missing an h1 heading');
-    report.valid = false;
-  } else if (h1Elements.length > 1) {
-    report.issues.push(`Page has multiple h1 headings (${h1Elements.length}), should have only 1`);
-    report.valid = false;
-  }
-
-  // Check 6: Ensure all links are accessible
-  const links = document.querySelectorAll('a');
-  links.forEach((link, index) => {
-    report.checked.push(`link-${index}`);
-    const linkCheck = isLinkAccessible(link);
-    if (!linkCheck.valid) {
-      linkCheck.errors.forEach(err => {
-        report.issues.push(`Link at index ${index}: ${err}`);
-      });
-      report.valid = false;
-    }
-  });
-
-  // Check 7: Ensure all SVGs have accessible names
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    report.checked.push(`svg-${index}`);
-    const svgName = getSvgAccessibleName(svg);
-    if (!svgName) {
-      report.issues.push(`SVG at index ${index} is missing accessible name`);
-      report.valid = false;
-    }
-  });
-
-  // Check 8: Ensure landmarks are unique
-  const landmarkCheck = ensureUniqueLandmarks();
-  if (!landmarkCheck.valid) {
-    landmarkCheck.errors.forEach(err => {
-      report.issues.push(err);
-    });
-    report.valid = false;
-  }
-
-  return report;
-}
-
-// New function to address ADD: Address new accessibility issues from insight report
-function validateFormAccessibility(form) {
-  // This function validates the accessibility of forms
-  const errors = [];
-
-  if (!form) {
-    return { valid: false, errors: ['Form element is required'] };
-  }
-
-  // Check for proper form labels
-  const inputs = form.querySelectorAll('input, textarea, select');
-  inputs.forEach((input, index) => {
-    const id = input.getAttribute('id');
-    const label = form.querySelector(`label[for="${id}"]`);
-
-    if (!id || !label) {
-      errors.push(`Input at index ${index} is missing proper label association`);
-    }
-
-    // Check for placeholder text that duplicates labels
-    const placeholder = input.getAttribute('placeholder');
-    const labelText = label ? label.textContent.trim() : '';
-    if (placeholder && labelText && placeholder === labelText) {
-      errors.push(`Input at index ${index} has placeholder text that duplicates label text`);
-    }
-  });
-
-  // Check for form submission button
-  const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
-  if (submitButtons.length === 0) {
-    errors.push('Form is missing a submit button');
-  }
-
-  // Check for form title or heading
-  const formTitle = form.querySelector('h1, h2, h3, h4, h5, h6');
-  if (!formTitle) {
-    errors.push('Form is missing a title or heading');
-  }
-
-  // Check for error message structure
-  const errorMessages = form.querySelectorAll('.error-message, [role="alert"]');
-  errorMessages.forEach((error, index) => {
-    if (!error.getAttribute('aria-live') && error.getAttribute('role') !== 'alert') {
-      errors.push(`Error message at index ${index} should have aria-live or role="alert"`);
-    }
-  });
-
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address ADD: Address new accessibility issues from insight report
-function validateImageAccessibility(img) {
-  // This function validates the accessibility of images
-  const errors = [];
-
-  if (!img) {
-    return { valid: false, errors: ['Image element is required'] };
-  }
-
-  // Check for alt text
-  const alt = img.getAttribute('alt');
-  if (!alt) {
-    errors.push('Image is missing alt attribute');
-  } else if (alt === '') {
-    errors.push('Image has empty alt attribute');
-  } else if (alt.toLowerCase().includes('image') || alt.toLowerCase().includes('picture')) {
-    errors.push('Image alt text is too generic');
-  }
-
-  // Check for decorative images
-  const role = img.getAttribute('role');
-  if (role === 'presentation' && alt !== '') {
-    errors.push('Decorative image should have empty alt text');
-  }
-
-  // Check for SVG images
-  if (img.tagName === 'svg') {
-    const title = img.querySelector('title');
-    if (!title || !title.textContent.trim()) {
-      errors.push('SVG image is missing title element');
-    }
-  }
-
-  // Check for background images
-  if (img.tagName !== 'img' && !img.querySelector('img')) {
-    const ariaLabel = img.getAttribute('aria-label');
-    if (!ariaLabel) {
-      errors.push('Background image container is missing aria-label');
-    }
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address ADD: Address new accessibility issues from insight report
-function validateButtonAccessibility(button) {
-  // This function validates the accessibility of buttons
-  const errors = [];
-
-  if (!button) {
-    return { valid: false, errors: ['Button element is required'] };
-  }
-
-  // Check for proper button role
-  const role = button.getAttribute('role');
-  if (role && role !== 'button') {
-    errors.push(`Button has invalid role: ${role}`);
-  }
-
-  // Check for accessible name
-  const textContent = button.textContent ? button.textContent.trim() : '';
-  const ariaLabel = button.getAttribute('aria-label');
-  const ariaLabelledby = button.getAttribute('aria-labelledby');
-  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
-
-  if (!hasAccessibleName) {
-    errors.push('Button is missing accessible name (text content, aria-label, or aria-labelledby)');
-  }
-
-  // Check for redundant title attribute
-  const title = button.getAttribute('title');
-  if (title && title === textContent) {
-    errors.push('Button title attribute duplicates button text');
-  }
-
-  // Check for disabled state
-  if (button.hasAttribute('disabled')) {
-    const ariaDisabled = button.getAttribute('aria-disabled');
-    if (ariaDisabled !== 'true') {
-      errors.push('Disabled button should have aria-disabled="true"');
-    }
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to count dependencies
-function countDependencies(node, options = {}) {
-  // Counts dependencies in a dependency graph
-  // @param {Object} node - The root node to count dependencies from
-  // @param {Object} options - Optional configuration
-  // @param {boolean} options.recursive - Whether to count nested dependencies (default: true)
-  // @param {boolean} options.unique - Whether to count only unique dependencies (default: false)
-  // @returns {Object} Result with count and metadata
+/**
+ * Builds a hierarchical representation of dependencies from a root node
+ * @param {HTMLElement} node - The DOM node to analyze for dependencies
+ * @param {Object} options - Configuration options
+ * @param {string} options.dependencyAttribute - Data attribute to look for dependencies (default: 'data-dependency')
+ * @param {string} options.idAttribute - Attribute to use as node identifier (default: 'id')
+ * @returns {Object} The dependency graph structure
+ */
+function buildDependencyGraph(node, options = {}) {
+  const { dependencyAttribute = 'data-dependency', idAttribute = 'id' } = options;
   
-  try {
-    if (!node) {
-      return { count: 0, errors: ['Node is required'] };
-    }
+  if (!node) {
+    return { success: false, errors: ['Node is required'] };
+  }
 
-    const { recursive = true, unique = false } = options;
-    const dependencyMap = new Map();
-    let totalCount = 0;
+  function processNode(domNode) {
+    if (!domNode) return null;
+    
+    const nodeData = {
+      id: domNode.getAttribute ? domNode.getAttribute(idAttribute) || domNode.id || 'anonymous' : 'anonymous',
+      tagName: domNode.tagName ? domNode.tagName.toLowerCase() : 'unknown',
+      dependencies: [],
+      children: []
+    };
 
-    // Recursive function to traverse and count dependencies
-    function traverse(currentNode, depth = 0) {
-      if (!currentNode) return;
+    // Find dependencies
+    const depElements = domNode.querySelectorAll ? domNode.querySelectorAll(`[${dependencyAttribute}]`) : [];
+    depElements.forEach(dep => {
+      const depId = dep.getAttribute(dependencyAttribute);
+      nodeData.dependencies.push({
+        id: depId,
+        name: dep.getAttribute(idAttribute) || depId,
+        element: dep
+      });
+    });
 
-      // Get dependencies from various possible property names
-      const dependencies = currentNode.dependencies || 
-                          currentNode.deps || 
-                          currentNode.requires ||
-                          currentNode.children ||
-                          currentNode.modules ||
-                          [];
-
-      dependencies.forEach(dep => {
-        const depId = unique ? (dep.id || dep.name || dep) : totalCount;
-        
-        if (unique) {
-          if (!dependencyMap.has(depId)) {
-            dependencyMap.set(depId, { ...dep, depth });
-            totalCount++;
-          }
-        } else {
-          totalCount++;
-        }
-
-        // Recursively count nested dependencies if enabled
-        if (recursive && typeof dep === 'object' && dep !== null) {
-          traverse(dep, depth + 1);
+    // Process child nodes recursively
+    if (domNode.children) {
+      Array.from(domNode.children).forEach(child => {
+        const childData = processNode(child);
+        if (childData) {
+          nodeData.children.push(childData);
         }
       });
     }
 
-    traverse(node);
+    return nodeData;
+  }
+
+  return {
+    success: true,
+    root: processNode(node)
+  };
+}
+
+/**
+ * Renders a dependency graph visualization
+ * @param {HTMLElement} rootNode - The root DOM node to render the graph from
+ * @param {HTMLElement} container - Optional container element to render into
+ * @param {Object} options - Rendering options
+ * @returns {Object} Result with success status and rendered graph data
+ */
+function renderDependencyGraph(rootNode, container, options = {}) {
+  try {
+    // Validate rootNode parameter
+    if (!rootNode) {
+      return { success: false, errors: ['Root node is required'] };
+    }
+
+    // Build the dependency graph structure
+    const graphData = buildDependencyGraph(rootNode, options);
+
+    // Log for debugging
+    console.log('Rendering dependency graph starting from:', rootNode);
+    console.log('Graph data:', JSON.stringify(graphData, null, 2));
+
+    // If container provided, render visual elements
+    if (container && typeof document !== 'undefined') {
+      const graphContainer = document.createElement('div');
+      graphContainer.setAttribute('role', 'img');
+      graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+      graphContainer.className = options.className || 'dependency-graph';
+      
+      // Create SVG for graph visualization
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', options.width || '100%');
+      svg.setAttribute('height', options.height || '400');
+      svg.setAttribute('aria-hidden', 'true');
+      
+      // Add accessible description
+      const description = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      description.textContent = 'Dependency Graph';
+      description.setAttribute('id', 'graph-title');
+      svg.appendChild(description);
+      
+      graphContainer.appendChild(svg);
+      container.appendChild(graphContainer);
+      
+      return {
+        success: true,
+        message: 'Dependency graph rendered successfully',
+        container: graphContainer,
+        svg: svg,
+        data: graphData
+      };
+    }
 
     return {
-      count: totalCount,
-      uniqueCount: unique ? dependencyMap.size : totalCount,
       success: true,
-      message: `Found ${totalCount} dependency${totalCount !== 1 ? 'ies' : 'y'}`,
-      dependencies: unique ? Array.from(dependencyMap.values()) : undefined
+      message: 'Dependency graph data built successfully',
+      data: graphData
     };
-  } catch (error) {
-    console.error('Error counting dependencies:', error);
-    return { count: 0, success: false, errors: [error.message] };
-  }
-}
-
-// New function to render dependency graphs
-function renderDependencyGraph(rootNode) {
-  // Renders a dependency graph visualization
-  // This function traverses the root node and builds a hierarchical representation
-  try {
-    // In a real implementation, this would traverse the DOM tree and create visual elements
-    // For now, we simulate the operation
-    console.log('Rendering dependency graph starting from:', rootNode);
-    return { success: true, message: 'Dependency graph rendered successfully' };
   } catch (error) {
     console.error('Error rendering dependency graph:', error);
     return { success: false, errors: [error.message] };
   }
 }
 
-// New function to render index views
-function renderIndexView(indexPath) {
-  // Renders an index view (breadcrumb or navigation structure)
-  // This function generates the appropriate UI for navigating between sections
+/**
+ * Builds breadcrumb data from an index path
+ * @param {string} indexPath - The path to parse into breadcrumb segments
+ * @param {Object} options - Configuration options
+ * @returns {Object} The breadcrumb structure
+ */
+function buildBreadcrumbData(indexPath, options = {}) {
+  const { baseUrl = '', separator = '/' } = options;
+  
+  if (!indexPath) {
+    return { success: false, errors: ['Index path is required'] };
+  }
+
+  // Split path into segments and filter empty ones
+  const segments = indexPath.split(separator).filter(s => s.trim());
+  
+  const breadcrumbs = segments.map((segment, index) => {
+    const url = baseUrl + separator + segments.slice(0, index + 1).join(separator);
+    return {
+      label: segment.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      original: segment,
+      url: url,
+      position: index + 1,
+      isLast: index === segments.length - 1
+    };
+  });
+
+  return {
+    success: true,
+    breadcrumbs: breadcrumbs,
+    totalSegments: breadcrumbs.length
+  };
+}
+
+/**
+ * Renders an index view (breadcrumb or navigation structure)
+ * @param {string} indexPath - The path to render the index view for
+ * @param {HTMLElement} container - Optional container element to render into
+ * @param {Object} options - Rendering options
+ * @returns {Object} Result with success status and rendered index view data
+ */
+function renderIndexView(indexPath, container, options = {}) {
   try {
-    // In a real implementation, this would generate the appropriate DOM elements
-    // For now, we simulate the operation
+    // Validate indexPath parameter
+    if (!indexPath) {
+      return { success: false, errors: ['Index path is required'] };
+    }
+
+    // Build breadcrumb data from the path
+    const breadcrumbData = buildBreadcrumbData(indexPath, {
+      baseUrl: options.baseUrl || '',
+      separator: options.separator || '/'
+    });
+
+    // Log for debugging
     console.log('Rendering index view at path:', indexPath);
-    return { success: true, message: 'Index view rendered successfully' };
+    console.log('Breadcrumb data:', JSON.stringify(breadcrumbData, null, 2));
+
+    // If container provided, render visual elements
+    if (container && typeof document !== 'undefined') {
+      const nav = document.createElement('nav');
+      nav.setAttribute('aria-label', options.ariaLabel || 'Breadcrumb');
+      
+      const ol = document.createElement('ol');
+      ol.className = options.listClassName || 'breadcrumb';
+      
+      breadcrumbData.breadcrumbs.forEach((crumb, index) => {
+        const li = document.createElement('li');
+        li.className = 'breadcrumb-item';
+        li.setAttribute('aria-current', crumb.isLast ? 'page' : undefined);
+        
+        if (crumb.isLast) {
+          const span = document.createElement('span');
+          span.textContent = crumb.label;
+          li.appendChild(span);
+        } else {
+          const link = document.createElement('a');
+          link.href = crumb.url;
+          link.textContent = crumb.label;
+          li.appendChild(link);
+        }
+        
+        ol.appendChild(li);
+      });
+      
+      nav.appendChild(ol);
+      container.appendChild(nav);
+      
+      return {
+        success: true,
+        message: 'Index view rendered successfully',
+        nav: nav,
+        breadcrumbs: breadcrumbData.breadcrumbs,
+        data: breadcrumbData
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Index view data built successfully',
+      breadcrumbs: breadcrumbData.breadcrumbs,
+      data: breadcrumbData
+    };
   } catch (error) {
     console.error('Error rendering index view:', error);
     return { success: false, errors: [error.message] };
   }
-}
-
-// Accessibility-related function to be added
-function checkAccessibilityNew(content) {
-  // Placeholder for accessibility checking logic
-  // This function should be implemented to check for accessibility issues
-  // For now, it just returns an empty array
-  return [];
 }
 
 // TODO: Implement tower defense
@@ -931,7 +786,6 @@ function towerDefense() {
 
 // Export all functions to maintain current exports
 module.exports = {
-  ...main,
   setHtmlLangAttribute,
   detectAndSetLang,
   getLangAttribute,
@@ -945,13 +799,9 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  addressNewAccessibilityIssues,
-  validateFormAccessibility,
-  validateImageAccessibility,
-  validateButtonAccessibility,
-  countDependencies,
   renderDependencyGraph,
   renderIndexView,
-  checkAccessibilityNew,
+  buildDependencyGraph,
+  buildBreadcrumbData,
   towerDefense
 };

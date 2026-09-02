@@ -1,6 +1,3 @@
-Looking at the error, there's a naming conflict: `validateLandmark` is being imported from `./utilities` and then also declared as a function in the same file. I need to rename the local function declaration to avoid the conflict.
-
-```javascript
 const main = require('./utilities')
 
 const {
@@ -371,4 +368,17 @@ function validateLandmarkStructureFn(container) {
   const requiredRoles = ['main', 'banner', 'navigation', 'contentinfo'];
   const foundRoles = new Set();
 
-  container.querySelectorAll('[role]').forEach(el =>
+  container.querySelectorAll('[role]').forEach(el => {
+    const role = el.getAttribute('role');
+    if (requiredRoles.includes(role)) {
+      foundRoles.add(role);
+    }
+  });
+
+  const missingRoles = requiredRoles.filter(role => !foundRoles.has(role));
+  return {
+    valid: missingRoles.length === 0,
+    foundRoles: Array.from(foundRoles),
+    missingRoles
+  };
+}

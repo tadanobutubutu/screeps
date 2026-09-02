@@ -11,7 +11,6 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 // User Safety: unsafe
 // Safety Categories: Fraud/Deception, Unauthorized Advice
 
-// TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
@@ -20,8 +19,6 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
 /**
  * Gets the lang attribute for the HTML element
@@ -48,8 +45,8 @@ function addLangAttribute() {
  */
 function validateTableAccessibility(table) {
   // Check for caption or aria-label
-  return !!(table.querySelector('caption') || 
-           table.getAttribute('aria-label') || 
+  return !!(table.querySelector('caption') ||
+           table.getAttribute('aria-label') ||
            table.getAttribute('aria-labelledby'));
 }
 
@@ -110,16 +107,6 @@ function validateLandmark(landmark) {
 }
 
 /**
- * Validates landmark structure
- * @param {HTMLElement} landmark - The landmark element to validate
- * @returns {boolean} True if landmark structure is valid
- */
-function validateLandmarkStructure(landmark) {
-  // Check if landmark has appropriate child elements
-  return landmark.children.length > 0;
-}
-
-/**
  * Validates landmark attributes
  * @param {HTMLElement} landmark - The landmark element to validate
  * @returns {boolean} True if landmark attributes are valid
@@ -131,14 +118,36 @@ function validateLandmarkAttributes(landmark) {
 }
 
 /**
+ * Validates landmark structure for accessibility issues
+ * @returns {boolean} True if landmark structure is valid
+ */
+function validateLandmarkStructure() {
+  const requiredLandmarks = ['header', 'main', 'footer'];
+  const missingLandmarks = [];
+
+  requiredLandmarks.forEach(landmark => {
+    if (!document.querySelector(landmark)) {
+      missingLandmarks.push(landmark);
+    }
+  });
+
+  if (missingLandmarks.length > 0) {
+    console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Gets accessible name for SVG
  * @param {HTMLElement} svg - The SVG element
  * @returns {string} The accessible name
  */
 function getSvgAccessibleName(svg) {
-  return svg.getAttribute('aria-label') || 
-         svg.getAttribute('title') || 
-         svg.querySelector('title')?.textContent || 
+  return svg.getAttribute('aria-label') ||
+         svg.getAttribute('title') ||
+         svg.querySelector('title')?.textContent ||
          'SVG graphic';
 }
 
@@ -215,19 +224,22 @@ function addProperLandmarkRegions() {
   if (header && !header.getAttribute('role')) {
     header.setAttribute('role', 'banner');
   }
-  
+
   const footer = document.querySelector('footer');
   if (footer && !footer.getAttribute('role')) {
     footer.setAttribute('role', 'contentinfo');
   }
-  
+
   const nav = document.querySelector('nav');
   if (nav && !nav.getAttribute('role')) {
     nav.setAttribute('role', 'navigation');
   }
 }
 
-// Function for generating a report based on accessibility issues
+/**
+ * Generates a report based on accessibility issues
+ * @returns {Object} The accessibility report
+ */
 function generateAccessibilityReport() {
   const issues = [];
 
@@ -315,7 +327,9 @@ function generateAccessibilityReport() {
   return report;
 }
 
-// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
+/**
+ * Addresses accessibility issues at runtime
+ */
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
   const rootContainer = document.getElementById('root');
@@ -357,8 +371,8 @@ function addressAccessibilityIssues() {
     document.body.classList.remove('keyboard-nav');
   });
 
-  // Assuming a modal/dialog element with the ID "modal"
-  a11y.announce('Welcome to the bot!', 'assertive'); // Assuming announce function from a11y utilities
+  // Announce welcome message
+  a11y.announce('Welcome to the bot!', 'assertive');
 
   // Adding an alt attribute to an image
   const imageElement = document.querySelector('.image-placeholder');
@@ -386,3 +400,5 @@ root.render(
 );
 
 reportWebVitals();
+
+export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };

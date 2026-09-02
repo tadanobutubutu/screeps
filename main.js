@@ -54,14 +54,57 @@ function fixTableStructure (html) {
   // REACT_036: Fix fake link issues
   html = fixFakeLinks(html)
 
-  return html
+  // Implement function for generating an accessibility report based on accessibility issues
+  const accessibilityReport = {
+    issues: [],
+  };
+
+  // Check for common accessibility issues
+  const checkBoxes = html.matchAll(/<input type="checkbox"/gi);
+  for (const checkbox of checkBoxes) {
+    // Check if checkbox has an associated label
+    if (!checkbox.nextSibling || !checkbox.nextSibling.nodeName.toLowerCase() === 'label') {
+      accessibilityReport.issues.push({
+        type: 'missing-checkbox-label',
+        node: checkbox,
+      });
+    }
+  }
+
+  const links = html.matchAll(/<a[^>]*>/gi);
+  for (const link of links) {
+    // Check if link has text content
+    if (!link.nextSibling || !link.nextSibling.nodeName.toLowerCase() === '#text') {
+      accessibilityReport.issues.push({
+        type: 'empty-link',
+        node: link,
+      });
+    }
+  }
+
+  // Save the report to a string and add it to the function's return value
+  accessibilityReport.report = JSON.stringify(accessibilityReport, null, 2);
+
+  return addLangAttribute(html, 'en')
+    .then(html => fixTableStructure(html))
+    .then(html => fixFakeLinks(html))
+    .then(() => accessibilityReport);
 }
 
-// Main function that applies all accessibility fixes
+// Main function that applies all accessibility fixes and generates report
 function applyAccessibilityFixes (html) {
-  let result = html
-  result = addLangAttribute(result)
-  result = fixTableStructure(result)
-  result = fixFakeLinks(result)
-  return result
+  let result = html;
+  result = addLangAttribute(result);
+  result = fixTableStructure(result);
+  result = fixFakeLinks(result);
+  return applyAccessibilityReport(result);
+}
+
+// Function to asynchronously apply accessibility report
+async function applyAccessibilityReport (html) {
+  const report = await applyAccessibilityFixes(html);
+  if (report.issues.length > 0) {
+    throw new Error(report.report);
+  }
+  return report;
 }

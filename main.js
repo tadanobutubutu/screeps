@@ -2,6 +2,49 @@
 const requiredModule1 = require('required-module-1');
 const requiredModule2 = require('required-module-2');
 
+// Handle credential response when received
+function handleCredentialResponse(response) {
+  if (!response) {
+    console.error('No credential response received');
+    return null;
+  }
+
+  try {
+    // Parse the credential response payload
+    const credential = typeof response === 'string' ? JSON.parse(response) : response;
+
+    // Validate the credential structure
+    if (!credential || typeof credential !== 'object') {
+      console.error('Invalid credential response format');
+      return null;
+    }
+
+    // Validate required credential fields
+    if (!credential.id || !credential.token) {
+      console.error('Credential response missing required fields (id, token)');
+      return null;
+    }
+
+    // Store the credentials securely (in a real app, use secure storage)
+    const credentials = {
+      id: credential.id,
+      token: credential.token,
+      issuedAt: credential.issuedAt || Date.now(),
+      expiresAt: credential.expiresAt || null
+    };
+
+    // Use the credentials (e.g., set auth header, store in session, etc.)
+    if (typeof process !== 'undefined' && process.env) {
+      process.env.AUTH_TOKEN = credentials.token;
+    }
+
+    return credentials;
+  } catch (error) {
+    console.error('Error handling credential response:', error.message);
+    return null;
+  }
+}
+
 const landmarkSelectors = [
   'main',
   '[role="main"]',
@@ -40,13 +83,10 @@ const {
 
 const expressApp = express();
 
-// Landmark configuration
+// Merged configuration (landmark + app configs)
 const CONFIG = {
   landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  requiredLandmarks: ['banner', 'navigation', 'main']
-};
-
-const CONFIG = {
+  requiredLandmarks: ['banner', 'navigation', 'main'],
   dataPath: './data',
   maxResults: 100,
   apiUrl: process.env.API_URL || 'https://example.com',
@@ -400,3 +440,4 @@ exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
 exports.setLanguageAttribute = setLanguageAttribute;
 exports.addLandmarkRoles = addLandmarkRoles;
 exports.landmarkConfig = landmarkConfig;
+exports.handleCredentialResponse = handleCredentialResponse;

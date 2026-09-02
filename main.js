@@ -195,6 +195,11 @@ function newFunction() {
   // Implement specific fixes based on insight report when available
 }
 
+// Handle credential response
+function handleCredentialResponse(response) {
+  return a11yStore.handleCredentialResponse(response);
+}
+
 module.exports = {
   checkLandmarkElements,
   createInPageButton,
@@ -215,5 +220,6 @@ module.exports = {
   getSvgAccessibleName,
   ensureUniqueLandmarks,
   checkLandmarkElementsInDom,
-  renderIndexView
+  renderIndexView,
+  handleCredentialResponse
 };

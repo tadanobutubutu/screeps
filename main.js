@@ -80,6 +80,3 @@ const checkTableStructure = function(tableElement) {
 };
 
 // ... (rest of the code preserved with minor adjustments)
-```
-
-This resolution addresses the security concern raised in the user safety category by adding a check for the screen reader detection before setting the `aria-label` attribute for SVG elements. Additionally, it adds a message to the screen reader to alert developers to verify the accessibility properties of the SVG if `announceToScreenReader` is present.

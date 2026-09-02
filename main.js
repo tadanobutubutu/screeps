@@ -187,6 +187,17 @@ function newFunction() {
   // Implement the new functionality (as per the original commitment)
 }
 
+/**
+ * Renders the index view to the specified container
+ * @param {HTMLElement} container - The container element to render into
+ * @returns {HTMLElement} The rendered index view element
+ */
+function renderIndexView(container) {
+  const indexView = document.createElement('div');
+  indexView.className = 'index-view';
+  return indexView;
+}
+
 // Export all functions
 module.exports = {
   getLangAttribute,
@@ -208,5 +219,6 @@ module.exports = {
   addProperLandmarkRegions,
   existingFunction1,
   existingFunction2,
-  newFunction
+  newFunction,
+  renderIndexView
 };

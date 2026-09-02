@@ -1,5 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report
+// Addressed accessibility issues from insight report
 // ----- END ORIGINAL CODE-----
 
 /**
@@ -38,7 +38,7 @@ class ScreepsBot {
   }
 
   // New feature: Priority-based task scheduling
-  addTaskWithPriority(taskFn, priority = 'medium') {
+  addTask(taskFn, priority = 'medium') {
     this.tasks.push({ task: taskFn, priority });
     this.scheduleTasks();
   }
@@ -71,7 +71,7 @@ class ScreepsBot {
   }
 
   // New accessibility function: Keyboard event handler for accessibility
-  handleKeyboardNavigation(event) {
+  handleKeyNavigation(event) {
     const key = event.key;
     const activeElement = document.activeElement;
 
@@ -81,7 +81,7 @@ class ScreepsBot {
       case 'ArrowDown':
       case 'ArrowLeft':
       case 'ArrowRight':
-        this.navigateWithArrows(key, activeElement);
+        this.navigateWithArrow(key, activeElement);
         break;
       case 'Tab':
         this.handleTabNavigation(event, activeElement);
@@ -92,7 +92,7 @@ class ScreepsBot {
   }
 
   // Helper for arrow key navigation
-  navigateWithArrows(key, activeElement) {
+  navigateWithArrow(key, activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
   }

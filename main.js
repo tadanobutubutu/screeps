@@ -39,6 +39,9 @@ root.render(
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
 
+<<<<<<< HEAD
+// Existing code
+=======
 /**
  * Gets the lang attribute for the HTML element
  * @returns {string} The lang attribute value
@@ -53,6 +56,7 @@ function getLangAttribute() {
 function addLangAttribute() {
   // Implementation to be added
 }
+>>>>>>> origin/main
 
 // New function requested in the issue
 function logCurrentURL() {
@@ -355,6 +359,13 @@ function existingFunction2() {
 }
 
 // New Function
+<<<<<<< HEAD
+export function newFunction() {
+  // Add the new functionality here
+  // For instance, a sample new implementation:
+  // ...
+
+
 function newFunction() {
   // Example implementation, replace with actual functionality:
   console.log('New function called');
@@ -421,3 +432,4 @@ module.exports = {
   newFunction,
   renderIndexView
 };
+=======>>>>>>> origin/main

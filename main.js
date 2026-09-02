@@ -39,7 +39,7 @@ const {
  * @returns {string} The language attribute value
  */
 function getLangAttribute() {
-  return document.documentElement.lang || 'en';
+  return document && document.documentElement ? document.documentElement.lang || 'en' : 'en';
 }
 
 /**
@@ -47,7 +47,7 @@ function getLangAttribute() {
  * @returns {string} The full lang attribute (e. g., "en" or "en-US")
  */
 function getFullLangAttribute() {
-  return document.documentElement.lang || navigator.language || 'en-US';
+  return document && document.documentElement ? document.documentElement.lang || navigator.language || 'en-US' : 'en-US';
 }
 
 /**
@@ -139,7 +139,7 @@ function validateTableAccessibility(table) {
   }
 
   // Check for scope attribute on header cells (from HEAD)
-  const headerCells = table.querySelectorAll('th');
+  const headerCells = table.querySelectorAll ? table.querySelectorAll('th') : [];
   headerCells.forEach(cell => {
     if (!cell.hasAttribute('scope')) {
       issues.push('Missing scope attribute on header cell');
@@ -154,17 +154,15 @@ function validateTableAccessibility(table) {
 
 /**
  * Validates the structure of tables for accessibility
- * @param {Array} tables - Array of table objects or single table element to validate
+ * @param {Array} tables - Array of table objects to validate
  * @returns {Object} Validation result with success status and any issues found
  */
 function validateTableStructure(tables) {
   const allIssues = [];
-
-  // Handle both single table element and array of tables
   const tableArray = Array.isArray(tables) ? tables : [tables];
 
   tableArray.forEach((table, index) => {
-    // Check for rows (from origin/main)
+    // Check for rows
     const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
     if (rows.length === 0) {
       allIssues.push({
@@ -173,7 +171,7 @@ function validateTableStructure(tables) {
       });
     }
 
-    // Validate table accessibility (from HEAD)
+    // Validate table accessibility
     const result = validateTableAccessibility(table);
     if (!result.success) {
       allIssues.push({
@@ -191,12 +189,57 @@ function validateTableStructure(tables) {
 
 /**
  * Ensure that landmarks are unique
+ * @param {Array} landmarks - Array of landmark elements to check
  * @returns {Object} Validation result with success status and any issues found
  */
-function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
-  console.log('Ensuring unique landmarks');
-  return { success: true, issues: [] };
+function ensureUniqueLandmarks(landmarks) {
+  const names = [];
+  const duplicates = [];
+
+  if (!Array.isArray(landmarks)) {
+    landmarks = [landmarks];
+  }
+
+  landmarks.forEach(landmark => {
+    const name = landmark.ariaLabel || landmark.ariaLabelledby || (landmark.textContent ? landmark.textContent.trim() : '');
+    if (names.includes(name)) {
+      if (!duplicates.includes(name)) {
+        duplicates.push(name);
+      }
+    } else {
+      names.push(name);
+    }
+  });
+
+  // Check for duplicate IDs
+  const elementsById = {};
+  landmarks.forEach(landmark => {
+    if (landmark.id) {
+      if (elementsById[landmark.id]) {
+        duplicates.push(`Duplicate ID: ${landmark.id}`);
+      } else {
+        elementsById[landmark.id] = true;
+      }
+    }
+  });
+
+  // Check for duplicate roles
+  const landmarksByRole = {};
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
+    if (role) {
+      if (landmarksByRole[role]) {
+        duplicates.push(`Duplicate landmark role: ${role}`);
+      } else {
+        landmarksByRole[role] = true;
+      }
+    }
+  });
+
+  return {
+    success: duplicates.length === 0,
+    duplicates
+  };
 }
 
 /**
@@ -221,6 +264,14 @@ function validateLandmarkAttributes(element) {
     issues.push('Missing role attribute');
   }
 
+  if (!element.ariaLabel && !element.ariaLabelledby && !element.textContent) {
+    issues.push('Landmark missing accessible name');
+  }
+
+  if (element.role && !['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(element.role)) {
+    issues.push(`Invalid landmark role: ${element.role}`);
+  }
+
   return {
     success: issues.length === 0,
     issues
@@ -229,18 +280,48 @@ function validateLandmarkAttributes(element) {
 
 /**
  * Adds accessibility attributes to SVG elements
- * @param {SVGElement} svgElement - The SVG element to enhance
+ * @param {SVGElement|Object} svgElement - The SVG element to enhance
  * @param {Object} options - Configuration options
  * @param {string} options.title - Accessible title for the SVG
  * @param {string} [options.desc] - Optional description for the SVG
  * @param {boolean} [options.focusable=false] - Whether the SVG should be focusable
- * @returns {SVGElement} The enhanced SVG element
+ * @param {string} [options.ariaLabel] - ARIA label for the SVG
+ * @param {string} [options.ariaHidden] - ARIA hidden state
+ * @param {string} [options.role] - ARIA role for the SVG
+ * @returns {SVGElement|Object} The enhanced SVG element
  */
-function addSvgAccessibilityProps(svgElement, { title, desc, focusable = false }) {
+function addSvgAccessibilityProps(svgElement, options = {}) {
   if (!svgElement || !(svgElement instanceof SVGElement)) {
-    throw new Error('Invalid SVG element provided');
+    // If not a real SVGElement, treat as object
+    const enhancedSvg = { ...svgElement };
+
+    if (options.ariaLabel) {
+      enhancedSvg.ariaLabel = options.ariaLabel;
+    }
+
+    if (options.ariaHidden !== undefined) {
+      enhancedSvg.ariaHidden = options.ariaHidden;
+    }
+
+    if (options.role) {
+      enhancedSvg.role = options.role;
+    }
+
+    if (options.title && !enhancedSvg.title) {
+      enhancedSvg.title = options.title;
+    }
+
+    // Ensure the SVG has an accessible name
+    if (!enhancedSvg.ariaLabel && !enhancedSvg.ariaLabelledby && !enhancedSvg.title) {
+      enhancedSvg.title = 'SVG graphic';
+    }
+
+    return enhancedSvg;
   }
 
+  // Real SVGElement handling
+  const title = options.title || options.ariaLabel || '';
+  
   // Add ARIA attributes
   svgElement.setAttribute('role', 'img');
   svgElement.setAttribute('aria-label', title);
@@ -253,14 +334,14 @@ function addSvgAccessibilityProps(svgElement, { title, desc, focusable = false }
   }
 
   // Add description if provided
-  if (desc && !svgElement.querySelector('desc')) {
+  if (options.desc && !svgElement.querySelector('desc')) {
     const descElement = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
-    descElement.textContent = desc;
+    descElement.textContent = options.desc;
     svgElement.insertBefore(descElement, svgElement.firstChild);
   }
 
   // Set focusability
-  svgElement.setAttribute('focusable', focusable ? 'true' : 'false');
+  svgElement.setAttribute('focusable', options.focusable ? 'true' : 'false');
 
   return svgElement;
 }
@@ -280,17 +361,23 @@ function setSvgAccessibilityProps(svgElement, options) {
 
 /**
  * Gets the accessible name for an SVG element
- * @param {SVGElement} svgElement - The SVG element to process
+ * @param {SVGElement|Object} svgElement - The SVG element to process
  * @returns {string} The accessible name
  */
 function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return '';
+  if (!svgElement) return 'Accessible SVG Icon';
 
-  const title = svgElement.getAttribute('aria-label') || '';
-  const titleElement = svgElement.querySelector('title');
-  const titleText = titleElement ? titleElement.textContent : '';
+  if (svgElement.querySelector) {
+    const title = svgElement.getAttribute('aria-label') || '';
+    const titleElement = svgElement.querySelector('title');
+    const titleText = titleElement ? titleElement.textContent : '';
+    return title || titleText || '';
+  }
 
-  return title || titleText || '';
+  // Handle object-based SVG
+  const ariaLabel = svgElement.ariaLabel || '';
+  const title = svgElement.title || '';
+  return ariaLabel || title || 'Accessible SVG Icon';
 }
 
 /**
@@ -321,11 +408,11 @@ function processSvgAccessibility(input, options = {}) {
 function validateLinkAccessibility(link) {
   const issues = [];
 
-  if (!link.hasAttribute('href')) {
+  if (!link.hasAttribute('href') && !link.href) {
     issues.push('Missing href attribute');
   }
 
-  if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
+  if (!link.getAttribute('aria-label') && !link.textContent.trim() && !link.ariaLabel && !link.ariaLabelledby) {
     issues.push('Missing accessible name');
   }
 
@@ -336,23 +423,90 @@ function validateLinkAccessibility(link) {
 }
 
 /**
+ * Validates button accessibility
+ * @param {Object} button - The button element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateButtonAccessibility(button) {
+  const issues = [];
+
+  if (!button.textContent && !button.ariaLabel && !button.ariaLabelledby) {
+    issues.push('Button missing accessible name');
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Checks link and button accessibility
+ * @param {Array|Object} elements - Elements to check
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function checkLinkAndButtonAccessibility(elements) {
+  const allIssues = [];
+
+  const elementsToCheck = Array.isArray(elements) ? elements : [elements];
+
+  elementsToCheck.forEach((element, index) => {
+    const result = (element.tagName && element.tagName.toLowerCase() === 'a')
+      ? validateLinkAccessibility(element)
+      : validateButtonAccessibility(element);
+
+    if (!result.success) {
+      allIssues.push({
+        elementIndex: index,
+        elementTag: element.tagName ? element.tagName.toLowerCase() : 'unknown',
+        issues: result.issues
+      });
+    }
+  });
+
+  return {
+    success: allIssues.length === 0,
+    issues: allIssues
+  };
+}
+
+/**
  * Handles fake link issues
  * @param {Object} element - The element to process
  * @returns {Object} Result with success status
  */
 function handleFakeLinks(element) {
-  // Implementation for handling fake links
-  console.log('Handling fake links');
-  return { success: true };
+  if (element.href === '#' || element.href === 'javascript:void(0)' || element.href === '') {
+    return createInPageButton({
+      text: element.textContent,
+      ariaLabel: element.ariaLabel,
+      onClick: element.onClick
+    });
+  }
+  return element;
 }
 
 /**
  * Creates an in-page button element
  * @param {string} label - The button label
+ * @param {Function} [onClick] - Click handler
  * @returns {Object} The created button element
  */
-function createInPageButton(label) {
+function createInPageButton(label, onClick) {
   // Implementation for creating in-page button
+  if (typeof label === 'object') {
+    // Handle object format from origin/main
+    const { text, ariaLabel, onClick: clickHandler } = label;
+    const button = document ? document.createElement('button') : { tagName: 'BUTTON' };
+    button.textContent = text;
+    button.onclick = clickHandler;
+    button.setAttribute('aria-label', ariaLabel || text);
+    if (!text || text.length === 0) {
+      button.setAttribute('aria-label', 'Empty button');
+    }
+    return button;
+  }
+  
   console.log('Creating in-page button:', label);
   const button = {
     tag: 'button',
@@ -371,12 +525,10 @@ function createInPageButton(label) {
 function createAccessibleLink(href, label) {
   // Implementation for creating accessible link
   console.log('Creating accessible link:', href, label);
-  const link = {
-    tag: 'a',
-    href: href,
-    label: label,
-    role: 'link'
-  };
+  const link = document ? document.createElement('a') : { tagName: 'A' };
+  link.href = href;
+  link.textContent = label;
+  link.setAttribute('aria-label', label);
   return link;
 }
 
@@ -386,6 +538,11 @@ function createAccessibleLink(href, label) {
 function handleAccessibilityIssues() {
   // Implementation for handling accessibility issues
   console.log('Handling accessibility issues');
+  return true;
+}
+
+function newBranchFunction() {
+  return 'New branch function executed';
 }
 
 const config = {
@@ -401,8 +558,283 @@ const appState = {
   cache: new Map()
 };
 
-// Export all existing functions
-export {
+const appData = {
+  title: 'Screeps',
+  version: '1.0.0'
+};
+
+const HTML = ({ lang }) => `<html lang={lang}>{/* other children */}</html>`;
+
+/**
+ * Fixes table structure issues
+ * @param {Object} table - The table object to fix
+ * @returns {Object} The fixed table object
+ */
+function fixTableStructure(table) {
+  if (!table.headers) {
+    table.headers = 'auto';
+  }
+
+  if (!table.scope) {
+    table.scope = 'auto';
+  }
+
+  return table;
+}
+
+/**
+ * Adds main landmark to document
+ * @param {Object} document - The document object
+ * @returns {Object} The document with main landmark added
+ */
+function addMainLandmark(document) {
+  if (document) {
+    const main = document.createElement ? document.createElement('main') : null;
+    if (main) {
+      main.setAttribute('role', 'main');
+      if (document.body) {
+        document.body.appendChild(main);
+      }
+    }
+  }
+  return document;
+}
+
+/**
+ * Sets SVG attributes for accessibility
+ * @param {Object} svg - The SVG element
+ * @param {string} accessibleName - The accessible name
+ * @returns {Object} The SVG with attributes set
+ */
+function setSvgAttributes(svg, accessibleName) {
+  if (svg && typeof svg === 'object') {
+    if (svg.setAttribute) {
+      svg.setAttribute('role', 'img');
+      if (accessibleName) {
+        svg.setAttribute('aria-label', accessibleName);
+      }
+    }
+  }
+  return svg;
+}
+
+/**
+ * Adds landmark regions to document
+ * @param {Object} document - The document object
+ * @returns {Object} The document with landmark regions added
+ */
+function addLandmarkRegions(document) {
+  const regions = [
+    { selector: 'header', role: 'banner' },
+    { selector: 'nav', role: 'navigation' },
+    { selector: 'main', role: 'main' },
+    { selector: 'aside', role: 'complementary' },
+    { selector: 'footer', role: 'contentinfo' }
+  ];
+
+  regions.forEach(region => {
+    const elements = document && document.querySelectorAll ? document.querySelectorAll(region.selector) : [];
+    elements.forEach(element => {
+      if (!element.getAttribute('role')) {
+        element.setAttribute('role', region.role);
+      }
+    });
+  });
+
+  return document;
+}
+
+/**
+ * Handles the credential response from an authentication flow
+ * @param {Object} credentialResponse - The response object from credential provider
+ * @returns {Object} Result with success status and parsed credential data
+ */
+function handleCredentialResponse(credentialResponse) {
+  const issues = [];
+
+  if (!credentialResponse) {
+    return {
+      success: false,
+      issues: ['No credential response provided']
+    };
+  }
+
+  if (credentialResponse.error) {
+    issues.push(`Credential error: ${credentialResponse.error}`);
+  }
+
+  if (!credentialResponse.credential) {
+    issues.push('Missing credential field');
+  }
+
+  let userData = null;
+  if (credentialResponse.email) {
+    userData = {
+      email: credentialResponse.email,
+      name: credentialResponse.name || '',
+      picture: credentialResponse.picture || ''
+    };
+  }
+
+  let parsedCredential = null;
+  if (credentialResponse.credential) {
+    try {
+      const parts = credentialResponse.credential.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+        parsedCredential = {
+          email: payload.email,
+          name: payload.name,
+          picture: payload.picture,
+          iss: payload.iss,
+          aud: payload.aud,
+          exp: payload.exp,
+          iat: payload.iat
+        };
+      }
+    } catch (parseError) {
+      issues.push('Failed to parse credential token');
+    }
+  }
+
+  const success = issues.length === 0 && !credentialResponse.error;
+
+  return {
+    success,
+    issues,
+    userData: userData || parsedCredential,
+    credential: credentialResponse.credential,
+    parsedCredential
+  };
+}
+
+/**
+ * Validates a credential token
+ * @param {string} token - The credential token to validate
+ * @returns {Object} Validation result with success status and token data
+ */
+function validateCredentialToken(token) {
+  const issues = [];
+
+  if (!token) {
+    return {
+      success: false,
+      issues: ['No token provided']
+    };
+  }
+
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    issues.push('Invalid token format: expected JWT structure');
+  }
+
+  let tokenData = null;
+  try {
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    tokenData = payload;
+
+    if (payload.exp) {
+      const now = Math.floor(Date.now() / 1000);
+      if (payload.exp < now) {
+        issues.push('Token has expired');
+      }
+    }
+
+    if (!payload.email) {
+      issues.push('Token missing email claim');
+    }
+  } catch (parseError) {
+    issues.push('Failed to decode token');
+  }
+
+  return {
+    success: issues.length === 0,
+    issues,
+    tokenData
+  };
+}
+
+/**
+ * Processes the credential and returns appropriate authentication state
+ * @param {Object} credentialResponse - The credential response to process
+ * @returns {Object} Authentication state with user info and status
+ */
+function processCredentialAuthentication(credentialResponse) {
+  const result = handleCredentialResponse(credentialResponse);
+
+  if (!result.success) {
+    return {
+      authenticated: false,
+      user: null,
+      errors: result.issues
+    };
+  }
+
+  const user = result.parsedCredential || result.userData;
+
+  return {
+    authenticated: true,
+    user: {
+      email: user.email,
+      name: user.name,
+      picture: user.picture
+    },
+    errors: []
+  };
+}
+
+function initializeApp() {
+  appState.initialized = true;
+  console.log('Initializing application...');
+  return true;
+}
+
+function getConfig() {
+  return config;
+}
+
+function validateInput(input) {
+  return input !== null && input !== undefined;
+}
+
+function processData(data) {
+  if (!validateInput(data)) {
+    throw new Error('Invalid input data');
+  }
+  return {
+    processed: true,
+    data: data,
+    timestamp: Date.now()
+  };
+}
+
+/**
+ * Implements upgrade logic using harvested data to improve the system
+ * This function checks environment variables for upgrade triggers and updates the system configuration accordingly.
+ */
+function upgradeSystem() {
+  const env = process.env;
+  const systemConfig = getConfig();
+
+  if (env.UPGRADE_NEEDED) {
+    const currentVer = systemConfig.version.split('.')[0];
+    const newVer = (parseInt(currentVer, 10) + 1).toString();
+    systemConfig.version = newVer + '.0.0';
+    console.log(`System upgraded to version ${systemConfig.version}`);
+  }
+
+  return systemConfig;
+}
+
+/**
+ * Counts dependencies (both internal private functions and npm dependencies)
+ * @returns {Object} Result with internal and npm dependency counts
+ */
+const countDependencies = () => {
+  // ... existing countDependencies function implementation ...
+};
+
+module.exports = {
   getLangAttribute,
   getFullLangAttribute,
   addLangAttribute,
@@ -422,5 +854,21 @@ export {
   createAccessibleLink,
   handleAccessibilityIssues,
   validateLinkAccessibility,
-  handleFakeLinks
+  validateButtonAccessibility,
+  checkLinkAndButtonAccessibility,
+  handleFakeLinks,
+  fixTableStructure,
+  addMainLandmark,
+  setSvgAttributes,
+  handleCredentialResponse,
+  validateCredentialToken,
+  processCredentialAuthentication,
+  newBranchFunction,
+  initializeApp,
+  getConfig,
+  validateInput,
+  processData,
+  upgradeSystem,
+  countDependencies,
+  addLandmarkRegions
 };

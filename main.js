@@ -3,10 +3,11 @@
 // Main module
 
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
-
-const main = require('./utilities');
+const dependencyGraphContent = require('./dependencyGraphContent').dependencyGraphContent;
+const indexContent = require('./indexContent').indexContent;
+const http = require('http');
+const url = require('url');
+const a11yStore = require('./utilities/a11yStore');
 
 const {
   add,
@@ -31,140 +32,49 @@ function greetingFunction() {
   return "Hello, World!";
 }
 
-// TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 
 const renderGraphIndex = (graphData) => {
-  // Placeholder for the new rendering logic
-  // This function should use the new functions for rendering the graph/index
-  // For example, it could call ... ... etc.
-  // Replace this with the actual implementation details
-
   // Address accessibility issues from insight report
-  addressAccessibilityIssues();
+  ensureDependencyGraphAccessibility(document.querySelector('.dependency-graph-container'));
   renderDependencyGraphs(graphData);
 };
 
-const a11yStore = {
-  // ... existing methods ...
+// Required function implementations
 
-  /**
-   * Check if the user prefers reduced motion
-   * @returns {boolean} True if the user prefers reduced motion
-   */
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  },
+/**
+ * Rendering dependency graphs with accessibility enhancements
+ * @param {Object} graphData - Data for rendering dependency graphs
+ */
+function renderDependencyGraphs(graphData) {
+  if (typeof document === 'undefined') return;
 
-  prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
-  },
+  // Remove any existing graph containers
+  const existingContainers = document.querySelectorAll('.dependency-graph-container');
+  existingContainers.forEach(container => container.remove());
 
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
-    this.announce(message, priority);
-  },
+  // Create new container
+  const container = document.createElement('div');
+  container.className = 'dependency-graph-container';
+  container.setAttribute('role', 'region');
 
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
-        if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
-        }
+  // Render the graph
+  const graphHtml = renderDependencyGraph(graphData);
+  container.innerHTML = graphHtml;
 
-        if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
-          }
-        }
-      });
-    });
-  },
+  // Add to document
+  const mainElement = document.querySelector('main') || document.body;
+  mainElement.appendChild(container);
+}
 
-  addSVGAccessibilityProps() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
-      let titleElement = svg.querySelector('title');
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image';
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
-
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
-      }
-
-      svg.setAttribute('aria-labelledby', titleElement.id);
-
-      if (!svg.hasAttribute('role')) {
-        svg.setAttribute('role', 'img');
-      }
-    });
-  },
-
-  fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
-    fakeLinks.forEach((link) => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
-    });
-  },
-
-  /**
-   * Ensure all interactive elements have proper ARIA roles
-   */
-  ensureInteractiveRoles() {
-    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach((element) => {
-      if (!element.hasAttribute('role')) {
-        element.setAttribute('role', 'button');
-      }
-    });
-  },
-
-  /**
-   * Add ARIA labels to form controls if missing
-   */
-  addFormControlLabels() {
-    const formControls = document.querySelectorAll('input, select, textarea');
-    formControls.forEach((control, index) => {
-      if (!control.id) {
-        control.id = `form-control-${index}`;
-      }
-      const label = document.createElement('label');
-      label.setAttribute('for', control.id);
-      label.textContent = control.placeholder || 'Form control';
-      control.parentNode.insertBefore(label, control);
-    });
-  },
-
-  /**
-   * Ensure all images have alt text or ARIA attributes
-   */
-  ensureImageAccessibility() {
-    const images = document.querySelectorAll('img');
-    images.forEach((img) => {
-      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
-        img.setAttribute('alt', '');
-      }
-    });
-  },
-
-  // ... remaining a11yStore methods ...
-};
-
-// New functions
+// New functions (merged changes from both versions)
 function ensureInteractiveElementsAccessible() {
   a11yStore.ensureInteractiveRoles();
   a11yStore.addFormControlLabels();
   a11yStore.ensureImageAccessibility();
 }
 
-// Function to handle initial accessibility setup
+// Function to handle initial accessibility setup (merged changes from both versions)
 function handleInitialAccessibility() {
   a11yStore.checkLandmarkElements();
   a11yStore.addSVGAccessibilityProps();
@@ -176,7 +86,62 @@ function accessibility() {
   // Handle initial accessibility setup on page load
   handleInitialAccessibility();
   // Ensure all interactive elements have proper ARIA roles and attributes after page load
-  ensureInteractiveElementsAccessible();
+  addressAccessibilityIssues();
+}
+
+// New helper function for session management
+function validateSession(sessionId) {
+    if (!sessionId || typeof sessionId !== 'string') {
+        return null;
+    }
+    const session = appState.sessions.get(sessionId);
+    return session || null;
+}
+
+/**
+ * Get the count of active sessions
+ * @returns {number} - Number of active sessions
+ */
+function getActiveSessionsCount() {
+    return appState.sessions.size;
+}
+
+/**
+ * Revoke a session
+ * @param {string} sessionId - The session ID to revoke
+ * @returns {boolean} - True if session was revoked
+ */
+function revokeSession(sessionId) {
+    return appState.sessions.delete(sessionId);
+}
+
+/**
+ * Address accessibility issues for the document
+ */
+function addressAccessibilityIssues() {
+    if (typeof document === 'undefined') {
+        return;
+    }
+    
+    // Check and fix landmark elements
+    if (typeof checkLandmarkElements === 'function') {
+        checkLandmarkElements();
+    }
+    
+    // Add SVG accessibility props
+    a11yStore.addSVGAccessibilityProps();
+    
+    // Fix fake links
+    a11yStore.fixFakeLinks();
+    
+    // Ensure interactive elements have proper roles
+    a11yStore.ensureInteractiveRoles();
+    
+    // Add form control labels
+    a11yStore.addFormControlLabels();
+    
+    // Ensure images have alt text
+    a11yStore.ensureImageAccessibility();
 }
 
 // Export new functions for accessibility as needed
@@ -186,3 +151,4 @@ module.exports = {
 
 // ADD EXPORTS FOR newFunctions IF NEEDED
 // module.exports.newFunctionName = function () {};
+```

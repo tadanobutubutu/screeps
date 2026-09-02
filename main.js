@@ -371,6 +371,36 @@ function checkTableStructure(table) {
 }
 
 /**
+ * Renders a graph with accessibility features
+ * @param {HTMLElement} container - Container element
+ * @param {Object} data - Data for the graph
+ */
+function renderGraph(container, data) {
+  if (!container) return;
+  // Ensure container has appropriate accessibility attributes
+  container.setAttribute('role', 'img');
+  if (!container.getAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Graph');
+  }
+  // Additional graph rendering logic would go here
+}
+
+/**
+ * Renders an index with accessibility features
+ * @param {HTMLElement} container - Container element
+ * @param {Object} data - Data for the index
+ */
+function renderIndex(container, data) {
+  if (!container) return;
+  // Ensure container has appropriate accessibility attributes
+  container.setAttribute('role', 'navigation');
+  if (!container.getAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Index');
+  }
+  // Additional index rendering logic would go here
+}
+
+/**
  * Renders a dependency graph with full accessibility support
  * @param {HTMLElement} container - The container element for the graph
  * @param {Object} data - The dependency data to render
@@ -391,6 +421,10 @@ function renderDependencyGraph(container, data) {
   if (!container.getAttribute('aria-label')) {
     container.setAttribute('aria-label', 'Dependency graph visualization');
   }
+
+  // Use new functions for rendering graph and index
+  renderGraph(container, data);
+  renderIndex(container, data);
 
   // Update the container with accessibility info
   updateDependencyGraphAccessibility('renderDependencyGraph', container);
@@ -452,6 +486,8 @@ if (typeof module !== 'undefined' && module.exports) {
     setSvgAttributes,
     checkTableStructure,
     renderDependencyGraph,
+    renderGraph,
+    renderIndex,
     validateAccessibility
   };
 }

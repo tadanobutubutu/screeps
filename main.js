@@ -36,7 +36,7 @@ import {
 } from './AccessibilityHelpers'
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
+const dependencyGraph = document.querySelector('#dependency-graph-container')
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
@@ -46,13 +46,13 @@ if (dependencyGraph) {
   }
 
   // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
+  if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.getAttribute('aria-labelledby')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
   }
 
   // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph')
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph'
   }
 
   // Ensure the container is focusable if it's interactive
@@ -68,15 +68,14 @@ function addAccessibleName (svgString) {
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
   const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
   const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
+  if (!svgElement.hasAttribute('aria-label')) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
   }
   return new XMLSerializer().serializeToString(svg)
 }
 
 // Example usage of the function
-const originalSvgString =
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**
@@ -99,6 +98,34 @@ function validateTableStructure (tableData) {
   return true
 }
 
+// TODO: Update the existing function using the new functions for rendering graph/index
+// _Commit: 8072b0a1a41bb31d4505af44a0271a796e3971a7_
+// <!-- todo-hash: 8072b0a1a41bb31d4505af44a0271a796e3971a7 -->
+
+// Legacy function for rendering the dependency graph (updated to use new functions)
+function renderDependencyGraph (container, options) {
+  // Use the new renderDependencyGraphs function for rendering
+  return renderDependencyGraphs(container, options)
+}
+
+// Legacy function for rendering the index (placeholder for potential new implementation)
+function renderIndex (container, options) {
+  // This function can be extended to use new rendering functions if needed
+  if (!container) {
+    return null
+  }
+  
+  // Apply accessibility improvements to the index
+  if (options && options.applyAccessibility !== false) {
+    fixLandmarkIssues(container)
+    addMainLandmark(container)
+    addLandmarkRegions(container)
+    ensureUniqueLandmarks(container)
+  }
+  
+  return container
+}
+
 // Other code...
 
 // Preserve all existing exports
@@ -119,7 +146,7 @@ module.exports = {
 function renderAdditionalContent (additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
+  return additionalData ? additionalData.content || '' : ''
 }
 
 // Add the new function to the exports

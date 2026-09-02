@@ -27,7 +27,7 @@ function myFunction(param1, param2) {
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
@@ -147,7 +147,7 @@ function ensureUniqueLandmarksArray(landmarks) {
 
 /**
  * Extracts an accessible name from an SVG element.
- * @param {HTMLElement} svgElement - The SVG element.
+ * @param {SVGSVGElement} element.
  * @returns {string} The accessible name, or a fallback value.
  */
 function getSvgAccessibleName(svgElement) {
@@ -161,7 +161,7 @@ function getSvgAccessibleName(svgElement) {
 
 /**
  * Adds an accessible name (aria-label) to image elements within an SVG.
- * @param {HTMLElement} svgElement - The parent SVG element.
+ * @param {SVGSVGElement} parent SVG element.
  * @param {string[]} names - Array of names to assign.
  */
 function addAccessibleNamesToSvg(svgElement, names) {
@@ -197,7 +197,7 @@ function ensureElementHasId(element) {
  * Adds an aria-label attribute to an element.
  * @param {HTMLElement} element - The element to modify.
  * @param {string} label - The label text.
- * @returns {HTMLElement} The modified element.
+ * @returns {HTMLElement} element.
  */
 function addAriaLabel(element, label) {
   if (!element) {
@@ -211,7 +211,7 @@ function addAriaLabel(element, label) {
  * Renders a dependency graph.
  * @param {Object} data - The dependency data to render.
  * @param {HTMLElement} container - The container element for the graph.
- * @returns {HTMLElement} The rendered graph container.
+ * @returns {HTMLElement} graph container.
  */
 function renderDependencyGraph(data, container) {
   if (!data) {
@@ -220,8 +220,31 @@ function renderDependencyGraph(data, container) {
   if (!container) {
     throw new Error('Container element is required');
   }
+  ensureDependencyGraphARIA(container);
   // Implementation would go here
   return container;
+}
+
+/**
+ * Ensures a dependency graph container has proper ARIA attributes.
+ * @param {HTMLElement} container - The container element for the graph.
+ * @returns {HTMLElement} The container with ARIA attributes set.
+ */
+function ensureDependencyGraphARIA(container) {
+  if (!container) return container;
+  container.setAttribute('role', 'graph');
+  container.setAttribute('aria-label', 'Dependency Graph');
+  return container;
+}
+
+/**
+ * Gets the lang attribute value from the document.
+ * @param {Document} document - The document to get the lang attribute from.
+ * @returns {string} The lang attribute value, or 'en' as default.
+ */
+function getLangAttribute(document) {
+  if (!document) return 'en';
+  return document.documentElement.getAttribute('lang') || 'en';
 }
 
 /**
@@ -313,7 +336,6 @@ function addSvgAccessibleNames(document) {
 
   svgs.forEach((svg, index) => {
     const existingLabel = svg.getAttribute('aria-label') ||
-                          svg.querySelector('title') ||
                           svg.getAttribute('aria-labelledby');
 
     if (!existingLabel) {
@@ -621,7 +643,7 @@ function fixTableStructure() {
           const grandparent = parent.parentElement;
           if (grandparent && grandparent.tagName === 'THEAD') {
             th.setAttribute('scope', 'col');
-          } else if (th.tagName === 'TH') {
+          } else if (grandparent.tagName === 'TBODY') {
             // If it's in a row that is itself a header row (like in tbody for row headers)
             th.setAttribute('scope', 'row');
           } else {
@@ -648,7 +670,7 @@ const loop = () => {
 
 // Main accessibility fix function
 function applyAccessibilityFixes(document, options = {}) {
-  const lang = options.lang || 'en';
+  const lang = options.lang || getLangAttribute(document);
 
   return {
     langAdded: addLangAttribute(document, lang),
@@ -658,6 +680,15 @@ function applyAccessibilityFixes(document, options = {}) {
     landmarksEnsured: ensureUniqueLandmarks(document),
     linksFixed: fixFakeLinkIssue(document)
   };
+}
+
+/**
+ * Address accessibility issues from the insight report.
+ * @param {Document} document - The document to fix.
+ * @returns {Object} Results of the accessibility fixes.
+ */
+function addressAccessibilityIssues(document) {
+  return applyAccessibilityFixes(document);
 }
 
 /* New function to handle credential response */
@@ -711,6 +742,7 @@ async function handleCredentialResponse(response) {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     myFunction,
+    addressAccessibilityIssues,
     addLangAttribute,
     fixTableStructureIssues,
     addMainLandmark,
@@ -729,6 +761,8 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureElementHasId,
     addAriaLabel,
     renderDependencyGraph,
+    ensureDependencyGraphARIA,
+    getLangAttribute,
     generateAccessibilityReport,
     newFocusTrap,
     loop,

@@ -37,3 +37,17 @@ const renderGraphIndex = (graphData) => {
 // Example:
 // renderDependencyGraphs(graphData); // Before
 // renderGraphIndex(graphData); // After
+
+module.exports = {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  addressAccessibilityIssues,
+  renderGraphIndex
+}

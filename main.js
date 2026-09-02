@@ -281,6 +281,8 @@ function handleFakeLinks(link) {
 // REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
 
+setHtmlLangAttribute('en');
+
 module.exports = {
   setHtmlLangAttribute,
   getLangAttribute,

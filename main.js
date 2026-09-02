@@ -258,6 +258,15 @@ function checkTableStructure(table) {
   };
 }
 
+function MyComponent() {
+  // Existing code that needs to be updated
+  const langAttr = typeof getLangAttribute === 'function' ? getLangAttribute() : 'en';
+  const element = document.createElement('div');
+  element.lang = langAttr;
+  // Content placeholder
+  return element;
+}
+
 // Application configuration
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',

@@ -171,7 +171,13 @@ function ensureUniqueLandmarksLocal(landmarks) {
     if (!landmark || typeof landmark.id === 'undefined') {
       continue;
     }
-    return element;
+    if (!seen.has(landmark.id)) {
+      seen.add(landmark.id);
+      uniqueLandmarks.push(landmark);
+    }
+  }
+
+  return uniqueLandmarks;
 }
 
 // TODO: Address accessibility issues from insight report:

@@ -110,12 +110,66 @@ function addressAccessibilityIssues(insightReport) {
   console.log(report);
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
+// Function for generating a report based on accessibility issues
+// Full implementation using axe-core scanning and report writing
 function generateAccessibilityReport(options = {}) {
-  const report = scanAccessibility();
+  const { 
+    context = document, 
+    options: axeOptions = {},
+    includeIncomplete = true,
+    allowedRules = []
+  } = options;
+  
+  // Scan the page for accessibility issues using axe-core
+  const scanResults = scanAccessibility(context, axeOptions, includeIncomplete);
+  
+  // Process and filter issues based on allowed rules
+  const filteredIssues = filterIssuesByRules(scanResults.violations, allowedRules);
+  
+  // Build the comprehensive report
+  const report = {
+    timestamp: new Date().toISOString(),
+    summary: generateReportSummary(filteredIssues),
+    issues: filteredIssues,
+    metadata: {
+      totalViolations: scanResults.violations.length,
+      totalPasses: scanResults.passes.length,
+      incompleteCount: scanResults.incomplete ? scanResults.incomplete.length : 0,
+      inapplicableCount: scanResults.inapplicable ? scanResults.inapplicable.length : 0
+    }
+  };
+  
+  // Write the report to file
   writeReport(report);
+  
   return report;
+}
+
+// Filter issues based on allowed rules
+function filterIssuesByRules(violations, allowedRules) {
+  if (!allowedRules || allowedRules.length === 0) {
+    return violations;
+  }
+  return violations.filter(violation => allowedRules.includes(violation.id));
+}
+
+// Generate a summary of the report
+function generateReportSummary(issues) {
+  const summary = {
+    critical: 0,
+    serious: 0,
+    moderate: 0,
+    minor: 0
+  };
+  
+  issues.forEach(issue => {
+    const impact = issue.impact || 'minor';
+    if (summary.hasOwnProperty(impact)) {
+      summary[impact]++;
+    }
+  });
+  
+  return summary;
 }
 
 // Function to write the generated report to a file
@@ -124,12 +178,37 @@ function writeReport(report) {
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
-    return {
-      timestamp: new Date().toISOString(),
-      issues: []
-    };
+async function scanAccessibility(context, axeOptions = {}, includeIncomplete = true) {
+    // Scanning and reporting accessibility issues using axe-core ...
+    try {
+      // Run axe-core accessibility analysis
+      const results = await axe.run(context, {
+        runOnly: {
+          type: 'tag',
+          values: ['wcag2a', 'wcag2aa', 'wcag21aa']
+        },
+        ...axeOptions
+      });
+      
+      return {
+        timestamp: new Date().toISOString(),
+        violations: results.violations || [],
+        passes: results.passes || [],
+        incomplete: includeIncomplete ? (results.incomplete || []) : [],
+        inapplicable: results.inapplicable || [],
+        toolOptions: axeOptions
+      };
+    } catch (error) {
+      console.error('Error scanning accessibility:', error.message);
+      return {
+        timestamp: new Date().toISOString(),
+        violations: [],
+        passes: [],
+        incomplete: [],
+        inapplicable: [],
+        error: error.message
+      };
+    }
 }
 
 function loadLandmarks() {
@@ -349,4 +428,6 @@ module.exports = {
   improveAccessibility,
   scanAccessibility,
   writeReport,
+  filterIssuesByRules,
+  generateReportSummary,
 };

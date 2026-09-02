@@ -9,6 +9,25 @@
 // REACT_040: Replace my-button with actual button id for accessibility
 // REACT_042: Ensure dependencyGraph container has proper ARIA role
 
+// Function to retrieve the current language setting
+function getCurrentLanguageSetting() {
+  // Try to get the language from the document's lang attribute
+  const lang = document.documentElement.getAttribute('lang');
+  
+  // If lang attribute exists and is not empty, return it
+  if (lang && lang.trim() !== '') {
+    return lang.trim();
+  }
+  
+  // Fallback to navigator language if available
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language;
+  }
+  
+  // Default to 'en' if no language can be determined
+  return 'en';
+}
+
 // TODO: New code that was added to the branch
 // New function that does something different
 function newFunction() {

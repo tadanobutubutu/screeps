@@ -39,8 +39,14 @@ function createInPageButton(options) {
         if (containerElement) {
             containerElement.appendChild(button);
         }
-    } else {
+    } else if (settings.container) {
         settings.container.appendChild(button);
+    }
+
+    // Accessibility improvements
+    button.setAttribute('role', 'button');
+    if (settings.ariaLabel) {
+        button.setAttribute('aria-label', settings.ariaLabel);
     }
 
     return button;
@@ -57,40 +63,57 @@ function functionB() {
 }
 
 // Line 156 (updated)
-module.exports.functionA = functionA;
-module.exports.functionB = functionB;
-module.exports.createInPageButton = createInPageButton;
+window.functionA = functionA;
+window.functionB = functionB;
+window.createInPageButton = createInPageButton;
 
 // TODO: This is the existing code that needs to be preserved
 // TODO: add the new functions or changes requested in the issue
 
 // New function or changes to address accessibility issues as per the insight report
-function updateAccessibleElements () {
-  // Example of updating accessibility in an existing function
-  // This is a placeholder for the actual changes based on the insight report
-  const elementsToUpdate = document.querySelectorAll('.needs-accessibility-improvement')
-  elementsToUpdate.forEach((element) => {
-    // Example of adding ARIA attributes or other accessibility features
-    element.setAttribute('role', 'button')
-    element.setAttribute('aria-pressed', 'false')
-    // Add other accessibility improvements as needed
-  })
+function updateAccessibleElements() {
+    // Example of updating accessibility in an existing function
+    // This is a placeholder for the actual changes based on the insight report
+    const elementsToUpdate = document.querySelectorAll('.in-page-button, button');
+    elementsToUpdate.forEach(function(element) {
+        // Example of adding ARIA attributes or other accessibility features
+        if (!element.getAttribute('role')) {
+            element.setAttribute('role', 'button');
+        }
+        element.setAttribute('aria-pressed', 'false');
+        
+        // Add keyboard accessibility
+        if (!element.getAttribute('tabindex')) {
+            element.setAttribute('tabindex', '0');
+        }
+        
+        // Add other accessibility improvements as needed
+    });
 }
 
 // Call the new function or add it to an existing lifecycle method, event listener, etc.
-updateAccessibleElements()
+updateAccessibleElements();
 
 // Export any new functions if necessary (not provided in the issue, so assuming no new exports)
 // export { updateAccessibleElements };
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-  // Existing function implementation
+    // Existing function implementation
 
-  // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
-  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
-  return importCount.length;
+    // New implementation to count dependencies using dependencyGraphContent and regex
+    let importCount = 0;
+    
+    try {
+        const dependencyGraphContent = document.body.getAttribute('data-dependency-graph') || '';
+        const importCommentRegExp = /import\s+.*?from\s+['"].*?['"]|require\s*\(['"].*?['"]\)/g;
+        const matches = dependencyGraphContent.match(importCommentRegExp);
+        importCount = matches ? matches.length : 0;
+    } catch (e) {
+        importCount = 0;
+    }
+    
+    return importCount;
 }
 
 // New function exampleFunction, as per the issue's request
@@ -100,4 +123,4 @@ function exampleFunction() {
 }
 
 // Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;
+window.exampleFunction = exampleFunction;

@@ -34,7 +34,8 @@ const appData = {
 
 const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 
-// TODO: This is the existing code that needs to be preserved
+// Accessibility features have been implemented and integrated into the codebase.
+
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())

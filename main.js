@@ -1,6 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Addressed accessibility issues from insight report
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
+// ----- END ORIGINAL CODE-----
 
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 const main = require('./utilities')
@@ -460,7 +461,6 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  getLangAttribute,
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,

@@ -161,6 +161,62 @@ function setSvgElementAttributes(svg) {
     }
 }
 
+function createInPageButton() {
+    // Check if button already exists to avoid duplicates
+    const existingButton = document.getElementById('in-page-accessibility-button');
+    if (existingButton) {
+        return existingButton;
+    }
+
+    const button = document.createElement('button');
+    button.id = 'in-page-accessibility-button';
+    button.textContent = 'Accessibility Options';
+    button.setAttribute('aria-label', 'Open accessibility options');
+    button.setAttribute('type', 'button');
+    
+    // Position button in a fixed location for easy access
+    button.style.position = 'fixed';
+    button.style.bottom = '20px';
+    button.style.right = '20px';
+    button.style.zIndex = '9999';
+    button.style.padding = '12px 24px';
+    button.style.fontSize = '14px';
+    button.style.fontWeight = '500';
+    button.style.cursor = 'pointer';
+    button.style.backgroundColor = '#2563eb';
+    button.style.color = '#ffffff';
+    button.style.border = '2px solid #1d4ed8';
+    button.style.borderRadius = '8px';
+    button.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+    button.style.transition = 'background-color 0.2s, box-shadow 0.2s';
+    
+    // Add focus styles for accessibility
+    button.addEventListener('focus', () => {
+        button.style.outline = '3px solid #93c5fd';
+        button.style.outlineOffset = '2px';
+    });
+    
+    button.addEventListener('blur', () => {
+        button.style.outline = 'none';
+    });
+    
+    // Find appropriate location - insert after the last SVG or at end of body
+    const svgElements = document.querySelectorAll('svg');
+    if (svgElements.length > 0) {
+        const lastSvg = svgElements[svgElements.length - 1];
+        if (lastSvg.parentNode) {
+            lastSvg.parentNode.insertBefore(button, lastSvg.nextSibling);
+        } else {
+            document.body.appendChild(button);
+        }
+    } else {
+        // If no SVG elements, append to body
+        document.body.appendChild(button);
+    }
+    
+    return button;
+}
+
 function main() {
     const svgElements = document.querySelectorAll('svg');
 
@@ -169,6 +225,10 @@ function main() {
     svgElements.forEach((svg) => {
         renderDependencyGraphs(svg);
     });
+
+    // TODO: Implement logic to create an in-page button element
+    // and insert it into the DOM at an appropriate location
+    createInPageButton();
 
     checkLandmarkElements();
 }
@@ -364,4 +424,4 @@ app.listen(PORT, () => {
     console.log(`Screeps API Server running on port ${PORT}`);
 });
 
-module.exports = { app, generateAccessibilityReport, getGameDataSummary, ensureDependencyGraphARIA, getLangAttribute, setSvgAttributes, main, checkLandmarkElements, countDependencies };
+module.exports = { app, generateAccessibilityReport, getGameDataSummary, ensureDependencyGraphARIA, getLangAttribute, setSvgAttributes, main, checkLandmarkElements, countDependencies, createInPageButton };

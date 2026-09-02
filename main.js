@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const books = [];
 const safetyCategory = "User Safety: unsafe";
 const safetyCategories = ["Unauthorized Advice"];
@@ -25,6 +22,10 @@ const appState = {
   cache: new Map()
 };
 
+const { getLangAttribute, addLangAttribute } = require('./utils');
+const validateTableAccessibility = utils.validateTableAccessibility;
+const validateTableStructure = utils.validateTableStructure;
+
 function validateLandmark(landmark) {
   if (landmark && landmark.nodeType === Node.ELEMENT_NODE) {
     const issues = [];
@@ -43,6 +44,9 @@ function validateLandmark(landmark) {
         issues.push('Invalid landmark role');
       }
     }
+    if (issues.length > 0) {
+      setLandmarkAttributes(landmark, getLangAttribute(), issues); // Added landmark attribute setting for language
+    }
     return {
       success: issues.length === 0,
       issues
@@ -52,6 +56,14 @@ function validateLandmark(landmark) {
     success: false,
     issues: ['Invalid landmark: The provided argument is not a valid HTML element or null']
   };
+}
+
+function setLandmarkAttributes(landmark, lang, issues) {
+  if (issues.length > 0) {
+    landmark.setAttribute('role', 'landmark');
+    if (lang) landmark.setAttribute('lang', lang);
+  }
+  return landmark;
 }
 
 function countDependencies() {
@@ -137,38 +149,13 @@ function validateTableAccessibility(tableElement) {
       console.warn('Table missing caption');
       return false;
   }
-  return true;
+  return validateTableStructure(tableElement);
 }
 
 function formatDate(date) {
   return new Date(date).toISOString().split('T')[0];
 }
 
-function getFullLangAttribute() {
-    return document.documentElement.lang || (typeof navigator !== 'undefined' && navigator.language) || 'en-US';
-}
-
-function validateTableStructure(tableElement) {
-  const rows = tableElement && tableElement.rows;
-  if (!rows || rows.length === 0) {
-      console.warn('Table has no rows');
-      return false;
-  }
-  return true;
-}
-
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// Add other functions for compatibility if needed, such as addLandmarkRegions(), getSvgAccessibleName(), createInPageButton(), createAccessibleLink(), handleAccessibilityIssues()
-
-// Export all existing and new functions
 module.exports = {
     config,
     appState,
@@ -176,8 +163,5 @@ module.exports = {
     countDependencies,
     ensureUniqueLandmarks,
     validateTableAccessibility,
-    formatDate,
-    getFullLangAttribute,
-    validateTableStructure
+    formatDate
 };
-```

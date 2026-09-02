@@ -252,6 +252,10 @@ function newFocusTrap() {
   return accessibilityUtils.newFocusTrap;
 }
 
+function calculateDiscount(price, discountRate) {
+  return price * (1 - discountRate);
+}
+
 module.exports = {
   ...accessibilityUtils,
   renderDependencyGraph,
@@ -265,5 +269,6 @@ module.exports = {
   getTables,
   getConfig,
   setConfig,
+  calculateDiscount,
   // Preserve any other existing exports here
 };

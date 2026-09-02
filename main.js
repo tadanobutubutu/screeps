@@ -232,6 +232,83 @@ function getSvgAccessibleName(svg) {
   return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
 }
 
+/**
+ * Sets up a focus trap for keyboard navigation within a container.
+ * Prevents the tab key from navigating out of the container and wraps focus to the start when reaching the end.
+ * 
+ * @param {HTMLElement|string} container - The container element or CSS selector to trap focus within
+ * @returns {Object} An object with open and close methods to manage the focus trap
+ */
+function setupFocusTrap(container) {
+  // Resolve the container element
+  const containerEl = typeof container === 'string' 
+    ? document.querySelector(container) 
+    : container;
+  
+  if (!containerEl) {
+    throw new Error('Container element not found');
+  }
+  
+  // Save original focus position
+  const originalFocus = containerEl.focus;
+  
+  // Helper to find next sibling within the container
+  function getNextElement(el) {
+    const next = el.nextElementSibling;
+    if (next) return next;
+    // Wrap to first child
+    const children = Array.from(el.children);
+    if (children.length > 0) {
+      return children[0];
+    }
+    return null;
+  }
+  
+  // Helper to find previous sibling
+  function getPreviousElement(el) {
+    const prev = el.previousElementSibling;
+    if (prev) return prev;
+    // Wrap to last child
+    const children = Array.from(el.children);
+    if (children.length > 0) {
+      return children[children.length - 1];
+    }
+    return null;
+  }
+  
+  // Focus trap logic
+  function enterFocusTrap() {
+    containerEl.focus();
+  }
+  
+  function exitFocusTrap() {
+    containerEl.focus(originalFocus);
+  }
+  
+  // Attach event listeners
+  containerEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const next = getNextElement(containerEl);
+      if (next) next.focus();
+    }
+  });
+  
+  // Return configuration with open/close methods
+  return {
+    /**
+     * Opens the focus trap on the container, moving focus into it
+     */
+    open: enterFocusTrap,
+    
+    /**
+     * Closes the focus trap, restoring focus to the original position
+     */
+    close: exitFocusTrap
+    
+  };
+}
+
 // REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
 if (typeof document !== 'undefined' && document.documentElement) {
@@ -251,5 +328,6 @@ module.exports = {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName
+  getSvgAccessibleName,
+  setupFocusTrap
 };

@@ -14,7 +14,6 @@ function addressAccessibilityIssues(insightReport) {
   // Placeholder implementation for the new function
   // You would implement the logic to address accessibility issues based on the insight report here
   console.log('Addressing accessibility issues:', insightReport);
-  // Placeholder logic to simulate handling the report
 
   // Handle REACT_015: Add lang attribute to HTML element
   const htmlElement = document.documentElement;
@@ -340,7 +339,6 @@ export {
   setupButtonAccessibility,
   createInPageButton,
   performTask,
-  handleEvent,
   greet,
   add,
   calculateDiscount,
@@ -360,7 +358,7 @@ export {
   getElementById,
   queryElements,
   checkLandmarkElements,
-  validateLandmarkStructure,
+  validateLandmarkElement,
   ensureThScope,
   addSvgAccessibleNames,
   fixFakeLink,

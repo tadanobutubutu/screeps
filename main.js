@@ -92,6 +92,18 @@ function generateAccessibilityReport() {
   return report;
 }
 
+// New function to count dependencies
+function countDependencies() {
+    const dependencies = [
+        'express',
+        'axe-core',
+        'fs',
+        'fast-map',
+        'path'
+    ];
+    return dependencies.length;
+}
+
 // Utilities
 const { validateInput, processData } = require('./utils/validators');
 const { formatResponse } = require('./utils/processor');
@@ -109,6 +121,9 @@ if (require.main === module) {
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);
   }
+
+  // Call the new function to count dependencies
+  console.log(`Number of dependencies: ${countDependencies()}`);
 }
 
 async function scanAccessibility() {
@@ -125,5 +140,6 @@ module.exports = {
     processLandmarks,
     sortLandmarks,
     getLandmarkById,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    countDependencies
 };

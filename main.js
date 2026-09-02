@@ -1,18 +1,95 @@
+function enhanceSvgAccessibility(input, options = {}) {
+  if (input && typeof input === 'object' && !Array.isArray(input)) {
+    // Props-based configuration (for React components)
+    if (input instanceof SVGElement || (input.props !== undefined)) {
+      // Direct DOM manipulation
+      return enhanceSvgElement(input, options);
+    }
+    // Plain props object
+    const enhancedProps = { ...input };
+
+    // Set default role if not present
+    if (!enhancedProps.role) {
+      enhancedProps.role = 'img';
+    }
+
+    // Add aria-label if provided
+    if (options.ariaLabel && !enhancedProps['aria-label']) {
+      enhancedProps['aria-label'] = options.ariaLabel;
+    }
+
+    // Add aria-hidden if provided
+    if (options.ariaHidden !== undefined && enhancedProps['aria-hidden'] === undefined) {
+      enhancedProps['aria-hidden'] = options.ariaHidden;
+    }
+
+    // Ensure focusable attribute is set correctly
+    if (enhancedProps.focusable === undefined) {
+      enhancedProps.focusable = 'false';
+    }
+
+    return enhancedProps;
+  } else if (input && typeof input === 'object' && input.tagName === 'SVG') {
+    // Direct DOM manipulation
+    return enhanceSvgElement(input, options);
+  }
+
+  return null;
+}
+
+function enhanceSvgElement(svgElement, { title, desc, focusable = false }) {
+  if (!svgElement || !(svgElement instanceof SVGElement)) {
+    throw new Error('Invalid SVG element provided');
+  }
+
+  // Add ARIA role if not present
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+
+  // Add title element if not already present
+  if (title && !svgElement.querySelector('title')) {
+    const titleElement = document.createElement('title');
+    titleElement.textContent = title;
+    svgElement.insertBefore(titleElement, svgElement.firstChild);
+  }
+
+  // Add description if provided
+  if (desc && !svgElement.querySelector('desc')) {
+    const descElement = document.createElement('desc');
+    descElement.textContent = desc;
+    svgElement.insertBefore(descElement, svgElement.firstChild);
+  }
+
+  // Set focusability
+  svgElement.setAttribute('focusable', focusable ? 'true' : 'false');
+
+  return svgElement;
+}
+
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
+const appData = {
+  title: 'Screeps',
+  version: '1.0.0'
+};
+
 const books = [];
 const safetyCategory = "User Safety: unsafe";
 const safetyCategories = ["Unauthorized Advice"];
 const utils = require('./utils');
 
 const CONFIG = {
-    dataPath: './data',
-    maxResults: 100,
-    name: 'ScreepsBot',
-    version: '1.0.0',
-    debug: true,
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: process.env.TIMEOUT || 5000,
-    allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-    maxLandmarks: 50
+  dataPath: './data',
+  maxResults: 100,
+  name: 'ScreepsBot',
+  version: '1.0.0',
+  debug: true,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: process.env.TIMEOUT || 5000,
+  landmarkRoles: undefined,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxLandmarks: 50
 };
 
 const config = {
@@ -30,26 +107,26 @@ const appState = {
 };
 
 const { getLangAttribute, addLangAttribute } = require('./utils');
+const validateTableStructure = utils.validateTableStructure;
 
 function validateLandmark(landmark) {
   if (landmark && landmark.nodeType === Node.ELEMENT_NODE) {
     const issues = [];
-    const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-    
     if (!landmark.tagName) {
       issues.push('Missing tagName');
-    } else if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
-      issues.push(`Invalid landmark: ${landmark.tagName}`);
+    } else {
+      const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+      if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
+        issues.push(`Invalid landmark: ${landmark.tagName}`);
+      }
     }
-
     if (landmark.getAttribute('role')) {
-      const validRoles = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary', 'region'];
+      const validRoles = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
       const role = landmark.getAttribute('role');
       if (!validRoles.includes(role)) {
         issues.push('Invalid landmark role');
       }
     }
-    
     if (issues.length > 0) {
       setLandmarkAttributes(landmark, getLangAttribute(), issues);
     }
@@ -106,6 +183,12 @@ function countDependencies() {
       internalCount: 0,
       external
     };
+  },
+
+  // New function implementation for the issue
+  addAccessibilityFeatures() {
+    addSvgAccessibilityProps();
+    // Additional accessibility enhancements can be added here
   }
 }
 
@@ -149,13 +232,21 @@ function ensureUniqueLandmarks(landmarksArg) {
   };
 }
 
+function validateTableAccessibility(tableElement) {
+  if (!tableElement) {
+      console.warn('Table missing caption');
+      return false;
+  }
+  return validateTableStructure(tableElement);
+}
+
 function validateTableStructure(tableElement) {
   const rows = tableElement.querySelectorAll('tr');
   if (rows.length === 0) {
       console.warn('Table has no rows');
       return false;
   }
-  return true;
+  return validateTableStructure(tableElement);
 }
 
 function validateTableCellsScope(tableElement) {
@@ -168,14 +259,6 @@ function validateTableCellsScope(tableElement) {
       }
     });
   }
-}
-
-function validateTableAccessibility(tableElement) {
-  if (!tableElement) {
-      console.warn('Table missing caption');
-      return false;
-  }
-  return validateTableStructure(tableElement);
 }
 
 function validateLandmarkStructure() {
@@ -255,5 +338,7 @@ module.exports = {
     addLandmarkRegions,
     renderDependencyGraph,
     renderIndexView,
-    formatDate
+    formatDate,
+    getLangAttribute,
+    addLangAttribute
 };

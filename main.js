@@ -26,6 +26,10 @@ module.exports = {
     // Implementation of getLangAttribute
     // TODO: Add the implementation details here
   },
+  getFullLangAttribute: function() {
+    // Implementation of getFullLangAttribute
+    // TODO: Add the implementation details here
+  },
   createInPageButton: function() {
     // Implementation of createInPageButton
     // TODO: Add the implementation details here
@@ -72,6 +76,10 @@ module.exports = {
     // TODO: Add the implementation details here
   },
   // Ensure unique landmarks (2 issues) (handled by ...)
+  ensureUniqueLandmarkId: function() {
+    // Implementation of ensureUniqueLandmarkId
+    // TODO: Add the implementation details here
+  },
   ensureUniqueLandmarks: function() {
     // Implementation of ensureUniqueLandmarks
     // TODO: Add the implementation details here
@@ -80,5 +88,21 @@ module.exports = {
   fixFakeLink: function() {
     // Implementation of fixFakeLink
     // TODO: Add the implementation details here
-  }
+  },
+  createAccessibleLink: function() {
+    // Implementation of createAccessibleLink
+    // TODO: Add the implementation details here
+  },
+  handleAccessibilityIssues: function() {
+    // Implementation of handleAccessibilityIssues
+    // TODO: Add the implementation details here
+  },
+  detectAndSetLang: function() {
+    // Implementation of detectAndSetLang
+    // TODO: Add the implementation details here
+  },
+  personName: function() {
+    // Implementation of personName
+    // TODO: Add the implementation details here
+  },
 };

@@ -432,23 +432,6 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 /**
- * Fixes table structure issues
- * @param {Object} table - The table to fix
- * @returns {Object} The fixed table
- */
-function fixTableStructure(table) {
-  if (!table.headers) {
-    table.headers = 'auto';
-  }
-
-  if (!table.scope) {
-    table.scope = 'auto';
-  }
-
-  return table;
-}
-
-/**
  * Handles the credential response from authentication
  * @param {Object} credentialResponse - The credential response object
  * @returns {Object} Processed credential data

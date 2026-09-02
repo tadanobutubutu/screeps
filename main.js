@@ -31,6 +31,20 @@ import { formatCurrency, formatDate, calculateDiscount, validateInput } from './
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
 import { state, updateState } from './state.js';
 
+// Function for creating in-page buttons
+function createInPageButton(label, onClickHandler, options = {}) {
+  // Implementation for creating an in-page button
+  const button = createElement('button', {
+    id: options.id || `in-page-button-${uuidv4()}`,
+    className: options.className || 'in-page-button',
+    onClick: onClickHandler,
+    'aria-label': options.ariaLabel || label,
+    disabled: options.disabled || false
+  }, label);
+
+  return button;
+}
+
 // Main function to process accessibility issues from an insight report
 function processAccessibilityIssues(insightReport) {
   // Call function to address accessibility issues
@@ -72,4 +86,4 @@ processAccessibilityIssues(insightReport);
 //<!-- todo-hash: 641688d91e4de9a82ff894b47ca3fcdab7317b3d -->
 
 // Add back any required exports that might have been removed
-export { addressAccessibilityIssues, processAccessibilityIssues };
+export { addressAccessibilityIssues, processAccessibilityIssues, createInPageButton };

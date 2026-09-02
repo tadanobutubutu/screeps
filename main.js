@@ -8,6 +8,9 @@ const AddressabilityIssues = {
   MISSING_LABEL: 'missing-label',
   MISSING_ROLE: 'missing-role',
   INVALID_TABLE: 'invalid-table-structure',
+  MISSING_TABLE_HEADER: 'missing-table-header',
+  MISSING_TABLE_BODY: 'missing-table-body',
+  MISSING_TABLE_CAPTION: 'missing-table-caption',
   
   ensureElementId(element, prefix = 'el') {
     if (!element) return '';

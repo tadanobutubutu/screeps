@@ -336,6 +336,155 @@ const a11yStore = {
     });
 
     return missingAlternatives;
+  },
+
+  /**
+   * Add accessibility fixes based on insight report findings
+   * Implements skip link, focus indicators, and live region setup
+   * @param {HTMLElement} container - The container to apply fixes to
+   */
+  applyInsightReportFixes(container = document) {
+    // Add skip navigation link if missing
+    if (!container.querySelector('.skip-link, [href="#main"], [href="#content"]')) {
+      const skipLink = document.createElement('a');
+      skipLink.href = '#main';
+      skipLink.className = 'skip-link';
+      skipLink.textContent = 'Skip to main content';
+      if (document.body.firstChild) {
+        document.body.insertBefore(skipLink, document.body.firstChild);
+      } else {
+        document.body.appendChild(skipLink);
+      }
+    }
+
+    // Ensure main landmark exists
+    if (!container.querySelector('main, [role="main"]')) {
+      this.wrapPrimaryContentInMain();
+    }
+
+    // Add visible focus indicator styles if not present
+    if (!document.getElementById('a11y-focus-styles')) {
+      const style = document.createElement('style');
+      style.id = 'a11y-focus-styles';
+      style.textContent = `
+        :focus { outline: 2px solid #4A90E2; outline-offset: 2px; }
+        .skip-link { position: absolute; left: -9999px; top: 0; z-index: 9999; padding: 8px 16px; background: #000; color: #fff; }
+        .skip-link:focus { left: 0; }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Set up a polite live region for dynamic announcements
+    if (!document.getElementById('a11y-live-region')) {
+      const liveRegion = document.createElement('div');
+      liveRegion.id = 'a11y-live-region';
+      liveRegion.setAttribute('aria-live', 'polite');
+      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion.style.position = 'absolute';
+      liveRegion.style.left = '-9999px';
+      document.body.appendChild(liveRegion);
+    }
+
+    // Apply existing checks
+    this.ensureFormAccessibility();
+    this.ensureKeyboardNavigation();
+    this.ensureImageAccessibility();
+    this.addSVGAccessibilityProps();
+    this.fixFakeLinks();
+    this.ensureProperHeadingHierarchy(container);
+  },
+
+  /**
+   * Wrap primary content in a main landmark
+   * @returns {HTMLElement|null} The main element or null if no document
+   */
+  wrapPrimaryContentInMain() {
+    if (typeof document === 'undefined' || !document.body) {
+      return null;
+    }
+
+    let mainElement = document.querySelector('main');
+    if (mainElement) {
+      return mainElement;
+    }
+
+    const elementsToExclude = [];
+    const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+    landmarks.forEach(landmark => elementsToExclude.push(landmark));
+
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main');
+
+    const bodyChildren = Array.from(document.body.children);
+    bodyChildren.forEach(child => {
+      if (!elementsToExclude.includes(child)) {
+        mainElement.appendChild(child);
+      }
+    });
+
+    document.body.appendChild(mainElement);
+
+    return mainElement;
+  },
+
+  /**
+   * Announce a message to assistive technologies
+   * @param {string} message - The message to announce
+   * @param {string} priority - 'polite' or 'assertive'
+   */
+  announce(message, priority = 'polite') {
+    let liveRegion = document.getElementById('a11y-live-region');
+    if (!liveRegion) {
+      liveRegion = document.createElement('div');
+      liveRegion.id = 'a11y-live-region';
+      liveRegion.setAttribute('aria-live', priority);
+      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion.style.position = 'absolute';
+      liveRegion.style.left = '-9999px';
+      document.body.appendChild(liveRegion);
+    } else {
+      liveRegion.setAttribute('aria-live', priority);
+    }
+    liveRegion.textContent = '';
+    setTimeout(() => {
+      liveRegion.textContent = message;
+    }, 50);
+  },
+
+  /**
+   * Create the live region element
+   */
+  createLiveRegion() {
+    if (document.getElementById('a11y-live-region')) {
+      this.liveRegion = document.getElementById('a11y-live-region');
+      return this.liveRegion;
+    }
+    const liveRegion = document.createElement('div');
+    liveRegion.id = 'a11y-live-region';
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.style.position = 'absolute';
+    liveRegion.style.left = '-9999px';
+    document.body.appendChild(liveRegion);
+    this.liveRegion = liveRegion;
+    return liveRegion;
+  },
+
+  /**
+   * Run all accessibility checks and return a comprehensive report
+   * @param {HTMLElement} container - The container to check
+   * @returns {Object} Accessibility report
+   */
+  runAccessibilityAudit(container = document) {
+    return {
+      landmarks: this.checkLandmarkElements(),
+      contrast: this.checkContrastRatios(container),
+      interactiveElements: this.checkInteractiveElements(container),
+      formLabels: this.checkFormLabels(container),
+      imageAlternatives: this.checkImageAlternatives(container),
+      prefersReducedMotion: this.prefersReducedMotion(),
+      prefersHighContrast: this.prefersHighContrast()
+    };
   }
 };
 
@@ -1000,6 +1149,10 @@ module.exports = {
   server,
   sanitizeFilename,
   processData,
+  applyInsightReportFixes: a11yStore.applyInsightReportFixes,
+  runAccessibilityAudit: a11yStore.runAccessibilityAudit,
+  announce: a11yStore.announce,
+  createLiveRegion: a11yStore.createLiveRegion,
   ensureFormAccessibility: a11yStore.ensureFormAccessibility,
   ensureKeyboardNavigation: a11yStore.ensureKeyboardNavigation,
   ensureImageAccessibility: a11yStore.ensureImageAccessibility

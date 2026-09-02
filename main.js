@@ -31,5 +31,14 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Implement the new function for updating in-page buttons
+function updateInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.textContent = buttonText;
+        button.className = buttonClass;
+    }
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

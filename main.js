@@ -10,16 +10,18 @@ function newFunction(param1, param2) {
 
 // ... (all existing code after line 306 remains unchanged)
 
-// Make sure to export the new function if needed
-// For example:
-// module.exports = {
-//   ...existingExports,
-//   newFunction
-// };
+// TODO: Extract the accessible name for an SVG from its content
+function getSvgAccessibleName(svgContent) {
+  // Assuming that the accessible name is wrapped in a <title> tag within the SVG content
+  const titleMatch = svgContent.match(/<title>(.*?)<\/title>/);
+  return titleMatch ? titleMatch[1] : null;
+}
 
-// TODO: Update functions that render dependency graphs (function names unknown)
-// TODO: Identify and update specific functions that render dependency graphs
-// TODO: Implement the new function as per the issue requirements
+// Add the missing export
+// Implementation of the new export
+const AnotherExport = () => {
+  console.log('Another export called')
+}
 
 // New function implementation at line 399
 function detectAndSetLang() {
@@ -37,24 +39,10 @@ function detectAndSetLang() {
   return lang;
 }
 
-// Add the missing export
-// Implementation of the new export
-const AnotherExport = () => {
-  console.log('Another export called')
-}
-
-// TODO: Identify and update specific functions that render dependency graphs
-// For now, let's assume we're adding placeholders for new functions
-const renderDependencyGraph1 = () => {
-  console.log('Render dependency graph 1')
-}
-
-const renderDependencyGraph2 = () => {
-  console.log('Render dependency graph 2')
-}
-
+// Add the new function for getting the SVG accessible name
 module.exports = {
   // Existing exports...
+  getSvgAccessibleName,
 
   // Add the missing export
   AnotherExport,

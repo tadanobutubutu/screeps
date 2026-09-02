@@ -1,8 +1,5 @@
-function divide(a, b) {
-  if (b === 0) {
-    return 0;
-  }
-  return a / b;
+function addMissingExport() {
+  // This function performs the missing export not mentioned in the existing code
 }
 
 module.exports = {
@@ -22,5 +19,6 @@ module.exports = {
   personName,
   divide,
   checkLinkAccessibility,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  addMissingExport // The added function
 }

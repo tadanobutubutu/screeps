@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -14,14 +11,26 @@ const appState = {
   cache: new Map()
 };
 
+function countDependencies(dependencies) {
+    if (!dependencies || typeof dependencies !== 'object') {
+        return 0;
+    }
+    
+    if (Array.isArray(dependencies)) {
+        return dependencies.length;
+    }
+    
+    return Object.keys(dependencies).length;
+}
+
 function validateLandmark(landmark) {
   const errors = [];
   // Existing code that should be preserved
   // Update landmark validation logic if needed
-  const role = landmark.getAttribute('role');
+  const role = landmark.role;
   const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
   if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+    errors.push('Invalid landmark role: ' + role);
   }
   return errors;
 }
@@ -31,7 +40,7 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+const HTML = ({ lang }) => '<html lang="' + lang + '">{/* other children */}</html>';
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -54,7 +63,7 @@ function getFullLangAttribute() {
 
 function validateTableAccessibility(tableElement) {
     // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement.querySelector('caption')) {
+    if (!tableElement.caption) {
         console.warn('Table missing caption');
         return false;
     }
@@ -63,7 +72,7 @@ function validateTableAccessibility(tableElement) {
 
 function validateTableStructure(tableElement) {
     // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement.querySelectorAll('tr');
+    const rows = tableElement.rows;
     if (rows.length === 0) {
         console.warn('Table has no rows');
         return false;
@@ -95,9 +104,9 @@ function addLandmarkRegions() {
 
 function getSvgAccessibleName() {
     // Merged implementation (conflict resolved)
-    const svgElement = ... // needs actual element reference
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
+    const svgElement = document.querySelector('svg'); // needs actual element reference
+    const title = svgElement ? svgElement.querySelector('title') : null;
+    const ariaLabel = svgElement ? svgElement.getAttribute('aria-label') : null;
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
@@ -135,12 +144,12 @@ function ensureUniqueLandmarks(landmarksArg) {
 
   // Additional uniqueness check for landmark roles
   const landmarksByRole = {};
-  const allLandmarks = document.querySelectorAll('[role]');
+  const allLandmarks = landmarks;
 
   allLandmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
+    const role = landmark.role;
     if (landmarksByRole[role]) {
-      console.warn(`Duplicate landmark role: ${role}`);
+      console.warn('Duplicate landmark role: ' + role);
     } else {
       landmarksByRole[role] = true;
     }
@@ -205,7 +214,6 @@ function handleAccessibilityIssues() {
         validateLandmark(landmark);
     });
 
-    validateLandmarkStructure();
     ensureUniqueLandmarks();
 
     const svgs = document.querySelectorAll('svg');
@@ -232,6 +240,6 @@ module.exports = {
     validateInput,
     processData,
     addLandmarkRegions,
-    setSvgAttributes
+    setSvgAttributes,
+    countDependencies
 };
-```

@@ -367,6 +367,94 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// TODO: Implement renderIndexView functionality
+/**
+ * Renders an index view with navigation items for accessibility testing interface.
+ * Creates a main container with a header and list of navigation buttons.
+ * @param {Array<Object>} items - Array of items to render, each with id, text, and optional href
+ * @param {string} items[].id - Unique identifier for the item
+ * @param {string} items[].text - Display text for the item
+ * @param {string} [items[].href] - Optional href for link-based items
+ * @param {string} [title='Index'] - Title for the index view
+ * @returns {HTMLElement} The rendered index view container element
+ */
+function renderIndexView(items = [], title = 'Index') {
+    // Create main container
+    const container = document.createElement('div');
+    container.id = 'index-view';
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', title);
+
+    // Create header
+    const header = document.createElement('header');
+    const heading = document.createElement('h1');
+    heading.textContent = title;
+    heading.id = 'index-heading';
+    header.appendChild(heading);
+
+    // Ensure header has proper landmark role
+    if (!header.hasAttribute('role')) {
+        header.setAttribute('role', 'banner');
+    }
+
+    container.appendChild(header);
+
+    // Create navigation section
+    const nav = document.createElement('nav');
+    nav.setAttribute('aria-labelledby', 'index-heading');
+
+    // Create list of items
+    const list = document.createElement('ul');
+    list.setAttribute('role', 'list');
+
+    items.forEach((item) => {
+        const listItem = document.createElement('li');
+        
+        if (item.href) {
+            // Create link element for items with href
+            const link = document.createElement('a');
+            link.id = item.id;
+            link.href = item.href;
+            link.textContent = item.text;
+            link.setAttribute('role', 'menuitem');
+            listItem.appendChild(link);
+        } else {
+            // Create button for items without href, using existing createInPageButton pattern
+            const button = document.createElement('button');
+            button.id = item.id;
+            button.textContent = item.text;
+            button.setAttribute('role', 'menuitem');
+            
+            if (item.className) {
+                button.className = item.className;
+            }
+            
+            listItem.appendChild(button);
+        }
+        
+        list.appendChild(listItem);
+    });
+
+    nav.appendChild(list);
+    container.appendChild(nav);
+
+    // Create main content area
+    const main = document.createElement('main');
+    main.id = 'index-content';
+    main.setAttribute('role', 'main');
+    container.appendChild(main);
+
+    // Create footer
+    const footer = document.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    const footerText = document.createElement('p');
+    footerText.textContent = 'Accessibility Test Index';
+    footer.appendChild(footerText);
+    container.appendChild(footer);
+
+    return container;
+}
+
 // Don't forget to test your new additions in the test file
 
 // Export accessibility utility functions
@@ -380,6 +468,7 @@ module.exports = {
   applyAccessibilityFixes,
   addressAccessibilityIssues,
   createInPageButton,
+  renderIndexView,
   validateTableAccessibility,
   validateLandmarkStructure,
   getLangAttribute,

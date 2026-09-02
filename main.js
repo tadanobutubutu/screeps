@@ -31,5 +31,15 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Add the new requested function here
+// For example, let's add a new function called "addCustomScript"
+function addCustomScript(src) {
+    const script = document.createElement('script');
+    script.src = src;
+    document.head.appendChild(script);
+}
+
 // Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
+// export { createInPageButton, validateLandmarkStructure };
+// (Add the new function to the exports list)
+export { createInPageButton, validateLandmarkStructure, addCustomScript };

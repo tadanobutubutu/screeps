@@ -1,5 +1,9 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
+<<<<<<< HEAD
+// Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+=======
+>>>>>>> origin/main
 
 const main = require('./utilities')
 
@@ -85,8 +89,19 @@ function implementAccessibilityFixesFromReport (container, report) {
   addMainLandmarkToIndex(container)
 
   // Fix landmark issues
-  validateLandmark(container)
+  if (typeof validateLandmark === 'function') {
+    validateLandmark(container)
+  }
   validateLandmarkStructure(container)
+  /* --------------------------------------------------------------
+     Conflict Resolution:
+     Both branches added new landmark validation functions.
+     The HEAD branch had only validateLandmark(), while origin/main
+     included both validateLandmark() and validateLandmarkStructure().
+     To preserve both changes (both are valid additions), we include
+     both calls in the final implementation.
+     -------------------------------------------------------------- */
+}
 
   // Fix SVG accessible names
   const svgElements = container.querySelectorAll('svg')
@@ -574,7 +589,7 @@ if (dependencyGraph) {
       if (report.violations.length > 0) {
         console.warn(`Found ${report.violations.length} accessibility violations:`);
         report.violations.forEach((violation, index) => {
-          console.warn(`${index + 1}. [${violation.id}] ${violation.description}`);
+          console.warn(`[${index + 1}] [${violation.id}] ${violation.description}`);
           console.warn(`   Help: ${violation.help}`);
           console.warn(`   Impact: ${violation.impact}`);
           console.warn(`   Affected nodes:`);
@@ -590,7 +605,7 @@ if (dependencyGraph) {
       if (report.incomplete.length > 0) {
         console.info(`Found ${report.incomplete.length} incomplete items requiring manual review.`);
         report.incomplete.forEach((item, index) => {
-          console.info(`${index + 1}. [${item.id}] ${item.description}`);
+          console.info(`[${index + 1}] [${item.id}] ${item.description}`);
           console.info(`   Help: ${item.help}`);
           item.nodes.forEach(node => {
             console.info(`     - ${node.html}`);
@@ -750,4 +765,4 @@ module.exports = {
   initializeAccessibility,
   renderIndex: function() { return renderGraphIndex.apply(this, arguments); },
   renderAdditionalContent
-}
+};

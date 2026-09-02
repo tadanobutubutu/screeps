@@ -13,6 +13,21 @@ const accessiblyHelper = require('./accessibly-helper'); // Added this import
 
 const expressApp = express();
 
+// Spawning logic implementation
+function spawn(entityType, options) {
+  if (!entityType) {
+    return null;
+  }
+  const spawnedEntity = {
+    type: entityType,
+    options: options || {},
+    createdAt: new Date().toISOString(),
+    id: `${entityType}-${Date.now()}`
+  };
+  fastMap.set(spawnedEntity.id, spawnedEntity);
+  return spawnedEntity;
+}
+
 async function renderFunction1() {
   // Existing functionality
 
@@ -598,7 +613,8 @@ if (typeof module !== 'undefined' && module.exports) {
     applyAccessibilityFixes,
     addressAccessibilityIssues,
     createInPageButton,
-    makeAddBookFormAccessible
+    makeAddBookFormAccessible,
+    spawn
   };
 }
 

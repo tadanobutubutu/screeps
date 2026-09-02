@@ -32,8 +32,6 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
-
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -543,4 +541,9 @@ module.exports = {
   setSvgAttributes,
   addLangAttribute,
   validateLandmarkAttributes,
-  fix
+  fixTableStructure,
+  addMainLandmark,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions
+};

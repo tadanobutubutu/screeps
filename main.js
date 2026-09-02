@@ -8,9 +8,7 @@
 const main = require('./utilities')
 
 // Import necessary dependencies
-import React from 'react';
-import { render } from 'react-dom';
-import {
+const {
   fixTableStructure,
   fixLandmarkIssues,
   addMainLandmark,
@@ -26,26 +24,27 @@ import {
   ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel
-} from './AccessibilityHelpers'
+} = require('./AccessibilityHelpers')
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = ...
+const dependencyGraph = document.getElementById('dependencyGraph')
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
   // Using 'region' role for a contained section of content
-  if ... {
-    ... 'region')
+  if (!dependencyGraph.hasAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region')
   }
 
   // Add accessible label if not already present
-  if ... {
-    ... 'Dependency graph visualization')
+  if (!dependencyGraph.hasAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
   }
 
   // Ensure element has an ID if not present
-  if ... {
-    ... 'dependencyGraph');
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph';
+  }
 }
 
 const {
@@ -238,15 +237,16 @@ function trapFocus(container) {
   }
 }
 
-
 /**
  * REACT_015: Add lang attribute to HTML element
  * Ensures the HTML element has a proper lang attribute for screen readers
  */
-export function addLangAttribute(element, lang = 'en') {
-  let htmlElement = element || document.documentElement
-  if (!htmlElement) {
-    return null
+class ScreepsBot {
+  constructor() {
+    this.network = null;
+    this.tasks = [];
+    this.config = {};
+    this.ensureDependencyGraphARIA(); // Ensure ARIA role for dependency graph container
   }
 
   async start() {
@@ -432,18 +432,13 @@ export function addLangAttribute(element, lang = 'en') {
       container.setAttribute('aria-label', 'Dependency graph');
     }
   }
-
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang)
-  }
-  return htmlElement
 }
 
 /**
  * REACT_027: Fix table structure issues
  * Ensures tables have proper structure with headers and captions
  */
-export function fixTableStructure(tableElement) {
+function fixTableStructure(tableElement) {
   if (!tableElement) return null
  
   const headers = tableElement.querySelectorAll('th')
@@ -471,3 +466,16 @@ module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFix
 module.exports.checkAccessibilityForReport = checkAccessibilityForReport
 module.exports.renderGraphIndex = renderGraphIndex
 module.exports.trapFocus = trapFocus
+module.exports.ScreepsBot = ScreepsBot
+module.exports.fixTableStructure = fixTableStructure
+module.exports.addLangAttribute = function(element, lang = 'en') {
+  let htmlElement = element || document.documentElement
+  if (!htmlElement) {
+    return null
+  }
+
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang)
+  }
+  return htmlElement
+}

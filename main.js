@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 function setSvgAttributes(svg) {
   if (!svg.hasAttribute('aria-label')) {
     const accessibleName = svg.getAttribute('id') || '';

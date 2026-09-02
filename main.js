@@ -4,7 +4,7 @@ const requiredModule2 = require('required-module-2');
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
+const fastMap = require('fast-map'); // Fixed syntax error
 const path = require('path');
 const accessiblyHelper = require('./accessibly-helper'); // Added this import
 

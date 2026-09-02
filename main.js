@@ -1,7 +1,4 @@
-// Before:
-document.documentElement.lang = ''
-
-// After:
+// Add the new functions or changes requested in the issue
 document.documentElement.lang = 'en' // Replace 'en' with the appropriate language code
 
 const someFunction = () => {
@@ -20,10 +17,12 @@ const createInPageButton = (text, url) => {
 
 // New function to validate link accessibility and handle fake links
 const validateLinkAccessibility = () => {
-  const links = document.getElementsByTagName('a')
+  const links = document.querySelectorAll('a')
   for (let i = 0; i < links.length; i++) {
     const link = links[i]
-    if (link.href.startsWith('#') || !link.hasAttribute('href')) {
+    const href = link.getAttribute('href')
+    const isFakeLink = !href || href === '#' || href.startsWith('javascript:')
+    if (isFakeLink) {
       handleFakeLinks(link)
     }
   }
@@ -31,7 +30,7 @@ const validateLinkAccessibility = () => {
 
 // New function to handle fake links by wrapping them in an in-page button
 const handleFakeLinks = (link) => {
-  const fakeLinkButton = createInPageButton(link.textContent, link.href)
+  const fakeLinkButton = createInPageButton(link.textContent, link.href || '#')
   link.textContent = ''
   link.setAttribute('target', '_top')
   link.addEventListener('click', (event) => {
@@ -42,11 +41,13 @@ const handleFakeLinks = (link) => {
 
 // New function to wrap primary content in a main element
 const wrapPrimaryContentInMain = () => {
-  const primaryContent = document.getElementById('primary-content')
+  const primaryContent = document.querySelector('[role="main"]') || document.querySelector('main')
   if (primaryContent) {
     const mainElement = document.createElement('main')
-    mainElement.appendChild(primaryContent)
-    document.body.insertBefore(mainElement, document.body.firstChild)
+    while (primaryContent.firstChild) {
+      mainElement.appendChild(primaryContent.firstChild)
+    }
+    primaryContent.appendChild(mainElement)
   }
 }
 
@@ -58,8 +59,12 @@ const getLangAttribute = () => {
 };
 
 // New function to add the lang attribute to the HTML element
-const personName = () => {
-  // Placeholder for the actual implementation
+const setLangAttribute = () => {
+  const htmlElement = document.documentElement
+  if (htmlElement) {
+    const lang = getLangAttribute();
+    htmlElement.setAttribute('lang', lang)
+  }
 };
 
 // New function to validate table accessibility
@@ -94,17 +99,12 @@ const ensureUniqueLandmarks = () => {
 
 // New function to fix fake link issues
 const fixFakeLinkIssues = () => {
-  validateLinkAccessibility();
+  validateLinkAccessibility()
 };
 
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
-const setLangAttribute = () => {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    const lang = getLangAttribute();
-    htmlElement.setAttribute('lang', lang);
-  }
+// New function to validate link accessibility and handle fake links
+const personName = () => {
+  // Placeholder for the actual implementation
 };
 
 // Call the function to set the lang attribute
@@ -117,6 +117,15 @@ module.exports = {
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
-  wrapPrimaryContentInMain
-  // continue with other exports here...
+  wrapPrimaryContentInMain,
+  getLangAttribute,
+  setLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssues,
+  personName
 }

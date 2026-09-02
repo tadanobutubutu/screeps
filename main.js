@@ -1,5 +1,4 @@
 // main.js
-// ... existing code above line 255 ...
 
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
@@ -306,8 +305,6 @@ function newFunction (param1, param2) {
   // All existing code and exports must remain unchanged
   return param1 + param2 // Example implementation
 }
-
-// ... existing code below line 255 ...
 
 // Make sure to preserve all existing exports
 module.exports = {

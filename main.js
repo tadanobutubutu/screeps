@@ -26,7 +26,6 @@ const {
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
-  newFocusTrap,
   transformInputData
 } = require('./utilities');
 
@@ -44,24 +43,22 @@ const accessibilityUtils = {
   validateAccessibilityReport,
   announceToScreenReader,
   handleKeyboardNav,
-  newFocusTrap,
+  newFocusTrap: originNewFocusTrap,
   exportUtils,
   personName: () => {},
-  transformInputData
-};
-
-const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+  transformInputData,
+  ensureElementId: (element) => {
+    if (element && !element.id) {
+      element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+    }
+    return element;
+  },
+  addAriaLabel: (element, label) => {
+    if (element) {
+      element.setAttribute('aria-label', label);
+    }
+    return element;
   }
-  return element;
-};
-
-const addAriaLabel = (element, label) => {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
 };
 
 function calculateSum(a, b) { return a + b; }
@@ -290,8 +287,13 @@ const handleKeyboardNavKeyDownEvent = (e, handlers) => {
   }
 };
 
-// Merge newFocusTrap function from the original import
-const newFocusTrap = originNewFocusTrap;
+const newFocusTrap = (element) => {
+  const focusZone = newFocusTrap(element, { allowFocusOut: false });
+  return { focus, blur, update } => {
+    focusZone.focus();
+    focusZone.on('focusout', () => focusZone.update());
+  };
+};
 
 module.exports = {
   ...main,

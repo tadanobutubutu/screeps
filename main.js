@@ -39,8 +39,9 @@ function validateTableStructure(table) {
 }
 
 function validateLandmark(element) {
-  // Your implementation for validating a landmark
-  return true; // Set the default value to true
+  const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
+  const role = element.getAttribute('role');
+  return validLandmarks.includes(role);
 }
 
 function validateLandmarkStructure() {
@@ -116,11 +117,13 @@ function countDependencies() {
 }
 
 function createServer() {
-  const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', config }));
+  const app = express();
+
+  app.get('/', (req, res) => {
+    res.send('Hello World!');
   });
-  return server;
+
+  return app;
 }
 
 /**
@@ -128,9 +131,6 @@ function createServer() {
  */
 function startApp() {
   const server = createServer();
-  server.listen(config.port, () => {
-    console.log(`Server running on port ${config.port}`);
-  });
   return server;
 }
 
@@ -140,25 +140,90 @@ document.documentElement.lang = getLangAttribute();
 function ensureElementId(element, id) {
   if (!element.id) {
     element.id = id;
-=======
-function createServer() {
-  const app = express();
-
-  app.get('/', (req, res) => {
-    res.send('Hello World!');
-  });
-
-  return app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
+  }
 }
 
-function startApp() {
-  const server = createServer();
-  return server;
-}
-
-module.exports = {
-  startApp,
+const AddressabilityIssues = {
+  validateTableAccessibility: function(table) {
+    // Check 26 table structure issues
+    // Your code for validating the table accessibility
+    return true; // Set the default value to true
+  }
 };
->>>>>>> origin/main
+
+function calculateAccessibilityScore(fixedIssues) {
+  if (!Array.isArray(fixedIssues)) {
+    return 0;
+  }
+
+  const scorePoints = {
+    'color-contrast': 5,
+    'missing-alt-text': 3,
+    'missing-aria-label': 5,
+    'heading-order': 2,
+    'other': 1
+  };
+
+  return fixedIssues.reduce((total, issue) => {
+    const points = scorePoints[issue.type] || scorePoints.other;
+    return total + points;
+  }, 0);
+}
+
+// Validate landmark role
+function validateLandmark(element) {
+  const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
+  const role = element.getAttribute('role');
+  return validLandmarks.includes(role);
+}
+
+// Add language attribute to HTML element
+function addLangAttribute(lang) {
+  if (document && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
+
+// Updated function using the new functions for rendering graph/index
+function renderDependencyGraphContent() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const container = document.getElementById('dependencyGraph');
+  if (!container) {
+    return;
+  }
+
+  // Use the new functions for rendering
+  if (typeof renderDependencyGraph === 'function') {
+    renderDependencyGraph(container);
+  }
+  if (typeof renderIndexView === 'function') {
+    renderIndexView(container);
+  }
+}
+
+// REACT_036: Fix fake link issue
+function fixFakeLinkIssue(document) {
+  // Find elements that look like links but aren't <a> tags
+  const clickableElements = document.querySelectorAll('[role="link"]:not(a), [onclick]');
+  let count = 0;
+
+  clickableElements.forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+    const hasHref = element.hasAttribute('href');
+
+    if (tagName !== 'a' && !hasHref) {
+      // Check if it should be a real link
+      const isInteractive = element.getAttribute('role') === 'link' ||
+                             (element.hasAttribute('onclick') && element.onclick.toString().includes('window.location'));
+
+      if (isInteractive && !element.hasAttribute('aria-label')) {
+        // Add accessible name
+        const text = element.textContent.trim();
+        if (text) {
+          element.setAttribute('aria-label', text);
+        }
+      }
+      count++;
+    }

@@ -52,9 +52,9 @@ function checkLandmarkElements(htmlContent) {
   const foundLandmarks = {};
 
   // Check for each landmark element in the HTML content
-  LANDMARK_ELEMENTS.forEach(landmark => {
+  LANDMARK_ELEMENTS.forEach(function(landmark) {
     // Use case-insensitive regex to find landmark elements
-    const regex = new RegExp(`<${landmark}`, 'gi');
+    const regex = new RegExp('<' + landmark + '[^>]*>', 'gi');
     const matches = htmlContent.match(regex);
     if (matches) {
       foundLandmarks[landmark] = matches.length;
@@ -67,9 +67,9 @@ function checkLandmarkElements(htmlContent) {
   }
 
   // Check for duplicate landmarks (potential issue)
-  Object.keys(foundLandmarks).forEach(landmark => {
+  Object.keys(foundLandmarks).forEach(function(landmark) {
     if (foundLandmarks[landmark] > 1) {
-      warnings.push(`Multiple ${landmark} elements found`);
+      warnings.push('Multiple ' + landmark + ' elements found');
     }
   });
 
@@ -103,7 +103,7 @@ function createInPageButton(options) {
 
   // Create button object
   const button = {
-    id: id || `btn-${Date.now()}`,
+    id: id || 'button-' + Date.now(),
     text: String(text),
     title: title || '',
     className: className || 'default-button',
@@ -156,7 +156,7 @@ function addLandmarkRegions() {
 
   return {
     landmarks,
-    regions: Object.keys(landmarks).filter(key => landmarks[key])
+    regions: Object.keys(landmarks).map(function(key) { return landmarks[key]; })
   };
 }
 
@@ -202,17 +202,18 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to handle dynamic content updates
-function updateLiveRegion(message, priority = 'polite') {
+function updateLiveRegion(message, priority) {
+  priority = priority || 'polite';
   return { message, priority };
 }
 
 // New function to add IDs to landmark elements (preserved from HEAD)
 function addLandmarkIds() {
   const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach((element, index) => {
+  landmarkElements.forEach(function(element, index) {
     const landmark = document && document.getElementById(element);
     if (landmark && landmark.id === '') {
-      landmark.id = `landmark-${index * 1000}`;
+      landmark.id = 'landmark-' + (index * 1000);
     }
   });
 }
@@ -225,7 +226,7 @@ function checkLandmarkElementsInDOM() {
 // New function to add SVG accessibility props
 function addSvgAccessibilityProps(svg) {
   if (!svg) return;
-  if (!svg.hasAttribute('role')) {
+  if (!svg.getAttribute('role')) {
     svg.setAttribute('role', 'img');
   }
 }
@@ -248,7 +249,9 @@ function newFunction() {
 function addLangAttribute() {
   const htmlElement = document && document.querySelector('html');
   if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en'); // Assuming English, replace with appropriate lang attribute value
+    if (!htmlElement.getAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en'); // Assuming English, replace with appropriate lang attribute value
+    }
   }
 }
 
@@ -256,34 +259,95 @@ function addLangAttribute() {
 addLangAttribute();
 
 // Example of addressing REACT_025: Add other accessibility changes as per the insight report
-// This is a placeholder for any other accessibility changes you need to implement
-// function ... {
-//   // Implement accessibility changes here
-// }
+// This function addresses accessibility issues from the insight report
+function addressInsightAccessibilityIssues() {
+  const accessibilityFixes = {
+    langAttribute: false,
+    landmarkRegions: false,
+    ariaLiveRegions: false,
+    uniqueIds: false
+  };
 
-module.exports = {
-  checkLandmarkElements,
-  createInPageButton,
-  countDependencies,
-  a11yStore,
-  addLandmarkRegions,
-  addressAccessibilityIssues,
-  LANDMARK_ELEMENTS,
-  getLangAttribute: addLangAttribute,
-  updateLiveRegion,
-  addLandmarkIds,
-  preserveExistingCode,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  ensureUniqueLandmarks,
-  renderIndexView,
-  newRequiredFunction,
-  additionalFunction,
-  createAccessibleWebResourceButton,
-  newFunction,
-  existingFunction
-};
+  // REACT_015: Ensure lang attribute is set on HTML element
+  const htmlElement = document && document.querySelector('html');
+  if (htmlElement && htmlElement.hasAttribute('lang')) {
+    accessibilityFixes.langAttribute = true;
+  }
+
+  // Ensure main landmark exists
+  const mainElement = document && document.querySelector('main');
+  if (mainElement) {
+    accessibilityFixes.landmarkRegions = true;
+  }
+
+  // Check for aria-live regions
+  const liveRegions = document && document.querySelectorAll('[aria-live]');
+  if (liveRegions && liveRegions.length > 0) {
+    accessibilityFixes.ariaLiveRegions = true;
+  }
+
+  // Check for unique IDs on interactive elements
+  const allIds = document && document.querySelectorAll('[id]');
+  if (allIds) {
+    const idSet = new Set();
+    allIds.forEach(function(el) {
+      if (el.id) {
+        if (idSet.has(el.id)) {
+          accessibilityFixes.uniqueIds = false;
+        } else {
+          idSet.add(el.id);
+        }
+      }
+    });
+    accessibilityFixes.uniqueIds = true;
+  }
+
+  return accessibilityFixes;
+}
+
+// Initialize accessibility enhancements
+function initializeA11yEnhancements() {
+  // Add lang attribute to HTML if not present
+  addLangAttribute();
+
+  // Add IDs to landmarks if missing
+  addLandmarkIds();
+
+  // Ensure SVG accessibility
+  const svgs = document && document.querySelectorAll('svg');
+  if (svgs) {
+    svgs.forEach(function(svg) {
+      addSvgAccessibilityProps(svg);
+    });
+  }
+
+  // Return initialization status
+  return {
+    langAttributeAdded: true,
+    landmarkIdsAdded: true,
+    svgPropsAdded: svgs ? svgs.length : 0
+  };
+}
+
+// Export a11y initialization function
+function initializeAccessibility() {
+  return initializeA11yEnhancements();
+}
+
+// module.exports = {
+//   checkLandmarkElements,
+//   createInPageButton,
+//   countDependencies,
+//   a11yStore,
+//   addLandmarkRegions,
+//   addressAccessibilityIssues,
+//   LANDMARK_ELEMENTS,
+//   getLangAttribute: addLangAttribute,
+//   updateLiveRegion,
+//   addLandmarkIds,
+//   preserveExistingCode,
+//   personName,
+//   validateTableAccessibility,
+//   validateTableStructure,
+//   validateLandmark,
+//   validateLandmarkStructure

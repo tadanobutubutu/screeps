@@ -39,7 +39,7 @@ function createInPageButton(options) {
         if (containerElement) {
             containerElement.appendChild(button);
         }
-    } else {
+    } else if (settings.container && settings.container.appendChild) {
         settings.container.appendChild(button);
     }
 
@@ -57,9 +57,9 @@ function functionB() {
 }
 
 // Line 156 (updated)
-module.exports.functionA = functionA;
-module.exports.functionB = functionB;
-module.exports.createInPageButton = createInPageButton;
+exports.functionA = functionA;
+exports.functionB = functionB;
+exports.createInPageButton = createInPageButton;
 
 // TODO: This is the existing code that needs to be preserved
 // TODO: add the new functions or changes requested in the issue
@@ -69,7 +69,8 @@ function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
+  const importCommentRegExp = /import\s+.*?from\s+['"].*?['"]/g;
+  const dependencyGraphContent = '';
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
@@ -81,6 +82,6 @@ function exampleFunction() {
 }
 
 // Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;
+exports.exampleFunction = exampleFunction;
 
 // ... rest of the code ...

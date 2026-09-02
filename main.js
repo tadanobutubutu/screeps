@@ -11,7 +11,7 @@ const {
     getLangAttribute,
     validateAccessibilityReport,
     exportUtils,
-    addressAccessibilityIssues,
+    addressAccessibilityIssues: importedAddressAccessibilityIssues,
     handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
@@ -34,13 +34,13 @@ function addressAccessibilityIssues(container, insightReport) {
         fakeLinksFixed: 0,
     };
 
-    if (!report || !report.issues) {
+    if (!insightReport || !insightReport.issues) {
         return fixes;
     }
 
     // Add lang attribute to HTML element if missing
     const htmlEl =
-        document.querySelector('html') ||
+        container.querySelector('html') ||
         (container.ownerDocument && container.ownerDocument.documentElement);
     if (htmlEl && !htmlEl.lang) {
         htmlEl.setAttribute('lang', 'en');
@@ -68,11 +68,11 @@ function addressAccessibilityIssues(container, insightReport) {
 
     // Fix landmark issues
     validateLandmark(container);
-    validateLandmarkStructure(container);
+    fixes.landmarksFixed = validateLandmarkStructure(container);
 
     // Fix SVG accessible names
     const svgElements = container.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
+    svgElements.forEach(svg => {
         const accessibleName = getSvgAccessibleName(svg);
         if (accessibleName && svg.getAttribute('role') !== 'img' && !svg.closest('a')) {
             svg.setAttribute('role', 'img');
@@ -85,14 +85,16 @@ function addressAccessibilityIssues(container, insightReport) {
     const fakeLinks = container.querySelectorAll(
         '[role="link"], [onclick*="location"], [onclick*="href"]'
     );
-    fakeLinks.forEach((link) => {
-        link.setAttribute('href', '#' + (link.id || Math.random().toString(36).substr(2, 9)));
-        link.setAttribute('role', 'link');
-        fixes.fakeLinksFixed++;
+    fakeLinks.forEach(link => {
+        if (!link.getAttribute('href')) {
+            link.setAttribute('href', '#' + (link.id || Math.random().toString(36).substr(2, 9)));
+            link.setAttribute('role', 'link');
+            fixes.fakeLinksFixed++;
+        }
     });
 
     // Validate accessibility report
-    const report = validateAccessibilityReport(container);
+    const report = validateAccessibilityReport(container, insightReport);
     if (report && report.length > 0) {
         log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
     }
@@ -112,7 +114,7 @@ function addressAccessibilityIssues(container, insightReport) {
     const newAccessibilityIssues = checkAccessibility(container);
     if (newAccessibilityIssues.length > 0) {
         log(
-            `New accessibility issues found: ${newAccessibilityIssues.map((i) => i.message).join(', ')}`,
+            `New accessibility issues found: ${newAccessibilityIssues.map(i => i.message).join(', ')}`,
             'error'
         );
     }

@@ -293,11 +293,23 @@ function checkAccessibility(content) {
   return issues;
 }
 
+/**
+ * Adds a language attribute to the HTML element if missing
+ * @param {string} lang - The language code to set (default 'en')
+ */
+function addLangAttribute(lang = 'en') {
+  const htmlEl = document.documentElement;
+  if (htmlEl && !htmlEl.hasAttribute('lang')) {
+    htmlEl.setAttribute('lang', lang);
+  }
+}
+
 module.exports = {
   // Existing exports preserved
   newFunction,
   implementAccessibilityFixesFromReport,
   checkAccessibility,
+  addLangAttribute,
   // Re-export utilities functions
   createInPageButton,
   createWebResourceButton,

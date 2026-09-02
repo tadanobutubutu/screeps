@@ -31,5 +31,7 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: add the new functions or changes requested in the issue
+
 // Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
+export { createInPageButton, validateLandmarkStructure };

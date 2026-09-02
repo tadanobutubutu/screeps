@@ -1,8 +1,12 @@
-// Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 const main = require('./utilities')
+const React = require('react');
+const { setElementLabel } = require('./AccessibilityHelpers');
+
+// Main entry point for the Screeps bot.
+// Handles core game logic and integration points.
 
 // Accessibility enhancement: Ensure all UI elements are properly labeled
-const { setElementLabel } = require('./AccessibilityHelpers');
+setElementLabel('dependencyGraph', 'Dependency graph visualization');
 
 // New feature: Priority-based task scheduling
 function addTask(taskFn, priority = 'medium') {
@@ -12,7 +16,7 @@ function addTask(taskFn, priority = 'medium') {
   return taskId;
 }
 
-// New accessibility function: Focus management for keyboard navigation
+// Accessibility functions
 function setFocus(elementId) {
   const element = document.getElementById(elementId);
   if (element) {
@@ -21,7 +25,7 @@ function setFocus(elementId) {
   }
 }
 
-// New accessibility function: Keyboard event handler for accessibility
+// New function: Keyboard event handler for accessibility
 function handleKeyboardNavigation(event) {
   const key = event.key;
   const activeElement = document.activeElement;
@@ -54,54 +58,14 @@ function handleTabNavigation(event, activeElement) {
   console.log('Handling tab navigation');
 }
 
-// Ensure element has an ID if not present
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = 'dependencyGraph';
-  }
-}
-
-// Ensure the container is focusable if it's interactive
-function ensureElementIsFocusable(container) {
-  if (!container.getAttribute('tabindex')) {
-    container.setAttribute('tabindex', '0');
-  }
-}
-
-// Set the accessible label for the dependency graph container
-function setDependencyGraphLabel(label) {
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('aria-label', label);
-  }
-}
-
-// New functions added for the issue
-function newFunction1() {
-  return 'new function 1 result';
-}
-
-function newFunction2() {
-  return 'new function 2 result';
-}
-
-// Update the existing function using the new functions for rendering graph/index
-function renderDependencyGraphs(container) {
-  // Ensure the container and its elements have proper ARIA roles and attributes
-  ensureElementHasId(dependencyGraphicsContainer);
-  ensureElementIsFocusable(dependencyGraphicsContainer);
-  setDependencyGraphLabel('Dependency graph visualization');
-
-  // Render the dependency graph visualization
-  ...
-}
+// Import and use existing functions from utilities
+const { renderDependencyGraphs, ...mainUtilities } = main;
 
 // Replace the original export with the updated and extended one
 module.exports = {
-  ...main,
   addTask,
   setFocus,
   handleKeyboardNavigation,
-  newFunction1,
-  newFunction2,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  ...mainUtilities
 }

@@ -22,8 +22,6 @@
 const express = require('express');
 const { exec } = require('child_process');
 const fs = require('fs');
-const http = require('http');
-const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;

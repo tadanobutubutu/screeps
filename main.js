@@ -3,23 +3,23 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from ...
-import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
+import reportWebVitals from './reportWebVitals';
+import a11y from './AccessibilityUtilities';
 
-const root = ...
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+// User Safety: unsafe
+// Safety Categories: Fraud/Deception, Unauthorized Advice
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
 
 // TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
@@ -28,14 +28,17 @@ const root = ...
  * @returns {string} The lang attribute value
  */
 function getLangAttribute() {
-  // Implementation to be added
+  return document.documentElement.lang || 'en';
 }
 
 /**
  * Adds lang attribute to HTML element
  */
 function addLangAttribute() {
-  // Implementation to be added
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', getLangAttribute());
+  }
 }
 
 /**
@@ -44,7 +47,10 @@ function addLangAttribute() {
  * @returns {boolean} True if table is accessible
  */
 function validateTableAccessibility(table) {
-  // Implementation to be added
+  // Check for caption or aria-label
+  return !!(table.querySelector('caption') || 
+           table.getAttribute('aria-label') || 
+           table.getAttribute('aria-labelledby'));
 }
 
 /**
@@ -53,7 +59,9 @@ function validateTableAccessibility(table) {
  * @returns {boolean} True if table structure is valid
  */
 function validateTableStructure(table) {
-  // Implementation to be added
+  const hasHeader = !!table.querySelector('thead th');
+  const hasBody = !!table.querySelector('tbody td');
+  return hasHeader && hasBody;
 }
 
 /**
@@ -61,14 +69,33 @@ function validateTableStructure(table) {
  * @param {HTMLElement} table - The table element to fix
  */
 function fixTableStructure(table) {
-  // Implementation to be added
+  if (!validateTableStructure(table)) {
+    // Add missing thead if needed
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const headerRow = document.createElement('tr');
+        Array.from(firstRow.children).forEach(cell => {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+  }
 }
 
 /**
  * Adds main landmark to the document
  */
 function addMainLandmark() {
-  // Implementation to be added
+  const rootContainer = document.getElementById('root');
+  if (rootContainer) {
+    rootContainer.setAttribute('role', 'main');
+  }
 }
 
 /**
@@ -77,7 +104,9 @@ function addMainLandmark() {
  * @returns {boolean} True if landmark is valid
  */
 function validateLandmark(landmark) {
-  // Implementation to be added
+  const validRoles = ['main', 'navigation', 'banner', 'contentinfo', 'search', 'complementary', 'form', 'region'];
+  const role = landmark.getAttribute('role');
+  return validRoles.includes(role);
 }
 
 /**
@@ -86,7 +115,8 @@ function validateLandmark(landmark) {
  * @returns {boolean} True if landmark structure is valid
  */
 function validateLandmarkStructure(landmark) {
-  // Implementation to be added
+  // Check if landmark has appropriate child elements
+  return landmark.children.length > 0;
 }
 
 /**
@@ -95,7 +125,9 @@ function validateLandmarkStructure(landmark) {
  * @returns {boolean} True if landmark attributes are valid
  */
 function validateLandmarkAttributes(landmark) {
-  // Implementation to be added
+  const ariaLabel = landmark.getAttribute('aria-label');
+  const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
+  return !!(ariaLabel || ariaLabelledBy || landmark.textContent.trim());
 }
 
 /**
@@ -104,7 +136,10 @@ function validateLandmarkAttributes(landmark) {
  * @returns {string} The accessible name
  */
 function getSvgAccessibleName(svg) {
-  // Implementation to be added
+  return svg.getAttribute('aria-label') || 
+         svg.getAttribute('title') || 
+         svg.querySelector('title')?.textContent || 
+         'SVG graphic';
 }
 
 /**
@@ -113,14 +148,22 @@ function getSvgAccessibleName(svg) {
  * @param {string} name - The accessible name
  */
 function setSvgAttributes(svg, name) {
-  // Implementation to be added
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', name);
 }
 
 /**
  * Ensures unique landmarks in the document
  */
 function ensureUniqueLandmarks() {
-  // Implementation to be added
+  const mainLandmarks = document.querySelectorAll('[role="main"], main');
+  if (mainLandmarks.length > 1) {
+    mainLandmarks.forEach((landmark, index) => {
+      if (index > 0) {
+        landmark.removeAttribute('role');
+      }
+    });
+  }
 }
 
 /**
@@ -128,7 +171,60 @@ function ensureUniqueLandmarks() {
  * @returns {HTMLElement} The created button
  */
 function createInPageButton() {
-  // Implementation to be added
+  const button = document.createElement('button');
+  button.textContent = 'Skip to content';
+  button.addEventListener('click', function() {
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+      mainContent.focus();
+    }
+  });
+  return button;
+}
+
+/**
+ * Validates link accessibility
+ * @param {HTMLElement} link - The link element to validate
+ * @returns {boolean} True if link is accessible
+ */
+function validateLinkAccessibility(link) {
+  const text = link.textContent.trim();
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledBy = link.getAttribute('aria-labelledby');
+  return !!(text || ariaLabel || ariaLabelledBy);
+}
+
+/**
+ * Handles fake links in the document
+ */
+function handleFakeLinks() {
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!validateLinkAccessibility(link)) {
+      link.setAttribute('aria-label', 'Link to ' + (link.href || 'unknown destination'));
+    }
+  });
+}
+
+/**
+ * Adds proper landmark regions to the document
+ */
+function addProperLandmarkRegions() {
+  // Ensure document has proper landmark structure
+  const header = document.querySelector('header');
+  if (header && !header.getAttribute('role')) {
+    header.setAttribute('role', 'banner');
+  }
+  
+  const footer = document.querySelector('footer');
+  if (footer && !footer.getAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+  
+  const nav = document.querySelector('nav');
+  if (nav && !nav.getAttribute('role')) {
+    nav.setAttribute('role', 'navigation');
+  }
 }
 
 // Function for generating a report based on accessibility issues
@@ -283,21 +379,10 @@ function addressAccessibilityIssues() {
   }
 }
 
-/**
- * Validates link accessibility
- * @param {HTMLElement} link - The link element to validate
- * @returns {boolean} True if link is accessible
- */
-function validateLinkAccessibility(link) {
-  // Implementation to be added
-}
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
-/**
- * Handles fake links in the document
- */
-function handleFakeLinks() {
-  // Implementation to be added
-}
-
-/**
- * Adds proper landmark regions to the document
+reportWebVitals();

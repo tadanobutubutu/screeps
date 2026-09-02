@@ -31,6 +31,12 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// New function to check if body contains a button with a specific id
+function checkIfBodyContainButton(buttonId) {
+    const button = document.querySelector(`#${buttonId}`);
+    return button ? true : false;
+}
+
 // NEW FUNCTION: Add a function to handle getLangAttribute() if needed
 function getLangAttribute() {
     // Implement this function as necessary
@@ -112,4 +118,4 @@ function performActionWithButton(buttonId, actionFunction) {
 // ADD YOUR OWN IMPLEMENTATIONS OF THESE FUNCTIONS HERE
 
 // Export the new functions for accessibility and the new button action function
-export { performActionWithButton, generateAccessibilityReport, fixAccessibilityIssues };
+export { performActionWithButton, generateAccessibilityReport, fixAccessibilityIssues, checkIfBodyContainButton, showModal, spawnButtons };

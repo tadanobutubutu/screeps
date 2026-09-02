@@ -630,6 +630,19 @@ function fixButtonIdentifiers() {
   };
 }
 
+// TODO: Implement createResourceButton
+function createResourceButton(resourceName, onClick) {
+    const button = document.createElement('button');
+    button.textContent = resourceName;
+    button.type = 'button';
+    button.setAttribute('aria-label', resourceName);
+    button.setAttribute('data-resource', resourceName);
+    if (onClick && typeof onClick === 'function') {
+        button.addEventListener('click', onClick);
+    }
+    return button;
+}
+
 module.exports = {
   initializeApp,
   getConfig,
@@ -649,11 +662,10 @@ module.exports = {
   addMainLandmark,
   addLandmarkRolesAndFixIssues,
   fixLandmarkIssues,
-  addProperLandmarkRegions,
-  fixFakeLinks,
   checkLandmarkElements,
   ensureUniqueLandmarks,
   fixSvgAccessibleNames,
   addSvgAccessibilityProps,
-  fixButtonIdentifiers
+  fixButtonIdentifiers,
+  createResourceButton
 };

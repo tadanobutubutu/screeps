@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
@@ -175,15 +177,7 @@ module.exports = {
   addMainLandmark,
   validateLandmark,
   validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  addProperLandmarkRegions,
-  fixTableAccessibility,
+  fixTableStructureIssues,
   fixLandmarkIssues,
   addSvgAccessibility,
   createAccessibleLinks,

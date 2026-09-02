@@ -377,6 +377,12 @@ function getSvgAccessibleName(svgElement) {
     return 'Accessible SVG Icon';
 }
 
+/**
+ * Sets SVG accessibility attributes
+ * @param {Object} svg - The SVG element
+ * @param {string} accessibleName - The accessible name for the SVG
+ * @returns {Object} The modified SVG element
+ */
 function setSvgAttributes(svg, accessibleName) {
   if (svg && typeof svg === 'object') {
     svg.setAttribute('role', 'img');
@@ -408,6 +414,156 @@ function addSvgAccessibleNames() {
 }
 
 /**
+ * Handles the credential response from an authentication flow
+ * @param {Object} credentialResponse - The response object from credential provider
+ * @returns {Object} Result with success status and parsed credential data
+ */
+function handleCredentialResponse(credentialResponse) {
+  const issues = [];
+
+  if (!credentialResponse) {
+    return {
+      success: false,
+      issues: ['No credential response provided']
+    };
+  }
+
+  // Check for error in response
+  if (credentialResponse.error) {
+    issues.push(`Credential error: ${credentialResponse.error}`);
+  }
+
+  // Validate required credential field
+  if (!credentialResponse.credential) {
+    issues.push('Missing credential field');
+  }
+
+  // Extract user data from credential response
+  let userData = null;
+  if (credentialResponse.email) {
+    userData = {
+      email: credentialResponse.email,
+      name: credentialResponse.name || '',
+      picture: credentialResponse.picture || ''
+    };
+  }
+
+  // Parse the credential token if present
+  let parsedCredential = null;
+  if (credentialResponse.credential) {
+    try {
+      // Credential is typically a base64-encoded JWT
+      const parts = credentialResponse.credential.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+        parsedCredential = {
+          email: payload.email,
+          name: payload.name,
+          picture: payload.picture,
+          iss: payload.iss,
+          aud: payload.aud,
+          exp: payload.exp,
+          iat: payload.iat
+        };
+      }
+    } catch (parseError) {
+      issues.push('Failed to parse credential token');
+    }
+  }
+
+  // Return success if no issues and no error
+  const success = issues.length === 0 && !credentialResponse.error;
+
+  return {
+    success,
+    issues,
+    userData: userData || parsedCredential,
+    credential: credentialResponse.credential,
+    parsedCredential
+  };
+}
+
+/**
+ * Validates a credential token
+ * @param {string} token - The credential token to validate
+ * @returns {Object} Validation result with success status and token data
+ */
+function validateCredentialToken(token) {
+  const issues = [];
+
+  if (!token) {
+    return {
+      success: false,
+      issues: ['No token provided']
+    };
+  }
+
+  // Check token structure (JWT format)
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    issues.push('Invalid token format: expected JWT structure');
+  }
+
+  // Try to decode and validate the token
+  let tokenData = null;
+  try {
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    tokenData = payload;
+
+    // Check expiration
+    if (payload.exp) {
+      const now = Math.floor(Date.now() / 1000);
+      if (payload.exp < now) {
+        issues.push('Token has expired');
+      }
+    }
+
+    // Validate required claims
+    if (!payload.email) {
+      issues.push('Token missing email claim');
+    }
+  } catch (parseError) {
+    issues.push('Failed to decode token');
+  }
+
+  return {
+    success: issues.length === 0,
+    issues,
+    tokenData
+  };
+}
+
+/**
+ * Processes the credential and returns appropriate authentication state
+ * @param {Object} credentialResponse - The credential response to process
+ * @returns {Object} Authentication state with user info and status
+ */
+function processCredentialAuthentication(credentialResponse) {
+  const result = handleCredentialResponse(credentialResponse);
+
+  if (!result.success) {
+    return {
+      authenticated: false,
+      user: null,
+      errors: result.issues
+    };
+  }
+
+  // Extract user information from parsed credential
+  const user = result.parsedCredential || result.userData;
+
+  return {
+    authenticated: true,
+    user: {
+      email: user.email,
+      name: user.name,
+      picture: user.picture
+    },
+    errors: []
+  };
+}
+
+/**
  * Implements upgrade logic using harvested data to improve the system
  * This function checks environment variables for upgrade triggers and updates the system configuration accordingly.
  */
@@ -434,12 +590,18 @@ module.exports = {
     validateTableAccessibility,
     validateTableStructure,
     validateLandmark,
+    validateLandmarkAttributes,
     validateLandmarkStructure,
     ensureUniqueLandmarks,
     getSvgAccessibleName,
     createInPageButton,
     createAccessibleLink,
     handleAccessibilityIssues,
+    addSvgAccessibilityProps,
+    addLangAttribute,
+    fixTableStructure,
+    addMainLandmark,
+    setSvgAttributes,
     initializeApp,
     getConfig,
     validateInput,
@@ -447,5 +609,8 @@ module.exports = {
     addLandmarkRegions,
     setSvgAttributes,
     addSvgAccessibleNames,
+    handleCredentialResponse,
+    validateCredentialToken,
+    processCredentialAuthentication,
     upgradeSystem
 };

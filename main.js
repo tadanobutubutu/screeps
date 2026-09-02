@@ -31,5 +31,14 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// New function requested in the issue; Implementing a function to add isActive class to a given element
+function addActiveClass(elementId) {
+    const element = document.getElementById(elementId);
+    element.classList.add('is-active');
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };
+
+// ADD THE NEW FUNCTION HERE
+export { createInPageButton, validateLandmarkStructure, addActiveClass };

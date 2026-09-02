@@ -74,45 +74,31 @@ const accessibilityUtils = {
     });
   },
 
-  // ... (The rest of the original code remains unchanged)
-};
+  // Added SVG accessibility helper
+  addSvgAccessibleName: function(addSvgAccessibleName(svgString, label) {
+    // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
+    // and returns the modified SVG string.
+    // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
+    const svgElement = svgDoc.documentElement;
+    if (!svgElement.hasAttribute('aria-label')) {
+      svgElement.setAttribute('aria-label', label || 'Descriptive label for SVG');
+    }
+    return svgString;
+  },
 
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
+  // Function to handle additional rendering logic
+  renderGraphIndex: function(container, options = {}) {
+    // ... (Existing code)
+    // Use the new focusTrapUtil function from accessibilityUtils for keyboard navigation
+    const cleanup = accessibilityUtils.focusTrapUtil(container);
+    // ... (Remaining existing code)
+    return tempContainer.innerHTML;
+  },
 
-// Required changes to fix the React SVG Accessible Name issue
-const addSvgAccessibleName = function addSvgAccessibleName(svgString, label) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const parser = new DOMParser();
-  const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
-  const svgElement = svgDoc.documentElement;
-  if (!svgElement.hasAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', label || 'Descriptive label for SVG');
-  }
-  return svgString;
-};
-
-// Function to handle additional rendering logic
-function renderGraphIndex(container, options = {}) {
-  // ... (Existing code)
-  // Use the new focusTrapUtil function from accessibilityUtils for keyboard navigation
-  const cleanup = accessibilityUtils.focusTrapUtil(container);
-  // ... (Remaining existing code)
-  return tempContainer.innerHTML;
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-function generateAccessibilityReport() {
+  // TODO: Implement function for generating a report based on accessibility issues
+  generateAccessibilityReport: function() {
     const report = {
         missingLandmarks: [],
         invalidAttributes: [],
@@ -155,10 +141,10 @@ function generateAccessibilityReport() {
 
     // Optionally, return the report object or string
     return reportString;
-}
+  },
 
-// Function to handle extension upgrade logic
-function handleUpgrade() {
+  // Function to handle extension upgrade logic
+  handleUpgrade: function() {
     const currentVersion = '1.0.0';
     const storedVersion = localStorage.getItem('extensionVersion');
 
@@ -176,10 +162,10 @@ function handleUpgrade() {
         localStorage.setItem('extensionVersion', currentVersion);
         console.log(`Extension upgraded from ${storedVersion} to ${currentVersion}`);
     }
-}
+  },
 
-// Initialize default settings for new installations
-function initializeDefaultSettings() {
+  // Initialize default settings for new installations
+  initializeDefaultSettings: function() {
     const defaultSettings = {
         theme: 'light',
         notifications: true,
@@ -192,10 +178,10 @@ function initializeDefaultSettings() {
             localStorage.setItem(key, JSON.stringify(defaultSettings[key]));
         }
     });
-}
+  },
 
-// Perform upgrade tasks based on version differences
-function performUpgradeTasks(oldVersion, newVersion) {
+  // Perform upgrade tasks based on version differences
+  performUpgradeTasks: function(oldVersion, newVersion) {
     const upgradeTasks = {
         migrateSettings: () => {
             // Migrate any settings that need transformation
@@ -225,10 +211,64 @@ function performUpgradeTasks(oldVersion, newVersion) {
 
     // Execute all upgrade tasks
     Object.values(upgradeTasks).forEach(task => task());
+  },
+
+  // Export functions for testing and external use
+  export: function() {
+    // Export the accessibility utilities
+    export { createInPageButton, validateLandmarkStructure, newFocusTrap, focusTrapUtil, addSvgAccessibleName, generateAccessibilityReport, handleUpgrade, initializeDefaultSettings, performUpgradeTasks };
+    
+    // Also export global reference for newFocusTrap as seen in origin/main
+    globalThis.newFocusTrap = accessibilityUtils.newFocusTrap;
+  },
+
+  // Import the newFocusTrap function into the scope for use elsewhere
+  // (Already handled via export)
+};
+
+// Accessibility utilities and functions
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
+// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
+
+// Required changes to fix the React SVG Accessible Name issue
+const addSvgAccessibleName = function addSvgAccessibleName(svgString, label) {
+  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
+  // and returns the modified SVG string.
+  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
+  const parser = new DOMParser();
+  const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
+  const svgElement = svgDoc.documentElement;
+  if (!svgElement.hasAttribute('aria-label')) {
+    svgElement.setAttribute('aria-label', label || 'Descriptive label for SVG');
+  }
+  return svgString;
+};
+
+// Function to handle additional rendering logic
+function renderGraphIndex(container, options = {}) {
+  // ... (Existing code)
+  // Use the new focusTrapUtil function from accessibilityUtils for keyboard navigation
+  const cleanup = accessibilityUtils.focusTrapUtil(container);
+  // ... (Remaining existing code)
+  return tempContainer.innerHTML;
 }
 
 // Export functions for testing and external use
-export { createInPageButton, validateLandmarkStructure, handleUpgrade, initializeDefaultSettings, performUpgradeTasks, generateAccessibilityReport };
+export { 
+  createInPageButton, 
+  validateLandmarkStructure, 
+  handleUpgrade, 
+  initializeDefaultSettings, 
+  performUpgradeTasks, 
+  generateAccessibilityReport 
+};
 
 // Import the newFocusTrap function into the scope for use elsewhere
 globalThis.newFocusTrap = accessibilityUtils.newFocusTrap;
@@ -243,3 +283,4 @@ if (typeof window !== 'undefined') {
         handleUpgrade();
     });
 }
+```

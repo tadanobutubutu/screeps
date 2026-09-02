@@ -174,7 +174,74 @@ const createInPageButtons = () => {
 };
 
 const generateAccessibilityReport = (issuesData) => {
-  // Generate accessibility report (from one of the changes)
+  if (!issuesData || typeof issuesData !== 'object') {
+    console.error('Invalid issues data provided');
+    return;
+  }
+
+  const violations = issuesData.violations || [];
+
+  let html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Accessibility Report</title>
+      <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .violation { margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .violation h2 { color: #d9534f; margin-top: 0; }
+        .help { background-color: #f9f9f9; padding: 10px; border-radius: 5px; margin-top: 10px; }
+        .nodes { margin-top: 10px; }
+        .node { margin-left: 20px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <h1>Accessibility Report</h1>
+      <p>Generated on: ${new Date().toISOString()}</p>
+  `;
+
+  if (violations.length === 0) {
+    html += '<p>No accessibility violations found.</p>';
+  } else {
+    html += `<p>Found ${violations.length} violation(s).</p>`;
+    violations.forEach((violation, index) => {
+      html += `
+        <div class="violation">
+          <h2>${index + 1}. ${violation.id}: ${violation.description}</h2>
+          <p><strong>Impact:</strong> ${violation.impact}</p>
+          <p><strong>Help:</strong> ${violation.help}</p>
+          <div class="help">
+            <p>${violation.helpUrl ? `<a href="${violation.helpUrl}" target="_blank">Learn more</a>` : ''}</p>
+          </div>
+          <div class="nodes">
+            <strong>Affected Elements:</strong>
+            <ul>
+      `;
+      violation.nodes.forEach(node => {
+        html += `<li>${node.target ? node.target.join(', ') : 'Unknown target'}</li>`;
+      });
+      html += `
+            </ul>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  html += `
+      </body>
+    </html>
+  `;
+
+  const filePath = path.join(process.cwd(), 'accessibility-report.html');
+  try {
+    fs.writeFileSync(filePath, html, 'utf8');
+    console.log(`Accessibility report written to ${filePath}`);
+  } catch (error) {
+    console.error('Error writing accessibility report:', error);
+  }
 };
 
 // Landmark processing utilities

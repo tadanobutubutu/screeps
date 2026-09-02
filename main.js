@@ -3,13 +3,12 @@
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a97a2237d968a50cc419 -->
+//<!-- todo-hash: b498b47abee4b3f29c69a97a22a37d968a50cc419 -->
 //_Commit: 30b5f08a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f8a6325b07b9b809ac49f5e1c81cf4f89f9c1 -->
-//_Commit: 669117b4c3d1a635653f730f0a059efacbb752_
-//<!-- todo-hash: 312aa8ea4c5e1c9430e4b7c36c210eb9a72dea -->
+//<!-- todo-hash: 669117b4c3d1a635653f730f0a059efacbb752>
+//<!-- todo-hash: 312aa8ea4c5e1c94e4e4b7c36c210eb9a72dea -->
 //_Commit: 54b7c4d06282fbf48e78de43e5e115814006658c_
-//<!-- todo-hash: d290c9a63ee693e91602163f7ca6757def47f63e -->
+//<!-- todo-hash: d290c9a63ee693e91602d63f7ca6757def47f63e -->
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 // TODO: Address accessibility issues from insight report:
@@ -22,9 +21,35 @@
 // - ADD: Address new accessibility issues from insight report
 import React from 'react';
 
+// Import dependency graph content and index content for rendering functions
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+
+/**
+ * Renders the dependency graph view using the dependencyGraphContent module.
+ * This function should be called by the dependency graph rendering functions.
+ * @param {Object} props - Props for rendering the dependency graph
+ * @returns {React.ReactElement} The rendered dependency graph content
+ */
+function renderDependencyGraph(props) {
+  const content = dependencyGraphContent(props);
+  return content;
+}
+
+/**
+ * Renders the index view using the indexContent module.
+ * This function should be called by the index view rendering functions.
+ * @param {Object} props - Props for rendering the index view
+ * @returns {React.ReactElement} The rendered index content
+ */
+function renderIndexView(props) {
+  const content = indexContent(props);
+  return content;
+}
+
 /**
  * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang language code (e.g., 'en', 'es', 'fr')
+ * @param {string} lang language code (e. g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
  */
 function setHtmlLangAttribute(lang) {
@@ -45,17 +70,17 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if ... {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if ... {
+    } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if ... {
+    } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if ... {
+    } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if ... {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
-    } else if ... {
+    } else if (/^[a-z]{2}$/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -77,31 +102,24 @@ function validateTableAccessibility(tableElement) {
   const errors = [];
   
   // Check if table has proper structure
-  if ... {
-    errors.push('Table is missing <thead> element');
-  }
+  const thead = tableElement.querySelector('thead');
+  const thElements = thead ? thead.querySelectorAll('th') : [];
   
-  if ... {
-    errors.push('Table is missing <tbody> element');
-  }
-  
-  // Check for th elements in thead
-  const thead = ...
-  const thElements = thead ? ... : [];
   if (thElements.length === 0) {
     errors.push('Table header row is missing <th> elements');
   }
   
   // Check that all th elements have scope attributes
   thElements.forEach((th, index) => {
-    if ... {
+    if (!th.hasAttribute('scope')) {
       errors.push(`Table header cell ${index + 1} is missing scope attribute`);
     }
   });
   
   // Check for proper caption or summary
-  const hasCaption = ...
-  const hasSummary = ... || ...
+  const hasCaption = tableElement.querySelector('caption');
+  const hasSummary = tableElement.getAttribute('aria-describedby') || tableElement.getAttribute('summary');
+  
   if (!hasCaption && !hasSummary) {
     errors.push('Table is missing a caption or aria-describedby for accessibility');
   }
@@ -115,10 +133,12 @@ function validateTableStructure(tableElement) {
   }
   
   const errors = [];
-  const rows = ...
+  
+  const rows = tableElement.querySelectorAll('tr');
   
   rows.forEach((row, rowIndex) => {
-    const cells = ... td'));
+    const cells = Array.from(row.querySelectorAll('td'));
+    
     const cellCount = cells.length;
     
     // Check for empty cells
@@ -131,9 +151,10 @@ function validateTableStructure(tableElement) {
     // Check that rows have consistent cell counts
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = ... td'));
+      const prevCells = Array.from(prevRow.querySelectorAll('td'));
+      
       if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ...
+        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
       }
     }
   });
@@ -154,11 +175,11 @@ function validateLandmark(element) {
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
   
-  if (role && ... {
-    ... landmark role: ${role}`);
+  if (role && !validLandmarks.includes(role)) {
+    errors.push(`Element has invalid landmark role: ${role}`);
   }
   
-  if (!role && ... {
+  if (!role && tagName) {
     errors.push(`Element is not a valid landmark: ${tagName}`);
   }
   
@@ -182,24 +203,24 @@ function validateLandmarkStructure() {
   const errors = [];
   
   // Check for multiple main landmarks
-  const mainElements = ... [role="main"]');
+  const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = ... nav, main, aside, footer, section, article, [role]');
+  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
+  
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
-      const parentTag = ...
-      const parentRole = parent.getAttribute('role');
+      const parentTag = parent.tagName.toLowerCase();
       
       // Check for invalid nesting
-      if (parentTag === 'header' && ... === 'header') {
+      if (parentTag === 'header' && parentTag === 'header') {
         errors.push('Nested header elements found');
       }
-      if (parentTag === 'footer' && ... === 'footer') {
+      if (parentTag === 'footer' && parentTag === 'footer') {
         errors.push('Nested footer elements found');
       }
       
@@ -211,30 +232,26 @@ function validateLandmarkStructure() {
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
-function ... {
+function getSvgAccessibleName(svgElement) {
   if (typeof document === 'undefined' || !svgElement) {
     return null;
   }
   
-  // Check for aria-label
-  let accessibleName = ...
-  if (accessibleName) return accessibleName;
-  
   // Check for aria-labelledby referencing another element
-  const labelledBy = ...
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
   if (labelledBy) {
-    const labelElement = ...
+    const labelElement = document.querySelector(labelledBy);
     if (labelElement) return labelElement.textContent;
   }
   
   // Check for title element inside SVG
-  const title = ...
+  const title = svgElement.querySelector('title');
   if (title && title.textContent.trim()) {
     return title.textContent.trim();
   }
   
   // Check for desc element inside SVG
-  const desc = ...
+  const desc = svgElement.querySelector('desc');
   if (desc && desc.textContent.trim()) {
     return desc.textContent.trim();
   }
@@ -248,7 +265,7 @@ function validateSvgAccessibility() {
   }
   
   const errors = [];
-  const svgs = ...
+  const svgs = document.querySelectorAll('svg');
   
   svgs.forEach((svg, index) => {
     const name = getSvgAccessibleName(svg);
@@ -269,17 +286,17 @@ function ensureUniqueLandmarks() {
   const errors = [];
   const landmarkCounts = {};
   
-  // Count landmarks by role or tag
-  const landmarks = ... nav, main, aside, footer, section, article, [role]');
+  // Collect all landmarks
+  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
   landmarks.forEach((landmark) => {
-    const identifier = ... || ...
+    const identifier = landmark.getAttribute('id') || landmark.getAttribute('data-id') || 'unknown';
     
-    // main landmarks should be unique
+    // Main landmarks should be unique
     if (identifier === 'main' || identifier === 'MAIN') {
-      if ... {
+      if (landmarkCounts['main'] > 0) {
         errors.push(`Duplicate main landmark found. Only one main landmark should exist.`);
       } else {
-        ... = 1;
+        landmarkCounts['main'] = (landmarkCounts['main'] || 0) + 1;
       }
     }
   });
@@ -298,4 +315,21 @@ function personName(element) {
   }
   
   // Check for aria-label
-  const ariaLabel = element
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check for aria-labelled
+  const labelledBy = element.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelElement = document.querySelector(labelledBy);
+    if (labelElement) return labelElement.textContent;
+  }
+  
+  // Check for heading tags
+  const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  if (headings.length > 0) {
+    return headings[0].textContent.trim();
+  }
+  
+  return null;
+}

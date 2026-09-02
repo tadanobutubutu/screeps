@@ -177,7 +177,27 @@ function validateTableAccessibility() {
 }
 
 function validateTableStructure(table) {
-  // Implement function to validate table structure
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
+
+  const hasHeader = table.querySelector('thead') !== null;
+  const hasBody = table.querySelector('tbody') !== null;
+  const rows = table.querySelectorAll('tr');
+
+  if (!hasHeader) {
+    return { valid: false, error: 'Table must have a header' };
+  }
+
+  if (!hasBody) {
+    return { valid: false, error: 'Table must have a body' };
+  }
+
+  if (rows.length === 0) {
+    return { valid: false, error: 'Table must have at least one row' };
+  }
+
+  return { valid: true, error: '' };
 }
 
 function validateLandmark(landmark) {

@@ -80,4 +80,13 @@ const accessibilityUtils = {
 module.exports = {
   ...main,
   ...accessibilityUtils,
+  renderDependencyGraph,
+  renderIndex,
+  validateTableAccessibility,
+  validateTableStructure,
+  addAccessibleName,
+  accessibilityUtils,
+  ensureElementId,
+  ensureElementHasId,
+  newFocusTrap,
 };

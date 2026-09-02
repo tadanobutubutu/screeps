@@ -47,13 +47,17 @@ function checkLinkAccessibility(linkUrl) {
 ////////// ADD NEW FUNCTION BELOW (function3) ////////
 
 function function3() {
-  // TODO: Implement new function
+  // Implement new function to address accessibility issues
+  const dependencyGraph = document.getElementById('dependency-graph') || document.querySelector('.dependency-graph');
+  
+  if (dependencyGraph) {
+    // Ensure the dependencyGraph container has a proper ARIA role
+    dependencyGraph.setAttribute('role', 'region');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+  }
 }
 
 // TODO: This is the existing code that needs to be preserved (Preserved from main)
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// ...
 
 // Main JavaScript file
 // This file handles the main application logic
@@ -72,13 +76,10 @@ function function3() {
     // Functions to ensure the element has an id, add aria-label, render dependency graphs
     // (Previously existing code that needs to be preserved)
 
-    // TODO: This is the existing code that needs to be preserved (Preserved from main)
-
     // New function3 logic
     function function3() {
       // TODO: Implement new function
     }
 
     // ... (Rest of the existing code)
-
 })();

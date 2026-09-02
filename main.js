@@ -15,6 +15,14 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
+// New functions to address the listed issues
+function addLangAttribute(element) {
+  // Adds lang attribute to the given HTML element
+  if (element && typeof element.setAttribute === 'function') {
+    element.setAttribute('lang', 'en');
+  }
+}
+
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -367,7 +375,8 @@ module.exports = {
   spawnCommand,
   processSvgElements,
   ensureElementId,
-  ensureUniqueLandmarksFromString
+  ensureUniqueLandmarksFromString,
+  addLangAttribute
 };
 
 if (require.main === module) {

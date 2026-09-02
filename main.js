@@ -213,6 +213,7 @@ function ensureUniqueLandmarksLocal(landmarks) {
       uniqueLandmarks.push(landmark);
     }
   }
+
   return uniqueLandmarks;
 }
 

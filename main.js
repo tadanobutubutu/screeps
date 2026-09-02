@@ -8,7 +8,6 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 /**
-<<<<<<< HEAD
  * Adds accessibility props to SVG elements
  * @param {Object} props - Existing props object
  * @param {string} [role] - ARIA role for the SVG (default: 'img')
@@ -16,7 +15,7 @@
  * @param {string} [ariaHidden] - Whether the SVG should be hidden from screen readers
  * @returns {Object} Enhanced props object with accessibility attributes
  */
-function addSvgAccessibilityProps(props = {}, { role = 'img', ariaLabel, ariaHidden } = {}) {
+function addAccessibilityPropsToSvg(props = {}, { role = 'img', ariaLabel, ariaHidden } = {}) {
     const enhancedProps = { ...props };
 
     // Set ARIA role if not already present
@@ -41,34 +40,35 @@ function addSvgAccessibilityProps(props = {}, { role = 'img', ariaLabel, ariaHid
 
     return enhancedProps;
 }
-=======
+
+/**
  * Adds accessibility attributes to SVG elements
  * @param {SVGElement} svgElement - The SVG element to enhance
  * @param {Object} options - Configuration options
  * @param {string} options.title - Accessible title for the SVG
  * @param {string} [options.desc] - Optional description for the SVG
- * @param {boolean} [options.focusable=false] - Whether the SVG should be focusable
+ * @param {boolean} options.focusable - Whether the SVG should be focusable
  * @returns {SVGElement} The enhanced SVG element
  */
-function addSvgAccessibilityProps(svgElement, { title, desc, focusable = false }) {
+function addSvgAccessibilityAttributes(svgElement, { title, desc, focusable = false }) {
   if (!svgElement || !(svgElement instanceof SVGElement)) {
     throw new Error('Invalid SVG element provided');
   }
 
   // Add ARIA attributes
   svgElement.setAttribute('role', 'img');
-  svgElement.setAttribute('aria-label', title);
+  svgElement.setAttribute('aria-labelledby', title);
 
   // Add title element if not already present
   if (!svgElement.querySelector('title')) {
-    const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    const titleElement = document.createElement('title');
     titleElement.textContent = title;
     svgElement.insertBefore(titleElement, svgElement.firstChild);
   }
 
   // Add description if provided
   if (desc && !svgElement.querySelector('desc')) {
-    const descElement = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    const descElement = document.createElement('desc');
     descElement.textContent = desc;
     svgElement.insertBefore(descElement, svgElement.firstChild);
   }
@@ -86,14 +86,14 @@ function addSvgAccessibilityProps(svgElement, { title, desc, focusable = false }
  * @param {Object} [options] - Options for DOM manipulation
  * @returns {Object|SVGElement} Result depending on input type
  */
-function processSvgAccessibility(input, options = {}) {
-  if (input && typeof input === 'object') {
+function handleSvgAccessibility(input, options = {}) {
+  if (input && typeof input === 'object' && !input.tagName) {
     // Props-based configuration
-    const enhancedProps = addSvgAccessibilityProps(input, options);
+    const enhancedProps = addAccessibilityPropsToSvg(input, options);
     return enhancedProps;
-  } else if (input && typeof input === 'object' && input !== {} && input.constructor.name.includes('Element')) {
+  } else if (input && input.tagName) {
     // Direct DOM manipulation
-    return addSvgAccessibilityProps(input, options);
+    return addSvgAccessibilityAttributes(input, options);
   }
   
   return null;
@@ -163,6 +163,8 @@ export {
   createInPageButton,
   createAccessibleLink,
   handleAccessibilityIssues,
-  addSvgAccessibilityProps // Original function kept for backward compatibility
+  addAccessibilityPropsToSvg,
+  addSvgAccessibilityAttributes,
+  handleSvgAccessibility,
+  implementAccessibilitySolution
 };
->>>>>>> origin/main

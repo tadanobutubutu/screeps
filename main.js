@@ -206,6 +206,24 @@ function addFocusTrap(modal) {
   });
 }
 
+// New function for spawning logic
+function spawnProcess(command) {
+  const { spawn } = require('child_process');
+  const process = spawn(command);
+
+  process.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
+  process.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  process.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
+}
+
 module.exports = {
   initializeApp,
   processData,
@@ -255,4 +273,6 @@ module.exports = {
     X: 'valueX',
     Y: 'valueY',
     Z: 'valueZ'
+  },
+  spawnProcess // Added the new export
 };

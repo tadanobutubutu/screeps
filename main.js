@@ -1,7 +1,7 @@
 // TODO: Add back any required exports that might have been removed
 // TODO: This is the existing code that needs to be preserved
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: ... -->
+//_Commit: 173def07526e7508eeea67bc6ce1040de0e06f45_
+//<!-- todo-hash: 164653c305fa075eb1873494f6dfb601ea6e3774 -->
 
 function addressAccessibilityIssues(insightReport) {
   // Implement the logic to address accessibility issues based on the insight report
@@ -9,7 +9,7 @@ function addressAccessibilityIssues(insightReport) {
   console.log('Addressing accessibility issues from insight report:', insightReport);
 
   // Add accessibility improvements
-  document.body.setAttribute('lang', 'en');
+  document.documentElement.lang = 'en';
   document.title = 'Accessible Application';
 
   // Add ARIA attributes to buttons
@@ -25,6 +25,7 @@ function addressAccessibilityIssues(insightReport) {
   skipLink.href = '#main-content';
   skipLink.textContent = 'Skip to main content';
   skipLink.className = 'skip-link';
+  skipLink.setAttribute('aria-label', 'Skip to main content');
   document.body.insertBefore(skipLink, document.body.firstChild);
 
   // Add focus styles for keyboard navigation
@@ -55,7 +56,8 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.textContent = buttonText;
     button.className = buttonClass;
     button.setAttribute('aria-label', buttonText); // Add ARIA label
-    document.body.appendChild(button);
+    button.setAttribute('role', 'button');
+    return button;
 }
 
 // Accessibility improvements for addBook function/form

@@ -35,7 +35,7 @@ const appData = {
 
 // const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 
-// TODO: This is the existing code that needs to be preserved
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by fixTableStructureIssues() and fixTableHeaderCellScope())
@@ -314,7 +314,7 @@ function handleAccessibilityIssues(issues = []) {
   validateLandmarkStructure();
   ensureUniqueLandmarks();
 
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll ? document.querySelectorAll('svg') : [];
   svgs.forEach(svg => {
     getSvgAccessibleName(svg);
   });
@@ -421,5 +421,6 @@ module.exports = {
     addLandmarkRegions,
     setSvgAttributes,
     addSvgAccessibleNames,
-    upgradeSystem
+    upgradeSystem,
+    addLangAttribute
 };

@@ -1,41 +1,13 @@
 const http = require('http');
 const path = require('path');
-
-// TODO: Address accessibility issues from insight report:
-
-// TODO: This is the existing code that needs to be preserved
-// main.js - Accessibility-focused implementation
-
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-
-// Functions to ensure the element has an id, add aria-label, render dependency graph
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-
-// TODO: This is the existing code that needs to be preserved
-// Line 7
-// Line 8
-// Line 9
-// Line 10
-
-/**
- * Main application entry point
- */
-
-// Import required modules
+const fs = require('fs');
 const express = require('express');
 const { exec } = require('child_process');
-const fs = require('fs');
-const http = require('http');
-const path = require('path');
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Configuration object
 const config = {
   port: PORT,
   env: process.env.NODE_ENV || 'development'
@@ -45,7 +17,6 @@ function processSvgElements() {
   const svgElements = document.querySelectorAll('svg');
 }
 
-// New functionality: Ensure element has an id, add aria-label, render dependency graphs
 function ensureElementHasId(element) {
   if (!element.id) {
     element.id = `element-${Math.random().toString(36).substr(2, 11)}`;
@@ -65,7 +36,6 @@ const AddressabilityIssues = {
     const issues = [];
 
     insightReport.sections.forEach((section, index) => {
-      // Check for missing headings
       if (!section.heading) {
         issues.push({
           type: 'missing-heading',
@@ -75,7 +45,6 @@ const AddressabilityIssues = {
         });
       }
 
-      // Check for empty content
       if (!section.content || section.content.trim() === '') {
         issues.push({
           type: 'empty-content',
@@ -85,7 +54,6 @@ const AddressabilityIssues = {
         });
       }
 
-      // Check for potentially inaccessible link text
       if (section.content && section.content.toLowerCase().includes('click here')) {
         issues.push({
           type: 'inaccessible-link-text',
@@ -275,25 +243,18 @@ function setARIARoleForDependencyGraph() {
 }
 
 function renderDependencyGraph(graphData, container) {
-  // ...
   addAriaLabel(container, 'Dependency graph');
-  // Render the dependency graph into the container
   const graph = document.createElement('div');
   graph.className = 'dependency-graph';
   graph.textContent = JSON.stringify(graphData, null, 2);
   container.appendChild(graph);
-  // ...
   return graph;
 }
 
-// New accessibility functions from insight report
-
-// REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-// REACT_027: Fix table structure issues
 function validateTableAccessibility(table) {
   if (!table) return true;
   
@@ -327,7 +288,6 @@ function validateTableStructure(table) {
   return { valid: true, error: null };
 }
 
-// REACT_017: Add/fix landmark issues
 function validateLandmarkElement(element, landmarkType) {
   if (!element) return false;
   
@@ -355,7 +315,6 @@ function validateLandmarkStructure(container) {
   return true;
 }
 
-// REACT_041: Add accessible names to SVGs
 function getSvgAccessibleName(svgElement) {
   if (!svgElement) return '';
   
@@ -391,7 +350,6 @@ function addSvgAccessibleName(svgElement, name) {
   return svgElement;
 }
 
-// REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks(container) {
   if (!container) return;
   
@@ -421,7 +379,6 @@ function ensureUniqueLandmarks(container) {
   return true;
 }
 
-// REACT_036: Fix fake link issues
 function personName(name, linkElement) {
   if (linkElement && linkElement.tagName !== 'A') {
     const isInteractive = linkElement.getAttribute('role') === 'link' || 
@@ -456,12 +413,9 @@ function newFunction() {
 }
 
 function checkLandmarkElements(response) {
-  // Implement the logic to check for landmark elements
-  // For the purpose of this example, let's assume a simple check for the presence of 'landmark'
   return response.includes('landmark');
 }
 
-// Handle fake links issues
 function handleFakeLinks(issues) {
   if (!issues || !Array.isArray(issues)) {
     return;
@@ -477,24 +431,50 @@ function handleFakeLinks(issues) {
   });
 }
 
-// Additional utility functions
 function handleCredentialResponse(response) {
-  // Implement function for handling credential responses
   return response;
 }
 
 function addBook(bookData) {
-  // ... Existing code ...
   return bookData;
 }
 
 function generateAccessibilityReport() {
-  // Placeholder implementation
   return {
     timestamp: new Date().toISOString(),
     issues: []
   };
 }
+
+function addressAccessibilityIssues(insightReport) {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', getLangAttribute());
+  }
+}
+
+function initializeAccessibility() {
+  if (!document.querySelectorAll) return;
+  addressAccessibilityIssues(sampleInsightReport);
+}
+
+/**
+ * Main application entry point
+ */
+
+const sampleInsightReport = {
+  title: 'Quarterly Performance Report',
+  sections: [
+    {
+      heading: 'Sales Overview',
+      content: 'Total sales increased by 15% compared to last quarter.'
+    },
+    {
+      heading: 'Customer Satisfaction',
+      content: 'Average satisfaction score: 4.2 out of 5.'
+    }
+  ]
+};
 
 /**
  * Creates and starts the HTTP server
@@ -519,35 +499,7 @@ function startApp() {
   return server;
 }
 
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
-};
-
-// Implement function for addressing accessibility issues from insight report
-function addressAccessibilityIssues() {
-  // Add lang attribute to HTML element
-  const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', getLangAttribute(htmlElement));
-  }
-}
-
-function initializeAccessibility() {
-  if (!document.querySelectorAll) return;
-  addressAccessibilityIssues(sampleInsightReport);
-}
-
-// Export functions for testing (combining both versions)
+// Export functions for testing
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     // From HEAD
@@ -581,42 +533,34 @@ if (typeof module !== 'undefined' && module.exports) {
     handleFakeLinks,
     handleCredentialResponse,
     addBook,
-    generateAccessibilityReport
+    generateAccessibilityReport,
+    addressAccessibilityIssues,
+    initializeAccessibility
   };
-  
-  // Start the application if run directly
-  if (require.main === module) {
-    startApp();
-  }
 } else {
-  // Browser environment - wait for DOM
+  // Browser environment
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeAccessibility);
   } else {
     initializeAccessibility();
   }
-  
-  // Fix 26 table structure issues
+
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     const validationResult = validateTableStructure(table);
     if (!validationResult.valid) {
-      // Handle invalid table structure
       console.error(`Table structure issues found: ${validationResult.error}`);
     }
   });
 
-  // Add/fix 4 landmark issues
   const landmarks = document.querySelectorAll('main, nav, aside, header, footer');
   landmarks.forEach((landmark) => {
     const validationResult = validateLandmark(landmark);
     if (!validationResult.valid) {
-      // Handle invalid landmark
       console.error(`Landmark issues found: ${validationResult.error}`);
     }
   });
 
-  // Add accessible names to 2 SVGs
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach((svg) => {
     const accessibleName = getSvgAccessibleName(svg);
@@ -625,13 +569,11 @@ if (typeof module !== 'undefined' && module.exports) {
     }
   });
 
-  // Ensure unique landmarks
   const uniqueLandmarks = ensureUniqueLandmarks(document);
   if (!uniqueLandmarks) {
     console.error('Non-unique landmarks detected');
   }
 
-  // Fix 1 fake link issue
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach((link) => {
     handleFakeLinks([{
@@ -640,4 +582,9 @@ if (typeof module !== 'undefined' && module.exports) {
     }]);
     link.setAttribute('href', '#');
   });
+}
+
+// Start the application if run directly
+if (require.main === module) {
+  startApp();
 }

@@ -5,7 +5,10 @@ function createAccessibleWebResourceButton(url, text) {
   const button = document.createElement('button');
   button.setAttribute('type', 'button');
   button.setAttribute('aria-label', text);
-  button.innerHTML = `<a href="${url}" target="_blank">${text}</a>`;
+  button.textContent = text;
+  button.addEventListener('click', () => {
+    window.open(url, '_blank');
+  });
   return button;
 }
 
@@ -227,8 +230,12 @@ function preserveExistingCode() {
 
 // New function to address new accessibility issues from insight report
 function newFunction() {
-  // Placeholder for new accessibility issue fixes
-  // Implement specific fixes based on insight report when available
+  // Apply accessibility fixes based on insight report
+  addLandmarkIds();
+  validateTableAccessibility();
+  validateLandmark();
+  addSVGAccessibilityProps();
+  updateLiveRegion('Accessibility issues addressed', 'polite');
 }
 
 // TODO: This is the existing code that needs to be preserved

@@ -50,6 +50,17 @@ import express from 'express';
 import path from 'path';
 import { fetchUser, clearCache } from './utils/user';
 
+// Handle credential response from authentication flows
+function handleCredentialResponse(credential) {
+  if (credential) {
+    // Store the credential in localStorage for persistence
+    localStorage.setItem('userCredential', JSON.stringify(credential));
+    console.log('Credential stored successfully.');
+  } else {
+    console.error('Invalid credential response.');
+  }
+}
+
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Existing code starts here
@@ -800,5 +811,6 @@ export {
   createInPageButtons,
   fixFakeLinkIssue,
   addSvgAccessibleNames,
-  ensureUniqueLandmarksDoc
+  ensureUniqueLandmarksDoc,
+  handleCredentialResponse
 };

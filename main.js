@@ -1,4 +1,4 @@
-// main.js - Application entry point
+// main.2.1.0 - Application entry point
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
@@ -87,12 +87,12 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  const reportFile = path.join(__dirname, 'accessibility-report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
+// Replaced placeholder with full implementation using axe-2.7.1 scanning and report writing
+function runAccessibilityScan() {
   const report = scanAccessibility();
   writeReport(report);
   return report;
@@ -104,8 +104,21 @@ const formatResponse = (data) => {
 };
 
 // Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
-const { validateInput } = require('./utils/validators');
-const { processData } = require('./utils/processor');
+const { validateInput } = require('./validators');
+const { processData } = require('./dataProcessor');
+
+// Accessibility helper functions
+function getLangAttribute(html) {
+    const match = html.match(/<html[^>]*lang=["']([^"']+)["']/i);
+    return match ? match[1] : null;
+}
+
+function addLangAttribute(html, lang) {
+    if (getLangAttribute(html)) {
+        return html.replace(/<html[^>]*lang=["'][^"']+["'][^>]*>/i, `<html lang="${lang}">`);
+    }
+    return html.replace(/<html([^>]*)>/i, `<html lang="${lang}"$1>`);
+}
 
 // Export new necessary functions
 module.exports = {
@@ -120,7 +133,10 @@ module.exports = {
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarks,
-  landmarkConfig: CONFIG
+  landmarkConfig: CONFIG,
+  // accessibility functions
+  getLangAttribute,
+  addLangAttribute
 };
 
 // Main execution when run directly

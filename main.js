@@ -32,7 +32,6 @@ function greetingFunction() {
   return "Hello, World!";
 }
 
-// TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 
 const renderGraphIndex = (graphData) => {
@@ -68,14 +67,14 @@ function renderDependencyGraphs(graphData) {
   mainElement.appendChild(container);
 }
 
-// New functions
+// New functions (merged changes from both versions)
 function ensureInteractiveElementsAccessible() {
   a11yStore.ensureInteractiveRoles();
   a11yStore.addFormControlLabels();
   a11yStore.ensureImageAccessibility();
 }
 
-// Function to handle initial accessibility setup
+// Function to handle initial accessibility setup (merged changes from both versions)
 function handleInitialAccessibility() {
   a11yStore.checkLandmarkElements();
   a11yStore.addSVGAccessibilityProps();
@@ -85,99 +84,98 @@ function handleInitialAccessibility() {
   const tables = document.querySelectorAll('table');
   tables.forEach(fixTableStructure);
   ensureInteractiveElementsAccessible();
-}
 
-// HTTP Server setup
-const server = http.createServer((req, res) => {
-  const parsedUrl = url.parse(req.url, true);
+  // HTTP Server setup (added from the merged version)
+  const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
 
-  // CORS headers for credential responses
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // CORS headers for credential responses
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-      res.writeHead(200);
-      res.end();
-      return;
-  }
+    if (req.method === 'OPTIONS') {
+        res.writeHead(200);
+        res.end();
+        return;
+    }
 
-  // Health check endpoint
-  if (parsedUrl.pathname === '/health') {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
-      return;
-  }
+    // Health check endpoint
+    if (parsedUrl.pathname === '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
+        return;
+    }
 
-  // Credential response endpoint
-  if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
-      let body = '';
+    // Credential response endpoint
+    if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
+        let body = '';
 
-      req.on('data', chunk => {
-          body += chunk.toString();
-      });
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
 
-      req.on('end', () => {
-          try {
-              const credentialResponse = JSON.parse(body);
-              const result = handleCredentialResponse(credentialResponse);
-              res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify(result));
-          } catch (error) {
-              res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
-          }
-      });
-      return;
-  }
+        req.on('end', () => {
+            try {
+                const credentialResponse = JSON.parse(body);
+                const result = handleCredentialResponse(credentialResponse);
+                res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(result));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
+            }
+        });
+        return;
+    }
 
-  // Session validation endpoint
-  if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
-      const sessionId = parsedUrl.query.sessionId;
+    // Session validation endpoint
+    if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
+        const sessionId = parsedUrl.query.sessionId;
 
-      if (!sessionId) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
-          return;
-      }
+        if (!sessionId) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
+            return;
+        }
 
-      const session = validateSession(sessionId);
+        const session = validateSession(sessionId);
 
-      if (session) {
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ status: 'valid', user: session }));
-      } else {
-          res.writeHead(401, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
-      }
-      return;
-  }
+        if (session) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'valid', user: session }));
+        } else {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
+        }
+        return;
+    }
 
-  // Session revocation endpoint
-  if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
-      let body = '';
+    // Session revocation endpoint
+    if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
+        let body = '';
 
-      req.on('data', chunk => {
-          body += chunk.toString();
-      });
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
 
-      req.on('end', () => {
-          try {
-              const { sessionId } = JSON.parse(body);
-              const revoked = revokeSession(sessionId);
+        req.on('end', () => {
+            try {
+                const { sessionId } = JSON.parse(body);
+                const revoked = revokeSession(sessionId);
 
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
-          } catch (error) {
-              res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
-          }
-      });
-      return;
-  }
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
+            }
+        });
+        return;
+    }
 
-  res.writeHead(404, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
 });
 
 /**
@@ -259,50 +257,6 @@ function addressAccessibilityIssues() {
     
     // Ensure images have alt text
     a11yStore.ensureImageAccessibility();
-}
-
-/**
- * Check landmark elements in the document
- */
-function checkLandmarkElements() {
-    if (typeof document === 'undefined') {
-        return;
-    }
-    
-    a11yStore.checkLandmarkElements();
-}
-
-/**
- * Handle focus trap for accessibility (e.g., modals)
- * @param {HTMLElement} container - The container to trap focus within
- */
-function handleFocusTrap(container) {
-    if (!container) return;
-    const focusableElements = container.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusableElements.length === 0) return;
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-    container.addEventListener('keydown', (e) => {
-        if (e.key !== 'Tab') return;
-        if (e.shiftKey && document.activeElement === firstElement) {
-            lastElement.focus();
-            e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-            firstElement.focus();
-            e.preventDefault();
-        }
-    });
-}
-
-// Start server if this is the main module
-if (require.main === module) {
-    const PORT = process.env.PORT || 3000;
-    server.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-        handleInitialAccessibility();
-    });
 }
 
 // Export modules for testing

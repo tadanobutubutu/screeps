@@ -31,5 +31,15 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Implement this function for creating custom buttons
+function createCustomButton(buttonId, buttonText, buttonClass, callback) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    button.addEventListener('click', callback);
+    document.body.appendChild(button);
+}
+
 // Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
+export { createInPageButton, validateLandmarkStructure };

@@ -111,6 +111,56 @@ function renderAdditionalContent(additionalData) {
   return '<div class="additional-content"></div>';
 }
 
+/**
+ * Add a book with accessibility features
+ * @param {HTMLElement} container - Container element to append the form
+ * @param {Object} book - Book object with title, author, etc.
+ */
+function addBook(container, book) {
+  // Create form element
+  const form = document.createElement('form');
+  form.setAttribute('aria-label', 'Add book form');
+  form.setAttribute('role', 'form');
+
+  // Title field
+  const titleInput = document.createElement('input');
+  titleInput.type = 'text';
+  titleInput.id = 'book-title';
+  titleInput.setAttribute('aria-label', 'Book title');
+  titleInput.value = book.title || '';
+  const titleLabel = document.createElement('label');
+  titleLabel.setAttribute('for', 'book-title');
+  titleLabel.textContent = 'Title';
+  form.appendChild(titleLabel);
+  form.appendChild(titleInput);
+
+  // Author field
+  const authorInput = document.createElement('input');
+  authorInput.type = 'text';
+  authorInput.id = 'book-author';
+  authorInput.setAttribute('aria-label', 'Book author');
+  authorInput.value = book.author || '';
+  const authorLabel = document.createElement('label');
+  authorLabel.setAttribute('for', 'book-author');
+  authorLabel.textContent = 'Author';
+  form.appendChild(authorLabel);
+  form.appendChild(authorInput);
+
+  // Submit button
+  const submitBtn = document.createElement('button');
+  submitBtn.type = 'submit';
+  submitBtn.textContent = 'Add Book';
+  submitBtn.setAttribute('aria-label', 'Add book button');
+  form.appendChild(submitBtn);
+
+  // Apply focus trap for keyboard navigation
+  if (typeof newFocusTrap === 'function') {
+    newFocusTrap(form);
+  }
+
+  container.appendChild(form);
+}
+
 // Accessibility-related functions
 function addLangAttribute() {
   // Implementation for adding lang attribute to HTML element
@@ -186,6 +236,7 @@ module.exports = {
   renderGraphIndex,
   renderDependencyGraphs,
   renderAdditionalContent,
+  addBook,
   addAccessibleName: addSvgAccessibleName,
   addAriaLabel,
   focusTrap,

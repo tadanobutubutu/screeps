@@ -452,7 +452,10 @@ function clamp(value, min, max) {
 }
 
 function createInPageButton(buttonId, buttonText) {
-  /* existing code */
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  button.setAttribute('role', 'button');
+  return button;
 }
 
 function validateLinkAccessibility(options) {
@@ -484,6 +487,8 @@ export {
   implementAccessibilitySolutions,
   sampleInsightReport,
   isLandmarkElement,
+  existingFunction,
+  CreatingInPageButton,
   existingFunction,
   ExistingClass
 };

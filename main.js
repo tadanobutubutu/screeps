@@ -3,6 +3,11 @@
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
 
+// TODO: Implement logic to retrieve the current language setting
+function getCurrentLanguage() {
+    return navigator.language || navigator.userLanguage;
+}
+
 // TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');

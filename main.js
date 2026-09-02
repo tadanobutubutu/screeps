@@ -1,6 +1,6 @@
 // main.js - Accessibility-focused implementation
 
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserve
 // (This comment remains as-is)
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs

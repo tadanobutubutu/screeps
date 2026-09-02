@@ -342,7 +342,7 @@ function setConfig(config) {
  * Validates that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors
  */
-function validateTableAccessibility() {
+function validateTableAccessibilityForApp() {
   // ... existing code ...
 }
 
@@ -415,6 +415,3 @@ module.exports = {
   newFunction, // Add the new function to exports
   newFocusTrap // Add the new function to exports
 }
-```
-
-This resolution preserves the new function as a new export, and also makes it available within the module for other uses.

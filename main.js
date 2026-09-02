@@ -1,6 +1,5 @@
 const main = require('./utilities')
 
-// Import necessary dependencies
 const {
   fixTableStructure,
   fixLandmarkIssues,
@@ -16,29 +15,38 @@ const {
   fixButtonIdentifiers,
   ensureElementHasId,
   ensureElementHasIdOrigin,
-  addAriaLabel
+  addAriaLabel,
+  setupFocusTrap,
+  restoreFocus,
+  addLangAttribute
 } = require('./AccessibilityHelpers')
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')
 
 if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
   if (!dependencyGraph.hasAttribute('role')) {
     dependencyGraph.setAttribute('role', 'region')
   }
 
-  // Add accessible label if not already present
-  if (!dependencyGraph.hasAttribute('aria-label')) {
+  if (!dependencyGraph.getAttribute('aria-label')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
   }
 
-  // Ensure element has an ID if not present
   if (!dependencyGraph.id) {
-    dependencyGraph.id = 'dependencyGraph';
+    dependencyGraph.id = 'dependencyGraph'
   }
+
+  // Ensure the container is focusable if it's interactive
+  if (!dependencyGraph.hasAttribute('tabindex')) {
+    dependencyGraph.setAttribute('tabindex', '0')
+  }
+
+  setupFocusTrap('#dependencyGraph')
 }
+
+// Add lang attribute to HTML element if missing
+addLangAttribute(document.documentElement)
 
 const {
   createInPageButton,

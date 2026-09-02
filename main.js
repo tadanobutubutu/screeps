@@ -11,8 +11,6 @@ const {
     getLangAttribute,
     validateAccessibilityReport,
     exportUtils,
-    addressAccessibilityIssues,
-    handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
     addAriaLabel,
@@ -309,4 +307,6 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   newFunction,
+  addressAccessibilityIssues,
+  checkAccessibility,
 };

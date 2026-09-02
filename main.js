@@ -531,6 +531,314 @@ function towerDefense() {
   };
 }
 
+// New function to address accessibility issues: Update accessible elements dynamically
+function updateAccessibleElements(elements) {
+  // This function updates the accessibility properties of given elements
+  if (!Array.isArray(elements) && elements) {
+    elements = [elements];
+  } else if (!elements) {
+    return { updated: 0, errors: ['No elements provided'] };
+  }
+
+  let updatedCount = 0;
+  const errors = [];
+
+  elements.forEach((el, index) => {
+    if (!el) {
+      errors.push(`Element at index ${index} is null or undefined`);
+      return;
+    }
+
+    // Update role if missing
+    if (!el.hasAttribute('role')) {
+      const tagName = el.tagName.toLowerCase();
+      if (['nav', 'main', 'header', 'footer', 'aside', 'section'].includes(tagName)) {
+        el.setAttribute('role', tagName);
+        updatedCount++;
+      }
+    }
+
+    // Update aria-label if missing and has title
+    if (!el.hasAttribute('aria-label') && el.hasAttribute('title')) {
+      el.setAttribute('aria-label', el.getAttribute('title'));
+      updatedCount++;
+    }
+
+    // Update tabindex for interactive elements
+    const tagName = el.tagName.toLowerCase();
+    if (['button', 'a', 'input', 'select', 'textarea'].includes(tagName) && !el.hasAttribute('tabindex')) {
+      el.setAttribute('tabindex', '0');
+      updatedCount++;
+    }
+  });
+
+  return { updated: updatedCount, errors };
+}
+
+// New function to address REACT_018: Fix form accessibility issues
+function validateFormAccessibility(form) {
+  // This function validates the accessibility of a form
+  const errors = [];
+
+  if (!form) {
+    return { valid: false, errors: ['Form element is required'] };
+  }
+
+  // Check for form label
+  const inputs = form.querySelectorAll('input, select, textarea');
+  inputs.forEach((input, index) => {
+    const id = input.getAttribute('id');
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledby = input.getAttribute('aria-labelledby');
+    const type = input.getAttribute('type');
+
+    // Skip submit/button/hidden inputs
+    if (type === 'submit' || type === 'button' || type === 'hidden') return;
+
+    // Check for accessible name
+    if (!ariaLabel && !ariaLabelledby) {
+      if (id) {
+        const label = document.querySelector(`label[for="${id}"]`);
+        if (!label) {
+          errors.push(`Input at index ${index} is missing a label`);
+        }
+      } else {
+        const wrappingLabel = input.closest('label');
+        if (!wrappingLabel) {
+          errors.push(`Input at index ${index} is missing a label, aria-label, or aria-labelledby`);
+        }
+      }
+    }
+
+    // Check for required field indication
+    if (input.hasAttribute('required') && !ariaLabel && !ariaLabelledby) {
+      const text = input.textContent || '';
+      if (!text.includes('*') && !text.toLowerCase().includes('required')) {
+        errors.push(`Required input at index ${index} may not indicate required status`);
+      }
+    }
+  });
+
+  // Check for fieldset/legend in groups of radio buttons
+  const radioGroups = {};
+  form.querySelectorAll('input[type="radio"]').forEach((radio) => {
+    const name = radio.getAttribute('name');
+    if (name) {
+      if (!radioGroups[name]) radioGroups[name] = [];
+      radioGroups[name].push(radio);
+    }
+  });
+
+  Object.keys(radioGroups).forEach((name) => {
+    if (radioGroups[name].length > 1) {
+      const firstRadio = radioGroups[name][0];
+      const fieldset = firstRadio.closest('fieldset');
+      if (!fieldset) {
+        errors.push(`Radio group "${name}" is missing a fieldset wrapper`);
+      } else if (!fieldset.querySelector('legend')) {
+        errors.push(`Radio group "${name}" fieldset is missing a legend`);
+      }
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_040: Add alt text to images
+function validateImageAccessibility(image) {
+  // This function validates the accessibility of an image
+  const errors = [];
+
+  if (!image) {
+    return { valid: false, errors: ['Image element is required'] };
+  }
+
+  // Check for alt attribute
+  const hasAlt = image.hasAttribute('alt');
+  const alt = image.getAttribute('alt');
+  const role = image.getAttribute('role');
+  const ariaLabel = image.getAttribute('aria-label');
+  const ariaLabelledby = image.getAttribute('aria-labelledby');
+
+  // Decorative images should have alt=""
+  // Informative images should have alt text
+  // Check for accessible name
+  if (!hasAlt && !ariaLabel && !ariaLabelledby) {
+    errors.push('Image is missing alt attribute and no aria-label/aria-labelledby');
+  }
+
+  // If alt is present but only whitespace, that's typically valid for decorative images
+  if (hasAlt && alt === null) {
+    errors.push('Image alt attribute is null, should be empty string for decorative or descriptive text for informative');
+  }
+
+  // Check for proper role when used as decorative
+  if (alt === '' && !role) {
+    image.setAttribute('role', 'presentation');
+  }
+
+  // Check for redundant alt text
+  if (alt && (alt.toLowerCase() === 'image' || alt.toLowerCase() === 'picture' || alt.toLowerCase() === 'photo')) {
+    errors.push('Image alt text is generic (e.g., "image", "picture") and not descriptive');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_019: Fix button accessibility issues
+function validateButtonAccessibility(button) {
+  // This function validates the accessibility of a button
+  const errors = [];
+
+  if (!button) {
+    return { valid: false, errors: ['Button element is required'] };
+  }
+
+  // Check it's actually a button or has role="button"
+  const tagName = button.tagName.toLowerCase();
+  const role = button.getAttribute('role');
+  if (tagName !== 'button' && role !== 'button') {
+    errors.push('Element is not a button and does not have role="button"');
+  }
+
+  // Check for accessible name
+  const textContent = button.textContent ? button.textContent.trim() : '';
+  const ariaLabel = button.getAttribute('aria-label');
+  const ariaLabelledby = button.getAttribute('aria-labelledby');
+  const title = button.getAttribute('title');
+
+  if (!textContent && !ariaLabel && !ariaLabelledby && !title) {
+    errors.push('Button is missing accessible name (text content, aria-label, aria-labelledby, or title)');
+  }
+
+  // Check for disabled state
+  if (button.hasAttribute('disabled') && button.getAttribute('aria-disabled') === 'true') {
+    errors.push('Button has both disabled attribute and aria-disabled="true" - use only one');
+  }
+
+  // Check for proper type attribute on button elements
+  if (tagName === 'button' && !button.hasAttribute('type')) {
+    errors.push('Button element should have explicit type attribute (button, submit, or reset)');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to render dependency graph for accessibility relationships
+function renderDependencyGraph(container, data) {
+  // This function renders a dependency graph showing accessibility relationships
+  if (!container) {
+    return null;
+  }
+
+  // Clear container
+  container.innerHTML = '';
+
+  // Create SVG element for the graph
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '400');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Dependency graph showing accessibility relationships');
+
+  // Add accessible title
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  title.textContent = 'Dependency Graph';
+  svg.appendChild(title);
+
+  // Process data
+  const nodes = (data && data.nodes) || [];
+  const edges = (data && data.edges) || [];
+
+  // Create nodes
+  nodes.forEach((node, index) => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', (node.x || index * 100 + 50).toString());
+    circle.setAttribute('cy', (node.y || 200).toString());
+    circle.setAttribute('r', '20');
+    circle.setAttribute('fill', node.color || '#4A90E2');
+    svg.appendChild(circle);
+
+    // Add label
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', (node.x || index * 100 + 50).toString());
+    text.setAttribute('y', (node.y || 200).toString());
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dy', '0.3em');
+    text.setAttribute('fill', '#fff');
+    text.textContent = node.label || '';
+    svg.appendChild(text);
+  });
+
+  // Create edges
+  edges.forEach((edge) => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', (edge.x1 || 0).toString());
+    line.setAttribute('y1', (edge.y1 || 0).toString());
+    line.setAttribute('x2', (edge.x2 || 0).toString());
+    line.setAttribute('y2', (edge.y2 || 0).toString());
+    line.setAttribute('stroke', '#999');
+    line.setAttribute('stroke-width', '2');
+    svg.appendChild(line);
+  });
+
+  container.appendChild(svg);
+  return svg;
+}
+
+// New function to render an accessible index view
+function renderIndexView(container, items) {
+  // This function renders an accessible index view of items
+  if (!container) {
+    return null;
+  }
+
+  // Clear container
+  container.innerHTML = '';
+
+  // Create list container with proper semantics
+  const list = document.createElement('ul');
+  list.setAttribute('role', 'list');
+  list.setAttribute('aria-label', 'Index of items');
+
+  if (!Array.isArray(items) || items.length === 0) {
+    const emptyItem = document.createElement('li');
+    emptyItem.textContent = 'No items to display';
+    list.appendChild(emptyItem);
+  } else {
+    items.forEach((item) => {
+      const listItem = document.createElement('li');
+
+      if (typeof item === 'string') {
+        listItem.textContent = item;
+      } else if (item && typeof item === 'object') {
+        // Create link if href is provided
+        if (item.href) {
+          const link = document.createElement('a');
+          link.href = item.href;
+          link.textContent = item.label || item.text || item.href;
+          if (item.ariaLabel) {
+            link.setAttribute('aria-label', item.ariaLabel);
+          }
+          listItem.appendChild(link);
+        } else {
+          listItem.textContent = item.label || item.text || '';
+          if (item.description) {
+            const desc = document.createElement('span');
+            desc.textContent = ' - ' + item.description;
+            listItem.appendChild(desc);
+          }
+        }
+      }
+
+      list.appendChild(listItem);
+    });
+  }
+
+  container.appendChild(list);
+  return list;
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   createInPageButton,
@@ -546,5 +854,11 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  validateFormAccessibility,
+  validateImageAccessibility,
+  validateButtonAccessibility,
+  updateAccessibleElements,
+  renderDependencyGraph,
+  renderIndexView,
   towerDefense
 };

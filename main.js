@@ -28,8 +28,26 @@ class ScreepsBot {
   setElementLabel(elementId, label) {
     const el = document.getElementById(elementId);
     if (el) {
-      el.setAttribute('aria-label', label);
-      el.setAttribute('role', 'button');
+      // Only set aria-label if not already present
+      if (!el.getAttribute('aria-label')) {
+        el.setAttribute('aria-label', label);
+      }
+      // Set role to button if not already present
+      if (!el.getAttribute('role') || el.getAttribute('role') !== 'button') {
+        el.setAttribute('role', 'button');
+      }
+    }
+  }
+
+  // Accessibility enhancement: Focus management for keyboard navigation
+  setFocus(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      // Ensure element is focusable
+      if (!element.hasAttribute('tabindex') && !element.matches('a, button, [tabindex]:not([tabindex="-1"])')) {
+        element.setAttribute('tabindex', '0');
+      }
+      element.focus();
     }
   }
 

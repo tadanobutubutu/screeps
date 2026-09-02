@@ -548,6 +548,30 @@ function fixSvgAccessibleNames() {
   });
 }
 
+// TODO: Implement this function for adding SVG accessibility props
+/**
+ * Adds SVG accessibility properties to an SVG element
+ * @param {Object} svgElement - The SVG element to add accessibility props to
+ * @param {string} accessibleName - The accessible name for the SVG
+ * @param {string} role - The ARIA role for the SVG (default: 'img')
+ * @returns {Object} The SVG element with accessibility props added
+ */
+function addSvgAccessibilityProps(svgElement, accessibleName, role = 'img') {
+    if (!svgElement || typeof svgElement !== 'object') {
+        return null;
+    }
+    
+    // Set the role attribute
+    svgElement.setAttribute('role', role);
+    
+    // Set the accessible name via aria-label
+    if (accessibleName) {
+        svgElement.setAttribute('aria-label', accessibleName);
+    }
+    
+    return svgElement;
+}
+
 module.exports = {
   initializeApp,
   getConfig,
@@ -571,5 +595,6 @@ module.exports = {
   fixFakeLinks,
   checkLandmarkElements,
   ensureUniqueLandmarks,
-  fixSvgAccessibleNames
+  fixSvgAccessibleNames,
+  addSvgAccessibilityProps
 };

@@ -1,8 +1,4 @@
-// TODO: This is the modified and merged code
-// This is the existing code that needs to be preserved in main.js
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report
-// ----- END ORIGINAL CODE-----
+// TODO: Identify and update specific functions as needed
 
 /**
  * Main entry point for the Screeps bot.
@@ -22,7 +18,7 @@ class ScreepsBot {
     // Load initial data
     await this.loadData();
 
-    console.log('Screenspider bot started');
+    console.ilog('Screenspider bot started');
   }
 
   loadData() {
@@ -40,7 +36,7 @@ class ScreepsBot {
   }
 
   // New feature: Priority-based task scheduling
-  addTaskWithPriority(taskFn, priority = 'medium') {
+  addTask(taskFn, priority = 'medium') {
     this.tasks.push({ task: taskFn, priority });
     this.scheduleTasks();
   }
@@ -83,7 +79,7 @@ class ScreepsBot {
       case 'ArrowDown':
       case 'ArrowLeft':
       case 'ArrowRight':
-        this.navigateWithArrows(key, activeElement);
+        this.navigateElement(key, activeElement);
         break;
       case 'Tab':
         this.handleTabNavigation(event, activeElement);
@@ -94,7 +90,7 @@ class ScreepsBot {
   }
 
   // Helper for arrow key navigation
-  navigateWithArrows(key, activeElement) {
+  navigateElement(key, activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
   }

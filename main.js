@@ -8,16 +8,12 @@
 const main = require('./utilities')
 
 // Import necessary dependencies
-import React from 'react';
-import { render } from 'react-dom';
-import {
-  addLangAttribute,
+const {
   fixTableStructure,
   fixLandmarkIssues,
   addMainLandmark,
   addLandmarkRegions,
   ensureUniqueLandmarks,
-  uniqueLandmarks,
   addSvgAccessibleName,
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
@@ -27,10 +23,35 @@ import {
   fixButtonIdentifiers,
   ensureElementHasId,
   ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  wrapPrimaryContentInMain
-} from './AccessibilityHelpers'
+  addAriaLabel
+} = require('./AccessibilityHelpers')
+
+// Access the dependencyGraph container and ensure it has proper ARIA role
+const dependencyGraph = document.getElementById('dependencyGraph')
+
+if (dependencyGraph) {
+  // Set appropriate ARIA role for the dependency graph container
+  // Using 'region' role for a contained section of content
+  if (!dependencyGraph.hasAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region')
+  }
+
+  // Add accessible label if not already present
+  if (!dependencyGraph.hasAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
+  }
+
+  // Ensure element has an ID if not present
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph';
+  }
+
+  // New function to handle credential response
+  handleCredentialResponse(response) {
+    // TODO: Implement the logic to handle the credential response
+    console.log('Handling credential response:', response);
+  }
+}
 
 const {
   createInPageButton,
@@ -107,7 +128,7 @@ function implementAccessibilityFixesFromReport (container, report) {
     if (
       accessibleName &&
             !svg.getAttribute('aria-label') &&
-            !svg.getAttribute('aria-labelledby')
+      !svg.getAttribute('aria-labelledby')
     ) {
       svg.setAttribute('aria-label', accessibleName)
       fixes.svgNamesAdded++
@@ -214,51 +235,4 @@ function trapFocus(container) {
         if (lastElement) lastElement.focus()
       }
     } else {
-      if (document.activeElement === lastElement) {
-        e.preventDefault()
-        if (firstElement) firstElement.focus()
-      }
-    }
-  }
-}
-
-/**
- * REACT_015: Add lang attribute to HTML element
- * Ensures the HTML element has a proper lang attribute for screen readers
- */
-export function addLangAttribute(element, lang = 'en') {
-  let htmlElement = element || document.documentElement
-  if (!htmlElement) {
-    return null
-  }
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang)
-  }
-  return htmlElement
-}
-
-/**
- * REACT_027: Fix table structure issues
- * Ensures tables have proper structure with headers and captions
- */
-export function fixTableStructure(tableElement) {
-  if (!tableElement) return null
-  
-  const headers = tableElement.querySelectorAll('th')
-  headers.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      const row = th.closest('tr')
-      const cellIndex = Array.from(row.children).indexOf(th)
-      th.setAttribute('scope', 'col')
-    }
-  })
-  
-  const existingCaption = tableElement.querySelector('caption')
-  if (!existingCaption) {
-    const caption = document.createElement('caption')
-    caption.textContent = 'Data table'
-    tableElement.insertBefore(caption, tableElement.firstChild)
-  }
-  
-  return tableElement
-}
+      if (document.activeElement === lastElement)

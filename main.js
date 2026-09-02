@@ -342,15 +342,15 @@ function validateTableStructure(table) {
 
   // Additional structural checks
   if (!result.hasCaption) {
-    issues.push({ type: 'structure', message: 'Table missing caption' });
+    issues.push({ type: 'structure', message: 'Table missing caption' );
   }
 
   if (!result.hasHeader) {
-    issues.push({ type: 'structure', message: 'Table missing header (thead or th)' });
+    issues.push({ type: 'structure', message: 'Table missing header (thead or th)' );
   }
 
   if (!result.hasBody) {
-    issues.push({ type: 'structure', message: 'Table missing body (tbody)' });
+    issues.push({ type: 'structure', message: 'Table missing body (tbody)' );
   }
 
   return {

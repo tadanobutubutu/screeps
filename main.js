@@ -1,8 +1,12 @@
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
+  debug: false,
+  version: '1.0.0',
+  dataPath: './data',
+  maxResults: 100,
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
 
 const appState = {
@@ -16,8 +20,8 @@ function validateLandmark(landmark) {
   // Existing code that should be preserved
   // Update landmark validation logic if needed
   const role = landmark.getAttribute('role');
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (role && !validLandmarks.includes(role)) {
+  const validLandmarks = config.allowedRoles;
+  if (!validLandmarks.includes(role)) {
     errors.push(`Invalid landmark role: ${role}`);
   }
   return errors;
@@ -28,19 +32,19 @@ const appData = {
   version: '1.0.0'
 };
 
+const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+
 function getLangAttribute() {
-    // Implementation to get language attribute
     return document.documentElement.lang || 'en';
 }
 
 function getFullLangAttribute() {
-    // Implementation to get full language attribute
     return document.documentElement.lang || navigator.language || 'en-US';
 }
 
 function validateTableAccessibility(tableElement) {
     // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement.caption) {
+    if (!tableElement.querySelector('caption')) {
         console.warn('Table missing caption');
         return false;
     }
@@ -49,7 +53,7 @@ function validateTableAccessibility(tableElement) {
 
 function validateTableStructure(tableElement) {
     // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement.rows;
+    const rows = tableElement.querySelectorAll('tr');
     if (rows.length === 0) {
         console.warn('Table has no rows');
         return false;
@@ -79,11 +83,11 @@ function addLandmarkRegions() {
   console.log('Adding landmark regions');
 }
 
-function getSvgAccessibleName() {
+function getSvgAccessibleName(svgElement) {
     // Merged implementation (conflict resolved)
-    const svgElement = document.querySelector('svg');
-    const title = svgElement ? svgElement.querySelector('title') : null;
-    const ariaLabel = svgElement ? svgElement.getAttribute('aria-label') : null;
+    const svgElementResolved = svgElement || document.querySelector('svg');
+    const title = svgElementResolved ? svgElementResolved.querySelector('title') : null;
+    const ariaLabel = svgElementResolved ? svgElementResolved.getAttribute('aria-label') : null;
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
@@ -161,7 +165,6 @@ function processData(data) {
 }
 
 function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
     const button = document.createElement('button');
     button.textContent = text;
     button.onclick = onClick;
@@ -170,7 +173,6 @@ function createInPageButton(text, onClick) {
 }
 
 function createAccessibleLink(href, text) {
-    // Implementation to create accessible link (conflict resolved: merged implementation)
     const link = document.createElement('a');
     link.href = href;
     link.textContent = text;
@@ -191,6 +193,7 @@ function handleAccessibilityIssues() {
         validateLandmark(landmark);
     });
 
+    validateLandmarkStructure();
     ensureUniqueLandmarks();
 
     const svgs = document.querySelectorAll('svg');
@@ -198,6 +201,21 @@ function handleAccessibilityIssues() {
         getSvgAccessibleName(svg);
     });
 }
+
+const landmarkSelectors = [
+  '[role="banner"]',
+  '[role="navigation"]',
+  '[role="main"]',
+  '[role="complementary"]',
+  '[role="contentinfo"]',
+  '[role="region"]',
+  'header:not([role])',
+  'nav:not([role])',
+  'main:not([role])',
+  'footer:not([role])',
+  'aside:not([role])',
+  'section:not([role])'
+];
 
 // Export all existing and new functions
 module.exports = {

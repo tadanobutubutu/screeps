@@ -3,10 +3,6 @@ const { dependencyGraphContent } = require('./dependencyGraphContent')
 const { indexContent } = require('./indexContent')
 const { accessibilityUtils } = require('./accessibilityUtils');
 
-// Import necessary dependencies
-import React from 'react';
-import { render } from 'react-dom';
-
 const main = require('./utilities')
 
 const {
@@ -181,37 +177,6 @@ function createInPageButton (label, onClick) {
   return button
 }
 
-/**
- * New function to handle focus trap for keyboard navigation.
- * @param {HTMLElement} element - The element to trap focus within.
- */
-function newFocusTrap (element) {
-  if (!element) return
-  const focusableElements = element.querySelectorAll(
-    'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
-  )
-  if (focusableElements.length === 0) return
-
-  const firstFocusable = focusableElements[0]
-  const lastFocusable = focusableElements[focusableElements.length - 1]
-
-  element.addEventListener('keydown', (e) => {
-    if (e.key !== 'Tab') return
-
-    if (e.shiftKey) {
-      if (document.activeElement === firstFocusable) {
-        lastFocusable.focus()
-        e.preventDefault()
-      }
-    } else {
-      if (document.activeElement === lastFocusable) {
-        firstFocusable.focus()
-        e.preventDefault()
-      }
-    }
-  })
-}
-
 function validateTableStructure(container) {
   return validateTableStructureForAccessibility(container);
 }
@@ -271,13 +236,6 @@ function renderIndex(data, options = {}) {
   // Use indexContent from the imported module
   return indexContent(data, options)
 }
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent
-module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport
-module.exports.checkAccessibilityForReport = checkAccessibilityForReport
-module.exports.renderGraphIndex = renderGraphIndex
-module.exports.trapFocus = trapFocus
 
 // Export for use in other modules
 module.exports = {

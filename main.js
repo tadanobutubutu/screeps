@@ -34,7 +34,7 @@ class ScreepsBot {
   }
 
   // New feature: Priority-based task scheduling
-  addTaskWithPriority(taskFn, priority = 'medium') {
+  addTask(taskFn, priority = 'medium') {
     this.tasks.push({ task: taskFn, priority });
     this.scheduleTasks();
   }
@@ -67,7 +67,7 @@ class ScreepsBot {
   }
 
   // New accessibility function: Keyboard event handler for accessibility
-  handleKeyboardNavigation(event) {
+  handleKeyDown(event) {
     const key = event.key;
     const activeElement = document.activeElement;
 
@@ -77,7 +77,7 @@ class ScreepsBot {
       case 'ArrowDown':
       case 'ArrowLeft':
       case 'ArrowRight':
-        this.navigateWithArrows(key, activeElement);
+        this.handleArrowKeyNavigation(key, activeElement);
         break;
       case 'Tab':
         this.handleTabNavigation(event, activeElement);
@@ -88,7 +88,7 @@ class ScreepsBot {
   }
 
   // Helper for arrow key navigation
-  navigateWithArrows(key, activeElement) {
+  handleArrowKeyNavigation(key, activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
   }
@@ -113,8 +113,8 @@ function updateUI(elementId, text) {
 const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: function(element) {
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    const focusableElements = element.querySelectorSelectorAll(
+      'a[href], button, input, textarea, select, [tabindex="0"]'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
@@ -165,5 +165,5 @@ const accessibilityUtils = {
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ScreepsBot, updateUI, accessibilityUtils };
+  module.exports = { ScreepsBot, updateUI, accessibilityUtils, handleKeyDown, handleArrowKeyNavigation, handleTabNavigation };
 }

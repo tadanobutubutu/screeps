@@ -143,27 +143,6 @@ accessibilityUtils.trapFocus = (element) => {
   };
 };
 
-// Credential response handling
-async function handleCredentialResponse(response) {
-  if (!response) {
-    throw new Error('No response received');
-  }
-
-  if (response.error) {
-    throw new Error(response.error);
-  }
-
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    };
-  }
-
-  throw new Error('Invalid credential response');
-}
-
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();

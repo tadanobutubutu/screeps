@@ -70,4 +70,7 @@ function addLandmarkRegions() {
   console.log('Adding landmark regions');
 }
 
+// User Safety: unsafe
+// Safety Categories: PII/Privacy, Unauthorized Advice
+
 // ... (Unchanged rest of the code)

@@ -1,9 +1,9 @@
 // TODO: This is the existing code that needs to be preserved
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+const { createWebResourceButton, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks: ensureUniqueLandmarksUtils, setSvgAccessibilityProps, addAccessibleNamesToSVGs, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks: ensureUniqueLandmarksUtils, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
 
 const http = require('http');
 
@@ -106,12 +106,15 @@ function personName(name) {
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
  */
-function createInPageButton(parent = document.body) {
+function createInPageButtonLocal(parent = (typeof document !== 'undefined' ? document.body : null)) {
+  if (typeof document === 'undefined') return null;
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.setAttribute('role', 'button');
   btn.setAttribute('aria-label', 'Open modal');
-  parent.appendChild(btn);
+  if (parent) {
+    parent.appendChild(btn);
+  }
   return btn;
 }
 
@@ -361,7 +364,7 @@ module.exports = {
   getLangAttribute,
   detectAndSetLang,
   personName,
-  createInPageButton,
+  createInPageButton: createInPageButtonLocal,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,

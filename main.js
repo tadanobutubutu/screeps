@@ -247,7 +247,7 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
+      landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
@@ -358,8 +358,27 @@ function ensureElementId(element) {
   return element.id;
 }
 
+/**
+ * Adds an aria-label attribute to the element if it doesn't already have one.
+ * @param {HTMLElement} element - The element to modify
+ * @param {string} label - The aria-label value to set
+ * @returns {boolean} True if label was added, false if element already had one
+ */
 function addAriaLabel(element, label) {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+
+  if (!label) {
+    throw new Error('Label is required');
+  }
+
+  if (element.getAttribute('aria-label')) {
+    return false;
+  }
+
   element.setAttribute('aria-label', label);
+  return true;
 }
 
 function renderDependencyGraph(data) {
@@ -422,29 +441,6 @@ function ensureElementHasId(element, prefix = 'element') {
   const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
-}
-
-/**
- * Adds an aria-label attribute to the element if it doesn't already have one.
- * @param {HTMLElement} element - The element to modify
- * @param {string} label - The aria-label value to set
- * @returns {boolean} True if label was added, false if element already had one
- */
-function addAriaLabel(element, label) {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (!label) {
-    throw new Error('Label is required');
-  }
-
-  if (element.getAttribute('aria-label')) {
-    return false;
-  }
-
-  element.setAttribute('aria-label', label);
-  return true;
 }
 
 function updateGraphVisualization() {
@@ -668,61 +664,11 @@ const addressAccessibilityIssues = (container) => {
 };
 
 // Functions for data transformation
-function getLangAttribute(element, lang) {
-  if (element) {
-    element.setAttribute('lang', lang || 'en');
-  }
-  return element;
-}
-
 function personName(name) {
   const span = document.createElement('span');
   span.setAttribute('aria-label', `Person name: ${name}`);
   span.textContent = name;
   return span;
-}
-
-function validateTableAccessibility(table) {
-  if (!table) return false;
-
-  const hasCaption = table.querySelector('caption') !== null;
-  const hasHeaders = table.querySelector('thead') !== null;
-  const rows = table.querySelectorAll('tr');
-
-  let isValid = hasCaption && hasHeaders;
-
-  if (rows.length > 0) {
-    const firstRowCells = rows[0].querySelectorAll('th, td');
-    const hasScope = Array.from(firstRowCells).some(cell =>
-      cell.hasAttribute('scope')
-    );
-    isValid = isValid && hasScope;
-  }
-
-  return isValid;
-}
-
-function validateTableStructure(table) {
-  if (!table) return false;
-
-  const rows = table.querySelectorAll('tr');
-  let isValid = true;
-
-  rows.forEach((row, index) => {
-    const cells = row.querySelectorAll('td, th');
-    if (index === 0) {
-      const hasHeaderCells = Array.from(cells).some(cell =>
-        cell.tagName.toLowerCase() === 'th'
-      );
-      isValid = isValid && hasHeaderCells;
-    } else {
-      if (cells.length !== rows[0].querySelectorAll('td, th').length) {
-        isValid = false;
-      }
-    }
-  });
-
-  return isValid;
 }
 
 function validateLandmark(element) {
@@ -754,121 +700,12 @@ function validateLandmarkStructure(element) {
   return landmarks.length > 0;
 }
 
-function getSvgAccessibleName(svg, name) {
-  if (svg && name) {
-    svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', name);
-  }
-  return svg;
-}
-
 function createInPageButton(text, onClick) {
   const button = document.createElement('button');
   button.textContent = text;
   button.setAttribute('aria-label', text);
   button.addEventListener('click', onClick);
   return button;
-}
-
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll(
-    'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]'
-  );
-
-  const landmarkTypes = {};
-
-  landmarks.forEach((landmark, index) => {
-    const tagName = landmark.tagName.toLowerCase();
-    const role = landmark.getAttribute('role');
-    const identifier = role || tagName;
-
-    if (!landmarkTypes[identifier]) {
-      landmarkTypes[identifier] = 0;
-    } else {
-      landmarkTypes[identifier]++;
-      if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-        landmark.setAttribute('aria-label', `${identifier} ${landmarkTypes[identifier] + 1}`);
-      }
-    }
-  });
-}
-
-function newFocusTrap(element) {
-  if (!element) return;
-
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-
-  if (focusableElements.length === 0) return;
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  element.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
-        e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
-      }
-    }
-  });
-
-  firstElement.focus();
-}
-
-function transformInputData(inputData, options = {}) {
-  const {
-    preserveKeys = true,
-    uppercase = false,
-    trimWhitespace = true,
-    maxLength = null
-  } = options;
-
-  if (!inputData) {
-    return null;
-  }
-
-  if (typeof inputData === 'string') {
-    let result = inputData;
-
-    if (trimWhitespace) {
-      result = result.trim();
-    }
-
-    if (uppercase) {
-      result = result.toUpperCase();
-    }
-
-    if (maxLength && result.length > maxLength) {
-      result = result.substring(0, maxLength);
-    }
-
-    return result;
-  }
-
-  if (typeof inputData === 'object' && !Array.isArray(inputData)) {
-    const result = {};
-
-    for (const key in inputData) {
-      if (inputData.hasOwnProperty(key)) {
-        if (preserveKeys || !key.startsWith('_')) {
-          result[key] = transformInputData(inputData[key], options);
-        }
-      }
-    }
-
-    return result;
-  }
-
-  if (Array.isArray(inputData)) {
-    return inputData.map(item => transformInputData(item, options));
-  }
-
-  return inputData;
 }
 
 // Export functionality with accessibility support

@@ -190,7 +190,9 @@ if (typeof module !== 'undefined' && module.exports) {
     displayModuleStructure,
     newFunction,
     MyComponent,
-    getLangAttribute
+    getLangAttribute,
+    createInPageButton,
+    handleFakeLinks
   };
 } else {
   // Browser environment - wait for DOM
@@ -484,38 +486,6 @@ const AddressabilityIssues = {
   }
 };
 
-function addLangAttribute() {
-    // Add lang attribute to HTML element
-    const html = document.documentElement;
-    const lang = navigator.language || navigator.userLanguage;
-    html.lang = lang;
-}
-
-function validateTableAccessibility() {
-    // Fix 26 table structure issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
-}
-
-function validateTableStructure() {
-    // Fix 26 table structure issues
-    // TODO: Implement validation and necessary corrections
-}
-
-function validateLandmark() {
-    // Add/fix 4 landmark issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
-}
-
-function validateLandmarkStructure() {
-    // Add/fix 4 landmark issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
-}
-
-function getSvgAccessibleNames() {
-    // Add accessible names to 2 SVGs
-    // TODO: Iterate through all SVG elements and set accessible name
-}
-
 // Add lang attribute to HTML element
 addLangAttribute();
 
@@ -578,4 +548,13 @@ function checkLandmarkElements() {
 function createResourceButton() {
   // TODO: Implement createResourceButton
   console.log('Creating resource button...');
+}
+
+// Added to fix exports
+function generateAccessibilityReport(accessibilityReport) {
+  return AddressabilityIssues.generateAccessibilityReport(accessibilityReport);
+}
+
+function calculateAccessibilityScore(fixedIssues) {
+  return AddressabilityIssues.calculateAccessibilityScore(fixedIssues);
 }

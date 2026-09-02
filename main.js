@@ -286,6 +286,54 @@ function renderDependencyGraphs (container, dependencies, options = {}) {
 }
 
 /**
+ * Counts the dependencies in a dependency object.
+ * Supports both an array of dependencies and a nested object hierarchy.
+ * For nested objects, counts all leaf dependencies recursively.
+ *
+ * @param {Object|Array} dependencies - The dependency data to count.
+ * @returns {number} The total number of dependencies found.
+ */
+function countDependencies (dependencies) {
+  if (!dependencies) {
+    return 0
+  }
+
+  // If it's an array, return its length
+  if (Array.isArray(dependencies)) {
+    return dependencies.length
+  }
+
+  // If it's an object, recursively count leaf dependencies
+  if (typeof dependencies === 'object') {
+    let count = 0
+    const keys = Object.keys(dependencies)
+
+    // If the object has no keys, it counts as 1 dependency (empty leaf)
+    if (keys.length === 0) {
+      return 1
+    }
+
+    for (const key of keys) {
+      const value = dependencies[key]
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        // Recurse into nested objects
+        count += countDependencies(value)
+      } else if (Array.isArray(value)) {
+        // Arrays count their items
+        count += value.length
+      } else {
+        // Leaf value (string, number, boolean, null) counts as 1 dependency
+        count += 1
+      }
+    }
+
+    return count
+  }
+
+  return 0
+}
+
+/**
  * Validates the table structure for accessibility issues.
  * Checks for:
  *   - Presence of captions.
@@ -455,6 +503,7 @@ module.exports = {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
+  countDependencies,
   validateTableStructure,
   validateTableStructureComprehensive
 }

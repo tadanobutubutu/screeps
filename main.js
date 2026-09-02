@@ -430,7 +430,8 @@ export {
   applyAccessibilityFixes,
   divide,
   wrapPrimaryContentInMain,
-  spawnEntity
+  spawnEntity,
+  calculateDiscount
 };
 
 // Run if executed directly

@@ -6,6 +6,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
 /**
  * Get the language attribute value for the HTML element
@@ -39,7 +40,7 @@ function validateTableAccessibility(table) {
     issues.push('Missing scope attribute');
   }
 
-  // Check for caption (conflict resolved: check for both)
+  // Check for caption
   if (!table.querySelector || !table.querySelector('caption')) {
     issues.push('Missing caption element');
   }
@@ -105,7 +106,7 @@ function addLangAttribute(element) {
 
 /**
  * Validates the structure of landmark elements
- * @param {Array} landmarks - Array of landmark elements to validate (optional)
+ * @param {Object} element - The landmark element to validate
  * @returns {Object} Validation result with success status and any issues found
  */
 function validateLandmark(element) {
@@ -286,8 +287,6 @@ function addSvgAccessibilityProps(svg, options = {}) {
   return enhancedSvg;
 }
 
-// ... (the rest of the file remains unchanged)
-
 function createInPageButton(text, onClick) {
     // Implementation to create accessible in-page button
     const button = document.createElement('button');
@@ -312,22 +311,6 @@ function createAccessibleLink(href, text) {
 function handleAccessibilityIssues() {
   // Placeholder for handling accessibility issues
   return true;
-}
-
-function addSvgAccessibilityProps(svgElement) {
-    // Merged implementation (conflict resolved)
-    if (!svgElement) return 'Accessible SVG Icon';
-
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (title) return title.textContent;
-    if (ariaLabel) return ariaLabel;
-    return 'Accessible SVG Icon';
-}
-
-function addLangAttribute(element) {
-  element.lang = getFullLangAttribute();
-  return element;
 }
 
 function fixTableStructure(table) {
@@ -406,15 +389,84 @@ function addProperLandmarkRegions(document) {
   return document;
 }
 
-function getSvgAccessibleName(svgElement) {
-    // Merged implementation (conflict resolved)
-    if (!svgElement) return 'Accessible SVG Icon';
+/**
+ * Implements focus trap for keyboard navigation
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @returns {Object} Object with activate and deactivate methods
+ */
+function newFocusTrap(container) {
+  let previouslyFocusedElement = null;
+  let focusableElements = [];
+  let firstFocusable = null;
+  let lastFocusable = null;
 
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (title) return title.textContent;
-    if (ariaLabel) return ariaLabel;
-    return 'Accessible SVG Icon';
+  function getFocusableElements() {
+    const selectors = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+      '[contenteditable="true"]'
+    ];
+    return Array.from(container.querySelectorAll(selectors.join(',')))
+      .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0);
+  }
+
+  function handleTabKey(e) {
+    if (e.key !== 'Tab') return;
+
+    focusableElements = getFocusableElements();
+    if (focusableElements.length === 0) return;
+
+    firstFocusable = focusableElements[0];
+    lastFocusable = focusableElements[focusableElements.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        e.preventDefault();
+        lastFocusable.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        e.preventDefault();
+        firstFocusable.focus();
+      }
+    }
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Escape') {
+      deactivate();
+    }
+    handleTabKey(e);
+  }
+
+  function activate() {
+    previouslyFocusedElement = document.activeElement;
+    focusableElements = getFocusableElements();
+    firstFocusable = focusableElements[0];
+    lastFocusable = focusableElements[focusableElements.length - 1];
+
+    document.addEventListener('keydown', handleKeyDown);
+    
+    if (firstFocusable) {
+      firstFocusable.focus();
+    }
+  }
+
+  function deactivate() {
+    document.removeEventListener('keydown', handleKeyDown);
+    if (previouslyFocusedElement) {
+      previouslyFocusedElement.focus();
+    }
+  }
+
+  return {
+    activate,
+    deactivate
+  };
 }
 
 module.exports = {
@@ -435,9 +487,8 @@ module.exports = {
   fixTableStructure,
   addMainLandmark,
   setSvgAttributes,
-  initializeApp,
-  getConfig,
-  validateInput,
-  processData,
-  addLandmarkRegions
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  newFocusTrap
 };

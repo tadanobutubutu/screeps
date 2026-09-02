@@ -220,6 +220,80 @@ function getUniqueLandmarks(landmarks) {
   return uniqueLandmarks;
 }
 
+// NEW: Implement a new function to handle focus trap for keyboard navigation
+function newFocusTrap(containerElement, options = {}) {
+  let previouslyFocusedElement = null;
+  let focusableElements = [];
+  let firstFocusableElement = null;
+  let lastFocusableElement = null;
+  let trapActivate = null;
+
+  const getFocusableElements = (container) => {
+    const focusableSelectors = [
+      'a[href]',
+      'area[href]',
+      'input:not([disabled]):not([type="hidden"])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      'button:not([disabled])',
+      'iframe',
+      'object',
+      'embed',
+      '[tabindex]:not([tabindex="-1"])',
+      '[contenteditable]'
+    ].join(',');
+
+    return Array.from(container.querySelectorAll(focusableSelectors))
+      .filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length);
+  };
+
+  const updateFocusableElements = () => {
+    focusableElements = getFocusableElements(containerElement);
+    firstFocusableElement = focusableElements[0];
+    lastFocusableElement = focusableElements[focusableElements.length - 1];
+  };
+
+  const activate = () => {
+    previouslyFocusedElement = document.activeElement;
+    updateFocusableElements();
+
+    if (firstFocusableElement) {
+      firstFocusableElement.focus();
+    }
+
+    trapActivate = (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey) { // shift + tab
+          if (document.activeElement === firstFocusableElement) {
+            e.preventDefault();
+            lastFocusableElement.focus();
+          }
+        } else { // tab
+          if (document.activeElement === lastFocusableElement) {
+            e.preventDefault();
+            firstFocusableElement.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', trapActivate);
+  };
+
+  const deactivate = () => {
+    document.removeEventListener('keydown', trapActivate);
+    if (previouslyFocusedElement) {
+      previouslyFocusedElement.focus();
+    }
+    previouslyFocusedElement = null;
+  };
+
+  return {
+    activate,
+    deactivate
+  };
+}
+
 /**
  * Function to address accessibility issues from insight report.
  * Handles various accessibility issues including language attributes,

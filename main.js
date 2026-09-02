@@ -35,8 +35,6 @@ const appData = {
 const HTML = ({ lang }) => `<html lang="${lang}"></html>`;
 
 // Accessibility features have been implemented and integrated into the codebase.
-
-// Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())

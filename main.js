@@ -15,7 +15,6 @@ const {
   newFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
-  handleCredentialResponse,
   ensureElementHasId: ensureElementIdOrigin,
   ensureElementId,
   renderDependencyGraphs,
@@ -44,10 +43,6 @@ const accessibilityUtils = {
   newFocusTrap,
   exportUtils,
   personName,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
   handleCredentialResponse,
   transformInputData
 };
@@ -77,6 +72,29 @@ const renderDependencyGraph = (data) => {
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
+
+// Check if a link is accessible
+function isLinkAccessible(linkElement) {
+  if (!linkElement || typeof linkElement.getAttribute !== 'function') {
+    return false;
+  }
+
+  const href = linkElement.getAttribute('href');
+  
+  if (!href || href.trim() === '' || href === '#') {
+    return false;
+  }
+
+  const isEmailAddress = /^mailto:/i.test(href);
+  const isTelephone = /^tel:/i.test(href);
+  const isJavaScript = /^javascript:/i.test(href);
+
+  if (isJavaScript) {
+    return false;
+  }
+
+  return true;
+}
 
 accessibilityUtils.initSkipLink = () => {
   const skipLink = document.getElementById('skip-link');
@@ -142,27 +160,6 @@ accessibilityUtils.trapFocus = (element) => {
     element.removeEventListener('keydown', handleKeyDown);
   };
 };
-
-// Credential response handling
-async function handleCredentialResponse(response) {
-  if (!response) {
-    throw new Error('No response received');
-  }
-
-  if (response.error) {
-    throw new Error(response.error);
-  }
-
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    };
-  }
-
-  throw new Error('Invalid credential response');
-}
 
 // Existing utility functions
 function log(message, level = 'info') {
@@ -287,7 +284,6 @@ module.exports = {
   addMainLandmarkToIndex,
   focusTrap,
   newFocusTrap,
-  handleCredentialResponse,
   initAccessibility,
   groupByCategory,
   log,
@@ -295,5 +291,6 @@ module.exports = {
   readFileSafe,
   processData,
   filterValidItems,
-  exportUtilities
+  exportUtilities,
+  isLinkAccessible
 };

@@ -61,7 +61,7 @@ const accessibilityUtils = {
         }
         const announcer = document.createElement('div');
         announcer.setAttribute('aria-live', priority);
-        announcer.setAttribute('aria-atomic', 'true');
+        announcers.setAttribute('aria-atomic', 'true');
         announcer.className = 'sr-only';
         announcer.style.position = 'absolute';
         announcer.style.left = '-9999px';
@@ -189,5 +189,16 @@ const accessibilityUtils = {
 
     // Add more accessibility-related functions here
 };
+
+// FUNCTION TO COUNT DEPENDENCIES
+function countDependencies(dependencies) {
+    let count = 0;
+    for (const dependency in dependencies) {
+        if (dependencies.hasOwnProperty(dependency)) {
+            count += dependencies[dependency].length;
+        }
+    }
+    return count;
+}
 
 // ... (The rest of the code remains the same as in the original conflict branch)

@@ -1,4 +1,5 @@
-// TODO: Identify and update specific functions as needed
+// TODO: This is the modified and merged code
+// This is the existing code that needs to be preserved in main.js
 
 // Main module
 

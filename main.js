@@ -51,7 +51,7 @@
           totalFilesScanned: issues.length,
           totalIssuesFound: issues.reduce((sum, file) => sum + file.issues.length, 0),
           filesWithIssues: issues.map(file => ({
-            fileName: file.file,
+            file: file.file,
             issueCount: file.issues.length,
             issues: file.issues.map(issue => ({
               id: issue.id,
@@ -317,8 +317,11 @@
         //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
         //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
         //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-        //_Commit: 62d675a958b864c43ad4471b12c4c40c5570b3f7_
-        //<!-- todo-hash: b713d536f0ce67bf9eb8012f08502c264300052f -->
+
+        // Enable validateLandmark for testing purposes
+        if (typeof window !== 'undefined') {
+          window.validateLandmark = validateLandmark;
+        }
 
         // Address accessibility issues
         addressAccessibilityIssues();
@@ -348,39 +351,4 @@
             initialize();
         }
     }
-
-    // TODO: This is the existing code that needs to be preserved
-    // Address accessibility issues from insight report:
-    // Implemented validateLandmark functionality
-
-    // New function to validate landmark elements
-    function validateLandmark() {
-      const requiredLandmarks = ['main', 'nav', 'footer'];
-      const missingLandmarks = [];
-
-      requiredLandmarks.forEach(landmark => {
-        const element = document.querySelector(`[role="${landmark}"]`) ||
-                       document.querySelector(`${landmark}`);
-        if (!element) {
-          missingLandmarks.push(landmark);
-        }
-      });
-
-      if (missingLandmarks.length > 0) {
-        console.warn('Missing required landmarks:', missingLandmarks.join(', '));
-        return false;
-      }
-      return true;
-    }
-
-    // Expose validateLandmark to global scope if needed
-    if (typeof window !== 'undefined') {
-      window.validateLandmark = validateLandmark;
-    }
-
-    // Add the new function to the accessibilityUtils object
-    const accessibilityUtils = {
-      validateLandmark: validateLandmark,
-      // ... other existing utility functions
-    };
 })();

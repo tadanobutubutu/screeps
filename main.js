@@ -1,6 +1,16 @@
 const fs = require('fs');
 const main = require('./utilities');
 
+// Function for addressing accessibility issues
+function addressNewAccessibilityIssues(element) {
+  if (!element) {
+    return false;
+  }
+  
+  // Use the imported addressAccessibilityIssues utility
+  return addressAccessibilityIssues(element);
+}
+
 const {
   createInPageButton,
   validateTableAccessibility,
@@ -43,12 +53,12 @@ const accessibilityUtils = {
     }
 
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
 
     if (focusableElements.length === 0) {
       console.warn('No focusable elements found in container');
-      return;
+      return () => {};
     }
 
     const firstElement = focusableElements[0];
@@ -57,21 +67,20 @@ const accessibilityUtils = {
     const handleKeyDown = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
 
       if (e.key === 'Escape') {
-        element.dispatchEvent(new CustomEvent('focusTrapEscape'));
+        element.dispatchEvent(new CustomEvent('escapepressed'));
       }
     };
 
     element.addEventListener('keydown', handleKeyDown);
-    firstElement.focus();
 
     // Return cleanup function
     return () => {
@@ -83,7 +92,7 @@ const accessibilityUtils = {
 
 const ensureElementIdOriginal = (element) => {
   if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+    element.id = "element-" + Date.now() + "-" + Math.floor(Math.random() * 10000000000);
   }
   return element;
 };
@@ -108,22 +117,12 @@ const renderDependencyGraph = (data) => {
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
 
-// Credential response handling
-async function handleCredentialResponse(response) {
-  if (!response) {
-    throw new Error('No response received');
-  }
-
-  if (response.error) {
-    throw new Error(response.error);
-  }
-
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    };
-  }
-
-  throw new Error('Invalid credential response
+module.exports = {
+  handleCredentialResponse,
+  addressNewAccessibilityIssues,
+  ensureElementIdOriginal,
+  addAriaLabel,
+  renderDependencyGraph,
+  calculateSum,
+  accessibilityUtils
+};

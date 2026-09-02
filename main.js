@@ -20,11 +20,6 @@ const renderGraphIndex = (graphData) => {
   renderDependencyGraphs(graphData);
 }
 
-const renderGraphIndex = (graphData) => {
-  addressAccessibilityIssues();
-  renderDependencyGraphs(graphData);
-}
-
 // TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 

@@ -1,27 +1,16 @@
 const books = [];
 const safetyCategory = "User Safety: safe";
 const utils = require('./utils');
-const axe = require('axe-core');
-const express = require('express');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
-const accessiblyHelper = require('./accessibly-helper');
 
 const CONFIG = {
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search']
+    dataPath: './data',
+    maxResults: 100
 };
 
 let isInitialized = false;
 const appData = {};
 
-const appState = {
-  initialized: false,
-  data: null,
-  cache: {},
-  lang: 'en'
-};
-
+// Utility functions from HEAD
 function helper(input) {
   return input ? input.toUpperCase() : '';
 }
@@ -66,7 +55,7 @@ function processLandmarks(landmarks) {
   return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
-function ensureUniqueLandmarksLocal(landmarks) {
+function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
@@ -78,11 +67,15 @@ function ensureUniqueLandmarksLocal(landmarks) {
     if (!landmark || typeof landmark.id === 'undefined') {
       continue;
     }
-    if (!seen.has(landmark.id)) {
-      seen.add(landmark.id);
+
+    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
       uniqueLandmarks.push(landmark);
     }
   }
+
   return uniqueLandmarks;
 }
 
@@ -141,46 +134,39 @@ function importAndExecute(modulePath, functionName, callback) {
 function analyzeModuleDependenciesLocal(modules) {
   // Implementation would analyze and return dependency relationships
   console.log('Analyzing dependencies for modules:', modules);
-  return {
-    totalDependencies: 0,
-    dependencyMap: {}
-  };
 }
 
-function visualizeModuleRelationshipsLocal(modules) {
-  // Implementation would create a visual representation of module relationships
-  console.log('Visualizing relationships for modules:', modules);
-  return {
-    graph: {},
-    nodes: [],
-    edges: []
-  };
+// REACT_015: Add lang attribute to document
+function ensureLangAttribute() {
+  if (document.documentElement.getAttribute('lang') === null) {
+    document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
+  }
 }
 
-module.exports = Object.assign(express(), {
-  accessiblyHelper,
-  config: {
-    name: 'MyApp',
-    version: '1.0.0',
-    debug: false
-  },
-  CONFIG,
-  getUserSafetyAdvice: () => {},
-  addBook: (book) => {
-    books.push(book);
-  },
-  announceBookAdded: () => {},
-  getBooksList: () => books,
-  initializeApp,
-  loadLandmarks,
-  processLandmarks,
-  createInPageButton,
-  extractSvgAccessibleName,
-  addressAccessibilityIssues,
-  importAndExecute,
-  analyzeModuleDependencies: analyzeModuleDependenciesLocal,
-  visualizeModuleRelationships: visualizeModuleRelationshipsLocal,
-  handleDependencyGraph,
-  ensureElementHasId,
-  addAriaLabel
-});
+// REACT_017 & REACT_025: Fix and ensure unique landmarks
+function fixLandmarks() {
+  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+  const landmarkCounts = {};
+
+  landmarkSelectors.forEach(selector => {
+    landmarkCounts[selector] = 0;
+  });
+
+  document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+
+    if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      landmarkCounts[tagName]++;
+      element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
+    } else if (landmarkCounts[tagName] === 0) {
+      landmarkCounts[tagName]++;
+    }
+  });
+}
+
+// REACT_041: Add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+      const title = document.createElement('

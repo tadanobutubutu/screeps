@@ -346,5 +346,8 @@ module.exports = {
   validateUniqueLandmarks,
   newFocusTrap,
   checkAccessibility,
-  createAccessibleModal
+  createAccessibleModal,
+  addAccessibilityFeatures,
+  functionC,
+  renderGraphIndex
 };

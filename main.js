@@ -186,6 +186,16 @@ const a11yStore = {
 
   newFunction () {
     // New function implementation from origin/main
+    // Add ARIA labels to interactive elements that are missing them
+    const interactiveElements = document.querySelectorAll(
+      '[role="button"], [role="link"], [role="checkbox"], [role="radio"]'
+    )
+    interactiveElements.forEach((element) => {
+      if (!element.hasAttribute('aria-label') && element.tagName !== 'INPUT' && element.tagName !== 'TEXTAREA' && element.tagName !== 'SELECT') {
+        element.setAttribute('aria-label', 'Interactive element')
+      }
+    })
+    return true
   },
 
   /**
@@ -898,89 +908,4 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }))
       } catch (error) {
         res.writeHead(400, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }))
-      }
-    })
-    return
-  }
-
-  res.writeHead(404, { 'Content-Type': 'application/json' })
-  res.end(JSON.stringify({ status: 'error', message: 'Not found' }))
-})
-
-/**
- * Revoke a session
- * @param {string} sessionId - The session ID to revoke
- * @returns {boolean} - True if session was revoked
- */
-function revokeSession (sessionId) {
-  return appState.sessions.delete(sessionId)
-}
-
-/**
- * Handle focus trap for accessibility (e.g., modals)
- * @param {HTMLElement} container - The container to trap focus within
- */
-function handleFocusTrap (container) {
-  if (!container) return
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  )
-  if (focusableElements.length === 0) return
-  const firstElement = focusableElements[0]
-  const lastElement = focusableElements[focusableElements.length - 1]
-  container.addEventListener('keydown', (e) => {
-    if (e.key !== 'Tab') return
-    if (e.shiftKey && document.activeElement === firstElement) {
-      lastElement.focus()
-      e.preventDefault()
-    } else if (!e.shiftKey && document.activeElement === lastElement) {
-      firstElement.focus()
-      e.preventDefault()
-    }
-  })
-}
-
-// Start server if this is the main module
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000
-  server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
-  })
-}
-
-// Export modules for testing
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  getSvgAccessibleName,
-  newFunction,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  ensureUniqueLandmarks,
-  handleFocusTrap,
-  revokeSession,
-  addSvgAccessibilityProps: a11yStore.addSVGAccessibilityProps,
-  isLandmarkElement,
-  handleCredentialResponse,
-  parseCredentialResponse,
-  decodeJwtToken,
-  generateSessionId,
-  validateTableStructure,
-  validateTableAccessibility,
-  validateLandmark,
-  validateLandmarkStructure,
-  createInPageButton,
-  personName,
-  validateSession,
-  getActiveSessionsCount,
-  server,
-  sanitizeFilename,
-  processData,
-  ensureFormLabels: a11yStore.ensureFormLabels,
-  ensureKeyboardSupport: a11yStore.ensureKeyboardSupport,
-  ensureImageAltText: a11yStore.ensureImageAltText,
-  ensureHeadingHierarchy: a11yStore.ensureHeadingHierarchy,
-  ensureTextContrast: a11yStore.ensureTextContrast
-}
+        res.end(JSON.stringify({ status:

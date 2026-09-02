@@ -43,6 +43,9 @@ function createInPageButton(options) {
         settings.container.appendChild(button);
     }
 
+    // Added accessibility class to improve discoverability
+    button.classList.add('needs-accessibility-improvement');
+
     return button;
 }
 

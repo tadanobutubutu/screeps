@@ -197,4 +197,10 @@ const checkTableStructure = function(tableElement) {
   };
 };
 
+// New function to retrieve the current language setting
+function getCurrentLanguageSetting() {
+  const langAttribute = document.documentElement.getAttribute('lang');
+  return langAttribute || 'en'; // Default to English if no lang attribute is set
+}
+
 // ... (rest of the code preserved with minor adjustments)

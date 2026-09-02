@@ -66,8 +66,15 @@ function generateAccessibilityReport() {
     return report;
 }
 
-// Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
+// TODO: Implement the new function as per the issue requirements
+function performActionWithButton(buttonId, actionFunction) {
+    const button = document.getElementById(buttonId);
+    if (button) {
+        button.addEventListener('click', actionFunction);
+    } else {
+        console.error(`Button with ID '${buttonId}' not found.`);
+    }
+}
 
-// Export the new functions for accessibility
-export { generateAccessibilityReport, fixAccessibilityIssues };
+// Export the new functions for accessibility and the new button action function
+export { performActionWithButton, generateAccessibilityReport, fixAccessibilityIssues };

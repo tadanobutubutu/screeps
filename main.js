@@ -28,7 +28,11 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+// Fixed: Removed JSX syntax which is invalid in plain JavaScript
+const HTML = ({ lang }) => `
+<html lang="${lang}">
+  {/* other children */}
+</html>`;
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -348,6 +352,27 @@ function setSvgAttributes(svg, accessibleName) {
   return svg;
 }
 
+/**
+ * Counts dependencies in the application
+ * @returns {Object} Object containing dependency counts
+ */
+function countDependencies() {
+  // Count dependencies from various sources
+  const dependencyCounts = {
+    config: Object.keys(config).length,
+    appState: Object.keys(appState).length,
+    appData: Object.keys(appData).length,
+    total: 0
+  };
+  
+  // Calculate total
+  dependencyCounts.total = dependencyCounts.config + 
+                          dependencyCounts.appState + 
+                          dependencyCounts.appData;
+  
+  return dependencyCounts;
+}
+
 // Export all existing and new functions
 module.exports = {
     getLangAttribute,
@@ -366,5 +391,6 @@ module.exports = {
     validateInput,
     processData,
     addLandmarkRegions,
-    setSvgAttributes
+    setSvgAttributes,
+    countDependencies
 };

@@ -257,6 +257,30 @@ const addAriaLabel = (element, label) => {
 }
 
 /**
+ * Calculates the discount amount for a given price and discount percentage.
+ *
+ * @param {number} price - The original price.
+ * @param {number} discountPercent - The discount percentage (0-100).
+ * @returns {number} The discount amount.
+ */
+function calculateDiscount (price, discountPercent) {
+  if (typeof price !== 'number' || isNaN(price)) {
+    throw new Error('Price must be a valid number')
+  }
+  if (typeof discountPercent !== 'number' || isNaN(discountPercent)) {
+    throw new Error('Discount percent must be a valid number')
+  }
+  if (price < 0) {
+    throw new Error('Price cannot be negative')
+  }
+  if (discountPercent < 0 || discountPercent > 100) {
+    throw new Error('Discount percent must be between 0 and 100')
+  }
+
+  return price * (discountPercent / 100)
+}
+
+/**
  * Renders a dependency graph inside the given container.
  *
  * @param {HTMLElement} container - The DOM element that will hold the graph.
@@ -454,6 +478,7 @@ module.exports = {
   addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
   ensureElementHasId,
   addAriaLabel,
+  calculateDiscount,
   renderDependencyGraphs,
   validateTableStructure,
   validateTableStructureComprehensive

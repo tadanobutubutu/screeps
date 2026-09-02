@@ -222,7 +222,17 @@ function main() {
       if (!svg.hasAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
+
       const accessibleName = svg.getAttribute('aria-label') || svg.getAttribute('id') || '';
+
+      // Extract accessible name from SVG content (e.g., <title> tag) if not already present
+      if (!accessibleName) {
+        const titleElement = svg.querySelector('title');
+        if (titleElement) {
+          accessibleName = titleElement.textContent.trim();
+        }
+      }
+
       if (accessibleName) {
         // Use accessibleName
       }
@@ -292,3 +302,4 @@ module.exports = {
   main,
   checkTableStructure,
   validateAccessibility
+};

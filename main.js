@@ -110,9 +110,9 @@ function checkTableStructure(table) {
  */
 function getLangAttribute() {
   // First check if html element has lang attribute
-  const htmlElement = document.querySelector('html');
-  if (htmlElement && htmlElement.hasAttribute('lang')) {
-    return htmlElement.getAttribute('lang');
+  const lang = document.documentElement.lang;
+  if (lang) {
+    return lang;
   }
 
   // Fallback: try to detect from content or use default

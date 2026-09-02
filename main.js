@@ -6,6 +6,32 @@ const primaryContent = document.querySelector('.primary-content') ||
                         document.getElementById('main-content') ||
                         document.querySelector('#content');
 
+// Function to retrieve the current language setting
+function getCurrentLanguageSetting() {
+  // Check for language setting in the following order:
+  // 1. Check document.documentElement.lang attribute
+  // 2. Check for lang attribute on HTML element
+  // 3. Check for meta tags containing language information
+  // 4. Default to 'en' if no language is found
+  
+  let lang = 'en';
+  
+  // Try to get language from document.documentElement.lang
+  if (document.documentElement && document.documentElement.lang) {
+    lang = document.documentElement.lang;
+  }
+  
+  // If no lang attribute, try to find a meta tag with language info
+  if (!lang || lang === 'en') {
+    const metaLang = document.querySelector('meta[http-equiv="content-language"]');
+    if (metaLang && metaLang.content) {
+      lang = metaLang.content.split(',')[0].trim();
+    }
+  }
+  
+  return lang;
+}
+
 // Function to wrap primary content in a <main> element
 function wrapPrimaryContentInMain() {
   // If primary content exists and is not already inside a <main> element
@@ -741,6 +767,7 @@ function Main() {
 // Export all functions
 export {
   getLangAttribute,
+  getCurrentLanguageSetting,
   addLangAttribute,
   validateTableAccessibility,
   validateTableStructure,

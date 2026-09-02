@@ -555,4 +555,3 @@ module.exports = {
   CONFIG,
   appState
 };
-```

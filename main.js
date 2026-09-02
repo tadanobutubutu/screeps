@@ -22,13 +22,8 @@ const appData = {
 
 let icons = {};
 
-// Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
 // New functions added to address accessibility issues from insight report
 function getLangAttribute() {
@@ -129,20 +124,13 @@ function validateLandmarkData(landmark) {
     errors.push('Landmark longitude must be between -180 and 180');
   }
 
-  // Additional validation changes from the other branch
-  if (Array.isArray(landmark) && landmark.length > 0) {
-    if (!landmark[0].name || typeof landmark[0].name !== 'string' || landmark[0].name.trim() === '') {
-      errors.push('Landmark array must have a name');
-    }
-  }
-
-  // Check for updated validation changes from another branch that also checks for array composition
+  // Check for updated validation changes from another branch
   if (Array.isArray(landmark)) {
-    landmark.forEach(innerLandmark => {
+    for (const innerLandmark of landmark) {
       if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
         errors.push('Landmark array must have valid names');
       }
-    });
+    }
   }
 
   return {
@@ -161,12 +149,9 @@ function ensureLandmarkUniqueness(elements) {
 
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
-      if (landmark.id) {
-        if (elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
-        } else {
-          landmark.id += '_duplicate';
-        }
+      if (landmark.id && !elementsById[landmark.id]) {
+        landmark.id += '_duplicate';
+        elementsById[landmark.id] = true;
       }
     }
   }
@@ -190,7 +175,7 @@ function renderDependencyGraphContent() {
 function addLangAttribute() {
   const htmlElement = document.documentElement;
   if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
+    htmlElement.setAttribute('lang', getLangAttribute());
   }
 }
 
@@ -206,17 +191,17 @@ function addMainLandmark() {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   svgs.forEach((svg, index) => {
-    svg.setAttribute('aria-label', `Graphic ${index + 1}`);
+    svg.setAttribute('aria-label', getSvgAccessibleName(svg));
   });
 }
 
 // Fix fake link issue
 function fixFakeLinkIssue() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach(link => {
+  for (const link of fakeLinks) {
     link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
-  });
+    link.tabIndex = 0;
+  }
 }
 
 // Fix table structure issues
@@ -246,7 +231,7 @@ function fixTableStructure() {
 function addressInsightIssues() {
   addLangAttribute();
   addMainLandmark();
-  ensureUniqueLandmarks(landmarks);
+  ensureUniqueLandmarks(landmarks, getFullLangAttribute());
   addSvgAccessibleNames();
   fixFakeLinkIssue();
   fixTableStructure();

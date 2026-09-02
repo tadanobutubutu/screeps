@@ -1,6 +1,3 @@
-Here is the resolved file content with merged changes:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -15,26 +12,33 @@ Here is the resolved file content with merged changes:
 
 const main = require('./utilities');
 
-// Import necessary dependencies
 import React from 'react';
 import { render } from 'react-dom';
 import {
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addSvgAccessibleName,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
   googleSignIn,
   decodeJwtResponse,
   fixButtonIdentifiers,
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs
-} from './AccessibilityHelpers';
-
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
+} from './AccessibilityHelpers'
 
 // ... (Existing code preserving previous commit hashes and todos)
 
 // Import necessary dependencies
-import React from 'react'
-import { render } from 'react-dom'
+import React from 'react';
+import { render } from 'react-dom';
 import {
   addLangAttribute,
   fixTableStructure,
@@ -54,8 +58,6 @@ import {
   addAriaLabel,
   renderDependencyGraphs
 } from './AccessibilityHelpers'
-
-// ... (Existing code from both branches)
 
 // ADD: Address new accessibility issues from insight report (handled by validateHeadingHierarchy() and ensureHeadingHierarchy())
 function validateHeadingHierarchy(container) {
@@ -88,33 +90,6 @@ function ensureHeadingHierarchy(container) {
 
 // ... (Existing code from both branches)
 
-// Other code...
-
-// Preserve all existing exports
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateHeadingHierarchy,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleName,
-  addAccessibleNamesToSVGs,
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  createInPageButton,
-  createWebResourceButton,
-  // Preserve any other existing exports here
-  // Required exports restored from previous version
-}
-
 // ADD: New function to handle addressing accessibility issues from insight report
 function addressAccessibilityIssues(container, report) {
   const fixes = {
@@ -131,9 +106,9 @@ function addressAccessibilityIssues(container, report) {
 
   // Add lang attribute to HTML element if missing
   const htmlEl =
-        document.documentElement ||
-        (container.ownerDocument && container.ownerDocument.documentElement)
-  if (htmlEl && !htmlEl.getAttribute('lang')) {
+    container.querySelector('html') ||
+    (container.ownerDocument && container.ownerDocument.querySelector('html'))
+  if (htmlEl && !htmlEl.hasAttribute('lang')) {
     htmlEl.setAttribute('lang', 'en')
     fixes.langAdded = true
   }
@@ -141,7 +116,7 @@ function addressAccessibilityIssues(container, report) {
   // Add main landmark if missing
   const mainElement = container.querySelector('main')
   if (!mainElement) {
-    const body = container.ownerDocument ? container.ownerDocument.body : document.body
+    const body = container.querySelector('body')
     if (body) {
       const newMain = document.createElement('main')
       while (body.firstChild) {
@@ -159,12 +134,12 @@ function addressAccessibilityIssues(container, report) {
 
   // Fix SVG accessible names
   const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach(svg => {
+  svgElements.forEach((svg) => {
     const accessibleName = getSvgAccessibleName(svg)
     if (
       accessibleName &&
             !svg.getAttribute('aria-label') &&
-            !svg.querySelector('title')
+            !svg.getAttribute('aria-labelledby')
     ) {
       svg.setAttribute('aria-label', accessibleName)
       fixes.svgNamesAdded++
@@ -172,12 +147,14 @@ function addressAccessibilityIssues(container, report) {
   })
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('[role="link"]:not([href])')
-  fakeLinks.forEach(link => {
-    link.setAttribute('href', '#' + (link.id || 'link'))
+  const fakeLinks = container.querySelectorAll('a:not([href])')
+  const fakeLinkFixCount = fakeLinks.length
+  fakeLinks.forEach((link) => {
+    link.setAttribute('href', '#' + (link.id || `link-${Date.now()}`))
     link.setAttribute('role', 'link')
     fixes.fakeLinksFixed++
   })
+  fixes.fakeLinksFixed += fakeLinkFixCount
 
   // Validate accessibility report
   const accessibilityReport = validateAccessibilityReport(container)
@@ -198,8 +175,9 @@ function addressAccessibilityIssues(container, report) {
 
   // Check for new accessibility issues
   const newAccessibilityIssues = checkAccessibility(container)
+  let newAccessibilityIssueCount = newAccessibilityIssues.length
   if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error')
+    log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`, 'error')
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0
@@ -219,6 +197,3 @@ function addressAccessibilityIssues(container, report) {
 
   return fixes
 }
-```
-
-I've added the new functions `validateHeadingHierarchy()` and `ensureHeadingHierarchy()`, and replaced the existing `addressAccessibilityIssues()` function with a new one that addresses both conflicts and includes both sets of changes. The new `addressAccessibilityIssues()` function also properly checks the report argument, which was missing in the existing code.

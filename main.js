@@ -62,7 +62,7 @@ const {
   getActiveSessionsCount,
   validateSession,
   handleCredentialResponse,
-  accessibilityUtils
+  accessibilityUtils: accessibilityHelpers
 } = require('./AccessibilityHelpers');
 
 // Utility functions for accessibility
@@ -112,8 +112,114 @@ const accessibilityUtils = {
         announcer.textContent = message;
         document.body.appendChild(announcer);
         setTimeout(() => announcer.remove(), 1000);
-    }
+    },
+
+    // New function to validate and fix form accessibility
+    validateAndFixFormAccessibility: function(form) {
+        if (!form || form.tagName.toLowerCase() !== 'form') {
+            return false
+        }
+
+        // Ensure form has a proper role
+        if (!form.getAttribute('role')) {
+            form.setAttribute('role', 'form')
+        }
+
+        // Check for required labels
+        const inputs = form.querySelectorAll('input, textarea, select')
+        inputs.forEach(input => {
+            const id = input.id
+            if (id) {
+                const label = form.querySelector(`label[for="${id}"]`)
+                if (!label) {
+                    // Create implicit label if missing
+                    input.setAttribute('aria-label', input.placeholder || 'Input field')
+                }
+            } else {
+                // Generate ID if missing
+                input.id = `input-${Math.random().toString(36).substr(2, 9)}`
+            }
+        })
+
+        // Check for submit button
+        const submitButton = form.querySelector('button[type="submit"], input[type="submit"]')
+        if (!submitButton) {
+            const newButton = document.createElement('button')
+            newButton.type = 'submit'
+            newButton.textContent = 'Submit'
+            form.appendChild(newButton)
+        }
+
+        return true
+    },
+
+    // New function to validate and fix link accessibility
+    validateAndFixLinkAccessibility: function(link) {
+        if (!link || link.tagName.toLowerCase() !== 'a') {
+            return false
+        }
+
+        // Ensure link has proper text content
+        if (!link.textContent.trim()) {
+            link.textContent = link.getAttribute('aria-label') || 'Link'
+        }
+
+        // Ensure link has href or role
+        if (!link.getAttribute('href') && !link.getAttribute('role')) {
+            link.setAttribute('role', 'button')
+        }
+
+        return true
+    },
+
+    // New function to validate and fix button accessibility
+    validateAndFixButtonAccessibility: function(button) {
+        if (!button || (button.tagName.toLowerCase() !== 'button' && !button.getAttribute('role') !== 'button')) {
+            return false
+        }
+
+        // Ensure button has proper text content
+        if (!button.textContent.trim()) {
+            button.textContent = button.getAttribute('aria-label') || 'Button'
+        }
+
+        // Ensure button has type attribute
+        if (!button.getAttribute('type')) {
+            button.setAttribute('type', 'button')
+        }
+
+        return true
+    },
 };
+
+// Helper for arrow key navigation
+function navigateWithArrow(key, activeElement) {
+  // Implement custom navigation logic based on element type
+  console.log(`Navigating with ${key} key`)
+}
+
+// Helper for tab key navigation
+function handleTabNavigation(event, activeElement) {
+  // Implement custom tab navigation logic
+  console.log('Handling tab navigation')
+}
+
+// Override setFocus to ensure proper accessibility
+function setFocus(elementId) {
+  const element = document.getElementById(elementId)
+  if (element) {
+    element.focus()
+    element.setAttribute('tabindex', '0')
+  }
+}
+
+// New feature: Priority-based task scheduling
+function addTask(taskFn, priority = 'medium') {
+  const taskId = this.generateTaskId()
+  this.tasks.push({ task: taskFn, priority, id: taskId })
+  this.scheduleTasks()
+  return taskId
+}
 
 function implementAccessibilityFixesFromReport (container, report) {
   // Implementation placeholder - integrates fixes from both branches
@@ -145,8 +251,13 @@ function getSvgAccessibleNameValidation(svg) {
   return '';
 }
 
+// Import and use existing functions from utilities
+const { renderDependencyGraphs, ...mainUtilities } = main
+
 module.exports = {
   ...main,
+  ...mainUtilities,
+  addTask,
   createInPageButton,
   createWebResourceButton,
   validateLandmark,
@@ -209,5 +320,6 @@ module.exports = {
   getActiveSessionsCount,
   validateSession,
   handleCredentialResponse,
-  accessibilityUtils
+  accessibilityUtils,
+  renderDependencyGraphs
 };

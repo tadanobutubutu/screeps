@@ -23,6 +23,11 @@ function addressInsightIssues() {
     dependencyGraphContainer.setAttribute('role', 'region');
     dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph Visualization');
   }
+  
+  addLangAttribute();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixFakeLinkIssue();
 }
 
 // Implemented validateLandmark functionality
@@ -158,7 +163,7 @@ function countDependencies() {
 // Add lang attribute to HTML element
 function addLangAttribute() {
   const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 }
@@ -168,7 +173,7 @@ function fixTableStructureIssues() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Ensure table has proper caption if needed
-    if (!table.querySelector('caption') && table.rows.length > 0) {
+    if (!table.caption && table.rows.length > 0) {
       const caption = document.createElement('caption');
       caption.textContent = 'Table data';
       table.insertBefore(caption, table.firstChild);
@@ -180,7 +185,7 @@ function fixTableStructureIssues() {
       // Add headers if missing
       const firstRow = table.rows[0];
       if (firstRow) {
-        Array.from(firstRow.cells).forEach(cell => {
+        firstRow.querySelectorAll('td').forEach(cell => {
           const th = document.createElement('th');
           th.textContent = cell.textContent;
           cell.replaceWith(th);
@@ -200,18 +205,18 @@ function fixTableStructureIssues() {
 
 // Add/fix landmark issues
 function addMainLandmark() {
-  if (!document.querySelector('main')) {
+  if (!document.getElementById('main-content')) {
     const main = document.createElement('main');
     main.id = 'main-content';
-    document.body.appendChild(main);
+    document.body.insertBefore(main, document.body.firstChild);
   }
 }
 
 // Add accessible names to SVGs
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       const title = svg.querySelector('title');
       if (title) {
         svg.setAttribute('aria-labelledby', title.id);
@@ -224,21 +229,17 @@ function addSvgAccessibleNames() {
 
 // Fix fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"][href="javascript:void(0)"]');
+  const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach(link => {
-    link.setAttribute('tabindex', '0');
+    link.tabIndex = '0';
     link.setAttribute('role', 'button');
-    link.removeAttribute('href');
+    link.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        link.click();
+      }
+    });
   });
-}
-
-// Address all accessibility issues from insight report
-function addressInsightIssues() {
-  addLangAttribute();
-  fixTableStructureIssues();
-  addMainLandmark();
-  addSvgAccessibleNames();
-  fixFakeLinkIssue();
 }
 
 // Initialize the app with accessibility fixes
@@ -246,6 +247,100 @@ function initApp() {
   initializeApp();
   addressInsightIssues();
   registerSW();
+}
+
+// Helper function for landmark structure check
+function landmarkStructureCheck(landmark) {
+  const validRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  return validRoles.includes(landmark.role);
+}
+
+// Helper function to set language attribute
+function setLanguageAttribute(lang) {
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+// Helper function to add landmark roles
+function addLandmarkRoles(element, role) {
+  if (element) {
+    element.setAttribute('role', role);
+  }
+}
+
+// Helper function to fix fake links
+function fixFakeLinks() {
+  fixFakeLinkIssue();
+}
+
+// Helper function to check secure context
+function isSecureContext() {
+  return window.isSecureContext || window.location.protocol === 'https:';
+}
+
+// Helper function to ensure focusable elements
+function ensureFocusableElements(container) {
+  const focusableSelectors = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const focusableElements = container.querySelectorAll(focusableSelectors);
+  focusableElements.forEach((el, index) => {
+    if (!el.hasAttribute('tabindex')) {
+      el.tabIndex = index;
+    }
+  });
+}
+
+// Helper function to validate SVG accessibility
+function validateSvgAccessibility(svg) {
+  const hasTitle = svg.querySelector('title') !== null;
+  const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby');
+  return hasTitle || hasAriaLabel;
+}
+
+// Helper function to process unique elements
+function processUniqueElements(elements) {
+  const unique = [];
+  const seen = new Set();
+  elements.forEach(el => {
+    const key = el.id || el.textContent;
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(el);
+    }
+  });
+  return unique;
+}
+
+// Helper function to render dependency graph
+function renderDependencyGraph(container) {
+  // Implementation for rendering dependency graph
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+  container.appendChild(graphContainer);
+}
+
+// Helper function to render index view
+function renderIndexView(container) {
+  // Implementation for rendering index view
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'index-view';
+  container.appendChild(indexContainer);
+}
+
+// Helper function to calculate sum
+function calculateSum(a, b) {
+  return a + b;
+}
+
+// Helper function to add proper landmark regions
+function addProperLandmarkRegions() {
+  const regions = document.querySelectorAll('[role="region"]');
+  regions.forEach(region => {
+    if (!region.hasAttribute('aria-label')) {
+      region.setAttribute('aria-label', 'Region');
+    }
+  });
 }
 
 // Export functions for testing
@@ -268,14 +363,3 @@ export {
   validateSvgAccessibility,
   processUniqueElements,
   addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue
-};

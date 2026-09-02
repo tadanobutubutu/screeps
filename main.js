@@ -521,6 +521,46 @@ if (require.main === module) {
   console.log('Main function executed');
 }
 
+// New functions for accessibility
+function newFocusTrap() {
+  // Implementation of focus trap for keyboard navigation
+  const focusableElements = document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (focusableElements.length === 0) return;
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  function handleKeydown(event) {
+    if (event.key === 'Tab') {
+      if (event.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          event.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          event.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    }
+  }
+
+  document.addEventListener('keydown', handleKeydown);
+  // Return a function to remove the trap
+  return () => {
+    document.removeEventListener('keydown', handleKeydown);
+  };
+}
+
+function addressNewAccessibilityIssues() {
+  // Address new accessibility issues from insight report
+  // Run existing accessibility checks
+  validateLandmarkStructure();
+  ensureUniqueLandmarks();
+  // Apply focus trap for keyboard navigation
+  newFocusTrap();
+}
+
 module.exports = {
   config,
   appState,
@@ -551,5 +591,7 @@ module.exports = {
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   renderDependencyGraphContent,
-  initialize
+  initialize,
+  newFocusTrap,
+  addressNewAccessibilityIssues
 };

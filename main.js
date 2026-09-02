@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -145,6 +142,3 @@ module.exports = {
     createAccessibleLink,
     handleAccessibilityIssues
 };
-```
-
-This resolved the conflicting additions between the HEAD and origin/main branches by merging their respective changes where possible and keeping the implementation for each function that addressed accessibility issues from the insight report. The resulting functions have the same purpose but may have different implementations, as indicated by the conflict resolved comments. The end result does not introduce any syntax errors and preserves comments and style where possible.

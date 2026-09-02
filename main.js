@@ -5,15 +5,16 @@
 
 const accessibilityUtils = {
   /**
-     * Initializes the skip link functionality.
-     * Finds a skip link with class 'skip-link' and ensures clicking it
-     * focuses the target element while preventing default navigation.
-     */
+   * Initializes the skip link functionality.
+   * Finds a skip link with class 'skip-link' and ensures clicking it
+   * focuses the target element while preventing default navigation.
+   */
   initSkipLink () {
     const skipLink = document.querySelector('.skip-link')
     if (!skipLink) return
 
     skipLink.addEventListener('click', (e) => {
+      e.preventDefault()
       const href = skipLink.getAttribute('href')
       if (!href) return
       const targetId = href.replace('#', '')
@@ -22,17 +23,16 @@ const accessibilityUtils = {
       if (target) {
         target.setAttribute('tabindex', '-1')
         target.focus()
-        e.preventDefault()
       }
     })
   },
 
   /**
-     * Adds a focus trap to the given element.
-     * Tab‑presses are confined to the element's focusable descendants.
-     *
-     * @param {HTMLElement} element - The container element.
-     */
+   * Adds a focus trap to the given element.
+   * Tab‑presses are confined to the element's focusable descendants.
+   *
+   * @param {HTMLElement} element - The container element.
+   */
   trapFocus (element) {
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -59,11 +59,11 @@ const accessibilityUtils = {
   },
 
   /**
-     * A newer focus trap implementation.
-     * Identical to `trapFocus` for consistency.
-     *
-     * @param {HTMLElement} element - The container element.
-     */
+   * A newer focus trap implementation.
+   * Identical to `trapFocus` for consistency.
+   *
+   * @param {HTMLElement} element - The container element.
+   */
   newFocusTrap (element) {
     if (!element) return
 
@@ -92,10 +92,10 @@ const accessibilityUtils = {
   },
 
   /**
-     * Enhances keyboard accessibility for interactive elements and elements with
-     * the `data-accessible` attribute. Adds a `tabindex="0"` and handles Enter/Space
-     * to trigger clicks.
-     */
+   * Enhances keyboard accessibility for interactive elements and elements with
+   * the `data-accessible` attribute. Adds a `tabindex="0"` and handles Enter/Space
+   * to trigger clicks.
+   */
   initAccessibility () {
     // Add keyboard support for all interactive elements and data-accessible elements
     document
@@ -112,11 +112,11 @@ const accessibilityUtils = {
   },
 
   /**
-     * Announce message to screen readers
-     *
-     * @param {string} message - The message to announce.
-     * @param {string} [priority='polite'] - The aria-live priority ('polite' or 'assertive').
-     */
+   * Announce message to screen readers
+   *
+   * @param {string} message - The message to announce.
+   * @param {string} [priority='polite'] - The aria-live priority ('polite' or 'assertive').
+   */
   announceToScreenReader (message, priority = 'polite') {
     const announcer = document.createElement('div')
     announcer.setAttribute('aria-live', priority)
@@ -132,12 +132,25 @@ const accessibilityUtils = {
   },
 
   /**
-     * Triggers a file download of the given data as JSON and announces the action
-     * to screen readers.
-     *
-     * @param {Object} data - The data to export.
-     * @param {string} filename - The name of the file to download.
-     */
+   * Handle keyboard navigation by dispatching to a handler based on the key pressed.
+   *
+   * @param {KeyboardEvent} e - The keyboard event.
+   * @param {Object} handlers - An object mapping key names to handler functions.
+   */
+  handleKeyboardNav (e, handlers) {
+    const key = e.key
+    if (handlers[key]) {
+      handlers[key](e)
+    }
+  },
+
+  /**
+   * Triggers a file download of the given data as JSON and announces the action
+   * to screen readers.
+   *
+   * @param {Object} data - The data to export.
+   * @param {string} filename - The name of the file to download.
+   */
   exportData (data, filename) {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -154,9 +167,9 @@ const accessibilityUtils = {
   },
 
   /**
-     * Scans the page for common accessibility issues and logs warnings.
-     * Returns an object summarizing the fixes performed.
-     */
+   * Scans the page for common accessibility issues and logs warnings.
+   * Returns an object summarizing the fixes performed.
+   */
   addressAccessibilityIssues () {
     const fixes = {
       skipLinks: 0,
@@ -199,30 +212,18 @@ const accessibilityUtils = {
     })
 
     console.log('Accessibility issues addressed', fixes)
+    return fixes
   },
 
   /**
-     * Handle keyboard navigation by dispatching to a handler based on the key pressed.
-     *
-     * @param {KeyboardEvent} e - The keyboard event.
-     * @param {Object} handlers - An object mapping key names to handler functions.
-     */
-  handleKeyboardNav (e, handlers) {
-    const key = e.key
-    if (handlers[key]) {
-      handlers[key](e)
-    }
-  },
-
-  /**
-     * Spawns a new element into the document with optional styling and cleanup.
-     * This provides a reusable way to create temporary UI components (modals, tooltips, etc.)
-     * while ensuring they are properly removed after use.
-     *
-     * @param {string} className - Optional CSS class name for the spawned element
-     * @param {string} id - Optional ID for the element
-     * @returns {HTMLElement} The created element
-     */
+   * Spawns a new element into the document with optional styling and cleanup.
+   * This provides a reusable way to create temporary UI components (modals, tooltips, etc.)
+   * while ensuring they are properly removed after use.
+   *
+   * @param {string} className - Optional CSS class name for the spawned element
+   * @param {string} id - Optional ID for the element
+   * @returns {HTMLElement} The created element
+   */
   spawn (className, id) {
     const element = document.createElement('div')
     element.className = className
@@ -299,10 +300,35 @@ function renderDependencyGraphs (container, dependencies, options = {}) {
   // Add accessibility label if not present
   addAriaLabel(container, `Dependency graph: ${containerId}`)
 
+  // Set appropriate ARIA role for the dependency graph container
+  // Using 'region' role for a contained section of content
+  if (!container.getAttribute('role')) {
+    container.setAttribute('role', 'region')
+  }
+
+  // Add accessible label if not already present
+  if (!container.getAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Dependency graph visualization')
+  }
+
   // Render logic placeholder
   container.innerHTML = `<div id="${containerId}">Graph not implemented</div>`
 
   return container
+}
+
+/**
+ * Renders a dependency graph from data.
+ *
+ * @param {Object} data - The dependency data.
+ * @returns {Object} Object containing nodes and edges.
+ */
+function renderDependencyGraph (data) {
+  // Implementation for rendering dependency graphs
+  return {
+    nodes: data.nodes || [],
+    edges: data.edges || []
+  }
 }
 
 /**
@@ -462,6 +488,58 @@ function validateTableStructureComprehensive () {
   return true
 }
 
+/**
+ * Generates an accessibility report from issues.
+ *
+ * @param {Array} issues - Array of issue objects.
+ * @returns {Object} The generated report.
+ */
+function generateAccessibilityReport (issues) {
+  const report = {
+    timestamp: new Date().toISOString(),
+    totalIssues: issues.length,
+    critical: issues.filter(i => i.impact === 'critical').length,
+    serious: issues.filter(i => i.impact === 'serious').length,
+    moderate: issues.filter(i => i.impact === 'moderate').length,
+    minor: issues.filter(i => i.impact === 'minor').length,
+    issues: issues.map(issue => ({
+      id: issue.id,
+      impact: issue.impact,
+      description: issue.description,
+      help: issue.help,
+      helpUrl: issue.helpUrl,
+      nodes: issue.nodes.map(node => ({
+        html: node.html,
+        target: node.target
+      }))
+    }))
+  }
+
+  if (typeof validateAccessibilityReport === 'function') {
+    validateAccessibilityReport(report)
+  }
+
+  return report
+}
+
+// Placeholder for appData - in a real environment this would come from your application state
+const appData = {
+  tables: [],
+  config: {}
+}
+
+function getTables () {
+  return appData.tables
+}
+
+function getConfig () {
+  return { ...appData.config }
+}
+
+function setConfig (config) {
+  appData.config = { ...appData.config, ...config }
+}
+
 // Export functions for use in other modules
 module.exports = {
   initSkipLink: accessibilityUtils.initSkipLink,
@@ -472,10 +550,16 @@ module.exports = {
   handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
   exportData: accessibilityUtils.exportData,
   addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
+  spawn: accessibilityUtils.spawn,
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
+  renderDependencyGraph,
   validateTableStructure,
   validateTableStructureComprehensive,
-  spawn: accessibilityUtils.spawn
+  generateAccessibilityReport,
+  getTables,
+  getConfig,
+  setConfig,
+  accessibilityUtils
 }

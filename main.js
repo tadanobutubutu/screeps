@@ -252,6 +252,41 @@ function addressInsightIssues() {
   fixTableStructure();
 }
 
+// Spawning logic implementation
+function spawnEntity(entityType, options = {}) {
+  const entity = {
+    id: Date.now() + Math.random(),
+    type: entityType,
+    position: options.position || { x: 0, y: 0 },
+    properties: options.properties || {},
+    createdAt: new Date().toISOString()
+  };
+
+  landmarks.push(entity);
+
+  return entity;
+}
+
+function spawnLandmark(landmarkData) {
+  const validation = validateLandmarkData(landmarkData);
+  if (!validation.valid) {
+    console.error('Invalid landmark data:', validation.errors);
+    return null;
+  }
+
+  return spawnEntity('landmark', {
+    properties: landmarkData
+  });
+}
+
+function spawnMultiple(count, entityType, options = {}) {
+  const entities = [];
+  for (let i = 0; i < count; i++) {
+    entities.push(spawnEntity(entityType, options));
+  }
+  return entities;
+}
+
 // Export functions for testing
 export {
   getLangAttribute,
@@ -273,6 +308,9 @@ export {
   fixFakeLinkIssue,
   fixTableStructure,
   addressInsightIssues,
+  spawnEntity,
+  spawnLandmark,
+  spawnMultiple,
   landmarks,
   appData,
   icons

@@ -87,9 +87,9 @@ export const main = {
       e.preventDefault();
       // Handle form submission logic here
       console.log('Book added:', {
-        title: titleInput.value,
-        author: authorInput.value,
-        isbn: isbnInput.value
+        title: titleInput.querySelector('input').value,
+        author: authorInput.querySelector('input').value,
+        isbn: isbnInput.querySelector('input').value
       });
     });
 
@@ -180,14 +180,15 @@ const fakeLink = document.querySelector('a[href="#"]');
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
+  parent.appendChild(newButton);
+  parent.removeChild(fakeLink);
 }
 
 // Load landmarks from file (new addition)
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
+      const filePath = path.join(__dirname, 'landmarks.json');
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
   } catch (error) {
@@ -219,7 +220,7 @@ function ensureLandmarkUniqueness(elements) {
 
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
+  const container = document.getElementById('dependency-graph');
   if (!container) {
     return;
   }
@@ -240,18 +241,18 @@ function countDependencies() {
 }
 
 // Function to enhance accessibility for addBook form
-function enhanceAccessibilityForAddBook(formElement) {
+function enhanceAddBookFormAccessibility(formElement) {
   if (!formElement) return;
 
   // Add ARIA attributes to form elements
   formElement.setAttribute('role', 'form');
-  formElement.setAttribute('aria-labelledby', 'add-book-form-title');
+  formElement.setAttribute('aria-label', 'add-book-form-title');
 
   // Find and enhance form controls
   const inputs = formElement.querySelectorAll('input, textarea, select');
   inputs.forEach(input => {
     // Add required attribute if needed
-    if (input.hasAttribute('required')) {
+    if (input.required) {
       input.setAttribute('aria-required', 'true');
     }
 
@@ -261,7 +262,7 @@ function enhanceAccessibilityForAddBook(formElement) {
     }
 
     // Create label if not present
-    if (!document.querySelector(`label[for="${input.id}"]`)) {
+    if (!input.hasAttribute('aria-label')) {
       const label = document.createElement('label');
       label.setAttribute('for', input.id);
       label.textContent = input.placeholder || input.name || 'Input field';
@@ -322,6 +323,5 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   countDependencies,
-  createInPageButton,
-  enhanceAccessibilityForAddBook
+  createInPageButton
 };

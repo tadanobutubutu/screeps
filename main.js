@@ -24,6 +24,7 @@ const {
   createInPageButton
 } = require('./utils');
 
+// TODO: This is the existing code that needs to be preserved
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -57,6 +58,8 @@ const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
+
+// const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:

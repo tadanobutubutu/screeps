@@ -30,16 +30,21 @@ async function renderFunction1() {
     }
   }
 
-    return `<table${attrs}>${thead}${tbody}</table>`
-  })
+  let html = '';
+  let attrs = '';
+  let thead = '';
+  let tbody = '';
+
+  // Build table HTML
+  html = `<table${attrs}>${thead}${tbody}</table>`;
 
   // Add scope="col" to th elements that don't have it
   html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (/\bscope=/i.test(match)) return match
-    return `<th${attrs} scope="col">`
-  })
+    if (/\bscope=/i.test(match)) return match;
+    return `<th${attrs} scope="col">`;
+  });
 
-  return html
+  return html;
 }
 
 // Function to analyze accessibility issues
@@ -88,7 +93,11 @@ async function generateAccessibilityReport(url) {
 // Landmark configuration
 const CONFIG = {
   landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  requiredLandmarks: ['banner', 'navigation', 'main']
+  requiredLandmarks: ['banner', 'navigation', 'main'],
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://example.com',
+  timeout: 5000
 };
 
 // Landmark functions
@@ -158,15 +167,8 @@ async function renderFunction2() {
   const moduleBReturnValue = await accessiblyHelper();
 
   // ... (remaining function2 logic)
+  return '';
 }
-
-// Configuration - merged
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100,
-    apiUrl: process.env.API_URL || 'https://example.com',
-    timeout: 5000
-};
 
 // Alternative config style for backwards compatibility
 const config = CONFIG;
@@ -235,6 +237,10 @@ function someFunction() {
   return 'some value';
 }
 
+function divide(a, b) {
+  return a / b;
+}
+
 // Accessibility function for book form
 function makeAddBookFormAccessible() {
   const form = document.querySelector('#addBookForm');
@@ -280,62 +286,85 @@ async function addressAccessibilityIssues() {
   const allResults = await accessiblyHelper();
   if (!allResults[0]) return;
   // Ensure the dependencyGraph container has a proper ARIA role
-  allResults[0].ensuresDependencyGraphRole();
+  if (typeof allResults[0].ensuresDependencyGraphRole === 'function') {
+    allResults[0].ensuresDependencyGraphRole();
+  }
   // ... (add other accessibility improvements as needed)
 }
 
-// ... (remaining helper functions and other code)
+// Function to add lang attribute to HTML
+function addLangAttribute(html) {
+  if (typeof html !== 'string') return html;
+  if (!/<html[^>]*>/i.test(html)) {
+    return html.replace(/<html/i, '<html lang="en"');
+  } else if (!/\blang\s*=/i.test(html)) {
+    return html.replace(/<html([^>]*)>/i, '<html$1 lang="en">');
+  }
+  return html;
+}
 
-// Main application entry point
-const app = expressApp;
+// Function to fix table structure
+function fixTableStructure(html) {
+  if (typeof html !== 'string') return html;
+  // Add scope="col" to th elements that don't have it
+  html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
+    if (/\bscope=/i.test(match)) return match;
+    return `<th${attrs} scope="col">`;
+  });
+  return html;
+}
+
+// Function to fix landmarks
+function fixLandmarks(html) {
+  if (typeof html !== 'string') return html;
 
   // Ensure <nav> landmark exists
   if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
-    html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>')
+    html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>');
   }
 
   // Ensure <aside> landmark exists if content suggests a sidebar
   if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
-    html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>')
+    html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>');
   }
 
   // Ensure <footer> landmark exists
   if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
-    html = html.replace(/<\/body>/i, '<footer></footer></body>')
+    html = html.replace(/<\/body>/i, '<footer></footer></body>');
   }
 
-  return html
+  return html;
 }
 
 // REACT_041: Add accessible names to SVGs
-function addSvgAccessibleNames (html) {
-  if (typeof html !== 'string') return html
+function addSvgAccessibleNames(html) {
+  if (typeof html !== 'string') return html;
 
-  const svgMatches = [...html.matchAll(/<svg([^>]*)>/gi)]
-  let offset = 0
+  const svgMatches = [...html.matchAll(/<svg([^>]*)>/gi)];
+  let offset = 0;
 
   svgMatches.forEach((match, index) => {
-    const fullMatch = match[0]
-    const attrs = match[1]
-    const svgStart = match.index + offset
-    const svgEnd = html.indexOf('</svg>', svgStart)
+    const fullMatch = match[0];
+    const attrs = match[1];
+    const svgStart = match.index + offset;
+    const svgEnd = html.indexOf('</svg>', svgStart);
 
-    if (svgEnd === -1) return
+    if (svgEnd === -1) return;
 
-    const svgContent = html.substring(svgStart, svgEnd + 6)
-    const hasTitle = /<title/i.test(svgContent)
-    const hasAriaLabel = /\baria-label=/i.test(attrs)
-    const hasAriaLabelledby = /\baria-labelledby=/i.test(attrs)
+    const svgContent = html.substring(svgStart, svgEnd + 6);
+    const hasTitle = /<title/i.test(svgContent);
+    const hasAriaLabel = /\baria-label=/i.test(attrs);
+    const hasAriaLabelledby = /\baria-labelledby=/i.test(attrs);
 
     if (!hasTitle && !hasAriaLabel && !hasAriaLabelledby) {
-      const newSvg = fullMatch.replace(/>/, `><title>SVG ${index + 1}</title>`)
-      const oldSvgLength = svgContent.length
-      html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength)
-      offset += newSvg.length - oldSvgLength
+      const newSvg = fullMatch.replace('>', `><title>SVG ${index + 1}</title>`);
+      const oldSvgLength = svgContent.length;
+      html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength);
+      offset += newSvg.length - oldSvgLength;
     }
-  })
+  });
 
-  return html
+  return html;
 }
 
 function validateLandmarkStructure() {
@@ -414,22 +443,22 @@ function addSvgAccessibilityProps(svgElement) {
   }
 }
 
-function checkLinkAccessibility () {
+function checkLinkAccessibility() {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
-  const links = document.querySelectorAll('a[href]')
-  const issues = []
+  const links = document.querySelectorAll('a[href]');
+  const issues = [];
 
   links.forEach((link) => {
-    const href = link.getAttribute('href')
-    const text = link.textContent.trim()
+    const href = link.getAttribute('href');
+    const text = link.textContent.trim();
 
     if (!text) {
-      issues.push(`Link with href "${href}" has no accessible text`)
+      issues.push(`Link with href "${href}" has no accessible text`);
     }
-  })
+  });
 
-  return issues
+  return issues;
 }
 
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
@@ -439,37 +468,37 @@ function checkLinkAccessibility () {
  * and moves all body content into it.
  * @returns {Element|null} The <main> element if successfully created/wrapped, or null if body is not available
  */
-function wrapPrimaryContentInMain () {
-  const body = document.body
+function wrapPrimaryContentInMain() {
+  const body = document.body;
 
   // Return null if body element is not available
   if (!body) {
-    return null
+    return null;
   }
 
   // Check if a <main> element already exists to avoid duplication
-  const existingMain = document.querySelector('main')
+  const existingMain = document.querySelector('main');
   if (existingMain) {
-    return existingMain
+    return existingMain;
   }
 
   // Create a new <main> element
-  const main = document.createElement('main')
+  const main = document.createElement('main');
 
   // Move all existing body children into the <main> element
   while (body.firstChild) {
-    main.appendChild(body.firstChild)
+    main.appendChild(body.firstChild);
   }
 
   // Append the <main> element to the body
-  body.appendChild(main)
+  body.appendChild(main);
 
-  return main
+  return main;
 }
 
 // REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks (html) {
-  if (typeof html !== 'string') return html
+function ensureUniqueLandmarks(html) {
+  if (typeof html !== 'string') return html;
 
   const landmarkRoles = [
     'banner',
@@ -479,88 +508,88 @@ function ensureUniqueLandmarks (html) {
     'contentinfo',
     'search',
     'form'
-  ]
+  ];
 
   landmarkRoles.forEach((role) => {
-    const pattern = new RegExp(`role=["']${role}["']`, 'gi')
-    const matches = html.match(pattern)
+    const pattern = new RegExp(`role=["']${role}["']`, 'gi');
+    const matches = html.match(pattern);
     if (matches && matches.length > 1) {
       // Keep first occurrence, change subsequent ones
-      let count = 0
+      let count = 0;
       html = html.replace(pattern, (match) => {
-        count++
-        if (count === 1) return match
-        return 'role="region"'
-      })
+        count++;
+        if (count === 1) return match;
+        return 'role="region"';
+      });
     }
-  })
+  });
 
   // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
-  const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer']
+  const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
   html5Landmarks.forEach((tag) => {
-    const pattern = new RegExp(`<${tag}[^>]*>`, 'gi')
-    const matches = html.match(pattern)
+    const pattern = new RegExp(`<${tag}[^>]*>`, 'gi');
+    const matches = html.match(pattern);
     if (matches && matches.length > 1) {
       // Keep first, add role="region" to others
-      let count = 0
+      let count = 0;
       html = html.replace(pattern, (match) => {
-        count++
-        if (count === 1) return match
-        return match.replace(new RegExp(`<${tag}`, 'i'), `<${tag} role="region"`)
-      })
+        count++;
+        if (count === 1) return match;
+        return match.replace(new RegExp(`<${tag}`, 'i'), `<${tag} role="region">`);
+      });
     }
-  })
+  });
 
-  return html
+  return html;
 }
 
 // REACT_036: Fix fake link issues
-function fixFakeLinks (html) {
-  if (typeof html !== 'string') return html
+function fixFakeLinks(html) {
+  if (typeof html !== 'string') return html;
 
   // Find spans or divs with onclick that act as links and convert to <a>
   html = html.replace(
     /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
     (match, before, onclick, after) => {
-      const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/)
+      const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
       if (hrefMatch) {
-        return `<a href="${hrefMatch[1]}"${before}${after}>`
+        return `<a href="${hrefMatch[1]}">${before}${after}>`;
       }
-      return match
+      return match;
     }
-  )
+  );
 
-  html = html.replace(/<\/span>/gi, '</a>')
+  html = html.replace(/<\/span>/gi, '</a>');
 
-  return html
+  return html;
 }
 
 // Main function that applies all accessibility fixes
-function applyAccessibilityFixes (html) {
-  let result = html
-  result = addLangAttribute(result)
-  result = fixTableStructure(result)
-  result = fixLandmarks(result)
-  result = addSvgAccessibleNames(result)
-  result = ensureUniqueLandmarks(result)
-  result = fixFakeLinks(result)
-  return result
+function applyAccessibilityFixes(html) {
+  let result = html;
+  result = addLangAttribute(result);
+  result = fixTableStructure(result);
+  result = fixLandmarks(result);
+  result = addSvgAccessibleNames(result);
+  result = ensureUniqueLandmarks(result);
+  result = fixFakeLinks(result);
+  return result;
 }
 
-function addressAccessibilityIssues (insightReport) {
+function addressAccessibilityIssuesFromInsight(insightReport) {
   // Apply accessibility fixes to HTML content based on insight report
   if (insightReport && insightReport.html) {
-    insightReport.html = applyAccessibilityFixes(insightReport.html)
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
   }
-  console.log('Addressing accessibility issues from insight report:', insightReport)
+  console.log('Addressing accessibility issues from insight report:', insightReport);
 }
 
-function createInPageButton (buttonId, buttonText, buttonClass) {
-  const button = document.createElement('button')
-  button.id = buttonId
-  button.textContent = buttonText
-  button.className = buttonClass
-  document.body.appendChild(button)
+function createInPageButton(buttonId, buttonText, buttonClass) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.className = buttonClass;
+  document.body.appendChild(button);
 }
 
 // Don't forget to test your new additions in the test file
@@ -596,7 +625,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureUniqueLandmarks,
     fixFakeLinks,
     applyAccessibilityFixes,
-    addressAccessibilityIssues,
+    addressAccessibilityIssuesFromInsight,
     createInPageButton,
     makeAddBookFormAccessible
   };
@@ -604,7 +633,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Run if executed directly
 if (require.main === module) {
-  main()
+  main();
 }
 
 function main() {

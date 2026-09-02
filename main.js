@@ -145,7 +145,7 @@ function validateLandmarkStructure(context = document) {
         issues: issues,
         addressedIssues: [], // Not applicable for landmark validation
         isValid: issues.filter(i => i.type === 'error').length === 0,
-        summary: `Landmark validation completed with ${issues.length} issues`
+        summary: `Landmark Structure Validation Summary:`
     };
 }
 
@@ -237,6 +237,9 @@ function handleCredentialResponse(response) {
   // Placeholder for actual implementation
 }
 
+// Import the dependency graph and index content modules
+import { dependencyGraphContent, indexContent } from './components/graphs';
+
 // Module exports
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
@@ -256,7 +259,9 @@ if (typeof module !== 'undefined' && module.exports) {
         ensureUniqueLandmarks,
         addSvgAccessibleNames,
         fixFakeLinkIssue,
-        handleCredentialResponse
+        handleCredentialResponse,
+        dependencyGraphContent,
+        indexContent
     };
 }
 

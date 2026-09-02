@@ -33,6 +33,12 @@ function generateDependencyReport(dependencies) {
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
   // Code to fix accessibility issues as per the insight report
+  if (typeof validateLandmarkStructure === 'function') {
+    validateLandmarkStructure();
+  }
+  if (typeof ensureFocusableElements === 'function') {
+    ensureFocusableElements();
+  }
 }
 
 // Main entry point for dependency visualization tool
@@ -58,9 +64,9 @@ export const main = {
   // New function to add a book with accessibility improvements
   addBook: function(title, author, isbn) {
     // Create form with proper accessibility attributes
-    const form = document.createElement('form');
+    const form = ...
     form.setAttribute('role', 'form');
-    form.setAttribute('aria-label', 'Add Book Form');
+    ... 'Add Book Form');
 
     // Create accessible input fields
     const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
@@ -70,20 +76,20 @@ export const main = {
     // Create accessible submit button
     const submitButton = document.createElement('button');
     submitButton.setAttribute('type', 'submit');
-    submitButton.setAttribute('aria-label', 'Add Book');
+    ... 'Add Book');
     submitButton.textContent = 'Add Book';
 
     // Append all elements to form
-    form.appendChild(titleInput);
-    form.appendChild(authorInput);
-    form.appendChild(isbnInput);
-    form.appendChild(submitButton);
+    ...
+    ...
+    ...
+    ...
 
     // Add form to document body
-    document.body.appendChild(form);
+    ...
 
     // Add event listener for form submission
-    form.addEventListener('submit', (e) => {
+    ... (e) => {
       e.preventDefault();
       // Handle form submission logic here
       console.log('Book added:', {
@@ -106,14 +112,14 @@ export const main = {
  * @returns {HTMLElement} The created input element with label
  */
 function createAccessibleInput(type, id, labelText, value = '') {
-  const container = document.createElement('div');
+  const container = ...
   container.className = 'form-group';
 
-  const label = document.createElement('label');
+  const label = ...
   label.setAttribute('for', id);
   label.textContent = labelText;
 
-  const input = document.createElement('input');
+  const input = ...
   input.setAttribute('type', type);
   input.setAttribute('id', id);
   input.setAttribute('name', id);
@@ -121,8 +127,8 @@ function createAccessibleInput(type, id, labelText, value = '') {
   input.setAttribute('aria-label', labelText);
   input.value = value;
 
-  container.appendChild(label);
-  container.appendChild(input);
+  ...
+  ...
 
   return container;
 }
@@ -137,7 +143,7 @@ function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
   if (onClickHandler && typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
+    ... onClickHandler);
   }
   return button;
 }
@@ -171,24 +177,24 @@ function createUnrotateButton() {
   button.setAttribute('role', 'button');
   button.ariaLabel = 'rotate back';
   button.textContent = 'rotate back';
-  button.addEventListener('click', rotateBack);
+  ... rotateBack);
   return button;
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('a[href="#"]');
+const fakeLink = ...
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
+  ... fakeLink);
 }
 
 // Load landmarks from file (new addition)
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
-      const data = fs.readFileSync(filePath, 'utf8');
+      const filePath = ... 'landmarks.json');
+      const data = ... 'utf8');
       return JSON.parse(data);
   } catch (error) {
       console.error('Error loading landmarks:', error.message);
@@ -205,10 +211,10 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (elementsById[landmark.id]) {
+        if ... {
           landmark.id += '_duplicate';
         } else {
-          elementsById[landmark.id] = true;
+          ... = true;
         }
       }
     }
@@ -219,7 +225,7 @@ function ensureLandmarkUniqueness(elements) {
 
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
+  const container = ...
   if (!container) {
     return;
   }
@@ -236,92 +242,12 @@ function countDependencies() {
     'react-redux': true,
     'antd': true
   };
-  return Object.keys(dependencies).length;
+  return ...
 }
 
 // Function to enhance accessibility for addBook form
-function enhanceAccessibilityForAddBook(formElement) {
+function ... {
   if (!formElement) return;
 
   // Add ARIA attributes to form elements
-  formElement.setAttribute('role', 'form');
-  formElement.setAttribute('aria-labelledby', 'add-book-form-title');
-
-  // Find and enhance form controls
-  const inputs = formElement.querySelectorAll('input, textarea, select');
-  inputs.forEach(input => {
-    // Add required attribute if needed
-    if (input.hasAttribute('required')) {
-      input.setAttribute('aria-required', 'true');
-    }
-
-    // Add labels if missing
-    if (!input.id) {
-      input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    // Create label if not present
-    if (!document.querySelector(`label[for="${input.id}"]`)) {
-      const label = document.createElement('label');
-      label.setAttribute('for', input.id);
-      label.textContent = input.placeholder || input.name || 'Input field';
-      input.parentNode.insertBefore(label, input);
-    }
-  });
-
-  // Add submit button if missing
-  if (!formElement.querySelector('button[type="submit"]')) {
-    const submitButton = document.createElement('button');
-    submitButton.type = 'submit';
-    submitButton.textContent = 'Add Book';
-    submitButton.className = 'add-book-submit';
-    formElement.appendChild(submitButton);
-  }
-
-  // Add error summary area
-  if (!formElement.querySelector('.error-summary')) {
-    const errorSummary = document.createElement('div');
-    errorSummary.className = 'error-summary';
-    errorSummary.setAttribute('aria-live', 'polite');
-    formElement.insertBefore(errorSummary, formElement.firstChild);
-  }
-}
-
-// Process and filter landmarks (new addition)
-
-// Exporting module objects
-export {
-  wrapPrimaryContentInMain,
-  initializeApp,
-  handleUserInteraction,
-  cleanup,
-  initApp,
-  processData,
-  fetchUser,
-  clearCache,
-  VisualizeDependencyTree,
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  landmarks,
-  appData,
-  icons,
-  validateLandmark,
-  ensureFocusableElements,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies,
-  createInPageButton,
-  enhanceAccessibilityForAddBook
-};
+  formElement.set

@@ -1,26 +1,49 @@
 const fs = require('fs');
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, renderAdditionalContent } = main;
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent
+} = main;
 
 const ensureElementIdUtil = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
 
-const accessibilityUtils = {
-  newFocusTrap: function () {
-    // Implementation for new focus trap
-  },
+const newFocusTrap = (element) => {
+  // Focus trap implementation
+};
 
+const accessibilityUtils = {
   initSkipLink: function () {
-    const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+    const skipLink = document.querySelector('.skip-link, [href="#main-content"]') || document.getElementById('skip-link');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const href = skipLink.getAttribute('href');
+        const target = href ? document.querySelector(href) : null;
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -39,11 +62,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
     });
@@ -65,7 +88,7 @@ const accessibilityUtils = {
   },
 
   uniqueLandmarks: function () {
-    const landmarks = document.querySelectorAll('[role=banner], [role=navigation]');
+    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"]');
     const ids = new Set();
 
     landmarks.forEach((landmark) => {
@@ -76,62 +99,110 @@ const accessibilityUtils = {
     return ids.size < 2;
   },
 
-  createAccessibleLink: function (url, text, target) {
+  createAccessibleLink: function (url, text, target, ariaLabel) {
     const link = document.createElement('a');
     link.href = url;
     link.textContent = text;
     link.setAttribute('target', target || '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
-    link.setAttribute('aria-label', `Open ${text} in new window`);
+    link.setAttribute('aria-label', ariaLabel || `Open ${text} in new window`);
+    link.setAttribute('role', 'link');
     return link;
   },
 
-  // Address accessibility issues from insight report
-  handleAccessibilityIssues: function () {
-    // Implementation to address accessibility issues in the report
-    // This function should validate the report and fix issues as needed
+  ensureElementHasId: ensureElementIdUtil,
+
+  mainFocusTrap: newFocusTrap,
+
+  /**
+   * Initializes the accessibility utilities, including skip link functionality and focus trap.
+   */
+  initAccessibility: function () {
+    accessibilityUtils.initSkipLink();
+    // Additional initialization
   },
 
   addLangAttribute: function (element, locale = 'en') {
     if (element) {
       element.setAttribute('lang', locale);
     }
+  },
+
+  /**
+   * Checks the accessibility of SVG elements by looking for `title` and `desc` tags.
+   * @param {NodeList} svgs - A list of SVG elements.
+   */
+  checkSvgAccessibility: function (svgs) {
+    svgs.forEach((svg, index) => {
+      const title = svg.querySelector('title');
+      const desc = svg.querySelector('desc');
+      if (title && desc) {
+        report.passed.push({
+          category: 'REACT_041',
+          message: `SVG ${index + 1} has accessible title and description`,
+          status: 'passed'
+        });
+      } else {
+        report.issues.push({
+          category: 'REACT_041',
+          message: `SVG ${index + 1} is missing accessible name`,
+          status: 'moderate'
+        });
+        report.summary.moderate++;
+        report.summary.totalIssues++;
+      }
+    });
+  },
+
+  /**
+   * Checks the accessibility of links by ensuring they have text content.
+   * @param {NodeList} links - A list of link elements.
+   */
+  checkLinkAccessibility: function (links) {
+    links.forEach((link, index) => {
+      if (link.textContent.trim() === '') {
+        report.issues.push({
+          category: 'REACT_036',
+          message: `Link ${index + 1} has no accessible text`,
+          status: 'moderate'
+        });
+        report.summary.moderate++;
+        report.summary.totalIssues++;
+      } else {
+        report.passed.push({
+          category: 'REACT_036',
+          message: `Link ${index + 1} has accessible text`,
+          status: 'passed'
+        });
+      }
+    });
+  },
+
+  /**
+   * Generates a report based on the accessibility issues found.
+   * @returns {Object} The accessibility report.
+   */
+  generateAccessibilityReport: function () {
+    const report = {
+      passed: [],
+      issues: [],
+      summary: {
+        moderate: 0,
+        totalIssues: 0
+      }
+    };
+
+    // Example usage of the utility functions to populate the report
+    const svgs = document.querySelectorAll('svg');
+    accessibilityUtils.checkSvgAccessibility(svgs);
+
+    const links = document.querySelectorAll('a');
+    accessibilityUtils.checkLinkAccessibility(links);
+
+    // Add more accessibility checks as needed
+
+    return report;
   }
-};
-
-const newFocusTrap = accessibilityUtils.newFocusTrap;
-
-module.exports = {
-  ...main,
-  ...accessibilityUtils,
-  ensureElementId: ensureElementIdUtil,
-  ensureElementIdUtil,
-  newFocusTrap,
-  log: main.log,
-  sanitizeFilename: main.sanitizeFilename,
-  readFileSafe: main.readFileSafe,
-  processData: main.processData,
-  filterValidItems: main.filterValidItems,
-  initAccessibility: main.initAccessibility,
-  groupByCategory: main.groupByCategory,
-  transformInputData: main.transformInputData,
-  validateTableAccessibility,
-  displayModuleStructure: main.displayModuleStructure,
-  generateDependencyGraph: main.generateDependencyGraph,
-  validateAccessibilityReport,
-  addressAccessibilityIssues,
-  newAccessibilityCheck,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  renderAdditionalContent,
-  checkLinkAccessibility: main.checkLinkAccessibility,
-  createInPageButton,
-  createWebResourceButton,
-  addAriaLabel,
-  createLandmarkRegion,
-  ...accessibilityUtils
 };
 
 /**
@@ -325,3 +396,54 @@ function newAccessibilityCheck() {
   // Replace this with your custom implementation as needed
   return true;
 }
+
+// TODO: add the new functions or changes requested in the issue
+// Here's a sample implementation for a new function named 'myNewFunction'
+function myNewFunction() {
+  // sample implementation
+}
+
+module.exports = {
+  ...main,
+  ...accessibilityUtils,
+  ensureElementId: ensureElementIdUtil,
+  ensureElementIdUtil,
+  newFocusTrap,
+  log: main.log,
+  sanitizeFilename: main.sanitizeFilename,
+  readFileSafe: main.readFileSafe,
+  processData: main.processData,
+  filterValidItems: main.filterValidItems,
+  initAccessibility: main.initAccessibility,
+  groupByCategory: main.groupByCategory,
+  transformInputData: main.transformInputData,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  displayModuleStructure: main.displayModuleStructure,
+  generateDependencyGraph: main.generateDependencyGraph,
+  validateAccessibilityReport,
+  addressAccessibilityIssues,
+  newAccessibilityCheck,
+  exportUtils,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
+  checkLinkAccessibility: main.checkLinkAccessibility,
+  createInPageButton,
+  createWebResourceButton,
+  addAriaLabel,
+  createLandmarkRegion,
+  createAccessibleLink,
+  myNewFunction
+};

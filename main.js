@@ -52,6 +52,25 @@ const XYZ = function () {
 
 setHtmlLangAttribute('en');
 
+// Validate the table structure for accessibility issues
+if (typeof document !== 'undefined') {
+  function validateAllTables() {
+    const tables = document.getElementsByTagName('table');
+    for (const table of tables) {
+      const accessible = validateTableAccessibility(table);
+      const structure = validateTableStructure(table);
+      if (!accessible || !structure) {
+        console.warn('Table accessibility or structure validation failed:', table);
+      }
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', validateAllTables);
+  } else {
+    validateAllTables();
+  }
+}
+
 module.exports = {
     config,
     XYZ,

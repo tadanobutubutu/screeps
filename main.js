@@ -84,5 +84,6 @@ module.exports = {
   fixFakeLink: function() {
     // Implementation of fixFakeLink
     // TODO: Add the implementation details here
-  }
+  },
+  detectAndSetLang: detectAndSetLang
 };

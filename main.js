@@ -36,28 +36,28 @@ import {
 } from './AccessibilityHelpers'
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
+const dependencyGraph = ...
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
   // Using 'region' role for a contained section of content
-  if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region')
+  if ... {
+    ... 'region')
   }
 
   // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
+  if ... {
+    ... 'Dependency graph visualization')
   }
 
   // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph')
+  if ... {
+    ... 'dependencyGraph')
   }
 
   // Ensure the container is focusable if it's interactive
-  if (!dependencyGraph.getAttribute('tabindex')) {
-    dependencyGraph.setAttribute('tabindex', '0')
+  if ... {
+    ... '0')
   }
 }
 
@@ -66,18 +66,30 @@ function addAccessibleName (svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
-  const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
+  if (!svgString || typeof svgString !== 'string') {
+    return svgString
   }
-  return new XMLSerializer().serializeToString(svg)
+  
+  // Check if SVG already has an aria-label
+  const hasAriaLabel = /aria-label\s*=/i.test(svgString)
+  
+  if (hasAriaLabel) {
+    return svgString
+  }
+  
+  // Add aria-label to SVG element
+  const modifiedSvgString = svgString.replace(
+    /<svg([^>]*)>/i,
+    '<svg$1 aria-label="Descriptive label for SVG">'
+  )
+  
+  return modifiedSvgString
 }
 
 // Example usage of the function
 const originalSvgString =
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
-const modifiedSvgString = addAccessibleName(originalSvgString)
+    ... ... viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...
+const modifiedSvgString = ...
 
 /**
  * Validates table accessibility
@@ -85,7 +97,26 @@ const modifiedSvgString = addAccessibleName(originalSvgString)
  * @returns {boolean} True if table is accessible, false otherwise
  */
 function validateTableAccessibility (tableData) {
-  // Implementation placeholder - function to be implemented
+  if (!tableData || !Array.isArray(tableData) || tableData.length === 0) {
+    return false
+  }
+  
+  // Check if table has header cells with proper scope attributes
+  for (const row of tableData) {
+    if (!row || !Array.isArray(row)) {
+      continue
+    }
+    
+    for (const cell of row) {
+      if (cell.isHeader) {
+        // Header cells should have scope attribute
+        if (!cell.scope) {
+          return false
+        }
+      }
+    }
+  }
+  
   return true
 }
 
@@ -95,7 +126,31 @@ function validateTableAccessibility (tableData) {
  * @returns {boolean} True if table structure is valid, false otherwise
  */
 function validateTableStructure (tableData) {
-  // Implementation placeholder - function to be implemented
+  if (!tableData || !Array.isArray(tableData)) {
+    return false
+  }
+  
+  if (tableData.length === 0) {
+    return false
+  }
+  
+  // Check that all rows have the same number of columns
+  const columnCount = tableData[0]?.length || 0
+  
+  if (columnCount === 0) {
+    return false
+  }
+  
+  for (const row of tableData) {
+    if (!row || !Array.isArray(row)) {
+      return false
+    }
+    
+    if (row.length !== columnCount) {
+      return false
+    }
+  }
+  
   return true
 }
 
@@ -119,7 +174,31 @@ module.exports = {
 function renderAdditionalContent (additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
+  if (!additionalData) {
+    return ''
+  }
+  
+  let html = '<div class="additional-content">'
+  
+  if (additionalData.title) {
+    html += `<h2>${additionalData.title}</h2>`
+  }
+  
+  if (additionalData.content) {
+    html += `<p>${additionalData.content}</p>`
+  }
+  
+  if (additionalData.items && Array.isArray(additionalData.items)) {
+    html += '<ul>'
+    for (const item of additionalData.items) {
+      html += `<li>${item}</li>`
+    }
+    html += '</ul>'
+  }
+  
+  html += '</div>'
+  
+  return html
 }
 
 // Add the new function to the exports

@@ -31,5 +31,14 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Implement this new function for showing a modal
+function showModal(modalId, modalContent) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.innerHTML = modalContent;
+        modal.style.display = 'block';
+    }
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

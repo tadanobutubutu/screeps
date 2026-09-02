@@ -4,9 +4,14 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
+import a11y from './AccessibilityUtilities';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -148,7 +153,7 @@ function generateAccessibilityReport() {
     }
   });
 
-  // Check for buttons without accessible names
+  // Check for buttons without accessible name
   const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
@@ -183,7 +188,7 @@ function generateAccessibilityReport() {
     if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
       const labelId = input.getAttribute('aria-labelledby');
       const labelText = input.getAttribute('aria-label');
-      const hasLabel = document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
+      const hasLabel = input.id && document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
       if (!hasLabel) {
         issues.push({
           type: 'missing-label',
@@ -203,7 +208,7 @@ function generateAccessibilityReport() {
         type: 'empty-heading',
         element: heading.tagName.toLowerCase(),
         index: index,
-        message: `${heading.tagName.toLowerCase()} at index ${index} has no text content`
+        message: `${heading.tagName} at index ${index} has no text content`
       });
     }
   });
@@ -228,10 +233,10 @@ function addressAccessibilityIssues() {
   }
 
   // Initialize skip link functionality
-  const skipLink = document.getElementById('skip-link');
+  const skipLink = document.querySelector('[href^="#"]');
   if (skipLink) {
     skipLink.addEventListener('click', function(e) {
-      const targetId = this.getAttribute('href').substring(1);
+      const targetId = skipLink.getAttribute('href').substring(1);
       const target = document.getElementById(targetId);
       if (target) {
         target.setAttribute('tabindex', '-1');
@@ -241,7 +246,8 @@ function addressAccessibilityIssues() {
   }
 
   // Ensure all buttons with role="button" respond to Enter key
-  document.querySelectorAll('[role="button"]').forEach(button => {
+  const buttonsWithRole = document.querySelectorAll('[role="button"]');
+  buttonsWithRole.forEach(function(button) {
     button.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
@@ -253,92 +259,23 @@ function addressAccessibilityIssues() {
   // Add focusVisible polyfill behavior
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Tab') {
-      document.body.classList.add('using-keyboard');
+      document.body.classList.add('keyboard-nav');
     }
   });
 
   document.addEventListener('mousedown', function() {
-    document.body.classList.remove('using-keyboard');
+    document.body.classList.remove('keyboard-nav');
   });
 
   // Assuming a modal/dialog element with the ID "modal"
   a11y.announce('Welcome to the bot!', 'assertive'); // Assuming announce function from a11y utilities
 
   // Adding an alt attribute to an image
-  const imageElement = document.querySelector('img[alt=""]');
+  const imageElement = document.querySelector('img');
   if (imageElement) {
     imageElement.setAttribute('alt', 'A description of the image');
   }
 
   // Correcting the ARIA role for a div
-  const divElement = document.querySelector('div[role="list"]');
-  if (divElement) {
-    divElement.setAttribute('role', 'list');
-  }
-
-  // Adding the lang attribute to the HTML element
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', getLangAttribute());
-  }
-}
-
-/**
- * Validates link accessibility
- * @param {HTMLElement} link - The link element to validate
- * @returns {boolean} True if link is accessible
- */
-function validateLinkAccessibility(link) {
-  // Implementation to be added
-}
-
-/**
- * Handles fake links in the document
- */
-function handleFakeLinks() {
-  // Implementation to be added
-}
-
-/**
- * Adds proper landmark regions to the document
- */
-function addProperLandmarkRegions() {
-  // Implementation to be added
-}
-
-// Existing code from origin/main
-function existingFunction1() {
-  // Existing implementation
-}
-
-function existingFunction2() {
-  // Existing implementation
-}
-
-// New Function
-function newFunction() {
-  // Implement the new functionality (as per the original commitment)
-}
-
-// Export all functions
-module.exports = {
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  existingFunction1,
-  existingFunction2,
-  newFunction
-};
+  const divElement = document.querySelector('div');
+  if

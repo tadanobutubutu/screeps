@@ -43,7 +43,7 @@ function fixAccessibilityIssues() {
   }
 
   // Ensure unique landmarks
-  ensureUniqueLandmarks();
+  ensureUniqueLandmarkElements();
 
   // Fix fake links
   handleFakeLinks();
@@ -280,7 +280,7 @@ function renderIndex() {
 }
 
 // Function to ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarkElements() {
   const landmarks = document.querySelectorAll('[role="main"]');
   const landmarkIds = new Set();
 
@@ -345,7 +345,7 @@ function validateLandmarkStructure() {
   }
 
   // Ensure no duplicate landmark IDs (reusing previous function)
-  ensureUniqueLandmarks();
+  ensureUniqueLandmarkElements();
 
   return true;
 }
@@ -512,7 +512,11 @@ function replaceFakeLinks() {
 // Export functions for testing (new addition)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks
+        loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks,
+        getConfig, ensureThScope, setupSkipLinks, setupButtonAccessibility, addLandmarkRoles,
+        addSvgAccessibleNames, renderGraph, renderIndex, ensureUniqueLandmarkElements,
+        fixFakeLinkIssues, createAccessibleLink, initialize, initializeAccessibility,
+        replaceFakeLinks, addFixLandmarkIssues, renderIndexView
     };
 }
 
@@ -545,5 +549,21 @@ export {
   getLandmarkById,
   ensureUniqueLandmarks,
   createInPageButton,
-  createUnrotateButton
+  createUnrotateButton,
+  getConfig,
+  ensureThScope,
+  setupSkipLinks,
+  setupButtonAccessibility,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  renderGraph,
+  renderIndex,
+  ensureUniqueLandmarkElements,
+  fixFakeLinkIssues,
+  createAccessibleLink,
+  initialize,
+  initializeAccessibility,
+  replaceFakeLinks,
+  addFixLandmarkIssues,
+  renderIndexView
 };

@@ -1,5 +1,4 @@
-// TODO: This is the existing code that needs to be preserve
-// (This comment remains as-is)
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute

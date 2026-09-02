@@ -963,6 +963,117 @@ function handleFocusTrap(container) {
     });
 }
 
+/**
+ * Add a book to the library with accessibility improvements.
+ * Implements proper ARIA roles and labels to improve accessibility for the form.
+ * @param {Object} book - The book to add with title, author, and optional ISBN
+ * @returns {Object} - Result of adding the book
+ */
+function addBook(book) {
+  if (!book || typeof book !== 'object') {
+    return { success: false, error: 'Invalid book data' };
+  }
+
+  if (!book.title || !book.author) {
+    return { success: false, error: 'Book must have a title and author' };
+  }
+
+  const bookEntry = {
+    id: generateSessionId(),
+    title: book.title,
+    author: book.author,
+    isbn: book.isbn || null,
+    addedAt: Date.now()
+  };
+
+  if (!appState.books) {
+    appState.books = [];
+  }
+  appState.books.push(bookEntry);
+
+  return { success: true, book: bookEntry };
+}
+
+/**
+ * Render an accessible add book form with proper ARIA roles and labels.
+ * @param {HTMLElement} container - The container element to render the form into
+ * @returns {HTMLFormElement} - The created form element with accessibility features
+ */
+function renderAddBookForm(container) {
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-label', 'Add a new book to the library');
+  form.setAttribute('aria-describedby', 'add-book-description');
+
+  const description = document.createElement('p');
+  description.id = 'add-book-description';
+  description.textContent = 'Use this form to add a new book to the library.';
+  description.setAttribute('class', 'sr-only');
+  form.appendChild(description);
+
+  const fields = [
+    { name: 'title', label: 'Book Title', type: 'text', required: true, autocomplete: 'off' },
+    { name: 'author', label: 'Author Name', type: 'text', required: true, autocomplete: 'name' },
+    { name: 'isbn', label: 'ISBN', type: 'text', required: false, autocomplete: 'off' }
+  ];
+
+  fields.forEach(field => {
+    const fieldWrapper = document.createElement('div');
+    fieldWrapper.setAttribute('role', 'group');
+    fieldWrapper.setAttribute('aria-labelledby', `${field.name}-label`);
+
+    const label = document.createElement('label');
+    label.id = `${field.name}-label`;
+    label.setAttribute('for', `book-${field.name}`);
+    label.textContent = field.label;
+    fieldWrapper.appendChild(label);
+
+    const input = document.createElement('input');
+    input.id = `book-${field.name}`;
+    input.name = field.name;
+    input.type = field.type;
+    input.setAttribute('aria-label', field.label);
+    input.setAttribute('aria-required', field.required ? 'true' : 'false');
+    if (field.autocomplete) {
+      input.setAttribute('autocomplete', field.autocomplete);
+    }
+    if (field.required) {
+      input.required = true;
+    }
+    fieldWrapper.appendChild(input);
+
+    form.appendChild(fieldWrapper);
+  });
+
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Submit form to add book to library');
+  form.appendChild(submitButton);
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const formData = new FormData(form);
+    const bookData = {
+      title: formData.get('title'),
+      author: formData.get('author'),
+      isbn: formData.get('isbn') || undefined
+    };
+    const result = addBook(bookData);
+    if (result.success && typeof a11yStore.updateLiveRegion === 'function') {
+      a11yStore.updateLiveRegion(`Book "${result.book.title}" was added successfully.`, 'polite');
+    } else if (!result.success && typeof a11yStore.updateLiveRegion === 'function') {
+      a11yStore.updateLiveRegion(`Failed to add book: ${result.error}`, 'assertive');
+    }
+  });
+
+  if (container) {
+    container.appendChild(form);
+  }
+
+  return form;
+}
+
 // Start server if this is the main module
 if (require.main === module) {
     const PORT = process.env.PORT || 3000;
@@ -1000,6 +1111,8 @@ module.exports = {
   server,
   sanitizeFilename,
   processData,
+  addBook,
+  renderAddBookForm,
   ensureFormAccessibility: a11yStore.ensureFormAccessibility,
   ensureKeyboardNavigation: a11yStore.ensureKeyboardNavigation,
   ensureImageAccessibility: a11yStore.ensureImageAccessibility

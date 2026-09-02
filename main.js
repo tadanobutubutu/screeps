@@ -289,6 +289,50 @@ function addSvgAccessibilityProps(svg, options = {}) {
   return enhancedSvg;
 }
 
+/**
+ * Validates form element accessibility
+ * @param {Object} form - The form element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateFormAccessibility(form) {
+  const issues = [];
+  const fields = form.querySelectorAll ? form.querySelectorAll('input, select, textarea') : [];
+
+  fields.forEach(field => {
+    const fieldType = field.type;
+    const fieldName = field.name || field.id;
+
+    // Skip hidden fields and submit/button inputs
+    if (fieldType === 'hidden' || fieldType === 'submit' || fieldType === 'button') {
+      return;
+    }
+
+    // Check for associated label
+    let hasLabel = false;
+    if (field.labels && field.labels.length > 0) {
+      hasLabel = true;
+    } else if (field.getAttribute('aria-label')) {
+      hasLabel = true;
+    } else if (field.getAttribute('aria-labelledby')) {
+      hasLabel = true;
+    }
+
+    if (!hasLabel) {
+      issues.push(`Form field '${fieldName}' is missing an accessible label`);
+    }
+
+    // Check for required field indication
+    if (field.required && !field.getAttribute('aria-required')) {
+      issues.push(`Required form field '${fieldName}' is missing aria-required`);
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
 // ... (the rest of the file remains unchanged)
 
 /**
@@ -514,5 +558,6 @@ module.exports = {
   setSvgAttributes,
   validateLinkAccessibility,
   handleFakeLinks,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  validateFormAccessibility
 };

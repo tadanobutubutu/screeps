@@ -2,7 +2,6 @@
  * Main entry point for the application
  */
 
-<<<<<<< HEAD
 // Function to create in-page buttons
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
@@ -115,6 +114,79 @@ function ensureUniqueLandmarks() {
         });
     }
 
-    // New function3 logic
-    function function3() {
-      // TODO: Implement new function
+    // Harvest logic to collect and aggregate accessibility results
+    function harvestLogic() {
+      return new Promise((resolve, reject) => {
+        axe.run((err, results) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          const harvestData = {
+            timestamp: new Date().toISOString(),
+            url: window.location.href,
+            summary: {
+              totalViolations: results.violations.length,
+              totalPasses: results.passes.length,
+              totalIncomplete: results.incomplete.length,
+              totalInapplicable: results.inapplicable.length,
+            },
+            violations: results.violations.map(violation => ({
+              id: violation.id,
+              impact: violation.impact,
+              description: violation.description,
+              help: violation.help,
+              helpUrl: violation.helpUrl,
+              nodes: violation.nodes.map(node => ({
+                html: node.html,
+                target: node.target,
+                any: node.any.map(item => item.id),
+                all: node.all.map(item => item.id),
+              })),
+            })),
+            passes: results.passes.map(pass => ({
+              id: pass.id,
+              impact: pass.impact,
+              description: pass.description,
+              help: pass.help,
+              nodes: pass.nodes.map(node => ({
+                html: node.html,
+                target: node.target,
+              })),
+            })),
+            incomplete: results.incomplete.map(incomplete => ({
+              id: incomplete.id,
+              impact: incomplete.impact,
+              description: incomplete.description,
+              nodes: incomplete.nodes.map(node => ({
+                html: node.html,
+                target: node.target,
+                any: node.any.map(item => item.id),
+              })),
+            })),
+          };
+
+          resolve(harvestData);
+        });
+      });
+    }
+
+    // Save harvest results to a file
+    function saveHarvestResults(harvestData, outputPath) {
+      try {
+        const jsonData = JSON.stringify(harvestData, null, 2);
+        fs.writeFileSync(outputPath, jsonData, 'utf8');
+        return true;
+      } catch (error) {
+        console.error('Error saving harvest results:', error);
+        return false;
+      }
+    }
+
+    // Export harvest functions for external use
+    module.exports = {
+      harvestLogic,
+      saveHarvestResults,
+    };
+})();

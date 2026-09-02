@@ -197,4 +197,89 @@ const checkTableStructure = function(tableElement) {
   };
 };
 
+// Render dependency graph of main components
+function renderDependencyGraph() {
+  // Collect key components and their relationships
+  const components = [
+    { id: 'main', type: 'main', role: 'main' },
+    { id: 'header', type: 'header', role: 'banner' },
+    { id: 'nav', type: 'navigation', role: 'navigation' },
+    { id: 'aside', type: 'complementary', role: 'complementary' },
+    { id: 'footer', type: 'contentinfo', role: 'contentinfo' },
+    { id: 'landmarks', type: 'landmark', role: 'banner' }
+  ];
+
+  // Create a simple dependency graph representation
+  const graph = {
+    nodes: components,
+    edges: [
+      { from: 'main', to: 'header' },
+      { from: 'main', to: 'nav' },
+      { from: 'main', to: 'aside' },
+      { from: 'main', to: 'footer' },
+      { from: 'header', to: 'nav' },
+      { from: 'nav', to: 'aside' },
+      { from: 'aside', to: 'footer' }
+    ]
+  };
+
+  // Attach to DOM - create a container for the graph
+  const container = document.getElementById('dependency-graph');
+  if (container) {
+    container.innerHTML = `
+      <div class="dependency-graph">
+        <h3>Dependency Graph</h3>
+        <pre>${JSON.stringify(graph, null, 2)}</pre>
+      </div>
+    `;
+  }
+
+  // Also log to console for debugging
+  console.log('Dependency Graph:', graph);
+}
+
+// Index all accessible views and elements
+function indexViews() {
+  const index = {
+    main: document.getElementById('main'),
+    header: document.getElementById('header'),
+    nav: document.getElementById('nav'),
+    aside: document.getElementById('aside'),
+    footer: document.getElementById('footer')
+  };
+
+  const viewList = [];
+
+  // Collect main view elements
+  Object.keys(index).forEach(key => {
+    const el = index[key];
+    if (el) {
+      viewList.push({
+        id: key,
+        element: el,
+        type: key.charAt(0).toUpperCase() + key.slice(1),
+        role: el?.getAttribute('role') || 'unknown'
+      });
+    }
+  });
+
+  // Store in global variable for later use
+  window.indexedViews = viewList;
+
+  // Display index in the DOM if container exists
+  const container = document.getElementById('index-views');
+  if (container) {
+    container.innerHTML = `
+      <div class="index-views">
+        <h3>Index of Views</h3>
+        <ul>
+          ${viewList.map(v => `<li><strong>${v.id}</strong>: ${v.type} (${v.role})</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  console.log('Indexed Views:', viewList);
+}
+
 // ... (rest of the code preserved with minor adjustments)

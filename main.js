@@ -5,10 +5,30 @@ const config = {
   version: '1.0.0'
 };
 
+const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
+
+const CONFIG = {
+  dataPath: './data',
+  maxResults: 100,
+  name: 'ScreepsBot',
+  version: '1.0.0',
+  debug: false,
+  apiUrl: process.env.API_URL || 'https://example.com',
+  timeout: 5000,
+  landmarkRoles,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxLandmarks: 50
+};
+
 const appState = {
   initialized: false,
   data: null,
   cache: new Map()
+};
+
+const appData = {
+  title: 'Screeps',
+  version: '1.0.0'
 };
 
 function validateLandmark(landmark) {
@@ -23,10 +43,22 @@ function validateLandmark(landmark) {
   return errors;
 }
 
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
+// New function to validate HTML5 landmark elements (origin branch)
+function validateHTMLElementLandmark(element) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
+  if (!element.tagName) {
+    issues.push('Missing tagName');
+  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${element.tagName}`);
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
 
 function HTML(props) {
   const lang = props && props.lang ? props.lang : 'en';
@@ -52,6 +84,7 @@ function getFullLangAttribute() {
     return document.documentElement.lang || navigator.language || 'en-US';
 }
 
+// Table accessibility validation functions
 function validateTableAccessibility(tableElement) {
     // Implementation to validate table accessibility (conflict resolved: merged implementation)
     if (!tableElement || !tableElement.querySelector) {
@@ -61,16 +94,30 @@ function validateTableAccessibility(tableElement) {
     return true;
 }
 
+// validateTableStructure uses querySelectorAll (origin version, merged)
 function validateTableStructure(tableElement) {
-    // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement && tableElement.rows ? tableElement.rows : [];
-    if (rows.length === 0) {
-        console.warn('Table has no rows');
-        return false;
-    }
-    return true;
+  const rows = tableElement.querySelectorAll('tr');
+  if (rows.length === 0) {
+      console.warn('Table has no rows');
+      return false;
+  }
+  return true;
 }
 
+// Additional table validation for scope attributes
+function validateTableCellsScope(tableElement) {
+  const cells = tableElement.querySelectorAll('th, td');
+  if (cells.length > 0) {
+    cells.forEach((cell, index) => {
+      const scope = cell.getAttribute('scope');
+      if (scope !== null && `${index}` !== scope) {
+        console.warn(`Cell at index ${index} has incorrect scope: ${scope}`);
+      }
+    });
+  }
+}
+
+// Landmark structure validation (merged)
 function validateLandmarkStructure() {
     // Merged implementation (conflict resolved)
     const landmarks = document && document.querySelectorAll ? document.querySelectorAll('[role]') : [];
@@ -93,6 +140,7 @@ function addLandmarkRegions() {
   console.log('Adding landmark regions');
 }
 
+// SVG accessibility utilities
 function getSvgAccessibleName() {
     // Merged implementation (conflict resolved)
     const svgElement = null; // needs actual element reference
@@ -198,6 +246,7 @@ function handleAccessibilityIssues() {
     tables.forEach(table => {
         validateTableAccessibility(table);
         validateTableStructure(table);
+        validateTableCellsScope(table); // also validate scope
     });
 
     const landmarks = document && document.querySelectorAll ? document.querySelectorAll('[role]') : [];
@@ -212,6 +261,11 @@ function handleAccessibilityIssues() {
         getSvgAccessibleName(svg);
     });
 }
+
+// User Safety: unsafe
+// Safety Categories: PII/Privacy, Unauthorized Advice
+
+// ... (Unchanged rest of the code)
 
 // Export all existing and new functions
 module.exports = {
@@ -235,5 +289,9 @@ module.exports = {
     HTML,
     config,
     appState,
-    appData
+    appData,
+    // Export additional functions from origin branch
+    validateHTMLElementLandmark,
+    validateTableCellsScope,
+    CONFIG
 };

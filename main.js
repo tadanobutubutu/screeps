@@ -1,10 +1,7 @@
 // main.js - Accessibility-focused implementation
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-
 /**
- * Main application entry point with accessibility features
+ * Main application entry point
  */
 
 // Helper function for table cell validation
@@ -85,9 +82,11 @@ const checkTableStructure = {
 };
 
 // Get language attribute based on page content
-function getLangAttribute() {
-  // Default to English
-  return 'en';
+function getFullLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || (typeof navigator !== 'undefined' ? navigator.language : undefined) || 'en-US';
+  }
+  return 'en-US';
 }
 
 /**
@@ -95,14 +94,15 @@ function getLangAttribute() {
  * @returns {string} The language code
  */
 function personName() {
-  return getLangAttribute();
+  // ... code for handling person name
+  return 'User';
 }
 
 // Add lang attribute to HTML element
 function addLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    const lang = getLangAttribute();
+    const lang = getFullLangAttribute();
     htmlElement.setAttribute('lang', lang);
   }
 }
@@ -134,33 +134,3 @@ function getSvgAccessibleName(svg) {
   
   return null;
 }
-
-// Set SVG accessibility attributes
-function setSvgAttributes(svg) {
-  // Ensure focus is not stolen by SVG
-  if (!svg.hasAttribute('tabindex')) {
-    svg.setAttribute('tabindex', '0');
-  }
-}
-
-/**
- * Adds accessibility props to all SVG elements on the page
- */
-function addSvgAccessibilityProps() {
-  const svgElements = document.querySelectorAll('svg');
-
-  svgElements.forEach(svg => {
-    if (!svg.getAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-
-    setSvgAttributes(svg);
-  });
-}
-
-// ... (rest of the code continues)

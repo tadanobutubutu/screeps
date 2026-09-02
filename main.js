@@ -9,7 +9,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues
@@ -18,13 +18,14 @@ function validateLandmarkStructure() {
     const missingLandmarks = [];
 
     requiredLandmarks.forEach(landmark => {
-        if (!document.querySelector(landmark)) {
+        const element = document.querySelector(landmark);
+        if (!element) {
             missingLandmarks.push(landmark);
         }
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
         return false;
     }
 

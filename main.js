@@ -41,14 +41,37 @@ const HTML = ({ lang }) => {
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-function getLangAttribute() {
-    // Implementation to get language attribute
-    return document.documentElement.lang || 'en';
-}
+// TODO: This is the modified and merged code
 
-function getFullLangAttribute() {
-    // Implementation to get full language attribute
-    return document.documentElement.lang || navigator.language || 'en-US';
+// Function to count dependencies in package.json
+function countDependencies() {
+  try {
+    const packageJson = require('./package.json');
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    const peerDependencies = packageJson.peerDependencies || {};
+    const optionalDependencies = packageJson.optionalDependencies || {};
+
+    return {
+      dependencies: Object.keys(dependencies).length,
+      devDependencies: Object.keys(devDependencies).length,
+      peerDependencies: Object.keys(peerDependencies).length,
+      optionalDependencies: Object.keys(optionalDependencies).length,
+      total: Object.keys(dependencies).length + 
+             Object.keys(devDependencies).length + 
+             Object.keys(peerDependencies).length + 
+             Object.keys(optionalDependencies).length
+    };
+  } catch (error) {
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      peerDependencies: 0,
+      optionalDependencies: 0,
+      total: 0,
+      error: error.message
+    };
+  }
 }
 
 function validateTableAccessibility(tableElement) {
@@ -111,7 +134,6 @@ function setSvgAttributes(svg, accessibleName) {
       svg.setAttribute('aria-label', accessibleName);
     }
   }
-  return svg;
 }
 
 function ensureUniqueLandmarks(landmarksArg) {
@@ -217,8 +239,6 @@ function handleAccessibilityIssues() {
 
 // Export all existing and new functions
 module.exports = {
-    getLangAttribute,
-    getFullLangAttribute,
     validateTableAccessibility,
     validateTableStructure,
     validateLandmark,
@@ -233,5 +253,6 @@ module.exports = {
     validateInput,
     processData,
     addLandmarkRegions,
-    setSvgAttributes
+    setSvgAttributes,
+    countDependencies
 };

@@ -126,4 +126,12 @@ function ensureUniqueLandmarks() {
     function function3() {
       // TODO: Implement new function
     }
+
+    // Ensure the dependencyGraph container has a proper ARIA role
+    if (dependencyGraph) {
+      const currentRole = dependencyGraph.getAttribute('role');
+      if (!currentRole || currentRole !== 'graph') {
+        dependencyGraph.setAttribute('role', 'graph');
+      }
+    }
 })();

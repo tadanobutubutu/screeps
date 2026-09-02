@@ -92,7 +92,7 @@ function generateAccessibilityReport() {
   return report;
 }
 
-// Utilities
+// Utility functions
 const { validateInput, processData } = require('./utils/validators');
 const { formatResponse } = require('./utils/processor');
 
@@ -112,7 +112,70 @@ if (require.main === module) {
 }
 
 async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
+    // Run axe-core scanning
+    const axeResult = await axe.run({
+        url: 'https://example.com', // Placeholder URL
+        // other options...
+    });
+
+    // Handle credential response
+    const credentials = await handleCredentialResponse(axeResult);
+
+    return {
+        issues: axeResult.issues,
+        credentials: credentials
+    };
+}
+
+/**
+ * Handle credential response - parse, validate, and store credentials
+ * This function should be called when a credential response is received
+ */
+async function handleCredentialResponse(response) {
+    try {
+        // Parse the response (assuming JSON format)
+        const parsed = JSON.parse(response);
+        
+        // Extract credentials from the response
+        // The structure may vary depending on the API, but typically 
+        // credentials would be under a 'credentials' key
+        const credentials = parsed.credentials || {};
+        
+        if (Object.keys(credentials).length === 0) {
+            console.warn('No credentials found in response');
+            return {};
+        }
+        
+        // Validate credentials (basic validation)
+        const validated = validateCredentials(credentials);
+        
+        if (validated) {
+            console.log('Credentials successfully handled:', validated);
+            return validated;
+        } else {
+            console.warn('Invalid credentials received');
+            return {};
+        }
+    } catch (error) {
+        console.error('Error processing credential response:', error.message);
+        throw error;
+    }
+}
+
+/**
+ * Helper function to validate credentials
+ */
+function validateCredentials(credentials) {
+    // Basic validation logic - adjust as needed
+    const valid = Object.keys(credentials).every(key => {
+        return typeof key === 'string' && key.length > 0;
+    });
+    
+    if (valid) {
+        return credentials;
+    }
+    
+    return {};
 }
 
 /**
@@ -208,7 +271,7 @@ module.exports = {
   addLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
-  fixTableStructure,
+  fixTableAccessibility,
   addMainLandmark,
   validateLandmark,
   validateLandmarkStructure,

@@ -76,7 +76,7 @@ function clearCache() {
   appState.cache.clear();
 }
 
-// Helper function
+// Some function
 function someFunction() {
   return 'some value';
 }
@@ -107,105 +107,6 @@ const {
 // Helper function to validate landmark structure
 function getLangAttribute() {
   return document.documentElement.getAttribute('lang');
-}
-
-// New function to analyze module dependencies
-function analyzeModuleDependencies(modules) {
-  // Implementation would analyze and return dependency relationships
-  console.log('Analyzing dependencies for modules:', modules);
-  return {
-    totalDependencies: 0,
-    dependencyMap: {}
-  };
-}
-
-// New function to visualize module relationships
-function visualizeModuleRelationships(modules) {
-  // Implementation would create a visual representation of module relationships
-  console.log('Visualizing relationships for modules:', modules);
-  return {
-    graph: {},
-    nodes: [],
-    edges: []
-  };
-}
-
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-// Helper function to format dates
-function formatDate(date) {
-  return new Date(date).toISOString();
-}
-
-// Validate input helper
-function validateInputFn(input) {
-  return input && typeof input === 'string' && input.trim().length > 0;
-}
-
-// Process data helper
-function processDataFn(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
-}
-
-// Some function
-function someFunction() {
-  return 'some function';
-}
-
-// Landmark processing functions
-function processLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const validLandmarks = landmarks.filter(isValidLandmark);
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-  return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
-
-function sortLandmarks(landmarks, ascending = true) {
-  return landmarks.slice().sort((a, b) => {
-    const nameA = (a.name || '').toLowerCase();
-    const nameB = (b.name || '').toLowerCase();
-
-    if (ascending) {
-      return nameA.localeCompare(nameB);
-    }
-    return nameB.localeCompare(nameA);
-  });
-}
-
-function getLandmarkById(landmarks, id) {
-  return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const seen = new Set();
-  const uniqueLandmarks = [];
-
-  for (const landmark of landmarks) {
-    if (!landmark || typeof landmark.id === 'undefined') {
-      continue;
-    }
-
-    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-    if (!seen.has(landmarkId)) {
-      seen.add(landmarkId);
-      uniqueLandmarks.push(landmark);
-    }
-  }
-
-  return uniqueLandmarks;
 }
 
 // Write report to file
@@ -285,3 +186,56 @@ function improveAccessibility() {
   fixTableHeaderCellScope();
   addMainLandmark();
   addSvgAccessibleNames();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+  addLandmarkRoles();
+  renderDependencyGraph();
+  displayModuleStructure();
+  countDependencies();
+  analyzeModuleDependencies();
+  visualizeModuleRelationships();
+}
+
+// Landmark processing functions
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+  return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+function sortLandmarks(landmarks, ascending = true) {
+  return landmarks.slice().sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase();
+    const nameB = (b.name || '').toLowerCase();
+
+    if (ascending) {
+      return nameA.localeCompare(nameB);
+    }
+    return nameB.localeCompare(nameA);
+  });
+}
+
+function getLandmarkById(landmarks, id) {
+  return landmarks.find(landmark => landmark.id === id) || null;
+}
+
+function isValidLandmark(landmark) {
+  return landmark && landmark.name;
+}
+
+module.exports = {
+  app,
+  initializeApp,
+  fetchUser,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  improveAccessibility,
+  generateAccessibilityReport,
+  CONFIG
+};

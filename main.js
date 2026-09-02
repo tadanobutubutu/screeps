@@ -375,6 +375,81 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+/**
+ * Handles the credential response from authentication providers.
+ * Processes the response object and determines if authentication was successful.
+ * @param {Object} credentialResponse - The response object from the credential provider
+ * @param {string} credentialResponse.credential - The JWT token from the credential response
+ * @param {string} [credentialResponse.select_by] - How the credential was selected
+ * @returns {Object} An object containing success status and parsed credential data
+ */
+function newFunction(credentialResponse) {
+    // Validate input
+    if (!credentialResponse) {
+        return {
+            success: false,
+            error: 'No credential response provided'
+        };
+    }
+
+    // Check if credential exists
+    if (!credentialResponse.credential) {
+        return {
+            success: false,
+            error: 'No credential token found in response'
+        };
+    }
+
+    try {
+        // Parse the JWT token to extract user information
+        const tokenParts = credentialResponse.credential.split('.');
+        
+        if (tokenParts.length !== 3) {
+            return {
+                success: false,
+                error: 'Invalid credential token format'
+            };
+        }
+
+        // Decode the payload (middle part of JWT)
+        const payload = JSON.parse(atob(tokenParts[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+        // Extract relevant user information from the token
+        const userData = {
+            email: payload.email || null,
+            name: payload.name || null,
+            picture: payload.picture || null,
+            sub: payload.sub || null, // Unique user identifier
+            email_verified: payload.email_verified || false,
+            issued_at: payload.iat ? new Date(payload.iat * 1000) : null,
+            expiration: payload.exp ? new Date(payload.exp * 1000) : null
+        };
+
+        // Check if the token has expired
+        if (userData.expiration && new Date() > userData.expiration) {
+            return {
+                success: false,
+                error: 'Credential token has expired',
+                user: userData
+            };
+        }
+
+        // Return successful response with user data
+        return {
+            success: true,
+            user: userData,
+            select_by: credentialResponse.select_by || 'unknown',
+            raw_credential: credentialResponse.credential
+        };
+
+    } catch (error) {
+        return {
+            success: false,
+            error: `Failed to parse credential: ${error.message}`
+        };
+    }
+}
+
 // Don't forget to test your new additions in the test file
 
 // Export the function for testing and external use

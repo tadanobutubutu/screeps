@@ -278,6 +278,30 @@ useEffect(() => {
 // Assuming main.js already exports the renderDependencyGraph and renderIndexView functions
 // No need to handle those conflicts here
 
+/**
+ * Renders a dependency graph visualization
+ * @returns {string} The rendered graph data
+ */
+function renderDependencyGraph() {
+  // Placeholder implementation - returns empty string for now
+  return '';
+}
+
+/**
+ * Renders an index view of the application
+ * @returns {string} The rendered index view
+ */
+function renderIndexView() {
+  // Placeholder implementation - returns empty string for now
+  return '';
+}
+
+// REACT_015: Add lang attribute to HTML element
+// Add the language attribute to the HTML element for proper accessibility
+useEffect(() => {
+  detectAndSetLang();
+}, []);
+
 module.exports = {
   setHtmlLangAttribute,
   getLangAttribute,
@@ -293,5 +317,7 @@ module.exports = {
   setSvgAttributes,
   ensureUniqueLandmarks,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  renderDependencyGraph,
+  renderIndexView
 };

@@ -229,6 +229,12 @@ function addLangAttribute() {
     document.documentElement.setAttribute('lang', 'en');
 }
 
+// SVG favicon accessible name helper
+function getAccessibleSvgFavicon(text, label) {
+    const encodedLabel = encodeURIComponent(label || text);
+    return `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 aria-labelledby=%22svg-title%22><title id=%22svg-title%22>${encodedLabel}</title><text y=%22.9em%22 font-size=%2290%22>${encodeURIComponent(text)}</text></svg>`;
+}
+
 // Export functions to make them accessible
 module.exports = {
     affectedFunction,
@@ -249,7 +255,8 @@ module.exports = {
     addAriaLabel,
     ensureElementAccessibility,
     ensureElementHasId,
-    addLangAttribute
+    addLangAttribute,
+    getAccessibleSvgFavicon
 };
 
 // Also attach to global scope for browser/standalone access
@@ -273,4 +280,5 @@ if (typeof window !== 'undefined') {
     window.ensureElementAccessibility = ensureElementAccessibility;
     window.ensureElementHasId = ensureElementHasId;
     window.addLangAttribute = addLangAttribute;
+    window.getAccessibleSvgFavicon = getAccessibleSvgFavicon;
 }

@@ -443,6 +443,33 @@ function analyzeAccessibility(issuesData) {
   return issuesData || [];
 }
 
+// Harvest logic implementation
+function harvest(options = {}) {
+  const harvestOptions = {
+    includeMetadata: true,
+    sorted: true,
+    ascending: true,
+    ...options
+  };
+
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = harvestOptions.sorted ? sortLandmarks(processed, harvestOptions.ascending) : processed;
+
+  const harvestedData = {
+    count: sorted.length,
+    landmarks: sorted,
+    metadata: harvestOptions.includeMetadata ? {
+      appName: config.name,
+      appVersion: config.version,
+      harvestedAt: new Date().toISOString(),
+      maxResults: config.maxResults
+    } : null
+  };
+
+  return harvestedData;
+}
+
 function main() {
   const initialized = initialize();
   if (initialized) {
@@ -500,6 +527,7 @@ module.exports = {
   validateLandmarkAttributes,
   getSvgAccessibleName,
   validateLinkAccessibility,
+  harvest,
   functionA: {
     X: 'valueX',
     Y: 'valueY',

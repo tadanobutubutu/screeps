@@ -10,6 +10,7 @@
  * - REACT_037: Google sign-in logic (handled by googleSignIn())
  * - REACT_040: Replace my-button with actual button id for accessibility (handled by fixButtonIdentifiers())
  * - REACT_042: Ensure dependencyGraph container has proper ARIA role (handled by ensureDependencyGraphAriaRole())
+ */
 
 /**
  * Get the language attribute value for the HTML element

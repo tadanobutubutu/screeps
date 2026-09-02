@@ -3,6 +3,9 @@
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
 
+// User Safety: unsafe
+// Safety Categories: Fraud/Deception, Unauthorized Advice
+
 // TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');

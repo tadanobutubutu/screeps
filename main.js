@@ -451,6 +451,25 @@ function calculateAccessibilityScore() {
   return AddressabilityIssues.calculateAccessibilityScore([]);
 }
 
+// Identify and update renderDependencyGraph function to render dependency graphs in a container
+AddressabilityIssues.renderDependencyGraph = function renderDependencyGraph(graphData, container) {
+  if (!container) return;
+  container.innerHTML = '';
+  const graphContainer = document.createElement('div');
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+  container.appendChild(graphContainer);
+
+  if (graphData && graphData.nodes) {
+    graphData.nodes.forEach(node => {
+      const nodeElement = document.createElement('div');
+      nodeElement.textContent = node.label || node.id;
+      nodeElement.setAttribute('role', 'listitem');
+      graphContainer.appendChild(nodeElement);
+    });
+  }
+};
+
 // Export functions for testing
 module.exports = {
   processSvgElements,

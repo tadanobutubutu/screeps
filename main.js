@@ -67,7 +67,29 @@ function addMainLandmark() {
  * @returns {boolean} True if landmark is valid
  */
 function validateLandmark(landmark) {
-  // Implementation to be added
+  if (!landmark || !(landmark instanceof HTMLElement)) {
+    return false;
+  }
+
+  // Check if it's a valid HTML5 landmark element
+  const html5Landmarks = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
+  const isHtml5Landmark = html5Landmarks.includes(landmark.tagName.toLowerCase());
+
+  // Check if it's a valid ARIA landmark role
+  const ariaLandmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'region', 'search'];
+  const role = landmark.getAttribute('role');
+  const isAriaLandmark = role && ariaLandmarkRoles.includes(role);
+
+  // Must be either HTML5 landmark or ARIA landmark
+  if (!isHtml5Landmark && !isAriaLandmark) {
+    return false;
+  }
+
+  // Validate structure and attributes
+  const structureValid = validateLandmarkStructure(landmark);
+  const attributesValid = validateLandmarkAttributes(landmark);
+
+  return structureValid && attributesValid;
 }
 
 /**
@@ -77,6 +99,7 @@ function validateLandmark(landmark) {
  */
 function validateLandmarkStructure(landmark) {
   // Implementation to be added
+  return true;
 }
 
 /**
@@ -86,6 +109,7 @@ function validateLandmarkStructure(landmark) {
  */
 function validateLandmarkAttributes(landmark) {
   // Implementation to be added
+  return true;
 }
 
 /**

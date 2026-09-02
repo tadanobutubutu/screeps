@@ -80,6 +80,17 @@ function updateAccessibleElements () {
 // Call the new function or add it to an existing lifecycle method, event listener, etc.
 updateAccessibleElements()
 
+// TODO: Add a language attribute to the HTML element
+function setHtmlLanguageAttribute(lang) {
+    const htmlElement = document.documentElement;
+    if (htmlElement && lang) {
+        htmlElement.setAttribute('lang', lang);
+    }
+}
+
+// Set default language attribute on the HTML element
+setHtmlLanguageAttribute('en');
+
 // Export any new functions if necessary (not provided in the issue, so assuming no new exports)
 // export { updateAccessibleElements };
 

@@ -1,4 +1,4 @@
-// Example of a resolved main.js file with exports for functionA, functionB, createInPageButton, setupKeyboardNavigation, updateAccessibleElements, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, ensureUniqueLandmarks, createAccessibleLink, isLinkAccessible, validateFormAccessibility, validateImageAccessibility, validateButtonAccessibility, renderDependencyGraph, renderIndexView, towerDefense
+// TODO: Identify and update specific functions as needed
 
 // ... existing code ...
 
@@ -38,7 +38,7 @@ function createInPageButton(options) {
         if (containerElement) {
             containerElement.appendChild(button);
         }
-    } else {
+    } else if (settings.container) {
         settings.container.appendChild(button);
     }
 
@@ -55,7 +55,7 @@ function functionB() {
     return 'functionB result';
 }
 
-function setupKeyboardNavigation() {
+function initKeyboardNavigation() {
   if (typeof document === 'undefined') return;
 
   // Focus management for keyboard users
@@ -79,13 +79,13 @@ function setupKeyboardNavigation() {
       const role = activeElement.getAttribute('role');
       if (role === 'menuitem' || role === 'tab') {
         e.preventDefault();
-        navigateWithKeyboard(e.key, activeElement);
+        navigateToSibling(activeElement, e.key);
       }
     }
   });
 
   // Helper function for keyboard navigation
-  function navigateWithKeyboard(key, element) {
+  function navigateToSibling(element, key) {
     const parent = element.parentElement;
     if (!parent) return;
 
@@ -114,6 +114,6 @@ function setupKeyboardNavigation() {
 }
 
 // Global imports for consistency
-module.exports.createInPageButton = createInPageButton;
-module.exports.setupKeyboardNavigation = setupKeyboardNavigation;
+const createInPageButtonExport = createInPageButton;
+const initKeyboardNavigationExport = initKeyboardNavigation;
 // The rest of your exports can be included as TODO:ed functions and pushed to the module.exports object after they have been implemented

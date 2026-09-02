@@ -546,5 +546,7 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  towerDefense
+  towerDefense,
+  functionA,
+  functionB
 };

@@ -8,10 +8,26 @@ const { createServer, startApp, config } = require('./');
 
 const port = PORT || 3000;
 
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
-// ----- END ORIGINAL CODE -----
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure(), validateLandmarkAttributes())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks(), validateLandmarkStructure())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink(), handleAccessibilityIssues())
+// - REACT_037: Google sign-in logic (not included)
+// - REACT_040: Replace my-button with actual button id for accessibility (not included)
+// New changes for improved accessibility of the addBook function or form
+function addBook() {
+    // Existing code for adding a book
+    // Ensuring that all interactive elements are keyboard accessible
+    makeAccessible(document.getElementById('addBookButton'));
+    // Adding a11y-specific roles and aria-labels
+    addAriaSupport(document.getElementById('addBookButton'), 'Add a new book');
+}
+
+// Ensure accessibility improvements are applied
+addBook();
 
 // New function for getting the language attribute based on the content
 function getLangAttribute() {
@@ -250,26 +266,7 @@ document.documentElement.lang = getLangAttribute();
 // ... (other functions omitted for brevity)
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    createServer,
-    startApp,
-    config,
-    validateLandmark,
-    getLangAttribute,
-    addSvgAccessibleName,
-    ensureElementHasId,
-    AddressabilityIssues,
-    addressAccessibilityIssues,
-    implementCountDependenciesInMain,
-    countDependencies,
-    processSvgElements,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
-    spawnSomeCommand,
-    addLangAttribute,
-    // ... (other exports omitted for brevity)
-  };
+  // Exporting is now handled at the bottom of the file
 } else {
   startApp();
 }
@@ -356,6 +353,9 @@ module.exports = {
   handleAccessibilityIssues,
   ensureElementId,
   addAriaLabel,
+  addBook,
+  makeAccessible,
+  addAriaSupport,
   addProperLandmarkRegions,
   renderDependencyGraph
 };

@@ -276,6 +276,12 @@ function getLangAttribute() {
     return 'en';
 }
 
+// New function: set the lang attribute on the HTML element
+function setLangAttribute(lang) {
+    const html = document.documentElement;
+    html.setAttribute('lang', lang);
+}
+
 function countDependencies() {
     const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -364,4 +370,15 @@ app.listen(PORT, () => {
     console.log(`Screeps API Server running on port ${PORT}`);
 });
 
-module.exports = { app, generateAccessibilityReport, getGameDataSummary, ensureDependencyGraphARIA, getLangAttribute, setSvgAttributes, main, checkLandmarkElements, countDependencies };
+module.exports = { 
+    app, 
+    generateAccessibilityReport, 
+    getGameDataSummary, 
+    ensureDependencyGraphARIA, 
+    getLangAttribute, 
+    setLangAttribute,
+    setSvgAttributes, 
+    main, 
+    checkLandmarkElements, 
+    countDependencies 
+};

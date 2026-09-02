@@ -70,6 +70,7 @@ function initialize() {
 // Initialize app function
 function initializeApp() {
   initialize();
+  improveAccessibility();
   return appState;
 }
 

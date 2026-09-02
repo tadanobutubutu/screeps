@@ -54,7 +54,7 @@ function checkLandmarkElements(htmlContent) {
   // Check for each landmark element in the HTML content
   LANDMARK_ELEMENTS.forEach(landmark => {
     // Use case-insensitive regex to find landmark elements
-    const regex = new RegExp(`<${landmark}`, 'gi');
+    const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
     const matches = htmlContent.match(regex);
     if (matches) {
       foundLandmarks[landmark] = matches.length;
@@ -103,7 +103,7 @@ function createInPageButton(options) {
 
   // Create button object
   const button = {
-    id: id || `btn-${Date.now()}`,
+    id: id || `button-${Date.now()}`,
     text: String(text),
     title: title || '',
     className: className || 'default-button',
@@ -134,7 +134,7 @@ function createInPageButton(options) {
 function countDependencies() {
   // New implementation to count dependencies using dependencyGraphContent and regex
   const importCommentRegExp = /import\s+.*\s+from\s+/g;
-  const importCount = (dependencyGraphContent && dependencyGraphContent.match(importCommentRegExp)) || [];
+  const importCount = (dependencyGraphContent && dependencyGraphContent.imports) || [];
   return importCount.length;
 }
 
@@ -218,14 +218,14 @@ function addLandmarkIds() {
 }
 
 // New function to check landmark elements in the DOM
-function checkLandmarkElementsInDOM() {
+function getLandmarkElementsInDOM() {
   return [];
 }
 
 // New function to add SVG accessibility props
 function addSvgAccessibilityProps(svg) {
   if (!svg) return;
-  if (!svg.hasAttribute('role')) {
+  if (!svg.getAttribute('aria-label') && !svg.getAttribute('title')) {
     svg.setAttribute('role', 'img');
   }
 }
@@ -255,35 +255,79 @@ function addLangAttribute() {
 // Call the function to apply the lang attribute
 addLangAttribute();
 
-// Example of addressing REACT_025: Add other accessibility changes as per the insight report
-// This is a placeholder for any other accessibility changes you need to implement
-// function ... {
-//   // Implement accessibility changes here
-// }
+// REACT_025: Address other accessibility changes as per the insight report
 
-module.exports = {
-  checkLandmarkElements,
-  createInPageButton,
-  countDependencies,
-  a11yStore,
-  addLandmarkRegions,
-  addressAccessibilityIssues,
-  LANDMARK_ELEMENTS,
-  getLangAttribute: addLangAttribute,
-  updateLiveRegion,
-  addLandmarkIds,
-  preserveExistingCode,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  ensureUniqueLandmarks,
-  renderIndexView,
-  newRequiredFunction,
-  additionalFunction,
-  createAccessibleWebResourceButton,
-  newFunction,
-  existingFunction
-};
+/**
+ * Ensures proper heading hierarchy for accessibility.
+ * Headings should follow a logical order (h1 -> h2 -> h3, etc.) without skipping levels.
+ * @param {string} htmlContent - The HTML content to check
+ * @returns {Object} - Object containing heading hierarchy analysis and any warnings
+ */
+function validateHeadingHierarchy(htmlContent) {
+  const warnings = [];
+  const headingRegex = /<h([1-6])[^>]*>(.*?)<\/h\1>/gi;
+  const headings = [];
+  let match;
+  
+  while ((match = headingRegex.exec(htmlContent)) !== null) {
+    headings.push({
+      level: parseInt(match[1], 10),
+      text: match[2].trim()
+    });
+  }
+  
+  // Check for proper hierarchy
+  for (let i = 1; i < headings.length; i++) {
+    const currentLevel = headings[i].level;
+    const previousLevel = headings[i - 1].level;
+    
+    // Skip more than one level is an a11y issue
+    if (currentLevel > previousLevel + 1) {
+      warnings.push(`Heading level skipped from h${previousLevel} to h${currentLevel}`);
+    }
+  }
+  
+  // Check for missing h1
+  if (headings.length > 0 && headings[0].level !== 1) {
+    warnings.push('Page should start with an h1 heading');
+  }
+  
+  return {
+    headings,
+    warnings,
+    isValid: warnings.length === 0
+  };
+}
+
+/**
+ * Ensures all form inputs have associated labels for screen reader accessibility.
+ * @param {string} htmlContent - The HTML content to check
+ * @returns {Object} - Object containing form label analysis and any warnings
+ */
+function validateFormLabelAssociation(htmlContent) {
+  const warnings = [];
+  const inputRegex = /<input[^>]*>/gi;
+  const labelRegex = /<label[^>]*for=["']([^"']+)["'][^>]*>/gi;
+  const labelledRegex = /<input[^>]*id=["']([^"']+)["'][^>]*>/gi;
+  
+  const inputs = [];
+  const labels = {};
+  const labelledInputs = {};
+  let match;
+  
+  // Find all inputs
+  while ((match = inputRegex.exec(htmlContent)) !== null) {
+    const inputHtml = match[0];
+    // Skip hidden inputs and buttons
+    if (!inputHtml.includes('type="hidden"') && !inputHtml.includes('type="submit"') && !inputHtml.includes('type="button"')) {
+      inputs.push(inputHtml);
+    }
+  }
+  
+  // Find labels with 'for' attribute
+  while ((match = labelRegex.exec(htmlContent)) !== null) {
+    labels[match[1]] = true;
+  }
+  
+  // Find inputs with id (potential label targets)
+  while ((match = labelled

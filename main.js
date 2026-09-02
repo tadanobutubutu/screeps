@@ -30,7 +30,7 @@ root.render(
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -214,7 +214,7 @@ function generateAccessibilityReport() {
   // Check for buttons without accessible name
   const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
-    const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
+    const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('title');
     if (!accessibleName) {
       issues.push({
         type: 'missing-name',
@@ -228,7 +228,7 @@ function generateAccessibilityReport() {
   // Check for links without accessible names
   const links = document.querySelectorAll('a');
   links.forEach((link, index) => {
-    const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
+    const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('title');
     if (!accessibleName) {
       issues.push({
         type: 'missing-name',
@@ -246,7 +246,7 @@ function generateAccessibilityReport() {
     if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
       const labelId = input.getAttribute('aria-labelledby');
       const labelText = input.getAttribute('aria-label');
-      const hasLabel = input.id && document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
+      const hasLabel = (input.id && document.querySelector(`label[for="${input.id}"]`)) || labelId || labelText;
       if (!hasLabel) {
         issues.push({
           type: 'missing-label',
@@ -338,6 +338,12 @@ function addressAccessibilityIssues() {
   const divElement = document.querySelector('div');
   if (divElement) {
     divElement.setAttribute('role', 'region');
+  }
+
+  // Adding the lang attribute to the HTML element
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', getLangAttribute());
   }
 }
 

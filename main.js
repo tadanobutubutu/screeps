@@ -1,24 +1,19 @@
-// TODO: This is the existing code that needs to be preserve
+const path = require('path');
+const fs = require('fs');
 
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
+// Existing code
+export function existingFunction1() {
+  // Existing implementation
+}
 
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
-// TODO: Add back any required exports that might have been removed
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: fa9b7e33f0cdeb6096b301e6b8bb56dc7873f56e_
-//<!-- todo-hash: 3eddfd1e15d7d6ffc2416c3cad0dbbe05524d4ed -->
+export function existingFunction2() {
+  // Existing implementation
+}
 
-// Import the required module
-const { someFunction } = { someFunction: () => 'someFunction result' };
+// New Function (myNewFunction)
+export function myNewFunction() {
+  return "New function implemented successfully";
+}
 
 // Address accessibility issues from insight report
 function addressAccessibilityIssues() {
@@ -39,21 +34,6 @@ function renderDependencyGraphContent(data) {
   if (container) {
     container.innerHTML = data;
   }
-}
-
-// Existing code
-export function existingFunction1() {
-  // Existing implementation
-}
-
-export function existingFunction2() {
-  // Existing implementation
-}
-
-// New Function (original commitment)
-export function myNewFunction() {
-  // Implement the new functionality (as per the original commitment)
-  return "New function implemented successfully";
 }
 
 // Function from the original branch (ensureUniqueLandmarks)
@@ -237,19 +217,19 @@ function ensureUniqueLandmarksDOM() {
   return uniqueLandmarkMap;
 }
 
-// Function to write the generated report to a file (from the original commitment)
+// Function to write the generated report to a file (writeReport)
 function writeReport(report) {
   const reportFile = path.join(__dirname, 'accessibility_report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// Function to read the generated report (from the original commitment)
+// Function to read the generated report (readReport)
 function readReport() {
   const reportFile = path.join(__dirname, 'accessibility_report.json');
   return JSON.parse(fs.readFileSync(reportFile, 'utf8'));
 }
 
-// Function to generate a report based on accessibility issues (combined implementation from both branches)
+// Function to generate a report based on accessibility issues (generateAccessibilityReport)
 async function generateAccessibilityReport() {
   const report = await scanAccessibility();
   writeReport(report);
@@ -263,7 +243,7 @@ async function scanAccessibility() {
     return results;
 }
 
-// Function to validate landmark elements (from the conflicting branch)
+// Function to validate landmark elements (validateLandmark)
 function validateLandmark(landmarkElement) {
     const landmarkName = landmarkElement.tagName.toLowerCase();
     const requiredLandmarks = ['main', 'nav', 'footer'];
@@ -290,29 +270,8 @@ function validateLandmark(landmarkElement) {
     };
 }
 
-// Main execution when run directly
-if (require.main === module) {
-  // ... (the rest of the existing main code)
-
-  // Add the functions from the conflicting branch
-  function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
-  }
-
-  function getLandmarkById(landmarks, id) {
-      return landmarks.find(landmark => landmark.id === id) || null;
-  }
-
-  // Function to validate landmarks (combined implementation)
-  function validateLandmarks(landmarks) {
+// Function to validate landmarks (validateLandmarks)
+function validateLandmarks(landmarks) {
     let validLandmarks = [];
 
     for (const landmark of landmarks) {
@@ -324,5 +283,46 @@ if (require.main === module) {
     }
 
     return validLandmarks;
-  }
+}
+
+// Function to write a report based on missing or duplicate landmarks (reportMissingLandmarks)
+function reportMissingLandmarks(landmarks, log = console.log) {
+    const duplicateLandmarks = [];
+
+    landmarks.forEach(landmark => {
+        if (!landmark.id || landmark.id === '') {
+            log('ERROR: Landmark missing id:', landmark);
+        }
+
+        const existingLandmark = getLandmarkById(landmarks, landmark.id);
+
+        if (existingLandmark && existingLandmark !== landmark) {
+            const uniqueLandmark = existingLandmark.id !== landmark.id ? existingLandmark : landmark;
+            duplicateLandmarks.push({
+                id: uniqueLandmark.id,
+                duplicate: [landmark, ...duplicateLandmarks],
+            });
+        }
+    });
+
+    if (duplicateLandmarks.length > 0) {
+        log('Duplicate landmarks found:', duplicateLandmarks);
+    }
+}
+
+// Add the functions from the conflicting branch
+function sortLandmarks(landmarks, ascending = true) {
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+
+        if (ascending) {
+            return nameA.localeCompare(nameB);
+        }
+        return nameB.localeCompare(nameA);
+    });
+}
+
+function getLandmarkById(landmarks, id) {
+    return landmarks.find(landmark => landmark.id === id) || null;
 }

@@ -25,8 +25,8 @@ function renderIndex(data, options = {}) {
     return indexContent(data, options);
 }
 
-// Add lang attribute to HTML element
-function getLangAttribute() {
+// Add lang attribute to HTML element (Renamed to avoid conflict)
+function getLangAttributeRenamed() {
     // Implementation to add lang attribute
     return document.documentElement.lang || navigator.language || 'en';
 }
@@ -36,13 +36,13 @@ const accessibilityUtils = require('./accessibility').accessibilityUtils;
 
 // Persist any new functions from the other conflict branch
 const {
-  createInPageButton,
+  createInPageButton: createInPageButtonFromOtherBranch,
   createWebResourceButton,
   validateLandmark,
   validateLandmarkStructure,
   validateAccessibilityReport,
   getSvgAccessibleName,
-  getLangAttribute,
+  getLangAttribute: getLangAttributeFromOtherBranch,
   getFullLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
@@ -51,8 +51,8 @@ const {
   handleAccessibilityErrors,
   handleAccessibilityIssues,
   createAccessibleLink,
-  handleAccessibilityErrors,
-  handleAccessibilityIssues,
+  handleAccessibilityErrors: handleAccessibilityErrorsFromOtherBranch,
+  handleAccessibilityIssues: handleAccessibilityIssuesFromOtherBranch,
   createInPageButton,
   newFocusTrap,
   transformInputData,
@@ -148,8 +148,20 @@ const {
   accessibilityUtils
 } = main;
 
+// Renamed conflicting function to preserve existing variable name
+const handleAccessibilityErrors = function(errors, context) {
+  handleAccessibilityErrorsFromOtherBranch(errors, context);
+};
+
+const handleAccessibilityIssues = function (issues) {
+  handleAccessibilityIssuesFromOtherBranch(issues);
+};
+
 module.exports = {
+  getLangAttribute: getLangAttributeRenamed,
   ...remainingMainFunctions,
   ...remainingDependencyAndIndexFunctions,
+  handleAccessibilityErrors,
+  handleAccessibilityIssues,
   accessibilityUtils
 };

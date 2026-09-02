@@ -12,7 +12,7 @@ const config = {
 const appState = {
   initialized: false,
   data: null,
-  cache: new Map(),
+  cache: new Map()
 };
 
 let icons = {};
@@ -57,24 +57,6 @@ function ensureUniqueLandmarks(landmarksArray) {
   }).filter(Boolean);
 }
 
-// Function to wrap primary content in a <main> element
-function wrapPrimaryContentInMain() {
-  // If primary content exists and is not already inside a <main> element
-  if (primaryContent && !primaryContent.closest('main')) {
-      // Create a new <main> element
-      const mainElement = document.createElement('main');
-
-      // Insert the <main> element before the primary content in the DOM
-      primaryContent.parentNode.insertBefore(mainElement, primaryContent);
-
-      // Move the primary content inside the <main> element
-      mainElement.appendChild(primaryContent);
-
-      return mainElement;
-  }
-  return null;
-}
-
 // Import required dependencies (merged from both branches)
 import React, { useState, useEffect, useRef } from 'react';
 import { List, Button } from 'antd';
@@ -87,25 +69,40 @@ import fastMap from 'fast-map';
 import path from 'path';
 import accessiblyHelper from './accessibly-helper';
 import { axe } from 'axe-core';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import './styles.css';
+import './styles.less';
+import { calculateSum } from './utils';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { CONFIG } from './utils/constants';
+import App from './App';
+import { helper, formatDate } from './utils';
+import { someFunction } from './utils/someFunction';
+import { fetchUser, clearCache } from './utils/user';
+import * as newFunctions from './newFunctions';
 
 // Import required functions from both branches
 const {
   sortByTitle: sortByTitleLocal,
   sortByAuthor: sortByAuthorLocal,
   validateLandmarkObject,
-  getLangAttribute,
+  getLangAttribute: getLangAttributeLocal,
   createInPageButton,
-  validateTableAccessibility,
-  validateLandmarkStructure,
+  validateTableAccessibility: validateTableAccessibilityLocal,
+  validateLandmarkStructure: validateLandmarkStructureLocal,
   getSvgAccessibleName,
   setSvgAttributes,
   ensureUniqueLandmarks: ensureUniqueLandmarksLocal2,
   addProperLandmarkRegions,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  someFunction,
-  fetchUser,
-  clearCache,
+  validateLinkAccessibility: validateLinkAccessibilityLocal,
+  handleFakeLinks: handleFakeLinksLocal,
+  someFunction: someFunctionLocal,
+  fetchUser: fetchUserLocal,
+  clearCache: clearCacheLocal,
   addSvgAccessibilityProps,
   getAccessibleLinkProps,
   landmarkStructureCheck,
@@ -140,84 +137,78 @@ export const newExportedFunction = () => {
 // Ensure accessibility attributes are set when adding a book
 ensureAccessibilityAttributesForAddBook();
 
-// TODO: Implement the logic to handle the credential response
-// This function should be called when a credential response is received
-// For example, you might parse the response, validate it, and then store or use the credentials
-function handleCredentialResponse(credentialResponse) {
-  // Validate that credential response is provided
-  if (!credentialResponse) {
-    console.error('Credential response is required');
-    return { success: false, error: 'Credential response is required' };
+// Find the primary content element in the DOM
+const primaryContent = document.querySelector('.primary-content') ||
+                        document.querySelector('[role="main"]') ||
+                        document.getElementById('main-content') ||
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
+// ----- END ORIGINAL CODE -----
+                        document.querySelector('#content');
+
+// Function to wrap primary content in a <main> element
+function wrapPrimaryContentInMain() {
+  // If primary content exists and is not already inside a <main> element
+  if (primaryContent && !primaryContent.closest('main')) {
+      // Create a new <main> element
+      const mainElement = document.createElement('main');
+
+      // Insert the <main> element before the primary content in the DOM
+      primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+
+      // Move the primary content inside the <main> element
+      mainElement.appendChild(primaryContent);
+
+      return mainElement;
   }
-
-  try {
-    // Parse the credential response if it's a string
-    let parsedResponse = credentialResponse;
-    if (typeof credentialResponse === 'string') {
-      parsedResponse = JSON.parse(credentialResponse);
-    }
-
-    // Validate the credential response structure
-    const validationResult = validateCredentialResponse(parsedResponse);
-    if (!validationResult.valid) {
-      console.error('Credential response validation failed:', validationResult.errors);
-      return { success: false, error: validationResult.errors.join(', ') };
-    }
-
-    // Extract and store credentials
-    const credentialData = extractCredentialData(parsedResponse);
-    
-    // Store the credential data for later use
-    storeCredentialData(credentialData);
-
-    // Dispatch an action or callback to notify the application
-    if (typeof onCredentialSuccess === 'function') {
-      onCredentialSuccess(credentialData);
-    }
-
-    console.log('Credential response handled successfully');
-    return { success: true, credentialData };
-
-  } catch (error) {
-    console.error('Error handling credential response:', error);
-    return { success: false, error: error.message || 'Unknown error occurred' };
-  }
+  return null;
 }
 
-// Helper function to validate the credential response structure
-function validateCredentialResponse(response) {
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
+function validateLandmarkObject(landmark) {
   const errors = [];
 
-  // Check if response has required properties
-  if (!response) {
-    errors.push('Response is null or undefined');
+  if (!landmark) {
+    errors.push('Landmark is required');
     return { valid: false, errors };
   }
 
-  // For WebAuthn/credential responses, validate the credential
-  if (response.credential) {
-    const credential = response.credential;
-    if (!credential.id) {
-      errors.push('Credential ID is missing');
-    }
-    if (!credential.type) {
-      errors.push('Credential type is missing');
-    }
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
   }
 
-  // For token-based responses
-  if (response.token || response.accessToken) {
-    if (typeof (response.token || response.accessToken) !== 'string') {
-      errors.push('Token must be a string');
-    }
-    if ((response.token || response.accessToken).trim() === '') {
-      errors.push('Token cannot be empty');
-    }
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
   }
 
-  // For generic responses, check for data or payload
-  if (!response.credential && !response.token && !response.accessToken && !response.data && !response.payload) {
-    errors.push('Response must contain credential, token, accessToken, data, or payload');
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  if (Array.isArray(landmark)) {
+    landmark.forEach((innerLandmark, index) => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push(`Landmark at index ${index} must have a valid name`);
+      }
+    });
   }
 
   return {
@@ -226,49 +217,32 @@ function validateCredentialResponse(response) {
   };
 }
 
-// Helper function to extract credential data from the response
-function extractCredentialData(response) {
-  return {
-    id: response.credential?.id || response.id || null,
-    type: response.credential?.type || response.type || 'credential',
-    token: response.token || response.accessToken || null,
-    data: response.data || response.payload || response.credential || null,
-    timestamp: Date.now(),
-    rawResponse: response
-  };
+// Function to add SVG accessibility props
+function addSvgAccessibilityProps(svgElement, label, labelledById) {
+  if (!svgElement) return;
+
+  const props = getSvgAccessibilityProps(label, labelledById);
+
+  // Apply the accessibility props to the SVG element
+  Object.keys(props).forEach(prop => {
+    svgElement.setAttribute(prop, props[prop]);
+  });
 }
 
-// Helper function to store credential data
-function storeCredentialData(credentialData) {
-  try {
-    // Store in session storage for session-based access
-    if (credentialData.token) {
-      sessionStorage.setItem('authToken', credentialData.token);
-    }
-    if (credentialData.id) {
-      sessionStorage.setItem('credentialId', credentialData.id);
-    }
-    // Store full credential data in a serialized format
-    sessionStorage.setItem('credentialData', JSON.stringify(credentialData));
-  } catch (error) {
-    console.warn('Unable to store credential data in session storage:', error);
-  }
-}
+const getAccessibleLinkProps = (href, label) => {
+  return {
+    href,
+    'aria-label': label,
+    role: 'link'
+  };
+};
 
 // Function to render a single book item
 function BookItem({ book }) {
   return {
-    type: 'List.Item',
-    props: {
-      key: generateKey(book),
-      children: {
-        type: 'List.Item.Meta',
-        props: {
-          title: book.title,
-          description: `by ${book.author}`
-        }
-      }
-    }
+    key: generateKey(book),
+    title: book.title,
+    description: `by ${book.author}`
   };
 }
 
@@ -296,52 +270,26 @@ function BookForm() {
 
   // Render the form
   return {
-    type: 'form',
-    props: {
+    form: {
       onSubmit: handleSubmit,
-      children: [
-        {
-          type: 'label',
-          props: {
-            htmlFor: 'title',
-            children: 'Title:'
-          }
-        },
-        {
-          type: 'input',
-          props: {
-            type: 'text',
-            id: 'title',
-            value: title,
-            onChange: handleTitleChange,
-            'aria-label': 'Book title'
-          }
-        },
-        {
-          type: 'label',
-          props: {
-            htmlFor: 'author',
-            children: 'Author:'
-          }
-        },
-        {
-          type: 'input',
-          props: {
-            type: 'text',
-            id: 'author',
-            value: author,
-            onChange: handleAuthorChange,
-            'aria-label': 'Book author'
-          }
-        },
-        {
-          type: 'button',
-          props: {
-            type: 'submit',
-            children: 'Add Book'
-          }
-        }
-      ]
+      titleInput: {
+        type: "text",
+        id: "title",
+        value: title,
+        onChange: handleTitleChange,
+        ariaLabel: "Book title"
+      },
+      authorInput: {
+        type: "text",
+        id: "author",
+        value: author,
+        onChange: handleAuthorChange,
+        ariaLabel: "Book author"
+      },
+      submitButton: {
+        type: "submit",
+        text: "Add Book"
+      }
     }
   };
 }
@@ -352,65 +300,13 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute() {
-    const htmlElement = document.querySelector('html');
-    if (htmlElement && !htmlElement.hasAttribute('lang')) {
-        htmlElement.setAttribute('lang', 'en');
-    }
-}
-
-function getFullLangAttribute() {
-    const htmlElement = document.querySelector('html');
-    return htmlElement ? htmlElement.getAttribute('lang') : null;
-}
-
-function ensureUniqueLandmarksFromString(landmarkString) {
-    const landmarks = landmarkString.split(',').map(l => l.trim());
-    const uniqueLandmarks = [...new Set(landmarks)];
-    return uniqueLandmarks.join(', ');
-}
-
-// REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks() {
-  const issues = [];
-  const landmarkTypes = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-
-  landmarkTypes.forEach(type => {
-    const landmarks = document.querySelectorAll(`[role="${type}"]`);
-    if (landmarks.length > 1) {
-      issues.push(`Multiple ${type} landmarks found - should be unique`);
-    }
-  });
-
-  return issues;
-}
-
-// REACT_025: Add proper landmark regions
-function addProperLandmarkRegions() {
-  const issues = [];
-  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
-
-  if (!mainContent) {
-    issues.push('Missing main landmark region');
-  }
-
-  return issues;
-}
-
-function validateLandmark() {
-    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
-    return landmarks.length > 0;
-}
-
 // REACT_015 & REACT_036: Create accessible in-page button
 function createInPageButton(buttonText, onClickHandler) {
   return {
-    type: 'button',
-    props: {
+    button: {
       onClick: onClickHandler,
       lang: getLangAttribute(),
-      children: buttonText
+      text: buttonText
     }
   };
 }
@@ -803,7 +699,6 @@ export {
   icons,
   countDependencies,
   addBook,
-  BookItem,
   defaultSorting,
   onTitleSort,
   onAuthorSort,

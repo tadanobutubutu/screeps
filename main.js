@@ -53,7 +53,7 @@ const {
   createAccessibleLink,
   handleAccessibilityErrors,
   handleAccessibilityIssues,
-  createInPageButton,
+  createInPageButton, // This duplicate declaration should be removed or resolved
   newFocusTrap,
   transformInputData,
   renderDependencyGraph,

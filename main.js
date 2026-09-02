@@ -360,12 +360,68 @@ export function addLangAttribute(element, lang = 'en') {
   handleArrowNavigation(key, activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
+
+    // Get all focusable elements in the document
+    const focusableElements = document.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (!focusableElements || focusableElements.length === 0) {
+      console.log('No focusable elements found for arrow navigation');
+      return;
+    }
+
+    const currentIndex = Array.from(focusableElements).indexOf(activeElement);
+    if (currentIndex === -1) {
+      console.log('Active element not found in focusable elements');
+      return;
+    }
+
+    let targetIndex;
+
+    switch (key) {
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        targetIndex = Math.max(0, currentIndex - 1);
+        break;
+      case 'ArrowDown':
+      case 'ArrowRight':
+        targetIndex = Math.min(focusableElements.length - 1, currentIndex + 1);
+        break;
+      default:
+        return;
+    }
+
+    if (targetIndex !== currentIndex && focusableElements[targetIndex]) {
+      focusableElements[targetIndex].focus();
+      console.log(`Focus moved from index ${currentIndex} to ${targetIndex}`);
+    } else {
+      console.log(`Cannot navigate ${key}: at boundary (index ${currentIndex})`);
+    }
   }
 
   // Helper for tab key navigation
   handleTabNavigation(event, activeElement) {
-    // Implement custom tab navigation logic
-    console.log('Handling tab navigation');
+    const key = event.key;
+    if (key !== 'Tab') {
+      return;
+    }
+
+    const focusableElements = document.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length === 0) {
+      return;
+    }
+
+    if (activeElement === focusableElements[0]) {
+      // First element, go to last
+      focusableElements[focusableElements.length - 1].focus();
+    } else {
+      // Last element, go to first
+      focusableElements[0].focus();
+    }
   }
 
   // Ensure dependencyGraph container has proper ARIA role

@@ -212,6 +212,26 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e)
     }
+  },
+
+  /**
+     * Spawns a new element into the document with optional styling and cleanup.
+     * This provides a reusable way to create temporary UI components (modals, tooltips, etc.)
+     * while ensuring they are properly removed after use.
+     *
+     * @param {string} className - Optional CSS class name for the spawned element
+     * @param {string} id - Optional ID for the element
+     * @returns {HTMLElement} The created element
+     */
+  spawn (className, id) {
+    const element = document.createElement('div')
+    element.className = className
+    if (id) element.id = id
+    
+    // Append to body
+    document.body.appendChild(element)
+    
+    return element
   }
 }
 
@@ -306,7 +326,7 @@ function validateTableStructure () {
       issues.push({ tableIndex: index, issue: 'Missing caption' })
     }
 
-    // Check for header scope
+    // Validate headers
     const headers = table.querySelectorAll('th')
     if (headers.length === 0) {
       issues.push({ tableIndex: index, issue: 'No header cells found' })
@@ -329,7 +349,7 @@ function validateTableStructure () {
       cellCounts.add(row.children.length)
     })
     if (cellCounts.size > 1) {
-      issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across rows' })
+      issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across table rows' })
     }
 
     // Ensure data cells have proper headers (simple check)
@@ -456,5 +476,6 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
-  validateTableStructureComprehensive
+  validateTableStructureComprehensive,
+  spawn: accessibilityUtils.spawn
 }

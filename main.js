@@ -397,26 +397,31 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// Update your logic implementation here
-generateAccessibilityReport = (accessibilityReport) => {
-    // Update function logic to generate the accessibility report
-};
+// Function for generating an accessibility report
+function generateAccessibilityReport(accessibilityReport) {
+  const accessibilityIssues = addressAccessibilityIssues(accessibilityReport);
 
-calculateAccessibilityScore = (fixedIssues) => {
-    // Update function logic to calculate the accessibility score
-};
+  return {
+    totalIssues: accessibilityIssues.length,
+    issues: accessibilityIssues
+  };
+}
 
-ensureUniqueLandmarksFromString = (source) => {
-    // Update function logic to ensure unique landmarks from a string
-};
+function calculateAccessibilityScore(fixedIssues) {
+  // Update function logic to calculate the accessibility score
+}
 
-spawnSomeCommand = (callback) => {
-    // Update function logic to spawn some command
-};
+function ensureUniqueLandmarksFromString(source) {
+  // Update function logic to ensure unique landmarks from a string
+}
 
-addLangAttribute = (element, lang) => {
-    // Update function logic to add the lang attribute
-};
+function spawnSomeCommand(callback) {
+  // Update function logic to spawn some command
+}
+
+function addLangAttribute(element, lang) {
+  // Update function logic to add the lang attribute
+}
 
 // TODO: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 // This has been addressed by ensuring all elements have proper IDs and accessibility attributes
@@ -449,19 +454,6 @@ function startApp() {
 document.documentElement.lang = getLangAttribute();
 
 // ... (other functions omitted for brevity)
-
-if (typeof module !== 'undefined' && module.exports) {
-  // Exporting is now handled at the bottom of the file
-} else {
-  // Browser environment - wait for DOM
-  if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializeAccessibility);
-    } else {
-      initializeAccessibility();
-    }
-  }
-}
 
 // Fix 26 table structure issues
 if (typeof document !== 'undefined') {
@@ -1202,27 +1194,77 @@ const MyComponent = () => {
   };
 };
 
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    createServer,
+    startApp,
+    config,
+    validateLandmark,
+    getLangAttribute,
+    addSvgAccessibleName,
+    ensureElementHasId,
+    AddressabilityIssues,
+    addressAccessibilityIssues,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    ensureUniqueLandmarksFromString,
+    spawnSomeCommand,
+    addLangAttribute,
+    implementCountDependenciesInMain,
+    countDependencies,
+    processSvgElements,
+    validateTableAccessibility,
+    validateTableStructure,
+    ensureUniqueLandmarks,
+    personName,
+    createInPageButton,
+    ensureElementId,
+    addAriaLabel,
+    addBook,
+    addProperLandmarkRegions,
+    renderDependencyGraph,
+    // ... (other exports omitted for brevity)
+  };
+} else {
+  // Browser environment - wait for DOM
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeAccessibility);
+    } else {
+      initializeAccessibility();
+    }
+  }
+}
+
 // Export all functions for testing and external use
 module.exports = {
   getLangAttribute,
-  getFullLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
-  validateLandmarkStructure,
   ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  createAccessibleLink,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  handleAccessibilityIssues,
+  addSvgAccessibleName,
+  ensureElementHasId,
   ensureElementId,
   addAriaLabel,
   addBook,
   makeAccessible,
   addAriaSupport,
   addProperLandmarkRegions,
-  renderDependencyGraph
+  renderDependencyGraph,
+  personName,
+  createInPageButton,
+  createServer,
+  startApp,
+  config,
+  AddressabilityIssues,
+  addressAccessibilityIssues,
+  generateAccessibilityReport,
+  calculateAccessibilityScore,
+  ensureUniqueLandmarksFromString,
+  spawnSomeCommand,
+  addLangAttribute,
+  implementCountDependenciesInMain,
+  countDependencies,
+  processSvgElements
 };

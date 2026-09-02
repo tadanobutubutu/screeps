@@ -1,3 +1,4 @@
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 // TODO: This is the existing code that needs to be preserved
 // (This should be preserved)
 // Addressed accessibility issues from insight report
@@ -36,29 +37,53 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
  */
 function getLangAttribute() {
   // Implementation to be added
+  return 'en'; // Default fallback
 }
 
 // Function to handle fake links
 function handleFakeLinks() {
     // Your implementation here to find and handle fake links
+    const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
+    fakeLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.warn('Fake link prevented:', link);
+        });
+    });
 }
 
 // Function to validate link accessibility
-function validateLinkAccessibility() {
-    // Your implementation here to validate link accessibility
+function validateLinkAccessibility(link) {
+    if (!link) return false;
+    const text = link.textContent.trim();
+    const ariaLabel = link.getAttribute('aria-label');
+    const ariaLabelledBy = link.getAttribute('aria-labelledby');
+    return !!(text || ariaLabel || ariaLabelledBy);
 }
 
 // Function to validate landmark structure for accessibility issues
 function validateLandmarkStructure() {
     const requiredLandmarks = ['header', 'main', 'footer'];
     const missingLandmarks = [];
+    
+    requiredLandmarks.forEach(landmark => {
+        const element = document.querySelector(`[role="${landmark}"], ${landmark}`);
+        if (!element) {
+            missingLandmarks.push(landmark);
+        }
+    });
+    
+    return missingLandmarks;
 }
 
 /**
  * Adds lang attribute to HTML element
  */
 function addLangAttribute() {
-  // Implementation to be added
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', getLangAttribute());
+  }
 }
 
 /**
@@ -67,7 +92,14 @@ function addLangAttribute() {
  * @returns {boolean} True if table is accessible
  */
 function validateTableAccessibility(table) {
-  // Implementation to be added
+  if (!table) return false;
+  
+  // Check for caption or aria-label
+  const hasCaption = table.querySelector('caption');
+  const hasAriaLabel = table.hasAttribute('aria-label');
+  const hasAriaLabelledBy = table.hasAttribute('aria-labelledby');
+  
+  return !!(hasCaption || hasAriaLabel || hasAriaLabelledBy);
 }
 
 /**
@@ -76,7 +108,12 @@ function validateTableAccessibility(table) {
  * @returns {boolean} True if table structure is valid
  */
 function validateTableStructure(table) {
-  // Implementation to be added
+  if (!table) return false;
+  
+  const hasHeader = table.querySelector('th');
+  const hasRows = table.querySelectorAll('tr').length > 0;
+  
+  return hasHeader && hasRows;
 }
 
 /**
@@ -84,14 +121,29 @@ function validateTableStructure(table) {
  * @param {HTMLElement} table - The table element to fix
  */
 function fixTableStructure(table) {
-  // Implementation to be added
+  if (!table) return;
+  
+  // Ensure table has proper headers
+  const firstRow = table.querySelector('tr');
+  if (firstRow && !firstRow.querySelector('th')) {
+    const cells = firstRow.querySelectorAll('td, th');
+    cells.forEach(cell => {
+      const newCell = document.createElement('th');
+      newCell.textContent = cell.textContent;
+      newCell.setAttribute('scope', 'col');
+      cell.parentNode.replaceChild(newCell, cell);
+    });
+  }
 }
 
 /**
  * Adds main landmark to the document
  */
 function addMainLandmark() {
-  // Implementation to be added
+  const mainContent = document.querySelector('main') || document.getElementById('main') || document.getElementById('root');
+  if (mainContent && !mainContent.hasAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
 }
 
 /**
@@ -100,7 +152,12 @@ function addMainLandmark() {
  * @returns {boolean} True if landmark is valid
  */
 function validateLandmark(landmark) {
-  // Implementation to be added
+  if (!landmark) return false;
+  
+  const validRoles = ['header', 'main', 'footer', 'navigation', 'search', 'banner', 'complementary', 'contentinfo'];
+  const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+  
+  return validRoles.includes(role);
 }
 
 /**
@@ -109,7 +166,11 @@ function validateLandmark(landmark) {
  * @returns {boolean} True if landmark structure is valid
  */
 function validateLandmarkStructure(landmark) {
-  // Implementation to be added
+  if (!landmark) return false;
+  
+  // Check if landmark has proper nesting and structure
+  const hasContent = landmark.children.length > 0 || landmark.textContent.trim().length > 0;
+  return hasContent;
 }
 
 /**
@@ -118,7 +179,14 @@ function validateLandmarkStructure(landmark) {
  * @returns {boolean} True if landmark attributes are valid
  */
 function validateLandmarkAttributes(landmark) {
-  // Implementation to be added
+  if (!landmark) return false;
+  
+  const role = landmark.getAttribute('role');
+  const ariaLabel = landmark.getAttribute('aria-label');
+  const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
+  
+  // Landmark should have either a role, aria-label, or aria-labelledby
+  return !!(role || ariaLabel || ariaLabelledBy);
 }
 
 /**
@@ -127,7 +195,13 @@ function validateLandmarkAttributes(landmark) {
  * @returns {string} The accessible name
  */
 function getSvgAccessibleName(svg) {
-  // Implementation to be added
+  if (!svg) return '';
+  
+  const ariaLabel = svg.getAttribute('aria-label');
+  const title = svg.querySelector('title');
+  const desc = svg.querySelector('desc');
+  
+  return ariaLabel || (title ? title.textContent : '') || (desc ? desc.textContent : '') || '';
 }
 
 /**
@@ -136,14 +210,25 @@ function getSvgAccessibleName(svg) {
  * @param {string} name - The accessible name
  */
 function setSvgAttributes(svg, name) {
-  // Implementation to be added
+  if (!svg || !name) return;
+  
+  svg.setAttribute('aria-label', name);
+  svg.setAttribute('role', 'img');
 }
 
 /**
  * Ensures unique landmarks in the document
  */
 function ensureUniqueLandmarks() {
-  // Implementation to be added
+  const landmarks = document.querySelectorAll('[role="main"], main');
+  if (landmarks.length > 1) {
+    landmarks.forEach((landmark, index) => {
+      if (index > 0) {
+        landmark.removeAttribute('role');
+        landmark.removeAttribute('aria-label');
+      }
+    });
+  }
 }
 
 /**
@@ -151,7 +236,11 @@ function ensureUniqueLandmarks() {
  * @returns {HTMLElement} The created button
  */
 function createInPageButton() {
-  // Implementation to be added
+  const button = document.createElement('button');
+  button.textContent = 'Skip to content';
+  button.setAttribute('aria-label', 'Skip to main content');
+  button.setAttribute('id', 'skip-link');
+  return button;
 }
 
 // Function for generating a report based on accessibility issues
@@ -317,26 +406,43 @@ function addressAccessibilityIssues() {
 }
 
 /**
- * Validates link accessibility
- * @param {HTMLElement} link - The link element to validate
- * @returns {boolean} True if link is accessible
- */
-function validateLinkAccessibility(link) {
-  // Implementation to be added
-}
-
-/**
  * Handles fake links in the document
  */
 function handleFakeLinks() {
   // Implementation to be added
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
+  fakeLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.warn('Fake link prevented:', link);
+    });
+  });
 }
 
 /**
  * Adds proper landmark regions to the document
  */
 function addProperLandmarkRegions() {
-  // Implementation to be added
+  // Ensure header exists
+  if (!document.querySelector('header, [role="banner"]')) {
+    const header = document.createElement('header');
+    header.setAttribute('role', 'banner');
+    document.body.insertBefore(header, document.body.firstChild);
+  }
+
+  // Ensure main exists
+  if (!document.querySelector('main, [role="main"]')) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    document.body.appendChild(main);
+  }
+
+  // Ensure footer exists
+  if (!document.querySelector('footer, [role="contentinfo"]')) {
+    const footer = document.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    document.body.appendChild(footer);
+  }
 }
 
 // Existing code from origin/main

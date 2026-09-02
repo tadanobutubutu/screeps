@@ -57,7 +57,9 @@ class ScreepsBot {
       const nextTask = this.tasks[0];
       try {
         nextTask.task();
+        announceToScreenReader(`Task executed: ${nextTask.priority} priority task completed`);
       } catch (err) {
+        announceToScreenReader(`Task failed: ${err.message}`);
         console.error(`Task failed: ${err.message}`);
       }
     }
@@ -115,7 +117,30 @@ function updateUI(elementId, text) {
   }
 }
 
+// Accessibility: Announce message to screen readers
+function announceToScreenReader(message, priority = 'polite') {
+  let announcer = document.getElementById('sr-announcer');
+  if (!announcer) {
+    announcer = document.createElement('div');
+    announcer.id = 'sr-announcer';
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-10000px';
+    announcer.style.width = '1px';
+    announcer.style.height = '1px';
+    announcer.style.overflow = 'hidden';
+    document.body.appendChild(announcer);
+  }
+  announcer.setAttribute('aria-live', priority);
+  announcer.textContent = '';
+  setTimeout(() => {
+    announcer.textContent = message;
+  }, 100);
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ScreepsBot, updateUI };
+  module.exports = { ScreepsBot, updateUI, announceToScreenReader };
 }

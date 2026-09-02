@@ -1,13 +1,30 @@
-const config = {
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const path = require('path');
+const { a11y } = require('@accessible/react');
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks
+} = require('./utils');
+
+const CONFIG = {
   name: 'MyApp',
   version: '1.0.0',
   debug: false,
   dataPath: './data',
   maxResults: 100,
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: 5000,
   landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
+
+let isInitialized = false;
+let dependencyGraph = null;
 
 const appState = {
   initialized: false,
@@ -16,7 +33,6 @@ const appState = {
 };
 
 let icons = {};
-let dependencyGraph = {};
 let UserSafety = "unsafe";
 let SafetyCategories = "Unauthorized Advice";
 
@@ -41,7 +57,7 @@ function ensureUniqueLandmarks(landmarksArray) {
 
   const seen = new Set();
   return landmarksArray.map((landmark) => {
-      const key = enforceLeafRuntime(landmark.name) + '_' + (landmark.role || 'default');
+      const key = landmark.name + '_' + (landmark.role || 'default');
       if (!seen.has(key)) {
           seen.add(key);
           landmark.id = landmark.id || key;
@@ -58,32 +74,33 @@ function ensureUniqueLandmarks(landmarksArray) {
 }
 
 // Import required dependencies (merged from both branches)
-import React, { useState, useEffect, useRef } from 'react';
-import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import express from 'express';
-import fs from 'fs';
-import fastMap from 'fast-map';
-import path from 'path';
-import accessiblyHelper from './accessibly-helper';
-import { axe } from 'axe-core';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import './styles.css';
-import './styles.less';
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
-import App from './App';
-import { helper, formatDate } from './utils';
-import { someFunction } from './utils/someFunction';
-import { fetchUser, clearCache } from './utils/user';
-import * as newFunctions from './newFunctions';
+const React = require('react');
+const { useState, useEffect, useRef } = React;
+const { List, Button } = require('antd');
+const { useSelector, useDispatch } = require('react-redux');
+const { setDependencyGraph } = require('./actions/dependencyGraph');
+const { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } = require('./bookFunctions');
+const express = require('express');
+const fs = require('fs');
+const fastMap = require('fast-map');
+const path = require('path');
+const accessiblyHelper = require('./accessibly-helper');
+const { axe } = require('axe-core');
+const { initializeApp } = require('./app.js');
+const { registerSW } = require('effector-sw');
+require('./styles.css');
+require('./styles.less');
+const { calculateSum } = require('./utils');
+const { getLangAttribute, getFullLangAttribute } = require('./utils/accessibilityUtils');
+const { validateTableAccessibility, validateTableStructure } = require('./utils/tableAccessibilityUtils');
+const { validateLandmark, validateLandmarkStructure } = require('./utils/landmarkUtils');
+const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
+const { CONFIG } = require('./utils/constants');
+const App = require('./App');
+const { helper, formatDate } = require('./utils');
+const { someFunction } = require('./utils/someFunction');
+const { fetchUser, clearCache } = require('./utils/user');
+const newFunctions = require('./newFunctions');
 
 // Import required functions from both branches
 const {
@@ -114,7 +131,7 @@ const sortByAuthor = sortByAuthorLocal || sortByAuthor;
 
 // Application initializations
 
-export const validateLandmark = (landmark) => {
+const validateLandmark = (landmark) => {
   const errors = [];
 
   // Validation logic
@@ -125,44 +142,66 @@ export const validateLandmark = (landmark) => {
   };
 };
 
-export const checkLinkAccessibility = (url) => {
+const checkLinkAccessibility = (url) => {
   // Implementation logic here...
   return true;
 };
 
-export const newExportedFunction = () => {
+const newExportedFunction = () => {
   // New export logic here...
 };
 
 // Ensure accessibility attributes are set when adding a book
-ensureAccessibilityAttributesForAddBook();
+enhanceAccessibilityForAddBook();
 
 // Find the primary content element in the DOM
 const primaryContent = document.querySelector('.primary-content') ||
                         document.querySelector('[role="main"]') ||
                         document.getElementById('main-content') ||
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
-// ----- END ORIGINAL CODE -----
                         document.querySelector('#content');
 
 // Function to wrap primary content in a <main> element
 function wrapPrimaryContentInMain() {
-  // If primary content exists and is not already inside a <main> element
   if (primaryContent && !primaryContent.closest('main')) {
-      // Create a new <main> element
       const mainElement = document.createElement('main');
-
-      // Insert the <main> element before the primary content in the DOM
       primaryContent.parentNode.insertBefore(mainElement, primaryContent);
-
-      // Move the primary content inside the <main> element
       mainElement.appendChild(primaryContent);
-
       return mainElement;
   }
   return null;
+}
+
+function getUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    const elements = Array.from(document.querySelectorAll(landmarkSelectors.join(',')));
+    const landmarkIds = elements.map(el => el.id || el.getAttribute('aria-labelledby'));
+    const uniqueIds = new Set(landmarkIds);
+
+    elements.forEach((element, index) => {
+      if (!element.id) {
+        element.id = `landmark-${index}`;
+      }
+    });
+    return elements;
+  }
+
+  const seen = new Set();
+  const uniqueLandmarks = [];
+
+  for (const landmark of landmarks) {
+    if (!landmark || typeof landmark.id === 'undefined') {
+      continue;
+    }
+
+    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      uniqueLandmarks.push(landmark);
+    }
+  }
+
+  return uniqueLandmarks;
 }
 
 /**
@@ -229,78 +268,29 @@ function addSvgAccessibilityProps(svgElement, label, labelledById) {
   });
 }
 
-const getAccessibleLinkProps = (href, label) => {
+function getSvgAccessibilityProps(label, labelledById) {
+  const props = {};
+  if (label) {
+    props['aria-label'] = label;
+  }
+  if (labelledById) {
+    props['aria-labelledby'] = labelledById;
+  }
+  return props;
+}
+
+function getAccessibleLinkProps(href, label) {
   return {
     href,
     'aria-label': label,
     role: 'link'
   };
-};
-
-// Function to render a single book item
-function BookItem({ book }) {
-  return {
-    key: generateKey(book),
-    title: book.title,
-    description: `by ${book.author}`
-  };
 }
 
-// Function to render the form for adding a new book entry
-function BookForm() {
-  const dispatch = useDispatch();
-
-  // Define state for the form inputs
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-
-  // Handle input changes
-  const handleTitleChange = (e) => setTitle(e.target.value);
-  const handleAuthorChange = (e) => setAuthor(e.target.value);
-
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Perform any necessary validation or processing before adding the book
-    // ...
-
-    // Dispatch an action to add the book to the books list in the Redux store
-    dispatch({ type: 'ADD_BOOK', payload: { title, author } });
-  };
-
-  // Render the form
-  return {
-    form: {
-      onSubmit: handleSubmit,
-      titleInput: {
-        type: "text",
-        id: "title",
-        value: title,
-        onChange: handleTitleChange,
-        ariaLabel: "Book title"
-      },
-      authorInput: {
-        type: "text",
-        id: "author",
-        value: author,
-        onChange: handleAuthorChange,
-        ariaLabel: "Book author"
-      },
-      submitButton: {
-        type: "submit",
-        text: "Add Book"
-      }
-    }
-  };
-}
-
-// Accessibility helper functions
-// REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-// REACT_015 & REACT_036: Create accessible in-page button
 function createInPageButton(buttonText, onClickHandler) {
   return {
     button: {
@@ -646,89 +636,204 @@ if (require.main === module) {
   console.log('Main function executed');
 }
 
-export {
-  config,
-  appState,
-  getLangAttribute,
-  addLangAttribute,
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.querySelector('.primary-content') ||
+                        document.querySelector('[role="main"]') ||
+                        document.getElementById('main-content') ||
+                        document.querySelector('#content');
+
+  if (primaryContent && !primaryContent.closest('main')) {
+    const mainElement = document.createElement('main');
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    mainElement.appendChild(primaryContent);
+    return mainElement;
+  }
+  return null;
+}
+
+function addLangAttribute() {
+  if (document && document.documentElement) {
+    if (!document.documentElement.getAttribute('lang')) {
+      document.documentElement.setAttribute('lang', getLangAttribute());
+    }
+  }
+}
+
+async function renderFunction1() {
+  await accessiblyHelper();
+
+  function wrapPrimaryContentInMain() {
+    if (document.body.firstChild) {
+      const wrapper = document.createElement('main');
+      wrapper.innerHTML = document.body.firstChild.outerHTML;
+      document.body.replaceChild(wrapper, document.body.firstChild);
+    }
+  }
+}
+
+function renderFunction2() {
+  // ... (Rest of renderFunction2 implementation)
+}
+
+function loadLandmarks() {
+  try {
+    const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
+  }
+}
+
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+  return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (seen.has(`${landmark.id || ''}${landmark.name || ''}`)) {
+      return false;
+    }
+    seen.add(`${landmark.id || ''}${landmark.name || ''}`);
+    return true;
+  });
+}
+
+function scanAccessibility() {
+  const violations = [];
+
+  if (typeof document !== 'undefined') {
+    const results = await axe.run(document);
+    violations.push(...results.violations);
+  }
+
+  return { violations };
+}
+
+function validateLinkAccessibility() {
+  const links = document.querySelectorAll('a[href]');
+
+  for (const link of links) {
+    if (!link.textContent.trim()) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    if (link.tagName === 'A' && !link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+  });
+}
+
+function validateLandmark() {
+  const landmarks = document.querySelectorAll(landmarkSelectors.join(','));
+  return landmarks.length > 0;
+}
+
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll(landmarkSelectors.join(','));
+
+  for (const landmark of landmarks) {
+    if (!landmark.id && !landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function initialize() {
+  console.log('Initializing application...');
+
+  if (!isInitialized) {
+    isInitialized = true;
+    appState.initialized = true;
+
+    const appData = {
+      title: 'Screeps',
+      version: CONFIG.version
+    };
+
+    /**
+     * Address accessibility issues from insight report:
+     * - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute() and wrapPrimaryContentInMain())
+     * - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+     * - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
+     * - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+     * - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
+     * - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
+     * todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
+     */
+
+    addLangAttribute();
+    wrapPrimaryContentInMain();
+    fixTableStructureIssues();
+    fixTableHeaderCellScope();
+    addMainLandmark();
+    addSvgAccessibleNames();
+    fixFakeLinkIssues();
+    ensureUniqueLandmarks();
+
+    // Load landmarks for accessibility processing
+    const landmarks = loadLandmarks();
+    const processed = processLandmarks(landmarks);
+
+    // Ensure the dependencyGraph container has a proper ARIA role
+    if (dependencyGraph) {
+      if (!dependencyGraph.id) {
+        dependencyGraph.id = 'dependencyGraph';
+      }
+      if (!dependencyGraph.hasAttribute('role')) {
+        dependencyGraph.setAttribute('role', 'region');
+      }
+      if (!dependencyGraph.hasAttribute('aria-label')) {
+        dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+      }
+    }
+  }
+}
+
+module.exports = {
+  initialize,
+  getUniqueLandmarks,
+  getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  validateLandmarkData,
-  ensureLandmarkUniqueness,
-  initializeApp,
-  setupHandlers,
-  validateInput,
-  processData,
-  main,
-  BookItem,
-  BookForm,
-  AddBookForm,
-  createInPageButton,
-  setSvgAttributes,
-  addProperLandmarkRegions,
+  scanAccessibility,
   validateLinkAccessibility,
   handleFakeLinks,
-  function3,
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort,
-  renderDependencyGraphContent,
-  addLangAttribute,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  finalizeResolvedFile,
-  renderDependencyGraph,
-  wrapPrimaryContentInMain,
-  handleUserInteraction,
-  cleanup,
-  initApp,
-  VisualizeDependencyTree,
-  checkLandmarkElement,
-  ensureLandmarkUniqueness,
   validateLandmark,
-  renderDependencyGraphContent,
-  landmarks,
-  appData,
-  icons,
-  countDependencies,
-  addBook,
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort,
-  ensureDependencyGraphAriaRole,
-  ensureDependencyGraphARIA,
-  Main,
-  validateLandmarkInput,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  ensureFocusableElements,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  createInPageButtons,
-  fixFakeLinkIssue,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarksDoc,
-  calculateDependencyTree,
-  generateDependencyString,
-  effector,
-  handleCredentialResponse,
-  validateCredentialResponse,
-  extractCredentialData,
-  storeCredentialData,
-  checkLinkAccessibility,
-  newExportedFunction
+  validateLandmarkStructure,
+  loadLandmarks,
+  processLandmarks,
+  ensureUniqueLandmarks,
+  checkLandmarkElement,
+  validateLandmarkObject,
+  addSvgAccessibilityProps,
+  getSvgAccessibilityProps,
+  getAccessibleLinkProps,
+  getLangAttribute,
+  createInPageButton,
+  wrapPrimaryContentInMain,
+  addLangAttribute,
+  CONFIG,
+  appState
 };

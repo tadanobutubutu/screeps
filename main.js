@@ -378,13 +378,6 @@ function addressAccessibilityIssues(insightReport) {
   }
 }
 
-// Import accessibility utility functions
-import { getLangAttribute as getLangAttrUtils, createInPageButton } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark as validateLandmarkUtils, validateLandmarkStructure as validateLandmarkStructUtils } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
 // Process and filter landmarks
 function processLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
@@ -392,7 +385,7 @@ function processLandmarks(landmarks) {
     }
 
     const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    const uniqueLandmarks = ensureUniqueLandmarksById(validLandmarks);
 
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
@@ -411,7 +404,7 @@ function sortLandmarks(landmarks, ascending = true) {
 }
 
 // Ensure unique landmarks by ID
-function ensureUniqueLandmarks(landmarks) {
+function ensureUniqueLandmarksById(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
     }
@@ -435,246 +428,58 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
+// Configuration object
+const CONFIG = {
+    maxResults: 100
+};
+
 // Accessibility helpers
-import { v4 as uuidv4 } from 'uuid';
-import { createElement } from 'react';
-import { getDocument as getDoc, getLangAttribute as getLangAttrHelpers, getFullLangAttribute } from './accessibilityHelpers';
-import { createInPageButton as createInPageBtnHelpers, handleAccessibilityIssues, createAccessibleLink, ensureUniqueLandmarks as ensureUniqueLandmarksHelpers, validateLandmark as validateLandmarkHelpers, validateLandmarkStructure as validateLandmarkStructHelpers } from './accessibilityHelpers';
-import { triggerAccessibilityMode } from './accessibilityMode';
-
-// Utilities and components from other files
-import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
-import { renderHeader, renderFooter, renderProductCard } from './components.js';
-import { state, updateState } from './state.js';
-
-// Main function to process accessibility issues from an insight report
-function processAccessibilityIssues(insightReport) {
-  // Call function to address accessibility issues
-  addressAccessibilityIssues(insightReport);
-
-  // Accessibility issue processing code from the second commit
-  function newFunctionToImplement() {
-    // Implementation details here
-  }
-
-  // Ensure that all existing exports are preserved and that no exports are removed or renamed
-
-  // Exporting functions and any other exports that were previously exported
-  export function existingFunction() {
-    // Existing function implementation
-  }
-
-  // Exporting new function to implement the solution to the issue in line 146
-  export { newFunctionToImplement };
-
-  // If any other exports were previously in main.js, they should be preserved and added here
-  // Note: otherExport1 and otherExport2 are referenced but not defined in the provided snippets
-  // These references have been removed to prevent runtime errors
-  export { addressAccessibilityIssues, processAccessibilityIssues };
+function getDocument() {
+    return document;
 }
 
-// Function to write the generated report to a file
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+function getFullLangAttribute() {
+    return document.documentElement ? document.documentElement.lang : 'en';
 }
 
-// Function to scan for accessibility issues using axe-core
-function scanAccessibility() {
-  // This is a simplified example - in a real application you would:
-  // 1. Load the HTML content to scan
-  // 2. Use axe.run() to analyze it
-  // 3. Return the results
-
-  // Placeholder implementation
-  const mockReport = {
-    url: 'http://example.com',
-    timestamp: new Date().toISOString(),
-    violations: [
-      {
-        id: 'aria-required-children',
-        impact: 'serious',
-        description: 'ARIA role requires children',
-        nodes: [
-          {
-            target: ['div[role="list"]'],
-            html: '<div role="list"></div>',
-            any: [
-              {
-                id: 'aria-required-children',
-                message: 'ARIA role "list" must have children with role "listitem"',
-                data: null
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    passes: [],
-    incomplete: [],
-    inapplicable: []
-  };
-
-  return mockReport;
+function createInPageButton(options) {
+    const button = document.createElement('button');
+    button.textContent = options.text || 'Button';
+    button.setAttribute('aria-label', options.ariaLabel || options.text || 'Button');
+    return button;
 }
 
-// Function to generate an accessibility report
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
+function handleAccessibilityIssues(html) {
+    return applyAccessibilityFixes(html);
 }
 
-// Existing utility function
-const formatResponse = (data) => {
-  return JSON.stringify(data, null, 2);
-};
-
-// Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
-const { validateInput } = require('./utils/validators');
-const { processData } = require('./utils/processor');
-
-// Export new necessary functions
-module.exports = {
-  validateInput,
-  processData,
-  formatResponse,
-  config: CONFIG,
-  // landmark functions
-  isValidLandmark,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  ensureUniqueLandmarks,
-  landmarkConfig: CONFIG,
-  generateAccessibilityReport,
-  scanAccessibility,
-  writeReport
-};
-
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
+function createAccessibleLink(url, text) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.textContent = text;
+    return link;
 }
 
-// Existing exports that must be preserved
-export function existingFunction() {
-  // Implementation of an existing function
+function validateLandmark(landmark) {
+    if (!landmark) return false;
+    return isValidLandmark(landmark);
 }
 
-export const existingConstant = 'someConstantValue';
-
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-
-// Start the processing of accessibility issues from the insight report
-processAccessibilityIssues(insightReport);
-
-// New function to add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
-    const lang = getLangAttrHelpers();
-    htmlElement.setAttribute('lang', lang);
-  }
+function triggerAccessibilityMode() {
+    console.log('Accessibility mode triggered');
 }
 
-// New function to fix table structure issues
-function fixTableStructure(tableElement) {
-  // Implementation to fix table structure issues
-  // This would include adding proper headers, scope attributes, etc.
-  console.log('Fixing table structure for:', tableElement);
+// Load landmarks (placeholder implementation)
+function loadLandmarks() {
+    return [];
 }
 
-// New function to add main landmark
-function addMainLandmark() {
-  // Implementation to add main landmark
-  console.log('Adding main landmark');
+// Get landmark by ID (placeholder implementation)
+function getLandmarkById(id) {
+    return null;
 }
 
-// New function to validate landmark attributes
-function validateLandmarkAttributes(landmarkElement) {
-  // Implementation to validate landmark attributes
-  console.log('Validating landmark attributes for:', landmarkElement);
-}
-
-// New function to add proper landmark regions
-function addProperLandmarkRegions() {
-  // Implementation to add proper landmark regions
-  console.log('Adding proper landmark regions');
-}
-
-// New function to handle fake links
-function handleFakeLinks(linkElement) {
-  // Implementation to handle fake links
-  console.log('Handling fake link for:', linkElement);
-}
-
-// Export all new functions
-export {
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmarkAttributes,
-  addProperLandmarkRegions,
-  handleFakeLinks
-};
-
-    // Add form fields
-    form.appendChild(createField('Book Title:', `${formId}-title`));
-    form.appendChild(createField('Author:', `${formId}-author`));
-    form.appendChild(createField('Publication Year:', `${formId}-year`, 'number'));
-
-    // Add submit button
-    const submitButton = document.createElement('button');
-    submitButton.id = submitButtonId;
-    submitButton.type = 'submit';
-    submitButton.textContent = 'Add Book';
-    submitButton.setAttribute('aria-label', 'Submit new book form');
-    form.appendChild(submitButton);
-
-    return form;
-}
-
-// Validation functions for accessibility checks
-function getLangAttribute(html) {
-    if (typeof html !== 'string') return null;
-    const match = html.match(/<html[^>]*\slang=["']([^"']+)["']/i);
-    return match ? match[1] : null;
-}
-
-function validateTableAccessibility(html) {
-    if (typeof html !== 'string') return { valid: false, issues: [] };
-    const issues = [];
-
-    // Check for tables without captions
-    const tables = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
-    tables.forEach((table, index) => {
-        if (!/<caption/i.test(table)) {
-            issues.push(`Table ${index + 1} is missing a caption`);
-        }
-    });
-
-    // Check for th elements without scope
-    const thWithoutScope = html.match(/<th(?!([^>]*)scope=)/gi) || [];
-    if (thWithoutScope.length > 0) {
-        issues.push(`${thWithoutScope.length} table header(s) missing scope attribute`);
-    }
-
-    return { valid: issues.length === 0, issues };
-}
-
+// Validate table structure
 function validateTableStructure(html) {
     if (typeof html !== 'string') return { valid: false, issues: [] };
     const issues = [];
@@ -693,6 +498,7 @@ function validateTableStructure(html) {
     return { valid: issues.length === 0, issues };
 }
 
+// Validate link accessibility
 function validateLinkAccessibility(html) {
     if (typeof html !== 'string') return { valid: false, issues: [] };
     const issues = [];
@@ -707,6 +513,7 @@ function validateLinkAccessibility(html) {
     return { valid: issues.length === 0, issues };
 }
 
+// Handle fake links
 function handleFakeLinks(html) {
     if (typeof html !== 'string') return { html, linksConverted: 0 };
     let count = 0;
@@ -727,6 +534,128 @@ function handleFakeLinks(html) {
     return { html, linksConverted: count };
 }
 
+// Set SVG attributes
+function setSvgAttributes(svgElement, attributes) {
+    if (!svgElement) return;
+    Object.keys(attributes).forEach(key => {
+        svgElement.setAttribute(key, attributes[key]);
+    });
+}
+
+// Check if link is accessible
+function isLinkAccessible(link) {
+    if (!link) return false;
+    const href = link.getAttribute('href');
+    const text = link.textContent.trim();
+    return href && text.length > 0;
+}
+
+// Create accessible book form
+function createAccessibleBookForm(formId, submitButtonId) {
+    const form = document.createElement('form');
+    form.id = formId;
+    form.setAttribute('aria-label', 'Add new book form');
+
+    // Create field helper
+    function createField(labelText, fieldId) {
+        const container = document.createElement('div');
+        container.style.marginBottom = '10px';
+
+        const label = document.createElement('label');
+        label.htmlFor = fieldId;
+        label.textContent = labelText;
+
+        const input = document.createElement('input');
+        input.id = fieldId;
+        input.type = fieldId.includes('year') ? 'number' : 'text';
+        input.name = fieldId;
+
+        container.appendChild(label);
+        container.appendChild(input);
+        return container;
+    }
+
+    // Add form fields
+    form.appendChild(createField('Book Title:', `${formId}-title`));
+    form.appendChild(createField('Author:', `${formId}-author`));
+    form.appendChild(createField('Publication Year:', `${formId}-year`));
+
+    // Add submit button
+    const submitButton = document.createElement('button');
+    submitButton.id = submitButtonId;
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Add Book';
+    submitButton.setAttribute('aria-label', 'Submit new book form');
+    form.appendChild(submitButton);
+
+    return form;
+}
+
+// Function to write the generated report to a file
+function writeReport(report) {
+    const fs = require('fs');
+    const path = require('path');
+    const reportFile = path.join(__dirname, 'accessibility_report.json');
+    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+}
+
+// Function to scan for accessibility issues using axe-core
+function scanAccessibility() {
+    // This is a simplified example - in a real application you would:
+    // 1. Load the HTML content to scan
+    // 2. Use axe.run() to analyze it
+    // 3. Return the results
+
+    // Placeholder implementation
+    const mockReport = {
+        url: 'http://example.com',
+        timestamp: new Date().toISOString(),
+        violations: [
+            {
+                id: 'aria-required-children',
+                impact: 'serious',
+                description: 'ARIA role requires children',
+                nodes: [
+                    {
+                        target: ['div[role="list"]'],
+                        html: '<div role="list"></div>',
+                        any: [
+                            {
+                                id: 'aria-required-children',
+                                message: 'ARIA role "list" must have children with role "listitem"',
+                                data: null
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        passes: [],
+        incomplete: [],
+        inapplicable: []
+    };
+
+    return mockReport;
+}
+
+// Function to generate an accessibility report
+function generateAccessibilityReport() {
+    const report = scanAccessibility();
+    writeReport(report);
+    return report;
+}
+
+// Existing utility function
+const formatResponse = (data) => {
+    return JSON.stringify(data, null, 2);
+};
+
+// Main function to process accessibility issues from an insight report
+function processAccessibilityIssues(insightReport) {
+    // Call function to address accessibility issues
+    addressAccessibilityIssues(insightReport);
+}
+
 // TODO: Update the existing function using the new functions for rendering graph/index
 function renderGraph(data, containerId) {
     // Get the container element
@@ -743,7 +672,7 @@ function renderGraph(data, containerId) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
-    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('viewBox', '0 100 100 100');
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
     // Add accessible title
@@ -785,7 +714,7 @@ function renderGraph(data, containerId) {
         // Add label
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         text.setAttribute('x', `${index * 20 + 15}`);
-        text.setAttribute('y', '95');
+        text.setAttribute('y', '195');
         text.setAttribute('text-anchor', 'middle');
         text.setAttribute('font-size', '3');
         text.textContent = item.label;
@@ -833,7 +762,24 @@ function renderIndex(data, containerId) {
     container.appendChild(list);
 }
 
+// Main execution when run directly
+if (require.main === module) {
+    const landmarks = loadLandmarks();
+    const processed = processLandmarks(landmarks);
+    const sorted = sortLandmarks(processed);
+
+    console.log(`Loaded ${landmarks.length} landmarks`);
+    console.log(`Processed to ${processed.length} unique landmarks`);
+    console.log(`Sorted ${sorted.length} landmarks`);
+
+    if (sorted.length > 0) {
+        console.log('First landmark:', sorted[0]);
+    }
+}
+
+// Export all functions and utilities using module.exports
 module.exports = {
+    // Accessibility functions
     addLangAttribute,
     fixTableStructure,
     fixLandmarks,
@@ -852,8 +798,42 @@ module.exports = {
     validateTableStructure,
     validateLinkAccessibility,
     handleFakeLinks,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    personName,
+
+    // Landmark functions
+    isValidLandmark,
+    loadLandmarks,
+    processLandmarks,
+    sortLandmarks,
+    getLandmarkById,
+    ensureUniqueLandmarksById,
+
+    // Form and rendering
     createAccessibleBookForm,
     renderGraph,
     renderIndex,
-    processAccessibilityIssues
+
+    // Accessibility helpers
+    getDocument,
+    getFullLangAttribute,
+    handleAccessibilityIssues,
+    createAccessibleLink,
+    validateLandmark,
+    triggerAccessibilityMode,
+
+    // Reporting
+    generateAccessibilityReport,
+    scanAccessibility,
+    writeReport,
+
+    // Utilities
+    formatResponse,
+    implementFeature,
+    processAccessibilityIssues,
+
+    // Config
+    CONFIG
 };

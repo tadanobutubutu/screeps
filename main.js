@@ -1,17 +1,9 @@
 const main = require('./utilities');
 
 const {
-    createInPageButton,
     createWebResourceButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    getLangAttribute,
     validateAccessibilityReport,
     exportUtils,
-    addressAccessibilityIssues,
     handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
@@ -21,7 +13,6 @@ const {
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
     focusTrap,
-    checkAccessibility,
 } = main;
 
 // Implement the function for addressing accessibility issues from insight report
@@ -298,7 +289,8 @@ if (typeof document !== 'undefined' && document.documentElement) {
 }
 
 module.exports = {
-  setHtmlLangAttribute,
+  addressAccessibilityIssues,
+  checkAccessibility,
   getLangAttribute,
   detectAndSetLang,
   personName,

@@ -41,7 +41,7 @@ function renderIndex(data) {
 }
 
 // Main function to process accessibility issues from an insight report
-function processAccessibilityIssues(insightReport) {
+function processAccessibilityReport(insightReport) {
   // Call function to address accessibility issues
   addressAccessibilityIssues(insightReport);
 }
@@ -52,6 +52,79 @@ function divide(a, b) {
     throw new Error('Division by zero is not allowed');
   }
   return a / b;
+}
+
+// Credential response handler - implements the logic to handle the credential response
+function handleCredentialResponse(credentialResponse) {
+  // Validate credential response structure
+  if (!credentialResponse || typeof credentialResponse !== 'object') {
+    console.error('Invalid credential response: response must be an object');
+    return {
+      success: false,
+      error: 'Invalid credential response format'
+    };
+  }
+
+  // Extract credential data from response
+  const { credential, error, token, status, user } = credentialResponse;
+
+  // Check for error in response
+  if (error) {
+    console.error('Credential error received:', error);
+    return {
+      success: false,
+      error: error,
+      message: 'Credential authentication failed'
+    };
+  }
+
+  // Handle successful credential response
+  if (status === 'success' || status === 200) {
+    console.log('Credential response processed successfully');
+    
+    // If credential or token is present, update the application state
+    if (credential || token) {
+      const authData = {
+        credential: credential || token,
+        authenticated: true,
+        timestamp: new Date().toISOString()
+      };
+      
+      updateState({ auth: authData });
+      console.log('Authentication state updated with credential data');
+    }
+
+    // If user information is provided, associate it with the state
+    if (user) {
+      updateState({ currentUser: user });
+      console.log('User information associated with state');
+    }
+
+    return {
+      success: true,
+      message: 'Credential processed successfully',
+      credential: credential || token,
+      user: user
+    };
+  }
+
+  // Handle pending or intermediate states
+  if (status === 'pending' || status === 'intermediate') {
+    console.log('Credential response pending further action');
+    return {
+      success: false,
+      status: status,
+      message: 'Credential verification in progress'
+    };
+  }
+
+  // Handle unknown or unexpected status
+  console.warn('Unexpected credential response status:', status);
+  return {
+    success: false,
+    error: 'Unknown credential response status',
+    status: status
+  };
 }
 
 // Existing exports that must be preserved
@@ -81,5 +154,6 @@ module.exports = {
   personName,
   divide,
   checkLinkAccessibility,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  handleCredentialResponse
 };

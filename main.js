@@ -268,6 +268,190 @@ export function addLangAttribute(element, lang = 'en') {
 }
 
 /**
+ * DependencyGraph class for managing dependency graph accessibility and keyboard navigation
+ */
+class DependencyGraph {
+  constructor() {
+    this.tasks = [];
+  }
+
+  async start() {
+    // Initialize network connection
+    await this.network.connect();
+
+    // Load initial data
+    await this.loadData();
+
+    // Ensure dependencyGraph container has proper ARIA role
+    this.ensureDependencyGraphARIA();
+
+    console.log('Screenspider bot started');
+  }
+
+  loadData() {
+    // Placeholder for data loading logic
+    // Implement actual data fetching here
+  }
+
+  // Accessibility enhancement: Ensure the dependencyGraph container has a proper ARIA role
+  setDependencyGraphRole() {
+    const dependencyGraph = document.getElementById('dependencyGraph');
+    if (dependencyGraph) {
+      dependencyGraph.setAttribute('role', 'graph');
+    }
+  }
+
+  // Accessibility enhancement: Ensure all UI elements are properly labeled
+  setElementLabel(elementId, label) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      // Only set aria-label if not already present
+      if (!el.getAttribute('aria-label')) {
+        el.setAttribute('aria-label', label);
+      }
+      // Set role to button if not already present
+      if (!el.getAttribute('role') || el.getAttribute('role') !== 'button') {
+        el.setAttribute('role', 'button');
+      }
+    }
+  }
+
+  // Accessibility enhancement: Focus management for keyboard navigation
+  setFocus(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      // Ensure element is focusable
+      if (!element.hasAttribute('tabindex') && !element.matches('a, button, [tabindex]:not([tabindex="-1"])')) {
+        element.setAttribute('tabindex', '0');
+      }
+      element.focus();
+    }
+  }
+
+  // New feature: Priority-based task scheduling
+  addTask(taskFn, priority = 'medium') {
+    this.tasks.push({ task: taskFn, priority });
+    this.scheduleTasks();
+  }
+
+  scheduleTasks() {
+    // Sort tasks by priority (high > medium > low)
+    this.tasks.sort((a, b) => {
+      const prioOrder = { high: 0, medium: 1, low: 2 };
+      return prioOrder[b.priority] - prioOrder[a.priority];
+    });
+
+    // Execute highest priority task
+    if (this.tasks.length > 0) {
+      const nextTask = this.tasks[0];
+      try {
+        nextTask.task();
+      } catch (err) {
+        console.error(`Task failed: ${err.message}`);
+      }
+    }
+  }
+
+  // New accessibility function: Keyboard event handler for accessibility
+  handleKeyboardNavigation(event) {
+    const key = event.key;
+    const activeElement = document.activeElement;
+
+    // Handle keyboard navigation (e.g., arrow keys, tab)
+    switch (key) {
+      case 'ArrowUp':
+      case 'ArrowDown':
+      case 'ArrowLeft':
+      case 'ArrowRight':
+        this.handleArrowNavigation(key, activeElement);
+        break;
+      case 'Tab':
+        this.handleTabNavigation(event, activeElement);
+        break;
+      default:
+        break;
+    }
+  }
+
+  // Helper for arrow key navigation
+  handleArrowNavigation(key, activeElement) {
+    // Implement custom navigation logic based on element type
+    console.log(`Navigating with ${key} key`);
+
+    // Get all focusable elements in the document
+    const focusableElements = document.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (!focusableElements || focusableElements.length === 0) {
+      console.log('No focusable elements found for arrow navigation');
+      return;
+    }
+
+    const currentIndex = Array.from(focusableElements).indexOf(activeElement);
+    if (currentIndex === -1) {
+      console.log('Active element not found in focusable elements');
+      return;
+    }
+
+    let targetIndex;
+
+    switch (key) {
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        targetIndex = Math.max(0, currentIndex - 1);
+        break;
+      case 'ArrowDown':
+      case 'ArrowRight':
+        targetIndex = Math.min(focusableElements.length - 1, currentIndex + 1);
+        break;
+      default:
+        return;
+    }
+
+    if (targetIndex !== currentIndex && focusableElements[targetIndex]) {
+      focusableElements[targetIndex].focus();
+      console.log(`Focus moved from index ${currentIndex} to ${targetIndex}`);
+    } else {
+      console.log(`Cannot navigate ${key}: at boundary (index ${currentIndex})`);
+    }
+  }
+
+  // Helper for tab key navigation
+  handleTabNavigation(event, activeElement) {
+    const key = event.key;
+    if (key !== 'Tab') {
+      return;
+    }
+
+    const focusableElements = document.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length === 0) {
+      return;
+    }
+
+    if (activeElement === focusableElements[0]) {
+      // First element, go to last
+      focusableElements[focusableElements.length - 1].focus();
+    } else {
+      // Last element, go to first
+      focusableElements[0].focus();
+    }
+  }
+
+  // Ensure dependencyGraph container has proper ARIA role
+  ensureDependencyGraphARIA() {
+    const container = document.getElementById('dependencyGraph');
+    if (container) {
+      container.setAttribute('role', 'region');
+      container.setAttribute('aria-label', 'Dependency graph');
+    }
+  }
+}
+
+/**
  * REACT_027: Fix table structure issues
  * Ensures tables have proper structure with headers and captions
  */
@@ -297,5 +481,6 @@ module.exports = {
   trapFocus,
   addLangAttribute,
   fixTableStructure,
+  DependencyGraph,
   // ... other exports from main
 }

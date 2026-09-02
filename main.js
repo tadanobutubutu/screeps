@@ -152,6 +152,69 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  /**
+   * Check if a link element is accessible
+   * @param {HTMLElement|string} link - The link element or selector to check
+   * @returns {boolean} True if the link is accessible
+   */
+  isLinkAccessible(link) {
+    if (!link) return false;
+
+    // If a string selector is provided, get the element
+    const linkElement = typeof link === 'string' ? document.querySelector(link) : link;
+    if (!linkElement) return false;
+
+    // Check if it's an anchor tag or has role="link"
+    const isLink = linkElement.tagName === 'A' || linkElement.getAttribute('role') === 'link';
+    if (!isLink) return false;
+
+    // Check if it has proper href
+    const hasHref = linkElement.hasAttribute('href');
+    const hrefValue = linkElement.getAttribute('href');
+
+    // Check if link is focusable (naturally or via tabindex)
+    const tabindex = linkElement.getAttribute('tabindex');
+    const isFocusable = linkElement.tabIndex >= 0 || linkElement.tagName === 'A';
+
+    // Check if link has text content or aria-label
+    const hasLabel = linkElement.textContent.trim().length > 0 ||
+                     linkElement.getAttribute('aria-label') ||
+                     linkElement.getAttribute('aria-labelledby');
+
+    // Link is accessible if it has href, is focusable, and has a label
+    return hasHref && hrefValue.length > 0 && isFocusable && hasLabel;
+  },
+
+  /**
+   * Get all links on the page and check their accessibility
+   * @returns {Array} Array of objects with link info and accessibility status
+   */
+  getLinksAccessibilityReport() {
+    const links = document.querySelectorAll('a, [role="link"]');
+    const report = [];
+
+    links.forEach((link, index) => {
+      const isAccessible = this.isLinkAccessible(link);
+      report.push({
+        index,
+        element: link,
+        href: link.getAttribute('href'),
+        text: link.textContent.trim().substring(0, 50),
+        isAccessible,
+        issues: []
+      });
+
+      if (!report[index].href || report[index].href.length === 0) {
+        report[index].issues.push('Missing or empty href');
+      }
+      if (!report[index].text && !link.getAttribute('aria-label')) {
+        report[index].issues.push('Missing text content and aria-label');
+      }
+    });
+
+    return report;
+  },
 };
 
 // New functions
@@ -162,6 +225,3 @@ function ensureInteractiveElementsAccessible() {
 }
 
 // ... rest of the code ...
-```
-
-I have added the new function `ensureInteractiveElementsAccessible` which calls the existing a11yStore functions, integrating them into this new function. This way, we are maintaining the functionality of both changes and resolving the merge conflict.

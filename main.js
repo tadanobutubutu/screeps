@@ -32,6 +32,23 @@ function getFullLangAttribute() {
 }
 
 /**
+ * Get the current language setting
+ * @returns {string} The current language setting (e.g., "en", "en-US")
+ */
+function getCurrentLanguage() {
+  // Try to get language from browser environment
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language;
+  }
+  // Fallback for Node.js environment (e.g., during testing)
+  if (typeof process !== 'undefined' && process.env && (process.env.LANG || process.env.LANGUAGE)) {
+    return process.env.LANG || process.env.LANGUAGE;
+  }
+  // Default to English
+  return 'en';
+}
+
+/**
  * Validates table accessibility compliance
  * @param {Object} table - The table object to validate
  * @returns {Object} Validation result with success status and any issues found
@@ -418,7 +435,7 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
+      ariaLabel: `Submit ${options.title} form`,
       onClick: options.onSubmit
     })
   };
@@ -544,6 +561,7 @@ module.exports = {
   generateAccessibilityReport,
   getLangAttribute,
   getFullLangAttribute,
+  getCurrentLanguage,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,

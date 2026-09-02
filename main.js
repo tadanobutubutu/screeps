@@ -553,6 +553,18 @@ if (typeof window !== 'undefined') {
   window.renderAdditionalContent = renderAdditionalContent;
 }
 
+// New function to be added according to the issue
+function applyAccessibilityFixes() {
+  getLangAttribute();
+  fixTableStructure();
+  fixLandmarks();
+  addSvgAccessibleNames();
+  ensureUniqueLandmarks();
+  fixFakeLinks();
+  validateLinkAccessibility();
+  addProperLandmarkRegions();
+}
+
 module.exports = {
   main,
   createInPageButton,

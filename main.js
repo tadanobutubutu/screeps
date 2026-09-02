@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import necessary dependencies
 import React from 'react'
 import { render } from 'react-dom'
@@ -111,6 +108,3 @@ if (dependencyGraph) {
   function log(message, level = 'info') {
     console[level](`[main.js] ${message}`);
   }
-```
-
-This file integrates changes from both branches, ensuring the code is functional and maintains the added features from both versions. Additional changes are kept to a minimum to be as conservative as possible. This solution assumes both versions are compatible, and potential conflicts in terms of naming or functionality have been addressed.

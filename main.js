@@ -4,13 +4,13 @@
 function detectAndSetLang() {
   // Detect the language from the document or content
   const lang = document.documentElement.lang || 
-               document.querySelector('html')?.getAttribute('lang') || 
-               document.body?.getAttribute('lang') || 
+               document.querySelector('meta[name="language"]')?.content ||
+               document.querySelector('[data-lang]')?.getAttribute('data-lang') ||
                'en';
   
   // Ensure the HTML element has a lang attribute for proper accessibility
-  if (!document.documentElement.hasAttribute('lang')) {
-    document.documentElement.setAttribute('lang', lang);
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = lang;
   }
   
   return lang;

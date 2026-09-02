@@ -518,6 +518,31 @@ function ensureDependencyGraphAriaRole() {
     }
 }
 
+/**
+ * Counts dependencies in the codebase
+ * @param {string} code - The code to analyze for dependencies
+ * @returns {number} The count of dependencies found
+ */
+function countDependencies(code) {
+  const requireRegex = /require\(['"]([^'"]+)['"]\)/g;
+  const importRegex = /import\s+.*?\s+from\s+['"]([^'"]+)['"]/g;
+  
+  let count = 0;
+  let match;
+  
+  // Count require() calls
+  while ((match = requireRegex.exec(code)) !== null) {
+    count++;
+  }
+  
+  // Count import statements
+  while ((match = importRegex.exec(code)) !== null) {
+    count++;
+  }
+  
+  return count;
+}
+
 // Export all existing and new functions
 module.exports = {
     getLangAttribute,
@@ -548,5 +573,6 @@ module.exports = {
     fixFakeLinks,
     addProperLandmarkRegions,
     replaceMyButton,
-    ensureDependencyGraphAriaRole
+    ensureDependencyGraphAriaRole,
+    countDependencies
 };

@@ -430,5 +430,7 @@ export {
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
     fixFakeLinks,
-    applyAccessibilityFixes
+    applyAccessibilityFixes,
+    checkLinkAccessibility,
+    wrapPrimaryContentInMain
 };

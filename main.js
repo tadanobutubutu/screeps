@@ -20,7 +20,7 @@ function main() {
 
     const accessibleName = getSvgAccessibleName(svg);
     if (accessibleName) {
-      // Use accessibleName
+      svg.setAttribute('aria-label', accessibleName);
     }
 
     setSvgAttributes(svg);
@@ -29,7 +29,9 @@ function main() {
 
 function getSvgAccessibleName(svg) {
   if (!svg) return '';
-  return ''; // Placeholder
+  const content = svg.innerHTML;
+  const textContent = content.match(/<text [^>]*>(.*?)<\/text>/gi);
+  return textContent ? textContent.map(t => t.replace(/<[^>]*>/g, '').trim()).join(' ') : '';
 }
 
 function setSvgAttributes(svg) {

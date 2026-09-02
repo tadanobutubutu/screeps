@@ -17,6 +17,7 @@ const accessibilityUtils = {
       const href = skipLink.getAttribute('href')
       if (!href) return
       const targetId = href.replace('#', '')
+      // TODO: Address accessibility issues from insight report:
       if (!targetId) return
       const target = document.getElementById(targetId)
       if (target) {

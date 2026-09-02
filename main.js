@@ -174,7 +174,7 @@ function validateLandmarkStructure(landmarks) {
 /**
  * Ensures all landmarks have unique accessible names
  * @param {Array} landmarks - Array of landmark elements to check (optional)
- * @returns {Object} Result with success status and any duplicate names found
+ * @returns {Object} Result with success status and duplicate names found
  */
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
@@ -721,6 +721,44 @@ function createResourceButton(resourceName, onClick) {
     return button;
 }
 
+/**
+ * Harvests data from available sources.
+ * Collects configuration, app state, and DOM-based resource information
+ * into a single object that can be consumed by other functions
+ * (such as upgradeSystem).
+ *
+ * @returns {Object} Harvested data containing:
+ *   - config: the current application configuration
+ *   - state: the current application state
+ *   - resources: array of resource names harvested from the DOM (if available)
+ *   - timestamp: the time at which harvesting occurred
+ */
+function harvest() {
+  const harvested = {
+    config: getConfig(),
+    state: {
+      initialized: appState.initialized,
+      hasData: appState.data !== null && appState.data !== undefined,
+      cacheSize: appState.cache ? appState.cache.size : 0
+    },
+    resources: [],
+    timestamp: Date.now()
+  };
+
+  // If running in a browser-like environment, harvest resource names from the DOM
+  if (typeof document !== 'undefined' && document.querySelectorAll) {
+    const resourceElements = document.querySelectorAll('[data-resource]');
+    resourceElements.forEach(el => {
+      const name = el.getAttribute('data-resource');
+      if (name && harvested.resources.indexOf(name) === -1) {
+        harvested.resources.push(name);
+      }
+    });
+  }
+
+  return harvested;
+}
+
 module.exports = {
   initializeApp,
   getConfig,
@@ -746,6 +784,7 @@ module.exports = {
   addSvgAccessibilityProps,
   fixButtonIdentifiers,
   createResourceButton,
+  harvest,
   performValidation,
   getLangAttribute,
   getFullLangAttribute,

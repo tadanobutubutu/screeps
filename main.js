@@ -1,8 +1,7 @@
 // TODO: Add back any required exports that might have been removed
 // TODO: This is the existing code that needs to be preserved
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: 35ee2ac73cdd24ae6e66b4c5861d0597820d661b -->
-//<!-- todo-hash: e6f420c2c4323fd22e178379d623df27c8f5c4eb -->
+//<!-- todo-hash: 49e339d5ff675ce559aa9f4f66ff29aef3f6166b -->
 
 // TODO: Implement the logic to handle the credential response
 function handleCredentialResponse(credential) {
@@ -225,3 +224,5 @@ function fixFakeLinkIssues() {
 function createAccessibleLink() {
     // Implementation to create accessible links
 }
+
+export { createInPageButton, validateLandmarkStructure };

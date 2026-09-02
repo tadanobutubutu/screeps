@@ -1,3 +1,12 @@
+// Dependency imports
+const { dependencyGraphContent } = require('./dependencyGraphContent')
+const { indexContent } = require('./indexContent')
+const { accessibilityUtils } = require('./accessibilityUtils');
+
+// Import necessary dependencies
+import React from 'react';
+import { render } from 'react-dom';
+
 const main = require('./utilities')
 
 const {
@@ -41,19 +50,6 @@ const {
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,
@@ -62,7 +58,11 @@ const {
   newFunction,
   validateHeadingHierarchy,
   ensureHeadingHierarchy,
-  renderAdditionalContent
+  renderAdditionalContent,
+  googleSignIn,
+  decodeJwtResponse,
+  ensureUniqueLandmarks,
+  addSvgAccessibleName
 } = main
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
@@ -256,6 +256,30 @@ function renderAdditionalContent(additionalData) {
   return `<div>${JSON.stringify(additionalData)}</div>`
 }
 
+// New accessibility function for calculating complexity of a module
+function calculateComplexity(moduleData) {
+  return moduleData.dependencies ? moduleData.dependencies.length : 0;
+}
+
+function renderDependencyGraph(deps, options = {}) {
+  // Use dependencyGraphContent from the imported module
+  const graphContent = dependencyGraphContent(deps, options)
+  return `<div class="dependency-graph-container" role="img" aria-label="Dependency graph visualization">${graphContent}</div>`
+}
+
+function renderIndex(data, options = {}) {
+  // Use indexContent from the imported module
+  return indexContent(data, options)
+}
+
+// Add the new function to the exports
+module.exports.renderAdditionalContent = renderAdditionalContent
+module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport
+module.exports.checkAccessibilityForReport = checkAccessibilityForReport
+module.exports.renderGraphIndex = renderGraphIndex
+module.exports.trapFocus = trapFocus
+
+// Export for use in other modules
 module.exports = {
   ...main,
   createInPageButton,
@@ -307,5 +331,7 @@ module.exports = {
   validateHeadingHierarchy,
   ensureHeadingHierarchy,
   renderAdditionalContent,
-  newFocusTrap
+  newFocusTrap,
+  calculateComplexity,
+  renderDependencyGraph
 };

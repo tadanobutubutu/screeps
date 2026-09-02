@@ -1,6 +1,7 @@
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
+const axeCore = require('axe-core'); // Added for accessibility scanning
 
 // Existing rendering functions (preserving existing exports and functions)
 
@@ -193,6 +194,40 @@ function implementAccessibilityFixesFromReport(container, report) {
     // Implementation to address accessibility issues from the insight report
 }
 
+// New function from other branch
+function newExportedFunction() {
+    // Implementation of the new function from the other conflict branch
+}
+
+// Generate a report based on accessibility issues using axe-core
+async function generateAccessibilityReport(container, options = {}) {
+    if (!container) {
+        throw new Error('Container element is required for accessibility report generation.');
+    }
+    try {
+        const results = await axeCore.run(container, options);
+        const violations = results.violations.map(violation => ({
+            id: violation.id,
+            description: violation.description,
+            impact: violation.impact,
+            nodes: violation.nodes.map(node => ({
+                target: node.target,
+                failureSummary: node.failureSummary,
+                html: node.html
+            }))
+        }));
+        return {
+            violations,
+            totalViolations: results.violations.length,
+            severityScore: results.violations.reduce((sum, v) => sum + (v.impact === 'critical' ? 3 : v.impact === 'serious' ? 2 : v.impact === 'moderate' ? 1 : 0), 0)
+        };
+    } catch (error) {
+        // Log the error and rethrow to ensure it is not silently ignored
+        console.error('Error generating accessibility report:', error);
+        throw error;
+    }
+}
+
 // Initialize accessibility features
 function initAccessibility() {
     accessibilityUtils.initSkipLink();
@@ -212,11 +247,6 @@ function initAccessibility() {
             });
         });
     }
-}
-
-// New function from other branch
-function newExportedFunction() {
-    // Implementation of the new function from the other conflict branch
 }
 
 // Export all utilities
@@ -240,7 +270,8 @@ module.exports = {
     getSvgAccessibleName: getSvgAccessibleName,
     createInPageButton: createInPageButton,
     handleAccessibilityIssues: handleAccessibilityIssues,
-    newExportedFunction: newExportedFunction
+    newExportedFunction: newExportedFunction,
+    generateAccessibilityReport: generateAccessibilityReport
 };
 
 // Init on DOM ready

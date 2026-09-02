@@ -26,8 +26,6 @@ import {
   renderDependencyGraphs
 } from './AccessibilityHelpers'
 
-const main = require('./utilities');
-
 // New rendering function
 function renderGraphIndex(content, options = {}) {
   return content;
@@ -483,16 +481,6 @@ fixButtonIdentifiers();
 
 // Other code...
 
-// Preserve all existing exports
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  validateTableAccessibility,
-  validateTableStructure,
-  // Preserve any other existing exports here
-  // Required exports restored from previous version
-}
-
 // New function or changes requested in the issue
 /**
  * New function to handle additional rendering logic
@@ -505,5 +493,14 @@ function renderAdditionalContent (additionalData) {
   return `<div>${JSON.stringify(additionalData)}</div>`
 }
 
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent
+// Preserve all existing exports
+module.exports = {
+  renderDependencyGraph,
+  renderSimpleDependencyGraph,
+  renderGraphIndex,
+  renderIndex: function() { return renderGraphIndex.apply(this, arguments); },
+  validateTableAccessibility,
+  validateTableStructure,
+  renderAdditionalContent,
+  main: main
+}

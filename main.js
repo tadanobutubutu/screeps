@@ -67,12 +67,14 @@ function addAccessibleName (svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
+  const parser = new DOMParser()
+  const svg = parser.parseFromString(svgString, 'image/svg+xml')
   const svgElement = svg.documentElement
   if (!svgElement.getAttribute('aria-label')) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
   }
-  return new XMLSerializer().serializeToString(svg)
+  const serializer = new XMLSerializer()
+  return serializer.serializeToString(svg)
 }
 
 // Example usage of the function
@@ -188,7 +190,7 @@ function newFocusTrap (element) {
   })
 }
 
-function validateTableStructure(container) {
+function validateTableStructureForAccessibility(container) {
   return validateTableStructureForAccessibility(container);
 }
 
@@ -292,42 +294,4 @@ if (typeof module !== 'undefined' && module.exports) {
     trapFocus,
     addLandmarkRegions,
     uniqueLandmarks,
-    fixFakeLinkIssues,
-    getActiveSessionsCount,
-    validateSession,
-    handleCredentialResponse,
-    accessibilityUtils,
-    createAnnouncer,
-    prefersReducedMotion,
-    renderSimpleDependencyGraph,
-    addAccessibleName,
-    addAccessibleNamesToSVGs,
-    addSvgAccessibleNames,
-    fixFakeLinkIssue,
-    addLangAttribute,
-    fixTableStructure,
-    addMainLandmark,
-    addLandmarkRegions,
-    ensureUniqueLandmarks,
-    addSvgAccessibleNames,
-    fixFakeLinkIssue,
-    fixFakeLinkIssues,
-    googleSignIn,
-    decodeJwtResponse,
-    fixButtonIdentifiers,
-    ensureElementHasId,
-    ensureElementHasIdOrigin,
-    addAriaLabel,
-    renderDependencyGraphs,
-    fixLandmarkIssues,
-    validateTableAccessibility,
-    validateTableStructure,
-    initializeAccessibility,
-    renderIndex,
-    newFunction,
-    validateHeadingHierarchy,
-    ensureHeadingHierarchy,
-    renderAdditionalContent,
-    newFocusTrap
-  };
-}
+    fix

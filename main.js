@@ -15,6 +15,87 @@ const newVariable = 'new value';
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 
 /**
+ * Generates an accessible name for an SVG element by examining its attributes,
+ * title, desc, and aria-label properties.
+ * @param {SVGElement|Element} svgElement - The SVG element to generate an accessible name for
+ * @returns {string|null} The accessible name, or null if none could be determined
+ */
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) {
+    return null;
+  }
+
+  // Check aria-label first
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim()) {
+    return ariaLabel.trim();
+  }
+
+  // Check aria-labelledby
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const ids = labelledBy.split(/\s+/);
+    const texts = ids
+      .map((id) => {
+        const ref = document.getElementById(id);
+        return ref ? ref.textContent.trim() : '';
+      })
+      .filter((text) => text.length > 0);
+    if (texts.length > 0) {
+      return texts.join(' ');
+    }
+  }
+
+  // Check for <title> child element
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent.trim()) {
+    return titleElement.textContent.trim();
+  }
+
+  // Check for <desc> child element as fallback
+  const descElement = svgElement.querySelector('desc');
+  if (descElement && descElement.textContent.trim()) {
+    return descElement.textContent.trim();
+  }
+
+  return null;
+}
+
+/**
+ * Sets accessibility attributes on an SVG element including role, aria-label,
+ * and ensures the element has an id for proper identification.
+ * @param {SVGElement|Element} svgElement - The SVG element to enhance
+ */
+function setSvgAttributes(svgElement) {
+  if (!svgElement) {
+    return;
+  }
+
+  // Ensure the element has an id
+  if (!svgElement.id) {
+    svgElement.id = `svg-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  // Set role to img for screen readers
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+
+  // Set aria-label if not already present and we can derive an accessible name
+  if (!svgElement.getAttribute('aria-label')) {
+    const accessibleName = getSvgAccessibleName(svgElement);
+    if (accessibleName) {
+      svgElement.setAttribute('aria-label', accessibleName);
+    }
+  }
+
+  // Set focusable attribute for IE/Edge compatibility
+  if (!svgElement.hasAttribute('focusable')) {
+    svgElement.setAttribute('focusable', 'false');
+  }
+}
+
+/**
  * Main application entry point with accessibility features
  */
 function renderDependencyGraphs(svgElements) {

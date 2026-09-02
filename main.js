@@ -36,16 +36,16 @@ function detectAndSetLang(content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[éèêàâïîôùûüç]/i.test(content)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German;
+      lang = 'de'; // German
     }
   }
 
@@ -98,9 +98,9 @@ function validateTableAccessibility(table) {
   }
 
   // Check if table cells have proper scope attributes
-  const cells = table.querySelectorAll('td, th');
+  const cells = table.querySelectorAll('th');
   for (const cell of cells) {
-    if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+    if (cell.tagName === 'TH' && !cell.getAttribute('scope')) {
       console.warn('Table header cell is missing scope attribute');
       return false;
     }
@@ -144,7 +144,7 @@ function validateLandmark(element) {
   const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
   const role = element.getAttribute('role') || element.tagName.toLowerCase();
 
-  if (!validRoles.includes(role)) {
+  if (!validRoles.includes(role) && !validRoles.includes(element.tagName.toLowerCase())) {
     return false;
   }
 
@@ -190,7 +190,7 @@ function validateLandmarkStructure(element) {
   const landmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'region', 'search'];
   const role = element.getAttribute('role') || element.tagName.toLowerCase();
 
-  if (!landmarkRoles.includes(role)) {
+  if (!landmarkRoles.includes(role) && !landmarkRoles.includes(element.tagName.toLowerCase())) {
     return false;
   }
 
@@ -239,7 +239,7 @@ function setSvgAttributes(svg, name) {
  */
 function ensureUniqueLandmarks() {
   if (typeof document === 'undefined') return true;
-  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
   const landmarkRoles = new Set();
   for (const landmark of landmarks) {
     const role = landmark.getAttribute('role');
@@ -258,7 +258,7 @@ function ensureUniqueLandmarks() {
  */
 function validateLinkAccessibility(link) {
   if (!link || typeof link !== 'object') return true;
-  return link.hasAttribute('href') && link.getAttribute('href') !== '#';
+  return link.textContent.trim() && link.getAttribute('href') !== '#';
 }
 
 /**
@@ -272,7 +272,7 @@ function handleFakeLinks(link) {
     const button = document.createElement('button');
     button.textContent = link.textContent;
     button.setAttribute('aria-label', link.getAttribute('aria-label') || link.textContent);
-    link.parentNode.replaceChild(button, link);
+    button.setAttribute('class', link.getAttribute('class') || '');
     return button;
   }
   return null;

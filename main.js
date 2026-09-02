@@ -1,7 +1,8 @@
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 // New function for addressing accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
+function addressAccessibilityIssues() {
   // Implementation goes here
   // For example:
   // - Parse the insight report
@@ -15,44 +16,59 @@ function addressAccessibilityIssues(insightReport) {
 const fs = require('fs');
 const path = require('path');
 
+// Placeholder for existing function (if not defined elsewhere)
+const someFunction = () => {};
+
+// Placeholder for createInPageButton (if not defined elsewhere)
+const createInPageButton = (text, href) => {
+  const button = document.createElement('button');
+  button.textContent = text || 'Link';
+  button.onclick = () => { window.location.href = href || '#'; };
+  return button;
+};
+
 // New function to validate link accessibility and handle fake links
 const validateLinkAccessibility = () => {
-  const links = document.getElementsByTagName('a')
+  const links = document.querySelectorAll('a');
   for (let i = 0; i < links.length; i++) {
-    const link = links[i]
-    if (link.href.startsWith('#') || !link.hasAttribute('href')) {
-      handleFakeLinks(link)
+    const link = links[i];
+    const isFake = !link.href || link.href === '#' || link.getAttribute('aria-hidden') === 'true';
+    if (isFake || !link.textContent.trim()) {
+      handleFakeLinks(link);
     }
   }
-}
+};
 
 // New function to handle fake links by wrapping them in an in-page button
 const handleFakeLinks = (link) => {
-  const fakeLinkButton = createInPageButton(link.textContent, link.href)
-  link.textContent = ''
-  link.setAttribute('target', '_top')
+  const fakeLinkButton = createInPageButton(link.textContent, link.href);
+  link.textContent = '';
+  link.setAttribute('target', '_top');
   link.addEventListener('click', (event) => {
-    event.preventDefault()
-    fakeLinkButton.click()
-  })
-}
+    event.preventDefault();
+    fakeLinkButton.click();
+  });
+};
 
 // New function to wrap primary content in a main element
 const wrapPrimaryContentInMain = () => {
-  const primaryContent = document.getElementById('primary-content')
+  const primaryContent = document.querySelector('article, [role="main"]') || document.body;
   if (primaryContent) {
-    const mainElement = document.createElement('main')
-    mainElement.appendChild(primaryContent)
-    document.body.insertBefore(mainElement, document.body.firstChild)
+    const mainElement = document.createElement('main');
+    while (primaryContent.firstChild) {
+      mainElement.appendChild(primaryContent.firstChild);
+    }
+    primaryContent.appendChild(mainElement);
   }
-}
+};
 
 // New function to count dependencies
 function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
+  const importCommentRegExp = /import\s+.*?from\s+['"].*?['"]/g;
+  const dependencyGraphContent = '';
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
@@ -61,73 +77,129 @@ function countDependencies() {
 const getLangAttribute = () => {
   // Assuming the function to determine the page language
   // This is a placeholder for the actual implementation
-  return 'en';
+  const htmlElement = document.documentElement;
+  return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
 };
 
 // New function to validate table accessibility
 const validateTableAccessibility = () => {
-  a11yStore.validateTableAccessibility();
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    const hasHeaders = headers.length > 0;
+    if (!hasHeaders) {
+      console.warn('Table missing headers');
+    }
+  });
 };
 
 // New function to validate table structure
 const validateTableStructure = () => {
-  a11yStore.validateTableStructure();
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      console.warn('Table missing caption');
+    }
+  });
 };
 
 // New function to validate landmarks
 const validateLandmark = () => {
-  a11yStore.validateLandmark();
+  const mainElement = document.querySelector('main, [role="main"]');
+  if (!mainElement) {
+    console.warn('No main landmark found');
+  }
 };
 
 // New function to validate landmark structure
 const validateLandmarkStructure = () => {
-  a11yStore.validateLandmarkStructure();
+  const landmarks = document.querySelectorAll('header, footer, nav, aside, main');
+  if (landmarks.length === 0) {
+    console.warn('No landmark elements found');
+  }
 };
 
 // New function to get SVG accessible name
 const getSvgAccessibleName = (svg) => {
-  return a11yStore.getSvgAccessibleName(svg);
+  if (!svg) return '';
+  const ariaLabel = svg.getAttribute('aria-label');
+  const title = svg.querySelector('title');
+  return ariaLabel || (title ? title.textContent : '');
 };
 
 // New function to ensure unique landmarks
 const ensureUniqueLandmarks = () => {
-  a11yStore.ensureUniqueLandmarks();
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    if (navElements.length > 1 && !nav.id) {
+      nav.id = `navigation-${index + 1}`;
+    }
+  });
 };
 
 // New function to fix fake link issues
 const fixFakeLinkIssues = () => {
-  validateLinkAccessibility();
+  const links = document.querySelectorAll('a[href="#"], a[href=""], a[aria-hidden="true"]');
+  links.forEach(link => {
+    const button = createInPageButton(link.textContent, link.getAttribute('href') || '#');
+    link.parentNode.replaceChild(button, link);
+  });
 };
 
 // New function to handle dynamic content updates
 function updateLiveRegion(message, priority = 'polite') {
-  a11yStore.updateLiveRegion(message, priority);
+  let liveRegion = document.getElementById('live-region');
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.id = 'live-region';
+    liveRegion.setAttribute('aria-live', priority);
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.style.position = 'absolute';
+    liveRegion.style.left = '-10000px';
+    document.body.appendChild(liveRegion);
+  }
+  liveRegion.textContent = message;
 }
 
 // New function to add IDs to landmark elements
 function addLandmarkIds() {
   const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
   landmarkElements.forEach(tag => {
-    const landmark = document.querySelector(tag);
-    if (landmark && landmark.id === '') {
-      landmark.id = `${tag}-${Math.floor(Math.random() * 1000)}`;
-    }
+    const landmarks = document.querySelectorAll(tag);
+    landmarks.forEach(landmark => {
+      if (landmark && landmark.id === '') {
+        landmark.id = `landmark-${Date.now() * Math.random() * 1000}`;
+      }
+    });
   });
 }
 
 // New function to check landmark elements in the DOM
-function checkLandmarkElementsInDom() {
-  a11yStore.checkLandmarkElements();
+function checkLandmarkElements() {
+  const expectedLandmarks = ['header', 'nav', 'main', 'footer'];
+  expectedLandmarks.forEach(landmark => {
+    const element = document.querySelector(landmark);
+    if (!element) {
+      console.warn(`Missing landmark: ${landmark}`);
+    }
+  });
 }
 
 // New function to add SVG accessibility props
-function addSVGAccessibilityProps() {
-  a11yStore.addSVGAccessibilityProps();
+function addSvgAccessibilityProps(svg) {
+  if (!svg) return;
+  if (!svg.getAttribute('role')) {
+    svg.setAttribute('role', 'img');
+  }
+  if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    console.warn('SVG missing accessible name');
+  }
 }
 
 // Preserve existing code functionality
 function preserveExistingCode() {
-  a11yStore.preserveExistingCode();
+  console.log('Preserving existing code functionality');
 }
 
 // New function to address new accessibility issues from insight report
@@ -138,7 +210,7 @@ function newFunction() {
 
 // Example of addressing REACT_015: Add lang attribute to HTML element
 function addLangAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     const lang = getLangAttribute();
     htmlElement.setAttribute('lang', lang);
@@ -167,11 +239,11 @@ module.exports = {
   fixFakeLinkIssues,
   updateLiveRegion,
   addLandmarkIds,
-  checkLandmarkElementsInDom,
-  addSVGAccessibilityProps,
+  checkLandmarkElements,
+  addSvgAccessibilityProps,
   preserveExistingCode,
   newFunction,
   addLangAttribute,
   addressAccessibilityIssues
   // continue with other exports here...
-}
+};

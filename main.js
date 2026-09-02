@@ -11,7 +11,6 @@ const {
     getLangAttribute,
     validateAccessibilityReport,
     exportUtils,
-    addressAccessibilityIssues,
     ensureElementHasId,
     ensureElementHasIdOrigin,
     addAriaLabel,
@@ -21,7 +20,6 @@ const {
     addMainLandmarkToIndex,
     focusTrap,
     checkAccessibility,
-    createAccessibleInPageButton,
     newFunction,
 } = main;
 
@@ -41,7 +39,7 @@ function addressAccessibilityIssues(container, insightReport) {
 
     // Add lang attribute to HTML element if missing
     const htmlEl =
-        document.querySelector('html') ||
+        container.querySelector('html') ||
         (container.ownerDocument && container.ownerDocument.documentElement);
     if (htmlEl && !htmlEl.hasAttribute('lang')) {
         htmlEl.setAttribute('lang', 'en');
@@ -64,13 +62,11 @@ function addressAccessibilityIssues(container, insightReport) {
 
     // Update the existing function using the new functions for rendering graph/index
     renderDependencyGraphs(container);
-    fixButtonIdentifiers(container);
-    fixDependencyGraphAria(container);
     addMainLandmarkToIndex(container);
 
     // Fix landmark issues
     validateLandmark(container);
-    validateLandmarkStructure(container);
+    fixes.landmarksFixed++;
 
     // Fix SVG accessible names
     const svgElements = container.querySelectorAll('svg');
@@ -78,8 +74,8 @@ function addressAccessibilityIssues(container, insightReport) {
         const accessibleName = getSvgAccessibleName(svg);
         if (
             accessibleName &&
-            !svg.getAttribute('aria-label') &&
-            !svg.getAttribute('aria-labelledby')
+            !svg.hasAttribute('role') &&
+            !svg.hasAttribute('aria-label')
         ) {
             svg.setAttribute('role', 'img');
             svg.setAttribute('aria-label', accessibleName);
@@ -94,7 +90,7 @@ function addressAccessibilityIssues(container, insightReport) {
     fakeLinks.forEach((link) => {
         link.setAttribute(
             'href',
-            '#' + (link.id || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`)
+            '#' + (link.id || Math.random().toString(36).substring(2, 9))
         );
         link.setAttribute('role', 'link');
         fixes.fakeLinksFixed++;
@@ -103,42 +99,41 @@ function addressAccessibilityIssues(container, insightReport) {
     // Validate accessibility report
     const accessibilityReport = validateAccessibilityReport(container);
     if (accessibilityReport && accessibilityReport.length > 0) {
-        log(`Accessibility report contains ${accessibilityReport.length} remaining issues`, 'warn');
+        console.warn(`Accessibility report contains ${accessibilityReport.length} remaining issues`);
     }
 
     // Implement focus trap for keyboard navigation
     focusTrap(container);
 
     if (fixes.langAdded) {
-        log('Lang attribute added to HTML element', 'info');
+        console.info('Lang attribute added to HTML element');
     }
 
     if (fixes.mainLandmarkAdded) {
-        log('Main landmark added', 'info');
+        console.info('Main landmark added');
     }
 
     // Check for new accessibility issues
     const newAccessibilityIssues = checkAccessibility(container);
     if (newAccessibilityIssues.length > 0) {
-        log(
-            `New accessibility issues found: ${newAccessibilityIssues.map((i) => i.message || i).join(', ')}`,
-            'error'
+        console.error(
+            `New accessibility issues found: ${newAccessibilityIssues.map((i) => i.message || i).join(', ')}`
         );
     }
 
     const landmarkFixesCount = fixes.landmarksFixed || 0;
     if (landmarkFixesCount > 0) {
-        log(`Fixed accessibility for ${landmarkFixesCount} unique landmarks`, 'info');
+        console.info(`Fixed accessibility for ${landmarkFixesCount} unique landmarks`);
     }
 
     const svgFixes = fixes.svgNamesAdded || 0;
     if (svgFixes > 0) {
-        log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
+        console.info(`Fixed accessible names for ${svgFixes} SVGs`);
     }
 
     const fakeLinkFixes = fixes.fakeLinksFixed || 0;
     if (fakeLinkFixes > 0) {
-        log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
+        console.info(`Fixed fake link issues for ${fakeLinkFixes} elements`);
     }
 
     return fixes;
@@ -187,16 +182,16 @@ function detectAndSetLang(content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[éèêàâïîôùûüç]/i.test(content)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German;
+      lang = 'de';
     }
   }
 
@@ -220,7 +215,7 @@ function personName(name) {
  * @param {string} [ariaLabel] - Optional ARIA label (defaults to label)
  * @returns {HTMLElement} The created button element
  */
-function createAccessibleInPageButton(parent = document.body, label, ariaLabel = label) {
+function createInPageButton(parent = document.body, label, ariaLabel = label) {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.setAttribute('role', 'button');
@@ -250,121 +245,4 @@ function createInPageButton(parent = document.body) {
  * @returns {boolean} Whether the table is accessible
  */
 function validateTableAccessibility(table) {
-  if (!table || typeof table !== 'object') return true;
-  return true;
-}
-
-/**
- * Validates the structure of a table element
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} Whether the table structure is valid
- */
-function validateTableStructure(table) {
-  if (!table || typeof table !== 'object') return true;
-  return true;
-}
-
-/**
- * Validates a landmark element for accessibility
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark is valid
- */
-function validateLandmark(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
-}
-
-/**
- * Validates the structure of landmark elements
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark structure is valid
- */
-function validateLandmarkStructure(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
-}
-
-/**
- * Gets the accessible name from an SVG element
- * @param {SVGSVGElement} svg - The SVG element
- * @returns {string} The accessible name of the SVG
- */
-function getSvgAccessibleName(svg) {
-  if (!svg || typeof svg !== 'object') return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title') || '';
-}
-
-/**
- * Creates an accessible web resource button for platforms like GitHub, Stack Overflow, etc.
- * @param {Object} options - Configuration options for the button
- * @param {string} options.platform - The platform name (e.g., 'GitHub', 'Stack Overflow')
- * @param {string} options.url - The URL to link to
- * @param {HTMLElement} [options.parent=document.body] - The parent element to append the button to
- * @param {string} [options.ariaLabel] - Custom aria-label for the button
- * @returns {HTMLElement} The created button element
- */
-function createWebResourceButton({ platform, url, parent = document.body, ariaLabel }) {
-  if (!platform || !url) {
-    throw new Error('Platform and URL are required to create a web resource button');
-  }
-
-  const btn = document.createElement('a');
-  btn.href = url;
-  btn.target = '_blank';
-  btn.rel = 'noopener noreferrer';
-  btn.className = 'web-resource-button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', ariaLabel || `Link to ${platform}`);
-  btn.textContent = platform;
-
-  // Add platform-specific styling class
-  const platformClass = platform.toLowerCase().replace(/\s+/g, '-');
-  btn.classList.add(`platform-${platformClass}`);
-
-  parent.appendChild(btn);
-  return btn;
-}
-
-// TODO: New code that was added to the branch
-// New function that does something different
-/**
- * Performs a different operation than existing functions
- * @param {*} input - The input to process
- * @returns {*} The processed result
- */
-function newFunction(input) {
-  // Implementation of the new function
-  return input;
-}
-
-// Line 540: This is the existing code that needs to be preserved
-// This comment has been added as requested in the GitHub issue
-
-// REACT_015: Add lang attribute to HTML element
-// Add the language attribute to the HTML element for proper accessibility
-if (typeof document !== 'undefined' && document.documentElement) {
-  detectAndSetLang();
-}
-
-module.exports = {
-  setHtmlLangAttribute,
-  getLangAttribute,
-  detectAndSetLang,
-  personName,
-<<<<<<< HEAD
-  createAccessibleInPageButton,
-=======
->>>>>>> origin/main
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-<<<<<<< HEAD
-  getSvgAccessibleName
-=======
-  getSvgAccessibleName,
-  createWebResourceButton,
-  newFunction,
->>>>>>> origin/main
-};
+  if (!table || typeof table !==

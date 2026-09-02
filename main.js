@@ -31,5 +31,26 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Implement this function for checking link and button accessibility
+function checkAccessibility() {
+    const links = document.querySelectorAll('a');
+    const buttons = document.querySelectorAll('button');
+
+    links.forEach(link => {
+        if (!link.hasAttribute('href')) {
+            console.warn(`Accessibility warning: Link without href attribute: ${link}`);
+        }
+        if (link.textContent.trim() === '') {
+            console.warn(`Accessibility warning: Link with empty text content: ${link}`);
+        }
+    });
+
+    buttons.forEach(button => {
+        if (button.textContent.trim() === '') {
+            console.warn(`Accessibility warning: Button with empty text content: ${button}`);
+        }
+    });
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

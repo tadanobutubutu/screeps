@@ -34,7 +34,7 @@ class ScreepsBot {
   }
 
   // New feature: Priority-based task scheduling
-  addTaskWithPriority(taskFn, priority = 'medium') {
+  addTask(taskFn, priority = 'medium') {
     this.tasks.push({ task: taskFn, priority });
     this.scheduleTasks();
   }
@@ -67,7 +67,7 @@ class ScreepsBot {
   }
 
   // New accessibility function: Keyboard event handler for accessibility
-  handleKeyboardNavigation(event) {
+  handleKeyboardEvent(event) {
     const key = event.key;
     const activeElement = document.activeElement;
 
@@ -77,7 +77,7 @@ class ScreepsBot {
       case 'ArrowDown':
       case 'ArrowLeft':
       case 'ArrowRight':
-        this.navigateWithArrows(key, activeElement);
+        this.handleArrowKeyNavigation(event, activeElement);
         break;
       case 'Tab':
         this.handleTabNavigation(event, activeElement);
@@ -88,9 +88,9 @@ class ScreepsBot {
   }
 
   // Helper for arrow key navigation
-  navigateWithArrows(key, activeElement) {
+  handleArrowKeyNavigation(event, activeElement) {
     // Implement custom navigation logic based on element type
-    console.log(`Navigating with ${key} key`);
+    console.log(`Navigating with ${event.key} key`);
   }
 
   // Helper for tab key navigation
@@ -114,26 +114,28 @@ const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: function(element) {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    element.addEventListener('keydown', function(e) {
+    const handleTabKey = function(e) {
       if (e.key === 'Tab') {
         if (e.shiftKey) {
           if (document.activeElement === firstElement) {
-            lastElement.focus();
             e.preventDefault();
+            lastElement.focus();
           }
         } else {
           if (document.activeElement === lastElement) {
-            firstElement.focus();
             e.preventDefault();
+            firstElement.focus();
           }
         }
       }
-    });
+    };
+
+    element.addEventListener('keydown', handleTabKey);
   },
 
   // Announce message to screen readers

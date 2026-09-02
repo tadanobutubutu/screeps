@@ -179,7 +179,213 @@ function accessibility() {
   ensureInteractiveElementsAccessible();
 }
 
-// ... rest of the code ...
-```
+// Harvest and Upgrade Logic
+const upgradeStore = {
+  harvestedData: null,
+  upgradeLevel: 0,
+  maxUpgradeLevel: 10,
 
-Here is the resolved file where the new entry point for accessibility-related functions `accessibility()` has been added, and the existing `renderGraphIndex` function has been integrated with the original implementation. To address the merge conflict, I have preserved both changes, introducing a new function `ensureInteractiveElementsAccessible()` that calls the existing a11yStore functions, thereby maintaining the functionality of both. Additionally, I have added a function to handle initial accessibility setup on page load `handleInitialAccessibility()`.
+  /**
+   * Harvest data from available sources
+   * @param {Object} sources - Object containing data sources to harvest from
+   * @returns {Object} Harvested data
+   */
+  harvest(sources = {}) {
+    const harvested = {
+      dependencies: [],
+      metrics: {},
+      timestamp: Date.now(),
+      level: this.upgradeLevel
+    };
+
+    // Harvest dependency data
+    if (sources.dependencies && Array.isArray(sources.dependencies)) {
+      harvested.dependencies = sources.dependencies.map(dep => ({
+        ...dep,
+        harvestedAt: Date.now()
+      }));
+    }
+
+    // Harvest index data
+    if (sources.indexData) {
+      harvested.metrics = {
+        ...sources.indexData,
+        harvestedAt: Date.now()
+      };
+    }
+
+    // Harvest utility data
+    if (sources.utilities) {
+      harvested.utilities = sources.utilities;
+    }
+
+    this.harvestedData = harvested;
+    return harvested;
+  },
+
+  /**
+   * Calculate upgrade value based on harvested data
+   * @param {Object} data - Data to calculate upgrade from
+   * @returns {number} Upgrade value
+   */
+  calculateUpgradeValue(data) {
+    if (!data || !data.dependencies) return 0;
+
+    const dependencyCount = data.dependencies.length;
+    const avgComplexity = data.dependencies.reduce((acc, dep) => {
+      return acc + (dep.complexity || 1);
+    }, 0) / Math.max(dependencyCount, 1);
+
+    const baseValue = add(dependencyCount, Math.floor(avgComplexity));
+    const multiplier = power(1.5, this.upgradeLevel);
+
+    return Math.floor(multiply(baseValue, multiplier));
+  },
+
+  /**
+   * Perform upgrade operation
+   * @param {Object} upgradeParams - Parameters for upgrade
+   * @returns {Object} Upgrade result
+   */
+  upgrade(upgradeParams = {}) {
+    const result = {
+      success: false,
+      level: this.upgradeLevel,
+      value: 0,
+      message: '',
+      data: null
+    };
+
+    if (this.upgradeLevel >= this.maxUpgradeLevel) {
+      result.message = 'Maximum upgrade level reached';
+      return result;
+    }
+
+    const value = this.calculateUpgradeValue(upgradeParams.sourceData);
+    
+    if (value > 0) {
+      // Check if we have enough harvested data
+      const harvestCount = (this.harvestedData && this.harvestedData.dependencies) 
+        ? this.harvestedData.dependencies.length 
+        : 0;
+      
+      const requiredHarvest = multiply(this.upgradeLevel + 1, 2);
+
+      if (harvestCount >= requiredHarvest) {
+        this.upgradeLevel += 1;
+        
+        result.success = true;
+        result.level = this.upgradeLevel;
+        result.value = value;
+        result.message = `Upgrade successful! New level: ${this.upgradeLevel}`;
+        result.data = {
+          previousLevel: result.level - 1,
+          newValue: value,
+          enhancedData: this._enhanceData(this.harvestedData)
+        };
+
+        // Reset harvested data after upgrade
+        this.harvestedData = null;
+      } else {
+        result.message = `Insufficient harvested data. Required: ${requiredHarvest}, Available: ${harvestCount}`;
+      }
+    } else {
+      result.message = 'No valid data to upgrade from';
+    }
+
+    return result;
+  },
+
+  /**
+   * Enhance data based on upgrade level
+   * @param {Object} data - Data to enhance
+   * @returns {Object} Enhanced data
+   */
+  _enhanceData(data) {
+    if (!data) return null;
+
+    return {
+      ...data,
+      enhancedAt: Date.now(),
+      enhancementLevel: this.upgradeLevel,
+      enhancedDependencies: data.dependencies ? 
+        data.dependencies.map(dep => ({
+          ...dep,
+          enhanced: true,
+          priority: this._calculatePriority(dep)
+        })) : []
+    };
+  },
+
+  /**
+   * Calculate priority for enhanced dependencies
+   * @param {Object} dep - Dependency object
+   * @returns {number} Priority value
+   */
+  _calculatePriority(dep) {
+    if (!dep) return 0;
+    
+    const complexity = dep.complexity || 1;
+    const connections = (dep.connections || []).length;
+    
+    return Math.floor(add(multiply(complexity, 2), connections));
+  },
+
+  /**
+   * Get current upgrade status
+   * @returns {Object} Upgrade status
+   */
+  getStatus() {
+    return {
+      upgradeLevel: this.upgradeLevel,
+      maxUpgradeLevel: this.maxUpgradeLevel,
+      progress: this.upgradeLevel / this.maxUpgradeLevel,
+      hasHarvestedData: this.harvestedData !== null
+    };
+  }
+};
+
+/**
+ * Main harvest and upgrade function
+ * Orchestrates the harvesting and upgrading process
+ * @param {Object} config - Configuration for harvest and upgrade
+ * @returns {Object} Result of the operation
+ */
+function harvestAndUpgrade(config = {}) {
+  const result = {
+    harvestResult: null,
+    upgradeResult: null,
+    success: false
+  };
+
+  // Step 1: Harvest data
+  if (config.shouldHarvest !== false) {
+    const harvestSource = {
+      dependencies: config.dependencies || [],
+      indexData: config.indexData || {},
+      utilities: config.utilities || main
+    };
+
+    result.harvestResult = upgradeStore.harvest(harvestSource);
+  }
+
+  // Step 2: Upgrade if configured
+  if (config.shouldUpgrade && upgradeStore.getStatus().hasHarvestedData) {
+    result.upgradeResult = upgradeStore.upgrade({
+      sourceData: upgradeStore.harvestedData
+    });
+    
+    result.success = result.upgradeResult.success || result.harvestResult !== null;
+  } else if (!config.shouldUpgrade) {
+    result.success = result.harvestResult !== null;
+  }
+
+  // Update accessibility with new data if available
+  if (result.harvestResult) {
+    accessibility();
+  }
+
+  return result;
+}
+
+// ... rest of the code ...

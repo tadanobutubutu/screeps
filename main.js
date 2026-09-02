@@ -42,6 +42,19 @@
       fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
     }
 
+// Utilities
+const { validateInput, processData } = require('./utils/validators');
+const { formatResponse } = require('./utils/processor');
+
+// Function A and Function B (from HEAD)
+function functionA(value) {
+    return value;
+}
+
+function functionB(value) {
+    return value ? value : null;
+}
+
     // Function to get the language attribute value
     function getLangAttribute() {
       // Implementation of getLangAttribute function
@@ -235,6 +248,12 @@
 
     // Export the report generation function
     module.exports = {
+      config: CONFIG,
+      appState: undefined,
+      initializeApp: undefined,
+      processData,
+      fetchUser: undefined,
+      clearCache: undefined,
       generateAccessibilityReport: async function () {
         const report = await scanAccessibility();
         writeReport(report);
@@ -249,7 +268,35 @@
       validateLandmark,
       validateLandmarkStructure,
       getSvgAccessibleName,
-      setSvgAttributes
+      setSvgAttributes,
+      initialize: undefined,
+      validateInput,
+      fixTableAccessibility: undefined,
+      fixLandmarkIssues: undefined,
+      addSvgAccessibility: undefined,
+      createAccessibleLinks: undefined,
+      formatResponse,
+      loadLandmarks: undefined,
+      processLandmarks: undefined,
+      sortLandmarks: undefined,
+      getLandmarkById: undefined,
+      isValidLandmark: undefined,
+      writeReport,
+      scanAccessibility,
+      functionA,
+      functionB,
+      someFunction: function() {
+        return 'some value';
+      },
+      helper: function(input) {
+        return input ? input.toUpperCase() : '';
+      },
+      formatDate: function(date) {
+        if (!(date instanceof Date)) {
+          date = new Date(date);
+        }
+        return date.toISOString();
+      }
     };
 
     // Initialize the application with accessibility improvements
@@ -288,6 +335,21 @@
         if (a11y && a11y.init) {
             a11y.init();
         }
+    }
+
+    // Main execution when run directly
+    if (require.main === module) {
+      const landmarks = loadLandmarks();
+      const processed = processLandmarks(landmarks);
+      const sorted = sortLandmarks(processed);
+
+      console.log(`Loaded ${landmarks.length} landmarks`);
+      console.log(`Processed to ${processed.length} unique landmarks`);
+      console.log(`Sorted ${sorted.length} landmarks`);
+
+      if (sorted.length > 0) {
+        console.log('First landmark:', sorted[0]);
+      }
     }
 
     // Initialize on DOM ready

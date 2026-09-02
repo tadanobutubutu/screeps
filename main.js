@@ -21,6 +21,13 @@ function initialize() {
   return true;
 }
 
+// System Information function
+function systemInfo() {
+  // Add system information such as OS, browser, etc.
+  // ...
+  return 'System info not implemented';
+}
+
 // Main initialization function
 const initializeApp = () => {
   // Main initialization function

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/client';
@@ -51,6 +48,10 @@ export {
     validateLandmarkStructure,
     initialize
 };
-```
 
-In this solution, I've created two separate sets of functions: 'mainAdapted' and 'mainAccessibility'. The 'mainAdapted' exports the original code from the 'main.js' that hasn't been overwritten by the new changes, while the 'mainAccessibility' exports the new accessibility functions. Both sets of functions are imported separately and then combined by exporting them all together. Meanwhile, the existing accessibility initialization logic was integrated into the 'initialize' function. This way, both sets of functionality have been preserved without conflicting with each other.
+// In this solution, two separate sets of functions have been created: 'mainAdapted' and 'mainAccessibility'.
+// The 'mainAdapted' exports the original code from the 'main.js' that hasn't been overwritten by the new changes,
+// while the 'mainAccessibility' exports the new accessibility functions.
+// Both sets of functions are imported separately and then combined by exporting them all together.
+// Meanwhile, the existing accessibility initialization logic was integrated into the 'initialize' function.
+// This way, both sets of functionality have been preserved without conflicting with each other.

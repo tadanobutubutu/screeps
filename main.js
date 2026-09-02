@@ -17,6 +17,55 @@
  * Main application entry point with accessibility features
  */
 
+// Helper function to get the language attribute from the HTML element
+function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (!htmlElement) return '';
+  return htmlElement.getAttribute('lang') || '';
+}
+
+// Helper function to get the full language attribute including region/code
+function getFullLangAttribute() {
+  const lang = getLangAttribute();
+  if (!lang) return '';
+  // Handle language tags with region (e.g., en-US, en-GB)
+  const parts = lang.split('-');
+  if (parts.length > 1) {
+    return `${parts[0].toLowerCase()}-${parts[1].toUpperCase()}`;
+  }
+  return lang.toLowerCase();
+}
+
+// Helper function to validate landmark elements
+function validateLandmark(landmarkElement) {
+  if (!landmarkElement) {
+    return { valid: false, error: 'Landmark element is required' };
+  }
+  
+  const tagName = landmarkElement.tagName ? landmarkElement.tagName.toLowerCase() : '';
+  const role = landmarkElement.getAttribute('role');
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  const implicitRole = {
+    header: 'banner',
+    nav: 'navigation',
+    main: 'main',
+    aside: 'complementary',
+    footer: 'contentinfo'
+  };
+  
+  const effectiveRole = role || implicitRole[tagName];
+  
+  if (!effectiveRole) {
+    return { valid: false, error: `Missing landmark role for ${tagName}` };
+  }
+  
+  if (!landmarkRoles.includes(effectiveRole)) {
+    return { valid: false, error: `Invalid landmark role: ${effectiveRole} for ${tagName}` };
+  }
+  
+  return { valid: true, role: effectiveRole, tagName };
+}
+
 // Helper function to process SVG elements
 function processSvgElements() {
   const svgElements = document.querySelectorAll('svg');

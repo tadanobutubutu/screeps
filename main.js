@@ -35,7 +35,7 @@ const { someFunction } = { someFunction: () => 'someFunction result' };
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  const dependencyGraph = document.querySelector('[data-dependency-graph]') || document.querySelector('.dependency-graph');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -46,7 +46,7 @@ function addressAccessibilityIssues() {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  const container = document.querySelector('[data-dependency-graph-content]') || document.querySelector('.dependency-graph-content');
   if (container) {
     container.innerHTML = data;
   }
@@ -156,8 +156,8 @@ function fixTableHeaderCellScope() {
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(cell => {
       if (!cell.hasAttribute('scope')) {
-        const rows = table.querySelectorAll('tr');
-        const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+        const rows = Array.from(table.querySelectorAll('tr'));
+        const cellIndex = Array.from(rows[0].querySelectorAll('th, td')).indexOf(cell);
         let isHeaderRow = true;
 
         rows.forEach(row => {
@@ -199,7 +199,7 @@ function addMainLandmark() {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
+    let title = svg.querySelector('title');
     if (title) {
       const titleId = `svg-title-${index}`;
       title.setAttribute('id', titleId);
@@ -218,9 +218,9 @@ function ensureUniqueLandmarks() {
   const uniqueLandmarkMap = {};
 
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
     elements.forEach(el => {
-      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
+      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].every(e => e !== el);
       if (isUnique) {
         if (!uniqueLandmarkMap[landmark]) {
           uniqueLandmarkMap[landmark] = [];
@@ -230,158 +230,3 @@ function ensureUniqueLandmarks() {
         // Remove the role if it's not unique
         el.removeAttribute('role');
       }
-    });
-  });
-}
-
-// Fix unique landmarks based on insight report (REACT_025)
-function fixUniqueLandmarks(insightReport) {
-  const issues = insightReport.issues || [];
-
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_025') {
-      const element = document.querySelector(issue.selector);
-      if (element && issue.ariaRole) {
-        // Remove duplicate landmark roles
-        const landmarkRole = issue.ariaRole;
-        const allElements = document.querySelectorAll(`[role="${landmarkRole}"]`);
-        if (allElements.length > 1) {
-          // Keep the first one, remove role from others
-          for (let i = 1; i < allElements.length; i++) {
-            allElements[i].removeAttribute('role');
-          }
-        }
-      }
-    }
-  });
-}
-
-// New function to implement accessibility fixes
-function implementNewFunction() {
-  addressAccessibilityIssues();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  addLangAttribute();
-  fixTableStructureIssues();
-  addMainLandmark();
-  addSvgAccessibleNames();
-  fixTableHeaderCellScope();
-  // Note: fixUniqueLandmarks requires an insightReport parameter, so we call it with an empty object
-  fixUniqueLandmarks({ issues: [] });
-  // TODO: Implement this function for creating in-page buttons
-  const buttonElements = [ // Add the elements you want to convert to buttons
-    { textContent: 'Button 1', id: 'button1' },
-    { textContent: 'Button 2', id: 'button2' },
-    // ...
-  ];
-  createInPageButtons(buttonElements, '.container'); // Modify the containerSelector based on the target container
-}
-
-// Function to improve accessibility based on insight report
-function improveAccessibility(insightReport) {
-  addLangAttribute();
-  addLandmarkRoles(insightReport);
-  fixLandmarkIssues(insightReport);
-  fixFakeLinks();
-  addMainLandmark();
-  addSvgAccessibleNames();
-  fixTableStructureIssues();
-  fixTableHeaderCellScope();
-  ensureUniqueLandmarks();
-  fixUniqueLandmarks(insightReport);
-}
-
-// Function to address insight report issues
-function addressInsightReportIssues(insightReport) {
-  improveAccessibility(insightReport);
-}
-
-// New function to generate accessibility report
-function generateAccessibilityReport(insightReport) {
-  if (!insightReport || !insightReport.issues) {
-    return {
-      summary: "No accessibility issues found",
-      issues: [],
-      severityCounts: {
-        critical: 0,
-        serious: 0,
-        moderate: 0,
-        minor: 0
-      }
-    };
-  }
-
-  const severityCounts = {
-    critical: 0,
-    serious: 0,
-    moderate: 0,
-    minor: 0
-  };
-
-  // Count issues by severity
-  insightReport.issues.forEach(issue => {
-    if (issue.severity === 'critical') severityCounts.critical++;
-    else if (issue.severity === 'serious') severityCounts.serious++;
-    else if (issue.severity === 'moderate') severityCounts.moderate++;
-    else if (issue.severity === 'minor') severityCounts.minor++;
-  });
-
-  // Generate summary
-  const totalIssues = insightReport.issues.length;
-  let summary = `Accessibility report generated with ${totalIssues} issues found.`;
-
-  if (severityCounts.critical > 0) {
-    summary += ` ${severityCounts.critical} critical issues need immediate attention.`;
-  }
-
-  return {
-    summary,
-    issues: insightReport.issues,
-    severityCounts,
-    timestamp: new Date().toISOString()
-  };
-}
-
-// Existing code preserved below
-function main() {
-  console.log('Running main application');
-  return someFunction();
-}
-
-// Added missing exported functions
-function improveAccessibility() {
-  // Placeholder implementation
-}
-
-function addressInsightReportIssues(insightReport) {
-  // Placeholder implementation
-}
-
-// Export all functions for use elsewhere in the repository
-module.exports = {
-  improveAccessibility,
-  addressInsightReportIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  fixLandmarkIssues,
-  addLandmarkRoles,
-  ensureUniqueLandmarks,
-  fixFakeLinks,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  implementNewFunction,
-  addLangAttribute,
-  main,
-  someFunction,
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
-  createInPageButtons,
-  fixUniqueLandmarks,
-  generateAccessibilityReport // Add the new generateAccessibilityReport function to the exports
-};
-
-// Execute main function
-main();

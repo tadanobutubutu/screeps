@@ -7,21 +7,123 @@ const { indexContent } = require('./indexContent');
 const main = require('./utilities');
 
 const {
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-} = require('./mathHelpers');
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  announceToScreenReader,
+  handleKeyboardNav,
+  newFocusTrap,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementIdOrigin,
+  ensureElementId,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
+  transformInputData
+} = main;
+
+const ensureElementIdOriginal = (element) => {
+  if (element && !element.id) {
+    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+  }
+  return element;
+};
+
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+};
+
+const renderDependencyGraph = (data) => {
+  // Implementation for rendering dependency graphs
+  return {
+    nodes: data.nodes || [],
+    edges: data.edges || []
+  };
+};
+
+// Add back any required exports that might have been removed.
+// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+function calculateSum(a, b) { return a + b; }
+
+// Initialize skip link for accessibility
+const initSkipLink = () => {
+  const skipLink = document.getElementById('skip-link');
+  if (!skipLink) {
+    const skipContainer = document.createElement('div');
+    skipContainer.id = 'skip-link';
+    skipContainer.className = 'sr-only';
+    skipContainer.style.position = 'fixed';
+    skipContainer.style.top = '0';
+    skipContainer.style.left = '0';
+    skipContainer.style.width = '100%';
+    skipContainer.style.height = '100%';
+    skipContainer.style.zIndex = '99999';
+
+    const skipLinkElement = document.createElement('a');
+    skipLinkElement.href = '#main-content';
+    skipLinkElement.textContent = 'Skip to main content';
+    skipLinkElement.setAttribute('aria-label', 'Skip to main content');
+    skipContainer.appendChild(skipLinkElement);
+
+    document.body.appendChild(skipContainer);
+  }
+};
+
+// Trap focus within an element for accessibility
+const trapFocus = (element) => {
+  if (!element) {
+    return () => {};
+  }
+
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) {
+    console.warn('No focusable elements found in container');
+    return;
+  }
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+
+    if (e.key === 'Escape') {
+      element.dispatchEvent(new CustomEvent('focusTrapEscape'));
+    }
+  };
+
+  element.addEventListener('keydown', handleKeyDown);
+  firstElement.focus();
+
+  // Return cleanup function
+  return () => {
+    element.removeEventListener('keydown', handleKeyDown);
+  };
+};
 
 // Existing rendering functions (preserving existing exports and functions)
 
@@ -127,7 +229,6 @@ const a11yStore = {
   }
 };
 
-<<<<<<< HEAD
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
@@ -149,7 +250,7 @@ const exportUtilities = {
     URL.revokeObjectURL(url);
 
     // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
+    announceToScreenReader("Download of " + filename + " started");
   },
 
   exportToJSON: (data, filename) => {
@@ -177,7 +278,6 @@ const exportUtilities = {
   }
 };
 
-=======
 /**
  * Check if an element is a landmark element for accessibility
  * Landmark elements include: main, nav, aside, header, footer, section, article, form, search
@@ -238,7 +338,6 @@ function parseCredentialResponse(credentialResponse) {
  * @param {string} filename - The filename to sanitize
  * @returns {string} - Sanitized filename
  */
->>>>>>> origin/main
 function sanitizeFilename(filename) {
   return filename.replace(/[^a-z0-9_.-]/g, '_');
 }
@@ -330,66 +429,21 @@ function generateSessionId() {
   return timestamp + '-' + randomPart;
 }
 
-/**
- * Validates the structure of the table to ensure accessibility.
- * @param {HTMLElement|string} element - The element or element tag name to check
- * @returns {boolean} True if the element is a landmark element
- */
-function isLandmarkElement(element) {
-  const landmarkTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form', 'search'];
+// Initialize accessibility features
+const initAccessibility = () => {
+  initSkipLink();
 
-  if (!element) {
-    return false;
-  }
+  // Add keyboard support for all interactive elements
+  document.querySelectorAll('[data-accessible]').forEach(element => {
+    element.addEventListener('keydown', (e) => {
+      handleKeyboardNav(e, {
+        Enter: () => element.click(),
+        ' ': () => element.click()
+      });
+    });
+  });
+};
 
-  if (typeof element === 'string') {
-    return landmarkTags.includes(element.toLowerCase());
-  }
-
-  if (element.tagName) {
-    return landmarkTags.includes(element.tagName.toLowerCase());
-  }
-
-  return false;
-}
-
-/**
- * Parse a credential response from OAuth/identity provider
- * @param {Object} credentialResponse - The credential response
- * @returns {Object} - Parsed response with success status and credential or error
- */
-function parseCredentialResponse(credentialResponse) {
-  try {
-    if (!credentialResponse || !credentialResponse.credential) {
-      return {
-        success: false,
-        error: 'Invalid credential response'
-      };
-    }
-    const parts = credentialResponse.credential.split('.');
-    if (parts.length !== 3) {
-      return {
-        success: false,
-        error: 'Malformed credential token'
-      };
-    }
-    const payload = parts[1];
-    const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
-    return JSON.parse(decoded);
-  } catch (error) {
-    return {
-      success: false,
-      error: 'Failed to parse credential response'
-    };
-  }
-}
-
-/**
- * Sanitize a filename by replacing invalid characters
- * @param {string} filename - The filename to sanitize
- * @returns {string} - Sanitized filename
- */
->>>>>>> origin/main
 function newFunction() {
   // Implementation from origin/main
   return 'New function implementation from origin/main';
@@ -689,6 +743,17 @@ if (typeof document !== 'undefined') {
 
 // Export modules for testing
 module.exports = {
+  ...main,
+  ensureElementId,
+  ensureElementIdOrigin,
+  addAriaLabel,
+  renderDependencyGraph,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  newFocusTrap,
   a11yStore,
   isLandmarkElement,
   handleCredentialResponse,

@@ -41,9 +41,9 @@ const {
 } = require('./accessibility-improvements');
 
 // Constants
-const safetyCategories = ["Unauthorized Advice"];
+const safetyCategories = ["PII/Privacy", "Unauthorized Advice"];
 const books = [];
-const safetyCategory = "User Safety: safe";
+const safetyCategory = "User Safety: unsafe";
 
 const landmarkSelectors = [
   'main',

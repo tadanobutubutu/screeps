@@ -75,7 +75,7 @@ function ensureUniqueLandmarks() {
   return true;
 }
 
-function getSvgAccessibleName(svgElement) {
+function getSvgAccessibleName() {
   // Returns an accessible name for an SVG element
   // Implementation would check for title, aria-label, etc.
   return 'Accessible SVG Name';
@@ -124,6 +124,7 @@ function validateLandmarkData(landmark) {
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
   } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    // TODO: Implement validation logic here
     errors.push('Landmark longitude must be a number');
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
@@ -204,15 +205,17 @@ function addMainLandmark() {
 
 // Add accessible names to SVGs
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    svg.setAttribute('aria-label', `Graphic ${index + 1}`);
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+      svg.setAttribute('aria-label', `Graphic ${index + 1}`);
+    }
   });
 }
 
 // Fix fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('[href="#"], [href="javascript:void(0)"]');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');

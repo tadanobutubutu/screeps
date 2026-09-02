@@ -101,4 +101,4 @@ function countDependencies() {
   };
 }
 
-export { existingFunction1, existingVariable, newFunction, newVariable, checkLandmarkElements, sampleInsightReport };
+export { existingFunction1, existingVariable, newFunction, newVariable, checkLandmarkElements, sampleInsightReport, countDependencies };

@@ -235,4 +235,10 @@ function trapFocus(container) {
         if (lastElement) lastElement.focus()
       }
     } else {
-      if (document.activeElement === lastElement)
+      if (document.activeElement === lastElement) {
+        e.preventDefault()
+        if (firstElement) firstElement.focus()
+      }
+    }
+  }
+}

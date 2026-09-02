@@ -193,6 +193,53 @@ function getActiveSessionsCount() {
   return appState.sessions.size
 }
 
+// New feature: Priority-based task scheduling
+function addTask(taskFn, priority = 'medium') {
+  if (!this.tasks) {
+    this.tasks = [];
+  }
+  this.tasks.push({ task: taskFn, priority });
+  this.scheduleTasks();
+}
+
+// Handle keyboard navigation (e.g., arrow keys, tab)
+function handleKeyboardNavigation(key, event, activeElement) {
+  switch (key) {
+    case 'ArrowUp':
+    case 'ArrowDown':
+    case 'ArrowLeft':
+    case 'ArrowRight':
+      handleArrowNavigation(key, activeElement);
+      break;
+    case 'Tab':
+      handleTabNavigation(event, activeElement);
+      break;
+    default:
+      break;
+  }
+}
+
+// Helper for arrow key navigation
+function handleArrowNavigation(key, activeElement) {
+  // Implement custom navigation logic based on element type
+  console.log(`Navigating with ${key} key`);
+}
+
+// Helper for tab key navigation
+function handleTabNavigation(event, activeElement) {
+  // Implement tab navigation logic
+  console.log(`Handling Tab navigation`);
+}
+
+// Accessibility: Ensure the dependencyGraph container has a proper ARIA role
+function setupDependencyGraphContainer(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.setAttribute('role', 'img');
+    container.setAttribute('aria-label', 'Dependency graph');
+  }
+}
+
 function validateSession() {
   // Implementation of the validateSession function
   // Placeholder for actual implementation

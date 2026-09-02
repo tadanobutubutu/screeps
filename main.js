@@ -28,7 +28,8 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+// Commented out to fix syntax error: JSX is not supported in plain Node.js
+// const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:

@@ -21,6 +21,40 @@ function main() {
   init();
 }
 
+// Add setupAriaLiveRegions function
+function setupAriaLiveRegions() {
+  const liveRegions = document.querySelectorAll('[data-live-region]');
+  liveRegions.forEach((region) => {
+    if (!region.hasAttribute('aria-live')) {
+      region.setAttribute('aria-live', 'polite');
+    }
+    if (!region.hasAttribute('role')) {
+      region.setAttribute('role', 'status');
+    }
+  });
+}
+
+// Add setupFocusManagement function
+function setupFocusManagement() {
+  const focusableElements = document.querySelectorAll('a[href], button, textarea, input[type]:not([type="hidden"]), select, details:not([disabled]), [tabindex]:not([tabindex="-1"])');
+  focusableElements.forEach((element) => {
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
+  });
+}
+
+// Add enhanceSemanticMarkup function
+function enhanceSemanticMarkup() {
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headings.forEach((heading) => {
+    if (!heading.hasAttribute('id')) {
+      const headingText = heading.textContent.trim().replace(/\s+/g, '-').toLowerCase();
+      heading.setAttribute('id', headingText);
+    }
+  });
+}
+
 function getSvgAccessibleName(svg) {
   const title = svg.querySelector('title');
   if (title && title.textContent) {
@@ -145,7 +179,10 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureUniqueLandmarks,
     personName,
     createInPageButton,
-    fixFakeLink
+    fixFakeLink,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup
   };
 } else {
   // Browser environment - wait for DOM

@@ -445,10 +445,7 @@ fixButtonIdentifiers();
 
 // Other code...
 
-// Preserve all existing exports
 module.exports = {
-  renderDependencyGraph,
-  renderIndex,
   validateTableAccessibility,
   validateTableStructure,
   renderAdditionalContent,

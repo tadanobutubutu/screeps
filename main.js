@@ -50,12 +50,13 @@ function handleCredentialResponse(credential) {
     return { success: false, error: 'Unknown credential response type' };
 }
 
-// TODO: Implement this function for creating in-page buttons
+// TODO: Implement this function for creating in- page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
+    button.setAttribute('aria-label', buttonText);
     button.addEventListener('click', function() {
         // Button click handler can be added here
     });
@@ -67,14 +68,14 @@ function validateLandmarkStructure() {
     const requiredLandmarks = ['header', 'main', 'footer'];
     const missingLandmarks = [];
 
-    requiredLandmarks.forEach(function(landmark) {
+    requiredLandmarks.forEach(landmark => {
         if (!document.querySelector(landmark)) {
             missingLandmarks.push(landmark);
         }
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn('Warning: Missing required landmarks: ' + missingLandmarks.join(', '));
+        console.warn(`Accessibility Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
         return false;
     }
 

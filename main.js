@@ -5,6 +5,7 @@ const config = {
   version: '1.0.0'
 };
 
+<<<<<<< HEAD
 // main.js
 
 // Find the primary content element in the DOM
@@ -30,6 +31,41 @@ function wrapPrimaryContentInMain() {
   }
   return null;
 }
+=======
+const CONFIG = config;
+
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+// main.js
+
+// Find the primary content element in the DOM
+const primaryContent = document.querySelector('.primary-content') ||
+                        document.querySelector('[role="main"]') ||
+                        document.getElementById('main-content') ||
+                        document.querySelector('#content');
+
+// Function to wrap primary content in a <main> element
+function wrapPrimaryContentInMain() {
+  // If primary content exists and is not already inside a <main> element
+  if (primaryContent && !primaryContent.closest('main')) {
+    // Create a new <main> element
+    const mainElement = document.createElement('main');
+
+    // Insert the <main> element before the primary content in the DOM
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+
+    // Move the primary content inside the <main> element
+    mainElement.appendChild(primaryContent);
+
+    return mainElement;
+  }
+  return null;
+}
+>>>>>>> origin/main
 
 const appData = {
   title: 'Screeps',
@@ -231,19 +267,6 @@ function landmarkStructureCheck(container) {
   return { valid: errors.length === 0, errors };
 }
 
-function landmarkStructureCheckWithContainer(container) {
-  if (!container) return { valid: false, errors: ['Container is required'] };
-  const landmarks = container.querySelectorAll('[role]');
-  const errors = [];
-  landmarks.forEach(lm => {
-    const role = lm.getAttribute('role');
-    if (!['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search', 'form'].includes(role)) {
-      errors.push(`Invalid landmark role: ${role}`);
-    }
-  });
-  return { valid: errors.length === 0, errors };
-}
-
 function setLanguageAttribute(element, lang) {
   if (element && typeof lang === 'string' && lang.length > 0) {
     element.setAttribute('lang', lang);
@@ -331,6 +354,7 @@ function ensureUniqueLandmarks() {
   });
 }
 
+<<<<<<< HEAD
 function createInPageButton(href, label) {
   const button = document.createElement('button');
   button.type = 'button';
@@ -340,7 +364,70 @@ function createInPageButton(href, label) {
     window.location.hash = href;
   });
   return button;
-}
+=======
+/**
+ * Handles the credential response from an authentication flow
+ * @param {Object} credentialResponse - The response object from credential provider
+ * @returns {Object} Result with success status and parsed credential data
+ */
+function handleCredentialResponse(credentialResponse) {
+  const issues = [];;
+
+  if (!credentialResponse) {
+    return {
+      success: false,
+      issues: ['No credential response provided']
+    };
+  }
+
+  if (credentialResponse.error) {
+    issues.push(`Credential error: ${credentialResponse.error}`);
+  }
+
+  if (!credentialResponse.credential) {
+    issues.push('Missing credential field');
+  }
+
+  let userData = null;
+  if (credentialResponse.email) {
+    userData = {
+      email: credentialResponse.email,
+      name: credentialResponse.name || '',
+      picture: credentialResponse.picture || ''
+    };
+  }
+
+  let parsedCredential = null;
+  if (credentialResponse.credential) {
+    try {
+      const parts = credentialResponse.credential.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
+        parsedCredential = {
+          email: payload.email,
+          name: payload.name,
+          picture: payload.picture,
+          iss: payload.iss,
+          aud: payload.aud,
+          exp: payload.exp,
+          iat: payload.iat
+        };
+      }
+    } catch (parseError) {
+      issues.push('Failed to parse credential token');
+    }
+  }
+
+  const success = issues.length === 0 && !credentialResponse.error;
+
+  return {
+    success,
+    issues,
+    userData: userData || parsedCredential,
+    credential: credentialResponse.credential,
+    parsedCredential
+  };
+>>>>>>> origin/main
 
 function createAccessibleLink(href, label) {
   const link = document.createElement('a');
@@ -357,6 +444,7 @@ function handleAccessibilityIssues() {
   });
 }
 
+<<<<<<< HEAD
 function initializeApp() {
   const configData = getConfig();
   console.log('Initializing app with config:', configData);
@@ -364,10 +452,23 @@ function initializeApp() {
   if (appContainer) {
     addLandmarkRegions(appContainer);
   }
+=======
+function fetchUser(userId) {
+  return { id: userId, name: 'User' };
 }
 
-function getConfig() {
-  return config;
+function clearCache() {
+  appState = {};
+}
+
+// Main execution
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
+
+function formatDate(date) {
+  return new Date(date).toISOString();
 }
 
 function validateInput(input) {
@@ -388,6 +489,7 @@ function validateLinkAccessibility(link) {
   return link.hasAttribute('href') && link.textContent.trim().length > 0;
 }
 
+<<<<<<< HEAD
 function handleFakeLinks(links) {
   if (!Array.isArray(links)) return [];
   return links.map(link => {
@@ -481,6 +583,33 @@ function countDependencies(dependencies) {
   if (!Array.isArray(dependencies)) return 0;
   return dependencies.length;
 }
+=======
+function initializeApp() {
+  appState.initialized = true;
+  console.log('Initializing application...');
+  return true;
+}
+
+function getConfig() {
+  return CONFIG;
+}
+
+/**
+ * Counts dependencies (both internal private functions and npm dependencies)
+ * @returns {Object} Result with internal and npm dependency counts
+ */
+const countDependencies = () => {
+  // ... existing countDependencies function implementation ...
+};
+
+function handleAccessibilityIssuesMerged() {
+  // Implementation to handle accessibility issues (conflict resolved: merged implementation)
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+>>>>>>> origin/main
 
 function BookItem(book) {
   return `Book: ${book.title} by ${book.author}`;
@@ -540,64 +669,65 @@ function calculateSum(a, b) {
 }
 
 module.exports = {
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    fixTableStructure,
-    addMainLandmark,
-    addLandmarkRegions,
-    validateLandmark,
-    validateLandmarkStructure,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
-    handleAccessibilityIssues,
-    initializeApp,
-    getConfig,
-    validateInput,
-    processData,
-    setSvgAttributes,
-    enhanceAccessibilityForAddBook,
-    processAccessibilityIssues,
-    validateLandmarkAttributes,
-    landmarkStructureCheck,
-    landmarkStructureCheckWithContainer,
-    setLanguageAttribute,
-    addLandmarkRoles,
-    addLandmarkRolesToContainer,
-    isSecureContextCheck,
-    validateSvgAccessibility,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    ensureFocusableElements,
-    processUniqueElements,
-    addressInsightIssues,
-    initializeAppWrapper,
-    fetchUserWrapper,
-    clearCacheWrapper,
-    main,
-    wrapPrimaryContentInMain,
-    handleUserInteraction,
-    cleanup,
-    initApp,
-    VisualizeDependencyTree,
-    checkLandmarkElement,
-    ensureLandmarkUniqueness,
-    renderDependencyGraphContent,
-    landmarks,
-    icons,
-    countDependencies,
-    BookItem,
-    onTitleSort,
-    onAuthorSort,
-    MainComponent,
-    addProperLandmarkRegions,
-    fixButtonIdentifiers,
-    ensureDependencyGraphAriaRole,
-    googleSignIn,
-    HTML,
-    appData,
-    config
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  addLandmarkRegions,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  initializeApp,
+  getConfig,
+  validateInput,
+  processData,
+  setSvgAttributes,
+  enhanceAccessibilityForAddBook,
+  processAccessibilityIssues,
+  validateLandmarkAttributes,
+  landmarkStructureCheck,
+  landmarkStructureCheckWithContainer,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  addLandmarkRolesToContainer,
+  isSecureContextCheck,
+  validateSvgAccessibility,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  ensureFocusableElements,
+  processUniqueElements,
+  addressInsightIssues,
+  initializeAppWrapper,
+  fetchUserWrapper,
+  clearCacheWrapper,
+  main,
+  wrapPrimaryContentInMain,
+  handleUserInteraction,
+  cleanup,
+  initApp,
+  VisualizeDependencyTree,
+  checkLandmarkElement,
+  ensureLandmarkUniqueness,
+  renderDependencyGraphContent,
+  landmarks,
+  icons,
+  countDependencies,
+  BookItem,
+  onTitleSort,
+  onAuthorSort,
+  MainComponent,
+  addProperLandmarkRegions,
+  fixButtonIdentifiers,
+  ensureDependencyGraphAriaRole,
+  googleSignIn,
+  HTML,
+  appData,
+  config
 };

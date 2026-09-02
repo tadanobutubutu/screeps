@@ -9,7 +9,22 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    
+    // Accessibility: Set ARIA label for screen readers
+    button.setAttribute('aria-label', buttonText);
+    
+    // Accessibility: Add keyboard focus styles
+    button.addEventListener('focus', function() {
+        this.style.outline = '2px solid #0066cc';
+        this.style.outlineOffset = '2px';
+    });
+    
+    button.addEventListener('blur', function() {
+        this.style.outline = '';
+        this.style.outlineOffset = '';
+    });
+    
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues

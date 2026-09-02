@@ -19,6 +19,7 @@ module.exports = {
   AnotherExport: function() {
     // Implementation of the new export
     // TODO: Add the implementation details here
+    console.log('AnotherExport function has been called');
   },
 
   // Accessibility-related functions

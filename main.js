@@ -7,11 +7,11 @@
 
 // ----- END ORIGINAL CODE -----
 
-// TODO: Add new functions below this line
-
 const main = require('./utilities');
 
 const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;
+
+// TODO: Add new functions below this line
 
 /**
  * Logs a message to console with a specified level

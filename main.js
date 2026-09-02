@@ -196,6 +196,29 @@ function fixFakeLink() {
     // Fix 1 fake link issue
 }
 
+// Endpoint for generating an accessibility report
+function setupAccessibilityEndpoint(app) {
+  if (!app) {
+    app = express();
+  }
+  
+  app.use(express.json());
+  
+  app.post('/api/accessibility/report', async (req, res) => {
+    try {
+      const { filePaths } = req.body;
+      const issues = await scanAccessibility(filePaths || []);
+      const report = generateAccessibilityReport(issues);
+      res.json(report);
+    } catch (error) {
+      console.error('Error generating accessibility report:', error);
+      res.status(500).json({ error: 'Failed to generate accessibility report' });
+    }
+  });
+  
+  return app;
+}
+
 // Accessibility scanning function using axe-core library
 async function scanAccessibility(filePaths) {
   const issues = [];
@@ -500,6 +523,7 @@ module.exports = {
   validateLandmarkAttributes,
   getSvgAccessibleName,
   validateLinkAccessibility,
+  setupAccessibilityEndpoint,
   functionA: {
     X: 'valueX',
     Y: 'valueY',

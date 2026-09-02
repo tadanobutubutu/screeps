@@ -255,5 +255,13 @@ export function fixTableStructure(tableElement) {
       th.setAttribute('scope', 'col')
     }
   })
+  
+  const existingCaption = tableElement.querySelector('caption')
+  if (!existingCaption) {
+    const caption = document.createElement('caption')
+    caption.textContent = 'Data table'
+    tableElement.insertBefore(caption, tableElement.firstChild)
+  }
+  
   return tableElement
 }

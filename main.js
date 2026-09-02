@@ -1,4 +1,10 @@
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// TODO: Address accessibility issues from insight report
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_027: Fix 26 table structure issues
+// - REACT_017: Add/fix 4 landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks
+// - REACT_036: Fix 1 fake link issue
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -133,7 +139,7 @@ function validateTableStructure(table) {
 }
 
 /**
- * Validates a landmark element for accessibility
+ * Validates landmark element for accessibility
  * @param {HTMLElement} element - The landmark element to validate
  * @returns {boolean} Whether the landmark is valid
  */
@@ -280,6 +286,167 @@ function handleFakeLinks(link) {
 
 // REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
+function fixHtmlLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const currentLang = document.documentElement.lang;
+    const content = document.body ? document.body.textContent : '';
+    const detectedLang = detectAndSetLang(content);
+    document.documentElement.lang = currentLang || detectedLang;
+  }
+}
+
+// REACT_027: Fix table structure issues
+// Fixes common table accessibility issues
+function fixTableStructure(table) {
+  if (!table || typeof table !== 'object' || !(table instanceof HTMLElement)) return false;
+
+  let fixed = false;
+
+  // Add caption if missing
+  if (!table.querySelector('caption')) {
+    const caption = document.createElement('caption');
+    caption.textContent = 'Table';
+    table.insertBefore(caption, table.firstChild);
+    fixed = true;
+  }
+
+  // Add thead and tbody if missing
+  if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+    const thead = table.querySelector('thead') || document.createElement('thead');
+    const tbody = table.querySelector('tbody') || document.createElement('tbody');
+    
+    // Move rows to tbody if they're direct children and not in thead
+    const rows = Array.from(table.querySelectorAll('tr'));
+    for (const row of rows) {
+      if (!row.parentElement.querySelector('thead') && row.parentElement === table) {
+        tbody.appendChild(row);
+        fixed = true;
+      }
+    }
+    
+    if (!table.querySelector('thead')) {
+      table.insertBefore(thead, table.firstChild);
+      fixed = true;
+    }
+    if (!table.querySelector('tbody')) {
+      table.appendChild(tbody);
+      fixed = true;
+    }
+  }
+
+  // Add scope attributes to th elements
+  const headers = table.querySelectorAll('th');
+  for (const header of headers) {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+      fixed = true;
+    }
+  }
+
+  return fixed;
+}
+
+// REACT_017: Fix landmark issues - add proper labels to landmarks
+function fixLandmarkLabels() {
+  if (typeof document === 'undefined') return;
+  
+  // Fix navigation landmarks
+  const navigations = document.querySelectorAll('[role="navigation"]');
+  for (const nav of navigations) {
+    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+      nav.setAttribute('aria-label', 'Navigation');
+    }
+  }
+
+  // Fix region landmarks
+  const regions = document.querySelectorAll('[role="region"]');
+  for (const region of regions) {
+    if (!region.hasAttribute('aria-label') && !region.hasAttribute('aria-labelledby')) {
+      region.setAttribute('aria-label', 'Region');
+    }
+  }
+
+  // Fix form landmarks
+  const forms = document.querySelectorAll('[role="form"]');
+  for (const form of forms) {
+    if (!form.hasAttribute('aria-label') && !form.hasAttribute('aria-labelledby')) {
+      form.setAttribute('aria-label', 'Form');
+    }
+  }
+}
+
+// REACT_025: Ensure unique landmarks by removing duplicates or modifying roles
+function fixUniqueLandmarks() {
+  if (typeof document === 'undefined') return;
+
+  const uniqueRoles = ['banner', 'main', 'contentinfo'];
+  
+  for (const role of uniqueRoles) {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      // Keep the first element, remove role from others or change to region with label
+      for (let i = 1; i < elements.length; i++) {
+        const element = elements[i];
+        element.setAttribute('role', 'region');
+        element.setAttribute('aria-label', 'Supplementary ' + (element.textContent ? element.textContent.trim().substring(0, 20) : 'Content'));
+      }
+    }
+  }
+}
+
+// REACT_041: Add accessible names to SVGs
+function fixSvgAccessibility() {
+  if (typeof document === 'undefined') return;
+  
+  const svgs = document.querySelectorAll('svg');
+  for (const svg of svgs) {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby') && !svg.hasAttribute('title')) {
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', 'Graphic');
+    } else if (svg.hasAttribute('title') && !svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      const title = svg.getAttribute('title');
+      if (title) {
+        svg.setAttribute('aria-label', title);
+      }
+    }
+  }
+}
+
+// REACT_036: Fix fake links (links with href="#")
+function fixFakeLinks() {
+  if (typeof document === 'undefined') return;
+  
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  for (const link of fakeLinks) {
+    handleFakeLinks(link);
+  }
+}
+
+// Run all accessibility fixes
+function fixAllAccessibilityIssues() {
+  fixHtmlLangAttribute();
+  fixLandmarkLabels();
+  fixUniqueLandmarks();
+  fixSvgAccessibility();
+  fixFakeLinks();
+  
+  // Fix tables after DOM is ready
+  if (typeof document !== 'undefined') {
+    const tables = document.querySelectorAll('table');
+    for (const table of tables) {
+      fixTableStructure(table);
+    }
+  }
+}
+
+// Auto-fix on module load if in browser environment
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(fixAllAccessibilityIssues, 1);
+  } else {
+    document.addEventListener('DOMContentLoaded', fixAllAccessibilityIssues);
+  }
+}
 
 module.exports = {
   setHtmlLangAttribute,
@@ -296,5 +463,12 @@ module.exports = {
   setSvgAttributes,
   ensureUniqueLandmarks,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  fixHtmlLangAttribute,
+  fixTableStructure,
+  fixLandmarkLabels,
+  fixUniqueLandmarks,
+  fixSvgAccessibility,
+  fixFakeLinks,
+  fixAllAccessibilityIssues
 };

@@ -1,4 +1,8 @@
 // TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
+// ----- END ORIGINAL CODE -----
+
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -22,7 +26,7 @@ const appData = {
 // - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by fixTableStructureIssues() and fixTableHeaderCellScope())
 // - REACT_017: Add/fix 2 landmark issues (handled by addLandmarkRolesAndFixIssues() and fixLandmarkIssues() and fixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by addSvgAccessibleNames())
+// - REACT_041: Add accessible names to 2 SVGs (handled by addSvgAccessibleNames() and fixSvgAccessibleNames())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)

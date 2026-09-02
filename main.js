@@ -1,5 +1,11 @@
 // main.js - Accessibility Issue Handler
 
+// TODO: Add back any required exports that might have been removed
+// Here's an example of how to export a required function from another file:
+// export function someFunction() {
+//   // ...function implementation...
+// }
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute (html, lang = 'en') {
   if (typeof html !== 'string') return html

@@ -439,5 +439,6 @@ module.exports = {
   getConfig,
   validateInput,
   processData,
-  addLandmarkRegions
+  addLandmarkRegions,
+  TowerDefenseSystem
 };

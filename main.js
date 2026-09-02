@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -22,7 +19,7 @@ function getFullLangAttribute() {
 
 function validateTableAccessibility(tableElement) {
     // Implementation to validate table accessibility (conflict resolved: new implementation)
-    if (!tableElement.querySelector('caption')) {
+    if (!tableElement.caption) {
         console.warn('Table missing caption');
         return false;
     }
@@ -43,12 +40,12 @@ function validateLandmark(element) {
     // Implementation to validate landmark (conflict resolved: new implementation)
     const role = element.getAttribute('role');
     const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-    return validLandmarks.includes(role);
+    return role && validLandmarks.includes(role);
 }
 
 function validateLandmarkStructure() {
     // Implementation to validate landmark structure (conflict resolved: merged implementation)
-    const landmarks = document.querySelectorAll('[role]');
+    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"]');
     let hasMain = false;
     let hasNavigation = false;
 
@@ -72,19 +69,20 @@ function ensureUniqueLandmarks() {
     allLandmarks.forEach(landmark => {
         const role = landmark.getAttribute('role');
         if (landmarks[role]) {
-            console.warn(`Duplicate landmark role: ${role}`);
+            console.warn('Duplicate landmark role: ' + role);
         } else {
             landmarks[role] = true;
         }
     });
 
-    return Object.keys(landmarks).length === allLandmarks.length;
+    const uniqueCount = Object.keys(landmarks).length;
+    return uniqueCount === allLandmarks.length;
 }
 
-function getSvgAccessibleName(svgElement) {
+function getSvgAccessibleName(svg) {
     // Implementation to get SVG accessible name (conflict resolved: new implementation)
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
+    const title = svg.querySelector('title');
+    const ariaLabel = svg.getAttribute('aria-label');
 
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
@@ -122,7 +120,6 @@ function handleAccessibilityIssues() {
         validateLandmark(landmark);
     });
 
-    validateLandmarkStructure();
     ensureUniqueLandmarks();
 
     const svgs = document.querySelectorAll('svg');
@@ -145,6 +142,3 @@ module.exports = {
     createAccessibleLink,
     handleAccessibilityIssues
 };
-```
-
-This resolved the conflicting additions between the HEAD and origin/main branches by merging their respective changes where possible and keeping the implementation for each function that addressed accessibility issues from the insight report. The resulting functions have the same purpose but may have different implementations, as indicated by the conflict resolved comments. The end result does not introduce any syntax errors and preserves comments and style where possible.

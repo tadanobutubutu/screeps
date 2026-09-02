@@ -39,7 +39,7 @@ function createInPageButton(options) {
         if (containerElement) {
             containerElement.appendChild(button);
         }
-    } else {
+    } else if (settings.container) {
         settings.container.appendChild(button);
     }
 
@@ -57,9 +57,9 @@ function functionB() {
 }
 
 // Line 156 (updated)
-module.exports.functionA = functionA;
-module.exports.functionB = functionB;
-module.exports.createInPageButton = createInPageButton;
+const exportedFunctionA = functionA;
+const exportedFunctionB = functionB;
+const exportedCreateInPageButton = createInPageButton;
 
 // TODO: This is the existing code that needs to be preserved
 // TODO: add the new functions or changes requested in the issue
@@ -68,8 +68,8 @@ module.exports.createInPageButton = createInPageButton;
 function updateAccessibleElements () {
   // Example of updating accessibility in an existing function
   // This is a placeholder for the actual changes based on the insight report
-  const elementsToUpdate = document.querySelectorAll('.needs-accessibility-improvement')
-  elementsToUpdate.forEach((element) => {
+  const elementsToUpdate = document.querySelectorAll('.interactive-element');
+  elementsToUpdate.forEach(element => {
     // Example of adding ARIA attributes or other accessibility features
     element.setAttribute('role', 'button')
     element.setAttribute('aria-pressed', 'false')
@@ -88,16 +88,29 @@ function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
+  const importCommentRegExp = /import\s+.*?from\s+['"].*?['"]/g;
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
 
 // New function exampleFunction, as per the issue's request
-function exampleFunction() {
+function exampleFunction(param1, param2) {
     // Function implementation
-    console.log("This is the new function exampleFunction");
+    if (!param1 || !param2) {
+        console.log("Parameters are required");
+        return null;
+    }
+    
+    const result = {
+        input1: param1,
+        input2: param2,
+        combined: `${param1}_${param2}`,
+        timestamp: Date.now()
+    };
+    
+    console.log("exampleFunction executed with:", result);
+    return result;
 }
 
 // Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;
+const exportedExampleFunction = exampleFunction;

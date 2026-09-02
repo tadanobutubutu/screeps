@@ -1,4 +1,4 @@
-// TODO: Identify and update specific functions as needed
+// TODO: Address accessibility issues from insight report:
 
 // Main module
 
@@ -336,6 +336,35 @@ const a11yStore = {
     });
 
     return missingAlternatives;
+  },
+
+  /**
+   * Run all accessibility checks on the document
+   * @param {HTMLElement} container - The container to check
+   * @returns {Object} Report of all accessibility issues found
+   */
+  runAccessibilityAudit(container = document) {
+    return {
+      landmarks: this.checkLandmarkElements(),
+      contrast: this.checkContrastRatios(container),
+      interactiveElements: this.checkInteractiveElements(container),
+      formLabels: this.checkFormLabels(container),
+      imageAlternatives: this.checkImageAlternatives(container),
+      prefersReducedMotion: this.prefersReducedMotion(),
+      prefersHighContrast: this.prefersHighContrast()
+    };
+  },
+
+  /**
+   * Apply all accessibility fixes to the document
+   */
+  applyAccessibilityFixes() {
+    this.addSVGAccessibilityProps();
+    this.fixFakeLinks();
+    this.ensureFormAccessibility();
+    this.ensureKeyboardNavigation();
+    this.ensureImageAccessibility();
+    this.checkLandmarkElements();
   }
 };
 
@@ -1000,6 +1029,8 @@ module.exports = {
   server,
   sanitizeFilename,
   processData,
+  runAccessibilityAudit: a11yStore.runAccessibilityAudit,
+  applyAccessibilityFixes: a11yStore.applyAccessibilityFixes,
   ensureFormAccessibility: a11yStore.ensureFormAccessibility,
   ensureKeyboardNavigation: a11yStore.ensureKeyboardNavigation,
   ensureImageAccessibility: a11yStore.ensureImageAccessibility

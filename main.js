@@ -31,5 +31,11 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// New function to check if body contains a button with a specific id
+function checkIfBodyContainButton(buttonId) {
+    const button = document.querySelector(`#${buttonId}`);
+    return button ? true : false;
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

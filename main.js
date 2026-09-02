@@ -11,7 +11,6 @@ const {
     getLangAttribute,
     validateAccessibilityReport,
     exportUtils,
-    addressAccessibilityIssues,
     handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
@@ -21,7 +20,6 @@ const {
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
     focusTrap,
-    checkAccessibility,
 } = main;
 
 // Implement the function for addressing accessibility issues from insight report
@@ -34,9 +32,7 @@ function addressAccessibilityIssues(container, insightReport) {
         fakeLinksFixed: 0,
     };
 
-    if (!report || !report.issues) {
-        return fixes;
-    }
+    const report = insightReport || {};
 
     // Add lang attribute to HTML element if missing
     const htmlEl =
@@ -92,44 +88,43 @@ function addressAccessibilityIssues(container, insightReport) {
     });
 
     // Validate accessibility report
-    const report = validateAccessibilityReport(container);
-    if (report && report.length > 0) {
-        log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
+    const reportResult = validateAccessibilityReport(container);
+    if (reportResult && reportResult.length > 0) {
+        console.warn(`Accessibility report contains ${reportResult.length} remaining issues`);
     }
 
     // Implement focus trap for keyboard navigation
     focusTrap(container);
 
     if (fixes.langAdded) {
-        log('Lang attribute added to HTML element', 'info');
+        console.info('Lang attribute added to HTML element');
     }
 
     if (fixes.mainLandmarkAdded) {
-        log('Main landmark added', 'info');
+        console.info('Main landmark added');
     }
 
     // Check for new accessibility issues
     const newAccessibilityIssues = checkAccessibility(container);
     if (newAccessibilityIssues.length > 0) {
-        log(
-            `New accessibility issues found: ${newAccessibilityIssues.map((i) => i.message).join(', ')}`,
-            'error'
+        console.error(
+            `New accessibility issues found: ${newAccessibilityIssues.map((i) => i.message).join(', ')}`
         );
     }
 
     const landmarkFixesCount = fixes.landmarksFixed || 0;
     if (landmarkFixesCount > 0) {
-        log(`Fixed accessibility for ${landmarkFixesCount} unique landmarks`, 'info');
+        console.info(`Fixed accessibility for ${landmarkFixesCount} unique landmarks`);
     }
 
     const svgFixes = fixes.svgNamesAdded || 0;
     if (svgFixes > 0) {
-        log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
+        console.info(`Fixed accessible names for ${svgFixes} SVGs`);
     }
 
     const fakeLinkFixes = fixes.fakeLinksFixed || 0;
     if (fakeLinkFixes > 0) {
-        log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
+        console.info(`Fixed fake link issues for ${fakeLinkFixes} elements`);
     }
 
     return fixes;
@@ -143,4 +138,8 @@ function checkAccessibility(content) {
     return [];
 }
 
-// ... (Preserve the rest of the preserved code)
+module.exports = {
+    ...main,
+    addressAccessibilityIssues,
+    checkAccessibility,
+};

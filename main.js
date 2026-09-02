@@ -6,6 +6,37 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const path = require('path');
+const { a11y } = require('@accessible/react');
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  getUniqueLandmarks,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  addLangAttribute,
+  newFocusTrap,
+  getAccessibleLinkProps,
+  createInPageButton
+} = require('./utils');
+
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: process.env.TIMEOUT || 5000,
+  debug: true,
+  version: '1.0.0'
+};
 
 const appState = {
   initialized: false,
@@ -50,6 +81,35 @@ function personName(firstName, lastName) {
   return name || '';
 }
 
+function getUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    const elements = Array.from(document.querySelectorAll(landmarkSelectors.join(',')));
+    return uniqueLandmarks(elements);
+  }
+
+  return uniqueLandmarks(landmarks);
+}
+
+function uniqueLandmarks(landmarks) {
+  if (!landmarks || !Array.isArray(landmarks)) return [];
+
+  const seen = new Set();
+  const unique = [];
+
+  for (const landmark of landmarks) {
+    if (!landmark || typeof landmark.id === 'undefined') continue;
+
+    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      unique.push(landmark);
+    }
+  }
+
+  return unique;
+}
+
 /**
  * Validates landmark elements
  * @param {Object} element - The landmark element to validate
@@ -78,6 +138,43 @@ function validateLandmark(element) {
   };
 }
 
+const appData = {
+  title: 'Screeps',
+  version: '1.0.0'
+};
+
+/**
+ * Validates table accessibility compliance
+ * @param {Object} table - The table object to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+
+  // Check for caption
+  if (!table.querySelector || !table.querySelector('caption')) {
+    issues.push('Missing caption element');
+  }
+
+  // Check for headers attribute
+  if (!table.getAttribute('headers')) {
+    issues.push('Missing headers attribute');
+  }
+
+  // Check for scope attribute on header cells
+  const headerCells = table.querySelectorAll('th');
+  headerCells.forEach(cell => {
+    if (!cell.hasAttribute('scope')) {
+      issues.push('Missing scope attribute on header cell');
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
 /**
  * Validates landmark attributes
  * @param {Object} landmark - The landmark element to validate
@@ -97,6 +194,43 @@ function validateLandmarkAttributes(landmark) {
   return {
     success: issues.length === 0,
     issues
+  };
+}
+
+/**
+ * Validates the structure of tables for accessibility
+ * @param {Array|Object} tables - Array of table objects or single table element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableStructure(tables) {
+  const allIssues = [];
+
+  // Handle both single table element and array of tables
+  const tableArray = Array.isArray(tables) ? tables : [tables];
+
+  tableArray.forEach((table, index) => {
+    // Check for rows
+    const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
+    if (rows.length === 0) {
+      allIssues.push({
+        tableIndex: index,
+        issues: ['Table has no rows']
+      });
+    }
+
+    // Validate table accessibility
+    const result = validateTableAccessibility(table);
+    if (!result.success) {
+      allIssues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
+    }
+  });
+
+  return {
+    success: allIssues.length === 0,
+    issues: allIssues
   };
 }
 
@@ -133,6 +267,9 @@ function validateLandmarkStructure(landmarks) {
     if (!hasMain) {
       issues.push('Missing main landmark');
     }
+    if (!hasNavigation) {
+      issues.push('Missing navigation landmark');
+    }
   }
 
   return {
@@ -149,8 +286,15 @@ function validateLandmarkStructure(landmarks) {
 function ensureUniqueLandmarks(landmarks) {
   const names = [];
   const duplicates = [];
+  let elementsToCheck = landmarks;
 
-  landmarks.forEach(landmark => {
+  // If no landmarks array provided, query the DOM
+  if (!Array.isArray(landmarks)) {
+    elementsToCheck = document.querySelectorAll('[role]');
+  }
+
+  // Check for duplicate accessible names
+  elementsToCheck.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
       if (!duplicates.includes(name)) {
@@ -163,7 +307,7 @@ function ensureUniqueLandmarks(landmarks) {
 
   // Check for duplicate IDs
   const elementsById = {};
-  landmarks.forEach(landmark => {
+  elementsToCheck.forEach(landmark => {
     if (landmark.id) {
       if (elementsById[landmark.id]) {
         duplicates.push(`Duplicate ID: ${landmark.id}`);
@@ -175,7 +319,7 @@ function ensureUniqueLandmarks(landmarks) {
 
   // Check for duplicate roles
   const landmarksByRole = {};
-  landmarks.forEach(landmark => {
+  elementsToCheck.forEach(landmark => {
     const role = landmark.getAttribute('role');
     if (role) {
       if (landmarksByRole[role]) {
@@ -189,76 +333,6 @@ function ensureUniqueLandmarks(landmarks) {
   return {
     success: duplicates.length === 0,
     duplicates
-  };
-}
-
-/**
- * Validates table accessibility compliance
- * @param {Object} table - The table object to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateTableAccessibility(table) {
-  const issues = [];
-
-  if (!table.headers) {
-    issues.push('Missing headers attribute');
-  }
-
-  if (!table.scope) {
-    issues.push('Missing scope attribute');
-  }
-
-  // Check for caption (conflict resolved: check for both)
-  if (!table.querySelector || !table.querySelector('caption')) {
-    issues.push('Missing caption element');
-  }
-
-  if (!table.getAttribute('headers')) {
-    issues.push('Missing headers attribute');
-  }
-
-  if (!table.scope) {
-    issues.push('Missing scope attribute');
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
-/**
- * Validates the structure of tables for accessibility
- * @param {Array} tables - Array of table objects to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateTableStructure(tables) {
-  const allIssues = [];
-  const tableArray = Array.isArray(tables) ? tables : [tables];
-
-  tableArray.forEach((table, index) => {
-    // Check for rows
-    const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
-    if (rows.length === 0) {
-      allIssues.push({
-        tableIndex: index,
-        issues: ['Table has no rows']
-      });
-    }
-
-    // Validate table accessibility
-    const result = validateTableAccessibility(table);
-    if (!result.success) {
-      allIssues.push({
-        tableIndex: index,
-        issues: result.issues
-      });
-    }
-  });
-
-  return {
-    success: allIssues.length === 0,
-    issues: allIssues
   };
 }
 
@@ -380,7 +454,7 @@ function handleAccessibilityIssues(issues) {
  * @param {Object} table - The table element to validate
  * @returns {Object} Validation result with success status and any issues found
  */
-function validateTableStructure(table) {
+function validateTableElementStructure(table) {
   const issues = [];
 
   if (!table.hasCaption) {
@@ -450,13 +524,13 @@ function validateAllLandmarks(landmarks) {
 function createInPageButton(textOrOptions, onClick) {
   let text = textOrOptions;
   let clickHandler = onClick;
-  
+
   // Handle object parameter format
   if (typeof textOrOptions === 'object' && textOrOptions !== null) {
     text = textOrOptions.text || '';
     clickHandler = textOrOptions.onClick;
   }
-  
+
   // Implementation to create accessible in-page button
   const button = document.createElement('button');
   button.textContent = text;
@@ -477,7 +551,6 @@ function createInPageButton(textOrOptions, onClick) {
  * @returns {Object} The created link element
  */
 function createAccessibleLink(href, text) {
-  // Implementation to create accessible link (conflict resolved: merged implementation)
   const link = document.createElement('a');
   link.href = href;
   link.textContent = text;
@@ -600,10 +673,12 @@ module.exports = {
   personName,
   validateTableAccessibility,
   validateTableStructure,
+  validateTableElementStructure,
   validateLandmark,
   validateLandmarkAttributes,
   validateLandmarkStructure,
   ensureUniqueLandmarks,
+  getUniqueLandmarks,
   getSvgAccessibleName,
   addSvgAccessibilityProps,
   setSvgAccessibilityProps,

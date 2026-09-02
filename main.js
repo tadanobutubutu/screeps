@@ -627,7 +627,7 @@ function initializeAccessibility() {
   
   return {
     announce: announcer.announce,
-    getLastMessage: announcer.getLast
+    getLastMessage: announcer.getLastMessage
   };
 }
 
@@ -669,7 +669,8 @@ module.exports = {
   prefersReducedMotion,
   renderSimpleDependencyGraph,
   addAccessibleName,
-  initializeAccessibility
+  initializeAccessibility,
+  createAccessibleWebResourceButton
 }
 
 // New function or changes requested in the issue
@@ -686,3 +687,22 @@ function renderAdditionalContent (additionalData) {
 
 // Add the new function to the exports
 module.exports.renderAdditionalContent = renderAdditionalContent
+
+/**
+ * Utility function to create an accessible web resource button (e.g., Github, Stack Overflow).
+ * @param {string} url - The URL of the web resource.
+ * @param {string} label - The accessible label for the button.
+ * @param {string} [iconHTML] - Optional HTML string for an icon.
+ * @returns {HTMLElement} The created anchor element.
+ */
+function createAccessibleWebResourceButton (url, label, iconHTML) {
+  const button = document.createElement('a')
+  button.href = url
+  button.target = '_blank'
+  button.rel = 'noopener noreferrer'
+  button.setAttribute('aria-label', label)
+  if (iconHTML) {
+    button.innerHTML = iconHTML
+  }
+  return button
+}

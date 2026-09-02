@@ -57,6 +57,11 @@ function generateDependencyReport(dependencies) {
   return { graph };
 }
 
+function fixAccessibilityIssues() {
+  // Code to fix accessibility issues as per the insight report
+  // Call axe.analyze('./index.html') to generate report and address issues
+}
+
 export const checkSafetyCategories = () => {
   let safetyCategoriesMessage = '';
 
@@ -119,6 +124,23 @@ function ensureUniqueLandmarks(landmarks) {
       return false;
     }
     seen.add(landmark.id);
+    return true;
+  });
+}
+
+// Address landmark duplicates and ensure uniqueness
+function ensureUniqueLandmarksFromArray(landmarksArray) {
+  if (!landmarksArray || landmarksArray.length === 0) {
+      return [];
+  }
+  const seen = new Set();
+  return landmarksArray.filter(landmark => {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+    // Merge both approaches for checking uniqueness
+    if (seen.has(key)) {
+        return false;
+    }
+    seen.add(key);
     return true;
   });
 }
@@ -216,7 +238,7 @@ function countDependencies() {
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 function addressInsightIssues() {
-  const dependencyGraphContainer = document.getElementById('dependencyGraph');
+  const dependencyGraphContainer = document.querySelector('[data-dependency-graph]') || document.getElementById('dependency-graph');
   if (dependencyGraphContainer) {
     dependencyGraphContainer.setAttribute('role', 'region');
     dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph Visualization');
@@ -239,7 +261,7 @@ function generateAccessibilityReport(issuesData) {
   if (!issuesData) {
     issues = axe.analyze('./index.html');
   } else {
-    issues = axe.analyze('./index.html');
+    issues = axe.analyze('./index.html', issuesData);
   }
 
   const report = {
@@ -249,10 +271,6 @@ function generateAccessibilityReport(issuesData) {
   };
 
   return report;
-}
-
-function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
 }
 
 const accessiblyHelper = async (...args) => {
@@ -283,22 +301,6 @@ function createAccessibleInput(type, id, labelText, value = '') {
 function getLangAttribute() {
   const htmlElement = document.documentElement;
   return htmlElement.getAttribute('lang') || 'en';
-}
-
-function createInPageButton(targetId, label) {
-  const button = document.createElement('button');
-  button.textContent = label;
-  button.id = targetId;
-  button.setAttribute('role', 'button');
-  button.ariaLabel = `Go to ${targetId}`;
-  button.addEventListener('click', () => {
-    const target = document.getElementById(targetId);
-    if (target) {
-      target.focus();
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
-  });
-  return button;
 }
 
 function addLangAttribute() {
@@ -545,109 +547,6 @@ function initializeApp() {
   // Initialize the app
 }
 
-// Initialize function
-function initialize() {
-  // Initialization code
-}
-
-// Function to count dependencies
-function countDependencies() {
-  const dependencies = {
-    'react': true,
-    'react-redux': true,
-    'antd': true
-  };
-  return Object.keys(dependencies).length;
-}
-
-// Add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
-  }
-}
-
-// Add/fix landmark issues
-function addMainLandmark() {
-  if (!document.getElementById('main-content')) {
-    const main = document.createElement('main');
-    main.id = 'main-content';
-    document.body.insertBefore(main, document.body.firstChild);
-  }
-}
-
-// Fix table structure issues
-function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Ensure table has proper caption if needed
-    if (!table.querySelector('caption') && table.rows.length > 0) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table data';
-      table.insertBefore(caption, table.firstChild);
-    }
-
-    // Ensure table has proper headers
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      // Add headers if missing
-      const firstRow = table.rows[0];
-      if (firstRow) {
-        Array.from(firstRow.cells).forEach(cell => {
-          const th = document.createElement('th');
-          th.textContent = cell.textContent;
-          cell.replaceWith(th);
-        });
-      }
-    }
-
-    // Ensure table has proper scope attributes for headers
-    const headerRows = table.querySelectorAll('thead th');
-    headerRows.forEach((th, index) => {
-      if (!th.hasAttribute('scope')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
-  });
-}
-
-// Fix fake link issue
-function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    link.tabIndex = '0';
-    link.setAttribute('role', 'button');
-    link.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        link.click();
-      }
-    });
-  });
-}
-
-// Add accessible names to SVGs
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      const title = svg.querySelector('title');
-      if (title) {
-        svg.setAttribute('aria-labelledby', title.id);
-      } else {
-        svg.setAttribute('aria-label', 'graphic');
-      }
-    }
-  });
-}
-
-// Initialize app with accessibility fixes
-function initApp() {
-  initializeApp();
-  wrapPrimaryContentInMain();
-}
-
 // Helper function for landmark structure check
 function landmarkStructureCheck(landmark) {
   const validRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -700,67 +599,37 @@ function validateSvgAccessibility(svg) {
 // Helper function to process unique elements
 function processUniqueElements(elements) {
   const unique = [];
-  const seen = new Set();
-  elements.forEach(el => {
-    const key = el.id || el.textContent;
-    if (!seen.has(key)) {
-      seen.add(key);
-      unique.push(el);
-    }
+  return elements;
+}
+
+// Add route handlers for the Express app
+function addRoutes(appInstance) {
+  appInstance.get('/', (req, res) => {
+    res.send('Welcome to the Screeps Bot accessibility dashboard');
   });
-  return unique;
-}
 
-// Helper function to render dependency graph
-function renderDependencyGraph(container) {
-  // Implementation for rendering dependency graph
-  const graphContainer = document.createElement('div');
-  graphContainer.className = 'dependency-graph';
-  container.appendChild(graphContainer);
-}
+  appInstance.get('/dependency-report', (req, res) => {
+    // Generate dependency report and send it as JSON
+  });
 
-// Helper function to render index view
-function renderIndexView(container) {
-  // Implementation for rendering index view
-  const indexContainer = document.createElement('div');
-  indexContainer.className = 'index-view';
-  container.appendChild(indexContainer);
-}
-
-// Helper function to calculate sum
-function calculateSum(a, b) {
-  return a + b;
-}
-
-// Helper function to add proper landmark regions
-function addProperLandmarkRegions() {
-  const regions = document.querySelectorAll('[role="region"]');
-  regions.forEach(region => {
-    if (!region.hasAttribute('aria-label')) {
-      region.setAttribute('aria-label', 'Region');
-    }
+  appInstance.get('/accessibility-report', (req, res) => {
+    // Generate accessibility report and send it as JSON
   });
 }
 
-// Function to handle user interaction
-function handleUserInteraction(event) {
-  console.log('User interaction:', event.type);
+// Start the Express server
+function startServer(port) {
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+  });
 }
 
-// Cleanup function
-function cleanup() {
-  landmarks.length = 0;
-  icons = {};
-}
-
-// Process data
-function processData(data) {
-  return data;
-}
-
-// Fetch user
-function fetchUser(userId) {
-  // Fetch user data
+// Initialize the app with accessibility fixes and Express routing
+function initApp() {
+  addressInsightIssues();
+  wrapPrimaryContentInMain();
+  addRoutes(app);
+  startServer(3000);
 }
 
 // Clear cache
@@ -780,8 +649,49 @@ function main() {
 }
 
 // Visualize dependency tree
-function visualizeDependencyTree(data) {
+function visualizeDependencyTreeData(data) {
   console.log('Visualizing dependency tree:', data);
+}
+
+// Additional helper functions
+function renderDependencyGraph(container) {
+  // Render dependency graph
+}
+
+function renderIndexView(container) {
+  // Render index view
+}
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function addProperLandmarkRegions() {
+  // Add proper landmark regions
+}
+
+function ensureUniqueLandmarksDoc() {
+  ensureUniqueLandmarks();
+}
+
+function fixButtonIdentifiers() {
+  // Fix button identifiers
+}
+
+function ensureDependencyGraphAriaRole() {
+  const container = document.getElementById('dependency-graph');
+  if (container && !container.getAttribute('role')) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency Graph Visualization');
+  }
+}
+
+function googleSignIn() {
+  // Google sign in functionality
+}
+
+function wrapPrimaryContentInMain() {
+  addMainLandmark();
 }
 
 addressInsightIssues();
@@ -790,19 +700,9 @@ fixFakeLinkIssue();
 addSvgAccessibleNames();
 
 // Initialize the app with accessibility fixes
-function initApp() {
+function initAppAfterFixes() {
   initializeApp();
   wrapPrimaryContentInMain();
-}
-
-// App state
-const appState = {
-  // Application state
-};
-
-// Initialize function
-function initialize() {
-  // Initialization code
 }
 
 // Export all functions
@@ -876,7 +776,20 @@ export {
   ensureUniqueLandmarksDoc,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
-  googleSignIn
+  googleSignIn,
+  initApp,
+  startServer,
+  app,
+  axe,
+  fastMap,
+  fs,
+  path,
+  appData,
+  ensureUniqueLandmarksFromArray,
+  visualizeDependencyTreeData,
+  clearCache,
+  validateInput,
+  initAppAfterFixes
 };
 
 module.exports = {
@@ -987,5 +900,14 @@ module.exports = {
   ensureUniqueLandmarksDoc,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
-  googleSignIn
+  googleSignIn,
+  initApp,
+  startServer,
+  app,
+  appData,
+  ensureUniqueLandmarksFromArray,
+  visualizeDependencyTreeData,
+  clearCache,
+  validateInput,
+  initAppAfterFixes
 };

@@ -7,7 +7,9 @@ const path = require('path');
 // Configuration
 const CONFIG = {
     dataPath: './data',
-    maxResults: 100
+    maxResults: 100,
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
 };
 
 function isValidLandmark(landmark) {

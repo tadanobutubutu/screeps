@@ -38,7 +38,7 @@ const {
     implementAccessibilityFixesFromReport,
 } = main;
 
-// Combining and preserving both feature sets from existing and new implementations
+// New implementation for checking table accessibility
 function validateTableAccessibility(table) {
     if (!table) return false;
 
@@ -55,13 +55,17 @@ function validateTableAccessibility(table) {
     }
 
     // New implementation for checking table accessibility
-    // Replace below check with implementAccessibilityFixesFromReport
-    // if (table && table.querySelectorAll) {
-    //   const landmarkFixes = implementAccessibilityFixesFromReport(table);
-    //   isValid = isValid && landmarkFixes.tableAccessible;
-    // }
+    if (table && table.querySelectorAll) {
+      const landmarkFixes = implementAccessibilityFixesFromReport(table);
+      isValid = isValid && landmarkFixes.tableAccessible;
+    }
 
     return isValid;
+}
+
+// New function as per the issue requirements
+function newFunction() {
+    // TODO: Implement the new function as per the issue requirements
 }
 
 module.exports = {

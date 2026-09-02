@@ -12,6 +12,17 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
+// Function to check link and button accessibility
+function checkLinkAndButtonAccessibility() {
+    const links = document.querySelectorAll('a');
+    const buttons = document.querySelectorAll('button');
+
+    const hasAccessibleLinks = links.some(link => link.textContent.trim());
+    const hasAccessibleButtons = buttons.some(button => button.textContent.trim());
+
+    return hasAccessibleLinks && hasAccessibleButtons;
+}
+
 // Function to validate landmark structure for accessibility issues
 function validateLandmarkStructure() {
     const requiredLandmarks = ['header', 'main', 'footer'];

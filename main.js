@@ -531,6 +531,255 @@ function towerDefense() {
   };
 }
 
+/**
+ * Renders a dependency graph with accessibility features
+ * @param {Object} data - The dependency graph data
+ * @param {string} containerId - The ID of the container element
+ * @returns {Object} Result object with status and details
+ */
+function renderDependencyGraph(data, containerId) {
+  if (typeof document === 'undefined') {
+    return { success: false, error: 'Document not available' };
+  }
+
+  const container = document.getElementById(containerId);
+  if (!container) {
+    return { success: false, error: `Container with ID "${containerId}" not found` };
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Create accessible SVG container
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', data.title || 'Dependency Graph');
+  svg.setAttribute('viewBox', '0 0 800 600');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+
+  // Add title element for additional accessibility
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  title.textContent = data.title || 'Dependency Graph';
+  svg.appendChild(title);
+
+  // Create groups for different elements
+  const nodesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  const edgesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+  // Render nodes
+  data.nodes.forEach(node => {
+    const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    
+    // Create node shape (circle or rectangle based on type)
+    const shape = document.createElementNS('http://www.w3.org/2000/svg', node.type === 'module' ? 'circle' : 'rect');
+    shape.setAttribute('cx', node.x);
+    shape.setAttribute('cy', node.y);
+    shape.setAttribute('r', 30);
+    shape.setAttribute('width', 80);
+    shape.setAttribute('height', 40);
+    shape.setAttribute('fill', node.color || '#4a90e2');
+    shape.setAttribute('stroke', '#333');
+    shape.setAttribute('stroke-width', '2');
+    
+    // Add accessible name
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = node.label;
+    shape.appendChild(title);
+
+    nodeGroup.appendChild(shape);
+
+    // Add text label
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', node.x);
+    text.setAttribute('y', node.y + (node.type === 'module' ? 5 : 25));
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#fff');
+    text.setAttribute('font-family', 'Arial, sans-serif');
+    text.setAttribute('font-size', '12');
+    text.textContent = node.label;
+
+    nodeGroup.appendChild(text);
+    nodesGroup.appendChild(nodeGroup);
+  });
+
+  // Render edges (lines)
+  data.edges.forEach(edge => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', edge.from.x);
+    line.setAttribute('y1', edge.from.y);
+    line.setAttribute('x2', edge.to.x);
+    line.setAttribute('y2', edge.to.y);
+    line.setAttribute('stroke', '#999');
+    line.setAttribute('stroke-width', '2');
+    line.setAttribute('stroke-dasharray', edge.dashed ? '5,5' : 'none');
+
+    // Add accessibility description
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = edge.label || `Dependency from ${edge.from.label} to ${edge.to.label}`;
+    line.appendChild(title);
+
+    edgesGroup.appendChild(line);
+  });
+
+  // Add groups to SVG
+  svg.appendChild(edgesGroup);
+  svg.appendChild(nodesGroup);
+
+  // Add to container
+  container.appendChild(svg);
+
+  // Add keyboard navigation for focus management
+  svg.setAttribute('tabindex', '0');
+  svg.focus();
+
+  // Handle keyboard interactions for zooming
+  svg.addEventListener('keydown', (e) => {
+    if (e.key === '+' || e.key === '=') {
+      // Zoom in
+      e.preventDefault();
+      const currentTransform = svg.getAttribute('viewBox');
+      if (currentTransform) {
+        const [x, y, w, h] = currentTransform.split(' ').map(Number);
+        svg.setAttribute('viewBox', `${x - w * 0.1} ${y - h * 0.1} ${w * 1.2} ${h * 1.2}`);
+      }
+    } else if (e.key === '-' || e.key === '_') {
+      // Zoom out
+      e.preventDefault();
+      const currentTransform = svg.getAttribute('viewBox');
+      if (currentTransform) {
+        const [x, y, w, h] = currentTransform.split(' ').map(Number);
+        svg.setAttribute('viewBox', `${x + w * 0.05} ${y + h * 0.05} ${w * 0.9} ${h * 0.9}`);
+      }
+    }
+  });
+
+  return { success: true, message: 'Dependency graph rendered successfully' };
+}
+
+/**
+ * Renders an index view with accessibility features
+ * @param {Object} data - The index view data
+ * @param {string} containerId - The ID of the container element
+ * @returns {Object} Result object with status and details
+ */
+function renderIndexView(data, containerId) {
+  if (typeof document === 'undefined') {
+    return { success: false, error: 'Document not available' };
+  }
+
+  const container = document.getElementById(containerId);
+  if (!container) {
+    return { success: false, error: `Container with ID "${containerId}" not found` };
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Create main landmark
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+  main.setAttribute('aria-labelledby', 'index-title');
+
+  // Add header with landmark label
+  const header = document.createElement('header');
+  const title = document.createElement('h1');
+  title.id = 'index-title';
+  title.textContent = data.title || 'Index View';
+  header.appendChild(title);
+
+  // Add summary section with accessible description
+  if (data.summary) {
+    const summary = document.createElement('section');
+    summary.setAttribute('role', 'region');
+    summary.setAttribute('aria-labelledby', 'summary-title');
+
+    const summaryTitle = document.createElement('h2');
+    summaryTitle.id = 'summary-title';
+    summaryTitle.textContent = 'Summary';
+    summary.appendChild(summaryTitle);
+
+    const summaryText = document.createElement('p');
+    summaryText.textContent = data.summary;
+    summary.appendChild(summaryText);
+
+    main.appendChild(summary);
+  }
+
+  // Add navigation section
+  if (data.navigation && data.navigation.length > 0) {
+    const nav = document.createElement('nav');
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', 'Main Navigation');
+
+    const navTitle = document.createElement('h2');
+    navTitle.textContent = 'Navigation';
+    nav.appendChild(navTitle);
+
+    const navList = document.createElement('ul');
+    data.navigation.forEach(item => {
+      const listItem = document.createElement('li');
+      const link = document.createElement('a');
+      link.href = item.url;
+      link.textContent = item.label;
+      
+      // Ensure links have accessible names
+      if (!item.label) {
+        link.setAttribute('aria-label', item.url);
+      }
+
+      listItem.appendChild(link);
+      navList.appendChild(listItem);
+    });
+
+    nav.appendChild(navList);
+    main.appendChild(nav);
+  }
+
+  // Add content sections
+  if (data.sections && data.sections.length > 0) {
+    data.sections.forEach(section => {
+      const sectionElement = document.createElement('section');
+      sectionElement.setAttribute('role', 'region');
+      
+      // Set aria-labelledby for section
+      const sectionTitleId = `section-${section.id}`;
+      sectionElement.setAttribute('aria-labelledby', sectionTitleId);
+
+      const sectionTitle = document.createElement('h2');
+      sectionTitle.id = sectionTitleId;
+      sectionTitle.textContent = section.title;
+      sectionElement.appendChild(sectionTitle);
+
+      if (section.content) {
+        const contentDiv = document.createElement('div');
+        contentDiv.innerHTML = section.content; // Use innerHTML for formatted content
+        sectionElement.appendChild(contentDiv);
+      }
+
+      main.appendChild(sectionElement);
+    });
+  }
+
+  // Add footer
+  const footer = document.createElement('footer');
+  footer.setAttribute('role', 'contentinfo');
+
+  const footerText = document.createElement('p');
+  footerText.textContent = data.footerText || '© ' + new Date().getFullYear() + ' All rights reserved.';
+  footer.appendChild(footerText);
+
+  main.appendChild(footer);
+
+  // Add main to container
+  container.appendChild(main);
+
+  // Set up keyboard navigation for interactive elements
+  setupKeyboardNavigation();
+
+  return { success: true, message: 'Index view rendered successfully' };
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   createInPageButton,
@@ -546,5 +795,7 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  towerDefense
+  towerDefense,
+  renderDependencyGraph,
+  renderIndexView
 };

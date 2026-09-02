@@ -414,6 +414,57 @@ function newFunctionForMain() {
     console.log('New function is now accessible in main.js');
 }
 
+/**
+ * Processes an accessibility insight report and applies corresponding fixes.
+ * Parses the report to identify specific accessibility issues and addresses them accordingly.
+ * @param {Object|string} insightReport - The accessibility insight report containing issue details
+ * @returns {Object} Summary of applied fixes and their status
+ */
+function processInsightReport(insightReport) {
+  const appliedFixes = [];
+  const reportData = typeof insightReport === 'string' ? JSON.parse(insightReport) : insightReport;
+
+  if (!reportData || !reportData.issues) {
+    return { appliedFixes, message: 'No valid insight report provided' };
+  }
+
+  reportData.issues.forEach(issue => {
+    const rule = issue.rule || issue.id;
+    switch (rule) {
+      case 'REACT_015':
+        if (!document.documentElement.hasAttribute('lang')) {
+          document.documentElement.setAttribute('lang', 'en');
+          appliedFixes.push('REACT_015: Added lang attribute to html element');
+        }
+        break;
+      case 'REACT_027':
+        // Table structure fixes are handled via applyAccessibilityFixes in HTML context
+        appliedFixes.push('REACT_027: Table structure fix noted (apply via applyAccessibilityFixes for HTML)');
+        break;
+      case 'REACT_017':
+        // Landmark fixes are handled via applyAccessibilityFixes in HTML context
+        appliedFixes.push('REACT_017: Landmark fix noted (apply via applyAccessibilityFixes for HTML)');
+        break;
+      case 'REACT_041':
+        // SVG accessible names are handled via applyAccessibilityFixes in HTML context
+        appliedFixes.push('REACT_041: SVG accessible name fix noted (apply via applyAccessibilityFixes for HTML)');
+        break;
+      case 'REACT_025':
+        // Unique landmarks are handled via applyAccessibilityFixes in HTML context
+        appliedFixes.push('REACT_025: Unique landmarks fix noted (apply via applyAccessibilityFixes for HTML)');
+        break;
+      case 'REACT_036':
+        // Fake link fixes are handled via applyAccessibilityFixes in HTML context
+        appliedFixes.push('REACT_036: Fake link fix noted (apply via applyAccessibilityFixes for HTML)');
+        break;
+      default:
+        appliedFixes.push(`${rule}: No automated fix available`);
+    }
+  });
+
+  return { appliedFixes, message: 'Insight report processed' };
+}
+
 // Preserve any existing exports here
 // Export all public functions
 export {
@@ -430,5 +481,6 @@ export {
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
     fixFakeLinks,
-    applyAccessibilityFixes
+    applyAccessibilityFixes,
+    processInsightReport
 };

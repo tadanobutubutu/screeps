@@ -22,11 +22,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { validateInput, processData, formatResponse } = require('./utils/validators');
-const { validateLandmark, addMainLandmark, addSvgAccessibleNames, fixTableStructureIssues, fixTableHeaderCellScope, fixFakeLinks, ensureUniqueLandmarks, addLandmarkRoles, setLanguageAttribute, fixTableAccessibility, fixLandmarkIssues, addSvgAccessibility, createAccessibleLinks, generateAccessibilityReport, addressAccessibilityIssues } = require('./accessibility-improvements');
 const { a11y } = require('@accessible/react');
-
-import './styles.css';
-import { someFunction } from './otherFile';
 
 const CONFIG = {
   dataPath: './data',

@@ -209,13 +209,13 @@ const AddressabilityIssues = {
 
   setSvgAttributes(svg) {
     if (!svg) return;
-  
+
     // Handle width: set to 24 if missing or less than 24
     const width = svg.getAttribute('width');
     if (!width || parseInt(width) < 24) {
       svg.setAttribute('width', '24');
     }
-  
+
     // Handle height: set to 24 if missing or less than 24
     const height = svg.getAttribute('height');
     if (!height || parseInt(height) < 24) {
@@ -225,7 +225,7 @@ const AddressabilityIssues = {
 
   detectAccessibilityIssues(elements) {
     const issues = [];
-  
+
     elements.forEach((element, index) => {
       if (!element.id) {
         issues.push({
@@ -234,7 +234,7 @@ const AddressabilityIssues = {
           message: 'Element is missing an id attribute'
         });
       }
-      
+
       if (!element.getAttribute('role')) {
         issues.push({
           element: index,
@@ -266,16 +266,16 @@ const AddressabilityIssues = {
         svg.setAttribute('role', 'img');
       }
 
-      const accessibleName = getSvgAccessibleName(svg);
+      const accessibleName = this.getSvgAccessibleName(svg);
       if (accessibleName) {
         svg.setAttribute('aria-label', accessibleName);
       }
 
-      setSvgAttributes(svg);
+      this.setSvgAttributes(svg);
     });
 
     return {
-      issues: detectAccessibilityIssues(svgElements),
+      issues: this.detectAccessibilityIssues(svgElements),
       count: svgElements.length
     };
   },
@@ -350,21 +350,44 @@ const AddressabilityIssues = {
       });
       window.dispatchEvent(clearEvent);
     }
-  },
-
-  // Export functions for testing
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-      AddressabilityIssues,
-      initializeAccessibility,
-      getSvgAccessibleName,
-      setSvgAttributes,
-      checkTableStructure,
-      generateUniqueId,
-      detectAccessibilityIssues,
-      handleCredentialResponse,
-      getStoredCredentials,
-      clearCredentials
-    };
   }
-</script>
+};
+
+// Helper functions (outside the object)
+function generateUniqueId() {
+  return 'unique-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+}
+
+function checkTableStructure(table) {
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
+
+  // Basic table validation
+  const hasHeaders = table.querySelectorAll('th').length > 0;
+  const hasRows = table.querySelectorAll('tr').length > 1;
+
+  return {
+    valid: hasHeaders && hasRows,
+    hasHeaders,
+    hasRows
+  };
+}
+
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    AddressabilityIssues,
+    initializeAccessibility: AddressabilityIssues.initializeAccessibility,
+    getSvgAccessibleName: AddressabilityIssues.getSvgAccessibleName,
+    setSvgAttributes: AddressabilityIssues.setSvgAttributes,
+    checkTableStructure,
+    generateUniqueId,
+    detectAccessibilityIssues: AddressabilityIssues.detectAccessibilityIssues,
+    handleCredentialResponse: AddressabilityIssues.handleCredentialResponse,
+    getStoredCredentials: AddressabilityIssues.getStoredCredentials,
+    clearCredentials: AddressabilityIssues.clearCredentials,
+    renderDependencyGraph: AddressabilityIssues.renderDependencyGraph,
+    renderIndexView: AddressabilityIssues.renderIndexView
+  };
+}

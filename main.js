@@ -136,7 +136,7 @@ if (typeof module !== 'undefined' && module.exports) {
     spawnSomeCommand,
     addLangAttribute,
     handleCredentialResponse
-  };
+};
 } else {
   // Browser environment - wait for DOM
   if (document.readyState === 'loading') {
@@ -150,10 +150,6 @@ function init() {
   setupAriaLiveRegions();
   setupFocusManagement();
   enhanceSemanticMarkup();
-}
-
-function setupAriaLiveRegions() {
-  /* existing code */
 }
 
 function setupAriaLiveRegions() {
@@ -389,4 +385,89 @@ const AddressabilityIssues = {
     child_process.spawn('someCommand', [], {
       stdio: 'inherit',
     }).on('exit', (code, signal) => {
-      if
+      if (typeof callback === 'function') {
+        callback(code, signal);
+      }
+    });
+  },
+
+  addLangAttribute: function(lang) {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('lang', lang || 'en');
+    }
+  }
+};
+
+// Export convenience functions from AddressabilityIssues
+function addressAccessibilityIssues(issues) {
+  return AddressabilityIssues.addressAccessibilityIssues(issues);
+}
+
+function generateAccessibilityReport(accessibilityReport) {
+  return AddressabilityIssues.generateAccessibilityReport(accessibilityReport);
+}
+
+function calculateAccessibilityScore(fixedIssues) {
+  return AddressabilityIssues.calculateAccessibilityScore(fixedIssues);
+}
+
+function validateLandmark(element) {
+  return AddressabilityIssues.validateLandmark(element);
+}
+
+function spawnSomeCommand(callback) {
+  return AddressabilityIssues.spawnSomeCommand(callback);
+}
+
+function addLangAttribute(lang) {
+  return AddressabilityIssues.addLangAttribute(lang);
+}
+
+function getVersion() {
+  const packageJson = require('./package.json');
+  return packageJson.version || '0.0.0';
+}
+
+function getConfig() {
+  return {
+    version: getVersion(),
+    debug: process.env.DEBUG === 'true'
+  };
+}
+
+function trapFocus(event) {
+  if (event.key === 'Tab') {
+    const focusableElements = this.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      return;
+    }
+
+    if (event.shiftKey) {
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    }
+  }
+}
+
+function handleKeyNavigation(event) {
+  if (event.key === 'Escape') {
+    const activeElement = document.activeElement;
+    if (activeElement && activeElement.hasAttribute('aria-modal')) {
+      activeElement.setAttribute('aria-hidden', 'true');
+      document.body.setAttribute('aria-hidden', 'false');
+    }
+  }
+}

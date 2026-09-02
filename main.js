@@ -1,9 +1,29 @@
-const config = {
-  apiUrl: process.env.API_URL || null,
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
-};
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const path = require('path');
+const { a11y } = require('@accessible/react');
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  getUniqueLandmarks,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  addSvgAccessibilityProps,
+  setSvgAccessibilityProps,
+  handleAccessibilityIssues,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  createInPageButton
+} = require('./utils');
 
 const appState = {
   initialized: false,
@@ -11,128 +31,64 @@ const appState = {
   cache: new Map()
 };
 
-function validateLandmark(landmark) {
-  const errors = [];
-  // Existing code that should be preserved
-  // Update landmark validation logic if needed
-  const role = landmark ? landmark.getAttribute('role') : null;
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (role && !validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role: ' + role);
-  }
-  return errors;
-}
-
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
-
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
-
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
+/**
+ * Gets the language attribute value for the HTML element
+ * @returns {string} The language attribute value
+ */
 function getLangAttribute() {
-    // Implementation to get language attribute
-    return document.documentElement.lang || 'en';
+  return document.documentElement.lang || 'en';
 }
 
+/**
+ * Gets the full language attribute string for the HTML element
+ * @returns {string} The full lang attribute (e. g., "en" or "en-US")
+ */
 function getFullLangAttribute() {
-    // Implementation to get full language attribute
-    return document.documentElement.lang || navigator.language || 'en-US';
+  return document.documentElement.lang || navigator.language || 'en-US';
 }
 
-function validateTableAccessibility(tableElement) {
-    // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement || !tableElement.querySelector('caption')) {
-        console.warn('Table missing caption');
-        return false;
-    }
-    return true;
+/**
+ * Adds lang attribute to HTML element
+ * @param {Object} element - The HTML element to modify
+ * @returns {Object} The modified element with lang attribute
+ */
+function addLangAttribute(element) {
+  element.lang = getFullLangAttribute();
+  return element;
 }
 
-function validateTableStructure(tableElement) {
-    // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement ? tableElement.querySelectorAll('tr') : [];
-    if (rows.length === 0) {
-        console.warn('Table has no rows');
-        return false;
-    }
-    return true;
+/**
+ * Returns a person's name formatted for accessibility
+ * @param {string} firstName - The first name
+ * @param {string} lastName - The last name
+ * @returns {string} The formatted full name
+ */
+function personName(firstName, lastName) {
+  const name = [firstName, lastName].filter(Boolean).join(' ');
+  return name || '';
 }
 
-function validateLandmarkStructure() {
-    // Merged implementation (conflict resolved)
-    const landmarks = document.querySelectorAll('[role]') || [];
-    let hasMain = false;
-    let hasNavigation = false;
+/**
+ * validates landmark elements
+ * @param {Object} element - The landmark element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmark(element) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
-    landmarks.forEach(landmark => {
-        const role = landmark.getAttribute('role');
-        if (role === 'main') hasMain = true;
-        if (role === 'navigation') hasNavigation = true;
-    });
-
-    if (!hasMain) console.warn('Missing main landmark');
-    if (!hasNavigation) console.warn('Missing navigation landmark');
-
-    return hasMain && hasNavigation;
-}
-
-function addLandmarkRegions() {
-  console.log('Adding landmark regions');
-}
-
-function getSvgAccessibleName() {
-    // Merged implementation (conflict resolved)
-    const svgElement = document.querySelector('svg');
-    const title = svgElement ? svgElement.querySelector('title') : null;
-    const ariaLabel = svgElement ? svgElement.getAttribute('aria-label') : null;
-    if (title) return title.textContent;
-    if (ariaLabel) return ariaLabel;
-    return 'Accessible SVG Icon';
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  if (svg && typeof svg === 'object') {
-    svg.setAttribute('role', 'img');
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
+  if (!element.tagName) {
+    issues.push('Missing tagName');
+  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${element.tagName}`);
   }
-  return svg;
-}
-
-function ensureUniqueLandmarks(landmarksArg) {
-  // Merged implementation (conflict resolved)
-  let landmarks = landmarksArg;
-  if (!Array.isArray(landmarks)) {
-    landmarks = [];
-  }
-  const elementsById = {};
-
-  if (Array.isArray(landmarks)) {
-    for (const landmark of landmarks) {
-      if (landmark.id) {
-        if (elementsById[landmark.id]) {
-          landmark.id += '_duplicate';
-        } else {
-          elementsById[landmark.id] = true;
-        }
-      }
-    }
+  if (!element.hasAttribute('id')) {
+    issues.push('Missing id attribute');
   }
 
   // Additional uniqueness check for landmark roles
   const landmarksByRole = {};
-  const allLandmarks = landmarks;
+  const allLandmarks = Array.from(document.querySelectorAll('[role]'));
 
   allLandmarks.forEach(landmark => {
     const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
@@ -143,7 +99,10 @@ function ensureUniqueLandmarks(landmarksArg) {
     }
   });
 
-  return landmarks;
+  return {
+    success: issues.length === 0,
+    issues
+  };
 }
 
 function initializeApp() {
@@ -164,69 +123,108 @@ function processData(data) {
   if (!validateInput(data)) {
     throw new Error('Invalid input data');
   }
+  return data;
+}
+
+/**
+ * validate table accessibility compliance
+ * @param {Object} table - The table object to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+
+  // Check for caption (from origin/main)
+  if (!table.querySelector || !table.querySelector('caption')) {
+    issues.push('Missing caption element');
+  }
+
+  // Check for headers attribute (from HEAD)
+  if (!table.getAttribute('headers')) {
+    issues.push('Missing headers attribute');
+  }
+
+  // Check for scope attribute on header cells (from HEAD)
+  const headerCells = table.querySelectorAll('th');
+  headerCells.forEach(cell => {
+    if (!cell.hasAttribute('scope')) {
+      issues.push('Missing scope attribute on header cell');
+    }
+  });
+
   return {
-    processed: true,
-    data: data,
-    timestamp: Date.now()
+    success: issues.length === 0,
+    issues
   };
 }
 
-function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.onclick = onClick;
-    button.setAttribute('aria-label', text);
-    return button;
-}
+/**
+ * Validates the structure of tables for accessibility
+ * @param {Array} tables - Array of table objects or single table element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableStructure(tables) {
+  const allIssues = [];
 
-function createAccessibleLink(href, text) {
-    // Implementation to create accessible link (conflict resolved: merged implementation)
-    const link = document.createElement('a');
-    link.href = href;
-    link.textContent = text;
-    link.setAttribute('aria-label', text);
-    return link;
+  // Handle both single table element and array of tables
+  const tableArray = Array.isArray(tables) ? tables : [tables];
+
+  tableArray.forEach((table, index) => {
+    // Check for rows (from origin/main)
+    const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
+    if (rows.length === 0) {
+      allIssues.push({
+        tableIndex: index,
+        issues: ['Table has no rows']
+      });
+    }
+
+    // Validate table accessibility (from HEAD)
+    const result = validateTableAccessibility(table);
+    if (!result.success) {
+      allIssues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
+    }
+  });
+
+  return {
+    success: allIssues.length === 0,
+    issues: allIssues
+  };
 }
 
 function handleAccessibilityIssues() {
-    // Implementation to handle accessibility issues (conflict resolved: merged implementation)
-    const tables = document.querySelectorAll('table') || [];
-    tables.forEach(table => {
-        validateTableAccessibility(table);
-        validateTableStructure(table);
-    });
+  const tables = document.querySelectorAll('table') || [];
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
 
-    const landmarks = document.querySelectorAll('[role]') || [];
-    landmarks.forEach(landmark => {
-        validateLandmark(landmark);
-    });
+  const landmarks = document.querySelectorAll('[role]') || [];
+  landmarks.forEach(landmark => {
+    validateLandmark(landmark);
+  });
 
-    ensureUniqueLandmarks(landmarks);
+  ensureUniqueLandmarks(landmarks);
 
-    const svgs = document.querySelectorAll('svg') || [];
-    svgs.forEach(svg => {
-        getSvgAccessibleName(svg);
-    });
+  const svgs = document.querySelectorAll('svg') || [];
+  svgs.forEach(svg => {
+    getSvgAccessibleName(svg);
+  });
 }
 
-// Export all existing and new functions
 module.exports = {
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
-    handleAccessibilityIssues,
-    initializeApp,
-    getConfig,
-    validateInput,
-    processData,
-    addLandmarkRegions,
-    setSvgAttributes
+  addLangAttribute,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  initializeApp,
+  getConfig,
+  validateInput,
+  processData,
+  handleAccessibilityIssues
 };

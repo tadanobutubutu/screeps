@@ -3,28 +3,61 @@ const main = require('./utilities');
 
 const {
   createInPageButton,
-  validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
-  announceToScreenReader,
   handleKeyboardNav,
-  newFocusTrap: originNewFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
   ensureElementHasId: ensureElementIdOrigin,
-  ensureElementId,
+  ensureElementHasId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
   renderAdditionalContent,
-  transformInputData
+  transformInputData,
+  initSkipLink,
+  trapFocus,
+  newFocusTrap: function (element, customFocusableSelector) {
+      const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (focusableElements.length === 0) return;
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+
+      element.addEventListener('keydown', (e) => {
+          if (e.key === 'Tab') {
+              if (e.shiftKey && document.activeElement === first) {
+                  last.focus();
+                  e.preventDefault();
+              } else if (!e.shiftKey && document.activeElement === last) {
+                  first.focus();
+                  e.preventDefault();
+              }
+          }
+      });
+  },
+  announceToScreenReader: function (message, priority = 'polite') {
+      if (priority === undefined) {
+          priority = 'polite';
+      }
+      const announcer = document.createElement('div');
+      announcer.setAttribute('aria-live', priority);
+      announcer.setAttribute('aria-atomic', 'true');
+      announcer.className = 'sr-only';
+      announcer.style.position = 'absolute';
+      announcer.style.left = '-9999px';
+      announcer.textContent = message;
+      document.body.appendChild(announcer);
+      setTimeout(function () {
+          announcer.remove();
+      }, 1000);
+  },
 } = main;
 
 const accessibilityUtils = {
@@ -36,22 +69,68 @@ const accessibilityUtils = {
     // ... existing code ...
   },
 
-  announceToScreenReader: (message, priority = 'polite') => {
-    // ... existing code ...
-  },
+  announceToScreenReader,
 
-  newFocusTrap: (element) => {
-    // ... existing code ...
-  },
+  newFocusTrap,
 };
 
-// Utility functions for ensuring elements have IDs and adding labels
+const validateTableAccessibilityFn = function (tableData) {
+  const errors = [];
+  const tables = getTables();
+
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+
+    if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
+      errors.push({
+        tableIndex: i,
+        error: 'Table must have headers defined'
+      });
+    }
+
+    if (!table.rows || !Array.isArray(table.rows)) {
+      errors.push({
+        tableIndex: i,
+        error: 'Table must have rows array defined'
+      });
+    }
+
+    if (table.ariaLabel === undefined && table.caption === undefined) {
+      errors.push({
+        tableIndex: i,
+        error: 'Table should have aria-label or caption for accessibility'
+      });
+    }
+
+    if (document.documentElement.lang === undefined) {
+      document.documentElement.setAttribute('lang', 'en');
+    }
+
+    if (table.role === undefined) {
+      table.role = 'table';
+    }
+
+    const svgElements = table.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      if (!svg.getAttribute('aria-label')) {
+        svg.setAttribute('aria-label', 'Accessible SVG element');
+      }
+    });
+  }
+
+  return errors.length === 0;
+};
+
+const validateTableStructureFn = function (tableData) {
+  // Implementation placeholder - function to be implemented
+  return true;
+};
+
 const ensureElementId = (element) => {
-  // ... existing code ...
-};
-
-const ensureElementHasId = (element, prefix = 'element') => {
-  // ... existing code ...
+  if (element && !element.id) {
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element;
 };
 
 const addAriaLabel = (element, label) => {
@@ -99,89 +178,16 @@ function addAccessibleName(svgString) {
   return new XMLSerializer().serializeToString(svg);
 }
 
-// Example usage of the function
-const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
-const modifiedSvgString = addAccessibleName(originalSvgString);
-
-/**
- * Validates table accessibility
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table is accessible, false otherwise
- */
-function validateTableAccessibility(tableData) {
-  const errors = [];
-  const tables = getTables();
-
-  for (let i = 0; i < tables.length; i++) {
-    const table = tables[i];
-
-    if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table must have headers defined'
-      });
-    }
-
-    if (!table.rows || !Array.isArray(table.rows)) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table must have rows array defined'
-      });
-    }
-
-    if (table.ariaLabel === undefined && table.caption === undefined) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table should have aria-label or caption for accessibility'
-      });
-    }
-
-    if (document.documentElement.lang === undefined) {
-      document.documentElement.setAttribute('lang', 'en');
-    }
-
-    if (table.role === undefined) {
-      table.role = 'table';
-    }
-
-    const svgElements = table.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      if (!svg.getAttribute('aria-label')) {
-        svg.setAttribute('aria-label', 'Accessible SVG element');
-      }
-    });
-  }
-
-  return errors.length === 0;
-}
-
-/**
- * Validates table structure
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table structure is valid, false otherwise
- */
-function validateTableStructure(tableData) {
-  // Implementation placeholder - function to be implemented
-  return true;
-}
-
-function newFocusTrap() {
-  // New function implementation: traps focus within a given element
-  return accessibilityUtils.newFocusTrap;
-}
-
 module.exports = {
   ...accessibilityUtils,
   renderDependencyGraph,
   addAriaLabel,
   addAccessibleName,
-  validateTableAccessibility,
-  validateTableStructure,
+  validateTableAccessibility: validateTableAccessibilityFn,
+  validateTableStructure: validateTableStructureFn,
   ensureElementId,
   ensureElementHasId,
-  newFocusTrap,
   getTables,
   getConfig,
   setConfig,
-  // Preserve any other existing exports here
 };

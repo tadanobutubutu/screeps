@@ -243,11 +243,11 @@ function ensureUniqueLandmarks(landmarks) {
   }
   const seen = new Set();
   return landmarks.filter(landmark => {
-    if (seen.has(`${landmark.id || ''}${landmark.name || ''}`)) {
-      return false;
+    if (!seen.has(landmark.id)) {
+      seen.add(landmark.id);
+      return true;
     }
-    seen.add(`${landmark.id || ''}${landmark.name || ''}`);
-    return true;
+    return false;
   });
 }
 
@@ -406,3 +406,4 @@ module.exports = {
   CONFIG,
   appState
 };
+```

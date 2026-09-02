@@ -15,7 +15,8 @@ const accessibilityUtils = {
                     target.focus();
                 }
             });
-        },
+        }
+    },
     
     // Trap focus within an element (for modals, dialogs)
     trapFocus: (element) => {
@@ -35,7 +36,8 @@ const accessibilityUtils = {
                     firstElement.focus();
                 }
             }
-        }),
+        });
+    },
     
     // Announce message to screen readers
     announceToScreenReader: (message, priority = 'polite') => {
@@ -129,6 +131,9 @@ const {
     renderDependencyGraph: renderDependencyGraphImported,
 } = main;
 
+// TODO: Add new functions below this line
+
+// New utility functions for enhanced accessibility
 function newFocusTrap() {
     // New function implementation: traps focus within a given element
     return (element) => {
@@ -207,126 +212,6 @@ function renderDependencyGraph() {
         ensureElementHasId(container, 'dep-graph');
     }
 }
-
-// TODO: Add new functions below this line
-
-const main = require('./utilities');
-
-const {
-    createInPageButton,
-    createWebResourceButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    getLangAttribute,
-    validateAccessibilityReport,
-    exportUtils,
-    addressAccessibilityIssues,
-    handleCredentialResponse,
-    ensureElementHasId,
-    ensureElementHasIdOrigin,
-    addAriaLabel: addAriaLabelImported,
-    renderDependencyGraph: renderDependencyGraphImported,
-} = main;
-
-function newFocusTrap() {
-    // New function implementation: traps focus within a given element
-    return (element) => {
-        if (!element) return;
-        const focusable = element.querySelectorAll(
-            'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-
-        element.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                if (e.shiftKey && document.activeElement === first) {
-                    last.focus();
-                    e.preventDefault();
-                } else if (!e.shiftKey && document.activeElement === last) {
-                    first.focus();
-                    e.preventDefault();
-                }
-            }
-        });
-    };
-}
-
-function addLangAttribute() {
-    document.documentElement.setAttribute('lang', 'en');
-}
-
-/**
- * Adds an aria-label attribute to an element.
- * @param {HTMLElement} element - The element to add aria-label to
- * @param {string} label - The label text to set
- * @returns {HTMLElement} The element with the aria-label added
- */
-function addAriaLabel(element, label) {
-    if (!element) {
-        return null;
-    }
-
-    if (typeof label !== 'string' || label.trim() === '') {
-        return element;
-    }
-
-    element.setAttribute('aria-label', label);
-    return element;
-}
-
-/**
- * Ensures an element has both an id and an aria-label for accessibility.
- * @param {HTMLElement} element - The element to enhance
- * @param {string} idPrefix - The prefix for generating an id if needed
- * @param {string} ariaLabel - The aria-label text
- * @returns {string|null} The id of the element, or null if element is invalid
- */
-function ensureElementAccessibility(element, idPrefix, ariaLabel) {
-    if (!element) {
-        return null;
-    }
-
-    const id = ensureElementHasId(element, idPrefix);
-    addAriaLabel(element, ariaLabel);
-
-    return id;
-}
-
-// Sample main.js with dependencyGraph container
-function renderDependencyGraph() {
-    const container = document.getElementById('dependency-graph');
-
-    if (container) {
-        container.setAttribute('role', 'region');
-        container.setAttribute('aria-label', 'Dependency graph visualization');
-
-        // Ensure the container has an id for accessibility
-        ensureElementHasId(container, 'dep-graph');
-    }
-}
-
-// TODO: Add new functions below this line
-
-const getLangAttribute = getLangAttributeImpl || function() { return getLangAttributeImpl.call(this); };
-const createInPageButton = createInPageButtonImpl || function() { return createInPageButtonImpl.call(this); };
-const validateTableAccessibility = validateTableAccessibilityImpl || function() { return validateTableAccessibilityImpl.call(this); };
-const validateTableStructure = validateTableStructureImpl || function() { return validateTableStructureImpl.call(this); };
-const getSvgAccessibleName = getSvgAccessibleNameImpl || function(svg) { return getSvgAccessibleNameImpl.call(this, svg); };
-const setSvgAttributes = setSvgAttributesImpl || function(svg) { return setSvgAttributesImpl.call(this, svg); };
-const ensureUniqueLandmarks = ensureUniqueLandmarksImpl || function() { return ensureUniqueLandmarksImpl.call(this); };
-const validateLinkAccessibility = validateLinkAccessibilityImpl || function() { return validateLinkAccessibilityImpl.call(this); };
-const handleFakeLinks = handleFakeLinksImpl || function() { return handleFakeLinksImpl.call(this); };
-const addProperLandmarkRegions = addProperLandmarkRegionsImpl || function() { return addProperLandmarkRegionsImpl.call(this); };
-const checkFocusOrder = checkFocusOrderImpl || function() { return checkFocusOrderImpl.call(this); };
-const enhanceTableNavigation = enhanceTableNavigationImpl || function() { return enhanceTableNavigationImpl.call(this); };
-const improveContrast = improveContrastImpl || function() { return improveContrastImpl.call(this); };
-
-// ... (rest of the implementation from origin/main remains unchanged)
 
 // Existing utility functions
 function log(message, level = 'info') {
@@ -494,3 +379,4 @@ if (typeof document !== 'undefined') {
 // Export all utilities (merged from HEAD and origin/main)
 module.exports = {
     accessibilityUtils
+};

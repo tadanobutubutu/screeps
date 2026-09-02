@@ -594,6 +594,16 @@ function enhanceAddBookAccessibility() {
 // Ensure accessibility improvements are applied
 enhanceAddBookAccessibility();
 
+/**
+ * Function A implementation
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Sum of a and b
+ */
+function functionA(a, b) {
+  return a + b;
+}
+
 // Export all functions for testing and external use
 module.exports = {
   generateAccessibilityReport,
@@ -622,5 +632,6 @@ module.exports = {
   addBook,
   makeAccessible,
   addAriaSupport,
-  enhanceAddBookAccessibility
+  enhanceAddBookAccessibility,
+  functionA
 };

@@ -50,23 +50,13 @@ if (accessibleName) {
   console.log('Accessible name found:', accessibleName);
 }
 
-function setSvgAttributes(svg) {
-  if (!svg) return;
-  if (!svg.hasAttribute('width') && svg.hasAttribute('viewBox')) {
-    svg.setAttribute('width', '24');
-  }
-  if (!svg.hasAttribute('height') && svg.hasAttribute('viewBox')) {
-    svg.setAttribute('height', '24');
-  }
-}
-
 function getAccessibleName(element) {
   if (!element) return null;
-  .... // Remaining function remains unchanged
+  // Remaining function remains unchanged
 }
 
 function checkLandmarkElements() {
-  .... // Remaining function remains unchanged
+  // Remaining function remains unchanged
 }
 
 function getLangAttribute() {
@@ -201,11 +191,11 @@ function validateLandmark(element) {
 }
 
 function addressNewAccessibilityIssues(insightReport) {
-  .... // Remaining function remains unchanged
+  // Remaining function remains unchanged
 }
 
 function implementAccessibilitySolutions(issues) {
-  .... // Remaining function remains unchanged
+  // Remaining function remains unchanged
 }
 
 const sampleInsightReport = {

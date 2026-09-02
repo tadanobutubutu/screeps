@@ -594,27 +594,76 @@ async function addressAccessibilityIssuesHelper() {
   // ... (add other accessibility improvements as needed)
 }
 
+// Helper function to ensure unique landmark IDs
+function ensureUniqueLandmarks(landmarks) {
+  if (!landmarks || !landmarks.length) return;
+  
+  const seenIds = new Set();
+  landmarks.forEach((landmark, index) => {
+    let currentId = landmark.id;
+    
+    // If no ID, generate one
+    if (!currentId) {
+      const role = landmark.getAttribute('role') || 'landmark';
+      currentId = `${role}-${index}`;
+      landmark.id = currentId;
+    }
+    
+    // If ID is duplicate, make it unique
+    if (seenIds.has(currentId)) {
+      const role = landmark.getAttribute('role') || 'landmark';
+      let newId = `${role}-${index}-${Date.now()}`;
+      landmark.id = newId;
+      seenIds.add(newId);
+    } else {
+      seenIds.add(currentId);
+    }
+  });
+}
+
+// Helper function to write report to file
+function writeReport(data, filename) {
+  try {
+    const reportPath = path.join(CONFIG.dataPath, filename);
+    fs.writeFileSync(reportPath, JSON.stringify(data, null, 2));
+    return { success: true, path: reportPath };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Helper function to format response
+function formatResponse(data, statusCode = 200) {
+  return {
+    statusCode: statusCode,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    },
+    body: JSON.stringify(data)
+  };
+}
+
 // ... (remaining helper functions and other code)
 
 // Main application entry point
 const app = expressApp;
 
 // Ensure <nav> landmark exists
-if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
-  html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>')
-}
+if (typeof html !== 'undefined') {
+  if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
+    html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>')
+  }
 
-// Ensure <aside> landmark exists if content suggests a sidebar
-if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
-  html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>')
-}
+  // Ensure <aside> landmark exists if content suggests a sidebar
+  if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
+    html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>')
+  }
 
-// Ensure <footer> landmark exists
-if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
-  html = html.replace(/<\/body>/i, '<footer></footer></body>')
-}
-
-return html
+  // Ensure <footer> landmark exists
+  if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
+    html = html.replace(/<\/body>/i, '<footer></footer></body>')
+  }
 }
 
 // REACT_041: Add accessible names to SVGs
@@ -651,6 +700,70 @@ function addSvgAccessibleNames (html) {
 // New function3 logic
 function function3() {
   console.log('Function3 is running.');
+  
+  // Process accessibility-related data
+  const accessibilityData = {
+    timestamp: new Date().toISOString(),
+    status: 'completed',
+    issuesFound: 0,
+    issuesFixed: 0
+  };
+  
+  // Analyze landmarks
+  const landmarks = loadLandmarks();
+  accessibilityData.landmarkCount = landmarks.length;
+  
+  // Validate landmark structure
+  const structureIssues = validateLandmarkStructure();
+  accessibilityData.structureIssues = structureIssues;
+  
+  // Check for missing landmarks
+  const requiredMissing = CONFIG.requiredLandmarks.filter(role => {
+    return !landmarks.some(l => l.getAttribute('role') === role);
+  });
+  
+  if (requiredMissing.length > 0) {
+    accessibilityData.issuesFound += requiredMissing.length;
+    console.warn('Missing required landmarks:', requiredMissing);
+  }
+  
+  // Process SVG accessibility
+  const svgs = document.querySelectorAll('svg');
+  let svgsNeedingLabels = 0;
+  
+  svgs.forEach(svg => {
+    const name = getSvgAccessibleName(svg);
+    if (!name) {
+      svgsNeedingLabels++;
+      setSvgAttributes(svg, `Graphic element ${svgsNeedingLabels}`);
+      accessibilityData.issuesFixed++;
+    }
+  });
+  
+  accessibilityData.svgsNeedingLabels = svgsNeedingLabels;
+  accessibilityData.issuesFound += svgsNeedingLabels;
+  
+  // Check tables for accessibility
+  const tables = document.querySelectorAll('table');
+  let tablesWithIssues = 0;
+  
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.getAttribute('scope') && !th.getAttribute('id')) {
+        th.setAttribute('scope', 'col');
+        tablesWithIssues++;
+        accessibilityData.issuesFixed++;
+      }
+    });
+  });
+  
+  accessibilityData.tablesWithIssues = tablesWithIssues;
+  accessibilityData.issuesFound += tablesWithIssues;
+  
+  console.log('Function3 completed:', accessibilityData);
+  
+  return accessibilityData;
 }
 
 // Function to scan pages for accessibility issues and generate a report
@@ -742,5 +855,6 @@ module.exports = {
   someFunction,
   helper,
   formatDate,
-  makeAddBookFormAccessible
+  makeAddBookFormAccessible,
+  function3
 };

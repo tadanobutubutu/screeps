@@ -60,8 +60,46 @@ function checkLandmarkElements() {
   checkLandmarkElement('[role="search"], [role="form"], form', 'form');
 }
 
+/**
+ * Creates an accessible in-page button element
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {string} [options.id] - Unique identifier for the button
+ * @param {string} [options.ariaLabel] - Accessible label for screen readers
+ * @param {string} [options.className] - CSS class(es) for styling
+ * @param {Function} [options.onClick] - Click event handler
+ * @param {string} [options.type='button'] - Button type (button, submit, reset)
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton({ text, id, ariaLabel, className, onClick, type = 'button' }) {
+  const button = document.createElement('button');
+  button.type = type;
+  button.textContent = text;
+
+  if (id) {
+    button.id = id;
+  }
+
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+
+  if (className) {
+    button.className = className;
+  }
+
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  // Ensure button is focusable and has proper semantics
+  button.setAttribute('tabindex', '0');
+
+  return button;
+}
+
 // Export the new function and sampleInsightReport (both versions agreed to do this)
-export { checkLandmarkElements, sampleInsightReport };
+export { checkLandmarkElements, sampleInsightReport, createInPageButton };
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',

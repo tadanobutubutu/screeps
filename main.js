@@ -12,6 +12,7 @@ const appData = {
     version: '1.0.0'
 };
 
+const HTML = ({ lang }) => ({ lang: lang, children: [] });
 let icons = {};
 
 /**
@@ -110,6 +111,17 @@ function enhanceAccessibilityForAddBook(form) {
   return form;
 }
 
+function handleCredentialResponse(response) {
+  if (!validateInput(response)) {
+    throw new Error('Invalid credential response');
+  }
+  appState.data = response;
+  return {
+    success: true,
+    data: response
+  };
+}
+
 function validateLandmark(landmark) {
   const errors = [];
 
@@ -122,7 +134,7 @@ function validateLandmark(landmark) {
     errors.push('Landmark must have a valid name');
   }
 
-  const HTML = ({ lang }) => `<html lang="${lang}">${/* other children */ ''}</html>`;
+  const htmlTemplate = ({ lang }) => `<html lang="${lang}">${/* other children */ ''}</html>`;
 
   if (landmark.latitude === undefined || landmark.latitude === null) {
     errors.push('Landmark must have a latitude');
@@ -241,26 +253,13 @@ function ensureFocusableElements(container) {
   return focusableElements;
 }
 
-function createInPageButton(buttonsData) {
-  const buttonsContainer = document.getElementById('in-page-buttons-container');
-
-  if (!buttonsContainer) {
-    console.error('In-page buttons container not found');
-    return;
-  }
-
-  buttonsData.forEach(buttonData => {
+function createInPageButton(text, onClick) {
+    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
     const button = document.createElement('button');
-    button.id = buttonData.id;
-    button.textContent = buttonData.text;
-    button.setAttribute('data-role', buttonData.role);
-
-    button.addEventListener('click', () => {
-      location.hash = buttonData.href;
-    });
-
-    buttonsContainer.appendChild(button);
-  });
+    button.textContent = text;
+    button.onclick = onClick;
+    button.setAttribute('aria-label', text);
+    return button;
 }
 
 function createAccessibleButton(text, onClick) {
@@ -701,20 +700,28 @@ export {
   getFullLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
   validateLandmark,
   validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
   ensureUniqueLandmarks,
-  ensureLandmarkUniqueness,
+  getSvgAccessibleName,
   createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  initializeApp,
+  getConfig,
+  validateInput,
+  processData,
+  handleCredentialResponse,
+  addLandmarkRegions,
+  setSvgAttributes,
+  addLangAttribute,
+  validateLandmarkAttributes,
+  fixTableStructure,
+  addMainLandmark,
+  ensureLandmarkUniqueness,
   createAccessibleButton,
   validateLinkAccessibility,
   handleFakeLinks,
-  addLandmarkRegions,
   processAccessibilityIssues,
   initialize,
   initializeApp,

@@ -245,6 +245,10 @@ function ensureUniqueLandmarks(landmarksArg) {
     };
 }
 
+function setSvgAttributes(svg, accessibleName) {
+    svg.setAttribute('aria-label', accessibleName);
+}
+
 function initializeApp() {
     appState.initialized = true;
     console.log('Initializing application...');
@@ -498,29 +502,4 @@ module.exports = {
     getFullLangAttribute,
     validateTableAccessibility,
     validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    createInPageButton,
-    createAccessibleLink,
-    handleAccessibilityIssues,
-    addSvgAccessibleNames,
-    addLangAttribute,
-    fixTableStructureIssues,
-    fixTableHeaderCellScope,
-    addMainLandmark,
-    addLandmarkRolesAndFixIssues,
-    fixLandmarkIssues,
-    fixFakeLinks,
-    addProperLandmarkRegions,
-    replaceMyButton,
-    ensureDependencyGraphAriaRole,
-    countDependencies,
-    initializeApp,
-    getConfig,
-    validateInput,
-    processData,
-    HTML
-};
+    validateLandmark

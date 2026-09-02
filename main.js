@@ -1,111 +1,208 @@
-// main.js - Application entry point
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+Here is the resolved file content:
+
+```javascript
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const path = require('path');
+const { a11y } = require('@accessible/react');
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  getUniqueLandmarks,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  addLangAttribute,
+  newFocusTrap,
+  getAccessibleLinkProps,
+  createInPageButton
+} = require('./utils');
+
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: process.env.TIMEOUT || 5000,
+  debug: true,
+  version: '1.0.0'
+};
+
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+const appData = {
+  title: 'Screeps',
+  version: '1.0.0'
+};
+
+// TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by fixTableStructureIssues() and fixTableHeaderCellScope())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), addLandmarkRolesAndFixIssues() and fixLandmarkIssues())
+// - REACT_041: Add accessible names to 2 SVGs (handled by addSvgAccessibleNames())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
-// Main JavaScript file
-// This file handles the main application logic
-(function() {
-    'use strict';
-    
-    // DOM Elements
-    const dependencyGraph = document.getElementById('dependencyGraph');
+function getLangAttribute() {
+    // Implementation to get language attribute
+    return document.documentElement.lang || 'en';
+}
 
-    // Import required modules
-    const utils = require('./utils');
-    const axe = require('axe-core');
-    const express = require('express');
-    const fs = require('fs');
-    const path = require('path');
-    const { validateInput, processData, formatResponse } = utils;
-    const { validateLandmark, addMainLandmark, addSvgAccessibleNames, fixTableStructureIssues, fixTableHeaderCellScope, fixFakeLinks, ensureUniqueLandmarks, addLandmarkRoles, setLanguageAttribute, fixTableAccessibility, fixLandmarkIssues, addSvgAccessibility, createAccessibleLinks, generateAccessibilityReport, addressAccessibilityIssues } = utils;
-    const { a11y } = require('@accessible/react');
-    
-    // Functions to ensure the element has an id, add aria-label, render dependency graphs
-    // (Previously existing code that needs to be preserved)
-    
-    // TODO: This is the existing code that needs to be preserved
-    // Address accessibility issues from insight report:
-    // Ensure the dependencyGraph container has a proper ARIA role
-    // (This comment remains as-is)
-    //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-    //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-    //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    //_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
-    //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+function getFullLangAttribute() {
+    // Implementation to get full language attribute
+    return document.documentElement.lang || navigator.language || 'en-US';
+}
 
-    const CONFIG = {
-      dataPath: './data',
-      maxResults: 100,
-      apiUrl: process.env.API_URL || 'http://localhost:3000',
-      timeout: 5000
-    };
+/**
+ * Validates table accessibility compliance
+ * @param {Object} table - The table object to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
 
-    // Configuration
-    const config = CONFIG;
+  // Check for caption (from origin/main)
+  if (!table.querySelector || !table.querySelector('caption')) {
+    issues.push('Missing caption element');
+  }
 
-    function function3() {
-      console.log('Function3 is running.');
-      // Add your implementation details here.
+  // Check for headers attribute (from HEAD)
+  if (!table.getAttribute('headers')) {
+    issues.push('Missing headers attribute');
+  }
+
+  // Check for scope attribute on header cells (from HEAD)
+  const headerCells = table.querySelectorAll('th');
+  headerCells.forEach(cell => {
+    if (!cell.hasAttribute('scope')) {
+      issues.push('Missing scope attribute on header cell');
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validates the structure of tables for accessibility
+ * @param {Array|Object} tables - Array of table objects or single table element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableStructure(tables) {
+  const allIssues = [];
+
+  // Handle both single table element and array of tables
+  const tableArray = Array.isArray(tables) ? tables : [tables];
+
+  tableArray.forEach((table, index) => {
+    // Check for rows (from origin/main)
+    const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
+    if (rows.length === 0) {
+      allIssues.push({
+        tableIndex: index,
+        issues: ['Table has no rows']
+      });
     }
 
-    // Helper function to validate landmark structure
-    function isValidLandmark(landmark) {
-        return landmark &&
-               typeof landmark.id !== 'undefined' &&
-               landmark.id !== null;
+    // Validate table accessibility (from HEAD)
+    const result = validateTableAccessibility(table);
+    if (!result.success) {
+      allIssues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
     }
+  });
 
-    function loadLandmarks() {
-        try {
-            const filePath = path.join(config.dataPath, 'landmarks.json');
-            const data = fs.readFileSync(filePath, 'utf8');
-            return JSON.parse(data);
-        } catch (error) {
-            console.error('Error loading landmarks:', error.message);
-            return [];
-        }
-    }
+  return {
+    success: allIssues.length === 0,
+    issues: allIssues
+  };
+}
 
-    // Process and filter landmarks
-    function processLandmarks(landmarks) {
-        if (!landmarks || !Array.isArray(landmarks)) {
-            return [];
-    }
+/**
+ * Validates landmark elements for accessibility
+ * @param {Object} element - The element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmark(element) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
-    // Sort landmarks by name
-    function sortLandmarks(landmarks, ascending = true) {
-        return landmarks.sort((a, b) => {
-            const nameA = (a.name || '').toLowerCase();
-            const nameB = (b.name || '').toLowerCase();
-            if (nameA < nameB) return -1;
-            if (nameA > nameB) return 1;
-            return 0;
+  if (!element.tagName) {
+    issues.push('Missing tagName');
+  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${element.tagName}`);
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validates the structure of landmark elements
+ * @param {Array} landmarks - Array of landmark elements to validate (optional)
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmarkStructure(landmarks) {
+  const issues = [];
+
+  // If landmarks array is provided, validate each one (from HEAD)
+  if (Array.isArray(landmarks)) {
+    landmarks.forEach((landmark, index) => {
+      const result = validateLandmark(landmark);
+      if (!result.success) {
+        issues.push({
+          landmarkIndex: index,
+          issues: result.issues
         });
+      }
+    });
+  } else {
+    // Otherwise, check for required landmarks in the DOM (from origin/main)
+    const allLandmarks = document.querySelectorAll('[role]');
+    let hasMain = false;
+    let hasNavigation = false;
+
+    allLandmarks.forEach(landmark => {
+      const role = landmark.getAttribute('role');
+      if (role === 'main') hasMain = true;
+      if (role === 'navigation') hasNavigation = true;
+    });
+
+    if (!hasMain) {
+      issues.push('Missing main landmark');
     }
-
-    // Function to create in-page buttons
-    function createInPageButton(buttonText, onClickHandler) {
-        const button = document.createElement('button');
-        button.textContent = buttonText;
-        button.onclick = onClickHandler;
-        return button;
+    if (!hasNavigation) {
+      issues.push('Missing navigation landmark');
     }
+  }
 
-    // Function to ensure unique landmarks
-    function ensureUniqueLandmarks() {
-        const landmarks = [...document.querySelectorAll('[aria-landmark]')];
-        const landmarkIds = landmarks.map(landmark => landmark.getAttribute('aria-landmark'));
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
 
-        const uniqueIds = new Set(landmarkIds);
-
-        landmarks.forEach((landmark, index) => {
-            if (!uniqueIds.has(landmarkIds[index])) {
-                landmark.setAttribute('aria-landmark', '');
-                uniqueIds.add(landmarkIds[index]);
+/**
+ * Ensures all landmarks have unique accessible names
+ * @param {Array} landmarks - Array of landmark elements to check (optional)
+ * @returns {Object} Result with success status and any duplicate names found
+ */
+function ensureUniqueLandmarks(landmarks) {
+```

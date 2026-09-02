@@ -600,16 +600,22 @@ function renderIndexView(container) {
   return null;
 }
 
-// Updated function using the new functions for rendering graph/index
+// Updated function: renders dependency graph content with validation
+// N/A: renderDependencyGraph and renderIndexView functions do not exist in this file
 function renderDependencyGraphContent() {
   const container = ...
   if (!container) {
     return;
   }
 
-  // Use the new functions for rendering
-  renderDependencyGraph(container);
-  renderIndexView(container);
+  // Check if rendering functions exist before calling them
+  if (typeof renderDependencyGraph === 'function') {
+    renderDependencyGraph(container);
+  }
+  
+  if (typeof renderIndexView === 'function') {
+    renderIndexView(container);
+  }
 }
 
 function addressInsightIssues() {

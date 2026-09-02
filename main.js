@@ -32,7 +32,7 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+const HTML = ({ lang }) => ({ tagName: 'html', lang: lang });
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -349,5 +349,6 @@ module.exports = {
     validateInput,
     processData,
     addLandmarkRegions,
-    setSvgAttributes
+    setSvgAttributes,
+    HTML
 };

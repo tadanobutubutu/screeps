@@ -172,6 +172,7 @@ function ensureUniqueLandmarksLocal(landmarks) {
       continue;
     }
     return element;
+  }
 }
 
 // TODO: Address accessibility issues from insight report:
@@ -249,5 +250,3 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph
 };
-
-// This resolved file combines both versions of the code, keeping functionality from both and avoiding syntax errors. It also keeps comments and style as much as possible.

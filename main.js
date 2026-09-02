@@ -31,3 +31,20 @@ const renderGraphIndex = (graphData) => {
 // Example:
 // renderDependencyGraphs(graphData); // Before
 // renderGraphIndex(graphData); // After
+
+// Create a utility function to create a web resource button suitable for accessibility
+const createAccessibleWebResourceButton = (url, text, options = {}) => {
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.textContent = text;
+  button.setAttribute('aria-label', options.ariaLabel || text);
+  button.setAttribute('role', 'link');
+  button.setAttribute('href', url);
+  return button;
+};
+
+// Export the new utility function if needed
+module.exports = {
+  createAccessibleWebResourceButton,
+  // ... other exports
+};

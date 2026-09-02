@@ -17,8 +17,8 @@ const newVariable = 'new value';
 /**
  * Main application entry point with accessibility features
  */
-function renderDependencyGraphs(svgElements) {
-  const accessibleName = getSvgAccessibleName(svgElements);
+function main() {
+  const accessibleName = 'main-content';
   if (accessibleName) {
     // Use accessibleName
   }
@@ -49,13 +49,14 @@ function checkLandmarkElements() {
         return;
       }
 
-      if (!landmarkRoles.includes(landmarkRole)) {
-        console.warn(`Invalid landmark role: ${landmarkRole} for ${tagName}`);
+      const elementRole = element.getAttribute('role');
+      if (elementRole && elementRole !== landmarkRole) {
+        console.warn(`Invalid landmark role: ${elementRole} for ${tagName}`);
       }
     });
   };
 
-  checkLandmarkElement('[role="main"], main', 'main', {
+  const implicitRole = {
     'main': 'main',
     'header': 'banner',
     'nav': 'navigation',
@@ -63,13 +64,14 @@ function checkLandmarkElements() {
     'aside': 'complementary',
     'form': 'form',
     'section': 'region'
-  });
+  };
 
-  checkLandmarkElement('[role="banner"], header', 'banner');
-  checkLandmarkElement('[role="navigation"], nav', 'navigation');
-  checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
-  checkLandmarkElement('[role="complementary"], aside', 'complementary');
-  checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+  checkLandmarkElement('main', 'main', implicitRole);
+  checkLandmarkElement('header', 'banner', implicitRole);
+  checkLandmarkElement('nav', 'navigation', implicitRole);
+  checkLandmarkElement('footer', 'contentinfo', implicitRole);
+  checkLandmarkElement('aside', 'complementary', implicitRole);
+  checkLandmarkElement('[role="form"]', 'form', implicitRole);
 }
 
 const sampleInsightReport = {
@@ -88,15 +90,15 @@ const sampleInsightReport = {
 
 function countDependencies() {
   const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
+  const packageJsonPath = 'package.json';
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
   const dependencies = packageJson.dependencies || {};
   const devDependencies = packageJson.devDependencies || {};
 
   return {
-    dependencies: Object.keys(dependencies).length,
-    devDependencies: Object.keys(devDependencies).length,
+    dependencies: Object.keys(dependencies),
+    devDependencies: Object.keys(devDependencies),
     total: Object.keys(dependencies).length + Object.keys(devDependencies).length
   };
 }

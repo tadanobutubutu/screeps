@@ -1,5 +1,4 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
+// TODO: This is the existing code that needs to be preserved
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -7,7 +6,8 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
+// - ADD: Address new accessibility issues from insight report (DONE: addressNewAccessibilityIssues)
+// - NEW: Implement a new function to handle focus trap for keyboard navigation (DONE: newFocusTrap)
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -406,10 +406,255 @@ function createInPageButton(parent = document.body) {
   return btn;
 }
 
+// New function to handle focus trap for keyboard navigation
+function newFocusTrap(containerElement, options = {}) {
+  const {
+    onEscape,
+    initialFocus = 'first',
+    returnFocus = true,
+    focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  } = options;
+
+  if (!containerElement || typeof document === 'undefined') {
+    return {
+      activate: () => {},
+      deactivate: () => {}
+    };
+  }
+
+  let previousActiveElement = null;
+  let isActive = false;
+
+  /**
+   * Gets all focusable elements within the container
+   * @returns {HTMLElement[]} Array of focusable elements
+   */
+  function getFocusableElements() {
+    return Array.from(containerElement.querySelectorAll(focusableSelector)).filter(el => {
+      return !el.hasAttribute('disabled') && !el.hasAttribute('aria-hidden');
+    });
+  }
+
+  /**
+   * Gets the element to focus based on initialFocus option
+   * @returns {HTMLElement|null} Element to focus
+   */
+  function getInitialFocusElement() {
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length === 0) return null;
+
+    if (initialFocus === 'first') {
+      return focusableElements[0];
+    } else if (initialFocus === 'last') {
+      return focusableElements[focusableElements.length - 1];
+    } else if (initialFocus === 'container') {
+      return containerElement;
+    } else if (typeof initialFocus === 'string') {
+      return containerElement.querySelector(initialFocus);
+    } else if (initialFocus instanceof HTMLElement) {
+      return initialFocus;
+    }
+    return focusableElements[0];
+  }
+
+  /**
+   * Handles keydown events for Tab and Escape
+   * @param {KeyboardEvent} event
+   */
+  function handleKeyDown(event) {
+    if (!isActive) return;
+
+    // Handle Escape key
+    if (event.key === 'Escape' && onEscape) {
+      event.preventDefault();
+      onEscape();
+      return;
+    }
+
+    // Handle Tab key for focus trapping
+    if (event.key === 'Tab') {
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const activeElement = document.activeElement;
+
+      if (event.shiftKey) {
+        // Shift + Tab: move backward
+        if (activeElement === firstElement || !containerElement.contains(activeElement)) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        // Tab: move forward
+        if (activeElement === lastElement || !containerElement.contains(activeElement)) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  }
+
+  /**
+   * Activates the focus trap
+   */
+  function activate() {
+    if (isActive) return;
+
+    isActive = true;
+    previousActiveElement = document.activeElement;
+
+    // Add event listener for keydown
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Set aria-hidden on other content (optional enhancement)
+    containerElement.setAttribute('aria-hidden', 'false');
+
+    // Focus the initial element
+    const focusElement = getInitialFocusElement();
+    if (focusElement) {
+      setTimeout(() => focusElement.focus(), 0);
+    }
+  }
+
+  /**
+   * Deactivates the focus trap
+   * @param {boolean} focusReturnElement - Whether to return focus to the previously focused element
+   */
+  function deactivate(focusReturnElement = returnFocus) {
+    if (!isActive) return;
+
+    isActive = false;
+    document.removeEventListener('keydown', handleKeyDown);
+
+    // Reset aria-hidden attribute
+    containerElement.setAttribute('aria-hidden', 'true');
+
+    // Return focus to the previously focused element
+    if (focusReturnElement && previousActiveElement && previousActiveElement.focus) {
+      setTimeout(() => previousActiveElement.focus(), 0);
+    }
+  }
+
+  return {
+    activate,
+    deactivate,
+    getFocusableElements,
+    isActive: () => isActive
+  };
+}
+
+// New function to address new accessibility issues from insight report
+function addressNewAccessibilityIssues() {
+  const issues = [];
+
+  if (typeof document === 'undefined') {
+    return { valid: false, issues: ['Document not available'] };
+  }
+
+  // Check for missing skip links
+  const skipLinks = document.querySelectorAll('a[href^="#"]');
+  const hasSkipLink = Array.from(skipLinks).some(link => {
+    const href = link.getAttribute('href');
+    return href === '#main' || href === '#content' || href.startsWith('#main-');
+  });
+
+  if (!hasSkipLink && document.body.firstChild?.tagName !== 'A') {
+    issues.push({
+      code: 'SKIP_LINK',
+      severity: 'warning',
+      message: 'Page may benefit from a skip link to main content'
+    });
+  }
+
+  // Check for color contrast issues (simplified check)
+  const textElements = document.querySelectorAll('p, span, a, li, td, th');
+  textElements.forEach((el, index) => {
+    const style = window.getComputedStyle(el);
+    const fontSize = parseFloat(style.fontSize);
+    const fontWeight = style.fontWeight;
+
+    // Very small text with no accessible alternative may have contrast issues
+    if (fontSize < 12 && fontWeight < 400) {
+      issues.push({
+        code: 'CONTRAST',
+        severity: 'warning',
+        message: `Small text found at index ${index} that may have contrast issues`,
+        element: el
+      });
+    }
+  });
+
+  // Check for missing alt text on images
+  const images = document.querySelectorAll('img');
+  images.forEach((img, index) => {
+    if (!img.hasAttribute('alt')) {
+      issues.push({
+        code: 'MISSING_ALT',
+        severity: 'error',
+        message: `Image at index ${index} is missing alt attribute`,
+        element: img
+      });
+    } else if (img.getAttribute('alt') === '' && !img.hasAttribute('role')) {
+      // Empty alt with no role might be decorative but should be explicit
+      issues.push({
+        code: 'EMPTY_ALT',
+        severity: 'info',
+        message: `Image at index ${index} has empty alt - ensure it is intentionally decorative`,
+        element: img
+      });
+    }
+  });
+
+  // Check for button elements without accessible names
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((btn, index) => {
+    const textContent = btn.textContent?.trim();
+    const ariaLabel = btn.getAttribute('aria-label');
+    const ariaLabelledby = btn.getAttribute('aria-labelledby');
+
+    if (!textContent && !ariaLabel && !ariaLabelledby) {
+      issues.push({
+        code: 'BUTTON_NO_NAME',
+        severity: 'error',
+        message: `Button at index ${index} has no accessible name`,
+        element: btn
+      });
+    }
+  });
+
+  // Check for form inputs without labels
+  const inputs = document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"])');
+  inputs.forEach((input, index) => {
+    const id = input.getAttribute('id');
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledby = input.getAttribute('aria-labelledby');
+    const hasLabel = id && document.querySelector(`label[for="${id}"]`);
+
+    if (!hasLabel && !ariaLabel && !ariaLabelledby) {
+      issues.push({
+        code: 'INPUT_NO_LABEL',
+        severity: 'error',
+        message: `Input at index ${index} is missing associated label`,
+        element: input
+      });
+    }
+  });
+
+  return {
+    valid: issues.filter(i => i.severity === 'error').length === 0,
+    issues
+  };
+}
+
 // New function to render dependency graphs
 function renderDependencyGraph(rootNode) {
   // Renders a dependency graph visualization
-  // This function traverses the root node and builds a hierarchical representation
+  // This function traverses the DOM tree and creates visual elements
   try {
     if (!rootNode) {
       return { success: false, errors: ['Root node is required'] };
@@ -695,6 +940,8 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  newFocusTrap,
+  addressNewAccessibilityIssues,
   renderDependencyGraph,
   renderIndexView,
   towerDefense

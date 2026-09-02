@@ -1,4 +1,28 @@
-// TODO: This is the existing code that needs to be preserved
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const path = require('path');
+const { a11y } = require('@accessible/react');
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  getUniqueLandmarks,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  addLangAttribute,
+  newFocusTrap,
+  getAccessibleLinkProps,
+  createInPageButton
+} = require('./utils');
+
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -11,6 +35,33 @@ const appState = {
   data: null,
   cache: new Map()
 };
+
+function getUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    const elements = Array.from(document.querySelectorAll(landmarkSelectors.join(',')));
+    return uniqueLandmarks(elements);
+  }
+
+  return uniqueLandmarks(landmarks);
+}
+
+function uniqueLandmarks(landmarks) {
+  if (!landmarks || !Array.isArray(landmarks)) return [];
+
+  const seen = new Set();
+  const uniqueLandmarks = [];
+
+  for (const landmark of landmarks) {
+    if (!landmark || typeof landmark.id === 'undefined') continue;
+
+    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      uniqueLandmarks.push(landmark);
+    }
+  }
+}
 
 function validateLandmark(landmark) {
   const issues = [];
@@ -32,8 +83,6 @@ const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
-
-// const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -181,7 +230,6 @@ function validateLandmarkStructure(landmarks) {
     }
     if (!hasNavigation) {
       issues.push('Missing navigation landmark');
-    }
   }
 
   return {
@@ -233,193 +281,4 @@ function ensureUniqueLandmarks(landmarks) {
   elementsToCheck.forEach(landmark => {
     const role = landmark.getAttribute('role');
     if (role) {
-      if (landmarksByRole[role]) {
-        duplicates.push(`Duplicate landmark role: ${role}`);
-      } else {
-        landmarksByRole[role] = true;
-      }
-    }
-  });
-
-  return {
-    success: duplicates.length === 0,
-    duplicates
-  };
-}
-
-function initializeApp() {
-  appState.initialized = true;
-  console.log('Initializing application...');
-  return true;
-}
-
-function getConfig() {
-  return config;
-}
-
-function validateInput(input) {
-  return input !== null && input !== undefined;
-}
-
-function processData(data) {
-  if (!validateInput(data)) {
-    throw new Error('Invalid input data');
-  }
-  return {
-    processed: true,
-    data: data,
-    timestamp: Date.now()
-  };
-}
-
-function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button (conflict resolved: merged implementation)
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.onclick = onClick;
-    button.setAttribute('aria-label', text);
-    return button;
-}
-
-/**
- * Handles accessibility issues found during validation
- * @param {Array} issues - Array of accessibility issues (optional)
- * @returns {Object} Summary of handled issues
- */
-function handleAccessibilityIssues(issues = []) {
-  const handled = [];
-  const unhandled = [];
-
-  // Process provided issues (from HEAD)
-  issues.forEach(issue => {
-    if (issue.fixable) {
-      handled.push(issue);
-    } else {
-      unhandled.push(issue);
-    }
-  });
-
-  // Perform DOM validation (from origin/main)
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-
-  const landmarks = document.querySelectorAll('[role]');
-  landmarks.forEach(landmark => {
-    validateLandmark(landmark);
-  });
-
-  validateLandmarkStructure();
-  ensureUniqueLandmarks();
-
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    getSvgAccessibleName(svg);
-  });
-
-  return {
-    total: issues.length,
-    handled: handled.length,
-    unhandled: unhandled.length,
-    unhandledIssues: unhandled
-  };
-}
-
-function createAccessibleLink(href, text) {
-    // Implementation to create accessible link (conflict resolved: merged implementation)
-    const link = document.createElement('a');
-    link.href = href;
-    link.textContent = text;
-    link.setAttribute('aria-label', text);
-    return link;
-}
-
-function addLandmarkRegions() {
-  console.log('Adding landmark regions');
-}
-
-function getSvgAccessibleName(svgElement) {
-    // Merged implementation (conflict resolved)
-    if (!svgElement) return 'Accessible SVG Icon';
-
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (title) return title.textContent;
-    if (ariaLabel) return ariaLabel;
-    return 'Accessible SVG Icon';
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  if (svg && typeof svg === 'object') {
-    svg.setAttribute('role', 'img');
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-  }
-  return svg;
-}
-
-/**
- * Iterates through all SVG elements and sets accessible names
- * @returns {Object} Result with success status and count of SVGs processed
- */
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  let processed = 0;
-
-  svgs.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-    processed++;
-  });
-
-  return {
-    success: true,
-    processed
-  };
-}
-
-/**
- * Implements upgrade logic using harvested data to improve the system
- * This function checks environment variables for upgrade triggers and updates the system configuration accordingly.
- */
-function upgradeSystem() {
-  const env = process.env;
-  const config = getConfig();
-
-  // Harvest upgrade data from environment variables
-  if (env.UPGRADE_NEEDED) {
-    // Example improvement: increment version number based on environment hint
-    const currentVer = config.version.split('.')[0];
-    const newVer = (parseInt(currentVer, 10) + 1).toString();
-    config.version = newVer + '.0.0';
-    console.log(`System upgraded to version ${config.version}`);
-  }
-
-  return config;
-}
-
-// Export all existing and new functions
-module.exports = {
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
-    handleAccessibilityIssues,
-    initializeApp,
-    getConfig,
-    validateInput,
-    processData,
-    addLandmarkRegions,
-    setSvgAttributes,
-    addSvgAccessibleNames,
-    upgradeSystem
-};
+      if (

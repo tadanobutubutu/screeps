@@ -21,6 +21,8 @@ import { CONFIG } from './utils/constants';
 import App from './App';
 import { helper, formatDate } from './utils';
 import { someFunction } from './utils/someFunction';
+import express from 'express';
+import path from 'path';
 
 // User Safety: unsafe
 // Safety Categories: PII/Privacy
@@ -49,8 +51,6 @@ function spawnNewUser(name, age) {
 }
 
 // Web server dependencies (incorporated from origin/main)
-const express = require('express');
-const path = require('path');
 
 // Configuration
 const config = {
@@ -292,7 +292,7 @@ function getAccessibleLinkProps(href, label) {
     role: 'link',
     'aria-label': label,
   };
-};
+}
 
 // Helper to get landmark props
 function getLandmarkProps(landmark, label) {
@@ -310,7 +310,7 @@ function countDependencies() {
     'antd': true
   };
   return Object.keys(dependencies).length;
-};
+}
 
 // Function to generate a key for each book item
 function generateKey(book) {
@@ -318,7 +318,7 @@ function generateKey(book) {
     return book.id;
   }
   return `${book.title}-${book.author}-${Math.random().toString(36).substr(2, 9)}`;
-};
+}
 
 // Function to fetch book dependencies and update the Redux store
 async function fetchBookDependencies(bookId) {
@@ -341,7 +341,7 @@ function updateBookDependencies(bookId, newDependencies) {
 
   // Dispatch an action to update the book's dependencies in the Redux store
   dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
-};
+}
 
 // Accessibility: AddBookForm component with proper labels and ARIA attributes
 function AddBookForm({ onAdd }) {
@@ -382,7 +382,7 @@ function AddBookForm({ onAdd }) {
       <button type="submit">Add Book</button>
     </form>
   );
-};
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -392,14 +392,14 @@ function onTitleSort() {
   const sortedList = getBooksList.sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-};
+}
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
   const sortedList = getBooksList.sort(sortByAuthor).reverse();
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-};
+}
 
 // Render the main component containing the book list and sorting controls
 function Main() {
@@ -490,11 +490,11 @@ function Main() {
       </div>
     </main>
   );
-};
+}
 
 // Address accessibility issues from insight report
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructur
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: getSvgAccessibleName)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)

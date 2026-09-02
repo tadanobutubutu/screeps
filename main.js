@@ -180,6 +180,122 @@ const server = http.createServer((req, res) => {
   res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
 });
 
+/**
+ * Decode a JWT token and extract the payload
+ * @param {string} token - The JWT token to decode
+ * @returns {Object|null} - Decoded token payload or null if invalid
+ */
+function decodeJwtToken(token) {
+    try {
+        if (!token) {
+            return null;
+        }
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            return null;
+        }
+        const payload = parts[1];
+        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+        return JSON.parse(decoded);
+    } catch (error) {
+        return null;
+    }
+}
+
+/**
+ * Validate a session by ID
+ * @param {string} sessionId - The session ID to validate
+ * @returns {Object|null} - Session data if valid, null otherwise
+ */
+function validateSession(sessionId) {
+    if (!sessionId || typeof sessionId !== 'string') {
+        return null;
+    }
+    const session = appState.sessions.get(sessionId);
+    return session || null;
+}
+
+/**
+ * Get the count of active sessions
+ * @returns {number} - Number of active sessions
+ */
+function getActiveSessionsCount() {
+    return appState.sessions.size;
+}
+
+/**
+ * Revoke a session
+ * @param {string} sessionId - The session ID to revoke
+ * @returns {boolean} - True if session was revoked
+ */
+function revokeSession(sessionId) {
+    return appState.sessions.delete(sessionId);
+}
+
+/**
+ * Address accessibility issues for the document
+ */
+function addressAccessibilityIssues() {
+    if (typeof document === 'undefined') {
+        return;
+    }
+    
+    // Check and fix landmark elements
+    if (typeof checkLandmarkElements === 'function') {
+        checkLandmarkElements();
+    }
+    
+    // Add SVG accessibility props
+    a11yStore.addSVGAccessibilityProps();
+    
+    // Fix fake links
+    a11yStore.fixFakeLinks();
+    
+    // Ensure interactive elements have proper roles
+    a11yStore.ensureInteractiveRoles();
+    
+    // Add form control labels
+    a11yStore.addFormControlLabels();
+    
+    // Ensure images have alt text
+    a11yStore.ensureImageAccessibility();
+}
+
+/**
+ * Check landmark elements in the document
+ */
+function checkLandmarkElements() {
+    if (typeof document === 'undefined') {
+        return;
+    }
+    
+    a11yStore.checkLandmarkElements();
+}
+
+/**
+ * Handle focus trap for accessibility (e.g., modals)
+ * @param {HTMLElement} container - The container to trap focus within
+ */
+function handleFocusTrap(container) {
+    if (!container) return;
+    const focusableElements = container.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusableElements.length === 0) return;
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    container.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        if (e.shiftKey && document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+        }
+    });
+}
+
 // Start server if this is the main module
 if (require.main === module) {
     const PORT = process.env.PORT || 3000;
@@ -200,6 +316,8 @@ module.exports = {
   sanitizeFilename,
   processData,
   revokeSession,
+  addSvgAccessibilityProps: a11yStore.addSVGAccessibilityProps,
+  isLandmarkElement,
   handleCredentialResponse,
   parseCredentialResponse,
   decodeJwtToken,
@@ -210,5 +328,9 @@ module.exports = {
   validateLandmarkStructure,
   createInPageButton,
   personName,
-  handleInitialAccessibility
+  handleInitialAccessibility,
+  ensureInteractiveElementsAccessible,
+  addressAccessibilityIssues,
+  renderDependencyGraphs,
+  checkLandmarkElements
 };

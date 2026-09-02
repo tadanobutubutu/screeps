@@ -1,13 +1,12 @@
-=========================================
 // Import any required modules
 const requiredModule1 = require('required-module-1');
 const requiredModule2 = require('required-module-2');
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
+const fastMap = [];
 const path = require('path');
-const accessiblyHelper = require('./accessibly-helper'); // Added this import
+const accessiblyHelper = null; // Added this import
 
 // TODO: This is the existing code that needs to be preserve
 // (This comment remains as-is)
@@ -21,23 +20,23 @@ async function renderFunction1() {
   const moduleAReturnValue = await accessiblyHelper();
 
   // Ensure the dependencyGraph container has a proper ARIA role
-  function ensureDependencyGraphRole(container) {
+  function setDependencyGraphRole(container) {
     if (!container) return;
-    if (!container.hasAttribute('role')) {
-      container.setAttribute('role', 'graphics-document');
+    if (!container.getAttribute('role')) {
+      container.setAttribute('role', 'img');
     }
-    if (!container.hasAttribute('aria-label')) {
+    if (!container.getAttribute('aria-label')) {
       container.setAttribute('aria-label', 'Dependency graph');
     }
   }
 
   // Add scope="col" to th elements that don't have it
-  html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (/\bscope=/i.test(match)) return match
-    return `<th${attrs} scope="col">`
-  })
+  html = html.replace(/<th([^>]*)>(?!scope="col")/g, (match, attrs) => {
+    if (attrs.includes('scope="col')) return match;
+    return `<th${attrs} scope="col">`;
+  });
 
-  return html
+  return html;
 }
 
 // Function to analyze accessibility issues
@@ -68,7 +67,7 @@ async function generateAccessibilityReport(url) {
 
     // Write report to file
     const reportName = `accessibility-report-${Date.now()}.json`;
-    fs.writeFileSync(reportName, JSON.stringify(report, null, 2));
+    await fs.promises.writeFile(reportName, JSON.stringify(report, null, 2));
 
     return {
       success: true,
@@ -84,7 +83,7 @@ async function generateAccessibilityReport(url) {
 }
 
 // Landmark configuration
-const CONFIG = {
+const LANDMARK_CONFIG = {
   landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
   requiredLandmarks: ['banner', 'navigation', 'main']
 };
@@ -92,7 +91,7 @@ const CONFIG = {
 // Landmark functions
 function isValidLandmark(element) {
   const role = element.getAttribute('role');
-  return CONFIG.landmarkRoles.includes(role);
+  return LANDMARK_CONFIG.landmarkRoles.includes(role);
 }
 
 function loadLandmarks() {
@@ -100,7 +99,7 @@ function loadLandmarks() {
   const elements = document.querySelectorAll('[role]');
   elements.forEach(el => {
     const role = el.getAttribute('role');
-    if (CONFIG.landmarkRoles.includes(role)) {
+    if (isValidLandmark(el)) {
       landmarks.push(el);
     }
   });
@@ -117,7 +116,7 @@ function processLandmarks(landmarks) {
 }
 
 function sortLandmarks(landmarks) {
-  const roleOrder = CONFIG.landmarkRoles;
+  const roleOrder = LANDMARK_CONFIG.landmarkRoles;
   return landmarks.sort((a, b) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role));
 }
 
@@ -162,7 +161,7 @@ async function renderFunction2() {
 const CONFIG = {
     dataPath: './data',
     maxResults: 100,
-    apiUrl: process.env.API_URL || 'https://example.com',
+    apiUrl: process.env.API_URL || 'http://localhost:3000',
     timeout: 5000
 };
 
@@ -234,22 +233,22 @@ function someFunction() {
 }
 
 // Accessibility function for book form
-function makeAddBookFormAccessible() {
-  const form = document.querySelector('#addBookForm');
+function setupBookFormAccessibility() {
+  const form = document.querySelector('form');
   if (!form) return;
 
   // Add ARIA attributes to the form
   form.setAttribute('role', 'form');
-  form.setAttribute('aria-labelledby', 'addBookFormTitle');
+  form.setAttribute('aria-label', 'addBookFormTitle');
 
   // Add labels to form fields
-  const titleInput = form.querySelector('#bookTitle');
+  const titleInput = form.querySelector('input[name="title"]');
   if (titleInput) {
     titleInput.setAttribute('aria-label', 'Book Title');
     titleInput.setAttribute('required', 'true');
   }
 
-  const authorInput = form.querySelector('#bookAuthor');
+  const authorInput = form.querySelector('input[name="author"]');
   if (authorInput) {
     authorInput.setAttribute('aria-label', 'Book Author');
     authorInput.setAttribute('required', 'true');
@@ -270,7 +269,9 @@ function makeAddBookFormAccessible() {
 }
 
 // Call the accessibility function when the DOM is loaded
-document.addEventListener('DOMContentLoaded', makeAddBookFormAccessible);
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', setupBookFormAccessibility);
+}
 
 // Address accessibility issues using the shared helper
 async function addressAccessibilityIssues() {
@@ -278,87 +279,103 @@ async function addressAccessibilityIssues() {
   const allResults = await accessiblyHelper();
   if (!allResults[0]) return;
   // Ensure the dependencyGraph container has a proper ARIA role
-  allResults[0].ensuresDependencyGraphRole();
+  const container = document.querySelector('#dependencyGraph');
+  if (container) {
+    setDependencyGraphRole(container);
+  }
   // ... (add other accessibility improvements as needed)
 }
 
-// ... (remaining helper functions and other code)
+// Function to handle focus trap for keyboard navigation
+function trapFocus(container) {
+  const focusableSelectors = [
+    'a[href]',
+    'button:not([disabled])',
+    'textarea:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(', ');
 
-// Main application entry point
-const app = expressApp;
+  const focusableElements = container.querySelectorAll(focusableSelectors);
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
 
-  // Ensure <nav> landmark exists
-  if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
-    html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>')
-  }
+  function handleKeyDown(e) {
+    if (e.key !== 'Tab') return;
 
-  // Ensure <aside> landmark exists if content suggests a sidebar
-  if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
-    html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>')
-  }
-
-  // Ensure <footer> landmark exists
-  if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
-    html = html.replace(/<\/body>/i, '<footer></footer></body>')
-  }
-
-  return html
-}
-
-// REACT_041: Add accessible names to SVGs
-function addSvgAccessibleNames (html) {
-  if (typeof html !== 'string') return html
-
-  const svgMatches = [...html.matchAll(/<svg([^>]*)>/gi)]
-  let offset = 0
-
-  svgMatches.forEach((match, index) => {
-    const fullMatch = match[0]
-    const attrs = match[1]
-    const svgStart = match.index + offset
-    const svgEnd = html.indexOf('</svg>', svgStart)
-
-    if (svgEnd === -1) return
-
-    const svgContent = html.substring(svgStart, svgEnd + 6)
-    const hasTitle = /<title/i.test(svgContent)
-    const hasAriaLabel = /\baria-label=/i.test(attrs)
-    const hasAriaLabelledby = /\baria-labelledby=/i.test(attrs)
-
-    if (!hasTitle && !hasAriaLabel && !hasAriaLabelledby) {
-      const newSvg = fullMatch.replace(/>/, `><title>SVG ${index + 1}</title>`)
-      const oldSvgLength = svgContent.length
-      html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength)
-      offset += newSvg.length - oldSvgLength
+    if (e.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        e.preventDefault();
+        lastFocusable.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        e.preventDefault();
+        firstFocusable.focus();
+      }
     }
-  })
+  }
 
-  return html
+  container.addEventListener('keydown', handleKeyDown);
+
+  // Focus the first focusable element when trap is activated
+  if (firstFocusable) {
+    firstFocusable.focus();
+  }
+
+  // Return a cleanup function
+  return function releaseFocus() {
+    container.removeEventListener('keydown', handleKeyDown);
+  };
 }
 
-function validateLandmarkStructure() {
-  // Implementation to validate landmark structure
+// Function to manage multiple focus traps (e.g., for modals)
+function createFocusTrapManager() {
+  const activeTraps = new Map();
+  let trapCounter = 0;
+
+  return {
+    activate(container, id) {
+      if (activeTraps.has(container)) {
+        return activeTraps.get(container);
+      }
+
+      const trapId = id || `focus-trap-${++trapCounter}`;
+      const release = trapFocus(container);
+      activeTraps.set(container, { id: trapId, release });
+
+      return trapId;
+    },
+
+    deactivate(container) {
+      const trap = activeTraps.get(container);
+      if (trap) {
+        trap.release();
+        activeTraps.delete(container);
+        return true;
+      }
+      return false;
+    },
+
+    deactivateAll() {
+      activeTraps.forEach((trap) => {
+        trap.release();
+      });
+      activeTraps.clear();
+    },
+
+    isActive(container) {
+      return activeTraps.has(container);
+    }
+  };
 }
 
-function validateLandmarkAttributes() {
-  // Implementation to validate landmark attributes
-}
-
-function addProperLandmarkRegions() {
-  // Implementation to add proper landmark regions
-}
-
-// Link accessibility functions
-function validateLinkAccessibility() {
-  // Implementation to validate link accessibility
-}
-
-function handleFakeLinks() {
-  // Implementation to handle fake links
-}
+// Initialize global focus trap manager
+const focusTrapManager = createFocusTrapManager();
 
 // Helper function to check if a link is accessible (HTTP version)
-function checkLinkAccessibilityHTTP(linkUrl) {
+function checkLinkAccessibility(linkUrl) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5000);
 
@@ -388,28 +405,4 @@ async function scanAccessibility() {
     const fileEmitted = path.join(pagesDir, filePath);
     const { violations } = await axe.analyze(fileEmitted);
 
-    if (violations.length > 0) {
-      issues.push({
-        file: filePath,
-        issues: violations,
-      });
-    }
-  }
-
-  return issues;
-}
-
-/**
- * Adds accessibility properties to SVG elements
- * @param {SVGElement} svgElement - The SVG element to enhance
- */
-function addSvgAccessibilityProps(svgElement) {
-  if (!svgElement.getAttribute('role')) {
-    svgElement.setAttribute('role', 'img');
-  }
-  if (!svgElement.getAttribute('aria-hidden') && !svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-hidden', 'true');
-  }
-}
-
-function
+    if (

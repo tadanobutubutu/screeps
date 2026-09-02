@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 /**
  * Renders the dependency graph view
  * @param {Object} deps - Dependencies object

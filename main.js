@@ -15,9 +15,7 @@ const {
   newFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
-  handleCredentialResponse,
   ensureElementHasId: ensureElementIdOrigin,
-  ensureElementId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -48,11 +46,10 @@ const accessibilityUtils = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  handleCredentialResponse,
   transformInputData
 };
 
-const ensureElementIdOriginal = (element) => {
+const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
   }
@@ -142,27 +139,6 @@ accessibilityUtils.trapFocus = (element) => {
     element.removeEventListener('keydown', handleKeyDown);
   };
 };
-
-// Credential response handling
-async function handleCredentialResponse(response) {
-  if (!response) {
-    throw new Error('No response received');
-  }
-
-  if (response.error) {
-    throw new Error(response.error);
-  }
-
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    };
-  }
-
-  throw new Error('Invalid credential response');
-}
 
 // Existing utility functions
 function log(message, level = 'info') {

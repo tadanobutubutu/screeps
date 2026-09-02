@@ -379,7 +379,14 @@ function fixTableStructure(table) {
     table.scope = 'auto';
   }
 
-  return table;
+function addLangAttribute(rootElement, lang) {
+  if (rootElement) {
+    rootElement.setAttribute('lang', lang);
+  }
+}
+
+function fixTableStructure(table) {
+  // Your code to fix table structure
 }
 
 function addMainLandmark(document) {

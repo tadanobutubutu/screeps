@@ -364,6 +364,10 @@ export {
   createUnrotateButton,
   getSvgAccessibleName,
   createAccessibleLink,
-  getElementById, // Added back
-  queryElements // Added back
+  getAccessibleElement,
+  createAccessibleButton,
+  enhanceKeyboardNavigation,
+  addAriaRoles,
+  checkContrastRatios,
+  addBook
 };

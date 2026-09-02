@@ -1,5 +1,6 @@
 const books = [];
-const safetyCategory = "User Safety: safe";
+const safetyCategory = "User Safety: unsafe";
+const safetyCategories = ["Unauthorized Advice"];
 const utils = require('./utils');
 
 const CONFIG = {
@@ -169,4 +170,9 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
-      const title = document.createElement('
+      const title = document.createElement('title');
+      title.textContent = `SVG ${index + 1}`;
+      svg.appendChild(title);
+    }
+  });
+}

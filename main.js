@@ -442,6 +442,28 @@ function validateTableStructureComprehensive () {
   return true
 }
 
+/**
+ * Harvests resources or data from available sources.
+ *
+ * @param {Array} sources - An array of source objects, each with a 'type' and 'amount' property.
+ * @returns {Object} An object mapping resource types to total amounts.
+ */
+function harvestResources (sources) {
+  if (!Array.isArray(sources)) {
+    throw new Error('Sources must be an array')
+  }
+
+  const totals = {}
+
+  sources.forEach(source => {
+    if (!source || typeof source.type !== 'string') return
+    const amount = Number(source.amount) || 0
+    totals[source.type] = (totals[source.type] || 0) + amount
+  })
+
+  return totals
+}
+
 // Export functions for use in other modules
 module.exports = {
   initSkipLink: accessibilityUtils.initSkipLink,
@@ -456,5 +478,6 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
-  validateTableStructureComprehensive
+  validateTableStructureComprehensive,
+  harvestResources
 }

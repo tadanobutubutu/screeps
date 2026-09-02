@@ -351,6 +351,68 @@ function createAccessibleModal(options = {}) {
   };
 }
 
+/**
+ * Creates a web resource button suitable for accessibility (e.g., GitHub, Stack Overflow, etc.)
+ * @param {Object} options - Configuration options for the button
+ * @param {string} options.name - The name/label for the button
+ * @param {string} options.url - The URL to link to
+ * @param {string} options.icon - Optional icon class or SVG element for the button
+ * @param {string} options.ariaLabel - Optional accessible label for the button
+ * @param {string} options.variant - Optional button variant/style class (default: 'web-resource-btn')
+ * @param {HTMLElement} options.parent - Optional parent element to append the button to
+ * @returns {HTMLElement} The created button element
+ */
+function createWebResourceButton(options = {}) {
+  const {
+    name = '',
+    url = '#',
+    icon = '',
+    ariaLabel = '',
+    variant = 'web-resource-btn',
+    parent = null
+  } = options;
+
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const button = document.createElement('a');
+  button.href = url;
+  button.className = variant;
+  button.target = '_blank';
+  button.rel = 'noopener noreferrer';
+
+  // Set accessible label - use provided ariaLabel or create descriptive one from name
+  const accessibleLabel = ariaLabel || `${name} (opens in new tab)`;
+  button.setAttribute('aria-label', accessibleLabel);
+
+  // Handle icon if provided
+  if (icon) {
+    if (typeof icon === 'string') {
+      // Icon is a CSS class
+      const iconElement = document.createElement('span');
+      iconElement.className = icon;
+      iconElement.setAttribute('aria-hidden', 'true');
+      button.appendChild(iconElement);
+    } else if (icon instanceof HTMLElement) {
+      // Icon is an SVG or other HTML element
+      icon.setAttribute('aria-hidden', 'true');
+      button.appendChild(icon);
+    }
+  }
+
+  // Add the button text
+  const textNode = document.createTextNode(name);
+  button.appendChild(textNode);
+
+  // Append to parent if provided
+  if (parent && typeof parent.appendChild === 'function') {
+    parent.appendChild(button);
+  }
+
+  return button;
+}
+
 // Preserve all existing exports
 module.exports = {
   setHtmlLangAttribute,

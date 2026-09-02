@@ -598,6 +598,74 @@ function validateLandmarkStructure (container) {
 }
 
 /**
+ * Identifies and updates specific functions that render dependency graphs.
+ * This function scans the document for dependency graph containers and applies
+ * ARIA attributes and accessibility improvements.
+ * @param {HTMLElement} container - The container to scan for dependency graphs
+ * @returns {number} Number of dependency graph elements updated
+ */
+function updateDependencyGraphRenderers (container = document) {
+  if (!container || typeof document === 'undefined') {
+    return 0
+  }
+
+  const graphSelectors = [
+    '.dependency-graph',
+    '[data-dependency-graph]',
+    '[data-render="dependency-graph"]',
+    '#dependency-graph',
+    '#dependencyGraph'
+  ]
+
+  const graphElements = container.querySelectorAll(graphSelectors.join(', '))
+  let updatedCount = 0
+
+  graphElements.forEach((element) => {
+    // Add or update ARIA attributes for dependency graph
+    if (!element.hasAttribute('role')) {
+      element.setAttribute('role', 'img')
+    }
+
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      const labelText = element.getAttribute('data-graph-label') || 'Dependency graph'
+      element.setAttribute('aria-label', labelText)
+    }
+
+    // Ensure SVG elements within the graph have accessible names
+    const svgs = element.querySelectorAll('svg')
+    svgs.forEach((svg) => {
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img')
+      }
+      if (!svg.hasAttribute('aria-labelledby') && !svg.hasAttribute('aria-label')) {
+        const title = svg.querySelector('title')
+        if (title && !title.id) {
+          title.id = `dep-graph-title-${Math.floor(Math.random() * 100000)}`
+          svg.setAttribute('aria-labelledby', title.id)
+        } else {
+          svg.setAttribute('aria-label', 'Dependency graph visualization')
+        }
+      }
+    })
+
+    // Ensure interactive nodes within the graph are keyboard accessible
+    const interactiveNodes = element.querySelectorAll('[data-node], .graph-node')
+    interactiveNodes.forEach((node) => {
+      if (!node.hasAttribute('tabindex')) {
+        node.setAttribute('tabindex', '0')
+      }
+      if (!node.hasAttribute('role')) {
+        node.setAttribute('role', 'button')
+      }
+    })
+
+    updatedCount++
+  })
+
+  return updatedCount
+}
+
+/**
  * Renders the dependency graph view
  * @param {Object} deps - Dependencies object
  * @param {Object} options - Rendering options
@@ -953,6 +1021,7 @@ if (require.main === module) {
 module.exports = {
   renderDependencyGraph,
   renderIndex,
+  updateDependencyGraphRenderers,
   getSvgAccessibleName,
   newFunction,
   checkLandmarkElement,

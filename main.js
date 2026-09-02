@@ -19,7 +19,7 @@
 // Helper function to process SVG elements
 function processSvgElements() {
   const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
+  Array.from(svgElements).forEach(function(svg) {
     svg.setAttribute('role', 'img');
     const accessibleName = getSvgAccessibleName(svg);
     if (accessibleName) {
@@ -51,24 +51,24 @@ function setSvgAttributes(svg) {
 }
 
 // Check table structure function
-const checkTableStructure = function(tableElement) {
+var checkTableStructure = function(tableElement) {
   if (!tableElement) {
     return { valid: false, error: 'Table element is required' };
   }
 
-  const hasHeader = tableElement.querySelector('thead') !== null || tableElement.querySelector('th') !== null;
-  const hasBody = tableElement.querySelector('tbody') !== null;
-  const hasCaption = tableElement.querySelector('caption') !== null;
+  var hasHeader = tableElement.querySelector('thead') !== null || tableElement.querySelector('th') !== null;
+  var hasBody = tableElement.querySelector('tbody') !== null;
+  var hasCaption = tableElement.querySelector('caption') !== null;
 
   return {
     valid: true,
-    hasHeader,
-    hasBody,
-    hasCaption
+    hasHeader: hasHeader,
+    hasBody: hasBody,
+    hasCaption: hasCaption
   };
 };
 
-const sampleInsightReport = {
+var sampleInsightReport = {
   title: 'Quarterly Performance Report',
   sections: [
     {
@@ -83,15 +83,14 @@ const sampleInsightReport = {
 };
 
 // Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
 function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    var path = require('path');
+    var fs = require('fs');
+    var packageJsonPath = path.join(__dirname, 'package.json');
+    var packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
+    var dependencies = packageJson.dependencies || {};
+    var devDependencies = packageJson.devDependencies || {};
 
     return {
         dependencies: Object.keys(dependencies),
@@ -111,14 +110,14 @@ function handleCredentialResponse(response) {
     }
 
     // Check if response contains expected credential data
-    const hasCredential = response.credential || response.token || response.id;
+    var hasCredential = response.credential || response.token || response.id;
     
     if (!hasCredential) {
         return { success: false, error: 'Invalid credential response format' };
     }
 
     // Process credential information
-    const processedCredential = {
+    var processedCredential = {
         id: response.id || null,
         token: response.token || response.credential || null,
         name: response.name || 'Anonymous User',
@@ -131,7 +130,7 @@ function handleCredentialResponse(response) {
         // Google Sign-In response
         try {
             // Credential is a base64-encoded JWT
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            var payload = JSON.parse(atob(response.credential.split('.')[1]));
             processedCredential.id = payload.sub || processedCredential.id;
             processedCredential.email = payload.email || processedCredential.email;
             processedCredential.name = payload.name || processedCredential.name;
@@ -152,45 +151,45 @@ function handleCredentialResponse(response) {
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
   module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    processSvgElements,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    setupKeyboardNavigation,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmarkStructure,
-    getSvgAccessibleNames,
-    checkLandmarkElements,
-    createResourceButton,
-    renderDependencyGraph,
-    displayModuleStructure,
-    newFunction,
-    MyComponent,
-    getLangAttribute
+    checkTableStructure: checkTableStructure,
+    countDependencies: countDependencies,
+    init: init,
+    processSvgElements: processSvgElements,
+    setupAriaLiveRegions: setupAriaLiveRegions,
+    setupFocusManagement: setupFocusManagement,
+    enhanceSemanticMarkup: enhanceSemanticMarkup,
+    setupKeyboardNavigation: setupKeyboardNavigation,
+    trapFocus: trapFocus,
+    handleKeyNavigation: handleKeyNavigation,
+    closeOpenDialogs: closeOpenDialogs,
+    announceToScreenReader: announceToScreenReader,
+    calculateDifference: calculateDifference,
+    calculateProduct: calculateProduct,
+    isNumber: isNumber,
+    clamp: clamp,
+    hello: hello,
+    getVersion: getVersion,
+    getConfig: getConfig,
+    addressAccessibilityIssues: addressAccessibilityIssues,
+    generateAccessibilityReport: generateAccessibilityReport,
+    calculateAccessibilityScore: calculateAccessibilityScore,
+    validateLandmark: validateLandmark,
+    spawnSomeCommand: spawnSomeCommand,
+    addLangAttribute: addLangAttribute,
+    handleCredentialResponse: handleCredentialResponse,
+    getSvgAccessibleName: getSvgAccessibleName,
+    setSvgAttributes: setSvgAttributes,
+    validateTableAccessibility: validateTableAccessibility,
+    validateTableStructure: validateTableStructure,
+    validateLandmarkStructure: validateLandmarkStructure,
+    getSvgAccessibleNames: getSvgAccessibleNames,
+    checkLandmarkElements: checkLandmarkElements,
+    createResourceButton: createResourceButton,
+    renderDependencyGraph: renderDependencyGraph,
+    displayModuleStructure: displayModuleStructure,
+    newFunction: newFunction,
+    MyComponent: MyComponent,
+    getLangAttribute: getLangAttribute
   };
 } else {
   // Browser environment - wait for DOM
@@ -216,9 +215,9 @@ function setupKeyboardNavigation() {
 }
 
 function setupAriaLiveRegions() {
-  const liveRegion = document.getElementById('aria-live-region');
+  var liveRegion = document.getElementById('aria-live-region');
   if (!liveRegion) {
-    const region = document.createElement('div');
+    var region = document.createElement('div');
     region.id = 'aria-live-region';
     region.setAttribute('aria-live', 'polite');
     region.setAttribute('aria-atomic', 'true');
@@ -229,16 +228,16 @@ function setupAriaLiveRegions() {
 
 function setupFocusManagement() {
   // Trap focus within modal dialogs
-  const modals = document.querySelectorAll('[role="dialog"], .modal');
-  modals.forEach((modal) => {
+  var modals = document.querySelectorAll('[role="dialog"], .modal');
+  Array.from(modals).forEach(function(modal) {
     modal.addEventListener('keydown', trapFocus);
   });
 
   // Ensure all interactive elements are keyboard accessible
-  const interactiveElements = document.querySelectorAll(
+  var interactiveElements = document.querySelectorAll(
     'button, a, input, select, textarea, [tabindex]'
   );
-  interactiveElements.forEach((element) => {
+  Array.from(interactiveElements).forEach(function(element) {
     if (!element.hasAttribute('tabindex')) {
       element.setAttribute('tabindex', '0');
     }
@@ -248,7 +247,7 @@ function setupFocusManagement() {
 function enhanceSemanticMarkup() {
   // Add skip link if not present
   if (!document.getElementById('skip-link')) {
-    const skipLink = document.createElement('a');
+    var skipLink = document.createElement('a');
     skipLink.id = 'skip-link';
     skipLink.href = '#main-content';
     skipLink.textContent = 'Skip to main content';
@@ -257,8 +256,8 @@ function enhanceSemanticMarkup() {
   }
 
   // Ensure images have alt attributes
-  const images = document.querySelectorAll('img');
-  images.forEach((img) => {
+  var images = document.querySelectorAll('img');
+  Array.from(images).forEach(function(img) {
     if (!img.hasAttribute('alt')) {
       img.setAttribute('alt', '');
       img.setAttribute('role', 'presentation');
@@ -266,9 +265,9 @@ function enhanceSemanticMarkup() {
   });
 
   // Ensure form inputs have associated labels
-  const inputs = document.querySelectorAll('input, select, textarea');
-  inputs.forEach((input) => {
-    const id = input.id || 'input-' + Math.random().toString(36).substr(2, 9);
+  var inputs = document.querySelectorAll('input, select, textarea');
+  Array.from(inputs).forEach(function(input) {
+    var id = input.id || 'input-' + Math.random().toString(36).substr(2, 9);
     input.id = id;
     if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
       input.setAttribute('aria-label', input.name || 'Input field');
@@ -278,18 +277,18 @@ function enhanceSemanticMarkup() {
 
 function closeOpenDialogs() {
   // Existing code - placeholder
-  const openDialogs = document.querySelectorAll('[role="dialog"][open]');
-  openDialogs.forEach(dialog => {
+  var openDialogs = document.querySelectorAll('[role="dialog"][open]');
+  Array.from(openDialogs).forEach(function(dialog) {
     dialog.removeAttribute('open');
   });
 }
 
 function announceToScreenReader(message) {
-  const liveRegion = document.getElementById('aria-live-region');
+  var liveRegion = document.getElementById('aria-live-region');
   if (liveRegion) {
     liveRegion.textContent = '';
     // Slight delay to ensure screen readers pick up the change
-    setTimeout(() => {
+    setTimeout(function() {
       liveRegion.textContent = message;
     }, 100);
   }
@@ -312,7 +311,7 @@ function clamp(value, min, max) {
 }
 
 function createInPageButton(buttonId, buttonText) {
-  const button = document.createElement('button');
+  var button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
   return button;
@@ -320,13 +319,13 @@ function createInPageButton(buttonId, buttonText) {
 
 function handleFakeLinks(issues) {
   // Existing code - placeholder
-  issues.forEach(issue => {
+  issues.forEach(function(issue) {
     console.log('Fake link issue:', issue);
   });
 }
 
 // Accessibility utilities
-const hello = () => {
+var hello = function() {
   return 'Hello from main.js';
 };
 
@@ -358,137 +357,111 @@ function handleKeyNavigation(event) {
 }
 
 // Utilities for addressing accessibility issues
-const AddressabilityIssues = {
-  generateAccessibilityReport(accessibilityReport) {
-    if (!accessibilityReport || !accessibilityReport.issues) {
-      return [];
-    }
+var generateAccessibilityReport = function(accessibilityReport) {
+  if (!accessibilityReport || !accessibilityReport.issues) {
+    return [];
+  }
 
-    const report = accessibilityReport.issues.map(issue => ({
+  var report = accessibilityReport.issues.map(function(issue) { 
+    return {
       issueType: issue.type,
       status: issue.status || 'pending',
       fixApplied: issue.fixApplied || ''
-    }));
-
-    return report;
-  },
-
-  calculateAccessibilityScore(fixedIssues) {
-    if (!Array.isArray(fixedIssues)) {
-      return 0;
-    }
-
-    const scorePoints = {
-      'color-contrast': 5,
-      'missing-alt-text': 3,
-      'missing-aria-label': 5,
-      'heading-order': 2,
-      'other': 1
     };
+  });
 
-    return fixedIssues.reduce((score, issue) => {
-      const points = scorePoints[issue.type] || scorePoints['other'];
-      return score + points;
-    }, 0);
-  },
+  return report;
+};
 
-  fixMainLandmarkIssues(source) {
-    const mainBlockRegex = /<main\b[^>]*>([\s\S]*?)<\/main>/g;
-    const matches = source.match(mainBlockRegex);
-    if (!matches || matches.length <= 1) {
-      return source;
-    }
+var calculateAccessibilityScore = function(fixedIssues) {
+  if (!Array.isArray(fixedIssues)) {
+    return 0;
+  }
 
-    let result = source;
-    for (let i = 1; i < matches.length; i++) {
-      const block = matches[i];
-      const fixedBlock = block
-        .replace(/<main\b([^>]*)>/, '<section$1>')
-        .replace(/<\/main>/, '</section>');
-      result = result.replace(block, fixedBlock);
-    }
+  var scorePoints = {
+    'color-contrast': 5,
+    'missing-alt-text': 3,
+    'missing-aria-label': 5,
+    'heading-order': 2,
+    'other': 1
+  };
 
-    return result;
-  },
+  return fixedIssues.reduce(function(score, issue) {
+    var points = scorePoints[issue.type] || scorePoints['other'];
+    return score + points;
+  }, 0);
+};
 
-  validateLandmark(element) {
-    if (!element) {
-      return { valid: false, error: 'Element is required' };
-    }
+function validateLandmark(element) {
+  if (!element) {
+    return { valid: false, error: 'Element is required' };
+  }
 
-    const landmarkRoles = [
-      'banner',
-      'main',
-      'navigation',
-      'search',
-      'contentinfo',
-      'complementary',
-      'region',
-      'form'
-    ];
+  var landmarkRoles = [
+    'banner',
+    'main',
+    'navigation',
+    'search',
+    'contentinfo',
+    'complementary',
+    'region',
+    'form'
+  ];
 
-    const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
+  var tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
 
-    const implicitLandmarks = {
-      'header': 'banner',
-      'main': 'main',
-      'nav': 'navigation',
-      'aside': 'complementary',
-      'footer': 'contentinfo',
-      'section': 'region',
-      'form': 'form'
+  var implicitLandmarks = {
+    'header': 'banner',
+    'main': 'main',
+    'nav': 'navigation',
+    'aside': 'complementary',
+    'footer': 'contentinfo',
+    'section': 'region',
+    'form': 'form'
+  };
+
+  var landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
+
+  if (!landmarkRole && implicitLandmarks[tagName]) {
+    landmarkRole = implicitLandmarks[tagName];
+  }
+
+  if (!landmarkRole) {
+    return { 
+      valid: false, 
+      error: 'Element does not have a valid landmark role',
+      element: tagName
     };
+  }
 
-    let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
+  if (landmarkRoles.indexOf(landmarkRole) === -1) {
+    return { 
+      valid: false, 
+      error: 'Invalid landmark role: ' + landmarkRole,
+      element: tagName,
+      role: landmarkRole
+    };
+  }
 
-    if (!landmarkRole && implicitLandmarks[tagName]) {
-      landmarkRole = implicitLandmarks[tagName];
-    }
+  return { valid: true, element: tagName, role: landmarkRole };
+}
 
-    if (!landmarkRole) {
-      return { 
-        valid: false, 
-        error: 'Element does not have a valid landmark role',
-        element: tagName
-      };
-    }
-
-    if (!landmarkRoles.includes(landmarkRole)) {
-      return { 
-        valid: false, 
-        error: `Invalid landmark role: ${landmarkRole}`,
-        element: tagName,
-        role: landmarkRole
-      };
-    }
-
-    return { valid: true, element: tagName, role: landmarkRole };
-  },
-
-  spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn('someCommand', [], {
+function spawnSomeCommand(callback) {
+    var child_process = require('child_process');
+    var child = child_process.spawn('someCommand', [], {
       stdio: 'inherit',
     });
-    child.on('exit', (code, signal) => {
+    child.on('exit', function(code, signal) {
       if (code === 0) {
         callback(null, 'Successfully executed someCommand');
       } else {
-        callback(new Error(`someCommand failed with code ${code}`));
+        callback(new Error('someCommand failed with code ' + code));
       }
     });
-  },
+}
 
-  addLangAttribute(element, lang) {
-    element.setAttribute('lang', lang);
-  }
-};
-
-function addLangAttribute() {
-    // Add lang attribute to HTML element
-    const html = document.documentElement;
-    const lang = navigator.language || navigator.userLanguage;
-    html.lang = lang;
+function addLangAttribute(element, lang) {
+  element.setAttribute('lang', lang);
 }
 
 function validateTableAccessibility() {
@@ -498,11 +471,6 @@ function validateTableAccessibility() {
 
 function validateTableStructure() {
     // Fix 26 table structure issues
-    // TODO: Implement validation and necessary corrections
-}
-
-function validateLandmark() {
-    // Add/fix 4 landmark issues (function not fully implemented)
     // TODO: Implement validation and necessary corrections
 }
 
@@ -539,7 +507,7 @@ function newFunction() {
 
 function MyComponent() {
   // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
+  var langAttr = getLangAttribute();
   // Return a plain object instead of JSX to avoid syntax error
   return {
     type: 'div',
@@ -555,20 +523,6 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-function spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn('someCommand', [], {
-        stdio: 'inherit',
-    });
-    child.on('exit', (code, signal) => {
-      if (code === 0) {
-        callback(null, 'Successfully executed someCommand');
-      } else {
-        callback(new Error(`someCommand failed with code ${code}`));
-      }
-    });
-}
-
 // Placeholder functions for referenced exports
 function checkLandmarkElements() {
   // TODO: Implement checkLandmarkElements
@@ -579,3 +533,6 @@ function createResourceButton() {
   // TODO: Implement createResourceButton
   console.log('Creating resource button...');
 }
+
+// addLangAttribute is already defined above for HTML element
+// Duplicate definition removed to avoid syntax issues

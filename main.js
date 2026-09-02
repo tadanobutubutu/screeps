@@ -5,22 +5,24 @@ const { createInPageButton, createWebResourceButton, validateTableAccessibility,
 
 const ensureElementIdUtil = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
 
-const newFocusTrap = accessibilityUtils.newFocusTrap;
+const newFocusTrap = (element) => {
+  // Focus trap implementation
+};
 
 const accessibilityUtils = {
   ...accessibilityUtils,
   ...{
     initSkipLink: function () {
-      const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+      const skipLink = document.getElementById('skip-link');
       if (skipLink) {
         skipLink.addEventListener('click', (e) => {
           e.preventDefault();
-          const target = document.querySelector(skipLink.getAttribute('href'));
+          const target = document.getElementById(skipLink.getAttribute('href').slice(1));
           if (target) {
             target.setAttribute('tabindex', '-1');
             target.focus();
@@ -39,11 +41,11 @@ const accessibilityUtils = {
       element.addEventListener('keydown', (e) => {
         if (e.key === 'Tab') {
           if (e.shiftKey && document.activeElement === firstElement) {
+            e.preventDefault();
             lastElement.focus();
-            e.preventDefault();
           } else if (!e.shiftKey && document.activeElement === lastElement) {
-            firstElement.focus();
             e.preventDefault();
+            firstElement.focus();
           }
         }
       });
@@ -60,12 +62,12 @@ const accessibilityUtils = {
     ensureUniqueLandmarkId: function (landmark) {
       if (!landmark) return;
       if (landmark.id) return landmark.id;
-      landmark.id = `landmark-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      landmark.id = `landmark-${Math.random().toString(36).substr(2, 9)}`;
       return landmark.id;
     },
 
     uniqueLandmarks: function () {
-      const landmarks = document.querySelectorAll('[role=banner], [role=navigation]');
+      const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
       const ids = new Set();
 
       landmarks.forEach((landmark) => {
@@ -96,12 +98,12 @@ const accessibilityUtils = {
      */
     initAccessibility: function () {
       accessibilityUtils.initSkipLink();
-      accessibilityUtils.mainFocusTrap();
+      // Additional initialization
     },
 
     addLangAttribute: function (element, locale = 'en') {
       if (element) {
-        element.setAttribute('lang', accessibilityUtils.getFullLangAttribute(locale));
+        element.setAttribute('lang', locale);
       }
     },
 
@@ -172,11 +174,22 @@ module.exports = {
   groupByCategory,
   transformInputData,
   validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
   displayModuleStructure,
   generateDependencyGraph,
   validateAccessibilityReport,
   addressAccessibilityIssues,
   newAccessibilityCheck,
+  exportUtils,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,

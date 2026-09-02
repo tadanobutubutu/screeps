@@ -237,7 +237,9 @@ function ensureUniqueLandmarks(landmarks) {
   elementsToCheck.forEach(landmark => {
     const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
     if (names.includes(name)) {
-      duplicates.push(name);
+      if (!duplicates.includes(name)) {
+        duplicates.push(name);
+      }
     } else {
       names.push(name);
     }
@@ -479,7 +481,6 @@ function setSvgAttributes(svg, accessibleName) {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   let processed = 0;
-
   svgs.forEach(svg => {
     const accessibleName = getSvgAccessibleNameAlt(svg);
     setSvgAttributes(svg, accessibleName);
@@ -590,7 +591,7 @@ function fixLandmarkIssues() {
  * Fixes fake links
  */
 function fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('a[href="#"]');
+    const fakeLinks = document.querySelectorAll('a[href="#]');
     fakeLinks.forEach(link => {
         link.setAttribute('role', 'button');
         link.setAttribute('aria-label', link.textContent);
@@ -646,15 +647,6 @@ module.exports = {
   createAccessibleLink,
   fixFakeLinkIssues,
   handleAccessibilityIssues,
-  initializeApp,
-  getConfig,
-  validateInput,
-  processData,
-  addLandmarkRegions,
-  getSvgAccessibleNameAlt,
-  setSvgAttributes,
-  addSvgAccessibleNames,
-  upgradeSystem,
   addLangAttribute,
   fixTableStructureIssues,
   fixTableHeaderCellScope,
@@ -664,5 +656,7 @@ module.exports = {
   fixFakeLinks,
   addProperLandmarkRegions,
   replaceMyButton,
-  ensureDependencyGraphAriaRole
+  ensureDependencyGraphAriaRole,
+  addSvgAccessibleNames,
+  upgradeSystem
 };

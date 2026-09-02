@@ -86,8 +86,8 @@ function writeReport(report) {
 
 // TODO: Implement function for generating a report based on accessibility issues
 // Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
+async function generateAccessibilityReport() {
+  const report = await scanAccessibility();
   writeReport(report);
   return report;
 }
@@ -112,7 +112,11 @@ if (require.main === module) {
 }
 
 async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
+    const axeOptions = {
+        // ... axe-core options ...
+    };
+    const results = await axe.run(axeOptions);
+    return results;
 }
 
 module.exports = {

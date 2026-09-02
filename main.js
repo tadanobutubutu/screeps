@@ -39,7 +39,7 @@ function createInPageButton(options) {
         if (containerElement) {
             containerElement.appendChild(button);
         }
-    } else {
+    } else if (settings.container) {
         settings.container.appendChild(button);
     }
 
@@ -57,9 +57,9 @@ function functionB() {
 }
 
 // Line 156 (updated)
-module.exports.functionA = functionA;
-module.exports.functionB = functionB;
-module.exports.createInPageButton = createInPageButton;
+const exportedFunctionA = functionA;
+const exportedFunctionB = functionB;
+const exportedCreateInPageButton = createInPageButton;
 
 // TODO: This is the existing code that needs to be preserved
 // TODO: add the new functions or changes requested in the issue
@@ -68,28 +68,87 @@ module.exports.createInPageButton = createInPageButton;
 function updateAccessibleElements () {
   // Example of updating accessibility in an existing function
   // This is a placeholder for the actual changes based on the insight report
-  const elementsToUpdate = document.querySelectorAll('.needs-accessibility-improvement')
-  elementsToUpdate.forEach((element) => {
+  const elementsToUpdate = document.querySelectorAll('[data-accessibility]');
+  elementsToUpdate.forEach(function(element) {
     // Example of adding ARIA attributes or other accessibility features
     element.setAttribute('role', 'button')
     element.setAttribute('aria-pressed', 'false')
     // Add other accessibility improvements as needed
-  })
+  });
+}
+
+// Validate the accessibility report for issues
+function validateAccessibilityReport() {
+    const accessibilityReport = [];
+    const elements = document.querySelectorAll('button, a, input, select, textarea');
+    
+    elements.forEach(function(element) {
+        const issues = [];
+        
+        // Check for accessible name
+        const tagName = element.tagName.toLowerCase();
+        
+        if (tagName === 'button' || tagName === 'a') {
+            if (!element.textContent.trim() && !element.getAttribute('aria-label')) {
+                issues.push('Missing accessible name: element has no text content or aria-label');
+            }
+        }
+        
+        if (tagName === 'input' || tagName === 'select' || tagName === 'textarea') {
+            const id = element.getAttribute('id');
+            const labelledBy = document.querySelector('[id="' + id + '"]');
+            if (!element.getAttribute('aria-label') && !labelledBy) {
+                issues.push('Missing label association: input lacks aria-label or associated label element');
+            }
+        }
+        
+        // Check for interactive elements without proper roles
+        const role = element.getAttribute('role');
+        if (tagName === 'div' || tagName === 'span') {
+            if (!role) {
+                issues.push('Interactive element missing role attribute');
+            }
+        }
+        
+        // Check color contrast potential (basic check)
+        const style = window.getComputedStyle(element);
+        if (style.color && style.backgroundColor) {
+            // Basic contrast check would go here
+        }
+        
+        if (issues.length > 0) {
+            accessibilityReport.push({
+                element: element,
+                tagName: tagName,
+                id: element.id || null,
+                className: element.className || null,
+                issues: issues
+            });
+        }
+    });
+    
+    return accessibilityReport;
 }
 
 // Call the new function or add it to an existing lifecycle method, event listener, etc.
-updateAccessibleElements()
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateAccessibleElements);
+    } else {
+        updateAccessibleElements();
+    }
+}
 
 // Export any new functions if necessary (not provided in the issue, so assuming no new exports)
-// export { updateAccessibleElements };
+// export { updateAccessibleElements, validateAccessibilityReport };
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
-  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
+  const importCommentRegExp = /import\s+.*?from\s+['"].*?['"]/g;
+  const importCount = (dependencyGraphContent && dependencyGraphContent.match(importCommentRegExp)) || [];
   return importCount.length;
 }
 
@@ -100,4 +159,4 @@ function exampleFunction() {
 }
 
 // Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;
+const exportedExampleFunction = exampleFunction;

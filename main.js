@@ -14,8 +14,7 @@ const {
   handleKeyboardNav,
   exportUtils,
   transformInputData,
-  initSkipLink,
-  trapFocus,
+  addressAccessibilityIssues,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -25,8 +24,6 @@ const {
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
-  renderAdditionalContent,
-  transformInputData,
 } = main;
 
 const accessibilityUtils = {
@@ -113,13 +110,6 @@ const accessibilityUtils = {
     });
   },
 
-  ensureElementIdOrigin: (element) => {
-    if (!element) return;
-    const id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    element.id = id;
-    return id;
-  },
-
   renderDependencyGraphs: () => {
     // Render dependency graphs in the UI
   },
@@ -134,42 +124,12 @@ const accessibilityUtils = {
 
   addSvgAccessibleName: (svgElement) => {
     // Add accessible name to SVG elements
-  }
-} = main;
+  },
 
-// Utility functions for ensuring elements have IDs and adding labels
-const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element;
-};
-
-const ensureElementHasId = (element, prefix = 'element') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
-};
-
-const accessibilityUtils = {
-  initSkipLink,
-  trapFocus,
-  announceToScreenReader,
-  ensureElementId,
-  addAriaLabel,
-  addressAccessibilityIssues,
-  ensureElementIdOrigin,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addSvgAccessibleName,
-  ensureElementIdOrigin,
-  renderAdditionalContent,
-};
+  initFocusTrap: () => focusTrap,
+  updateFocusTrap: () => focusTrap,
+  focusTrap,
+} = Object.assign({}, accessibilityUtils, { focusTrap: newFocusTrap });
 
 module.exports = {
   ...main,

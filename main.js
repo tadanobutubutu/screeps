@@ -155,7 +155,7 @@ function cleanup() {
   };
 }
 
-// Added from origin/main
+// Added functions from origin/main
 function someFunction() {
   return 'some value';
 }
@@ -199,17 +199,14 @@ function setAttributeIfNotExists(element, attrName, attrValue) {
   }
 }
 
-// New function to analyze module dependencies
 function analyzeModuleDependenciesExport(modules) {
   return analyzeModuleDependencies(modules);
 }
 
-// New function to visualize module relationships
 function visualizeModuleRelationshipsExport(modules) {
   return visualizeModuleRelationships(modules);
 }
 
-// Helper function to process unique elements
 function processUniqueElements(elements) {
   const unique = [];
   const seen = new Set();
@@ -223,7 +220,6 @@ function processUniqueElements(elements) {
   return unique;
 }
 
-// New function to render dependency graph content
 function renderDependencyGraphContent(container) {
   if (appState.dependencyGraph.isValid) {
     const { graph, nodes, edges } = visualizeModuleRelationshipsExport(appState.dependencies);
@@ -231,7 +227,6 @@ function renderDependencyGraphContent(container) {
   }
 }
 
-// New function to create in-page buttons
 function createInPageButtons(container) {
   const buttons = ['Home', 'About'];
   buttons.forEach(text => {
@@ -242,7 +237,6 @@ function createInPageButtons(container) {
   });
 }
 
-// New function to check if dependency graph container has proper ARIA role
 function ensureDependencyGraphAriaRole() {
   const dependencyGraph = document.getElementById('dependencyGraph');
   if (dependencyGraph) {
@@ -258,7 +252,6 @@ function ensureDependencyGraphAriaRole() {
   }
 }
 
-// Existing exports:
 exports.books = books;
 exports.safetyCategory = safetyCategory;
 exports.utils = utils;
@@ -272,7 +265,6 @@ exports.visualizeModuleRelationships = visualizeModuleRelationshipsExport;
 exports.renderDependencyGraphContent = renderDependencyGraphContent;
 exports.createInPageButtons = createInPageButtons;
 exports.ensureDependencyGraphAriaRole = ensureDependencyGraphAriaRole;
-// Exported methods added from origin/main
 exports.someFunction = someFunction;
 exports.checkAccessibilityForLinkOrButton = checkAccessibilityForLinkOrButton;
 exports.setSvgAccessibleNames = setSvgAccessibleNames;

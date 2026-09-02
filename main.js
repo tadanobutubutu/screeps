@@ -145,6 +145,47 @@ const AddressabilityIssues = {
       devDependencies: Object.keys(devDependencies).length,
       total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
+  },
+
+  handleCredentialResponse(response) {
+    if (!response || typeof response !== 'object') {
+      return null;
+    }
+
+    // Extract credential-related fields
+    const credentialInfo = {
+      token: response.token || '',
+      auth: response.auth || '',
+      session: response.session || '',
+      authorization: response.authorization || ''
+    };
+
+    // If no credential info, return null
+    if (!Object.values(credentialInfo).some(info => info)) {
+      return null;
+    }
+
+    // Create a report entry for the credential response
+    const reportEntry = {
+      type: 'credential-response',
+      message: 'Credential response detected',
+      details: credentialInfo
+    };
+
+    // Try to merge with existing accessibility report
+    if (this.generateAccessibilityReport) {
+      try {
+        const baseReport = this.generateAccessibilityReport(response);
+        if (baseReport) {
+          // Combine both reports
+          return [...baseReport, reportEntry].filter(Boolean);
+        }
+      } catch (error) {
+        // Ignore errors in report generation
+      }
+    }
+
+    return reportEntry;
   }
 };
 

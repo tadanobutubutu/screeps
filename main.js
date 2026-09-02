@@ -37,6 +37,87 @@ function newFunction () {
   // TODO: Implement the new function as per the issue requirements
 }
 
+/**
+ * Validates table structure for accessibility issues
+ * Checks for proper table headers, scope attributes, captions, and structure
+ * @param {HTMLElement} container - The container element to check for tables
+ * @returns {Array} Array of accessibility issues found
+ */
+function validateTableStructureForAccessibility(container) {
+  const issues = [];
+  
+  if (!container) {
+    return issues;
+  }
+  
+  const tables = container.querySelectorAll('table');
+  
+  tables.forEach((table, tableIndex) => {
+    // Check if table has headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push({
+        type: 'table-missing-headers',
+        message: `Table ${tableIndex + 1} is missing header cells (th elements)`,
+        element: table
+      });
+    }
+    
+    // Check if headers have scope attributes
+    headers.forEach((th, headerIndex) => {
+      if (!th.hasAttribute('scope')) {
+        issues.push({
+          type: 'header-missing-scope',
+          message: `Header cell ${headerIndex + 1} in table ${tableIndex + 1} is missing scope attribute`,
+          element: th
+        });
+      }
+    });
+    
+    // Check if table has a caption
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      issues.push({
+        type: 'table-missing-caption',
+        message: `Table ${tableIndex + 1} is missing a caption`,
+        element: table
+      });
+    }
+    
+    // Check for proper table structure (thead, tbody)
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    
+    if (headers.length > 0 && !thead) {
+      issues.push({
+        type: 'table-missing-thead',
+        message: `Table ${tableIndex + 1} with headers is missing a thead element`,
+        element: table
+      });
+    }
+    
+    if (!tbody && table.querySelector('tr')) {
+      issues.push({
+        type: 'table-missing-tbody',
+        message: `Table ${tableIndex + 1} is missing a tbody element`,
+        element: table
+      });
+    }
+    
+    // Check for nested tables
+    const nestedTables = table.querySelectorAll('table');
+    if (nestedTables.length > 1) {
+      issues.push({
+        type: 'nested-tables',
+        message: `Table ${tableIndex + 1} contains nested tables which can confuse screen readers`,
+        element: table
+      });
+    }
+  });
+  
+  return issues;
+}
+
 // Implement the function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport (container, report) {
   const fixes = {
@@ -479,13 +560,13 @@ function createAnnouncer() {
   let timeoutId = null;
   
   return {
-    announce: function(message, priority = 'polite') {
+    announce: function(message, priority) {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
       
       const announcer = document.createElement('div');
-      announcer.setAttribute('aria-live', priority);
+      announcer.setAttribute('aria-live', priority || 'polite');
       announcer.setAttribute('aria-atomic', 'true');
       announcer.className = 'sr-only';
       announcer.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;';
@@ -566,22 +647,20 @@ const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**
  * Validates table accessibility
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table is accessible, false otherwise
+ * @param {HTMLElement} container - Container element to validate tables in
+ * @returns {Array} Array of accessibility issues found in tables
  */
-function validateTableAccessibility (tableData) {
-  // Implementation placeholder - function to be implemented
-  return true
+function validateTableAccessibility (container) {
+  return validateTableStructureForAccessibility(container);
 }
 
 /**
  * Validates table structure
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table structure is valid, false otherwise
+ * @param {HTMLElement} container - Container element to validate table structure in
+ * @returns {Array} Array of structural issues found in tables
  */
-function validateTableStructure (tableData) {
-  // Implementation placeholder - function to be implemented
-  return true
+function validateTableStructure (container) {
+  return validateTableStructureForAccessibility(container);
 }
 
 // Initialize accessibility features
@@ -592,7 +671,7 @@ function initializeAccessibility() {
   
   return {
     announce: announcer.announce,
-    getLastMessage: announcer.getLast
+    getLastMessage: announcer.getLastMessage
   };
 }
 
@@ -616,6 +695,7 @@ module.exports = {
   renderIndex,
   validateTableAccessibility,
   validateTableStructure,
+  validateTableStructureForAccessibility,
   // Preserve any other existing exports here
   // Required exports restored from previous version
   newFunction,

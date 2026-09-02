@@ -265,12 +265,28 @@ function applyAccessibilityFixes(html) {
     return result;
 }
 
+// Address accessibility issues - handles both insight report and standalone usage
 function addressAccessibilityIssues(insightReport) {
-  // Apply accessibility fixes to HTML content based on insight report
+  // Handle case when called with insightReport parameter
   if (insightReport && insightReport.html) {
     insightReport.html = applyAccessibilityFixes(insightReport.html);
+    console.log('Addressing accessibility issues from insight report:', insightReport);
+    return;
   }
-  console.log('Addressing accessibility issues from insight report:', insightReport);
+  
+  // Original standalone functionality
+  const linkIssues = checkLinkAccessibility();
+  const tableIssues = validateTableAccessibility();
+  const tableStructureIssues = validateTableStructure();
+  const linkAccessibilityIssues = validateLinkAccessibility();
+  const fakeLinkIssues = handleFakeLinks();
+
+  // Handle issues (e.g., log them, display warnings, etc.)
+  console.log('Link Accessibility Issues:', linkIssues);
+  console.log('Table Accessibility Issues:', tableIssues);
+  console.log('Table Structure Issues:', tableStructureIssues);
+  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
+  console.log('Fake Link Issues:', fakeLinkIssues);
 }
 
 /**
@@ -289,28 +305,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.setAttribute('role', 'button'); // Added for accessibility
     document.body.appendChild(button);
     return button;
-}
-
-// New function to address accessibility issues
-function addressAccessibilityIssues() {
-    // Implement the changes required to address accessibility issues from the insight report
-    // For example, this could be calling existing utility functions to validate accessibility
-    const linkIssues = checkLinkAccessibility();
-    const tableIssues = validateTableAccessibility();
-    const tableStructureIssues = validateTableStructure();
-    const linkAccessibilityIssues = validateLinkAccessibility();
-    const fakeLinkIssues = handleFakeLinks();
-
-    // Handle issues (e.g., log them, display warnings, etc.)
-    // For demonstration purposes, we will just log the issues to the console
-    console.log('Link Accessibility Issues:', linkIssues);
-    console.log('Table Accessibility Issues:', tableIssues);
-    console.log('Table Structure Issues:', tableStructureIssues);
-    console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
-    console.log('Fake Link Issues:', fakeLinkIssues);
-
-    // Here you could add additional logic to address the issues
-    // For example, you might want to update the DOM or call other functions
 }
 
 // Export accessibility utility functions

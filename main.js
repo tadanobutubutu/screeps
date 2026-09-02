@@ -16,7 +16,7 @@ const {
     ensureElementHasId,
     ensureElementHasIdOrigin,
     addAriaLabel,
-    renderDependencyGraphs,
+    renderDependencyGraphsIndex, // New function added
     fixButtonIdentifiers,
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
@@ -61,10 +61,14 @@ function addressAccessibilityIssues(container, insightReport) {
         }
     }
 
-    // Update the existing function using the new functions for rendering graph/index
-    renderDependencyGraphs(container);
+    // Render the graph index using the new function
+    renderDependencyGraphsIndex(container);
+
+    // Fix button identifiers and dependency graph aria attributes
     fixButtonIdentifiers(container);
     fixDependencyGraphAria(container);
+
+    // Add main landmark to the index
     addMainLandmarkToIndex(container);
 
     // Fix landmark issues
@@ -149,6 +153,12 @@ function checkAccessibility(content) {
     // This function should be implemented to check for accessibility issues
     // For now, it just returns an empty array
     return [];
+}
+
+// Export the new function for rendering the graph index
+function renderDependencyGraphsIndex(container) {
+    // Implementation of the new function for rendering the graph index
+    // ...
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -341,4 +351,5 @@ module.exports = {
   getSvgAccessibleName,
   createWebResourceButton,
   newFunction,
+  renderDependencyGraphsIndex, // New function added
 };

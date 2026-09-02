@@ -14,6 +14,57 @@ const appData = {
 
 let icons = {};
 
+/**
+ * Handles the credential response from the API
+ * @param {Object} response - The credential response from the server
+ * @returns {Object} Result with success status and processed credential data
+ */
+function handleCredentialResponse(response) {
+  const result = {
+    success: false,
+    data: null,
+    error: null
+  };
+
+  if (!response) {
+    result.error = 'No response received';
+    return result;
+  }
+
+  if (response.error) {
+    result.error = response.error;
+    return result;
+  }
+
+  if (response.token) {
+    result.data = {
+      token: response.token,
+      user: response.user || null,
+      expiresAt: response.expiresAt || null
+    };
+    result.success = true;
+
+    // Store token in app state
+    if (typeof appState !== 'undefined') {
+      appState.data = result.data;
+    }
+  } else {
+    result.error = 'Invalid credential response: missing token';
+  }
+
+  return result;
+}
+
+// Replaced JSX with plain JavaScript function to fix syntax error
+function HTML(props) {
+  const { lang } = props || {};
+  return {
+    tagName: 'html',
+    attributes: { lang: lang || getLangAttribute() },
+    children: []
+  };
+}
+
 const primaryContent = document.querySelector('.primary-content') ||
                         document.querySelector('[role="main"]') ||
                         document.getElementById('main-content') ||
@@ -586,14 +637,11 @@ function VisualizeDependencyTree(data) {
 }
 
 function BookItem(book) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={book.author}
-      />
-    </List.Item>
-  );
+  return {
+    key: generateKey(book),
+    title: book.title,
+    author: book.author
+  };
 }
 
 export function addBook(book) {
@@ -711,5 +759,7 @@ export {
   defaultSorting,
   onTitleSort,
   onAuthorSort,
-  Main
+  Main,
+  handleCredentialResponse,
+  HTML
 };

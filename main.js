@@ -15,15 +15,6 @@ const {
   newFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
-  handleCredentialResponse,
-  ensureElementHasId: ensureElementIdOrigin,
-  ensureElementId,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  renderAdditionalContent,
   transformInputData
 } = main;
 

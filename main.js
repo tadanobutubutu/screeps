@@ -31,5 +31,34 @@ function validateLandmarkStructure() {
     return true;
 }
 
+/**
+ * Generates a report summarizing accessibility issues found on the page.
+ * @returns {string} A JSON-formatted report containing validation results.
+ */
+function generateAccessibilityReport() {
+    // Reuse the validation logic
+    const requiredLandmarks = ['header', 'main', 'footer'];
+    const missingLandmarks = [];
+
+    requiredLandmarks.forEach(landmark => {
+        if (!document.querySelector(landmark)) {
+            missingLandmarks.push(landmark);
+        }
+    });
+
+    const passed = missingLandmarks.length === 0;
+
+    const report = {
+        timestamp: new Date().toISOString(),
+        validationPassed: passed,
+        missingLandmarks: missingLandmarks,
+        warningMessage: missingLandmarks.length > 0
+            ? `Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`
+            : null
+    };
+
+    return JSON.stringify(report, null, 2);
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

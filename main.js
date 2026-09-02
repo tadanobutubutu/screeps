@@ -1,3 +1,5 @@
+// TODO: Add back any required exports that might have been removed
+
 // TODO: This is the existing code that needs to be preserved
 // ... (existing code up to line 86)
 
@@ -418,7 +420,7 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
+      ariaLabel: `Submit ${options.title} form`,
       onClick: options.onSubmit
     })
   };
@@ -547,6 +549,7 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
+  validateLandmarkAttributes,
   validateLandmarkStructure,
   ensureUniqueLandmarks,
   getSvgAccessibleName,

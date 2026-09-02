@@ -97,14 +97,6 @@ const accessibilityUtils = {
   },
 };
 
-// Utility functions for ensuring elements have IDs and adding labels
-const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element;
-};
-
 const ensureElementHasId = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');
@@ -178,74 +170,6 @@ function addAccessibleName(svgString) {
 // Example usage of the function
 const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
 const modifiedSvgString = addAccessibleName(originalSvgString);
-
-/**
- * Validates table accessibility
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table is accessible, false otherwise
- */
-function validateTableAccessibility(tableData) {
-  const errors = [];
-  const tables = getTables();
-
-  for (let i = 0; i < tables.length; i++) {
-    const table = tables[i];
-
-    // Check if table has headers
-    if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table must have headers defined'
-      });
-    }
-
-    // Check if table has proper structure
-    if (!table.rows || !Array.isArray(table.rows)) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table must have rows array defined'
-      });
-    }
-
-    // Check for proper ARIA attributes (placeholder implementation)
-    if (table.ariaLabel === undefined && table.caption === undefined) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table should have aria-label or caption for accessibility'
-      });
-    }
-
-    // Add lang attribute to HTML element
-    if (document.documentElement.lang === undefined) {
-      document.documentElement.setAttribute('lang', 'en');
-    }
-
-    // Add landmark roles and fix landmark issues
-    if (table.role === undefined) {
-      table.role = 'table';
-    }
-
-    // Add accessible names to 2 SVGs
-    const svgElements = table.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      if (!svg.getAttribute('aria-label')) {
-        svg.setAttribute('aria-label', 'Accessible SVG element');
-      }
-    });
-  }
-
-  return errors.length === 0;
-}
-
-/**
- * Validates table structure
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table structure is valid, false otherwise
- */
-function validateTableStructure(tableData) {
-  // Implementation placeholder - function to be implemented
-  return true;
-}
 
 function newFocusTrap() {
   // New function implementation: traps focus within a given element

@@ -78,7 +78,8 @@ function init() {
   }
 
   function handleCredentialResponse(response) {
-    // Implement function for handling credential responses
+    // Handle the credential response
+    console.log('Credential response:', response);
   }
 
   function getLangAttribute() {

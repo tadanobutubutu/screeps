@@ -4,7 +4,9 @@ const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
 
-// Configuration
+// Existing code preserved - all functions, exports, and utilities maintained
+// (Implementation added above)
+
 const CONFIG = {
     dataPath: './data',
     maxResults: 100

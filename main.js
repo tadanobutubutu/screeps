@@ -744,10 +744,24 @@ class TowerDefenseGame {
   }
 }
 
-// Export tower defense game class
-export { TowerDefenseGame, TOWER_DEFENSE_CONFIG };
+/**
+ * Creates an accessible unrotate button element.
+ *
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = 'Unrotate';
+  button.setAttribute('aria-label', 'Unrotate');
+  button.addEventListener('click', () => {
+    // Implementation for unrotate action
+    console.log('Unrotate clicked');
+  });
+  return button;
+}
 
-export function calculateDiscount(price, discount) {
+function calculateDiscountFn(price, discount) {
   if (typeof price !== 'number' || price < 0) {
     throw new Error('Price must be a non-negative number');
   }
@@ -774,6 +788,21 @@ function getConfig() {
 
 function getVersion() {
   return VERSION;
+}
+
+// TODO: Continue adding back any required exports that might have been removed
+function checkLandmarkElement() {
+  const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
+  return landmarkSelectors.some(selector => document.querySelector(selector) !== null);
+}
+
+function landmarkStructureCheck() {
+  return validateLandmarkStructure();
+}
+
+function rotateBack() {
+  // Implementation for rotate back action
+  console.log('rotateBack called');
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -803,7 +832,7 @@ function addressAccessibilityIssues() {
 }
 
 // Validate that tables in the document are accessible
-function validateTableAccessibility() {
+function validateTableAccessibilityFn() {
   const tables = document.querySelectorAll('table');
   const results = [];
 
@@ -827,7 +856,7 @@ function validateTableAccessibility() {
 }
 
 // Validate the structure of tables in the document
-function validateTableStructure() {
+function validateTableStructureFn() {
   const tables = document.querySelectorAll('table');
   const results = [];
 
@@ -863,8 +892,8 @@ function validateTableStructure() {
 // Generate accessibility report
 function generateAccessibilityReport() {
   const timestamp = new Date().toISOString();
-  const tableAccessibilityResults = validateTableAccessibility();
-  const tableStructureResults = validateTableStructure();
+  const tableAccessibilityResults = validateTableAccessibilityFn();
+  const tableStructureResults = validateTableStructureFn();
 
   const totalTables = tableAccessibilityResults.length;
   const accessibleTables = tableAccessibilityResults.filter(r => r.isAccessible).length;
@@ -902,6 +931,67 @@ function generateAccessibilityReport() {
     tableStructure: tableStructureResults
   };
 }
+
+/**
+ * Creates an accessible in-page button element.
+ *
+ * @param {string} text - The text content of the button
+ * @param {Function} onClick - The click handler function
+ * @param {Object} [options] - Optional configuration
+ * @param {string} [options.id] - The ID for the button
+ * @param {string} [options.className] - The class name for the button
+ * @param {string} [options.ariaLabel] - The ARIA label for the button
+ * @param {boolean} [options.disabled=false] - Whether the button is disabled
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButtonLocal(text, onClick, options = {}) {
+  const button = document.createElement('button');
+  button.textContent = text;
+
+  // Set basic attributes
+  button.type = 'button';
+
+  // Apply options
+  if (options.id) button.id = options.id;
+  if (options.className) button.className = options.className;
+  if (options.ariaLabel) button.setAttribute('aria-label', options.ariaLabel);
+  if (options.disabled) button.disabled = true;
+
+  // Add click handler
+  button.addEventListener('click', (e) => {
+    if (!button.disabled) {
+      onClick(e);
+    }
+  });
+
+  // Add keyboard support
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!button.disabled) {
+        onClick(e);
+      }
+    }
+  });
+
+  // Set default ARIA attributes if not provided
+  if (!options.ariaLabel) {
+    button.setAttribute('aria-label', text);
+  }
+
+  return button;
+}
+
+// Compatibility for CommonJS if needed (as per HEAD)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.newFunction = newFunction;
+}
+
+module.exports = main;
+module.exports.default = main;
+
+// Export tower defense game class
+export { TowerDefenseGame, TOWER_DEFENSE_CONFIG };
 
 // Export existing functionality and new functions
 export {
@@ -944,7 +1034,21 @@ export {
   validateTableAccessibility,
   validateTableStructure,
   generateAccessibilityReport,
-  createUnrotateButton
+  createUnrotateButton,
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  ensureUniqueLandmarkElements,
+  addLandmarkRolesFn,
+  validateTableAccessibilityFn,
+  validateTableStructureFn,
+  calculateDiscountFn,
+  createInPageButtonLocal,
+  getFullLangAttribute,
+  personName,
+  validateLandmark,
+  ensureElementsHaveIds,
+  main,
+  appData
 };
 
 // Add back any required exports that might have been missing
@@ -955,7 +1059,47 @@ export {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLink,
-  initializeAccessibility
+  initializeAccessibility,
+  calculateDiscount,
+  setupSkipLinks,
+  setupButtonAccessibility,
+  performTask,
+  handleEvent,
+  greet,
+  add,
+  newFunction,
+  checkLandmarkElement,
+  landmarkStructureCheck,
+  rotateBack,
+  helloWorld,
+  setLanguageAttribute,
+  addSVGAccessibleName,
+  fixFakeLinks,
+  initDependencyGraph,
+  renderDependencyGraph,
+  getElementById,
+  queryElements,
+  checkLandmarkElements,
+  validateLandmarkStructure,
+  initApp,
+  addressAccessibilityIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  generateAccessibilityReport,
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  ensureUniqueLandmarkElements,
+  addLandmarkRolesFn,
+  validateTableAccessibilityFn,
+  validateTableStructureFn,
+  calculateDiscountFn,
+  createInPageButtonLocal,
+  getFullLangAttribute,
+  personName,
+  validateLandmark,
+  ensureElementsHaveIds,
+  main,
+  appData
 };
 
 // Add the new function to the default export
@@ -969,16 +1113,52 @@ export default {
   root,
   validateTableAccessibility,
   validateTableStructure,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  createUnrotateButton,
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  ensureUniqueLandmarkElements,
+  addLandmarkRolesFn,
+  validateTableAccessibilityFn,
+  validateTableStructureFn,
+  calculateDiscountFn,
+  createInPageButtonLocal,
+  getFullLangAttribute,
+  personName,
+  validateLandmark,
+  ensureElementsHaveIds,
+  main,
+  appData,
+  TowerDefenseGame,
+  TOWER_DEFENSE_CONFIG,
+  newFunction,
+  greet,
+  add,
+  helloWorld,
+  addLandmarkRoles,
+  setLanguageAttribute,
+  addSVGAccessibleName,
+  fixFakeLinks,
+  initDependencyGraph,
+  renderDependencyGraph,
+  getElementById,
+  queryElements,
+  checkLandmarkElements,
+  validateLandmarkStructure,
+  ensureThScope,
+  addSvgAccessibleNames,
+  fixFakeLink,
+  initializeAccessibility,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  landmarkStructureCheck,
+  rotateBack,
+  performTask,
+  handleEvent,
+  setupSkipLinks,
+  setupButtonAccessibility,
+  initApp
 };
-
-// Compatibility for CommonJS if needed (as per HEAD)
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports.newFunction = newFunction;
-}
-
-module.exports = main;
-module.exports.default = main;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
@@ -987,54 +1167,4 @@ if (typeof document !== 'undefined') {
   } else {
     initialize();
   }
-}
-
-/**
- * Creates an accessible in-page button element.
- *
- * @param {string} text - The text content of the button
- * @param {Function} onClick - The click handler function
- * @param {Object} [options] - Optional configuration
- * @param {string} [options.id] - The ID for the button
- * @param {string} [options.className] - The class name for the button
- * @param {string} [options.ariaLabel] - The ARIA label for the button
- * @param {boolean} [options.disabled=false] - Whether the button is disabled
- * @returns {HTMLButtonElement} The created button element
- */
-function createInPageButton(text, onClick, options = {}) {
-  const button = document.createElement('button');
-  button.textContent = text;
-
-  // Set basic attributes
-  button.type = 'button';
-
-  // Apply options
-  if (options.id) button.id = options.id;
-  if (options.className) button.className = options.className;
-  if (options.ariaLabel) button.setAttribute('aria-label', options.ariaLabel);
-  if (options.disabled) button.disabled = true;
-
-  // Add click handler
-  button.addEventListener('click', (e) => {
-    if (!button.disabled) {
-      onClick(e);
-    }
-  });
-
-  // Add keyboard support
-  button.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      if (!button.disabled) {
-        onClick(e);
-      }
-    }
-  });
-
-  // Set default ARIA attributes if not provided
-  if (!options.ariaLabel) {
-    button.setAttribute('aria-label', text);
-  }
-
-  return button;
 }

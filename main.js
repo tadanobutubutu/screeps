@@ -108,11 +108,27 @@ function writeReport(report) {
 }
 
 async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
-    return {
-      timestamp: new Date().toISOString(),
-      issues: []
-    };
+  const results = await axe.run({
+    // Configuration for axe-core
+    // ...
+  });
+
+  const { violations } = results;
+
+  return {
+    timestamp: new Date().toISOString(),
+    issues: violations.map(violation => ({
+      id: violation.id,
+      help: violation.help,
+      description: violation.description,
+      impact: violation.impact,
+      nodes: violation.nodes,
+      nodesHtml: violation.nodes.map(node => ({
+        ...node,
+        html: document.querySelector(node.target).outerHTML
+      }))
+    }))
+  };
 }
 
 function loadLandmarks() {

@@ -1,5 +1,5 @@
 import './styles.css';
-import { initializeApp } from './app.js';
+import { initializeApp as initApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import express from 'express';
 import axe from 'axe-core';
@@ -24,130 +24,155 @@ let icons = {};
 // Updated checkLandmarkElement and ensureUniqueLandmarks functions to handle both array and non-array landmarks
 // Implemented landmarkStructureCheck function for checking landmark structure
 
-function validateLandmark(landmark) {
-  // ... existing code ...
+const books = [];
+const safetyCategory = "User Safety: unsafe";
+const safetyCategories = ["Unauthorized Advice"];
 
-  const errors = [];
+let isInitialized = false;
+const appData = {};
 
-  // Check for updated validation changes from another branch that also checks for array composition
-  if (Array.isArray(landmark)) {
-    landmark.forEach(innerLandmark => {
-      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-        errors.push('Landmark array must have valid names');
-      }
-    });
+// Utility functions
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
+function formatDate(date) {
+  return new Date(date).toISOString().split('T')[0];
+}
+
+function validateInput(input) {
+  return input && typeof input === 'string' && input.trim().length > 0;
+}
+
+function processData(data) {
+  if (!data) return null;
+  return { ...data, processed: true };
+}
+
+function loadLandmarks() {
+  try {
+    const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
   }
-
-  // ... existing code ...
-
-  // Also validate single landmark name
-  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-    errors.push('Landmark must have a valid name');
-  }
-
-  return { result: landmark, errors };
 }
 
-function checkLinkAccessibility(url) {
-    // Implementation logic here...
-    // Placeholder return statement
-    return true;
+function isValidLandmark(landmark) {
+    return landmark &&
+           typeof landmark.id !== 'undefined' &&
+           landmark.id !== null;
 }
 
-function newExportedFunction() {
-    // New export logic here...
-}
-
-// User Safety: unsafe
-// Safety Categories: PII/Privacy
-
-function checkLandmarkElement(elementOrId) {
-    // Implementation addressed accessibility issues from insight report
-    // Handle both DOM elements and id strings
-    let element = elementOrId;
-    if (typeof elementOrId === 'string') {
-        element = document.getElementById(elementOrId);
-    }
-
-    if (!element) {
-        return false;
-    }
-
-    // Check if element has landmark-related attributes
-    const hasRole = element.getAttribute && element.getAttribute('role');
-    const hasAriaLabel = element.getAttribute && element.getAttribute('aria-label');
-    const hasAriaLabelledby = element.getAttribute && element.getAttribute('aria-labelledby');
-
-    // Must have either a role or accessible name to be a valid landmark element
-    if (!(hasRole || hasAriaLabel || hasAriaLabelledby)) {
-        if (!element.hasAttribute('aria-labelledby')) {
-            const id = typeof elementOrId === 'string' ? elementOrId : element.id;
-            if (id) {
-                element.setAttribute('aria-labelledby', id);
-            }
-        }
-    }
-
-    return element;
-}
-
-function ensureUniqueLandmarks(landmarksArray) {
-  if (!landmarksArray || !Array.isArray(landmarksArray) || landmarksArray.length === 0) {
-      return [];
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
   }
 
   const seen = new Set();
+  const uniqueLandmarks = [];
 
-  return landmarksArray.filter(landmark => {
-    const name = landmark.name || '';
-    const role = landmark.role || 'default';
-    const key = name + '_' + role;
-
-    if (seen.has(key)) {
-        return false;
+  for (const landmark of landmarks) {
+    if (!landmark || typeof landmark.id === 'undefined') {
+      continue;
     }
-    seen.add(key);
-    return true;
-  });
-}
 
-function landmarkStructureCheck(landmarks) {
-  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region', 'banner', 'application'];
-  const results = {
-    valid: true,
-    landmarks: [],
-    errors: []
-  };
+    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
 
-  if (!landmarks || !Array.isArray(landmarks)) {
-      return results;
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      uniqueLandmarks.push(landmark);
+    }
   }
 
-  // ... existing code adapted for checking landmark structure ...
-  landmarks.forEach(landmark => {
-    if (Array.isArray(landmark)) {
-        landmark.forEach(inner => {
-            results.landmarks.push(inner);
-            // Check if inner landmark has valid role
-            if (inner.role && !landmarkRoles.includes(inner.role)) {
-                results.errors.push(`Invalid landmark role: ${inner.role}`);
-                results.valid = false;
-            }
-        });
-    } else {
-        results.landmarks.push(landmark);
-        // Check if landmark has valid role
-        if (landmark.role && !landmarkRoles.includes(landmark.role)) {
-            results.errors.push(`Invalid landmark role: ${landmark.role}`);
-            results.valid = false;
-        }
-    }
-  });
-
-  return results;
+  return uniqueLandmarks;
 }
 
-// This file includes both the accessibility improvements and the dependency visualization tool features.
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+  return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+function sortLandmarks(landmarks, ascending = true) {
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+
+        if (ascending) {
+            return nameA.localeCompare(nameB);
+        }
+        return nameB.localeCompare(nameA);
+    });
+}
+
+function getLandmarkById(landmarks, id) {
+    return landmarks.find(landmark => landmark.id === id) || null;
+}
+
+function ensureElementHasId(element, id) {
+    if (!element.id) {
+        element.id = id;
+    }
+    return element;
+}
+
+function addAriaLabel(element, label) {
+    if (!element.getAttribute('aria-label')) {
+        element.setAttribute('aria-label', label);
+    }
+    return element;
+}
+
+function handleDependencyGraph(html) {
+  let dependencyGraph = html.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    if (!dependencyGraph.hasAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+    }
+    if (!dependencyGraph.hasAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+  }
+  return html;
+}
+
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.textContent = 'Accessibility Info';
+  button.setAttribute('aria-label', 'Show accessibility information');
+  document.body.appendChild(button);
+}
+
+function extractSvgAccessibleName(svgContent) {
+  const svgElement = new DOMParser().parseFromString(svgContent, 'image/svg+xml').documentElement;
+  const title = svgElement.querySelector('title');
+  return title ? title.textContent : 'No accessible name found';
+}
+
+function addressAccessibilityIssues() {
+  improveAccessibility();
+  ensureLangAttribute();
+  addLandmarkRoles();
+  console.log('Accessibility issues have been addressed');
+  return true;
+}
+
+function importAndExecute(modulePath, functionName, callback) {
+  require(modulePath)[functionName](callback);
+}
+
+function analyzeModuleDependenciesLocal(modules) {
+  // Implementation would analyze and return dependency relationships
+  console.log('Analyzing dependencies for modules:', modules);
+}
 
 // REACT_015: Add lang attribute to document
 function ensureLangAttribute() {
@@ -187,10 +212,8 @@ function addSvgAccessibleNames() {
   svgs.forEach((svg, index) => {
     if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
       const title = document.createElement('title');
-      title.textContent = `SVG icon ${index + 1}`;
-      title.id = `svg-title-${index + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('aria-labelledby', title.id);
+      title.textContent = `SVG ${index + 1}`;
+      svg.appendChild(title);
     }
   });
 }
@@ -287,12 +310,6 @@ if (typeof document !== 'undefined') {
   }
 }
 
-// New function3 implementation
-function function3() {
-  // TODO: Implement new function3 logic here
-  console.log('function3 executed');
-}
-
 // REACT_037: Google sign-in logic
 const googleSignIn = {
   initialize: function(clientId) {
@@ -327,7 +344,8 @@ const googleSignIn = {
 
 // Initialize application
 function initializeApp(config) {
-    return initializeApp(config);
+    console.log('Initializing application...');
+    return initApp(config);
 }
 
 // Initialize service workers
@@ -340,12 +358,7 @@ function fetchUser(userId) {
 
 // Clear cache
 function clearCache() {
-    appState.cache = {};
-}
-
-// Initialize
-function initialize() {
-    return initializeApp(CONFIG);
+    appData.cache = {};
 }
 
 // Format response
@@ -357,65 +370,9 @@ function formatResponse(data, status = 'success') {
     };
 }
 
-// Format date
-function formatDate(date) {
-    return new Date(date).toISOString();
-}
-
-// Process data
-function processData(data) {
-    if (!data) return null;
-    return { ...data, processed: true };
-}
-
 // Some function
 function someFunction() {
     return 'some function';
-}
-
-function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
-}
-
-// Added missing function that was referenced in exports
-function loadLandmarks() {
-    try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error loading landmarks:', error.message);
-        return [];
-    }
-}
-
-function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
-
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
-}
-
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
 }
 
 // Dependency Visualization Tool Functions
@@ -477,7 +434,11 @@ function renderDependencyGraph(graphData) {
     console.log('Rendering dependency graph with data:', graphData);
 }
 
-// TODO: Implement new function3 logic here
+// New function3 implementation
+function function3() {
+  // TODO: Implement new function3 logic here
+  console.log('function3 executed');
+}
 
 /**
  * New function3 description
@@ -493,7 +454,26 @@ function newFunction3(input) {
 // Export main functions
 export {
     initializeApp,
-    config,
+    CONFIG as config,
     renderDependencyGraph,
-    newFunction3
+    newFunction3,
+    loadLandmarks,
+    processLandmarks,
+    sortLandmarks,
+    getLandmarkById,
+    ensureUniqueLandmarks,
+    analyzeModuleDependencies,
+    visualizeModuleRelationships,
+    initializeAccessibility,
+    ensureLangAttribute,
+    fixLandmarks,
+    addSvgAccessibleNames,
+    fixFakeLinks,
+    replaceButtonIds,
+    ensureDependencyGraphAriaRole,
+    googleSignIn,
+    fetchUser,
+    clearCache,
+    formatResponse,
+    getConfig
 };

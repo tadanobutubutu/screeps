@@ -94,4 +94,13 @@ function countDependencies() {
   };
 }
 
+// Implement dependency graph aria role
+function implementDependencyGraphAriaRole() {
+  const dependencyGraphs = document.querySelectorAll('.dependency-graph');
+  dependencyGraphs.forEach((graph) => {
+    graph.setAttribute('role', 'graph');
+    graph.setAttribute('aria-label', 'Dependency graph');
+  });
+}
+
 // Rest of the code remains the same

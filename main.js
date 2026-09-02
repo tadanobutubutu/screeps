@@ -2,6 +2,7 @@
 
 module.exports = {
   // Existing exports...
+  // ... (preserving the original exports)
 
   // Add the missing export
   AnotherExport: function() {

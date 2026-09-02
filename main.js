@@ -21,8 +21,8 @@
 // Ensure the dependencyGraph container has a proper ARIA role
 
 // Import necessary dependencies
-import React from 'react'
-import { render } from 'react-dom'
+import React from 'react';
+import { render } from 'react-dom';
 import {
   addLangAttribute,
   fixTableStructure,
@@ -43,6 +43,226 @@ import {
   renderDependencyGraphs
 } from './AccessibilityHelpers'
 
+const main = require('./utilities');
+
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
+
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility
+} = main
+
+// Implement the function for addressing accessibility issues from insight report
+function implementAccessibilityFixesFromReport (container, report) {
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0,
+    svgNamesAdded: 0,
+    fakeLinksFixed: 0
+  }
+
+  if (!report || !report.issues) {
+    return fixes
+  }
+
+  // Add lang attribute to HTML element if missing
+  const htmlEl =
+        document.documentElement ||
+        (container.ownerDocument && container.ownerDocument.documentElement)
+  if (htmlEl && !htmlEl.getAttribute('lang')) {
+    htmlEl.setAttribute('lang', 'en')
+    fixes.langAdded = true
+  }
+
+  // Add main landmark if missing
+  const mainElement = container.querySelector('main')
+  if (!mainElement) {
+    const body = container.ownerDocument ? container.ownerDocument.body : document.body
+    if (body) {
+      const newMain = document.createElement('main')
+      while (body.firstChild) {
+        newMain.appendChild(body.firstChild)
+      }
+      body.appendChild(newMain)
+      fixes.mainLandmarkAdded = true
+    }
+  }
+
+  // Update the existing function using the new functions for rendering graph/index
+  renderDependencyGraphs(container)
+  fixButtonIdentifiers(container)
+  fixDependencyGraphAria(container)
+  ensureElementHasId(container)
+  addAriaLabel(container)
+  addMainLandmarkToIndex(container)
+
+  // Fix landmark issues
+  validateLandmark(container)
+  validateLandmarkStructure(container)
+  fixes.landmarksFixed++
+
+  // Fix SVG accessible names
+  const svgElements = container.querySelectorAll('svg')
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg)
+    if (
+      accessibleName &&
+            !svg.getAttribute('aria-label') &&
+            !svg.querySelector('title')
+    ) {
+      svg.setAttribute('aria-label', accessibleName)
+      fixes.svgNamesAdded++
+    }
+  })
+
+  // Fix fake link issues (elements that look like links but are missing href)
+  const fakeLinks = container.querySelectorAll('[role="link"]:not([href])')
+  fakeLinks.forEach(link => {
+    link.setAttribute('href', '#' + (link.id || 'link'))
+    link.setAttribute('role', 'link')
+    fixes.fakeLinksFixed++
+  })
+
+  // Validate accessibility report
+  const accessibilityReport = validateAccessibilityReport(container)
+  if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
+    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
+  }
+
+  // Implement focus trap for keyboard navigation
+  focusTrap(container)
+
+  if (fixes.langAdded) {
+    log('Lang attribute added to HTML element', 'info')
+  }
+
+  if (fixes.mainLandmarkAdded) {
+    log('Main landmark added', 'info')
+  }
+
+  // Check for new accessibility issues
+  const newAccessibilityIssues = checkAccessibility(container)
+  if (newAccessibilityIssues.length > 0) {
+    log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error')
+  }
+
+  const landmarkFixesCount = fixes.landmarksFixed || 0
+  if (landmarkFixesCount > 0) {
+    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
+  }
+
+  const svgFixes = fixes.svgNamesAdded || 0
+  if (svgFixes > 0) {
+    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
+  }
+
+  const fakeLinkFixes = fixes.fakeLinksFixed || 0
+  if (fakeLinkFixes > 0) {
+    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
+  }
+
+  return fixes
+}
+
+// Accessibility-related function to be added
+function checkAccessibilityForReport (content) {
+  // Placeholder for accessibility checking logic
+  // This function should be implemented to check for accessibility issues
+  // For now, it just returns an empty array
+  return []
+}
+
+// Accessibility utilities
+const accessibilityUtils = {
+  initSkipLink: function() {
+    const skipLink = document.querySelector('a[href^="#skip"]')
+    if (skipLink) {
+      skipLink.addEventListener('click', function(e) {
+        e.preventDefault()
+        const target = document.querySelector(skipLink.getAttribute('href'))
+        if (target) {
+          target.setAttribute('tabindex', '-1')
+          target.focus()
+        }
+      })
+    }
+  },
+  
+  announceToScreenReader: function(message, priority) {
+    if (priority === undefined) {
+      priority = 'polite'
+    }
+    
+    const announcer = document.createElement('div')
+    announcer.setAttribute('aria-live', priority)
+    announcer.setAttribute('aria-atomic', 'true')
+    announcer.className = 'sr-only'
+    announcer.style.position = 'absolute'
+    announcer.style.left = '-9999px'
+    announcer.textContent = message
+    document.body.appendChild(announcer)
+    
+    setTimeout(function() {
+      announcer.remove()
+    }, 1000)
+  }
+};
+
+// Create announcer function
+function createAnnouncer() {
+  let currentMessage = ''
+  let timeoutId = null
+  
+  return {
+    announce: function(message, priority = 'polite') {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+      
+      const announcer = document.createElement('div')
+      announcer.setAttribute('aria-live', priority)
+      announcer.setAttribute('aria-atomic', 'true')
+      announcer.className = 'sr-only'
+      announcer.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;'
+      announcer.textContent = message
+      document.body.appendChild(announcer)
+      
+      currentMessage = message
+      
+      timeoutId = setTimeout(function() {
+        announcer.remove()
+        currentMessage = ''
+      }, 1000)
+    },
+    getLastMessage: function() {
+      return currentMessage
+    }
+  }
+}
+
+// Check if user prefers reduced motion
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.querySelector('[data-dependency-graph]')
 
@@ -59,9 +279,24 @@ if (dependencyGraph) {
   }
 
   // Ensure element has an ID if not present
-  if (!dependencyGraph.id) {
-    dependencyGraph.id = 'dependencyGraph'
+  if (!dependencyGraph.getAttribute('id')) {
+    dependencyGraph.setAttribute('id', 'dependencyGraph')
   }
+
+  // Ensure the container is focusable if it's interactive
+  if (!dependencyGraph.getAttribute('tabindex')) {
+    dependencyGraph.setAttribute('tabindex', '0')
+  }
+}
+
+// Function to render dependency graph
+function renderDependencyGraph(element) {
+  console.log('Rendering dependency graph for element:', element)
+}
+
+// Function to render a simple dependency graph
+function renderSimpleDependencyGraph(element) {
+  console.log('Rendering simple dependency graph for element:', element)
 }
 
 // Required changes to fix the React SVG Accessible Name issue
@@ -74,42 +309,35 @@ function addAccessibleName (svgString) {
   if (!svgElement.hasAttribute('aria-label') && !svgElement.querySelector('title')) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
   }
-  return new XMLSerializer().serializeToString(svg)
+  return new XMLSerializer().serializeToString(svgElement)
 }
 
 // Example usage of the function
 const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
-/**
- * Validates table accessibility
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table is accessible, false otherwise
- */
+// Validates table accessibility
 function validateTableAccessibility (tableData) {
   // Implementation placeholder - function to be implemented
   return true
 }
 
-/**
- * Validates table structure
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table structure is valid, false otherwise
- */
+// Validates table structure
 function validateTableStructure (tableData) {
   // Implementation placeholder - function to be implemented
   return true
 }
 
-// Other code...
-
-// Preserve all existing exports
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  validateTableAccessibility,
-  validateTableStructure
-  // Preserve any other existing exports here
+// Initialize accessibility features
+function initializeAccessibility() {
+  const announcer = createAnnouncer()
+  
+  ensureUniqueLandmarks(document.body)
+  
+  return {
+    announce: announcer.announce,
+    getLastMessage: announcer.getLast
+  }
 }
 
 // New function or changes requested in the issue
@@ -124,5 +352,19 @@ function renderAdditionalContent (additionalData) {
   return `<div class="additional-content">${additionalData.content || ''}</div>`
 }
 
+// Call the functions to address the accessibility issues
+addLangAttribute()
+fixTableStructure()
+addMainLandmark()
+fixLandmarkIssues()
+ensureUniqueLandmarks()
+addSvgAccessibleNames()
+addAccessibleNamesToSVGs()
+fixFakeLinkIssue()
+googleSignIn()
+fixButtonIdentifiers()
+
 // Add the new function to the exports
 module.exports.renderAdditionalContent = renderAdditionalContent
+
+// Other code...

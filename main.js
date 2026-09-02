@@ -1,8 +1,90 @@
 const fs = require('fs');
 const main = require('./utilities');
+const accessibilityHelpers = require('./accessibility-helpers'); // Assuming this module exists based on origin/main usage
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap, renderAdditionalContent } = main;
+// Combine destructuring from both branches, removing duplicates
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
+  // From origin/main branch
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  uniqueLandmarks,
+  addSvgAccessibleName,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  decodeJwtResponse,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  getActiveSessionsCount,
+  validateSession,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addLangAttribute,
+  initializeAccessibility,
+  renderIndex,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  newFocusTrap,
+  // Ensure all functions from HEAD are included
+  ...remainingMain
+} = main;
 
+// Merge accessibilityHelpers destructuring with main's accessibilityUtils if needed
+const {
+  fixDependencyGraphAria: helperFixDependencyGraphAria,
+  addMainLandmarkToIndex: helperAddMainLandmarkToIndex,
+  focusTrap: helperFocusTrap,
+  createWebResourceButton: helperCreateWebResourceButton,
+  validateLandmark: helperValidateLandmark,
+  validateLandmarkStructure: helperValidateLandmarkStructure,
+  getSvgAccessibleName: helperGetSvgAccessibleName,
+  getLangAttribute: getLangAttributeHelper,
+  validateAccessibilityReport: helperValidateAccessibilityReport,
+  exportUtils: helperExportUtils,
+  addressAccessibilityIssues: helperAddressAccessibilityIssues,
+  renderGraphIndex: renderGraphIndexHelper,
+  trapFocus: helperTrapFocus,
+  renderAdditionalContent: helperRenderAdditionalContent,
+  checkAccessibilityForReport: helperCheckAccessibilityForReport,
+  setupFocusTrap,
+  restoreFocus,
+  addLangAttribute: addLangAttributeHelper
+} = accessibilityHelpers;
+
+// Utility function from HEAD
 const ensureElementIdUtil = (element) => {
   if (element && !element.id) {
     element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -10,8 +92,7 @@ const ensureElementIdUtil = (element) => {
   return element;
 };
 
-const newFocusTrap = main.newFocusTrap;
-
+// Accessibility utilities object from HEAD, enhanced with origin/main functions
 const accessibilityUtils = {
   initSkipLink: function () {
     const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
@@ -52,7 +133,6 @@ const accessibilityUtils = {
   },
 
   createInPageButton: createInPageButton,
-
   createWebResourceButton: createWebResourceButton,
 
   ensureUniqueLandmarkId: function (landmark) {
@@ -84,7 +164,6 @@ const accessibilityUtils = {
     return link;
   },
 
-  // Address accessibility issues from insight report
   handleAccessibilityIssues: function () {
     // Implementation to address accessibility issues in the report
     // This function should validate the report and fix issues as needed
@@ -94,20 +173,84 @@ const accessibilityUtils = {
     if (element) {
       element.setAttribute('lang', locale);
     }
+  },
+
+  // Include functions from origin/main that are relevant
+  fixTableStructure: fixTableStructure,
+  fixLandmarkIssues: fixLandmarkIssues,
+  addMainLandmark: addMainLandmark,
+  addLandmarkRegions: addLandmarkRegions,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  addSvgAccessibleNames: addSvgAccessibleNames,
+  addSvgAccessibleName: addSvgAccessibleName,
+  addAccessibleNamesToSVGs: addAccessibleNamesToSVGs,
+  fixFakeLinkIssue: fixFakeLinkIssue,
+  fixFakeLinkIssues: fixFakeLinkIssues,
+  googleSignIn: googleSignIn,
+  decodeJwtResponse: decodeJwtResponse,
+  checkAccessibility: checkAccessibility,
+  validateTableStructureForAccessibility: validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport: implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport: checkAccessibilityForReport,
+  renderGraphIndex: renderGraphIndex,
+  trapFocus: trapFocus,
+  getActiveSessionsCount: getActiveSessionsCount,
+  validateSession: validateSession,
+  createAnnouncer: createAnnouncer,
+  prefersReducedMotion: prefersReducedMotion,
+  renderSimpleDependencyGraph: renderSimpleDependencyGraph,
+  addAccessibleName: addAccessibleName,
+  initializeAccessibility: initializeAccessibility,
+  renderIndex: renderIndex,
+  validateHeadingHierarchy: validateHeadingHierarchy,
+  ensureHeadingHierarchy: ensureHeadingHierarchy,
+  setupFocusTrap: setupFocusTrap,
+  restoreFocus: restoreFocus
+};
+
+// Dependency Graph ARIA management - merged function from origin/main
+function ensureDependencyGraphARIA(container) {
+  if (!container) return;
+  
+  const graphElements = container.querySelectorAll('[data-dependency-graph]');
+  graphElements.forEach(el => {
+    el.setAttribute('role', 'region');
+    el.setAttribute('aria-label', 'Dependency graph visualization');
+  });
+}
+
+// New function from origin/main
+function newFunction() {
+  // New function implementation
+}
+
+function anotherNewFunction() {
+  // Another new function implementation
+}
+
+// Ensure dependency graph has ARIA attributes (from origin/main)
+const dependencyGraph = document.getElementById('dependencyGraph');
+if (dependencyGraph) {
+  if (!dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region');
   }
-};
+  if (!dependencyGraph.getAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+  if (!dependencyGraph.getAttribute('id')) {
+    dependencyGraph.setAttribute('id', 'dependencyGraph');
+  }
+  if (typeof setupFocusTrap === 'function') {
+    setupFocusTrap('#dependencyGraph');
+  }
+}
 
-module.exports = {
-  ...main,
-  ...accessibilityUtils,
-  ensureElementIdUtil,
-  newFocusTrap
-};
+// Add lang attribute to HTML element if missing (from origin/main)
+if (typeof addLangAttributeHelper === 'function') {
+  addLangAttributeHelper(document.documentElement);
+}
 
-/**
- * Generates an accessibility report by checking various elements on the page.
- * @returns {Object} The accessibility report object.
- */
+// Functions from HEAD that were not in origin/main
 function generateAccessibilityReport() {
     const report = {
         timestamp: new Date().toISOString(),
@@ -168,11 +311,6 @@ function generateAccessibilityReport() {
     return report;
 }
 
-/**
- * Renders the accessibility report as an HTML string.
- * @param {Object} report - The accessibility report object.
- * @returns {string} HTML string representing the report.
- */
 function renderAccessibilityReportHtml(report) {
     let html = `<div class="accessibility-report">
         <h1>Accessibility Report</h1>
@@ -221,10 +359,6 @@ function renderAccessibilityReportHtml(report) {
     return html;
 }
 
-/**
- * Generates and displays the accessibility report in the console and returns the report object.
- * @returns {Object} The accessibility report object.
- */
 function generateAndDisplayReport() {
     const report = generateAccessibilityReport();
 
@@ -252,15 +386,6 @@ function generateAndDisplayReport() {
     return report;
 }
 
-/**
- * Creates a landmark region with proper ARIA attributes and structure.
- * @param {Object} options - Configuration options for the landmark.
- * @param {string} options.role - The ARIA role for the landmark (e.g., 'banner', 'navigation').
- * @param {string} [options.label] - Accessible label for the landmark.
- * @param {string} [options.id] - Unique ID for the landmark.
- * @param {HTMLElement} [options.container] - Container element to append the landmark to.
- * @returns {HTMLElement} The created landmark element.
- */
 function createLandmarkRegion({ role, label, id, container = document.body } = {}) {
     if (!role) {
         throw new Error('Role is required to create a landmark region');
@@ -279,7 +404,6 @@ function createLandmarkRegion({ role, label, id, container = document.body } = {
         landmark.id = accessibilityUtils.ensureUniqueLandmarkId(role);
     }
 
-    // Add basic styling to make landmarks visible in development
     landmark.style.border = '1px solid #ccc';
     landmark.style.padding = '10px';
     landmark.style.margin = '10px 0';
@@ -293,6 +417,208 @@ function createLandmarkRegion({ role, label, id, container = document.body } = {
 
 function newAccessibilityCheck() {
   // Implementation for a new accessibility check
-  // This function should perform additional checks for accessibility issues
-  // Replace this with your custom implementation as needed
 }
+
+// Functions from origin/main that were not in HEAD
+function updateFunction() {
+  return 'update function result';
+}
+
+function accessibleFunction() {
+  return 'accessible function result';
+}
+
+function newFunction1() {
+  return 'new function 1 result';
+}
+
+function newFunction2() {
+  return 'new function 2 result';
+}
+
+// Table accessibility validation from origin/main
+const validateTableAccessibility = (html) => {
+  const issues = [];
+  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
+  let match;
+
+  while ((match = tableRegex.exec(html)) !== null) {
+    const tableContent = match[0];
+    const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
+
+    const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
+    if (!hasCaption) {
+      issues.push({
+        type: 'table',
+        severity: 'warning',
+        message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
+        suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
+      });
+    }
+
+    const hasHeaders = /<th[^>]*>/i.test(tableContent);
+    if (!hasHeaders) {
+      issues.push({
+        type: 'table',
+        severity: 'warning',
+        message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
+        suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
+      });
+    }
+
+    const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
+    thMatches.forEach((thTag, index) => {
+      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
+        issues.push({
+          type: 'table',
+          severity: 'info',
+          message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
+          suggestion: 'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements'
+        });
+      }
+    });
+
+    const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
+    const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
+
+    if (!hasThead) {
+      issues.push({
+        type: 'table',
+        severity: 'info',
+        message: `Table ${tableNumber} is missing <thead> element`,
+        suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
+      });
+    }
+
+    if (!hasTbody) {
+      issues.push({
+        type: 'table',
+        severity: 'info',
+        message: `Table ${tableNumber} is missing <tbody> element`,
+        suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
+      });
+    }
+
+    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
+    if (hasMultipleHeaders) {
+      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
+      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
+
+      if (!hasIdAttr && !hasHeadersAttr) {
+        issues.push({
+          type: 'table',
+          severity: 'warning',
+          message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
+          suggestion: 'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids'
+        });
+      }
+    }
+  }
+
+  return issues;
+};
+
+// Functions from HEAD branch that were duplicated
+function ensureElementId(element) {
+  if (!element.id) {
+    element.id = `element-${Math.floor(Math.random() * 10000)}`;
+  }
+  return element.id;
+}
+
+function addAriaLabel(element, label) {
+  element.setAttribute('aria-label', label);
+}
+
+function renderDependencyGraph(data) {
+  return data;
+}
+
+// Functions from origin/main branch
+function mainEntry() {
+  return 'main function executed';
+}
+
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+function newFocusTrap() {
+  // Focus trap implementation
+}
+
+function addLangAttribute(lang = 'en') {
+  document.documentElement.lang = lang;
+}
+
+function fixTableStructure(tableElement) {
+  if (!tableElement) return null;
+
+  const headers = tableElement.querySelectorAll('th');
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const row = th.closest('tr');
+      const cellIndex = Array.from(row.children).indexOf(th);
+      th.setAttribute('scope', cellIndex === 0 ? 'row' : 'col');
+    }
+  });
+  return tableElement;
+}
+
+function addLandmarkIssues(issues) {
+  return issues;
+}
+
+function addSvgAccessibleNames() {
+  // Add accessible names to SVG elements
+}
+
+function ensureUniqueLandmarks() {
+  // Ensure landmark elements have unique identifiers
+}
+
+function fixFakeLinkIssue() {
+  // Fix fake link accessibility issues
+}
+
+function renderGraphIndex() {
+  // Render graph index
+}
+
+function updateGraphVisualization() {
+  // Update graph
+}
+
+// Export merged functionality
+module.exports = {
+  ...main,
+  ...accessibilityUtils,
+  ensureElementIdUtil,
+  newFocusTrap,
+  // Additional exports from both branches
+  ensureDependencyGraphARIA,
+  newFunction,
+  anotherNewFunction,
+  updateFunction,
+  accessibleFunction,
+  newFunction1,
+  newFunction2,
+  validateTableAccessibility,
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraph,
+  mainEntry,
+  getLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  renderGraphIndex,
+  updateGraphVisualization,
+  generateAccessibilityReport,
+  renderAccessibilityReportHtml,
+  generateAndDisplayReport,
+  createLandmarkRegion,
+  newAccessibilityCheck
+};

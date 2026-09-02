@@ -43,7 +43,7 @@ function addBook(bookData) {
   return bookData;
 }
 
-function getLangAttribute(element) {
+function getLangAttribute() {
   // Determine the language based on content or default to English
   // This resolves the language attribute for accessibility
   return 'en';
@@ -103,7 +103,7 @@ function validateLandmark(element) {
       issues.push(`Invalid landmark: ${element.tagName}`);
     }
 
-    if (element.nodeName.toLowerCase() === 'div' && !element.getAttribute('role')) {
+    if (element.nodeName && element.nodeName.toLowerCase() === 'div' && !element.getAttribute('role')) {
       issues.push('Missing role attribute');
     }
 
@@ -209,8 +209,23 @@ function handleFakeLinks(issues) {
 }
 
 function ensureUniqueLandmarksFromString(source) {
-  // Update function logic to ensure unique landmarks from a string
-  return true;
+  const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+
+  const matches = Array.from(source.matchAll(mainBlockRegex));
+  if (matches.length <= 1) {
+    return source;
+  }
+
+  let result = source;
+  for (let i = 1; i < matches.length; i++) {
+    const block = matches[i][0];
+    const fixedBlock = block
+      .replace(/<main([^>]*)>/, '<section$1>')
+      .replace(/<\/main>/, '</section>');
+    result = result.replace(block, fixedBlock);
+  }
+
+  return result;
 }
 
 function addressAccessibilityIssues(insightReport) {
@@ -374,6 +389,10 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
+/**
+ * Spawn a child process to run some command with proper error handling.
+ * @param {Function} callback - Invoked with (err, result) when the command exits.
+ */
 function startApp() {
   const server = createServer();
   server.listen(config.port || PORT, () => {

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs, checkTableStructure, generateUniqueId, detectAccessibilityIssues, handleCredentialResponse, getStoredCredentials, clearCredentials
@@ -23,7 +20,7 @@ function initializeAccessibility(container) {
     svgElements = [];
   }
 
-  svgElements.forEach(svg => {
+  const accessibilityHelpers = (svgElements) => ({
     /* existing functions */
   });
 
@@ -47,7 +44,7 @@ function initializeAccessibility(container) {
 
   /* new function */
   function generateUniqueId() {
-    return 'svg-' + Math.random().toString(36).substr(2, 9);
+    return 'svg-' + Math.random().toString(36).substring(2, 9);
   }
 
   /* new function */
@@ -56,11 +53,11 @@ function initializeAccessibility(container) {
 
     elements.forEach((element, index) => {
       /* existing functions */
-      if (!element.id) issues.push({ element: index, type: AddressabilityIssues.MISSING_ID, message: 'Element is missing an id attribute' });
+      if (!element.id) issues.push({ element: index, type: 'missing-id', message: 'Element is missing an id attribute' });
 
       /* new function */
       if (!element.getAttribute('role') && element.tagName !== 'IMG') {
-        issues.push({ element: index, type: AddressabilityIssues.MISSING_ROLE, message: 'Element is missing a role attribute' });
+        issues.push({ element: index, type: 'missing-role', message: 'Element is missing a role attribute' });
       }
     });
 
@@ -77,9 +74,9 @@ function initializeAccessibility(container) {
     }
 
     // Validate the role attribute for all elements in the page (except IMG elements)
-    const elements = document.querySelectorAll(':not([role]):not(img)');
+    const elements = document.querySelectorAll('[role]');
     elements.forEach((element) => {
-      const result = AddressabilityIssues.validateLandmark(element);
+      const result = checkTableStructure(element);
       if (!result.valid) {
         console.warn(
           `Element "${result.element}" has an invalid role: ${result.role} - ${result.error}`
@@ -94,6 +91,28 @@ function initializeAccessibility(container) {
 }
 
 /* existing code */
-```
 
-This code adds the new functions `checkTableStructure`, `generateUniqueId`, `detectAccessibilityIssues`, and a modification to the existing `handleCredentialResponse` function to validate the role attribute for all elements in the page (except `IMG` elements). It also adjusts the `detectAccessibilityIssues` function to skip checking the role attribute for `IMG` elements. The rest of the code remains unchanged.
+// Helper function to announce messages to screen readers
+function announceToScreenReader(message) {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.className = 'sr-only';
+  announcer.textContent = message;
+  document.body.appendChild(announcer);
+  setTimeout(() => {
+    document.body.removeChild(announcer);
+  }, 1000);
+}
+
+// Export functions for testing
+export {
+  initializeAccessibility,
+  checkTableStructure,
+  generateUniqueId,
+  detectAccessibilityIssues,
+  handleCredentialResponse,
+  getStoredCredentials,
+  clearCredentials,
+  announceToScreenReader
+};

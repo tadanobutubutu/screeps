@@ -127,6 +127,57 @@ const a11yStore = {
   }
 };
 
+<<<<<<< HEAD
+// Existing utility functions
+function log(message, level = 'info') {
+  const timestamp = new Date().toISOString();
+  console.log(timestamp + " [" + level.toUpperCase() + "]: " + message);
+}
+
+// Export functionality with accessibility support
+const exportUtilities = {
+  exportData: (data, filename, mimeType) => {
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.setAttribute('aria-label', "Download " + filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    // Announce download completion to screen readers
+    accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
+  },
+
+  exportToJSON: (data, filename) => {
+    const jsonString = JSON.stringify(data, null, 2);
+    exportUtilities.exportData(jsonString, filename || 'export.json', 'application/json');
+  },
+
+  exportToCSV: (data, filename) => {
+    if (!data || data.length === 0) return;
+
+    const headers = Object.keys(data[0]);
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+
+    for (const row of data) {
+      const values = headers.map(header => {
+        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        return "\"" + escaped + "\"";
+      });
+      csvRows.push(values.join(','));
+    }
+
+    const csvString = csvRows.join('\n');
+    exportUtilities.exportData(csvString, filename || 'export.csv', 'text/csv');
+  }
+};
+
+=======
 /**
  * Check if an element is a landmark element for accessibility
  * Landmark elements include: main, nav, aside, header, footer, section, article, form, search
@@ -187,6 +238,7 @@ function parseCredentialResponse(credentialResponse) {
  * @param {string} filename - The filename to sanitize
  * @returns {string} - Sanitized filename
  */
+>>>>>>> origin/main
 function sanitizeFilename(filename) {
   return filename.replace(/[^a-z0-9_.-]/g, '_');
 }
@@ -280,174 +332,64 @@ function generateSessionId() {
 
 /**
  * Validates the structure of the table to ensure accessibility.
- * @param {HTMLElement} table - The table to validate
- * @returns {boolean} True if the table is accessible, false otherwise
+ * @param {HTMLElement|string} element - The element or element tag name to check
+ * @returns {boolean} True if the element is a landmark element
  */
-function validateTableStructure(table) {
-  if (!table) {
-    throw new Error('Table is required');
-  }
+function isLandmarkElement(element) {
+  const landmarkTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form', 'search'];
 
-  // Check for table caption (provides context for screen readers)
-  const caption = table.querySelector('caption');
-  if (!caption) {
+  if (!element) {
     return false;
   }
 
-  // Check for header cells (required for accessible tables)
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    return false;
+  if (typeof element === 'string') {
+    return landmarkTags.includes(element.toLowerCase());
   }
 
-  // Verify all header cells have scope attribute
-  for (const header of headers) {
-    if (!header.hasAttribute('scope')) {
-      return false;
+  if (element.tagName) {
+    return landmarkTags.includes(element.tagName.toLowerCase());
+  }
+
+  return false;
+}
+
+/**
+ * Parse a credential response from OAuth/identity provider
+ * @param {Object} credentialResponse - The credential response
+ * @returns {Object} - Parsed response with success status and credential or error
+ */
+function parseCredentialResponse(credentialResponse) {
+  try {
+    if (!credentialResponse || !credentialResponse.credential) {
+      return {
+        success: false,
+        error: 'Invalid credential response'
+      };
     }
-  }
-
-  return true;
-}
-
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
-
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
+    const parts = credentialResponse.credential.split('.');
+    if (parts.length !== 3) {
+      return {
+        success: false,
+        error: 'Malformed credential token'
+      };
     }
-  }
-
-  return 'SVG graphic';
-}
-
-/**
- * Validates table accessibility by checking structure and headers.
- * @param {HTMLElement} table - The table to validate
- * @returns {Object} - Validation result with success status and details
- */
-function validateTableAccessibility(table) {
-  if (!table) {
-    return { success: false, error: 'Table is required' };
-  }
-
-  const hasCaption = !!table.querySelector('caption');
-  const headers = table.querySelectorAll('th');
-
-  const headerValidation = Array.from(headers).every(header => header.hasAttribute('scope'));
-
-  return {
-    success: hasCaption && headers.length > 0 && headerValidation,
-    details: {
-      hasCaption,
-      headerCount: headers.length,
-      headersHaveScope: headerValidation
-    }
-  };
-}
-
-/**
- * Check accessibility of landmark elements in the document.
- * @param {HTMLElement} container - The container element to check
- */
-function validateLandmark(container) {
-  if (!container) {
-    throw new Error('Container element is required');
-  }
-
-  const landmarkSelectors = [
-    'main', 'nav', 'header', 'footer', 'aside',
-    '[role="main"]', '[role="navigation"]', '[role="banner"]',
-    '[role="contentinfo"]', '[role="complementary"]'
-  ];
-
-  const landmarks = document.querySelectorAll(landmarkSelectors.join(', '));
-  const landmarkCount = {};
-
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    landmarkCount[role] = (landmarkCount[role] || 0) + 1;
-  });
-
-  return landmarkCount;
-}
-
-/**
- * Validates the structure of landmark elements.
- * @param {HTMLElement} container - The container element to check
- */
-function validateLandmarkStructure(container) {
-  if (!container) {
-    throw new Error('Container element is required');
-  }
-
-  const requiredRoles = ['main', 'banner', 'navigation', 'contentinfo'];
-  const foundRoles = new Set();
-
-  container.querySelectorAll('[role]').forEach(el => {
-    const role = el.getAttribute('role');
-    if (requiredRoles.includes(role)) {
-      foundRoles.add(role);
-    }
-  });
-
-  return {
-    hasMain: foundRoles.has('main'),
-    hasBanner: foundRoles.has('banner'),
-    hasNav: foundRoles.has('navigation'),
-    hasFooter: foundRoles.has('contentinfo'),
-    missingRoles: requiredRoles.filter(r => !foundRoles.has(r))
-  };
-}
-
-/**
- * Renders the dependency graph view
- * @param {Object} deps - Dependencies object
- * @param {Object} options - Rendering options
- * @returns {string} Rendered dependency graph HTML
- */
-function renderDependencyGraph(deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
-  return dependencyGraphContent(deps, options);
-}
-
-/**
- * Renders the main index view
- * @param {Object} data - View data
- * @param {Object} options - Rendering options
- * @returns {string} Rendered index HTML
- */
-function renderIndex(data, options = {}) {
-  // Use indexContent from the imported module
-  return indexContent(data, options);
-}
-
-if (typeof document !== 'undefined') {
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('lang', document.documentElement.lang);
-
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
+    const payload = parts[1];
+    const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+    return JSON.parse(decoded);
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Failed to parse credential response'
+    };
   }
 }
 
+/**
+ * Sanitize a filename by replacing invalid characters
+ * @param {string} filename - The filename to sanitize
+ * @returns {string} - Sanitized filename
+ */
+>>>>>>> origin/main
 function newFunction() {
   // Implementation from origin/main
   return 'New function implementation from origin/main';

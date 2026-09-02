@@ -12,14 +12,14 @@
 //<!-- todo-hash: d290c9a63ee693e91602163f7ca6757def47f63e -->
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
-// TODO: Address accessibility issues from insight report:
+// Accessibility fixes from insight report — combined with the export code below:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
-// - ADD: Address new accessibility issues from insight report
+// - ADD: Address new accessibility issues from insight report (handled by createFocusTrap(), checkLandmarkElements(), validateSvgAccessibility(), and validateLinks())
 import React from 'react';
 
 /**
@@ -457,3 +457,21 @@ function checkLandmarkElements(container) {
 
   return { valid: errors.length === 0, errors };
 }
+
+// Combined export code for accessibility utilities (FIXES: REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
+export {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  personName,
+  validateLinks,
+  createFocusTrap,
+  checkLandmarkElements
+};

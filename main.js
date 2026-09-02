@@ -13,7 +13,7 @@
 function addLangAttribute (html, lang = 'en') {
   if (typeof html !== 'string') return html
   return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-    if (/\blang=/i.test(match)) return match
+    if (/lang=["']/.test(attrs)) return match
     return `<html${attrs} lang="${lang}">`
   })
 }
@@ -31,29 +31,32 @@ function fixTableStructure (html) {
   // Close caption and wrap rows in thead/tbody where missing
   html = html.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, content) => {
     if (/<thead/i.test(content)) return match
-    const rows = content.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || []
+    const rows = content.match(/<tr[\s\S]*?<\/tr>/gi) || []
     if (rows.length === 0) return match
     const firstRows = rows.slice(0, 1).join('')
     const restRows = rows.slice(1).join('')
-    const thPattern = /<td>/gi
+    const thPattern = /<th/gi
     const firstRowHasTh = thPattern.test(firstRows)
     let thead = ''
     let tbody = restRows
 
     if (!firstRowHasTh) {
-      thead = `<thead>${firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>')}</thead>`
+      thead = `<thead><tr>${firstRows.replace(/<td>/gi, '<th>').replace(/<\/td>/gi, '</th>')}</tr></thead>`
     } else {
       thead = `<thead>${firstRows}</thead>`
     }
     if (!tbody) tbody = ''
     tbody = `<tbody>${tbody}</tbody>`
 
-    return `<table${attrs}>${thead}${tbody}</table>`
+    // Remove any existing tr tags that were part of original content (they're now in thead/tbody)
+    const captionMatch = content.match(/<caption>[\s\S]*?<\/caption>/i)
+    const caption = captionMatch ? captionMatch[0] : ''
+    return `<table${attrs}>${caption}${thead}${tbody}</table>`
   })
 
   // Add scope="col" to th elements that don't have it
   html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (/\bscope=/i.test(match)) return match
+    if (/scope=/i.test(attrs)) return match
     return `<th${attrs} scope="col">`
   })
 
@@ -88,23 +91,26 @@ function fixLandmarks (html) {
   if (typeof html !== 'string') return html
 
   // Ensure <main> landmark exists
-  if (!/<main[^>]*>/i.test(html) && !/<div[^>]*role=["']main["']/i.test(html)) {
-    html = html.replace(/<body([^>]*)>/i, '<body$1><main>')
+  if (html.includes('<body') && !html.includes('<main')) {
+    html = html.replace(/(<body[^>]*>)/i, '$1<main>')
     html = html.replace(/<\/body>/i, '</main></body>')
   }
 
   // Ensure <nav> landmark exists
-  if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
-    html = html.replace(/<main[^>]*>/i, '<nav aria-label="Main navigation"></nav><main>')
+  if (html.includes('<main') && !html.includes('<nav')) {
+    html = html.replace(/(<main>)/i, '<nav aria-label="Main navigation"></nav><main>')
   }
 
   // Ensure <aside> landmark exists if content suggests a sidebar
-  if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
-    html = html.replace(/<\/main>/i, '<aside aria-label="Supplementary"></aside></main>')
+  if (html.includes('<main') && !html.includes('<aside')) {
+    const hasSidebarContent = /sidebar|aside|right.*column/i.test(html)
+    if (hasSidebarContent) {
+      html = html.replace(/(<main>)/i, '<aside><div></div></aside><main>')
+    }
   }
 
   // Ensure <footer> landmark exists
-  if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
+  if (html.includes('<main') && !html.includes('<footer') && html.includes('</body>')) {
     html = html.replace(/<\/body>/i, '<footer></footer></body>')
   }
 
@@ -115,29 +121,29 @@ function fixLandmarks (html) {
 function addSvgAccessibleNames (html) {
   if (typeof html !== 'string') return html
 
-  const svgMatches = [...html.matchAll(/<svg([^>]*)>/gi)]
+  const svgMatches = html.match(/<svg[\s\S]*?>/gi)
   let offset = 0
 
-  svgMatches.forEach((match, index) => {
-    const fullMatch = match[0]
-    const attrs = match[1]
-    const svgStart = match.index + offset
-    const svgEnd = html.indexOf('</svg>', svgStart)
+  if (svgMatches) {
+    svgMatches.forEach((fullMatch, index) => {
+      const svgStart = html.indexOf(fullMatch, offset)
+      const svgEnd = html.indexOf('</svg>', svgStart)
 
-    if (svgEnd === -1) return
+      if (svgEnd === -1) return
 
-    const svgContent = html.substring(svgStart, svgEnd + 6)
-    const hasTitle = /<title/i.test(svgContent)
-    const hasAriaLabel = /\baria-label=/i.test(attrs)
-    const hasAriaLabelledBy = /\baria-labelledby=/i.test(attrs)
+      const svgContent = html.substring(svgStart, svgEnd + 6)
+      const hasTitle = /<title/i.test(svgContent)
+      const hasAriaLabel = /\baria-label=/i.test(fullMatch)
+      const hasAriaLabelledBy = /\baria-labelledby=/i.test(fullMatch)
 
-    if (!hasTitle && !hasAriaLabel && !hasAriaLabelledBy) {
-      const newSvg = fullMatch.replace(/>/, `><title>SVG ${index + 1}</title>`)
-      const oldSvgLength = svgContent.length
-      html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength)
-      offset += newSvg.length - oldSvgLength
-    }
-  })
+      if (!hasTitle && !hasAriaLabel && !hasAriaLabelledBy) {
+        const newSvg = fullMatch.replace(/>/, `><title>SVG ${index + 1}</title>`)
+        const oldSvgLength = fullMatch.length
+        html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength)
+        offset += newSvg.length - oldSvgLength
+      }
+    })
+  }
 
   return html
 }
@@ -145,17 +151,20 @@ function addSvgAccessibleNames (html) {
 function checkLinkAccessibility () {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
-  const links = document.querySelectorAll('a[href]')
   const issues = []
+  
+  if (typeof document !== 'undefined') {
+    const links = document.querySelectorAll('a')
+    
+    links.forEach((link) => {
+      const href = link.getAttribute('href')
+      const text = link.textContent.trim()
 
-  links.forEach((link) => {
-    const href = link.getAttribute('href')
-    const text = link.textContent.trim()
-
-    if (!text) {
-      issues.push(`Link with href "${href}" has no accessible text`)
-    }
-  })
+      if (!text) {
+        issues.push(`Link with href "${href}" has no accessible text`)
+      }
+    })
+  }
 
   return issues
 }
@@ -168,6 +177,8 @@ function checkLinkAccessibility () {
  * @returns {Element|null} The <main> element if successfully created/wrapped, or null if body is not available
  */
 function wrapPrimaryContentInMain () {
+  if (typeof document === 'undefined') return null
+  
   const body = document.body
 
   // Return null if body element is not available
@@ -176,7 +187,7 @@ function wrapPrimaryContentInMain () {
   }
 
   // Check if a <main> element already exists to avoid duplication
-  const existingMain = document.querySelector('main')
+  const existingMain = body.querySelector('main')
   if (existingMain) {
     return existingMain
   }
@@ -209,8 +220,8 @@ function ensureUniqueLandmarks (html) {
     'form'
   ]
 
-  landmarkRoles.forEach((role) => {
-    const pattern = new RegExp(`role=["']${role}["']`, 'gi')
+  landmarkRoles.forEach(role => {
+    const pattern = new RegExp(`role="${role}"`, 'gi')
     const matches = html.match(pattern)
     if (matches && matches.length > 1) {
       // Keep first occurrence, change subsequent ones
@@ -225,7 +236,7 @@ function ensureUniqueLandmarks (html) {
 
   // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
   const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer']
-  html5Landmarks.forEach((tag) => {
+  html5Landmarks.forEach(tag => {
     const pattern = new RegExp(`<${tag}[^>]*>`, 'gi')
     const matches = html.match(pattern)
     if (matches && matches.length > 1) {
@@ -248,9 +259,9 @@ function fixFakeLinks (html) {
 
   // Find spans or divs with onclick that act as links and convert to <a>
   html = html.replace(
-    /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
-    (match, before, onclick, after) => {
-      const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/)
+    /<(span|div)([^>]*)onclick\s*=\s*["']([^"']*)["']([^>]*)>/gi,
+    (match, tag, before, onclick, after) => {
+      const hrefMatch = onclick.match(/window\.location\.href\s*=\s*["']([^"']*)["']/)
       if (hrefMatch) {
         return `<a href="${hrefMatch[1]}"${before}${after}>`
       }
@@ -258,7 +269,7 @@ function fixFakeLinks (html) {
     }
   )
 
-  html = html.replace(/<\/span>/gi, '</a>')
+  html = html.replace(/<\/(span|div)>/gi, '</a>')
 
   return html
 }
@@ -288,28 +299,7 @@ function createInPageButton (buttonId, buttonText, buttonClass) {
   button.id = buttonId
   button.textContent = buttonText
   button.className = buttonClass
-  document.body.appendChild(button)
+  return button
 }
 
-// Don't forget to test your new additions in the test file
-
-// Export accessibility utility functions
-module.exports = {
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarks,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinks,
-  applyAccessibilityFixes,
-  addressAccessibilityIssues,
-  createInPageButton,
-  divide,
-  checkLinkAccessibility,
-  wrapPrimaryContentInMain
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main()
-}
+// Don't forget to test your new additions in the test

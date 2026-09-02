@@ -1,5 +1,6 @@
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
+// REACT_015: Add lang attribute
 // REACT_027: Fix 26 table structure issues
 // REACT_017: Add/fix 4 landmark issues
 // REACT_041: Add accessible names to 2 SVGs
@@ -211,6 +212,125 @@ function fixFakeLinks(html) {
     return html;
 }
 
+// Handle credential response - processes credential-related HTML content
+function handleCredentialResponse(html) {
+    if (typeof html !== 'string') return html;
+
+    // Extract and process credential-related sections
+    // This function ensures credential forms/layouts have proper accessibility attributes
+    // and handles potential security concerns in credential displays
+
+    // Pattern for login/credential forms
+    const credentialFormPatterns = [
+        // Login form
+        /<form[^>]*action=["']\/login["'][^>]*>.*?<input[^>]+type=["']password["'][^>]*>/gi,
+        // Credential section
+        /<section[^>]*class=["']credential["']|class=["']auth["']|class=["']login["']/gi,
+        // Password field
+        /<input[^>]+name=["']password["']|name=["']pass["']/gi,
+        // Token/credential display
+        /<div[^>]*class=["']token["']|class=["']credential["']|class=["']auth-token["']/gi
+    ];
+
+    // Process each pattern to enhance accessibility
+    credentialFormPatterns.forEach(pattern => {
+        html = html.replace(pattern, (match) => {
+            // Wrap in a semantic container if not already present
+            if (!/<article|<section|<div[^>]*class=["']container["']/i.test(match)) {
+                const wrapper = `<div class="credential-container" aria-labelledby="credential-form">`;
+                return wrapper + match + wrapper + '</div>';
+            }
+            return match;
+        });
+    });
+
+    // Ensure all credential forms have proper labeling
+    // Add label elements if missing
+    html = html.replace(
+        /<form[^>]*>([^<]+)<input[^>]*>([^<]+)/gi,
+        (match, before, input, after) => {
+            // If there's an input without a preceding label, add one
+            if (/<input[^>]*>/i.test(input) && !/<label[^>]*for=["']id["'](?:password|username)[^>]*>/i.test(match)) {
+                return `<label for="${input.getAttribute('id')}">${before}</label>${match}`;
+            }
+            return match;
+        }
+    );
+
+    // Ensure all interactive elements in credential areas have proper focus states
+    html = html.replace(
+        /<button[^>]*type=["']submit["']|<input[^>]*type=["']password["']/gi,
+        (match, before, after) => {
+            if (match.includes('password')) {
+                return `<button type="submit" aria-label="Submit credentials">${before}${after}</button>`;
+            }
+            return match;
+        }
+    );
+
+    return html;
+}
+
+// REACT_025: Ensure unique landmarks (2 issues)
+function ensureUniqueLandmarks(html) {
+    if (typeof html !== 'string') return html;
+
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+
+    landmarkRoles.forEach(role => {
+        const pattern = new RegExp(`role=["']${role}["']`, 'gi');
+        const matches = html.match(pattern);
+        if (matches && matches.length > 1) {
+            // Keep first occurrence, change subsequent ones
+            let count = 0;
+            html = html.replace(pattern, (match) => {
+                count++;
+                if (count === 1) return match;
+                return `role="region"`;
+            });
+        }
+    });
+
+    // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
+    const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+    html5Landmarks.forEach(tag => {
+        const pattern = new RegExp(`<${tag}[^>]*>`, 'gi');
+        const matches = html.match(pattern);
+        if (matches && matches.length > 1) {
+            // Keep first, add role="region" to others
+            let count = 0;
+            html = html.replace(pattern, (match) => {
+                count++;
+                if (count === 1) return match;
+                return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region"`);
+            });
+        }
+    });
+
+    return html;
+}
+
+// REACT_036: Fix 1 fake link issue
+function fixFakeLinks(html) {
+    if (typeof html !== 'string') return html;
+
+    // Find spans or divs with onclick that act as links and convert to <a>
+    html = html.replace(
+        /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
+        (match, before, onclick, after) => {
+            const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
+            if (hrefMatch) {
+                return `<a href="${hrefMatch[1]}"${before}${after}>`;
+            }
+            return match;
+        }
+    );
+
+    html = html.replace(/<\/span>/gi, '</a>');
+
+    return html;
+}
+
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes(html) {
     let result = html;
@@ -218,6 +338,7 @@ function applyAccessibilityFixes(html) {
     result = fixTableStructure(result);
     result = fixLandmarks(result);
     result = addSvgAccessibleNames(result);
+    result = handleCredentialResponse(result);
     result = ensureUniqueLandmarks(result);
     result = fixFakeLinks(result);
     return result;
@@ -395,6 +516,7 @@ module.exports = {
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
     fixFakeLinks,
+    handleCredentialResponse,
     applyAccessibilityFixes,
     addressAccessibilityIssues,
     createInPageButton,

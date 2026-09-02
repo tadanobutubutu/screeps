@@ -404,13 +404,13 @@ function addressAccessibilityIssues() {
 // Export accessibility utility functions
 export {
   getLangAttribute,
-  createInPageButton,
+  calculateDiscount,
+  newFunction,
+  checkLinkAccessibility,
   validateTableAccessibility,
   validateTableStructure,
   validateLinkAccessibility,
   handleFakeLinks,
-  checkLinkAccessibility,
-  newFunction,
   addressAccessibilityIssues,
   addLangAttribute,
   fixTableStructure,
@@ -421,7 +421,8 @@ export {
   applyAccessibilityFixes,
   divide,
   wrapPrimaryContentInMain,
-  spawnEntity
+  spawnEntity,
+  createInPageButton
 };
 
 // Run if executed directly

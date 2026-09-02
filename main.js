@@ -10,16 +10,11 @@ import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUti
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
+import {CONFIG} from './utils/constants';
 
 // Node.js functions for dependency visualization tool
 const fs = require('fs');
 const path = require('path');
-
-// New function to visualize the dependency tree
-function visualizeDependencyTree(dependencies) {
-  const report = generateDependencyReport(dependencies);
-  console.log(report.graph);
-}
 
 // Helper function to generate dependency report
 function generateDependencyReport(dependencies) {
@@ -28,6 +23,12 @@ function generateDependencyReport(dependencies) {
     graph += `- ${dep.name}\n`;
   });
   return { graph };
+}
+
+// New function to visualize the dependency tree
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
 }
 
 // New function to fix accessibility issues as per the insight report
@@ -83,68 +84,6 @@ function fixAccessibilityIssues() {
   };
 }
 
-// Main entry point for dependency visualization tool
-export const main = {
-  init: function() {
-    console.log('Application initialized');
-  },
-
-  greet: function(name) {
-    return `Hello, ${name}!`;
-  },
-
-  // New function for rotating back
-  rotateBack: function() {
-    console.log('Reverting back the rotation.');
-  },
-
-  // New function to address all accessibility issues
-  addressAccessibilityIssues: function() {
-    fixAccessibilityIssues();
-  },
-
-  // New function to add a book with accessibility improvements
-  addBook: function(title, author, isbn) {
-    // Create form with proper accessibility attributes
-    const form = ...
-    form.setAttribute('role', 'form');
-    ... 'Add Book Form');
-
-    // Create accessible input fields
-    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
-    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
-    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
-
-    // Create accessible submit button
-    const submitButton = document.createElement('button');
-    submitButton.setAttribute('type', 'submit');
-    ... 'Add Book');
-    submitButton.textContent = 'Add Book';
-
-    // Append all elements to form
-    ...
-    ...
-    ...
-    ...
-
-    // Add form to document body
-    ...
-
-    // Add event listener for form submission
-    ... (e) => {
-      e.preventDefault();
-      // Handle form submission logic here
-      console.log('Book added:', {
-        title: titleInput.value,
-        author: authorInput.value,
-        isbn: isbnInput.value
-      });
-    });
-
-    return form;
-  }
-};
-
 /**
  * Creates an accessible input element with proper labeling.
  * @param {string} type - Input type (text, number, etc.)
@@ -154,14 +93,14 @@ export const main = {
  * @returns {HTMLElement} The created input element with label
  */
 function createAccessibleInput(type, id, labelText, value = '') {
-  const container = ...
+  const container = document.createElement('div');
   container.className = 'form-group';
 
-  const label = ...
+  const label = document.createElement('label');
   label.setAttribute('for', id);
   label.textContent = labelText;
 
-  const input = ...
+  const input = document.createElement('input');
   input.setAttribute('type', type);
   input.setAttribute('id', id);
   input.setAttribute('name', id);
@@ -169,8 +108,8 @@ function createAccessibleInput(type, id, labelText, value = '') {
   input.setAttribute('aria-label', labelText);
   input.value = value;
 
-  ...
-  ...
+  container.appendChild(label);
+  container.appendChild(input);
 
   return container;
 }
@@ -185,7 +124,7 @@ function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
   if (onClickHandler && typeof onClickHandler === 'function') {
-    ... onClickHandler);
+    button.addEventListener('click', onClickHandler);
   }
   return button;
 }
@@ -219,24 +158,23 @@ function createUnrotateButton() {
   button.setAttribute('role', 'button');
   button.ariaLabel = 'rotate back';
   button.textContent = 'rotate back';
-  ... rotateBack);
+  button.addEventListener('click', rotateBack);
   return button;
 }
 
 // Replace fake links with proper buttons
-const fakeLink = ...
+const fakeLink = document.querySelector('a[href="#"]');
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
-  ... fakeLink);
+  parent.replaceChild(newButton, fakeLink);
 }
 
 // Load landmarks from file (new addition)
-import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = ... 'landmarks.json');
-      const data = ... 'utf8');
+      const filePath = path.join(__dirname, 'landmarks.json');
+      const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
   } catch (error) {
       console.error('Error loading landmarks:', error.message);
@@ -253,28 +191,16 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if ... {
+        if (elementsById[landmark.id]) {
           landmark.id += '_duplicate';
         } else {
-          ... = true;
+          elementsById[landmark.id] = true;
         }
       }
     }
   }
 
   return elements;
-}
-
-// Updated function using the new functions for rendering graph/index
-function renderDependencyGraphContent() {
-  const container = ...
-  if (!container) {
-    return;
-  }
-
-  // Use the new functions for rendering
-  renderDependencyGraph(container);
-  renderIndexView(container);
 }
 
 // Function to count dependencies
@@ -284,58 +210,133 @@ function countDependencies() {
     'react-redux': true,
     'antd': true
   };
-  return ...
+  return Object.keys(dependencies).length;
 }
 
 // Function to enhance accessibility for addBook form
-function ... {
+function enhanceAccessibilityForAddBookForm(formElement) {
   if (!formElement) return;
 
   // Add ARIA attributes to form elements
   formElement.setAttribute('role', 'form');
-  ... 'add-book-form-title');
+  formElement.setAttribute('aria-label', 'add-book-form-title');
 
   // Find and enhance form controls
-  const inputs = ... textarea, select');
+  const inputs = formElement.querySelectorAll('input, textarea, select');
   inputs.forEach(input => {
     // Add required attribute if needed
-    if ... {
+    if (input.required) {
       input.setAttribute('aria-required', 'true');
     }
 
     // Add labels if missing
     if (!input.id) {
-      input.id = ... 9)}`;
+      input.id = `input_${Math.random().toString(36).substr(2, 9)}`;
     }
 
     // Create label if not present
-    if ... {
-      const label = ...
+    if (!formElement.querySelector(`label[for="${input.id}"]`)) {
+      const label = document.createElement('label');
       label.setAttribute('for', input.id);
       label.textContent = input.placeholder || input.name || 'Input field';
-      ... input);
+      formElement.insertBefore(label, input);
     }
   });
 
   // Add submit button if missing
-  if ... {
+  if (!formElement.querySelector('button[type="submit"], input[type="submit"]')) {
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
     submitButton.textContent = 'Add Book';
     submitButton.className = 'add-book-submit';
-    ...
+    formElement.appendChild(submitButton);
   }
 
   // Add error summary area
-  if ... {
-    const errorSummary = ...
+  if (!formElement.querySelector('.error-summary')) {
+    const errorSummary = document.createElement('div');
     errorSummary.className = 'error-summary';
-    ... 'polite');
-    formElement.insertBefore(errorSummary, ...
+    errorSummary.setAttribute('role', 'alert');
+    errorSummary.setAttribute('aria-live', 'polite');
+    formElement.insertBefore(errorSummary, formElement.firstChild);
   }
 }
 
 // Process and filter landmarks (new addition)
+
+// Main entry point for dependency visualization tool
+export const main = {
+  init: function() {
+    console.log('Application initialized');
+  },
+
+  greet: function(name) {
+    return `Hello, ${name}!`;
+  },
+
+  // New function for rotating back
+  rotateBack: function() {
+    console.log('Reverting back the rotation.');
+  },
+
+  // New function to address all accessibility issues
+  addressAccessibilityIssues: function() {
+    fixAccessibilityIssues();
+  },
+
+  // New function to add a book with accessibility improvements
+  addBook: function(title, author, isbn) {
+    // Create form with proper accessibility attributes
+    const form = document.createElement('form');
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add Book Form');
+
+    // Create accessible input fields
+    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+    // Create accessible submit button
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('type', 'submit');
+    submitButton.setAttribute('aria-label', 'Add Book');
+    submitButton.textContent = 'Add Book';
+
+    // Append all elements to form
+    form.appendChild(titleInput);
+    form.appendChild(authorInput);
+    form.appendChild(isbnInput);
+    form.appendChild(submitButton);
+
+    // Add form to document body
+    document.body.appendChild(form);
+
+    // Add event listener for form submission
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      // Handle form submission logic here
+      console.log('Book added:', {
+        title: titleInput.value,
+        author: authorInput.value,
+        isbn: isbnInput.value
+      });
+    });
+
+    return form;
+  }
+};
+
+// Updated function using the new functions for rendering graph/index
+function renderDependencyGraphContent() {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) {
+    return;
+  }
+
+  // Use the new functions for rendering
+  renderDependencyGraph(container);
+  renderIndexView(container);
+}
 
 // Exporting module objects
 export {
@@ -371,5 +372,13 @@ export {
   addProperLandmarkRegions,
   countDependencies,
   createInPageButton,
-  ...
+  loadLandmarks,
+  enhanceAccessibilityForAddBookForm,
+  createAccessibleInput,
+  createUnrotateButton,
+  visualizeDependencyTree,
+  generateDependencyReport,
+  fixAccessibilityIssues,
+  rotateBack,
+  main
 };

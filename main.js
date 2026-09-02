@@ -1,273 +1,231 @@
-const { dependencyGraphContent, indexContent } = require('./indexContent');
+const url = require('url');
 
-// Existing rendering functions (preserving existing exports and functions)
+// Dependency imports
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
 
-/**
- * Renders the dependency graph view
- * @param {Object} deps - Dependencies object
- * @param {Object} options - Rendering options
- * @returns {string} Rendered dependency graph HTML
- */
-function renderDependencyGraph(deps, options = {}) {
-    // Use dependencyGraphContent from the imported module
-    return dependencyGraphContent(deps, options);
+const main = require('./utilities');
+
+const {
+  add,
+  subtract,
+  multiply,
+  divide,
+  power,
+  squareRoot,
+  factorial,
+  fibonacci,
+  sum,
+  average,
+  max,
+  min,
+  mode,
+  median,
+} = require('./mathHelpers');
+
+const {
+  getWelcomeMessage,
+  config,
+  a11yStore,
+  greetingFunction,
+  isLandmarkElement,
+  parseCredentialResponse,
+  decodeJwtToken,
+  generateSessionId,
+  validateTableStructure,
+  validateTableAccessibility,
+  validateLandmark,
+  validateLandmarkStructure,
+  createInPageButton,
+  personName,
+  validateSession,
+  revokeSession,
+  getActiveSessionsCount,
+  server,
+  sanitizeFilename,
+  processData,
+  renderDependencyGraph,
+  renderIndex,
+  newFunction,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName
+} = require('./path/to/module');
+
+function checkLandmarkElement(role, element) {
+  if (!role || !element) {
+    return a11yStore.checkLandmarkElement(role, element);
+  }
+  const elementRole = element.getAttribute('role');
+  return elementRole === role;
 }
 
-/**
- * Renders the main index view
- * @param {Object} data - View data
- * @param {Object} options - Rendering options
- * @returns {string} Rendered index HTML
- */
-function renderIndex(data, options = {}) {
-    // Use indexContent from the imported module
-    return indexContent(data, options);
-}
+(function () {
+  // Initialize appState with required structures
+  const appState = {
+    sessions: new Map(),
+    credentials: []
+  };
 
-// Add lang attribute to HTML element
-function getLangAttribute() {
-    // Implementation to add lang attribute
-}
+  /**
+   * Validate a session
+   * @param {string} sessionId - The session ID to validate
+   * @returns {Object|null} - Session data or null if invalid
+   */
+  function validateSession(sessionId) {
+    return appState.sessions.get(sessionId) || null;
+  }
 
-// Utility functions for accessibility
-const accessibilityUtils = {
-    // ... Accessibility utilities implemented in the conflict branch (initSkipLink, trapFocus, announceToScreenReader, handleKeyboardNav)
-    newFocusTrap(element) {
-        // merged implementation of original and imported newFocusTrap functions
-        const focusableElements = element.querySelectorAll(
-            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusableElements.length === 0) return accessibilityUtils.originNewFocusTrap(element); // Calling original newFocusTrap for elements without focusable elements
-        const first = focusableElements[0];
-        const last = focusableElements[focusableElements.length - 1];
+  /**
+   * Get active sessions count
+   * @returns {number} - Number of active sessions
+   */
+  function getActiveSessionsCount() {
+    return appState.sessions.size;
+  }
 
-        element.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                if (e.shiftKey && document.activeElement === first) {
-                    last.focus();
-                    e.preventDefault();
-                } else if (!e.shiftKey && document.activeElement === last) {
-                    first.focus();
-                    e.preventDefault();
-                }
-            }
-        });
-    },
+  /**
+   * Decode a JWT token
+   * @param {string} token - The JWT token to decode
+   * @returns {Object|null} - Decoded token payload or null
+   */
+  function decodeJwtToken(token) {
+    return a11yStore.decodeJwtToken(token);
+  }
 
-    // Announce message to screen readers
-    announceToScreenReader: function(message, priority) {
-        if (priority === undefined) {
-            priority = 'polite';
-        }
-        const announcer = document.createElement('div');
-        announcer.setAttribute('aria-live', priority);
-        announcer.setAttribute('aria-atomic', 'true');
-        announcer.className = 'sr-only';
-        announcer.style.position = 'absolute';
-        announcer.style.left = '-9999px';
-        announcer.textContent = message;
-        document.body.appendChild(announcer);
-        setTimeout(function() {
-            announcer.remove();
-        }, 1000);
-    },
+  // HTTP Server setup
+  const http = require('http');
 
-    // Handle keyboard navigation
-    handleKeyboardNav: function(e, handlers) {
-        const key = e.key;
-        if (handlers[key]) {
-            handlers[key](e);
-        }
-    },
+  const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
 
-    // Function to ensure the element has an id, add aria-label, render dependency graphs
-    ensureElementAccessibility: function(element, options) {
-        // Implementation to ensure element accessibility
-    },
+    // CORS headers for credential responses
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Function to fix table structure and accessibility issues
-    validateAndFixTableStructure: function(table) {
-        // Implementation to validate and fix table structure and accessibility
-    },
-
-    // Function to fix landmark structure and accessibility issues
-    validateAndFixLandmark: function(landmark) {
-        // Implementation to validate and fix landmark structure and accessibility
-    },
-
-    // Function to improve SVG accessibility
-    improveSvgAccessibility: function(svg) {
-        // Implementation to improve SVG accessibility
-    },
-
-    // Function to create an in-page button with accessible link
-    createAccessibleInPageButton: function(options) {
-        // Implementation to create a accessible in-page button
-    },
-
-    // Function to handle accessibility issues
-    handleAccessibilityIssues: function(container, report) {
-        // Implementation to handle accessibility issues
-    },
-
-    // New function to validate and fix form accessibility
-    validateAndFixFormAccessibility: function(form) {
-        if (!form || form.tagName.toLowerCase() !== 'form') {
-            return false;
-        }
-
-        // Ensure form has a proper role
-        if (!form.getAttribute('role')) {
-            form.setAttribute('role', 'form');
-        }
-
-        // Check for required labels
-        const inputs = form.querySelectorAll('input, textarea, select');
-        inputs.forEach(input => {
-            const id = input.id;
-            if (id) {
-                const label = form.querySelector(`label[for="${id}"]`);
-                if (!label) {
-                    // Create implicit label if missing
-                    input.setAttribute('aria-label', input.placeholder || 'Input field');
-                }
-            } else {
-                // Generate ID if missing
-                input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
-            }
-        });
-
-        // Check for submit button
-        const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
-        if (!submitButton) {
-            const newButton = document.createElement('button');
-            newButton.type = 'submit';
-            newButton.textContent = 'Submit';
-            form.appendChild(newButton);
-        }
-
-        return true;
-    },
-
-    // New function to validate and fix link accessibility
-    validateAndFixLinkAccessibility: function(link) {
-        if (!link || link.tagName.toLowerCase() !== 'a') {
-            return false;
-        }
-
-        // Ensure link has proper text content
-        if (!link.textContent.trim()) {
-            link.textContent = link.getAttribute('aria-label') || 'Link';
-        }
-
-        // Ensure link has href or role
-        if (!link.getAttribute('href') && !link.getAttribute('role')) {
-            link.setAttribute('role', 'button');
-        }
-
-        return true;
-    },
-
-    // New function to validate and fix button accessibility
-    validateAndFixButtonAccessibility: function(button) {
-        if (!button || (button.tagName.toLowerCase() !== 'button' && !button.getAttribute('role') !== 'role')) {
-            return false;
-        }
-
-        // Ensure button has proper text content
-        if (!button.textContent.trim()) {
-            button.textContent = button.getAttribute('aria-label') || 'Button';
-        }
-
-        // Ensure button has type attribute
-        if (!button.getAttribute('type')) {
-            button.setAttribute('type', 'button');
-        }
-
-        return true;
-    },
-
-    // Function to generate a report based on accessibility issues
-    generateAccessibilityReport: function(container) {
-        const report = {
-            issues: [],
-            summary: {
-                total: 0,
-                errors: 0,
-                warnings: 0
-            }
-        };
-
-        // Helper to add issue
-        const addIssue = (type, element, message) => {
-            report.issues.push({
-                type,
-                element,
-                message,
-                line: element ? element.getBoundingClientRect().top : null
-            });
-            report.summary.total++;
-            if (type === 'error') report.summary.errors++;
-            else if (type === 'warning') report.summary.warnings++;
-        };
-
-        // Check for missing alt text on images
-        container.querySelectorAll('img:not([alt])').forEach(img => {
-            addIssue('error', img, 'Image missing alt attribute');
-        });
-
-        // Check for missing form labels
-        container.querySelectorAll('input, textarea, select').forEach(input => {
-            const id = input.id;
-            const label = container.querySelector(`label[for="${id}"]`);
-            if (id && !label) {
-                addIssue('error', input, 'Form control missing associated label');
-            }
-        });
-
-        // Check for missing heading structure
-        const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        let prevLevel = 0;
-        headings.forEach(h => {
-            const level = parseInt(h.tagName.charAt(1), 10);
-            if (prevLevel && level - prevLevel > 1) {
-                addIssue('warning', h, 'Heading level skip detected');
-            }
-            prevLevel = level;
-        });
-
-        // Check for buttons without content
-        container.querySelectorAll('button').forEach(btn => {
-            if (!btn.textContent.trim() && !btn.getAttribute('aria-label')) {
-                addIssue('error', btn, 'Button has no accessible name');
-            }
-        });
-
-        // Check for links without text
-        container.querySelectorAll('a').forEach(link => {
-            if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
-                addIssue('error', link, 'Link has no accessible name');
-            }
-        });
-
-        // Validate forms
-        container.querySelectorAll('form').forEach(form => {
-            const hasSubmit = form.querySelector('button[type="submit"], input[type="submit"]');
-            if (!hasSubmit) {
-                addIssue('warning', form, 'Form missing submit button');
-            }
-        });
-
-        // Validate landmark roles
-        container.querySelectorAll('[role]').forEach(el => {
-            const role = el.getAttribute('role');
-            if (role === 'navigation' || role === 'main' || role === 'banner') {
-                // Basic check: ensure at least one landmark of each type exists
-            }
-        });
-
-        return report;
+    if (req.method === 'OPTIONS') {
+      res.writeHead(200);
+      res.end();
+      return;
     }
-};
 
-// ... (The rest of the code remains the same as in the original conflict branch)
+    // Health check endpoint
+    if (parsedUrl.pathname === '/health') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
+      return;
+    }
+
+    // Credential response endpoint
+    if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
+      let body = '';
+
+      req.on('data', chunk => {
+        body += chunk.toString();
+      });
+
+      req.on('end', () => {
+        try {
+          const credentialResponse = JSON.parse(body);
+          const result = handleCredentialResponse(credentialResponse);
+
+          res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(result));
+        } catch (error) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
+        }
+      });
+      return;
+    }
+
+    // Session validation endpoint
+    if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
+      const sessionId = parsedUrl.query.sessionId;
+
+      if (!sessionId) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
+        return;
+      }
+
+      const session = validateSession(sessionId);
+
+      if (session) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'valid', user: session.user }));
+      } else {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
+      }
+      return;
+    }
+
+    // Session revocation endpoint
+    if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
+      let body = '';
+
+      req.on('data', chunk => {
+        body += chunk.toString();
+      });
+
+      req.on('end', () => {
+        try {
+          const { sessionId } = JSON.parse(body);
+          const revoked = revokeSession(sessionId);
+
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
+        } catch (error) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
+        }
+      });
+      return;
+    }
+
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
+  });
+
+  /**
+   * Revoke a session
+   * @param {string} sessionId - The session ID to revoke
+   * @returns {boolean} - True if session was revoked
+   */
+  function revokeSession(sessionId) {
+    return appState.sessions.delete(sessionId);
+  }
+
+  module.exports = {
+    a11yStore,
+    isLandmarkElement,
+    handleCredentialResponse,
+    parseCredentialResponse,
+    decodeJwtToken,
+    generateSessionId,
+    validateTableStructure,
+    validateTableAccessibility,
+    validateLandmark,
+    validateLandmarkStructure,
+    createInPageButton,
+    personName,
+    validateSession,
+    revokeSession,
+    getActiveSessionsCount,
+    server,
+    sanitizeFilename,
+    processData,
+    renderDependencyGraph,
+    renderIndex,
+    newFunction,
+    checkLandmarkElement,
+    wrapPrimaryContentInMain,
+    checkLandmarks,
+    ensureUniqueLandmarks,
+    getSvgAccessibleName
+  };
+})();

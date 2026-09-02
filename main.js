@@ -710,7 +710,7 @@ if (require.main === module) {
 
 // Export modules for testing
 module.exports = {
-    addSvgAccessibilityProps,
+    addSvgAccessibilityProps: a11yStore.addSVGAccessibilityProps,
     isLandmarkElement,
     handleCredentialResponse,
     parseCredentialResponse,
@@ -735,5 +735,6 @@ module.exports = {
     wrapPrimaryContentInMain,
     checkLandmarks,
     ensureUniqueLandmarks,
-    getSvgAccessibleName
+    getSvgAccessibleName,
+    a11yStore
 };

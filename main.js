@@ -193,6 +193,13 @@ function createAccessibleLinks() {
   });
 }
 
+// New function to generate accessibility report
+function generateAccessibilityReport() {
+  const report = scanAccessibility();
+  writeReport(report);
+  return report;
+}
+
 module.exports = {
   config: CONFIG,
   appState,

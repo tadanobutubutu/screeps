@@ -203,13 +203,59 @@ function validateLandmarkStructure(element) {
 }
 
 /**
+ * Extracts the accessible name from an SVG element's content
+ * @param {SVGSVGElement} svg - The SVG element
+ * @returns {string} The accessible name extracted from the SVG content
+ */
+function extractSvgAccessibleNameFromContent(svg) {
+  if (!svg || typeof svg !== 'object') return '';
+  
+  // Check for <title> element within the SVG (highest priority content-based name)
+  const titleElement = svg.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+  
+  // Check for <desc> element within the SVG (provides description)
+  const descElement = svg.querySelector('desc');
+  if (descElement && descElement.textContent) {
+    return descElement.textContent.trim();
+  }
+  
+  // Check for text content within the SVG (fallback for content-based naming)
+  const textContent = svg.textContent ? svg.textContent.trim() : '';
+  if (textContent) {
+    return textContent;
+  }
+  
+  return '';
+}
+
+/**
  * Gets the accessible name from an SVG element
  * @param {SVGSVGElement} svg - The SVG element
  * @returns {string} The accessible name of the SVG
  */
 function getSvgAccessibleName(svg) {
   if (!svg || typeof svg !== 'object') return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title') || '';
+  
+  // First check for aria-label attribute
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Then check aria-labelledby attribute
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby && typeof document !== 'undefined') {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) return labelElement.textContent || '';
+  }
+  
+  // Then check title attribute
+  const titleAttr = svg.getAttribute('title');
+  if (titleAttr) return titleAttr;
+  
+  // Finally, extract accessible name from SVG content
+  return extractSvgAccessibleNameFromContent(svg);
 }
 
 /**
@@ -293,6 +339,7 @@ module.exports = {
   validateLandmarkStructure,
   validateLandmarkAttributes,
   getSvgAccessibleName,
+  extractSvgAccessibleNameFromContent,
   setSvgAttributes,
   ensureUniqueLandmarks,
   validateLinkAccessibility,

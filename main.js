@@ -1,18 +1,41 @@
 const fs = require('fs');
 const main = require('./utilities');
 
+// TODO: This is the existing code that needs to be preserved
+// (This should be preserved)
+// Addressed accessibility issues from insight report
+
 const {
   createInPageButton,
-  //... (the rest of the functions from main)
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  announceToScreenReader,
+  handleKeyboardNav,
+  newFocusTrap: originNewFocusTrap,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId: ensureElementIdOrigin,
+  ensureElementHasId,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
   addMainLandmarkToIndex,
-  //...
+  focusTrap,
+  renderAdditionalContent,
+  transformInputData,
+  initSkipLink,
+  trapFocus
 } = main;
 
 const accessibilityUtils = {
-  initSkipLink: () => {},
-  trapFocus: (element) => {},
+  initSkipLink: initSkipLink || (() => {}),
+  trapFocus: trapFocus || ((element) => {}),
   createInPageButton: createInPageButton,
-  //... (the rest of the functions but remove duplicate createInPageButton)
   createWebResourceButton: (options) => {},
   validateTableAccessibility,
   validateTableStructure,
@@ -21,80 +44,52 @@ const accessibilityUtils = {
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
-  announceToScreenReader: (message, priority = 'polite') => {},
-  handleKeyboardNav: (e, handlers) => {},
-  focusTrap: function (element) {
-    if (!element) {
-      return () => {};
+  announceToScreenReader: announceToScreenReader || function (message, priority) {
+    if (priority === undefined) {
+      priority = 'polite';
     }
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(function () {
+      announcer.remove();
+    }, 1000);
+  },
+  handleKeyboardNav,
+  newFocusTrap: function (element, customFocusableSelector) {
+    const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusableElements.length === 0) return;
+    const first = focusableElements[0];
+    const last = focusableElements[focusableElements.length - 1];
 
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (focusableElements.length === 0) {
-      console.warn('No focusable elements found in container');
-      return;
-    }
-
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    const handleKeyDown = (e) => {
+    element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
           e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
           e.preventDefault();
         }
       }
-
-      if (e.key === 'Escape') {
-        element.dispatchEvent(new CustomEvent('focusTrapEscape'));
-      }
-    };
-
-    element.addEventListener('keydown', handleKeyDown);
-    firstElement.focus();
-
-    // Return cleanup function
-    return () => {
-      element.removeEventListener('keydown', handleKeyDown);
-    };
-  },
-  exportUtils
-};
-
-const ensureElementIdOriginal = (element) => {
-  if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+    });
   }
-  return element;
-};
-
-// Removed duplicate addAriaLabel declaration
-const addAriaLabel = (element, label) => {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
 };
 
 const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
   return {
     nodes: data.nodes || [],
     edges: data.edges || []
   };
 };
 
-// Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
 
-// Credential response handling
 async function handleCredentialResponse(response) {
   if (!response) {
     throw new Error('No response received');
@@ -120,5 +115,10 @@ async function handleCredentialResponse(response) {
 
 module.exports = {
   accessibilityUtils,
-  //... (the rest of the exports from main)
+  renderDependencyGraph,
+  calculateSum,
+  handleCredentialResponse,
+  newFocusTrap: accessibilityUtils.newFocusTrap,
+  announceToScreenReader: accessibilityUtils.announceToScreenReader,
+  // ... other exports
 };

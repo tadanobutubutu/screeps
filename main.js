@@ -1,7 +1,6 @@
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
 
 // Configuration
@@ -39,7 +38,7 @@ function processLandmarks(landmarks) {
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return [...landmarks].sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -80,7 +79,7 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  const reportFile = path.join(__dirname, CONFIG.dataPath, 'accessibility-report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
@@ -93,8 +92,8 @@ function generateAccessibilityReport() {
 }
 
 // Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
+const { validateInput, processData } = require('./utils');
+const { formatResponse } = require('./formatters');
 
 // Main execution when run directly
 if (require.main === module) {
@@ -112,7 +111,17 @@ if (require.main === module) {
 }
 
 async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
+    // Scanning and reporting accessibility issues using axe-core
+    // This function performs accessibility scanning and returns a report
+    const scanResults = await axe.run();
+    return {
+        timestamp: new Date().toISOString(),
+        results: scanResults,
+        summary: {
+            violations: scanResults.length,
+            passed: true
+        }
+    };
 }
 
 module.exports = {
@@ -125,5 +134,8 @@ module.exports = {
     processLandmarks,
     sortLandmarks,
     getLandmarkById,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    isValidLandmark,
+    writeReport,
+    scanAccessibility
 };

@@ -470,65 +470,73 @@ function isLinkAccessible(link) {
   return { valid: errors.length === 0, errors };
 }
 
-// TODO: Implement tower defense
-function towerDefense() {
-  // A simple tower defense game implementation
-  // Define towers, enemies, waves, and game loop
-  const towers = [];
-  const enemies = [];
-  let wave = 1;
+// Function to fix fake link issues
+function fixFakeLinkIssues() {
+  // Find all anchor elements
+  const anchors = document.querySelectorAll('a');
+  
+  anchors.forEach(anchor => {
+    // Skip if it's already accessible
+    if (anchor.getAttribute('aria-label') || anchor.getAttribute('aria-labelledby') || anchor.textContent.trim() === '#') {
+      return;
+    }
+    
+    // Check if it's a fake link (missing href, or javascript:, etc.)
+    const href = anchor.getAttribute('href');
+    if (!href || href.startsWith('javascript:') || href.startsWith('mailto:')) {
+      // Fix by replacing with a button
+      const button = createInPageButton({
+        text: anchor.textContent.trim(),
+        className: 'fixed-link'
+      });
+      
+      // Remove the old anchor and append the button
+      anchor.remove();
+      button.parentNode?.appendChild(button);
+    }
+  });
+  
+  return;
+}
 
-  // Example: Tower constructor
-  function Tower(x, y, range, damage, rate) {
-    this.x = x;
-    this.y = y;
-    this.range = range;
-    this.damage = damage;
-    this.rate = rate;
-    this.lastShot = 0;
+// New function to address REACT_041: Add accessible names to 2 SVGs
+function addAriaToFormControls(control) {
+  // If input is a form control, process it
+  if (control.tagName === 'INPUT' || control.tagName === 'SELECT' || control.tagName === 'TEXTAREA' || 
+      control.tagName === 'BUTTON' || control.tagName === 'CHECKED') {
+    // Get the closest form element
+    const form = control.closest('form');
+    if (form) {
+      // Check if there's already a label associated
+      const label = control.closest('label');
+      if (!label) {
+        // Try to find a label with matching for attribute
+        const forAttr = control.getAttribute('for');
+        if (forAttr) {
+          const label = document.querySelector(`[for="${forAttr}"]`);
+          if (label) {
+            // Label exists, nothing to do
+            return;
+          }
+        }
+        
+        // Otherwise, add an aria-label
+        if (!control.getAttribute('aria-label')) {
+          control.setAttribute('aria-label', getDefaultLabel(control));
+        }
+      }
+    }
   }
+}
 
-  // Example: Enemy constructor
-  function Enemy(x, y, health, speed) {
-    this.x = x;
-    this.y = y;
-    this.health = health;
-    this.speed = speed;
-  }
-
-  // Add a tower
-  function addTower(x, y, range, damage, rate) {
-    towers.push(new Tower(x, y, range, damage, rate));
-  }
-
-  // Add an enemy
-  function addEnemy(x, y, health, speed) {
-    enemies.push(new Enemy(x, y, health, speed));
-  }
-
-  // Update game state (simplified)
-  function update() {
-    // Logic for enemy movement, tower shooting, etc.
-    console.log(`Wave ${wave} - updating game state`);
-  }
-
-  // Start the game
-  function start() {
-    console.log('Tower defense game started');
-    // Add initial towers and enemies
-    addTower(100, 100, 200, 10, 1000);
-    addEnemy(0, 50, 100, 2);
-    // Game loop would be here
-  }
-
-  // Expose game functions
-  return {
-    start,
-    addTower,
-    addEnemy,
-    update,
-    getWave: () => wave
-  };
+function getDefaultLabel(control) {
+  // Generate a generic label based on type
+  const type = control.tagName.toLowerCase();
+  if (type === 'input') return 'Text input';
+  if (type === 'select') return 'Dropdown selection';
+  if (type === 'textarea') return 'Text area';
+  if (type === 'button') return 'Button';
+  return 'Form control';
 }
 
 // Export all functions to maintain current exports
@@ -546,5 +554,7 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  fixFakeLinkIssues,
+  addAriaToFormControls,
   towerDefense
 };

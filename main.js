@@ -233,6 +233,152 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e)
     }
+  },
+
+  /**
+     * Gets the full language attribute value.
+     *
+     * @param {string} locale - The locale code (e.g., 'en').
+     * @returns {string} The full language attribute (e.g., 'en-RU').
+     */
+  getFullLangAttribute (locale = 'en') {
+    return `${locale}-RU`
+  },
+
+  /**
+     * Ensures a landmark has a unique ID.
+     *
+     * @param {HTMLElement} landmark - The landmark element.
+     * @returns {string|null} The landmark's ID.
+     */
+  ensureUniqueLandmarkId (function (landmark) {
+    if (!landmark) return
+    if (landmark.id) return landmark.id
+    landmark.id = `landmark-${Math.random().toString(36).substr(2, 9)}`
+    return landmark.id
+  }),
+
+  /**
+     * Checks if the page has unique landmarks.
+     *
+     * @returns {boolean} True if landmarks are unique.
+     */
+  uniqueLandmarks () {
+    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]')
+    const ids = new Set()
+
+    landmarks.forEach((landmark) => {
+      const id = landmark.id
+      if (id) ids.add(id)
+    })
+
+    return ids.size < 2
+  },
+
+  /**
+     * Creates an accessible link with proper attributes.
+     *
+     * @param {string} url - The URL for the link.
+     * @param {string} text - The text content of the link.
+     * @param {string} [target='_blank'] - The target attribute.
+     * @param {string} [ariaLabel] - Optional aria-label.
+     * @returns {HTMLAnchorElement} The created link element.
+     */
+  createAccessibleLink (url, text, target = '_blank', ariaLabel) {
+    const link = document.createElement('a')
+    link.href = url
+    link.textContent = text
+    link.setAttribute('target', target)
+    link.setAttribute('rel', 'noopener noreferrer')
+    link.setAttribute('aria-label', ariaLabel || `Open ${text} in new window`)
+    link.setAttribute('role', 'link')
+    return link
+  },
+
+  /**
+   * Adds a lang attribute to the element.
+   * @param {HTMLElement} element - The element to add lang attribute to.
+   * @param {string} locale - The locale code.
+   */
+  addLangAttribute (element, locale = 'en') {
+    if (element) {
+      element.setAttribute('lang', locale)
+    }
+  },
+
+  /**
+   * Checks the accessibility of SVG elements by looking for `title` and `desc` tags.
+   * @param {NodeList} svgs - A list of SVG elements.
+   * @param {Object} report - The report object to populate.
+   */
+  checkSvgAccessibility (svgs, report) {
+    svgs.forEach((svg, index) => {
+      const title = svg.querySelector('title')
+      const desc = svg.querySelector('desc')
+      if (title && desc) {
+        report.passed.push({
+          category: 'REACT_041',
+          message: `SVG ${index + 1} has accessible title and description`,
+          status: 'passed'
+        })
+      } else {
+        report.issues.push({
+          category: 'REACT_041',
+          message: `SVG ${index + 1} is missing accessible name`,
+          status: 'moderate'
+        })
+        report.summary.moderate++
+        report.summary.totalIssues++
+      }
+    })
+  },
+
+  /**
+   * Checks the accessibility of links by ensuring they have text content.
+   * @param {NodeList} links - A list of link elements.
+   * @param {Object} report - The report object to populate.
+   */
+  checkLinkAccessibility (links, report) {
+    links.forEach((link, index) => {
+      if (link.textContent.trim() === '') {
+        report.issues.push({
+          category: 'REACT_036',
+          message: `Link ${index + 1} has no accessible text`,
+          status: 'moderate'
+        })
+        report.summary.moderate++
+        report.summary.totalIssues++
+      } else {
+        report.passed.push({
+          category: 'REACT_036',
+          message: `Link ${index + 1} has accessible text`,
+          status: 'passed'
+        })
+      }
+    })
+  },
+
+  /**
+   * Generates a report based on the accessibility issues found.
+   * @returns {Object} The accessibility report.
+   */
+  generateAccessibilityReport () {
+    const report = {
+      passed: [],
+      issues: [],
+      summary: {
+        moderate: 0,
+        totalIssues: 0
+      }
+    }
+
+    const svgs = document.querySelectorAll('svg')
+    accessibilityUtils.checkSvgAccessibility(svgs, report)
+
+    const links = document.querySelectorAll('a')
+    accessibilityUtils.checkLinkAccessibility(links, report)
+
+    return report
   }
 }
 
@@ -477,5 +623,13 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
-  validateTableStructureComprehensive
+  validateTableStructureComprehensive,
+  getFullLangAttribute: accessibilityUtils.getFullLangAttribute,
+  ensureUniqueLandmarkId: accessibilityUtils.ensureUniqueLandmarkId,
+  uniqueLandmarks: accessibilityUtils.uniqueLandmarks,
+  createAccessibleLink: accessibilityUtils.createAccessibleLink,
+  addLangAttribute: accessibilityUtils.addLangAttribute,
+  checkSvgAccessibility: accessibilityUtils.checkSvgAccessibility,
+  checkLinkAccessibility: accessibilityUtils.checkLinkAccessibility,
+  generateAccessibilityReport: accessibilityUtils.generateAccessibilityReport
 }

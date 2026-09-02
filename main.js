@@ -17,7 +17,7 @@ const {
   addressAccessibilityIssues,
   handleCredentialResponse,
   ensureElementHasId: ensureElementIdOrigin,
-  ensureElementId,
+  ensureElementHasId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,

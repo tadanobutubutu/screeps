@@ -45,8 +45,35 @@ const log = (message, level = 'info') => {
   }
 };
 
+// Function to render graph/index
+function renderGraphIndex() {
+    // Validate landmark structure for accessibility
+    if (!validateLandmarkStructure()) {
+        console.warn('Accessibility issues detected in graph/index');
+    }
+    
+    // Create in-page buttons using the new function
+    const prevButton = createInPageButton('prev-btn', 'Previous', 'nav-button');
+    const nextButton = createInPageButton('next-btn', 'Next', 'nav-button');
+    
+    // Existing rendering logic
+    const graphContainer = document.getElementById('graph-container');
+    if (graphContainer) {
+        graphContainer.appendChild(prevButton);
+        graphContainer.appendChild(nextButton);
+    }
+}
+
+// TODO: Implement this function for creating in-page buttons
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    return button;
+}
+
 const accessibilityUtils = {
-  ...accessibilityUtils,
   ...{
     initSkipLink: function () {
       const skipLink = document.getElementById('skip-link');
@@ -175,6 +202,7 @@ module.exports = {
   ensureElementHasId,
   ensureElementHasIdOrigin,
   renderDependencyGraphs,
+  renderGraphIndex,
   ...accessibilityUtils
 };
 

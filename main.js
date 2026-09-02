@@ -113,7 +113,34 @@ function setupKeyboardNavigation() {
   }
 }
 
+// New function to handle focus trap for keyboard navigation
+function newFocusTrap() {
+  let lastActiveElement = null;
+
+  function trapFocus(event) {
+    if (event.key === 'Tab') {
+      const isTabNext = event.shiftKey; // true for backtab
+      const allTabbableElements = document.querySelectorAll('a, area, input, select, textarea, button, iframe, object, embed, [contenteditable], [tabindex]:not([tabindex="-1"])');
+      const firstTabbableElement = allTabbableElements[0];
+      const lastTabbableElement = allTabbableElements[allTabbableElements.length - 1];
+
+      if (isTabNext && document.activeElement === lastTabbableElement) {
+        firstTabbableElement.focus();
+        event.preventDefault();
+      } else if (!isTabNext && document.activeElement === firstTabbableElement) {
+        lastTabbableElement.focus();
+        event.preventDefault();
+      }
+    }
+
+    lastActiveElement = document.activeElement;
+  }
+
+  document.addEventListener('focus', trapFocus, true);
+}
+
 // Global imports for consistency
 module.exports.createInPageButton = createInPageButton;
 module.exports.setupKeyboardNavigation = setupKeyboardNavigation;
+module.exports.newFocusTrap = newFocusTrap;
 // The rest of your exports can be included as TODO:ed functions and pushed to the module.exports object after they have been implemented

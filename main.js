@@ -1,12 +1,9 @@
-Here's the resolved file content with both changes integrated:
-
-```javascript
 // Imports at the top
 import React, { useState, useEffect, useRef } from 'react';
 import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from ...
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, ... } from './bookFunctions';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, landmarkStructureCheck, enhanceAccessibilityForAddBook, checkLandmarkElement, handleLinkAccessibility, wrapPrimaryContentInMain, addSvgAccessibilityProps, validateLandmarkObject } from './bookFunctions';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import './styles.css';
@@ -14,7 +11,7 @@ import './styles.less';
 import { calculateSum } from './utils';
 import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { validateLandmark, validateLandmarkStructure, addSvgAccessibilityProps as addSvgAccessibilityProps_new, landmarkObject as validateLandmarkObject_new, ensureUniqueLandmarks } from './utils/movedFunctionality';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 import { CONFIG } from './utils/constants';
 import App from './App';
@@ -36,11 +33,6 @@ const appState = {
 
 // ...
 
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
-}
-
 function landmarkStructureCheck() {
   const results = {
     valid: true,
@@ -48,12 +40,21 @@ function landmarkStructureCheck() {
     errors: []
   };
 
-  // ... (existing code)
+  // Existing code from HEAD...
 
-  // TODO: Implement this function for adding SVG accessibility props
+  // New code from 'origin/main' for adding SVG accessibility props
   function addSvgAccessibilityProps(svgElement, label, labelledById) {
-    // ... (new code)
+    if (!svgElement) return;
+
+    const props = getSvgAccessibilityProps(label, labelledById);
+
+    // Apply the accessibility props to the SVG element
+    Object.keys(props).forEach(prop => {
+      svgElement.setAttribute(prop, props[prop]);
+    });
   }
+
+  // ... (rest of the function remains the same)
 
   return {
     valid: results.errors.length === 0,
@@ -61,27 +62,85 @@ function landmarkStructureCheck() {
   };
 }
 
-// TODO: Implement this function for handling links
+// New imports and functions from 'origin/main'
 function handleLinkAccessibility(url, label, element) {
   // ... (new code)
 }
 
-// ... (existing code)
+import * as newFunctions_updated from './accessibilityFixes';
 
-// Helper functions
-// REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
+function validateLandmarkObject(landmark) {
+  const errors = [];
+
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  if (Array.isArray(landmark)) {
+    landmark.forEach((innerLandmark, index) => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push(`Landmark at index ${index} must have a valid name`);
+      }
+    });
+  }
+
+  // New code from 'origin/main' for handling landmarks
+  const landmarkCheckResults = validateLandmarkObject_new(landmark);
+  errors.push(...landmarkCheckResults.errors);
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
 }
 
-// ... (existing helpers)
+// TODO: Implement this function for adding SVG accessibility props
+functions addSvgAccessibilityProps(svgElement, label, labelledById) {
+  // Existing code from HEAD...
 
-// Accessibility helper functions
-// ... (existing accessibility helpers)
+  // New code from 'origin/main'
+  if (addSvgAccessibilityProps_new) {
+    addSvgAccessibilityProps_new(svgElement, label, labelledById);
+  }
 
-// ... (existing functions)
+  // Rest of the function remains the same
+
+  // Apply the accessibility props to the SVG element
+  Object.keys(props).forEach(prop => {
+    svgElement.setAttribute(prop, props[prop]);
+  });
+}
+
+// Updates to the newFunctions object for 'origin/main' functions
+const newFunctions = {
+  ...newFunctions_updated,
+  validateLandmarkObject: validateLandmarkObject,
+  addSvgAccessibilityProps: addSvgAccessibilityProps
+};
+
+// ... (rest of the file remains the same)
 
 export default function AccessibilityApp() {
   // ... (component definition and render logic)
 }
-```

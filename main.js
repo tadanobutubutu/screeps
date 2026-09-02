@@ -39,11 +39,26 @@ function createInPageButton(options) {
         if (containerElement) {
             containerElement.appendChild(button);
         }
-    } else {
+    } else if (settings.container) {
         settings.container.appendChild(button);
     }
 
     return button;
+}
+
+// Accessibility function to handle personName() - addresses REACT_036 fake link issue
+function personName(name, options = {}) {
+    const span = document.createElement('span');
+    span.textContent = name || 'Unknown';
+    
+    if (options.className) {
+        span.className = options.className;
+    }
+    
+    // Ensure the name element doesn't have problematic link-like styling
+    span.setAttribute('role', 'text');
+    
+    return span;
 }
 
 // Example functionA
@@ -57,9 +72,9 @@ function functionB() {
 }
 
 // Line 156 (updated)
-module.exports.functionA = functionA;
-module.exports.functionB = functionB;
-module.exports.createInPageButton = createInPageButton;
+const exportedFunctionA = functionA;
+const exportedFunctionB = functionB;
+const exportedCreateInPageButton = createInPageButton;
 
 // TODO: This is the existing code that needs to be preserved
 // TODO: add the new functions or changes requested in the issue
@@ -68,17 +83,42 @@ module.exports.createInPageButton = createInPageButton;
 function updateAccessibleElements () {
   // Example of updating accessibility in an existing function
   // This is a placeholder for the actual changes based on the insight report
-  const elementsToUpdate = document.querySelectorAll('.needs-accessibility-improvement')
+  const elementsToUpdate = document.querySelectorAll('[data-update-accessibility]');
   elementsToUpdate.forEach((element) => {
     // Example of adding ARIA attributes or other accessibility features
-    element.setAttribute('role', 'button')
-    element.setAttribute('aria-pressed', 'false')
+    element.setAttribute('role', 'button');
+    element.setAttribute('aria-pressed', 'false');
     // Add other accessibility improvements as needed
-  })
+  });
+  
+  // Address REACT_025: Ensure unique landmarks
+  // Add unique identifiers to landmark elements
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.id) {
+    mainElement.id = 'main-content';
+    mainElement.setAttribute('role', 'main');
+  }
+  
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    if (!nav.id) {
+      nav.id = `navigation-${index + 1}`;
+    }
+    nav.setAttribute('role', 'navigation');
+  });
+  
+  // Address REACT_036: Fix fake link issues by ensuring proper button/link semantics
+  const linksWithoutHref = document.querySelectorAll('a:not([href])');
+  linksWithoutHref.forEach((link) => {
+    // Convert fake links to proper buttons to avoid accessibility issues
+    if (link.getAttribute('data-fake-link') !== undefined) {
+      link.setAttribute('role', 'button');
+    }
+  });
 }
 
 // Call the new function or add it to an existing lifecycle method, event listener, etc.
-updateAccessibleElements()
+updateAccessibleElements();
 
 // Export any new functions if necessary (not provided in the issue, so assuming no new exports)
 // export { updateAccessibleElements };
@@ -88,7 +128,7 @@ function countDependencies() {
   // Existing function implementation
 
   // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/;
+  const importCommentRegExp = /import\s+.*?from\s+['"].*?['"]/g;
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
@@ -100,4 +140,18 @@ function exampleFunction() {
 }
 
 // Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;
+const exportedExampleFunction = exampleFunction;
+const exportedPersonName = personName;
+const exportedUpdateAccessibleElements = updateAccessibleElements;
+const exportedCountDependencies = countDependencies;
+
+// Export all functions
+module.exports = {
+    functionA: exportedFunctionA,
+    functionB: exportedFunctionB,
+    createInPageButton: exportedCreateInPageButton,
+    exampleFunction: exportedExampleFunction,
+    personName: exportedPersonName,
+    updateAccessibleElements: exportedUpdateAccessibleElements,
+    countDependencies: exportedCountDependencies
+};

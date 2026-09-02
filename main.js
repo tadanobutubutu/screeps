@@ -32,4 +32,4 @@ function validateLandmarkStructure() {
 }
 
 // Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
+export { createInPageButton, validateLandmarkStructure };

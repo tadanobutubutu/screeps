@@ -12,18 +12,6 @@ const countDependencies = () => {
   const internalCount = internalDependencies.length;
 };
 
-// TODO: This is the existing code that needs to be preserved
-
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute(), getFullLangAttribute(), addLangAttribute() and wrapPrimaryContentInMain())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure(), fixTableStructureIssues() and fixTableHeaderCellScope())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues(), addMainLandmark(), addLandmarkRolesAndFixIssues() and fixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-// todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
-
 const config = {
   apiUrl: process.env.API_URL || 'https://example.com',
   timeout: 5000,
@@ -39,7 +27,6 @@ const LANDMARK_CONFIG = {
   dataPath: './data'
 };
 
-// Configuration merged from both branches
 const CONFIG = {
   apiUrl: process.env.API_URL || 'https://example.com',
   timeout: 5000,
@@ -51,12 +38,11 @@ const CONFIG = {
   maxResults: 100
 };
 
-// Application state
 let appState = {
   initialized: false
 };
 
-const landmarks = [];
+let landmarks = [];
 
 let icons = {};
 
@@ -338,3 +324,4 @@ function addLangAttribute() {
   const lang = getFullLangAttribute();
   document.documentElement.setAttribute('lang', lang);
   return lang;
+}

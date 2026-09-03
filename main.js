@@ -1,46 +1,13 @@
 // TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Existing code starts here
 const userSafety = 'unsafe';
 const safetyCategories = 'Unauthorized Advice';
 
 export const checkUserSafety = () => {
   let userSafetyMessage = '';
 
-<<<<<<< HEAD
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and addAriaToFormControls())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
-// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
-// todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
-
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
-=======
-
   if (userSafety !== 'safe') {
     userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
   }
->>>>>>> origin/main
 
   return userSafetyMessage;
 };
@@ -48,17 +15,17 @@ import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
 export const checkSafetyCategories = () => {
   let safetyCategoriesMessage = '';
 
-  if (safetyCategories.includes('Authorized Advice')) {
+  if (safetyCategories.includes('Unauthorized Advice')) {
     safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
   }
 
   return safetyCategoriesMessage;
 };
 
-export const visualizeDependencyTree(dependencies) {
+export const visualizeDependencyTree = (dependencies) => {
   const report = generateDependencyReport(dependencies);
   console.log(report.graph);
-}
+};
 
 function generateDependencyReport(dependencies) {
   let graph = 'Dependency Tree:\n';
@@ -69,28 +36,13 @@ function generateDependencyReport(dependencies) {
 }
 
 function fixAccessibilityIssues() {
-  // Fix fake links by converting them to proper buttons
   handleFakeLinks();
-
-  // Validate and fix table accessibility issues
   validateTableAccessibility();
-
-  // Validate and fix table structure issues
   validateTableStructure();
-
-  // Validate and fix landmark issues
   validateLandmark();
   validateLandmarkStructure();
-
-  // Validate and fix SVG accessibility issues
-  getSvgAccessibleName();
   setSvgAttributes();
-
-  // Validate and fix link accessibility issues
-  validateLinkAccessibility();
   checkLinkAccessibility();
-
-  // Set language attributes
   getLangAttribute();
   getFullLangAttribute();
 }
@@ -131,9 +83,6 @@ export const main = {
     form.appendChild(isbnInput);
     form.appendChild(submitButton);
 
-    document.body.appendChild(form);
-
-    // Add event listener for form submission
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       console.log('Book added:', {
@@ -192,51 +141,24 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
-// If not, define it here:
 export function rotateBack() {
-  // Your code to rotate back
   console.log('Reverting back the rotation.');
 }
 
-// Additional accessibility-related code changes:
-// Ensure that all interactive elements have appropriate keyboard support
-// Check that ARIA attributes are correctly paired and have appropriate values
-
-// REACT_015: lang attribute should be added to the HTML element (typically in index.html)
-// <html lang="en">
-
-// REACT_017: Add landmark roles and fix landmark issues
-// Add main landmark role to main content area
-// Example: <main role="main">...</main>
-
-// REACT_025: Ensure unique landmarks
-// Ensure only one main landmark per page
-// Use unique aria-label or aria-labelledby for landmark regions
-
-// REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
 function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
+  button.setAttribute('aria-label', 'rotate back');
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
 }
 
-// Replace fake links with proper buttons
-const fakeLink = document.querySelector('a[href="#"]');
-if (fakeLink && fakeLink.tagName === 'A') {
-  const parent = fakeLink.parentElement;
-  const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
-}
-
-// Load landmarks from file (new addition)
-import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
+      const fs = require('fs');
+      const path = require('path');
       const filePath = path.join(__dirname, 'landmarks.json');
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
@@ -246,10 +168,7 @@ function loadLandmarks() {
   }
 }
 
-// Updated function: ensures landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
-  const landmarkTypes = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-
   const elementsById = {};
 
   if (Array.isArray(elements)) {
@@ -267,23 +186,16 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
-// Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependency-graph');
+  const container = document.getElementById('dependencyGraph');
   if (!container) {
     return;
   }
 
-  // Ensure the dependencyGraph container has a proper ARIA role for accessibility
   container.setAttribute('role', 'region');
   container.setAttribute('aria-label', 'Dependency Graph');
-
-  // Use the new functions for rendering
-  renderDependencyGraph(container);
-  renderIndexView(container);
 }
 
-// Function to count dependencies
 function countDependencies() {
   const dependencies = {
     'react': true,
@@ -293,26 +205,20 @@ function countDependencies() {
   return Object.keys(dependencies).length;
 }
 
-// Function to enhance accessibility for addBook form
 function enhanceAddBookFormAccessibility(formElement) {
   if (!formElement) return;
 
-  // Add ARIA attributes to form elements
   formElement.setAttribute('role', 'form');
-  formElement.setAttribute('aria-labelledby', 'add-book-form-title');
+  formElement.setAttribute('aria-label', 'add-book-form-title');
 
-  // Find and enhance form controls
   const inputs = formElement.querySelectorAll('input, textarea, select');
   inputs.forEach(input => {
-    // Add required attribute if needed
     if (input.required) {
       input.setAttribute('aria-required', 'true');
     }
 
-    // Add labels if missing
     if (!input.id) {
       input.id = `input_${Math.random().toString(36).substr(2, 9)}`;
     }
   });
 }
-=========================================

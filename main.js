@@ -126,14 +126,6 @@ function createServer() {
   return app;
 }
 
-/**
- * Starts the application
- */
-function startApp() {
-  const server = createServer();
-  return server;
-}
-
 // Add the lang attribute to the HTML element with the getLangAttribute() function
 document.documentElement.lang = getLangAttribute();
 
@@ -204,26 +196,50 @@ function renderDependencyGraphContent() {
 }
 
 // REACT_036: Fix fake link issue
-function fixFakeLinkIssue(document) {
-  // Find elements that look like links but aren't <a> tags
-  const clickableElements = document.querySelectorAll('[role="link"]:not(a), [onclick]');
-  let count = 0;
+
+function fixFakeLinkIssue() {
+  const clickableElements = document.querySelectorAll('[role="link"]:not(a)');
 
   clickableElements.forEach(element => {
-    const tagName = element.tagName.toLowerCase();
-    const hasHref = element.hasAttribute('href');
-
-    if (tagName !== 'a' && !hasHref) {
-      // Check if it should be a real link
-      const isInteractive = element.getAttribute('role') === 'link' ||
-                             (element.hasAttribute('onclick') && element.onclick.toString().includes('window.location'));
-
-      if (isInteractive && !element.hasAttribute('aria-label')) {
-        // Add accessible name
-        const text = element.textContent.trim();
-        if (text) {
-          element.setAttribute('aria-label', text);
-        }
-      }
-      count++;
+    const text = element.textContent.trim();
+    if (text) {
+      element.setAttribute('aria-label', text);
+      element.setAttribute('role', 'link');
+      element.setAttribute('tabindex', 0);
+      element.onclick = () => {
+        window.location = element.getAttribute('href');
+      };
     }
+  });
+}
+
+// Add the function for checking if tags are allowed within a given tag
+function isAllowedTag(parentTag, childTag) {
+  // Example: if (parentTag === 'div' && childTag === 'span') {
+  if (true) { // Customize this condition based on your requirements
+    return true; // Allow the childTag within the parentTag
+  }
+
+  return false; // Disallow the childTag within the parentTag
+}
+
+// Add the function for detecting the parent element type
+function getParentType(element) {
+  let parent = element.parentNode;
+  let parentType;
+
+  // Iterate up the DOM tree until the root element is found
+  while (parent && parent !== document.documentElement) {
+    // Check the parent's tag name
+    parentType = parent.tagName.toLowerCase();
+
+    // Break the loop if the root element is found
+    if (parent === document.documentElement) {
+      break;
+    }
+
+    parent = parent.parentNode; // Move up one level in the DOM tree
+  }
+
+  return parentType; // Return the parent's tag name
+}

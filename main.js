@@ -54,7 +54,7 @@ const addressabilityIssues = {
     const mainBlockRegex = /\{[\s\S]*?\}/g;
 
     const matches = source.match(mainBlockRegex);
-    if (matches.length <= 1) {
+    if (!matches || matches.length <= 1) {
       return source;
     }
 
@@ -95,6 +95,54 @@ function getConfig() {
   return config;
 }
 
+/**
+ * Focus trap implementation for keyboard navigation
+ * Keeps keyboard focus within a specified container element
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @returns {Function|null} A cleanup function to remove the focus trap, or null if container is invalid
+ */
+function trapFocus(container) {
+  if (!container) return null;
+
+  const focusableSelectors = [
+    'a[href]',
+    'button:not([disabled])',
+    'textarea:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(', ');
+
+  const focusableElements = container.querySelectorAll(focusableSelectors);
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  function handleTabKey(event) {
+    if (event.key !== 'Tab') return;
+
+    if (focusableElements.length === 0) return;
+
+    if (event.shiftKey) {
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        if (lastElement) lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        if (firstElement) firstElement.focus();
+      }
+    }
+  }
+
+  container.addEventListener('keydown', handleTabKey);
+
+  // Return cleanup function to remove the trap
+  return function removeTrap() {
+    container.removeEventListener('keydown', handleTabKey);
+  };
+}
+
 function createServer() {
   const server = http.createServer(app);
 
@@ -105,11 +153,11 @@ function createServer() {
   return server;
 }
 
-app.get('/fake-link', (req, res) => {
+app.get('/redirect', (req, res) => {
   res.redirect('#');
 });
 
-app.post('/accessibility-report', (req, res) => {
+app.post('/api/accessibility/report', (req, res) => {
   const report = req.body;
 
   const issues = addressabilityIssues.processIssues(report);
@@ -119,14 +167,11 @@ app.post('/accessibility-report', (req, res) => {
   res.json({ issues, accessibilityReport, accessibilityScore });
 });
 
-app.get('/accessibility-scan', (req, res) => {
-  // Execute accessibility scan command (e.g., a bat/sh script) and return the result
-
+app.get('/api/scan', (req, res) => {
   exec('accessibility-scan.sh', (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
-      res.status(500).send('Accessibility scan failed');
-      return;
+      return res.status(500).json({ error: 'Accessibility scan failed' });
     }
 
     const result = { stdout, stderr };
@@ -135,25 +180,27 @@ app.get('/accessibility-scan', (req, res) => {
 });
 
 function ensureDomIsLoaded() {
-  if (document) {
+  if (typeof document !== 'undefined') {
     // Access DOM elements if needed
   }
 }
 
-function init() {
+function startApp() {
   ensureDomIsLoaded();
 
-  addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+  const documentElement = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
 
-  if (validateLandmark(document.body)) {
+  const landmarkValid = validateLandmark(documentElement);
+
+  if (landmarkValid) {
     console.log('Landmark validation passed.');
   } else {
     console.log('Landmark validation failed.');
   }
 
-  calculateAccessibilityScore([
-    { type: 'missing-aria-label', element: document.querySelector('input') },
-    { type: 'missing-alt-text', element: document.querySelector('img') }
+  addressabilityIssues.calculateAccessibilityScore([
+    { type: 'missing-aria-label', element: null },
+    { type: 'missing-alt-text', element: null }
   ]);
 
   // Trigger accessibility scan with `accessibility-scan.sh` command
@@ -163,3 +210,15 @@ function init() {
 if (require.main === module) {
   startApp();
 }
+
+module.exports = {
+  trapFocus,
+  addressabilityIssues,
+  validateLandmark,
+  spawnSomeCommand,
+  addLangAttribute,
+  getConfig,
+  createServer,
+  ensureDomIsLoaded,
+  startApp
+};

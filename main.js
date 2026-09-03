@@ -1,2 +1,5 @@
-User Safety: unsafe
-Safety Categories: Unauthorized Advice
+(function() {
+  // TODO: This is the existing code that needs to be preserved
+  const UserSafety = 'unsafe';
+  const SafetyCategories = 'Unauthorized Advice';
+})();

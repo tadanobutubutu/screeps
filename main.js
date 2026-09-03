@@ -50,6 +50,15 @@ function handleCredentialResponse(credential) {
     return { success: false, error: 'Unknown credential response type' };
 }
 
+// New function to add lang attribute to HTML element
+function getLangAttribute(element) {
+    if (element) {
+        element.lang = 'en';
+        return element;
+    }
+    return null;
+}
+
 // TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');

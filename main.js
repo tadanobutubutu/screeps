@@ -25,6 +25,54 @@ function ensureElementHasId(element) {
   }
 }
 
+function getAccessibilitySummary() {
+  if (typeof document === 'undefined') {
+    return {
+      landmarks: 0,
+      images: 0,
+      links: 0,
+      buttons: 0,
+      forms: 0,
+      hasLangAttribute: false,
+      score: 0
+    };
+  }
+
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role]');
+  const images = document.querySelectorAll('img');
+  const links = document.querySelectorAll('a');
+  const buttons = document.querySelectorAll('button');
+  const forms = document.querySelectorAll('form');
+  const htmlElement = document.querySelector('html');
+  const hasLangAttribute = htmlElement && htmlElement.hasAttribute('lang');
+
+  const imagesWithoutAlt = Array.from(images).filter(img => !img.hasAttribute('alt')).length;
+  const buttonsWithoutLabel = Array.from(buttons).filter(btn => 
+    !btn.hasAttribute('aria-label') && 
+    !btn.hasAttribute('aria-labelledby') && 
+    !btn.textContent.trim()
+  ).length;
+  const linksWithoutText = Array.from(links).filter(link => 
+    !link.textContent.trim() && 
+    !link.hasAttribute('aria-label')
+  ).length;
+
+  const score = Math.max(0, 100 - (imagesWithoutAlt * 5) - (buttonsWithoutLabel * 3) - (linksWithoutText * 2));
+
+  return {
+    landmarks: landmarks.length,
+    images: images.length,
+    imagesWithoutAlt,
+    links: links.length,
+    linksWithoutText,
+    buttons: buttons.length,
+    buttonsWithoutLabel,
+    forms: forms.length,
+    hasLangAttribute,
+    score
+  };
+}
+
 const AddressabilityIssues = {
   MISSING_ID: 'missing-id',
   MISSING_ARIA_LABEL: 'missing-aria-label',
@@ -58,7 +106,7 @@ const AddressabilityIssues = {
 
       if (section.content && section.content.toLowerCase().includes('click here')) {
         issues.push({
-          type: 'inaccessible-link-text',
+          type: 'inaccessible-link_text',
           severity: 'low',
           message: `Section "${section.heading}" contains "click here" text which is not accessible`,
           suggestedFix: 'Use descriptive link text instead of "click here"'
@@ -778,5 +826,6 @@ module.exports = {
   validateLandmarkStructure,
   addressAccessibilityIssues,
   addLangAttribute,
-  getLangAttribute
+  getLangAttribute,
+  getAccessibilitySummary
 };

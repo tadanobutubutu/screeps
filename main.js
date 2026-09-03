@@ -256,6 +256,13 @@ function createInPageButtons() {
     // Implementation for creating in-page buttons
 }
 
+// TODO: add the new functions or changes requested in the issue
+// Here's a sample implementation for a new function named 'myNewFunction'
+function myNewFunction(param1, param2) {
+    // Example implementation: concatenates two values with a separator.
+    return `${param1} - ${param2}`;
+}
+
 // Export all required functions and utilities
 module.exports = {
     renderDependencyGraph,
@@ -276,5 +283,6 @@ module.exports = {
     ensureElementHasId,
     getTables,
     getConfig,
-    setConfig
+    setConfig,
+    myNewFunction
 };

@@ -18,8 +18,8 @@ const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
 
-// Import other functions
-const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, implementNewFunction, addLangAttribute, main, someFunction, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport } = require('./');
+// Import other functions (removed duplicate local declarations to avoid redeclaration errors)
+const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, implementNewFunction, addLangAttribute, main, someFunction, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport } = require('./');
 
 // Import helper functions
 const { validateInput, processData, formatResponse } = require('./utils/validators');
@@ -76,6 +76,23 @@ function renderDependencyGraphContent(data) {
 
 // Export all functions for use elsewhere in the repository
 module.exports = {
+  improveAccessibility,
+  addressInsightReportIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  fixLandmarkIssues,
+  addLandmarkRoles,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  implementNewFunction,
+  addLangAttribute,
+  main,
+  someFunction,
   addressAccessibilityIssues,
   renderDependencyGraphContent,
   validateInput,
@@ -83,12 +100,7 @@ module.exports = {
   formatResponse,
   getSvgAccessibleName,
   setSvgAttributes,
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
   createInPageButtons,
   fixUniqueLandmarks,
-  // ... (Other exports preserved)
+  generateAccessibilityReport
 };
-```
-
-This code integrates the new change related to the `addressAccessibilityIssues` function and updates the import sections. It also introduces the axe-core library for scanning accessibility issues and generates an accessibility report based on scan results.

@@ -34,7 +34,7 @@ function detectAndSetLang (content) {
   let lang = 'en' // Default to English
 
   if (content) {
-    // Check for common non-ASCII characters to help detect language
+    // Check for Chinese characters (CJK Unified Ideographs)
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh' // Chinese
     } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
@@ -43,7 +43,7 @@ function detectAndSetLang (content) {
       lang = 'ru' // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar' // Arabic
-    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+    } else if (/[àâäçéèêëîïôùûüœæ]/i.test(content)) {
       lang = 'fr' // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de' // German
@@ -270,7 +270,7 @@ function ensureUniqueLandmarks () {
   })
 
   // Check for landmark IDs that should be unique
-  const landmarksWithIds = document.querySelectorAll('[role][id]')
+  const landmarksWithIds = document.querySelectorAll('nav, aside, section, main, header, footer')
   const ids = new Set()
   landmarksWithIds.forEach(el => {
     const id = el.getAttribute('id')

@@ -755,7 +755,74 @@ function setupAriaLiveRegions() {
 }
 
 function handleKeyNavigation(event) {
-  /* existing code */
+  // TODO: Implement the logic to enhance keyboard navigation
+  
+  const key = event.key;
+  const target = event.target;
+  
+  // Handle arrow key navigation for lists and menus
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+    const focusableElements = Array.from(
+      document.querySelectorAll(
+        'button:not([disabled]), a[href]:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(el => el.offsetParent !== null);
+    
+    if (focusableElements.length === 0) return;
+    
+    const currentIndex = focusableElements.indexOf(target);
+    let nextIndex = currentIndex;
+    
+    if (key === 'ArrowDown' || key === 'ArrowRight') {
+      nextIndex = (currentIndex + 1) % focusableElements.length;
+    } else if (key === 'ArrowUp' || key === 'ArrowLeft') {
+      nextIndex = (currentIndex - 1 + focusableElements.length) % focusableElements.length;
+    }
+    
+    event.preventDefault();
+    focusableElements[nextIndex].focus();
+  }
+  
+  // Handle Enter key activation for buttons and links
+  if (key === 'Enter' && target) {
+    if (target.tagName === 'BUTTON' || target.getAttribute('role') === 'button') {
+      event.preventDefault();
+      target.click();
+    }
+  }
+  
+  // Handle Escape key to close open dialogs/modals
+  if (key === 'Escape') {
+    const openDialogs = document.querySelectorAll('[role="dialog"][aria-hidden="false"]');
+    openDialogs.forEach(dialog => {
+      const closeButton = dialog.querySelector('[aria-label="Close"], [data-dismiss="modal"], .close');
+      if (closeButton) {
+        closeButton.click();
+      }
+    });
+    
+    // Announce closure to screen readers
+    announceToScreenReader('Dialog closed');
+  }
+  
+  // Handle Home and End keys for navigation within a group
+  if (key === 'Home' && target) {
+    const parent = target.closest('[role="menu"], [role="listbox"], [role="tree"]');
+    if (parent) {
+      event.preventDefault();
+      const firstItem = parent.querySelector('[role="menuitem"], [role="option"], [role="treeitem"]');
+      if (firstItem) firstItem.focus();
+    }
+  }
+  
+  if (key === 'End' && target) {
+    const parent = target.closest('[role="menu"], [role="listbox"], [role="tree"]');
+    if (parent) {
+      event.preventDefault();
+      const items = parent.querySelectorAll('[role="menuitem"], [role="option"], [role="treeitem"]');
+      if (items.length > 0) items[items.length - 1].focus();
+    }
+  }
 }
 
 function hello() {

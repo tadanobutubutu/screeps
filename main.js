@@ -1,6 +1,10 @@
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Existing code starts here
+import axe from 'axe-core';
+import * as fs from 'fs';
+import * as path from 'path';
+
 const userSafety = 'unsafe';
 const safetyCategories = 'Unauthorized Advice';
 
@@ -282,5 +286,34 @@ function enhanceAddBookFormAccessibility(formElement) {
     if (!input.id) {
       input.id = `input_${Math.random().toString(36).substr(2, 9)}`;
     }
+  });
+}
+
+/**
+ * Generates a report based on accessibility issues using axe-core scanning.
+ * @param {string} [outputFile='accessibility-report.json'] - The file path to write the report to.
+ * @returns {Promise<Object>|Object} - The accessibility report object.
+ */
+export function generateAccessibilityReport(outputFile = 'accessibility-report.json') {
+  // Run axe-core accessibility scan on the current document
+  return axe.run(document, {
+    resultTypes: ['violations', 'incomplete', 'passes']
+  }).then(results => {
+    const report = {
+      timestamp: new Date().toISOString(),
+      url: document.URL,
+      violations: results.violations,
+      incomplete: results.incomplete,
+      passes: results.passes
+    };
+
+    const reportStr = JSON.stringify(report, null, 2);
+    const filePath = path.join(__dirname, outputFile);
+    fs.writeFileSync(filePath, reportStr, 'utf8');
+    console.log(`Accessibility report written to ${filePath}`);
+    return report;
+  }).catch(err => {
+    console.error('Error generating accessibility report:', err);
+    throw err;
   });
 }

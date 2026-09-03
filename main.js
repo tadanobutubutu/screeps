@@ -11,7 +11,7 @@ class ScreepsBot {
     console.log('Screenspider bot started');
   }
 
-  addTaskWithPriority(taskFn, priority = 'medium') {
+  addTask(taskFn, priority = 'medium') {
     const taskId = this.generateTaskId();
     this.tasks.push({ task: taskFn, priority, id: taskId });
     this.scheduleTasks();
@@ -163,7 +163,7 @@ class ScreepsBot {
       case 'ArrowDown':
       case 'ArrowLeft':
       case 'ArrowRight':
-        this.handleArrowKeyNavigation(key, activeElement);
+        this.handleArrowNavigation(key, activeElement);
         break;
       case 'Tab':
         this.handleTabNavigation(event, activeElement);
@@ -173,7 +173,7 @@ class ScreepsBot {
     }
   }
 
-  handleArrowKeyNavigation(key, activeElement) {
+  handleArrowNavigation(key, activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
   }
@@ -183,7 +183,7 @@ class ScreepsBot {
     console.log('Handling tab navigation');
   }
 
-  navigateWithArrows(key, activeElement) {
+  handleArrowNavigationNew(key, activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
   }
@@ -206,10 +206,10 @@ class ScreepsBot {
     const svg = parser.parseFromString(svgString, 'image/svg+xml');
     const svgElement = svg.documentElement;
 
-    if (!svgElement.getAttribute('aria-label')) {
+    if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
       svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
     }
-    return new XMLSerializer().serializeToString(svg);
+    return new XMLSerializer().serializeToString(svgElement);
   }
 
   validateTableAccessibilityNew(tableData) {
@@ -240,12 +240,12 @@ class ScreepsBot {
     // ...
   }
 
-  handleArrowKeyNavigationNew(key, activeElement) {
-    // New implementation of handleArrowKeyNavigation function
+  handleArrowNavigationFinal(key, activeElement) {
+    // New implementation of handleArrowNavigation function
     // ...
   }
 
-  handleTabNavigationNew(event, activeElement) {
+  handleTabNavigationFinal(event, activeElement) {
     // New implementation of handleTabNavigation function
     // ...
   }
@@ -255,16 +255,16 @@ class ScreepsBot {
     // ...
   }
 
-  addAccessibleNameNew(svgString) {
+  addAccessibleNameFinal(svgString) {
     // New implementation of addAccessibleName function
     // ...
   }
 
   // Additional accessibility functions from HEAD branch
-  ensureDependencyGraphARIA() {
-    const dependencyGraph = document.getElementById('dependencyGraph')
+  checkAccessibilityIssues() {
+    const dependencyGraph = this.analyzeDependencies();
     if (dependencyGraph) {
-      dependencyGraph.setAttribute('role', 'region')
+      this.addLandmarksToDOM(dependencyGraph, 'region')
     }
   }
 
@@ -276,7 +276,7 @@ class ScreepsBot {
     // ... (existing code)
   }
 
-  addAccessibleNamesToSVGs() {
+  addAccessibleNamesToSvg() {
     // Implementation for adding accessible names to SVGs
   }
 

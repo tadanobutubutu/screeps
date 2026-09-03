@@ -957,7 +957,7 @@ function sortLandmarks(landmarks, ascending = true) {
         if (ascending) {
             return nameA.localeCompare(nameB);
         }
-        return nameB.localeCompare(nameA);
+        return nameB.localeCompare(nameB);
     });
 }
 
@@ -1300,7 +1300,7 @@ function sortLandmarksImpl(landmarks, ascending = true) {
     if (ascending) {
       return nameA.localeCompare(nameB);
     }
-    return nameB.localeCompare(nameA);
+    return nameB.localeCompare(nameB);
   });
 }
 

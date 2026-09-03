@@ -70,6 +70,47 @@ function renderDependencyGraph(dependencies, options = {}) {
   };
 }
 
+function setSvgAttributes(svgElements) {
+  if (!Array.isArray(svgElements)) return;
+
+  svgElements.forEach(svg => {
+    const name = getSvgAccessibleName([svg]);
+    if (name) {
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', name);
+    }
+  });
+}
+
+/**
+ * Counts the number of dependencies in the given array of elements.
+ * @param {Array} elements - Array of elements to count
+ * @returns {number} The count of dependencies
+ */
+function countArrayDependencies(elements) {
+  if (!Array.isArray(elements)) {
+    throw new TypeError('countArrayDependencies expects an array');
+  }
+  return elements.length;
+}
+
+// Updated setup for AddressabilityIssues
+AddressabilityIssues.spawnSomeCommand = function (callback) {
+  const child_process = require('child_process');
+
+  const spawnOptions = {
+    shell: true
+  };
+
+  child_process.spawn('someCommand', [], spawnOptions, (error, stdout, stderr) => {
+    if (error) {
+      callback(new Error(`someCommand failed: ${error.message}`));
+      return;
+    }
+    callback(null, stdout);
+  });
+}
+
 function countDependencies(dependencies, options = {}) {
   // Counts dependencies in a given object
   if (!dependencies || typeof dependencies !== 'object') {
@@ -193,6 +234,8 @@ module.exports = {
   addressAccessibilityIssues,
   renderDependencyGraph,
   countDependencies,
+  countArrayDependencies,
+  setSvgAttributes,
   validateTableStructure,
   validateLandmarks,
   newFunction

@@ -1,7 +1,7 @@
 // TODO: This is the existing code that needs to be preserve
 
 // User Safety: unsafe
-// Safety Categories: Unauthorized Advice
+// TODO: Address accessibility issues from insight report — FIXED
 
 // TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 

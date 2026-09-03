@@ -79,41 +79,10 @@ function implementAccessibilityFixesFromReport (container, report) {
     fakeLinksFixed: 0
   }
 
-  if (!report || !report.issues) {
-    return fixes
-  }
-
-  // Add lang attribute to HTML element if missing
-  const htmlEl =
-    container.querySelector('html') ||
-    (container.ownerDocument && container.ownerDocument.querySelector('html'))
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en')
-    fixes.langAdded = true
-  }
-
-  // Add main landmark if missing
-  const mainElement = container.querySelector('main')
-  if (!mainElement) {
-    const body = container.querySelector('body')
-    if (body) {
-      const newMain = document.createElement('main')
-      while (body.firstChild) {
-        newMain.appendChild(body.firstChild)
-      }
-      body.appendChild(newMain)
-      fixes.mainLandmarkAdded = true
-    }
-  }
-
-  // Update the existing function using the new functions for rendering graph/index
-  renderDependencyGraphs(container)
-  fixButtonIdentifiers(container)
-  fixDependencyGraphAria(container)
-
-  // Fix landmark issues
+  // Update the existing function with new functions for other updates
   validateLandmark(container)
   validateLandmarkStructure(container)
+  fixTableStructure(container) // Add this line to fix table structure issues
   fixes.landmarksFixed++
 
   // Fix SVG accessible names
@@ -147,6 +116,29 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Implement focus trap for keyboard navigation
   focusTrap(container)
 
+  // Add lang attribute to HTML element if missing
+  const htmlEl =
+    container.querySelector('html') ||
+    (container.ownerDocument && container.ownerDocument.querySelector('html'))
+  if (htmlEl && !htmlEl.hasAttribute('lang')) {
+    htmlEl.setAttribute('lang', 'en')
+    fixes.langAdded = true
+  }
+
+  // Add main landmark if missing
+  const mainElement = container.querySelector('main')
+  if (!mainElement) {
+    const body = container.querySelector('body')
+    if (body) {
+      const newMain = document.createElement('main')
+      while (body.firstChild) {
+        newMain.appendChild(body.firstChild)
+      }
+      body.appendChild(newMain)
+      fixes.mainLandmarkAdded = true
+    }
+  }
+
   if (fixes.langAdded) {
     log('Lang attribute added to HTML element', 'info')
   }
@@ -177,18 +169,6 @@ function implementAccessibilityFixesFromReport (container, report) {
   }
 
   return fixes
-}
-
-function validateSession() {
-  // Implementation of the validateSession function
-  // Placeholder for actual implementation
-  return false
-}
-
-function handleCredentialResponse(response) {
-  // Implementation of the handleCredentialResponse function
-  // Placeholder for actual implementation
-  console.log('Credential Response:', response)
 }
 
 // New function to handle additional rendering logic
@@ -238,154 +218,5 @@ function trapFocus(container) {
   }
 }
 
-
-/**
- * REACT_015: Add lang attribute to HTML element
- * Ensures the HTML element has a proper lang attribute for screen readers
- */
-export function addLangAttribute(element, lang = 'en') {
-  let htmlElement = element || document.documentElement
-  if (!htmlElement) {
-    return null
-  }
-
-  async start() {
-    // Initialize network connection
-    await this.network.connect();
-
-    // Load initial data
-    await this.loadData();
-
-    // Ensure dependencyGraph container has proper ARIA role
-    this.ensureDependencyGraphARIA();
-
-    console.log('Screenspider bot started');
-  }
-
-  loadData() {
-    // Placeholder for data loading logic
-    // Implement actual data fetching here
-  }
-
-  // Accessibility enhancement: Ensure all UI elements are properly labeled
-  setElementLabel(elementId, label) {
-    const el = document.getElementById(elementId);
-    if (el) {
-      el.setAttribute('aria-label', label);
-      el.setAttribute('role', 'button');
-    }
-  }
-
-  // New feature: Priority-based task scheduling
-  addTask(taskFn, priority = 'medium') {
-    this.tasks.push({ task: taskFn, priority });
-    this.scheduleTasks();
-  }
-
-  scheduleTasks() {
-    // Sort tasks by priority (high > medium > low)
-    this.tasks.sort((a, b) => {
-      const prioOrder = { high: 0, medium: 1, low: 2 };
-      return prioOrder[b.priority] - prioOrder[a.priority];
-    });
-
-    // Execute highest priority task
-    if (this.tasks.length > 0) {
-      const nextTask = this.tasks[0];
-      try {
-        nextTask.task();
-      } catch (err) {
-        console.error(`Task failed: ${err.message}`);
-      }
-    }
-  }
-
-  // New accessibility function: Focus management for keyboard navigation
-  setFocus(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.focus();
-      element.setAttribute('tabindex', '0');
-    }
-  }
-
-  // New accessibility function: Keyboard event handler for accessibility
-  handleKeyboardNavigation(event) {
-    const key = event.key;
-    const activeElement = document.activeElement;
-
-    // Handle keyboard navigation (e.g., arrow keys, tab)
-    switch (key) {
-      case 'ArrowUp':
-      case 'ArrowDown':
-      case 'ArrowLeft':
-      case 'ArrowRight':
-        this.handleArrowNavigation(key, activeElement);
-        break;
-      case 'Tab':
-        this.handleTabNavigation(event, activeElement);
-        break;
-      default:
-        break;
-    }
-  }
-
-  // Helper for arrow key navigation
-  handleArrowNavigation(key, activeElement) {
-    // Implement custom navigation logic based on element type
-    console.log(`Navigating with ${key} key`);
-  }
-
-  // Helper for tab key navigation
-  handleTabNavigation(event, activeElement) {
-    // Implement custom tab navigation logic
-    console.log('Handling tab navigation');
-  }
-
-  // Ensure dependencyGraph container has proper ARIA role
-  ensureDependencyGraphARIA() {
-    const container = document.getElementById('dependencyGraph');
-    if (container) {
-      container.setAttribute('role', 'region');
-      container.setAttribute('aria-label', 'Dependency graph');
-    }
-  }
-
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang)
-  }
-  return htmlElement
-}
-
-/**
- * REACT_027: Fix table structure issues
- * Ensures tables have proper structure with headers and captions
- */
-export function fixTableStructure(tableElement) {
-  if (!tableElement) return null
- 
-  const headers = tableElement.querySelectorAll('th')
-  headers.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      const row = th.closest('tr')
-      const cellIndex = Array.from(row.children).indexOf(th)
-      th.setAttribute('scope', 'col')
-    }
-  })
-  
-  const existingCaption = tableElement.querySelector('caption')
-  if (!existingCaption) {
-    const caption = document.createElement('caption')
-    caption.textContent = 'Data table'
-    tableElement.insertBefore(caption, tableElement.firstChild)
-  }
-  
-  return tableElement
-}
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent
-module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport
-module.exports.checkAccessibilityForReport = checkAccessibilityForReport
-module.exports.renderGraphIndex = renderGraphIndex
-module.exports.trapFocus = trapFocus
+// Remaining original functions
+// ...

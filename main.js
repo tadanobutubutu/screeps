@@ -23,6 +23,8 @@ const addLanguageAttribute = () => {
 }
 
 const renderGraphIndex = (graphData) => {
+  addLanguageAttribute();
+  addMainLandmarkToIndex();
   addressAccessibilityIssues();
   renderDependencyGraphs(graphData);
 }
@@ -43,5 +45,6 @@ module.exports = {
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   addressAccessibilityIssues,
+  addLanguageAttribute,
   renderGraphIndex
 }

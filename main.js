@@ -1,8 +1,18 @@
+// Find the primary content element in the DOM
+const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+
 // TODO: This is the existing code that needs to be preserved
-// (Implementation added above)
-// This is the conflicting code that needs to be resolved.
-// This is the code that should be merged into the main branch.
-// Additional changes that need to be preserved
+// Address addressed accessibility issues from insight report:
+// ... (existing code preserved)
+
+// New functions to address the listed issues
+function addLangAttribute(element) {
+  // Adds lang attribute to the given HTML element
+  if (element && typeof element.setAttribute === 'function') {
+    element.setAttribute('lang', 'en');
+  }
+  return element;
+}
 
 // New implementation for checking link accessibility
 function checkLinkAccessibility(doc) {
@@ -39,82 +49,9 @@ function calculateSum(a, b) {
   return a + b;
 }
 
-// Find the primary content element in the DOM
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
-
 // Adding the required export that was removed
 const XYZ = function () {
     // Implementation for XYZ function
-};
-
-module.exports = {
-    // Existing exports
-    // ... (Assuming standard exports would go here, preserving structure)
-    XYZ,
-
-    calculateSum,
-
-    // New functions to address the listed issues
-    addLangAttribute(element) {
-        if (element && typeof element.setAttribute === 'function') {
-            element.setAttribute('lang', 'en');
-        }
-        return element;
-    },
-
-    ensureLandmarkUniqueness(elements) {
-        if (!Array.isArray(elements)) {
-            return [];
-        }
-
-        const uniqueElements = [];
-        const seen = new Map();
-
-        elements.forEach(element => {
-            const key = element.id || element.name || JSON.stringify(element);
-            if (!seen.has(key)) {
-                seen.set(key, true);
-                uniqueElements.push(element);
-            }
-        });
-
-        return uniqueElements;
-    },
-
-    // Address all accessibility issues
-    addressInsightIssues() {
-        getLangAttribute();
-        addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
-
-        if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
-            ensureLandmarkUniqueness(landmarks);
-        }
-        ensureUniqueLandmarks();
-
-        validateTableAccessibility();
-        validateTableStructure();
-
-        getSvgAccessibleName();
-
-        createInPageButton();
-        createAccessibleLink();
-        handleAccessibilityIssues();
-
-        validateLandmark();
-        validateLandmarkStructure();
-    },
-
-    initializeApp() {
-        addressInsightIssues();
-        if (typeof wrapPrimaryContentInMain === 'function') {
-            wrapPrimaryContentInMain();
-        }
-    },
-
-    fixFakeLinkIssue,
-
-    // Preserve other exports
-    // ... (Other exports would be listed here)
 };
 
 // Utility functions from origin/main
@@ -163,6 +100,26 @@ function addAriaLabel(element, label) {
     element.ariaLabel = label;
   }
   return element;
+}
+
+// Updated function: ensures landmarks uniqueness when there's an array structure
+function ensureLandmarkUniqueness(elements) {
+  if (!Array.isArray(elements)) {
+    return [];
+  }
+
+  const uniqueElements = [];
+  const seen = new Map();
+
+  elements.forEach(element => {
+    const key = element.id || element.name || JSON.stringify(element);
+    if (!seen.has(key)) {
+      seen.set(key, true);
+      uniqueElements.push(element);
+    }
+  });
+
+  return uniqueElements;
 }
 
 function checkElementAccessibility(element) {
@@ -292,3 +249,57 @@ function fixFakeLinkIssue(doc) {
 
   return count;
 }
+
+// Address all accessibility issues
+function addressInsightIssues() {
+  getLangAttribute();
+  addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+
+  if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
+    ensureLandmarkUniqueness(landmarks);
+  }
+  ensureUniqueLandmarks();
+
+  validateTableAccessibility();
+  validateTableStructure();
+
+  getSvgAccessibleName();
+
+  createInPageButton();
+  createAccessibleLink();
+  handleAccessibilityIssues();
+
+  validateLandmark();
+  validateLandmarkStructure();
+}
+
+// Initialize app
+function initializeApp() {
+  addressInsightIssues();
+  if (typeof wrapPrimaryContentInMain === 'function') {
+    wrapPrimaryContentInMain();
+  }
+}
+
+module.exports = {
+    // Existing exports
+    // ... (Assuming standard exports would go here, preserving structure)
+    XYZ,
+
+    calculateSum,
+
+    // New functions to address the listed issues
+    addLangAttribute,
+
+    ensureLandmarkUniqueness,
+
+    // Address all accessibility issues
+    addressInsightIssues,
+
+    initializeApp,
+
+    fixFakeLinkIssue,
+
+    // Preserve other exports
+    // ... (Other exports would be listed here)
+};

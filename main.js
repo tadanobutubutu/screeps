@@ -1,7 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
 // Find the primary content element in the DOM
 const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
 
-// TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -156,7 +156,6 @@ const report = accessibilityReport.issues.map(issue => ({
 }));
 
 return report;
-}
 
 // Score calculation
 function calculateAccessibilityScore(fixedIssues) {

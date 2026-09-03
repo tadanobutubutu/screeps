@@ -99,7 +99,6 @@ function processSvgElements () {
   const svgElements = document.querySelectorAll('svg');
 }
 
-// New function to address REACT_027: Fix 26 table structure issues
 function validateTableAccessibility (table, index) {
   const issues = [];
   const errors = [];

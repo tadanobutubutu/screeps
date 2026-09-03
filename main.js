@@ -1,6 +1,3 @@
-Here's the resolved file content that merges both changes and avoids syntax errors:
-
-```javascript
 // TODO: Add back any required exports that might have been removed
 
 // TODO: This is the existing code that needs to be preserved
@@ -19,7 +16,7 @@ function handleCredentialResponse(credential) {
     // Handle attestation response (from registration)
     if (response.attestationObject) {
         const attestationBuffer = response.attestationObject;
-        const attestationObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(attestationBuffer)));
+        const attestationObj = CBOR.decode(attestationBuffer);
 
         console.log('Credential registered successfully');
         console.log('Credential ID:', credential.id);
@@ -33,7 +30,7 @@ function handleCredentialResponse(credential) {
     }
 
     // Handle assertion response (from authentication)
-    if (response.authenticatorData && response.clientDataJSON) {
+    if (response.authenticatorData && response.signature) {
         const clientDataJSON = JSON.parse(new TextDecoder().decode(response.clientDataJSON));
 
         console.log('Credential verified successfully');
@@ -70,14 +67,14 @@ function validateLandmarkStructure() {
     const requiredLandmarks = ['header', 'main', 'footer'];
     const missingLandmarks = [];
 
-    requiredLandmarks.forEach(landmark => {
-        if (!document.querySelector(landmark)) {
-            missingLandmarks.push(landmark);
+    document.querySelectorAll('header, main, footer').forEach(element => {
+        if (!requiredLandmarks.includes(element.tagName.toLowerCase())) {
+            missingLandmarks.push(element.tagName.toLowerCase());
         }
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Accessibility Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
         return false;
     }
 
@@ -105,7 +102,7 @@ function countDependencies(packageJson) {
 function initializeApp() {
     const mainContent = document.querySelector('main');
     if (mainContent) {
-        const button = createInPageButton('app-button', 'Click Me', 'btn-primary');
+        const button = createInPageButton('mainButton', 'Click Me', 'btn-primary');
         mainContent.appendChild(button);
     }
     validateLandmarkStructure();
@@ -115,7 +112,7 @@ function initializeApp() {
 
 function function3(input) {
     if (typeof input === 'string') {
-        return input.trim().toLowerCase();
+        return input.toUpperCase();
     }
     return input;
 }
@@ -124,9 +121,10 @@ function function3(input) {
 
 function getCurrentLanguageSetting() {
     // Assuming the language setting is stored in a cookie named 'language'
-    const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('language='));
-    if (cookie) {
-        const [_, value] = cookie.split('=');
+    const cookies = document.cookie.split('; ');
+    const languageCookie = cookies.find(cookie => cookie.startsWith('language='));
+    if (languageCookie) {
+        const [_, value] = languageCookie.split('=');
         return value;
     }
     // Default to English if no language setting is found
@@ -142,7 +140,4 @@ function harvestResources() {
 // Other functions merged from both branches
 
 // Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure, implementUpgrade, function3, initializeApp };
-```
-
-This code keeps both changes from the different branches and avoids functional redundancies. This code also resolves the Git conflict by merging the changes and properly formatting the code according to the provided style.
+export { createInPageButton, validateLandmarkStructure, function3, initializeApp };

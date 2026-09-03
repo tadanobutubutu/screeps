@@ -152,13 +152,15 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  ensureInteractiveElementsAccessible() {
+    this.ensureInteractiveRoles();
+    this.addFormControlLabels();
+    this.ensureImageAccessibility();
+  }
 };
 
 // New functions
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
-}
+// (No new functions to add as per the instructions)
 
 // ... rest of the code ...

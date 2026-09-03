@@ -142,7 +142,7 @@ function renderIndex() {
 const accessibilityUtilsLocal = {
     /**
      * Initialize skip link functionality
-     * @param {HTMLElement} skipLink - The skip link element
+     * @param {HTMLElement} skipLink} skipLink - The skip link element
      */
     initSkipLink(skipLink) {
         if (!skipLink) return;
@@ -463,6 +463,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof initializeAccessibility === 'function') {
     initializeAccessibility();
   }
+
+  // Detect and set language attribute for accessibility (REACT_015)
+  const bodyContent = document.body.textContent || document.body.innerText || '';
+  const lang = detectAndSetLang(bodyContent);
+  setHtmlLangAttribute(lang);
 
   // Add event listener for dependency graph clicks
   const dependencyGraphElement = document.querySelector('.dependency-graph');

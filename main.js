@@ -17,7 +17,6 @@ import {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
-  fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
   addTaskWithPriority,
@@ -251,15 +250,15 @@ function newFunction2() {
 }
 
 function anotherNewFunction() {
-  // Another new function implementation
-}
-
-function newFunction3() {
   // New function implementation 3
 }
 
-function newFunction4() {
+function newFunction3() {
   // New function implementation 4
+}
+
+function newFunction4() {
+  // New function implementation 5
 }
 
 // Accessibility helper functions

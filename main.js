@@ -84,7 +84,15 @@ function getLangAttribute() {
  */
 function renderDependencyGraph(props) {
   const content = dependencyGraphContent(props);
-  return content;
+  
+  // Additional processing for dependency graph rendering
+  const processedContent = typeof content === 'string' ? content : null;
+  
+  return React.createElement('div', {
+    className: 'dependency-graph-container',
+    role: 'region',
+    'aria-label': 'Dependency Graph'
+  }, processedContent);
 }
 
 /**
@@ -95,7 +103,11 @@ function renderDependencyGraph(props) {
  */
 function renderIndexView(props) {
   const content = indexContent(props);
-  return content;
+  return React.createElement('div', {
+    className: 'index-view-container',
+    role: 'region',
+    'aria-label': 'Index View'
+  }, content);
 }
 
 // Implement the function for addressing accessibility issues from insight report
@@ -535,6 +547,58 @@ function getConfig() {
  */
 function setConfig(config) {
   appData.config = { ...appData.config, ...config };
+}
+
+// Additional function to update dependency graph rendering - specifically addressing the TODO
+function updateDependencyGraphRendering(props) {
+  // Process props to ensure proper structure for dependency graph rendering
+  const processedProps = {
+    ...props,
+    // Add any additional processing needed for dependency graphs
+    accessibility: {
+      ...props.accessibility,
+      landmarks: true,
+      labels: true,
+      svgNames: true
+    },
+    // Enhance the content with better structure
+    enhanced: true
+  };
+  
+  // Use the existing renderDependencyGraph function with enhanced props
+  return renderDependencyGraph(processedProps);
+}
+
+// App state initialization
+const appData = {
+  tables: [],
+  config: {
+    theme: 'light',
+    language: 'en'
+  }
+};
+
+// Function to render dependency graphs with enhanced functionality
+function renderDependencyGraphEnhanced(props) {
+  // Validate props
+  if (!props) {
+    console.warn('renderDependencyGraphEnhanced: props is required');
+    return null;
+  }
+  
+  // Apply enhancements before rendering
+  const enhancedProps = {
+    ...props,
+    // Add any additional enhancements specific to dependency graphs
+    accessibility: {
+      landmarks: true,
+      labels: true,
+      svgNames: true,
+      fakeLinks: true
+    }
+  };
+  
+  return updateDependencyGraphRendering(enhancedProps);
 }
 
 const renderIndex = (data, options = {}) => {

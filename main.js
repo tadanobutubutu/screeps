@@ -430,10 +430,4 @@ function someFunction() {
 
 // Configuration
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || 'localhost';
-
-// Application main entry point
-const app = expressApp;
-
-// Exports
-export { UserSafety, SafetyCategories, getDependencyGraph, getUserSafetyAdvice };
+const

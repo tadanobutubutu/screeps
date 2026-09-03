@@ -153,8 +153,13 @@ function processData(data) {
   }
 }
 
-function countDependencies() {
-  return {};
+function countDependencies(packageJson = null) {
+  if (packageJson && typeof packageJson === 'object') {
+    const deps = packageJson.dependencies || {};
+    const devDeps = packageJson.devDependencies || {};
+    return Object.keys(deps).length + Object.keys(devDeps).length;
+  }
+  return 0;
 }
 
 function createServer() {

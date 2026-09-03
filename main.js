@@ -52,16 +52,16 @@ function getBooksList() {
 }
 
 // Configuration
-const config = {
-  dataPath: './data',
-  maxResults: 100
-};
+// const config = {
+//   dataPath: './data',
+//   maxResults: 100
+// };
 
 // Landmark validation configuration
-const CONFIG = {
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
-};
+// const CONFIG = {
+//   maxLandmarks: 50,
+//   allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
+// };
 
 // Helper functions
 function isValidLandmark(landmark) {
@@ -223,11 +223,41 @@ function visualizeModuleRelationships(modules) {
   return visualizeModuleRelationshipsLocal(modules);
 }
 
+/**
+ * Enhances accessibility for adding a new book by ensuring proper ARIA attributes
+ * @param {string} title - The title of the book
+ * @param {string} author - The author of the book
+ * @returns {Object} The created book object
+ */
+function addBookWithAccessibility(title, author) {
+  const bookObject = addBook(title, author);
+
+  // Create an accessibility announcement element
+  if (typeof document !== 'undefined') {
+    const announcementElement = document.createElement('div');
+    announcementElement.setAttribute('role', 'status');
+    announcementElement.setAttribute('aria-live', 'polite');
+    announcementElement.setAttribute('aria-label', `Book added: ${title} by ${author}`);
+    announcementElement.style.position = 'absolute';
+    announcementElement.style.left = '-10000px';
+    document.body.appendChild(announcementElement);
+
+    // Provide visible feedback for screen readers
+    setTimeout(() => {
+      announcementElement.textContent = `Successfully added "${title}" by ${author} to your books collection.`;
+      document.body.removeChild(announcementElement);
+    }, 100);
+  }
+
+  return bookObject;
+}
+
 // ... Rest of the code if any.
 
 module.exports = {
   // ... Exports preserved from before the conflict.
-
+  addBookWithAccessibility,
+  
   analyzeModuleDependencies,
   visualizeModuleRelationships,
   ensureElementHasId,

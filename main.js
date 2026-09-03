@@ -348,6 +348,57 @@ const AddressabilityIssues = {
     return report;
   },
 
+  /**
+   * Validate landmark elements for accessibility compliance
+   * @returns {Object} Validation results containing any issues found
+   */
+  validateLandmark() {
+    const results = {
+      valid: true,
+      issues: []
+    };
+
+    const landmarkSelectors = ['main', 'nav', 'header', 'footer', 'aside', '[role="main"]', '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]', '[role="complementary"]'];
+    const allLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+
+    if (allLandmarks.length === 0) {
+      results.valid = false;
+      results.issues.push('No landmark elements found on the page');
+      return results;
+    }
+
+    const landmarkTypes = new Set();
+    allLandmarks.forEach((landmark, index) => {
+      const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+      
+      // Check for missing aria-label or aria-labelledby on landmarks
+      if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+        // Only required when there are multiple landmarks of the same type
+        if (landmarkTypes.has(role)) {
+          results.valid = false;
+          results.issues.push(`Landmark at index ${index} (${role}) is missing aria-label or aria-labelledby`);
+        }
+      }
+
+      // Check for empty landmark
+      if (landmark.textContent.trim() === '' && landmark.children.length === 0) {
+        results.valid = false;
+        results.issues.push(`Landmark at index ${index} (${role}) is empty`);
+      }
+
+      // Check for valid role
+      const validRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'region', 'form', 'search'];
+      if (landmark.hasAttribute('role') && !validRoles.includes(landmark.getAttribute('role'))) {
+        results.valid = false;
+        results.issues.push(`Landmark at index ${index} has invalid role: ${landmark.getAttribute('role')}`);
+      }
+
+      landmarkTypes.add(role);
+    });
+
+    return results;
+  },
+
   addSVGAccessibilityProps() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach((svg) => {

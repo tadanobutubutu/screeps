@@ -187,6 +187,37 @@ function newFunction() {
   // Implement the new functionality (as per the original commitment)
 }
 
+/**
+ * Function3 - Processes input data and returns transformed result
+ * @param {any} input - The input data to process
+ * @returns {any} The processed result
+ */
+function function3(input) {
+  if (input === null || input === undefined) {
+    return null;
+  }
+  
+  if (typeof input === 'string') {
+    return input.toUpperCase();
+  }
+  
+  if (Array.isArray(input)) {
+    return input.map(item => function3(item));
+  }
+  
+  if (typeof input === 'object') {
+    const result = {};
+    for (const key in input) {
+      if (Object.prototype.hasOwnProperty.call(input, key)) {
+        result[key] = function3(input[key]);
+      }
+    }
+    return result;
+  }
+  
+  return input;
+}
+
 // Export all functions
 module.exports = {
   getLangAttribute,
@@ -208,5 +239,6 @@ module.exports = {
   addProperLandmarkRegions,
   existingFunction1,
   existingFunction2,
-  newFunction
+  newFunction,
+  function3
 };

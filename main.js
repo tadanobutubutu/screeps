@@ -150,8 +150,6 @@ const a11yStore = {
       }
     });
   },
-
-  // ... remaining a11yStore methods ...
 };
 
 // New functions

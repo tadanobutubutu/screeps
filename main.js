@@ -54,13 +54,30 @@ class ScreetsBot {
     // Implementation for validating table structure
   }
 
-  // ... (Add the event listener for click events on the dependencyGraph element)
-}
+  validateLandmarkStructure(html) {
+    if (!html) return false;
+    
+    // Parse the HTML string to create a document
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Find all landmark elements
+    const landmarks = doc.querySelectorAll('header, nav, main, aside, footer, section, article');
+    
+    // Check for required landmarks based on accessibility guidelines
+    const hasMain = doc.querySelector('main') !== null;
+    const hasLandmarks = landmarks.length > 0;
+    
+    // Return validation result with detailed information
+    return {
+        hasMain: hasMain,
+        hasOtherLandmarks: hasLandmarks,
+        landmarks: Array.from(landmarks).map(el => el.tagName.toLowerCase()),
+        isValid: hasMain && hasLandmarks
+    };
+  }
 
-// Add lang attribute to HTML element
-function getLangAttribute() {
-    // Implementation to add lang attribute
-    return document.documentElement.lang || 'en';
+  // ... (Add the event listener for click events on the dependencyGraph element)
 }
 
 // Accessibility utilities for keyboard navigation and screen reader support
@@ -323,6 +340,7 @@ module.exports = {
     addAccessibleName,
     validateTableAccessibility: ScreetsBot.prototype.validateTableAccessibility,
     validateTableStructure: ScreetsBot.prototype.validateTableStructure,
+    validateLandmarkStructure: ScreetsBot.prototype.validateLandmarkStructure,
     ensureElementId: ensureElementIdLocal,
     ensureElementHasId,
     getTables,

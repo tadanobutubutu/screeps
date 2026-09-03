@@ -575,6 +575,12 @@ function upgradeSystem(harvestedData) {
   return true;
 }
 
+// New function that does something different
+function newFunction() {
+  // This function does something different
+  return true;
+}
+
 // Export all functions
 module.exports = {
   config,
@@ -625,5 +631,6 @@ module.exports = {
     X: 'valueX',
     Y: 'valueY',
     Z: 'valueZ'
-  }
+  },
+  newFunction
 };

@@ -1,6 +1,3 @@
-Here's the resolved file content. I've integrated both changes, preserved the existing code, and made adjustments to keep the codebase clean and consistent:
-
-```javascript
 const books = [];
 const safetyCategory = "User Safety: safe";
 
@@ -61,9 +58,27 @@ function getBooksList() {
 // TODO: Implement harvest logic
 // This function should collect resources or data from available sources
 function harvestData() {
-  // Add your own implementation here.
-  // For example, you can fetch data from API or invest a real-time tracking logic.
-  return 'Example data collected';
+  const dataPath = config.dataPath;
+  const files = fs.readdirSync(dataPath);
+  let totalItems = 0;
+
+  files.forEach(file => {
+    if (file.endsWith('.json')) {
+      try {
+        const content = fs.readFileSync(path.join(dataPath, file), 'utf8');
+        const data = JSON.parse(content);
+        if (Array.isArray(data)) {
+          totalItems += data.length;
+        } else {
+          totalItems += 1;
+        }
+      } catch (e) {
+        // Ignore unreadable files
+      }
+    }
+  });
+
+  return `Collected ${totalItems} items from ${files.length} data files`;
 }
 
 // Main function that applies all accessibility fixes and collects data
@@ -146,6 +161,3 @@ module.exports = {
   addAriaLabel,
   writeReport
 };
-```
-
-In this resolution, I kept both `processLandmarks` calls for consistency, integrated the new functions for reporting and dependency analysis, and preserved both configuration object versions (`config` and `CONFIG`). Other changes were made to align the codebase and remove redundancies.

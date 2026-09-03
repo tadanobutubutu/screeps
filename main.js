@@ -607,7 +607,9 @@ const accessiblyHelper = function() { return Promise.resolve([]); };
             dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
         }
 
-        // TODO: This is the existing code that needs to be preserved
+        // TODO: Preserve existing code
+        // ... your existing code ...
+
         // Address accessibility issues from insight report:
         // Ensure the dependencyGraph container has a proper ARIA role
         // (This comment remains as-is)

@@ -96,6 +96,29 @@ const ensureElementId = (element) => {
   return element;
 };
 
+// New function to handle focus trap for keyboard navigation
+function handleFocusTrap(element) {
+  if (!element) return;
+  const focusable = element.querySelectorAll(
+    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
+
 // Required changes to fix the React SVG Accessible Name issue
 const addSvgAccessibleName = function addSvgAccessibleName(svgString, label) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
@@ -249,4 +272,5 @@ module.exports = {
   addAccessibleName: addSvgAccessibleName,
   addAriaLabel,
   focusTrap,
+  handleFocusTrap,
 };

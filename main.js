@@ -141,10 +141,6 @@ function getSvgAccessibleName() {
   return [];
 }
 
-function validateLinkAccessibility() {
-  return [];
-}
-
 function analyzeAccessibility(issuesData) {
   return issuesData || [];
 }
@@ -247,7 +243,7 @@ function initialize() {
   const processed = processLandmarks(landmarks);
   
   // Ensure the dependencyGraph container has a proper ARIA role
-  if (dependencyGraph) {
+  if (typeof dependencyGraph !== 'undefined' && dependencyGraph) {
     if (!dependencyGraph.id) {
       dependencyGraph.id = 'dependencyGraph';
     }
@@ -497,14 +493,6 @@ function generateAccessibilityReport(issuesData) {
 function writeReport(report) {
   const reportFile = path.join(__dirname, 'accessibility_report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
 }
 
 // Existing utility function

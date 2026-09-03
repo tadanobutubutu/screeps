@@ -46,7 +46,7 @@ function greetingFunction() {
 // TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 
-const renderGraphIndex = (graphData) => {
+const renderGraphIndex = (graphData, viewData = {}) => {
   // Placeholder for the new rendering logic
   // This function should use the new functions for rendering the graph/index
   // For example, it could call ... ... etc.
@@ -54,7 +54,18 @@ const renderGraphIndex = (graphData) => {
 
   // Address accessibility issues from insight report
   addressAccessibilityIssues();
-  renderDependencyGraphs(graphData);
+  
+  // Render dependency graph
+  const graphHtml = renderDependencyGraphs(graphData);
+  
+  // Render index view
+  const indexHtml = renderIndex(viewData);
+  
+  // Combine both renderings
+  return `
+    ${graphHtml}
+    ${indexHtml}
+  `;
 };
 
 const a11yStore = {
@@ -983,5 +994,6 @@ module.exports = {
   ensureInteractiveElementsAccessible,
   handleInitialAccessibility,
   accessibility,
-  ensureDependencyGraphAccessibility
+  ensureDependencyGraphAccessibility,
+  renderGraphIndex
 };

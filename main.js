@@ -275,25 +275,4 @@ export function ensureUniqueLandmarks(container) {
     const elements = container.querySelectorAll(`[role="${role}"]`);
     elements.forEach((el, index) => {
       if (index > 0 && !el.getAttribute('aria-label')) {
-        const count = index + 1;
-        el.setAttribute('aria-label', `${role} ${count}`);
-      }
-    });
-  });
-  
-  return container;
-}
-
-/**
- * REACT_025: Unique landmarks helper
- */
-export function uniqueLandmarksHelper(container) {
-  if (!container) return;
-  
-  const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  
-  landmarks.forEach(role => {
-    const elements = container.querySelectorAll(`[role="${role}"]`);
-    elements.forEach((el, index) => {
-      if (index > 0 && !el.getAttribute('aria-label')) {
         const count = index +

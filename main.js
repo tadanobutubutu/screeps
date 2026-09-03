@@ -216,6 +216,9 @@ function renderDependencyGraphs(graphData) {
   const graphHtml = renderDependencyGraph(graphData);
   container.innerHTML = graphHtml;
   
+  // Ensure accessibility for the dependencyGraph container
+  ensureDependencyGraphAccessibility(container);
+  
   // Add to document
   const mainElement = document.querySelector('main') || document.body;
   mainElement.appendChild(container);

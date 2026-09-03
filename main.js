@@ -431,10 +431,27 @@ const accessibilityUtils = {
 
 // Export the report generation function
 module.exports = {
-  generateAccessibilityReport: generateAccessibilityReport,
-  addressAccessibilityIssues,
+  existingFunction1,
+  existingFunction2,
+  myNewFunction,
   getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
   createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  generateAccessibilityReport,
+  addressAccessibilityIssues,
   a11y,
   accessibilityUtils
 };

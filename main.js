@@ -575,6 +575,20 @@ function upgradeSystem(harvestedData) {
   return true;
 }
 
+// Function to check if a link is accessible
+function isLinkAccessible(link) {
+  if (!link || typeof link !== 'object') {
+    return false;
+  }
+  if (!link.href || link.href.trim() === '') {
+    return false;
+  }
+  if (!link.textContent || link.textContent.trim() === '') {
+    return false;
+  }
+  return true;
+}
+
 // Export all functions
 module.exports = {
   config,
@@ -625,5 +639,8 @@ module.exports = {
     X: 'valueX',
     Y: 'valueY',
     Z: 'valueZ'
-  }
+  },
+  isLinkAccessible,
+  writeReport,
+  app
 };

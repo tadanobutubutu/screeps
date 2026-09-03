@@ -249,7 +249,64 @@ function fixDependencyGraphAria(container) {
 }
 
 function addMainLandmarkToIndex(container) {
-  // Implementation placeholder
+  // Check if container has a main element
+  const existingMain = container.querySelector('main');
+  if (existingMain) {
+    return existingMain;
+  }
+
+  // Create a new main element
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  
+  // Move all direct children of body (excluding existing header and footer) into the main element
+  const body = container.ownerDocument ? container.ownerDocument.body : document.body;
+  if (body) {
+    // Create a temporary container to hold non-landmark content
+    const tempContainer = document.createDocumentFragment();
+    const nonLandmarkNodes = [];
+    
+    // Collect all direct children that are not landmark elements
+    Array.from(body.childNodes).forEach(node => {
+      const isLandmark = node.nodeType === Node.ELEMENT_NODE && 
+        (node.tagName.toLowerCase() === 'header' ||
+         node.tagName.toLowerCase() === 'footer' ||
+         node.tagName.toLowerCase() === 'nav' ||
+         (node.tagName.toLowerCase() === 'main' && node.getAttribute('role') === 'main'));
+      
+      if (!isLandmark) {
+        nonLandmarkNodes.push(node);
+      } else {
+        tempContainer.appendChild(node);
+      }
+    });
+    
+    // Move non-landmark content into the main element
+    nonLandmarkNodes.forEach(node => {
+      mainElement.appendChild(node);
+    });
+    
+    // Insert main element after non-main landmarks (header, nav) but before footer
+    let inserted = false;
+    Array.from(body.childNodes).forEach(node => {
+      if (!inserted && node.nodeType === Node.ELEMENT_NODE && 
+          (node.tagName.toLowerCase() === 'footer' || node.tagName.toLowerCase() === 'main')) {
+        body.insertBefore(mainElement, node);
+        inserted = true;
+      }
+    });
+    
+    // If no footer or main found, insert before temp content
+    if (!inserted) {
+      // First append landmark elements that were moved to temp container
+      while (tempContainer.firstChild) {
+        body.appendChild(tempContainer.firstChild);
+      }
+      body.appendChild(mainElement);
+    }
+  }
+
+  return mainElement;
 }
 
 function ensureLangAttribute() {
@@ -429,7 +486,7 @@ function ensureSvgAccessibleNames() {
 }
 
 function ensureDependencyGraphAriaRole() {
-  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph");
+  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph');
   
   if (container) {
     if (!container.hasAttribute('role')) {
@@ -581,8 +638,49 @@ function focusTrap(container) {
   // Implementation placeholder
 }
 
-function renderDependencyGraphs(container) {
-  // Implementation placeholder
+function addMainLandmarkToIndex(container) {
+  // Wrap primary content in <main> element
+  const body = container.ownerDocument ? container.ownerDocument.body : document.body;
+  if (!body) {
+    return null;
+  }
+
+  // Check if main element already exists
+  let mainElement = container.querySelector('main');
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+  }
+
+  // Move all direct children of body that are not landmark elements into main
+  const landmarkTagNames = new Set(['header', 'footer', 'nav', 'aside']);
+  const nodesToMove = [];
+
+  Array.from(body.childNodes).forEach(node => {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const tagName = node.tagName.toLowerCase();
+      if (!landmarkTagNames.has(tagName) && 
+          !(tagName === 'main' && node.getAttribute('role') === 'main')) {
+        nodesToMove.push(node);
+      }
+    }
+  });
+
+  // Move nodes into main element
+  nodesToMove.forEach(node => {
+    mainElement.appendChild(node);
+  });
+
+  // Ensure main is in the right place (after header/nav, before footer)
+  const firstFooter = body.querySelector('footer');
+  if (firstFooter) {
+    body.insertBefore(mainElement, firstFooter);
+  } else {
+    // If no footer, just append main to body
+    body.appendChild(mainElement);
+  }
+
+  return mainElement;
 }
 
 function ensureUniqueLandmarks() {
@@ -646,5 +744,6 @@ module.exports = {
     ensureDependencyGraphARIA,
     validateSession,
     handleCredentialResponse,
-    addAriaLabel
+    addAriaLabel,
+    addMainLandmarkToIndex
 };

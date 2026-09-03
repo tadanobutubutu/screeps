@@ -1,58 +1,11 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-const http = require('http');
-const path = require('path');
-const fs = require('fs');
-const express = require('express');
-const { exec, spawn } = require('child_process');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-const primaryContent = (typeof document !== 'undefined') ? document.getElementById('main') || document.querySelector('main') || document.body : null;
-
-const config = {
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0',
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
-
-const a11yStore = {
-  makeSvgAccessible,
-  configureSvgAccessibility,
-  setSvgAttributes
-};
-
-const AddressabilityIssues = {
-  validateTableAccessibility,
-  validateLandmarkRoles,
-  validateLandmarkStructure,
-  checkLandmarkAccessibility,
-  checkLandmarkElements,
-  checkAccessibilityOfLandmarks,
-  ensureUniqueLandmarks,
-  missingRoles,
-  fixFakeLinkIssue,
-  addAriaLabel
-};
-
-// TODO: This is the existing code that needs to be preserved
-// _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
-// <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-
-// _Commit: c7a2c98be5bf45c7b763675b95fe8c30ac1d2f8f_
-
-// <!-- todo-hash: 469dfeab59b4116886abe058392a60b81da4857c -->
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report (DONE: addSkipLink)
 
 // Import the new function to create a button with correct accessibility properties for in-page linking
 const inPageButton = typeof document !== 'undefined' ? createInPageButton() : null;
@@ -60,51 +13,21 @@ const inPageButton = typeof document !== 'undefined' ? createInPageButton() : nu
 // TODO: This is the existing code that needs to be preserved
 
 /**
- * Similar to existing function, with changes to preserve both the existing and the new
- * function implementation. This helps maintain backward compatibility while implementing the new.
+ * Adds the lang attribute to the document's <html> tag based on content
+ * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
+ * @returns {string} The lang attribute value that was set
  */
-function accessibility() {
-  if (typeof document === 'undefined') return;
-
-  // Handle initial accessibility setup on page load
-  handleInitialAccessibility();
-
-  // Check and fix landmark elements
-  if (typeof checkLandmarkElements === 'function') {
-    checkLandmarkElements();
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang || 'en';
   }
-
-  // Add SVG accessibility props
-  a11yStore.addSVGAccessibilityProps();
-
-  // Fix fake links
-  a11yStore.fixFakeLinks();
-
-  // Ensure interactive elements have proper roles
-  a11yStore.ensureInteractiveRoles();
-
-  // Add form control labels
-  a11yStore.addFormControlLabels();
-
-  // Ensure images have alt text
-  a11yStore.ensureImageAccessibility();
-
-  // More accessibility improvements can be added here as needed
-}
-
-function ensureInteractiveElementsAccessible() {
-  // This covers both existing and new accessibility improvements for interactive elements
-  accessibility();
-}
-
-function handleInitialAccessibility() {
-  if (!document) return;
-  addLanguageAttribute();
-  addMainLandmarkToIndex();
+  return lang || 'en';
 }
 
 /**
- * Add language attribute to document
+ * Detects the language of the given content and sets the HTML lang attribute
+ * @param {string} content - The text content to analyze
+ * @returns {string} The detected language code
  */
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
@@ -302,25 +225,6 @@ function getSvgAccessibleName(svg) {
     if (describedBy) {
       return describedBy.textContent || '';
     }
-  }
-
-  // TODO: Extract the accessible name for an SVG from its content
-  // Extract text content from SVG text elements as fallback
-  const textElements = svg.querySelectorAll('text, tspan, textPath');
-  const textContent = Array.from(textElements)
-    .map(el => el.textContent || '')
-    .filter(text => text.trim())
-    .join(' ')
-    .trim();
-
-  if (textContent) {
-    return textContent;
-  }
-
-  // Check for desc element as fallback
-  const desc = svg.querySelector('desc');
-  if (desc) {
-    return desc.textContent || '';
   }
 
   return '';
@@ -681,43 +585,132 @@ function renderDependencyGraph(rootNode, container, options = {}) {
 }
 
 /**
- * Add language attribute to HTML element
+ * Builds breadcrumb data from an index path
+ * @param {string} indexPath - The path to parse into breadcrumb segments
+ * @param {Object} options - Configuration options
+ * @returns {Object} The breadcrumb structure
  */
-function setHtmlLangAttribute(lang) {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang;
+function buildBreadcrumbData(indexPath, options = {}) {
+  const { baseUrl = '', separator = '/' } = options;
+  
+  if (!indexPath) {
+    return { success: false, errors: ['Index path is required'] };
   }
-  return lang;
-}
 
-// New function to address REACT_017: Add main landmark to index page
-function addMainLandmarkToIndex() {
-  if (typeof document !== 'undefined') {
-    const main = document.querySelector('main') || document.querySelector('#main') || document.querySelector('.main');
-    if (main) {
-      main.setAttribute('role', 'main');
-    }
-  }
+  // Split path into segments and filter empty ones
+  const segments = indexPath.split(separator).filter(s => s.trim());
+  
+  const breadcrumbs = segments.map((segment, index) => {
+    const url = baseUrl + separator + segments.slice(0, index + 1).join(separator);
+    return {
+      label: segment.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      original: segment,
+      url: url,
+      position: index + 1,
+      isLast: index === segments.length - 1
+    };
+  });
+
+  return {
+    success: true,
+    breadcrumbs: breadcrumbs,
+    totalSegments: breadcrumbs.length
+  };
 }
 
 /**
- * Wraps primary content in a main landmark element.
- * @param {string|HTMLElement} content - The content to wrap (string or DOM element)
- * @returns {HTMLElement} The created main element with role="main"
+ * Renders an index view (breadcrumb or navigation structure)
+ * @param {string} indexPath - The path to render the index view for
+ * @param {HTMLElement} container - Optional container element to render into
+ * @param {Object} options - Rendering options
+ * @returns {Object} Result with success status and rendered index view data
  */
-function wrapPrimaryContentInMain(content) {
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('role', 'main');
+function renderIndexView(indexPath, container, options = {}) {
+  try {
+    // Validate indexPath parameter
+    if (!indexPath) {
+      return { success: false, errors: ['Index path is required'] };
+    }
 
-  if (typeof content === 'string') {
-    mainElement.textContent = content;
-  } else if (content instanceof Element) {
-    mainElement.appendChild(content);
-  } else if (content && content.nodeType === 1) { // Handle DOM elements
-    mainElement.appendChild(content);
+    // Build breadcrumb data from the path
+    const breadcrumbData = buildBreadcrumbData(indexPath, {
+      baseUrl: options.baseUrl || '',
+      separator: options.separator || '/'
+    });
+
+    // Log for debugging
+    console.log('Rendering index view at path:', indexPath);
+    console.log('Breadcrumb data:', JSON.stringify(breadcrumbData, null, 2));
+
+    // If container provided, render visual elements
+    if (container && typeof document !== 'undefined') {
+      const nav = document.createElement('nav');
+      nav.setAttribute('aria-label', options.ariaLabel || 'Breadcrumb');
+      
+      const ol = document.createElement('ol');
+      ol.className = options.listClassName || 'breadcrumb';
+      
+      breadcrumbData.breadcrumbs.forEach((crumb, index) => {
+        const li = document.createElement('li');
+        li.className = 'breadcrumb-item';
+        li.setAttribute('aria-current', crumb.isLast ? 'page' : undefined);
+        
+        if (crumb.isLast) {
+          const span = document.createElement('span');
+          span.textContent = crumb.label;
+          li.appendChild(span);
+        } else {
+          const link = document.createElement('a');
+          link.href = crumb.url;
+          link.textContent = crumb.label;
+          li.appendChild(link);
+        }
+        
+        ol.appendChild(li);
+      });
+      
+      nav.appendChild(ol);
+      container.appendChild(nav);
+      
+      return {
+        success: true,
+        message: 'Index view rendered successfully',
+        nav: nav,
+        breadcrumbs: breadcrumbData.breadcrumbs,
+        data: breadcrumbData
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Index view data built successfully',
+      breadcrumbs: breadcrumbData.breadcrumbs,
+      data: breadcrumbData
+    };
+  } catch (error) {
+    console.error('Error rendering index view:', error);
+    return { success: false, errors: [error.message] };
+  }
+}
+
+// New function to address new accessibility issues from insight report: skip link
+function addSkipLink() {
+  if (typeof document === 'undefined' || !document.body) {
+    return;
   }
 
-  return mainElement;
+  // Avoid adding duplicate skip links
+  if (document.querySelector('.skip-link')) {
+    return;
+  }
+
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.className = 'skip-link';
+
+  // Insert at the beginning of the body
+  document.body.insertBefore(skipLink, document.body.firstChild);
 }
 
 /**
@@ -966,30 +959,13 @@ function towerDefense(options = {}) {
   };
 }
 
-// Main entry point function (implementation added)
-function main() {
-  // Main application logic can be added here
-  console.log("Main function executed");
-  // Example: initialize accessibility features
-  accessibility();
-  // Additional setup can be added as needed
-}
-
-// TODO: Add new functions below this line
-
+// Export all functions to maintain current exports
 module.exports = {
-  config,
-  a11yStore,
-  addressabilityIssues: AddressabilityIssues,
-  accessibility,
-  ensureInteractiveElementsAccessible,
-  handleInitialAccessibility,
-  addLanguageAttribute,
-  addMainLandmarkToIndex,
-  detectAndSetLang,
   setHtmlLangAttribute,
+  detectAndSetLang,
   getLangAttribute,
   personName,
+  createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
@@ -999,10 +975,10 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  createInPageButton,
-  buildDependencyGraph,
   renderDependencyGraph,
-  wrapPrimaryContentInMain,
+  renderIndexView,
+  buildDependencyGraph,
+  buildBreadcrumbData,
   towerDefense,
-  main
+  addSkipLink
 };

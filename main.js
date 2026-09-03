@@ -82,6 +82,40 @@ const accessibilityUtils = {
         };
     },
 
+    /**
+     * New focus trap implementation
+     * @param {HTMLElement} element - Container element to trap focus within
+     * @returns {Function} Cleanup function to remove event listeners
+     */
+    newFocusTrap(element) {
+        if (!element) return () => {};
+
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+
+        const handleKeyboard = (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === first) {
+                    last.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    first.focus();
+                    e.preventDefault();
+                }
+            }
+        };
+
+        element.addEventListener('keydown', handleKeyboard);
+
+        return () => {
+            element.removeEventListener('keydown', handleKeyboard);
+        };
+    },
+
     // Impemented upgradeAccessibility function
     upgradeAccessibility() {
         // Implement upgrading old accessibility patterns to modern best practices

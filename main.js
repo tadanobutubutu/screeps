@@ -39,7 +39,7 @@ function fixMain(tableElement) {
   }
 }
 
-// TODO: This is the existing code that needs to be preserve
+// TODO: This is the existing code that needs to be preserved
 // (Implementation added above)
 // This is the conflicting code that needs to be resolved.
 // This is the code that should be merged into the main branch.

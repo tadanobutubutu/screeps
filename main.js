@@ -631,6 +631,26 @@ function renderIndexView(indexPath, container, options = {}) {
   }
 }
 
+/**
+ * Wraps primary content in a main landmark element.
+ * @param {string|HTMLElement} content - The content to wrap (string or DOM element)
+ * @returns {HTMLElement} The created main element with role="main"
+ */
+function wrapPrimaryContentInMain(content) {
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+
+  if (typeof content === 'string') {
+    mainElement.textContent = content;
+  } else if (content instanceof Element) {
+    mainElement.appendChild(content);
+  } else if (content && content.nodeType === 1) { // Handle DOM elements
+    mainElement.appendChild(content);
+  }
+
+  return mainElement;
+}
+
 // TODO: Implement tower defense
 function towerDefense() {
   // A simple tower defense game implementation
@@ -803,5 +823,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
+  wrapPrimaryContentInMain,
   towerDefense
 };

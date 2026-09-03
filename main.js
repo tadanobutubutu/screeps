@@ -1,5 +1,6 @@
+// TODO: Any additional changes requested in the issue
+// main.js - Accessibility improvements implementation
 // TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -10,8 +11,7 @@
 
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
-=======
->>>>>>> origin/main
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -585,4 +585,89 @@ function addressNewAccessibilityIssues() {
   }
 
   // Check for color contrast issues (simplified check)
-  const textElements = document.querySelectorAll('
+  const textElements = document.querySelectorAll('p, span, h1, h2, h3, h4, h5, h6, li, a, button');
+  textElements.forEach((el, index) => {
+    const style = window.getComputedStyle(el);
+    const color = style.color;
+    const backgroundColor = style.backgroundColor;
+    if (color && backgroundColor) {
+      // Simplified check - in production use a proper contrast ratio library
+      if (color === backgroundColor) {
+        issues.push({
+          code: 'COLOR_CONTRAST',
+          severity: 'error',
+          message: `Element at index ${index} has identical text and background colors`
+        });
+      }
+    }
+  });
+
+  // Check for missing alt text on images
+  const images = document.querySelectorAll('img');
+  images.forEach((img, index) => {
+    if (!img.hasAttribute('alt')) {
+      issues.push({
+        code: 'IMG_ALT',
+        severity: 'error',
+        message: `Image at index ${index} is missing alt attribute`
+      });
+    }
+  });
+
+  // Check for missing form labels
+  const formControls = document.querySelectorAll('input, select, textarea');
+  formControls.forEach((control, index) => {
+    const id = control.getAttribute('id');
+    const hasLabel = id && document.querySelector(`label[for="${id}"]`);
+    const hasAriaLabel = control.hasAttribute('aria-label') || control.hasAttribute('aria-labelledby');
+    const type = control.getAttribute('type');
+    if (type !== 'hidden' && !hasLabel && !hasAriaLabel) {
+      issues.push({
+        code: 'FORM_LABEL',
+        severity: 'error',
+        message: `Form control at index ${index} is missing an associated label`
+      });
+    }
+  });
+
+  // Check for missing document title
+  if (!document.title || document.title.trim() === '') {
+    issues.push({
+      code: 'DOC_TITLE',
+      severity: 'error',
+      message: 'Document is missing a title'
+    });
+  }
+
+  // Check for missing html lang attribute
+  if (!document.documentElement.hasAttribute('lang')) {
+    issues.push({
+      code: 'HTML_LANG',
+      severity: 'warning',
+      message: 'HTML element is missing lang attribute'
+    });
+  }
+
+  // Check for headings hierarchy
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  headings.forEach((heading, index) => {
+    const level = parseInt(heading.tagName.substring(1), 10);
+    if (previousLevel === 0 && level !== 1) {
+      issues.push({
+        code: 'HEADING_HIERARCHY',
+        severity: 'warning',
+        message: `Heading at index ${index} starts at level ${level}, should start at level 1`
+      });
+    } else if (previousLevel > 0 && level > previousLevel + 1) {
+      issues.push({
+        code: 'HEADING_HIERARCHY',
+        severity: 'warning',
+        message: `Heading at index ${index} skips from level ${previousLevel} to level ${level}`
+      });
+    }
+    previousLevel = level;
+  });
+
+  return { valid: issues.filter(i => i.severity === 'error').length === 0, issues };
+}

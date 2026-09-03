@@ -52,6 +52,19 @@ const dependencyGraph = document.getElementById('dependencyGraph');
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
+// TODO: add the new functions or changes requested in the issue
+function addHeadingHierarchy() {
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let lastLevel = 0;
+  headings.forEach(heading => {
+    const currentLevel = parseInt(heading.tagName.substring(1));
+    if (lastLevel > 0 && currentLevel > lastLevel + 1) {
+      console.warn(`Heading hierarchy skip detected: jumped from h${lastLevel} to h${currentLevel}`);
+    }
+    lastLevel = currentLevel;
+  });
+}
+
 // TODO: This is the existing code that needs to be preserved
 //_Commit: 18ddb6408a2b2823efa22f0a77964bb5d6737f93_
 //<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->

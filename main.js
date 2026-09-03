@@ -197,11 +197,9 @@ async function generateAccessibilityReport(options = {}) {
 }
 
 // Utilities
-const { validateInput, processData } = require('./utils/validators');
 const { formatResponse } = require('./utils/processor');
 
 // Additional imports from origin/main
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
 const { 
     improveAccessibility, 
     addressInsightReportIssues, 

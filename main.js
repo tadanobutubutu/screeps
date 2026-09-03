@@ -2,7 +2,7 @@ const fs = require('fs');
 const main = require('./utilities');
 
 const {
-  createInPageButton,
+  createInPageButton: existingCreateInPageButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
@@ -77,9 +77,25 @@ const accessibilityUtils = {
   addAriaLabel
 };
 
+// Implement the new createInPageButton function
+function createInPageButton(options) {
+  const { text, icon, onClick, id, className, ariaLabel, title, disabled } = options;
+  const button = document.createElement('button');
+  button.textContent = text;
+  if (icon) button.appendChild(icon);
+  button.addEventListener('click', onClick);
+  button.id = id || '';
+  button.className = className || '';
+  button.setAttribute('aria-label', ariaLabel || '');
+  button.title = title || '';
+  button.disabled = disabled || false;
+  return button;
+}
+
 module.exports = {
   ...main,
   ...accessibilityUtils,
+  createInPageButton,
   renderDependencyGraph,
   renderIndex,
   validateTableAccessibility,

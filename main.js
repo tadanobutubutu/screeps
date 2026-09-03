@@ -152,6 +152,27 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  /**
+   * New function to handle focus trap for keyboard navigation
+   */
+  newFocusTrap() {
+    // Implementation of focus trap for keyboard navigation
+  },
+
+  /**
+   * New function to check for unique landmarks
+   */
+  ensureUniqueLandmarks() {
+    // Implementation to ensure unique landmarks
+  },
+
+  /**
+   * New function to add accessible names to SVGs
+   */
+  getSvgAccessibleName() {
+    // Implementation to add accessible names to SVGs
+  }
 };
 
 // New functions

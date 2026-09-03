@@ -39,6 +39,171 @@ function newFunction () {
 }
 
 /**
+ * Validates landmark structure for accessibility issues
+ * Checks for proper landmark roles, labels, and uniqueness
+ * @param {HTMLElement} container - The container element to check for landmarks
+ * @returns {Array} Array of accessibility issues found in landmark structure
+ */
+function validateLandmarkStructure(container) {
+  const issues = [];
+  
+  if (!container) {
+    return issues;
+  }
+  
+  // Define valid ARIA landmark roles
+  const validLandmarkRoles = [
+    'banner',
+    'navigation',
+    'main',
+    'complementary',
+    'contentinfo',
+    'search',
+    'form',
+    'application'
+  ];
+  
+  // Define landmark elements that imply landmark roles
+  const landmarkElements = ['header', 'nav', 'main', 'aside', 'footer'];
+  
+  // Check for landmark elements without proper roles/labels
+  landmarkElements.forEach(tagName => {
+    const elements = container.querySelectorAll(tagName);
+    elements.forEach((element, index) => {
+      const role = element.getAttribute('role');
+      const ariaLabel = element.getAttribute('aria-label');
+      const ariaLabelledBy = element.getAttribute('aria-labelledby');
+      
+      // Header should have banner role or be properly labeled
+      if (tagName === 'header') {
+        if (!role && !ariaLabel && !ariaLabelledBy && element.id !== 'header') {
+          issues.push({
+            type: 'header-missing-landmark',
+            message: `Header element is missing proper landmark role or label for accessibility`,
+            element: element
+          });
+        }
+      }
+      
+      // Footer should have contentinfo role
+      if (tagName === 'footer') {
+        if (!role && !ariaLabel && !ariaLabelledBy) {
+          issues.push({
+            type: 'footer-missing-landmark',
+            message: `Footer element is missing proper landmark role or label for accessibility`,
+            element: element
+          });
+        }
+      }
+      
+      // Nav should have navigation role or be part of main
+      if (tagName === 'nav') {
+        if (!role && !ariaLabel && !ariaLabelledBy) {
+          issues.push({
+            type: 'nav-missing-label',
+            message: `Navigation element is missing aria-label or aria-labelledby for accessibility`,
+            element: element
+          });
+        }
+      }
+      
+      // Main should have main role
+      if (tagName === 'main') {
+        if (!role && role !== 'main') {
+          // main element inherently has main role, but check for conflicts
+        }
+      }
+    });
+  });
+  
+  // Check for explicit landmark roles
+  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="form"], [role="application"]');
+  
+  // Check for multiple main landmarks
+  const mainLandmarks = container.querySelectorAll('[role="main"], main');
+  if (mainLandmarks.length > 1) {
+    mainLandmarks.forEach((landmark, index) => {
+      if (index > 0) {
+        if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+          issues.push({
+            type: 'duplicate-main-landmark',
+            message: `Duplicate main landmark found. Secondary main landmarks should have aria-label for identification`,
+            element: landmark
+          });
+        }
+      }
+    });
+  }
+  
+  // Check for landmarks without labels when multiple exist
+  const bannerLandmarks = container.querySelectorAll('[role="banner"]');
+  if (bannerLandmarks.length > 1) {
+    bannerLandmarks.forEach((landmark, index) => {
+      if (index > 0) {
+        if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+          issues.push({
+            type: 'duplicate-banner-landmark',
+            message: `Duplicate banner landmark found. Secondary banner landmarks should have aria-label for identification`,
+            element: landmark
+          });
+        }
+      }
+    });
+  }
+  
+  // Check for landmarks that should be unique but aren't labeled
+  const navigationLandmarks = container.querySelectorAll('[role="navigation"]');
+  if (navigationLandmarks.length > 1) {
+    navigationLandmarks.forEach((landmark, index) => {
+      if (index > 0) {
+        if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+          issues.push({
+            type: 'duplicate-navigation-landmark',
+            message: `Duplicate navigation landmark found. Secondary navigation landmarks should have aria-label for identification`,
+            element: landmark
+          });
+        }
+      }
+    });
+  }
+  
+  // Check for landmarks without accessible names
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    const ariaLabel = landmark.getAttribute('aria-label');
+    const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
+    
+    if (!ariaLabel && !ariaLabelledBy) {
+      issues.push({
+        type: 'landmark-missing-label',
+        message: `Landmark with role "${role}" is missing aria-label or aria-labelledby for accessibility`,
+        element: landmark
+      });
+    }
+  });
+  
+  // Check for skip links and landmark relationships
+  const skipLinks = container.querySelectorAll('a[href^="#"]');
+  skipLinks.forEach(skipLink => {
+    const target = skipLink.getAttribute('href').substring(1);
+    const targetElement = container.querySelector(`#${target}`);
+    if (targetElement) {
+      const hasLandmark = targetElement.matches('[role], main, header, nav, aside, footer, section') || 
+                          targetElement.closest('[role], main, header, nav, aside, footer, section');
+      if (!hasLandmark) {
+        issues.push({
+          type: 'skip-link-invalid-target',
+          message: `Skip link targets element that is not a landmark or focusable element`,
+          element: skipLink
+        });
+      }
+    }
+  });
+  
+  return issues;
+}
+
+/**
  * Validates table structure for accessibility issues
  * Checks for proper table headers, scope attributes, captions, and structure
  * @param {HTMLElement} container - The container element to check for tables
@@ -637,7 +802,7 @@ if (dependencyGraph) {
    * @param {Object} axe - An instance of axe-core for accessibility scanning.
    * @returns {Promise<void>}
    */
-  async generateAccessibilityReport(axe) {
+  async function generateAccessibilityReport(axe) {
     try {
       // Scan the entire document for accessibility violations
       const results = await axe.run(document, {
@@ -842,7 +1007,9 @@ module.exports = {
   validateTableStructure,
   initializeAccessibility,
   renderIndex: function() { return renderGraphIndex.apply(this, arguments); },
-  renderAdditionalContent
+  renderAdditionalContent,
+  // Export the new landmark structure validation function
+  validateLandmarkStructure
 };
 
 // Add the new function to the exports

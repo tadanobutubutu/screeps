@@ -5,7 +5,7 @@
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibleNames())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
@@ -165,7 +165,7 @@ function fixFakeLink() {
     // Fix 1 fake link issue
 }
 
-// Function to set language attribute on the document
+// // Function to set language attribute on the document
 function setLanguageAttribute() {
   document.documentElement.lang = 'en';
 }
@@ -499,13 +499,10 @@ function writeReport(report) {
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
-}
+// TODO: Implement new function3 logic here
+// Implement new function3 logic here
+// Generate and save accessibility report
+generateAccessibilityReport();
 
 // Existing utility function
 const formatResponse = (data) => {

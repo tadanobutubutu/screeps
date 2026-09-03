@@ -187,6 +187,13 @@ function getLangAttribute() {
 
 function wrapPrimaryContentInMain() {
     // Implementation to wrap primary content in <main> element
+    const primaryContent = document.querySelector('#primary-content');
+    if (primaryContent) {
+        const mainElement = document.createElement('main');
+        mainElement.id = 'main-content';
+        mainElement.appendChild(primaryContent);
+        document.body.appendChild(mainElement);
+    }
 }
 
 function validateTableAccessibility() {
@@ -225,4 +232,4 @@ function createAccessibleLink() {
     // Implementation to create accessible links
 }
 
-export { createInPageButton, validateLandmarkStructure };
+export { createInPageButton, validateLandmarkStructure, wrapPrimaryContentInMain };

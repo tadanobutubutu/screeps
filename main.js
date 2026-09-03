@@ -85,6 +85,14 @@ function trapFocus(container) {
 const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...';
 const modifiedSvgString = addAccessibleName(originalSvgString);
 
+function spawn(tagName, attributes = {}) {
+  const element = document.createElement(tagName);
+  for (const [key, value] of Object.entries(attributes)) {
+    element.setAttribute(key, value);
+  }
+  return element;
+}
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_

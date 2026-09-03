@@ -77,6 +77,12 @@ const accessibilityUtils = {
   addAriaLabel
 };
 
+// Add the new function for fixing the ARIA role of the dependencyGraph container
+const fixDependencyGraphARIA = (container) => {
+  if (!container) return;
+  container.setAttribute('role', 'graph');
+};
+
 module.exports = {
   ...main,
   ...accessibilityUtils,
@@ -89,4 +95,5 @@ module.exports = {
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
+  fixDependencyGraphARIA // Export the new function
 };

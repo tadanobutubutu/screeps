@@ -287,3 +287,40 @@ function parseColor(colorString) {
     }
 
     // Handle named colors (limited support)
+    const namedColors = {
+        'red': {r: 255, g: 0, b: 0},
+        'green': {r: 0, g: 128, b: 0},
+        'blue': {r: 0, g: 0, b: 255},
+        'white': {r: 255, g: 255, b: 255},
+        'black': {r: 0, g: 0, b: 0},
+        'yellow': {r: 255, g: 255, b: 0},
+        'cyan': {r: 0, g: 255, b: 255},
+        'magenta': {r: 255, g: 0, b: 255},
+        'gray': {r: 128, g: 128, b: 128},
+        'grey': {r: 128, g: 128, b: 128},
+        'orange': {r: 255, g: 165, b: 0},
+        'pink': {r: 255, g: 192, b: 203},
+        'brown': {r: 165, g: 42, b: 42},
+        'purple': {r: 128, g: 0, b: 128},
+        'olive': {r: 128, g: 128, b: 0},
+        'lime': {r: 0, g: 255, b: 0},
+        'teal': {r: 0, g: 128, b: 128},
+        'navy': {r: 0, g: 0, b: 128}
+    };
+
+    const lowerColor = colorString.toLowerCase();
+    return namedColors[lowerColor] || null;
+}
+
+// Helper function to calculate luminance
+function calculateLuminance(rgb) {
+    const r = rgb.r / 255;
+    const g = rgb.g / 255;
+    const b = rgb.b / 255;
+
+    const a = [r, g, b].map(v => {
+        return (v <= 0.03928) ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+
+    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+}

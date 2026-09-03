@@ -1,12 +1,29 @@
-Here is the resolved file content:
-
-```javascript
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const { exec, spawn } = require('child_process');
-const { listFiles } = require('./utils'); // Assuming utils is a new directory containing the utility functions from the merged code
+const { listFiles } = require('./utils');
+
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  setSvgAccessibilityProps,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  addAriaLabel: addAriaLabelAlt,
+  googleSignIn,
+  handleCredentialResponseAlt,
+  renderGraphIndexUtil,
+  addressAccessibilityIssues
+} = require('./utilities');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,11 +37,12 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-const a11yStore = {
-  makeSvgAccessible,
-  configureSvgAccessibility,
-  setSvgAttributes
-};
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label)
+  }
+  return element
+}
 
 const AddressabilityIssues = {
   validateTableAccessibility,
@@ -36,22 +54,58 @@ const AddressabilityIssues = {
   ensureUniqueLandmarks,
   missingRoles,
   fixFakeLinkIssue,
-  addAriaLabel, // added AriaLabel function from the merged code
-  addAriaLabelLegacy // preserved AriaLabelLegacy function from the merged code
+  addAriaLabel,
+  addAriaLabelLegacy
 };
 
-// ... (TODO items and other existing code are preserved as they were)
+function accessibility() {
+  if (typeof document === 'undefined') return;
 
-// Main entry point function (updated to call accessibility utility function)
-function main() {
-  // Main application logic can be added here
-  console.log("Main function executed");
-  // Example: initialize accessibility features
-  accessibility(); // call the utility function instead
-  // Additional setup can be added as needed
+  handleInitialAccessibility();
+
+  if (typeof checkLandmarkElements === 'function') {
+    checkLandmarkElements();
+  }
+
+  a11yStore.addSVGAccessibilityProps();
+  a11yStore.fixFakeLinks();
+  a11yStore.ensureInteractiveRoles();
+  a11yStore.addFormControlLabels();
+  a11yStore.ensureImageAccessibility();
 }
 
-// Add the utility functions from merged code (modifying their names for avoid naming conflicts)
+function ensureInteractiveElementsAccessible() {
+  accessibility();
+}
+
+function handleInitialAccessibility() {
+  if (!document) return;
+  addLanguageAttribute();
+  addMainLandmarkToIndex();
+}
+
+function addLanguageAttribute() {
+  if (typeof document !== 'undefined') {
+    addLangAttribute(document.documentElement);
+  }
+}
+
+function addMainLandmarkToIndex() {
+  if (typeof document !== 'undefined') {
+    const main = document.querySelector('main') || document.querySelector('#main') || document.querySelector('.main');
+    if (main) {
+      main.setAttribute('role', 'main');
+    }
+  }
+}
+
+addLanguageAttribute();
+
+function main() {
+  console.log("Main function executed");
+  accessibility();
+}
+
 function utilityListFiles(dir, fileList = []) {
   const items = fs.readdirSync(dir, { withFileTypes: true });
   for (const item of items) {
@@ -65,14 +119,11 @@ function utilityListFiles(dir, fileList = []) {
   return fileList;
 }
 
-// ... (add other utility functions here)
-
-// Export the utility functions and other items
 module.exports = {
   greetingFunction,
   renderGraphIndex,
   renderGraphIndexAlt,
-  accessibility, // added accessibility utility function
+  accessibility,
   ensureInteractiveElementsAccessible,
   handleInitialAccessibility,
   addressAccessibilityIssues,
@@ -97,8 +148,7 @@ module.exports = {
   dependencyGraphContent,
   indexContent,
   main,
-  addressabilityIssues: AddressabilityIssues, // using the updated AddressabilityIssues object containing all functions
-  // Additional utility functions from merged code
+  addressabilityIssues: AddressabilityIssues,
   loadConfigurations,
   countDependencies,
   sanitizeFilename,
@@ -117,6 +167,7 @@ module.exports = {
   ensureUniqueLandmarks,
   missingRoles,
   fixFakeLinkIssue,
+  AddressabilityIssues,
   addAriaLabel,
   addAriaLabelLegacy,
   checkElementAccessibility,
@@ -126,7 +177,9 @@ module.exports = {
   getLangAttribute,
   renderDependencyGraphs,
   addLanguageAttribute,
-  addMainLandmarkToIndex, // added utility function
-  utilityListFiles // added utility function
+  addMainLandmarkToIndex,
+  utilityListFiles,
+  configureSvgAccessibility,
+  makeSvgAccessible,
+  setSvgAttributes
 };
-```

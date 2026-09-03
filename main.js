@@ -195,7 +195,8 @@ module.exports = {
   fixFakeLink,
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  towerDefense
 };
 
 // Start the application if run directly
@@ -207,4 +208,16 @@ if (require.main === module) {
 function renderDependencyGraphs() {
   // Implementation to render dependency graphs
   console.log('Dependency graphs rendered');
+}
+
+// Tower defense implementation
+function towerDefense() {
+  const state = {
+    towers: [],
+    health: 100,
+    defend: function() {
+      return state.towers.length > 0 ? 'Tower defense active' : 'No towers placed';
+    }
+  };
+  return state;
 }

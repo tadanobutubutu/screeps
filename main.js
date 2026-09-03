@@ -36,65 +36,6 @@ const appState = {
   cache: new Map()
 };
 
-function validateLandmark(landmark) {
-  const errors = [];
-  
-  // Check if landmark exists
-  if (!landmark) {
-    errors.push('Landmark element is required');
-    return errors;
-  }
-  
-  // Get the role of the landmark
-  const role = landmark.role || (landmark.getAttribute ? landmark.getAttribute('role') : null);
-  
-  // Define valid landmark roles according to ARIA spec
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  
-  // Validate role attribute exists
-  if (!role) {
-    errors.push('Landmark must have a role attribute');
-  } else if (validLandmarks.indexOf(role) === -1) {
-    // Check if it's a valid landmark role
-    const validRoles = ['application', 'form', 'region'];
-    if (validRoles.indexOf(role) === -1) {
-      errors.push(`Invalid landmark role: ${role}`);
-    }
-  }
-  
-  // Additional validation for specific landmarks
-  if (role === 'main') {
-    // There should only be one main landmark per page
-    const existingMain = document.querySelector('[role="main"]');
-    if (existingMain && existingMain !== landmark) {
-      errors.push('Duplicate main landmark found');
-    }
-  }
-  
-  // Check for accessible name on landmarks that require it
-  const landmarksRequiringName = ['search', 'navigation', 'complementary'];
-  if (landmarksRequiringName.indexOf(role) !== -1) {
-    const hasLabel = landmark.getAttribute ? 
-      (landmark.getAttribute('aria-label') || 
-       landmark.getAttribute('aria-labelledby') ||
-       landmark.getAttribute('aria-description')) : false;
-    if (!hasLabel) {
-      errors.push(`Landmark with role "${role}" should have an accessible name`);
-    }
-  }
-  
-  // Also check tagName for semantic HTML5 landmarks
-  if (landmark.tagName) {
-    const tagName = landmark.tagName.toLowerCase();
-    const validTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-    if (!validTags.includes(tagName) && !role) {
-      errors.push(`Invalid landmark tag: ${tagName}`);
-    }
-  }
-  
-  return errors;
-}
-
 const appData = {
   title: 'Screeps',
   version: '1.0.0'
@@ -200,16 +141,6 @@ function validateTableStructure(tables) {
   };
 }
 
-function fixTableStructureIssues() {
-  // Implementation to fix table structure issues
-  console.log('Fixing table structure issues');
-}
-
-function fixTableHeaderCellScope() {
-  // Implementation to fix table header cell scope
-  console.log('Fixing table header cell scope');
-}
-
 /**
  * Validates landmark elements for accessibility
  * @param {Object} element - The element to validate
@@ -217,19 +148,68 @@ function fixTableHeaderCellScope() {
  */
 function validateLandmark(element) {
   const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
-  if (!element.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${element.tagName}`);
+  // Check if element exists
+  if (!element) {
+    issues.push('Landmark element is required');
+    return { success: false, issues };
   }
 
-  // Also check role attribute for ARIA landmarks
-  const role = element.getAttribute('role');
-  const validRoles = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary', 'region'];
-  if (role && !validRoles.includes(role)) {
-    issues.push(`Invalid landmark role: ${role}`);
+  // Get role from attribute
+  const role = element.getAttribute ? element.getAttribute('role') : null;
+
+  // Define valid ARIA landmark roles
+  const validAriaLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
+
+  // Validate role attribute exists
+  if (!role) {
+    issues.push('Landmark must have a role attribute');
+  } else if (validAriaLandmarks.indexOf(role) === -1) {
+    // Check if it's a valid landmark role (including region, application, form)
+    const validRoles = ['application', 'form', 'region'];
+    if (validRoles.indexOf(role) === -1) {
+      issues.push(`Invalid landmark role: ${role}`);
+    }
+  }
+
+  // Additional validation for specific landmarks
+  if (role === 'main') {
+    // There should only be one main landmark per page
+    const existingMain = document.querySelector('[role="main"]');
+    if (existingMain && existingMain !== element) {
+      issues.push('Duplicate main landmark found');
+    }
+  }
+
+  // Check for accessible name on landmarks that require it
+  const landmarksRequiringName = ['search', 'navigation', 'complementary'];
+  if (landmarksRequiringName.indexOf(role) !== -1) {
+    const hasLabel = element.getAttribute ?
+      (element.getAttribute('aria-label') ||
+       element.getAttribute('aria-labelledby') ||
+       element.getAttribute('aria-description')) : false;
+    if (!hasLabel) {
+      issues.push(`Landmark with role "${role}" should have an accessible name`);
+    }
+  }
+
+  // Check tagName for semantic HTML5 landmarks
+  if (element.tagName) {
+    const tagName = element.tagName.toLowerCase();
+    const validTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+    if (!validTags.includes(tagName) && !role) {
+      issues.push(`Invalid landmark tag: ${tagName}`);
+    }
+  } else {
+    issues.push('Missing tagName');
+  }
+
+  // Additional check: if tagName present but not a valid landmark tag
+  if (element.tagName) {
+    const validLandmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+    if (!validLandmarkTags.includes(element.tagName.toLowerCase())) {
+      issues.push(`Invalid landmark: ${element.tagName}`);
+    }
   }
 
   return {

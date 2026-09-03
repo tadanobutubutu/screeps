@@ -161,4 +161,48 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureImageAccessibility();
 }
 
+/**
+ * Validates that heading elements follow a proper hierarchy (no skipped levels)
+ * @returns {Object} Object containing validation results and any issues found
+ */
+function validateHeadingHierarchy() {
+  const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+  const issues = [];
+  let previousLevel = 0;
+
+  headings.forEach((heading, index) => {
+    const currentLevel = parseInt(heading.tagName.charAt(1));
+    
+    // Check if heading level increased by more than 1
+    if (previousLevel > 0 && currentLevel > previousLevel + 1) {
+      issues.push({
+        type: 'SKIPPED_LEVEL',
+        element: heading,
+        expected: `h${previousLevel + 1}`,
+        actual: heading.tagName,
+        message: `Heading level skipped: ${heading.tagName} follows h${previousLevel}`
+      });
+    }
+
+    // Check for proper nesting within sections
+    if (!heading.hasAttribute('role') && !heading.id) {
+      if (!heading.textContent.trim()) {
+        issues.push({
+          type: 'EMPTY_HEADING',
+          element: heading,
+          message: 'Heading element is empty and should contain text'
+        });
+      }
+    }
+
+    previousLevel = currentLevel;
+  });
+
+  return {
+    total: headings.length,
+    issues: issues,
+    isValid: issues.length === 0
+  };
+}
+
 // ... rest of the code ...

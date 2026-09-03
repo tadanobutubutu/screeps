@@ -54,6 +54,117 @@ function newFunction () {
   // TODO: Implement the new function as per the issue requirements
 }
 
+/**
+ * wrapPrimaryContentInMain - Wraps the primary content of a container in a <main> element
+ * This ensures proper landmark structure for accessibility compliance
+ * @param {HTMLElement} container - The container element to process
+ * @param {Object} options - Optional configuration options
+ * @param {string} options.mainId - Custom id for the main element (default: 'main-content')
+ * @param {string} options.mainRole - Role attribute for the main element (default: 'main')
+ * @returns {HTMLElement|null} - The main element or null if operation failed
+ */
+export function wrapPrimaryContentInMain(container, options = {}) {
+  if (!container || typeof container !== 'object' || !container.nodeType) {
+    return null;
+  }
+
+  const config = {
+    mainId: options.mainId || 'main-content',
+    mainRole: options.mainRole || 'main'
+  };
+
+  // Check if main element already exists
+  let mainElement = container.querySelector('main');
+
+  if (mainElement) {
+    // Main element already exists, ensure it has proper id
+    if (!mainElement.id) {
+      mainElement.id = config.mainId;
+    }
+    // Ensure proper role
+    if (!mainElement.getAttribute('role')) {
+      mainElement.setAttribute('role', config.mainRole);
+    }
+    return mainElement;
+  }
+
+  // Create new main element
+  mainElement = document.createElement('main');
+  mainElement.id = config.mainId;
+  mainElement.setAttribute('role', config.mainRole);
+
+  // Find primary content to wrap
+  // Priority: role="main" > main element > article > section with id > body content
+  const primarySelectors = [
+    '[role="main"]',
+    'article:not([role])',
+    'section[id]',
+    '.primary-content',
+    '#primary-content',
+    '.main-content',
+    '#main-content'
+  ];
+
+  let primaryContent = null;
+
+  for (const selector of primarySelectors) {
+    primaryContent = container.querySelector(selector);
+    if (primaryContent) {
+      break;
+    }
+  }
+
+  if (primaryContent) {
+    // Move primary content children into main element
+    while (primaryContent.firstChild) {
+      mainElement.appendChild(primaryContent.firstChild);
+    }
+
+    // Replace primary content with main element
+    primaryContent.parentNode.replaceChild(mainElement, primaryContent);
+  } else {
+    // No specific primary content found
+    // Get body or container's direct children
+    const body = container.ownerDocument ? container.ownerDocument.body : null;
+    const contentParent = body || container;
+
+    // Collect direct children to move
+    const childrenToMove = Array.from(contentParent.childNodes).filter(node => {
+      // Skip script, style, and meta elements
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const tagName = node.tagName.toLowerCase();
+        if (['script', 'style', 'link', 'meta', 'noscript'].includes(tagName)) {
+          return false;
+        }
+        // Skip existing main element
+        if (tagName === 'main') {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    // Move children to main element
+    childrenToMove.forEach(child => {
+      mainElement.appendChild(child);
+    });
+
+    // Append main element to container
+    if (body) {
+      body.appendChild(mainElement);
+    } else {
+      container.appendChild(mainElement);
+    }
+  }
+
+  // Log successful operation
+  if (typeof log === 'function') {
+    log(`Primary content wrapped in main element with id: ${config.mainId}`, 'info');
+  }
+
+  return mainElement;
+}
+
 // Implement the function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport (container, report) {
   const fixes = {

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Add back any required exports that might have been removed
 // TODO: This is the existing code that needs to be preserved
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
@@ -80,8 +77,17 @@ function generateAccessibilityReport() {
     return report;
 }
 
-// Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure, generateAccessibilityReport };
-```
+// Line 305: Implement logic to create an in-page button element
+// and insert it into the DOM at an appropriate location
+function createAndInsertButton(buttonId, buttonText, buttonClass) {
+    const button = createInPageButton(buttonId, buttonText, buttonClass);
+    
+    // Insert the button into the DOM at an appropriate location
+    // Using the document body as the insertion point
+    document.body.appendChild(button);
+    
+    return button;
+}
 
-In this resolved version, I kept both the original `generateAccessibilityReport()` implementation and the PR version that uses `axe-core`. To resolve the merge conflict, I combined both functions with some modifications, creating a new `generateAccessibilityReport()` function that utilizes `axe-core` scanning and report writing while also maintaining the original landmark structure validation check. I also added a distinction between accessibility violations with critical impact (errors) and those with warning impact (warnings). The original landmark structure validation function has been reused within the combined function. I preserved and integrated both changes to best serve the intentions of both authors.
+// Preserve any existing exports here
+export { createInPageButton, validateLandmarkStructure, generateAccessibilityReport, createAndInsertButton };

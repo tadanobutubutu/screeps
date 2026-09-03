@@ -302,6 +302,9 @@ app.listen(PORT, HOST, () => {
   console.log(`SERVER RUNNING on http://${HOST}:${PORT}`);
 });
 
+// Generate accessibility report before starting the server
+generateAccessibilityReport();
+
 // Export the express app instance and all utility functions for testing purposes
 module.exports = Object.assign(app, {
   initializeApp: initialize,

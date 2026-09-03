@@ -397,6 +397,8 @@ function revokeSession(sessionId) {
     return appState.sessions.delete(sessionId);
 }
 
+// TODO: Add new functions below this line
+
 module.exports = {
   greetingFunction,
   renderGraphIndex,

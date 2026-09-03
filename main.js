@@ -156,7 +156,6 @@ function analyzeModuleDependenciesLocal(modules) {
   };
 }
 
-// New function to visualize module relationships
 function visualizeModuleRelationshipsLocal(modules) {
   // Implementation would create a visual representation of module relationships
   console.log('Visualizing relationships for modules:', modules);

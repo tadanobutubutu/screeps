@@ -32,6 +32,9 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Identify and update specific functions that render dependency graphs or
+// display module structure for debugging purposes.
+
 // TODO: Implement harvest logic
 function harvest() {
     // This function should collect resources or data from available sources

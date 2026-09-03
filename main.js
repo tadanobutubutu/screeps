@@ -295,6 +295,127 @@ const AddressabilityIssues = {
         }
       }
     });
+  },
+
+  handleNewAccessibilityIssues(context) {
+    const issues = [];
+    
+    // Handle table structure issues
+    if (context && context.tables) {
+      context.tables.forEach((table) => {
+        const validationResult = validateTableStructure(table);
+        if (!validationResult.valid) {
+          issues.push({
+            type: 'table-structure',
+            severity: 'high',
+            message: validationResult.error,
+            element: table,
+            suggestedFix: 'Ensure table has proper headers and semantic structure'
+          });
+        }
+      });
+    }
+    
+    // Handle landmark issues
+    if (context && context.landmarks) {
+      context.landmarks.forEach((landmark) => {
+        const validationResult = validateLandmark(landmark);
+        if (!validationResult.valid) {
+          issues.push({
+            type: 'invalid-landmark',
+            severity: 'medium',
+            message: validationResult.error || 'Invalid landmark structure',
+            element: landmark,
+            suggestedFix: 'Ensure landmark has proper role or semantic tag'
+          });
+        }
+      });
+    }
+    
+    // Handle SVG accessibility
+    if (context && context.svgElements) {
+      context.svgElements.forEach((svg) => {
+        const accessibleName = getSvgAccessibleName(svg);
+        if (!accessibleName) {
+          issues.push({
+            type: 'missing-svg-accessible-name',
+            severity: 'medium',
+            message: 'SVG element is missing accessible name',
+            element: svg,
+            suggestedFix: 'Add aria-label or title attribute to SVG'
+          });
+        }
+      });
+    }
+    
+    // Handle fake links
+    if (context && context.fakeLinks) {
+      context.fakeLinks.forEach((link) => {
+        issues.push({
+          type: 'fake-link',
+          severity: 'high',
+          message: 'Link points to invalid location',
+          element: link,
+          suggestedFix: 'Use proper href or button element'
+        });
+      });
+    }
+    
+    // Handle color contrast issues
+    if (context && context.elements) {
+      context.elements.forEach((element) => {
+        if (element.style && element.style.color && element.style.backgroundColor) {
+          const contrastRatio = calculateContrastRatio(element.style.color, element.style.backgroundColor);
+          if (contrastRatio < 4.5) {
+            issues.push({
+              type: 'color-contrast',
+              severity: 'high',
+              message: `Color contrast ratio ${contrastRatio.toFixed(2)} is below WCAG AA standard (4.5:1)`,
+              element: element,
+              suggestedFix: 'Increase contrast between text and background colors'
+            });
+          }
+        }
+      });
+    }
+    
+    // Handle missing alt text on images
+    if (context && context.images) {
+      context.images.forEach((img) => {
+        if (!img.getAttribute('alt')) {
+          issues.push({
+            type: 'missing-alt-text',
+            severity: 'high',
+            message: 'Image is missing alt attribute',
+            element: img,
+            suggestedFix: 'Add descriptive alt text to image'
+          });
+        }
+      });
+    }
+    
+    // Handle form label associations
+    if (context && context.formControls) {
+      context.formControls.forEach((control) => {
+        const tagName = control.tagName ? control.tagName.toLowerCase() : '';
+        if (tagName === 'input' || tagName === 'select' || tagName === 'textarea') {
+          const hasLabel = control.getAttribute('aria-label') || 
+                          control.getAttribute('aria-labelledby') ||
+                          document.querySelector(`label[for="${control.id}"]`);
+          if (!hasLabel) {
+            issues.push({
+              type: 'missing-form-label',
+              severity: 'high',
+              message: 'Form control is missing associated label',
+              element: control,
+              suggestedFix: 'Add label element with for attribute or aria-label'
+            });
+          }
+        }
+      });
+    }
+    
+    return issues;
   }
 };
 
@@ -362,4 +483,24 @@ function createServer() {
 
 function generateAccessibilityReport() {
   // Placeholder implementation
+}
+
+function calculateContrastRatio(color1, color2) {
+  // Calculate relative luminance and return contrast ratio
+  const getLuminance = (color) => {
+    const rgb = color.match(/\d+/g);
+    if (!rgb) return 0;
+    const [r, g, b] = rgb.map(val => {
+      const c = parseInt(val) / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  
+  const l1 = getLuminance(color1);
+  const l2 = getLuminance(color2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  
+  return (lighter + 0.05) / (darker + 0.05);
 }

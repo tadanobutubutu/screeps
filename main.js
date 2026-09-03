@@ -1,3 +1,13 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -30,8 +40,30 @@ const axeConfig = {
   silent: true
 };
 
+const userSafety = 'unsafe';
+let safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+
+export const checkUserSafety = () => {
+  let userSafetyMessage = '';
+
+  if (userSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
+  }
+
+  return userSafetyMessage;
+};
+
+export const checkSafetyCategories = () => {
+  let safetyCategoriesMessage = '';
+
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+
+  return safetyCategoriesMessage;
+};
+
 function getUserSafetyAdvice() {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
   return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
 }
 
@@ -203,7 +235,6 @@ async function renderFunction2() {
 // Helper functions for handling various tasks
 
 function someFunction() {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
   return safetyCategories.length;
 }
 
@@ -245,5 +276,7 @@ module.exports = {
   analyzeAccessibility,
   renderFunction1,
   renderFunction2,
+  checkUserSafety,
+  checkSafetyCategories,
   // ... Other exported functions and objects
 };

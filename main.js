@@ -20,6 +20,7 @@ const {
   fibonacci,
   sum,
   average,
+// TODO: This is the existing code that needs to be preserve
   max,
   min,
   mode,

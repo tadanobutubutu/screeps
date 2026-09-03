@@ -354,7 +354,7 @@ function getSvgAccessibleName(svg) {
 }
 
 /**
- * Creates an accessible in-page button
+ * Creates an accessible in-page button with correct accessibility properties for in-page linking
  * @param {Object} options - Button options
  * @param {string} options.text - Button text
  * @param {string} options.ariaLabel - Aria label for the button

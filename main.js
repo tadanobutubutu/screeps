@@ -80,6 +80,19 @@ module.exports = {
 
         validateLandmark();
         validateLandmarkStructure();
+
+        // REACT_041: Add accessible names to 2 SVGs
+        setSvgAttributes();
+        addSvgAccessibilityProps();
+
+        // REACT_025: Ensure unique landmarks (2 issues)
+        ensureUniqueLandmarks();
+
+        // REACT_036: Fix fake link issue
+        fixFakeLinkIssue();
+
+        // NEW: Implement a new function to handle focus trap for keyboard navigation
+        newFocusTrap();
     },
 
     initializeApp() {
@@ -300,6 +313,32 @@ function fixFakeLinkIssue(doc) {
 // TODO: Add any other missing exports that might have been?
 // todo-hash: 56f45ce56096b85dbb75d33db0d35b21c87eaa9e
 
+// NEW: Implement a new function to handle focus trap for keyboard navigation
+function newFocusTrap() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const focusableElements = document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Tab') {
+      if (event.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          lastFocusable.focus();
+          event.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          firstFocusable.focus();
+          event.preventDefault();
+        }
+      }
+    }
+  });
+}
+
 module.exports = {
   MyComponent,
   AddressabilityIssues,
@@ -342,6 +381,7 @@ module.exports = {
   addressNewAccessibilityIssues,
   renderDependencyGraphContent,
   fixFakeLinkIssue,
+  newFocusTrap,
   XYZ,
   calculateSum,
   ensureLandmarkUniqueness,

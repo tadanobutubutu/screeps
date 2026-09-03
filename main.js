@@ -1,5 +1,4 @@
 // TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -10,8 +9,6 @@
 
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
-=======
->>>>>>> origin/main
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -585,4 +582,205 @@ function addressNewAccessibilityIssues() {
   }
 
   // Check for color contrast issues (simplified check)
-  const textElements = document.querySelectorAll('
+  const textElements = document.querySelectorAll('p, span, h1, h2, h3, h4, h5, h6, li, td, th, dt, dd');
+  textElements.forEach(el => {
+    const style = window.getComputedStyle(el);
+    const fontSize = parseFloat(style.fontSize);
+    // Placeholder for contrast check
+    if (style.color === style.backgroundColor) {
+      issues.push({
+        code: 'CONTRAST',
+        severity: 'error',
+        message: `Element has same color as background: ${el.tagName.toLowerCase()}`
+      });
+    }
+  });
+
+  // Check for missing form labels
+  const formControls = document.querySelectorAll('input, select, textarea');
+  formControls.forEach(control => {
+    const id = control.getAttribute('id');
+    const type = control.getAttribute('type');
+    if (type === 'hidden') return;
+
+    const hasLabel = (id && document.querySelector(`label[for="${id}"]`)) ||
+                     control.closest('label') ||
+                     control.getAttribute('aria-label') ||
+                     control.getAttribute('aria-labelledby');
+
+    if (!hasLabel) {
+      issues.push({
+        code: 'FORM_LABEL',
+        severity: 'error',
+        message: `Form control missing label: ${control.tagName.toLowerCase()}`
+      });
+    }
+  });
+
+  return { valid: issues.filter(i => i.severity === 'error').length === 0, issues };
+}
+
+/**
+ * Renders a dependency graph from the provided data
+ * @param {Object} graphData - The graph data containing nodes and edges
+ * @param {HTMLElement} container - The container element to render the graph into
+ * @returns {Object} The rendered graph instance
+ */
+function renderDependencyGraph(graphData, container) {
+  if (!container || typeof document === 'undefined') {
+    return null;
+  }
+
+  // Clear the container
+  container.innerHTML = '';
+
+  // Create the graph wrapper
+  const graphWrapper = document.createElement('div');
+  graphWrapper.className = 'dependency-graph';
+  graphWrapper.setAttribute('role', 'graphics-document');
+  graphWrapper.setAttribute('aria-label', 'Dependency graph');
+
+  // Create the nodes container
+  const nodesContainer = document.createElement('div');
+  nodesContainer.className = 'dependency-graph-nodes';
+
+  // Create the edges container (SVG for lines)
+  const edgesContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  edgesContainer.classList.add('dependency-graph-edges');
+  edgesContainer.setAttribute('aria-hidden', 'true');
+
+  // Render nodes
+  if (graphData && graphData.nodes) {
+    graphData.nodes.forEach(node => {
+      const nodeEl = document.createElement('div');
+      nodeEl.className = `dependency-node dependency-node-${node.type || 'default'}`;
+      nodeEl.setAttribute('data-node-id', node.id);
+      nodeEl.setAttribute('role', 'treeitem');
+      nodeEl.setAttribute('tabindex', '0');
+      nodeEl.setAttribute('aria-label', node.label || node.id);
+      nodeEl.textContent = node.label || node.id;
+      nodesContainer.appendChild(nodeEl);
+    });
+  }
+
+  // Render edges
+  if (graphData && graphData.edges) {
+    graphData.edges.forEach(edge => {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', edge.x1 || 0);
+      line.setAttribute('y1', edge.y1 || 0);
+      line.setAttribute('x2', edge.x2 || 0);
+      line.setAttribute('y2', edge.y2 || 0);
+      line.setAttribute('stroke', '#999');
+      edgesContainer.appendChild(line);
+    });
+  }
+
+  graphWrapper.appendChild(edgesContainer);
+  graphWrapper.appendChild(nodesContainer);
+  container.appendChild(graphWrapper);
+
+  return {
+    element: graphWrapper,
+    update: (updatedGraphData) => renderDependencyGraph(updatedGraphData, container),
+    destroy: () => {
+      container.innerHTML = '';
+    }
+  };
+}
+
+/**
+ * Renders an index view showing dependencies between modules
+ * @param {Array} dependencies - Array of dependency objects
+ * @param {HTMLElement} container - The container element to render the index into
+ * @returns {Object} The rendered index instance
+ */
+function renderDependencyIndexView(dependencies, container) {
+  if (!container || typeof document === 'undefined') {
+    return null;
+  }
+
+  // Clear the container
+  container.innerHTML = '';
+
+  // Create the index wrapper
+  const indexWrapper = document.createElement('div');
+  indexWrapper.className = 'dependency-index-view';
+  indexWrapper.setAttribute('role', 'region');
+  indexWrapper.setAttribute('aria-label', 'Dependency index view');
+
+  // Create the heading
+  const heading = document.createElement('h2');
+  heading.className = 'dependency-index-heading';
+  heading.textContent = 'Dependency Index';
+  indexWrapper.appendChild(heading);
+
+  // Create the list
+  const list = document.createElement('ul');
+  list.className = 'dependency-index-list';
+  list.setAttribute('role', 'list');
+
+  if (dependencies && Array.isArray(dependencies)) {
+    dependencies.forEach(dep => {
+      const listItem = document.createElement('li');
+      listItem.className = 'dependency-index-item';
+      listItem.setAttribute('role', 'listitem');
+      listItem.setAttribute('data-dependency-id', dep.id || '');
+
+      const name = document.createElement('span');
+      name.className = 'dependency-name';
+      name.textContent = dep.name || dep.id || 'Unnamed dependency';
+      listItem.appendChild(name);
+
+      if (dep.version) {
+        const version = document.createElement('span');
+        version.className = 'dependency-version';
+        version.textContent = `v${dep.version}`;
+        listItem.appendChild(version);
+      }
+
+      if (dep.description) {
+        const description = document.createElement('span');
+        description.className = 'dependency-description';
+        description.textContent = dep.description;
+        listItem.appendChild(description);
+      }
+
+      list.appendChild(listItem);
+    });
+  }
+
+  indexWrapper.appendChild(list);
+  container.appendChild(indexWrapper);
+
+  return {
+    element: indexWrapper,
+    update: (updatedDeps) => renderDependencyIndexView(updatedDeps, container),
+    destroy: () => {
+      container.innerHTML = '';
+    }
+  };
+}
+
+// Export functions for use in other modules (if module system is available)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    setHtmlLangAttribute,
+    detectAndSetLang,
+    getLangAttribute,
+    personName,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    ensureUniqueLandmarks,
+    createAccessibleLink,
+    isLinkAccessible,
+    createInPageButton,
+    newFocusTrap,
+    addressNewAccessibilityIssues,
+    renderDependencyGraph,
+    renderDependencyIndexView
+  };
+}

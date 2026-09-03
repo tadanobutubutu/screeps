@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 // main.js - Main application entry point
 
 // Main module

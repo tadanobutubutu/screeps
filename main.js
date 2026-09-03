@@ -66,14 +66,14 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
+      landmarks.forEach((landmark) => {
         if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
+          landmark.setAttribute('id', `${element}-${landmark.index}`);
         }
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
+            landmark.setAttribute('aria-label', `${element} ${landmark.index + 1}`);
           }
         }
       });
@@ -150,8 +150,6 @@ const a11yStore = {
       }
     });
   },
-
-  // ... remaining a11yStore methods ...
 };
 
 // New functions
@@ -159,6 +157,53 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureInteractiveRoles();
   a11yStore.addFormControlLabels();
   a11yStore.ensureImageAccessibility();
+}
+
+/**
+ * Implements new function3 logic
+ * Performs comprehensive accessibility validation on the application
+ * @returns {Object} Result containing issues found and overall status
+ */
+function function3() {
+  const issues = [];
+
+  // Check for missing form labels
+  const formControls = document.querySelectorAll('input, select, textarea');
+  formControls.forEach((control) => {
+    if (!control.id && control.tagName !== 'INPUT' && control.tagName !== 'SELECT' && control.tagName !== 'TEXTAREA') {
+      // Skip button-like elements
+      if (['button', 'submit', 'a'].includes(control.tagName)) return;
+      
+      issues.push({
+        id: control.id || 'unnamed',
+        type: 'missing-form-label',
+        element: control,
+        message: 'Form control lacks an associated label'
+      });
+    }
+  });
+
+  // Check for sufficient heading hierarchy
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const lastHeadingLevel = Math.max(...headings.map((h) => h.tagName.charCodeAt(0)));
+
+  // Basic heuristic: ensure there's a clear heading structure
+  if (headings.length === 0) {
+    issues.push({
+      type: 'no-headings',
+      message: 'Page contains no headings'
+    });
+  } else if (lastHeadingLevel < 1) {
+    issues.push({
+      type: 'lowest-level-heading',
+      message: 'All headings are level 1 (H1)'
+    });
+  }
+
+  return {
+    issues: issues.length > 0 ? issues : null,
+    passed: issues.length === 0
+  };
 }
 
 // ... rest of the code ...

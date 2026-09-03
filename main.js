@@ -298,7 +298,7 @@ const initializeApp = () => {
   setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
 
   // Ensure unique landmarks (2 issues)
-  ensureUniqueLandmarks();
+  ensureUniqueLandmarks([]);
 
   // Fix 1 fake link issue
   fixFakeLink();
@@ -421,7 +421,7 @@ async function scanAccessibility(filePaths) {
   }
 
   // Check for unique landmarks
-  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  const uniqueLandmarkIssues = ensureUniqueLandmarks([]);
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
     uniqueLandmarkIssues.forEach(function(issue) {
       issues.push({
@@ -502,7 +502,7 @@ function writeReport(report) {
 // TODO: Implement function for generating a report based on accessibility issues
 // Replaced placeholder with full implementation using axe-core scanning and report writing
 function generateAccessibilityReport() {
-  const report = scanAccessibility();
+  const report = scanAccessibility([]);
   writeReport(report);
   return report;
 }

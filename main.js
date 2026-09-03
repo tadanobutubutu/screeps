@@ -151,8 +151,25 @@ function createInPageButtons(buttonData) {
 
 // TODO: Implement new function3 logic here
 function newFunction3() {
-    // Placeholder implementation for new function3 logic
-    console.log('New function3 logic implemented.');
+    // Implement new function3 logic: Enhance accessibility of the dependency graph
+    const dependencyGraph = document.getElementById('dependencyGraph');
+    if (dependencyGraph) {
+        // Ensure the dependency graph has appropriate ARIA attributes
+        if (dependencyGraph.getAttribute('role') !== 'region') {
+            dependencyGraph.setAttribute('role', 'region');
+        }
+        
+        // Add aria-label if missing
+        if (!dependencyGraph.getAttribute('aria-label')) {
+            dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+        }
+        
+        // Ensure it has a descriptive title
+        if (dependencyGraph.getAttribute('title') === undefined || 
+            dependencyGraph.getAttribute('title') === '') {
+            dependencyGraph.setAttribute('title', 'Dependency graph visualization');
+        }
+    }
 }
 
 // Function to count dependencies

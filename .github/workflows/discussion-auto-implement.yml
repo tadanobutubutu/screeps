@@ -1,15 +1,17 @@
 name: ✨ Discussion Auto-Implement
 
 on:
-  issue_comment:
+  workflow_dispatch:
+
+  # disabled_by_guard: issue_comment:
     types: [created]
-  issues:
+  # disabled_by_guard: issues:
     types: [labeled]
 
 permissions:
   contents: write
   pull-requests: write
-  issues: write
+  # disabled_by_guard: issues: write
 
 jobs:
   check-implementation-request:

@@ -1,13 +1,15 @@
 name: 👋 Welcome Bot
 
 on:
-  issues:
+  workflow_dispatch:
+
+  # disabled_by_guard: issues:
     types: [opened]
   pull_request_target:
     types: [opened]
 
 permissions:
-  issues: write
+  # disabled_by_guard: issues: write
   pull-requests: write
 
 jobs:

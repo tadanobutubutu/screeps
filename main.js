@@ -77,6 +77,13 @@ const accessibilityUtils = {
   addAriaLabel
 };
 
+const upgrade = () => {
+  fixButtonIdentifiers();
+  fixDependencyGraphAria();
+  addMainLandmarkToIndex();
+  ensureElementId(document.body);
+};
+
 module.exports = {
   ...main,
   ...accessibilityUtils,
@@ -89,4 +96,5 @@ module.exports = {
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
+  upgrade,
 };

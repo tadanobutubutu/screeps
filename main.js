@@ -251,3 +251,19 @@ export function fixTableStructure(tableElement) {
       const row = th.closest('tr')
       const cellIndex = Array.from(row.children).indexOf(th)
       th.setAttribute('scope',
+
+/**
+ * Creates an in-page button element with the specified label and click handler.
+ * @param {string} label - The text for the button.
+ * @param {Function} [onClick] - The click event handler.
+ * @returns {HTMLButtonElement} The created button element.
+ */
+export function createInPageButton(label, onClick) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.className = 'in-page-button';
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  return button;
+}

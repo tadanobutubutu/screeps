@@ -62,6 +62,26 @@ function getFullLangAttribute() {
 }
 
 /**
+ * Counts the number of dependencies in this module
+ * @returns {number} The number of dependencies
+ */
+function countDependencies() {
+    // Dependencies are external and internal modules required by this file
+    // External packages: express, axe-core
+    // Built-in modules: fs, path
+    // Internal packages: @accessible/react, ./utils
+    const dependencies = [
+        'express',
+        'axe-core',
+        'fs',
+        'path',
+        '@accessible/react',
+        './utils'
+    ];
+    return dependencies.length;
+}
+
+/**
  * Validates table accessibility compliance
  * @param {Object} table - The table object to validate
  * @returns {Object} Validation result with success status and any issues found
@@ -308,6 +328,7 @@ function isValidUrl(url) {
 module.exports = {
     getLangAttribute,
     getFullLangAttribute,
+    countDependencies,
     validateTableAccessibility,
     validateTableStructure,
     validateLandmark,

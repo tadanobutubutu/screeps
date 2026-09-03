@@ -5,13 +5,6 @@ const config = {};
 let isInitialized = false;
 const appData = {};
 
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
-// TODO: Add back any required exports that might have been removed
-
-// Address accessibility issues from insight report
-
 // Import the required module
 const { axe } = require('axe-core');
 const fs = require('fs');
@@ -19,7 +12,7 @@ const fastMap = require('fast-map');
 const path = require('path');
 
 // Import other functions
-const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, implementNewFunction, addLangAttribute, main, someFunction, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport } = require('./');
+const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, implementNewFunction, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport } = require('./');
 
 // Import helper functions
 const { validateInput, processData, formatResponse } = require('./utils/validators');
@@ -83,12 +76,7 @@ module.exports = {
   formatResponse,
   getSvgAccessibleName,
   setSvgAttributes,
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
   createInPageButtons,
   fixUniqueLandmarks,
   // ... (Other exports preserved)
 };
-```
-
-This code integrates the new change related to the `addressAccessibilityIssues` function and updates the import sections. It also introduces the axe-core library for scanning accessibility issues and generates an accessibility report based on scan results.

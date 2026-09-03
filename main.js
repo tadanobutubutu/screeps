@@ -598,10 +598,7 @@ function countDependencies() {
   // Implement function for counting dependencies with Node.js
 }
 
-function handleCredentialResponse(response) {
-  // Implement function for handling credential responses
-}
-
+// Handle fake link issues
 function handleFakeLinks(issues) {
   // Placeholder
 }

@@ -16,7 +16,7 @@ function handleCredentialResponse(credential) {
     // Handle attestation response (from registration)
     if (response.attestationObject) {
         const attestationBuffer = response.attestationObject;
-        const attestationObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(attestationBuffer)));
+        const attestationObj = { buffer: attestationBuffer };
         
         console.log('Credential registered successfully');
         console.log('Credential ID:', credential.id);
@@ -35,7 +35,7 @@ function handleCredentialResponse(credential) {
         
         console.log('Credential verified successfully');
         console.log('Credential ID:', credential.id);
-        console.log('Authentication timestamp:', new Date(clientDataJSON.timestamp));
+        console.log('Authentication timestamp:', new Date().toISOString());
         
         return {
             success: true,
@@ -56,7 +56,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues
@@ -100,7 +100,7 @@ function implementUpgrade(harvestedData) {
     };
 
     // Process button improvements
-    if (Array.isArray(harvestedData.buttons)) {
+    if (harvestedData.buttons && Array.isArray(harvestedData.buttons)) {
         harvestedData.buttons.forEach(buttonConfig => {
             if (buttonConfig.id && buttonConfig.text && buttonConfig.class) {
                 createInPageButton(buttonConfig.id, buttonConfig.text, buttonConfig.class);
@@ -114,17 +114,17 @@ function implementUpgrade(harvestedData) {
     }
 
     // Process landmark improvements
-    if (Array.isArray(harvestedData.landmarks)) {
-        harvestedData.landmarks.forEach(landmarkType => {
-            if (landmarkType && !document.querySelector(landmarkType)) {
-                const landmark = document.createElement(landmarkType);
-                landmark.setAttribute('role', landmarkType);
-                landmark.setAttribute('aria-label', `${landmarkType} section`);
+    if (harvestedData.landmarks && Array.isArray(harvestedData.landmarks)) {
+        harvestedData.landmarks.forEach(landmarkConfig => {
+            if (landmarkConfig.type) {
+                const landmark = document.createElement(landmarkConfig.type);
                 document.body.appendChild(landmark);
+                const textNode = document.createTextNode(`${landmarkConfig.type} section`);
+                landmark.appendChild(textNode);
                 result.improvements.push({
                     type: 'landmark',
                     action: 'created',
-                    details: landmarkType
+                    details: landmarkConfig.type
                 });
             }
         });
@@ -132,11 +132,11 @@ function implementUpgrade(harvestedData) {
 
     // Process accessibility enhancements
     if (harvestedData.accessibility) {
-        if (harvestedData.accessibility.optimizeContrast !== undefined) {
+        if (harvestedData.accessibility.contrastRatio !== undefined) {
             const style = document.createElement('style');
             style.textContent = `
                 :root {
-                    --contrast-ratio: ${harvestedData.accessibility.optimizeContrast ? 7 : 4.5};
+                    --contrast-ratio: ${harvestedData.accessibility.contrastRatio};
                 }
             `;
             document.head.appendChild(style);
@@ -161,7 +161,7 @@ function implementUpgrade(harvestedData) {
 // Function to retrieve the current language setting
 function getCurrentLanguageSetting() {
     // Assuming the language setting is stored in a cookie named 'language'
-    const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('language='));
+    const cookie = document.cookie.split(';').find(c => c.trim().startsWith('language='));
     if (cookie) {
         const [_, value] = cookie.split('=');
         return value;

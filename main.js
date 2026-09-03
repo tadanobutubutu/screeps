@@ -120,20 +120,104 @@ function writeReport(report) {
   }
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
+// TODO: Address accessibility issues from insight report — CONTINUING in main.js
 // Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
+async function generateAccessibilityReport(htmlContent, url) {
+  const report = await scanAccessibility(htmlContent, url);
   writeReport(report);
   return report;
 }
 
-async function scanAccessibility() {
-  // ... Scanning and reporting accessibility issues using axe-core ...
-  return {
-    timestamp: new Date().toISOString(),
-    issues: []
-  };
+async function scanAccessibility(htmlContent, url) {
+  const { JSDOM } = require('jsdom');
+  
+  let document;
+  let window;
+  
+  if (htmlContent) {
+    const dom = new JSDOM(htmlContent, { url: url || 'http://localhost', pretendToBeVisual: true });
+    document = dom.window.document;
+    window = dom.window;
+  } else if (typeof global.document !== 'undefined') {
+    document = global.document;
+    window = global.window;
+  } else {
+    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', { pretendToBeVisual: true });
+    document = dom.window.document;
+    window = dom.window;
+  }
+
+  const axeCore = require('axe-core');
+  
+  try {
+    const results = await axeCore.run(document, {
+      runOnly: {
+        type: 'tag',
+        values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice']
+      },
+      resultTypes: ['violations', 'passes', 'incomplete', 'inapplicable']
+    }, window);
+
+    const report = {
+      timestamp: new Date().toISOString(),
+      url: url || 'local',
+      documentTitle: document.title,
+      issues: {
+        violations: results.violations.map(v => ({
+          id: v.id,
+          impact: v.impact,
+          description: v.description,
+          help: v.help,
+          helpUrl: v.helpUrl,
+          nodes: v.nodes.map(n => ({
+            html: n.html,
+            target: n.target,
+            failureSummary: n.failureSummary
+          }))
+        })),
+        passes: results.passes.length,
+        incomplete: results.incomplete.map(i => ({
+          id: i.id,
+          impact: i.impact,
+          description: i.description,
+          nodes: i.nodes.map(n => ({
+            html: n.html,
+            target: n.target
+          }))
+        })),
+        inapplicable: results.inapplicable.length,
+        summary: {
+          totalViolations: results.violations.length,
+          critical: results.violations.filter(v => v.impact === 'critical').length,
+          serious: results.violations.filter(v => v.impact === 'serious').length,
+          moderate: results.violations.filter(v => v.impact === 'moderate').length,
+          minor: results.violations.filter(v => v.impact === 'minor').length
+        }
+      }
+    };
+
+    return report;
+  } catch (error) {
+    console.error('Accessibility scan failed:', error.message);
+    return {
+      timestamp: new Date().toISOString(),
+      url: url || 'local',
+      error: error.message,
+      issues: {
+        violations: [],
+        passes: 0,
+        incomplete: [],
+        inapplicable: 0,
+        summary: {
+          totalViolations: 0,
+          critical: 0,
+          serious: 0,
+          moderate: 0,
+          minor: 0
+        }
+      }
+    };
+  }
 }
 
 // Accessibility functions
@@ -341,6 +425,7 @@ module.exports = {
   getLandmarkById,
   improveAccessibility,
   generateAccessibilityReport,
+  scanAccessibility,
   CONFIG,
   validateLandmarkObject,
   addSvgAccessibilityProps,

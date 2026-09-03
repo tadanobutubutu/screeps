@@ -6,22 +6,22 @@
 // TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
 // Existing code
-export function existingFunction1() {
+function existingFunction1() {
   // Existing implementation
 }
 
-export function existingFunction2() {
+function existingFunction2() {
   // Existing implementation
 }
 
 // New Function
-export function myNewFunction() {
+function myNewFunction() {
   // Implement the new functionality (as per the original commitment)
   return "New function implemented successfully";
 }
 
 // REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html) {
+function addLangAttributeToString(html) {
   if (typeof html !== 'string') return html;
   return html.replace(/<html([^>]*)>/i, (match, attrs) => {
     if (/\blang=/i.test(match)) return match;
@@ -39,9 +39,6 @@ import reportWebVitals from './reportWebVitals';
 import a11y from './AccessibilityUtilities';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-
-// DOM Elements
-const dependencyGraph = document.getElementById('dependencyGraph');
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
@@ -434,6 +431,7 @@ module.exports = {
   generateAccessibilityReport: generateAccessibilityReport,
   addressAccessibilityIssues,
   getLangAttribute,
+  addLangAttribute,
   createInPageButton,
   a11y,
   accessibilityUtils
@@ -442,6 +440,7 @@ module.exports = {
 // Initialize the application with accessibility improvements
 function initialize() {
     // Ensure the dependencyGraph container has a proper ARIA role
+    const dependencyGraph = document.getElementById('dependencyGraph');
     if (dependencyGraph) {
         dependencyGraph.setAttribute('role', 'region');
         dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');

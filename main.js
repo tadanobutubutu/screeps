@@ -41,14 +41,13 @@ import {
   renderIndex
 } from './AccessibilityHelpers';
 
-const ScreepsBot = require('./ScreepsBot').default;
+const ScreepsBotModule = require('./ScreepsBot').default;
 const updateUI = require('./updateUI').default;
 const main = require('./utilities');
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 const { accessibilityUtils } = require('./accessibilityUtils');
 
-const setElementLabel = main.setElementLabel;
 const { validateTableStructureForAccessibility } = main;
 
 const DOMParser = require('@xmldom/xmldom').DOMParser;
@@ -98,11 +97,6 @@ if (dependencyGraph) {
   if (!dependencyGraph.getAttribute('id')) {
     dependencyGraph.setAttribute('id', 'dependencyGraph');
   }
-
-  // Validate table accessibility
-  const validateTableAccessibility = (html) => {
-    // ... (existing code)
-  };
 
   // Function to validate table accessibility
   dependencyGraph.addEventListener('click', (event) => {
@@ -340,13 +334,23 @@ function checkLandmarkElement() {
       missingLandmarks.push(landmark);
     }
   });
-  return missingLandmarks;
+  return {
+    hasAllRequired: missingLandmarks.length === 0,
+    missingLandmarks: missingLandmarks
+  };
 }
 
 // Check all landmarks
 function checkLandmarks() {
   const allLandmarks = document.querySelectorAll('main, nav, header, footer, aside, [role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
-  return allLandmarks.length;
+  return {
+    count: allLandmarks.length,
+    landmarks: Array.from(allLandmarks).map(el => ({
+      tag: el.tagName.toLowerCase(),
+      role: el.getAttribute('role') || null,
+      id: el.id || null
+    }))
+  };
 }
 
 // Implement the function to add an accessible name to SVGs
@@ -364,20 +368,52 @@ function addAccessibleName(svgString) {
 const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
 const modifiedSvgString = addAccessibleName(originalSvgString);
 
-// Validate table accessibility
-function validateTableAccessibility(tableData) {
-  return true;
-}
-
-// Validate table structure
-function validateTableStructure(tableData) {
-  return true;
+// Validate table accessibility - helper function implementation
+function validateTableAccessibilityData(tableData) {
+  if (!tableData) return { valid: true, issues: [] };
+  
+  const issues = [];
+  
+  // Check for proper table structure
+  if (typeof tableData === 'string') {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(tableData, 'text/html');
+    const tables = doc.querySelectorAll('table');
+    
+    tables.forEach((table, index) => {
+      const headers = table.querySelectorAll('th');
+      const rows = table.querySelectorAll('tr');
+      
+      if (headers.length === 0) {
+        issues.push({
+          type: 'REACT_027',
+          message: `Table ${index + 1} is missing header cells (th)`,
+          severity: 'warning'
+        });
+      }
+      
+      if (rows.length === 0) {
+        issues.push({
+          type: 'REACT_027',
+          message: `Table ${index + 1} has no rows`,
+          severity: 'error'
+        });
+      }
+    });
+  }
+  
+  return { valid: issues.length === 0, issues };
 }
 
 // Handle additional rendering logic
-function renderAdditionalContent(additionalData) {
-  // Your implementation for additional rendering logic
-  return renderAdditionalContent(additionalData);
+function renderAdditionalContentHandler(additionalData) {
+  // Implementation for rendering additional content
+  const container = document.getElementById('additionalContent');
+  if (container && additionalData) {
+    container.innerHTML = additionalData;
+    return container.innerHTML;
+  }
+  return '';
 }
 
 // Main entry point
@@ -389,6 +425,7 @@ function mainEntry() {
 
 module.exports = {
   ScreepsBot,
+  ScreepsBotModule,
   updateUI,
   addLangAttribute,
   fixTableStructure,
@@ -454,7 +491,10 @@ module.exports = {
   newFunction1,
   newFunction2,
   newFunction3,
-  newFunction4
+  newFunction4,
+  // Additional helper functions
+  validateTableAccessibilityData,
+  renderAdditionalContentHandler
 };
 
 addLangAttribute();

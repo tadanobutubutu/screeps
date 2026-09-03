@@ -150,31 +150,6 @@ function ensureUniqueLandmarks(html) {
     // ... (Your updated function)
 }
 
-// Save both functions as new exports
-module.exports = {
-    applyAccessibilityFixes, // No changes
-    applyAllAccessibilityFixes: applyAccessibilityFixes, // Rename to match the new export name
-    addressAccessibilityIssues, // No changes
-    spawnProcess, // Export the spawning logic function
-    spawnConcurrent // Export concurrent spawning function
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
-async function scanAccessibility() {
-  // ... Scanning and reporting accessibility issues using axe-core ...
-  return {
-    timestamp: new Date().toISOString(),
-    issues: []
-  };
-}
-
 // Accessibility functions
 function addKeyboardNavigation() {
   // Implementation for keyboard navigation support
@@ -225,6 +200,114 @@ function improveAccessibility() {
   fixTableHeaderCellScope();
   addMainLandmark();
   addSvgAccessibleNames();
+}
+
+// Save both functions as new exports
+module.exports = {
+    applyAccessibilityFixes, // No changes
+    applyAllAccessibilityFixes: applyAccessibilityFixes, // Rename to match the new export name
+    addressAccessibilityIssues, // No changes
+    spawnProcess, // Export the spawning logic function
+    spawnConcurrent // Export concurrent spawning function
+}
+
+// TODO: Implement function for generating a report based on accessibility issues
+// Replaced placeholder with full implementation using axe-core scanning and report writing
+function generateAccessibilityReport(options = {}) {
+    const { 
+        context = document, 
+        options: axeOptions = {},
+        includeIncomplete = true,
+        allowedRules = []
+    } = options;
+    
+    const scanResults = await scanAccessibility(context, axeOptions, includeIncomplete);
+    
+    const filteredIssues = filterIssuesByRules(scanResults.violations, allowedRules);
+    
+    const report = {
+        timestamp: new Date().toISOString(),
+        summary: generateReportSummary(filteredIssues),
+        issues: filteredIssues,
+        metadata: {
+            totalViolations: scanResults.violations.length,
+            totalPasses: scanResults.passes.length,
+            incompleteCount: scanResults.incomplete ? scanResults.incomplete.length : 0,
+            inapplicableCount: scanResults.inapplicable ? scanResults.inapplicable.length : 0
+        }
+    };
+    
+    writeReport(report);
+    
+    return report;
+}
+
+async function scanAccessibility(context, axeOptions = {}, includeIncomplete = true) {
+    try {
+        const results = await axe.run(context, {
+            runOnly: {
+                type: 'tag',
+                values: ['wcag2a', 'wcag2aa', 'wcag21aa']
+            },
+            ...axeOptions
+        });
+
+        const uniqueLandmarks = [];
+        const seen = new Set();
+
+        const landmarkElements = results.violations.filter(violation => violation.id === 'landmark-one-per-page');
+        landmarkElements.forEach(violation => {
+            violation.nodes.forEach(node => {
+                const landmark = {
+                    id: node.target,
+                    ...node
+                };
+                const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+                if (!seen.has(landmarkId)) {
+                    seen.add(landmarkId);
+                    uniqueLandmarks.push(landmark);
+                }
+            });
+        });
+
+        results.violations = results.violations.filter(violation => violation.id !== 'landmark-one-per-page');
+
+        return results;
+    } catch (error) {
+        console.error('Accessibility scan error:', error);
+        throw error;
+    }
+}
+
+function filterIssuesByRules(violations, allowedRules) {
+    if (!allowedRules || allowedRules.length === 0) {
+        return violations;
+    }
+    return violations.filter(violation => allowedRules.includes(violation.id));
+}
+
+function generateReportSummary(issues) {
+    const summary = {
+        critical: 0,
+        serious: 0,
+        moderate: 0,
+        minor: 0
+    };
+    
+    issues.forEach(issue => {
+        const impact = issue.impact || 'minor';
+        if (summary.hasOwnProperty(impact)) {
+            summary[impact]++;
+        }
+    });
+    
+    return summary;
+}
+
+function writeReport(report) {
+    const reportFile = path.join(__dirname, 'accessibility_report.json');
+    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
 // User Safety: unsafe

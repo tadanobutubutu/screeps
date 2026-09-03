@@ -1,5 +1,58 @@
 // main.js
 
+// Import necessary dependencies
+import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+import fs from 'fs';
+import './styles.css';
+import './styles.less';
+import { calculateSum } from './utils';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { CONFIG } from './utils/constants';
+import App from './App';
+import { helper, formatDate } from './utils';
+import { someFunction } from './utils/someFunction';
+import express from 'express';
+import path from 'path';
+import { fetchUser, clearCache } from './utils/user';
+
+// Landmark data structure
+const landmarks = [];
+
+// Application data structure
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
+};
+
+let icons = {};
+
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
 // Find the primary content element in the DOM
 const primaryContent = document.querySelector('.primary-content') ||
                         document.querySelector('[role="main"]') ||
@@ -60,59 +113,6 @@ function enhanceAccessibilityForAddBook(form) {
   
   return form;
 }
-
-// Import necessary dependencies
-import React, { useState, useEffect } from 'react';
-import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
-import fs from 'fs';
-import './styles.css';
-import './styles.less';
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
-import App from './App';
-import { helper, formatDate } from './utils';
-import { someFunction } from './utils/someFunction';
-import express from 'express';
-import path from 'path';
-import { fetchUser, clearCache } from './utils/user';
-
-// Landmark data structure
-const landmarks = [];
-
-// Application data structure
-const appData = {
-    title: 'Frontend Application',
-    version: '1.0.0'
-};
-
-let icons = {};
-
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
@@ -276,28 +276,26 @@ function createInPageButton(buttonsData) {
 }
 
 // Function to set language attribute
-function setLanguageAttribute(document, lang) {
-  if (document.documentElement) {
-    document.documentElement.lang = lang || 'en';
+function setLanguageAttribute(element, lang) {
+  if (element && typeof lang === 'string' && lang.length > 0) {
+    element.setAttribute('lang', lang);
+    return true;
   }
+  return false;
 }
 
 // Function to add landmark roles
-function addLandmarkRoles(container) {
-  if (!container) return;
-
-  const possibleLandmarks = {
-    'nav': 'navigation',
-    'aside': 'complementary',
-    'section': 'region',
-    'form': 'form'
-  };
-
-  const sections = container.querySelectorAll('nav, aside, section, form');
-  sections.forEach(section => {
-    if (!section.getAttribute('role') && possibleLandmarks[section.tagName.toLowerCase()]) {
-      section.setAttribute('role', possibleLandmarks[section.tagName.toLowerCase()]);
+function addLandmarkRoles(elements) {
+  if (!Array.isArray(elements)) return [];
+  return elements.map(el => {
+    if (el.tagName) {
+      const tag = el.tagName.toLowerCase();
+      const roleMap = { nav: 'navigation', main: 'main', footer: 'contentinfo', aside: 'complementary' };
+      if (roleMap[tag] && !el.getAttribute('role')) {
+        el.setAttribute('role', roleMap[tag]);
+      }
     }
+    return el;
   });
 }
 
@@ -605,8 +603,7 @@ function validateLandmarkAttributes(container) {
   };
 }
 
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
+// Landmark structure check
 function landmarkStructureCheck(container) {
   if (!container) return { valid: false, errors: ['Container is required'] };
   const landmarks = container.querySelectorAll('[role]');
@@ -618,44 +615,6 @@ function landmarkStructureCheck(container) {
     }
   });
   return { valid: errors.length === 0, errors };
-}
-
-function setLanguageAttribute(element, lang) {
-  if (element && typeof lang === 'string' && lang.length > 0) {
-    element.setAttribute('lang', lang);
-    return true;
-  }
-  return false;
-}
-
-function addLandmarkRoles(elements) {
-  if (!Array.isArray(elements)) return [];
-  return elements.map(el => {
-    if (el.tagName) {
-      const tag = el.tagName.toLowerCase();
-      const roleMap = { nav: 'navigation', main: 'main', footer: 'contentinfo', aside: 'complementary' };
-      if (roleMap[tag] && !el.getAttribute('role')) {
-        el.setAttribute('role', roleMap[tag]);
-      }
-    }
-    return el;
-  });
-}
-
-function fixFakeLinks(links) {
-  if (!Array.isArray(links)) return [];
-  return links.map(link => {
-    if (link.href && !link.getAttribute('role')) {
-      if (link.href.startsWith('#') || link.href === '') {
-        link.setAttribute('role', 'button');
-      }
-    }
-    return link;
-  });
-}
-
-function isSecureContext() {
-  return window.isSecureContext === true || window.location.protocol === 'https:' || window.location.hostname === 'localhost';
 }
 
 // Updated function using the new functions for rendering graph/index
@@ -798,7 +757,7 @@ function BookItem(book) {
 }
 
 // Function to create a new book entry in the Redux store
-export function addBook(book) {
+function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
@@ -882,6 +841,7 @@ export {
   getSvgAccessibleName,
   setSvgAttributes,
   ensureUniqueLandmarks,
+  ensureLandmarkUniqueness,
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
@@ -900,9 +860,6 @@ export {
   initApp,
   VisualizeDependencyTree,
   checkLandmarkElement,
-  ensureUniqueLandmarks,
-  ensureLandmarkUniqueness,
-  validateLandmark,
   renderDependencyGraphContent,
   landmarks,
   appData,
@@ -918,6 +875,7 @@ export {
   setLanguageAttribute,
   addLandmarkRoles,
   fixFakeLinks,
+  fixFakeLinkIssue,
   isSecureContext,
   ensureFocusableElements,
   validateSvgAccessibility,
@@ -927,8 +885,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  createInPageButton,
-  fixFakeLinkIssue,
   addSvgAccessibleNames,
   ensureUniqueLandmarksDoc,
   fixButtonIdentifiers,

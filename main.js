@@ -201,6 +201,10 @@ const AddressabilityIssues = {
     return result;
   },
 
+  validateLandmark(element) {
+    return AddressabilityIssues.validateLandmark(element);
+  },
+
   validateLandmarkStructure() {
     if (typeof document === 'undefined') return true;
     const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
@@ -367,7 +371,6 @@ function init() {
   setupAriaLiveRegions();
   enhanceSemanticMarkup();
   setupFocusManagement();
-  setupKeyboardNavigation();
   addressInsightIssues();
   enforceAccessibility();
 }

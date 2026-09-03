@@ -555,21 +555,47 @@ if (require.main === module) {
   }
 }
 
-// TODO: Implement upgrade logic
-// This function should use harvested data to improve the system
+// Enhanced upgrade logic function
 function upgradeSystem(harvestedData) {
   // Use harvested data to improve the system
   console.log('Applying upgrade logic with harvested data:', harvestedData);
 
-  // Example: update configuration based on harvested data
-  if (harvestedData) {
-    if (harvestedData.maxResults) {
+  // Validate harvested data
+  if (harvestedData && typeof harvestedData === 'object') {
+    // Update configuration based on harvested data
+    if (harvestedData.maxResults !== undefined) {
       config.maxResults = harvestedData.maxResults;
     }
     if (harvestedData.debug !== undefined) {
       config.debug = harvestedData.debug;
     }
-    // Additional upgrade logic can be added here
+    if (harvestedData.features !== undefined) {
+      // Enable/disable features based on harvested data
+      Object.keys(harvestedData.features).forEach(key => {
+        if (key !== 'disabled') {
+          config[key] = harvestedData.features[key];
+        }
+      });
+    }
+
+    // Additional upgrade logic: ensure unique landmarks after harvest
+    const landmarks = loadLandmarks();
+    const processed = processLandmarks(landmarks);
+    ensureUniqueLandmarks(processed);
+
+    // Upgrade system performance settings if available
+    if (harvestedData.performance !== undefined) {
+      config.performance = harvestedData.performance;
+    }
+
+    // Apply accessibility improvements if configured
+    if (config.ensureUniqueLandmarks) {
+      // Already handled above, but could add more
+    }
+
+    console.log('Upgrade completed successfully');
+  } else {
+    console.warn('Invalid or missing harvested data; no upgrades applied');
   }
 
   return true;

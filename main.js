@@ -333,3 +333,20 @@ function personName(element) {
   
   return null;
 }
+
+// Export the identified functions that render dependency graphs or index views
+export {
+  renderDependencyGraph,
+  renderIndexView,
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  personName
+};

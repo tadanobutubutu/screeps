@@ -152,6 +152,19 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  // New function to ensure proper landmark usage
+  ensureSingleMainLandmark() {
+    const mainElements = document.querySelectorAll('[role="main"]');
+    if (mainElements.length > 1) {
+      console.warn('Multiple <main> elements found. Only one <main> element should be present.');
+      mainElements.forEach((element, index) => {
+        if (index > 0) {
+          element.remove();
+        }
+      });
+    }
+  }
 };
 
 // New functions
@@ -159,6 +172,7 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureInteractiveRoles();
   a11yStore.addFormControlLabels();
   a11yStore.ensureImageAccessibility();
+  a11yStore.ensureSingleMainLandmark(); // Call the new function to check for multiple <main> elements
 }
 
 // ... rest of the code ...

@@ -245,6 +245,44 @@ const AddressabilityIssues = {
   }
 };
 
+// TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const seen = new Map();
+  const result = [];
+
+  landmarks.forEach(landmark => {
+    if (!landmark) return;
+
+    // Ensure the landmark has an id
+    if (!landmark.id) {
+      landmark.id = `landmark-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // Check for duplicate ids
+    if (!seen.has(landmark.id)) {
+      seen.set(landmark.id, 1);
+      result.push(landmark);
+    } else {
+      // Make the id unique by appending a suffix
+      let counter = seen.get(landmark.id);
+      let uniqueId = `${landmark.id}-${counter}`;
+      while (seen.has(uniqueId)) {
+        counter++;
+        uniqueId = `${landmark.id}-${counter}`;
+      }
+      landmark.id = uniqueId;
+      seen.set(uniqueId, 1);
+      result.push(landmark);
+    }
+  });
+
+  return result;
+}
+
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
   sections: [
@@ -333,8 +371,8 @@ function init() {
 }
 
 function addressInsightIssues() {
-  getLandmarkElements();
-  AddressabilityIssues.ensureLandmarkUniqueness(landmarks);
+  const landmarks = getLandmarkElements();
+  ensureUniqueLandmarks(landmarks);
   validateTableAccessibility();
   checkTableStructure();
 
@@ -778,5 +816,6 @@ module.exports = {
   validateLandmarkStructure,
   addressAccessibilityIssues,
   addLangAttribute,
-  getLangAttribute
+  getLangAttribute,
+  ensureUniqueLandmarks
 };

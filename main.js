@@ -439,6 +439,51 @@ function someFunction() {
   return 'some value';
 }
 
+// Harvest logic implementation
+// Attempts to harvest energy from a source, moving toward it if out of range
+function harvest(creep, source) {
+    const harvestResult = creep.harvest(source);
+    
+    if (harvestResult === ERR_NOT_IN_RANGE) {
+        const moveResult = creep.moveTo(source, {
+            visualizePathStyle: { stroke: '#ffaa00' }
+        });
+        return {
+            success: false,
+            action: 'move',
+            result: moveResult,
+            message: 'Creep moved toward source'
+        };
+    }
+    
+    if (harvestResult === OK) {
+        return {
+            success: true,
+            action: 'harvest',
+            result: harvestResult,
+            message: 'Resource harvested successfully'
+        };
+    }
+    
+    return {
+        success: false,
+        action: 'harvest',
+        result: harvestResult,
+        message: 'Harvest failed'
+    };
+}
+
+// TODO: This is the existing code that needs to be preserved
+    // Address accessibility issues from insight report:
+    // Ensure the dependencyGraph container has a proper ARIA role
+    // (This comment remains as-is)
+    //_Commit: eef4b6be04a5e2cd61b7543cfe2dff2da0857ca2_
+    //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+    //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+    //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+    //_Commit: 62d675a958b864c43ad4471b12c4c40c5570b3f7_
+    //<!-- todo-hash: b713d536f0ce67bf9eb8012f08502c264300052f -->
+
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
 
@@ -447,6 +492,38 @@ const expressApp = express();
 const app = express();
 
 module.exports = {
-  UserSafety: 'unsafe',
-  getUserSafetyAdvice
+  initializeApp,
+  processData,
+  fetchData,
+  fetchUser,
+  clearCache,
+  someFunction,
+  helper,
+  formatDate,
+  validateInput,
+  initialize,
+  ensureDependencyGraphRole,
+  renderDependencyGraphContent,
+  createInPageButtons,
+  fixUniqueLandmarks,
+  generateAccessibilityReport,
+  config: CONFIG,
+  appState,
+  ensureUniqueLandmarks,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  PORT,
+  HOST,
+  CONFIG,
+  config,
+  appState,
+  function3,
+  harvest,
+  UserSafety,
+  getUserSafetyAdvice,
+  expressApp,
+  app
 };

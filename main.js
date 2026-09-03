@@ -12,7 +12,6 @@ import { getFullLangAttribute } from './utils/accessibilityUtils.js';
 import { validateTableStructure } from './utils/tableAccessibilityUtils.js';
 import { addProperLandmarkRegions } from './utils/landmarkUtils.js';
 import { setSvgAttributes } from './utils/svgAccessibilityUtils.js';
-import { CONFIG } from './utils/constants.js';
 
 const CONFIG = {
   dataPath: './data',
@@ -229,4 +228,5 @@ function upgradeUserSettings() {
 }
 
 function getSvgAccessibleNameAlt(svgElement) {
-  return svgElement && svgElement.title ? svgElement.title
+  return svgElement && svgElement.title ? svgElement.title : 'Accessible SVG';
+}

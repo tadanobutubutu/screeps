@@ -3,7 +3,7 @@
 // ----- END ORIGINAL CODE-----
 
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute; and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and ...)
@@ -453,7 +453,7 @@ function isLinkAccessible(link) {
     errors.push('Link title attribute duplicates link text');
   }
 
-  return { valid: errors.length === 0, errors };
+  return { success: errors.length === 0 ? true : false, errors };
 }
 
 /**
@@ -554,6 +554,7 @@ function renderDependencyGraph(rootNode, container, options = {}) {
       graphContainer.className = options.className || 'dependency-graph';
       
       // Create SVG for graph visualization
+      // TODO: Implement actual graph drawing (nodes and edges) based on graphData
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.setAttribute('width', options.width || '100%');
       svg.setAttribute('height', options.height || '400');

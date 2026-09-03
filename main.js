@@ -1,9 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
-<<<<<<< HEAD
+
 // Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-=======
->>>>>>> origin/main
 
 const main = require('./utilities')
 
@@ -101,7 +99,6 @@ function implementAccessibilityFixesFromReport (container, report) {
      To preserve both changes (both are valid additions), we include
      both calls in the final implementation.
      -------------------------------------------------------------- */
-}
 
   // Fix SVG accessible names
   const svgElements = container.querySelectorAll('svg')
@@ -688,18 +685,6 @@ function initializeAccessibility() {
     getLastMessage: announcer.getLastMessage
   };
 }
-
-// Call the functions to address the accessibility issues
-addLangAttribute();
-fixTableStructure();
-addMainLandmark();
-fixLandmarkIssues();
-ensureUniqueLandmarks();
-addSvgAccessibleNames();
-addAccessibleNamesToSVGs();
-fixFakeLinkIssue();
-googleSignIn();
-fixButtonIdentifiers();
 
 // Other code...
 

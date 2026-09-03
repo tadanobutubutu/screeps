@@ -8,29 +8,19 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from ...
 import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-<<<<<<< HEAD
 // - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...)
-=======
->>>>>>> origin/main
->>>>>>> origin/main
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...)
-<<<<<<< HEAD
->>>>>>> origin/main
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions())
-
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 // TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
@@ -47,40 +37,79 @@ function getLangAttribute() {
   return 'en'; // Default fallback
 }
 
-// Function to handle fake links
+/**
+ * Function to handle fake links - REACT_036
+ * Converts <a href="#"> elements to <button> elements for proper accessibility
+ */
 function handleFakeLinks() {
-    // Your implementation here to find and handle fake links
-    const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
-    fakeLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            console.warn('Fake link prevented:', link);
-        });
-    });
+  // Find all anchor elements with href="#"
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  
+  fakeLinks.forEach(function(link) {
+    // Create a new button element
+    var button = document.createElement('button');
+    
+    // Copy text content
+    button.textContent = link.textContent;
+    
+    // Copy classes if any
+    if (link.className) {
+      button.className = link.className;
+    }
+    
+    // Copy id if any
+    if (link.id) {
+      button.id = link.id;
+    }
+    
+    // Copy inline styles if any
+    if (link.style) {
+      button.style.cssText = link.style.cssText;
+    }
+    
+    // Copy aria-label if present
+    var ariaLabel = link.getAttribute('aria-label');
+    if (ariaLabel) {
+      button.setAttribute('aria-label', ariaLabel);
+    }
+    
+    // Copy title if present
+    var title = link.getAttribute('title');
+    if (title) {
+      button.setAttribute('title', title);
+    }
+    
+    // Replace the link with button
+    if (link.parentNode) {
+      link.parentNode.replaceChild(button, link);
+    }
+    
+    console.warn('Fake link converted to button:', button.textContent);
+  });
 }
 
 // Function to validate link accessibility
 function validateLinkAccessibility(link) {
-    if (!link) return false;
-    const text = link.textContent.trim();
-    const ariaLabel = link.getAttribute('aria-label');
-    const ariaLabelledBy = link.getAttribute('aria-labelledby');
-    return !!(text || ariaLabel || ariaLabelledBy);
+  if (!link) return false;
+  const text = link.textContent.trim();
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledBy = link.getAttribute('aria-labelledby');
+  return !!(text || ariaLabel || ariaLabelledBy);
 }
 
 // Function to validate landmark structure for accessibility issues
 function validateLandmarkStructure() {
-    const requiredLandmarks = ['header', 'main', 'footer'];
-    const missingLandmarks = [];
-    
-    requiredLandmarks.forEach(landmark => {
-        const element = document.querySelector(`[role="${landmark}"], ${landmark}`);
-        if (!element) {
-            missingLandmarks.push(landmark);
-        }
-    });
-    
-    return missingLandmarks;
+  const requiredLandmarks = ['header', 'main', 'footer'];
+  const missingLandmarks = [];
+  
+  requiredLandmarks.forEach(function(landmark) {
+    const element = document.querySelector(landmark);
+    if (!element) {
+      missingLandmarks.push(landmark);
+    }
+  });
+  
+  return missingLandmarks;
 }
 
 /**
@@ -118,9 +147,10 @@ function validateTableStructure(table) {
   if (!table) return false;
   
   const hasHeader = table.querySelector('th');
-  const hasRows = table.querySelectorAll('tr').length > 0;
+  const rows = table.querySelectorAll('tr');
+  const hasRows = rows.length > 0;
   
-  return hasHeader && hasRows;
+  return !!(hasHeader && hasRows);
 }
 
 /**
@@ -132,9 +162,9 @@ function fixTableStructure(table) {
   
   // Ensure table has proper headers
   const firstRow = table.querySelector('tr');
-  if (firstRow && !firstRow.querySelector('th')) {
-    const cells = firstRow.querySelectorAll('td, th');
-    cells.forEach(cell => {
+  if (firstRow) {
+    const cells = firstRow.querySelectorAll('td');
+    cells.forEach(function(cell) {
       const newCell = document.createElement('th');
       newCell.textContent = cell.textContent;
       newCell.setAttribute('scope', 'col');
@@ -147,7 +177,7 @@ function fixTableStructure(table) {
  * Adds main landmark to the document
  */
 function addMainLandmark() {
-  const mainContent = document.querySelector('main') || document.getElementById('main') || document.getElementById('root');
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]') || document.getElementById('main');
   if (mainContent && !mainContent.hasAttribute('role')) {
     mainContent.setAttribute('role', 'main');
   }
@@ -227,12 +257,12 @@ function setSvgAttributes(svg, name) {
  * Ensures unique landmarks in the document
  */
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"], main');
+  const landmarks = document.querySelectorAll('main');
   if (landmarks.length > 1) {
-    landmarks.forEach((landmark, index) => {
+    landmarks.forEach(function(landmark, index) {
       if (index > 0) {
         landmark.removeAttribute('role');
-        landmark.removeAttribute('aria-label');
+        landmark.setAttribute('aria-label', 'Secondary content section ' + index);
       }
     });
   }
@@ -250,244 +280,54 @@ function createInPageButton() {
   return button;
 }
 
-// Function for generating a report based on accessibility issues
+/**
+ * Function for generating a report based on accessibility issues
+ */
 function generateAccessibilityReport() {
   const issues = [];
 
   // Check for images without alt attributes
   const images = document.querySelectorAll('img');
-  images.forEach((img, index) => {
+  images.forEach(function(img, index) {
     if (!img.hasAttribute('alt')) {
       issues.push({
         type: 'missing-alt',
         element: 'img',
         index: index,
-        message: `Image at index ${index} is missing an alt attribute`
+        message: 'Image at index ' + index + ' is missing an alt attribute'
       });
     }
   });
 
-  // Check for buttons without accessible names
+  // Check for buttons without accessible name
   const buttons = document.querySelectorAll('button');
-  buttons.forEach((btn, index) => {
+  buttons.forEach(function(btn, index) {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
     if (!accessibleName) {
       issues.push({
         type: 'missing-name',
         element: 'button',
         index: index,
-        message: `Button at index ${index} is missing an accessible name`
+        message: 'Button at index ' + index + ' is missing an accessible name'
       });
     }
   });
 
   // Check for links without accessible names
   const links = document.querySelectorAll('a');
-  links.forEach((link, index) => {
+  links.forEach(function(link, index) {
     const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
     if (!accessibleName) {
       issues.push({
         type: 'missing-name',
         element: 'a',
         index: index,
-        message: `Link at index ${index} is missing an accessible name`
+        message: 'Link at index ' + index + ' is missing an accessible name'
       });
     }
   });
 
   // Check for form inputs without labels
   const inputs = document.querySelectorAll('input');
-  inputs.forEach((input, index) => {
-    const inputType = input.getAttribute('type');
-    if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
-      const labelId = input.getAttribute('aria-labelledby');
-      const labelText = input.getAttribute('aria-label');
-      const hasLabel = document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
-      if (!hasLabel) {
-        issues.push({
-          type: 'missing-label',
-          element: 'input',
-          index: index,
-          message: `Input at index ${index} is missing an associated label`
-        });
-      }
-    }
-  });
-
-  // Check for empty headings
-  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  headings.forEach((heading, index) => {
-    if (!heading.textContent.trim()) {
-      issues.push({
-        type: 'empty-heading',
-        element: heading.tagName.toLowerCase(),
-        index: index,
-        message: `${heading.tagName.toLowerCase()} at index ${index} has no text content`
-      });
-    }
-  });
-
-  // Generate report
-  const report = {
-    timestamp: new Date().toISOString(),
-    totalIssues: issues.length,
-    issues: issues
-  };
-
-  console.log('Accessibility Report:', report);
-  return report;
-}
-
-// Wrap primary content in main for better structure
-function wrapPrimaryContentInMain() {
-  const primaryContent = document.querySelector('main > *');
-
-  if (primaryContent) {
-    primaryContent.parentNode.wrap(document.createElement('div'));
-    primaryContent.parentNode.firstChild.id = 'main-wrapper';
-  }
-}
-
-// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
-function addressAccessibilityIssues() {
-  // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root');
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-  }
-
-  // Initialize skip link functionality
-  const skipLink = document.getElementById('skip-link');
-  if (skipLink) {
-    skipLink.addEventListener('click', function(e) {
-      const targetId = this.getAttribute('href').substring(1);
-      const target = document.getElementById(targetId);
-      if (target) {
-        target.setAttribute('tabindex', '-1');
-        target.focus();
-      }
-    });
-  }
-
-  // Ensure all buttons with role="button" respond to Enter key
-  document.querySelectorAll('[role="button"]').forEach(button => {
-    button.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        this.click();
-      }
-    });
-  });
-
-  // Add focusVisible polyfill behavior
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Tab') {
-      document.body.classList.add('using-keyboard');
-    }
-  });
-
-  document.addEventListener('mousedown', function() {
-    document.body.classList.remove('using-keyboard');
-  });
-
-  // Assuming a modal/dialog element with the ID "modal"
-  a11y.announce('Welcome to the bot!', 'assertive'); // Assuming announce function from a11y utilities
-
-  // Adding an alt attribute to an image
-  const imageElement = document.querySelector('img[alt=""]');
-  if (imageElement) {
-    imageElement.setAttribute('alt', 'A description of the image');
-  }
-
-  // Correcting the ARIA role for a div
-  const divElement = document.querySelector('div[role="list"]');
-  if (divElement) {
-    divElement.setAttribute('role', 'list');
-  }
-
-  // Adding the lang attribute to the HTML element
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', getLangAttribute());
-  }
-}
-
-/**
- * Handles fake links in the document
- */
-function handleFakeLinks() {
-  // Implementation to be added
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
-  fakeLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      console.warn('Fake link prevented:', link);
-    });
-  });
-}
-
-/**
- * Adds proper landmark regions to the document
- */
-function addProperLandmarkRegions() {
-  // Ensure header exists
-  if (!document.querySelector('header, [role="banner"]')) {
-    const header = document.createElement('header');
-    header.setAttribute('role', 'banner');
-    document.body.insertBefore(header, document.body.firstChild);
-  }
-
-  // Ensure main exists
-  if (!document.querySelector('main, [role="main"]')) {
-    const main = document.createElement('main');
-    main.setAttribute('role', 'main');
-    document.body.appendChild(main);
-  }
-
-  // Ensure footer exists
-  if (!document.querySelector('footer, [role="contentinfo"]')) {
-    const footer = document.createElement('footer');
-    footer.setAttribute('role', 'contentinfo');
-    document.body.appendChild(footer);
-  }
-}
-
-// Existing code from origin/main
-function existingFunction1() {
-  // Existing implementation
-}
-
-function existingFunction2() {
-  // Existing implementation
-}
-
-// New Function
-function newFunction() {
-  // Implement the new functionality (as per the original commitment)
-}
-
-// Export all functions
-module.exports = {
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  generateAccessibilityReport,
-  wrapPrimaryContentInMain,
-  existingFunction1,
-  existingFunction2,
-  newFunction,
-  addressAccessibilityIssues
-};
+  inputs.forEach(function(input, index) {
+    const inputType = input.getAttribute('type

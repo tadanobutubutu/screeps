@@ -11,7 +11,7 @@
 // _Commit: 8f0d48f8354074f769cfe667f27609b1d99a444c_
 // <!-- todo-hash: 469dfeab59b4116886abe058392a60b81da4857c -->
 
-const main = require('./utilities');
+import * as main from './utilities';
 
 // Import necessary dependencies
 import React from 'react';
@@ -47,7 +47,7 @@ const {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility
-} = main
+} = main;
 
 // Implement the function for addressing accessibility issues from insight report
 function newFunction () {
@@ -129,39 +129,41 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Validate accessibility report
   const accessibilityReport = validateAccessibilityReport(container)
   if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
+    console.warn(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`)
   }
 
   // Implement focus trap for keyboard navigation
-  focusTrap(container)
+  if (typeof focusTrap === 'function') {
+    focusTrap(container)
+  }
 
   if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info')
+    console.info('Lang attribute added to HTML element')
   }
 
   if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info')
+    console.info('Main landmark added')
   }
 
   // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container)
+  const newAccessibilityIssues = checkAccessibility ? checkAccessibility(container) : []
   if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error')
+    console.error(`New accessibility issues found: ${newAccessibilityIssues.length}`)
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0
   if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
+    console.info(`Fixed ${landmarkFixesCount} unique landmarks`)
   }
 
   const svgFixes = fixes.svgNamesAdded || 0
   if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
+    console.info(`Fixed accessible names for ${svgFixes} SVGs`)
   }
 
   const fakeLinkFixes = fixes.fakeLinksFixed || 0
   if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
+    console.info(`Fixed fake link issues for ${fakeLinkFixes} elements`)
   }
 
   return fixes
@@ -194,12 +196,12 @@ function trapFocus(container) {
     if (e.shiftKey) {
       if (document.activeElement === firstElement) {
         e.preventDefault();
-        if (lastElement) lastElement.focus()
+        if (lastElement) lastElement.focus();
       }
     } else {
       if (document.activeElement === lastElement) {
         e.preventDefault();
-        if (firstElement) firstElement.focus()
+        if (firstElement) firstElement.focus();
       }
     }
   };
@@ -473,5 +475,17 @@ const accessibilityUtils = {
     }
   },
   
-  announceToScreenReader: function(message, priority) {
-    if (
+  announceToScreenReader: function(message, priority = 'polite') {
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', priority);
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.className = 'sr-only';
+    announcement.textContent = message;
+    
+    document.body.appendChild(announcement);
+    
+    setTimeout(() => {
+      document.body.removeChild(announcement);
+    }, 1000);
+  }
+};

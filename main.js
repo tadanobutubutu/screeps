@@ -25,8 +25,23 @@ const {
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
+  transformInputData, // Removed duplicate declaration
+  renderDependencyGraph,
+  renderIndex,
+  validateTableAccessibility,
+  validateTableStructure,
+  addAccessibleName,
+  accessibilityUtils,
+  ensureElementId,
+  ensureElementHasId,
+  newFocusTrap,
+  addressAccessibilityIssues,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addSvgAccessibleName,
+  ensureElementIdOrigin,
   renderAdditionalContent,
-  transformInputData,
 } = main;
 
 const accessibilityUtils = {
@@ -194,4 +209,5 @@ module.exports = {
   fixDependencyGraphAria,
   addSvgAccessibleName,
   ensureElementIdOrigin,
+  renderAdditionalContent,
 };

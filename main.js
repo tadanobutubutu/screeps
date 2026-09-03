@@ -393,6 +393,56 @@ function addressAccessibilityIssues() {
   }
 }
 
+/**
+ * Harvest resources based on current level
+ * @returns {number} The amount of resources harvested
+ */
+function harvest() {
+  // Placeholder harvest logic – to be merged with upgrade logic
+  const baseAmount = 10;
+  const currentLevel = getCurrentLevel(); // assume exists
+  return baseAmount * currentLevel;
+}
+
+/**
+ * Upgrade the system if enough resources are available
+ * @returns {boolean} True if upgrade was successful, false otherwise
+ */
+function upgrade() {
+  const required = getRequiredResourcesForUpgrade();
+  const current = getCurrentResources();
+  if (current >= required) {
+    incrementLevel();
+    resetResources();
+    return true;
+  }
+  return false;
+}
+
+// Helper functions (to be merged with existing logic)
+function getCurrentLevel() {
+  // Read from localStorage or default to 1
+  return parseInt(localStorage.getItem('level') || '1', 10);
+}
+
+function getCurrentResources() {
+  return parseInt(localStorage.getItem('resources') || '0', 10);
+}
+
+function getRequiredResourcesForUpgrade() {
+  const level = getCurrentLevel();
+  return level * 50; // example scaling
+}
+
+function incrementLevel() {
+  const level = getCurrentLevel();
+  localStorage.setItem('level', (level + 1).toString());
+}
+
+function resetResources() {
+  localStorage.setItem('resources', '0');
+}
+
 root.render(
   <React.StrictMode>
     <App />
@@ -401,4 +451,12 @@ root.render(
 
 reportWebVitals();
 
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
+export {
+  createInPageButton,
+  validateLandmarkStructure,
+  addLangAttribute,
+  fixTableStructure,
+  generateAccessibilityReport,
+  harvest,
+  upgrade
+};

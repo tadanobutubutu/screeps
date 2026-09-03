@@ -459,6 +459,83 @@ function buildDependencyGraph(node, options = {}) {
   };
 }
 
+// TODO: Identify and update specific functions that render dependency graphs or index views.
+// New function to address additional landmark validation
+
+/**
+ * Validates accessibility of a rendered dependency graph
+ * @param {HTMLElement} graphContainer - The container element with the rendered graph
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function validateDependencyGraphAccessibility(graphContainer) {
+  const errors = [];
+
+  if (!graphContainer) {
+    return { valid: false, errors: ['Graph container element is required'] };
+  }
+
+  // Check if SVG has accessible description
+  const svg = graphContainer.querySelector('svg');
+  if (svg) {
+    const hasTitle = svg.querySelector('title');
+    const hasDesc = svg.querySelector('desc');
+    const hasAriaLabel = svg.getAttribute('aria-label');
+    const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
+
+    if (!hasTitle && !hasDesc && !hasAriaLabel && !hasAriaLabelledby) {
+      errors.push('SVG is missing accessible name (title, desc, aria-label, or aria-labelledby)');
+    }
+  }
+
+  // Check graph container role
+  const role = graphContainer.getAttribute('role');
+  if (!role) {
+    errors.push('Graph container is missing role attribute');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validates accessibility of a rendered index view (breadcrumb navigation)
+ * @param {HTMLElement} navElement - The nav element with the rendered breadcrumbs
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function validateIndexViewAccessibility(navElement) {
+  const errors = [];
+
+  if (!navElement) {
+    return { valid: false, errors: ['Nav element is required'] };
+  }
+
+  // Check if nav has accessible name
+  const ariaLabel = navElement.getAttribute('aria-label');
+  const ariaLabelledby = navElement.getAttribute('aria-labelledby');
+  if (!ariaLabel && !ariaLabelledby) {
+    errors.push('Navigation is missing accessible name (aria-label or aria-labelledby)');
+  }
+
+  // Check for list role on ol
+  const ol = navElement.querySelector('ol');
+  if (ol) {
+    const listRole = ol.getAttribute('role');
+    if (listRole !== 'list') {
+      errors.push('Breadcrumb list is missing role="list"');
+    }
+
+    // Check list items have listitem role
+    const listItems = ol.querySelectorAll('li');
+    listItems.forEach((li, index) => {
+      const liRole = li.getAttribute('role');
+      if (liRole && liRole !== 'listitem') {
+        errors.push(`Breadcrumb item at index ${index} has incorrect role: ${liRole}`);
+      }
+    });
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
 /**
  * Renders a dependency graph visualization
  * @param {HTMLElement} rootNode - The root DOM node to render the graph from
@@ -494,10 +571,16 @@ function renderDependencyGraph(rootNode, container, options = {}) {
       svg.setAttribute('aria-hidden', 'true');
       
       // Add accessible description
-      const description = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      const description = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
       description.textContent = 'Dependency Graph';
-      description.setAttribute('id', 'graph-title');
+      description.setAttribute('id', 'graph-desc');
       svg.appendChild(description);
+      
+      // Add accessible title
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = 'Dependency Graph';
+      title.setAttribute('id', 'graph-title');
+      svg.appendChild(title);
       
       graphContainer.appendChild(svg);
       container.appendChild(graphContainer);
@@ -587,16 +670,18 @@ function renderIndexView(indexPath, container, options = {}) {
       
       const ol = document.createElement('ol');
       ol.className = options.listClassName || 'breadcrumb';
+      ol.setAttribute('role', 'list');
       
       breadcrumbData.breadcrumbs.forEach((crumb, index) => {
         const li = document.createElement('li');
         li.className = 'breadcrumb-item';
-        li.setAttribute('aria-current', crumb.isLast ? 'page' : undefined);
+        li.setAttribute('role', 'listitem');
         
         if (crumb.isLast) {
           const span = document.createElement('span');
           span.textContent = crumb.label;
           li.appendChild(span);
+          li.setAttribute('aria-current', 'page');
         } else {
           const link = document.createElement('a');
           link.href = crumb.url;
@@ -803,5 +888,7 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  towerDefense
+  towerDefense,
+  validateDependencyGraphAccessibility,
+  validateIndexViewAccessibility
 };

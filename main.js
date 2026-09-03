@@ -41,6 +41,23 @@ const setSvgAttributes = /* existing code */ function setSvgAttributes(svg) {
   }
 }
 
+// TODO: Implement a function to count dependencies
+function countDependencies() {
+  const path = require('path');
+  const fs = require('fs');
+  const packageJsonPath = path.join(__dirname, 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+  const dependencies = packageJson.dependencies || {};
+  const devDependencies = packageJson.devDependencies || {};
+
+  return {
+    dependencies: Object.keys(dependencies).length,
+    devDependencies: Object.keys(devDependencies).length,
+    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+  };
+}
+
 const AddressabilityIssues = {
   MISSING_ID: 'missing-id',
   MISSING_ARIA_LABEL: 'missing-aria-label',
@@ -159,22 +176,6 @@ const AddressabilityIssues = {
         html.setAttribute('lang', 'en');
       }
     }
-  },
-
-  countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = JSON.parse(packageJson).dependencies || {};
-    const devDependencies = JSON.parse(packageJson).devDependencies || {};
-
-    return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
   },
 
   fixMainLandmarkIssues(source) {
@@ -779,5 +780,6 @@ module.exports = {
   enhanceSemanticMarkup,
   setupAriaLiveRegions,
   renderDependencyGraphs,
-  ensureDependencyGraphAriaRole
+  ensureDependencyGraphAriaRole,
+  countDependencies
 };

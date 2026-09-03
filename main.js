@@ -30,13 +30,13 @@ function detectAndSetLang(content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if (/[一-鿿]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[぀-ヿ]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
+    } else if (/[Ѐ-ӿ]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
+    } else if (/[؀-ۿ]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
@@ -460,7 +460,7 @@ function buildDependencyGraph(node, options = {}) {
 }
 
 /**
- * Renders a dependency graph visualization
+ * Renders a dependency graph visualization with landmark validation
  * @param {HTMLElement} rootNode - The root DOM node to render the graph from
  * @param {HTMLElement} container - Optional container element to render into
  * @param {Object} options - Rendering options
@@ -476,9 +476,13 @@ function renderDependencyGraph(rootNode, container, options = {}) {
     // Build the dependency graph structure
     const graphData = buildDependencyGraph(rootNode, options);
 
+    // Additional landmark validation for the rendered graph
+    const landmarkValidation = validateLandmarkStructure();
+
     // Log for debugging
     console.log('Rendering dependency graph starting from:', rootNode);
     console.log('Graph data:', JSON.stringify(graphData, null, 2));
+    console.log('Landmark validation:', JSON.stringify(landmarkValidation, null, 2));
 
     // If container provided, render visual elements
     if (container && typeof document !== 'undefined') {
@@ -507,14 +511,16 @@ function renderDependencyGraph(rootNode, container, options = {}) {
         message: 'Dependency graph rendered successfully',
         container: graphContainer,
         svg: svg,
-        data: graphData
+        data: graphData,
+        landmarkValidation: landmarkValidation
       };
     }
 
     return {
       success: true,
       message: 'Dependency graph data built successfully',
-      data: graphData
+      data: graphData,
+      landmarkValidation: landmarkValidation
     };
   } catch (error) {
     console.error('Error rendering dependency graph:', error);
@@ -557,7 +563,7 @@ function buildBreadcrumbData(indexPath, options = {}) {
 }
 
 /**
- * Renders an index view (breadcrumb or navigation structure)
+ * Renders an index view (breadcrumb or navigation structure) with landmark validation
  * @param {string} indexPath - The path to render the index view for
  * @param {HTMLElement} container - Optional container element to render into
  * @param {Object} options - Rendering options
@@ -576,14 +582,25 @@ function renderIndexView(indexPath, container, options = {}) {
       separator: options.separator || '/'
     });
 
+    // Additional landmark validation for the rendered index view
+    const landmarkValidation = validateLandmarkStructure();
+
     // Log for debugging
     console.log('Rendering index view at path:', indexPath);
     console.log('Breadcrumb data:', JSON.stringify(breadcrumbData, null, 2));
+    console.log('Landmark validation:', JSON.stringify(landmarkValidation, null, 2));
 
     // If container provided, render visual elements
     if (container && typeof document !== 'undefined') {
       const nav = document.createElement('nav');
       nav.setAttribute('aria-label', options.ariaLabel || 'Breadcrumb');
+      nav.setAttribute('role', 'navigation');
+      
+      // Validate the navigation landmark
+      const navValidation = validateLandmark(nav);
+      if (!navValidation.valid) {
+        console.warn('Navigation landmark validation issues:', navValidation.errors);
+      }
       
       const ol = document.createElement('ol');
       ol.className = options.listClassName || 'breadcrumb';
@@ -615,7 +632,8 @@ function renderIndexView(indexPath, container, options = {}) {
         message: 'Index view rendered successfully',
         nav: nav,
         breadcrumbs: breadcrumbData.breadcrumbs,
-        data: breadcrumbData
+        data: breadcrumbData,
+        landmarkValidation: landmarkValidation
       };
     }
 
@@ -623,7 +641,8 @@ function renderIndexView(indexPath, container, options = {}) {
       success: true,
       message: 'Index view data built successfully',
       breadcrumbs: breadcrumbData.breadcrumbs,
-      data: breadcrumbData
+      data: breadcrumbData,
+      landmarkValidation: landmarkValidation
     };
   } catch (error) {
     console.error('Error rendering index view:', error);

@@ -1,7 +1,6 @@
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
 
 // Existing code preserved - all functions, exports, and utilities maintained

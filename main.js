@@ -130,6 +130,34 @@ const wrapPrimaryContentInMain = () => {
   return mainElement;
 };
 
+function getTables() {
+    return appData.tables;
+}
+
+function getConfig() {
+    return { ...appData.config };
+}
+
+function setConfig(config) {
+    appData.config = { ...appData.config, ...config };
+}
+
+// Implement the new function(s) here
+function updateAccessibilityConfig(newConfig) {
+    setConfig(newConfig);
+}
+
+// Access the dependencyGraph container and ensure it has proper ARIA role
+const dependencyGraph = document.querySelector('.dependency-graph');
+
+if (dependencyGraph) {
+    // Set appropriate ARIA role for the dependency graph container
+    // Using 'region' role for a contained section of content
+    if (!dependencyGraph.getAttribute('role')) {
+        dependencyGraph.setAttribute('role', 'region');
+    }
+}
+
 const combinedUtils = Object.assign({}, accessibilityUtils, { focusTrap: newFocusTrap });
 
 // TODO: Implement the new function as per the issue requirements
@@ -145,6 +173,9 @@ module.exports = {
   validateTableStructure,
   addAccessibleName: accessibilityUtils.addAriaLabel,
   accessibilityUtils,
+  getConfig,
+  setConfig,
+  updateAccessibilityConfig,
   harvest,
   upgrade,
   ensureElementId: ensureElementIdFn,

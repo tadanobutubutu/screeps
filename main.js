@@ -1,4 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
+// main.js
+// Updated to import and use dependencyGraphContent and indexContent
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 
@@ -35,8 +38,11 @@ const {
   checkAccessibility,
   validateAccessibilityReport,
   exportUtils,
-  addressAccessibilityIssues
-} = require('./AccessibilityHelpers')
+  addressAccessibilityIssues,
+  // TODO: Add new imports for dependencyGraphContent and indexContent
+  dependencyGraphContent,
+  indexContent
+} = require('./utilities')
 
 // TODO: add the new functions or changes requested in the issue
 
@@ -448,5 +454,8 @@ module.exports = {
   handleCredentialResponse,
   renderAdditionalContentData,
   checkAccessibilityForReportContent,
-  addLangAttribute
+  addLangAttribute,
+  // Export the newly imported contents
+  dependencyGraphContent,
+  indexContent
 };

@@ -24,13 +24,11 @@ function wrapPrimaryContentInMain() {
   return null;
 }
 
-// TODO: Implement the new function logic here
-// Example implementation (to be replaced with the actual logic):
 function enhanceAccessibilityForAddBook(form) {
   if (!form) return;
   
   // Ensure form has proper accessibility attributes
-  if (!form.getAttribute('role')) {
+  if (!form.hasAttribute('role')) {
     form.setAttribute('role', 'form');
   }
   
@@ -39,7 +37,7 @@ function enhanceAccessibilityForAddBook(form) {
   inputs.forEach(input => {
     // Ensure each input has an aria-label or associated label
     const id = input.id || input.getAttribute('name');
-    if (!input.getAttribute('aria-label') && !form.querySelector(`label[for="${id}"]`)) {
+    if (!input.hasAttribute('aria-label') && !form.querySelector(`label[for="${id}"]`)) {
       const label = form.querySelector(`label[for="${input.id}"]`) || form.querySelector(`label[for="${input.name}"]`);
       if (!label) {
         input.setAttribute('aria-label', input.name || 'Form input');
@@ -54,7 +52,7 @@ function enhanceAccessibilityForAddBook(form) {
   
   // Get the submit button
   const submitButton = form.querySelector('button[type="submit"]');
-  if (submitButton && !submitButton.getAttribute('aria-label') && !submitButton.textContent.trim()) {
+  if (submitButton && !submitButton.hasAttribute('aria-label') && !submitButton.textContent.trim()) {
     submitButton.setAttribute('aria-label', 'Submit form');
   }
   
@@ -66,7 +64,7 @@ import React, { useState, useEffect } from 'react';
 import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook } from './bookFunctions';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
@@ -244,7 +242,7 @@ function ensureFocusableElements(container) {
   const focusableElements = container.querySelectorAll(focusableSelectors);
 
   focusableElements.forEach((el, index) => {
-    if (!el.getAttribute('tabindex')) {
+    if (!el.hasAttribute('tabindex')) {
       el.setAttribute('tabindex', '0');
     }
   });
@@ -900,9 +898,7 @@ export {
   initApp,
   VisualizeDependencyTree,
   checkLandmarkElement,
-  ensureUniqueLandmarks,
   ensureLandmarkUniqueness,
-  validateLandmark,
   renderDependencyGraphContent,
   landmarks,
   appData,
@@ -927,7 +923,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  createInPageButton,
   fixFakeLinkIssue,
   addSvgAccessibleNames,
   ensureUniqueLandmarksDoc,

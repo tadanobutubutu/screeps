@@ -37,6 +37,8 @@ const {
   addAriaLabel
 } = main;
 
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
 // Accessibility utilities and functions
 const accessibilityUtils = {
   initSkipLink,

@@ -518,6 +518,66 @@ function ensureDependencyGraphAriaRole() {
     }
 }
 
+// TODO: add the new functions or changes requested in the issue
+// Here is the implementation for checking link accessibility
+// The existing isLinkAccessible function implementation
+
+/**
+ * Checks if a link element is accessible
+ * Validates that the link has proper href, accessible text, and is not a fake link
+ * @param {Object} linkElement - The anchor element to check
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function isLinkAccessible(linkElement) {
+    const issues = [];
+
+    if (!linkElement) {
+        issues.push('Link element is null or undefined');
+        return {
+            success: false,
+            issues
+        };
+    }
+
+    // Check if element is an anchor tag
+    const tagName = linkElement.tagName ? linkElement.tagName.toLowerCase() : '';
+    if (tagName !== 'a') {
+        issues.push('Element is not an anchor tag');
+    }
+
+    // Check for valid href
+    const href = linkElement.getAttribute ? linkElement.getAttribute('href') : null;
+    if (!href) {
+        issues.push('Missing href attribute');
+    } else if (href === '#' || href === '') {
+        issues.push('Link has empty or fragment-only href (fake link)');
+    }
+
+    // Check for accessible text content
+    const text = linkElement.textContent || '';
+    const ariaLabel = linkElement.getAttribute ? linkElement.getAttribute('aria-label') : null;
+    if (!text.trim() && !ariaLabel) {
+        issues.push('Link has no accessible text or aria-label');
+    }
+
+    // Check for proper tabindex (should be focusable)
+    const tabindex = linkElement.getAttribute ? linkElement.getAttribute('tabindex') : null;
+    if (tabindex === '-1') {
+        issues.push('Link is not keyboard accessible (tabindex=-1)');
+    }
+
+    // Check for role attribute (should not have conflicting role)
+    const role = linkElement.getAttribute ? linkElement.getAttribute('role') : null;
+    if (role && role !== 'link') {
+        issues.push(`Link has unexpected role: ${role}`);
+    }
+
+    return {
+        success: issues.length === 0,
+        issues
+    };
+}
+
 // Export all existing and new functions
 module.exports = {
     getLangAttribute,
@@ -548,5 +608,6 @@ module.exports = {
     fixFakeLinks,
     addProperLandmarkRegions,
     replaceMyButton,
-    ensureDependencyGraphAriaRole
+    ensureDependencyGraphAriaRole,
+    isLinkAccessible
 };

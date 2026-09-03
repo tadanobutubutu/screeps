@@ -150,8 +150,6 @@ const a11yStore = {
       }
     });
   },
-
-  // ... remaining a11yStore methods ...
 };
 
 // New functions
@@ -160,5 +158,8 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.addFormControlLabels();
   a11yStore.ensureImageAccessibility();
 }
+
+// Validate the accessibility report for issues
+ensureInteractiveElementsAccessible();
 
 // ... rest of the code ...

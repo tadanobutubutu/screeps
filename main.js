@@ -3,70 +3,59 @@
 //_Commit: 3983c7bf3a9d6c99109e3c8293ba4f018fca6d94_
 //<!-- todo-hash: 4b03b75f14168d98d014bcb3fe7f5d35f70503d4 -->
 
-// TODO: Implement logic to retrieve the current language setting
-function getCurrentLanguage() {
-    return navigator.language || navigator.userLanguage;
-}
 
-// TODO: Implement this function for creating in-page buttons
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
-    return button;
-}
+const fs = require('fs');
+const main = require('./utilities');
 
-// Function to validate landmark structure for accessibility issues
-function validateLandmarkStructure() {
-    const requiredLandmarks = ['header', 'main', 'footer'];
-    const missingLandmarks = [];
+const accessibilityUtils = {
+  initSkipLink,
+  trapFocus,
+  newFocusTrap: (element) => {
+    if (!element) return;
+    const focusable = element.querySelectorAll(
+      'a[href], button, textarea, input, select'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
 
-    requiredLandmarks.forEach(landmark => {
-        const element = document.querySelector(landmark);
-        if (!element) {
-            missingLandmarks.push(landmark);
+    return (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
         }
-    });
+      }
+    };
+  },
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
+  ensureElementId,
+  addAriaLabel
+};
 
-    if (missingLandmarks.length > 0) {
-        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
-        return false;
-    }
-
-    return true;
-}
-
-// New function for rendering graph/index
-function renderGraphIndex(containerId, data) {
-    const container = document.getElementById(containerId);
-    if (!container) {
-        console.error(`Container with id '${containerId}' not found`);
-        return false;
-    }
-
-    const graphElement = document.createElement('div');
-    graphElement.className = 'graph-index';
-    graphElement.innerHTML = '<h2>Dependency Graph</h2>';
-
-    if (data && data.dependencies) {
-        const list = document.createElement('ul');
-        data.dependencies.forEach(dep => {
-            const li = document.createElement('li');
-            li.textContent = `${dep.name} - ${dep.version}`;
-            list.appendChild(li);
-        });
-        graphElement.appendChild(list);
-    }
-
-    container.appendChild(graphElement);
-    return true;
-}
-
-// TODO: Update the existing function using the new functions for rendering graph/index
-function renderDependencyGraph(containerId, graphData) {
-    return renderGraphIndex(containerId, graphData);
-}
-
-// Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
+module.exports = {
+  ...main,
+  ...accessibilityUtils,
+  renderDependencyGraph,
+  renderIndex,
+  validateTableAccessibility,
+  validateTableStructure,
+  addAccessibleName,
+  accessibilityUtils,
+  ensureElementId,
+  ensureElementHasId,
+  newFocusTrap,
+};

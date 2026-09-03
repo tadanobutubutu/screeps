@@ -87,13 +87,13 @@ function implementAccessibilityFixesFromReport (container, report) {
       accessibleName &&
       accessibleName.trim() !== ''
     ) {
-      svg.setAttribute('aria-label', accessibleName)
+      addAccessibleNameToSvg(svg, accessibleName)
       fixes.svgNamesAdded++
     }
   })
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('[onclick]:not(a):not(button)')
+  const fakeLinks = container.querySelectorAll('a:not([href])')
   fakeLinks.forEach(link => {
     link.setAttribute('href', '#' + (link.id || 'link'))
     link.setAttribute('role', 'link')
@@ -101,7 +101,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   })
 
   // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(report)
+  const accessibilityReport = validateAccessibilityReport(container)
   if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
     log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
   }
@@ -223,7 +223,7 @@ export function fixTableStructure(tableElement) {
 /**
  * REACT_017: Fix landmark issues - Add landmark regions
  */
-export function fixLandmarkIssues(container) {
+export function fixLandmarkRegions(container) {
   if (!container) return null
   
   const mainElement = container.querySelector('main') || container.querySelector('[role="main"]')
@@ -236,7 +236,7 @@ export function fixLandmarkIssues(container) {
   
   const navElements = container.querySelectorAll('nav')
   navElements.forEach(nav => {
-    if (!nav.getAttribute('aria-label') && !nav.getAttribute('role')) {
+    if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
       nav.setAttribute('aria-label', 'Navigation')
     }
   })

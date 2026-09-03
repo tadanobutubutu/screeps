@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
@@ -6,6 +9,8 @@ const { exec, spawn } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const primaryContent = (typeof document !== 'undefined') ? document.getElementById('main') || document.querySelector('main') || document.querySelector('div#content') || document.querySelector('.content') || document.querySelector('#primary') : null;
 
 const config = {
   apiUrl: process.env.API_URL || 'http://localhost:3000',
@@ -16,10 +21,7 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('div#content') || document.querySelector('.content') || document.querySelector('#primary') : null;
-
-// Function to implement accessibility improvements for primary content
-function improvePrimaryContentAccessibility() {
+const improvePrimaryContentAccessibility = () => {
   if (typeof document !== 'undefined' && primaryContent) {
     // Add role="main" if not present
     if (!primaryContent.getAttribute('role') && primaryContent.tagName !== 'MAIN') {
@@ -35,70 +37,31 @@ function improvePrimaryContentAccessibility() {
     return true;
   }
   return false;
-}
-
-const AddressabilityIssues = {
-  validateTableAccessibility: function(table) {
-    return true;
-  }
 };
 
-// Load configurations from package.json if it exists
-function loadConfigurations() {
-    try {
-        const packagePath = path.join(__dirname, 'package.json');
-        if (fs.existsSync(packagePath)) {
-            const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
-            config.name = packageJson.name || 'dependency-counter';
-            config.version = packageJson.version || '1.0.0';
-            config.dependencies = packageJson.dependencies || {};
-            config.devDependencies = packageJson.devDependencies || {};
-            config.accessibility = packageJson.accessibility || {};
-        }
-    } catch (error) {
-        console.error('Error loading configurations:', error.message);
-    }
-}
+const a11yStore = {
+  makeSvgAccessible,
+  configureSvgAccessibility,
+  setSvgAttributes,
+  enhanceSvgAccessibility,
+  addSVGAccessibilityProps,
+  fixFakeLinks,
+  ensureInteractiveRoles,
+  addFormControlLabels,
+  ensureImageAccessibility
+};
 
-// Implement function to count dependencies
-function countDependencies() {
-    const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-}
-
-// SVG accessibility helper functions from HEAD branch
-function enhanceSvgAccessibility(svg) {
-  if (svg && typeof svg.setAttribute === 'function') {
-    svg.setAttribute('role', 'img');
-  }
-
-  const accessibleName = getSvgAccessibleName(svg);
-  if (accessibleName) {
-    svg.setAttribute('aria-labelledby', accessibleName);
-  }
-
-  setSvgAttributes(svg);
-}
-
-function setSvgAttributes(svg) {
-    // Code to set other svg attributes goes here
-}
-
-// Existing functionality
-function calculateSum(a, b) {
-  return a + b;
-}
-
-const XYZ = function () {
-    // Implementation for XYZ function
+const AddressabilityIssues = {
+  validateTableAccessibility,
+  validateLandmarkRoles,
+  validateLandmarkStructure,
+  checkLandmarkAccessibility,
+  checkLandmarkElements,
+  checkAccessibilityOfLandmarks,
+  ensureUniqueLandmarks,
+  missingRoles,
+  fixFakeLinkIssue,
+  addAriaLabel
 };
 
 // Table validation functions
@@ -132,176 +95,132 @@ if (document.readyState === 'loading') {
 function ensureUniqueLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
+}
+
+  // New function to address REACT_015: Add lang attribute to HTML element
+  function getLangAttribute() {
+    return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
+  }
+
+  // New function to address REACT_015 and REACT_036: personName function referenced in comments
+  function personName(name) {
+    // Returns a formatted person name for accessibility purposes
+    if (!name) return '';
+    return name.trim();
+  }
+
+  // New function to address REACT_027: Fix 26 table structure issues
+  function validateTableAccessibility(table) {
+    // This function validates the accessibility of tables
+    // Check for proper table headers with scope attributes
+    const errors = [];
+
+    if (!table) {
+      return { valid: false, errors: ['Table element is required'] };
     }
 
-    const uniqueElements = [];
-    const seen = new Map();
-
-    landmarks.forEach(element => {
-        const key = element.id || element.name || element.className;
-        if (!seen.has(key)) {
-            seen.set(key, true);
-            uniqueElements.push(element);
-        }
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, index) => {
+      if (!th.hasAttribute('scope')) {
+        errors.push(`Table header at index ${index} is missing scope attribute`);
+      }
     });
 
-    return uniqueElements;
-}
+    // Check if table has a caption or is properly described
+    const hasCaption = table.querySelector('caption');
+    const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
 
-// SVG accessibility helpers
-function getSvgAccessibleName(svgElement, name) {
-  return svgElement;
-}
-
-// Button and link creators
-function createInPageButton(text) {
-    return {};
-}
-
-function createAccessibleLink(href, text) {
-    return {};
-}
-
-// Accessibility issue handler
-function handleAccessibilityIssues() {
-    // Placeholder for handling accessibility issues
-}
-
-function addAriaLabel(element, label) {
-    if (!element.ariaLabel) {
-        element.ariaLabel = label;
+    if (!hasCaption && !hasAriaLabel) {
+      errors.push('Table is missing a caption or aria-label/aria-labelledby');
     }
-    return element;
-}
 
-function checkElementAccessibility(element) {
-    return true;
-}
+    return { valid: errors.length === 0, errors };
+  }
 
-function setupHandlers() {
-    console.log('Setting up event handlers...');
-}
+  function validateTableStructure(table) {
+    // This function validates the structure of tables
+    const errors = [];
 
-function validateInput(input) {
-    return input !== null && input !== undefined;
-}
-
-function processData(data) {
-    if (!this.validateInput(data)) {
-        throw new Error('Invalid input data');
+    if (!table) {
+      return { valid: false, errors: ['Table element is required'] };
     }
-}
 
-function fixFakeLinkIssue(doc) {
-    if (typeof doc === 'undefined' || !doc.querySelectorAll) {
-        return;
+    // Check for proper table structure
+    const tbody = table.querySelector('tbody');
+    const thead = table.querySelector('thead');
+    const tfoot = table.querySelector('tfoot');
+
+    // Check for thead and tbody presence
+    if (!thead) {
+      errors.push('Table is missing thead element');
     }
-    const clickableElements = doc.querySelectorAll('[onclick]');
-    let count = 0;
-
-    clickableElements.forEach(element => {
-        const tagName = element.tagName.toLowerCase();
-        const hasHref = element.hasAttribute('href');
-
-        if (tagName !== 'a' && !hasHref) {
-            const isInteractive = element.getAttribute('role') === 'link' ||
-                                   element.getAttribute('tabindex') === '0' && element.onclick && typeof element.onclick === 'function';
-
-            if (isInteractive && !element.getAttribute('aria-label')) {
-                const text = element.textContent.trim();
-                if (text) {
-                    element.setAttribute('aria-label', text);
-                }
-            }
-            count++;
-        }
-    });
-    return count;
-}
-
-function renderDependencyGraphContent() {
-    const lang = this.getLangAttribute();
-    const deps = countDependencies();
-    
-    let content = `<div lang="${lang}" role="region" aria-label="Dependency Graph">`;
-    content += `<h2>Dependency Graph</h2>`;
-    
-    if (deps.total > 0) {
-        content += `<table role="table">`;
-        content += `<caption>Package Dependencies</caption>`;
-        content += `<thead><tr><th scope="col">Type</th><th scope="col">Count</th></tr></thead>`;
-        content += `<tbody>`;
-        content += `<tr><td>Dependencies</td><td>${deps.dependencies}</td></tr>`;
-        content += `<tr><td>Dev Dependencies</td><td>${deps.devDependencies}</td></tr>`;
-        content += `<tr><td>Total</td><td>${deps.total}</td></tr>`;
-        content += `</tbody></table>`;
-    } else {
-        content += `<p>No dependencies found.</p>`;
+    if (!tbody) {
+      errors.push('Table is missing tbody element');
     }
-    
-    content += `</div>`;
-    
-    if (typeof document !== 'undefined') {
-        const container = document.getElementById('dependency-graph');
-        if (container) {
-            container.innerHTML = content;
-            const tables = container.querySelectorAll('table');
-            tables.forEach(table => {
-                this.validateTableAccessibility(table);
-                this.validateTableStructure(table);
-            });
-            const div = container.querySelector('div');
-            if (div) {
-                this.addLangAttribute(div);
-                this.addAriaLabel(div, 'Dependency Graph Content');
-            }
-        }
-    }
-    
-    return content;
-}
 
-// Book and server functions
-function addBook(book) {
-    return book;
-}
-
-function createServer() {
-    const server = http.createServer(app);
-    app.get('/', (req, res) => {
-        res.send('Hello World!');
+    // Check for consistent column counts in tbody
+    const rows = table.querySelectorAll('tbody tr');
+    let expectedCols = null;
+    rows.forEach((row, rowIndex) => {
+      const cells = row.querySelectorAll('td, th');
+      if (expectedCols === null) {
+        expectedCols = cells.length;
+      } else if (cells.length !== expectedCols) {
+        errors.push(`Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`);
+      }
     });
 
-    return server;
-}
+    return { valid: errors.length === 0, errors };
+  }
 
-function startApp() {
-    loadConfigurations();
-    const server = this.createServer();
-    return server;
-}
+  // New function to address REACT_041: Add accessible names to 2 SVGs
+  function getSvgAccessibleName(svg) {
+    // This function returns the accessible name for an SVG
+    if (!svg) {
+      return '';
+    }
 
-// Additional exports
-module.exports = {
-    config,
-    XYZ,
-    calculateSum,
-    countDependencies,
-    improvePrimaryContentAccessibility,
-    AddressabilityIssues,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
-    handleAccessibilityIssues,
-    addAriaLabel,
-    checkElementAccessibility,
-    setupHandlers,
-    validateInput,
-    processData,
-    fixFakeLinkIssue,
-    renderDependencyGraphContent,
-    addBook,
-    createServer,
-    startApp
-};
+    // Check for aria-label attribute
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel) {
+      return ariaLabel;
+    }
+
+    // Check for aria-labelledby reference
+    const ariaLabelledby = svg.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+      const labelElement = document.getElementById(ariaLabelledby);
+      if (labelElement) {
+        return labelElement.textContent || '';
+      }
+    }
+
+    // Check for title element inside SVG
+    const title = svg.querySelector('title');
+    if (title) {
+      return title.textContent || '';
+    }
+
+    // Check for adjacent description
+    const id = svg.getAttribute('id');
+    if (id) {
+      const describedBy = document.querySelector(`[id="${id}-desc"]`);
+      if (describedBy) {
+        return describedBy.textContent || '';
+      }
+    }
+
+    // TODO: Extract the accessible name for an SVG from its content
+    // Extract text content from SVG text elements as fallback
+    const textElements = svg.querySelectorAll('text, tspan, textPath');
+    const textContent = Array.from(textElements)
+      .map(el => el.textContent || '')
+      .filter(text => text.trim())
+      .join(' ')
+      .trim();
+
+    if (textContent) {
+      return textContent;
+    }
+
+    // Check

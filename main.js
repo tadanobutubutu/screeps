@@ -5,7 +5,8 @@ const { setElementLabel } = require('./AccessibilityHelpers');
 // Main entry point for the Screeps bot.
 // Handles core game logic and integration points.
 
-// Accessibility enhancement: Ensure all UI elements are properly labeled
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
 setElementLabel('dependencyGraph', 'Dependency graph visualization');
 
 // New feature: Priority-based task scheduling

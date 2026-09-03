@@ -348,6 +348,96 @@ if (typeof document !== 'undefined' && document.documentElement) {
   document.documentElement.lang = getLangAttribute();
 }
 
+// Function to check link and button accessibility
+function checkLinkAndButtonAccessibility(element) {
+  if (!element || typeof element.tagName !== 'string') {
+    return {
+      isAccessible: false,
+      issues: ['Invalid element provided']
+    };
+  }
+
+  const issues = [];
+  const tagName = element.tagName.toLowerCase();
+  const isLink = tagName === 'a';
+  const isButton = tagName === 'button';
+
+  if (!isLink && !isButton) {
+    return {
+      isAccessible: false,
+      issues: ['Element is neither a link nor a button']
+    };
+  }
+
+  // Check for accessible name (text content, aria-label, or aria-labelledby)
+  const textContent = (element.textContent || '').trim();
+  const ariaLabel = element.getAttribute('aria-label');
+  const ariaLabelledby = element.getAttribute('aria-labelledby');
+  const title = element.getAttribute('title');
+
+  if (!textContent && !ariaLabel && !ariaLabelledby && !title) {
+    issues.push('Missing accessible name (no text content, aria-label, aria-labelledby, or title)');
+  }
+
+  // Link-specific checks
+  if (isLink) {
+    const href = element.getAttribute('href');
+
+    // Check for empty or invalid href
+    if (href === null || href === '' || href === '#') {
+      issues.push('Link has empty or invalid href');
+    }
+
+    // Check if link is keyboard accessible (must have href to be focusable by default)
+    if (href === null) {
+      issues.push('Link without href is not keyboard accessible by default');
+    }
+
+    // Check for role="button" misuse on links
+    const role = element.getAttribute('role');
+    if (role === 'button') {
+      issues.push('Link with role="button" should typically be a button element');
+    }
+  }
+
+  // Button-specific checks
+  if (isButton) {
+    const type = element.getAttribute('type');
+    if (type !== null && !['submit', 'reset', 'button'].includes(type.toLowerCase())) {
+      issues.push('Button has invalid type attribute');
+    }
+
+    // Check for disabled buttons without explanation
+    if (element.hasAttribute('disabled') && !ariaLabel && !textContent) {
+      issues.push('Disabled button has no accessible name');
+    }
+  }
+
+  // Check for non-empty interactive content
+  if (element.children.length > 0 && !textContent && !ariaLabel) {
+    let hasAccessibleChild = false;
+    for (const child of element.children) {
+      const childTag = child.tagName.toLowerCase();
+      if (childTag === 'img' && (child.getAttribute('alt') || child.getAttribute('aria-label'))) {
+        hasAccessibleChild = true;
+        break;
+      }
+      if (child.getAttribute('aria-label') || child.getAttribute('aria-labelledby')) {
+        hasAccessibleChild = true;
+        break;
+      }
+    }
+    if (!hasAccessibleChild && (element.querySelector('img[alt], [aria-label], [aria-labelledby]') === null)) {
+      issues.push('Interactive element contains only non-accessible children');
+    }
+  }
+
+  return {
+    isAccessible: issues.length === 0,
+    issues: issues
+  };
+}
+
 // todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
 
 // main.js - Accessibility-focused implementation
@@ -428,5 +518,6 @@ module.exports = {
   validateInput,
   setupHandlers,
   checkElementAccessibility,
-  ensureElementId
+  ensureElementId,
+  checkLinkAndButtonAccessibility
 };

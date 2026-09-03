@@ -167,8 +167,8 @@ const AddressabilityIssues = {
     const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-    const dependencies = JSON.parse(packageJson).dependencies || {};
-    const devDependencies = JSON.parse(packageJson).devDependencies || {};
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
 
     return {
       dependencies: Object.keys(dependencies).length,

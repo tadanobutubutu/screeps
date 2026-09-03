@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 // TODO: Identify and update specific functions as needed
 const main = require('./utilities')
@@ -59,8 +56,6 @@ const fixTableStructure = () => {
 };
 
 // Modified implementation of ensureUniqueLandmarks to combine checking and setting unique landmark names
-const ensureUniqueLandmarks = () => uniqueLandmarks();
-
 const uniqueLandmarks = () => {
   // Ensure landmarks have unique accessible names if duplicates exist
   const landmarks = [...document.querySelectorAll('[role="navigation"], [role="main"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="region"]')];
@@ -71,7 +66,34 @@ const uniqueLandmarks = () => {
     const name = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || getSvgAccessibleName(landmark) || landmark.tagName.toLowerCase();
     const key = `${type}-${name}`;
 
-    if (landmarkCounts[key]) {
+    // Check for valid href if present
+    if (landmark.getAttribute('href') && landmark.getAttribute('href') !== '#') {
+      // Check for javascript: links
+      if (landmark.getAttribute('href').toLowerCase().startsWith('javascript:')) {
+        errors.push('Link uses javascript: protocol which is not accessible');
+      }
+      // Check for mailto: links without proper labeling
+      if (landmark.getAttribute('href').toLowerCase().startsWith('mailto:') && !ariaLabel && !textContent.includes('@')) {
+        errors.push('Mailto link may need aria-label for clarity');
+      }
+    }
+
+    // Check target="_blank" has rel="noopener noreferrer"
+    if (landmark.getAttribute('target') === '_blank') {
+      const rel = landmark.getAttribute('rel');
+      if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
+        errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
+      }
+    }
+
+    // Check for redundant title attribute
+    const title = landmark.getAttribute('title');
+    if (title && title === textContent) {
+      errors.push('Link title attribute duplicates link text');
+    }
+
+    // Update the name if duplicate detected
+    if (key in landmarkCounts) {
       landmarkCounts[key]++;
       // Make unique by adding a suffix
       const uniqueName = `${name} (${landmarkCounts[key]})`;
@@ -110,6 +132,3 @@ module.exports = {
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
 };
-```
-
-This resolved file merges the changes from both source code branches, preserves functionality, and eliminates syntax errors. It also maintains comments and style as much as possible.

@@ -5,6 +5,8 @@
 
 // TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
+// TODO: New code that was added to the branch
+
 // Existing code
 export function existingFunction1() {
   // Existing implementation

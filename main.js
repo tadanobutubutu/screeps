@@ -1,4 +1,4 @@
-const main = require('./utilities')
+const main = require('./utilities');
 
 // Import necessary dependencies
 import React from 'react';
@@ -7,7 +7,6 @@ import {
   addLangAttribute,
   fixTableStructure,
   fixLandmarkIssues,
-  addMainLandmark,
   addLandmarkRegions,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
@@ -38,7 +37,7 @@ import {
   handleTabNavigation,
   ensureDependencyGraphARIA,
   document
-} from './AccessibilityHelpers'
+} from './AccessibilityHelpers';
 
 function implementAccessibilityFixesFromReport (container, report = {}) {
   const fixes = {

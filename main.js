@@ -57,3 +57,5 @@ function generateAccessibilityReport() {
 
 // Preserve any existing exports here
 export { createInPageButton, validateLandmarkStructure, generateAccessibilityReport };
+
+// TODO: Address accessibility issues from insight report:

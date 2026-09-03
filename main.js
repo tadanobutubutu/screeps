@@ -11,7 +11,6 @@ const {
   fixFakeLinks,
   ensureUniqueLandmarks,
   getUniqueLandmarks,
-  validateLandmark,
   validateLandmarkAttributes,
   validateLandmarkStructure,
   validateTableAccessibility,
@@ -35,18 +34,6 @@ const appState = {
   data: null,
   cache: new Map()
 };
-
-function validateLandmark(landmark) {
-  const errors = [];
-  // Existing code that should be preserved
-  // Update landmark validation logic if needed
-  const role = landmark.getAttribute('role');
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
-  }
-  return errors;
-}
 
 const appData = {
   title: 'Screeps',

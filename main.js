@@ -431,12 +431,23 @@ const accessibilityUtils = {
 
 // Export the report generation function
 module.exports = {
-  generateAccessibilityReport: generateAccessibilityReport,
+  generateAccessibilityReport,
   addressAccessibilityIssues,
   getLangAttribute,
   createInPageButton,
   a11y,
-  accessibilityUtils
+  accessibilityUtils,
+  validateTableAccessibility,
+  validateTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions
 };
 
 // Initialize the application with accessibility improvements

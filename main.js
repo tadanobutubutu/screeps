@@ -1,11 +1,7 @@
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
-
-// Existing code preserved - all functions, exports, and utilities maintained
-// (Implementation added above)
 
 const CONFIG = {
     dataPath: './data',
@@ -20,7 +16,7 @@ function isValidLandmark(landmark) {
 
 function loadLandmarks() {
     try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -41,7 +37,7 @@ function processLandmarks(landmarks) {
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return [...landmarks].sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -82,11 +78,42 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  const reportFile = path.join(CONFIG.dataPath, 'report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
+// TODO: Implement harvest and upgrade logic
+function harvest(resourceType = 'default', amount = 1) {
+    const harvestResources = {
+        'default': { name: 'Generic Resource', value: amount },
+        'wood': { name: 'Wood', value: amount * 2 },
+        'stone': { name: 'Stone', value: amount * 3 },
+        'gold': { name: 'Gold', value: amount * 5 },
+        'food': { name: 'Food', value: amount * 1.5 }
+    };
+
+    return harvestResources[resourceType] || harvestResources['default'];
+}
+
+function upgrade(target, level = 1) {
+    if (!target) {
+        return { success: false, error: 'Invalid target' };
+    }
+
+    const currentLevel = target.level || 1;
+    const newLevel = currentLevel + level;
+    const upgradeCost = level * 100;
+
+    return {
+        success: true,
+        target: target.id || target.name || 'unknown',
+        previousLevel: currentLevel,
+        newLevel: newLevel,
+        cost: upgradeCost,
+        upgraded: { ...target, level: newLevel }
+    };
+}
+
 // Replaced placeholder with full implementation using axe-core scanning and report writing
 async function generateAccessibilityReport() {
   const report = await scanAccessibility();
@@ -95,8 +122,8 @@ async function generateAccessibilityReport() {
 }
 
 // Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
+const { validateInput, processData } = require('./utils/validation');
+const { formatResponse } = require('./utils/formatters');
 
 // Main execution when run directly
 if (require.main === module) {
@@ -117,7 +144,17 @@ if (require.main === module) {
 }
 
 async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
+    const app = express();
+    const results = await axe.run(app);
+    return {
+        timestamp: new Date().toISOString(),
+        violations: results.violations || [],
+        passes: results.passes || [],
+        summary: {
+            totalViolations: (results.violations || []).length,
+            totalPasses: (results.passes || []).length
+        }
+    };
 }
 
 module.exports = {
@@ -133,5 +170,7 @@ module.exports = {
     ensureUniqueLandmarks,
     isValidLandmark,
     writeReport,
-    scanAccessibility
+    scanAccessibility,
+    harvest,
+    upgrade
 };

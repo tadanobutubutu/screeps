@@ -25,14 +25,7 @@ const {
 
 const http = require('http')
 
-function renderGraphIndex(graphData) {
-  addressAccessibilityIssues();
-  renderDependencyGraphs(graphData);
-}
-function renderGraphIndexAlt(graphData) {
-  addressAccessibilityIssues();
-  renderDependencyGraphs(graphData);
-}
+// TODO: Add new functions below this line
 
 module.exports = {
   renderGraphIndex,

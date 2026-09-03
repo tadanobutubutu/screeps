@@ -274,4 +274,24 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-if (
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    // Existing code from HEAD
+    // Ensure the dependencyGraph container has a proper ARIA role
+    ensureDependencyGraphAria();
+    
+    // Address accessibility issues from insight report
+    ensureLangAttribute();
+    fixLandmarks();
+    addSvgAccessibleNames();
+    fixFakeLinks();
+    replaceButtonIds();
+    
+    // Additional fixes
+    const unrotateButton = createUnrotateButton();
+    if (unrotateButton) {
+      document.body.appendChild(unrotateButton);
+    }
+  });
+}
+```

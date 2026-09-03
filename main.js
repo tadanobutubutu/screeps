@@ -1,4 +1,6 @@
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+// TODO: Identify and update specific functions as needed
+const main = require('./utilities')
 
 function getSvgAccessibleName(svg) {
   // Try to get accessible name from various attributes

@@ -250,8 +250,10 @@ const wrapPrimaryContentInMain = () => {
 
 const combinedUtils = Object.assign({}, accessibilityUtils, { focusTrap: newFocusTrap });
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+
 module.exports = {
-  ...main,
   ...accessibilityUtils,
   renderDependencyGraph: main.renderDependencyGraph || (() => {}),
   renderIndex: main.renderIndex || (() => {}),

@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 
@@ -36,25 +36,45 @@ const {
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues
-} = require('./AccessibilityHelpers')
+} = main;
 
 // TODO: add the new functions or changes requested in the issue
 
 // Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName(svgString) {
+function fixReactSvgAccessibleName(svgString, fallbackLabel) {
   const parser = new DOMParser();
   const svg = parser.parseFromString(svgString, 'image/svg+xml');
   const svgElement = svg.documentElement;
-  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+  
+  if (svgElement && !svgElement.querySelector('title') && !svgElement.querySelector('desc')) {
+    const title = svgElement.ownerDocument.createElement('title');
+    title.textContent = fallbackLabel || 'Descriptive label for SVG';
+    svgElement.insertBefore(title, svgElement.firstChild);
   }
+  
   const serializer = new XMLSerializer();
-  return serializer.serializeToString(svg);
+  return serializer.serializeToString(svgElement);
 }
 
 // Example usage of the function
-const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...';
-const modifiedSvgString = addAccessibleName(originalSvgString);
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" dy=".35em" x="50" text-anchor="middle" font-size="16" fill="white"></text></svg>';
+const modifiedSvgString = fixReactSvgAccessibleName(originalSvgString, 'Screeps Dashboard SVG');
+
+// Required function to handle SVG accessible names
+function handleSvgAccessibleName(svgElement) {
+  if (!svgElement) return null;
+  
+  const title = svgElement.querySelector('title');
+  const desc = svgElement.querySelector('desc');
+  
+  if (title) {
+    return title.textContent;
+  } else if (desc) {
+    return desc.textContent;
+  }
+  
+  return null;
+}
 
 /**
  * Validates table accessibility
@@ -78,7 +98,7 @@ function renderAdditionalContent(additionalData) {
   return '<div class="additional-content">' + (additionalData ? additionalData.content : '') + '</div>';
 }
 
-function checkAccessibilityForReport(content) {
+function checkAccessibilityForReport(container) {
   return [];
 }
 
@@ -133,7 +153,7 @@ export function addLangAttribute(element, lang = 'en') {
   return htmlElement;
 }
 
-export function fixTableStructure(tableElement) {
+export function fixTableCaption(tableElement) {
   if (!tableElement) return null;
 
   const headers = tableElement.querySelectorAll('th');
@@ -147,7 +167,7 @@ export function fixTableStructure(tableElement) {
 
   const existingCaption = tableElement.querySelector('caption');
   if (!existingCaption) {
-    const caption = document.createElement('caption');
+    const caption = tableElement.ownerDocument.createElement('caption');
     caption.textContent = 'Data table';
     tableElement.insertBefore(caption, tableElement.firstChild);
   }
@@ -157,12 +177,11 @@ export function fixTableStructure(tableElement) {
 
 // Call the functions to address the accessibility issues
 addLangAttribute();
-fixTableStructure();
-fixLandmarkIssues();
+fixTableCaption();
 addMainLandmark();
 ensureUniqueLandmarks();
-addSvgAccessibleNames();
-addAccessibleNamesToSVGs();
+addLandmarkRegions();
+fixLandmarkIssues();
 fixFakeLinkIssue();
 fixFakeLinkIssues();
 googleSignIn();
@@ -198,9 +217,9 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-function ensureDependencyGraphARIA() {
-  const elements = [];
-  elements.forEach(el => {
+function ensureDependencyGraphARIA(elements) {
+  const elementsArray = elements || [];
+  elementsArray.forEach(el => {
     el.setAttribute('role', 'graph');
     el.setAttribute('aria-label', 'Dependency graph visualization');
   });
@@ -222,16 +241,20 @@ function addAriaLabel(elementId, label) {
   }
 }
 
+function addAccessibleName(elementId, name) {
+  addAriaLabel(elementId, name);
+}
+
 function renderDependencyGraphs(container) {
   // Render the dependency graph visualization
   if (typeof container === 'string') {
-    container = document.querySelector(container);
+    container = document.getElementById(container);
   }
   if (!container) return null;
   
   // Basic implementation
   container.innerHTML = '<div class="dependency-graph"></div>';
-  return container.querySelector('.dependency-graph');
+  return container;
 }
 
 // New function to handle additional rendering logic
@@ -244,7 +267,7 @@ function renderAdditionalContentData(additionalData) {
 }
 
 // Accessibility-related function to be added
-function checkAccessibilityForReportContent(content) {
+function checkAccessibilityIssues(container) {
   // Placeholder for accessibility checking logic
   // This function should be implemented to check for accessibility issues
   // For now, it just returns an empty array
@@ -261,7 +284,7 @@ function log(message, level = 'info') {
 }
 
 // Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport(container, report) {
+function addressAccessibilityIssuesFromReport(container, report) {
   const fixes = {
     langAdded: false,
     mainLandmarkAdded: false,
@@ -275,9 +298,8 @@ function implementAccessibilityFixesFromReport(container, report) {
   }
 
   // Add lang attribute to HTML element if missing
-  const htmlEl =
-    container.querySelector('html') ||
-    (container.ownerDocument && container.ownerDocument.querySelector('html'));
+  const htmlEl = document.documentElement ||
+    (container.ownerDocument && container.ownerDocument.documentElement);
   if (htmlEl && !htmlEl.hasAttribute('lang')) {
     htmlEl.setAttribute('lang', 'en');
     fixes.langAdded = true;
@@ -299,45 +321,46 @@ function implementAccessibilityFixesFromReport(container, report) {
 
   // Update the existing function using the new functions for rendering graph/index
   renderDependencyGraphs(container);
-  fixButtonIdentifiers(container);
-  fixDependencyGraphAria(container);
-  addMainLandmarkToIndex(container);
+  renderGraphIndex(container.innerHTML);
+  addSvgAccessibleNames(container);
 
   // Fix landmark issues
   validateLandmark(container);
-  validateLandmarkStructure(container);
-  fixes.landmarksFixed++;
+  fixLandmarkIssues(container);
 
   // Fix SVG accessible names
   const svgElements = container.querySelectorAll('svg');
   svgElements.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (accessibleName && accessibleName.trim() !== '' && !svg.hasAttribute('aria-label')) {
       svg.setAttribute('aria-label', accessibleName);
       fixes.svgNamesAdded++;
     }
   });
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href]), [role="link"]:not([href])');
+  const fakeLinks = container.querySelectorAll('span[role="link"], div[role="link"], a:not([href])');
   fakeLinks.forEach(link => {
-    if (!link.getAttribute('href')) {
-      link.setAttribute('href', '#' + (link.id || `link-${Date.now()}`));
+    if (!link.hasAttribute('href')) {
+      link.setAttribute('href', '#' + (link.id || 'fake-link'));
     }
-    if (!link.getAttribute('role')) {
+    if (!link.hasAttribute('role')) {
       link.setAttribute('role', 'link');
     }
     fixes.fakeLinksFixed++;
   });
 
   // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(container);
+  const accessibilityReport = validateAccessibilityReport(report);
   if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
     log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn');
   }
 
   // Implement focus trap for keyboard navigation
-  focusTrap(container);
+  const focusableContainer = container.querySelector('[data-focus-trap]') || container;
+  if (focusableContainer) {
+    trapFocus(focusableContainer);
+  }
 
   if (fixes.langAdded) {
     log('Lang attribute added to HTML element', 'info');
@@ -350,7 +373,7 @@ function implementAccessibilityFixesFromReport(container, report) {
   // Check for new accessibility issues
   const newAccessibilityIssues = checkAccessibility(container);
   if (newAccessibilityIssues && newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`, 'error');
+    log(`New accessibility issues found: ${newAccessibilityIssues.map(i => i.message).join(', ')}`, 'error');
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0;
@@ -362,91 +385,3 @@ function implementAccessibilityFixesFromReport(container, report) {
   if (svgFixes > 0) {
     log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
   }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-  if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
-  }
-
-  return fixes;
-}
-
-module.exports = {
-  validateTableAccessibility,
-  validateTableStructure,
-  renderAdditionalContent,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  addLangAttribute,
-  fixTableStructure,
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  affectedFunction,
-  updateFunction,
-  accessibleFunction,
-  newFunction1,
-  newFunction2,
-  main,
-  newFunction: function() {
-    // New function implementation
-  },
-  anotherNewFunction: function() {
-    // Another new function implementation
-  },
-  getLangAttribute,
-  ensureDependencyGraphARIA,
-  addAccessibleName,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  addSvgAccessibleName,
-  addSvgAccessibleNamesToAll,
-  fixFakeLinkIssue,
-  fixAllFakeLinkIssues,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  googleSignIn,
-  decodeJwtResponse,
-  uniqueLandmarks,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  renderAdditionalContent,
-  checkAccessibilityForReport,
-  validateSession,
-  handleCredentialResponse,
-  renderAdditionalContentData,
-  checkAccessibilityForReportContent,
-  addLangAttribute
-};

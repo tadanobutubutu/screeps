@@ -155,6 +155,17 @@ const a11yStore = {
 };
 
 // New functions
+
+function harvestData() {
+  // TODO: Implement the harvest data logic here.
+  // For example, you could gather certain information about the page such as:
+  // - The title of the page
+  // - The URL of the page
+  // - The list of all images on the page
+  // - The list of all links on the page
+  // - etc.
+}
+
 function ensureInteractiveElementsAccessible() {
   a11yStore.ensureInteractiveRoles();
   a11yStore.addFormControlLabels();

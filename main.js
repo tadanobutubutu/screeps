@@ -43,9 +43,8 @@ const {
   addMainLandmark,
   addLandmarkRegions,
   ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
+  // Removed duplicate 'uniqueLandmarks' and 'addSvgAccessibleNames' exports
+  // fixSvgAccessibleNames, // Assuming this is a typo for 'addSvgAccessibleNames'
   fixFakeLinkIssue,
   fixFakeLinkIssues,
   googleSignIn,
@@ -213,9 +212,6 @@ module.exports = {
   addMainLandmark,
   addLandmarkRegions,
   ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
   fixFakeLinkIssues,
   googleSignIn,

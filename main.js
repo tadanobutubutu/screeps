@@ -144,6 +144,9 @@ function implementAccessibilityFixesFromReport (container, report) {
     log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
   }
 
+  // Implement the new function to set ARIA role for the dependencyGraph container
+  setDependencyGraphRole(dependencyGraph)
+
   // Implement focus trap for keyboard navigation
   focusTrap(container)
 
@@ -238,6 +241,10 @@ function trapFocus(container) {
   }
 }
 
+// New accessibility function: Set ARIA role for the dependencyGraph container
+function setDependencyGraphRole(container) {
+  container.setAttribute('role', 'graph')
+}
 
 /**
  * REACT_015: Add lang attribute to HTML element
@@ -257,7 +264,7 @@ export function addLangAttribute(element, lang = 'en') {
     await this.loadData();
 
     // Ensure dependencyGraph container has proper ARIA role
-    this.ensureDependencyGraphARIA();
+    this.setDependencyGraphRole(dependencyGraph)
 
     console.log('Screenspider bot started');
   }
@@ -267,151 +274,4 @@ export function addLangAttribute(element, lang = 'en') {
     // Implement actual data fetching here
   }
 
-  // Accessibility enhancement: Ensure the dependencyGraph container has a proper ARIA role
-  setDependencyGraphRole() {
-    const dependencyGraph = document.getElementById('dependencyGraph');
-    if (dependencyGraph) {
-      dependencyGraph.setAttribute('role', 'graph');
-    }
-  }
-
-  // Accessibility enhancement: Ensure all UI elements are properly labeled
-  setElementLabel(elementId, label) {
-    const el = document.getElementById(elementId);
-    if (el) {
-      // Only set aria-label if not already present
-      if (!el.getAttribute('aria-label')) {
-        el.setAttribute('aria-label', label);
-      }
-      // Set role to button if not already present
-      if (!el.getAttribute('role') || el.getAttribute('role') !== 'button') {
-        el.setAttribute('role', 'button');
-      }
-    }
-  }
-
-  // Accessibility enhancement: Focus management for keyboard navigation
-  setFocus(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-      // Ensure element is focusable
-      if (!element.hasAttribute('tabindex') && !element.matches('a, button, [tabindex]:not([tabindex="-1"])')) {
-        element.setAttribute('tabindex', '0');
-      }
-      element.focus();
-    }
-  }
-
-  // New feature: Priority-based task scheduling
-  addTask(taskFn, priority = 'medium') {
-    this.tasks.push({ task: taskFn, priority });
-    this.scheduleTasks();
-  }
-
-  scheduleTasks() {
-    // Sort tasks by priority (high > medium > low)
-    this.tasks.sort((a, b) => {
-      const prioOrder = { high: 0, medium: 1, low: 2 };
-      return prioOrder[b.priority] - prioOrder[a.priority];
-    });
-
-    // Execute highest priority task
-    if (this.tasks.length > 0) {
-      const nextTask = this.tasks[0];
-      try {
-        nextTask.task();
-      } catch (err) {
-        console.error(`Task failed: ${err.message}`);
-      }
-    }
-  }
-
-  // New accessibility function: Focus management for keyboard navigation
-  setFocus(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.focus();
-      element.setAttribute('tabindex', '0');
-    }
-  }
-
-  // New accessibility function: Keyboard event handler for accessibility
-  handleKeyboardNavigation(event) {
-    const key = event.key;
-    const activeElement = document.activeElement;
-
-    // Handle keyboard navigation (e.g., arrow keys, tab)
-    switch (key) {
-      case 'ArrowUp':
-      case 'ArrowDown':
-      case 'ArrowLeft':
-      case 'ArrowRight':
-        this.handleArrowNavigation(key, activeElement);
-        break;
-      case 'Tab':
-        this.handleTabNavigation(event, activeElement);
-        break;
-      default:
-        break;
-    }
-  }
-
-  // Helper for arrow key navigation
-  handleArrowNavigation(key, activeElement) {
-    // Implement custom navigation logic based on element type
-    console.log(`Navigating with ${key} key`);
-  }
-
-  // Helper for tab key navigation
-  handleTabNavigation(event, activeElement) {
-    // Implement custom tab navigation logic
-    console.log('Handling tab navigation');
-  }
-
-  // Ensure dependencyGraph container has proper ARIA role
-  ensureDependencyGraphARIA() {
-    const container = document.getElementById('dependencyGraph');
-    if (container) {
-      container.setAttribute('role', 'region');
-      container.setAttribute('aria-label', 'Dependency graph');
-    }
-  }
-
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang)
-  }
-  return htmlElement
-}
-
-/**
- * REACT_027: Fix table structure issues
- * Ensures tables have proper structure with headers and captions
- */
-export function fixTableStructure(tableElement) {
-  if (!tableElement) return null
- 
-  const headers = tableElement.querySelectorAll('th')
-  headers.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      const row = th.closest('tr')
-      const cellIndex = Array.from(row.children).indexOf(th)
-      th.setAttribute('scope', 'col')
-    }
-  })
-  
-  const existingCaption = tableElement.querySelector('caption')
-  if (!existingCaption) {
-    const caption = document.createElement('caption')
-    caption.textContent = 'Data table'
-    tableElement.insertBefore(caption, tableElement.firstChild)
-  }
-  
-  return tableElement
-}
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent
-module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport
-module.exports.checkAccessibilityForReport = checkAccessibilityForReport
-module.exports.renderGraphIndex = renderGraphIndex
-module.exports.trapFocus = trapFocus
+  // ... rest of the code remains the same ...

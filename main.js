@@ -77,7 +77,10 @@ const accessibilityUtils = {
   addAriaLabel
 };
 
+// TODO: Add back any required exports that might have been removed
+// Assuming the TODO refers to the missing export of 'accessibilityUtils'
 module.exports = {
   ...main,
   ...accessibilityUtils,
+  accessibilityUtils, // Adding the missing export
 };

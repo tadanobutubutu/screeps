@@ -1,6 +1,3 @@
-Looking at the error, there's a naming conflict: `validateLandmark` is being imported from `./utilities` and then also declared as a function in the same file. I need to rename the local function declaration to avoid the conflict.
-
-```javascript
 const main = require('./utilities')
 
 const {
@@ -113,7 +110,7 @@ const a11yStore = {
     // TODO: This is the existing code that needs to be preserved
     // _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
     // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-    // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+    // _Commit: eef4b6be04a5e2cd61b75c43cfe1dff2da0857ca2_
     // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
     // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
     // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
@@ -371,4 +368,64 @@ function validateLandmarkStructureFn(container) {
   const requiredRoles = ['main', 'banner', 'navigation', 'contentinfo'];
   const foundRoles = new Set();
 
-  container.querySelectorAll('[role]').forEach(el =>
+  container.querySelectorAll('[role]').forEach(el => {
+    foundRoles.add(el.getAttribute('role'));
+  });
+
+  // Also check for semantic HTML elements
+  const semanticElements = ['main', 'header', 'nav', 'footer'];
+  semanticElements.forEach(tag => {
+    const elements = container.getElementsByTagName(tag);
+    if (elements.length > 0) {
+      foundRoles.add(tag === 'header' ? 'banner' : tag === 'nav' ? 'navigation' : tag === 'footer' ? 'contentinfo' : tag);
+    }
+  });
+
+  const missingRoles = requiredRoles.filter(role => !foundRoles.has(role));
+  
+  return {
+    isValid: missingRoles.length === 0,
+    missingRoles: missingRoles,
+    foundRoles: Array.from(foundRoles)
+  };
+}
+
+// TODO: Create or update the affected functions to be accessible
+//------ BEGIN CHANGES (added/updated)------
+
+/**
+ * Validates accessibility of landmark elements
+ * @param {HTMLElement} container - The container element to check
+ * @returns {Object} - Validation result with success status and details
+ */
+function validateLandmarkAlt(container) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+
+  const landmarks = a11yStore.checkLandmarkElements(container);
+  const structureValidation = validateLandmarkStructureFn(container);
+  
+  return {
+    success: structureValidation.isValid,
+    details: structureValidation
+  };
+}
+
+module.exports = {
+  main,
+  renderGraphIndex,
+  renderGraphIndexAlt,
+  a11yStore,
+  isLandmarkElement,
+  sanitizeFilename,
+  processData,
+  handleCredentialResponseFn,
+  generateSessionId,
+  validateTableStructure,
+  validateTableAccessibility,
+  getSvgAccessibleName,
+  checkLandmarkAccessibility,
+  validateLandmarkStructureFn,
+  validateLandmarkAlt
+};

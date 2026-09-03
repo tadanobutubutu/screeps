@@ -135,7 +135,8 @@ module.exports = {
     handleAccessibilityIssues,
     fixFakeLinkIssue,
     renderDependencyGraphContent,
-    addBook
+    addBook,
+    calculateAccessibilityScore // New export
 };
 
 function getLangAttribute() {

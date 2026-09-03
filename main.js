@@ -13,6 +13,138 @@
 // - ADD: Address new accessibility issues from insight report
 
 /**
+ * Calculates the relative luminance of a color
+ * @param {string} color - The color in hex (#rgb or #rrggbb) or rgb/rgba format
+ * @returns {number} The relative luminance value (0-1)
+ */
+function calculateLuminance (color) {
+  let r, g, b
+
+  // Parse hex color
+  if (color.startsWith('#')) {
+    const hex = color.slice(1)
+    
+    if (hex.length === 3) {
+      r = parseInt(hex[0] + hex[0], 16) / 255
+      g = parseInt(hex[1] + hex[1], 16) / 255
+      b = parseInt(hex[2] + hex[2], 16) / 255
+    } else if (hex.length === 6) {
+      r = parseInt(hex[0] + hex[1], 16) / 255
+      g = parseInt(hex[2] + hex[3], 16) / 255
+      b = parseInt(hex[4] + hex[5], 16) / 255
+    } else {
+      return 0
+    }
+  } 
+  // Parse rgb() or rgba() color
+  else if (color.startsWith('rgb')) {
+    const values = color.match(/\d+/g)
+    if (values.length >= 3) {
+      r = parseInt(values[0], 10) / 255
+      g = parseInt(values[1], 10) / 255
+      b = parseInt(values[2], 10) / 255
+    } else {
+      return 0
+    }
+  } else {
+    // Default to black if color can't be parsed
+    return 0
+  }
+
+  // Apply sRGB to linear RGB conversion
+  const a = [r, g, b].map(c => {
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+  })
+
+  // Calculate and return relative luminance
+  return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2]
+}
+
+/**
+ * Checks the color contrast ratio between two colors
+ * @param {string} foreground - The foreground color
+ * @param {string} background - The background color
+ * @returns {number} The contrast ratio (1-21)
+ */
+function getColorContrastRatio (foreground, background) {
+  const lum1 = calculateLuminance(foreground)
+  const lum2 = calculateLuminance(background)
+  
+  const ratio = (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05)
+  return Math.round(ratio * 100) / 100
+}
+
+/**
+ * Checks if two colors have sufficient contrast for accessibility
+ * @param {string} foreground - The foreground color
+ * @param {string} background - The background color
+ * @param {string} level - The WCAG level ('AA' or 'AAA')
+ * @param {boolean} isLargeText - Whether text is large (18pt+)
+ * @returns {Object} Result with ratio and passes boolean
+ */
+function checkColorContrast (foreground, background, level = 'AA', isLargeText = false) {
+  const ratio = getColorContrastRatio(foreground, background)
+  
+  let requiredRatio
+  if (level === 'AAA') {
+    requiredRatio = isLargeText ? 4.5 : 7
+  } else { // AA
+    requiredRatio = isLargeText ? 3 : 4.5
+  }
+  
+  return {
+    ratio,
+    passes: ratio >= requiredRatio,
+    requiredRatio,
+    level,
+    isLargeText
+  }
+}
+
+/**
+ * Checks the color contrast of an element
+ * @param {HTMLElement} element - The element to check
+ * @returns {Object} Result with ratio, passes boolean, and element info
+ */
+function checkElementContrast (element) {
+  if (!element) {
+    return { valid: false, errors: ['Element is required'] }
+  }
+
+  // Get computed styles
+  const style = typeof window !== 'undefined' && window.getComputedStyle 
+    ? window.getComputedStyle(element) 
+    : { color: '#000000', backgroundColor: '#ffffff' }
+  
+  const foreground = style.color
+  const background = style.backgroundColor
+  
+  // Basic fallback colors if computed styles aren't available
+  const fgColor = foreground || '#000000'
+  const bgColor = background || '#ffffff'
+  
+  const result = checkColorContrast(fgColor, bgColor)
+  
+  if (!result.passes) {
+    return {
+      valid: false,
+      errors: [
+        `Insufficient color contrast: ratio ${result.ratio}:1 ` +
+        `(requires ${result.requiredRatio}:1 for ${result.level})`
+      ]
+    }
+  }
+  
+  return {
+    valid: true,
+    errors: [],
+    ratio: result.ratio,
+    foreground: fgColor,
+    background: bgColor
+  }
+}
+
+/**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
@@ -504,5 +636,9 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  towerDefense
+  towerDefense,
+  calculateLuminance,
+  getColorContrastRatio,
+  checkColorContrast,
+  checkElementContrast
 }

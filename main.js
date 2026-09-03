@@ -3,7 +3,7 @@ const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
-const accessiblyHelper = require('./accessibly-helper'); // Added this import
+const accessiblyHelper = require('./accessibly-helper');
 
 const expressApp = express();
 
@@ -120,9 +120,8 @@ function addressAccessibilityIssues() {
   }
 }
 
-// New function or changes requested in the issue
 function wrapContentWithMain() {
-  const contentToWrap = document.querySelector('div.container'); // Assuming the primary content is within a div with class 'container'
+  const contentToWrap = document.querySelector('div.container');
   if (contentToWrap) {
     const mainElement = document.createElement('main');
     mainElement.appendChild(contentToWrap);

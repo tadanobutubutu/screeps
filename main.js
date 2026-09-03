@@ -252,7 +252,7 @@ function generateAccessibilityReport() {
     }
   });
 
-  // Check for buttons without accessible names
+  // Check for buttons without accessible name
   const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
@@ -429,16 +429,6 @@ const accessibilityUtils = {
     }
 };
 
-// Export the report generation function
-module.exports = {
-  generateAccessibilityReport: generateAccessibilityReport,
-  addressAccessibilityIssues,
-  getLangAttribute,
-  createInPageButton,
-  a11y,
-  accessibilityUtils
-};
-
 // Initialize the application with accessibility improvements
 function initialize() {
     // Ensure the dependencyGraph container has a proper ARIA role
@@ -467,7 +457,29 @@ root.render(
 
 reportWebVitals();
 
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
-
 // Initialize after React render to ensure DOM is updated
 initialize();
+
+// Export the report generation function and other utilities
+export {
+  generateAccessibilityReport,
+  addressAccessibilityIssues,
+  getLangAttribute,
+  createInPageButton,
+  a11y,
+  accessibilityUtils,
+  validateLandmarkStructure,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  validateTableAccessibility,
+  validateTableStructure
+};

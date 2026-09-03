@@ -6,15 +6,15 @@ const CONFIG = {
     maxResults: 100
 };
 
-export function existingFunction1() {
+function existingFunction1() {
   // Existing implementation
 }
 
-export function existingFunction2() {
+function existingFunction2() {
   // Existing implementation
 }
 
-export function myNewFunction() {
+function myNewFunction() {
   // Implement the new functionality (as per the original commitment)
   return "New function implemented successfully";
 }
@@ -133,14 +133,13 @@ if (typeof document !== 'undefined') {
 // _Commit: 9f4ca23445c76674f7b5dd5047c707b41ba67409_
 // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
-_Commit: 8d3ace595726b66fb80c5e1770d6e711a17bbbc1_
-
-<!-- todo-hash: c6b10cf4940af973c1be3c94aea9ca9e66578b26 -->
-
 module.exports = {
     loadLandmarks,
     processLandmarks,
     sortLandmarks,
     getLandmarkById,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    existingFunction1,
+    existingFunction2,
+    myNewFunction
 };

@@ -19,8 +19,6 @@ const {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
@@ -43,18 +41,10 @@ const {
   addMainLandmark,
   fixLandmarkIssues,
   validateTableAccessibility,
-  validateTableStructure,
   initializeAccessibility,
   renderIndex,
-  newFunction,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
-  renderAdditionalContent
+  newFunction
 } = main
-
-function validateTableStructure(container) {
-  return validateTableStructureForAccessibility(container);
-}
 
 function validateHeadingHierarchy(headings) {
   // Implementation placeholder - function to be implemented
@@ -68,11 +58,11 @@ function ensureHeadingHierarchy(container) {
   let previousLevel = 0;
 
   headings.forEach(heading => {
-    const currentLevel = parseInt(heading.tagName.substring(1), 10);
+    const currentLevel = parseInt(heading.tagName.charAt(1), 10);
     if (previousLevel > 0 && currentLevel - previousLevel > 1) {
       // Fix skipped heading levels by promoting or demoting as needed
       const correctedLevel = previousLevel + 1;
-      const newHeading = document.createElement(`h${correctedLevel}`);
+      const newHeading = document.createElement('h' + correctedLevel);
       newHeading.innerHTML = heading.innerHTML;
       newHeading.className = heading.className;
       heading.parentNode.replaceChild(newHeading, heading);
@@ -93,7 +83,7 @@ function ensureHeadingHierarchy(container) {
 function renderAdditionalContent(additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
+  return '<div class="additional-content">' + (additionalData ? additionalData.content : '') + '</div>'
 }
 
 module.exports = {
@@ -116,8 +106,6 @@ module.exports = {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
@@ -147,4 +135,4 @@ module.exports = {
   validateHeadingHierarchy,
   ensureHeadingHierarchy,
   renderAdditionalContent
-};
+}

@@ -191,6 +191,17 @@ const a11yStore = {
     });
   },
 
+  /**
+   * Extract the accessible name for an SVG from its content
+   * @param {string} svgContent - The SVG content to extract the accessible name from
+   * @returns {string} The accessible name of the SVG
+   */
+  extractSVGAccessibleName(svgContent) {
+    const regex = /<title>(.*?)<\/title>/i;
+    const match = svgContent.match(regex);
+    return match ? match[1] : 'Image';
+  },
+
   // ... remaining a11yStore methods ...
 
   // New functions

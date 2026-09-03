@@ -1,14 +1,14 @@
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
+const fastMap = new Map();
 const path = require('path');
 
 // Configuration - merged
 const CONFIG = {
     dataPath: './data',
     maxResults: 100,
-    apiUrl: process.env.API_URL || 'https://example.com',
+    apiUrl: process.env.API_URL || 'http://localhost:3000',
     timeout: 5000
 };
 
@@ -73,7 +73,7 @@ async function fetchUser(userId) {
 
 // Clear cache function
 function clearCache() {
-  appState.cache.clear();
+  appState.cache = {};
 }
 
 // Some function
@@ -102,7 +102,7 @@ const {
   countDependencies,
   analyzeModuleDependencies,
   visualizeModuleRelationships
-} = require('./accessibility-improvements');
+} = require('./helpers');
 
 // Helper function to validate landmark structure
 function getLangAttribute() {
@@ -111,7 +111,7 @@ function getLangAttribute() {
 
 // Write report to file
 function writeReport(report) {
-  const reportPath = path.join(__dirname, CONFIG.dataPath, 'accessibility-report.json');
+  const reportPath = path.join(CONFIG.dataPath, 'accessibility-report.json');
   try {
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
     console.log('Report written to', reportPath);
@@ -163,9 +163,10 @@ function addScreenReaderAnnouncements() {
 
 // Add focus trap
 function addFocusTrap() {
-  const focusableElements = document.querySelectorAll('a, button, input, [tabindex]');
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
+  const focusableElements = 'button, input, [tabindex]';
+  const elements = document.querySelectorAll(focusableElements);
+  const firstElement = elements[0];
+  const lastElement = elements[elements.length - 1];
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
@@ -182,18 +183,15 @@ function addFocusTrap() {
 
 // Improve accessibility
 function improveAccessibility() {
-  fixTableStructureIssues();
-  fixTableHeaderCellScope();
+  addKeyboardNavigation();
+  addAriaLabels();
   addMainLandmark();
-  addSvgAccessibleNames();
   fixFakeLinks();
   ensureUniqueLandmarks();
   addLandmarkRoles();
   renderDependencyGraph();
-  displayModuleStructure();
   countDependencies();
   analyzeModuleDependencies();
-  visualizeModuleRelationships();
 }
 
 // Landmark processing functions
@@ -202,14 +200,14 @@ function processLandmarks(landmarks) {
     return [];
   }
 
-  const validLandmarks = landmarks.filter(isValidLandmark);
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+  const validLandmarks = landmarks.filter(l => l && l.name);
+  const uniqueLandmarks = [...new Set(validLandmarks.map(l => l.name))].map(name => validLandmarks.find(l => l.name === name));
 
   return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-  return landmarks.slice().sort((a, b) => {
+  return landmarks.sort((a, b) => {
     const nameA = (a.name || '').toLowerCase();
     const nameB = (b.name || '').toLowerCase();
 
@@ -228,7 +226,7 @@ function isValidLandmark(landmark) {
   return landmark && landmark.name;
 }
 
-function validateLandmarkObject(landmark) {
+function validateLandmark(landmark) {
   const errors = [];
 
   if (!landmark) {
@@ -270,17 +268,17 @@ function validateLandmarkObject(landmark) {
   };
 }
 
-function addSvgAccessibilityProps(svgElement, label, labelledById) {
+function setSvgAttributes(svgElement, label, labelledById) {
   if (!svgElement) return;
 
-  const props = getSvgAccessibilityProps(label, labelledById);
+  const props = getSvgAccessibleName(label, labelledById);
 
   Object.keys(props).forEach(prop => {
     svgElement.setAttribute(prop, props[prop]);
   });
 }
 
-function getSvgAccessibilityProps(label, labelledById) {
+function getSvgAccessibleName(label, labelledById) {
   const props = {};
   if (label) {
     props['aria-label'] = label;
@@ -291,7 +289,7 @@ function getSvgAccessibilityProps(label, labelledById) {
   return props;
 }
 
-function getAccessibleLinkProps(href, label) {
+function handleFakeLinks(href, label) {
   return {
     href,
     'aria-label': label,
@@ -310,15 +308,15 @@ function createInPageButton(buttonText, onClickHandler) {
 }
 
 function wrapPrimaryContentInMain() {
-  const primaryContent = document.querySelector('.primary-content') ||
+  const primaryContent = document.querySelector('main') ||
                         document.querySelector('[role="main"]') ||
-                        document.getElementById('main-content') ||
-                        document.querySelector('#content');
+                        document.querySelector('.main-content') ||
+                        document.querySelector('#main');
 
   if (primaryContent && !primaryContent.closest('main')) {
     const mainElement = document.createElement('main');
-    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
     mainElement.appendChild(primaryContent);
+    document.body.insertBefore(mainElement, document.body.firstChild);
     return mainElement;
   }
   return null;
@@ -326,7 +324,7 @@ function wrapPrimaryContentInMain() {
 
 function addLangAttribute() {
   if (document && document.documentElement) {
-    if (!document.documentElement.getAttribute('lang')) {
+    if (!document.documentElement.hasAttribute('lang')) {
       document.documentElement.setAttribute('lang', getLangAttribute());
     }
   }
@@ -342,10 +340,11 @@ module.exports = {
   improveAccessibility,
   generateAccessibilityReport,
   CONFIG,
-  validateLandmarkObject,
-  addSvgAccessibilityProps,
-  getSvgAccessibilityProps,
-  getAccessibleLinkProps,
+  appState,
+  validateInput,
+  processData,
+  clearCache,
+  someFunction,
   getLangAttribute,
   createInPageButton,
   wrapPrimaryContentInMain,

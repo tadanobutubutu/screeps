@@ -189,7 +189,7 @@ function validateLandmarkStructure() {
   // Check for multiple main landmarks
   const mainElements = document.querySelectorAll('main, [role="main"]');
   if (mainElements.length > 1) {
-    errors.push `Multiple main landmarks found. Only one main landmark should exist.`;
+    errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
   }
 
   // Check for proper nesting of landmarks

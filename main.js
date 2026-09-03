@@ -34,7 +34,8 @@ const {
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
-  ensureElementHasId,
+  handleCredentialResponse,
+  ensureElementHasId: originalEnsureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
   renderDependencyGraphs,
@@ -290,6 +291,21 @@ function trapFocus(container) {
 }
 
 module.exports = {
+  ...accessibilityUtils,
+  renderDependencyGraph,
+  addAriaLabel,
+  addAccessibleName,
+  validateTableAccessibility: validateTableAccessibilityFn,
+  validateTableStructure: validateTableStructureFn,
+  originalEnsureElementHasId, // Preserve the original function
+  ensureElementId, // New function with the same functionality as original func
+  ensureElementHasIdOrigin, // Just in case needed later
+  getTables,
+  getConfig,
+  setConfig,
+  function3,
+  newFocusTrap,
+  initSkipLink,
   main,
   wrapPrimaryContentInMain,
   addNewFunction,

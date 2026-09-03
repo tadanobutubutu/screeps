@@ -69,10 +69,23 @@ function addressAccessibilityIssues(accessibilityReport) {
   return addressedIssues;
 }
 
+// Function to count dependencies
+function countDependencies(dependencies) {
+  if (!dependencies) return 0;
+  if (Array.isArray(dependencies)) {
+    return dependencies.length;
+  }
+  if (typeof dependencies === 'object') {
+    return Object.keys(dependencies).length;
+  }
+  return 0;
+}
+
 // ... remaining imported functions and modules from both branches
 
 // Export functions for testing
 module.exports = {
+  countDependencies,
   // ... existing and added exported functions
 };
 

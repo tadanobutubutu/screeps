@@ -391,13 +391,22 @@ const validateLandmarkStructure = () => {
 };
 
 // New function to ensure unique landmarks
-const ensureUniqueLandmarks = () => {
+const ensureUniqueLandmarksWrapper = () => {
   // Implementation for ensuring unique landmarks
 };
 
 // New function to fix fake link issues
 const fixFakeLinkIssues = () => {
   // Implementation for fixing fake link issues
+  // Find all links that need to be fixed
+  const links = document.querySelectorAll('a[href]');
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    // Check if it's a fake link (e.g., javascript:, #, or relative with no path)
+    if (href && (href.startsWith('javascript:') || href.startsWith('#'))) {
+      handleFakeLinks(link);
+    }
+  });
 };
 
 // New function to handle dynamic content updates

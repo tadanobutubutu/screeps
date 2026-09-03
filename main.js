@@ -77,6 +77,11 @@ const accessibilityUtils = {
   addAriaLabel
 };
 
+// New function added as requested in the issue
+function newFunction() {
+  // Implementation of the new function
+}
+
 module.exports = {
   ...main,
   ...accessibilityUtils,
@@ -89,4 +94,5 @@ module.exports = {
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
+  newFunction, // Adding the new function to the exports
 };

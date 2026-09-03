@@ -19,17 +19,17 @@ const {
   handleCredentialResponseAlt,
   renderGraphIndexUtil,
   addressAccessibilityIssues
-} = require('./utilities');
+ } = require('./utilities');
 
-const http = require('http')
+ const http = require('http')
 
-// New function to ensure the element has an id
-const ensureElementHasId = (element, prefix = 'element') => {
-  if (!element.id) {
-    element.id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-  }
-  return element.id
-}
+ // New function to ensure the element has an id
+ const ensureElementHasId = (element, prefix = 'element') => {
+   if (!element.id) {
+     element.id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+   }
+   return element.id
+ }
 
 // New function to add aria-label to an element
 const addAriaLabel = (element, label) => {

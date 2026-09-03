@@ -251,9 +251,18 @@ class ScreepsBot {
     // New implementation of addAccessibleName function
     // ...
   }
+
+  wrapPrimaryContentInMain(content) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    const bodyContent = doc.body.innerHTML;
+    
+    const mainElement = document.createElement('main');
+    mainElement.innerHTML = bodyContent;
+    
+    const result = main.wrapPrimaryContentInMain(mainElement);
+    return result || mainElement.outerHTML;
+  }
 }
 
 const main = require('./utilities');
-```
-
-A portion of the updated file included merging the new definitions for the following functions: setFocusNew, handleKeyboardNavigationNew, handleArrowKeyNavigationNew, handleTabNavigationNew, updateUINew, addAccessibleNameNew, and validateTableAccessibilityNew while maintaining the existing codebase.

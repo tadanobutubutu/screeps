@@ -122,17 +122,28 @@ function writeReport(report) {
 
 // TODO: Implement function for generating a report based on accessibility issues
 // Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
 async function scanAccessibility() {
-  // ... Scanning and reporting accessibility issues using axe-core ...
+  // Run axe-core on the document
+  const results = await axe.run(document, { timeout: CONFIG.timeout });
+  const issues = results.violations.map(violation => ({
+    id: violation.id,
+    description: violation.description,
+    impact: violation.impact,
+    nodes: violation.nodes.map(node => ({
+      id: node.id,
+      target: node.target,
+      html: node.html,
+      any: node.any,
+      all: node.all,
+      none: node.none,
+      anyCount: node.anyCount,
+      allCount: node.allCount,
+      noneCount: node.noneCount
+    }))
+  }));
   return {
     timestamp: new Date().toISOString(),
-    issues: []
+    issues
   };
 }
 

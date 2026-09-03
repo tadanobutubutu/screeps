@@ -39,6 +39,39 @@ function generateAccessibilityReport(issuesData) {
       conclusions: '',
     };
 
+    // Analyze the issues and build conclusions
+    if (issues && Array.isArray(issues)) {
+      const conclusionParts = [];
+
+      // Count occurrences of each safety category
+      const categoryCounts = {};
+      safetyCategories.split(',').forEach(cat => {
+        categoryCounts[cat] = 0;
+      });
+
+      issues.forEach(issue => {
+        // Try to get the primary category from the issue
+        const category = issue.categories ? issue.categories[0].type : '';
+        if (categoryCounts[category]) {
+          categoryCounts[category]++;
+        }
+      });
+
+      // Build conclusion text
+      if (Object.keys(categoryCounts).length > 0) {
+        conclusionParts.push(
+          `Detected ${categoryCounts['Unauthorized Advice']} instance(s) of Unauthorized Advice.`,
+          `Detected ${categoryCounts['Dangerous Action']} instance(s) of Dangerous Action.`,
+          `Detected ${categoryCounts['Potential Scam']} instance(s) of Potential Scam.`,
+          `Detected ${categoryCounts['Privacy Risk']} instance(s) of Privacy Risk.`
+        );
+      } else {
+        conclusionParts.push('No accessibility issues were found.');
+      }
+
+      report.conclusions = conclusionParts.join('\n');
+    }
+
     return report;
   }
 }
@@ -61,6 +94,3 @@ module.exports = {
   renderFunction2,
   // ... (other exports)
 };
-```
-
-This resolved file integrates both code changes, indiscriminately preserving both features in a logical and meaningful manner. The `accessiblyHelper` and `generateAccessibilityReport` functions have been updated to incorporate logic from both changes, and the functions for `renderFunction1` and `renderFunction2` have also been updated, combining the logic as presented in both codebases. The rest of the file remains unchanged. I did not introduce any syntax errors.

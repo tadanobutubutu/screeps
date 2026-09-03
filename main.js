@@ -20,6 +20,7 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
 // - ADD: Address new accessibility issues from insight report (handled by createFocusTrap(), checkLandmarkElements(), validateSvgAccessibility(), and validateLinks())
+// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 import React from 'react';
 
 /**
@@ -320,6 +321,57 @@ function personName(element) {
 }
 
 /**
+ * Creates an in-page button for navigating to a target element.
+ * Addresses REACT_036 fake link issues by providing a real button
+ * instead of a fake link.
+ * @param {string} targetId - The id of the target element to scroll to
+ * @param {string} label - The accessible label for the button
+ * @param {Object} options - Additional button options
+ * @returns {HTMLButtonElement|null} The created button element or null
+ */
+function createInPageButton(targetId, label, options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.setAttribute('aria-label', label || `Navigate to ${targetId}`);
+
+  // Default to a button-styled element rather than a fake link
+  button.className = options.className || 'in-page-button';
+
+  button.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: options.behavior || 'smooth', block: 'start' });
+      // Move focus to the target if possible for accessibility
+      if (target.setAttribute && typeof target.focus === 'function') {
+        const previousTabIndex = target.getAttribute('tabindex');
+        if (!target.hasAttribute('tabindex')) {
+          target.setAttribute('tabindex', '-1');
+        }
+        target.focus();
+        if (previousTabIndex === null && options.restoreTabIndex !== false) {
+          // Remove the temporary tabindex after focus
+          target.addEventListener('blur', () => {
+            target.removeAttribute('tabindex');
+          }, { once: true });
+        }
+      }
+    }
+  });
+
+  // Provide visible text content if supplied
+  if (options.text) {
+    button.textContent = options.text;
+  }
+
+  return button;
+}
+
+/**
  * Validates that links and interactive elements have accessible names,
  * addressing REACT_036 fake link issues.
  * @param {HTMLElement} container - Optional container to scan within
@@ -439,6 +491,160 @@ function createFocusTrap(container, options = {}) {
   };
 }
 
+/**
+ * Creates a new focus trap for keyboard navigation. (NEW function requested by issue)
+ * This is an alternative instantiation of a focus trap using a constructor pattern.
+ * Returns a controller object exposing activate/deactivate/update methods.
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @param {Object} options - Configuration options for the focus trap
+ * @returns {Object|null} Focus trap controller or null if unavailable
+ */
+function newFocusTrap(container, options = {}) {
+  if (typeof document === 'undefined' || !container) {
+    return null;
+  }
+
+  const config = Object.assign({
+    escapeDeactivates: true,
+    returnFocusOnDeactivate: true,
+    initialFocus: null,
+    onActivate: null,
+    onDeactivate: null
+  }, options);
+
+  let active = false;
+  let previouslyFocusedElement = null;
+  let keyDownHandler = null;
+
+  const getFocusableElements = () => {
+    const focusableSelectors = [
+      'a[href]',
+      'area[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      'button:not([disabled])',
+      'iframe',
+      'object',
+      'embed',
+      '[tabindex]:not([tabindex="-1"])',
+      '[contenteditable="true"]'
+    ].join(',');
+
+    return Array.from(container.querySelectorAll(focusableSelectors))
+      .filter(el => {
+        if (el.disabled) return false;
+        const style = typeof window !== 'undefined' && window.getComputedStyle ? window.getComputedStyle(el) : null;
+        if (style && (style.visibility === 'hidden' || style.display === 'none')) return false;
+        return true;
+      });
+  };
+
+  const handleKeyDown = (e) => {
+    if (!active) return;
+
+    if (e.key === 'Escape' && config.escapeDeactivates) {
+      e.preventDefault();
+      deactivate();
+      return;
+    }
+
+    if (e.key !== 'Tab') return;
+
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length === 0) {
+      e.preventDefault();
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    const currentElement = document.activeElement;
+
+    if (e.shiftKey) {
+      if (currentElement === firstElement || !container.contains(currentElement)) {
+        e.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (currentElement === lastElement || !container.contains(currentElement)) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  };
+
+  const activate = () => {
+    if (active) return;
+    active = true;
+
+    if (typeof document !== 'undefined') {
+      previouslyFocusedElement = document.activeElement;
+
+      keyDownHandler = (e) => handleKeyDown(e);
+      document.addEventListener('keydown', keyDownHandler, true);
+
+      // Focus initial element
+      const focusableElements = getFocusableElements();
+      let initialFocusElement = null;
+
+      if (typeof config.initialFocus === 'string') {
+        initialFocusElement = container.querySelector(config.initialFocus);
+      } else if (config.initialFocus instanceof HTMLElement) {
+        initialFocusElement = config.initialFocus;
+      } else if (focusableElements.length > 0) {
+        initialFocusElement = focusableElements[0];
+      }
+
+      if (initialFocusElement && typeof initialFocusElement.focus === 'function') {
+        initialFocusElement.focus();
+      } else if (typeof container.focus === 'function') {
+        container.setAttribute('tabindex', '-1');
+        container.focus();
+      }
+    }
+
+    if (typeof config.onActivate === 'function') {
+      config.onActivate();
+    }
+  };
+
+  const deactivate = () => {
+    if (!active) return;
+    active = false;
+
+    if (typeof document !== 'undefined' && keyDownHandler) {
+      document.removeEventListener('keydown', keyDownHandler, true);
+      keyDownHandler = null;
+    }
+
+    if (config.returnFocusOnDeactivate && previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
+      previouslyFocusedElement.focus();
+    }
+
+    if (typeof config.onDeactivate === 'function') {
+      config.onDeactivate();
+    }
+  };
+
+  const update = (newOptions = {}) => {
+    Object.assign(config, newOptions);
+  };
+
+  const destroy = () => {
+    deactivate();
+    previouslyFocusedElement = null;
+  };
+
+  return {
+    activate,
+    deactivate,
+    update,
+    destroy,
+    isActive: () => active
+  };
+}
+
 function checkLandmarkElements(container) {
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] };
@@ -472,6 +678,8 @@ export {
   ensureUniqueLandmarks,
   personName,
   validateLinks,
+  createInPageButton,
   createFocusTrap,
+  newFocusTrap,
   checkLandmarkElements
 };

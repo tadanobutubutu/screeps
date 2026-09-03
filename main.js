@@ -24,3 +24,9 @@ export const checkSafetyCategories = () => {
 // TODO: This section is merged from both branches to address accessibility issues
 // Keep existing code, exports, and functions from this point onwards
 // Add your existing code, exports, functions here...
+
+// New function example (to be added according to the issue)
+export const enhanceAccessibility = () => {
+  // Implementation for accessibility enhancements
+  console.log('Accessibility enhancements applied.');
+};

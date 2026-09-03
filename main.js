@@ -19,14 +19,14 @@ const fastMap = require('fast-map');
 const path = require('path');
 
 // Import other functions
-const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, implementNewFunction, addLangAttribute, main, someFunction, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport } = require('./');
+const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, implementNewFunction, addLangAttribute, main, someFunction, addressAccessibilityIssues: oldAddressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport } = require('./');
 
 // Import helper functions
-const { validateInput, processData, formatResponse } = require('./utils/validators');
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
+const { validateInput, processData, formatResponse, getSvgAccessibleName, setSvgAttributes } = require('./utils/validators');
+const { addressAccessibilityIssues: addressAccessibilityIssuesSignature } = require('./utils/accessibility');
 
-// Address accessibility issues from insight report
-function addressAccessibilityIssues() {
+// Create a new function for addressing accessibility issues with the added logic
+function newAddressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // ... (Existing code preserved)
 
@@ -39,56 +39,23 @@ function addressAccessibilityIssues() {
   // Fix unique landmarks based on insight report (REACT_025)
   fixUniqueLandmarks(insightReport());
 
-  // Utilities
-  const accessibilityScanner = axe.createInstance({
-    rules: {
-      'color-contrast': { enabled: false }, // Disable this rule if not needed
-      'aria-roles': { enabled: false }, // Disable this rule if not needed
-      'aria-properties': { enabled: false }, // Disable this rule if not needed
-      // Add any custom rules you want to use here
-    }
-  });
-
-  async function scanAccessibility() {
-    const rootElement = document.querySelector('html');
-    const results = await accessibilityScanner.analyze(rootElement);
-
-    if (results.violations.length > 0) {
-      console.warn('Accessibility issues found:', results);
-
-      // You can implement custom handling for accessibility issues here
-      // For example, create an accessibility report or perform fixes automatically
-
-      // Generate an accessibility report based on scan results
-      const accessibilityReport = generateAccessibilityReport(results);
-      // Save the report to a file or send it elsewhere
-    }
-  }
-
-  return scanAccessibility();
+  // Call the oldAddressAccessibilityIssues function to handle the remaining accessibility scanning and reporting
+  return oldAddressAccessibilityIssues();
 }
 
-// Render dependency graph content
-function renderDependencyGraphContent(data) {
-  // Replace the existing content within the dependencyGraph div using the provided data.
-  renderDependencyGraph(data);
-}
+// Modify the accessibility scanner to use the newAddressAccessibilityIssues function
+const accessibilityScanner = axe.createInstance({
+  rules: {
+    'color-contrast': { enabled: false }, // Disable this rule if not needed
+    'aria-roles': { enabled: false }, // Disable this rule if not needed
+    'aria-properties': { enabled: false }, // Disable this rule if not needed
+    // Add any custom rules you want to use here
+  },
+  scan: newAddressAccessibilityIssues
+});
 
-// Export all functions for use elsewhere in the repository
+// Update the signature for the exported function
 module.exports = {
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
-  validateInput,
-  processData,
-  formatResponse,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
-  createInPageButtons,
-  fixUniqueLandmarks,
   // ... (Other exports preserved)
+  addressAccessibilityIssues: newAddressAccessibilityIssues, // Update the reference to the new accessibility function
 };
-```
-
-This code integrates the new change related to the `addressAccessibilityIssues` function and updates the import sections. It also introduces the axe-core library for scanning accessibility issues and generates an accessibility report based on scan results.

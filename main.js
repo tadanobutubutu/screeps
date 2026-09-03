@@ -233,5 +233,6 @@ module.exports = {
   validateHeadingHierarchy,
   ensureHeadingHierarchy,
   renderAdditionalContent,
-  newFocusTrap
+  newFocusTrap,
+  anotherNewFunction // Added the new function as per the issue
 };

@@ -114,10 +114,6 @@ function addMainLandmarkToIndex() {
   }
 }
 
-<<<<<<< HEAD
-// New functions to be added below line 304
-// Implementation for new functions
-=======
 // Main entry point function (implementation added)
 function main() {
   // Main application logic can be added here
@@ -126,8 +122,6 @@ function main() {
   accessibility();
   // Additional setup can be added as needed
 }
-
->>>>>>> origin/main
 
 module.exports = {
   greetingFunction,
@@ -187,7 +181,5 @@ module.exports = {
   getLangAttribute,
   renderDependencyGraphs,
   addLanguageAttribute,
-  addMainLandmarkToIndex,
-  main
+  addMainLandmarkToIndex
 };
-=========================================

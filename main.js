@@ -1,11 +1,25 @@
-We need to resolve the conflict. The file contains multiple sections with HEAD vs origin/main changes. We must combine changes logically.
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and addAriaToFormControls())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
+// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
+//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
-We need to examine the conflict points:
+//_Commit: 3a12c05dcd32706c621fb0a6cc6adab6fffa76af_
 
-1. At top: there is a TODO comment block and commit markers. Then code:
+//<!-- todo-hash: 43020ae1bfd1273bd3386dbedcb7fd25d3d701ce -->
 
-```
-const main = require('./utilities')
+const main = require('./utilities');
 
 const {
   fixTableStructure,
@@ -38,14 +52,15 @@ const {
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues
-} = require('./AccessibilityHelpers')
+} = main;
 
 import React from 'react';
 
 // Module-level function definitions
 function affectedFunction() {
   return main.affectedFunction();
-=======
+}
+
 /**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang language code (e.g., 'en', 'es', 'fr')
@@ -56,16 +71,8 @@ function setHtmlLangAttribute(lang) {
     document.documentElement.lang = lang || 'en';
   }
   return lang || 'en';
->>>>>>> origin/main
-```
+}
 
-So HEAD has function affectedFunction() returning main.affectedFunction(); origin/main defines setHtmlLangAttribute function. Also there is import React again (duplicate). The conflict likely is that HEAD includes import React twice (maybe not needed). We need to merge: keep both setHtmlLangAttribute and affectedFunction? The instructions: keep and integrate both changes if they both add features, or choose correct logic that compiles and satisfies both needs. The affectedFunction seems to be a placeholder; maybe we need to keep it. The setHtmlLangAttribute is new. So we should keep affectedFunction as is, and also include setHtmlLangAttribute. Also duplicate import React maybe remove one.
-
-Next conflict: There's a large block of functions definitions.
-
-HEAD includes:
-
-```
 function newFunction() {
   // New function implementation
 }
@@ -76,229 +83,177 @@ function anotherNewFunction() {
 
 // Implement the function to add an accessible name to SVGs
 // Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName(svgString) {
+function getSvgAccessibleName(svgString) {
   const parser = new DOMParser();
   const svg = parser.parseFromString(svgString, 'image/svg+xml');
   const svgElement = svg.documentElement;
-  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
-    svgElement.setAttribute('aria-label', getSvgAccessibleName(svgElement));
-```
 
-origin/main continues with more code for validateTableAccessibility etc. So we need to merge these definitions. Let's parse:
-
-HEAD's newFunction and anotherNewFunction are placeholders with comments. origin/main defines validateTableAccessibility (function with parameters tableElement). Also defines validateLandmarkStructure, etc. Also defines getSvgAccessibleName maybe.
-
-We need to combine: We should keep newFunction and anotherNewFunction? They are empty placeholders. Might be leftover; maybe we need to implement them? But they are not referenced elsewhere. Could keep them as stubs.
-
-The main conflict is the function definitions for validateTableAccessibility and validateLandmarkStructure etc.
-
-Let's see the HEAD snippet after newFunction/anotherNewFunction:
-
-```
-function newFunction() {
-  // New function implementation
-}
-
-function anotherNewFunction() {
-  // Another new function implementation
-}
-
-// Implement the function to add an accessible name to SVGs
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName(svgString) {
-  const parser = new DOMParser();
-  const svg = parser.parseFromString(svgString, 'image/svg+xml');
-  const svgElement = svg.documentElement;
-  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
-    svgElement.setAttribute('aria-label', getSvgAccessibleName(svgElement));
-```
-
-origin/main continues:
-
-```
-  // Check for proper caption or summary
-  const hasCaption = ...
-  const hasSummary = ... || ...
-  if (!hasCaption && !hasSummary) {
-    errors.push('Table is missing a caption or aria-describedby for accessibility');
+  if (!svgElement || svgElement.nodeName !== 'svg') {
+    return null;
   }
-  
-  return { valid: errors.length === 0, errors };
-```
 
-Also defines validateLandmark and validateLandmarkStructure.
+  // Check if the SVG already has an accessible name (title or aria-label)
+  const existingTitle = svgElement.querySelector('title');
+  const ariaLabel = svgElement.getAttribute('aria-label');
 
-Thus we need to merge the two definitions: probably combine the logic: The HEAD's addAccessibleName function is incomplete (just sets aria-label). origin/main adds validation for caption/summary and returns errors. Also there is a function getSvgAccessibleName defined later. Also there is function validateSvgAccessibility.
-
-Let's examine the HEAD after addAccessibleName snippet: It ends with `svgElement.setAttribute('aria-label', getSvgAccessibleName(svgElement));` then there is a comment about new function etc. Actually after that, there is:
-
-```
-  // Check for proper caption or summary
-  const hasCaption = ...
-  const hasSummary = ... || ...
-  if (!hasCaption && !hasSummary) {
-    errors.push('Table is missing a caption or aria-describedby for accessibility');
+  if (existingTitle || ariaLabel) {
+    return existingTitle ? existingTitle.textContent : ariaLabel;
   }
-  
-  return { valid: errors.length === 0, errors };
-```
 
-So HEAD's addAccessibleName function seems to be incomplete; origin/main extends it with validation for tables? Wait that's inside validateTableAccessibility function, not addAccessibleName. Let's re-evaluate.
-
-The HEAD snippet:
-
-```
-function newFunction() {
-  // New function implementation
+  // Try to derive a name from context or generate a default
+  // This is a placeholder for more sophisticated name derivation
+  return null;
 }
 
-function anotherNewFunction() {
-  // Another new function implementation
-}
-
-// Implement the function to add an accessible name to SVGs
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName(svgString) {
-  const parser = new DOMParser();
-  const svg = parser.parseFromString(svgString, 'image/svg+xml');
-  const svgElement = svg.documentElement;
-  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
-    svgElement.setAttribute('aria-label', getSvgAccessibleName(svgElement));
-```
-
-Then after that, there is a comment about new function to handle additional rendering logic etc. Not relevant.
-
-Then later HEAD includes:
-
-```
-function validateTableAccessibility(tableData) {
-  return main.validateTableAccessibility(tableData);
-}
-...
-function validateTableStructure(tableData) {
-  return main.validateTableStructure(tableData);
-}
-...
-```
-
-So HEAD defines validateTableAccessibility as a wrapper around main.validateTableAccessibility, and validateTableStructure similarly.
-
-origin/main defines validateTableAccessibility with tableElement param and internal checks (thead, tbody, th elements). Also defines validateLandmark, validateLandmarkStructure, etc.
-
-Thus we need to merge both: Keep HEAD's wrapper functions (maybe they are needed) and also incorporate origin/main's detailed validation logic.
-
-But there may be duplication. Let's think: The requirement is to resolve conflict meaningfully. Both sides have code; we need to integrate.
-
-Probably the correct approach: Keep the wrapper functions (validateTableAccessibility and validateTableStructure) that call main functions, but also incorporate the detailed validation logic from origin/main into those wrapper functions, maybe replace the simple calls with actual validation code.
-
-But the HEAD's validateTableAccessibility just returns main.validateTableAccessibility(tableData). The origin/main defines a function with same name but different signature (tableElement). Which one is intended? The HEAD's function is called elsewhere maybe with tableData (array). The origin's function expects a DOM element. There may be two separate uses: one for data validation, one for DOM element validation. So we should keep both functions but rename to avoid conflict.
-
-Let's examine usage: In HEAD later there is:
-
-```
-function validateTableAccessibility(tableData) {
-  return main.validateTableAccessibility(tableData);
-}
-
-// Function to handle the Google sign-in and generate a JWT response
-function handleCredentialResponse(response) {
-  console.log('Credential Response:', response);
-}
-...
-```
-
-So they use validateTableAccessibility with tableData (presumably array). So the wrapper is needed.
-
-Thus we should keep HEAD's wrapper functions (validateTableAccessibility and validateTableStructure) that call main functions, but also maybe incorporate origin's detailed validation for DOM elements elsewhere.
-
-But there is also a function validateLandmark and validateLandmarkStructure. HEAD defines newFunction and anotherNewFunction placeholders. origin/main defines validateLandmark and validateLandmarkStructure with detailed logic. So we need to merge: Keep HEAD's placeholder functions (maybe they are to be implemented later) and also incorporate origin's implementations. Maybe we can replace placeholders with actual implementations.
-
-But the instruction: "Do not discard functionality unless they are clearly redundant." So we should keep both newFunction and anotherNewFunction if they add features, else maybe implement them.
-
-Let's examine newFunction and anotherNewFunction: They are empty placeholders with comments. Not used elsewhere. Might be intended to be implemented later. Since they are not referenced, maybe they are redundant. But we cannot discard them unless clearly redundant. They are not clearly redundant; they could be placeholders for future code. However they may conflict with other definitions. Let's see if any other code calls newFunction or anotherNewFunction. Not in the visible snippet. So they are likely placeholders left from HEAD. Since they are empty, we could keep them as is (maybe implement minimal functionality). But to resolve conflict, we need to integrate origin's code with HEAD's placeholders. The origin's code defines validateLandmark etc., which may replace the placeholders.
-
-Maybe the intention is that HEAD's newFunction and anotherNewFunction are to be removed or replaced with the actual implementations from origin/main (validateLandmark, validateLandmarkStructure). However the HEAD also includes addAccessibleName function which is incomplete; origin provides more robust implementation.
-
-Let's parse the HEAD's addAccessibleName: It sets aria-label using getSvgAccessibleName. That's fine. The origin's code includes more checks for caption/summary and returns errors. That seems to be part of validateTableAccessibility, not addAccessibleName. Wait the origin's snippet after addAccessibleName (which ends with setAttribute) continues with:
-
-```
-  // Check for proper caption or summary
-  const hasCaption = ...
-  const hasSummary = ... || ...
-  if (!hasCaption && !hasSummary) {
-    errors.push('Table is missing a caption or aria-describedby for accessibility');
-  }
-  
-  return { valid: errors.length === 0, errors };
-```
-
-But that code appears after the addAccessibleName snippet in HEAD, but it's actually part of validateTableAccessibility function (the origin's version). Let's examine: In HEAD after addAccessibleName snippet, there is:
-
-```
-  // Check for proper caption or summary
-  const hasCaption = ...
-  const hasSummary = ... || ...
-  if (!hasCaption && !hasSummary) {
-    errors.push('Table is missing a caption or aria-describedby for accessibility');
-  }
-  
-  return { valid: errors.length === 0, errors };
-```
-
-But where is the function definition? It seems to be inside validateTableAccessibility (origin's version). Let's reconstruct:
-
-origin/main's validateTableAccessibility function:
-
-```
+/**
+ * Validates table accessibility by checking structure and accessibility attributes
+ * @param {HTMLElement} tableElement - The table element to validate
+ * @returns {Object} Validation result with valid status and errors array
+ */
 function validateTableAccessibility(tableElement) {
   if (typeof document === 'undefined' || !tableElement) {
     return { valid: false, errors: ['Table element not found or document not available'] };
   }
-  
+
   const errors = [];
-  
+
   // Check if table has proper structure
-  if ... {
+  const thead = tableElement.querySelector('thead');
+  if (!thead) {
     errors.push('Table is missing <thead> element');
   }
-  
-  if ... {
+
+  const tbody = tableElement.querySelector('tbody');
+  if (!tbody) {
     errors.push('Table is missing <tbody> element');
   }
-  
+
   // Check for th elements in thead
-  const thead = ...
-  const thElements = thead ? ... : [];
+  const thElements = thead ? thead.querySelectorAll('th') : [];
   if (thElements.length === 0) {
     errors.push('Table header row is missing <th> elements');
   }
-  
+
   // Check that all th elements have scope attributes
   thElements.forEach((th, index) => {
-    if ... {
+    if (!th.hasAttribute('scope')) {
       errors.push(`Table header cell ${index + 1} is missing scope attribute`);
     }
   });
-  
+
   // Check for proper caption or summary
-  const hasCaption = ...
-  const hasSummary = ... || ...
+  const hasCaption = tableElement.querySelector('caption');
+  const hasSummary = tableElement.getAttribute('aria-describedby') || tableElement.getAttribute('summary');
+
   if (!hasCaption && !hasSummary) {
     errors.push('Table is missing a caption or aria-describedby for accessibility');
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
-```
 
-Thus the HEAD snippet that includes addAccessibleName and then the caption check is actually part of origin's validateTableAccessibility, not addAccessibleName. So HEAD's addAccessibleName snippet may be incomplete; origin's version includes more robust checks.
+/**
+ * Validates the structure of landmark elements
+ * @param {HTMLElement} container - The container element to validate landmarks in
+ * @returns {Object} Validation result with valid status and errors array
+ */
+function validateLandmarkStructure(container) {
+  if (typeof document === 'undefined' || !container) {
+    return { valid: false, errors: ['Container element not found or document not available'] };
+  }
 
-Thus we need to merge addAccessibleName: combine HEAD's simple setting of aria-label with origin's validation for caption/summary? Wait addAccessibleName is for SVGs, not tables. The caption/summary check is for tables. So maybe we need to keep addAccessibleName as is (set aria-label) but also ensure that if there is no caption or summary, we maybe add accessible name? Not sure.
+  const errors = [];
+  const allowedLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section', 'search'];
 
-Let's step back. The conflict appears to be large, with many functions overlapping. The goal is to produce a resolved file that compiles and satisfies both needs, preserving comments and style.
+  // Check for proper landmark usage
+  const landmarks = container.querySelectorAll('[role]');
+  landmarks.forEach((landmark, index) => {
+    const role = landmark.getAttribute('role').toLowerCase();
+    if (allowedLandmarks.indexOf(role) === -1) {
+      errors.push(`Landmark ${index + 1} has an invalid role: ${role}`);
+    }
+  });
 
-We need to decide which code to keep for each function:
+  // Check for multiple main landmarks
+  const mainLandmarks = container.querySelectorAll('main, [role="main"]');
+  if (mainLandmarks.length > 1) {
+    errors.push(`Found ${mainLandmarks.length} main landmarks, expected 1`);
+  }
 
-- setHtmlLangAttribute vs getLangAttribute: HEAD has affectedFunction only; origin has setHtmlLangAttribute and getLangAttribute. Probably we need both functions: setHtmlLangAttribute to set the attribute, and getLangAttribute to retrieve it. Also there is detectAndSetLang function (maybe new). The HEAD's detectAndSetLang function seems to be incomplete (has ellipsis). We need to incorporate that.
+  // Check for proper heading hierarchy within landmarks
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const headingLevels = Array.from(headings).map(h => parseInt(h.tagName.charAt(1)));
+  for (let i = 1; i < headingLevels.length; i++) {
+    if (headingLevels[i] > headingLevels[i - 1] + 1) {
+      errors.push(`Heading hierarchy jump detected at heading level ${headingLevels[i]}`);
+    }
+  }
 
-- newFunction and anotherNewFunction placeholders: maybe we keep them as stubs, but also incorporate origin's validateLandmark and validateLandmarkStructure functions (maybe rename). However the HEAD's newFunction/anotherNewFunction may be intended to be replaced with actual implementations. Since they are empty, maybe we should remove them to avoid redundancy. But instruction says not discard unless clearly redundant. They are not clearly redundant; they may be place of
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validates that landmarks are properly structured and accessible
+ * @param {HTMLElement} container - The container to validate landmarks in
+ * @returns {Object} Validation result with valid status and errors array
+ */
+function validateLandmark(container) {
+  if (typeof document === 'undefined' || !container) {
+    return { valid: false, errors: ['Container element not found'] };
+  }
+
+  const errors = [];
+  const landmarks = container.querySelectorAll('header, nav, main, aside, footer, [role]');
+
+  landmarks.forEach((landmark, index) => {
+    // Check for accessible name on landmarks that need one
+    const role = landmark.getAttribute('role');
+    const tagName = landmark.tagName.toLowerCase();
+
+    if (role === 'navigation' || tagName === 'nav') {
+      if (!landmark.getAttribute('aria-label') && !landmark.querySelector('a')) {
+        errors.push(`Navigation landmark ${index + 1} is missing an accessible name`);
+      }
+    }
+
+    if (role === 'complementary' || tagName === 'aside') {
+      if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+        errors.push(`Complementary landmark ${index + 1} is missing an accessible name`);
+      }
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validates SVG accessibility by checking for accessible names
+ * @param {string} svgString - The SVG markup to validate
+ * @returns {Object} Validation result with valid status and errors array
+ */
+function validateSvgAccessibility(svgString) {
+  if (!svgString || typeof svgString !== 'string') {
+    return { valid: false, errors: ['Invalid SVG string provided'] };
+  }
+
+  const errors = [];
+  const parser = new DOMParser();
+  const svg = parser.parseFromString(svgString, 'image/svg+xml');
+  const svgElement = svg.documentElement;
+
+  if (svgElement.nodeName !== 'svg') {
+    return { valid: false, errors: ['Invalid SVG element'] };
+  }
+
+  // Check for title element
+  const title = svgElement.querySelector('title');
+  if (!title) {
+    errors.push('SVG is missing a <title> element for accessibility');
+  }
+
+  // Check for aria-label or aria-labelledby
+  const hasAriaLabel = svgElement.hasAttribute('aria-label');
+  const hasAriaLabelledby = svgElement.hasAttribute('aria-labelledby');
+
+  if (!hasAriaLabel && !hasAriaLabelledby && !title) {
+    errors.push('SVG is missing an accessible name (aria-label, aria-lab

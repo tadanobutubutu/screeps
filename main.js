@@ -269,6 +269,13 @@ async function renderFunction1() {
     }
   }
 
+  // Use new functions for rendering graph/index
+  const graphContent = renderDependencyGraphContent();
+  const graph = renderDependencyGraph();
+  const buttons = createInPageButtons();
+  const depAnalysis = analyzeModuleDependencies ? analyzeModuleDependencies([]) : null;
+  const moduleVis = visualizeModuleRelationships ? visualizeModuleRelationships([]) : null;
+
   let html = '';
   html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
     if (/\bscope=/i.test(match)) return match;
@@ -1119,7 +1126,7 @@ function sortLandmarks(landmarks, ascending = true) {
         if (ascending) {
             return nameA.localeCompare(nameB);
         }
-        return nameB.localeCompare(nameA);
+        return nameB.localeCompare(nameB);
     });
 }
 

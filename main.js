@@ -126,3 +126,4 @@ function generateAccessibilityReport(issuesData) {
     // If data is provided, use the analysis logic
     issues = accessiblyHelper(issuesData);
   }
+}

@@ -1,6 +1,3 @@
-Here is the resolved file content following the Git merge conflict, keeping both changes:
-
-```javascript
 const fs = require('fs');
 const main = require('./utilities');
 
@@ -82,8 +79,3 @@ module.exports = {
   accessibilityUtils,
   // ...
 };
-```
-
-In the `newFocusTrap` function, I've merged the implementations from both branches by using the extended version from the lower branch and allowing the user to pass a custom focusable element selector if needed.
-
-In the `announceToScreenReader` function, I've added the function from the lower branch to provide more options for users.

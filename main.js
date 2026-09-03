@@ -21,7 +21,7 @@ export function myNewFunction() {
 }
 
 // REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html) {
+export function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   return html.replace(/<html([^>]*)>/i, (match, attrs) => {
     if (/\blang=/i.test(match)) return match;
@@ -46,7 +46,7 @@ const dependencyGraph = document.getElementById('dependencyGraph');
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkAttributes() and ...
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -59,7 +59,7 @@ const dependencyGraph = document.getElementById('dependencyGraph');
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_ -->
+//<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3 -->
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 //_Commit: 94682d0194ff736f18c9f23486aa2eea265b4bc5_
 //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
@@ -69,6 +69,13 @@ const dependencyGraph = document.getElementById('dependencyGraph');
  */
 function getLangAttribute() {
   return document.documentElement.lang || 'en';
+}
+
+export function addLangAttributeToHtml() {
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', getLangAttribute());
+  }
 }
 
 function addLangAttribute() {
@@ -91,7 +98,7 @@ function validateTableStructure(table) {
   return hasHeader && hasBody;
 }
 
-function fixTableStructure(table) {
+export function fixTableStructure(table) {
   if (!validateTableStructure(table)) {
     // Add missing thead if needed
     if (!table.querySelector('thead')) {
@@ -134,7 +141,7 @@ function validateLandmarkAttributes(landmark) {
  * Validates landmark structure for accessibility issues
  * @returns {boolean} True if landmark structure is valid
  */
-function validateLandmarkStructure() {
+export function validateLandmarkStructure() {
   const requiredLandmarks = ['header', 'main', 'footer'];
   const missingLandmarks = [];
 
@@ -175,7 +182,7 @@ function ensureUniqueLandmarks() {
   }
 }
 
-function createInPageButton() {
+export function createInPageButton() {
   const button = document.createElement('button');
   button.textContent = 'Skip to content';
   button.addEventListener('click', function() {
@@ -236,7 +243,7 @@ function addProperLandmarkRegions() {
  * Generates a report based on accessibility issues
  * @returns {Object} The accessibility report
  */
-function generateAccessibilityReport() {
+export function generateAccessibilityReport() {
   const issues = [];
 
   // Check for images without alt attributes
@@ -255,7 +262,7 @@ function generateAccessibilityReport() {
   // Check for buttons without accessible names
   const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
-    const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
+    const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledBy');
     if (!accessibleName) {
       issues.push({
         type: 'missing-name',
@@ -326,7 +333,7 @@ function generateAccessibilityReport() {
 /**
  * Addresses accessibility issues at runtime
  */
-function addressAccessibilityIssues() {
+export function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
   const rootContainer = document.getElementById('root');
   if (rootContainer) {
@@ -430,13 +437,16 @@ const accessibilityUtils = {
 };
 
 // Export the report generation function
-module.exports = {
-  generateAccessibilityReport: generateAccessibilityReport,
+export { 
+  generateAccessibilityReport,
   addressAccessibilityIssues,
   getLangAttribute,
   createInPageButton,
   a11y,
-  accessibilityUtils
+  accessibilityUtils,
+  validateLandmarkStructure,
+  addLangAttribute,
+  fixTableStructure
 };
 
 // Initialize the application with accessibility improvements

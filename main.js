@@ -154,11 +154,12 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 };
 
-// New functions
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
+// New function to add language attribute to the HTML element
+function addLanguageAttribute(language) {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', language);
+  }
 }
 
 // ... rest of the code ...

@@ -45,113 +45,28 @@ const { class1, function1, Object1 } = require('./path/to/module');
 const a11yStore = {
   // ... existing methods ...
 
-  /**
-   * Check if the user prefers reduced motion
-   * @returns {boolean} True if the user prefers reduced motion
-   */
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // New function to validate the accessibility report for issues
+  validateAccessibilityReport() {
+    const errors = [];
+
+    if (!a11yStore.prefersReducedMotion()) {
+      errors.push('User does not prefer reduced motion');
+    }
+
+    if (a11yStore.prefersHighContrast()) {
+      errors.push('User prefers high contrast');
+    }
+
+    // Add more checks as needed
+
+    if (errors.length > 0) {
+      console.warn('Accessibility issues found:', errors.join('\n'));
+    } else {
+      console.log('No accessibility issues found.');
+    }
   },
 
-  prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
-  },
-
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
-    this.announce(message, priority);
-  },
-
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
-        if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
-        }
-
-        if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
-          }
-        }
-      });
-    });
-  },
-
-  addSVGAccessibilityProps() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
-      let titleElement = svg.querySelector('title');
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image';
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
-
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
-      }
-
-      svg.setAttribute('aria-labelledby', titleElement.id);
-
-      if (!svg.hasAttribute('role')) {
-        svg.setAttribute('role', 'img');
-      }
-    });
-  },
-
-  fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
-    fakeLinks.forEach((link) => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
-    });
-  },
-
-  /**
-   * Ensure all interactive elements have proper ARIA roles
-   */
-  ensureInteractiveRoles() {
-    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach((element) => {
-      if (!element.hasAttribute('role')) {
-        element.setAttribute('role', 'button');
-      }
-    });
-  },
-
-  /**
-   * Add ARIA labels to form controls if missing
-   */
-  addFormControlLabels() {
-    const formControls = document.querySelectorAll('input, select, textarea');
-    formControls.forEach((control, index) => {
-      if (!control.id) {
-        control.id = `form-control-${index}`;
-      }
-      const label = document.createElement('label');
-      label.setAttribute('for', control.id);
-      label.textContent = control.placeholder || 'Form control';
-      control.parentNode.insertBefore(label, control);
-    });
-  },
-
-  /**
-   * Ensure all images have alt text or ARIA attributes
-   */
-  ensureImageAccessibility() {
-    const images = document.querySelectorAll('img');
-    images.forEach((img) => {
-      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
-        img.setAttribute('alt', '');
-      }
-    });
-  },
-
-  // ... remaining a11yStore methods ...
+  // Remaining a11yStore methods ...
 };
 
 // New functions
@@ -159,6 +74,11 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureInteractiveRoles();
   a11yStore.addFormControlLabels();
   a11yStore.ensureImageAccessibility();
+}
+
+// Function to call the accessibility report validation
+function validateAccessibility() {
+  a11yStore.validateAccessibilityReport();
 }
 
 // ... rest of the code ...

@@ -2,7 +2,7 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -189,6 +189,12 @@ function ensureUniqueLandmarks() {
   }
 }
 
+/**
+ * Creates an in-page button element used for skip-to-main-content navigation
+ * and replacing fake links. The button is configured with appropriate attributes
+ * and a click handler that focuses the main landmark.
+ * @returns {HTMLButtonElement} The created button element
+ */
 function createInPageButton() {
   const button = document.createElement('button');
   button.setAttribute('type', 'button');

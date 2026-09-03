@@ -469,5 +469,18 @@ reportWebVitals();
 
 export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
 
+// ADDED: Export the missing functions that were previously not exported
+export { 
+  validateTableAccessibility,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  addMainLandmark
+};
+
 // Initialize after React render to ensure DOM is updated
 initialize();

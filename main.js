@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// Accessibility utilities
+
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
@@ -7,10 +11,10 @@ const { exec, spawn } = require('child_process');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+const primaryContent = (typeof document !== 'undefined') ? document.getElementById('main') || document.querySelector('main') || document.body : null;
 
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0',
@@ -72,7 +76,7 @@ module.exports = {
         const seen = new Map();
 
         elements.forEach(element => {
-            const key = element.id || element.name || JSON.stringify(element);
+            const key = element.id || element.name || element.className;
             if (!seen.has(key)) {
                 seen.set(key, true);
                 uniqueElements.push(element);
@@ -84,29 +88,22 @@ module.exports = {
 
     addressInsightIssues: function () {
         this.getLangAttribute();
-        this.addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+        const landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
 
         if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
             this.ensureLandmarkUniqueness(landmarks);
         }
-        this.ensureUniqueLandmarks();
-
+        
         this.validateTableAccessibility();
         this.validateTableStructure();
+        this.ensureUniqueLandmarks();
 
-        this.getSvgAccessibleName();
-
-        this.createInPageButton();
-        this.createAccessibleLink();
-        this.handleAccessibilityIssues();
-
-        this.validateLandmark();
-        this.validateLandmarkStructure();
+        return true;
     },
 
     initializeApp: function () {
         this.addressInsightIssues();
-        this.loadConfigurations();
+        loadConfigurations();
         if (typeof wrapPrimaryContentInMain === 'function') {
             wrapPrimaryContentInMain();
         }
@@ -186,7 +183,7 @@ module.exports = {
         if (typeof doc === 'undefined' || !doc.querySelectorAll) {
             return;
         }
-        const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
+        const clickableElements = doc.querySelectorAll('[onclick]');
         let count = 0;
 
         clickableElements.forEach(element => {
@@ -195,9 +192,9 @@ module.exports = {
 
             if (tagName !== 'a' && !hasHref) {
                 const isInteractive = element.getAttribute('role') === 'link' ||
-                                       (element.hasAttribute('onclick') && element.onclick && element.onclick.toString().includes('window.location'));
+                                       element.onclick && true;
 
-                if (isInteractive && !element.hasAttribute('aria-label')) {
+                if (isInteractive && tagName === 'div') {
                     const text = element.textContent.trim();
                     if (text) {
                         element.setAttribute('aria-label', text);
@@ -228,7 +225,7 @@ module.exports = {
     },
 
     startApp: function () {
-        this.loadConfigurations();
+        loadConfigurations();
         const server = this.createServer();
         return server;
     }

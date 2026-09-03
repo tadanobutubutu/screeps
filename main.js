@@ -6,7 +6,7 @@ const { exec } = require('child_process');
 const app = express();
 const { createServer, startApp, config } = require('./');
 
-const port = PORT || 3000;
+const port = process.env.PORT || 3000;
 
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -234,36 +234,6 @@ function startApp() {
   return server;
 }
 
-// Add the lang attribute to the HTML element with the getLangAttribute() function
-document.documentElement.lang = getLangAttribute();
-
-// ... (other functions omitted for brevity)
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    createServer,
-    startApp,
-    config,
-    validateLandmark,
-    getLangAttribute,
-    addSvgAccessibleName,
-    ensureElementHasId,
-    AddressabilityIssues,
-    addressAccessibilityIssues,
-    implementCountDependenciesInMain,
-    countDependencies,
-    processSvgElements,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
-    spawnSomeCommand,
-    addLangAttribute,
-    // ... (other exports omitted for brevity)
-  };
-} else {
-  startApp();
-}
-
 /**
  * Ensures an element has an ID attribute
  * @param {Object} element - The element to check
@@ -328,24 +298,41 @@ function renderDependencyGraph(graphData) {
   };
 }
 
-// Export all functions for testing and external use
-module.exports = {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  createAccessibleLink,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  handleAccessibilityIssues,
-  ensureElementId,
-  addAriaLabel,
-  addProperLandmarkRegions,
-  renderDependencyGraph
-};
+// Add the lang attribute to the HTML element with the getLangAttribute() function
+document.documentElement.lang = getLangAttribute();
+
+// ... (other functions omitted for brevity)
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    createServer,
+    startApp,
+    config,
+    validateLandmark,
+    getLangAttribute,
+    addSvgAccessibleName,
+    ensureElementHasId,
+    AddressabilityIssues,
+    addressAccessibilityIssues,
+    implementCountDependenciesInMain,
+    countDependencies,
+    processSvgElements,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    ensureUniqueLandmarksFromString,
+    spawnSomeCommand,
+    addLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    ensureUniqueLandmarks,
+    personName,
+    createInPageButton,
+    ensureElementId,
+    addAriaLabel,
+    addProperLandmarkRegions,
+    renderDependencyGraph,
+    // ... (other exports omitted for brevity)
+  };
+} else {
+  startApp();
+}

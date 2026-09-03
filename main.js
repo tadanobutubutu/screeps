@@ -152,6 +152,15 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  // New method
+  getSystemInfo() {
+    return {
+      OS: navigator.platform,
+      Browser: navigator.userAgent,
+      Language: navigator.language
+    };
+  }
 };
 
 // New functions

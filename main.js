@@ -8,6 +8,8 @@ const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
+// TODO: This is the existing code that needs to be preserve
+// (This comment remains as-is)
 const path = require('path');
 const accessiblyHelper = require('./accessibly-helper');
 

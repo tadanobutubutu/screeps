@@ -23,6 +23,9 @@ const fs = require('fs');
 const express = require('express');
 const { exec } = require('child_process');
 const app = express();
+const { promisify } = require('util'); // New import for async/await
+const consolidate = require('consolidate'); // New import for template engine
+const axios = require('axios'); // New import for fetching credential response
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
@@ -43,14 +46,6 @@ const config = {
   debug: true,
   version: '1.0.0'
 };
-
-// New functions to address the listed issues
-function addLangAttribute(element) {
-  // Adds lang attribute to the given HTML element
-  if (element && typeof element.setAttribute === 'function') {
-    element.setAttribute('lang', 'en');
-  }
-}
 
 function addBook(bookData) {
   // ... Existing code ...
@@ -85,14 +80,14 @@ function processSvgElements() {
 
 export function validateTableAccessibility(table, index) {
   const issues = [];
-  
+
   if (!table) {
     issues.push(`Table at index ${index}: Table element is missing or null`);
     return issues;
   }
-  
+
   // Additional table validation logic here
-  
+
   return issues;
 }
 
@@ -101,7 +96,7 @@ export function validateTableStructure(table) {
   // Also check the table structure and return a boolean value indicating the result
   const issues = [];
   const tables = document.querySelectorAll('table');
-  
+
   tables.forEach((tableItem, index) => {
     const tableIssues = validateTableAccessibility(tableItem, index);
     issues.push(...tableIssues);
@@ -164,7 +159,7 @@ function validateLandmark(element) {
   };
 
   const issues = resolveStructuralIssues(element);
-  
+
   return {
     success: issues.length === 0,
     issues
@@ -271,6 +266,32 @@ function ensureUniqueLandmarksFromString(source) {
   return result;
 }
 
+async function handleCredentialResponse(response) {
+  // Parse and validate the credential response
+  // In real-world use, you'd likely decrypt and verify the response as well
+  // Store or use the credentials based on your application's requirements
+}
+
+// This function will be called when a credential response is received
+async function handleCredentialResponseOnReceive(response) {
+  await handleCredentialResponse(response);
+}
+
+// Add a new POST endpoint to accept the credential response
+app.post('/credentials', async function (req, res) {
+  if (!req.body || !req.body.credentialResponse) {
+    res.status(400).send('Missing credential response');
+    return;
+  }
+
+  const responseData = await handleCredentialResponseOnReceive(req.body.credentialResponse);
+  res.status(200).send(responseData);
+});
+
+/**
+ * Spawn a child process to run some command with proper error handling.
+ * @param {Function} callback - Invoked with (err, result) when the command exits.
+ */
 function addressAccessibilityIssues(insightReport) {
   // If no report provided, return an empty array
   if (!Array.isArray(insightReport)) {
@@ -432,10 +453,6 @@ function calculateAccessibilityScore(fixedIsses) {
   }, 0);
 }
 
-/**
- * Spawn a child process to run some command with proper error handling.
- * @param {Function} callback - Invoked with (err, result) when the command exits.
- */
 function startApp() {
   const server = createServer();
   server.listen(config.port || PORT, () => {
@@ -467,13 +484,12 @@ module.exports = {
   addSvgAccessibleName,
   countDependencies,
   countPackageDependencies,
-  addressAccessibilityIssues,
   addressNewAccessibilityIssues,
   generateAccessibilityReport,
-  calculateAccessibilityScore,
   spawnCommand,
   processSvgElements,
   ensureElementId,
+  handleCredentialResponseOnReceive,
   ensureUniqueLandmarksFromString,
   addLangAttribute,
   newFunction

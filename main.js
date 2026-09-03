@@ -35,6 +35,20 @@ function getLangAttribute() {
     return document.documentElement.lang || 'en';
 }
 
+// TODO: Implement new function
+function returnFocusToElement() {
+    const previouslyFocused = document.activeElement;
+    
+    return {
+        getPreviouslyFocused: () => previouslyFocused,
+        restoreFocus: () => {
+            if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+                previouslyFocused.focus();
+            }
+        }
+    };
+}
+
 // Accessibility utilities for keyboard navigation and screen reader support
 const accessibilityUtils = {
     /**
@@ -276,5 +290,6 @@ module.exports = {
     ensureElementHasId,
     getTables,
     getConfig,
-    setConfig
+    setConfig,
+    returnFocusToElement
 };

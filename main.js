@@ -1,3 +1,6 @@
+// This is the existing code that needs to be preserved
+// _Commit: 243c66538868c6b87845660312397ab39e0f830d_
+// <!-- todo-hash: ... -->
 const main = require('./utilities')
 
 function createInPageButton(buttonId, buttonText, buttonClass) {
@@ -203,7 +206,7 @@ function implementAccessibilityFixesFromReport(container, report) {
     console.log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`);
   }
 
-  focusTrap(container);
+  trapFocus(container);
 
   if (fixes.langAdded) {
     console.log('Lang attribute added to HTML element');
@@ -234,6 +237,50 @@ function implementAccessibilityFixesFromReport(container, report) {
   }
 
   return fixes;
+}
+
+function navigate(destination) {
+  if (typeof destination === 'string') {
+    window.location.href = destination;
+  } else if (destination && typeof destination.click === 'function') {
+    destination.click();
+  }
+}
+
+function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  function handleKeyDown(e) {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    }
+    
+    if (e.key === 'Escape') {
+      element.setAttribute('aria-hidden', 'true');
+      element.removeEventListener('keydown', handleKeyDown);
+    }
+  }
+
+  element.addEventListener('keydown', handleKeyDown);
+  
+  if (firstFocusable) {
+    firstFocusable.focus();
+  }
 }
 
 function renderDependencyGraphs(container) {
@@ -292,7 +339,7 @@ function ensureLandmarks() {
   return validateLandmarkStructure();
 }
 
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarksImpl() {
   const landmarks = document.querySelectorAll('header[role="banner"], footer[role="contentinfo"], main[role="main"], nav[role="navigation"]');
   const seenIds = new Set();
   
@@ -314,6 +361,10 @@ function ensureUniqueLandmarks() {
   const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
   const uniqueIds = new Set(allIds);
   return uniqueIds.size === allIds.length;
+}
+
+function ensureUniqueLandmarks() {
+  return ensureUniqueLandmarksImpl();
 }
 
 function fixTableStructures() {
@@ -610,32 +661,8 @@ function focusTrap(container) {
   // Implementation placeholder
 }
 
-function renderDependencyGraphs(container) {
+function handleFakeLinks() {
   // Implementation placeholder
-}
-
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('header[role="banner"], footer[role="contentinfo"], main[role="main"], nav[role="navigation"]');
-  const seenIds = new Set();
-  
-  landmarks.forEach(landmark => {
-    if (!landmark.id) {
-      const tagName = landmark.tagName.toLowerCase();
-      let id = tagName;
-      let counter = 1;
-      while (seenIds.has(id)) {
-        id = `${tagName}-${counter++}`;
-      }
-      landmark.id = id;
-      seenIds.add(id);
-    } else {
-      seenIds.add(landmark.id);
-    }
-  });
-
-  const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
-  const uniqueIds = new Set(allIds);
-  return uniqueIds.size === allIds.length;
 }
 
 // Export for use in other modules
@@ -674,6 +701,5 @@ module.exports = {
     getLangAttribute,
     ensureDependencyGraphARIA,
     validateSession,
-    handleCredentialResponse,
-    addAriaLabel
+    handleCredentialResponse
 };

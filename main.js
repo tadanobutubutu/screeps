@@ -152,6 +152,15 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  /**
+   * Wrap primary content in a main element
+   * @param {string} content - The content to wrap
+   * @returns {string} The wrapped content
+   */
+  wrapPrimaryContentInMain(content) {
+    return `<main>${content}</main>`;
+  }
 };
 
 // New functions

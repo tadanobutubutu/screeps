@@ -208,12 +208,14 @@ function addressAccessibilityIssues(insightReport) {
     console.log('Addressing accessibility issues from insight report:', insightReport);
 }
 
+// TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
     document.body.appendChild(button);
+    return button;
 }
 
 // Helper function to check color contrast
@@ -287,3 +289,18 @@ function parseColor(colorString) {
     }
 
     // Handle named colors (limited support)
+    return null;
+}
+
+// Helper function to calculate luminance
+function calculateLuminance(rgb) {
+    const r = rgb.r / 255;
+    const g = rgb.g / 255;
+    const b = rgb.b / 255;
+
+    const rLinear = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+    const gLinear = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+    const bLinear = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+
+    return 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
+}

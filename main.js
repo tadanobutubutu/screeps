@@ -552,7 +552,9 @@ module.exports = {
   createInPageButton,
   wrapPrimaryContentInMain,
   addLangAttribute,
+  ensureDependencyGraphAriaRole,
+  renderFunction1,
+  renderFunction2,
   CONFIG,
   appState
 };
-```

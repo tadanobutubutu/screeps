@@ -1,7 +1,3 @@
-// Module imports and configuration
-const fastMap = require('fast-map');
-const config = require('./config');
-const logger = require('./utils/logger');
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
@@ -24,9 +20,6 @@ const CONFIG = {
   debug: true,
   version: '1.0.0'
 };
-
-let isInitialized = false;
-let dependencyGraph = null;
 
 const appState = {
   initialized: false,
@@ -70,137 +63,74 @@ function validateLandmarkStructure() {
   // ... Rest of the validateLandmarkStructure function implementation
 }
 
-function initialize() {
-  // ... Rest of the initialize function implementation, unchanged
+const app = express();
 
-  // Core application initialization
-  function initializeApp() {
-    logger.info('Application starting...');
-    appState.initialized = true;
-    appState.data = config || {};
-    return appState;
-  }
-}
-
-// Other functions preserved from both changesets, unchanged
-
-// New functions for addressing accessibility issues:
-const ensureLangAttribute = () => {
+function ensureLangAttribute() {
   if (document.documentElement.getAttribute('lang') === null) {
     document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
   }
-};
+}
 
-const fixLandmarks = () => {
-  // ... Rest of the fixLandmarks function implementation, combined with the merged changes
-};
+function fixLandmarks() {
+  const root = document.documentElement;
+  root.querySelectorAll('[role="header"], [role="footer"], [role="navigation"], [role="main"], [role="complementary"]').forEach(element => {
+    if (!element.id) {
+      element.id = element.getAttribute('aria-labelledby') || element.getAttribute('aria-label');
+    }
+  });
+}
 
-const addSvgAccessibleNames = () => {
-  // ... Rest of the addSvgAccessibleNames function implementation
-};
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  for (let i = 0; i < svgs.length; i++) {
+    if (!svgs[i].getAttribute('aria-labelledby')) {
+      const accessibleName = getSvgAccessibleName(svgs[i]);
+      svgs[i].setAttribute('aria-labelledby', accessibleName);
+    }
+  }
+}
 
-const fixFakeLinks = () => {
-  // ... Rest of the fixFakeLinks function implementation
-};
+function fixFakeLinks() {
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    link.addEventListener('click', function () {
+      location.href = link.getAttribute('href');
+    });
+  });
+}
 
-const replaceButtonIds = () => {
-  // ... Rest of the replaceButtonIds function implementation
-};
+function replaceButtonIds() {
+  const elements = Array.from(document.querySelectorAll('button'));
+  elements.map(el => {
+    el.id = el.getAttribute('aria-labelledby') || el.textContent.trim();
+    return el;
+  });
+}
 
-const ensureDependencyGraphAriaRole = () => {
-  // ... Rest of the ensureDependencyGraphAriaRole function implementation
-};
+function ensureDependencyGraphAriaRole() {
+  const dependencyGraph = document.querySelector('#dependencyGraph');
+  dependencyGraph.setAttribute('role', 'region');
+}
 
-// Export all functions with the newly-created ones
-module.exports = {
-  checkSafetyCategories,
-  addBook,
-  getBooksList,
-  createInPageButton,
-  getLangAttribute,
-  generateAccessibilityReport,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  main,
-  checkUserSafety,
-  createAccessibleInput,
-  createBookForm,
-  createUnrotateButton,
-  fixAccessibilityIssues,
-  generateDependencyReport,
-  renderDependencyGraphContent,
-  countDependencies,
-  enhanceAddBookFormAccessibility,
-  ensureLandmarkUniqueness,
-  visualizeDependencyTree,
-  rotateBack,
-  UserSafety,
-  SafetyCategories,
-  generateDependencyReport as generateDependency,
-  getUserSafety,
-  main as mainFunction,
-  getUserSafetyAdvice,
-  appState,
-  updateAppData,
-  fetchData,
-  validateInputForDataFetch,
-  initializeApp,
-  initialize,
-  landmarkStructureCheck,
-  addMainLandmark,
-  fixTableStructureIssues,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  createInPageButton as createInPageButtonFunc,
-  isSecureContext,
-  ensureFocusableElements,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  ensureFocusableElements,
-  addProperLandmarkRegions,
-  ensureUniqueLandmarksDoc,
-  fixButtonIdentifiers,
-  ensureDependencyGraphAriaRole,
-  googleSignIn,
-  initApp,
-  startServer,
-  app,
-  axe,
-  fastMap,
-  fs,
-  path,
-  appData,
-  ensureUniqueLandmarksFromArray,
-  visualizeDependencyTreeData,
-  clearCache,
-  validateInput,
-  initAppAfterFixes,
-  function3,
-  // New functions for addressing accessibility issues:
-  ensureLangAttribute,
-  fixLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  replaceButtonIds,
-  ensureDependencyGraphAriaRole,
-  // Make the new functions available
-  ensureLangAttribute: ensureLangAttributeFunc,
-  fixLandmarks: fixLandmarksFunc,
-  addSvgAccessibleNames: addSvgAccessibleNamesFunc,
-  fixFakeLinks: fixFakeLinksFunc,
-  replaceButtonIds: replaceButtonIdsFunc,
-  ensureDependencyGraphAriaRole: ensureDependencyGraphAriaRoleFunc
-};
+app.use(axe.middleware());
+app.use(express.static(path.join(__dirname, CONFIG.dataPath)));
 
-// Add a11y and additional utility functions
-require('@accessible/react/utils')(document);
+app.get('/', (req, res) => {
+  ensureLangAttribute();
+  fixLandmarks();
+  addSvgAccessibleNames();
+  fixFakeLinks();
+  replaceButtonIds();
+  ensureDependencyGraphAriaRole();
+  res.send('Welcome to the Screeps bot!');
+});
+
+app.get('/data', (req, res) => {
+  res.sendFile(path.join(__dirname, CONFIG.dataPath, 'data.json'));
+});
+
+app.listen(3000, () => {
+  console.log('Server started on port 3000');
+});
+
+module.exports = app;

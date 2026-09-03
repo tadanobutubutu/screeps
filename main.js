@@ -42,208 +42,36 @@
       fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
     }
 
-// Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
+    // Utilities
+    const { validateInput, processData } = require('./utils/validators');
+    const { formatResponse } = require('./utils/processor');
 
-// Function A and Function B (from HEAD)
-function functionA(value) {
-    return value;
-}
-
-function functionB(value) {
-    return value ? value : null;
-}
-
-    // Function to get the language attribute value
-    function getLangAttribute() {
-      // Implementation of getLangAttribute function
-      return document.documentElement.lang || 'en';
-    }
-
-    // Function to create an in-page button
-    function createInPageButton() {
-      // Implementation of createInPageButton function
-      const button = document.createElement('button');
-      button.textContent = 'Accessibility Info';
-      button.setAttribute('aria-label', 'Show accessibility information');
-      document.body.appendChild(button);
-    }
-
-    // Function to address accessibility issues
-    function addressAccessibilityIssues() {
-      // Ensure the root container has an accessible name
-      const rootContainer = document.getElementById('root') ? document.getElementById('root').parentElement : null;
-      if (rootContainer) {
-        rootContainer.setAttribute('role', 'main');
-      }
-
-      // Initialize skip link functionality
-      const skipLink = document.querySelector('[href^="#"]');
-      if (skipLink) {
-        skipLink.addEventListener('click', function(e) {
-          const targetId = this.getAttribute('href').slice(1);
-          const target = document.getElementById(targetId);
-          if (target) {
-            target.setAttribute('tabindex', '-1');
-            target.focus();
-          }
-        });
-      }
-
-      // Ensure all buttons with role="button" respond to Enter key
-      document.querySelectorAll('[role="button"]').forEach(function(button) {
-        button.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            this.click();
-          }
-        });
+    // New function to fix landmark issues
+    function fixLandmarkIssues(landmarks) {
+      landmarks.forEach(landmark => {
+        landmark.setAttribute('tabindex', '-1');
+        landmark.removeAttribute('id'); // If multiple landmarks with the same id, we remove the id to ensure uniqueness
       });
+      // Preserve your existing logic to add landmark roles and validate landmarks here (if any)
+      // ...
+    }
 
-      // Add focusVisible polyfill behavior
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Tab') {
-          document.body.classList.add('keyboard-nav');
+    // New function to add accessible names to SVGs
+    function addSvgAccessibility(svgElements) {
+      svgElements.forEach(svgElement => {
+        setSvgAttributes(svgElement, getSvgAccessibleName(svgElement));
+      });
+    }
+
+    // New function to create accessible links
+    function createAccessibleLinks(links) {
+      links.forEach(link => {
+        // Check if anchor has href, if not, add href attribute with empty value
+        if (!link.hasAttribute('href')) {
+          link.setAttribute('href', '');
         }
+        link.setAttribute('tabindex', '-1');
       });
-
-      document.addEventListener('mousedown', function() {
-        document.body.classList.remove('keyboard-nav');
-      });
-
-      // Trap focus in modal and announce welcome message
-      const modalElement = document.getElementById('modal');
-      if (modalElement && a11y && a11y.trapFocus) {
-        a11y.trapFocus(modalElement);
-      }
-      if (a11y && a11y.announce) {
-        a11y.announce('Welcome to the bot!', 'assertive');
-      }
-
-      // Adding an alt attribute to an image
-      const imageElement = document.getElementById('example-image');
-      if (imageElement) {
-        imageElement.setAttribute('alt', 'A description of the image');
-      }
-
-      // Correcting the ARIA role for a div
-      const divElement = document.getElementById('example-div');
-      if (divElement) {
-        divElement.setAttribute('role', 'list');
-      }
-
-      // Adding the lang attribute to the HTML element
-      const htmlElement = document.documentElement;
-      if (htmlElement) {
-        htmlElement.setAttribute('lang', getLangAttribute());
-      }
-    }
-
-    // New function to import a module and execute a function
-    function importAndExecute(modulePath, functionName, callback) {
-      require(modulePath)[functionName](callback);
-    }
-
-    // New function to validate table accessibility
-    function validateTableAccessibility(tableElement) {
-      if (!tableElement) return false;
-
-      // Check if table has a caption
-      const hasCaption = tableElement.querySelector('caption') !== null;
-
-      // Check if table has proper headers
-      const hasHeaders = tableElement.querySelector('thead') !== null ||
-                        tableElement.querySelector('th') !== null;
-
-      // Check if table has proper scope attributes for headers
-      const headers = tableElement.querySelectorAll('th');
-      let hasScope = true;
-      headers.forEach(header => {
-        if (!header.hasAttribute('scope')) {
-          hasScope = false;
-        }
-      });
-
-      return hasCaption && hasHeaders && hasScope;
-    }
-
-    // New function to validate table structure
-    function validateTableStructure(tableElement) {
-      if (!tableElement) return false;
-
-      // Check if table has proper row and cell structure
-      const rows = tableElement.querySelectorAll('tr');
-      let validStructure = true;
-
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td, th');
-        if (cells.length === 0) {
-          validStructure = false;
-        }
-      });
-
-      return validStructure;
-    }
-
-    // New function to validate landmark
-    function validateLandmark(landmarkElement) {
-      if (!landmarkElement) return false;
-
-      // Check if landmark has proper role
-      const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
-      const role = landmarkElement.getAttribute('role');
-
-      return validRoles.includes(role);
-    }
-
-    // New function to validate landmark structure
-    function validateLandmarkStructure(landmarkElement) {
-      if (!landmarkElement) return false;
-
-      // Check if landmark has proper heading
-      const heading = landmarkElement.querySelector('h1, h2, h3, h4, h5, h6');
-      return heading !== null;
-    }
-
-    // New function to get SVG accessible name
-    function getSvgAccessibleName(svgElement) {
-      if (!svgElement) return '';
-
-      // Check for title and desc elements
-      const title = svgElement.querySelector('title');
-      const desc = svgElement.querySelector('desc');
-
-      if (title) return title.textContent;
-      if (desc) return desc.textContent;
-
-      // Check for aria-label or aria-labelledby
-      if (svgElement.hasAttribute('aria-label')) {
-        return svgElement.getAttribute('aria-label');
-      }
-
-      if (svgElement.hasAttribute('aria-labelledby')) {
-        const id = svgElement.getAttribute('aria-labelledby');
-        const labelElement = document.getElementById(id);
-        return labelElement ? labelElement.textContent : '';
-      }
-
-      return '';
-    }
-
-    // New function to set SVG attributes
-    function setSvgAttributes(svgElement, name) {
-      if (!svgElement || !name) return;
-
-      // Set aria-label if not already set
-      if (!svgElement.hasAttribute('aria-label')) {
-        svgElement.setAttribute('aria-label', name);
-      }
-
-      // Set role if not already set
-      if (!svgElement.hasAttribute('role')) {
-        svgElement.setAttribute('role', 'img');
-      }
     }
 
     // Export the report generation function
@@ -272,9 +100,10 @@ function functionB(value) {
       initialize: undefined,
       validateInput,
       fixTableAccessibility: undefined,
-      fixLandmarkIssues: undefined,
-      addSvgAccessibility: undefined,
-      createAccessibleLinks: undefined,
+      fixLandmarkIssues,
+      addSvgAccessibility,
+      createAccessibleLinks,
+      createInPageButton,
       formatResponse,
       loadLandmarks: undefined,
       processLandmarks: undefined,
@@ -327,13 +156,29 @@ function functionB(value) {
         // Accessibility: Ensure main content is keyboard accessible
         // Accessibility: Add skip link functionality
         // Accessibility: Ensure buttons have proper labels
-        // Accessibility: Add landmark roles and fix landmark issues
-        // Accessibility: Add accessible names to 2 SVGs
-        // Accessibility: Ensure unique landmarks (2 issues)
-        // Accessibility: Fix 1 fake link issue
+        // Accessibility: Add landmark roles and fix landmark issues (new)
+        // Accessibility: Add accessible names to 2 SVGs (new)
+        // Accessibility: Ensure unique landmarks (2 issues) (new)
+        // Accessibility: Fix 1 fake link issue (new)
         // Initialize accessibility features from a11y utilities
         if (a11y && a11y.init) {
             a11y.init();
+        }
+
+        // New functions to fix specific accessibility issues
+        const links = document.querySelectorAll('a'); // replaced document.links with document.querySelectorAll('a') for better compatibility
+        if (links.length > 0) {
+          createAccessibleLinks(links);
+        }
+
+        // Assuming these variables store all the SVG elements and landmarks respectively
+        const svgElements = [...document.getElementsByTagName('svg')];
+        const landmarks = [...document.getElementsByTagName('*')].filter(el => el.getAttribute('role')); // You can use your existing method to filter landmarks here
+        if (svgElements.length > 0) {
+          addSvgAccessibility(svgElements);
+        }
+        if (landmarks.length > 0) {
+          fixLandmarkIssues(landmarks);
         }
     }
 

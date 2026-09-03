@@ -8,6 +8,180 @@ function renderDependencyGraph(deps, options = {}) {
     // ... (Updated code goes here)
 }
 
+/**
+ * Validate the landmark structure for accessibility issues
+ * @param {Document|HTMLElement} context - The document or element to validate (defaults to document)
+ * @returns {Object} Validation result with issues array and overall status
+ */
+function validateLandmarkStructure(context = document) {
+    const issues = [];
+    const doc = context.documentElement ? context : document;
+    
+    // Check for presence of main landmark (should have exactly one per page)
+    const mainElements = doc.querySelectorAll('main');
+    if (mainElements.length === 0) {
+        issues.push({
+            type: 'missing-landmark',
+            message: 'Page should have at least one <main> landmark for main content',
+            severity: 'error',
+            element: null
+        });
+    } else if (mainElements.length > 1) {
+        // Multiple main elements need aria-label to distinguish them
+        mainElements.forEach((main, index) => {
+            if (!main.hasAttribute('aria-label') && !main.hasAttribute('aria-labelledby')) {
+                issues.push({
+                    type: 'duplicate-landmark',
+                    message: `Multiple <main> elements should have aria-label or aria-labelledby to differentiate them`,
+                    severity: 'warning',
+                    element: main
+                });
+            }
+        });
+    }
+    
+    // Check for banner landmark (<header>) - should be at most one outside of <article>/<section>
+    const headerElements = doc.querySelectorAll('header');
+    headerElements.forEach((header) => {
+        // Check if header is a direct child of body or main (banner landmark)
+        const parent = header.parentElement;
+        if (parent && (parent.tagName === 'BODY' || parent.tagName === 'MAIN')) {
+            const bannerHeaders = doc.querySelectorAll('body > header, body > main > header');
+            if (bannerHeaders.length > 1) {
+                const existingIssue = issues.find(i => i.type === 'multiple-banner' && i.element === header);
+                if (!existingIssue) {
+                    issues.push({
+                        type: 'multiple-banner',
+                        message: 'Page should have only one <header> element as a banner landmark outside of article/section',
+                        severity: 'error',
+                        element: header
+                    });
+                }
+            }
+        }
+    });
+    
+    // Check for contentinfo landmark (<footer>) - should be at most one outside of <article>/<section>
+    const footerElements = doc.querySelectorAll('footer');
+    footerElements.forEach((footer) => {
+        const parent = footer.parentElement;
+        if (parent && (parent.tagName === 'BODY' || parent.tagName === 'MAIN')) {
+            const contentinfoFooters = doc.querySelectorAll('body > footer, body > main > footer');
+            if (contentinfoFooters.length > 1) {
+                const existingIssue = issues.find(i => i.type === 'multiple-contentinfo' && i.element === footer);
+                if (!existingIssue) {
+                    issues.push({
+                        type: 'multiple-contentinfo',
+                        message: 'Page should have only one <footer> element as a contentinfo landmark outside of article/section',
+                        severity: 'error',
+                        element: footer
+                    });
+                }
+            }
+        }
+    });
+    
+    // Check for navigation landmarks (<nav>) - should have accessible names
+    const navElements = doc.querySelectorAll('nav');
+    if (navElements.length > 1) {
+        // Multiple navigation regions should have aria-label to differentiate them
+        navElements.forEach((nav) => {
+            if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+                issues.push({
+                    type: 'unlabeled-navigation',
+                    message: 'Multiple <nav> elements should have aria-label or aria-labelledby to describe their purpose',
+                    severity: 'warning',
+                    element: nav
+                });
+            }
+        });
+    }
+    
+    // Check for complementary landmark (<aside>) - should not have main content
+    const asideElements = doc.querySelectorAll('aside');
+    asideElements.forEach((aside) => {
+        const hasMain = aside.querySelector('main');
+        if (hasMain) {
+            issues.push({
+                type: 'inappropriate-landmark-content',
+                message: '<aside> landmark should not contain <main> content',
+                severity: 'error',
+                element: aside
+            });
+        }
+        
+        // Aside should have accessible name if multiple exist
+        if (asideElements.length > 1 && !aside.hasAttribute('aria-label') && !aside.hasAttribute('aria-labelledby')) {
+            issues.push({
+                type: 'unlabeled-complementary',
+                message: 'Multiple <aside> elements should have aria-label or aria-labelledby to differentiate them',
+                severity: 'warning',
+                element: aside
+            });
+        }
+    });
+    
+    // Check for section elements - should have accessible names to be meaningful landmarks
+    const sectionElements = doc.querySelectorAll('section');
+    sectionElements.forEach((section) => {
+        if (!section.hasAttribute('aria-label') && !section.hasAttribute('aria-labelledby')) {
+            // Only warn for sections that don't have headings as implicit labels
+            const hasHeading = section.querySelector('h1, h2, h3, h4, h5, h6');
+            if (!hasHeading) {
+                issues.push({
+                    type: 'unlabeled-section',
+                    message: '<section> elements should have aria-label, aria-labelledby, or a heading to be recognized as a landmark',
+                    severity: 'warning',
+                    element: section
+                });
+            }
+        }
+    });
+    
+    // Check for proper document structure (landmark hierarchy)
+    const body = doc.querySelector('body');
+    if (body) {
+        const directChildren = Array.from(body.children);
+        const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+        
+        directChildren.forEach((child) => {
+            if (landmarks.includes(child.tagName.toLowerCase())) {
+                // Check if landmark has appropriate nesting
+                if (child.tagName === 'HEADER' || child.tagName === 'FOOTER') {
+                    const parent = child.parentElement;
+                    if (parent && parent.tagName !== 'BODY' && parent.tagName !== 'MAIN' && 
+                        parent.tagName !== 'ARTICLE' && parent.tagName !== 'SECTION') {
+                        // This is actually valid (nested in other elements), no issue
+                    }
+                }
+            }
+        });
+    }
+    
+    // Check for region role usage
+    const regions = doc.querySelectorAll('[role="region"]');
+    regions.forEach((region) => {
+        if (!region.hasAttribute('aria-label') && !region.hasAttribute('aria-labelledby')) {
+            issues.push({
+                type: 'unlabeled-region',
+                message: '<div role="region"> should have aria-label or aria-labelledby to be recognized as a landmark',
+                severity: 'warning',
+                element: region
+            });
+        }
+    });
+    
+    return {
+        valid: issues.filter(i => i.severity === 'error').length === 0,
+        issues: issues,
+        summary: {
+            total: issues.length,
+            errors: issues.filter(i => i.severity === 'error').length,
+            warnings: issues.filter(i => i.severity === 'warning').length
+        }
+    };
+}
+
 class ScreetsBot {
   // ... (The rest of the class definition remains the same as in the original conflict branch)
 
@@ -129,6 +303,15 @@ const accessibilityUtils = {
                 }
                 break;
         }
+    },
+    
+    /**
+     * Validate the landmark structure for accessibility issues
+     * @param {Document|HTMLElement} context - The document or element to validate
+     * @returns {Object} Validation result with issues array and summary
+     */
+    validateLandmarkStructure(context = document) {
+        return validateLandmarkStructure(context);
     }
 };
 
@@ -215,5 +398,6 @@ module.exports = {
     initSkipLink: accessibilityUtils.initSkipLink,
     announceToScreenReader: accessibilityUtils.announceToScreenReader,
     handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
-    createInPageButtons
+    createInPageButtons,
+    validateLandmarkStructure
 };

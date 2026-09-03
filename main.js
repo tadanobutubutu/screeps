@@ -233,5 +233,10 @@ module.exports = {
         this.loadConfigurations();
         const server = this.createServer();
         return server;
+    },
+
+    spawnProcess: function (command, args, options) {
+        // Spawning a child process to perform a command
+        return spawn(command, args, options);
     }
 };

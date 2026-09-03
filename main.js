@@ -1,10 +1,6 @@
 const fs = require('fs');
 const main = require('./utilities');
 
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
-
 const {
   createInPageButton,
   validateTableStructure,
@@ -30,84 +26,49 @@ const {
   transformInputData,
   initSkipLink,
   trapFocus,
-  newFocusTrap: function (element, customFocusableSelector) {
-      const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-      if (focusableElements.length === 0) return;
-      const first = focusableElements[0];
-      const last = focusableElements[focusableElements.length - 1];
-
-      element.addEventListener('keydown', (e) => {
-          if (e.key === 'Tab') {
-              if (e.shiftKey && document.activeElement === first) {
-                  last.focus();
-                  e.preventDefault();
-              } else if (!e.shiftKey && document.activeElement === last) {
-                  first.focus();
-                  e.preventDefault();
-              }
-          }
-      });
-  }
+  newFocusTrap: functionNewFocusTrap
 } = main;
 
 const accessibilityUtils = {
-    createInPageButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    getLangAttribute,
-    validateAccessibilityReport,
-    handleKeyboardNav,
-    exportUtils,
-    addressAccessibilityIssues,
-    handleCredentialResponse,
-    fixButtonIdentifiers,
-    fixDependencyGraphAria,
-    addMainLandmarkToIndex,
-    focusTrap,
-    renderAdditionalContent,
-    transformInputData,
-    initSkipLink,
-    trapFocus,
-    announceToScreenReader: function (message, priority) {
-        if (priority === undefined) {
-            priority = 'polite';
-        }
-        const announcer = document.createElement('div');
-        announcer.setAttribute('aria-live', priority);
-        announcer.setAttribute('aria-atomic', 'true');
-        announcer.className = 'sr-only';
-        announcer.style.position = 'absolute';
-        announcer.style.left = '-9999px';
-        announcer.textContent = message;
-        document.body.appendChild(announcer);
-        setTimeout(function () {
-            announcer.remove();
-        }, 1000);
-    },
-    newFocusTrap: function (element, customFocusableSelector) {
-        const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-        if (focusableElements.length === 0) return;
-        const first = focusableElements[0];
-        const last = focusableElements[focusableElements.length - 1];
-
-        element.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                if (e.shiftKey && document.activeElement === first) {
-                    last.focus();
-                    e.preventDefault();
-                } else if (!e.shiftKey && document.activeElement === last) {
-                    first.focus();
-                    e.preventDefault();
-                }
-            }
-        });
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  handleKeyboardNav,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
+  transformInputData,
+  initSkipLink,
+  trapFocus,
+  announceToScreenReader: function (message, priority) {
+    if (priority === undefined) {
+      priority = 'polite';
     }
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(function () {
+      announcer.remove();
+    }, 1000);
+  },
+  newFocusTrap: functionNewFocusTrap
 };
 
-// Utility functions for ensuring elements have IDs and adding labels
 const ensureElementHasId = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');

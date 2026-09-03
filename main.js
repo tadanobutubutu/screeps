@@ -17,55 +17,49 @@ const {
   transformInputData,
   initSkipLink,
   trapFocus,
-  newFocusTrap: (element) => {
-    if (!element) return originNewFocusTrap(element);
-    const focusable = element.querySelectorAll(
-      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === first) {
-          last.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          first.focus();
-          e.preventDefault();
-        }
-    });
-  },
   announceToScreenReader,
-  ensureElementId,
+  ensureElementId: ensureElementIdOrigin,
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
   addAriaLabel,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementId: (element) => {
-    if (element && !element.id) {
-      element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    }
-    return element;
-  },
-  ensureElementHasIdOrigin,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addSvgAccessibleName,
-  initSkipLink,
-  trapFocus,
-  announceToScreenReader: originalAnnounceToScreenReader,
-  newFocusTrap,
-  ensureElementId,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addAriaLabel
+  ensureElementHasIdOrigin
 } = main;
+
+const newFocusTrap = (element) => {
+  if (!element) return originNewFocusTrap(element);
+  const focusable = element.querySelectorAll(
+    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  });
+};
+
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element;
+};
 
 // Accessibility utilities and functions
 const accessibilityUtils = {
@@ -97,7 +91,8 @@ const accessibilityUtils = {
     issues.forEach((issue) => {
       if (issue.element) {
         issue.solution();
-    }
+      }
+    });
   },
 
   // ... Previous exports defined here

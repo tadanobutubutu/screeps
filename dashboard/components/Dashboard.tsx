@@ -12,15 +12,19 @@ export default function Dashboard() {
         [copiedJson, setCopiedJson] = useState(false),
         [detailsOpen, setDetailsOpen] = useState(false),
         [copiedSummary, setCopiedSummary] = useState(false),
-        [summaryHover, setSummaryHover] = useState(false);
+        [summaryHover, setSummaryHover] = useState(false),
+        [summaryFocused, setSummaryFocused] = useState(false);
 
     const [autoRefresh, setAutoRefresh] = useState(true);
     const [autoRefreshHover, setAutoRefreshHover] = useState(false);
     const [autoRefreshFocused, setAutoRefreshFocused] = useState(false);
     const [searchFocused, setSearchFocused] = useState(false);
     const [refreshHover, setRefreshHover] = useState(false);
+    const [refreshFocused, setRefreshFocused] = useState(false);
     const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
+    const [focusedRoom, setFocusedRoom] = useState<string | null>(null);
     const [jsonHover, setJsonHover] = useState(false);
+    const [jsonFocused, setJsonFocused] = useState(false);
     const [refreshSuccess, setRefreshSuccess] = useState(false);
     const [toastMsg, setToastMsg] = useState<string | null>(null);
     const [errCopyHover, setErrCopyHover] = useState(false);
@@ -28,7 +32,14 @@ export default function Dashboard() {
     const [toastCloseFocused, setToastCloseFocused] = useState(false);
     const [copiedAllRooms, setCopiedAllRooms] = useState(false);
     const [copyAllHover, setCopyAllHover] = useState(false);
+    const [copyAllFocused, setCopyAllFocused] = useState(false);
     const [roomQuery, setRoomQuery] = useState('');
+    const [summaryDetailsHover, setSummaryDetailsHover] = useState(false);
+    const [summaryDetailsFocused, setSummaryDetailsFocused] = useState(false);
+    const [noMatchClearHover, setNoMatchClearHover] = useState(false);
+    const [noMatchClearFocused, setNoMatchClearFocused] = useState(false);
+    const [searchClearHover, setSearchClearHover] = useState(false);
+    const [searchClearFocused, setSearchClearFocused] = useState(false);
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -250,7 +261,7 @@ export default function Dashboard() {
         );
     if (error)
         return (
-            <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <main role="alert" aria-live="assertive" style={{ padding: '2rem', fontFamily: 'monospace' }}>
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
@@ -317,7 +328,7 @@ export default function Dashboard() {
             </main>
         );
     return (
-        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <main id="main-content" tabIndex={-1} style={{ padding: '2rem', fontFamily: 'monospace', outline: 'none' }}>
             <div
                 style={{
                     display: 'flex',
@@ -349,8 +360,9 @@ export default function Dashboard() {
                                 onClick={copySummary}
                                 onMouseEnter={() => setSummaryHover(true)}
                                 onMouseLeave={() => setSummaryHover(false)}
-                                onFocus={() => setSummaryHover(true)}
-                                onBlur={() => setSummaryHover(false)}
+                                onFocus={() => setSummaryFocused(true)}
+                                onBlur={() => setSummaryFocused(false)}
+                                aria-keyshortcuts="Alt+c"
                                 aria-label={
                                     copiedSummary
                                         ? 'サマリーをコピーしました'
@@ -366,7 +378,7 @@ export default function Dashboard() {
                                     padding: '0.2rem 0.5rem',
                                     backgroundColor: copiedSummary
                                         ? '#c6f6d5'
-                                        : summaryHover
+                                        : summaryHover || summaryFocused
                                           ? '#edf2f7'
                                           : 'transparent',
                                     border: '1px solid #cbd5e0',
@@ -378,6 +390,8 @@ export default function Dashboard() {
                                     gap: '0.25rem',
                                     transition: 'all 0.2s ease-in-out',
                                     transform: summaryHover ? 'scale(1.05)' : 'scale(1)',
+                                    outline: summaryFocused ? '2px solid #004b73' : 'none',
+                                    outlineOffset: '2px',
                                 }}
                             >
                                 {copiedSummary ? '✅ コピー完了' : '📋 サマリーをコピー'}
@@ -471,6 +485,7 @@ export default function Dashboard() {
                                     width: '0.9rem',
                                     height: '0.9rem',
                                 }}
+                                aria-keyshortcuts="Alt+a"
                                 aria-label="自動更新 (60秒ごと, Alt + A)"
                             />
                             <span
@@ -517,8 +532,9 @@ export default function Dashboard() {
                             disabled={refreshing}
                             onMouseEnter={() => setRefreshHover(true)}
                             onMouseLeave={() => setRefreshHover(false)}
-                            onFocus={() => setRefreshHover(true)}
-                            onBlur={() => setRefreshHover(false)}
+                            onFocus={() => setRefreshFocused(true)}
+                            onBlur={() => setRefreshFocused(false)}
+                            aria-keyshortcuts="Alt+r"
                             aria-label={
                                 refreshing
                                     ? 'データを更新中...'
@@ -550,6 +566,8 @@ export default function Dashboard() {
                                         ? '0 4px 10px rgba(0, 75, 115, 0.4)'
                                         : 'none',
                                 filter: refreshHover && !refreshing ? 'brightness(1.1)' : 'none',
+                                outline: refreshFocused ? '2px solid #004b73' : 'none',
+                                outlineOffset: '2px',
                             }}
                         >
                             <span
@@ -732,8 +750,8 @@ export default function Dashboard() {
                             disabled={filteredRooms.length === 0}
                             onMouseEnter={() => setCopyAllHover(true)}
                             onMouseLeave={() => setCopyAllHover(false)}
-                            onFocus={() => setCopyAllHover(true)}
-                            onBlur={() => setCopyAllHover(false)}
+                            onFocus={() => setCopyAllFocused(true)}
+                            onBlur={() => setCopyAllFocused(false)}
                             aria-label={
                                 filteredRooms.length === 0
                                     ? 'コピー対象の部屋がありません'
@@ -763,7 +781,7 @@ export default function Dashboard() {
                                     ? '#edf2f7'
                                     : copiedAllRooms
                                       ? '#c6f6d5'
-                                      : copyAllHover
+                                      : copyAllHover || copyAllFocused
                                         ? '#e2e8f0'
                                         : '#edf2f7',
                                 border: '1px solid #cbd5e0',
@@ -780,6 +798,8 @@ export default function Dashboard() {
                                 gap: '0.2rem',
                                 transition: 'all 0.2s ease-in-out',
                                 transform: copyAllHover && filteredRooms.length > 0 ? 'scale(1.05)' : 'scale(1)',
+                                outline: copyAllFocused ? '2px solid #004b73' : 'none',
+                                outlineOffset: '2px',
                             }}
                         >
                             {copiedAllRooms
@@ -829,42 +849,47 @@ export default function Dashboard() {
                                 }}
                                 placeholder="部屋を検索... (Escでクリア)"
                                 aria-label="部屋名で検索"
-                                aria-keyshortcuts="Escape"
+                                aria-keyshortcuts="Alt+s Escape"
                                 style={{
                                     fontSize: '0.75rem',
                                     padding: roomQuery
                                         ? '0.15rem 1.4rem 0.15rem 0.4rem'
                                         : '0.15rem 0.4rem',
-                                    border: '1px solid #cbd5e0',
+                                    border: `1px solid ${searchFocused ? '#004b73' : '#cbd5e0'}`,
                                     borderRadius: '4px',
                                     outline: 'none',
+                                    boxShadow: searchFocused ? '0 0 0 2px rgba(0, 75, 115, 0.2)' : 'none',
                                     transition: 'all 0.2s ease-in-out',
                                     width: searchFocused || roomQuery ? '160px' : '100px',
                                 }}
-                                onFocus={(e) => {
-                                    setSearchFocused(true);
-                                    e.currentTarget.style.borderColor = '#004b73';
-                                    e.currentTarget.style.boxShadow =
-                                        '0 0 0 2px rgba(0, 75, 115, 0.2)';
-                                }}
-                                onBlur={(e) => {
-                                    setSearchFocused(false);
-                                    e.currentTarget.style.borderColor = '#cbd5e0';
-                                    e.currentTarget.style.boxShadow = 'none';
-                                }}
+                                onFocus={() => setSearchFocused(true)}
+                                onBlur={() => setSearchFocused(false)}
                             />
                             {roomQuery && (
                                 <button
-                                    onClick={() => setRoomQuery('')}
+                                    onClick={() => {
+                                        setRoomQuery('');
+                                        searchInputRef.current?.focus();
+                                    }}
+                                    onMouseEnter={() => setSearchClearHover(true)}
+                                    onMouseLeave={() => setSearchClearHover(false)}
+                                    onFocus={() => setSearchClearFocused(true)}
+                                    onBlur={() => setSearchClearFocused(false)}
                                     aria-label="検索キーワードをクリア (Escape)"
                                     aria-keyshortcuts="Escape"
                                     title="検索をクリア (Escape)"
                                     style={{
                                         position: 'absolute',
                                         right: '4px',
-                                        background: 'none',
+                                        background:
+                                            searchClearHover || searchClearFocused
+                                                ? '#cbd5e0'
+                                                : 'transparent',
                                         border: 'none',
-                                        color: '#718096',
+                                        color:
+                                            searchClearHover || searchClearFocused
+                                                ? '#2d3748'
+                                                : '#718096',
                                         cursor: 'pointer',
                                         padding: '0.1rem',
                                         display: 'inline-flex',
@@ -876,25 +901,8 @@ export default function Dashboard() {
                                         width: '14px',
                                         height: '14px',
                                         transition: 'background-color 0.1s, color 0.1s',
-                                        outline: 'none',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#cbd5e0';
-                                        e.currentTarget.style.color = '#2d3748';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'transparent';
-                                        e.currentTarget.style.color = '#718096';
-                                    }}
-                                    onFocus={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#cbd5e0';
-                                        e.currentTarget.style.color = '#2d3748';
-                                        e.currentTarget.style.outline = '1px solid #004b73';
-                                    }}
-                                    onBlur={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'transparent';
-                                        e.currentTarget.style.color = '#718096';
-                                        e.currentTarget.style.outline = 'none';
+                                        outline: searchClearFocused ? '2px solid #004b73' : 'none',
+                                        outlineOffset: '1px',
                                     }}
                                 >
                                     ✕
@@ -919,18 +927,26 @@ export default function Dashboard() {
                                     setRoomQuery('');
                                     searchInputRef.current?.focus();
                                 }}
-                                aria-label="検索フィルターをクリア"
-                                title="検索をクリア"
+                                onMouseEnter={() => setNoMatchClearHover(true)}
+                                onMouseLeave={() => setNoMatchClearHover(false)}
+                                onFocus={() => setNoMatchClearFocused(true)}
+                                onBlur={() => setNoMatchClearFocused(false)}
+                                aria-label="検索フィルターをクリア (Escape)"
+                                aria-keyshortcuts="Escape"
+                                title="検索をクリア (Escape)"
                                 style={{
                                     marginLeft: '0.25rem',
                                     fontSize: '0.75rem',
                                     color: '#004b73',
-                                    background: 'none',
+                                    backgroundColor: noMatchClearHover ? '#edf2f7' : 'transparent',
                                     border: 'none',
                                     cursor: 'pointer',
                                     textDecoration: 'underline',
-                                    padding: '0.1rem 0.2rem',
+                                    padding: '0.1rem 0.25rem',
                                     borderRadius: '2px',
+                                    outline: noMatchClearFocused ? '2px solid #004b73' : 'none',
+                                    outlineOffset: '1px',
+                                    transition: 'all 0.15s ease-in-out',
                                 }}
                             >
                                 クリア
@@ -944,8 +960,8 @@ export default function Dashboard() {
                                   onClick={() => copyRoom(room)}
                                   onMouseEnter={() => setHoveredRoom(room)}
                                   onMouseLeave={() => setHoveredRoom(null)}
-                                  onFocus={() => setHoveredRoom(room)}
-                                  onBlur={() => setHoveredRoom(null)}
+                                  onFocus={() => setFocusedRoom(room)}
+                                  onBlur={() => setFocusedRoom(null)}
                                   aria-label={
                                       copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
                                   }
@@ -957,7 +973,7 @@ export default function Dashboard() {
                                       backgroundColor:
                                           copiedRoom === room
                                               ? '#c6f6d5'
-                                              : hoveredRoom === room
+                                              : hoveredRoom === room || focusedRoom === room
                                                 ? '#e2e8f0'
                                                 : '#edf2f7',
                                       padding: '0.1rem 0.4rem',
@@ -971,6 +987,8 @@ export default function Dashboard() {
                                           hoveredRoom === room
                                               ? '0 2px 4px rgba(0,0,0,0.1)'
                                               : 'none',
+                                      outline: focusedRoom === room ? '2px solid #004b73' : 'none',
+                                      outlineOffset: '2px',
                                   }}
                               >
                                   {copiedRoom === room ? `✅ ${room}` : room}
@@ -1019,6 +1037,11 @@ export default function Dashboard() {
                     <summary
                         className="interactive-hint"
                         aria-expanded={detailsOpen}
+                        aria-keyshortcuts="Alt+d"
+                        onMouseEnter={() => setSummaryDetailsHover(true)}
+                        onMouseLeave={() => setSummaryDetailsHover(false)}
+                        onFocus={() => setSummaryDetailsFocused(true)}
+                        onBlur={() => setSummaryDetailsFocused(false)}
                         title={
                             detailsOpen
                                 ? '生データを非表示にします (Alt + D)'
@@ -1030,12 +1053,21 @@ export default function Dashboard() {
                                 : '生データを表示します (Alt + D)'
                         }
                         style={{
-                            color: '#4a5568',
-                            padding: '0.2rem 0',
+                            color: summaryDetailsHover || summaryDetailsFocused ? '#004b73' : '#4a5568',
+                            padding: '0.2rem 0.4rem',
+                            borderRadius: '4px',
                             cursor: 'pointer',
-                            display: 'flex',
+                            display: 'inline-flex',
                             alignItems: 'center',
                             gap: '0.4rem',
+                            transition: 'all 0.2s ease-in-out',
+                            backgroundColor: summaryDetailsFocused
+                                ? 'rgba(0, 75, 115, 0.1)'
+                                : summaryDetailsHover
+                                  ? '#edf2f7'
+                                  : 'transparent',
+                            outline: summaryDetailsFocused ? '2px solid #004b73' : 'none',
+                            outlineOffset: '1px',
                         }}
                     >
                         <span
@@ -1067,8 +1099,8 @@ export default function Dashboard() {
                                 }}
                                 onMouseEnter={() => setJsonHover(true)}
                                 onMouseLeave={() => setJsonHover(false)}
-                                onFocus={() => setJsonHover(true)}
-                                onBlur={() => setJsonHover(false)}
+                                onFocus={() => setJsonFocused(true)}
+                                onBlur={() => setJsonFocused(false)}
                                 aria-label={
                                     copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'
                                 }
@@ -1078,7 +1110,7 @@ export default function Dashboard() {
                                     padding: '0.3rem 0.6rem',
                                     backgroundColor: copiedJson
                                         ? '#155d27'
-                                        : jsonHover
+                                        : jsonHover || jsonFocused
                                           ? '#e2e8f0'
                                           : '#edf2f7',
                                     border: '1px solid #cbd5e0',
@@ -1088,6 +1120,8 @@ export default function Dashboard() {
                                     transition: 'all 0.2s ease-in-out',
                                     transform: jsonHover ? 'scale(1.05)' : 'scale(1)',
                                     boxShadow: jsonHover ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                    outline: jsonFocused ? '2px solid #004b73' : 'none',
+                                    outlineOffset: '2px',
                                 }}
                             >
                                 {copiedJson ? '✅ コピー済み' : '📋 JSONをコピー'}

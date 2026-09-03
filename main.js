@@ -36,6 +36,40 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// Function to check link accessibility
+function isLinkAccessible() {
+    const links = document.querySelectorAll('a[href]');
+    const inaccessibleLinks = [];
+
+    links.forEach(link => {
+        const href = link.getAttribute('href');
+
+        // Skip empty links and anchor links
+        if (!href || href.startsWith('#') || href.startsWith('javascript:')) {
+            return;
+        }
+
+        // Check if link has valid href
+        if (!href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('/')) {
+            inaccessibleLinks.push({
+                text: link.textContent.trim() || href,
+                href: href,
+                reason: 'Invalid or incomplete URL'
+            });
+        }
+    });
+
+    if (inaccessibleLinks.length > 0) {
+        console.warn(`Warning: Found ${inaccessibleLinks.length} potentially inaccessible links`);
+        inaccessibleLinks.forEach(link => {
+            console.warn(`  - ${link.text} (${link.href}): ${link.reason}`);
+        });
+        return false;
+    }
+
+    return true;
+}
+
 // New function for rendering graph/index
 function renderGraphIndex(containerId, data) {
     const container = document.getElementById(containerId);
@@ -68,4 +102,4 @@ function renderDependencyGraph(containerId, graphData) {
 }
 
 // Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure };
+export { createInPageButton, validateLandmarkStructure, isLinkAccessible };

@@ -16,302 +16,157 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+/**
+ * Accessibility functions
+ */
 
-const AddressabilityIssues = {
-  validateTableAccessibility: function(table) {
-    return true;
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang || 'en';
   }
-};
-
-// Load configurations from package.json if it exists
-function loadConfigurations() {
-    try {
-        const packagePath = path.join(__dirname, 'package.json');
-        if (fs.existsSync(packagePath)) {
-            const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
-            config.name = packageJson.name || 'dependency-counter';
-            config.version = packageJson.version || '1.0.0';
-            config.dependencies = packageJson.dependencies || {};
-            config.devDependencies = packageJson.devDependencies || {};
-            config.accessibility = packageJson.accessibility || {};
-        }
-    } catch (error) {
-        console.error('Error loading configurations:', error.message);
-    }
+  return lang || 'en';
 }
+
+function detectAndSetLang(content) {
+  let lang = 'en';
+  if (content) {
+    if (/[\u4e00-\u9fff]/.test(content)) {
+      lang = 'zh';
+    } else if (/[\u3040-\u30ff]/.test(content)) {
+      lang = 'ja';
+    } else if (/[\u0400-\u04ff]/.test(content)) {
+      lang = 'ru';
+    } else if (/[\u0600-\u06ff]/.test(content)) {
+      lang = 'ar';
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+      lang = 'fr';
+    } else if (/[äöüß]/i.test(content)) {
+      lang = 'de';
+    }
+  }
+  return setHtmlLangAttribute(lang);
+}
+
+function getLangAttribute() {
+  return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
+}
+
+function personName(name) {
+  if (!name) return '';
+  return name.trim();
+}
+
+// Validation functions for tables
+function validateTableAccessibility(table) {
+  const errors = [];
+  if (!table) {
+    return { valid: false, errors: ['Table element is required'] };
+  }
+  const headers = table.querySelectorAll('th');
+  headers.forEach((th, index) => {
+    if (!th.hasAttribute('scope')) {
+      errors.push(`Table header at index ${index} is missing scope attribute`);
+    }
+  });
+  const hasCaption = table.querySelector('caption');
+  const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
+  if (!hasCaption && !hasAriaLabel) {
+    errors.push('Table is missing a caption or aria-label/aria-labelledby');
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+function validateTableStructure(table) {
+  const errors = [];
+  if (!table) {
+    return { valid: false, errors: ['Table element is required'] };
+  }
+  const tbody = table.querySelector('tbody');
+  const thead = table.querySelector('thead');
+  const tfoot = table.querySelector('tfoot');
+  if (!thead) {
+    errors.push('Table is missing thead element');
+  }
+  if (!tbody) {
+    errors.push('Table is missing tbody element');
+  }
+  const rows = table.querySelectorAll('tbody tr');
+  let expectedCols = null;
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td, th');
+    if (expectedCols === null) {
+      expectedCols = cells.length;
+    } else if (cells.length !== expectedCols) {
+      errors.push(`Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`);
+    }
+  });
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Main application entry point
+ */
+
+// Import required modules
+const express = require('express');
+const http = require('http');
+const path = require('path');
+const fs = require('fs');
+
+// Application configuration
+const config = {
+  port: process.env.PORT || 3000,
+  env: process.env.NODE_ENV || 'development'
+};
 
 // Implement function to count dependencies
 function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
+  const path = require('path');
+  const fs = require('fs');
 
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
+  const packageJsonPath = path.join(__dirname, 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+  const dependencies = packageJson.dependencies || {};
+  const devDependencies = packageJson.devDependencies || {};
+
+  return {
+    dependencies: Object.keys(dependencies).length,
+    devDependencies: Object.keys(devDependencies).length,
+    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+  };
 }
 
-// SVG accessibility helper functions from HEAD branch
-function addSvgAccessibilityProps(svg) {
-  if (!svg.getAttribute('role')) {
-    svg.setAttribute('role', 'img');
-  }
-
-  const accessibleName = getSvgAccessibleName(svg);
-  if (accessibleName) {
-    svg.setAttribute('aria-label', accessibleName);
-  }
-
-  setSvgAttributes(svg);
-}
-
-function setSvgAttributes(svg) {
-    // Code to set other svg attributes goes here
-}
-
-// Existing functionality
-function calculateSum(a, b) {
-  return a + b;
-}
-
-const XYZ = function () {
-    // Implementation for XYZ function
-};
-
-setHtmlLangAttribute('en');
-
-// Validate the table structure for accessibility issues
-if (typeof document !== 'undefined') {
-  function validateAllTables() {
-    const tables = document.getElementsByTagName('table');
-    for (const table of tables) {
-      const accessible = validateTableAccessibility(table);
-      const structure = validateTableStructure(table);
-      if (!accessible || !structure) {
-        console.warn('Table accessibility or structure validation failed:', table);
-      }
+// Load configurations from package.json if it exists
+function loadConfigurations() {
+  try {
+    const packagePath = path.join(__dirname, 'package.json');
+    if (fs.existsSync(packagePath)) {
+      const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+      config.name = packageJson.name || 'dependency-counter';
+      config.version = packageJson.version || '1.0.0';
+      config.dependencies = packageJson.dependencies || {};
+      config.devDependencies = packageJson.devDependencies || {};
     }
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', validateAllTables);
-  } else {
-    validateAllTables();
+  } catch (error) {
+    console.error('Error loading configurations:', error.message);
   }
 }
 
-function checkLandmarkElements() {
-    // TODO: Implement this function for checking landmark elements
-    const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
-    const elements = (typeof document !== 'undefined') ? document.querySelectorAll('[role]') : [];
-    const landmarkElements = [];
+// Start the app server
+const server = http.createServer(app);
+app.get('/', (req, res) => {
+  const { dependencies, devDependencies, total } = countDependencies();
+  const data = {
+    name: config.name,
+    version: config.version,
+    dependencies,
+    devDependencies,
+    total
+  };
+  res.json(data);
+});
 
-    elements.forEach(element => {
-        const role = element.getAttribute('role');
-        if (validLandmarks.includes(role)) {
-            landmarkElements.push({
-                element: element,
-                role: role,
-                label: element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || '',
-                isUnique: !element.id || !document.querySelectorAll(`#${element.id}`).length > 1
-            });
-        }
-    });
-
-    return landmarkElements;
-}
-
-module.exports = {
-    config,
-    XYZ,
-    calculateSum,
-    countDependencies,
-
-    addLangAttribute: function (element) {
-        // Adds lang attribute to the given HTML element
-        if (element && typeof element.setAttribute === 'function') {
-            element.setAttribute('lang', 'en');
-        }
-        return element;
-    },
-
-    ensureLandmarkUniqueness: function (elements) {
-        if (!Array.isArray(elements)) {
-            return [];
-        }
-
-        const uniqueElements = [];
-        const seen = new Map();
-
-        elements.forEach(element => {
-            const key = element.id || element.name || JSON.stringify(element);
-            if (!seen.has(key)) {
-                seen.set(key, true);
-                uniqueElements.push(element);
-            }
-        });
-
-        return uniqueElements;
-    },
-
-    addressInsightIssues: function () {
-        this.getLangAttribute();
-        this.addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
-
-        if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
-            this.ensureLandmarkUniqueness(landmarks);
-        }
-        this.ensureUniqueLandmarks();
-
-        this.validateTableAccessibility();
-        this.validateTableStructure();
-
-        this.getSvgAccessibleName();
-
-        this.createInPageButton();
-        this.createAccessibleLink();
-        this.handleAccessibilityIssues();
-
-        this.validateLandmark();
-        this.validateLandmarkStructure();
-    },
-
-    initializeApp: function () {
-        this.addressInsightIssues();
-        this.loadConfigurations();
-        countDependencies();
-        if (typeof wrapPrimaryContentInMain === 'function') {
-            wrapPrimaryContentInMain();
-        }
-        if (typeof fixLandmarkStructure === 'function') {
-            document.body.innerHTML = fixLandmarkStructure();
-        }
-    },
-
-    // Utility functions
-    getLangAttribute: function () {
-        let lang = 'en'; // Default to English
-        return lang;
-    },
-
-    validateTableAccessibility: function (table) {
-        // Check 26 table structure issues
-        return true;
-    },
-
-    validateTableStructure: function (table) {
-        // Check the table structure and return a boolean value indicating the result
-        return true;
-    },
-
-    validateLandmark: function (element) {
-        const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
-        const role = element.getAttribute('role');
-        return validLandmarks.includes(role);
-    },
-
-    ensureUniqueLandmarks: function () {
-        return true;
-    },
-
-    getSvgAccessibleName: function (svgElement, name) {
-        return svgElement;
-    },
-
-    createInPageButton: function (text) {
-        return {};
-    },
-
-    createAccessibleLink: function (href, text) {
-        return {};
-    },
-
-    handleAccessibilityIssues: function () {
-    },
-
-    addAriaLabel: function (element, label) {
-        if (!element.ariaLabel) {
-            element.ariaLabel = label;
-        }
-        return element;
-    },
-
-    checkElementAccessibility: function (element) {
-        return true;
-    },
-
-    setupHandlers: function () {
-        console.log('Setting up event handlers...');
-    },
-
-    validateInput: function (input) {
-        return input !== null && input !== undefined;
-    },
-
-    processData: function (data) {
-        if (!this.validateInput(data)) {
-            throw new Error('Invalid input data');
-        }
-    },
-
-    fixFakeLinkIssue: function (doc) {
-        if (typeof doc === 'undefined' || !doc.querySelectorAll) {
-            return;
-        }
-        const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
-        let count = 0;
-
-        clickableElements.forEach(element => {
-            const tagName = element.tagName.toLowerCase();
-            const hasHref = element.hasAttribute('href');
-
-            if (tagName !== 'a' && !hasHref) {
-                const isInteractive = element.getAttribute('role') === 'link' ||
-                                       (element.hasAttribute('onclick') && element.onclick && element.onclick.toString().includes('window.location'));
-
-                if (isInteractive && !element.hasAttribute('aria-label')) {
-                    const text = element.textContent.trim();
-                    if (text) {
-                        element.setAttribute('aria-label', text);
-                    }
-                }
-                count++;
-            }
-        });
-
-        return count;
-    },
-
-    renderDependencyGraphContent: function () {
-        // Placeholder for dependency graph rendering
-    },
-
-    addBook: function (book) {
-        return book;
-    },
-
-    createServer: function () {
-        const server = http.createServer(app);
-        app.get('/', (req, res) => {
-            res.send('Hello World!');
-        });
-
-        return server;
-    },
-
-    startApp: function () {
-        this.loadConfigurations();
-        const server = this.createServer();
-        return server;
-    },
-
-    addSvgAccessibilityProps: addSvgAccessibilityProps,
-    setSvgAttributes: setSvgAttributes,
-
-    checkLandmarkElements: checkLandmarkElements
-};
+server.listen(config.port, () => {
+  console.log(`App listening on port ${config.port}`);
+});

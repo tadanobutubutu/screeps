@@ -7,6 +7,9 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 
+// Import the new function to create a button with correct accessibility properties for in-page linking
+const inPageButton = typeof document !== 'undefined' ? createInPageButton() : null;
+
 /**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')

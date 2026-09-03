@@ -303,4 +303,21 @@ function createAccessibleLink (href, text, options = {}) {
     } else if (rel) {
       link.rel = rel
     }
-  } else
+  } else {
+    link.href = '#'
+  }
+
+  if (onClick) {
+    link.addEventListener('click', (e) => {
+      e.preventDefault()
+      onClick(e)
+    })
+  }
+
+  if (role) link.setAttribute('role', role)
+  if (ariaLabel) link.setAttribute('aria-label', ariaLabel)
+  if (className) link.className = className
+  if (target) link.target = target
+
+  return link
+}

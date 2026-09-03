@@ -114,12 +114,12 @@
       tables.forEach(table => {
         const rows = table.querySelectorAll('tr');
         rows.forEach(row => {
-          const cells = row.querySelectorAll('th, td');
-          cells.forEach(cell => {
-            if (!cell.hasAttribute('scope') && cell.tagName === 'TH') {
-              cell.setAttribute('scope', 'col');
-            }
-          });
+            const cells = row.querySelectorAll('th, td');
+            cells.forEach(cell => {
+                if (!cell.hasAttribute('scope') && cell.tagName === 'TH') {
+                    cell.setAttribute('scope', 'col');
+                }
+            });
         });
       });
     }
@@ -234,7 +234,7 @@
       }
     }
 
-    // Function to fix fake links
+    // Function to fix fake link
     function fixFakeLink() {
       // Implementation to fix fake link issues
     }

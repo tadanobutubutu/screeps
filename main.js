@@ -400,6 +400,8 @@ function createInPageButton(parent = document.body) {
   btn.type = 'button';
   btn.setAttribute('role', 'button');
   btn.setAttribute('aria-label', 'Open modal');
+  // Set an actual button id for accessibility instead of placeholder 'my-button'
+  btn.id = 'in-page-modal-button';
   parent.appendChild(btn);
   return btn;
 }

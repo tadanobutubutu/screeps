@@ -1,6 +1,4 @@
 // TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
-
 // The following code is a new function that was requested to be added to main.js.
 // This function does not affect the existing code and should be added without modifying any of the existing exports.
 
@@ -20,6 +18,8 @@ export function getLangAttribute() {
     // Logic for the first change
   } else {
     // Logic for the second change
+}
+
 =======
 // TODO: Implement function for addressing accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -48,6 +48,8 @@ function addLangAttribute(element) {
   // Adds lang attribute to the given HTML element
   if (element && typeof element.setAttribute === 'function') {
     element.setAttribute('lang', 'en');
+}
+
 >>>>>>> origin/main
   }
 }
@@ -467,4 +469,3 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
-=======

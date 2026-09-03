@@ -66,7 +66,7 @@
               nodes: issue.nodes.length
             }))
           }))
-        };
+        }
 
         writeReport(report);
         return report;
@@ -89,17 +89,21 @@
     // Function to create an in-page button
     function createInPageButton() {
       const button = document.createElement('button');
+      button.id = 'accessibility-info-button';
       button.textContent = 'Accessibility Info';
       button.setAttribute('aria-label', 'Show accessibility information');
       document.body.appendChild(button);
     }
 
-    // Function to add language attribute (placeholder from HEAD)
+    // Function to add language attribute
     function addLangAttribute() {
-      // Implementation placeholder for adding language attribute
+      const htmlElement = document.documentElement;
+      if (htmlElement && !htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', getLangAttribute());
+      }
     }
 
-    // Function to log current URL (placeholder from HEAD)
+    // Function to log current URL
     function logCurrentURL() {
       console.log(window.location.href);
     }
@@ -139,7 +143,7 @@
     function addMainLandmark() {
       const main = document.querySelector('main') || document.createElement('main');
       if (!main.parentNode) {
-        const firstSection = document.querySelector('section') || document.body_first_child;
+        const firstSection = document.querySelector('section') || document.body.firstChild;
         if (firstSection) {
           firstSection.parentNode.insertBefore(main, firstSection);
         } else {
@@ -251,12 +255,12 @@
 
     // Function to handle fake links
     function handleFakeLinks() {
-      const fakeLinks = document.querySelectorAll('a[href^="#"]')[0];
-      if (fakeLinks) {
-        fakeLinks.addEventListener('click', function(e) {
+      const fakeLinks = document.querySelectorAll('a[href^="#"]');
+      fakeLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
           e.preventDefault();
         });
-      }
+      });
     }
 
     // Function to add proper landmark regions
@@ -281,6 +285,16 @@
     function checkLinkAccessibility() {
       validateLinkAccessibility();
       handleFakeLinks();
+    }
+
+    // Function to handle Google sign-in logic
+    function handleGoogleSignIn() {
+      const signInButton = document.getElementById('google-signin-button');
+      if (signInButton) {
+        signInButton.addEventListener('click', function() {
+          console.log('Google sign-in initiated');
+        });
+      }
     }
 
     // Function to upgrade
@@ -548,7 +562,7 @@
       existingFunction2,
       newFunction,
       renderIndexView,
-      accessibiltyReportEndpoint,
+      accessibilityReportEndpoint,
       harvest,
       harvestAndUpgrade,
       checkLinkAccessibility,
@@ -556,6 +570,7 @@
       scanAccessibility,
       addressNewAccessibilityIssues,
       importAndExecute,
+      handleGoogleSignIn,
       ...accessibilityUtils
     };
 
@@ -609,6 +624,9 @@
 
       // Address new accessibility issues from insight report
       addressNewAccessibilityIssues();
+
+      // Handle Google sign-in logic
+      handleGoogleSignIn();
 
       // Initialize accessibility features from a11y utilities
       if (a11y && a11y.init) {

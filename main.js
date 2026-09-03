@@ -78,6 +78,84 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// TODO: Implement this function for checking link and button accessibility
+function checkLinkAndButtonAccessibility() {
+    const issues = [];
+    
+    // Check links
+    const links = document.querySelectorAll('a');
+    links.forEach((link, index) => {
+        // Check if link has href attribute
+        if (!link.hasAttribute('href')) {
+            issues.push({
+                type: 'link',
+                element: 'a',
+                index: index,
+                issue: 'Link missing href attribute',
+                suggestion: 'Add a valid href attribute or use a button element if not a link'
+            });
+        }
+        
+        // Check for accessible name
+        const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
+        if (!accessibleName) {
+            issues.push({
+                type: 'link',
+                element: 'a',
+                index: index,
+                issue: 'Link missing accessible name',
+                suggestion: 'Add text content, aria-label, or aria-labelledby attribute'
+            });
+        }
+        
+        // Check for proper link text (not just "click here" or "read more")
+        const linkText = link.textContent.trim().toLowerCase();
+        if (linkText === 'click here' || linkText === 'read more' || linkText === 'learn more') {
+            issues.push({
+                type: 'link',
+                element: 'a',
+                index: index,
+                issue: 'Link text is not descriptive',
+                suggestion: 'Use more descriptive link text that explains the destination'
+            });
+        }
+    });
+    
+    // Check buttons
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach((button, index) => {
+        // Check for accessible name
+        const accessibleName = button.textContent.trim() || button.getAttribute('aria-label') || button.getAttribute('aria-labelledby');
+        if (!accessibleName) {
+            issues.push({
+                type: 'button',
+                element: 'button',
+                index: index,
+                issue: 'Button missing accessible name',
+                suggestion: 'Add text content or aria-label attribute'
+            });
+        }
+        
+        // Check if button has proper type attribute
+        if (!button.hasAttribute('type')) {
+            issues.push({
+                type: 'button',
+                element: 'button',
+                index: index,
+                issue: 'Button missing type attribute',
+                suggestion: 'Add type="button" to prevent form submission issues'
+            });
+        }
+    });
+    
+    // Log warning if issues found
+    if (issues.length > 0) {
+        console.warn(`Accessibility warning: Found ${issues.length} link/button accessibility issues. Run checkLinkAndButtonAccessibility() for details.`);
+    }
+    
+    return issues;
+}
+
 // TODO: Implement new function3 logic here
 function function3(input) {
     // Example implementation:

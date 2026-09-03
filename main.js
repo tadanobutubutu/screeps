@@ -117,5 +117,32 @@ function performActionWithButton(buttonId, actionFunction) {
 // ADD NEW FUNCTIONS REQUIRED TO ADDRESS ISSUES AS PER THE TO-DO LIST IN THE ISSUE BODY
 // ADD YOUR OWN IMPLEMENTATIONS OF THESE FUNCTIONS HERE
 
+// Harvest logic: Collect data from harvestable elements on the page
+// TODO: Implement harvest logic
+function harvest() {
+    const harvestableData = [];
+    
+    // Select elements marked for harvesting
+    const harvestableElements = document.querySelectorAll('[data-harvest], .harvestable, article');
+    
+    harvestableElements.forEach(element => {
+        const data = {
+            text: element.textContent.trim(),
+            html: element.innerHTML,
+            tagName: element.tagName.toLowerCase(),
+            attributes: {}
+        };
+        
+        // Extract attributes from the element
+        Array.from(element.attributes).forEach(attr => {
+            data.attributes[attr.name] = attr.value;
+        });
+        
+        harvestableData.push(data);
+    });
+    
+    return harvestableData;
+}
+
 // Export the new functions for accessibility and the new button action function
-export { performActionWithButton, generateAccessibilityReport, fixAccessibilityIssues, checkIfBodyContainButton, showModal, spawnButtons };
+export { performActionWithButton, generateAccessibilityReport, fixAccessibilityIssues, checkIfBodyContainButton, showModal, spawnButtons, harvest };

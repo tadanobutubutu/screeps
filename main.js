@@ -112,10 +112,48 @@ const a11yStore = {
   },
 
   /**
+   * Check if links are accessible by verifying they have accessible names
+   * @returns {Object} Object containing accessibility status and details of inaccessible links
+   */
+  isLinkAccessible() {
+    const links = document.querySelectorAll('a[href]');
+    const inaccessibleLinks = [];
+    const accessibleLinks = [];
+    
+    links.forEach((link) => {
+      const text = link.textContent.trim();
+      const ariaLabel = link.getAttribute('aria-label');
+      const ariaLabelledBy = link.getAttribute('aria-labelledby');
+      const title = link.getAttribute('title');
+      const img = link.querySelector('img[alt]');
+      const imgAlt = img ? img.alt.trim() : '';
+      
+      const hasAccessibleText = text || ariaLabel || ariaLabelledBy || title || imgAlt;
+      
+      if (hasAccessibleText) {
+        accessibleLinks.push(link);
+      } else {
+        inaccessibleLinks.push({
+          element: link,
+          href: link.getAttribute('href') || 'no href'
+        });
+      }
+    });
+    
+    return {
+      isAccessible: inaccessibleLinks.length === 0,
+      accessibleCount: accessibleLinks.length,
+      inaccessibleCount: inaccessibleLinks.length,
+      inaccessibleLinks: inaccessibleLinks,
+      check: () => inaccessibleLinks.length === 0
+    };
+  },
+
+  /**
    * Ensure all interactive elements have proper ARIA roles
    */
   ensureInteractiveRoles() {
-    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
+    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmousedown], [onmousedown], [onfocus], [onblur]');
     interactiveElements.forEach((element) => {
       if (!element.hasAttribute('role')) {
         element.setAttribute('role', 'button');

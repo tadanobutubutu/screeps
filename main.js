@@ -122,128 +122,16 @@ const a11yStore = {
 
   newFunction() {
     // New function implementation from origin/main
+  },
+
+  validateTableAccessibility(table) {
+    return validateTableAccessibility(table);
+  },
+
+  validateLandmarkStructure(container) {
+    return validateLandmarkStructureFn(container);
   }
 };
-
-/**
- * Check if an element is a landmark element for accessibility
- * Landmark elements include: main, nav, aside, header, footer, section, article, form, search
- * @param {HTMLElement|string} element - The element or element tag name to check
- * @returns {boolean} True if the element is a landmark element
- */
-function isLandmarkElement(element) {
-  const landmarkTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form', 'search'];
-
-  if (!element) {
-    return false;
-  }
-
-  if (typeof element === 'string') {
-    return landmarkTags.includes(element.toLowerCase());
-  }
-
-  if (element.tagName) {
-    return landmarkTags.includes(element.tagName.toLowerCase());
-  }
-
-  return false;
-}
-
-/**
- * Sanitize a filename by replacing invalid characters
- * @param {string} filename - The filename to sanitize
- * @returns {string} - Sanitized filename
- */
-function sanitizeFilename(filename) {
-    return filename.replace(/[^a-z0-9_\-\.]/gi, '_');
-}
-
-/**
- * Process data items by adding metadata
- * @param {Array} items - Items to process
- * @returns {Array} - Processed items
- */
-function processData(items) {
-    if (!Array.isArray(items)) {
-        return [];
-    }
-    return items.map(item => ({
-        ...item,
-        processed: true,
-        timestamp: Date.now()
-    }));
-}
-
-/**
- * Handle credential response from OAuth/identity provider
- * @param {Object} credentialResponse - The credential response
- * @returns {Object} - Result of handling the credential
- */
-function handleCredentialResponseFn(credentialResponse) {
-    const parsedResponse = parseCredentialResponse(credentialResponse);
-
-    if (!parsedResponse.success) {
-        return {
-            status: 'error',
-            message: parsedResponse.error
-        };
-    }
-
-    const credential = parsedResponse.credential;
-
-    if (!credential) {
-        return {
-            status: 'error',
-            message: 'No credential provided'
-        };
-    }
-
-    // Decode the JWT token to extract user information
-    const decodedToken = decodeJwtToken(credential);
-
-    if (!decodedToken) {
-        return {
-            status: 'error',
-            message: 'Failed to decode credential token'
-        };
-    }
-
-    // Create session for the authenticated user
-    const sessionId = generateSessionId();
-    const sessionData = {
-        user: {
-            email: decodedToken.email,
-            name: decodedToken.name,
-            picture: decodedToken.picture,
-            sub: decodedToken.sub
-        },
-        authenticatedAt: Date.now(),
-        credential: credential
-    };
-
-    appState.sessions.set(sessionId, sessionData);
-    logSessionEvent('user_authenticated', {
-        sessionId,
-        clientId: parsedResponse.clientId,
-        timestamp: Date.now()
-    });
-
-    return {
-        status: 'success',
-        sessionId,
-        user: sessionData.user
-    };
-}
-
-/**
- * Generate a unique session ID
- * @returns {string} - Generated session ID
- */
-function generateSessionId() {
-    const timestamp = Date.now().toString(36);
-    const randomPart = Math.random().toString(36).substring(2, 15);
-    return timestamp + '-' + randomPart;
-}
 
 /**
  * Validates the structure of the table to ensure accessibility.
@@ -275,34 +163,6 @@ function validateTableStructure(table) {
     }
 
     return true;
-}
-
-function getSvgAccessibleName(svg) {
-  const title = svg.querySelector('title');
-  const desc = svg.querySelector('desc');
-
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-
-  const ariaLabel = svg.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledby = svg.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
-    }
-  }
-
-  return 'SVG graphic';
 }
 
 /**

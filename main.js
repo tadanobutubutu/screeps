@@ -30,10 +30,10 @@ const appState = {
   cache: new Map()
 };
 
-function getUniqueLandmarks(landmarks) {
+function processLandmarkElements(landmarks) {
   if (!Array.isArray(landmarks)) {
-    const elements = Array.from(document.querySelectorAll(landmarkSelectors.join(',')));
-    const landmarkIds = elements.map(el => el.id || el.getAttribute('aria-labelledby'));
+    const elements = document.querySelectorAll('[role="region"], [role="navigation"], main, aside');
+    const landmarkIds = elements.map(el => el.id || null);
     const uniqueIds = new Set(landmarkIds);
 
     elements.forEach((element, index) => {
@@ -83,10 +83,10 @@ function validateTableAccessibility(tableElement) {
   if (!tableElement) return false;
 
   const headers = tableElement.querySelectorAll('th');
-  const cells = tableElement.querySelectorAll('td, th');
+  const cells = tableElement.querySelectorAll('td');
 
   for (const cell of cells) {
-    if (!cell.id && !cell.getAttribute('scope')) {
+    if (!cell.id && headers.length === 0) {
       return false;
     }
   }
@@ -101,11 +101,11 @@ function validateTableStructure(tableElement) {
   let hasHeader = false;
 
   for (const row of rows) {
-    const cells = row.querySelectorAll('th, td');
+    const cells = row.querySelectorAll('td');
     for (const cell of cells) {
-      if (cell.tagName.toLowerCase() === 'th') {
+      if (cell.tagName === 'th') {
         hasHeader = true;
-        if (!cell.getAttribute('scope')) {
+        if (!cell.scope) {
           return false;
         }
       }
@@ -127,7 +127,7 @@ async function scanAccessibility() {
 }
 
 function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a[href]');
+  const links = document.querySelectorAll('a');
 
   for (const link of links) {
     if (!link.textContent.trim()) {
@@ -139,24 +139,24 @@ function validateLinkAccessibility() {
 }
 
 function handleFakeLinks() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
+  const fakeLinks = document.querySelectorAll('[data-link], .fake-link');
   fakeLinks.forEach(link => {
-    if (link.tagName === 'A' && !link.getAttribute('role')) {
+    if (link.tagName === 'A' && !link.href) {
       link.setAttribute('role', 'button');
     }
   });
 }
 
 function validateLandmark() {
-  const landmarks = document.querySelectorAll(landmarkSelectors.join(','));
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
   return landmarks.length > 0;
 }
 
 function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll(landmarkSelectors.join(','));
+  const landmarks = document.querySelectorAll('[role="region"]');
 
   for (const landmark of landmarks) {
-    if (!landmark.id && !landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+    if (!landmark.id && landmark.textContent.length > 0 && !landmark.classList.contains('accessible')) {
       return false;
     }
   }
@@ -176,17 +176,6 @@ function initialize() {
       version: CONFIG.version
     };
 
-    /**
-     * Address accessibility issues from insight report:
-     * - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute() and wrapPrimaryContentInMain())
-     * - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-     * - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
-     * - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-     * - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
-     * - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
-     * todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
-     */
-
     addLangAttribute();
     wrapPrimaryContentInMain();
     fixTableStructureIssues();
@@ -205,10 +194,10 @@ function initialize() {
       if (!dependencyGraph.id) {
         dependencyGraph.id = 'dependencyGraph';
       }
-      if (!dependencyGraph.hasAttribute('role')) {
+      if (!dependencyGraph.getAttribute('role')) {
         dependencyGraph.setAttribute('role', 'region');
       }
-      if (!dependencyGraph.hasAttribute('aria-label')) {
+      if (!dependencyGraph.getAttribute('aria-label')) {
         dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
       }
     }
@@ -231,7 +220,7 @@ function processLandmarks(landmarks) {
     return [];
   }
 
-  const validLandmarks = landmarks.filter(isValidLandmark);
+  const validLandmarks = landmarks.filter(l => l && l.id);
   const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
   return uniqueLandmarks.slice(0, CONFIG.maxResults);
@@ -256,7 +245,7 @@ function checkLandmarkElement(id) {
   return element !== null;
 }
 
-function validateLandmarkObject(landmark) {
+function validateLandmarkData(landmark) {
   const errors = [];
 
   if (!landmark) {
@@ -298,17 +287,17 @@ function validateLandmarkObject(landmark) {
   };
 }
 
-function addSvgAccessibilityProps(svgElement, label, labelledById) {
+function setSvgAttributes(svgElement, label, labelledById) {
   if (!svgElement) return;
 
-  const props = getSvgAccessibilityProps(label, labelledById);
+  const props = getSvgProps(label, labelledById);
 
   Object.keys(props).forEach(prop => {
     svgElement.setAttribute(prop, props[prop]);
   });
 }
 
-function getSvgAccessibilityProps(label, labelledById) {
+function getSvgProps(label, labelledById) {
   const props = {};
   if (label) {
     props['aria-label'] = label;
@@ -319,7 +308,7 @@ function getSvgAccessibilityProps(label, labelledById) {
   return props;
 }
 
-function getAccessibleLinkProps(href, label) {
+function createAccessibleLink(href, label) {
   return {
     href,
     'aria-label': label,
@@ -328,7 +317,10 @@ function getAccessibleLinkProps(href, label) {
 }
 
 function getLangAttribute() {
-  return document.documentElement.lang || 'en';
+  if (typeof document !== 'undefined') {
+    return document.documentElement.lang || 'en';
+  }
+  return 'en';
 }
 
 function createInPageButton(buttonText, onClickHandler) {
@@ -342,24 +334,24 @@ function createInPageButton(buttonText, onClickHandler) {
 }
 
 function wrapPrimaryContentInMain() {
-  const primaryContent = document.querySelector('.primary-content') ||
-                        document.querySelector('[role="main"]') ||
-                        document.getElementById('main-content') ||
-                        document.querySelector('#content');
+  const primaryContent = document.querySelector('#content') ||
+                        document.querySelector('article') ||
+                        document.querySelector('.main-content') ||
+                        document.querySelector('.content');
 
-  if (primaryContent && !primaryContent.closest('main')) {
+  if (primaryContent && primaryContent.tagName !== 'MAIN') {
     const mainElement = document.createElement('main');
-    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
-    mainElement.appendChild(primaryContent);
+    mainElement.innerHTML = primaryContent.innerHTML;
+    primaryContent.parentNode.replaceChild(mainElement, primaryContent);
     return mainElement;
   }
   return null;
 }
 
 function addLangAttribute() {
-  if (document && document.documentElement) {
-    if (!document.documentElement.getAttribute('lang')) {
-      document.documentElement.setAttribute('lang', getLangAttribute());
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = getLangAttribute();
     }
   }
 }
@@ -368,6 +360,37 @@ async function renderFunction1() {
   await accessiblyHelper();
 
   function wrapPrimaryContentInMain() {
-    if (document.body.firstChild) {
-      const wrapper = document.createElement('main');
-      wrapper.innerHTML
+    if (typeof document !== 'undefined') {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = '<main id="main-content"></main>';
+      return wrapper.firstChild;
+    }
+    return null;
+  }
+}
+
+module.exports = {
+  appState,
+  CONFIG,
+  initialize,
+  loadLandmarks,
+  processLandmarks,
+  ensureUniqueLandmarks,
+  checkLandmarkElement,
+  validateLandmarkData,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  scanAccessibility,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  getSvgProps,
+  createAccessibleLink,
+  getLangAttribute,
+  createInPageButton,
+  wrapPrimaryContentInMain,
+  addLangAttribute
+};

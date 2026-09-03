@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 import './styles.css';
 import { initializeApp } from './app.js';
 import axe from 'axe-core';
@@ -97,12 +100,7 @@ import {
   ensureDependencyGraphAriaRole,
   googleSignIn,
   initApp,
-  initialize,
   landingData,
-  ensureUniqueLandmarks,
-  validateLandmark,
-  validateLandmarkStructure,
-  landmarkStructureCheck,
   accessiblyHelper,
   getFullLangAttribute,
   checkUserSafetyAdvice,
@@ -115,9 +113,12 @@ import {
   isValidLandmark,
   ensureElementHasId,
   handleFakeLinks,
-  fixTableStructureIssues as fixTableStructure,
+  fixTableStructure as fixTableStructureIssues,
   writeReport,
-  analyzeAccessibility
+  analyzeAccessibility,
+  mainServer,
+  performUpgrade,
+  applySystemUpgrades
 } from './combinedUtils.js';
 
 const config = {
@@ -188,9 +189,7 @@ const ensureDependencyGraphAriaRole = () => {
   console.log('Ensuring dependency graph ARIA role...');
 };
 
-// ... (Other merged function implementations)
-
-// Core app setup
+// Core app setup with added upgrade logic
 const app = express();
 const mainServer = () => {
   app.listen(config.port || 3000, () => {
@@ -198,7 +197,54 @@ const mainServer = () => {
   });
 };
 
-// Merge exports, deduplicated and organized
+function performUpgrade(harvestedData) {
+  if (!harvestedData || !harvestedData.length) {
+    return {
+      success: false,
+      message: 'No harvested data available for upgrade'
+    };
+  }
+
+  const improvements = {
+    efficiency: 0,
+    capacity: 0,
+    upgrades: []
+  };
+
+  for (const data of harvestedData) {
+    if (data.type === 'energy') {
+      improvements.efficiency += (data.amount || 0) * 0.1;
+    }
+    if (data.type === 'resource') {
+      improvements.capacity += (data.amount || 0) * 0.05;
+    }
+    if (data.metadata && data.metadata.upgradeable) {
+      improvements.upgrades.push({
+        target: data.id,
+        level: (data.metadata.level || 0) + 1
+      });
+    }
+  }
+
+  return {
+    success: true,
+    improvements: improvements,
+    timestamp: Date.now()
+  };
+}
+
+function applySystemUpgrades(harvestedData) {
+  const upgradeResult = performUpgrade(harvestedData);
+
+  if (upgradeResult.success) {
+    console.log(`System upgraded: Efficiency +${upgradeResult.improvements.efficiency.toFixed(2)}`);
+    console.log(`Capacity increased by ${upgradeResult.improvements.capacity.toFixed(2)}`);
+  }
+
+  return upgradeResult;
+}
+
+// Exports
 export {
   axe,
   fs,
@@ -243,7 +289,7 @@ export {
   rotateBack,
   UserSafety,
   SafetyCategories,
-  getUserSafetyAdventure,
+  getUserSafetyAdvice,
   initializeApp,
   initialize,
   landmarkStructureCheck,
@@ -257,6 +303,7 @@ export {
   processUniqueElements,
   addressInsightIssues,
   calculateSum,
+  ensureFocusableElements,
   addProperLandmarkRegions,
   ensureUniqueLandmarksDoc,
   fixButtonIdentifiers,
@@ -278,5 +325,8 @@ export {
   fixTableStructure as fixTableStructureIssues,
   writeReport,
   analyzeAccessibility,
-  mainServer
+  mainServer,
+  performUpgrade,
+  applySystemUpgrades
 };
+```

@@ -1,6 +1,6 @@
-// TODO: This is the existing code that needs to be preserved
-// _Commit: 9b0a0d6bb0214c2d74db539b8e33b7af757187a3_
-// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// TODO: Address accessibility issues from insight report:
+// _Commit: f163d9594d7623621d344259c18927a59de7c5f8_
+// <!-- todo-hash: f4aef230bb25bd341c307d16638c123de05bbec8 -->
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 
@@ -216,7 +216,7 @@ function renderGraphIndex(content, options = {}) {
 // Helper to manage focus within a container
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, ...
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   )
   const firstElement = focusableElements[0]
   const lastElement = focusableElements[focusableElements.length - 1]
@@ -232,7 +232,7 @@ function trapFocus(container) {
     } else {
       if (document.activeElement === lastElement) {
         e.preventDefault()
-        if (firstElement) ...
+        if (firstElement) firstElement.focus()
       }
     }
   }
@@ -249,138 +249,41 @@ export function addLangAttribute(element, lang = 'en') {
     return null
   }
 
-  async start() {
-    // Initialize network connection
-    await this.network.connect();
-
-    // Load initial data
-    await this.loadData();
-
-    // Ensure dependencyGraph container has proper ARIA role
-    ...
-
-    console.log('Screenspider bot started');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang)
   }
+  return htmlElement
+}
 
-  loadData() {
-    // Placeholder for data loading logic
-    // Implement actual data fetching here
-  }
-
-  // Accessibility enhancement: Ensure the dependencyGraph container has a proper ARIA role
-  ... {
-    const dependencyGraph = ...
-    if (dependencyGraph) {
-      ... 'graph');
+/**
+ * REACT_027: Fix table structure issues
+ * Ensures tables have proper structure with headers and captions
+ */
+export function fixTableStructure(tableElement) {
+  if (!tableElement) return null
+ 
+  const headers = tableElement.querySelectorAll('th')
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const row = th.closest('tr')
+      const cellIndex = Array.from(row.children).indexOf(th)
+      th.setAttribute('scope', 'col')
     }
+  })
+  
+  const existingCaption = tableElement.querySelector('caption')
+  if (!existingCaption) {
+    const caption = document.createElement('caption')
+    caption.textContent = 'Data table'
+    tableElement.insertBefore(caption, tableElement.firstChild)
   }
+  
+  return tableElement
+}
 
-  // Accessibility enhancement: Ensure all UI elements are properly labeled
-  setElementLabel(elementId, label) {
-    const el = document.getElementById(elementId);
-    if (el) {
-      // Only set aria-label if not already present
-      if (!el.getAttribute('aria-label')) {
-        el.setAttribute('aria-label', label);
-      }
-      // Set role to button if not already present
-      if (!el.getAttribute('role') || el.getAttribute('role') !== 'button') {
-        el.setAttribute('role', 'button');
-      }
-    }
-  }
-
-  // Accessibility enhancement: Focus management for keyboard navigation
-  setFocus(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-      // Ensure element is focusable
-      if ... && !element.matches('a, button, ... {
-        element.setAttribute('tabindex', '0');
-      }
-      element.focus();
-    }
-  }
-
-  // New feature: Priority-based task scheduling
-  addTask(taskFn, priority = 'medium') {
-    this.tasks.push({ task: taskFn, priority });
-    this.scheduleTasks();
-  }
-
-  scheduleTasks() {
-    // Sort tasks by priority (high > medium > low)
-    this.tasks.sort((a, b) => {
-      const prioOrder = { high: 0, medium: 1, low: 2 };
-      return prioOrder[b.priority] - prioOrder[a.priority];
-    });
-
-    // Execute highest priority task
-    if (this.tasks.length > 0) {
-      const nextTask = this.tasks[0];
-      try {
-        nextTask.task();
-      } catch (err) {
-        console.error(`Task failed: ${err.message}`);
-      }
-    }
-  }
-
-  // New accessibility function: Focus management for keyboard navigation
-  setFocus(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.focus();
-      element.setAttribute('tabindex', '0');
-    }
-  }
-
-  // New accessibility function: Keyboard event handler for accessibility
-  ... {
-    const key = event.key;
-    const activeElement = document.activeElement;
-
-    // Handle keyboard navigation (e.g., arrow keys, tab)
-    switch (key) {
-      case 'ArrowUp':
-      case 'ArrowDown':
-      case 'ArrowLeft':
-      case 'ArrowRight':
-        ... activeElement);
-        break;
-      case 'Tab':
-        ... activeElement);
-        break;
-      default:
-        break;
-    }
-  }
-
-  // Helper for arrow key navigation
-  ... activeElement) {
-    // Implement custom navigation logic based on element type
-    console.log(`Navigating with ${key} key`);
-
-    // Get all focusable elements in the document
-    const focusableElements = document.querySelectorAll(
-      'a[href], ... ... ... ... ...
-    );
-
-    if (!focusableElements || focusableElements.length === 0) {
-      console.log('No focusable elements found for arrow navigation');
-      return;
-    }
-
-    const currentIndex = ...
-    if (currentIndex === -1) {
-      console.log('Active element not found in focusable elements');
-      return;
-    }
-
-    let targetIndex;
-
-    switch (key) {
-      case 'ArrowUp':
-      case 'ArrowLeft':
-        targetIndex = Math.max(0, currentIndex - 1);
-        break
+// Add the new function to the exports
+module.exports.renderAdditionalContent = renderAdditionalContent
+module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport
+module.exports.checkAccessibilityForReport = checkAccessibilityForReport
+module.exports.renderGraphIndex = renderGraphIndex
+module.exports.trapFocus = trapFocus

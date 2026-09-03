@@ -41,7 +41,7 @@ function detectAndSetLang(content) {
     // Check for common non-ASCII characters to help detect language
     if (/[一-鿿]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[぀-ゟ゠-ヿ]/.test(content)) {
+    } else if (/[぀-_ranges]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (/[Ѐ-ӿ]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
@@ -473,11 +473,11 @@ function createInPageButton(parent = document.body) {
 }
 
 /**
- * Wraps primary content in a <main> element for proper landmark structure
- * Addresses REACT_017: Add/fix landmark issues
- * @param {HTMLElement} content - The content element to wrap
- * @param {HTMLElement} container - The container element to append the main element to
- * @param {Object} options - Configuration options
+ * Wraps primary content in a main landmark element, with optional container and configuration.
+ * Supports both simple usage (content only) and advanced usage (with container and options).
+ * @param {HTMLElement|string} content - The content element to wrap or string content.
+ * @param {HTMLElement} [container] - Optional container element to append the main element to.
+ * @param {Object} [options] - Configuration options.
  * @param {string} options.id - The id attribute for the main element (default: 'main-content')
  * @param {string} options.className - The class name for the main element (default: 'primary-content')
  * @param {string} options.role - The ARIA role for the element (default: 'main')
@@ -492,14 +492,39 @@ function wrapPrimaryContentInMain(content, container, options = {}) {
     ariaLabel
   } = options;
 
-  // Validate required parameters
+  // If no container is provided, create the main element without appending (backward compatibility)
   if (!container) {
     if (typeof document !== 'undefined') {
-      console.warn('wrapPrimaryContentInMain: Container element is required');
+      // Check for existing main elements to ensure uniqueness (per ARIA best practices)
+      const existingMains = document.querySelectorAll('main, [role="main"]');
+      if (existingMains.length > 0) {
+        console.warn(`wrapPrimaryContentInMain: Found ${existingMains.length} existing main element(s). There should be only one main landmark per page.`);
+      }
+    } else {
+      return null;
     }
-    return null;
+
+    const mainElement = document.createElement('main');
+    mainElement.id = id;
+    mainElement.className = className;
+    mainElement.setAttribute('role', role);
+
+    if (ariaLabel) {
+      mainElement.setAttribute('aria-label', ariaLabel);
+    }
+
+    if (content) {
+      if (content instanceof HTMLElement) {
+        mainElement.appendChild(content);
+      } else if (typeof content === 'string') {
+        mainElement.textContent = content;
+      }
+    }
+
+    return mainElement;
   }
 
+  // Container provided: validate and append
   if (typeof document === 'undefined') {
     return null;
   }
@@ -510,7 +535,6 @@ function wrapPrimaryContentInMain(content, container, options = {}) {
     console.warn(`wrapPrimaryContentInMain: Found ${existingMains.length} existing main element(s). There should be only one main landmark per page.`);
   }
 
-  // Create the main element
   const mainElement = document.createElement('main');
   mainElement.id = id;
   mainElement.className = className;

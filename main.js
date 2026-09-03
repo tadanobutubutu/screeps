@@ -17,7 +17,6 @@ import {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
-  fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
   addTaskWithPriority,
@@ -33,8 +32,6 @@ import {
   getSvgAccessibleName,
   createInPageButton,
   newFocusTrap,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
   renderAdditionalContent,
   calculateComplexity,
   renderDependencyGraph,
@@ -250,10 +247,6 @@ function newFunction2() {
   // New function implementation 2
 }
 
-function anotherNewFunction() {
-  // Another new function implementation
-}
-
 function newFunction3() {
   // New function implementation 3
 }
@@ -456,18 +449,3 @@ module.exports = {
   newFunction3,
   newFunction4
 };
-
-addLangAttribute();
-fixTableStructure();
-fixLandmarkIssues();
-addMainLandmark();
-ensureUniqueLandmarks();
-addSvgAccessibleNames();
-addAccessibleNamesToSVGs();
-fixFakeLinkIssue();
-fixFakeLinkIssues();
-googleSignIn();
-fixButtonIdentifiers();
-validateTableStructure(validateTableStructureForAccessibility); // Added validateTableStructure function call
-fixTableStructure();
-validateTableStructure();

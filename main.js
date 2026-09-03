@@ -3,8 +3,8 @@
 // Main module
 
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
+const { dependencyGraphContent } = require('./graph');
+const { indexContent } = require('./index');
 
 const main = require('./utilities');
 
@@ -23,7 +23,7 @@ const {
   min,
   mode,
   median,
-} = require('./mathHelpers');
+} = main;
 
 // Existing rendering functions (preserving existing exports and functions)
 
@@ -40,7 +40,38 @@ function getWelcomeMessage() {
   return greetingFunction() + " This is a new function that returns a welcome message.";
 }
 
-const { class1, function1, Object1 } = require('./path/to/module');
+const { class1, function1, Object1 } = require('./components');
+
+// TODO: Update the existing function using the new functions for rendering graph/index
+// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+
+/**
+ * Render the dependency graph to a container element
+ * @param {HTMLElement|string} container - The container element or selector
+ */
+function renderGraph(container) {
+  const targetContainer = typeof container === 'string' 
+    ? document.querySelector(container) 
+    : container;
+  
+  if (targetContainer) {
+    targetContainer.innerHTML = dependencyGraphContent();
+  }
+}
+
+/**
+ * Render the index content to a container element
+ * @param {HTMLElement|string} container - The container element or selector
+ */
+function renderIndex(container) {
+  const targetContainer = typeof container === 'string' 
+    ? document.querySelector(container) 
+    : container;
+  
+  if (targetContainer) {
+    targetContainer.innerHTML = indexContent();
+  }
+}
 
 const a11yStore = {
   // ... existing methods ...
@@ -58,21 +89,22 @@ const a11yStore = {
   },
 
   updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
+    if (!this.liveRegion) return;
+    this.liveRegion.setAttribute('aria-live', priority);
     this.announce(message, priority);
   },
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
+    landmarkElements.forEach(element => {
+      const landmarks = document.querySelectorAll(element);
       landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
+          landmark.id = `${element}-${index}`;
         }
 
         if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+          if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
             landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
         }
@@ -80,9 +112,9 @@ const a11yStore = {
     });
   },
 
-  addSVGAccessibilityProps() {
+  fixSvgAccessibility() {
     const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
+    svgElements.forEach(svg => {
       let titleElement = svg.querySelector('title');
       if (!titleElement) {
         titleElement = document.createElement('title');
@@ -94,20 +126,23 @@ const a11yStore = {
         titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
       }
 
+      svg.setAttribute('role', 'img');
       svg.setAttribute('aria-labelledby', titleElement.id);
 
-      if (!svg.hasAttribute('role')) {
+      if (!svg.hasAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
         svg.setAttribute('role', 'img');
       }
     });
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
-    fakeLinks.forEach((link) => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
+    const fakeLinks = document.querySelectorAll('[onclick]');
+    fakeLinks.forEach(link => {
+      if (link.tagName === 'A' && !link.href) {
+        link.setAttribute('role', 'link');
+        link.setAttribute('tabindex', '0');
+        link.setAttribute('aria-disabled', 'true');
+      }
     });
   },
 
@@ -116,8 +151,8 @@ const a11yStore = {
    */
   ensureInteractiveRoles() {
     const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach((element) => {
-      if (!element.hasAttribute('role')) {
+    interactiveElements.forEach(element => {
+      if (!element.getAttribute('role') && !['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(element.tagName)) {
         element.setAttribute('role', 'button');
       }
     });
@@ -132,20 +167,22 @@ const a11yStore = {
       if (!control.id) {
         control.id = `form-control-${index}`;
       }
-      const label = document.createElement('label');
-      label.setAttribute('for', control.id);
-      label.textContent = control.placeholder || 'Form control';
-      control.parentNode.insertBefore(label, control);
+      const label = control.previousElementSibling;
+      if (label && label.tagName === 'LABEL') {
+        label.setAttribute('for', control.id);
+        label.textContent = control.placeholder || 'Form control';
+        control.parentNode.insertBefore(label, control);
+      }
     });
   },
 
   /**
    * Ensure all images have alt text or ARIA attributes
    */
-  ensureImageAccessibility() {
+  fixImageAccessibility() {
     const images = document.querySelectorAll('img');
     images.forEach((img) => {
-      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
+      if (!img.alt && !img.getAttribute('aria-label') && !img.getAttribute('aria-labelledby')) {
         img.setAttribute('alt', '');
       }
     });
@@ -156,9 +193,35 @@ const a11yStore = {
 
 // New functions
 function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
+  this.ensureInteractiveRoles();
+  this.addFormControlLabels();
+  this.fixImageAccessibility();
 }
 
 // ... rest of the code ...
+
+module.exports = {
+  // Existing exports
+  greetingFunction,
+  getWelcomeMessage,
+  config,
+  renderGraph,
+  renderIndex,
+  a11yStore,
+  ensureInteractiveElementsAccessible,
+  // Math functions
+  add,
+  subtract,
+  multiply,
+  divide,
+  power,
+  squareRoot,
+  factorial,
+  fibonacci,
+  sum,
+  average,
+  max,
+  min,
+  mode,
+  median,
+};

@@ -1,10 +1,12 @@
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
-// REACT_027: Fix 26 table structure issues
+// REACT_027: Fix table structure issues
 // REACT_017: Add/fix 4 landmark issues
 // REACT_041: Add accessible names to 2 SVGs
 // REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
 // REACT_036: Fix 1 fake link issue
+
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html) {
@@ -287,3 +289,4 @@ function parseColor(colorString) {
     }
 
     // Handle named colors (limited support)
+}

@@ -264,3 +264,6 @@ function improveAccessibility() {
   addMainLandmark();
   addSvgAccessibleNames();
 }
+
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice

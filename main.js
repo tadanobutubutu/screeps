@@ -177,6 +177,75 @@ function harvestResources() {
     // ... actual harvest logic here ...
 }
 
+// Function to wrap primary content in a main landmark
+function wrapPrimaryContentInMain() {
+  // Find the primary content container(s)
+  const primaryContentSelectors = [
+    '#primary-content',
+    '.primary-content',
+    'main',
+    '[role="main"]'
+  ];
+
+  let primaryContent = null;
+  for (const selector of primaryContentSelectors) {
+    const element = document.querySelector(selector);
+    if (element) {
+      primaryContent = element;
+      break;
+    }
+  }
+
+  // If no existing main landmark is found, create one
+  if (!primaryContent) {
+    primaryContent = document.createElement('main');
+    primaryContent.setAttribute('id', 'primary-content');
+    primaryContent.setAttribute('role', 'main');
+
+    // Move all body children that are not landmarks into the new <main>
+    const bodyChildren = Array.from(document.body.children);
+    bodyChildren.forEach((child) => {
+      const role = child.getAttribute('role');
+      const tagName = child.tagName.toLowerCase();
+      const landmarkTags = ['header', 'nav', 'aside', 'footer', 'section', 'article'];
+      if (
+        role !== 'banner' &&
+        role !== 'navigation' &&
+        role !== 'complementary' &&
+        role !== 'contentinfo' &&
+        !landmarkTags.includes(tagName)
+      ) {
+        primaryContent.appendChild(child);
+      }
+    });
+
+    document.body.appendChild(primaryContent);
+  } else {
+    // Ensure the element has the correct role and id
+    if (!primaryContent.getAttribute('role')) {
+      primaryContent.setAttribute('role', 'main');
+    }
+    if (!primaryContent.getAttribute('id')) {
+      primaryContent.setAttribute('id', 'primary-content');
+    }
+
+    // If it is not already a <main> element, replace it with one
+    if (primaryContent.tagName.toLowerCase() !== 'main') {
+      const mainElement = document.createElement('main');
+      mainElement.setAttribute('id', primaryContent.getAttribute('id') || 'primary-content');
+      mainElement.setAttribute('role', 'main');
+
+      while (primaryContent.firstChild) {
+        mainElement.appendChild(primaryContent.firstChild);
+      }
+
+      primaryContent.parentNode.replaceChild(mainElement, primaryContent);
+    }
+  }
+
+  return primaryContent;
+}
+
 class ScreepsBot {
   constructor() {
     this.network = null;
@@ -469,6 +538,7 @@ class ScreepsBot {
 
   wrapPrimaryContentInMain() {
     // Implementation for wrapping primary content in main landmark
+    return wrapPrimaryContentInMain();
   }
 
   checkLandmarks() {
@@ -523,6 +593,7 @@ module.exports = {
   newFunction3,
   countDependencies,
   harvestResources,
+  wrapPrimaryContentInMain,
   a11yStore,
   ...mainUtilities
 };

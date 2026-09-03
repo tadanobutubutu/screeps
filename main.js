@@ -550,7 +550,7 @@ function addLangAttribute() {
   // ... (updated function implementation, merging both changes)
 }
 
-const validateLandmarkStructure = (landmarks) => {
+const validateLandmarkStructureConst = (landmarks) => {
   // ... (updated implementation, merging both changes)
 };
 
@@ -558,15 +558,15 @@ const validateLandmarkAttributes = (landmark) => {
   return landmark && landmark.id && landmark.name;
 };
 
-const addMainLandmark = () => {
+const addMainLandmarkConst = () => {
   // Code for adding main landmark (from one of the changes)
 };
 
-const renderDependencyGraphContent = () => {
+const renderDependencyGraphContentConst = () => {
   // ... (updated implementation, merging both changes)
 };
 
-const createInPageButtons = () => {
+const createInPageButtonsConst = () => {
   // ... (updated implementation, merging both changes)
 };
 
@@ -612,7 +612,7 @@ const setLanguageAttribute = () => {
   document.documentElement.lang = 'en';
 };
 
-const addLandmarkRoles = () => {
+const addLandmarkRolesConst = () => {
   // ... (updated implementation, merging both changes)
 };
 
@@ -883,7 +883,7 @@ function enhanceAccessibilityForAddBook(form) {
 
   // Get the submit button
   const submitButton = form.querySelector('button[type="submit"]');
-  if (submitButton && ! SubmitButton.getAttribute('aria-label') && ! submitButton.textContent.trim()) {
+  if (submitButton && ! submitButton.getAttribute('aria-label') && ! submitButton.textContent.trim()) {
     submitButton.setAttribute('aria-label', 'Submit form');
   }
 
@@ -1011,7 +1011,7 @@ async function analyzeModuleDependenciesLocal(modules) {
   console.log('Analyzing dependencies for modules:', modules);
 }
 
-function clearCache() {
+function clearCacheLocal() {
   // Clear the application cache
   appState.cache.clear();
 }
@@ -1030,7 +1030,7 @@ function googleSignIn() {
   // Google sign in implementation
 }
 
-function addLangAttribute(lang) {
+function addLangAttributeLocal(lang) {
   // Add lang attribute
   if (typeof document !== 'undefined') {
     if (!document.documentElement.lang && lang) {

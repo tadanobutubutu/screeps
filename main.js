@@ -136,7 +136,7 @@ function createInPageButton() {
 
 // Function for generating a report based on accessibility issues in the previous implementation
 function generateAccessibilityReport() {
-  const issues = [];
+  const issues = [];;
 
   // Check for images without alt attributes
   const images = document.querySelectorAll('img');

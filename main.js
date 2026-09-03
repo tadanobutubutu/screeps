@@ -1,25 +1,23 @@
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const path = require('path');
-const { a11y } = require('@accessible/react');
-const {
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  ensureUniqueLandmarks
-} = require('./utils');
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import express from 'express';
+import axe from 'axe-core';
+import fs from 'fs';
+import fastMap from 'fast-map';
+import path from 'path';
+import accessiblyHelper from './accessibly-helper';
+import { calculateSum, getLangAttribute, getFullLangAttribute } from './utils/index.js';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils.js';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkAccessibilityUtils.js';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils.js';
+import { validateLinkAccessibility } from './utils/linkAccessibilityUtils.js';
+import { addProperLandmarkRegions } from './utils/landmarkUtils.js';
+import { CONFIG } from './utils/constants.js';
+import newFunction3 from './utils/newFunction3';
+import newFunction4 from './utils/newFunction4';
 
-const CONFIG = {
-  dataPath: './data',
-  maxResults: 100,
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: 5000,
-  debug: true,
-  version: '1.0.0'
-};
+const config = CONFIG;
 
 let isInitialized = false;
 let dependencyGraph = null;
@@ -27,7 +25,7 @@ let dependencyGraph = null;
 const appState = {
   initialized: false,
   data: null,
- cache: new Map()
+  cache: new Map()
 };
 
 function getUniqueLandmarks(landmarks) {
@@ -63,35 +61,17 @@ function getUniqueLandmarks(landmarks) {
   return uniqueLandmarks;
 }
 
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return '';
-
-  const title = svgElement.querySelector('title');
-  if (title) {
-    return title.textContent;
-  }
-
-  const desc = svgElement.querySelector('desc');
-  if (desc) {
-    return desc.textContent;
-  }
-
-  return svgElement.getAttribute('aria-label') || '';
+function renderDependencyGraph() {
+  // Logic to render dependency graph
 }
 
-function validateTableAccessibility(tableElement) {
-  if (!tableElement) return false;
+function displayModuleStructure() {
+  // Logic to display module structure
+}
 
-  const headers = tableElement.querySelectorAll('th');
-  const cells = tableElement.querySelectorAll('td, th');
-
-  for (const cell of cells) {
-    if (!cell.id && !cell.getAttribute('scope')) {
-      return false;
-    }
-  }
-
-  return true;
+function newFunction() {
+  console.log('New function called');
+  // Implementation details would go here
 }
 
 function validateTableStructure(tableElement) {
@@ -427,15 +407,40 @@ function renderFunction2() {
   // ... (Rest of renderFunction2 implementation)
 }
 
+// Export any new functions or anything else that needs to be accessible from outside this module
 module.exports = {
-  initialize,
+  initializeApp,
+  config,
+  renderDependencyGraph,
+  displayModuleStructure,
+  experience,
+  someNewFunction,
+  newFunction1,
+  newFunction2,
+  newFunction,
+  addressInsightIssues,
+  renderDependencyGraph,
+  calculateSum,
+  addProperLandmarkRegions,
   getUniqueLandmarks,
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
   scanAccessibility,
+  generateAccessibilityReport,
   validateLinkAccessibility,
+  newFocusTrap,
+  getLangAttribute,
+  ensureUniqueLandmarks,
+  getSvgAccessibleNameLocal,
+  validateTableAccessibilityLocal,
+  validateTableStructureLocal,
+  validateLinkAccessibilityLocal,
   handleFakeLinks,
+  checkLandmarkElement,
+  addFixLandmarkIssues,
+  validateLandmarkStructureLocal,
+  getFullLangAttribute,
   validateLandmark,
   validateLandmarkStructure,
   loadLandmarks,
@@ -453,6 +458,16 @@ module.exports = {
   createNewBookForm,
   isValidLandmark,
   processLandmarksWithUniqueIds,
+  setSvgAttributes,
   CONFIG,
-  appState
+  config,
+  isInitialized,
+  appData_origin,
+  appState,
+  dependencyGraph,
+  newFunction3,
+  newFunction4,
+  fixFakeLink,
+  addLandmarkRegions,
+  processAccessibilityReport
 };

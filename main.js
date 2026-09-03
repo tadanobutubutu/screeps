@@ -629,8 +629,7 @@ if (require.main === module) {
   }
 }
 
-// TODO: Implement upgrade logic
-// This function should use harvested data to improve the system
+// Upgrade logic: use harvested data to improve the system
 function upgradeSystem(harvestedData) {
   // Use harvested data to improve the system
   console.log('Applying upgrade logic with harvested data:', harvestedData);

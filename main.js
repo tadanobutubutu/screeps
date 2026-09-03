@@ -817,6 +817,45 @@
     }
 })();
 
-// Import any required modules
+// Import required modules at the top level
 const fs = require('fs');
 const path = require('path');
+
+// Export the necessary functions at the top level
+module.exports = {
+  validateInput: validateInput,
+  processData: processData,
+  formatResponse: formatResponse,
+  config: config,
+  isValidLandmark: isValidLandmark,
+  loadLandmarks: loadLandmarks,
+  processLandmarks: processLandmarks,
+  sortLandmarks: sortLandmarks,
+  getLandmarkById: getLandmarkById,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  landmarkConfig: CONFIG,
+  generateAccessibilityReport: generateAccessibilityReport,
+  addressAccessibilityIssues: addressAccessibilityIssues,
+  getLangAttribute: getLangAttribute,
+  createInPageButton: createInPageButton,
+  countDependencies: countDependencies,
+  function3: function3,
+  a11y: a11y,
+  setSvgAccessibleNames: setSvgAccessibleNames,
+  fixFakeLink: fixFakeLink,
+  harvest: harvest,
+  upgrade: upgrade,
+  harvestAndUpgrade: harvestAndUpgrade,
+  checkLinkAccessibility: checkLinkAccessibility,
+  writeReport: writeReport,
+  scanAccessibility: scanAccessibility,
+  addBookWithAccessibility: addBookWithAccessibility,
+  ...accessibilityUtils,
+  existingFunction1: existingFunction1,
+  existingFunction2: existingFunction2,
+  newFunction: newFunction,
+  ensureElementHasId: ensureElementHasId,
+  addAriaLabel: addAriaLabel,
+  renderDependencyGraph: renderDependencyGraph,
+  getDependencies: getDependencies
+};

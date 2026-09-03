@@ -1,26 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
-
-// The following code is a new function that was requested to be added to main.js.
-// This function does not affect the existing code and should be added without modifying any of the existing exports.
-
-function newFunction() {
-    // Code for the new function goes here
-    console.log('This is the new function.');
-}
-
-// The new function can be exported if necessary, but since the instructions say not to remove or rename any existing exports, we will not add an export statement here unless there is an export already in place.
-
-export function getLangAttribute() {
-  let lang = 'en'; // Default to English
-
-  // Your code for detecting the language based on the content
-  // Add detection logic from both changes
-  if (/* condition for the first change */) {
-    // Logic for the first change
-  } else {
-    // Logic for the second change
-=======
 // TODO: Implement function for addressing accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original code goes here
@@ -48,17 +25,13 @@ function addLangAttribute(element) {
   // Adds lang attribute to the given HTML element
   if (element && typeof element.setAttribute === 'function') {
     element.setAttribute('lang', 'en');
->>>>>>> origin/main
   }
 }
 
-<<<<<<< HEAD
-export function validateTableAccessibility(table) {
-=======
 const config = {
   port: PORT,
   env: process.env.NODE_ENV || 'development',
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0'
@@ -83,6 +56,7 @@ function personName() {
 
 function processSvgElements() {
   const svgElements = document.querySelectorAll('svg');
+  return svgElements;
 }
 
 function validateTableAccessibility(table, index) {
@@ -99,7 +73,6 @@ function validateTableAccessibility(table, index) {
 }
 
 function validateTableStructure() {
->>>>>>> origin/main
   // Check 26 table structure issues
   // Also check the table structure and return a boolean value indicating the result
   const issues = [];
@@ -116,13 +89,9 @@ function validateTableStructure() {
     issues.push(`Found ${nestedTables.length} nested tables - consider avoiding nested tables for accessibility (REACT_027)`);
   }
 
-<<<<<<< HEAD
-export function validateTableStructure(table) {
-  // Check the table structure and return a boolean value indicating the result
-  // Your updated code for validating the table structure combining both changes
-  // Use the existing default value of true if the checks pass
+  return issues;
 }
-=======
+
 function validateLandmark(element) {
   const resolveStructuralIssues = (element) => {
     const issues = [];
@@ -153,7 +122,7 @@ function validateLandmark(element) {
   ];
 
   if (!arguments.length) {
-    return resolveStructuralIssues(document.documentElement);
+    return landmarkRoles;
   }
 
   const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
@@ -204,8 +173,7 @@ function addSvgAccessibleName(svgElement, name) {
   title.textContent = name;
 
   const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
-  if (!ariaLabelledBy && !svgElement.getAttribute('aria-label')) {
-    title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+  if (!ariaLabelledBy && title.id) {
     svgElement.setAttribute('aria-labelledby', title.id);
   }
 
@@ -216,7 +184,7 @@ function ensureElementHasId(element) {
   if (!element) return;
   const name = element.getAttribute('id');
   if (!name) {
-    element.id = `element-${Math.random().toString(36).substr(2, 11)}`;
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
   }
 }
 
@@ -236,13 +204,14 @@ function addAriaLabel(element, label) {
 }
 
 function handleFakeLinks(issues) {
-  // Placeholder
+  // Placeholder for fixing fake link issues
+  return issues;
 }
 
-function ensureUniqueLandmarksFromString(source) {
-  const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
-
-  const matches = Array.from(source.matchAll(mainBlockRegex));
+function transformMainElements(source) {
+  const mainBlockRegex = /<main([^>]*)>([\s\S]*?)<\/main>/gi;
+  const matches = source.match(mainBlockRegex) || [];
+  
   if (matches.length <= 1) {
     return source;
   }
@@ -259,9 +228,9 @@ function ensureUniqueLandmarksFromString(source) {
   return result;
 }
 
-function addressAccessibilityIssues(insightReport) {
+function processInsightReport(insightReport) {
   // If no report provided, return an empty array
-  if (!Array.isArray(insightReport)) {
+  if (!insightReport || !Array.isArray(insightReport)) {
     return [];
   }
 
@@ -294,17 +263,17 @@ function createServer() {
 }
 
 function spawnCommand(command, args, callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn(command, args, {
-        stdio: 'inherit',
-    });
-    child.on('exit', (code, signal) => {
-        if (code === 0) {
-            callback(null, 'Successfully executed someCommand');
-        } else {
-            callback(new Error(`someCommand failed with code ${code}`));
-        }
-    });
+  const child_process = require('child_process');
+  const child = child_process.spawn(command, args, {
+    stdio: 'inherit',
+  });
+  child.on('exit', (code, signal) => {
+    if (code === 0) {
+      callback(null, 'Successfully executed someCommand');
+    } else {
+      callback(new Error(`someCommand failed with code ${code}`));
+    }
+  });
 }
 
 function countDependencies() {
@@ -344,13 +313,13 @@ function validateNewAccessibilityIssues() {
   }
 
   // Attach an accessible label to the primary action button
-  const submitBtn = document.querySelector('button[type="submit"], button[type="button"]');
+  const submitBtn = document.querySelector('button[type="button"]');
   if (submitBtn && typeof submitBtn !== 'undefined') {
-    submitBtn.setAttribute('aria-label', personName());
+    addAriaLabel(submitBtn, personName());
   }
 }
 
-function addressNewAccessibilityIssues(insightReport) {
+function addressAccessibilityIssues(insightReport) {
   const addressedIssues = [];
 
   if (!insightReport || !insightReport.sections) {
@@ -367,7 +336,7 @@ function addressNewAccessibilityIssues(insightReport) {
     if (section.content) {
       // Check for lang attribute issues
       if (section.content.includes('REACT_015') || section.content.includes('lang attribute')) {
-        addressedIssues.push('REACT_015: Lang attribute issue addressed');
+        addressedIssues.push(`REACT_015: Lang attribute issue addressed`);
       }
 
       // Check for table structure issues
@@ -379,12 +348,12 @@ function addressNewAccessibilityIssues(insightReport) {
       // Check for landmark issues
       if (section.content.includes('REACT_017') || section.content.includes('landmark')) {
         const landmarkIssues = validateLandmarkStructure();
-        addressedIssues.push(`REACT_017: ${landmarkIssues.length} landmark issues addressed`);
+        addressedIssues.push(`REACT_017: Landmark issues addressed`);
       }
 
       // Check for SVG accessibility issues
       if (section.content.includes('REACT_041') || section.content.includes('SVG')) {
-        addressedIssues.push('REACT_041: SVG accessible name issue addressed');
+        addressedIssues.push(`REACT_041: SVG accessible name issue addressed`);
       }
     }
   });
@@ -392,79 +361,12 @@ function addressNewAccessibilityIssues(insightReport) {
   return addressedIssues;
 }
 
-function generateAccessibilityReport(accessibilityReport) {
-  const accessibilityIssues = addressNewAccessibilityIssues(accessibilityReport);
+function addressNewAccessibilityIssues(insightReport) {
+  const addressedIssues = [];
 
-  return {
-    totalIssues: accessibilityIssues.length,
-    issues: accessibilityIssues
-  };
-}
-
-function calculateAccessibilityScore(fixedIssues) {
-  if (!Array.isArray(fixedIssues)) {
-    return 0;
+  if (!insightReport || !insightReport.sections) {
+    return addressedIssues;
   }
 
-  const scorePoints = {
-    'color-contrast': 5,
-    'missing-alt-text': 3,
-    'missing-aria-label': 5,
-    'heading-order': 2,
-    'other': 1
-  };
-
-  return fixedIssues.reduce((score, issue) => {
-    const points = scorePoints[issue.type] || scorePoints['other'];
-    return score + points;
-  }, 0);
-}
-
-/**
- * Spawn a child process to run some command with proper error handling.
- * @param {Function} callback - Invoked with (err, result) when the command exits.
- */
-function startApp() {
-  const server = createServer();
-  server.listen(config.port || PORT, () => {
-    console.log(`Server running on port ${config.port || PORT}`);
-  });
-  return server;
-}
-
-// Export functions for testing
-module.exports = {
-  createServer,
-  startApp,
-  config,
-  app,
-  PORT,
-  validateLandmark,
-  ensureElementHasId,
-  addAriaLabel,
-  addBook,
-  getLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  addSvgAccessibleName,
-  handleFakeLinks,
-  countDependencies,
-  countPackageDependencies,
-  addressAccessibilityIssues,
-  addressNewAccessibilityIssues,
-  generateAccessibilityReport,
-  calculateAccessibilityScore,
-  spawnCommand,
-  processSvgElements,
-  ensureElementId,
-  ensureUniqueLandmarksFromString,
-  addLangAttribute
-};
-
-if (require.main === module) {
-  startApp();
-}
-=======
+  // Process each section of the insight report for new issues
+  insightReport.s

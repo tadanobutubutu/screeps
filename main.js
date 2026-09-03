@@ -1,7 +1,7 @@
-// TODO: Add back any required exports that might have been removed
-// TODO: This is the existing code that needs to be preserved
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: ... -->
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// Main entry point for dependency visualization tool
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 
 // Function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {

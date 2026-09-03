@@ -41,8 +41,6 @@ const appData = {};
 // Example of how to export a required function from another file
 const { someFunction } = { someFunction: () => 'someFunction result' };
 
-// TODO: Add back any required exports that might have been removed
-
 // Import the required module
 const { axe } = require('axe-core');
 const fastMap = require('fast-map');
@@ -444,7 +442,8 @@ module.exports = {
     setSvgAttributes,
     initialize,
     renderDependencyGraph,
-    a11y
+    a11y,
+    towerDefense
 };
 
 // Main execution when run directly

@@ -152,13 +152,13 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
-};
 
-// New functions
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
-}
+  // New functions
+  ensureInteractiveElementsAccessible() {
+    a11yStore.ensureInteractiveRoles();
+    a11yStore.addFormControlLabels();
+    a11yStore.ensureImageAccessibility();
+  }
+};
 
 // ... rest of the code ...

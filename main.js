@@ -206,14 +206,62 @@ function checkLinkAccessibility(linkUrl) {
  */
 function function3() {
   const dependencyGraph = document.getElementById('dependency-graph') || document.querySelector('.dependency-graph');
+  const accessibilityIssues = [];
 
   if (dependencyGraph) {
     // Ensure the dependencyGraph container has a proper ARIA role
     dependencyGraph.setAttribute('role', 'region');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+
+    // Implement new function3 logic: Improve accessibility for SVG elements within the graph
+    const svgElements = dependencyGraph.querySelectorAll ? dependencyGraph.querySelectorAll('svg') : [];
+    
+    svgElements.forEach((svg, index) => {
+      // Check if SVG has a title element for accessibility
+      let titleElement = svg.querySelector('title');
+      if (!titleElement) {
+        // Add a title element if missing
+        titleElement = document.createElement('title');
+        titleElement.textContent = `Dependency graph SVG ${index + 1}`;
+        svg.insertBefore(titleElement, svg.firstChild);
+        accessibilityIssues.push({
+          type: 'added-title',
+          element: 'svg',
+          index: index,
+          message: `Added missing title element to SVG at index ${index}`
+        });
+      }
+
+      // Ensure SVG has appropriate role
+      if (!svg.getAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+
+      // Check for interactive elements within SVG
+      const interactiveElements = svg.querySelectorAll('a, button, input');
+      interactiveElements.forEach((elem, elemIndex) => {
+        const accessibleName = elem.textContent?.trim() || elem.getAttribute('aria-label') || '';
+        if (!accessibleName) {
+          accessibilityIssues.push({
+            type: 'missing-accessible-name',
+            element: elem.tagName.toLowerCase(),
+            index: elemIndex,
+            message: `Interactive element at SVG index ${index}, element index ${elemIndex} is missing an accessible name`
+          });
+        }
+      });
+    });
+
+    // Enhance keyboard navigation for the dependency graph
+    if (!dependencyGraph.getAttribute('tabindex')) {
+      dependencyGraph.setAttribute('tabindex', '0');
+    }
   }
 
-  // TODO: Implement new function
+  return {
+    processed: true,
+    issues: accessibilityIssues
+  };
 }
 
 const CONFIG = {

@@ -11,7 +11,6 @@ function getDependencyGraph() {
 let UserSafety = "unsafe";
 let SafetyCategories = "Unauthorized Advice";
 
-// TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 
 const express = require('express');
@@ -109,8 +108,6 @@ async function generateAccessibilityReport(issuesData) {
         });
       }
     });
-  } else {
-    issues = accessiblyHelper(issuesData);
   }
 
   const report = {

@@ -7,13 +7,23 @@ import fs from 'fs';
 import fastMap from 'fast-map';
 import path from 'path';
 import accessiblyHelper from './accessibly-helper';
-import { calculateSum } from './utils/index.js';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils.js';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils.js';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils.js';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils.js';
-import { validateLinkAccessibility, validateTableStructure } from './utils/linkAccessibilityUtils.js';
-import { CONFIG } from './utils/constants.js';
+import {
+  calculateSum,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  validateTableStructure as validateTableStructureLocal,
+  someNewFunction,
+  newFocusTrap,
+  addressInsightIssues
+} from './utils/index.js';
+import { CONFIG, safetyCategory } from './utils/constants.js';
 
 let isInitialized = false;
 const appData = {};
@@ -36,19 +46,8 @@ function someNewFunction() {
   return false;
 }
 
-/**
- * Main entry point for the application (moved from the experience function)
- */
-function experience() {
-  // ... existing code ...
-}
-
-// ... existing functions ...
-
-// TODO: Address accessibility issues from insight report
-
-// NEW: Implement a new function to handle focus trap for keyboard navigation
 function newFocusTrap(containerElement, options = {}) {
+  // Function to handle focus trap for keyboard navigation (merged from both changes)
   let previouslyFocusedElement = null;
   let focusableElements = [];
   let firstFocusableElement = null;
@@ -122,21 +121,35 @@ function newFocusTrap(containerElement, options = {}) {
 }
 
 function addressInsightIssues() {
-  // ... existing code ...
-  // REACT_041: Add accessible names to SVGs
-  addSvgAccessibleNames();
-  // REACT_036: Fix fake link issues (links without href or with javascript:void(0))
-  fixFakeLinks();
-  // REACT_040: Replace my-button with actual button id for accessibility
-  replaceButtonIds();
+  // Function to address accessibility issues as per the insight report
+  // Include accessibility improvements merged from both commits
+  const insightReport = someNewFunction() ? { html: '' } : /* original implementation here */;
+
+  // REACT_015: Add lang attribute
+  insightReport.html = addLangAttribute(insightReport.html);
+  // REACT_027: Fix table structure issues
+  insightReport.html = fixTableStructure(insightReport.html);
+  insightReport.html = validateTableStructureLocal(insightReport.html);
+  insightReport.html = validateTableAccessibility(insightReport.html);
+  // REACT_017: Ensure unique landmarks
+  insightReport.html = ensureUniqueLandmarks(insightReport.html);
+  insightReport.html = ensureUniqueLandmarksById(insightReport.html);
+  // REACT_041: Add accessible names to 2 SVGs
+  insightReport.html = addSvgAccessibleNames(insightReport.html);
+  insightReport.html = addSvgAccessibleNamesDom(insightReport.html);
+  // REACT_036: Fix 1 fake link issue
+  insightReport.html = fixFakeLinks(insightReport.html);
+  insightReport.html = fixFakeLinksDom(insightReport.html);
   // REACT_042: Ensure dependencyGraph container has proper ARIA role
-  ensureDependencyGraphARIArole();
+  insightReport.html = setDependencyGraphAriaRole(insightReport.html);
+  // New: Implement focus trap for keyboard navigation
+  insightReport.html = newFocusTrap(insightReport.html);
+
+  return insightReport;
 }
 
-// ... remaining functions ...
-
 export {
- initializeApp,
+  initializeApp,
   registerSW,
   express,
   axe,
@@ -147,15 +160,12 @@ export {
   calculateSum,
   getLangAttribute,
   getFullLangAttribute,
-  validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,
-  validateTableStructure,
-  CONFIG,
   someNewFunction,
   newFocusTrap,
   addressInsightIssues,

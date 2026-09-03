@@ -651,6 +651,7 @@ function addressNewAccessibilityIssues() {
   };
 }
 
+// TODO: New code that was added to the branch
 // New function to render dependency graphs
 function renderDependencyGraph(rootNode) {
   // Renders a dependency graph visualization

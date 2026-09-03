@@ -43,8 +43,6 @@ function loadConfigurations() {
 
 // Implement function to count dependencies
 function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
     const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     const dependencies = packageJson.dependencies || {};
@@ -103,228 +101,146 @@ if (typeof document !== 'undefined') {
   }
 }
 
-module.exports = {
-    config,
-    XYZ,
-    calculateSum,
-    countDependencies,
+// Added from HEAD branch
+function missingRoles(requiredRoles, foundRoles) {
+    const missingRoles = requiredRoles.filter(role => !foundRoles.has(role));
+    return {
+        valid: missingRoles.length === 0,
+        foundRoles: Array.from(foundRoles),
+        missingRoles
+    };
+}
 
-    addLangAttribute: function (element) {
-        // Adds lang attribute to the given HTML element
-        if (element && typeof element.setAttribute === 'function') {
-            element.setAttribute('lang', 'en');
+// Added from origin/main branch
+function ensureUniqueLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+
+    const uniqueElements = [];
+    const seen = new Map();
+
+    landmarks.forEach(element => {
+        const key = element.id || element.name || element.className;
+        if (!seen.has(key)) {
+            seen.set(key, true);
+            uniqueElements.push(element);
         }
-        return element;
-    },
+    });
 
-    ensureLandmarkUniqueness: function (elements) {
-        if (!Array.isArray(elements)) {
-            return [];
-        }
+    return uniqueElements;
+}
 
-        const uniqueElements = [];
-        const seen = new Map();
+function getSvgAccessibleName(svgElement, name) {
+    return svgElement;
+}
 
-        elements.forEach(element => {
-            const key = element.id || element.name || element.className;
-            if (!seen.has(key)) {
-                seen.set(key, true);
-                uniqueElements.push(element);
-            }
-        });
+function createInPageButton(text) {
+    return {};
+}
 
-        return uniqueElements;
-    },
+function createAccessibleLink(href, text) {
+    return {};
+}
 
-    addressInsightIssues: function () {
-        this.getLangAttribute();
-        const landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
+function handleAccessibilityIssues() {
+    // Placeholder for handling accessibility issues
+}
 
-        if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
-            this.ensureUniqueLandmarks(landmarks);
-        }
+function addAriaLabel(element, label) {
+    if (!element.ariaLabel) {
+        element.ariaLabel = label;
+    }
+    return element;
+}
 
-        if (typeof document !== 'undefined') {
-            this.handleAccessibilityIssues();
-        }
+function checkElementAccessibility(element) {
+    return true;
+}
 
-        this.ensureLandmarkUniqueness([]);
+function setupHandlers() {
+    console.log('Setting up event handlers...');
+}
 
-        this.setupHandlers();
+function validateInput(input) {
+    return input !== null && input !== undefined;
+}
 
-        this.validateInput(null);
+function processData(data) {
+    if (!this.validateInput(data)) {
+        throw new Error('Invalid input data');
+    }
+}
 
-        this.fixFakeLinkIssue(typeof document !== 'undefined' ? document : null);
-    },
+function fixFakeLinkIssue(doc) {
+    if (typeof doc === 'undefined' || !doc.querySelectorAll) {
+        return;
+    }
+    const clickableElements = doc.querySelectorAll('[onclick]');
+    let count = 0;
 
-    initializeApp: function () {
-        this.addressInsightIssues();
-        loadConfigurations();
-        countDependencies();
-        if (typeof wrapPrimaryContentInMain === 'function') {
-            wrapPrimaryContentInMain(primaryContent);
-        }
-        if (typeof fixLandmarkStructure === 'function') {
-            fixLandmarkStructure(document);
-        }
-    },
+    clickableElements.forEach(element => {
+        const tagName = element.tagName.toLowerCase();
+        const hasHref = element.hasAttribute('href');
 
-    // Utility functions
-    getLangAttribute: function () {
-        let lang = 'en'; // Default to English
-        return lang;
-    },
+        if (tagName !== 'a' && !hasHref) {
+            const isInteractive = element.getAttribute('role') === 'link' ||
+                                   element.getAttribute('tabindex') && element.onclick && element.onclick.toString().length > 0;
 
-    validateTableAccessibility: function (table) {
-        // Check 26 table structure issues
-        return true;
-    },
-
-    validateTableStructure: function (table) {
-        // Check the table structure and return a boolean value indicating the result
-        return true;
-    },
-
-    validateLandmark: function (element) {
-        const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
-        const role = element.getAttribute('role');
-        return validLandmarks.includes(role);
-    },
-
-    ensureUniqueLandmarks: function () {
-        return true;
-    },
-
-    getSvgAccessibleName: function (svgElement, name) {
-        return svgElement;
-    },
-
-    createInPageButton: function (text) {
-        return {};
-    },
-
-    createAccessibleLink: function (href, text) {
-        return {};
-    },
-
-    handleAccessibilityIssues: function () {
-    },
-
-    addAriaLabel: function (element, label) {
-        if (!element.ariaLabel) {
-            element.ariaLabel = label;
-        }
-        return element;
-    },
-
-    checkElementAccessibility: function (element) {
-        return true;
-    },
-
-    setupHandlers: function () {
-        console.log('Setting up event handlers...');
-    },
-
-    validateInput: function (input) {
-        return input !== null && input !== undefined;
-    },
-
-    processData: function (data) {
-        if (!this.validateInput(data)) {
-            throw new Error('Invalid input data');
-        }
-    },
-
-    fixFakeLinkIssue: function (doc) {
-        if (typeof doc === 'undefined' || !doc.querySelectorAll) {
-            return;
-        }
-        const clickableElements = doc.querySelectorAll('[onclick]');
-        let count = 0;
-
-        clickableElements.forEach(element => {
-            const tagName = element.tagName.toLowerCase();
-            const hasHref = element.hasAttribute('href');
-
-            if (tagName !== 'a' && !hasHref) {
-                const isInteractive = element.getAttribute('role') === 'link' ||
-                                       element.getAttribute('tabindex') && element.onclick && element.onclick.toString().length > 0;
-
-                if (isInteractive && element.textContent.trim().length > 0) {
-                    const text = element.textContent.trim();
-                    if (text) {
-                        element.setAttribute('aria-label', text);
-                    }
-                }
-                count++;
-            }
-        });
-
-        return count;
-    },
-
-    renderDependencyGraphContent: function () {
-        const lang = this.getLangAttribute();
-        const deps = countDependencies();
-        
-        let content = `<div lang="${lang}" role="region" aria-label="Dependency Graph">`;
-        content += `<h2>Dependency Graph</h2>`;
-        
-        if (deps.total > 0) {
-            content += `<table role="table">`;
-            content += `<caption>Package Dependencies</caption>`;
-            content += `<thead><tr><th scope="col">Type</th><th scope="col">Count</th></tr></thead>`;
-            content += `<tbody>`;
-            content += `<tr><td>Dependencies</td><td>${deps.dependencies}</td></tr>`;
-            content += `<tr><td>Dev Dependencies</td><td>${deps.devDependencies}</td></tr>`;
-            content += `<tr><td>Total</td><td>${deps.total}</td></tr>`;
-            content += `</tbody></table>`;
-        } else {
-            content += `<p>No dependencies found.</p>`;
-        }
-        
-        content += `</div>`;
-        
-        if (typeof document !== 'undefined') {
-            const container = document.getElementById('dependency-graph');
-            if (container) {
-                container.innerHTML = content;
-                const tables = container.querySelectorAll('table');
-                tables.forEach(table => {
-                    this.validateTableAccessibility(table);
-                    this.validateTableStructure(table);
-                });
-                const div = container.querySelector('div');
-                if (div) {
-                    this.addLangAttribute(div);
-                    this.addAriaLabel(div, 'Dependency Graph Content');
+            if (isInteractive && element.textContent.trim().length > 0) {
+                const text = element.textContent.trim();
+                if (text) {
+                    element.setAttribute('aria-label', text);
                 }
             }
+            count++;
         }
-        
-        return content;
-    },
+    });
 
-    addBook: function (book) {
-        return book;
-    },
+    return count;
+}
 
-    createServer: function () {
-        const server = http.createServer(app);
-        app.get('/', (req, res) => {
-            res.send('Hello World!');
-        });
+function renderDependencyGraphContent() {
+    const lang = this.getLangAttribute();
+    const deps = countDependencies();
+    
+    let content = `<div lang="${lang}" role="region" aria-label="Dependency Graph">`;
+    content += `<h2>Dependency Graph</h2>`;
+    
+    if (deps.total > 0) {
+        content += `<table role="table">`;
+        content += `<caption>Package Dependencies</caption>`;
+        content += `<thead><tr><th scope="col">Type</th><th scope="col">Count</th></tr></thead>`;
+        content += `<tbody>`;
+        content += `<tr><td>Dependencies</td><td>${deps.dependencies}</td></tr>`;
+        content += `<tr><td>Dev Dependencies</td><td>${deps.devDependencies}</td></tr>`;
+        content += `<tr><td>Total</td><td>${deps.total}</td></tr>`;
+        content += `</tbody></table>`;
+    } else {
+        content += `<p>No dependencies found.</p>`;
+    }
+    
+    content += `</div>`;
+    
+    if (typeof document !== 'undefined') {
+        const container = document.getElementById('dependency-graph');
+        if (container) {
+            container.innerHTML = content;
+            const tables = container.querySelectorAll('table');
+            tables.forEach(table => {
+                this.validateTableAccessibility(table);
+                this.validateTableStructure(table);
+            });
+            const div = container.querySelector('div');
+            if (div) {
+                this.addLangAttribute(div);
+                this.addAriaLabel(div, 'Dependency Graph Content');
+            }
+        }
+    }
+    
+    return content;
+}
 
-        return server;
-    },
-
-    startApp: function () {
-        loadConfigurations();
-        const server = this.createServer();
-        return server;
-    },
-
-    // Export accessibility functions
-    makeSvgAccessible: makeSvgAccessible,
-    setSvgAttributes: setSvgAttributes
-};
+function addBook(book) {
+    return book;

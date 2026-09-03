@@ -12,7 +12,6 @@
 
 // <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
-<<<<<<< HEAD
 // Function to implement a new safety function (merged from both changes)
 function someNewFunction() {
   // Your implementation goes here (should be added based on the original commit)
@@ -111,18 +110,6 @@ function checkLinkAccessibility(linkUrl) {
 function getLangAttribute() {
   //...
 }
-=======
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-// REACT_017: Add/fix 4 landmark issues
-// REACT_027: Fix 26 table structure issues
-// REACT_025: Ensure unique landmarks
-// REACT_041: Add accessible names to 2 SVGs
-// REACT_036: Fix 1 fake link issue
-// REACT_037: Google sign-in logic
-// REACT_040: Replace my-button with actual button id for accessibility
-// REACT_042: Ensure dependencyGraph container has proper ARIA role
->>>>>>> origin/main
 
 // TODO: Address accessibility issues from insight report:
 // - Added keyboard navigation support
@@ -139,4 +126,4 @@ const logger = require('./utils/logger');
 // Find the primary content element in the DOM
 const primaryContent = document.querySelector('.primary-content') ||
                         document.querySelector('[role="main"]') ||
-                        document.getElementById('main
+                        document.getElementById('main');

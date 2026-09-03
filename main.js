@@ -68,5 +68,12 @@ function renderDependencyGraph(containerId, graphData) {
     return renderGraphIndex(containerId, graphData);
 }
 
+// TODO: Implement tower defense in main.js
+function towerDefenseGame(levelData) {
+    // Placeholder for the tower defense game implementation
+    console.log('Tower Defense game initialized with level data:', levelData);
+    // Actual implementation would go here
+}
+
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };

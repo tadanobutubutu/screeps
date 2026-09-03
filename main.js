@@ -174,18 +174,24 @@ function addBook() {
 }
 
 function getLangAttribute() {
+  // TODO: Implement logic to retrieve the current language setting
+  // First, check the lang attribute on the document element
+  const htmlLang = document.documentElement && document.documentElement.lang;
+  
+  if (htmlLang && typeof htmlLang === 'string' && htmlLang.trim() !== '') {
+    return htmlLang.trim();
+  }
+  
+  // Fallback to browser language detection
   let lang = 'en';
 
-  if (!document.documentElement.lang) {
-    lang = detectLanguageFromContent();
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    const browserLang = navigator.language;
+    // Extract primary language code (e.g., 'en' from 'en-US')
+    lang = browserLang.split('-')[0];
   }
 
   return lang;
-
-  function detectLanguageFromContent() {
-    // Add code from both changes to detect the language based on the content
-    // ...
-  }
 }
 
 function validateTableAccessibility(table) {

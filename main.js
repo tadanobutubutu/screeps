@@ -144,8 +144,8 @@ function createInPageButton(buttonText, onClickHandler) {
 }
 
 // Function to create an in-page button
-function createInPageButton() {
-    // Implementation of createInPageButton function
+function createInPageButtonAlt() {
+    // Implementation of createInPageButtonAlt function
     if (typeof document === 'undefined') return;
     const button = document.createElement('button');
     button.textContent = 'Accessibility Info';
@@ -369,6 +369,165 @@ function generateAccessibilityReport(results) {
     };
 }
 
+// Implement tower defense game functions
+class Tower {
+    constructor(name, cost, damage, range, fireRate) {
+        this.name = name;
+        this.cost = cost;
+        this.damage = damage;
+        this.range = range;
+        this.fireRate = fireRate;
+        this.position = { x: 0, y: 0 };
+        this.cooldown = 0;
+    }
+
+    place(position) {
+        this.position = position;
+    }
+
+    update(deltaTime) {
+        if (this.cooldown > 0) {
+            this.cooldown -= deltaTime;
+        }
+    }
+
+    canShoot() {
+        return this.cooldown <= 0;
+    }
+
+    shoot(target) {
+        if (this.canShoot()) {
+            this.cooldown = this.fireRate;
+            return {
+                damage: this.damage,
+                target: target
+            };
+        }
+        return null;
+    }
+}
+
+class Enemy {
+    constructor(health, speed, reward) {
+        this.maxHealth = health;
+        this.health = health;
+        this.speed = speed;
+        this.reward = reward;
+        this.position = { x: 0, y: 0 };
+        this.pathIndex = 0;
+    }
+
+    move(path, deltaTime) {
+        if (this.pathIndex < path.length - 1) {
+            const target = path[this.pathIndex + 1];
+            const dx = target.x - this.position.x;
+            const dy = target.y - this.position.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < this.speed * deltaTime) {
+                this.position = target;
+                this.pathIndex++;
+            } else {
+                this.position.x += (dx / distance) * this.speed * deltaTime;
+                this.position.y += (dy / distance) * this.speed * deltaTime;
+            }
+        }
+    }
+
+    takeDamage(damage) {
+        this.health -= damage;
+        return this.health <= 0;
+    }
+}
+
+// Tower defense game class
+class TowerDefenseGame {
+    constructor() {
+        this.towers = [];
+        this.enemies = [];
+        this.projectiles = [];
+        this.path = [];
+        this.playerMoney = 100;
+        this.playerHealth = 100;
+        this.gameRunning = false;
+    }
+
+    setPath(path) {
+        this.path = path;
+    }
+
+    addTower(tower) {
+        if (this.playerMoney >= tower.cost) {
+            this.towers.push(tower);
+            this.playerMoney -= tower.cost;
+            return true;
+        }
+        return false;
+    }
+
+    spawnEnemy(enemy) {
+        enemy.position = { ...this.path[0] };
+        this.enemies.push(enemy);
+    }
+
+    update(deltaTime) {
+        // Update towers
+        this.towers.forEach(tower => {
+            tower.update(deltaTime);
+            
+            // Find closest enemy in range
+            let closestEnemy = null;
+            let minDistance = Infinity;
+            
+            this.enemies.forEach(enemy => {
+                const dx = enemy.position.x - tower.position.x;
+                const dy = enemy.position.y - tower.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance <= tower.range && distance < minDistance) {
+                    minDistance = distance;
+                    closestEnemy = enemy;
+                }
+            });
+            
+            if (closestEnemy) {
+                const projectile = tower.shoot(closestEnemy);
+                if (projectile) {
+                    this.projectiles.push(projectile);
+                }
+            }
+        });
+        
+        // Update enemies
+        this.enemies.forEach((enemy, index) => {
+            enemy.move(this.path, deltaTime);
+            
+            // Check if enemy reached end of path
+            if (enemy.pathIndex >= this.path.length - 1) {
+                this.playerHealth -= 10;
+                this.enemies.splice(index, 1);
+            }
+        });
+        
+        // Update projectiles
+        this.projectiles.forEach((projectile, index) => {
+            if (projectile.target && projectile.target.health > 0) {
+                if (projectile.target.takeDamage(projectile.damage)) {
+                    this.playerMoney += projectile.target.reward;
+                    this.enemies.splice(this.enemies.indexOf(projectile.target), 1);
+                }
+                this.projectiles.splice(index, 1);
+            } else {
+                this.projectiles.splice(index, 1);
+            }
+        });
+    }
+
+    isGameOver() {
+        return this.playerHealth <= 0;
+    }
+}
+
 // Initialize the application with accessibility improvements
 function initialize() {
     // Ensure the dependencyGraph container has a proper ARIA role
@@ -377,21 +536,11 @@ function initialize() {
         dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
     }
 
-    // Address accessibility issues from insight report:
-    // Ensure the dependencyGraph container has a proper ARIA role
-    // (This comment remains as-is)
-    //_Commit: eef4b6be04a5e2cd61b7543cfe2dff2da0857ca2_
-    //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-    //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    //_Commit: 62d675a958b864c43ad4471b12c4c40c5570b3f7_
-    //<!-- todo-hash: b713d536f0ce67bf9eb8012f08502c264300052f -->
-
     // Address accessibility issues
     addressAccessibilityIssues();
 
     // Create the in-page button
-    createInPageButton();
+    createInPageButtonAlt();
 
     // Existing initialization logic preserved
     // Accessibility: Ensure main content is keyboard accessible
@@ -421,6 +570,7 @@ module.exports = {
     renderDependencyGraphContent,
     fixFakeLinksEnhanced,
     createInPageButton,
+    createInPageButtonAlt,
     addProperLandmarkRegions,
     config,
     validateInput,
@@ -444,6 +594,9 @@ module.exports = {
     setSvgAttributes,
     initialize,
     renderDependencyGraph,
+    Tower,
+    Enemy,
+    TowerDefenseGame,
     a11y
 };
 

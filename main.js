@@ -14,13 +14,17 @@ const accessiblyHelper = async (...args) => {
 const config = {
   name: 'MyApp',
   version: '1.0.0',
-  debug: false
+  debug: false,
+  dataPath: './data',
+  maxResults: 100
 };
 
 const CONFIG = {
   landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
   maxResults: 100,
-  dataPath: './data'
+  dataPath: './data',
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
 
 function getUserSafetyAdvice() {
@@ -51,17 +55,18 @@ function getBooksList() {
   return booksList.join("\n");
 }
 
-// Configuration
-const config = {
-  dataPath: './data',
-  maxResults: 100
-};
+// TODO: Implement calculateDiscount
+function calculateDiscount(price, discountPercent) {
+  if (typeof price !== 'number' || typeof discountPercent !== 'number') {
+    throw new Error('Price and discount percent must be numbers');
+  }
+  if (price < 0 || discountPercent < 0 || discountPercent > 100) {
+    throw new Error('Invalid price or discount percent');
+  }
+  return price * (1 - discountPercent / 100);
+}
 
 // Landmark validation configuration
-const CONFIG = {
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
-};
 
 // Helper functions
 function isValidLandmark(landmark) {
@@ -191,12 +196,7 @@ const mergedConfig = CONFIG;
  * @param {string} id - The ID to set if missing
  * @returns {HTMLElement} The element with ensured ID
  */
-function ensureElementHasId(element, id) {
-    if (!element.id) {
-        element.id = id;
-    }
-    return element;
-}
+// Duplicate removed - using the one above
 
 /**
  * Adds an aria-label to an element if it doesn't have one
@@ -204,12 +204,7 @@ function ensureElementHasId(element, id) {
  * @param {string} label - The aria-label to add
  * @returns {HTMLElement} The element with aria-label
  */
-function addAriaLabel(element, label) {
-    if (!element.getAttribute('aria-label')) {
-        element.setAttribute('aria-label', label);
-    }
-    return element;
-}
+// Duplicate removed - using the one above
 
 // New function to analyze module dependencies
 function analyzeModuleDependencies(modules) {
@@ -227,9 +222,28 @@ function visualizeModuleRelationships(modules) {
 
 module.exports = {
   // ... Exports preserved from before the conflict.
-
-  analyzeModuleDependencies,
-  visualizeModuleRelationships,
+  books,
+  safetyCategory,
+  accessiblyHelper,
+  config,
+  CONFIG,
+  getUserSafetyAdvice,
+  addBook,
+  announceBookAdded,
+  getBooksList,
+  calculateDiscount,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  ensureUniqueLandmarks,
+  writeReport,
+  getUniqueLandmarks,
   ensureElementHasId,
-  addAriaLabel
+  addAriaLabel,
+  analyzeModuleDependenciesLocal,
+  visualizeModuleRelationshipsLocal,
+  validateLandmark,
+  mergedConfig,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships
 };

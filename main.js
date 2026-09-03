@@ -152,6 +152,37 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  /**
+   * Implement a new function to handle focus trap for keyboard navigation
+   */
+  focusTrap() {
+    let focusableElements = document.querySelectorAll('a, area, input, select, textarea, button, iframe, object, embed, [tabindex]:not([tabindex="-1"])');
+    let firstFocusableElement = focusableElements[0];
+    let lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+    document.addEventListener('keydown', function(e) {
+      let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
+
+      if (!isTabPressed) {
+        return;
+      }
+
+      if (e.shiftKey) /* shift + tab */ {
+        if (document.activeElement === firstFocusableElement) {
+          lastFocusableElement.focus();
+          e.preventDefault();
+        }
+      } else /* tab */ {
+        if (document.activeElement === lastFocusableElement) {
+          firstFocusableElement.focus();
+          e.preventDefault();
+        }
+      }
+    });
+
+    firstFocusableElement.focus();
+  }
 };
 
 // New functions

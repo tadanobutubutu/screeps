@@ -80,7 +80,7 @@ function checkLandmarkElement(elementOrId) {
 
     // Must have either a role or accessible name to be a valid landmark element
     if (!(hasRole || hasAriaLabel || hasAriaLabelledby)) {
-        if (!element.hasAttribute('aria-labelledby')) {
+        if (element.tagName) {
             const id = typeof elementOrId === 'string' ? elementOrId : element.id;
             if (id) {
                 element.setAttribute('aria-labelledby', id);
@@ -111,7 +111,7 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
-function landmarkStructureCheck(landmarks) {
+function validateLandmarkStructure(landmarks) {
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region', 'banner', 'application'];
   const results = {
     valid: true,
@@ -127,7 +127,6 @@ function landmarkStructureCheck(landmarks) {
   landmarks.forEach(landmark => {
     if (Array.isArray(landmark)) {
         landmark.forEach(inner => {
-            results.landmarks.push(inner);
             // Check if inner landmark has valid role
             if (inner.role && !landmarkRoles.includes(inner.role)) {
                 results.errors.push(`Invalid landmark role: ${inner.role}`);
@@ -135,7 +134,6 @@ function landmarkStructureCheck(landmarks) {
             }
         });
     } else {
-        results.landmarks.push(landmark);
         // Check if landmark has valid role
         if (landmark.role && !landmarkRoles.includes(landmark.role)) {
             results.errors.push(`Invalid landmark role: ${landmark.role}`);
@@ -151,8 +149,8 @@ function landmarkStructureCheck(landmarks) {
 
 // REACT_015: Add lang attribute to document
 function ensureLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement && document.documentElement.getAttribute('lang') === null) {
-    document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
+  if (typeof document !== 'undefined' && document.documentElement && document.documentElement.lang === null) {
+    document.documentElement.lang = document.documentElement.lang || 'en';
   }
 }
 
@@ -167,14 +165,13 @@ function fixLandmarks() {
     landmarkCounts[selector] = 0;
   });
 
-  document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
+  document.querySelectorAll(landmarkSelectors.join(',')).forEach(element => {
     const tagName = element.tagName.toLowerCase();
 
-    if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-      landmarkCounts[tagName]++;
-      element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
+    if (landmarkCounts[tagName] > 0 && !element.getAttribute('aria-label')) {
+      element.setAttribute('aria-label', `${tagName} ${landmarkCounts[tagName] + 1}`);
     } else if (landmarkCounts[tagName] === 0) {
-      landmarkCounts[tagName]++;
+      landmarkCounts[tagName] = 1;
     }
   });
 }
@@ -185,7 +182,7 @@ function addSvgAccessibleNames() {
   
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = `SVG icon ${index + 1}`;
       title.id = `svg-title-${index + 1}`;
@@ -201,11 +198,11 @@ function fixFakeLinks() {
   
   document.querySelectorAll('a').forEach(link => {
     const href = link.getAttribute('href');
-    if (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
-      if (link.querySelector('button') || link.getAttribute('role') === 'button') {
+    if (!href || href === '#' || href === '' || href === 'javascript:;') {
+      if (link.classList.contains('my-button') || link.getAttribute('role') === 'button') {
         link.setAttribute('role', 'button');
         if (!link.id) {
-          link.id = `button-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          link.id = `fake-link-${Math.random().toString(36).substr(2, 9)}`;
         }
       }
     }
@@ -216,24 +213,23 @@ function fixFakeLinks() {
 function replaceButtonIds() {
   if (typeof document === 'undefined') return;
   
-  const fakeButtons = document.querySelectorAll('[id="my-button"], .my-button');
+  const fakeButtons = document.querySelectorAll('.my-button');
   fakeButtons.forEach((button, index) => {
-    const newId = `accessible-button-${index + 1}`;
+    const newId = `my-button-${index + 1}`;
     if (button.id === 'my-button') {
       button.id = newId;
     }
-    if (button.classList.contains('my-button')) {
-      button.classList.remove('my-button');
-      button.classList.add(newId);
+    if (button.getAttribute('aria-label') === 'my-button') {
+      button.setAttribute('aria-label', `Button ${index + 1}`);
     }
   });
 }
 
 // REACT_042: Ensure dependencyGraph container has proper ARIA role
-function ensureDependencyGraphAriaRole() {
+function ensureDependencyGraphAria() {
   if (typeof document === 'undefined') return;
   
-  const dependencyGraph = document.querySelector('#dependencyGraph, .dependencyGraph, [data-dependency-graph]');
+  const dependencyGraph = document.querySelector('.dependencyGraph, #dependencyGraph');
   if (dependencyGraph) {
     if (!dependencyGraph.getAttribute('role')) {
       dependencyGraph.setAttribute('role', 'region');
@@ -278,222 +274,4 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-if (typeof document !== 'undefined') {
-  const fakeLink = document.querySelector('a[href="#"]');
-  if (fakeLink && fakeLink.tagName === 'A') {
-    const parent = fakeLink.parentElement;
-    const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
-  }
-}
-
-// New function3 implementation
-function function3() {
-  // TODO: Implement new function3 logic here
-  console.log('function3 executed');
-}
-
-// REACT_037: Google sign-in logic
-const googleSignIn = {
-  initialize: function(clientId) {
-    if (typeof google !== 'undefined' && google.accounts) {
-      google.accounts.id.initialize({
-        client_id: clientId,
-        callback: this.handleCredentialResponse.bind(this)
-      });
-      return true;
-    }
-    return false;
-  },
-
-  renderButton: function(elementId) {
-    const element = document.getElementById(elementId);
-    if (element && typeof google !== 'undefined' && google.accounts) {
-      google.accounts.id.renderButton(element, {
-        theme: 'outline',
-        size: 'large',
-        text: 'sign_in_with'
-      });
-      return true;
-    }
-    return false;
-  },
-
-  handleCredentialResponse: function(response) {
-    console.log('Google Sign-In successful');
-    return response;
-  }
-};
-
-// Initialize application
-function initializeApp(config) {
-    return initializeApp(config);
-}
-
-// Initialize service workers
-registerSW({ immediate: true });
-
-// Fetch user data
-function fetchUser(userId) {
-    return { id: userId, name: 'Test User' };
-}
-
-// Clear cache
-function clearCache() {
-    appState.cache = {};
-}
-
-// Initialize
-function initialize() {
-    return initializeApp(CONFIG);
-}
-
-// Format response
-function formatResponse(data, status = 'success') {
-    return {
-        status,
-        data: data,
-        timestamp: new Date().toISOString()
-    };
-}
-
-// Format date
-function formatDate(date) {
-    return new Date(date).toISOString();
-}
-
-// Process data
-function processData(data) {
-    if (!data) return null;
-    return { ...data, processed: true };
-}
-
-// Some function
-function someFunction() {
-    return 'some function';
-}
-
-function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
-}
-
-// Added missing function that was referenced in exports
-function loadLandmarks() {
-    try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error loading landmarks:', error.message);
-        return [];
-    }
-}
-
-function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
-
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
-}
-
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-// Dependency Visualization Tool Functions
-function analyzeModuleDependencies(modules) {
-    // Implementation would analyze and return dependency relationships
-    console.log('Analyzing dependencies for modules:', modules);
-    return {
-        totalDependencies: 0,
-        dependencyMap: {}
-    };
-}
-
-function visualizeModuleRelationships(modules) {
-    // Implementation would create a visual representation of module relationships
-    console.log('Visualizing relationships for modules:', modules);
-    return {
-        graph: {},
-        nodes: [],
-        edges: []
-    };
-}
-
-// Initialize all accessibility fixes
-function initializeAccessibility() {
-  ensureLangAttribute();
-  fixLandmarks();
-  addSvgAccessibleNames();
-  fixFakeLinks();
-  replaceButtonIds();
-  ensureDependencyGraphAriaRole();
-}
-
-// Run on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAccessibility);
-  } else {
-    initializeAccessibility();
-  }
-}
-
-/**
- * Gets the application configuration
- * @returns {Object} The configuration object with apiUrl and timeout properties
- */
-function getConfig() {
-  return {
-    apiUrl: process.env.API_URL || '',
-    timeout: 5000
-  };
-}
-
-// TODO: Identify and update specific functions that render dependency graphs or
-// display module structure for debugging purposes.
-
-// In a real implementation, you would use a library like D3.js or Vis.js
-// to render the actual graph visualization
-function renderDependencyGraph(graphData) {
-    console.log('Rendering dependency graph with data:', graphData);
-}
-
-// TODO: Implement new function3 logic here
-
-/**
- * New function3 description
- * @param {any} input - Input for function3
- * @returns {any} Output of function3
- */
-function newFunction3(input) {
-    // Placeholder for function3 logic
-    // This should be replaced with the actual implementation
-    return input;
-}
-
-// Export main functions
-export {
-    initializeApp,
-    config,
-    renderDependencyGraph,
-    newFunction3
-};
+if (

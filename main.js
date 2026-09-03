@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserve
 const fs = require('fs');
 const main = require('./utilities');
 
@@ -42,15 +43,15 @@ const accessibilityUtils = {
   initSkipLink,
   trapFocus,
   newFocusTrap: (element) => {
-    if (!element) return originNewFocusTrap(element);
+    if (!element) return;
     const focusable = element.querySelectorAll(
-      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      'a[href], button, textarea, input, select'
     );
     if (focusable.length === 0) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
 
-    element.addEventListener('keydown', (e) => {
+    const handler = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === first) {
           last.focus();
@@ -60,7 +61,10 @@ const accessibilityUtils = {
           e.preventDefault();
         }
       }
-    });
+    };
+
+    element.addEventListener('keydown', handler);
+    return () => element.removeEventListener('keydown', handler);
   },
   announceToScreenReader: (message, priority = 'polite') => {
     const announcer = document.createElement('div');

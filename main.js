@@ -44,7 +44,7 @@ function setSvgAttributes(svg) {
   }
 }
 
-function addSvgAccessibleNames() {
+function addAccessibleNamesToSVGs() {
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
     if (svg.getAttribute('role') !== 'presentation') {
@@ -251,8 +251,6 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse,
-    addSvgAccessibleNames,
     fixTableStructure,
     fixLandmarkIssues,
     addMainLandmark,
@@ -264,6 +262,9 @@ if (typeof module !== 'undefined' && module.exports) {
     googleSignIn,
     fixButtonIdentifiers,
     ensureDependencyGraphAriaRole,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    sampleInsightReport,
     createInPageButton,
     handleFakeLinks
   };
@@ -281,7 +282,7 @@ function init() {
   fixTableStructure();
   fixLandmarkIssues();
   ensureUniqueLandmarks();
-  addSvgAccessibleNames();
+  addAccessibleNamesToSVGs();
   fixFakeLinkIssues();
   fixButtonIdentifiers();
   ensureDependencyGraphAriaRole();

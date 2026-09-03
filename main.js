@@ -7,7 +7,7 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-// TODO: This is the modified and merged code
+// TODO: This is the merged code
 
 // Function to count dependencies in package.json
 function countDependencies() {
@@ -23,9 +23,9 @@ function countDependencies() {
       devDependencies: Object.keys(devDependencies).length,
       peerDependencies: Object.keys(peerDependencies).length,
       optionalDependencies: Object.keys(optionalDependencies).length,
-      total: Object.keys(dependencies).length + 
-             Object.keys(devDependencies).length + 
-             Object.keys(peerDependencies).length + 
+      total: Object.keys(dependencies).length +
+             Object.keys(devDependencies).length +
+             Object.keys(peerDependencies).length +
              Object.keys(optionalDependencies).length
     };
   } catch (error) {
@@ -40,5 +40,22 @@ function countDependencies() {
   }
 }
 
+// New function to calculate license count in package.json
+function countLicenseOptions() {
+  try {
+    const packageJson = require('./package.json');
+    const licenses = ['MIT', 'Apache-2.0', 'GPL-3.0'];
+
+    return packageJson.licenses
+      .filter(license => licenses.includes(license.type))
+      .reduce((total, license) => {
+        total[license.type] = (total[license.type] || 0) + license.count;
+        return total;
+      }, {});
+  } catch (error) {
+    return { error: error.message };
+  }
+}
+
 // Export for use in other modules
-module.exports = { countDependencies };
+module.exports = { countDependencies, countLicenseOptions };

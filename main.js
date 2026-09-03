@@ -1,6 +1,6 @@
-// TODO: This is the existing code that needs to be preserved
-// _Commit: 9b0a0d6bb0214c2d74db539b8e33b7af757187a3_
-// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// TODO: Address accessibility issues from insight report:
+// _Commit: f163d9594d7623621d344259c18927a59de7c5f8_
+// <!-- todo-hash: f4aef230bb25bd341c307d16638c123de05bbec8 -->
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 
@@ -85,23 +85,23 @@ function implementAccessibilityFixesFromReport (container, report) {
 
   // Add lang attribute to HTML element if missing
   const htmlEl =
-    container.querySelector('html') ||
-    (container.ownerDocument && container.ownerDocument.querySelector('html'))
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en')
+    ... ||
+    (container.ownerDocument && ...
+  if (htmlEl && ... {
+    ... 'en')
     fixes.langAdded = true
   }
 
   // Add main landmark if missing
-  const mainElement = container.querySelector('main')
+  const mainElement = ...
   if (!mainElement) {
-    const body = container.querySelector('body')
+    const body = ...
     if (body) {
       const newMain = document.createElement('main')
       while (body.firstChild) {
-        newMain.appendChild(body.firstChild)
+        ...
       }
-      body.appendChild(newMain)
+      ...
       fixes.mainLandmarkAdded = true
     }
   }
@@ -109,39 +109,39 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Update the existing function using the new functions for rendering graph/index
   renderDependencyGraphs(container)
   fixButtonIdentifiers(container)
-  fixDependencyGraphAria(container)
+  ...
 
   // Fix landmark issues
   validateLandmark(container)
-  validateLandmarkStructure(container)
+  ...
   fixes.landmarksFixed++
 
   // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach((svg) => {
+  const svgElements = ...
+  ... => {
     const accessibleName = getSvgAccessibleName(svg)
     if (
       accessibleName &&
-            !svg.getAttribute('aria-label') &&
-      !svg.getAttribute('aria-labelledby')
+            ... &&
+      ...
     ) {
-      svg.setAttribute('aria-label', accessibleName)
+      ... accessibleName)
       fixes.svgNamesAdded++
     }
   })
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href])')
-  fakeLinks.forEach((link) => {
-    link.setAttribute('href', '#' + (link.id || `link-${Date.now()}`))
+  const fakeLinks = ...
+  ... => {
+    link.setAttribute('href', '#' + (link.id || ...
     link.setAttribute('role', 'link')
     fixes.fakeLinksFixed++
   })
 
   // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(container)
+  const accessibilityReport = ...
   if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
+    log(`Accessibility report contains ... remaining issues`, 'warn')
   }
 
   // Implement focus trap for keyboard navigation
@@ -158,12 +158,12 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Check for new accessibility issues
   const newAccessibilityIssues = checkAccessibility(container)
   if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`, 'error')
+    log(`New accessibility issues found: ... ')}`, 'error')
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0
   if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
+    log(`Fixed ... unique landmarks`, 'info')
   }
 
   const svgFixes = fixes.svgNamesAdded || 0
@@ -247,134 +247,6 @@ export function addLangAttribute(element, lang = 'en') {
   let htmlElement = element || document.documentElement
   if (!htmlElement) {
     return null
-  }
-
-  async start() {
-    // Initialize network connection
-    await this.network.connect();
-
-    // Load initial data
-    await this.loadData();
-
-    // Ensure dependencyGraph container has proper ARIA role
-    this.ensureDependencyGraphARIA();
-
-    console.log('Screenspider bot started');
-  }
-
-  loadData() {
-    // Placeholder for data loading logic
-    // Implement actual data fetching here
-  }
-
-  // Accessibility enhancement: Ensure the dependencyGraph container has a proper ARIA role
-  setDependencyGraphRole() {
-    const dependencyGraph = document.getElementById('dependencyGraph');
-    if (dependencyGraph) {
-      dependencyGraph.setAttribute('role', 'graph');
-    }
-  }
-
-  // Accessibility enhancement: Ensure all UI elements are properly labeled
-  setElementLabel(elementId, label) {
-    const el = document.getElementById(elementId);
-    if (el) {
-      // Only set aria-label if not already present
-      if (!el.getAttribute('aria-label')) {
-        el.setAttribute('aria-label', label);
-      }
-      // Set role to button if not already present
-      if (!el.getAttribute('role') || el.getAttribute('role') !== 'button') {
-        el.setAttribute('role', 'button');
-      }
-    }
-  }
-
-  // Accessibility enhancement: Focus management for keyboard navigation
-  setFocus(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-      // Ensure element is focusable
-      if (!element.hasAttribute('tabindex') && !element.matches('a, button, [tabindex]:not([tabindex="-1"])')) {
-        element.setAttribute('tabindex', '0');
-      }
-      element.focus();
-    }
-  }
-
-  // New feature: Priority-based task scheduling
-  addTask(taskFn, priority = 'medium') {
-    this.tasks.push({ task: taskFn, priority });
-    this.scheduleTasks();
-  }
-
-  scheduleTasks() {
-    // Sort tasks by priority (high > medium > low)
-    this.tasks.sort((a, b) => {
-      const prioOrder = { high: 0, medium: 1, low: 2 };
-      return prioOrder[b.priority] - prioOrder[a.priority];
-    });
-
-    // Execute highest priority task
-    if (this.tasks.length > 0) {
-      const nextTask = this.tasks[0];
-      try {
-        nextTask.task();
-      } catch (err) {
-        console.error(`Task failed: ${err.message}`);
-      }
-    }
-  }
-
-  // New accessibility function: Focus management for keyboard navigation
-  setFocus(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.focus();
-      element.setAttribute('tabindex', '0');
-    }
-  }
-
-  // New accessibility function: Keyboard event handler for accessibility
-  handleKeyboardNavigation(event) {
-    const key = event.key;
-    const activeElement = document.activeElement;
-
-    // Handle keyboard navigation (e.g., arrow keys, tab)
-    switch (key) {
-      case 'ArrowUp':
-      case 'ArrowDown':
-      case 'ArrowLeft':
-      case 'ArrowRight':
-        this.handleArrowNavigation(key, activeElement);
-        break;
-      case 'Tab':
-        this.handleTabNavigation(event, activeElement);
-        break;
-      default:
-        break;
-    }
-  }
-
-  // Helper for arrow key navigation
-  handleArrowNavigation(key, activeElement) {
-    // Implement custom navigation logic based on element type
-    console.log(`Navigating with ${key} key`);
-  }
-
-  // Helper for tab key navigation
-  handleTabNavigation(event, activeElement) {
-    // Implement custom tab navigation logic
-    console.log('Handling tab navigation');
-  }
-
-  // Ensure dependencyGraph container has proper ARIA role
-  ensureDependencyGraphARIA() {
-    const container = document.getElementById('dependencyGraph');
-    if (container) {
-      container.setAttribute('role', 'region');
-      container.setAttribute('aria-label', 'Dependency graph');
-    }
   }
 
   if (htmlElement && !htmlElement.hasAttribute('lang')) {

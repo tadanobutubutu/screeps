@@ -2,7 +2,7 @@
 function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-    if (/\blang=/i.test(match)) return match;
+    if (attrs.includes('lang=')) return match;
     return `<html${attrs} lang="en">`;
   });
 }
@@ -16,7 +16,7 @@ function fixTableStructure(html) {
 }
 
 // TODO: Implement function for generating a report based on accessibility issues
-function generateAccessibilityReport(html) {
+function generateAccessibilityReport() {
   // Initialize an empty array to store the issues
   const issues = [];
 
@@ -56,7 +56,7 @@ function validateLandmarkStructure() {
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
         return false;
     }
 

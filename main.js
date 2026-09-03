@@ -16,7 +16,7 @@
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_ -->
+//<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_>
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 //_Commit: 94682d0194ff736f18c9f23486aa2eea265b4bc5_
 //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->

@@ -5,7 +5,7 @@
 // Ensure the dependencyGraph container has a proper ARIA role
 
 // Functions to ensure the element has an id, add aria-label, render dependency graph
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
+// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e88
 
 /**
  * Main application entry point
@@ -32,7 +32,7 @@ const AddressabilityIssues = {
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
 
-  addressAccessibilityIssues(insightReport) {
+  inspectAccessibilityIssues(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }
@@ -243,8 +243,30 @@ function setARIARoleForDependencyGraph() {
   }
 }
 
+function renderGraph() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const graphContainer = document.getElementById('dependencyGraph');
+  if (graphContainer) {
+    graphContainer.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
+function renderIndex() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const indexContainer = document.getElementById('index');
+  if (indexContainer) {
+    indexContainer.setAttribute('role', 'main');
+  }
+}
+
 function newFunction() {
   console.log('New function called');
+  renderGraph();
+  renderIndex();
 }
 
 function checkLandmarkElements(response) {

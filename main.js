@@ -32,6 +32,23 @@ app.use(express.json());
 
 function processSvgElements() {
   const svgElements = document.querySelectorAll('svg');
+  
+  svgElements.forEach((svg, index) => {
+    // Check if SVG already has an accessible name
+    const ariaLabel = svg.getAttribute('aria-label');
+    const title = svg.querySelector('title');
+    const hasAccessibleName = ariaLabel || (title && title.textContent.trim());
+    
+    if (!hasAccessibleName) {
+      // Generate a descriptive accessible name based on context
+      const parent = svg.parentElement;
+      const parentLabel = parent ? (parent.getAttribute('aria-label') || parent.getAttribute('id') || '') : '';
+      const accessibleName = parentLabel || `SVG graphic ${index + 1}`;
+      
+      // Set the accessible name on the SVG
+      svg.setAttribute('aria-label', accessibleName);
+    }
+  });
 }
 
 const AddressabilityIssues = {

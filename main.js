@@ -228,6 +228,19 @@ function validateTableAccessibilityLocal(tableElement) {
   return true;
 }
 
+function handleFakeLinks(container) {
+  const issues = [];
+  const elements = container ? container.querySelectorAll('a, button') : document.querySelectorAll('a, button');
+  elements.forEach((element, index) => {
+    const tagName = element.tagName.toLowerCase();
+    if (tagName === 'a' && !element.getAttribute('href') && !element.getAttribute('onclick')) {
+      issues.push(`REACT_036: Element at index ${index} is an anchor without href or onclick`);
+    }
+  });
+
+  return issues;
+}
+
 function validateTableStructureLocal(tableElement) {
   if (!tableElement) return false;
 

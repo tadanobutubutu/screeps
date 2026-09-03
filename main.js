@@ -795,6 +795,40 @@ function someFunction() {
   return 'some value';
 }
 
+// Harvest logic implementation
+// Attempts to harvest energy from a source, moving toward it if out of range
+function harvest(creep, source) {
+    const harvestResult = creep.harvest(source);
+    
+    if (harvestResult === ERR_NOT_IN_RANGE) {
+        const moveResult = creep.moveTo(source, {
+            visualizePathStyle: { stroke: '#ffaa00' }
+        });
+        return {
+            success: false,
+            action: 'move',
+            result: moveResult,
+            message: 'Creep moved toward source'
+        };
+    }
+    
+    if (harvestResult === OK) {
+        return {
+            success: true,
+            action: 'harvest',
+            result: harvestResult,
+            message: 'Resource harvested successfully'
+        };
+    }
+    
+    return {
+        success: false,
+        action: 'harvest',
+        result: harvestResult,
+        message: 'Harvest failed'
+    };
+}
+
 // TODO: This is the existing code that needs to be preserved
     // Address accessibility issues from insight report:
     // Ensure the dependencyGraph container has a proper ARIA role
@@ -834,5 +868,6 @@ module.exports = {
   CONFIG,
   config,
   appState,
-  function3
+  function3,
+  harvest
 };

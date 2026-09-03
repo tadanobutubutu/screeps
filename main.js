@@ -17,15 +17,9 @@ const {
   validateLandmarkStructure,
   getLangAttribute,
   validateLinkAccessibility,
-  handleFakeLinks,
-  someFunction,
-  fetchUser,
-  clearCache,
-  newFunctions: {
-    someFunction: someFunctionLocal,
-    newFunction,
-    function3
-  }
+  analyzeAccessibility,
+  addressAccessibilityIssues,
+  handleFakeLinks
 } = require('./utils');
 
 import React, { useState, useEffect, useRef } from 'react';

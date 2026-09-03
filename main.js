@@ -1,28 +1,3 @@
-function fixMain(tableElement) {
-  // Ensures the table has proper structure (rows, headers, etc.)
-  // Placeholder implementation – actual logic depends on the table markup
-  if (tableElement) {
-    const rows = Array.from(tableElement.children).filter(c => c.tagName === 'TR');
-    if (rows.length === 0) {
-      const tr = document.createElement('tr');
-      tableElement.appendChild(tr);
-    }
-    // Simple header handling
-    const th = document.createElement('th');
-    th.textContent = 'Column';
-    tableElement.insertBefore(th, tableElement.firstChild);
-    // Ensure the table has a caption
-    const caption = document.createElement('caption');
-    caption.textContent = 'Table Caption';
-    tableElement.insertBefore(caption, tableElement.firstChild);
-    // Add scope attributes to header cells from the original branch
-    const ths = tableElement.querySelectorAll('th');
-    ths.forEach(th => {
-      th.setAttribute('scope', 'col');
-    });
-  }
-}
-
 // TODO: This is the existing code that needs to be preserved
 // (Implementation added above)
 // This is the conflicting code that needs to be resolved.
@@ -37,14 +12,91 @@ function calculateSum(a, b) {
 // Find the primary content element in the DOM
 const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
 
-function addLangAttribute(element) {
-  // Adds lang attribute to the given HTML element
-  if (element && typeof element.setAttribute === 'function') {
-    element.setAttribute('lang', 'en');
-  }
-  return element;
-}
+// Adding the required export that was removed
+const XYZ = function () {
+    // Implementation for XYZ function
+};
 
+// Apply the language attribute to the <html> element if not already present
+const applyLangAttributeToHtml = function(htmlElement, lang) {
+  if (htmlElement && typeof htmlElement !== 'undefined') {
+    if (!htmlElement.getAttribute('lang')) {
+      htmlElement.setAttribute('lang', lang);
+    }
+  }
+};
+
+module.exports = {
+    // Existing exports
+    XYZ,
+
+    calculateSum,
+
+    // New functions to address the listed issues
+    addLangAttribute(element) {
+        if (element && typeof element.setAttribute === 'function') {
+            element.setAttribute('lang', 'en');
+        }
+        return element;
+    },
+
+    ensureLandmarkUniqueness(elements) {
+        if (!Array.isArray(elements)) {
+            return [];
+        }
+
+        const uniqueElements = [];
+        const seen = new Map();
+
+        elements.forEach(element => {
+            const key = element.id || element.name || JSON.stringify(element);
+            if (!seen.has(key)) {
+                seen.set(key, true);
+                uniqueElements.push(element);
+            }
+        });
+
+        return uniqueElements;
+    },
+
+    // Address all accessibility issues
+    addressInsightIssues() {
+        getLangAttribute();
+        addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+
+        if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
+            ensureLandmarkUniqueness(landmarks);
+        }
+        ensureUniqueLandmarks();
+
+        validateTableAccessibility();
+        validateTableStructure();
+
+        getSvgAccessibleName();
+
+        createInPageButton();
+        createAccessibleLink();
+        handleAccessibilityIssues();
+
+        validateLandmark();
+        validateLandmarkStructure();
+
+        fixFakeLinkIssue(typeof document !== 'undefined' ? document : null);
+    },
+
+    initializeApp() {
+        addressInsightIssues();
+        if (typeof wrapPrimaryContentInMain === 'function') {
+            wrapPrimaryContentInMain();
+        }
+    },
+
+    fixFakeLinkIssue,
+
+    // Preserve other exports
+};
+
+// Utility functions from origin/main
 function getLangAttribute() {
   let lang = 'en'; // Default to English
   return lang;
@@ -61,53 +113,52 @@ function validateTableStructure(table) {
 }
 
 function validateLandmark(element) {
-  if (!arguments.length) {
-    const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
-    return validLandmarks;
-  }
-
   const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
   const role = element.getAttribute('role');
-  const isValid = validLandmarks.includes(role);
-  const issues = [];
-
-  if (!isValid) {
-    issues.push(`Invalid landmark role: ${role}`);
-  }
-
-  return {
-    issues: issues,
-  };
+  return validLandmarks.includes(role);
 }
 
-function validateLandmarkStructure() {
-  return true;
+function validateLandmarkStructure(element) {
+  // REACT_017 & REACT_025: Validate landmark structure and uniqueness
+  if (!element) return false;
+  
+  const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
+  const role = element.getAttribute('role');
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+  
+  // Check if element has a valid landmark role or is a landmark element
+  const hasValidRole = role && validLandmarks.includes(role);
+  const isLandmarkElement = validLandmarks.includes(tagName);
+  
+  return hasValidRole || isLandmarkElement;
 }
 
 function ensureUniqueLandmarks() {
   return true;
 }
 
-function ensureLandmarkUniqueness(elements) {
-  if (!Array.isArray(elements)) {
-    return [];
-  }
-
-  const uniqueElements = [];
-  const seen = new Map();
-
-  elements.forEach(element => {
-    const key = element.id || element.name || JSON.stringify(element);
-    if (!seen.has(key)) {
-      seen.set(key, true);
-      uniqueElements.push(element);
-    }
-  });
-
-  return uniqueElements;
-}
-
 function getSvgAccessibleName(svgElement, name) {
+  // REACT_041: Ensure SVG has accessible name
+  if (!svgElement) return null;
+  
+  // Check if aria-label or aria-labelledby exists
+  if (svgElement.getAttribute('aria-label') || svgElement.getAttribute('aria-labelledby')) {
+    return svgElement;
+  }
+  
+  // Check if title element exists inside SVG
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent) {
+    svgElement.setAttribute('role', 'img');
+    return svgElement;
+  }
+  
+  // Set aria-label from provided name or generate one
+  if (name) {
+    svgElement.setAttribute('aria-label', name);
+    svgElement.setAttribute('role', 'img');
+  }
+  
   return svgElement;
 }
 
@@ -169,6 +220,11 @@ function startApp() {
   return server;
 }
 
+// Add the lang attribute to the HTML element
+if (typeof document !== 'undefined' && document.documentElement) {
+  document.documentElement.lang = getLangAttribute();
+}
+
 function ensureElementId(element, id) {
   if (!element.id) {
     element.id = id;
@@ -177,28 +233,48 @@ function ensureElementId(element, id) {
 
 const AddressabilityIssues = {
   validateTableAccessibility: function(table) {
-    return true;
-  },
-  addressAccessibilityIssues: function(insightReport) {
-    return true;
-  },
-  generateAccessibilityReport: function(accessibilityReport) {
-    return {};
-  },
-  ensureUniqueLandmarksFromString: function(source) {
-    return [];
-  },
-  validateLandmark: function(element) {
-    return true;
-  },
-  spawnSomeCommand: function(callback) {
-    if (callback) callback();
-  },
-  addLangAttribute: function(element, lang) {
-    if (element && typeof element.setAttribute === 'function') {
-      element.setAttribute('lang', lang || 'en');
+    // REACT_027: Validate table structure for accessibility
+    if (!table) return false;
+    
+    // Check if table has proper structure
+    const hasHeaderCells = table.querySelectorAll('th').length > 0;
+    const hasDataCells = table.querySelectorAll('td').length > 0;
+    
+    // Check for proper scope attributes on headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.getAttribute('scope')) {
+        // Determine if header is for a row or column
+        const parentRow = th.parentElement;
+        if (parentRow && parentRow.cells[0] === th) {
+          th.setAttribute('scope', 'row');
+        } else {
+          th.setAttribute('scope', 'col');
+        }
+      }
+    });
+    
+    // Ensure table has caption or aria-label
+    const hasCaption = table.querySelector('caption');
+    const hasAriaLabel = table.getAttribute('aria-label');
+    
+    if (!hasCaption && !hasAriaLabel) {
+      table.setAttribute('aria-label', 'Data table');
     }
-    return element;
+    
+    return hasHeaderCells && hasDataCells;
+  },
+  
+  generateAccessibilityReport: function(accessibilityReport) {
+    return accessibilityReport;
+  },
+  
+  addressAccessibilityIssues: function(insightReport) {
+    return insightReport;
+  },
+  
+  ensureUniqueLandmarksFromString: function(source) {
+    return true;
   }
 };
 
@@ -229,28 +305,20 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
-const applyLangAttributeToHtml = function(htmlElement, lang) {
-  if (htmlElement && typeof htmlElement !== 'undefined') {
-    if (!htmlElement.getAttribute('lang')) {
-      htmlElement.setAttribute('lang', lang);
-    }
-  }
-};
-
-function addLangAttributeToElement(element, lang) {
-  return AddressabilityIssues.addLangAttribute(element, lang);
+function ensureUniqueLandmarksFromString(source) {
+  return AddressabilityIssues.ensureUniqueLandmarksFromString(source);
 }
 
 function validateLandmarkWrapper(element) {
   return AddressabilityIssues.validateLandmark(element);
 }
 
-function ensureUniqueLandmarksFromString(source) {
-  return AddressabilityIssues.ensureUniqueLandmarksFromString(source);
-}
-
 function spawnSomeCommand(callback) {
   return AddressabilityIssues.spawnSomeCommand(callback);
+}
+
+function addLangAttributeToElement(element, lang) {
+  return AddressabilityIssues.addLangAttribute(element, lang);
 }
 
 function MyComponent() {
@@ -271,6 +339,16 @@ function renderDependencyGraphContent() {
     return;
   }
 
+  // TODO: This is the existing code that needs to be preserved
+  // Address accessibility issues from insight report:
+  // Ensure the dependencyGraph container has a proper ARIA role
+  if (!container.hasAttribute('role')) {
+    container.setAttribute('role', 'region');
+  }
+  if (!container.hasAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+
   if (typeof renderDependencyGraph === 'function') {
     renderDependencyGraph(container);
   }
@@ -279,10 +357,19 @@ function renderDependencyGraphContent() {
   }
 }
 
-// REACT_036: Fix fake link issue
+// REACT_015: Ensure lang attribute is set on HTML element
+function ensureHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (!document.documentElement.hasAttribute('lang')) {
+      document.documentElement.setAttribute('lang', lang || 'en');
+    }
+  }
+}
+
+// REACT_036: Fix fake link issue - elements with role="link" that are not <a> tags
 function fixFakeLinkIssue(doc) {
   if (typeof doc === 'undefined' || !doc.querySelectorAll) {
-    return;
+    return 0;
   }
   const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
   let count = 0;
@@ -308,44 +395,50 @@ function fixFakeLinkIssue(doc) {
   return count;
 }
 
-// Adding the required export that was removed
-const XYZ = function () {
-    // Implementation for XYZ function
-};
-
-// Address all accessibility issues
-function addressInsightIssues() {
-    getLangAttribute();
-    addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
-
-    if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
-        ensureLandmarkUniqueness(landmarks);
-    }
-    ensureUniqueLandmarks();
-
-    validateTableAccessibility();
-    validateTableStructure();
-
-    getSvgAccessibleName();
-
-    createInPageButton();
-    createAccessibleLink();
-    handleAccessibilityIssues();
-
-    validateLandmark();
-    validateLandmarkStructure();
+// Additional helper functions for accessibility
+function handleFakeLinks(container) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    ensureHtmlLangAttribute('en');
+  }
+  if (container) {
+    fixFakeLinkIssue(container.ownerDocument || container);
+  }
 }
 
-function initializeApp() {
-    addressInsightIssues();
-    if (typeof wrapPrimaryContentInMain === 'function') {
-        wrapPrimaryContentInMain();
+function enhanceSemanticMarkup(element) {
+  if (!element) return;
+  
+  // REACT_017: Ensure proper landmarks
+  const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
+  
+  // Add role="main" to main content areas if not present
+  const mainContent = element.querySelector('.primary-content, #main-content, [role="main"]');
+  if (mainContent && !mainContent.getAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+  
+  // Ensure only one main landmark (REACT_025)
+  const mainElements = element.querySelectorAll('[role="main"], main');
+  if (mainElements.length > 1) {
+    // Keep only the first one
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].removeAttribute('role');
     }
+  }
 }
 
-// Add the lang attribute to the HTML element
-if (typeof document !== 'undefined' && document.documentElement) {
-  document.documentElement.lang = getLangAttribute();
+// Additional exports needed
+function addressNewAccessibilityIssues() {
+  ensureHtmlLangAttribute('en');
+  handleFakeLinks(typeof document !== 'undefined' ? document.body : null);
+  enhanceSemanticMarkup(typeof document !== 'undefined' ? document.body : null);
+}
+
+function ensureElementHasId(element, id) {
+  if (element && !element.id) {
+    element.id = id;
+  }
+  return element;
 }
 
 // todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
@@ -430,11 +523,6 @@ function setupFocusManagement() {
   return;
 }
 
-function enhanceSemanticMarkup() {
-  // Placeholder implementation
-  return;
-}
-
 function trapFocus(element) {
   // Placeholder implementation
   return element;
@@ -480,16 +568,6 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-function handleFakeLinks(container) {
-  // Placeholder implementation
-  return 0;
-}
-
-function addressNewAccessibilityIssues(issues) {
-  // Placeholder implementation
-  return true;
-}
-
 function setARIARoleForDependencyGraph(element, role) {
   // Placeholder implementation
   if (element && typeof element.setAttribute === 'function') {
@@ -498,16 +576,9 @@ function setARIARoleForDependencyGraph(element, role) {
   return element;
 }
 
-function ensureElementHasId(element, id) {
-  // Placeholder implementation
-  if (element && !element.id && id) {
-    element.id = id;
-  }
-  return element;
-}
-
 // ... Code for other functions and the server ...
 
+// TODO: Add any other missing exports that might have been?
 // todo-hash: 56f45ce56096b85dbb75d33db0d35b21c87eaa9e
 
 module.exports = {
@@ -567,5 +638,6 @@ module.exports = {
   validateInput,
   setupHandlers,
   checkElementAccessibility,
-  ensureElementId
+  ensureElementId,
+  ensureHtmlLangAttribute
 };

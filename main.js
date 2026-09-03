@@ -500,6 +500,69 @@ function mergeResults(results) {
   return results.reduce((acc, result) => ({ ...acc, ...result }), {});
 }
 
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+/**
+ * Wraps primary content in a main landmark element for accessibility compliance.
+ * @param {string|HTMLElement} content - The content to wrap (HTML string or DOM element)
+ * @param {Object} options - Configuration options for the main element
+ * @param {string} [options.id] - Optional ID for the main element
+ * @param {string} [options.ariaLabel] - Optional ARIA label for accessibility
+ * @param {string} [options.role] - Optional role attribute (defaults to 'main')
+ * @returns {HTMLElement} The wrapped content inside a main element
+ */
+function wrapPrimaryContentInMain(content, options = {}) {
+  const mainElement = document.createElement('main');
+  
+  // Set role if specified and different from default
+  if (options.role) {
+    mainElement.setAttribute('role', options.role);
+  } else {
+    mainElement.setAttribute('role', 'main');
+  }
+  
+  // Set ID if provided
+  if (options.id) {
+    mainElement.id = options.id;
+  }
+  
+  // Set ARIA label if provided
+  if (options.ariaLabel) {
+    mainElement.setAttribute('aria-label', options.ariaLabel);
+  }
+  
+  // Ensure unique landmark - check existing main elements
+  const existingMain = document.querySelector('main, [role="main"]');
+  if (existingMain && existingMain !== mainElement) {
+    existingMain.setAttribute('role', 'region');
+    if (!existingMain.getAttribute('aria-label')) {
+      existingMain.setAttribute('aria-label', 'Content section');
+    }
+  }
+  
+  // Handle different content types
+  if (typeof content === 'string') {
+    mainElement.innerHTML = content;
+  } else if (content instanceof HTMLElement) {
+    mainElement.appendChild(content);
+  } else {
+    console.warn('wrapPrimaryContentInMain: Unsupported content type');
+    mainElement.textContent = 'Error: Unsupported content type';
+  }
+  
+  // Add skip link target ID if not already present
+  if (!mainElement.id) {
+    mainElement.id = 'main-content';
+    if (!mainElement.getAttribute('aria-label')) {
+      mainElement.setAttribute('aria-label', 'Main content');
+    }
+  }
+  
+  // Add semantic structure class
+  mainElement.className = 'main-content';
+  
+  return mainElement;
+}
+
 module.exports = {
   ...accessibilityUtils,
   processData,
@@ -546,5 +609,6 @@ module.exports = {
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   transformInputData,
-  handleCredentialResponse
+  handleCredentialResponse,
+  wrapPrimaryContentInMain
 };

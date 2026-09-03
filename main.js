@@ -156,25 +156,75 @@ function applyAllAccessibilityFixes(html) {
     return result;
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
+// Accessibility report generation function
 async function generateAccessibilityReport() {
-  const report = await scanAccessibility();
+  let html = '';
+  if (typeof document !== 'undefined') {
+    html = document.documentElement.outerHTML;
+  } else {
+    // If in Node environment, we cannot scan without HTML content
+    console.warn('generateAccessibilityReport: No HTML content available for scanning');
+    return {
+      timestamp: new Date().toISOString(),
+      issues: [{ type: 'error', message: 'No HTML content available for scanning' }]
+    };
+  }
+  const report = await scanAccessibility(html);
   writeReport(report);
   return report;
 }
 
-async function scanAccessibility() {
-  // ... Scanning and reporting accessibility issues using axe-core ...
+async function scanAccessibility(html) {
+  const issues = [];
+  
+  // Check for missing lang attribute
+  if (!/<html[^>]*\blang=/i.test(html)) {
+    issues.push({ type: 'missing-lang', message: 'Missing lang attribute on html element' });
+  }
+  
+  // Check for images without alt text
+  const imgRegex = /<img[^>]*>/gi;
+  let match;
+  while ((match = imgRegex.exec(html)) !== null) {
+    if (!/\balt=/i.test(match[0])) {
+      issues.push({ type: 'missing-alt', message: `Image at position ${match.index} missing alt attribute` });
+    }
+  }
+  
+  // Check for form controls without labels
+  const inputRegex = /<(?:input|select|textarea)[^>]*>/gi;
+  while ((match = inputRegex.exec(html)) !== null) {
+    if (!/\b(?:aria-label|aria-labelledby|for)\b/i.test(match[0])) {
+      issues.push({ type: 'missing-label', message: `Form control at position ${match.index} missing label` });
+    }
+  }
+  
+  // Check for landmark roles or elements
+  const hasLandmarks = /<(?:header|nav|main|aside|footer)[^>]*>/i.test(html) || 
+                       /\brole=["'](?:banner|navigation|main|complementary|contentinfo|search|form)["']\b/i.test(html);
+  if (!hasLandmarks) {
+    issues.push({ type: 'missing-landmarks', message: 'No landmark regions found' });
+  }
+  
   return {
     timestamp: new Date().toISOString(),
-    issues: []
+    issues: issues
   };
 }
 
 function writeReport(report) {
-  // Implementation for writing report
-  console.log('Accessibility report generated:', report);
+  console.log('Accessibility Report');
+  console.log('==================');
+  console.log('Timestamp:', report.timestamp);
+  console.log('Issues found:', report.issues.length);
+  if (report.issues.length > 0) {
+    console.log('Issues:');
+    report.issues.forEach(issue => {
+      console.log(`- [${issue.type}] ${issue.message}`);
+    });
+  } else {
+    console.log('No accessibility issues found.');
+  }
 }
 
 // Accessibility functions

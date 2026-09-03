@@ -10,7 +10,7 @@ function calculateSum(a, b) {
 }
 
 // Find the primary content element in the DOM
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('[role="main"]') || document.querySelector('main') || document.querySelector('article') || document.querySelector('#content') || document.querySelector('.content') : null;
 
 // Adding the required export that was removed
 const XYZ = function () {
@@ -41,7 +41,7 @@ module.exports = {
         const seen = new Map();
 
         elements.forEach(element => {
-            const key = element.id || element.name || JSON.stringify(element);
+            const key = element.id || element.getAttribute('name') || element.getAttribute('aria-label') || '';
             if (!seen.has(key)) {
                 seen.set(key, true);
                 uniqueElements.push(element);
@@ -54,7 +54,12 @@ module.exports = {
     // Address all accessibility issues
     addressInsightIssues() {
         getLangAttribute();
-        addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+        if (typeof document !== 'undefined') {
+            const htmlElement = document.documentElement || document.body;
+            if (htmlElement) {
+                addLangAttribute(htmlElement);
+            }
+        }
 
         if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
             ensureLandmarkUniqueness(landmarks);
@@ -63,21 +68,23 @@ module.exports = {
 
         validateTableAccessibility();
         validateTableStructure();
+        validateLandmarkStructure();
 
         getSvgAccessibleName();
-
+        personName();
         createInPageButton();
         createAccessibleLink();
-        handleAccessibilityIssues();
 
         validateLandmark();
-        validateLandmarkStructure();
+        fixFakeLinkIssue();
+
+        addNewAccessibilityIssues();
     },
 
     initializeApp() {
         addressInsightIssues();
         if (typeof wrapPrimaryContentInMain === 'function') {
-            wrapPrimaryContentInMain();
+            wrapPrimaryContentInMain(primaryContent);
         }
     },
 
@@ -109,12 +116,34 @@ function validateLandmark(element) {
   return validLandmarks.includes(role);
 }
 
+function validateLandmarkStructure(element) {
+  const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
+  if (!element) {
+    return false;
+  }
+  const role = element.getAttribute('role');
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+  return validLandmarks.includes(role) || validLandmarks.includes(tagName);
+}
+
 function ensureUniqueLandmarks() {
   return true;
 }
 
 function getSvgAccessibleName(svgElement, name) {
+  if (!svgElement || typeof document === 'undefined') {
+    return svgElement;
+  }
+  if (name) {
+    svgElement.setAttribute('aria-label', name);
+  } else if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
+    svgElement.setAttribute('aria-label', 'Decorative SVG');
+  }
   return svgElement;
+}
+
+function personName() {
+  return 'Person';
 }
 
 function createInPageButton(text) {
@@ -192,7 +221,7 @@ const AddressabilityIssues = {
   }
 };
 
-function calculateAccessibilityScore(fixedIssues) {
+function countFixedIssues(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;
   }
@@ -205,10 +234,14 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssues.reduce((total, issue) => {
+  return fixedIssues.reduce(function(total, issue) {
     const points = scorePoints[issue.type] || scorePoints.other;
     return total + points;
   }, 0);
+}
+
+function addNewAccessibilityIssues() {
+  return true;
 }
 
 // Updated function using the new functions for rendering graph/index
@@ -216,7 +249,7 @@ function renderDependencyGraphContent() {
   if (typeof document === 'undefined') {
     return;
   }
-  const container = document.getElementById('dependencyGraph');
+  const container = document.getElementById('graph-container');
   if (!container) {
     return;
   }
@@ -232,21 +265,21 @@ function renderDependencyGraphContent() {
 // REACT_036: Fix fake link issue
 function fixFakeLinkIssue(doc) {
   if (typeof doc === 'undefined' || !doc.querySelectorAll) {
-    return;
+    return 0;
   }
-  const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
+  const clickableElements = doc.querySelectorAll('[onclick]');
   let count = 0;
 
-  clickableElements.forEach(element => {
-    const tagName = element.tagName.toLowerCase();
-    const hasHref = element.hasAttribute('href');
+  clickableElements.forEach(function(element) {
+    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+    const hasHref = element.hasAttribute && element.hasAttribute('href');
 
     if (tagName !== 'a' && !hasHref) {
       const isInteractive = element.getAttribute('role') === 'link' ||
-                             (element.hasAttribute('onclick') && element.onclick && element.onclick.toString().includes('window.location'));
+                             element.onclick && element.tabIndex !== -1;
 
-      if (isInteractive && !element.hasAttribute('aria-label')) {
-        const text = element.textContent.trim();
+      if (isInteractive && !element.getAttribute('aria-label')) {
+        const text = element.textContent ? element.textContent.trim() : '';
         if (text) {
           element.setAttribute('aria-label', text);
         }

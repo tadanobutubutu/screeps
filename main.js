@@ -200,7 +200,7 @@ function wrapPrimaryContentInMain(parent) {
   }
 
   // If already a main element, return as-is
-  if (parent.tagName?.toLowerCase() === 'main') {
+  if (parent.tagName && parent.tagName.toLowerCase() === 'main') {
     return parent;
   }
 
@@ -247,7 +247,7 @@ function initialize() {
   const processed = processLandmarks(landmarks);
   
   // Ensure the dependencyGraph container has a proper ARIA role
-  if (dependencyGraph) {
+  if (typeof dependencyGraph !== 'undefined' && dependencyGraph) {
     if (!dependencyGraph.id) {
       dependencyGraph.id = 'dependencyGraph';
     }
@@ -546,9 +546,9 @@ if (require.main === module) {
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
 
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
+  console.log('Loaded ' + landmarks.length + ' landmarks');
+  console.log('Processed to ' + processed.length + ' unique landmarks');
+  console.log('Sorted ' + sorted.length + ' landmarks');
 
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);

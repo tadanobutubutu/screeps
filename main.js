@@ -240,7 +240,6 @@ function improveAccessibility() {
 // Placeholder functions referenced but not implemented in the conflict
 function fixTableStructure(html) { return html; }
 function fixLandmarks(html) { return html; }
-function addSvgAccessibleNames(html) { return html; }
 function fixFakeLinks(html) { return html; }
 function fixTableStructureIssues() {}
 function fixTableHeaderCellScope() {}
@@ -276,6 +275,49 @@ function checkLinkAccessibility(linkUrl) {
 // New function3 logic
 function function3() {
   // TODO: Implement new function
+}
+
+// REACT_SVG_ACCESSIBILITY: Add SVG accessibility props (line 122 implementation)
+// Implements adding accessible names/aria-label/title to SVG elements
+function addSvgAccessibleNames(html) {
+  if (typeof html !== 'string') return html;
+  if (typeof document !== 'undefined') {
+    // Browser environment: use DOM manipulation
+    try {
+      const svgs = document.querySelectorAll('svg');
+      svgs.forEach(svg => {
+        const hasAccessibleName = svg.hasAttribute('aria-label') ||
+                                  svg.hasAttribute('aria-labelledby') ||
+                                  (svg.querySelector('title') !== null);
+        if (!hasAccessibleName) {
+          svg.setAttribute('role', 'img');
+          svg.setAttribute('aria-label', 'icon');
+        }
+      });
+      return html;
+    } catch (e) {
+      return html;
+    }
+  }
+  // Non-browser environment: use regex-based string manipulation
+  // Add role="img" and aria-label="icon" to SVG tags that don't have any accessible name
+  let result = html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
+    const hasAriaLabel = /\baria-label\s*=/i.test(attrs);
+    const hasAriaLabelledby = /\baria-labelledby\s*=/i.test(attrs);
+    const hasRole = /\brole\s*=/i.test(attrs);
+    if (hasAriaLabel || hasAriaLabelledby) {
+      return match;
+    }
+    let newAttrs = attrs;
+    if (!hasRole) {
+      newAttrs = newAttrs + ' role="img"';
+    }
+    if (!hasAriaLabel && !hasAriaLabelledby) {
+      newAttrs = newAttrs + ' aria-label="icon"';
+    }
+    return `<svg${newAttrs}>`;
+  });
+  return result;
 }
 
 // Export statements

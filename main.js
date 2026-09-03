@@ -1,11 +1,28 @@
 const fs = require('fs');
 const url = require('url');
 
-// Dependency imports
 const { dependencyGraphContent, indexContent } = require('./dependencyContent');
 const { main } = require('./utilities');
 
-const main = require('./utilities');
+const accessibilityUtils = {
+  initSkipLink: () => {},
+  trapFocus: (element) => {},
+  createInPageButton,
+  createWebResourceButton: (options) => {},
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  announceToScreenReader,
+  handleKeyboardNav,
+  newFocusTrap,
+  exportUtils,
+  personName: () => {},
+  transformInputData
+};
 
 const {
   createInPageButton,
@@ -33,26 +50,6 @@ const {
   transformInputData
 } = main;
 
-const accessibilityUtils = {
-  initSkipLink: () => {},
-  trapFocus: (element) => {},
-  createInPageButton,
-  createWebResourceButton: (options) => {},
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  announceToScreenReader,
-  handleKeyboardNav,
-  newFocusTrap,
-  exportUtils,
-  personName: () => {},
-  transformInputData
-};
-
 const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
@@ -68,14 +65,12 @@ const addAriaLabel = (element, label) => {
 };
 
 const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
   return {
     nodes: data.nodes || [],
     edges: data.edges || []
   };
 };
 
-// Add back any required exports that might have been removed.
 function calculateSum(a, b) { return a + b; }
 
 accessibilityUtils.initSkipLink = () => {
@@ -135,21 +130,16 @@ accessibilityUtils.trapFocus = (element) => {
 
   element.addEventListener('keydown', handleKeyDown);
 
-  // Return cleanup function
   return () => {
     element.removeEventListener('keydown', handleKeyDown);
   };
 };
 
-// Credential response handling - uses the imported function from main
-
-// Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
   console.log(timestamp + " [" + level.toUpperCase() + "]: " + message);
 }
 
-// Export functionality with accessibility support
 const exportUtilities = {
   exportData: (data, filename, mimeType) => {
     const blob = new Blob([data], { type: mimeType });
@@ -163,7 +153,6 @@ const exportUtilities = {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    // Announce download completion to screen readers
     announceToScreenReader("Download of " + filename + " started");
   },
 
@@ -206,7 +195,6 @@ function readFileSafe(filePath) {
   }
 }
 
-// Existing data processing functions
 function processData(items) {
   if (!Array.isArray(items)) {
     return [];
@@ -228,11 +216,9 @@ function filterValidItems(items, validator) {
   });
 }
 
-// Initialize accessibility features
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
 
-  // Add keyboard support for all interactive elements
   document.querySelectorAll('button, a, input, select, textarea').forEach(element => {
     element.addEventListener('keydown', (e) => {
       const handlers = {
@@ -254,16 +240,13 @@ function groupByCategory(items, getCategory) {
   }, {});
 }
 
-// Accessibility-related functions
 function ensureDependencyGraphARIA() {
   const dependencyGraphElement = document.querySelector('.dependency-graph');
   if (dependencyGraphElement) {
-    // Set appropriate ARIA role for the dependency graph container
     if (!dependencyGraphElement.getAttribute('role')) {
       dependencyGraphElement.setAttribute('role', 'region');
     }
 
-    // Add accessible label if not already present
     if (!dependencyGraphElement.getAttribute('aria-label')) {
       dependencyGraphElement.setAttribute('aria-label', 'Dependency graph visualization');
     }
@@ -298,6 +281,168 @@ const handleKeyboardNavKeyDownEvent = (e, handlers) => {
     });
   }
 };
+
+function addressAccessibilityIssues(insightReport) {
+  if (!insightReport || typeof insightReport !== 'object') {
+    return { success: false, issuesAddressed: 0, errors: ['Invalid insight report provided'] };
+  }
+
+  const issuesAddressed = [];
+  const errors = [];
+  const report = insightReport;
+
+  if (report.missingLangAttributes && report.missingLangAttributes.length > 0) {
+    report.missingLangAttributes.forEach(element => {
+      try {
+        if (element && typeof element.setAttribute === 'function') {
+          element.setAttribute('lang', 'en');
+          issuesAddressed.push({ type: 'langAttribute', element: element.tagName || 'unknown' });
+        }
+      } catch (err) {
+        errors.push({ type: 'langAttribute', error: err.message });
+      }
+    });
+  }
+
+  if (report.missingAltText && report.missingAltText.length > 0) {
+    report.missingAltText.forEach(element => {
+      try {
+        if (element && typeof element.setAttribute === 'function') {
+          element.setAttribute('alt', 'Image description not provided');
+          issuesAddressed.push({ type: 'altText', element: element.tagName || 'unknown' });
+        }
+      } catch (err) {
+        errors.push({ type: 'altText', error: err.message });
+      }
+    });
+  }
+
+  if (report.missingAriaLabels && report.missingAriaLabels.length > 0) {
+    report.missingAriaLabels.forEach(element => {
+      try {
+        if (element && typeof element.setAttribute === 'function') {
+          const label = element.getAttribute('aria-labelledby') || element.getAttribute('title') || 'Accessible label';
+          element.setAttribute('aria-label', label);
+          issuesAddressed.push({ type: 'ariaLabel', element: element.tagName || 'unknown' });
+        }
+      } catch (err) {
+        errors.push({ type: 'ariaLabel', error: err.message });
+      }
+    });
+  }
+
+  if (report.missingHeadings && report.missingHeadings.length > 0) {
+    report.missingHeadings.forEach((item, index) => {
+      try {
+        if (item.element && typeof item.element.setAttribute === 'function') {
+          const headingLevel = item.suggestedLevel || (index + 1);
+          item.element.setAttribute('role', 'heading');
+          item.element.setAttribute('aria-level', headingLevel.toString());
+          issuesAddressed.push({ type: 'heading', element: item.element.tagName || 'unknown', level: headingLevel });
+        }
+      } catch (err) {
+        errors.push({ type: 'heading', error: err.message });
+      }
+    });
+  }
+
+  if (report.missingLandmarks && report.missingLandmarks.length > 0) {
+    report.missingLandmarks.forEach(landmark => {
+      try {
+        if (landmark.element && typeof landmark.element.setAttribute === 'function') {
+          landmark.element.setAttribute('role', landmark.type || 'region');
+          issuesAddressed.push({ type: 'landmark', element: landmark.element.tagName || 'unknown', role: landmark.type });
+        }
+      } catch (err) {
+        errors.push({ type: 'landmark', error: err.message });
+      }
+    });
+  }
+
+  if (report.duplicateIds && report.duplicateIds.length > 0) {
+    report.duplicateIds.forEach(idGroup => {
+      try {
+        if (idGroup && idGroup.elements && Array.isArray(idGroup.elements)) {
+          idGroup.elements.slice(1).forEach((element, idx) => {
+            if (element && typeof element.setAttribute === 'function') {
+              element.id = idGroup.originalId + '-duplicate-' + (idx + 1);
+              issuesAddressed.push({ type: 'duplicateId', element: element.tagName || 'unknown', newId: element.id });
+            }
+          });
+        }
+      } catch (err) {
+        errors.push({ type: 'duplicateId', error: err.message });
+      }
+    });
+  }
+
+  if (report.missingButtonNames && report.missingButtonNames.length > 0) {
+    report.missingButtonNames.forEach(element => {
+      try {
+        if (element && typeof element.setAttribute === 'function') {
+          const buttonText = element.textContent?.trim() || 'Action button';
+          element.setAttribute('aria-label', buttonText);
+          issuesAddressed.push({ type: 'buttonName', element: element.tagName || 'unknown' });
+        }
+      } catch (err) {
+        errors.push({ type: 'buttonName', error: err.message });
+      }
+    });
+  }
+
+  if (report.emptyLinks && report.emptyLinks.length > 0) {
+    report.emptyLinks.forEach(element => {
+      try {
+        if (element && typeof element.setAttribute === 'function') {
+          const linkText = element.getAttribute('href') || 'Link';
+          element.setAttribute('aria-label', linkText);
+          issuesAddressed.push({ type: 'emptyLink', element: element.tagName || 'unknown' });
+        }
+      } catch (err) {
+        errors.push({ type: 'emptyLink', error: err.message });
+      }
+    });
+  }
+
+  if (report.colorContrastIssues && report.colorContrastIssues.length > 0) {
+    report.colorContrastIssues.forEach(issue => {
+      try {
+        if (issue.element && typeof issue.element.style === 'object') {
+          if (issue.suggestedColor) {
+            issue.element.style.color = issue.suggestedColor;
+          }
+          issuesAddressed.push({ type: 'colorContrast', element: issue.element.tagName || 'unknown' });
+        }
+      } catch (err) {
+        errors.push({ type: 'colorContrast', error: err.message });
+      }
+    });
+  }
+
+  if (report.tables && report.tables.length > 0) {
+    report.tables.forEach(table => {
+      try {
+        if (table.element && typeof table.element.setAttribute === 'function') {
+          if (!table.element.caption && table.captionText) {
+            const caption = document.createElement('caption');
+            caption.textContent = table.captionText;
+            table.element.insertBefore(caption, table.element.firstChild);
+            issuesAddressed.push({ type: 'tableCaption', element: 'table' });
+          }
+        }
+      } catch (err) {
+        errors.push({ type: 'tableCaption', error: err.message });
+      }
+    });
+  }
+
+  return {
+    success: errors.length === 0,
+    issuesAddressed: issuesAddressed.length,
+    details: issuesAddressed,
+    errors: errors
+  };
+}
 
 module.exports = {
   ...main,

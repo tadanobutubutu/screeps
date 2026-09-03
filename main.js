@@ -89,6 +89,3 @@ module.exports = {
   fixUniqueLandmarks,
   // ... (Other exports preserved)
 };
-```
-
-This code integrates the new change related to the `addressAccessibilityIssues` function and updates the import sections. It also introduces the axe-core library for scanning accessibility issues and generates an accessibility report based on scan results.

@@ -55,6 +55,10 @@ function functionB(value) {
     return value ? value : null;
 }
 
+function function3(value) {
+    return value != null ? value : '';
+}
+
     // Function to get the language attribute value
     function getLangAttribute() {
       // Implementation of getLangAttribute function
@@ -285,6 +289,7 @@ function functionB(value) {
       scanAccessibility,
       functionA,
       functionB,
+      function3,
       someFunction: function() {
         return 'some value';
       },

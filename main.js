@@ -1,6 +1,10 @@
 const fs = require('fs');
 const main = require('./utilities');
 
+// TODO: This is the existing code that needs to be preserved
+// (This should be preserved)
+// Addressed accessibility issues from insight report
+
 const {
   createInPageButton,
   validateTableStructure,
@@ -11,10 +15,12 @@ const {
   validateAccessibilityReport,
   announceToScreenReader,
   handleKeyboardNav,
+  newFocusTrap: originNewFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementId: ensureElementIdOrigin,
+  ensureElementHasId: ensureElementIdOrigin,
+  ensureElementHasId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -24,29 +30,12 @@ const {
   transformInputData,
   initSkipLink,
   trapFocus,
+  validateTableAccessibility
 } = main;
-
-const newFocusTrap = function (element, customFocusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"]') {
-    const focusableElements = element.querySelectorAll(customFocusableSelector);
-    if (focusableElements.length === 0) return;
-    const first = focusableElements[0];
-    const last = focusableElements[focusableElements.length - 1];
-
-    return function (e) {
-        if (e.key === 'Tab') {
-            if (e.shiftKey && document.activeElement === first) {
-                last.focus();
-                e.preventDefault();
-            } else if (!e.shiftKey && document.activeElement === last) {
-                first.focus();
-                e.preventDefault();
-            }
-        }
-    };
-};
 
 const accessibilityUtils = {
     createInPageButton,
+    validateTableAccessibility,
     validateTableStructure,
     validateLandmark,
     validateLandmarkStructure,
@@ -69,38 +58,42 @@ const accessibilityUtils = {
         if (priority === undefined) {
             priority = 'polite';
         }
-        const announcer = ...
-        ... priority);
-        ... 'true');
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
         announcer.className = 'sr-only';
         announcer.style.position = 'absolute';
         announcer.style.left = '-9999px';
         announcer.textContent = message;
-        ...
+        document.body.appendChild(announcer);
         setTimeout(function () {
             announcer.remove();
         }, 1000);
     },
-    newFocusTrap,
+    newFocusTrap: function (element, customFocusableSelector) {
+        const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (focusableElements.length === 0) return;
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+
+        element.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === first) {
+                    last.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    first.focus();
+                    e.preventDefault();
+                }
+            }
+        });
+    }
 };
 
-const ensureElementHasId = (element, prefix = 'element') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (element.id) {
-    return element.id;
-  }
-
-  const id = Math.random().toString(36).substr(2, 9);
-  element.id = id;
-  return id;
-};
-
-const ensureElementId = element => {
+// Utility functions for ensuring elements have IDs and adding labels
+const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
@@ -112,17 +105,12 @@ const addAriaLabel = (element, label) => {
   return element;
 };
 
-const renderDependencyGraph = data => {
+const renderDependencyGraph = (data) => {
   // Implementation for rendering dependency graphs
   return {
     nodes: data.nodes || [],
     edges: data.edges || []
   };
-};
-
-const appData = {
-  tables: [],
-  config: {}
 };
 
 function getTables() {
@@ -138,44 +126,37 @@ function setConfig(config) {
 }
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.querySelector('.dependency-graph');
+const dependencyGraph = document.getElementById('dependencyGraph');
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
   // Using 'region' role for a contained section of content
-  if (dependencyGraph.hasAttribute('role')) {
-    // Already has role attribute, check if it's correct
-    if (dependencyGraph.getAttribute('role') === 'region') {
-      return;
-    }
+  if (!dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region');
   }
 
-  dependencyGraph.setAttribute('role', 'region');
-}
-
-// Add accessible label if not already present
-if (!dependencyGraph || !dependencyGraph.hasAttribute('aria-label')) {
-  dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+  // Add accessible label if not already present
+  if (!dependencyGraph.getAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+  }
 }
 
 // Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName(svgString, label) {
+function addAccessibleName(svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const parser = new DOMParser();
-  const svg = parser.parseFromString(svgString, "image/svg+xml");
-
-  if (!svg.firstChild.getAttribute('aria-label')) {
-    svg.firstChild.setAttribute('aria-label', label || 'Descriptive label for SVG');
+  const svg = new DOMParser().parseFromString(svgString, "image/svg+xml");
+  const svgElement = svg.documentElement;
+  if (!svgElement.getAttribute('aria-label')) {
+    svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
   }
-
   return new XMLSerializer().serializeToString(svg);
 }
 
 // Example usage of the function
-const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="12">Test</text></svg>';
-const modifiedSvgString = addAccessibleName(originalSvgString, 'Screeps Dashboard SVG');
+const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
+const modifiedSvgString = addAccessibleName(originalSvgString);
 
 /**
  * Validates table accessibility
@@ -222,6 +203,14 @@ function validateTableAccessibilityFn(tableData) {
     if (table.role === undefined) {
       table.role = 'table';
     }
+
+    // Add accessible names to 2 SVGs
+    const svgElements = table.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      if (!svg.getAttribute('aria-label')) {
+        svg.setAttribute('aria-label', 'Accessible SVG element');
+      }
+    });
   }
 
   return errors.length === 0;
@@ -242,11 +231,40 @@ function function3() {
   return "function3 implemented";
 }
 
+// Define newFocusTrap separately to avoid syntax issues with inline definition
+function newFocusTrap(element, customFocusableSelector) {
+    const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusableElements.length === 0) return;
+    const first = focusableElements[0];
+    const last = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            if (e.shiftKey && document.activeElement === first) {
+                last.focus();
+                e.preventDefault();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                first.focus();
+                e.preventDefault();
+            }
+        }
+    });
+}
+
 module.exports = {
   ...accessibilityUtils,
   renderDependencyGraph,
   addAriaLabel,
   addAccessibleName,
   validateTableAccessibility: validateTableAccessibilityFn,
-  validateTableStructure: validateTableStructureFn
+  validateTableStructure: validateTableStructureFn,
+  ensureElementId,
+  ensureElementHasId,
+  getTables,
+  getConfig,
+  setConfig,
+  function3,
+  newFocusTrap,
+  initSkipLink,
+  trapFocus,
 };

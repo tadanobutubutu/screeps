@@ -230,7 +230,7 @@ def main():
         + (f" [{winning_name}]" if winning_name else " [fallback]")
     )
     subprocess.run(["git", "commit", "--no-verify", "-m", commit_msg])
-    subprocess.run(["git", "push", "origin", branch])
+    subprocess.run(["git", "push", "origin", "--", branch])
 
     test_note = (
         f"Syntax check passed via **{winning_name}**."

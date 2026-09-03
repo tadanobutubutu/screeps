@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // main.js - Screeps bot main loop
 
 // Exporting all preserved and new functions:
@@ -28,7 +25,6 @@ module.exports = {
   addLangAttributeEl,
   createInPageButtonEl,
   validateLandmarkElCheck,
-  getSvgAccessibleNameEl,
   ensureUniqueLandmarksFn,
   initialize,
   initializeApp
@@ -50,29 +46,103 @@ module.exports.loop = function () {
       memory: { role: 'harvester' }
     });
   }
-
-  // Run creep roles
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    if (creep.memory.role === 'harvester') {
-      runHarvester(creep);
-    }
-  }
 };
 
-function runHarvester(creep) {
-  if (creep.carry.energy < creep.carryCapacity) {
-    const source = creep.pos.findClosestByPath(FIND_SOURCES);
-    if (source) {
-      creep.harvest(source);
-    }
-  } else {
-    const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_SPAWN
-    });
-    if (target) {
-      creep.transfer(target, RESOURCE_ENERGY);
-    }
+const books = [];
+const safetyCategory = "User Safety: safe";
+
+// Module imports and configuration
+const utils = require('./utils');
+const axe = require('axe-core');
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const config = require('./config');
+const logger = require('./utils/logger');
+
+const { calculateSum } = require('./utils');
+const { getLangAttribute, getFullLangAttribute } = require('./utils/accessibilityUtils');
+const { validateTableAccessibility, validateTableStructure } = require('./utils/tableAccessibilityUtils');
+const { validateLandmark, validateLandmarkStructure } = require('./utils/landmarkUtils');
+const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
+const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
+const { checkLinkAccessibility: importedCheckLinkAccessibility } = require('./utils/linkAccessibilityUtils');
+
+const fastMap = require('fast-map');
+
+const accessiblyHelper = async (...args) => {
+  return args;
+}
+
+const appConfig = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+// Load landmarks from file
+function loadLandmarks() {
+  try {
+    const filePath = path.join(__dirname, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
   }
 }
-```
+
+// Process landmarks array
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const validLandmarks = landmarks.filter(isValidLandmark);
+
+  return validLandmarks;
+}
+
+// Validate landmark object
+function isValidLandmark(landmark) {
+  if (!landmark) return false;
+  if (landmark.id === undefined || landmark.id === null) return false;
+  if (landmark.name === undefined || landmark.name === null) return false;
+  return true;
+}
+
+// Wrap primary content in main element
+function wrapPrimaryContentInMain() {
+  // Implementation for wrapping primary content in main element
+}
+
+// Add language attribute to elements
+function addLangAttribute(element) {
+  // Implementation for adding lang attribute
+}
+
+// Create in-page button element
+function createInPageButton(buttonText, onClickHandler) {
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  button.addEventListener('click', onClickHandler);
+  return button;
+}
+
+// Validate landmark element
+function validateLandmarkElCheck(landmarkEl) {
+  // Implementation for validating landmark element
+}
+
+// Ensure unique landmarks from array
+function ensureUniqueLandmarks(landmarks) {
+  return deduplicateLandmarks(landmarks);
+}
+
+// Deduplicate landmarks by ID
+function deduplicateLandmarks(landmarks) {
+  if (!Array.isArray(

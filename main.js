@@ -152,6 +152,13 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  // New function
+  ensureAccessibilityForAllInteractiveElements() {
+    this.ensureInteractiveRoles();
+    this.addFormControlLabels();
+    this.ensureImageAccessibility();
+  }
 };
 
 // New functions

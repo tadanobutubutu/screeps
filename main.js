@@ -7,6 +7,16 @@ function getCurrentLanguage() {
     return navigator.language || navigator.userLanguage;
 }
 
+// TODO: Implement function to check link accessibility
+function isLinkAccessible(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 // TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');

@@ -59,7 +59,6 @@ module.exports = {
         return uniqueElements;
     },
 
-    // Address all accessibility issues
     addressInsightIssues() {
         getLangAttribute();
         addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);

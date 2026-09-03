@@ -63,9 +63,26 @@ const accessibilityUtils = {
       }
     };
   },
-  announceToScreenReader: originalAnnounceToScreenReader,
-  ensureElementId: ensureElementIdOrigin,
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
+  ensureElementId,
   addAriaLabel,
+  // New function to extract the accessible name for an SVG from its content
+  extractSvgAccessibleNameFromContent: (svgContent) => {
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+    const title = svgDoc.querySelector('title');
+    return title ? title.textContent : '';
+  },
   addressAccessibilityIssues() {
     // Address accessibility issues based on the harvested data (Imaginary implementation)
     const issues = [

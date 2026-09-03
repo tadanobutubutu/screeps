@@ -139,7 +139,7 @@ const accessibilityUtils = {
                 }
                 break;
         }
-    }
+    },
 };
 
 // New focus trap implementation with enhanced features
@@ -276,5 +276,7 @@ module.exports = {
     ensureElementHasId,
     getTables,
     getConfig,
-    setConfig
+    setConfig,
+    dependencyGraphContent,
+    indexContent
 };

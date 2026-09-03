@@ -1,6 +1,3 @@
-Here is the resolved file content following the Git merge conflict, keeping both changes:
-
-```javascript
 const fs = require('fs');
 const main = require('./utilities');
 
@@ -20,7 +17,6 @@ const {
   addressAccessibilityIssues,
   handleCredentialResponse,
   ensureElementHasId: ensureElementIdOrigin,
-  ensureElementHasId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -30,24 +26,7 @@ const {
   transformInputData,
   initSkipLink, // New function from the higher branch
   trapFocus, // New function from the higher branch
-  newFocusTrap: function (element, customFocusableSelector) { // Merged function from both branches, extending the originNewFocusTrap function
-      const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-      if (focusableElements.length === 0) return;
-      const first = focusableElements[0];
-      const last = focusableElements[focusableElements.length - 1];
-
-      element.addEventListener('keydown', (e) => {
-          if (e.key === 'Tab') {
-              if (e.shiftKey && document.activeElement === first) {
-                  last.focus();
-                  e.preventDefault();
-              } else if (!e.shiftKey && document.activeElement === last) {
-                  first.focus();
-                  e.preventDefault();
-              }
-          }
-      });
-  }
+  newFocusTrap // Merged function from both branches, extending the originNewFocusTrap function
 } = main;
 
 const accessibilityUtils = {
@@ -82,8 +61,3 @@ module.exports = {
   accessibilityUtils,
   // ...
 };
-```
-
-In the `newFocusTrap` function, I've merged the implementations from both branches by using the extended version from the lower branch and allowing the user to pass a custom focusable element selector if needed.
-
-In the `announceToScreenReader` function, I've added the function from the lower branch to provide more options for users.

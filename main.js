@@ -235,6 +235,11 @@ function checkLinkAccessibility () {
   return issues
 }
 
+/**
+ * Wraps primary content elements in a <main> element
+ * @param {HTMLElement} body - The body element to process
+ * @returns {HTMLElement} The created or existing <main> element
+ */
 function wrapPrimaryContentInMain (body) {
   // Check if a <main> element already exists to avoid duplication
   const existingMain = body.querySelector('main')
@@ -694,7 +699,7 @@ function ensureSvgAccessibleNames() {
 }
 
 function ensureDependencyGraphAriaRole() {
-  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph");
+  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph');
   
   if (container) {
     if (!container.hasAttribute('role')) {

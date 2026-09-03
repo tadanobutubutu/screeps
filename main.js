@@ -368,6 +368,14 @@ function fixFakeLinkIssue(document) {
   return count;
 }
 
+// REACT_036: Fix fake link issues (plural) - applies fixFakeLinkIssue across the document
+function fixFakeLinkIssues(document) {
+  if (!document) {
+    return 0;
+  }
+  return fixFakeLinkIssue(document);
+}
+
 // Add lang attribute to document root
 function addDocumentLang(document, lang = 'en') {
   if (document && document.documentElement) {
@@ -755,6 +763,7 @@ module.exports = {
   ensureLandmarkUniqueness,
   renderDependencyGraphContent,
   fixFakeLinkIssue,
+  fixFakeLinkIssues,
   addDocumentLang,
   checkLinkAndButtonAccessibility,
   newFocusTrap,

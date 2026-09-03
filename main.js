@@ -1,6 +1,12 @@
 // main.js - Application entry point
 // TODO: Existing main.js content before the merge conflict...
 // TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// More existing code that should be preserved
+// Existing code ends here
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())

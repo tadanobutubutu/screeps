@@ -61,11 +61,16 @@ function handleTabNavigation(event, activeElement) {
 // Import and use existing functions from utilities
 const { renderDependencyGraphs, ...mainUtilities } = main;
 
+// Add the new functions as required exports
+const newExports = {
+  handleKeyboardNavigation,
+  setFocus
+};
+
 // Replace the original export with the updated and extended one
 module.exports = {
+  ...newExports,
   addTask,
-  setFocus,
-  handleKeyboardNavigation,
   renderDependencyGraphs,
   ...mainUtilities
 }

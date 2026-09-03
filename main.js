@@ -8,24 +8,61 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-const config = require('./config');
-const logger = require('./utils/logger');
-const express = require('express');
-const axe = require('axe-core');
-const utils = require('./utils');
-const { a11y } = require('@accessible/react');
-
-// Configuration
-const CONFIG = {
-    name: 'MyApp',
-    version: '1.0.0',
-    debug: false,
-    dataPath: './data',
-    maxResults: 100
+const config = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
 };
 
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const path = require('path');
+const { a11y } = require('@accessible/react');
+const utils = require('./utils');
+const logger = require('./utils/logger');
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getLangAttribute,
+  validateLinkAccessibility,
+  analyzeAccessibility,
+  addressAccessibilityIssues,
+  handleFakeLinks
+} = require('./utils');
+
+import React, { useState, useEffect, useRef } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import './styles.css';
+import './styles.less';
+import { calculateSum } from './utils';
+import { getLangAttribute as getLangAttributeFromUtils, getFullLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility as validateTableAccessibilityFromUtils, validateTableStructure as validateTableStructureFromUtils } from './utils/tableAccessibilityUtils';
+import { validateLandmark as validateLandmarkFromUtils, validateLandmarkStructure as validateLandmarkStructureFromUtils } from './utils/landmarkUtils';
+import { validateLinkAccessibility as validateLinkAccessibilityFromUtils, handleFakeLinks as handleFakeLinksFromUtils } from './utils/linkAccessibilityUtils';
+import { CONFIG } from './utils/constants';
+import App from './App';
+import { helper, formatDate } from './utils';
+
 // Application configuration (alias for CONFIG)
-const config = CONFIG;
+const appConfig = CONFIG || config;
+
+const app = express();
 
 // Export functions for addressing accessibility issues
 const ensureLangAttribute = () => {
@@ -38,11 +75,11 @@ const fixLandmarks = () => {
   // ... Rest of the fixLandmarks function implementation
 };
 
-const addSvgAccessibleNames = () => {
+const addSvgAccessibleNamesLocal = () => {
   // ... Rest of the addSvgAccessibleNames function implementation
 };
 
-const fixFakeLinks = () => {
+const fixFakeLinksLocal = () => {
   // ... Rest of the fixFakeLinks function implementation
 };
 
@@ -114,7 +151,7 @@ function createAccessibleBookEntry(bookData) {
 
 // Function to save book to data store
 function saveBook(bookEntry) {
-  const booksPath = path.join(__dirname, config.dataPath, 'books.json');
+  const booksPath = path.join(__dirname, appConfig.dataPath || './data', 'books.json');
   let books = [];
   
   try {
@@ -137,7 +174,352 @@ function saveBook(bookEntry) {
   }
 }
 
-// Endpoint for adding a new book with accessibility validation
+// Find the primary content element in the DOM
+const primaryContent = document.querySelector('.primary-content') ||
+                        document.querySelector('[role="main"]') ||
+                        document.getElementById('main-content') ||
+                        document.querySelector('#content');
+
+// Function to wrap primary content in a <main> element
+function wrapPrimaryContentInMain() {
+  // If primary content exists and is not already inside a <main> element
+  if (primaryContent && !primaryContent.closest('main')) {
+      const mainElement = document.createElement('main');
+      mainElement.appendChild(primaryContent);
+      return mainElement;
+  }
+  return null;
+}
+
+function getUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    const elements = Array.from(document.querySelectorAll(landmarkSelectors.join(',')));
+    const landmarkIds = elements.map(el => el.id || el.getAttribute('aria-labelledby'));
+    const uniqueIds = new Set(landmarkIds);
+
+    elements.forEach((element, index) => {
+      if (!element.id) {
+        element.id = `landmark-${index}`;
+      }
+    });
+    return elements;
+  }
+
+  const seen = new Set();
+  const uniqueLandmarks = [];
+
+  for (const landmark of landmarks) {
+    if (!landmark || typeof landmark.id === 'undefined') {
+      continue;
+    }
+
+    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      uniqueLandmarks.push(landmark);
+    }
+  }
+
+  return uniqueLandmarks;
+}
+
+// Client-side accessibility functions (for browser environment)
+export const validateLandmark = (landmark) => {
+  const errors = [];
+
+  // Validation logic
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+};
+
+export const checkLinkAccessibility = (url) => {
+  // Implementation logic here...
+  return true;
+};
+
+export const newExportedFunction = () => {
+  // New export logic here...
+};
+
+// Ensure accessibility attributes are set when adding a book
+ensureAccessibilityAttributesForAddBook();
+
+function fixTableStructureIssuesClient() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Add ARIA roles
+    table.setAttribute('role', 'table');
+    const captions = table.getElementsByTagName('caption');
+    if (captions.length > 0) {
+      captions[0].setAttribute('role', 'caption');
+    }
+    if (table.tHead) {
+      table.tHead.setAttribute('role', 'header');
+    }
+    if (table.tFoot) {
+      table.tFoot.setAttribute('role', 'footer');
+    }
+    if (table.rows) {
+      table.rows.forEach(row => {
+        row.setAttribute('role', 'row');
+        const ths = row.getElementsByTagName('th');
+        for (let i = 0; i < ths.length; i++) {
+          ths[i].setAttribute('role', 'columnheader');
+        }
+        const tds = row.getElementsByTagName('td');
+        for (let i = 0; i < tds.length; i++) {
+          tds[i].setAttribute('role', 'cell');
+        }
+      });
+    }
+  });
+}
+
+function fixTableHeaderCellScopeClient() {
+  const tableHeadings = document.querySelectorAll('thead th, tbody th, tfoot th');
+  tableHeadings.forEach(heading => {
+    if (!heading.scope) {
+      heading.setAttribute('scope', 'column');
+    }
+  });
+}
+
+function addMainLandmarkClient() {
+  const mainEl = document.querySelector('main');
+  if (mainEl) {
+    mainEl.setAttribute('id', 'mainLandmark');
+    mainEl.setAttribute('aria-label', getFullLangAttribute('main_landmark'));
+  }
+}
+
+function addSvgAccessibleNamesClient() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const id = svg.getAttribute('id');
+    const label = getLangAttribute(id) || svg.getAttribute('aria-label');
+    if (!label) {
+      svg.setAttribute('aria-label', getLangAttribute('default_svg'));
+    }
+  });
+}
+
+function fixFakeLinksClient() {
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+  });
+}
+
+function getLangAttributeClient(el) {
+  if (el === undefined || el === null) {
+    el = document.documentElement;
+  }
+  return el.lang || getLangAttributeFromUtils();
+}
+
+function validateTableAccessibilityClient() {
+  return validateTableAccessibilityFromUtils(document);
+}
+
+function validateTableStructureClient() {
+  return validateTableStructureFromUtils(document);
+}
+
+function validateLandmarkClient() {
+  return validateLandmarkFromUtils(document);
+}
+
+function validateLandmarkStructureClient() {
+  return validateLandmarkStructureFromUtils(document);
+}
+
+function validateLandmarkAttributesClient() {
+  const elements = document.querySelectorAll('main, nav, aside, section, header, footer, article');
+  const errors = [];
+  
+  elements.forEach(el => {
+    if (!el.id && !el.getAttribute('aria-labelledby') && !el.getAttribute('aria-label')) {
+      if (['main', 'nav', 'aside'].includes(el.tagName.toLowerCase())) {
+        errors.push(`Landmark ${el.tagName.toLowerCase()} missing accessible name`);
+      }
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+function getSvgAccessibleNameClient(id, label) {
+  if (id) {
+    const svg = document.getElementById(id);
+    if (svg) {
+      const attrLabel = label || getLangAttributeClient(id);
+      if (attrLabel) {
+        svg.setAttribute('aria-label', attrLabel);
+      }
+    }
+  }
+
+  return [];
+}
+
+function validateLinkAccessibilityClient() {
+  return validateLinkAccessibilityFromUtils(document);
+}
+
+function analyzeAccessibilityClient(issuesData) {
+  return issuesData || [];
+}
+
+function addressAccessibilityIssuesClient() {
+  const accessibilityIssues = analyzeAccessibilityClient(document);
+
+  if (accessibilityIssues.length > 0) {
+    accessibilityIssues.forEach(issue => {
+      fixIssueClient(issue);
+    });
+  }
+}
+
+function createInPageButtonClient() {
+  const buttonEl = createInPageButton(getLangAttributeClient());
+  if (buttonEl) {
+    document.body.appendChild(buttonEl);
+  }
+}
+
+function setSvgAccessibleNamesClient(id1, id2, label1, label2) {
+  if (id1) {
+    getSvgAccessibleNameClient(id1, label1);
+  }
+  if (id2) {
+    getSvgAccessibleNameClient(id2, label2);
+  }
+}
+
+function fixFakeLinkClient() {
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+  fakeLinks.forEach(link => {
+    if (!link.textContent.trim()) {
+      link.textContent = getLangAttributeClient(link);
+    }
+  });
+}
+
+function validateLinkAccesibilityClient(url) {
+  // Implementation logic here...
+  return checkLinkAccessibility(url);
+}
+
+function handleFakeLinksClient() {
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+  fakeLinks.forEach(link => {
+    if (link.href.startsWith('http') || link.href.startsWith('mailto')) {
+      link.setAttribute('role', 'link');
+    } else {
+      link.setAttribute('role', 'button');
+    }
+  });
+}
+
+function fixIssueClient(issue) {
+  switch (issue.type) {
+    case 'fakeLink':
+      fixFakeLinkClient();
+      break;
+    case 'missingLang':
+      setLanguageAttribute();
+      break;
+    case 'tableIssue':
+      fixTableStructureIssuesClient();
+      fixTableHeaderCellScopeClient();
+      break;
+    case 'dupLandmark':
+      ensureUniqueLandmarks();
+      break;
+    case 'emptyAccessibleName':
+      addSvgAccessibleNamesClient();
+      break;
+    case 'tableStructure':
+      fixTableStructureIssuesClient();
+      break;
+    case 'landmarkStructure':
+      checkLandmarkElement();
+      break;
+    case 'landmarkAttribute':
+      checkLandmarkAttributesClient();
+      break;
+    case 'linkAccessibility':
+      validateLinkAccesibilityClient();
+      break;
+    default:
+      break;
+  }
+}
+
+function setLanguageAttribute() {
+  document.documentElement.lang = getLangAttributeClient();
+}
+
+function checkLandmarkElement(id) {
+  return document.getElementById(id) !== null;
+}
+
+function checkLandmarkAttributes() {
+  const landmarkSelectors = ['main', 'nav', 'aside', 'section', 'header', 'footer', 'article'];
+  const landmarks = document.querySelectorAll(landmarkSelectors.join(','));
+  landmarks.forEach(landmark => {
+    // Check for missing required attributes
+    const ariaAttributes = ['id', 'role'];
+    ariaAttributes.forEach(attribute => {
+      if (!landmark.hasAttribute(attribute)) {
+        if (attribute === 'role') {
+          const roleMap = {
+            'main': 'main',
+            'nav': 'navigation',
+            'aside': 'complementary',
+            'section': 'region',
+            'header': 'banner',
+            'footer': 'contentinfo',
+            'article': 'article'
+          };
+          const tagName = landmark.tagName.toLowerCase();
+          if (roleMap[tagName]) {
+            landmark.setAttribute(attribute, roleMap[tagName]);
+          }
+        } else {
+          landmark.setAttribute(attribute, landmark.id || `landmark-${Date.now()}`);
+        }
+      }
+    });
+  });
+}
+
+// Utility functions
+function getElementsBySelector(selector, isString) {
+  let elements = Array.from(document.querySelectorAll(selector));
+  if (isString) {
+    elements = document.getElementsByClassName(selector);
+  }
+  return elements;
+}
+
+// Apply accessibility adjustments immediately
+ensureLangAttribute();
+fixLandmarks();
+addMainLandmarkClient();
+handleFakeLinksClient();
+createInPageButtonClient();
+
+// Server-side book endpoints
 app.post('/books', express.json(), (req, res) => {
   try {
     const bookData = req.body;
@@ -180,7 +562,7 @@ app.post('/books', express.json(), (req, res) => {
 
 // Endpoint for getting all books
 app.get('/books', (req, res) => {
-  const booksPath = path.join(__dirname, config.dataPath, 'books.json');
+  const booksPath = path.join(__dirname, appConfig.dataPath || './data', 'books.json');
   let books = [];
   
   try {
@@ -197,7 +579,7 @@ app.get('/books', (req, res) => {
 
 // Endpoint for getting a specific book by ID
 app.get('/books/:id', (req, res) => {
-  const booksPath = path.join(__dirname, config.dataPath, 'books.json');
+  const booksPath = path.join(__dirname, appConfig.dataPath || './data', 'books.json');
   let books = [];
   
   try {
@@ -221,7 +603,7 @@ app.get('/books/:id', (req, res) => {
 
 // Endpoint for updating a book with accessibility validation
 app.put('/books/:id', express.json(), (req, res) => {
-  const booksPath = path.join(__dirname, config.dataPath, 'books.json');
+  const booksPath = path.join(__dirname, appConfig.dataPath || './data', 'books.json');
   let books = [];
   
   try {
@@ -255,4 +637,84 @@ app.put('/books/:id', express.json(), (req, res) => {
       ...books[bookIndex],
       title: bookData.title.trim(),
       author: bookData.author.trim(),
-      isbn: bookData.isbn ? bookData.isbn.trim() : books[book
+      isbn: bookData.isbn ? bookData.isbn.trim() : books[bookIndex].isbn,
+      description: bookData.description ? bookData.description.trim() : books[bookIndex].description,
+      publishedDate: bookData.publishedDate || books[bookIndex].publishedDate,
+      genre: bookData.genre || books[bookIndex].genre,
+      updatedAt: new Date().toISOString()
+    };
+    
+    books[bookIndex] = updatedBook;
+    
+    try {
+      fs.writeFileSync(booksPath, JSON.stringify(books, null, 2));
+      res.json({
+        success: true,
+        book: updatedBook
+      });
+    } catch (writeError) {
+      console.error('Error saving updated book:', writeError.message);
+      res.status(500).json({ error: 'Failed to save updated book' });
+    }
+  } catch (error) {
+    res.status(400).json({
+      error: 'Validation failed',
+      message: error.message
+    });
+  }
+});
+
+// Legacy function for backward compatibility
+function ensureAccessibilityAttributesForAddBook() {
+  // Ensure accessibility attributes are set when adding a book
+}
+
+// Export server and client functions
+module.exports = {
+  app,
+  config: appConfig,
+  validateBookAccessibility,
+  createAccessibleBookEntry,
+  saveBook,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateLinkAccessibility,
+  analyzeAccessibility,
+  addressAccessibilityIssues,
+  handleFakeLinks,
+  ensureLangAttribute,
+  fixLandmarks,
+  wrapPrimaryContentInMain,
+  getUniqueLandmarks,
+  fixTableStructureIssuesClient,
+  fixTableHeaderCellScopeClient,
+  addMainLandmarkClient,
+  addSvgAccessibleNamesClient,
+  fixFakeLinksClient,
+  fixFakeLinkClient,
+  handleFakeLinksClient,
+  getSvgAccessibleNamesClient,
+  setSvgAccessibleNamesClient,
+  createInPageButtonClient,
+  addressAccessibilityIssuesClient,
+  analyzeAccessibilityClient,
+  validateLinkAccesibilityClient,
+  validateLandmarkClient,
+  validateLandmarkAttributesClient,
+  validateTableAccessibilityClient,
+  validateTableStructureClient,
+  validateBookAccessibility,
+  createAccessibleBookEntry,
+  saveBook
+};

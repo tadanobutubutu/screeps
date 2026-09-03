@@ -14,18 +14,16 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark() and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
-// - ADD: Address new accessibility issues from insight report
 import React from 'react';
 
 const { dependencyGraphContent } = require('./dependencyGraph');
 const { indexContent } = require('./indexContent');
 const { functionA, functionB } = require('./someModule');
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn } = require('./utilities');
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibleName, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn } = require('./utilities');
 
 const http = require('http');
 const url = require('url');

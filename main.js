@@ -1,7 +1,7 @@
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
 // Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-
 import main from './utilities'
-
 const {
   createInPageButton,
   createWebResourceButton,
@@ -518,6 +518,7 @@ export function ensureUniqueLandmarks(container) {
   
   landmarkRoles.forEach(role => {
     const elements = container.querySelectorAll(`[role="${role}"], ${role}`)
+    
     elements.forEach((el, index) => {
       if (index > 0 && !el.getAttribute('aria-label')) {
         const count = index + 1

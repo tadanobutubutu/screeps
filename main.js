@@ -249,6 +249,13 @@ export function renderGraphIndex(graphData) {
   // Implementation to be added
 }
 
+/**
+ * Renders the index view
+ */
+export function renderIndexView() {
+  // Implementation to be added
+}
+
 export {
   getLangAttribute,
   addLangAttribute,

@@ -614,7 +614,7 @@ function ensureLandmarkUniqueness(elements) {
   const seen = new Map();
 
   elements.forEach(element => {
-    const key = element.id || element.name || ...
+    const key = element.id || element.name || '';
     if (!seen.has(key)) {
       seen.set(key, true);
       uniqueElements.push(element);
@@ -639,7 +639,7 @@ function renderIndexView(container) {
 // Updated function: renders dependency graph content with validation
 // N/A: renderDependencyGraph and renderIndexView functions do not exist in this file
 function renderDependencyGraphContent() {
-  const container = ...
+  const container = ...;
   if (!container) {
     return;
   }

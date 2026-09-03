@@ -30,24 +30,6 @@ const {
   transformInputData,
   initSkipLink,
   trapFocus,
-  newFocusTrap: function (element, customFocusableSelector) {
-      const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-      if (focusableElements.length === 0) return;
-      const first = focusableElements[0];
-      const last = focusableElements[focusableElements.length - 1];
-
-      element.addEventListener('keydown', (e) => {
-          if (e.key === 'Tab') {
-              if (e.shiftKey && document.activeElement === first) {
-                  last.focus();
-                  e.preventDefault();
-              } else if (!e.shiftKey && document.activeElement === last) {
-                  first.focus();
-                  e.preventDefault();
-              }
-          }
-      });
-  }
 } = main;
 
 const accessibilityUtils = {

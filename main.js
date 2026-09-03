@@ -47,7 +47,7 @@ const { validateLandmark, validateLandmarkStructure } = require('./utils/landmar
 const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
 const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
 const { checkLinkAccessibility } = require('./utils/linkAccessibilityUtils');
-const { CONFIG } = require('./utils/constants');
+const { CONFIG: importedCONFIG } = require('./utils/constants');
 
 const express = require('express');
 const axe = require('axe-core');
@@ -56,7 +56,7 @@ const fastMap = require('fast-map');
 const path = require('path');
 
 // Configuration - merged
-const CONFIG = {
+const appConfig = {
     dataPath: './data',
     maxResults: 100
 };
@@ -251,7 +251,7 @@ function clearCache() {
 
 // Initialize
 function initialize() {
-    return initializeApp(CONFIG);
+    return initializeApp(appConfig);
 }
 
 // Format response
@@ -302,7 +302,7 @@ function checkLandmarkElement(element) {
 
 function loadLandmarks() {
     try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const filePath = path.join(__dirname, appConfig.dataPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -319,7 +319,7 @@ function processLandmarks(landmarks) {
     const validLandmarks = landmarks.filter(isValidLandmark);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+    return uniqueLandmarks.slice(0, appConfig.maxResults);
 }
 
 function sortLandmarks(landmarks, ascending = true) {

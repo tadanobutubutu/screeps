@@ -12,6 +12,20 @@ function getLangAttribute() {
   // ... code for handling lang attribute
 }
 
+function getFullLangAttribute() {
+  // Get the full language attribute including region if available
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    const langAttr = htmlElement.getAttribute('lang');
+    if (langAttr) {
+      return langAttr;
+    }
+    // Fallback to navigator language
+    return navigator.language || 'en-US';
+  }
+  return navigator.language || 'en-US';
+}
+
 function personName() {
   // ... code for handling person name
 }
@@ -23,86 +37,6 @@ function validateTableAccessibility() {
 function validateTableStructure() {
   // ... code for handling table structure issues
 }
-
-function validateLandmark() {
-  // ... code for handling landmark issues
-}
-
-function validateLandmarkStructure() {
-  // ... code for handling landmark structure issues
-}
-
-function getSvgAccessibleName() {
-  // ... code for handling SVG accessible names
-}
-
-function createInPageButton(buttonId, buttonText) {
-  const button = document.createElement('button');
-  button.id = buttonId;
-  button.textContent = buttonText;
-  return button;
-}
-
-// ADD: New function for handling the new accessibility issues from the insight report
-function addressNewAccessibilityIssues() {
-  // Retrieve the language attribute for the HTML document
-  const lang = getLangAttribute();
-
-  // Apply the language attribute to the <html> element if not already present
-  const htmlElement = document.documentElement;
-  if (htmlElement && typeof htmlElement !== 'undefined') {
-    if (!htmlElement.getAttribute('lang')) {
-      htmlElement.setAttribute('lang', lang);
-    }
-  }
-
-  // Ensure the main content area has an appropriate ARIA role
-  const main = document.querySelector('main');
-  if (main && typeof main !== 'undefined') {
-    main.setAttribute('role', 'main');
-  }
-
-  // Attach an accessible label to the primary action button
-  const submitBtn = document.querySelector('button[type="submit"], button[type="button"]');
-  if (submitBtn && typeof submitBtn !== 'undefined') {
-    submitBtn.setAttribute('aria-label', personName());
-  }
-}
-
-// Export functions for both browser and Node.js environments
-if (typeof window !== 'undefined') {
-  // Browser environment - expose functions to window
-  const functionsToExpose = [
-    'getLangAttribute', 'personName', 'validateTableAccessibility',
-    'validateTableStructure', 'validateLandmark', 'validateLandmarkStructure',
-    'getSvgAccessibleName', 'createInPageButton', 'addressNewAccessibilityIssues'
-  ];
-  functionsToExpose.forEach(functionName => {
-    window[functionName] = window[functionName] || eval(functionName);
-  });
-}
-
-/**
- * A new function to be added
- * This function does a specific functionality
- */
-function myNewFunction() {
-  // Implement your new functionality here
-}
-
-// Application configuration
-const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
-};
-
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
-};
 
 function validateLandmark(landmark) {
   const issues = [];
@@ -122,6 +56,10 @@ function validateLandmark(landmark) {
     success: issues.length === 0,
     issues
   };
+}
+
+function validateLandmarkStructure() {
+  // ... code for handling landmark structure issues
 }
 
 function fixLandmarkStructure(source) {
@@ -334,20 +272,15 @@ function getSvgAccessibleName(svg) {
 
 /**
  * Creates an accessible in-page button
- * @param {Object} options - Button options
- * @param {string} options.text - Button text
- * @param {string} options.ariaLabel - Aria label for the button
- * @param {Function} options.onClick - Click handler
+ * @param {Object} buttonId - Button ID
+ * @param {string} buttonText - Button text
  * @returns {Object} Button element object
  */
-function createInPageButton(options) {
-  return {
-    type: 'button',
-    text: options.text,
-    ariaLabel: options.ariaLabel || options.text,
-    onClick: options.onClick,
-    accessibleName: getSvgAccessibleName({ ariaLabel: options.ariaLabel })
-  };
+function createInPageButton(buttonId, buttonText) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  return button;
 }
 
 /**
@@ -438,6 +371,67 @@ function handleAccessibilityIssues(issues) {
     unhandled: unhandled.length,
     unhandledIssues: unhandled
   };
+}
+
+// ADD: New function for handling the new accessibility issues from the insight report
+function addressNewAccessibilityIssues() {
+  // Retrieve the language attribute for the HTML document
+  const lang = getLangAttribute();
+
+  // Apply the language attribute to the <html> element if not already present
+  const htmlElement = document.documentElement;
+  if (htmlElement && typeof htmlElement !== 'undefined') {
+    if (!htmlElement.getAttribute('lang')) {
+      htmlElement.setAttribute('lang', lang);
+    }
+  }
+
+  // Ensure the main content area has an appropriate ARIA role
+  const main = document.querySelector('main');
+  if (main && typeof main !== 'undefined') {
+    main.setAttribute('role', 'main');
+  }
+
+  // Attach an accessible label to the primary action button
+  const submitBtn = document.querySelector('button[type="submit"], button[type="button"]');
+  if (submitBtn && typeof submitBtn !== 'undefined') {
+    submitBtn.setAttribute('aria-label', personName());
+  }
+}
+
+/**
+ * A new function to be added
+ * This function does a specific functionality
+ */
+function myNewFunction() {
+  // Implement your new functionality here
+}
+
+// Application configuration
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: process.env.TIMEOUT || 5000,
+  debug: true,
+  version: '1.0.0'
+};
+
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+// Export functions for both browser and Node.js environments
+if (typeof window !== 'undefined') {
+  // Browser environment - expose functions to window
+  const functionsToExpose = [
+    'getLangAttribute', 'personName', 'validateTableAccessibility',
+    'validateTableStructure', 'validateLandmark', 'validateLandmarkStructure',
+    'getSvgAccessibleName', 'createInPageButton', 'addressNewAccessibilityIssues'
+  ];
+  functionsToExpose.forEach(functionName => {
+    window[functionName] = window[functionName] || eval(functionName);
+  });
 }
 
 // Export all functions for testing and external use

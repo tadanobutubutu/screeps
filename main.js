@@ -1,5 +1,5 @@
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
+User Safety: unsafe
+Safety Categories: Unauthorized Advice, PII/Privacy
 
 // TODO: This is the existing code that needs to be preserved
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_

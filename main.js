@@ -38,13 +38,6 @@ const {
   trapFocus
 } = main
 
-function implementAccessibilityFixesFromReport (container, report) {
-  // Implementation placeholder - integrates fixes from both branches
-  if (!container || !report) return container;
-  // Apply reported fixes to the container
-  return container;
-}
-
 // Example usage of the function
 const originalSvgString =
     'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'

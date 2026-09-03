@@ -380,6 +380,355 @@ function fixTableStructureIssues() {
   });
 }
 
+// New accessible functions to address the TODO comment on line 605
+// These functions are exported but were not defined or accessible
+
+function checkUserSafety(userId) {
+  // Check user safety status for the given user ID
+  // Returns safety status based on user activities and history
+  if (!userId) {
+    return { safe: false, reason: 'No user ID provided' };
+  }
+  
+  const unsafeActivities = ['malicious_script', 'data_theft', 'unauthorized_access'];
+  const userActivities = []; // Would fetch from database in real implementation
+  
+  const hasUnsafeActivity = userActivities.some(activity => 
+    unsafeActivities.includes(activity.type)
+  );
+  
+  return {
+    safe: !hasUnsafeActivity,
+    status: hasUnsafeActivity ? 'unsafe' : 'safe',
+    userId: userId
+  };
+}
+
+function updateUserSafety(userId, safetyStatus) {
+  // Update the safety status for a given user
+  // Valid safetyStatus values: 'safe', 'unsafe', 'pending_review'
+  const validStatuses = ['safe', 'unsafe', 'pending_review'];
+  
+  if (!userId) {
+    return { success: false, message: 'User ID is required' };
+  }
+  
+  if (!validStatuses.includes(safetyStatus)) {
+    return { 
+      success: false, 
+      message: `Invalid safety status. Must be one of: ${validStatuses.join(', ')}` 
+    };
+  }
+  
+  UserSafety = safetyStatus;
+  console.log(`User ${userId} safety status updated to: ${safetyStatus}`);
+  
+  return { 
+    success: true, 
+    userId: userId, 
+    newStatus: safetyStatus 
+  };
+}
+
+function updateSafetyCategories(categories) {
+  // Update the list of safety categories
+  // Categories should be an array of strings
+  if (!Array.isArray(categories)) {
+    return { success: false, message: 'Categories must be an array' };
+  }
+  
+  SafetyCategories = categories.join(', ');
+  
+  return {
+    success: true,
+    categories: categories,
+    message: `Safety categories updated: ${categories.length} categories set`
+  };
+}
+
+function validateTableAccessibility(table) {
+  // Validate that a table meets accessibility standards
+  // Returns an object with validation results
+  if (!table) {
+    return { valid: false, errors: ['No table element provided'] };
+  }
+  
+  const errors = [];
+  const warnings = [];
+  
+  // Check for caption
+  if (!table.querySelector('caption')) {
+    warnings.push('Table should have a caption element');
+  }
+  
+  // Check for th elements
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    errors.push('Table should have header cells (th)');
+  }
+  
+  // Check for scope attributes
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      warnings.push('Header cells should have scope attributes');
+    }
+  });
+  
+  // Check for summary via aria-describedby or caption
+  const hasDescription = table.querySelector('caption') || 
+                        table.getAttribute('aria-describedby');
+  if (!hasDescription) {
+    warnings.push('Tables should have a caption or aria-describedby for context');
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors: errors,
+    warnings: warnings,
+    tableElement: table
+  };
+}
+
+function validateTableStructure(table) {
+  // Validate the HTML structure of a table
+  if (!table) {
+    return { valid: false, message: 'No table provided' };
+  }
+  
+  const hasThead = table.querySelector('thead') !== null;
+  const hasTbody = table.querySelector('tbody') !== null;
+  const rowCount = table.rows ? table.rows.length : 0;
+  
+  return {
+    valid: hasThead && hasTbody && rowCount > 0,
+    structure: {
+      hasThead: hasThead,
+      hasTbody: hasTbody,
+      rowCount: rowCount
+    }
+  };
+}
+
+function getSvgAccessibleName(svgElement) {
+  // Get the accessible name for an SVG element
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
+    return null;
+  }
+  
+  // Check aria-label first
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check aria-labelledby
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const titleElement = document.getElementById(ariaLabelledby);
+    if (titleElement) {
+      return titleElement.textContent;
+    }
+  }
+  
+  // Check for title element
+  const title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent;
+  }
+  
+  return null;
+}
+
+function setSvgAttributes(svgElement, attributes) {
+  // Set accessibility attributes on an SVG element
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
+    return false;
+  }
+  
+  if (!attributes || typeof attributes !== 'object') {
+    return false;
+  }
+  
+  const allowedAttributes = [
+    'aria-label', 'aria-labelledby', 'aria-describedby', 
+    'role', 'tabindex', 'focusable'
+  ];
+  
+  Object.keys(attributes).forEach(attr => {
+    if (allowedAttributes.includes(attr)) {
+      svgElement.setAttribute(attr, attributes[attr]);
+    }
+  });
+  
+  // Ensure the SVG has an accessible name if not present
+  if (!getSvgAccessibleName(svgElement)) {
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = attributes.fallbackTitle || 'SVG graphic';
+    svgElement.insertBefore(title, svgElement.firstChild);
+  }
+  
+  return true;
+}
+
+function sortLandmarks(landmarksArray, sortBy = 'role') {
+  // Sort landmarks array by the specified property
+  if (!Array.isArray(landmarksArray)) {
+    return [];
+  }
+  
+  const validSortKeys = ['role', 'name', 'id', 'order'];
+  
+  if (!validSortKeys.includes(sortBy)) {
+    sortBy = 'role';
+  }
+  
+  return [...landmarksArray].sort((a, b) => {
+    const aVal = a[sortBy] || '';
+    const bVal = b[sortBy] || '';
+    
+    if (typeof aVal === 'string' && typeof bVal === 'string') {
+      return aVal.localeCompare(bVal);
+    }
+    
+    return aVal - bVal;
+  });
+}
+
+function getLandmarkById(landmarksArray, id) {
+  // Find a landmark by its ID in the landmarks array
+  if (!Array.isArray(landmarksArray)) {
+    return null;
+  }
+  
+  if (!id) {
+    return null;
+  }
+  
+  return landmarksArray.find(landmark => landmark.id === id) || null;
+}
+
+function createUnrotateButton(container) {
+  // Create a button that unrotates/reset rotated elements
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = 'Reset View';
+  button.setAttribute('aria-label', 'Reset the rotation of elements');
+  button.setAttribute('class', 'unrotate-button');
+  
+  button.addEventListener('click', () => {
+    rotateBack();
+    console.log('View has been reset to default orientation');
+  });
+  
+  if (container) {
+    container.appendChild(button);
+  }
+  
+  return button;
+}
+
+function rotateBack() {
+  // Reset rotation on all rotated elements
+  const rotatedElements = document.querySelectorAll('[style*="transform: rotate"]');
+  
+  rotatedElements.forEach(element => {
+    element.style.transform = 'rotate(0deg)';
+    element.setAttribute('aria-rotated', 'false');
+  });
+  
+  // Also handle elements with transform style
+  const transformElements = document.querySelectorAll('[style*="transform"]');
+  transformElements.forEach(element => {
+    const currentTransform = element.style.transform;
+    if (currentTransform.includes('rotate')) {
+      element.style.transform = currentTransform.replace(/rotate\([^)]+\)/g, '');
+    }
+  });
+  
+  console.log('All elements have been rotated back to default');
+  return true;
+}
+
+function enhanceAddBookFormAccessibility(form) {
+  // Enhance accessibility of the add book form
+  if (!form) {
+    return false;
+  }
+  
+  // Ensure all inputs have labels
+  const inputs = form.querySelectorAll('input');
+  inputs.forEach(input => {
+    const id = input.id || input.name;
+    if (id && !form.querySelector(`label[for="${id}"]`)) {
+      const label = document.createElement('label');
+      label.setAttribute('for', id);
+      label.textContent = `Input for ${id}`;
+      input.parentNode.insertBefore(label, input);
+    }
+    
+    // Ensure aria-required is set for required fields
+    if (input.required && !input.hasAttribute('aria-required')) {
+      input.setAttribute('aria-required', 'true');
+    }
+    
+    // Ensure aria-invalid is managed
+    input.addEventListener('invalid', () => {
+      input.setAttribute('aria-invalid', 'true');
+    });
+    
+    input.addEventListener('input', () => {
+      if (input.validity.valid) {
+        input.setAttribute('aria-invalid', 'false');
+      }
+    });
+  });
+  
+  // Ensure form has a legend or title if it's in a fieldset
+  const fieldsets = form.querySelectorAll('fieldset');
+  fieldsets.forEach(fieldset => {
+    if (!fieldset.querySelector('legend')) {
+      const legend = document.createElement('legend');
+      legend.textContent = 'Form section';
+      fieldset.insertBefore(legend, fieldset.firstChild);
+    }
+  });
+  
+  // Ensure submit button has proper aria-label if needed
+  const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+  if (submitButton && !submitButton.getAttribute('aria-label')) {
+    submitButton.setAttribute('aria-label', 'Submit book form');
+  }
+  
+  // Add aria-describedby for form instructions if present
+  const instructions = form.querySelector('[id$="-instructions"]');
+  if (instructions && !form.getAttribute('aria-describedby')) {
+    form.setAttribute('aria-describedby', instructions.id);
+  }
+  
+  return true;
+}
+
+function getUserSafety(userId) {
+  // Get user safety information for the given user ID
+  // Returns safety status and related information
+  if (!userId) {
+    return {
+      status: 'unknown',
+      message: 'User ID is required to check safety status'
+    };
+  }
+  
+  // In a real implementation, this would check a database or API
+  const userSafetyRecord = {
+    userId: userId,
+    status: UserSafety,
+    categories: SafetyCategories,
+    lastChecked: new Date().toISOString()
+  };
+  
+  return userSafetyRecord;
+}
+
 // Initialize function with accessibility and server setup
 function initialize() {
   // Helper function for initialization

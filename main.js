@@ -1,17 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and addAriaToFormControls())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
-// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
-
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-=======
->>>>>>> origin/main
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -585,4 +571,184 @@ function addressNewAccessibilityIssues() {
   }
 
   // Check for color contrast issues (simplified check)
-  const textElements = document.querySelectorAll('
+  const textElements = document.querySelectorAll('p, span, h1, h2, h3, h4, h5, h6, li, td, th, a, label');
+  
+  textElements.forEach(el => {
+    const style = window.getComputedStyle(el);
+    const color = style.color;
+    const backgroundColor = style.backgroundColor;
+    
+    // Skip if transparent background
+    if (backgroundColor === 'rgba(0, 0, 0, 0)' || backgroundColor === 'transparent') {
+      return;
+    }
+    
+    // Basic contrast check would go here
+    // This is a placeholder for actual contrast ratio calculation
+  });
+
+  // Check for missing alt text on images
+  const images = document.querySelectorAll('img');
+  images.forEach((img, index) => {
+    if (!img.hasAttribute('alt')) {
+      issues.push({
+        code: 'MISSING_ALT',
+        severity: 'error',
+        message: `Image at index ${index} is missing alt attribute`
+      });
+    } else if (img.getAttribute('alt') === '') {
+      // Empty alt is okay for decorative images, but we note it
+      issues.push({
+        code: 'EMPTY_ALT',
+        severity: 'info',
+        message: `Image at index ${index} has empty alt (decorative)`
+      });
+    }
+  });
+
+  // Check for form labels
+  const inputs = document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])');
+  const textareas = document.querySelectorAll('textarea');
+  const selects = document.querySelectorAll('select');
+
+  inputs.forEach((input, index) => {
+    const id = input.getAttribute('id');
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledby = input.getAttribute('aria-labelledby');
+    const hasLabel = (id && document.querySelector(`label[for="${id}"]`)) || ariaLabel || ariaLabelledby;
+    
+    if (!hasLabel && !input.hasAttribute('hidden')) {
+      issues.push({
+        code: 'MISSING_LABEL',
+        severity: 'error',
+        message: `Input at index ${index} is missing associated label`
+      });
+    }
+  });
+
+  return { valid: issues.filter(i => i.severity === 'error').length === 0, issues };
+}
+
+// Function to wrap primary content in main element for accessibility
+function wrapPrimaryContentInMain(content) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const main = document.createElement('main');
+  main.setAttribute('id', 'main');
+  main.setAttribute('role', 'main');
+  
+  if (typeof content === 'string') {
+    main.innerHTML = content;
+  } else if (content instanceof HTMLElement) {
+    main.appendChild(content);
+  }
+  
+  return main;
+}
+
+// Function to add ARIA attributes to form controls
+function addAriaToFormControls(form) {
+  if (!form || typeof document === 'undefined') {
+    return { valid: false, errors: ['Form element is required'] };
+  }
+
+  const errors = [];
+  const inputs = form.querySelectorAll('input, select, textarea');
+  
+  inputs.forEach((input, index) => {
+    // Skip hidden inputs
+    if (input.type === 'hidden') return;
+    
+    // Check if input has accessible name
+    const accessibleName = input.getAttribute('aria-label') ||
+                          input.getAttribute('aria-labelledby') ||
+                          input.getAttribute('placeholder') ||
+                          (input.id && document.querySelector(`label[for="${input.id}"]`));
+    
+    if (!accessibleName && input.type !== 'submit' && input.type !== 'button') {
+      errors.push(`Input at index ${index} is missing accessible name`);
+    }
+    
+    // Add aria-describedby for inputs with help text
+    const helpTextId = input.getAttribute('data-help');
+    if (helpTextId) {
+      input.setAttribute('aria-describedby', helpTextId);
+    }
+    
+    // Add aria-required for required fields
+    if (input.required && !input.hasAttribute('aria-required')) {
+      input.setAttribute('aria-required', 'true');
+    }
+    
+    // Add aria-invalid for invalid fields
+    if (input.validity && !input.validity.valid && !input.hasAttribute('aria-invalid')) {
+      input.setAttribute('aria-invalid', 'true');
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+// Function to fix landmark issues
+function addFixLandmarkIssues(container) {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+
+  const errors = [];
+  const target = container || document.body;
+  
+  // Check for main landmark
+  let mainElement = target.querySelector('main') || target.querySelector('[role="main"]');
+  if (!mainElement) {
+    errors.push('Missing main landmark');
+  }
+  
+  // Check for nav landmark with label
+  const navElements = target.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    const hasLabel = nav.hasAttribute('aria-label') || 
+                    nav.hasAttribute('aria-labelledby') ||
+                    nav.querySelector('h1, h2, h3, h4, h5, h6');
+    if (!hasLabel) {
+      nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+    }
+  });
+  
+  // Ensure unique IDs on landmarks
+  const landmarksWithIds = target.querySelectorAll('[role][id]');
+  const seenIds = new Set();
+  landmarksWithIds.forEach(el => {
+    const id = el.getAttribute('id');
+    if (seenIds.has(id)) {
+      errors.push(`Duplicate landmark ID: ${id}`);
+    }
+    seenIds.add(id);
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+// Export all functions for testing
+module.exports = {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  createAccessibleLink,
+  isLinkAccessible,
+  createInPageButton,
+  newFocusTrap,
+  addressNewAccessibilityIssues,
+  wrapPrimaryContentInMain,
+  addAriaToFormControls,
+  addFixLandmarkIssues
+};

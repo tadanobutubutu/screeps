@@ -6,8 +6,15 @@ const path = require('path');
 
 // GitHub API
 const GITHUB_API = 'https://api.github.com';
-const REPO = process.env.GITHUB_REPOSITORY || 'tadanobutubutu/screeps';
 const ISSUE_NUMBER = process.env.ISSUE_NUMBER;
+
+function getSanitizedRepo() {
+    const rawRepo = process.env.GITHUB_REPOSITORY || 'tadanobutubutu/screeps';
+    if (typeof rawRepo !== 'string' || !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(rawRepo)) {
+        throw new Error(`Invalid GITHUB_REPOSITORY format: ${rawRepo}`);
+    }
+    return rawRepo;
+}
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
@@ -40,7 +47,8 @@ async function githubRequest(endpoint, options = {}) {
  */
 async function getIssueDetails(issueNumber) {
     console.log(`📋 Fetching issue #${issueNumber}...`);
-    const issue = await githubRequest(`/repos/${REPO}/issues/${issueNumber}`);
+    const repo = getSanitizedRepo();
+    const issue = await githubRequest(`/repos/${repo}/issues/${issueNumber}`);
     return issue;
 }
 
@@ -195,7 +203,7 @@ ${analysis.rootCause}`;
 
     execFileSync('git', ['add', '-A'], { stdio: 'inherit' });
     execFileSync('git', ['commit', '-m', commitMessage], { stdio: 'inherit' });
-    execFileSync('git', ['push', 'origin', fullBranchName], { stdio: 'inherit' });
+    execFileSync('git', ['push', 'origin', '--', fullBranchName], { stdio: 'inherit' });
 
     return { branchName: fullBranchName, commitMessage };
 }
@@ -228,7 +236,8 @@ ${analysis.testSuggestion}
 
 Closes #${issue.number}`;
 
-    const pr = await githubRequest(`/repos/${REPO}/pulls`, {
+    const repo = getSanitizedRepo();
+    const pr = await githubRequest(`/repos/${repo}/pulls`, {
         method: 'POST',
         body: {
             title: prTitle,
@@ -288,6 +297,7 @@ if (require.main === module) {
 
 module.exports = {
     githubRequest,
+    getSanitizedRepo,
     getIssueDetails,
     analyzeIssueWithClaude,
     createFixBranch,

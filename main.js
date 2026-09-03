@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
@@ -68,7 +65,7 @@ function analyzeHarvestedData(data) {
     // ... (existing implementation here)
 }
 
-function applyImprovements(insights) {
+function applyImprovements(data) {
     // ... (existing implementation here)
 }
 
@@ -87,7 +84,7 @@ function upgrade(harvestedData) {
             console.log('Applying settings upgrades from harvested data');
         }
 
-        if (harvestedData.configuration) {
+        if (harvestedData.config) {
             // Apply configuration improvements
             console.log('Applying configuration improvements from harvested data');
         }
@@ -130,7 +127,7 @@ function renderGraphIndex(containerId, data) {
     container.appendChild(graphElement);
 
     // Check for required ARIA role on the container and set it if missing
-    if (!container.hasAttribute('role')) {
+    if (!container.getAttribute('role')) {
         container.setAttribute('role', 'group');
     }
 
@@ -141,8 +138,75 @@ function renderDependencyGraph(containerId, graphData) {
     return renderGraphIndex(containerId, graphData);
 }
 
-// Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, upgrade, renderGraphIndex, renderDependencyGraph };
-```
+function wrapPrimaryContentInMain() {
+    // Check if main element already exists
+    let mainElement = document.querySelector('main');
+    
+    // If main element doesn't exist, create one
+    if (!mainElement) {
+        mainElement = document.createElement('main');
+        
+        // Find primary content elements - check multiple common selectors
+        const primaryContentSelectors = [
+            '#primary-content',
+            '.primary-content',
+            '[role="main"]',
+            '#content',
+            '.content',
+            'article',
+            'section.content'
+        ];
+        
+        let primaryContent = null;
+        
+        // Find the first matching primary content element
+        for (const selector of primaryContentSelectors) {
+            const element = document.querySelector(selector);
+            if (element) {
+                primaryContent = element;
+                break;
+            }
+        }
+        
+        // If primary content is found, wrap it in main
+        if (primaryContent) {
+            mainElement.appendChild(primaryContent);
+            document.body.insertBefore(mainElement, document.body.firstChild);
+        } else {
+            // Wrap all body children except header and footer into main
+            const bodyChildren = Array.from(document.body.children);
+            bodyChildren.forEach(child => {
+                const tagName = child.tagName.toLowerCase();
+                if (tagName !== 'header' && tagName !== 'footer' && tagName !== 'nav') {
+                    mainElement.appendChild(child);
+                }
+            });
+            
+            if (mainElement.children.length > 0) {
+                // Find a good insertion point (after header/nav)
+                const header = document.querySelector('header, nav');
+                if (header && header.nextSibling) {
+                    document.body.insertBefore(mainElement, header.nextSibling);
+                } else {
+                    document.body.insertBefore(mainElement, document.body.firstChild);
+                }
+            }
+        }
+    }
+    
+    // Ensure main element has proper ARIA attributes
+    if (!mainElement.id) {
+        mainElement.id = 'main-content';
+    }
+    
+    mainElement.setAttribute('role', 'main');
+    mainElement.setAttribute('tabindex', '-1');
+    
+    // Validate the landmark structure after wrapping
+    validateLandmarkStructure();
+    
+    return mainElement;
+}
 
-This resolves the Git merge conflict by combining both sets of changes. The accessibility changes for the dependencyGraph container, which was added in one commit but missing in the other, has been integrated. The new `renderGraphIndex()` function and the corresponding export has been added, replacing the old `renderDependencyGraph()` function. The rest of the changes are preserved.
+// Preserve any existing exports here
+export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, upgrade, renderGraphIndex, renderDependencyGraph, wrapPrimaryContentInMain };

@@ -127,15 +127,33 @@ function handleCredentialResponse(response) {
     return processedCredential;
 }
 
-// TODO: This is the existing code that needs to be preserved
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// _Commit: 9b98337cf2cea8ab8bbb22abb37e186d9f1ce685_
-// <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+// TODO: Implement this function for checking link and button accessibility
+function checkLinkAndButtonAccessibility() {
+  const links = document.querySelectorAll('a');
+  const buttons = document.querySelectorAll('button');
+
+  const issues = [];
+
+  links.forEach(link => {
+    if (!link.hasAttribute('href') || link.getAttribute('href').trim() === '#') {
+      issues.push(`Link without href or with '#': ${link}`);
+    }
+    if (!link.textContent.trim()) {
+      issues.push(`Link without text content: ${link}`);
+    }
+  });
+
+  buttons.forEach(button => {
+    if (!button.hasAttribute('type') || button.getAttribute('type').trim() !== 'submit') {
+      issues.push(`Button without type or with incorrect type: ${button}`);
+    }
+    if (!button.textContent.trim()) {
+      issues.push(`Button without text content: ${button}`);
+    }
+  });
+
+  return issues;
+}
 
 // Ensure DOM is fully loaded before executing scripts
 if (typeof module !== 'undefined' && module.exports) {
@@ -167,7 +185,8 @@ if (typeof module !== 'undefined' && module.exports) {
     spawnSomeCommand,
     addLangAttribute,
     handleCredentialResponse,
-    sampleInsightReport: createSampleInsightReport()
+    sampleInsightReport: createSampleInsightReport(),
+    checkLinkAndButtonAccessibility: checkLinkAndButtonAccessibility
   };
 } else {
   // Browser environment - wait for DOM
@@ -183,6 +202,11 @@ function init() {
   setupAriaLiveRegions();
   setupFocusManagement();
   enhanceSemanticMarkup();
+  // Call the new function to check accessibility issues
+  const accessibilityIssues = checkLinkAndButtonAccessibility();
+  if (accessibilityIssues.length > 0) {
+    console.error('Accessibility issues found:', accessibilityIssues);
+  }
 }
 
 function setupKeyboardNavigation() {

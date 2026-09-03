@@ -454,7 +454,9 @@ module.exports = {
   newFunction1,
   newFunction2,
   newFunction3,
-  newFunction4
+  newFunction4,
+  ensureHeadingHierarchy,
+  validateHeadingHierarchy
 };
 
 addLangAttribute();

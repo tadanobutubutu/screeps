@@ -57,6 +57,8 @@ const AddressabilityIssues = {
 // Import the new function to create a button with correct accessibility properties for in-page linking
 const inPageButton = typeof document !== 'undefined' ? createInPageButton() : null;
 
+// TODO: This is the existing code that needs to be preserved
+
 /**
  * Similar to existing function, with changes to preserve both the existing and the new
  * function implementation. This helps maintain backward compatibility while implementing the new.

@@ -277,7 +277,7 @@ function spawnCommand(command, args, callback) {
 }
 
 function countDependencies() {
-  return require.main.requires ? require.main.requires.length : 0;
+  return countPackageDependencies().total;
 }
 
 function countPackageDependencies() {
@@ -298,7 +298,7 @@ function validateNewAccessibilityIssues() {
   // Retrieve the language attribute for the HTML document
   const lang = getLangAttribute();
 
-  // Apply the language attribute to the <html> element if not already present
+  // Apply the language attribute to the HTML document if not already present
   const htmlElement = document.documentElement;
   if (htmlElement && typeof htmlElement !== 'undefined') {
     if (!htmlElement.getAttribute('lang')) {
@@ -370,8 +370,8 @@ function generateAccessibilityReport(accessibilityReport) {
   };
 }
 
-function calculateAccessibilityScore(fixedIssues) {
-  if (!Array.isArray(fixedIssues)) {
+function calculateAccessibilityScore(fixedIsses) {
+  if (!Array.isArray(fixedIsses)) {
     return 0;
   }
 
@@ -383,7 +383,7 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssues.reduce((score, issue) => {
+  return fixedIsses.reduce((score, issue) => {
     const points = scorePoints[issue.type] || scorePoints['other'];
     return score + points;
   }, 0);

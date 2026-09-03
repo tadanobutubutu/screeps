@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0',
@@ -16,7 +16,26 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('div#content') || document.querySelector('.content') || document.querySelector('#primary') : null;
+
+// Function to implement accessibility improvements for primary content
+function improvePrimaryContentAccessibility() {
+  if (typeof document !== 'undefined' && primaryContent) {
+    // Add role="main" if not present
+    if (!primaryContent.getAttribute('role') && primaryContent.tagName !== 'MAIN') {
+      primaryContent.setAttribute('role', 'main');
+    }
+    
+    // Ensure lang attribute is set on html element
+    const htmlElement = document.documentElement;
+    if (htmlElement && !htmlElement.getAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en');
+    }
+    
+    return true;
+  }
+  return false;
+}
 
 const AddressabilityIssues = {
   validateTableAccessibility: function(table) {
@@ -45,7 +64,7 @@ function loadConfigurations() {
 function countDependencies() {
     const path = require('path');
     const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     const dependencies = packageJson.dependencies || {};
     const devDependencies = packageJson.devDependencies || {};
@@ -58,8 +77,8 @@ function countDependencies() {
 }
 
 // SVG accessibility helper functions from HEAD branch
-function addSvgAccessibilityProps(svg) {
-  if (!svg.getAttribute('role')) {
+function enhanceSvgAccessibility(svg) {
+  if (svg && typeof svg.setAttribute === 'function') {
     svg.setAttribute('role', 'img');
   }
 
@@ -84,12 +103,12 @@ const XYZ = function () {
     // Implementation for XYZ function
 };
 
-setHtmlLangAttribute('en');
+// Additional functions
 
 // Validate the table structure for accessibility issues
 if (typeof document !== 'undefined') {
   function validateAllTables() {
-    const tables = document.getElementsByTagName('table');
+    const tables = document.querySelectorAll('table');
     for (const table of tables) {
       const accessible = validateTableAccessibility(table);
       const structure = validateTableStructure(table);
@@ -110,6 +129,7 @@ module.exports = {
     XYZ,
     calculateSum,
     countDependencies,
+    improvePrimaryContentAccessibility,
 
     addLangAttribute: function (element) {
         // Adds lang attribute to the given HTML element
@@ -128,7 +148,7 @@ module.exports = {
         const seen = new Map();
 
         elements.forEach(element => {
-            const key = element.id || element.name || JSON.stringify(element);
+            const key = element.id || element.name || element.className;
             if (!seen.has(key)) {
                 seen.set(key, true);
                 uniqueElements.push(element);
@@ -140,35 +160,26 @@ module.exports = {
 
     addressInsightIssues: function () {
         this.getLangAttribute();
-        this.addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+        const landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
 
         if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
-            this.ensureLandmarkUniqueness(landmarks);
+            this.ensureUniqueLandmarks();
         }
-        this.ensureUniqueLandmarks();
+        
+        improvePrimaryContentAccessibility();
 
-        this.validateTableAccessibility();
-        this.validateTableStructure();
-
-        this.getSvgAccessibleName();
-
-        this.createInPageButton();
-        this.createAccessibleLink();
-        this.handleAccessibilityIssues();
-
-        this.validateLandmark();
-        this.validateLandmarkStructure();
+        return true;
     },
 
     initializeApp: function () {
         this.addressInsightIssues();
-        this.loadConfigurations();
+        loadConfigurations();
         countDependencies();
         if (typeof wrapPrimaryContentInMain === 'function') {
             wrapPrimaryContentInMain();
         }
         if (typeof fixLandmarkStructure === 'function') {
-            document.body.innerHTML = fixLandmarkStructure();
+            fixLandmarkStructure();
         }
     },
 
@@ -191,7 +202,7 @@ module.exports = {
     validateLandmark: function (element) {
         const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
         const role = element.getAttribute('role');
-        return validLandmarks.includes(role);
+        return role && validLandmarks.includes(role);
     },
 
     ensureUniqueLandmarks: function () {
@@ -242,7 +253,7 @@ module.exports = {
         if (typeof doc === 'undefined' || !doc.querySelectorAll) {
             return;
         }
-        const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
+        const clickableElements = doc.querySelectorAll('[onclick]');
         let count = 0;
 
         clickableElements.forEach(element => {
@@ -251,9 +262,9 @@ module.exports = {
 
             if (tagName !== 'a' && !hasHref) {
                 const isInteractive = element.getAttribute('role') === 'link' ||
-                                       (element.hasAttribute('onclick') && element.onclick && element.onclick.toString().includes('window.location'));
+                                       element.getAttribute('tabindex') === '0' && element.onclick && typeof element.onclick === 'function';
 
-                if (isInteractive && !element.hasAttribute('aria-label')) {
+                if (isInteractive && !element.getAttribute('aria-label')) {
                     const text = element.textContent.trim();
                     if (text) {
                         element.setAttribute('aria-label', text);
@@ -284,11 +295,13 @@ module.exports = {
     },
 
     startApp: function () {
-        this.loadConfigurations();
+        loadConfigurations();
         const server = this.createServer();
         return server;
     },
 
-    addSvgAccessibilityProps: addSvgAccessibilityProps,
-    setSvgAttributes: setSvgAttributes
+    // Additional exports
+    loadConfigurations: loadConfigurations,
+    setSvgAttributes: setSvgAttributes,
+    enhanceSvgAccessibility: enhanceSvgAccessibility
 };

@@ -95,6 +95,11 @@ function myNewFunction() {
   return "New function implemented successfully";
 }
 
+function function3() {
+  // Implement new function3 logic here
+  return "function3 implemented successfully";
+}
+
 // Function to write the generated report to a file
 function writeReport(report) {
   const reportFile = path.join(__dirname, 'accessibility_report.json');

@@ -191,48 +191,177 @@ function isSecureContextCheck() {
   return window.isSecureContext === true || window.location.protocol === 'https:' || window.location.hostname === 'localhost';
 }
 
-// Main component
-function MainComponent() {
-  const [sorting, setSorting] = useState(sortByTitle);
-  const dispatch = useDispatch();
+// Visualize Dependency Tree - creates a dependency visualization
+function VisualizeDependencyTree(container, dependencies) {
+  if (!container || !Array.isArray(dependencies)) return null;
+  
+  const wrapper = document.createElement('div');
+  wrapper.setAttribute('class', 'dependency-tree-container');
+  wrapper.setAttribute('role', 'tree');
+  wrapper.setAttribute('aria-label', 'Dependency tree visualization');
+  
+  dependencies.forEach(dep => {
+    const node = document.createElement('div');
+    node.setAttribute('role', 'treeitem');
+    node.setAttribute('tabindex', '0');
+    node.textContent = dep.name || dep;
+    wrapper.appendChild(node);
+  });
+  
+  container.appendChild(wrapper);
+  return wrapper;
+}
 
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      // Dispatch sort by title action
-    } else if (sorting === sortByAuthor) {
-      // Dispatch sort by author action
+// Render Dependency Graph Content
+function renderDependencyGraphContent(container, graphData) {
+  if (!container || !graphData) return null;
+  
+  const graphContainer = document.createElement('div');
+  graphContainer.setAttribute('class', 'dependency-graph');
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', graphData.title || 'Dependency graph');
+  
+  if (graphData.nodes && Array.isArray(graphData.nodes)) {
+    graphData.nodes.forEach(node => {
+      const nodeElement = document.createElement('div');
+      nodeElement.setAttribute('class', 'graph-node');
+      nodeElement.setAttribute('data-id', node.id || '');
+      nodeElement.textContent = node.label || node.id || '';
+      graphContainer.appendChild(nodeElement);
+    });
+  }
+  
+  container.appendChild(graphContainer);
+  return graphContainer;
+}
+
+// Ensure Dependency Graph ARIA Role
+function ensureDependencyGraphAriaRole(container) {
+  if (!container) return false;
+  
+  const graphElements = container.querySelectorAll('.dependency-graph, .dependency-tree-container');
+  let allValid = true;
+  
+  graphElements.forEach(graph => {
+    if (!graph.getAttribute('role')) {
+      graph.setAttribute('role', 'img');
+      allValid = false;
     }
-  }, [sorting]);
+    if (!graph.getAttribute('aria-label') && !graph.querySelector('title')) {
+      graph.setAttribute('aria-label', 'Dependency graph');
+      allValid = false;
+    }
+  });
+  
+  return allValid;
+}
 
-  // Get books list from Redux store
-  const getBooksList = useSelector(state => state.books || []);
+// Render Dependency Graph - main function to render dependency graphs
+function renderDependencyGraph(container, options) {
+  if (!container) return null;
+  
+  const defaultOptions = {
+    title: 'Dependency Graph',
+    interactive: true,
+    showLabels: true
+  };
+  
+  const config = { ...defaultOptions, ...options };
+  
+  const graphWrapper = document.createElement('div');
+  graphWrapper.setAttribute('class', 'dependency-graph-wrapper');
+  graphWrapper.setAttribute('role', 'application');
+  graphWrapper.setAttribute('aria-label', config.title);
+  
+  const title = document.createElement('h3');
+  title.textContent = config.title;
+  graphWrapper.appendChild(title);
+  
+  const graphCanvas = document.createElement('div');
+  graphCanvas.setAttribute('class', 'graph-canvas');
+  graphCanvas.setAttribute('role', 'img');
+  graphWrapper.appendChild(graphCanvas);
+  
+  container.appendChild(graphWrapper);
+  return graphWrapper;
+}
 
-  // Map the book list to the BookItem function
-  const bookItems = getBooksList.map(book => BookItem(book));
+// Main component (rewritten without JSX)
+function MainComponent() {
+  const sorting = 'sortByTitle';
+  const getBooksList = [];
 
-  // Render the list of book items and sorting controls
-  return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        const newBook = {
-          title: document.getElementById('title').value,
-          author: document.getElementById('author').value
-        };
-        dispatch({ type: 'ADD_BOOK', payload: newBook });
-      }}>
-        <label htmlFor="title">Title:</label>
-        <input type="text" id="title" name="title" required aria-label="Book title" />
-        <label htmlFor="author">Author:</label>
-        <input type="text" id="author" name="author" required aria-label="Book author" />
-        <button type="submit">Add Book</button>
-      </form>
-    </div>
-  );
+  // Create the main container
+  const container = document.createElement('div');
+  
+  // Create sort buttons
+  const sortByTitleBtn = document.createElement('button');
+  sortByTitleBtn.textContent = 'Sort by Title';
+  sortByTitleBtn.onclick = function() {
+    // Handle sort by title
+  };
+  container.appendChild(sortByTitleBtn);
+  
+  const sortByAuthorBtn = document.createElement('button');
+  sortByAuthorBtn.textContent = 'Sort by Author';
+  sortByAuthorBtn.onclick = function() {
+    // Handle sort by author
+  };
+  container.appendChild(sortByAuthorBtn);
+  
+  // Create the list container
+  const listContainer = document.createElement('div');
+  listContainer.setAttribute('class', 'book-list');
+  container.appendChild(listContainer);
+  
+  // Create the form
+  const form = document.createElement('form');
+  form.onsubmit = function(e) {
+    e.preventDefault();
+    const newBook = {
+      title: document.getElementById('title').value,
+      author: document.getElementById('author').value
+    };
+    // Dispatch action
+  };
+  
+  // Title label and input
+  const titleLabel = document.createElement('label');
+  titleLabel.htmlFor = 'title';
+  titleLabel.textContent = 'Title:';
+  form.appendChild(titleLabel);
+  
+  const titleInput = document.createElement('input');
+  titleInput.type = 'text';
+  titleInput.id = 'title';
+  titleInput.name = 'title';
+  titleInput.required = true;
+  titleInput.setAttribute('aria-label', 'Book title');
+  form.appendChild(titleInput);
+  
+  // Author label and input
+  const authorLabel = document.createElement('label');
+  authorLabel.htmlFor = 'author';
+  authorLabel.textContent = 'Author:';
+  form.appendChild(authorLabel);
+  
+  const authorInput = document.createElement('input');
+  authorInput.type = 'text';
+  authorInput.id = 'author';
+  authorInput.name = 'author';
+  authorInput.required = true;
+  authorInput.setAttribute('aria-label', 'Book author');
+  form.appendChild(authorInput);
+  
+  // Submit button
+  const submitBtn = document.createElement('button');
+  submitBtn.type = 'submit';
+  submitBtn.textContent = 'Add Book';
+  form.appendChild(submitBtn);
+  
+  container.appendChild(form);
+  
+  return container;
 }
 
 // Export all functions

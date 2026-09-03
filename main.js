@@ -261,8 +261,8 @@
         }
 
         // Address accessibility issues from insight report:
-        // Ensure the dependencyGraph container has a proper ARIA role
-        // (This comment remains as-is)
+        // N/A: No functions in this file render dependency graphs.
+        // The dependencyGraph element only receives ARIA attributes for accessibility.
         //_Commit: eef4b6be04a5e2cd61b7543cfe2dff2da0857ca2_
         //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
         //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_

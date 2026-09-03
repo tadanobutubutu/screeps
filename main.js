@@ -17,7 +17,86 @@ import { CONFIG } from './utils/constants.js';
 import newFunction3 from './utils/newFunction3';
 import newFunction4 from './utils/newFunction4';
 
-const config = CONFIG;
+const config = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+const landmarkSelectors = [
+  '[role="banner"]',
+  '[role="navigation"]',
+  '[role="main"]',
+  '[role="complementary"]',
+  '[role="contentinfo"]',
+  '[role="region"]',
+  'header:not([role])',
+  'nav:not([role])',
+  'main:not([role])',
+  'footer:not([role])',
+  'aside:not([role])',
+  'section:not([role])'
+];
+
+const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
+
+// TODO: Implement a function to count dependencies
+function countDependencies() {
+  const dependencies = [
+    'express',
+    'axe-core',
+    'fs',
+    'path',
+    '@accessible/react',
+    'react',
+    'antd',
+    'react-redux',
+    './actions/dependencyGraph',
+    './bookFunctions',
+    './accessibly-helper',
+    './app.js',
+    'effector-sw',
+    './utils',
+    './utils/accessibilityUtils',
+    './utils/tableAccessibilityUtils',
+    './utils/landmarkUtils',
+    './utils/linkAccessibilityUtils',
+    './utils/constants',
+    './App',
+    './utils/someFunction',
+    './utils/user',
+    './newFunctions',
+    './somemodule'
+  ];
+  
+  return dependencies.length;
+}
+
+let isInitialized = false;
+let dependencyGraph = null;
+
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+let icons = {};
+let UserSafety = "unsafe";
+let SafetyCategories = "Unauthorized Advice";
+
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphAriaRole() {
+  const dependencyGraphEl = document.querySelector('#dependencyGraph');
+  if (dependencyGraphEl) {
+    dependencyGraphEl.setAttribute('role', 'region');
+  }
+}
 
 let isInitialized = false;
 let dependencyGraph = null;
@@ -460,7 +539,8 @@ module.exports = {
   processLandmarksWithUniqueIds,
   setSvgAttributes,
   CONFIG,
-  config,
+  appState,
+  countDependencies,
   isInitialized,
   appData_origin,
   appState,

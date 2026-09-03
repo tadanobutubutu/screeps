@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // main.js
 
 // Find the primary content element in the DOM
@@ -65,7 +62,6 @@ function enhanceAccessibilityForAddBook(form) {
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from './actions/dependencyGraph';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook } from './bookFunctions';
 import { initializeApp } from './app.js';
@@ -246,4 +242,3 @@ function handleCredentialResponse(response) {
 // Other merged changes can be integrated here as needed
 
 // ... (Rest of the existing code remains the same)
-```

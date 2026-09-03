@@ -1,7 +1,10 @@
 const main = require('./utilities')
 
 // TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
+//<!-- todo-hash: ... -->
 
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
@@ -694,7 +697,7 @@ function ensureSvgAccessibleNames() {
 }
 
 function ensureDependencyGraphAriaRole() {
-  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph");
+  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph');
   
   if (container) {
     if (!container.hasAttribute('role')) {

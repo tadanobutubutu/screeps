@@ -316,7 +316,7 @@ function addressInsightIssues() {
 function initializeApp() {
     addressInsightIssues();
     if (typeof wrapPrimaryContentInMain === 'function') {
-        wrapPrimaryContentInMain();
+      wrapPrimaryContentInMain();
     }
 }
 
@@ -347,6 +347,11 @@ app.use(express.json());
 // ... Code for other functions and the server ...
 
 // todo-hash: 56f45ce56096b85dbb75d33db0d35b21c87eaa9e
+
+// Implements the new addressNewAccessibilityIssues function
+function addressNewAccessibilityIssues(insightReport) {
+  return AddressabilityIssues.addressAccessibilityIssues(insightReport);
+}
 
 module.exports = {
   MyComponent,

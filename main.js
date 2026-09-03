@@ -2,6 +2,13 @@ const http = require('http');
 const path = require('path');
 
 // TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames; handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
 
 // TODO: This is the existing code that needs to be preserved
 // main.js - Accessibility-focused implementation
@@ -27,8 +34,6 @@ const path = require('path');
 const express = require('express');
 const { exec } = require('child_process');
 const fs = require('fs');
-const http = require('http');
-const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -595,7 +600,7 @@ if (typeof module !== 'undefined' && module.exports) {
   } else {
     initializeAccessibility();
   }
-  
+
   // Fix 26 table structure issues
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {

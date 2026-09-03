@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report
+// ----- END ORIGINAL CODE-----
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -5,7 +9,12 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
+// - ADD: Address new accessibility issues from insight report (DONE: addSkipLink)
+
+// Import the new function to create a button with correct accessibility properties for in-page linking
+const inPageButton = typeof document !== 'undefined' ? createInPageButton() : null;
+
+// TODO: This is the existing code that needs to be preserved
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -30,13 +39,13 @@ function detectAndSetLang(content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if (/[一-鿿]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[぀-ゟ゠-ヿ]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
+    } else if (/[Ѐ-ӿ]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
+    } else if (/[؀-ۿݐ-ݿ]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if (/[\u00e0-\u00ff]/.test(content)) {
       lang = 'fr'; // French (simplified)
@@ -222,6 +231,63 @@ function getSvgAccessibleName(svg) {
     if (describedBy) {
       return describedBy.textContent || '';
     }
+  }
+
+  return '';
+}
+
+// Extract the accessible name for an SVG from its content
+function extractSvgAccessibleName(svg) {
+  // This function extracts the accessible name for an SVG from its content
+  if (!svg) {
+    return '';
+  }
+
+  // Check for aria-label attribute first (highest priority)
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim()) {
+    return ariaLabel.trim();
+  }
+
+  // Check for aria-labelledby reference
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby && typeof document !== 'undefined') {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) {
+      const text = labelElement.textContent || '';
+      if (text.trim()) {
+        return text.trim();
+      }
+    }
+  }
+
+  // Check for title element inside SVG
+  const title = svg.querySelector('title');
+  if (title && title.textContent && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+
+  // Check for desc element inside SVG
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+
+  // Check for adjacent description element by id pattern
+  const id = svg.getAttribute('id');
+  if (id && typeof document !== 'undefined') {
+    const describedBy = document.querySelector(`[id="${id}-desc"]`);
+    if (describedBy) {
+      const text = describedBy.textContent || '';
+      if (text.trim()) {
+        return text.trim();
+      }
+    }
+  }
+
+  // Fall back to combining all text content from the SVG
+  if (svg.textContent && svg.textContent.trim()) {
+    return svg.textContent.trim();
   }
 
   return '';
@@ -633,26 +699,62 @@ function renderIndexView(indexPath, container, options = {}) {
   }
 }
 
-// TODO: Implement tower defense
-function towerDefense() {
-  // A simple tower defense game implementation
-  // Define towers, enemies, waves, and game loop
+// New function to address new accessibility issues from insight report: skip link
+function addSkipLink() {
+  if (typeof document === 'undefined' || !document.body) {
+    return;
+  }
+
+  // Avoid adding duplicate skip links
+  if (document.querySelector('.skip-link')) {
+    return;
+  }
+
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.className = 'skip-link';
+
+  // Insert at the beginning of the body
+  document.body.insertBefore(skipLink, document.body.firstChild);
+}
+
+/**
+ * Implements a tower defense game with comprehensive functionality
+ * @param {Object} options - Game configuration options
+ * @param {Array} options.pathPoints - The path that enemies follow
+ * @param {number} options.spawnInterval - Time between enemy spawns in ms
+ * @param {Array} options.initialTowers - Initial tower configurations
+ * @returns {Object} The tower defense game instance
+ */
+function towerDefense(options = {}) {
+  const config = {
+    pathPoints: options.pathPoints || [
+      { x: 0, y: 50 },
+      { x: 200, y: 50 },
+      { x: 200, y: 200 },
+      { x: 400, y: 200 },
+      { x: 400, y: 50 },
+      { x: 600, y: 50 }
+    ],
+    spawnInterval: options.spawnInterval || 3000,
+    initialTowers: options.initialTowers || [
+      { x: 100, y: 100, range: 200, damage: 10, rate: 1000 },
+      { x: 300, y: 150, range: 200, damage: 15, rate: 800 },
+      { x: 500, y: 100, range: 200, damage: 12, rate: 900 }
+    ]
+  };
+
   const towers = [];
   const enemies = [];
   let wave = 1;
   let gameRunning = false;
   let lastEnemySpawnTime = 0;
-  const spawnInterval = 3000; // Spawn enemies every 3 seconds
-  const pathPoints = [
-    { x: 0, y: 50 },
-    { x: 200, y: 50 },
-    { x: 200, y: 200 },
-    { x: 400, y: 200 },
-    { x: 400, y: 50 },
-    { x: 600, y: 50 }
-  ];
+  let score = 0;
+  let lives = 10;
+  let gameLoopId = null;
 
-  // Example: Tower constructor
+  // Tower constructor
   function Tower(x, y, range, damage, rate) {
     this.x = x;
     this.y = y;
@@ -660,126 +762,203 @@ function towerDefense() {
     this.damage = damage;
     this.rate = rate;
     this.lastShot = 0;
+    this.level = 1;
   }
 
-  // Example: Enemy constructor
-  function Enemy(x, y, health, speed) {
+  // Enemy constructor
+  function Enemy(x, y, health, speed, reward = 10) {
     this.x = x;
     this.y = y;
     this.health = health;
+    this.maxHealth = health;
     this.speed = speed;
     this.pathIndex = 0;
+    this.reward = reward;
   }
 
   // Add a tower
   function addTower(x, y, range, damage, rate) {
     towers.push(new Tower(x, y, range, damage, rate));
+    return towers[towers.length - 1];
   }
 
   // Add an enemy
-  function addEnemy(x, y, health, speed) {
-    enemies.push(new Enemy(x, y, health, speed));
+  function addEnemy(x, y, health, speed, reward) {
+    enemies.push(new Enemy(x, y, health, speed, reward));
+    return enemies[enemies.length - 1];
   }
 
   // Spawn a new enemy at the start of the path
   function spawnEnemy() {
-    const startPoint = pathPoints[0];
-    addEnemy(startPoint.x, startPoint.y, 100, 2);
+    const startPoint = config.pathPoints[0];
+    const baseHealth = 100 + (wave - 1) * 20;
+    const baseSpeed = 2 + (wave - 1) * 0.1;
+    addEnemy(startPoint.x, startPoint.y, baseHealth, baseSpeed, 10 + wave * 2);
   }
 
-  // Update game state (simplified)
+  // Calculate distance between two points
+  function distance(x1, y1, x2, y2) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // Move enemy along the path
+  function moveEnemy(enemy) {
+    if (enemy.pathIndex >= config.pathPoints.length - 1) {
+      // Enemy reached end of path
+      lives--;
+      return false; // Remove enemy
+    }
+
+    const target = config.pathPoints[enemy.pathIndex + 1];
+    const dist = distance(enemy.x, enemy.y, target.x, target.y);
+
+    if (dist > enemy.speed) {
+      const ratio = enemy.speed / dist;
+      enemy.x += (target.x - enemy.x) * ratio;
+      enemy.y += (target.y - enemy.y) * ratio;
+    } else {
+      enemy.pathIndex++;
+    }
+
+    return true; // Keep enemy
+  }
+
+  // Tower shooting logic
+  function towerShoot(tower, currentTime) {
+    if (currentTime - tower.lastShot < tower.rate) return;
+
+    let closestEnemy = null;
+    let minDistance = Infinity;
+
+    enemies.forEach(enemy => {
+      const dist = distance(enemy.x, enemy.y, tower.x, tower.y);
+      if (dist < tower.range && dist < minDistance) {
+        minDistance = dist;
+        closestEnemy = enemy;
+      }
+    });
+
+    if (closestEnemy) {
+      closestEnemy.health -= tower.damage;
+      tower.lastShot = currentTime;
+
+      if (closestEnemy.health <= 0) {
+        const index = enemies.indexOf(closestEnemy);
+        if (index > -1) {
+          enemies.splice(index, 1);
+          score += closestEnemy.reward || 10;
+        }
+      }
+    }
+  }
+
+  // Update game state
   function update(currentTime) {
     if (!gameRunning) return;
 
     // Spawn enemies at intervals
-    if (currentTime - lastEnemySpawnTime > spawnInterval) {
+    if (currentTime - lastEnemySpawnTime > config.spawnInterval) {
       spawnEnemy();
       lastEnemySpawnTime = currentTime;
     }
 
-    // Logic for enemy movement, tower shooting, etc.
-    enemies.forEach((enemy, index) => {
-      // Move enemy along path
-      if (enemy.pathIndex < pathPoints.length - 1) {
-        const target = pathPoints[enemy.pathIndex + 1];
-        const dx = target.x - enemy.x;
-        const dy = target.y - enemy.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance > enemy.speed) {
-          enemy.x += (dx / distance) * enemy.speed;
-          enemy.y += (dy / distance) * enemy.speed;
-        } else {
-          enemy.pathIndex++;
-        }
-      } else {
-        // Enemy reached end of path - remove it
-        enemies.splice(index, 1);
+    // Move enemies along path
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      const alive = moveEnemy(enemies[i]);
+      if (!alive) {
+        enemies.splice(i, 1);
       }
-    });
+    }
 
-    // Tower shooting logic
-    towers.forEach(tower => {
-      if (currentTime - tower.lastShot > tower.rate) {
-        // Find closest enemy in range
-        let closestEnemy = null;
-        let minDistance = Infinity;
+    // Tower shooting
+    towers.forEach(tower => towerShoot(tower, currentTime));
 
-        enemies.forEach(enemy => {
-          const dx = enemy.x - tower.x;
-          const dy = enemy.y - tower.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+    // Check win/lose conditions
+    if (lives <= 0) {
+      console.log('Game over!');
+      stop();
+    }
 
-          if (distance < tower.range && distance < minDistance) {
-            minDistance = distance;
-            closestEnemy = enemy;
-          }
-        });
-
-        // Attack closest enemy if found
-        if (closestEnemy) {
-          closestEnemy.health -= tower.damage;
-          tower.lastShot = currentTime;
-
-          // Remove enemy if health <= 0
-          if (closestEnemy.health <= 0) {
-            const index = enemies.indexOf(closestEnemy);
-            if (index > -1) {
-              enemies.splice(index, 1);
-            }
-          }
-        }
-      }
-    });
-
-    console.log(`Wave ${wave} - updating game state`);
+    console.log(`Wave ${wave} - Score: ${score}, Lives: ${lives}, Enemies: ${enemies.length}, Towers: ${towers.length}`);
   }
 
   // Start the game
   function start() {
+    if (gameRunning) return;
     gameRunning = true;
     lastEnemySpawnTime = Date.now();
-    console.log('Tower defense game started');
+    
     // Add initial towers
-    addTower(100, 100, 200, 10, 1000);
-    addTower(300, 150, 200, 15, 800);
-    addTower(500, 100, 200, 12, 900);
+    config.initialTowers.forEach(t => {
+      addTower(t.x, t.y, t.range, t.damage, t.rate);
+    });
+    
+    console.log('Tower defense game started');
+    return { towers: towers.length, wave: wave };
   }
 
   // Stop the game
   function stop() {
     gameRunning = false;
+    if (gameLoopId) {
+      clearInterval(gameLoopId);
+      gameLoopId = null;
+    }
     console.log('Tower defense game stopped');
+  }
+
+  // Reset the game
+  function reset() {
+    stop();
+    towers.length = 0;
+    enemies.length = 0;
+    wave = 1;
+    score = 0;
+    lives = 10;
+    lastEnemySpawnTime = 0;
+    console.log('Tower defense game reset');
+  }
+
+  // Upgrade a tower
+  function upgradeTower(index) {
+    if (index >= 0 && index < towers.length) {
+      const tower = towers[index];
+      tower.level++;
+      tower.damage = Math.floor(tower.damage * 1.2);
+      tower.range = Math.floor(tower.range * 1.1);
+      return tower;
+    }
+    return null;
+  }
+
+  // Get game statistics
+  function getStats() {
+    return {
+      wave,
+      score,
+      lives,
+      enemyCount: enemies.length,
+      towerCount: towers.length,
+      isRunning: gameRunning
+    };
   }
 
   // Expose game functions
   return {
     start,
     stop,
+    reset,
     addTower,
     addEnemy,
+    spawnEnemy,
     update,
+    upgradeTower,
+    getStats,
     getWave: () => wave,
+    getScore: () => score,
+    getLives: () => lives,
     getEnemies: () => enemies,
     getTowers: () => towers,
     isRunning: () => gameRunning
@@ -798,6 +977,7 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
+  extractSvgAccessibleName,
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
@@ -805,5 +985,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  towerDefense
+  towerDefense,
+  addSkipLink
 };

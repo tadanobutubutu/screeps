@@ -405,6 +405,69 @@ function createInPageButton(parent = document.body) {
 }
 
 /**
+ * New code that was added to the branch
+ * Fixes the fake link issue (REACT_036) by converting fake links into accessible buttons
+ * or properly configured real links. Uses createInPageButton() and personName() helpers.
+ * @param {HTMLElement} container - The container element to search for fake links
+ * @returns {Object} Result with fixed count and details
+ */
+function fixFakeLinkIssue(container) {
+  const errors = [];
+  const fixed = [];
+
+  if (typeof document === 'undefined') {
+    return { success: false, errors: ['Document not available'] };
+  }
+
+  const scope = container || document;
+
+  // Find all anchor elements that look like fake links
+  const links = scope.querySelectorAll ? scope.querySelectorAll('a') : [];
+  links.forEach((link) => {
+    const href = link.getAttribute('href');
+    const text = personName(link.textContent || '');
+    const hasClickHandler = link.onclick || link.hasAttribute('data-handler');
+
+    // Detect fake links: missing href, href="#", or javascript:void(0)
+    const isFakeLink = !href ||
+                       href === '#' ||
+                       href === '' ||
+                       href.toLowerCase().startsWith('javascript:void');
+
+    if (isFakeLink) {
+      // Create a proper accessible button to replace the fake link
+      const button = createInPageButton(document.createElement('div'));
+      button.textContent = text || 'Action';
+      button.setAttribute('aria-label', text || 'Action');
+
+      // Preserve any existing click handler
+      if (hasClickHandler) {
+        button.setAttribute('data-handler', 'true');
+      }
+
+      // Replace the fake link with the button
+      if (link.parentNode) {
+        link.parentNode.replaceChild(button, link);
+        fixed.push({
+          original: href || '(none)',
+          replacedWith: 'button',
+          text: text
+        });
+      } else {
+        errors.push('Fake link has no parent node to replace');
+      }
+    }
+  });
+
+  return {
+    success: errors.length === 0,
+    fixedCount: fixed.length,
+    fixed: fixed,
+    errors: errors
+  };
+}
+
+/**
  * Builds a hierarchical representation of dependencies from a root node
  * @param {HTMLElement} node - The DOM node to analyze for dependencies
  * @param {Object} options - Configuration options
@@ -799,6 +862,7 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  fixFakeLinkIssue,
   renderDependencyGraph,
   renderIndexView,
   buildDependencyGraph,

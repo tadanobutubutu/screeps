@@ -335,7 +335,7 @@ function getSafetyCategories() {
 
 // TODO: Implement calculateDiscount
 function calculateDiscount(price, discountPercentage) {
-    return price * (1 - discountPercentage / 100);
+  return price * (1 - discountPercentage / 100);
 }
 
 // Existing code
@@ -405,10 +405,10 @@ async function generateAccessibilityReport() {
 }
 
 async function scanAccessibility() {
-  // ... Scanning and reporting accessibility issues using axe-core ...
+  const results = await axe.run();
   return {
     timestamp: new Date().toISOString(),
-    issues: []
+    issues: results.violations
   };
 }
 

@@ -19,11 +19,11 @@ const fastMap = require('fast-map');
 const path = require('path');
 
 // Import other functions
-const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, implementNewFunction, addLangAttribute, main, someFunction, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport } = require('./');
+const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, implementNewFunction, addLangAttribute, main, someFunction, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport } = require('./');
 
 // Import helper functions
-const { validateInput, processData, formatResponse } = require('./utils/validators');
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
+const { validateInput, processData, formatResponse } = require('./utils');
+const { getSvgAccessibleName, setSvgAttributes } = require('./svg-utils');
 
 // Address accessibility issues from insight report
 function addressAccessibilityIssues() {
@@ -31,13 +31,13 @@ function addressAccessibilityIssues() {
   // ... (Existing code preserved)
 
   // New function to add landmark roles and fix issues
-  addLandmarkRoles(insightReport());
+  addLandmarkRoles();
 
   // New function for creating in-page buttons
   createInPageButtons(buttonElements, containerSelector);
 
   // Fix unique landmarks based on insight report (REACT_025)
-  fixUniqueLandmarks(insightReport());
+  fixUniqueLandmarks();
 
   // Utilities
   const accessibilityScanner = axe.createInstance({
@@ -50,11 +50,11 @@ function addressAccessibilityIssues() {
   });
 
   async function scanAccessibility() {
-    const rootElement = document.querySelector('html');
-    const results = await accessibilityScanner.analyze(rootElement);
+    const rootElement = document.getElementById('main-content');
+    const results = await accessibilityScanner.run(rootElement);
 
     if (results.violations.length > 0) {
-      console.warn('Accessibility issues found:', results);
+      console.log('Accessibility issues found:', results);
 
       // You can implement custom handling for accessibility issues here
       // For example, create an accessibility report or perform fixes automatically
@@ -83,12 +83,24 @@ module.exports = {
   formatResponse,
   getSvgAccessibleName,
   setSvgAttributes,
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
   createInPageButtons,
   fixUniqueLandmarks,
-  // ... (Other exports preserved)
+  improveAccessibility,
+  addressInsightReportIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  fixLandmarkIssues,
+  addLandmarkRoles,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  implementNewFunction,
+  addLangAttribute,
+  main,
+  someFunction,
+  generateAccessibilityReport,
 };
-```
-
-This code integrates the new change related to the `addressAccessibilityIssues` function and updates the import sections. It also introduces the axe-core library for scanning accessibility issues and generates an accessibility report based on scan results.

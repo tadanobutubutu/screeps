@@ -366,41 +366,56 @@ function initialize() {
       title: 'Screeps',
       version: config.version
     };
-
-    /**
-     * Address accessibility issues from insight report:
-     * - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute() and wrapPrimaryContentInMain())
-     * - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-     * - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
-     * - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-     * - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
-     * - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
-     */
-
-    addLangAttribute();
-    wrapPrimaryContentInMain();
-    addMainLandmark();
-    addFixLandmarkIssues();
-    fixFakeLinkIssues();
-    ensureUniqueLandmarks();
-
-    // Load landmarks for accessibility processing
-    const landmarks = loadLandmarks();
-    const processed = processLandmarks(landmarks);
-
-    // Ensure the dependencyGraph container has a proper ARIA role
-    ensureDependencyGraphAriaRole();
-
-    // Process accessibility props for landmarks
-    addressInsightIssues();
   }
 }
 
-function addLangAttribute() {
-  if (typeof document === 'undefined') return;
-  if (!document.documentElement.lang) {
-    document.documentElement.lang = 'en';
+// TODO: Implement upgrade logic
+// This function should use harvested data to improve the system
+function performUpgrade(harvestedData) {
+  if (!harvestedData || !harvestedData.length) {
+    return {
+      success: false,
+      message: 'No harvested data available for upgrade'
+    };
   }
+
+  const improvements = {
+    efficiency: 0,
+    capacity: 0,
+    upgrades: []
+  };
+
+  for (const data of harvestedData) {
+    if (data.type === 'energy') {
+      improvements.efficiency += (data.amount || 0) * 0.1;
+    }
+    if (data.type === 'resource') {
+      improvements.capacity += (data.amount || 0) * 0.05;
+    }
+    if (data.metadata && data.metadata.upgradeable) {
+      improvements.upgrades.push({
+        target: data.id,
+        level: (data.metadata.level || 0) + 1
+      });
+    }
+  }
+
+  return {
+    success: true,
+    improvements: improvements,
+    timestamp: Date.now()
+  };
+}
+
+function applySystemUpgrades(harvestedData) {
+  const upgradeResult = performUpgrade(harvestedData);
+  
+  if (upgradeResult.success) {
+    console.log(`System upgraded: Efficiency +${upgradeResult.improvements.efficiency.toFixed(2)}`);
+    console.log(`Capacity increased by ${upgradeResult.improvements.capacity.toFixed(2)}`);
+  }
+  
+  return upgradeResult;
 }
 
 function addProperLandmarkRegions(landmarks) {
@@ -442,6 +457,8 @@ module.exports = {
   wrapPrimaryContentInMain,
   addLangAttribute,
   addProperLandmarkRegions,
+  performUpgrade,
+  applySystemUpgrades,
   config,
   appState,
   landmarkSelectors,

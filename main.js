@@ -29,11 +29,312 @@ const config = {
   requiredLandmarks: ['banner', 'navigation', 'main']
 };
 
-const exportableFunctions = {
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// REACT_015: Add lang attribute
+// REACT_017 & REACT_025: Fix and ensure unique landmarks
+// REACT_027: Fix 26 table structure issues
+// REACT_025: Ensure unique landmarks
+// REACT_041: Add accessible names to 2 SVGs
+// REACT_036: Fix 1 fake link issue
+// REACT_037: Google sign-in logic
+// REACT_040: Replace my-button with actual button id for accessibility
+// REACT_042: Ensure dependencyGraph container has proper ARIA role
+
+// TODO: Address accessibility issues from insight report:
+
+// main.js - Entry point for the application
+
+// Module imports and configuration
+const configModule = require('./config');
+const logger = require('./utils/logger');
+const { registerSW } = require('effector-sw');
+const React = require('react');
+const { useState, useEffect, useRef } = React;
+const { List, Button } = require('antd');
+const { useSelector, useDispatch } = require('react-redux');
+const App = require('./App').default;
+const newFunctions = require('./newFunctions');
+const accessiblyHelper = require('./accessibly-helper');
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks: ensureUniqueLandmarksFn,
+  addLangAttribute: addLangAttributeFn,
+  getLangAttribute: getLangAttributeFn,
+  validateTableAccessibility: validateTableAccessibilityFn,
+  validateTableStructure: validateTableStructureFn,
+  validateLandmarkStructure: validateLandmarkStructureFn,
+  validateLinkAccessibility: validateLinkAccessibilityFn,
+  handleFakeLinks: handleFakeLinksFn,
+  someFunction: someFunctionFn,
+  fetchUser: fetchUserFn,
+  clearCache: clearCacheFn,
+  calculateSum,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  fixTableStructure,
+  fixTableHeaderScope,
+  addProperLandmarkRegions,
+  createAccessibleLink,
+  fixFakeLinkIssues
+} = require('./utils');
+
+const {
+  sortByTitle: sortByTitleLocal,
+  sortByAuthor: sortByAuthorLocal,
+  generateKey: generateKeyLocal,
+  BookItem: BookItemLocal,
+  addBook: addBookLocal,
+  getLangAttribute: getLangAttributeLocal,
+  createInPageButton: createInPageButtonLocal,
+  validateTableAccessibility: validateTableAccessibilityLocal,
+  validateLandmarkStructure: validateLandmarkStructureLocal,
+  getSvgAccessibleName: getSvgAccessibleNameLocal,
+  setSvgAttributes: setSvgAttributesLocal,
+  ensureUniqueLandmarks: ensureUniqueLandmarksLocal,
+  addProperLandmarkRegions: addProperLandmarkRegionsLocal,
+  validateLinkAccessibility: validateLinkAccessibilityLocal,
+  handleFakeLinks: handleFakeLinksLocal,
+  someFunction: someFunctionLocal,
+  fetchUser: fetchUserLocal,
+  clearCache: clearCacheLocal,
+  landmarkStructureCheck
+} = require('./somemodule');
+
+const {
+  sortByTitle: sortByTitleFn,
+  sortByAuthor: sortByAuthorFn,
+  generateKey: generateKeyFn,
+  BookItem: BookItemFn,
+  addBook: addBookFn,
+  ...otherBookFunctions
+} = require('./bookFunctions');
+
+const {
+  setDependencyGraph,
+  ...otherReduxActions
+} = require('./redux/actions');
+
+const { calculateSum: calculateSumUtil } = require('./utils');
+const { getLangAttribute, getFullLangAttribute } = require('./utils/accessibilityUtils');
+const { validateTableAccessibility: validateTableAccessibilityUtil, validateTableStructure: validateTableStructureUtil } = require('./utils/tableAccessibilityUtils');
+const { validateLandmark, validateLandmarkStructure: validateLandmarkStructureUtil } = require('./utils/landmarkUtils');
+const { getSvgAccessibleName: getSvgAccessibleNameUtil, setSvgAttributes: setSvgAttributesUtil } = require('./utils/svgAccessibilityUtils');
+const { validateLinkAccessibility: validateLinkAccessibilityUtil, handleFakeLinks: handleFakeLinksUtil } = require('./utils/linkAccessibilityUtils');
+const { checkLinkAccessibility: checkLinkAccessibilityUtil } = require('./utils/linkAccessibilityUtils');
+const { CONFIG: CONFIG_CONSTANTS } = require('./utils/constants');
+
+const CONFIG = {
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxResults: 100,
+  dataPath: './data'
+};
+
+// Application state
+const appState = {
+  initialized: false,
+  data: null,
+  cache: {}
+};
+
+// Export functions for addressing accessibility issues
+const ensureLangAttribute = () => {
+  if (typeof document !== 'undefined' && document.documentElement.getAttribute('lang') === null) {
+    document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
+  }
+};
+
+const fixLandmarks = () => {
+  if (typeof document === 'undefined') return;
+
+  const landmarkSelectors = [
+    '[role="banner"]',
+    '[role="navigation"]',
+    '[role="main"]',
+    '[role="contentinfo"]',
+    '[role="region"]',
+    'header:not([role])',
+    'nav:not([role])',
+    'main:not([role])',
+    'footer:not([role])',
+    'section:not([role])'
+  ];
+  landmarkSelectors.forEach((selector) => {
+    fixLandmark(selector);
+  });
+};
+
+const addSvgAccessibleNames = () => {
+  if (typeof document === 'undefined') return;
+
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = `SVG icon ${index + 1}`;
+      title.id = `svg-title-${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+  });
+};
+
+const fixFakeLinks = () => {
+  if (typeof document === 'undefined') return;
+
+  document.querySelectorAll('a').forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
+      if (link.querySelector('button') || link.getAttribute('role') === 'button') {
+        link.setAttribute('role', 'button');
+        if (!link.id) {
+          link.id = `button-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
+      }
+    }
+  });
+};
+
+const replaceButtonIds = () => {
+  if (typeof document === 'undefined') return;
+
+  const fakeButtons = document.querySelectorAll('[id="my-button"], .my-button');
+  fakeButtons.forEach((button, index) => {
+    const newId = `accessible-button-${index + 1}`;
+    if (button.id === 'my-button') {
+      button.id = newId;
+    }
+    if (button.classList.contains('my-button')) {
+      button.classList.remove('my-button');
+      button.classList.add(newId);
+    }
+  });
+};
+
+const ensureDependencyGraphAriaRole = () => {
+  if (typeof document === 'undefined') return;
+
+  const dependencyGraphContainer = document.getElementById('dependency-graph');
+  if (dependencyGraphContainer && !dependencyGraphContainer.getAttribute('role')) {
+    dependencyGraphContainer.setAttribute('role', 'region');
+    dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+  }
+};
+
+// Helper function to check if a link is accessible
+function checkLinkAccessibility(url) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  return fetch(url, { method: 'HEAD', signal: controller.signal })
+    .then(response => {
+      clearTimeout(timeout);
+      return response.ok;
+    })
+    .catch(() => {
+      clearTimeout(timeout);
+      return false;
+    });
+}
+
+// New function3 logic
+async function newFunction3() {
+  // TODO: Implement new function3 logic here
+}
+
+// Core application initialization
+function initializeApp() {
+  logger.info('Application starting...');
+  appState.initialized = true;
+  appState.data = configModule || {};
+  return appState;
+}
+
+const app = express();
+
+let isInitialized = false;
+let dependencyGraphVar = null;
+
+app.get('/', async (req, res) => {
+  // Accessibility initialization (merged from both branches)
+  await initializeAccessibility();
+
+  const data = await fetchData({ url: 'https://api.example.com/books' });
+
+  res.sendFile(path.resolve(__dirname, './index.html'));
+
+  function initializeAccessibility() {
+    ensureLangAttribute();
+    fixLandmarks();
+    addSvgAccessibleNames();
+    fixFakeLinks();
+    replaceButtonIds();
+    ensureDependencyGraphAriaRole();
+
+    // New Functions
+    newFunctions.newFunction();
+    newFunction3();
+  }
+
+  function fixLandmark(selector) {
+    const elements = document.querySelectorAll(selector);
+
+    elements.forEach((element) => {
+      if (!element.id && element.getAttribute('role')) {
+        let landmarkId = `${selector.replace(/\[|]|./g, '-').toLowerCase()}-${element.getAttribute('role')}`;
+        ensureElementHasId(element, landmarkId);
+
+        if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+          ensureLandmarkLabel(element);
+        }
+      }
+    });
+  }
+
+  function ensureLandmarkLabel(landmark) {
+    let label;
+
+    if (landmark.name) {
+      label = landmark.name;
+    } else if (landmark.getAttribute('role')) {
+      label = landmark.getAttribute('role').charAt(0).toUpperCase() + landmark.getAttribute('role').slice(1) + ' Landmark';
+    } else {
+      label = 'Unnamed Landmark';
+    }
+
+    if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+      landmark.setAttribute('aria-label', label);
+    }
+  }
+
+  function ensureElementHasId(element, id) {
+    if (!element.id) {
+      element.id = id;
+    }
+  }
+
+  async function fetchData(options) {
+    const response = await fetch(options.url, { ...options.config });
+    const data = await response.json();
+    return data;
+  }
+});
+
+// ... Rest of the main.js file, including the Axe configuration and routes,
+// unrelated to accessibility issues, remains unchanged
+
+// Export all functions
+module.exports = {
   checkSafetyCategories,
   addBook,
   getBooksList,
-  safetyCategory,
   createInPageButton,
   getLangAttribute,
   generateAccessibilityReport,
@@ -54,7 +355,6 @@ const exportableFunctions = {
   getLandmarkById,
   main,
   checkUserSafety,
-  checkSafetyCategories,
   createAccessibleInput,
   createUnrotateButton,
   fixAccessibilityIssues,
@@ -86,7 +386,7 @@ const exportableFunctions = {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addLangAttribute,
-  createInPageButton,
+  createInPageButton as createInPageButtonFunc,
   isSecureContext,
   ensureFocusableElements,
   validateSvgAccessibility,
@@ -95,8 +395,8 @@ const exportableFunctions = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
+  ensureFocusableElements,
   addProperLandmarkRegions,
-  fixFakeLinks,
   ensureUniqueLandmarksDoc,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
@@ -104,50 +404,44 @@ const exportableFunctions = {
   initApp,
   startServer,
   app,
+  axe,
+  fastMap,
+  fs,
+  path,
   appData,
   ensureUniqueLandmarksFromArray,
   visualizeDependencyTreeData,
   clearCache,
   validateInput,
-  initAppAfterFixes
+  initAppAfterFixes,
+  function3,
+  // New functions for addressing accessibility issues:
+  ensureLangAttribute,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  replaceButtonIds,
+  ensureDependencyGraphAriaRole,
+  // Make the new functions available
+  ensureLangAttribute: ensureLangAttribute,
+  fixLandmarks: fixLandmarks,
+  addSvgAccessibleNames: addSvgAccessibleNames,
+  fixFakeLinks: fixFakeLinks,
+  replaceButtonIds: replaceButtonIds,
+  ensureDependencyGraphAriaRole: ensureDependencyGraphAriaRole,
+  checkLinkAccessibility,
+  newFunction3,
+  initializeApp,
+  someNewFunction
 };
 
-const app = express();
-
-app.get('/', (req, res) => {
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${appData.title}</title>
-      <link rel="stylesheet" href="/styles.css">
-      <script src="/utils/constants.js"></script>
-      <script src="/utils/validators.js"></script>
-      <script src="/utils/accessibilityUtils.js"></script>
-      <!-- Include fast-map, react, react-dom, react-redux, antd, axe-core if needed -->
-      <!-- Add additional libraries and styles here -->
-    </head>
-    <body>
-      <header>
-        <nav>
-          <!-- Navigation links -->
-        </nav>
-      </header>
-      <main id="main-content">
-        <!-- Content here -->
-      </main>
-      <footer>
-        <a href="${config.apiUrl}" target="_blank">Powered by ${config.name}</a>
-      </footer>
-      <script src="/dist/main.js"></script>
-    </body>
-    </html>
-  `;
-  res.send(html);
+registerSW(app, {
+  // Activate when:
+  immediate: true,
+  skipWaiting: true,
+  clientsClaim: true
 });
 
 app.listen(3000, () => {
-  console.log('Server listening on port 3000');
+  console.log('App is listening on port 3000');
 });

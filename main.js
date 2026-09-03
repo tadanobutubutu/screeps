@@ -13,7 +13,7 @@ const AddressabilityIssues = {
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
 
-  addressAccessibilityIssues(insightReport) {
+  checkAccessibilityIssues(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }
@@ -36,7 +36,7 @@ const AddressabilityIssues = {
         issues.push({
           type: 'empty-content',
           severity: 'medium',
-          message: `Section "${section.heading}" has no content`,
+          message: `Section ${index} has no content`,
           suggestedFix: 'Add meaningful content to the section'
         });
       }
@@ -46,7 +46,7 @@ const AddressabilityIssues = {
         issues.push({
           type: 'inaccessible-link-text',
           severity: 'low',
-          message: `Section "${section.heading}" contains "click here" text which is not accessible`,
+          message: `Section ${index} contains "click here" text which is not accessible`,
           suggestedFix: 'Use descriptive link text instead of "click here"'
         });
       }
@@ -103,7 +103,7 @@ const AddressabilityIssues = {
     };
 
     const isLandmark = landmarkRoles.includes(role) ||
-                       (tagName && implicitLandmarks[tagName]);
+                       (tagName && implicitLandmarks.hasOwnProperty(tagName));
 
     return {
       valid: isLandmark,
@@ -113,11 +113,17 @@ const AddressabilityIssues = {
   },
 
   spawnSomeCommand(command) {
-    const childProcess = require('child_process');
-    return childProcess.spawn(command, [], {
-      stdio: 'inherit',
-      shell: true
+    const childProcess = exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error executing command: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.error(`Command stderr: ${stderr}`);
+      }
+      return stdout;
     });
+    return childProcess;
   },
 
   addLangAttribute(element, lang) {
@@ -125,7 +131,7 @@ const AddressabilityIssues = {
       element.setAttribute('lang', lang);
     } else {
       const html = document.documentElement;
-      if (!html.hasAttribute('lang')) {
+      if (html) {
         html.setAttribute('lang', 'en');
       }
     }
@@ -133,10 +139,10 @@ const AddressabilityIssues = {
 
   countDependencies() {
     const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-    const dependencies = JSON.parse(packageJsonPath).dependencies || {};
-    const devDependencies = JSON.parse(packageJsonPath).devDependencies || {};
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
 
     return {
       dependencies: Object.keys(dependencies).length,
@@ -146,9 +152,9 @@ const AddressabilityIssues = {
   },
 
   fixMainLandmarkIssues(source) {
-    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+    const mainBlockRegex = /<main\b[^>]*>[\s\S]*?<\/main>/gi;
 
-    const matches = Array.from(source.matchAll(mainBlockRegex));
+    const matches = source.match(mainBlockRegex);
     if (matches.length <= 1) {
       return source;
     }
@@ -166,7 +172,7 @@ const AddressabilityIssues = {
   },
 
   fixSemanticMarkup(source) {
-    const mainBlockRegex = /<main[^>]*>[\s\S]*?<\/main>/gi;
+    const mainBlockRegex = /<main\b[^>]*>[\s\S]*?<\/main>/gi;
 
     const matches = source.match(mainBlockRegex);
     if (!matches || matches.length <= 1) {
@@ -186,7 +192,7 @@ const AddressabilityIssues = {
   },
 
   validateLandmarkStructure() {
-    const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
+    const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
 
     landmarks.forEach(landmark => {
@@ -200,7 +206,7 @@ const AddressabilityIssues = {
         footer: 'contentinfo'
       };
 
-      if (!landmark.hasAttribute('role')) {
+      if (!role) {
         const implicitLandmark = implicitRole[tagName];
         if (implicitLandmark) {
           landmark.setAttribute('role', implicitLandmark);
@@ -227,8 +233,8 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 function initializeAccessibility() {
-  if (!document.querySelectorAll) return;
-  addressAccessibilityIssues(sampleInsightReport);
+  if (typeof document === 'undefined') return;
+  AddressabilityIssues.validateLandmarkStructure();
 }
 
 const sampleInsightReport = {
@@ -256,5 +262,6 @@ function createServer() {
   return null;
 }
 
-function generateAccessibilityReport() {
+function someOtherFunction() {
   // Placeholder implementation
+}

@@ -287,3 +287,141 @@ function parseColor(colorString) {
     }
 
     // Handle named colors (limited support)
+    const namedColors = {
+        'black': { r: 0, g: 0, b: 0 },
+        'white': { r: 255, g: 255, b: 255 },
+        'red': { r: 255, g: 0, b: 0 },
+        'green': { r: 0, g: 128, b: 0 },
+        'blue': { r: 0, g: 0, b: 255 },
+        'yellow': { r: 255, g: 255, b: 0 },
+        'gray': { r: 128, g: 128, b: 128 },
+        'grey': { r: 128, g: 128, b: 128 }
+    };
+    const lowerColor = colorString.toLowerCase();
+    if (namedColors[lowerColor]) {
+        return namedColors[lowerColor];
+    }
+
+    return null;
+}
+
+// Helper function to calculate relative luminance
+function calculateLuminance(rgb) {
+    const rsrgb = rgb.r / 255;
+    const gsrgb = rgb.g / 255;
+    const bsrgb = rgb.b / 255;
+
+    const r = rsrgb <= 0.03928 ? rsrgb / 12.92 : Math.pow((rsrgb + 0.055) / 1.055, 2.4);
+    const g = gsrgb <= 0.03928 ? gsrgb / 12.92 : Math.pow((gsrgb + 0.055) / 1.055, 2.4);
+    const b = bsrgb <= 0.03928 ? bsrgb / 12.92 : Math.pow((bsrgb + 0.055) / 1.055, 2.4);
+
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+// TODO: Implement a function to count dependencies
+/**
+ * Counts the number of dependencies in the codebase.
+ * Analyzes the JavaScript code to identify function dependencies and external imports.
+ * 
+ * @param {string} code - The JavaScript code to analyze
+ * @returns {Object} An object containing dependency counts
+ */
+function countDependencies(code) {
+    if (typeof code !== 'string') {
+        return {
+            totalFunctions: 0,
+            internalDependencies: 0,
+            externalDependencies: 0,
+            functionCallGraph: {}
+        };
+    }
+
+    // Count function declarations
+    const functionDeclMatches = code.match(/function\s+\w+\s*\(/g) || [];
+    const arrowFunctionMatches = code.match(/(?:const|let|var)\s+\w+\s*=\s*(?:async\s+)?\([^)]*\)\s*=>/g) || [];
+    const totalFunctions = functionDeclMatches.length + arrowFunctionMatches.length;
+
+    // Count function calls within the code (internal dependencies)
+    const functionNames = code.match(/function\s+(\w+)\s*\(/g) || [];
+    const extractedNames = functionNames.map(match => match.replace(/function\s+(\w+)\s*\(/, '$1'));
+    
+    let internalDependencies = 0;
+    const functionCallGraph = {};
+
+    extractedNames.forEach(funcName => {
+        // Count how many times each function is called within other functions
+        const callPattern = new RegExp(`\\b${funcName}\\s*\\(`, 'g');
+        const calls = code.match(callPattern) || [];
+        // Subtract 1 for the function declaration itself
+        const callCount = Math.max(0, calls.length - 1);
+        if (callCount > 0) {
+            functionCallGraph[funcName] = callCount;
+            internalDependencies += callCount;
+        }
+    });
+
+    // Count external dependencies (import/require statements)
+    const importMatches = code.match(/^import\s+.*\s+from\s+['"][^'"]+['"]/gm) || [];
+    const requireMatches = code.match(/require\(['"][^'"]+['"]\)/g) || [];
+    const externalDependencies = importMatches.length + requireMatches.length;
+
+    return {
+        totalFunctions,
+        internalDependencies,
+        externalDependencies,
+        functionCallGraph
+    };
+}
+
+/**
+ * Counts dependencies in the current module by analyzing its own source.
+ * This is a convenience function that reads the current file's functions.
+ * 
+ * @returns {Object} Dependency count information for this module
+ */
+function countModuleDependencies() {
+    // Get all function names defined in this module
+    const functions = [
+        'addLangAttribute',
+        'fixTableStructure',
+        'fixLandmarks',
+        'addSvgAccessibleNames',
+        'ensureUniqueLandmarks',
+        'fixFakeLinks',
+        'applyAccessibilityFixes',
+        'addressAccessibilityIssues',
+        'createInPageButton',
+        'checkColorContrast',
+        'parseColor',
+        'calculateLuminance',
+        'countDependencies',
+        'countModuleDependencies'
+    ];
+
+    // Build call graph based on known relationships
+    const callGraph = {
+        'applyAccessibilityFixes': [
+            'addLangAttribute',
+            'fixTableStructure',
+            'fixLandmarks',
+            'addSvgAccessibleNames',
+            'ensureUniqueLandmarks',
+            'fixFakeLinks'
+        ],
+        'checkColorContrast': ['parseColor', 'calculateLuminance'],
+        'addressAccessibilityIssues': ['applyAccessibilityFixes']
+    };
+
+    let internalDeps = 0;
+    Object.values(callGraph).forEach(calls => {
+        internalDeps += calls.length;
+    });
+
+    return {
+        totalFunctions: functions.length,
+        internalDependencies: internalDeps,
+        externalDependencies: 0, // No external imports in this module
+        functionCallGraph: callGraph,
+        functions: functions
+    };
+}

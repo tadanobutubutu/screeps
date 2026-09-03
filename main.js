@@ -35,7 +35,27 @@ const {
 const accessibilityUtils = {
   initSkipLink,
   trapFocus,
-  newFocusTrap: newFocusTrapHandler,
+  newFocusTrap: (element) => {
+    if (!element) return;
+    const focusable = element.querySelectorAll(
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    return (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
+    };
+  },
   announceToScreenReader: originalAnnounceToScreenReader,
   ensureElementId: ensureElementIdOrigin,
   addAriaLabel,
@@ -65,7 +85,11 @@ const accessibilityUtils = {
 };
 
 module.exports = {
+  ...main,
+  ...accessibilityUtils,
   addressAccessibilityIssues,
+  renderDependencyGraph,
+  renderIndex,
   accessibilityUtils,
   createInPageButton,
   validateTableAccessibility,

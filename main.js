@@ -315,10 +315,6 @@ function addLandmarkRegions() {
 }
 
 function ensureUniqueLandmarks() {
-  uniqueLandmarks();
-}
-
-function uniqueLandmarks() {
   // Ensure landmarks have unique accessible names if duplicates exist
   const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="region"]');
   const landmarkCounts = {};

@@ -9,18 +9,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+import a11y from './AccessibilityUtilities';
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
@@ -36,44 +25,53 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
  * @returns {string} The lang attribute value
  */
 function getLangAttribute() {
-  // Implementation to be added
-  return 'en'; // Default fallback
+  // Check if lang attribute already exists on HTML element
+  const htmlElement = document.documentElement;
+  if (htmlElement && htmlElement.lang) {
+    return htmlElement.lang;
+  }
+  // Return default 'en' as fallback
+  return 'en';
 }
 
 // Function to handle fake links
 function handleFakeLinks() {
-    // Your implementation here to find and handle fake links
-    const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
-    fakeLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            console.warn('Fake link prevented:', link);
-        });
-    });
+  // Find all links that look like buttons (elements with role="button" or certain classes)
+  const fakeLinks = document.querySelectorAll('[role="button"], a[href="#"], a[href="javascript:void(0)"], a[href=""]');
+  
+  fakeLinks.forEach(link => {
+    // Check if it's actually an anchor tag (fake link)
+    if (link.tagName === 'A' && !link.href.includes('#') || link.getAttribute('href') === '#' || link.getAttribute('href') === 'javascript:void(0)') {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.warn('Fake link prevented:', link);
+      });
+    }
+  });
 }
 
 // Function to validate link accessibility
 function validateLinkAccessibility(link) {
-    if (!link) return false;
-    const text = link.textContent.trim();
-    const ariaLabel = link.getAttribute('aria-label');
-    const ariaLabelledBy = link.getAttribute('aria-labelledby');
-    return !!(text || ariaLabel || ariaLabelledBy);
+  if (!link) return false;
+  const text = link.textContent.trim();
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledBy = link.getAttribute('aria-labelledby');
+  return !!(text || ariaLabel || ariaLabelledBy);
 }
 
 // Function to validate landmark structure for accessibility issues
 function validateLandmarkStructure() {
-    const requiredLandmarks = ['header', 'main', 'footer'];
-    const missingLandmarks = [];
-    
-    requiredLandmarks.forEach(landmark => {
-        const element = document.querySelector(`[role="${landmark}"], ${landmark}`);
-        if (!element) {
-            missingLandmarks.push(landmark);
-        }
-    });
-    
-    return missingLandmarks;
+  const requiredLandmarks = ['header', 'main', 'footer'];
+  const missingLandmarks = [];
+  
+  requiredLandmarks.forEach(landmark => {
+    const element = document.querySelector(`${landmark}, [role="${landmark === 'header' ? 'banner' : landmark === 'footer' ? 'contentinfo' : landmark}"]`);
+    if (!element) {
+      missingLandmarks.push(landmark);
+    }
+  });
+  
+  return missingLandmarks;
 }
 
 /**
@@ -82,7 +80,8 @@ function validateLandmarkStructure() {
 function addLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', getLangAttribute());
+    const lang = getLangAttribute();
+    htmlElement.setAttribute('lang', lang);
   }
 }
 
@@ -113,7 +112,7 @@ function validateTableStructure(table) {
   const hasHeader = table.querySelector('th');
   const hasRows = table.querySelectorAll('tr').length > 0;
   
-  return hasHeader && hasRows;
+  return !!(hasHeader && hasRows);
 }
 
 /**
@@ -125,8 +124,8 @@ function fixTableStructure(table) {
   
   // Ensure table has proper headers
   const firstRow = table.querySelector('tr');
-  if (firstRow && !firstRow.querySelector('th')) {
-    const cells = firstRow.querySelectorAll('td, th');
+  if (firstRow) {
+    const cells = firstRow.querySelectorAll('td');
     cells.forEach(cell => {
       const newCell = document.createElement('th');
       newCell.textContent = cell.textContent;
@@ -140,7 +139,7 @@ function fixTableStructure(table) {
  * Adds main landmark to the document
  */
 function addMainLandmark() {
-  const mainContent = document.querySelector('main') || document.getElementById('main') || document.getElementById('root');
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]') || document.querySelector('#main-content');
   if (mainContent && !mainContent.hasAttribute('role')) {
     mainContent.setAttribute('role', 'main');
   }
@@ -294,8 +293,8 @@ function generateAccessibilityReport() {
     const inputType = input.getAttribute('type');
     if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
       const labelId = input.getAttribute('aria-labelledby');
-      const labelText = input.getAttribute('aria-label');
-      const hasLabel = document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
+      const labelText = document.querySelector(`label[for="${input.id}"]`);
+      const hasLabel = labelId || labelText;
       if (!hasLabel) {
         issues.push({
           type: 'missing-label',
@@ -315,172 +314,11 @@ function generateAccessibilityReport() {
         type: 'empty-heading',
         element: heading.tagName.toLowerCase(),
         index: index,
-        message: `${heading.tagName.toLowerCase()} at index ${index} has no text content`
+        message: `Heading ${heading.tagName.toLowerCase()} at index ${index} has no text content`
       });
     }
   });
 
   // Generate report
   const report = {
-    timestamp: new Date().toISOString(),
-    totalIssues: issues.length,
-    issues: issues
-  };
-
-  console.log('Accessibility Report:', report);
-  return report;
-}
-
-// Wrap primary content in main for better structure
-function wrapPrimaryContentInMain() {
-  const primaryContent = document.querySelector('main > *');
-
-  if (primaryContent) {
-    primaryContent.parentNode.wrap(document.createElement('div'));
-    primaryContent.parentNode.firstChild.id = 'main-wrapper';
-  }
-}
-
-// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
-function addressAccessibilityIssues() {
-  // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root');
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-  }
-
-  // Initialize skip link functionality
-  const skipLink = document.getElementById('skip-link');
-  if (skipLink) {
-    skipLink.addEventListener('click', function(e) {
-      const targetId = this.getAttribute('href').substring(1);
-      const target = document.getElementById(targetId);
-      if (target) {
-        target.setAttribute('tabindex', '-1');
-        target.focus();
-      }
-    });
-  }
-
-  // Ensure all buttons with role="button" respond to Enter key
-  document.querySelectorAll('[role="button"]').forEach(button => {
-    button.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        this.click();
-      }
-    });
-  });
-
-  // Add focusVisible polyfill behavior
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Tab') {
-      document.body.classList.add('using-keyboard');
-    }
-  });
-
-  document.addEventListener('mousedown', function() {
-    document.body.classList.remove('using-keyboard');
-  });
-
-  // Assuming a modal/dialog element with the ID "modal"
-  a11y.announce('Welcome to the bot!', 'assertive'); // Assuming announce function from a11y utilities
-
-  // Adding an alt attribute to an image
-  const imageElement = document.querySelector('img[alt=""]');
-  if (imageElement) {
-    imageElement.setAttribute('alt', 'A description of the image');
-  }
-
-  // Correcting the ARIA role for a div
-  const divElement = document.querySelector('div[role="list"]');
-  if (divElement) {
-    divElement.setAttribute('role', 'list');
-  }
-
-  // Adding the lang attribute to the HTML element
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', getLangAttribute());
-  }
-}
-
-/**
- * Handles fake links in the document
- */
-function handleFakeLinks() {
-  // Implementation to be added
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
-  fakeLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      console.warn('Fake link prevented:', link);
-    });
-  });
-}
-
-/**
- * Adds proper landmark regions to the document
- */
-function addProperLandmarkRegions() {
-  // Ensure header exists
-  if (!document.querySelector('header, [role="banner"]')) {
-    const header = document.createElement('header');
-    header.setAttribute('role', 'banner');
-    document.body.insertBefore(header, document.body.firstChild);
-  }
-
-  // Ensure main exists
-  if (!document.querySelector('main, [role="main"]')) {
-    const main = document.createElement('main');
-    main.setAttribute('role', 'main');
-    document.body.appendChild(main);
-  }
-
-  // Ensure footer exists
-  if (!document.querySelector('footer, [role="contentinfo"]')) {
-    const footer = document.createElement('footer');
-    footer.setAttribute('role', 'contentinfo');
-    document.body.appendChild(footer);
-  }
-}
-
-// Existing code from origin/main
-function existingFunction1() {
-  // Existing implementation
-}
-
-function existingFunction2() {
-  // Existing implementation
-}
-
-// New Function
-function newFunction() {
-  // Implement the new functionality (as per the original commitment)
-}
-
-// Export all functions
-module.exports = {
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  generateAccessibilityReport,
-  wrapPrimaryContentInMain,
-  existingFunction1,
-  existingFunction2,
-  newFunction,
-  addressAccessibilityIssues
-};
+    timestamp:

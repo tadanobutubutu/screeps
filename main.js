@@ -1,6 +1,7 @@
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
+// TODO: Existing main.js content before the merge conflict...
 const fastMap = {};
 const path = require('path');
 const accessiblyHelper = function() { return Promise.resolve([]); };
@@ -10,7 +11,7 @@ const accessiblyHelper = function() { return Promise.resolve([]); };
 
     // Preserving accessibility enhancements from original commitment
     // Version 1 implementation (HEAD branch) - accessibility features integrated
-    //_Commit: 0cc7acc93dade1532e36e2e26adc7bd895ef60df_
+    //Commit: 0cc7acc93dade1532e36e2e26adc7bd895ef60df_
     //<!-- todo-hash: 398424c02b2e0a493981d83f7e0c15b42542e233 -->
 
     // DOM Elements
@@ -611,11 +612,11 @@ const accessiblyHelper = function() { return Promise.resolve([]); };
         // Address accessibility issues from insight report:
         // Ensure the dependencyGraph container has a proper ARIA role
         // (This comment remains as-is)
-        //_Commit: eef4b6be04a5e2cd61b7543cfe2dff2da0857ca2_
+        //Commit: eef4b6be04a5e2cd61b7543cfe2dff2da0857ca2_
         //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-        //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+        //Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
         //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-        //_Commit: 62d675a958b864c43ad4471b12c4c40c5570b3f7_
+        //Commit: 62d675a958b864c43ad4471b12c4c40c5570b3f7_
         //<!-- todo-hash: b713d536f0ce67bf9eb8012f08502c264300052f -->
 
         // Address accessibility issues
@@ -781,7 +782,7 @@ function someFunction() {
 }
 
 // Configuration
-const PORT = process.env.PORT || 300
+const PORT = process.env.PORT || 3000
 
 const CONFIG = {
     dataPath: './data',

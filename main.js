@@ -52,11 +52,11 @@ const {
   renderAdditionalContent
 } = main
 
-function validateTableStructure(container) {
+function customValidateTableStructure(container) {
   return validateTableStructureForAccessibility(container);
 }
 
-function validateHeadingHierarchy(headings) {
+function customValidateHeadingHierarchy(headings) {
   // Implementation placeholder - function to be implemented
   return true
 }
@@ -100,8 +100,8 @@ module.exports = {
   ...main,
   createInPageButton,
   createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
+  customValidateLandmark,
+  customValidateLandmarkStructure,
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
@@ -116,7 +116,7 @@ module.exports = {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility,
-  validateTableStructureForAccessibility,
+  customValidateTableStructureForAccessibility,
   implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
   renderGraphIndex,
@@ -144,7 +144,7 @@ module.exports = {
   initializeAccessibility,
   renderIndex,
   newFunction,
-  validateHeadingHierarchy,
+  customValidateHeadingHierarchy,
   ensureHeadingHierarchy,
   renderAdditionalContent
 };

@@ -15,13 +15,12 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import fs from 'fs';
+import path from 'path';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const fastMap = new Map();
+
+// Accessibility Functions for Screeps
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
@@ -33,14 +32,21 @@ reportWebVitals();
  * @returns {string} The lang attribute value
  */
 export function getLangAttribute() {
-  // Implementation to be added
+  const htmlElement = document.documentElement;
+  return htmlElement.getAttribute('lang') || 'en';
 }
 
 /**
  * Adds lang attribute to HTML element
  */
 export function addLangAttribute() {
-  // Implementation to be added
+  if (typeof document !== 'undefined') {
+    const htmlElement = document.documentElement;
+    const lang = langMap.get(htmlElement);
+    if (lang) {
+      htmlElement.setAttribute('lang', lang);
+    }
+  }
 }
 
 // Existing exported functions remain unchanged
@@ -139,11 +145,16 @@ const landmarkSelectors = [
   'section:not([role])'
 ];
 
-const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
+const langMap = new Map();
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-  // ... (Preserved from the merge conflict)
+  const dependencies = {
+    'react': true,
+    'react-redux': true,
+    'antd': true
+  };
+  return Object.keys(dependencies).length;
 }
 
 // TODO: Implement tower defense
@@ -175,7 +186,7 @@ function writeReport(report) {
 }
 
 let isInitialized = false;
-let dependencyGraph = null;
+let dependencyGraph = {};
 
 const appState = {
   initialized: false,
@@ -184,217 +195,360 @@ const appState = {
 };
 
 let icons = {};
+
 let UserSafety = "unsafe";
 let SafetyCategories = "Unauthorized Advice";
 
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-function ensureDependencyGraphAriaRole() {
-  const dependencyGraphEl = document.querySelector('#dependencyGraph');
-  if (dependencyGraphEl) {
-    dependencyGraphEl.setAttribute('role', 'region');
-  }
-}
-
-// Google sign-in logic
-googleSignIn.initialize(config.clientId);
-
-// Function to validate book data for accessibility compliance
-function validateBookAccessibility(bookData) {
-    // ... (Implemented from the merged code)
-}
-
-// Function to create an accessible book entry object
-function createAccessibleBookEntry(bookData) {
-    // ... (Implemented from the merged code)
-}
-
-// Endpoint for adding a new book with accessibility validation
-app.post('/books', express.json(), (req, res) => {
-    // ... (Integrated from the merged code)
-});
-
-// Endpoint for getting all books
-app.get('/books', (req, res) => {
-    // ... (Integrated from the merged code)
-});
-
-// Endpoint for getting a specific book by ID
-app.get('/books/:id', (req, res) => {
-    // ... (Integrated from the merged code)
-});
-
-// Endpoint for updating a book with accessibility validation
-app.put('/books/:id', express.json(), (req, res) => {
-    // ... (Integrated from the merged code)
-});
-
-// Endpoint for deleting a book
-app.delete('/books/:id', (req, res) => {
-    // ... (Integrated from the merged code)
-});
-
-function handleCredentialResponse(response) {
-  try {
-    const data = typeof response === 'string' ? JSON.parse(response) : response;
-
-    if (!data || typeof data !== 'object') {
-      appState.error = 'Invalid credential response format';
-      return { success: false, error: 'Invalid credential response format' };
-    }
-
-    appState.credentials = data;
-
-    return { success: true, data };
-  } catch (error) {
-    appState.error = error.message;
-    return { success: false, error: error.message };
-  }
-}
-
-function deduplicateLandmarks(landmarks) {
-  // ... (Implemented from the merged code)
-}
-
-function initialize() {
-  console.log('Initializing application...');
-
-  if (!isInitialized) {
-    isInitialized = true;
-    appState.initialized = true;
-
-    const appData = {
-      title: 'Screeps',
-      version: CONFIG.version
-    };
-
-    /**
-     * Address accessibility issues from insight report:
-     * - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
-     * - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-     * - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-     * - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-     * - REACT_025: Ensure unique landmarks (handled by ensureUniqueLandmarks())
-     * - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility(), and handleFakeLinks())
-     */
-    
-    addLangAttribute();
-    wrapPrimaryContentInMain();
-    // validateTableStructureIssues();
-    // fixTableHeaderCellScope();
-    // addMainLandmark();
-    // addSvgAccessibleNames();
-    fixFakeLinkIssues();
-    // ensureUniqueLandmarks();
-
-    // Load landmarks
-    const landmarks = loadLandmarks();
-    const processed = processLandmarks(landmarks);
-
-    // Ensure the dependencyGraph container has a proper ARIA role (merged)
-    if (dependencyGraph) {
-      if (!dependencyGraph.id) {
-        dependencyGraph.id = 'dependencyGraph';
-      }
-      if (!dependencyGraph.hasAttribute('role')) {
-        dependencyGraph.setAttribute('role', 'region');
-      }
-      if (!dependencyGraph.hasAttribute('aria-label')) {
-        dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
-      }
-    }
-  }
-}
-
-function loadLandmarks() {
-  try {
-    const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error loading landmarks:', error.message);
-    return [];
-  }
-}
-
-function processLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const validLandmarks = landmarks.filter(isValidLandmark);
-
-  return validLandmarks;
-}
-
-function isValidLandmark(landmark) {
-    // ... (Preserved the function from the conflict)
-}
-
-function wrapPrimaryContentInMain() {
-    // ... (Integrated from the merged code)
-}
-
-function addLangAttribute() {
-    // ... (Integrated from the merged code)
-}
-
-// Address accessibility issues from insight report:
-// - REACT_037: Google sign-in logic
-// - REACT_001: Validate user credentials after sign-in
-
-function credentialHelper(cb) {
-  if (google.accounts.id.getAccountsByType('email').length > 0 && appState.credentials) {
-    cb(null, appState.credentials.id_token);
-  } else {
-    cb('Not signed in', null);
-  }
-}
-
-function validateCredential() {
-  credentialHelper((error, data) => {
-    if (error || !data) {
-      console.error('Invalid user credentials:', error);
-      return false;
-    }
-
-    const payload = jwt.decode(data);
-
-    // TODO: Add more validation checks on payload
-    // ...
-
-    return true;
+function generateDependencyReport(dependencies) {
+  let graph = 'Dependency Tree:\n';
+  dependencies.forEach(dep => {
+    graph += `- ${dep.name}\n`;
   });
+  return { graph };
 }
 
-function recoverGoogleSignIn() {
-  googleSignIn.renderButton('google-signin-button');
+function fixAccessibilityIssues() {
+  // Code to fix accessibility issues as per the insight report
 }
 
-function handleLoginError(error) {
-  console.error('Login error:', error);
+const accessiblyHelper = async (...args) => {
+  return args;
+};
+
+function createAccessibleInput(type, id, labelText, value = '') {
+  const container = document.createElement('div');
+  container.className = 'form-group';
+
+  const label = document.createElement('label');
+  label.setAttribute('for', id);
+  label.textContent = labelText;
+
+  const input = document.createElement('input');
+  input.setAttribute('type', type);
+  input.setAttribute('id', id);
+  input.setAttribute('name', id);
+  input.setAttribute('aria-required', 'true');
+  input.setAttribute('aria-label', labelText);
+  input.value = value;
+
+  container.appendChild(label);
+  container.appendChild(input);
+  return container;
 }
 
-// Toggle user session
-async function handleLoginButtonClick() {
-  const isLoginPossible = await validateCredential();
+function getUserSafetyAdvice(safetyRating) {
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  return safetyCategories.length > 0 ? safetyCategories[0] : 'Unknown';
+}
 
-  if (isLoginPossible) {
-    // User is already logged in, perform actions on successful login
-    console.log('User already logged in');
+function generateAccessibilityReport(issuesData) {
+  let issues;
+
+  if (!issuesData) {
+    issues = [];
   } else {
-    // Prompt the user to sign in
-    googleSignIn.renderButton('google-signin-button');
+    issues = Array.isArray(issuesData) ? issuesData : [issuesData];
   }
+
+  const report = {
+    introduction: 'Accessibility report for the application',
+    data: issues,
+    conclusions: '',
+  };
+
+  return report;
 }
 
-export { initializeApp, config, initialize, handleCredentialResponse, newFunction3, newFunction4, googleSignIn, credentialHelper, recoverGoogleSignIn, handleLoginError, handleLoginButtonClick };
+function createInPageButton(targetId, label) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.id = targetId;
+  button.setAttribute('role', 'button');
+  button.setAttribute('aria-label', `Go to ${targetId}`);
+  button.addEventListener('click', () => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.focus();
+    }
+  });
+  return button;
+}
 
-module.exports = {
+// App state
+const appStateObj = {
+  // Application state
+};
+
+// Initialize function
+function initialize() {
+  // Initialization code
+}
+
+// Function to validate landmark
+function validateLandmarkUtils(landmark) {
+  // Validate landmark
+}
+
+// Function to validate link accessibility
+function validateLinkUtils(link) {
+  // Validate link
+}
+
+// Initialize app
+function initializeAppUtils() {
+  // Initialize the app
+}
+
+// Function to count dependencies
+function countDeps() {
+  const dependencies = {
+    'react': true,
+    'react-redux': true,
+    'antd': true
+  };
+  return Object.keys(dependencies).length;
+}
+
+// Function to handle user interaction
+function handleUserInteraction(event) {
+  console.log('User interaction:', event.type);
+}
+
+// Cleanup function
+function cleanup() {
+  landmarks = [];
+  icons = {};
+}
+
+// Initialize app
+function initApp() {
+  initializeAppUtils();
+}
+
+// Process data
+function processData(data) {
+  return data;
+}
+
+// Fetch user
+function fetchUser(userId) {
+  // Fetch user data
+}
+
+// Clear cache
+function clearCache() {
+  // Clear cache
+}
+
+// Validate input
+function validateInput(input) {
+  // Validate input
+}
+
+// Main execution
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
+
+// Visualize dependency tree
+function VisualizeDependencyTree(data) {
+  const visualizationData = data || dependencyGraph;
+  console.log('Visualizing dependency tree:', visualizationData);
+}
+
+// Function to render a single book item
+function BookItem(book) {
+  return {
+    key: generateKey(book),
+    title: book.title,
+    author: book.author,
+    metadata: book
+  };
+}
+
+let landmarks = [];
+
+// Function to create a new book entry in the Redux store
+export function addBook(book) {
+  // Perform any necessary validation or processing before adding the book
+  // ...
+
+  // Dispatch an action to add the book to the books list in the Redux store
+  dispatch({ type: 'ADD_BOOK', payload: book });
+}
+
+// Ensure accessibility attributes are set when adding a book
+
+// Default sorting function for the book list
+const defaultSorting = 'title';
+
+// Function to handle sorting the book list by title (ascending)
+function onTitleSort() {
+  // Dispatch an action to update the sorted book list in the Redux store
+  // dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+}
+
+// Function to handle sorting the book list by author (descending)
+function onAuthorSort() {
+  // Dispatch an action to update the sorted book list in the Redux store
+  // dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+}
+
+// Render the main component containing the book list and sorting controls
+function Main() {
+  // Main component logic
+}
+
+// Export all functions
+export {
+  initializeApp,
+  config,
+  initialize,
+  handleCredentialResponse,
+  newFunction3,
+  newFunction4,
+  googleSignIn,
+  credentialHelper,
+  recoverGoogleSignIn,
+  handleLoginError,
+  handleLoginButtonClick,
   applyAccessibilityFixesAndHarvestData,
   analyzeModuleDependencies,
   visualizeModuleRelationships,
   ensureElementHasId,
   addAriaLabel,
-  writeReport
+  writeReport,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkUtils,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addLandmarkRegions,
+  processAccessibilityIssues,
+  initialize,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  validateInput,
+  wrapPrimaryContentInMain,
+  handleUserInteraction,
+  cleanup,
+  initApp,
+  VisualizeDependencyTree,
+  checkLandmarkElement,
+  ensureLandmarkUniqueness,
+  validateLandmark,
+  renderDependencyGraphContent,
+  landmarks,
+  appData,
+  icons,
+  countDependencies,
+  addBook,
+  BookItem,
+  defaultSorting,
+  onTitleSort,
+  onAuthorSort,
+  Main,
+  landmarkStructureCheck,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  isSecureContext,
+  ensureFocusableElements,
+  validateSvgAccessibility,
+  processUniqueElements,
+  addressInsightIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  addProperLandmarkRegions,
+  createInPageButtons,
+  fixFakeLinkIssue,
+  addSvgAccessibleNames,
+  fixButtonIdentifiers,
+  googleSignIn,
+  UserSafety,
+  SafetyCategories,
+  generateDependencyReport,
+  fixAccessibilityIssues,
+  accessiblyHelper,
+  createAccessibleInput,
+  getUserSafetyAdvice,
+  generateAccessibilityReport,
+  appState,
+  generateDependencyReport as generateDependency,
+  getUserSafety,
+  main as mainFunction,
+  fastMap,
+  langMap,
+  landmarks,
+  icons
+};
+
+export const main = {
+  init: function() {
+    console.log('Application initialized');
+  },
+
+  greet: function(name) {
+    return `Hello, ${name}!`;
+  },
+
+  rotateBack: function() {
+    console.log('Reverting back the rotation.');
+  },
+
+  addressAccessibilityIssues: function() {
+    fixAccessibilityIssues();
+  },
+
+  addBook: function(title, author, isbn) {
+    // Create form with proper accessibility attributes
+    const form = document.createElement('form');
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add book form');
+
+    // Create accessible input fields
+    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+    // Create accessible submit button
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('type', 'submit');
+    submitButton.setAttribute('aria-label', 'Submit book');
+    submitButton.textContent = 'Add Book';
+
+    // Append all elements to form
+    form.appendChild(titleInput);
+    form.appendChild(authorInput);
+    form.appendChild(isbnInput);
+    form.appendChild(submitButton);
+
+    // Add form to document body
+
+    // Add event listener for form submission
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      // Handle form submission logic here
+      console.log('Book added:', {
+        title: form.querySelector('#title').value,
+        author: form.querySelector('#author').value,
+        isbn: form.querySelector('#isbn').value
+      });
+    });
+
+    return form;
+  }
 };

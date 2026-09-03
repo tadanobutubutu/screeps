@@ -162,3 +162,16 @@ function ensureInteractiveElementsAccessible() {
 }
 
 // ... rest of the code ...
+
+// TODO: Implement the new function as per the issue requirements
+/**
+ * Process user input data
+ * @param {string} input - The input string to process
+ * @returns {string} The processed input with standardized formatting
+ */
+function processUserInput(input) {
+  if (typeof input !== 'string') {
+    throw new Error('Input must be a string');
+  }
+  return input.trim().toLowerCase();
+}

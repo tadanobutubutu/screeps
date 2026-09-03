@@ -1,5 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
@@ -32,7 +32,7 @@ import { indexContent } from './indexContent';
  * @param {Object} props - Props for rendering the dependency graph
  * @returns {React.ReactElement} The rendered dependency graph content
  */
-function renderDependencyGraph(props) {
+export function renderDependencyGraph(props) {
   const content = dependencyGraphContent(props);
   return content;
 }
@@ -43,7 +43,7 @@ function renderDependencyGraph(props) {
  * @param {Object} props - Props for rendering the index view
  * @returns {React.ReactElement} The rendered index content
  */
-function renderIndexView(props) {
+export function renderIndexView(props) {
   const content = indexContent(props);
   return content;
 }
@@ -53,7 +53,7 @@ function renderIndexView(props) {
  * @param {string} lang language code (e. g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
  */
-function setHtmlLangAttribute(lang) {
+export function setHtmlLangAttribute(lang) {
   if (typeof document !== 'undefined' && document.documentElement) {
     document.documentElement.lang = lang || 'en';
   }
@@ -65,7 +65,7 @@ function setHtmlLangAttribute(lang) {
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
  */
-function detectAndSetLang(content) {
+export function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
   
@@ -90,12 +90,12 @@ function detectAndSetLang(content) {
 }
 
 // New function to address REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
+export function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
 
 // New function to address REACT_027: Fix 26 table structure issues
-function validateTableAccessibility(tableElement) {
+export function validateTableAccessibility(tableElement) {
   if (typeof document === 'undefined' || !tableElement) {
     return { valid: false, errors: ['Table element not found or document not available'] };
   }
@@ -113,7 +113,7 @@ function validateTableAccessibility(tableElement) {
   
   // Check for th elements in thead
   const thead = tableElement.querySelector('thead');
-  const thElements = thead ? thead.querySelectorAll('th') : [];
+  const thElements = thead ? Array.from(thead.querySelectorAll('th')) : [];
   if (thElements.length === 0) {
     errors.push('Table header row is missing <th> elements');
   }
@@ -135,7 +135,7 @@ function validateTableAccessibility(tableElement) {
   return { valid: errors.length === 0, errors };
 }
 
-function validateTableStructure(tableElement) {
+export function validateTableStructure(tableElement) {
   if (typeof document === 'undefined' || !tableElement) {
     return { valid: false, errors: ['Table element not found'] };
   }
@@ -144,7 +144,7 @@ function validateTableStructure(tableElement) {
   const rows = tableElement.querySelectorAll('tr');
   
   rows.forEach((row, rowIndex) => {
-    const cells = Array.from(row.querySelectorAll('td'));
+    const cells = row.querySelectorAll('td, th');
     const cellCount = cells.length;
     
     // Check for empty cells
@@ -157,7 +157,7 @@ function validateTableStructure(tableElement) {
     // Check that rows have consistent cell counts
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = Array.from(prevRow.querySelectorAll('td'));
+      const prevCells = prevRow.querySelectorAll('td, th');
       if (cellCount !== prevCells.length) {
         errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
       }
@@ -168,7 +168,7 @@ function validateTableStructure(tableElement) {
 }
 
 // New function to address REACT_017: Add/fix 4 landmark issues
-function validateLandmark(element) {
+export function validateLandmark(element) {
   if (typeof document === 'undefined' || !element) {
     return { valid: false, errors: ['Element not found'] };
   }
@@ -200,7 +200,7 @@ function validateLandmark(element) {
   return { valid: errors.length === 0, errors };
 }
 
-function validateLandmarkStructure() {
+export function validateLandmarkStructure() {
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] };
   }
@@ -214,7 +214,7 @@ function validateLandmarkStructure() {
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
@@ -237,7 +237,7 @@ function validateLandmarkStructure() {
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svgElement) {
+export function getSvgAccessibleName(svgElement) {
   if (typeof document === 'undefined' || !svgElement) {
     return null;
   }
@@ -246,4 +246,8 @@ function getSvgAccessibleName(svgElement) {
   let accessibleName = svgElement.getAttribute('aria-label');
   if (accessibleName) return accessibleName;
   
-  // Check for aria-labelled
+  // Check for aria-labelledby
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelElement = document.getElementById(labelledBy);
+    return label

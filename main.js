@@ -1,4 +1,31 @@
+// Add back any required exports that might have been removed.
+// Existing code starts here
 const main = require('./utilities')
+
+// Function to format a person's name for accessibility
+function personName(firstName, lastName, options = {}) {
+  const { middleName = '', suffix = '', prefix = '' } = options
+  
+  const parts = []
+  
+  if (prefix) {
+    parts.push(prefix)
+  }
+  
+  parts.push(firstName)
+  
+  if (middleName) {
+    parts.push(middleName)
+  }
+  
+  parts.push(lastName)
+  
+  if (suffix) {
+    parts.push(suffix)
+  }
+  
+  return parts.join(' ')
+}
 
 // Function for getting the language attribute based on content
 function getLangAttribute() {

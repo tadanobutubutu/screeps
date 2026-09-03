@@ -27,6 +27,8 @@ const {
   newFocusTrap,
   renderAdditionalContent,
   transformInputData,
+  // New feature import
+  newFeatureFunction,
 } = main;
 
 const accessibilityUtils = {
@@ -175,6 +177,8 @@ const accessibilityUtils = {
   addSvgAccessibleName,
   ensureElementIdOrigin,
   renderAdditionalContent,
+  // New feature access
+  newFeatureFunction,
 };
 
 module.exports = {
@@ -194,4 +198,7 @@ module.exports = {
   fixDependencyGraphAria,
   addSvgAccessibleName,
   ensureElementIdOrigin,
+  renderAdditionalContent,
+  // New feature export
+  newFeatureFunction,
 };

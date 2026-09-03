@@ -345,16 +345,18 @@ function initializeAccessibility() {
 }
 
 // Call the functions to address the accessibility issues
-addLangAttribute()
-fixTableStructure()
-addMainLandmark()
-fixLandmarkIssues()
-ensureUniqueLandmarks()
-addSvgAccessibleNames()
-addAccessibleNamesToSVGs()
-fixFakeLinkIssue()
-googleSignIn()
-fixButtonIdentifiers()
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  addLangAttribute()
+  fixTableStructure()
+  addMainLandmark()
+  fixLandmarkIssues()
+  ensureUniqueLandmarks()
+  addSvgAccessibleNames()
+  addAccessibleNamesToSVGs()
+  fixFakeLinkIssue()
+  googleSignIn()
+  fixButtonIdentifiers()
+}
 
 // Other code...
 

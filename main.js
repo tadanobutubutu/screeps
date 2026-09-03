@@ -42,7 +42,7 @@
       fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
     }
 
-// Utilities
+    // Utilities
 const { validateInput, processData } = require('./utils/validators');
 const { formatResponse } = require('./utils/processor');
 
@@ -348,7 +348,7 @@ function functionB(value) {
       console.log(`Sorted ${sorted.length} landmarks`);
 
       if (sorted.length > 0) {
-        console.log('First landmark:', sorted[0]);
+        console.log('First landmark:', sorted);
       }
     }
 

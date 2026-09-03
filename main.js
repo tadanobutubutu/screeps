@@ -54,6 +54,9 @@ const AddressabilityIssues = {
 
 // <!-- todo-hash: 469dfeab59b4116886abe058392a60b81da4857c -->
 
+// Import the new function to create a button with correct accessibility properties for in-page linking
+const inPageButton = typeof document !== 'undefined' ? createInPageButton() : null;
+
 /**
  * Similar to existing function, with changes to preserve both the existing and the new
  * function implementation. This helps maintain backward compatibility while implementing the new.

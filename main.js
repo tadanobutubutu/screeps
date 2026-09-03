@@ -25,7 +25,6 @@ const {
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
-  renderAdditionalContent,
   transformInputData,
 } = main;
 

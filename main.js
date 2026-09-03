@@ -27,6 +27,14 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
+// New functions to address the listed issues
+function addLangAttribute(element) {
+  // Adds lang attribute to the given HTML element
+  if (element && typeof element.setAttribute === 'function') {
+    element.setAttribute('lang', 'en');
+  }
+}
+
 const config = {
   port: PORT,
   env: process.env.NODE_ENV || 'development',
@@ -106,8 +114,8 @@ export function validateTableStructure(table) {
   }
 
   // Check the table structure and return a boolean value indicating the result
-  // Your updated code for validating the table structure combining both changes
   // Use the existing default value of true if the checks pass
+  return issues.length === 0;
 }
 
 function validateLandmark(element) {
@@ -295,7 +303,7 @@ function spawnCommand(command, args, callback) {
 }
 
 function countDependencies() {
-  return require.main.requires ? require.main.requires.length : 0;
+  return countPackageDependencies().total;
 }
 
 function countPackageDependencies() {
@@ -316,7 +324,7 @@ function validateNewAccessibilityIssues() {
   // Retrieve the language attribute for the HTML document
   const lang = getLangAttribute();
 
-  // Apply the language attribute to the <html> element if not already present
+  // Apply the language attribute to the HTML document if not already present
   const htmlElement = document.documentElement;
   if (htmlElement && typeof htmlElement !== 'undefined') {
     if (!htmlElement.getAttribute('lang')) {
@@ -388,8 +396,8 @@ function generateAccessibilityReport(accessibilityReport) {
   };
 }
 
-function calculateAccessibilityScore(fixedIssues) {
-  if (!Array.isArray(fixedIssues)) {
+function calculateAccessibilityScore(fixedIsses) {
+  if (!Array.isArray(fixedIsses)) {
     return 0;
   }
 
@@ -401,7 +409,7 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssues.reduce((score, issue) => {
+  return fixedIsses.reduce((score, issue) => {
     const points = scorePoints[issue.type] || scorePoints['other'];
     return score + points;
   }, 0);

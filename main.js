@@ -55,112 +55,55 @@ const {
 
 // Implement the function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport (container, report) {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0
+  // ... existing code ...
+
+  // New function to handle additional rendering logic
+  // @param {Object} additionalData - Additional data for rendering
+  // @returns {string} Rendered additional content HTML
+  function renderAdditionalContent(additionalData) {
+    // Placeholder for actual implementation
+    return ''
   }
 
-  if (!report || !report.issues) {
-    return fixes
+  // Accessibility-related function to be added
+  function checkAccessibilityForReport (content) {
+    // Placeholder for accessibility checking logic
+    // This function should be implemented to check for accessibility issues
+    // For now, it just returns an empty array
+    return []
   }
 
-  // Add lang attribute to HTML element if missing
-  const htmlEl =
-    container.querySelector('html') ||
-    (container.ownerDocument && container.ownerDocument.querySelector('html'))
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en')
-    fixes.langAdded = true
+  // New rendering function
+  function renderGraphIndex(content, options = {}) {
+    return content
   }
 
-  // Add main landmark if missing
-  const mainElement = container.querySelector('main')
-  if (!mainElement) {
-    const body = container.querySelector('body')
-    if (body) {
-      const newMain = document.createElement('main')
-      while (body.firstChild) {
-        newMain.appendChild(body.firstChild)
+  // Helper to manage focus within a container
+  function trapFocus(container) {
+    const focusableElements = container.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
+
+    return function(e) {
+      const isTab = e.key === 'Tab'
+      if (!isTab) return
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault()
+          if (lastElement) lastElement.focus()
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault()
+          if (firstElement) firstElement.focus()
+        }
       }
-      body.appendChild(newMain)
-      fixes.mainLandmarkAdded = true
     }
   }
 
-  // Update the existing function using the new functions for rendering graph/index
-  renderDependencyGraphs(container)
-  fixButtonIdentifiers(container)
-  fixDependencyGraphAria(container)
-
-  // Fix landmark issues
-  validateLandmark(container)
-  validateLandmarkStructure(container)
-  fixes.landmarksFixed++
-
-  // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach((svg) => {
-    const accessibleName = getSvgAccessibleName(svg)
-    if (
-      accessibleName &&
-            !svg.getAttribute('aria-label') &&
-            !svg.getAttribute('aria-labelledby')
-    ) {
-      svg.setAttribute('aria-label', accessibleName)
-      fixes.svgNamesAdded++
-    }
-  })
-
-  // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href])')
-  fakeLinks.forEach((link) => {
-    link.setAttribute('href', '#' + (link.id || `link-${Date.now()}`))
-    link.setAttribute('role', 'link')
-    fixes.fakeLinksFixed++
-  })
-
-  // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(container)
-  if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
-  }
-
-  // Implement focus trap for keyboard navigation
-  focusTrap(container)
-
-  if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info')
-  }
-
-  if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info')
-  }
-
-  // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container)
-  if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`, 'error')
-  }
-
-  const landmarkFixesCount = fixes.landmarksFixed || 0
-  if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
-  }
-
-  const svgFixes = fixes.svgNamesAdded || 0
-  if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
-  }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0
-  if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
-  }
-
-  return fixes
+  // ... existing code ...
 }
 
 function validateSession() {
@@ -175,90 +118,22 @@ function handleCredentialResponse(response) {
   console.log('Credential Response:', response)
 }
 
-// New function to handle additional rendering logic
-// @param {Object} additionalData - Additional data for rendering
-// @returns {string} Rendered additional content HTML
-function renderAdditionalContent(additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return ''
-}
+// New function to improve accessibility for adding a new book
+function addAccessibilityForAddingBook(container) {
+  // Ensure that the container has a label for the input field
+  const inputField = container.querySelector('input[type="text"]');
+  if (inputField) {
+    const label = document.createElement('label');
+    label.htmlFor = inputField.id;
+    label.textContent = 'Book Title';
+    inputField.parentNode.insertBefore(label, inputField);
+  }
 
-// Accessibility-related function to be added
-function checkAccessibilityForReport (content) {
-  // Placeholder for accessibility checking logic
-  // This function should be implemented to check for accessibility issues
-  // For now, it just returns an empty array
-  return []
-}
-
-// New rendering function
-function renderGraphIndex(content, options = {}) {
-  return content
-}
-
-// Helper to manage focus within a container
-function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  )
-  const firstElement = focusableElements[0]
-  const lastElement = focusableElements[focusableElements.length - 1]
-
-  return function(e) {
-    const isTab = e.key === 'Tab'
-    if (!isTab) return
-    if (e.shiftKey) {
-      if (document.activeElement === firstElement) {
-        e.preventDefault()
-        if (lastElement) lastElement.focus()
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        e.preventDefault()
-        if (firstElement) firstElement.focus()
-      }
-    }
+  // Ensure that the form has a submit button with an accessible name
+  const submitButton = container.querySelector('button[type="submit"]');
+  if (submitButton) {
+    submitButton.setAttribute('aria-label', 'Submit new book');
   }
 }
 
-/**
- * REACT_015: Add lang attribute to HTML element
- * Ensures the HTML element has a proper lang attribute for screen readers
- */
-export function addLangAttribute(element, lang = 'en') {
-  let htmlElement = element || document.documentElement
-  if (!htmlElement) {
-    return null
-  }
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang)
-  }
-  return htmlElement
-}
-
-/**
- * REACT_027: Fix table structure issues
- * Ensures tables have proper structure with headers and captions
- */
-export function fixTableStructure(tableElement) {
-  if (!tableElement) return null
-  
-  const headers = tableElement.querySelectorAll('th')
-  headers.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      const row = th.closest('tr')
-      const cellIndex = Array.from(row.children).indexOf(th)
-      th.setAttribute('scope', 'col')
-    }
-  })
-  
-  const existingCaption = tableElement.querySelector('caption')
-  if (!existingCaption) {
-    const caption = document.createElement('caption')
-    caption.textContent = 'Data table'
-    tableElement.insertBefore(caption, tableElement.firstChild)
-  }
-  
-  return tableElement
-}
+// ... existing code ...

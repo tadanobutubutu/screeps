@@ -141,8 +141,22 @@ function getSvgAccessibleName() {
   return [];
 }
 
-function validateLinkAccessibility() {
-  return [];
+function validateLinkAccessibility(link) {
+  if (!link || typeof link !== 'object') {
+    return false;
+  }
+
+  // Check if link has href and is not empty
+  if (!link.href || link.href.trim() === '') {
+    return false;
+  }
+
+  // Check if link has accessible name
+  if (!link.textContent || link.textContent.trim() === '') {
+    return false;
+  }
+
+  return true;
 }
 
 function analyzeAccessibility(issuesData) {
@@ -210,24 +224,8 @@ function wrapPrimaryContentInMain(parent) {
   return mainElement;
 }
 
-// New function to validate link accessibility
-function validateLinkAccessibility(link) {
-  if (!link || typeof link !== 'object') {
-    return false;
-  }
-
-  // Check if link has href and is not empty
-  if (!link.href || link.href.trim() === '') {
-    return false;
-  }
-
-  // Check if link has accessible name
-  if (!link.textContent || link.textContent.trim() === '') {
-    return false;
-  }
-
-  return true;
-}
+// N/A: No functions that render dependency graphs exist in this file
+// The dependencyGraph variable referenced in initialize() is a DOM element, not a rendering function
 
 // New function to handle fake links
 function handleFakeLinks() {
@@ -247,7 +245,7 @@ function initialize() {
   const processed = processLandmarks(landmarks);
   
   // Ensure the dependencyGraph container has a proper ARIA role
-  if (dependencyGraph) {
+  if (typeof dependencyGraph !== 'undefined' && dependencyGraph) {
     if (!dependencyGraph.id) {
       dependencyGraph.id = 'dependencyGraph';
     }

@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserve
+// (This comment remains as-is)
+
 class ScreepsBot {
   constructor() {
     this.network = null;
@@ -11,7 +14,8 @@ class ScreepsBot {
     console.log('Screenspider bot started');
   }
 
-  addTaskWithPriority(taskFn, priority = 'medium') {
+  scheduleTask(taskFn, ...args) {
+    const priority = args[0] || 'medium';
     const taskId = this.generateTaskId();
     this.tasks.push({ task: taskFn, priority, id: taskId });
     this.scheduleTasks();
@@ -163,7 +167,7 @@ class ScreepsBot {
       case 'ArrowDown':
       case 'ArrowLeft':
       case 'ArrowRight':
-        this.handleArrowKeyNavigation(key, activeElement);
+        this.handleArrowNavigation(activeElement);
         break;
       case 'Tab':
         this.handleTabNavigation(event, activeElement);
@@ -173,7 +177,7 @@ class ScreepsBot {
     }
   }
 
-  handleArrowKeyNavigation(key, activeElement) {
+  handleArrowNavigation(activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
   }
@@ -183,7 +187,7 @@ class ScreepsBot {
     console.log('Handling tab navigation');
   }
 
-  navigateWithArrows(key, activeElement) {
+  handleArrowNavigationNew(activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
   }
@@ -206,10 +210,12 @@ class ScreepsBot {
     const svg = parser.parseFromString(svgString, 'image/svg+xml');
     const svgElement = svg.documentElement;
 
-    if (!svgElement.getAttribute('aria-label')) {
-      svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+    if (svgElement.tagName === 'svg') {
+      const title = document.createElement('title');
+      title.textContent = 'Descriptive label for SVG';
+      svgElement.insertBefore(title, svgElement.firstChild);
     }
-    return new XMLSerializer().serializeToString(svg);
+    return svgElement;
   }
 
   validateTableAccessibilityNew(tableData) {
@@ -225,8 +231,6 @@ class ScreepsBot {
   renderAdditionalContent(additionalData) {
     // Your implementation for additional rendering logic
     // ...
-
-    // Exported function from main
     return renderAdditionalContent(additionalData);
   }
 
@@ -240,8 +244,8 @@ class ScreepsBot {
     // ...
   }
 
-  handleArrowKeyNavigationNew(key, activeElement) {
-    // New implementation of handleArrowKeyNavigation function
+  handleArrowNavigationNew(activeElement) {
+    // New implementation of handleArrowNavigation function
     // ...
   }
 
@@ -261,10 +265,10 @@ class ScreepsBot {
   }
 
   // Additional accessibility functions from HEAD branch
-  ensureDependencyGraphARIA() {
-    const dependencyGraph = document.getElementById('dependencyGraph')
+  checkLandmarks() {
+    const dependencyGraph = document.querySelector('[data-dependency-graph]');
     if (dependencyGraph) {
-      dependencyGraph.setAttribute('role', 'region')
+      dependencyGraph.setAttribute('role', 'region');
     }
   }
 
@@ -276,8 +280,9 @@ class ScreepsBot {
     // ... (existing code)
   }
 
-  addAccessibleNamesToSVGs() {
+  addSvgAccessibleNames() {
     // Implementation for adding accessible names to SVGs
+    // ...
   }
 
   addSvgAccessibleNames() {

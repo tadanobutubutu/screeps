@@ -343,6 +343,13 @@ function createInPageButton(buttonText, onClickHandler) {
   };
 }
 
+function addLangAttribute(element) {
+  if (typeof document === 'undefined') return;
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
+}
+
 function wrapPrimaryContentInMain() {
   if (typeof document === 'undefined') return;
   const primaryContent = document.querySelector('#content') ||
@@ -454,7 +461,6 @@ module.exports = {
   getFullLangAttribute,
   calculateSum,
   createInPageButton,
-  wrapPrimaryContentInMain,
   addLangAttribute,
   addProperLandmarkRegions,
   performUpgrade,

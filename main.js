@@ -573,6 +573,53 @@ const accessiblyHelper = function() { return Promise.resolve([]); };
       }
     }
 
+    // TODO: Implement wrapPrimaryContentInMain function, including the added logic
+    function wrapPrimaryContentInMain() {
+      // Check if main element already exists
+      const existingMain = document.querySelector('main') || document.querySelector('[role="main"]');
+      if (existingMain) {
+        return existingMain;
+      }
+
+      const body = document.body;
+      if (!body) {
+        return null;
+      }
+
+      // Identify structural elements that should remain outside main
+      const structuralTags = ['header', 'nav', 'aside', 'footer'];
+      const structuralSelector = structuralTags.join(',');
+
+      // Create main element
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+
+      // Move all non-structural content into main
+      while (body.firstChild) {
+        const child = body.firstChild;
+        const tagName = child.tagName ? child.tagName.toLowerCase() : '';
+
+        // Skip structural elements - they stay outside main
+        if (structuralTags.includes(tagName)) {
+          body.appendChild(child);
+        } else {
+          main.appendChild(child);
+        }
+      }
+
+      // Insert main element in the appropriate position
+      const header = body.querySelector('header');
+      if (header) {
+        // Insert main after header
+        header.parentNode.insertBefore(main, header.nextSibling);
+      } else {
+        // Insert main at the beginning of body
+        body.insertBefore(main, body.firstChild);
+      }
+
+      return main;
+    }
+
     // Export the report generation function
     module.exports = {
       generateAccessibilityReport: async function () {
@@ -596,7 +643,8 @@ const accessiblyHelper = function() { return Promise.resolve([]); };
       validateLandmarkStructure,
       ensureUniqueLandmarks,
       checkLinkAccessibility,
-      function3
+      function3,
+      wrapPrimaryContentInMain
     };
 
     // Initialize the application with accessibility improvements
@@ -620,6 +668,9 @@ const accessiblyHelper = function() { return Promise.resolve([]); };
 
         // Address accessibility issues
         addressAccessibilityIssues();
+
+        // Wrap primary content in main element for accessibility
+        wrapPrimaryContentInMain();
 
         // Create the in-page button
         createInPageButton();

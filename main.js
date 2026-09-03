@@ -227,3 +227,5 @@ function fixFakeLinkIssue(document) {
       }
       count++;
     }
+  });
+}

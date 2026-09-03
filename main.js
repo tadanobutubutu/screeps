@@ -74,7 +74,7 @@ function detectAndSetLang(content) {
       lang = 'zh'; // Chinese
     } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
+    } else if (/[\u400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
@@ -332,4 +332,22 @@ function personName(element) {
   }
   
   return null;
+}
+
+// New function to address REACT_036: Fix fake link issue (createInPageButton)
+function createInPageButton(id, label) {
+  return React.createElement(
+    'button',
+    {
+      className: 'skip-link',
+      onClick: (e) => {
+        e.preventDefault();
+        const target = document.getElementById(id);
+        if (target) {
+          target.focus();
+        }
+      }
+    },
+    label
+  );
 }

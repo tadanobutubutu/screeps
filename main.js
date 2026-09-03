@@ -139,8 +139,8 @@ const AddressabilityIssues = {
     const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
 
-    const dependencies = JSON.parse(packageJsonPath).dependencies || {};
-    const devDependencies = JSON.parse(packageJsonPath).devDependencies || {};
+    const dependencies = JSON.parse(packageJson).dependencies || {};
+    const devDependencies = JSON.parse(packageJson).devDependencies || {};
 
     return {
       dependencies: Object.keys(dependencies).length,
@@ -370,4 +370,22 @@ function createServer() {
 
 function generateAccessibilityReport() {
   // Placeholder implementation
+}
+
+// Implement tower defense
+function towerDefense() {
+  const towers = [
+    { id: 1, name: 'Arrow Tower', damage: 10, range: 3, cost: 50 },
+    { id: 2, name: 'Cannon Tower', damage: 25, range: 5, cost: 100 }
+  ];
+  const enemies = [];
+  return {
+    towers: towers,
+    enemies: enemies,
+    status: 'defending'
+  };
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.towerDefense = towerDefense;
 }

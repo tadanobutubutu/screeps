@@ -238,6 +238,13 @@ function handleFakeLinks() {
   });
 }
 
+// Dependency graph rendering functions
+// N/A: No dependency graph rendering functions exist in this file
+function renderDependencyGraph() {
+  // N/A: Dependency graph rendering not implemented in this file
+  return null;
+}
+
 // Helper function
 function initialize() {
   console.log('Initializing application...');
@@ -246,6 +253,7 @@ function initialize() {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
   
+  // N/A: No dependency graph rendering functions exist in this file
   // Ensure the dependencyGraph container has a proper ARIA role
   if (dependencyGraph) {
     if (!dependencyGraph.id) {

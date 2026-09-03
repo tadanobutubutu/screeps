@@ -1,3 +1,5 @@
+`
+
 // Find the primary content element in the DOM
 const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
 
@@ -125,11 +127,22 @@ function addressInsightIssues() {
   validateLandmarkStructure();
 }
 
+// Count dependencies
+function countDependencies() {
+  // Implement a function to count the number of dependencies here
+}
+
 // Initialize app
 function initializeApp() {
   addressInsightIssues();
   if (typeof wrapPrimaryContentInMain === 'function') {
     wrapPrimaryContentInMain();
+  }
+
+  // New implementation to count dependencies
+  if (typeof countDependencies === 'function') {
+    const numDependencies = countDependencies();
+    console.log(`Number of dependencies: ${numDependencies}`);
   }
 }
 
@@ -166,8 +179,9 @@ export {
   addLangAttribute,
   ensureLandmarkUniqueness,
   renderDependencyGraphContent,
-  addressInsightIssue,
+  addressInsightIssues,
   initializeApp,
   primaryContent,
+  countDependencies,
   getNewFunctionLogic
 };

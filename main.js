@@ -741,6 +741,11 @@ if (typeof document !== 'undefined') {
   }
 }
 
+function renderIndex() {
+  // Placeholder for renderIndex to fix ReferenceError in module.exports
+  return '';
+}
+
 // Export modules for testing
 module.exports = {
   ...main,

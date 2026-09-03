@@ -82,23 +82,9 @@ if (dependencyGraph) {
   }
 }
 
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName (svgString) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
-  const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
-  }
-  return new XMLSerializer().serializeToString(svg)
-}
-
 // Example usage of the function
 const originalSvgString =
     'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
-const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**
  * Validates table accessibility
@@ -161,7 +147,60 @@ function validateLandmarkStructure (landmark) {
  * @returns {string} The accessible name of the SVG.
  */
 function getSvgAccessibleName (svg) {
-  return svg && (svg.getAttribute('aria-label') || svg.getAttribute('title')) || ''
+  if (!svg) return ''
+  
+  // Check aria-label attribute first
+  const ariaLabel = svg.getAttribute('aria-label')
+  if (ariaLabel) return ariaLabel
+  
+  // Check title attribute
+  const titleAttr = svg.getAttribute('title')
+  if (titleAttr) return titleAttr
+  
+  // Check for <title> element child
+  const titleElement = svg.querySelector('title')
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim()
+  }
+  
+  // Check for <desc> element as fallback
+  const descElement = svg.querySelector('desc')
+  if (descElement && descElement.textContent) {
+    return descElement.textContent.trim()
+  }
+  
+  // If it's a string (SVG markup), parse and extract name
+  if (typeof svg === 'string') {
+    try {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(svg, 'image/svg+xml')
+      const svgEl = doc.documentElement
+      
+      // Check for aria-label
+      const ariaLabelStr = svgEl.getAttribute('aria-label')
+      if (ariaLabelStr) return ariaLabelStr
+      
+      // Check for title attribute
+      const titleAttrStr = svgEl.getAttribute('title')
+      if (titleAttrStr) return titleAttrStr
+      
+      // Check for <title> element
+      const titleEl = svgEl.querySelector('title')
+      if (titleEl && titleEl.textContent) {
+        return titleEl.textContent.trim()
+      }
+      
+      // Check for <desc> element
+      const descEl = svgEl.querySelector('desc')
+      if (descEl && descEl.textContent) {
+        return descEl.textContent.trim()
+      }
+    } catch (e) {
+      // If parsing fails, return empty string
+    }
+  }
+  
+  return ''
 }
 
 /**
@@ -280,7 +319,6 @@ module.exports = {
   createAnnouncer,
   prefersReducedMotion,
   renderSimpleDependencyGraph,
-  addAccessibleName,
   addAccessibleNamesToSVGs,
   addSvgAccessibleNames,
   fixFakeLinkIssue,

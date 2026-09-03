@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 import React from 'react';
 import { render } from 'react-dom';
 import {
@@ -56,10 +53,16 @@ class ScreepsBot {
     }
   }
 
+  // Event listener for click events on the dependencyGraph element
+  handleDependencyGraphClick = () => {
+    const dependencyGraph = document.getElementById('dependencyGraph');
+    if (dependencyGraph) {
+      const html = dependencyGraph.innerHTML;
+      this.validateTableAccessibility(html);
+    }
+  };
+
   // ... (Add the event listener for click events on the dependencyGraph element)
 }
 
 // ... (The module.exports section remains the same as in the original conflict branch)
-```
-
-In this solution, I merged the changes from both branches while preserving the functionality. I added the `validateTableAccessibility` function to the `ScreepsBot` class and called it within the event listener for clicking the `dependencyGraph` element.

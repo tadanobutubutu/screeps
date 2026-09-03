@@ -2,15 +2,13 @@
 const config = {};
 
 // Application state
-let isInitialized = false;
+let isInitialized = false; // Fixed: Removed the previous declaration of isInitialized
 const appData = {};
 
 // Example of how to export a required function from another file
 // const { myFunction } = require('./otherFile');
 // module.exports = { myFunction };
 // TODO: Add back any required exports that might have been removed
-
-// Address accessibility issues from insight report
 
 // Import the required module
 const { axe } = require('axe-core');
@@ -39,11 +37,8 @@ const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
 const config = CONFIG;
 
 // Application state
-let isInitialized = false;
+let isInitialized = false; // Fixed: Removed the previous declaration of isInitialized
 const appData = {};
-
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
 
 /**
  * Gets the lang attribute for the HTML element

@@ -2,15 +2,13 @@
 const config = {};
 
 // Application state
-let isInitialized = false;
+let isAppInitialized = false; // Renamed 'isInitialized' to avoid conflict
 const appData = {};
 
 // Example of how to export a required function from another file
 // const { myFunction } = require('./otherFile');
 // module.exports = { myFunction };
 // TODO: Add back any required exports that might have been removed
-
-// Address accessibility issues from insight report
 
 // Import the required module
 const { axe } = require('axe-core');
@@ -39,7 +37,7 @@ const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
 const config = CONFIG;
 
 // Application state
-let isInitialized = false;
+let isAppInitialized = false; // Renamed 'isInitialized' to avoid conflict
 const appData = {};
 
 // User Safety: unsafe
@@ -56,7 +54,7 @@ function getLangAttribute() {
 /**
  * Adds lang attribute to HTML element
  */
-function addLangAttribute() {
+function addNewLangAttribute() { // Renamed 'addLangAttribute' to avoid conflict
 }
 
 /**
@@ -101,21 +99,21 @@ function addMainLandmark() {
  * Validates landmark
  * @param {HTMLElement} landmark - The landmark element to validate
  */
-function validateLandmark(landmark) {
+function validateNewLandmark(landmark) { // Renamed 'validateLandmark' to avoid conflict
 }
 
 /**
  * Validates landmark structure
  * @param {HTMLElement} landmark - The landmark element to validate
  */
-function validateLandmarkStructure(landmark) {
+function validateNewLandmarkStructure(landmark) { // Renamed 'validateLandmarkStructure' to avoid conflict
 }
 
 /**
  * Validates landmark attributes
  * @param {HTMLElement} landmark - The landmark element to validate
  */
-function validateLandmarkAttributes(landmark) {
+function validateNewLandmarkAttributes(landmark) { // Renamed 'validateLandmarkAttributes' to avoid conflict
 }
 
 /**
@@ -123,7 +121,7 @@ function validateLandmarkAttributes(landmark) {
  * @param {HTMLElement} svg - The SVG element
  * @returns {string} The accessible name
  */
-function getSvgAccessibleName(svg) {
+function getNewSvgAccessibleName(svg) { // Renamed 'getSvgAccessibleName' to avoid conflict
 }
 
 /**
@@ -131,7 +129,7 @@ function getSvgAccessibleName(svg) {
  * @param {HTMLElement} svg - The SVG element
  * @param {string} name - The accessible name
  */
-function setSvgAttributes(svg, name) {
+function setNewSvgAttributes(svg, name) { // Renamed 'setSvgAttributes' to avoid conflict
 }
 
 function isValidLandmark(landmark) {
@@ -229,10 +227,10 @@ function createAccessibleLinks() {
  * REACT_001: Implement function to handle new accessibility issues
  * Coordinates various accessibility fixes and improvements
  */
-function addressAccessibilityIssues() {
+function handleNewAccessibilityIssues() {
   try {
     fixTableAccessibility();
-    fixLandmarkIssues();
+    fixNewLandmarkIssues();
     addSvgAccessibility();
     createAccessibleLinks();
 
@@ -241,4 +239,4 @@ function addressAccessibilityIssues() {
       message: 'Accessibility issues have been addressed',
       fixesApplied: [
         'table_accessibility',
-        'landmark_issues',
+        'new_landmark_issues',

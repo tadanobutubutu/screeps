@@ -463,9 +463,40 @@ const primaryContent = document.querySelector('.primary-content') ||
 // Additional placeholder functions for validation
 function validateTableAccessibility(html) { return true; }
 function validateTableStructure(html) { return true; }
-function validateLandmark(html) { return true; }
-function validateLandmarkStructure(html) { return true; }
-function validateLandmarkAttributes(html) { return true; }
+function validateLandmark(html) {
+    if (typeof html !== 'string') return false;
+    // Check for presence of landmark roles or HTML5 landmark elements
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+    const hasRole = landmarkRoles.some(role => new RegExp(`role=["']${role}["']`, 'i').test(html));
+    const hasHtml5 = /<(header|nav|main|aside|footer)([^>]*)>/i.test(html);
+    return hasRole || hasHtml5;
+}
+function validateLandmarkStructure(html) {
+    if (typeof html !== 'string') return false;
+    // Check that landmarks are not nested incorrectly
+    const mainPattern = /<main([^>]*)>/gi;
+    const matches = html.match(mainPattern);
+    if (matches && matches.length > 1) {
+        // Check if they are nested
+        let depth = 0;
+        for (const match of html.match(/<main([^>]*)>|<\/main>/gi)) {
+            if (match.startsWith('</main')) {
+                depth--;
+            } else {
+                depth++;
+            }
+            if (depth > 1) return false;
+        }
+    }
+    return true;
+}
+function validateLandmarkAttributes(html) {
+    if (typeof html !== 'string') return false;
+    // Check that landmark elements have necessary attributes
+    // For now, just check that if role is present, it's valid
+    const invalidRoles = /role=["'](button|link|checkbox|menu|tab)["']/gi;
+    return !invalidRoles.test(html);
+}
 function getSvgAccessibleName(svg) { return ''; }
 function setSvgAttributes(svg) { return svg; }
 function validateLinkAccessibility(link) { return true; }
@@ -495,6 +526,12 @@ function getLandmarkById(id) { return null; }
 // Configuration and state
 const CONFIG = {};
 const appState = {};
+
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Implemented validateLandmark functionality
+// _Commit: 8f98f0794e8b0ca918ea55a6fe6b4bb49005be31_
+// <!-- todo-hash: 9e0e8713a3232350c3d67ea3c34810bbe3c43a02 -->
 
 module.exports = {
     getUserSafety,

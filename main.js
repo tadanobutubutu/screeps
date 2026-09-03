@@ -38,8 +38,10 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
-      lang = 'fr'; // French
+    } else if (/[\u00e0-\u00ff]/.test(content)) {
+      lang = 'fr'; // French (simplified)
+    } else if (/[\u00c0-\u00ff]/.test(content)) {
+      lang = 'es'; // Spanish (simplified)
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }

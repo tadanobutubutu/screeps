@@ -153,30 +153,12 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  /**
-   * Wrap primary content in a main element
-   * @param {string} content - The content to wrap
-   * @returns {string} The wrapped content
-   */
-  wrapPrimaryContentInMain(content) {
-    return `<main>${content}</main>`;
+  // New functions
+  ensureInteractiveElementsAccessible() {
+    a11yStore.ensureInteractiveRoles();
+    a11yStore.addFormControlLabels();
+    a11yStore.ensureImageAccessibility();
   }
 };
-
-// New functions
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
-}
-
-// Functions to render dependency graphs or index views
-function renderDependencyGraph() {
-  return dependencyGraphContent();
-}
-
-function renderIndexView() {
-  return indexContent();
-}
 
 // ... rest of the code ...

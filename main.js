@@ -14,6 +14,7 @@ function main() {
   renderDependencyGraphs(svgElements);
 
   checkLandmarkElements();
+  countSvgElements(svgElements);
 }
 
 function renderDependencyGraphs(svgElements) {
@@ -61,7 +62,11 @@ function checkLandmarkElements() {
   checkLandmarkElement('[role="search"], [role="form"], form', 'form');
 }
 
-export { setSvgAttributes, main, checkLandmarkElements };
+function countSvgElements(svgElements) {
+  return svgElements.length;
+}
+
+export { setSvgAttributes, main, checkLandmarkElements, countSvgElements };
 
 function countDependencies() {
   const fs = require('fs');

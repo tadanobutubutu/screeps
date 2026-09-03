@@ -3,8 +3,6 @@ const url = require('url');
 
 // Dependency imports
 const { dependencyGraphContent, indexContent } = require('./dependencyContent');
-const { main } = require('./utilities');
-
 const main = require('./utilities');
 
 const {
@@ -83,7 +81,10 @@ const initiateAnnounceToScreenReader = (message, priority) => {
 
 const announcementDelayHandler = () => {
   setTimeout(() => {
-    document.body.removeChild(document.querySelector('#sr-announcer'));
+    const announcer = document.querySelector('#sr-announcer');
+    if (announcer && announcer.parentNode) {
+      announcer.parentNode.removeChild(announcer);
+    }
   }, 1000);
 };
 
@@ -101,6 +102,21 @@ const handleKeyboardNavKeyDownEvent = (e, handlers) => {
     });
   }
 };
+
+// TODO: Implement the logic to handle the credential response
+function handleCredentialResponse(response) {
+  if (response && response.credential) {
+    try {
+      const payload = decodeJwtResponse(response.credential);
+      console.log('Credential payload:', payload);
+      return payload;
+    } catch (error) {
+      console.error('Failed to handle credential response:', error);
+      throw error;
+    }
+  }
+  return null;
+}
 
 module.exports = {
   ...require('./AnotherModule'),
@@ -129,14 +145,9 @@ module.exports = {
   validateTableStructure,
   initializeAccessibility,
   renderIndex,
-  validateTableAccessibility,
-  validateTableStructure,
-  addAccessibleName,
-  accessibilityUtils,
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
-  // Preserve any other existing exports here
   newFunction,
   validateHeadingHierarchy,
   ensureHeadingHierarchy,
@@ -146,7 +157,6 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleName,
   calculateComplexity,
-  newFocusTrap,
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   checkLandmarks,

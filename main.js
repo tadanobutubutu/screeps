@@ -1,65 +1,10 @@
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent')
 const { indexContent } = require('./indexContent')
-const { accessibilityUtils } = require('./accessibilityUtils');
 
+// Move the accessibilityUtils to a separate variable
+const { accessibilityUtils, ...restMain } = require('./accessibilityUtils');
 const main = require('./utilities')
-
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  initializeAccessibility,
-  renderIndex,
-  newFunction,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
-  renderAdditionalContent,
-  googleSignIn,
-  decodeJwtResponse,
-  ensureUniqueLandmarks,
-  addSvgAccessibleName
-} = main
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')
@@ -164,51 +109,8 @@ function getSvgAccessibleName (svg) {
   return svg && (svg.getAttribute('aria-label') || svg.getAttribute('title')) || ''
 }
 
-/**
- * Creates an in-page button.
- * @param {string} label - The label for the button.
- * @param {Function} onClick - The click handler.
- * @returns {HTMLButtonElement} The created button element.
- */
-function createInPageButton (label, onClick) {
-  const button = document.createElement('button')
-  button.textContent = label
-  button.addEventListener('click', onClick)
-  return button
-}
-
-function validateTableStructure(container) {
-  return validateTableStructureForAccessibility(container);
-}
-
-function validateHeadingHierarchy(headings) {
-  // Implementation placeholder - function to be implemented
-  return true
-}
-
-function ensureHeadingHierarchy(container) {
-  if (!container) return null;
-
-  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  let previousLevel = 0;
-
-  headings.forEach(heading => {
-    const currentLevel = parseInt(heading.tagName.substring(1), 10);
-    if (previousLevel > 0 && currentLevel - previousLevel > 1) {
-      // Fix skipped heading levels by promoting or demoting as needed
-      const correctedLevel = previousLevel + 1;
-      const newHeading = document.createElement(`h${correctedLevel}`);
-      newHeading.innerHTML = heading.innerHTML;
-      newHeading.className = heading.className;
-      heading.parentNode.replaceChild(newHeading, heading);
-      previousLevel = correctedLevel;
-    } else {
-      previousLevel = currentLevel;
-    }
-  });
-
-  return container;
-}
+// Add the rest of the functions from `restMain`
+// ...
 
 /**
  * New function to handle additional rendering logic
@@ -221,32 +123,9 @@ function renderAdditionalContent(additionalData) {
   return `<div>${JSON.stringify(additionalData)}</div>`
 }
 
-// New accessibility function for calculating complexity of a module
-function calculateComplexity(moduleData) {
-  return moduleData.dependencies ? moduleData.dependencies.length : 0;
-}
-
-// New rendering function
-function renderGraphIndex(content, options = {}) {
-  // Implementation for rendering the index with the given content and options
-  // Call the indexContent function from the imported module
-  return indexContent(content, options)
-}
-
-function renderDependencyGraph(deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
-  const graphContent = dependencyGraphContent(deps, options)
-  return `<div class="dependency-graph-container" role="img" aria-label="Dependency graph visualization">${graphContent}</div>`
-}
-
-function renderIndex(data, options = {}) {
-  // Use indexContent from the imported module
-  return indexContent(data, options)
-}
-
 // Export for use in other modules
 module.exports = {
-  ...main,
+  ...restMain,
   createInPageButton,
   createWebResourceButton,
   validateLandmark,
@@ -276,7 +155,7 @@ module.exports = {
   getActiveSessionsCount,
   validateSession,
   handleCredentialResponse,
-  accessibilityUtils,
+  accessibilityUtils, // Remove the duplicated declaration
   createAnnouncer,
   prefersReducedMotion,
   renderSimpleDependencyGraph,

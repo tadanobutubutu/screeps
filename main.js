@@ -149,5 +149,6 @@ module.exports = {
   setFocus,
   handleKeyboardNavigation,
   renderDependencyGraphs,
-  ...mainUtilities
+  ...mainUtilities,
+  accessibilityUtils,
 }

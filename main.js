@@ -14,11 +14,35 @@ export const checkUserSafety = () => {
 export const checkSafetyCategories = () => {
   let safetyCategoriesMessage = '';
 
-  if (safetyCategories.includes('Authorized Advice')) {
+  if (safetyCategories.includes('Unauthorized Advice')) {
     safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
   }
 
   return safetyCategoriesMessage;
+};
+
+// TODO: Implement upgrade logic (from one of the changes)
+export const upgradeUserSettings = () => {
+  let upgradeMessage = '';
+  const upgrades = [];
+
+  if (userSafety !== 'safe') {
+    upgrades.push({ field: 'userSafety', from: userSafety, to: 'safe' });
+  }
+
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    upgrades.push({ field: 'safetyCategories', from: safetyCategories, to: 'Authorized Advice' });
+  }
+
+  if (upgrades.length > 0) {
+    upgradeMessage = `Upgrade needed: ${upgrades.length} setting(s) require update.`;
+  }
+
+  return {
+    message: upgradeMessage,
+    upgrades: upgrades,
+    requiresUpgrade: upgrades.length > 0
+  };
 };
 
 // TODO: This section is merged from both branches to address accessibility issues

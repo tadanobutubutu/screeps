@@ -21,6 +21,11 @@ export const checkSafetyCategories = () => {
   return safetyCategoriesMessage;
 };
 
-// TODO: This section is merged from both branches to address accessibility issues
-// Keep existing code, exports, and functions from this point onwards
-// Add your existing code, exports, functions here...
+// TODO: Implement this function for creating in-page buttons
+export const createButton = (id, text, onclick) => {
+  const button = document.createElement('button');
+  button.id = id;
+  button.textContent = text;
+  button.onclick = onclick;
+  document.body.appendChild(button);
+};

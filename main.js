@@ -80,58 +80,52 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
-// Function to write the generated report to a file
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+// Funtion to generate a report based on accessibility issues
+async function generateAccessibilityReport(landmarks, urls) {
+    const axeResults = [];
+
+    for (const url of urls) {
+        const result = await axe.analyze(url);
+        axeResults.push(...result.messages);
+    }
+
+    // Create a map of identified accessibility issues per landmark
+    const issuesByLandmark = fastMap(landmarks, landmark => landmark.id);
+    const reportedIssues = [];
+    axeResults.forEach(issue => {
+        const { content, id, description, automatic } = issue;
+        const relatedLandmarks = issuesByLandmark.get(id) || [];
+
+        relatedLandmarks.forEach(landmark => {
+            reportedIssues.push({ landmark, issue });
+        });
+    });
+
+    const report = {
+        landmarks,
+        issues: reportedIssues
+    };
+
+    return report;
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-async function generateAccessibilityReport() {
-  const report = await scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
-// Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
-
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
-
-  // Uncomment to run the accessibility report generation
-  // generateAccessibilityReport();
-}
-
+// Replaced placeholder with generateAccessibilityReport function implementation
 async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
+    // Load the list of landmarks
+    const landmarks = loadLandmarks();
+
+    // Gather all the URLs that need to be scanned
+    // This can be done using the utility functions in utils/datasource.js
+    const urls = require('./utils/datasource').fetchUrls();
+
+    // Generate the accessibility report using the list of landmarks and URLs
+    const report = await generateAccessibilityReport(landmarks, urls);
+
+    return report;
 }
 
 module.exports = {
-    validateInput,
-    processData,
-    formatResponse,
-    config: CONFIG,
+    ... // Existing exports preserved
     generateAccessibilityReport,
-    loadLandmarks,
-    processLandmarks,
-    sortLandmarks,
-    getLandmarkById,
-    ensureUniqueLandmarks,
-    isValidLandmark,
-    writeReport,
     scanAccessibility
 };

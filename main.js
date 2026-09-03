@@ -253,7 +253,68 @@ function setConfig(config) {
 }
 
 function createInPageButtons() {
-    // Implementation for creating in-page buttons
+    const container = document.createElement('div');
+    container.className = 'in-page-buttons-container';
+    container.setAttribute('role', 'navigation');
+    container.setAttribute('aria-label', 'In-page navigation');
+    
+    const buttons = [];
+    const sections = document.querySelectorAll('section, .section, [data-section]');
+    
+    sections.forEach((section, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'in-page-button';
+        button.setAttribute('aria-label', `Navigate to section ${index + 1}`);
+        
+        const sectionTitle = section.querySelector('h2, h3, h4')?.textContent || `Section ${index + 1}`;
+        button.textContent = sectionTitle;
+        button.setAttribute('data-section-index', index);
+        
+        button.addEventListener('click', () => {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Announce to screen readers
+            accessibilityUtils.announceToScreenReader(`Navigated to ${sectionTitle}`, 'polite');
+            
+            // Update aria-current for active section
+            buttons.forEach(btn => btn.removeAttribute('aria-current'));
+            button.setAttribute('aria-current', 'true');
+        });
+        
+        buttons.push(button);
+        container.appendChild(button);
+    });
+    
+    // If no sections found, create default navigation buttons
+    if (sections.length === 0) {
+        const prevButton = document.createElement('button');
+        prevButton.type = 'button';
+        prevButton.className = 'in-page-button nav-button';
+        prevButton.textContent = 'Previous';
+        prevButton.setAttribute('aria-label', 'Go to previous section');
+        
+        const nextButton = document.createElement('button');
+        nextButton.type = 'button';
+        nextButton.className = 'in-page-button nav-button';
+        nextButton.textContent = 'Next';
+        nextButton.setAttribute('aria-label', 'Go to next section');
+        
+        prevButton.addEventListener('click', () => {
+            window.scrollBy({ top: -window.innerHeight, behavior: 'smooth' });
+            accessibilityUtils.announceToScreenReader('Scrolled to previous section', 'polite');
+        });
+        
+        nextButton.addEventListener('click', () => {
+            window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+            accessibilityUtils.announceToScreenReader('Scrolled to next section', 'polite');
+        });
+        
+        container.appendChild(prevButton);
+        container.appendChild(nextButton);
+    }
+    
+    return container;
 }
 
 // Export all required functions and utilities

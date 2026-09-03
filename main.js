@@ -10,14 +10,11 @@ const {
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
-  announceToScreenReader: originalAnnounceToScreenReader,
+  announceToScreenReader,
   handleKeyboardNav,
-  originNewFocusTrap,
   exportUtils,
   transformInputData,
   initSkipLink,
-  trapFocus: originalTrapFocus,
-  newFocusTrap: originalNewFocusTrap,
   ensureElementId,
   addLangAttribute,
   fixTableStructureIssues,
@@ -29,11 +26,14 @@ const {
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
-  addSvgAccessibleName
+  addSvgAccessibleName,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
 } = main;
 
 const newFocusTrap = (element) => {
-  if (!element) return originNewFocusTrap(element);
+  if (!element) return;
   const focusable = element.querySelectorAll(
     'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
   );
@@ -88,11 +88,6 @@ const accessibilityUtils = {
   initSkipLink,
   trapFocus,
   newFocusTrap,
-  announceToScreenReader,
-  ensureElementId,
-  addAriaLabel,
-  // ... Previous functions defined here
-
   addressAccessibilityIssues() {
     // Address accessibility issues based on the harvested data (Imaginary implementation)
     const issues = [
@@ -116,26 +111,34 @@ const accessibilityUtils = {
       }
     });
   },
-
-  // ... Previous exports defined here
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
+  ensureElementId,
+  addAriaLabel
 };
 
 module.exports = {
-  // ... Previous exports defined here
-  addressAccessibilityIssues,
-  initSkipLink,
-  trapFocus,
-  newFocusTrap,
-  announceToScreenReader: originalAnnounceToScreenReader,
-  ensureElementId,
+  ...main,
+  ...accessibilityUtils,
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
-  addAriaLabel,
   ensureElementHasIdOrigin,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addSvgAccessibleName,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
   accessibilityUtils,
 };

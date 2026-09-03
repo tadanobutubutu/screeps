@@ -236,8 +236,8 @@ function handleDependencyGraph(html) {
 }
 
 function extractSvgAccessibleName(svgContent) {
-  const svgElement = new DOMParser().parseFromString(svgContent, 'image/svg+xml').documentElement;
-  const title = svgElement.querySelector('title');
+  const svgEl = new DOMParser().parseFromString(svgContent, 'image/svg+xml').documentElement;
+  const title = svgEl.querySelector('title');
   return title ? title.textContent : 'No accessible name found';
 }
 
@@ -276,6 +276,22 @@ function addSvgAccessibleNames() {
   // Add accessible names to SVGs as needed
 }
 
+// New function to address accessibility issues from insight report
+function addressAccessibilityIssuesFromInsightReport(insightReport) {
+  // Process the insight report and address identified issues
+  if (insightReport && Array.isArray(insightReport.issues)) {
+    insightReport.issues.forEach(issue => {
+      console.log('Addressing issue from insight report:', issue);
+      // Here you would typically map issue types to specific fixes
+      // For now, we call the general accessibility handler
+      handleAccessibilityIssues();
+    });
+  }
+  // Also ensure general accessibility improvements are applied
+  addressAccessibilityIssues();
+  return true;
+}
+
 // Export all existing and new functions
 module.exports = {
     getLangAttribute,
@@ -294,5 +310,6 @@ module.exports = {
     validateInput,
     processData,
     addLandmarkRegions,
-    setSvgAttributes
+    setSvgAttributes,
+    addressAccessibilityIssuesFromInsightReport
 };

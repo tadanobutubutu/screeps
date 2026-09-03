@@ -3,8 +3,8 @@
 // Main module
 
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
+const { dependencyGraphContent } = require('./graph');
+const { indexContent } = require('./index');
 
 const main = require('./utilities');
 
@@ -23,7 +23,28 @@ const {
   min,
   mode,
   median,
-} = require('./mathHelpers');
+} = main;
+
+// Export functions for accessibility
+module.exports = {
+  add,
+  subtract,
+  multiply,
+  divide,
+  power,
+  squareRoot,
+  factorial,
+  fibonacci,
+  sum,
+  average,
+  max,
+  min,
+  mode,
+  median,
+  greetingFunction,
+  getWelcomeMessage,
+  ensureInteractiveElementsAccessible,
+};
 
 // Existing rendering functions (preserving existing exports and functions)
 
@@ -40,7 +61,7 @@ function getWelcomeMessage() {
   return greetingFunction() + " This is a new function that returns a welcome message.";
 }
 
-const { class1, function1, Object1 } = require('./path/to/module');
+const { class1, function1, Object1 } = require('./components');
 
 const a11yStore = {
   // ... existing methods ...
@@ -58,21 +79,21 @@ const a11yStore = {
   },
 
   updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
+    if (!this.liveRegion) this.liveRegion = document.createElement('div');
     this.announce(message, priority);
   },
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
+    landmarkElements.forEach(element => {
+      const landmarks = document.querySelectorAll(element);
       landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
+          landmark.id = `${element}-${index}`;
         }
 
         if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+          if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
             landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
         }
@@ -80,9 +101,9 @@ const a11yStore = {
     });
   },
 
-  addSVGAccessibilityProps() {
+  fixSvgTitles() {
     const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
+    svgElements.forEach(svg => {
       let titleElement = svg.querySelector('title');
       if (!titleElement) {
         titleElement = document.createElement('title');
@@ -96,18 +117,18 @@ const a11yStore = {
 
       svg.setAttribute('aria-labelledby', titleElement.id);
 
-      if (!svg.hasAttribute('role')) {
+      if (!svg.getAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
     });
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
-    fakeLinks.forEach((link) => {
+    const fakeLinks = document.querySelectorAll('[onclick*="location"]');
+    fakeLinks.forEach(link => {
       link.setAttribute('role', 'link');
       link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
+      link.setAttribute('aria-label', 'true');
     });
   },
 
@@ -116,8 +137,8 @@ const a11yStore = {
    */
   ensureInteractiveRoles() {
     const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach((element) => {
-      if (!element.hasAttribute('role')) {
+    interactiveElements.forEach(element => {
+      if (!element.getAttribute('role')) {
         element.setAttribute('role', 'button');
       }
     });
@@ -132,20 +153,20 @@ const a11yStore = {
       if (!control.id) {
         control.id = `form-control-${index}`;
       }
-      const label = document.createElement('label');
+      const label = control.previousElementSibling;
       label.setAttribute('for', control.id);
       label.textContent = control.placeholder || 'Form control';
-      control.parentNode.insertBefore(label, control);
+      control.setAttribute('aria-labelledby', label.id || control.id);
     });
   },
 
   /**
    * Ensure all images have alt text or ARIA attributes
    */
-  ensureImageAccessibility() {
+  fixImageAlts() {
     const images = document.querySelectorAll('img');
     images.forEach((img) => {
-      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
+      if (!img.alt && !img.getAttribute('aria-label') && !img.getAttribute('role')) {
         img.setAttribute('alt', '');
       }
     });
@@ -158,7 +179,7 @@ const a11yStore = {
 function ensureInteractiveElementsAccessible() {
   a11yStore.ensureInteractiveRoles();
   a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
+  a11yStore.fixImageAlts();
 }
 
 // ... rest of the code ...

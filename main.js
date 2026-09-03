@@ -1,5 +1,9 @@
 const utils = require('./utils');
+const express = require('express');
 const axe = require('axe-core');
+const fs = require('fs');
+const fastMap = require('fast-map');
+const path = require('path');
 // Accessibility Functions for Screeps
 
 // Landmark data structure
@@ -10,12 +14,6 @@ const appData = {
     title: 'Frontend Application',
     version: '1.0.0'
 };
-
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
 
 // Configuration
 const config = {
@@ -438,6 +436,12 @@ function VisualizeDependencyTree(data) {
   console.log('Visualizing dependency tree:', data);
 }
 
+// Spawning logic implementation
+function spawnCreep(role) {
+  // Implementation for spawning logic
+  console.log(`Spawning creep with role: ${role}`);
+}
+
 // Export all functions
 export {
   getLangAttribute,
@@ -515,5 +519,6 @@ export {
   appState,
   generateDependencyReport as generateDependency,
   getUserSafety,
-  main as mainFunction
+  main as mainFunction,
+  spawnCreep
 };

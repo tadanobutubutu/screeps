@@ -41,17 +41,13 @@ const accessibilityUtils = {
   handleKeyboardNav,
   newFocusTrap,
   exportUtils,
-  personName,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
+  personName: (name) => name,
   transformInputData
 };
 
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).substr(2, 11);
   }
   return element;
 };
@@ -76,7 +72,7 @@ const renderDependencyGraph = (data) => {
 function calculateSum(a, b) { return a + b; }
 
 accessibilityUtils.initSkipLink = () => {
-  const skipLink = document.getElementById('skip-link');
+  const skipLink = document.querySelector('[data-skip-link]');
   if (!skipLink) {
     const skipContainer = document.createElement('div');
     skipContainer.id = 'skip-link';
@@ -91,10 +87,9 @@ accessibilityUtils.initSkipLink = () => {
     const skipLinkElement = document.createElement('a');
     skipLinkElement.href = '#main-content';
     skipLinkElement.textContent = 'Skip to main content';
-    skipLinkElement.ariaLabel = 'Skip to main content';
+    skipLinkElement.setAttribute('aria-label', 'Skip to main content');
     skipContainer.appendChild(skipLinkElement);
-
-    document.body.appendChild(skipContainer);
+    document.body.insertBefore(skipContainer, document.body.firstChild);
   }
 };
 
@@ -118,21 +113,20 @@ accessibilityUtils.trapFocus = (element) => {
   const handleKeyDown = (e) => {
     if (e.key === 'Tab') {
       if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
         lastElement.focus();
-        e.preventDefault();
       } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
         e.preventDefault();
+        firstElement.focus();
       }
     }
 
     if (e.key === 'Escape') {
-      element.dispatchEvent(new CustomEvent('focusTrapEscape'));
+      element.dispatchEvent(new CustomEvent('escape-pressed'));
     }
   };
 
   element.addEventListener('keydown', handleKeyDown);
-  firstElement.focus();
 
   // Return cleanup function
   return () => {
@@ -161,7 +155,7 @@ const exportUtilities = {
     URL.revokeObjectURL(url);
 
     // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader("Download of " + filename + " started");
+    announceToScreenReader("Download of " + filename + " started");
   },
 
   exportToJSON: (data, filename) => {
@@ -174,11 +168,12 @@ const exportUtilities = {
 
     const headers = Object.keys(data[0]);
     const csvRows = [];
+
     csvRows.push(headers.join(','));
 
     for (const row of data) {
       const values = headers.map(header => {
-        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        const escaped = ('' + (row[header] || '')).replace(/"/g, '\\"');
         return "\"" + escaped + "\"";
       });
       csvRows.push(values.join(','));
@@ -190,7 +185,7 @@ const exportUtilities = {
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9_.-]/gi, '_');
+  return filename.replace(/[^a-z0-9._-]/g, '_');
 }
 
 function readFileSafe(filePath) {
@@ -229,13 +224,17 @@ const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
 
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
+  document.addEventListener('keydown', (e) => {
+    const element = e.target;
+    if (element && (element.onclick || element.tagName === 'BUTTON' || element.tagName === 'A')) {
+      const actions = {
         Enter: () => element.click(),
         ' ': () => element.click()
-      });
-    });
+      };
+      if (actions[e.key]) {
+        actions[e.key]();
+      }
+    }
   });
 };
 
@@ -248,6 +247,23 @@ function groupByCategory(items, getCategory) {
     groups[category].push(item);
     return groups;
   }, {});
+}
+
+function handleCredentialResponse(response) {
+  // Handle credential response from Google Sign-In or similar
+  if (response && response.credential) {
+    // Decode and process the credential
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    return {
+      success: true,
+      user: {
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture
+      }
+    };
+  }
+  return { success: false, error: 'No credential provided' };
 }
 
 module.exports = {

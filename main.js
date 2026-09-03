@@ -1,7 +1,9 @@
 // TODO: Add back any required exports that might have been removed
-// TODO: This is the existing code that needs to be preserved
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: 49e339d5ff675ce559aa9f4f66ff29aef3f6166b -->
+// This is a placeholder for any necessary exports that were previously defined
+// but might have been removed in a previous commit
+
+// Exports from origin/main
+export { createInPageButton, validateLandmarkStructure, implementUpgrade, function3 };
 
 // TODO: Implement the logic to handle the credential response
 function handleCredentialResponse(credential) {
@@ -81,13 +83,6 @@ function validateLandmarkStructure() {
 
     return true;
 }
-
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
-//_Commit: 402749f846d7785411fb31438668abfd2f648745_
-//_Commit: b2d3255ac354b27ff0c008b38a7c4b0f2028fc7d_
-//<!-- todo-hash: 654a80fdcb20fd082b4cb475a4b9c1d38acd5f24 -->
-
-// New functions and changes added from both branches
 
 // Function to initialize the application
 function initializeApp() {
@@ -272,9 +267,3 @@ function replaceMyButtonWithActualId() {
 function ensureProperARIAroleForDependencyGraph() {
     const dependencyGraph = document.querySelector('#dependencyGraph');
     if (dependencyGraph) {
-        dependencyGraph.setAttribute('role', 'presentation');
-    }
-}
-
-// Exports from origin/main
-export { createInPageButton, validateLandmarkStructure, implementUpgrade, function3 };

@@ -14,31 +14,17 @@ permissions:
   pull-requests: write
   contents: write
 
-concurrency:
-  group: auto-pr-from-issues
-  cancel-in-progress: false
-
 jobs:
   analyze-and-create-pr:
-    # Filter out bot loops, todo scanners, and maintainer bots to prevent infinite issue/PR spam
-    if: |
-      (github.event_name == 'workflow_dispatch') || (
-        !contains(github.event.issue.user.login, 'bot') &&
-        !contains(github.event.issue.user.login, 'automaintainer') &&
-        !contains(github.event.issue.title, 'in main.js') &&
-        !contains(github.event.issue.title, 'needs to be preserved') &&
-        !contains(github.event.issue.title, 'TODO') &&
-        !contains(github.event.issue.body, 'todo-hash')
-      )
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 

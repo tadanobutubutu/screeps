@@ -62,7 +62,8 @@ const {
   newFunction,
   validateHeadingHierarchy,
   ensureHeadingHierarchy,
-  renderAdditionalContent
+  renderAdditionalContent,
+  newFocusTrap // New Function
 } = main
 
 // Access the dependencyGraph container and ensure it has proper ARIA role

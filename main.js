@@ -18,10 +18,10 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
-
 // TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+
+// TODO: New code that was added to the branch
+// New function that does something different
 
 /**
  * Gets the lang attribute for the HTML element

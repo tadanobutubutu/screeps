@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserve
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 // REACT_027: Fix 26 table structure issues
@@ -159,7 +160,7 @@ function ensureUniqueLandmarks(html) {
             html = html.replace(pattern, (match) => {
                 count++;
                 if (count === 1) return match;
-                return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region"`);
+                return match.replace(`<${tag}`, `<${tag} role="region"`);
             });
         }
     });
@@ -287,3 +288,94 @@ function parseColor(colorString) {
     }
 
     // Handle named colors (limited support)
+    const namedColors = {
+        'black': { r: 0, g: 0, b: 0 },
+        'white': { r: 255, g: 255, b: 255 },
+        'red': { r: 255, g: 0, b: 0 },
+        'green': { r: 0, g: 128, b: 0 },
+        'blue': { r: 0, g: 0, b: 255 },
+        'gray': { r: 128, g: 128, b: 128 },
+        'grey': { r: 128, g: 128, b: 128 },
+        'yellow': { r: 255, g: 255, b: 0 },
+        'cyan': { r: 0, g: 255, b: 255 },
+        'magenta': { r: 255, g: 0, b: 255 }
+    };
+
+    if (namedColors[colorString.toLowerCase()]) {
+        return namedColors[colorString.toLowerCase()];
+    }
+
+    return null;
+}
+
+// Helper function to calculate luminance from RGB
+function calculateLuminance(rgb) {
+    const [r, g, b] = [rgb.r, rgb.g, rgb.b].map(val => {
+        val = val / 255;
+        if (val <= 0.03928) {
+            return val / 12.92;
+        }
+        return Math.pow((val + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+// Apply contrast fixes by adjusting foreground color
+function applyContrastFix(element) {
+    if (!element || !(element instanceof HTMLElement)) return;
+
+    const style = window.getComputedStyle(element);
+    const bgColor = parseColor(style.backgroundColor) || { r: 255, g: 255, b: 255 };
+    const fgColor = parseColor(style.color) || { r: 0, g: 0, b: 0 };
+
+    if (checkColorContrast(element)) return;
+
+    // Try darkening or lightening the foreground color
+    const bgLum = calculateLuminance(bgColor);
+    const adjustedFg = bgLum > 0.5
+        ? { r: 0, g: 0, b: 0 }
+        : { r: 255, g: 255, b: 255 };
+
+    element.style.color = `rgb(${adjustedFg.r}, ${adjustedFg.g}, ${adjustedFg.b})`;
+}
+
+// Initialize accessibility fixes on page load
+function initAccessibilityFixes() {
+    // Apply contrast fixes to all text elements
+    const textElements = document.querySelectorAll('p, span, div, a, h1, h2, h3, h4, h5, h6, li, td, th');
+    textElements.forEach(applyContrastFix);
+
+    // Set up accessibility fixes based on insight report if available
+    if (typeof window !== 'undefined' && window.insightReport) {
+        addressAccessibilityIssues(window.insightReport);
+    }
+}
+
+// Run initialization when DOM is ready
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAccessibilityFixes);
+    } else {
+        initAccessibilityFixes();
+    }
+}
+
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        addLangAttribute,
+        fixTableStructure,
+        fixLandmarks,
+        addSvgAccessibleNames,
+        ensureUniqueLandmarks,
+        fixFakeLinks,
+        applyAccessibilityFixes,
+        addressAccessibilityIssues,
+        createInPageButton,
+        checkColorContrast,
+        parseColor,
+        calculateLuminance,
+        applyContrastFix,
+        initAccessibilityFixes
+    };
+}

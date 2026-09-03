@@ -494,23 +494,47 @@ function addSvgAccessibleNames() {
 }
 
 /**
+ * Harvests data from environment and system state for upgrade evaluation
+ * @returns {Object} Harvested data including version, environment flags, and system metrics
+ */
+function harvestData() {
+  const env = process.env;
+  const currentConfig = getConfig();
+  
+  return {
+    version: currentConfig.version,
+    upgradeNeeded: env.UPGRADE_NEEDED === 'true',
+    forceUpgrade: env.FORCE_UPGRADE === 'true',
+    targetVersion: env.TARGET_VERSION || null,
+    timestamp: Date.now(),
+    environment: env.NODE_ENV || 'development'
+  };
+}
+
+/**
  * Implements upgrade logic using harvested data to improve the system
  * This function checks environment variables for upgrade triggers and updates the system configuration accordingly.
  */
 function upgradeSystem() {
-  const env = process.env;
-  const config = getConfig();
+  const harvested = harvestData();
+  const currentConfig = getConfig();
 
-  // Harvest upgrade data from environment variables
-  if (env.UPGRADE_NEEDED) {
-    // Example improvement: increment version number based on environment hint
-    const currentVer = config.version.split('.')[0];
-    const newVer = (parseInt(currentVer, 10) + 1).toString();
-    config.version = newVer + '.0.0';
-    console.log(`System upgraded to version ${config.version}`);
+  // Apply upgrade if needed based on harvested data
+  if (harvested.upgradeNeeded || harvested.forceUpgrade) {
+    let newVersion = harvested.targetVersion;
+    
+    if (!newVersion) {
+      // Auto-increment major version if no target specified
+      const currentVer = currentConfig.version.split('.')[0];
+      const newVer = (parseInt(currentVer, 10) + 1).toString();
+      newVersion = newVer + '.0.0';
+    }
+    
+    currentConfig.version = newVersion;
+    console.log(`System upgraded to version ${currentConfig.version} (harvested: ${JSON.stringify(harvested)})`);
   }
 
-  return config;
+  return currentConfig;
 }
 
 // New functions to address accessibility issues
@@ -591,7 +615,7 @@ function fixLandmarkIssues() {
  * Fixes fake links
  */
 function fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('a[href="#]');
+    const fakeLinks = document.querySelectorAll('a[href="#"]');
     fakeLinks.forEach(link => {
         link.setAttribute('role', 'button');
         link.setAttribute('aria-label', link.textContent);
@@ -658,5 +682,6 @@ module.exports = {
   replaceMyButton,
   ensureDependencyGraphAriaRole,
   addSvgAccessibleNames,
+  harvestData,
   upgradeSystem
 };

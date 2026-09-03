@@ -152,6 +152,18 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  /**
+   * Ensure the dependencyGraph container has a proper ARIA role
+   */
+  ensureDependencyGraphRole() {
+    const dependencyGraph = document.getElementById('dependencyGraph');
+    if (dependencyGraph) {
+      if (!dependencyGraph.hasAttribute('role')) {
+        dependencyGraph.setAttribute('role', 'group');
+      }
+    }
+  }
 };
 
 // New functions
@@ -160,5 +172,10 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.addFormControlLabels();
   a11yStore.ensureImageAccessibility();
 }
+
+// Ensure the dependencyGraph container has a proper ARIA role when the document is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  a11yStore.ensureDependencyGraphRole();
+});
 
 // ... rest of the code ...

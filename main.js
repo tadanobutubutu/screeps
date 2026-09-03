@@ -1,3 +1,42 @@
+const fs = require('fs');
+const main = require('./utilities');
+
+const {
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  announceToScreenReader,
+  handleKeyboardNav,
+  newFocusTrap: originNewFocusTrap,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementId: ensureElementIdOrigin,
+  ensureElementHasIdOrigin,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  renderAdditionalContent,
+  transformInputData,
+  addSvgAccessibleName,
+  initSkipLink,
+  trapFocus,
+  announceToScreenReader: originalAnnounceToScreenReader,
+  newFocusTrap,
+  ensureElementId,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addAriaLabel
+} = main;
+
 // TODO: This is the existing code that needs to be preserved
 
 // User Safety: unsafe
@@ -256,4 +295,94 @@ function generateAccessibilityReport() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
-    if (!
+    if (!accessibleName) {
+      issues.push({
+        type: 'missing-button-name',
+        element: 'button',
+        index: index,
+        message: `Button at index ${index} is missing an accessible name`
+      });
+    }
+  });
+
+  return {
+    totalIssues: issues.length,
+    issues: issues
+  };
+}
+
+// Accessibility utilities and functions
+const accessibilityUtils = {
+  initSkipLink,
+  trapFocus,
+  newFocusTrap: (element) => {
+    if (!element) return;
+    const focusable = element.querySelectorAll(
+      'a[href], button, textarea, input, select'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    return (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
+    };
+  },
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
+  ensureElementId,
+  addAriaLabel
+};
+
+module.exports = {
+  ...main,
+  ...accessibilityUtils,
+  renderDependencyGraph,
+  renderIndex,
+  validateTableAccessibility,
+  validateTableStructure,
+  addAccessibleName,
+  accessibilityUtils,
+  ensureElementId,
+  ensureElementHasId,
+  newFocusTrap,
+  getLangAttribute,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  generateAccessibilityReport,
+  setSvgAttributes,
+  validateLandmarkHasAccessibleName,
+  ensureElementIdOrigin,
+  ensureElementHasIdOrigin,
+  originNewFocusTrap,
+  createInPageButton,
+  validateAccessibilityReport,
+  announceToScreenReader: originalAnnounceToScreenReader,
+  fixTableStructureIssues,
+  addAriaLabel
+};

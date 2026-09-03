@@ -585,7 +585,7 @@ function VisualizeDependencyTree(data) {
   console.log('Visualizing dependency tree:', data);
 }
 
-function BookItem(book) {
+const BookItem = ({ book }) => {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
@@ -594,7 +594,7 @@ function BookItem(book) {
       />
     </List.Item>
   );
-}
+};
 
 export function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
@@ -614,7 +614,7 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
-function Main() {
+const Main = () => {
   const [sorting, setSorting] = useState(defaultSorting);
   const dispatch = useDispatch();
 
@@ -626,13 +626,13 @@ function Main() {
     }
   }, [sorting]);
 
-  const bookItems = getBooksList.map(book => BookItem(book));
+  const bookItems = getBooksList.map(book => BookItem({ book }));
 
   return (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
+      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem({ book })} />
       <form onSubmit={(e) => {
         e.preventDefault();
         const newBook = getFormData();
@@ -646,7 +646,7 @@ function Main() {
       </form>
     </div>
   );
-}
+};
 
 export {
   getLangAttribute,
@@ -705,11 +705,7 @@ export {
   config,
   landmarks,
   icons,
-  countDependencies,
-  addBook,
   BookItem,
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort,
-  Main
+  Main,
+  Main as MainComponent
 };

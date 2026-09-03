@@ -161,4 +161,43 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureImageAccessibility();
 }
 
+/**
+ * Validate the accessibility report for issues
+ * @returns {Array} List of accessibility issues
+ */
+function validateAccessibilityReport() {
+  const issues = [];
+
+  // Check images for alt text
+  const images = document.querySelectorAll('img');
+  images.forEach((img) => {
+    if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
+      issues.push({ type: 'image', message: 'Image missing alt text', element: img });
+    }
+  });
+
+  // Check interactive elements for roles
+  const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
+  interactiveElements.forEach((el) => {
+    if (!el.hasAttribute('role')) {
+      issues.push({ type: 'interactive', message: 'Interactive element missing role', element: el });
+    }
+  });
+
+  // Check form controls for labels
+  const formControls = document.querySelectorAll('input, select, textarea');
+  formControls.forEach((control) => {
+    if (!control.id) {
+      issues.push({ type: 'form', message: 'Form control missing id', element: control });
+    } else {
+      const label = document.querySelector(`label[for="${control.id}"]`);
+      if (!label) {
+        issues.push({ type: 'form', message: 'Form control missing associated label', element: control });
+      }
+    }
+  });
+
+  return issues;
+}
+
 // ... rest of the code ...

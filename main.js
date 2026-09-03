@@ -66,14 +66,14 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
+      landmarks.forEach((landmark) => {
         if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
+          landmark.setAttribute('id', `${element}-${landmark.id}`);
         }
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
+            landmark.setAttribute('aria-label', `${element} ${landmark.id + 1}`);
           }
         }
       });
@@ -150,9 +150,56 @@ const a11yStore = {
       }
     });
   },
-
-  // ... remaining a11yStore methods ...
 };
+
+/**
+ * Audit the accessibility compliance of the document
+ * @returns {Object} Summary of accessibility audit results
+ */
+function auditAccessibilityCompliance() {
+  const issues = [];
+  
+  // Check for images without alt text
+  const images = document.querySelectorAll('img');
+  images.forEach((img) => {
+    if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
+      issues.push({
+        type: 'image_missing_alt',
+        element: img,
+        message: 'Image is missing alt text'
+      });
+    }
+  });
+  
+  // Check for interactive elements without roles
+  const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
+  interactiveElements.forEach((element) => {
+    if (!element.hasAttribute('role')) {
+      issues.push({
+        type: 'interactive_element_no_role',
+        element: element,
+        message: 'Interactive element is missing role attribute'
+      });
+    }
+  });
+  
+  // Check for form controls without labels
+  const formControls = document.querySelectorAll('input, select, textarea');
+  formControls.forEach((control) => {
+    if (!control.id && control.hasAttribute('type')) {
+      issues.push({
+        type: 'form_control_no_id',
+        element: control,
+        message: 'Form control is missing id attribute'
+      });
+    }
+  });
+  
+  return {
+    totalIssues: issues.length,
+    issues: issues
+  };
+}
 
 // New functions
 function ensureInteractiveElementsAccessible() {

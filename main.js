@@ -631,6 +631,79 @@ function renderIndexView(indexPath, container, options = {}) {
   }
 }
 
+// New function to address accessibility: Validate form accessibility
+function validateFormAccessibility(form) {
+  const errors = [];
+  
+  if (!form) {
+    return { valid: false, errors: ['Form element is required'] };
+  }
+  
+  // Check if form has an accessible name
+  const ariaLabel = form.getAttribute('aria-label');
+  const ariaLabelledby = form.getAttribute('aria-labelledby');
+  const legend = form.querySelector('legend');
+  const title = form.getAttribute('title');
+  
+  if (!ariaLabel && !ariaLabelledby && !legend && !title) {
+    errors.push('Form is missing an accessible name (aria-label, aria-labelledby, legend, or title)');
+  }
+  
+  // Check all inputs for labels
+  const inputs = form.querySelectorAll('input, select, textarea');
+  inputs.forEach((input, index) => {
+    const inputType = input.getAttribute('type');
+    
+    // Skip hidden inputs
+    if (inputType === 'hidden') return;
+    
+    const inputId = input.getAttribute('id');
+    const hasAriaLabel = input.getAttribute('aria-label');
+    const hasAriaLabelledby = input.getAttribute('aria-labelledby');
+    
+    // Check for associated label
+    let hasLabel = false;
+    if (inputId) {
+      const label = form.querySelector(`label[for="${inputId}"]`);
+      if (label) hasLabel = true;
+    }
+    
+    // Check for implicit label
+    const parentLabel = input.closest('label');
+    if (parentLabel) hasLabel = true;
+    
+    if (!hasLabel && !hasAriaLabel && !hasAriaLabelledby) {
+      errors.push(`Input at index ${index} (type: ${inputType || 'text'}) is missing an associated label`);
+    }
+    
+    // Check for required field indication
+    const isRequired = input.hasAttribute('required') || input.hasAttribute('aria-required');
+    const hasRequiredIndicator = isRequired && (
+      input.getAttribute('aria-required') === 'true' ||
+      input.classList.contains('required') ||
+      form.querySelector(`label[for="${inputId}"] .required`)
+    );
+    
+    if (isRequired && !hasRequiredIndicator) {
+      // Required fields should have visual indication
+      const ariaDescribedby = input.getAttribute('aria-describedby');
+      if (!ariaDescribedby && !input.getAttribute('aria-label')) {
+        errors.push(`Required input at index ${index} may need aria-describedby for required indicator`);
+      }
+    }
+  });
+  
+  // Check for proper error handling
+  const errorMessages = form.querySelectorAll('[role="alert"], .error-message, .has-error');
+  const inputsWithRequired = form.querySelectorAll('[required], [aria-required="true"]');
+  
+  if (inputsWithRequired.length > 0 && errorMessages.length === 0) {
+    errors.push('Form has required fields but no error message containers found');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
 // TODO: Implement tower defense
 function towerDefense() {
   // A simple tower defense game implementation
@@ -803,5 +876,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  towerDefense
+  towerDefense,
+  validateFormAccessibility
 };

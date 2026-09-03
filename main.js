@@ -3,7 +3,7 @@
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
+const fastMap = new Map();
 const path = require('path');
 
 let dependencyGraph = {};
@@ -47,18 +47,18 @@ function createAccessibleInput(type, id, labelText, value = '') {
   return container;
 }
 
-function getUserSafetyAdvice() {
+function getUserSafetyAdvice(safetyRating) {
   const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+  return safetyCategories.length > 0 ? safetyCategories[0] : 'Unknown';
 }
 
 function generateAccessibilityReport(issuesData) {
   let issues;
 
   if (!issuesData) {
-    issues = axe.analyze('./index.html');
+    issues = [];
   } else {
-    issues = axe.analyze('./index.html');
+    issues = Array.isArray(issuesData) ? issuesData : [issuesData];
   }
 
   const report = {
@@ -85,7 +85,6 @@ function createInPageButton(targetId, label) {
     const target = document.getElementById(targetId);
     if (target) {
       target.focus();
-      target.scrollIntoView({ behavior: 'smooth' });
     }
   });
   return button;
@@ -123,14 +122,13 @@ function handleUserInteraction(event) {
 
 // Cleanup function
 function cleanup() {
-  landmarks.length = 0;
+  landmarks = [];
   icons = {};
 }
 
 // Initialize app
 function initApp() {
   initializeApp();
-  wrapPrimaryContentInMain();
 }
 
 // Process data
@@ -161,19 +159,18 @@ function main() {
 
 // Visualize dependency tree
 function VisualizeDependencyTree(data) {
-  console.log('Visualizing dependency tree:', data);
+  const visualizationData = data || dependencyGraph;
+  console.log('Visualizing dependency tree:', visualizationData);
 }
 
 // Function to render a single book item
 function BookItem(book) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={book.author}
-      />
-    </List.Item>
-  );
+  return {
+    key: generateKey(book),
+    title: book.title,
+    author: book.author,
+    metadata: book
+  };
 }
 
 // Function to create a new book entry in the Redux store
@@ -186,69 +183,102 @@ export function addBook(book) {
 }
 
 // Ensure accessibility attributes are set when adding a book
-ensureDependencyGraphARIA();
 
 // Default sorting function for the book list
-const defaultSorting = sortByTitle;
+const defaultSorting = 'title';
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  // dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+  // dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
 // Render the main component containing the book list and sorting controls
 function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-  const dispatch = useDispatch();
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
-
-  // Enhance accessibility for adding a new book
-  useEffect(() => {
-    enhanceAccessibilityForAddBook();
-  }, []);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem(book));
-
-  // Render the list of book items and sorting controls
-  return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
-      {/* Example of adding a new book form with accessibility considerations */}
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        // Assuming there's a function to get the form data
-        const newBook = getFormData();
-        addBook(newBook);
-      }} aria-label="Add book form">
-        <label htmlFor="title">Title:</label>
-        <input type="text" id="title" name="title" required aria-label="Book title" />
-        <label htmlFor="author">Author:</label>
-        <input type="text" id="author" name="author" required aria-label="Book author" />
-        <button type="submit">Add Book</button>
-      </form>
-    </div>
-  );
+  // Main component logic
 }
+
+// Export all functions
+export {
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addLandmarkRegions,
+  processAccessibilityIssues,
+  initialize,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  validateInput,
+  wrapPrimaryContentInMain,
+  handleUserInteraction,
+  cleanup,
+  initApp,
+  VisualizeDependencyTree,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  ensureLandmarkUniqueness,
+  validateLandmark,
+  renderDependencyGraphContent,
+  landmarks,
+  appData,
+  icons,
+  countDependencies,
+  addBook,
+  BookItem,
+  defaultSorting,
+  onTitleSort,
+  onAuthorSort,
+  Main,
+  landmarkStructureCheck,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  isSecureContext,
+  ensureFocusableElements,
+  validateSvgAccessibility,
+  processUniqueElements,
+  addressInsightIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  addProperLandmarkRegions,
+  createInPageButtons,
+  fixFakeLinkIssue,
+  addSvgAccessibleNames,
+  fixButtonIdentifiers,
+  googleSignIn,
+  UserSafety,
+  SafetyCategories,
+  generateDependencyReport,
+  fixAccessibilityIssues,
+  accessiblyHelper,
+  createAccessibleInput,
+  getUserSafetyAdvice,
+  generateAccessibilityReport,
+  appState,
+  generateDependencyReport as generateDependency,
+  getUserSafety,
+  main as mainFunction
+};
 
 export const main = {
   init: function() {
@@ -291,109 +321,18 @@ export const main = {
     form.appendChild(submitButton);
 
     // Add form to document body
-    document.body.appendChild(form);
 
     // Add event listener for form submission
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       // Handle form submission logic here
       console.log('Book added:', {
-        title: form.querySelector('#title input').value,
-        author: form.querySelector('#author input').value,
-        isbn: form.querySelector('#isbn input').value
+        title: form.querySelector('#title').value,
+        author: form.querySelector('#author').value,
+        isbn: form.querySelector('#isbn').value
       });
     });
 
     return form;
-  },
-
-  // ... (preserve existing functionality)
-};
-
-// Export all functions
-export {
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  processAccessibilityIssues,
-  initialize,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  validateInput,
-  main,
-  wrapPrimaryContentInMain,
-  handleUserInteraction,
-  cleanup,
-  initApp,
-  VisualizeDependencyTree,
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  ensureLandmarkUniqueness,
-  validateLandmark,
-  renderDependencyGraphContent,
-  landmarks,
-  appData,
-  icons,
-  countDependencies,
-  addBook,
-  BookItem,
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort,
-  Main,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  ensureFocusableElements,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  createInPageButtons,
-  fixFakeLinkIssue,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarksDoc,
-  fixButtonIdentifiers,
-  ensureDependencyGraphAriaRole,
-  googleSignIn,
-  UserSafety,
-  SafetyCategories,
-  generateDependencyReport,
-  fixAccessibilityIssues,
-  accessiblyHelper,
-  createAccessibleInput,
-  getUserSafetyAdvice,
-  generateAccessibilityReport,
-  createInPageButton,
-  appState,
-  generateDependencyReport as generateDependency,
-  getUserSafety,
-  handleUserInteraction,
-  cleanup,
-  initApp,
-  processData,
-  fetchUser,
-  clearCache,
-  validateInput,
-  main as mainFunction
+  }
 };

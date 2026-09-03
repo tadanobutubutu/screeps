@@ -1,5 +1,42 @@
 const main = require('./utilities')
 
+// Function for counting dependencies in a container
+function countDependencies(container) {
+  const dependencies = {
+    count: 0,
+    list: []
+  }
+
+  if (!container) {
+    return dependencies
+  }
+
+  // Look for elements that represent dependencies
+  const dependencySelectors = [
+    '[data-dependency]',
+    '[data-package]',
+    '[data-module]',
+    '[class*="dependency"]',
+    '[id*="dependency"]'
+  ]
+
+  dependencySelectors.forEach(selector => {
+    const elements = container.querySelectorAll(selector)
+    elements.forEach(el => {
+      const name = el.getAttribute('data-dependency') ||
+                   el.getAttribute('data-package') ||
+                   el.getAttribute('data-module') ||
+                   el.textContent.trim()
+      if (name && !dependencies.list.includes(name)) {
+        dependencies.list.push(name)
+        dependencies.count++
+      }
+    })
+  })
+
+  return dependencies
+}
+
 // Function for getting the language attribute based on content
 function getLangAttribute() {
   return typeof document !== 'undefined' && document.documentElement
@@ -756,5 +793,6 @@ module.exports = {
   createAccessibleLink,
   isLinkAccessible,
   towerDefense,
-  createWebResourceButton
+  createWebResourceButton,
+  countDependencies
 }

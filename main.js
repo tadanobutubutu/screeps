@@ -591,6 +591,44 @@ const countDependencies = () => {
   // ... existing countDependencies function implementation ...
 };
 
+/**
+ * Main handler for credential response - implements the logic to handle the credential response
+ * @param {Object} credentialResponse - The credential response from the authentication provider
+ * @returns {Object} Authentication result with user data and status
+ */
+function handleCredentialResponseInMain(credentialResponse) {
+  // Validate the credential response
+  const validationResult = handleCredentialResponse(credentialResponse);
+  
+  if (!validationResult.success) {
+    return {
+      success: false,
+      authenticated: false,
+      user: null,
+      errors: validationResult.issues
+    };
+  }
+
+  // Process the authentication
+  const authResult = processCredentialAuthentication(credentialResponse);
+  
+  // Update app state if authenticated
+  if (authResult.authenticated) {
+    appState.data = {
+      user: authResult.user,
+      authenticatedAt: Date.now()
+    };
+    appState.cache.set('lastAuth', authResult.user);
+  }
+
+  return {
+    success: authResult.authenticated,
+    authenticated: authResult.authenticated,
+    user: authResult.user,
+    errors: authResult.errors
+  };
+}
+
 module.exports = {
   getLangAttribute,
   getFullLangAttribute,
@@ -620,5 +658,6 @@ module.exports = {
   validateCredentialToken,
   processCredentialAuthentication,
   upgradeSystem,
-  countDependencies
+  countDependencies,
+  handleCredentialResponseInMain
 };

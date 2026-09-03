@@ -6,10 +6,10 @@ const fs = require('fs');
 const express = require('express');
 const { exec } = require('child_process');
 
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('[role="main"]') || document.body : null;
 
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000/api',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0',
@@ -26,10 +26,26 @@ const XYZ = function () {
     // Implementation for XYZ function
 };
 
+// Implement actual logic for functionA
+function functionA(element) {
+    if (!element || typeof element !== 'object') {
+        return false;
+    }
+    
+    // Check if element has proper accessibility attributes
+    const hasValidId = element.id && typeof element.id === 'string' && element.id.length > 0;
+    const hasLang = element.lang || (typeof element.getAttribute === 'function' && element.getAttribute('lang'));
+    const hasAriaLabel = typeof element.getAttribute === 'function' && (element.getAttribute('aria-label') || element.getAttribute('aria-labelledby'));
+    const hasRole = typeof element.getAttribute === 'function' && element.getAttribute('role');
+    
+    return hasValidId || hasLang || hasAriaLabel || hasRole;
+}
+
 module.exports = {
     config,
     XYZ,
     calculateSum,
+    functionA,
 
     addLangAttribute(element) {
         // Adds lang attribute to the given HTML element
@@ -48,7 +64,7 @@ module.exports = {
         const seen = new Map();
 
         elements.forEach(element => {
-            const key = element.id || element.name || JSON.stringify(element);
+            const key = element.id || element.name || element.className;
             if (!seen.has(key)) {
                 seen.set(key, true);
                 uniqueElements.push(element);
@@ -60,7 +76,7 @@ module.exports = {
 
     addressInsightIssues() {
         getLangAttribute();
-        addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+        const landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
 
         if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
             ensureLandmarkUniqueness(landmarks);
@@ -70,11 +86,8 @@ module.exports = {
         validateTableAccessibility();
         validateTableStructure();
 
-        getSvgAccessibleName();
-
         createInPageButton();
         createAccessibleLink();
-        handleAccessibilityIssues();
 
         validateLandmark();
         validateLandmarkStructure();
@@ -93,7 +106,7 @@ module.exports = {
     personName,
     personAccessibleName,
     ensureUniqueLandmarks,
-    ensureUniqueLandmarksFromString,
+    validateLandmarkStructure,
     createInPageButton,
     makeAccessible,
     addAriaSupport,
@@ -241,7 +254,7 @@ function renderDependencyGraphContent() {
   if (typeof document === 'undefined') {
     return;
   }
-  const container = document.getElementById('dependencyGraph');
+  const container = document.getElementById('dependency-graph');
   if (!container) {
     return;
   }
@@ -259,7 +272,7 @@ function fixFakeLinkIssue(doc) {
   if (typeof doc === 'undefined' || !doc.querySelectorAll) {
     return;
   }
-  const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
+  const clickableElements = doc.querySelectorAll('[onclick]');
   let count = 0;
 
   clickableElements.forEach(element => {
@@ -268,9 +281,9 @@ function fixFakeLinkIssue(doc) {
 
     if (tagName !== 'a' && !hasHref) {
       const isInteractive = element.getAttribute('role') === 'link' ||
-                             (element.hasAttribute('onclick') && element.onclick && element.onclick.toString().includes('window.location'));
+                             element.onclick && typeof element.onclick === 'function';
 
-      if (isInteractive && !element.hasAttribute('aria-label')) {
+      if (isInteractive && element.setAttribute) {
         const text = element.textContent.trim();
         if (text) {
           element.setAttribute('aria-label', text);

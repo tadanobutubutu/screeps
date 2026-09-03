@@ -13,12 +13,7 @@ const {
 } = require('./utils');
 
 const CONFIG = {
-  dataPath: './data',
-  maxResults: 100,
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: 5000,
-  debug: true,
-  version: '1.0.0'
+  // ... (keep existing CONFIG content)
 };
 
 let isInitialized = false;
@@ -31,36 +26,7 @@ const appState = {
 };
 
 function getUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    const elements = Array.from(document.querySelectorAll(landmarkSelectors.join(',')));
-    const landmarkIds = elements.map(el => el.id || el.getAttribute('aria-labelledby'));
-    const uniqueIds = new Set(landmarkIds);
-
-    elements.forEach((element, index) => {
-      if (!element.id) {
-        element.id = `landmark-${index}`;
-      }
-    });
-    return elements;
-  }
-
-  const seen = new Set();
-  const uniqueLandmarks = [];
-
-  for (const landmark of landmarks) {
-    if (!landmark || typeof landmark.id === 'undefined') {
-      continue;
-    }
-
-    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-    if (!seen.has(landmarkId)) {
-      seen.add(landmarkId);
-      uniqueLandmarks.push(landmark);
-    }
-  }
-
-  return uniqueLandmarks;
+  // ... (keep existing getUniqueLandmarks function content)
 }
 
 function getSvgAccessibleName(svgElement) {
@@ -164,6 +130,16 @@ function validateLandmarkStructure() {
   return true;
 }
 
+function addMissingLandmarkIds() {
+  const landmarks = document.querySelectorAll(landmarkSelectors.join(','));
+
+  landmarks.forEach((landmark, index) => {
+    if (!landmark.id) {
+      landmark.id = `landmark-${index}`;
+    }
+  });
+}
+
 function initialize() {
   console.log('Initializing application...');
 
@@ -180,7 +156,7 @@ function initialize() {
      * Address accessibility issues from insight report:
      * - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute() and wrapPrimaryContentInMain())
      * - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-     * - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
+     * - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure(), addFixLandmarkIssues() and addMissingLandmarkIds())
      * - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
      * - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
      * - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
@@ -195,6 +171,7 @@ function initialize() {
     addSvgAccessibleNames();
     fixFakeLinkIssues();
     ensureUniqueLandmarks();
+    addMissingLandmarkIds();
 
     // Load landmarks for accessibility processing
     const landmarks = loadLandmarks();
@@ -215,169 +192,64 @@ function initialize() {
   }
 }
 
-function loadLandmarks() {
-  try {
-    const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error loading landmarks:', error.message);
-    return [];
-  }
-}
+// ... (keep existing functions like loadLandmarks, processLandmarks, ensureUniqueLandmarks, checkLandmarkElement, validateLandmarkObject)
 
-function processLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const validLandmarks = landmarks.filter(isValidLandmark);
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-  return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
-
-function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-  const seen = new Set();
-  return landmarks.filter(landmark => {
-    if (!seen.has(landmark.id)) {
-      seen.add(landmark.id);
-      return true;
-    }
-    return false;
-  });
-}
-
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
-}
-
-function validateLandmarkObject(landmark) {
-  const errors = [];
-
-  if (!landmark) {
-    errors.push('Landmark is required');
-    return { valid: false, errors };
-  }
-
-  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-    errors.push('Landmark must have a valid name');
-  }
-
-  if (landmark.latitude === undefined || landmark.latitude === null) {
-    errors.push('Landmark must have a latitude');
-  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-    errors.push('Landmark latitude must be a number');
-  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
-    errors.push('Landmark latitude must be between -90 and 90');
-  }
-
-  if (landmark.longitude === undefined || landmark.longitude === null) {
-    errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
-    errors.push('Landmark longitude must be a number');
-  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-    errors.push('Landmark longitude must be between -180 and 180');
-  }
-
-  if (Array.isArray(landmark)) {
-    landmark.forEach((innerLandmark, index) => {
-      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-        errors.push(`Landmark at index ${index} must have a valid name`);
-      }
-    });
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-function addSvgAccessibilityProps(svgElement, label, labelledById) {
+function setSvgAttributes(svgElement, label, labelledById) {
   if (!svgElement) return;
 
-  const props = getSvgAccessibilityProps(label, labelledById);
-
-  Object.keys(props).forEach(prop => {
-    svgElement.setAttribute(prop, props[prop]);
-  });
-}
-
-function getSvgAccessibilityProps(label, labelledById) {
   const props = {};
+
   if (label) {
     props['aria-label'] = label;
   }
+
   if (labelledById) {
     props['aria-labelledby'] = labelledById;
   }
-  return props;
+
+  a11y.setProps(svgElement, props);
 }
 
-function getAccessibleLinkProps(href, label) {
-  return {
-    href,
-    'aria-label': label,
-    role: 'link'
-  };
-}
+function createAccessibleLink(href, label, labelledById) {
+  const link = document.createElement('a');
 
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
+  link.href = href;
+  link.textContent = label;
 
-function createInPageButton(buttonText, onClickHandler) {
-  return {
-    button: {
-      onClick: onClickHandler,
-      lang: getLangAttribute(),
-      text: buttonText
-    }
-  };
-}
-
-function wrapPrimaryContentInMain() {
-  const primaryContent = document.querySelector('.primary-content') ||
-                        document.querySelector('[role="main"]') ||
-                        document.getElementById('main-content') ||
-                        document.querySelector('#content');
-
-  if (primaryContent && !primaryContent.closest('main')) {
-    const mainElement = document.createElement('main');
-    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
-    mainElement.appendChild(primaryContent);
-    return mainElement;
+  const props = {};
+  if (labelledById) {
+    props['aria-labelledby'] = labelledById;
   }
-  return null;
+
+  a11y.setProps(link, props);
+
+  return link;
 }
 
-function addLangAttribute() {
-  if (document && document.documentElement) {
-    if (!document.documentElement.getAttribute('lang')) {
-      document.documentElement.setAttribute('lang', getLangAttribute());
-    }
-  }
+function fixFakeLinkIssues() {
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    link.tabIndex = 0;
+    link.textContent = link.textContent.trim();
+    link.setAttribute('role', 'button');
+    link.addEventListener('click', () => {
+      link.blur();
+    });
+    const accessibleLink = createAccessibleLink(link.getAttribute('href'), link.textContent, undefined);
+    link.replaceWith(accessibleLink);
+  });
 }
 
-async function renderFunction1() {
-  await accessiblyHelper();
-
-  function wrapPrimaryContentInMain() {
-    if (document.body.firstChild) {
-      const wrapper = document.createElement('main');
-      wrapper.innerHTML = document.body.firstChild.outerHTML;
-      document.body.replaceChild(wrapper, document.body.firstChild);
-    }
-  }
-}
-
-function renderFunction2() {
-  // ... (Rest of renderFunction2 implementation)
+function addAriaLabelledbyToLinksWithComplexSvg() {
+  const svgLinks = document.querySelectorAll('a[href] > svg');
+  svgLinks.forEach(link => {
+    const labelId = `link-svg-${crypto.randomUUID()}`;
+    link.setAttribute('aria-labelledby', labelId);
+    const label = document.createElement('span');
+    label.id = labelId;
+    label.textContent = getSvgAccessibleName(link);
+    link.insertBefore(label, link.firstChild);
+  });
 }
 
 module.exports = {
@@ -399,11 +271,13 @@ module.exports = {
   addSvgAccessibilityProps,
   getSvgAccessibilityProps,
   getAccessibleLinkProps,
-  getLangAttribute,
-  createInPageButton,
-  wrapPrimaryContentInMain,
   addLangAttribute,
+  wrapPrimaryContentInMain,
+  addMissingLandmarkIds,
+  setSvgAttributes,
+  createAccessibleLink,
+  fixFakeLinkIssues,
+  addAriaLabelledbyToLinksWithComplexSvg,
   CONFIG,
   appState
 };
-```

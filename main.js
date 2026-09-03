@@ -85,7 +85,45 @@ function trapFocus(container) {
 const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...';
 const modifiedSvgString = addAccessibleName(originalSvgString);
 
+// Helper function for logging messages with levels
+function log(message, level = 'info') {
+  if (typeof console !== 'undefined') {
+    const prefix = `[${level.toUpperCase()}]`;
+    switch (level) {
+      case 'error':
+        console.error(prefix, message);
+        break;
+      case 'warn':
+        console.warn(prefix, message);
+        break;
+      default:
+        console.log(prefix, message);
+    }
+  }
+}
+
+// Helper function to add lang attribute to container's HTML element
+function addLangAttribute(container) {
+  if (typeof document === 'undefined' || !container) {
+    return false;
+  }
+  const root = container === document ? document.documentElement : container;
+  if (root && root.lang !== undefined) {
+    root.lang = root.lang || 'en';
+    return true;
+  }
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = document.documentElement.lang || 'en';
+    return true;
+  }
+  return false;
+}
+
 // TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+// main.js - Accessibility improvements implementation
+// main.js - Combined utility and accessibility features
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
@@ -96,6 +134,8 @@ const modifiedSvgString = addAccessibleName(originalSvgString);
 //_Commit: 669117b4c3d1a635653f730f0a059efacbb752_
 //<!-- todo-hash: 54b7c4d06282fbf48e78de43e5e115814006658c_ -->
 //<!-- todo-hash: d290c9a63ee693e91602163f7ca6757def47f63e -->
+//_Commit: 1231dac3c31a4afffec0123889be7c6c29d19a7f_
+//<!-- todo-hash: eb6d4e9171933d9dff65eccb806bdd2a806e130f -->
 
 // Additional utility functions
 function setHtmlLangAttribute(lang) {
@@ -483,7 +523,9 @@ export {
   personName,
   validateLinks,
   createFocusTrap,
-  checkLandmarkElements
+  checkLandmarkElements,
+  addLangAttribute,
+  log
 };
 
 // Implement the function for addressing accessibility issues from insight report

@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
@@ -326,7 +327,7 @@ const googleSignIn = {
 };
 
 // Initialize application
-function initializeApp(config) {
+function initApp(config) {
     return initializeApp(config);
 }
 
@@ -340,12 +341,14 @@ function fetchUser(userId) {
 
 // Clear cache
 function clearCache() {
+    // Define appState or use CONFIG as fallback
+    const appState = appState || { cache: {} };
     appState.cache = {};
 }
 
 // Initialize
 function initialize() {
-    return initializeApp(CONFIG);
+    return initApp(CONFIG);
 }
 
 // Format response
@@ -463,7 +466,7 @@ if (typeof document !== 'undefined') {
  */
 function getConfig() {
   return {
-    apiUrl: process.env.API_URL || '',
+    apiUrl: (typeof process !== 'undefined' && process.env && process.env.API_URL) || '',
     timeout: 5000
   };
 }
@@ -490,9 +493,12 @@ function newFunction3(input) {
     return input;
 }
 
+// Define config variable for export
+const config = getConfig();
+
 // Export main functions
 export {
-    initializeApp,
+    initApp as initializeApp,
     config,
     renderDependencyGraph,
     newFunction3

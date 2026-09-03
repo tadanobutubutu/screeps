@@ -227,7 +227,7 @@ function applyAccessibilityFixes(container, containerReport) {
   return fixes;
 }
 
-// Function for validating the table structure, checking for issues like empty table headers, etc.
+// Function for validating the table structure for accessibility issues
 function validateTableStructure(table) {
   const errors = []
 
@@ -235,8 +235,8 @@ function validateTableStructure(table) {
     return { valid: false, errors: ['Table element is required'] }
   }
 
-  const tbody = table.querySelector('tbody')
   const thead = table.querySelector('thead')
+  const tbody = table.querySelector('tbody')
   const tfoot = table.querySelector('tfoot')
 
   if (!thead) {
@@ -246,9 +246,9 @@ function validateTableStructure(table) {
     errors.push('Table is missing tbody element')
   }
 
-  const rows = table.querySelectorAll('tbody tr')
+  const tbodyRows = tbody ? tbody.querySelectorAll('tr') : []
   let expectedCols = null
-  rows.forEach((row, rowIndex) => {
+  tbodyRows.forEach((row, rowIndex) => {
     const cells = row.querySelectorAll('td, th')
     if (expectedCols === null) {
       expectedCols = cells.length
@@ -258,6 +258,30 @@ function validateTableStructure(table) {
       )
     }
   })
+
+  // Validate accessibility: th elements should have scope attribute
+  const thElements = table.querySelectorAll('th')
+  thElements.forEach((th, index) => {
+    if (!th.hasAttribute('scope')) {
+      errors.push(`Table header at index ${index} is missing scope attribute`)
+    }
+
+    // Check that th elements have accessible names
+    const textContent = th.textContent ? th.textContent.trim() : ''
+    const ariaLabel = th.getAttribute('aria-label')
+    const ariaLabelledby = th.getAttribute('aria-labelledby')
+    if (!textContent && !ariaLabel && !ariaLabelledby) {
+      errors.push(`Table header at index ${index} is missing accessible name`)
+    }
+  })
+
+  // Validate accessibility: table should have caption or ARIA label
+  const caption = table.querySelector('caption')
+  const ariaLabel = table.getAttribute('aria-label')
+  const ariaLabelledby = table.getAttribute('aria-labelledby')
+  if (!caption && !ariaLabel && !ariaLabelledby) {
+    errors.push('Table is missing caption or aria-label/aria-labelledby')
+  }
 
   return { valid: errors.length === 0, errors }
 }

@@ -189,7 +189,7 @@ function validateLandmarkStructure() {
   // Check for multiple main landmarks
   const mainElements = document.querySelectorAll('main, [role="main"]');
   if (mainElements.length > 1) {
-    errors.push `Multiple main landmarks found. Only one main landmark should exist.`;
+    errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
   }
 
   // Check for proper nesting of landmarks
@@ -290,6 +290,21 @@ function ensureUniqueLandmarks() {
   });
 
   return { valid: errors.length === 0, errors };
+}
+
+// Function to create a button with correct accessibility properties for in-page linking
+function createInPageButton(labelText, targetSelector) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.setAttribute('aria-label', labelText);
+  button.setAttribute('aria-labelledby', labelText);
+  button.setAttribute('data-target', targetSelector);
+
+  return button;
 }
 
 // Required function implementations
@@ -424,4 +439,5 @@ module.exports = {
   dependencyGraphContent,
   indexContent,
   main,
+  createInPageButton,
 };

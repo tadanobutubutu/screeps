@@ -153,7 +153,69 @@ function setConfig(config) {
     appData.config = { ...appData.config, ...config };
 }
 
-// Implement the new function(s) here
+// Validate table structure for accessibility issues
+// Uses the imported validateTableStructure function from utilities
+function validateTableStructureForAccessibility(table) {
+    const issues = [];
+    
+    if (!table) {
+        return issues;
+    }
+
+    // Check if table has proper structure
+    const hasCaption = table.querySelector('caption');
+    const hasHeaderCells = table.querySelector('th');
+    const hasDataCells = table.querySelector('td');
+    
+    // Report missing caption for complex tables
+    if (!hasCaption && table.rows && table.rows.length > 3) {
+        issues.push({
+            id: 'table-missing-caption',
+            impact: 'moderate',
+            description: 'Complex table should have a caption describing its contents',
+            help: 'Add a <caption> element to describe the table purpose',
+            helpUrl: 'https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html'
+        });
+    }
+
+    // Check for proper th usage
+    if (hasDataCells && !hasHeaderCells) {
+        issues.push({
+            id: 'table-missing-headers',
+            impact: 'serious',
+            description: 'Data table should have header cells marked with <th>',
+            help: 'Use <th> elements for column or row headers',
+            helpUrl: 'https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships.html'
+        });
+    }
+
+    // Check for scope attribute on headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach((header, index) => {
+        if (!header.hasAttribute('scope') && !header.hasAttribute('aria-columncount')) {
+            // Only warn if there are multiple header cells that might need scope
+            if (headers.length > 1) {
+                issues.push({
+                    id: 'table-header-missing-scope',
+                    impact: 'minor',
+                    description: `Header cell "${header.textContent.substring(0, 20)}" should have a scope attribute`,
+                    help: 'Add scope="col" or scope="row" to header cells',
+                    helpUrl: 'https://www.w3.org/WAI/WCAG21/Understanding/headers-and-footers.html'
+                });
+            }
+        }
+    });
+
+    // Call the imported validateTableStructure if available
+    if (typeof validateTableStructure === 'function') {
+        const additionalIssues = validateTableStructure(table);
+        if (Array.isArray(additionalIssues)) {
+            issues.push(...additionalIssues);
+        }
+    }
+
+    return issues;
+}
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.querySelector('.dependency-graph');
@@ -183,6 +245,7 @@ module.exports = {
   ensureElementId: accessibilityUtils.ensureElementId,
   renderDependencyGraphs,
   validateTableStructure,
+  validateTableStructureForAccessibility,
   accessibilityUtils,
   getConfig,
   setConfig

@@ -249,6 +249,56 @@ function validateTableAccessibilityLocal(tableElement) {
   return true;
 }
 
+function fixFakeLink() {
+  handleFakeLinks();
+}
+
+function addLandmarkRegions() {
+  addProperLandmarkRegions();
+}
+
+function addProperLandmarkRegions(container) {
+  const result = { added: [], issues: [] };
+  const root = container || document.body;
+  let main = root.querySelector('main, [role="main"]');
+  if (!main) {
+    main = document.createElement('main');
+    const firstChild = root.firstChild;
+    if (firstChild) {
+      root.insertBefore(main, firstChild);
+    } else {
+      root.appendChild(main);
+    }
+    result.added.push('main');
+  }
+  let header = root.querySelector('header, [role="banner"]');
+  if (!header) {
+    header = document.createElement('header');
+    root.insertBefore(header, root.firstChild);
+    result.added.push('header');
+  }
+  let footer = root.querySelector('footer, [role="contentinfo"]');
+  if (!footer) {
+    footer = document.createElement('footer');
+    root.appendChild(footer);
+    result.added.push('footer');
+  }
+  return result;
+}
+
+function processAccessibilityReport(report) {
+  const findings = {
+    langAttribute: false,
+    tableIssues: 0,
+    landmarkIssues: 0,
+    svgIssues: 0,
+    uniqueLandmarkIssues: 0,
+    fakeLinkIssues: 0
+  };
+
+  return findings;
+}
+
 function handleFakeLinks(container) {
   const issues = [];
   const elements = container ? container.querySelectorAll('a, button') : document.querySelectorAll('a, button');
@@ -256,6 +306,17 @@ function handleFakeLinks(container) {
     const tagName = element.tagName.toLowerCase();
     if (tagName === 'a' && !element.getAttribute('href') && !element.getAttribute('onclick')) {
       issues.push(`REACT_036: Element at index ${index} is an anchor without href or onclick`);
+    }
+  });
+
+  // Also handle .fake-link class elements from the original implementation
+  const fakeLinks = (container || document).querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    if (link.tagName === 'A' && !link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+      if (!link.id) {
+        link.id = `fake-link-${Math.random().toString(36).substr(2, 9)}`;
+      }
     }
   });
 
@@ -390,18 +451,6 @@ function validateLinkAccessibilityLocal() {
   return true;
 }
 
-function handleFakeLinks() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    if (link.tagName === 'A' && !link.getAttribute('role')) {
-      link.setAttribute('role', 'button');
-      if (!link.id) {
-        link.id = `fake-link-${Math.random().toString(36).substr(2, 9)}`;
-      }
-    }
-  });
-}
-
 function validateLandmarkStructureLocal(landmarks) {
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region', 'banner', 'application'];
   const results = {
@@ -478,5 +527,8 @@ module.exports = {
   appState,
   dependencyGraph,
   newFunction3,
-  newFunction4
+  newFunction4,
+  fixFakeLink,
+  addLandmarkRegions,
+  processAccessibilityReport
 };

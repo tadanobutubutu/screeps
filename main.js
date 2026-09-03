@@ -108,7 +108,7 @@ const accessibilityUtils = {
 };
 
 // Utility functions for ensuring elements have IDs and adding labels
-const ensureElementHasId = (element, prefix = 'element') => {
+const ensureElementHasIdImpl = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');
   }
@@ -289,4 +289,5 @@ module.exports = {
   newFocusTrap,
   initSkipLink,
   trapFocus,
+  ensureElementHasId: ensureElementHasIdImpl,
 };

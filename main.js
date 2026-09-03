@@ -1,12 +1,7 @@
 const main = require('./utilities');
 
 const {
-  createInPageButton,
   createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
@@ -27,6 +22,7 @@ const {
   addLandmarkRegions,
   uniqueLandmarks,
   fixFakeLinkIssues,
+  fixFakeLinkIssue,
   getActiveSessionsCount,
   validateSession,
   handleCredentialResponse,
@@ -34,35 +30,17 @@ const {
   createAnnouncer,
   prefersReducedMotion,
   renderSimpleDependencyGraph,
-  addAccessibleName,
   addAccessibleNamesToSVGs,
   addSvgAccessibleNames,
-  fixFakeLinkIssue,
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
-  addLandmarkRegions,
   ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
   googleSignIn,
   decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
   initializeAccessibility,
   renderIndex,
-  newFunction,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
-  renderAdditionalContent,
   newFocusTrap
 } = main;
 
@@ -129,10 +107,6 @@ function createInPageButton(label, onClick) {
   return button;
 }
 
-function validateTableStructure(container) {
-  return validateTableStructureForAccessibility(container);
-}
-
 function validateHeadingHierarchy(headings) {
   return true;
 }
@@ -197,6 +171,7 @@ module.exports = {
   addLandmarkRegions,
   uniqueLandmarks,
   fixFakeLinkIssues,
+  fixFakeLinkIssue,
   getActiveSessionsCount,
   validateSession,
   handleCredentialResponse,
@@ -207,23 +182,12 @@ module.exports = {
   addAccessibleName,
   addAccessibleNamesToSVGs,
   addSvgAccessibleNames,
-  fixFakeLinkIssue,
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
-  addLandmarkRegions,
   ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
   googleSignIn,
   decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,

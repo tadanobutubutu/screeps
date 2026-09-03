@@ -22,7 +22,10 @@ const {
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
-  renderAdditionalContent
+  renderAdditionalContent,
+  transformInputData,
+  initSkipLink,
+  trapFocus
 } = main;
 
 const ensureElementIdUtil = (element) => {
@@ -89,7 +92,7 @@ const accessibilityUtils = {
 
   trapFocus: function (element) {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled)], [tabindex]:not([tabindex="-1"])'
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];

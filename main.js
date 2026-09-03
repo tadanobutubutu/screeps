@@ -32,14 +32,119 @@ function greetingFunction() {
   return "Hello, World!";
 }
 
-// TODO: Update the existing function using the new functions for rendering graph/index
-// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+// TODO: Identify and update specific functions that render dependency graphs or index content
+// Functions to update: renderDependencyGraphs, renderGraphIndex, ensureDependencyGraphAccessibility
 
 const renderGraphIndex = (graphData) => {
   // Address accessibility issues from insight report
   ensureDependencyGraphAccessibility(document.querySelector('.dependency-graph-container'));
   renderDependencyGraphs(graphData);
 };
+
+/**
+ * Render a single dependency graph from data
+ * @param {Object} graphData - The graph data to render
+ * @returns {string} - HTML string for the graph
+ */
+function renderDependencyGraph(graphData) {
+    if (!graphData) return '';
+    
+    let html = '<div class="dependency-graph">';
+    
+    // Render nodes
+    if (graphData.nodes) {
+        html += '<div class="graph-nodes">';
+        graphData.nodes.forEach(node => {
+            html += `<div class="graph-node" data-id="${node.id}" aria-label="${node.label || node.id}">`;
+            html += `<span class="node-label">${node.label || node.id}</span>`;
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+    
+    // Render edges
+    if (graphData.edges) {
+        html += '<svg class="graph-edges" aria-hidden="true">';
+        graphData.edges.forEach(edge => {
+            const fromNode = graphData.nodes ? graphData.nodes.find(n => n.id === edge.from) : null;
+            const toNode = graphData.nodes ? graphData.nodes.find(n => n.id === edge.to) : null;
+            html += `<line class="graph-edge" data-from="${edge.from}" data-to="${edge.to}" x1="${fromNode ? fromNode.x : 0}" y1="${fromNode ? fromNode.y : 0}" x2="${toNode ? toNode.x : 0}" y2="${toNode ? toNode.y : 0}"/>`;
+        });
+        html += '</svg>';
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+/**
+ * Render the index content with accessibility enhancements
+ * @param {Object} indexData - The index data to render
+ * @returns {string} - HTML string for the index
+ */
+function renderIndex(indexData) {
+    if (!indexData) return '';
+    
+    let html = '<div class="index-content" role="region" aria-label="Graph Index">';
+    
+    if (indexData.title) {
+        html += `<h1 class="index-title">${indexData.title}</h1>`;
+    }
+    
+    if (indexData.description) {
+        html += `<p class="index-description">${indexData.description}</p>`;
+    }
+    
+    if (indexData.entries) {
+        html += '<nav class="index-nav" aria-label="Graph Navigation"><ul class="index-entries" role="list">';
+        indexData.entries.forEach((entry, index) => {
+            const entryLabel = entry.label || `Graph ${index + 1}`;
+            html += `<li role="listitem"><a href="${entry.url || '#'}" class="index-entry-link" aria-label="${entryLabel}">${entryLabel}</a></li>`;
+        });
+        html += '</ul></nav>';
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+/**
+ * Ensure dependency graph container meets accessibility standards
+ * @param {HTMLElement} container - The container element to make accessible
+ */
+function ensureDependencyGraphAccessibility(container) {
+    if (!container) return;
+    
+    // Add ARIA attributes for accessibility
+    container.setAttribute('role', 'img');
+    if (!container.getAttribute('aria-label')) {
+        container.setAttribute('aria-label', 'Dependency graph visualization');
+    }
+    
+    // Ensure keyboard navigation for nodes
+    const nodes = container.querySelectorAll('.graph-node');
+    nodes.forEach((node, index) => {
+        if (!node.getAttribute('tabindex')) {
+            node.setAttribute('tabindex', '0');
+        }
+        if (!node.getAttribute('role')) {
+            node.setAttribute('role', 'button');
+        }
+        if (!node.getAttribute('aria-label')) {
+            node.setAttribute('aria-label', `Node: ${node.dataset.id || index}`);
+        }
+    });
+    
+    // Add live region for dynamic updates
+    const liveRegion = container.querySelector('.sr-only') || (() => {
+        const srOnly = document.createElement('div');
+        srOnly.className = 'sr-only';
+        srOnly.setAttribute('aria-live', 'polite');
+        srOnly.setAttribute('aria-atomic', 'true');
+        container.appendChild(srOnly);
+        return srOnly;
+    })();
+}
 
 // Required function implementations
 

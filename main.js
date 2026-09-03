@@ -28,7 +28,7 @@ const AddressabilityIssues = {
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
 
-  addressAccessibilityIssues(insightReport) {
+  analyzeInsightReport(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }
@@ -446,11 +446,15 @@ function generateAccessibilityReport() {
   };
 }
 
-function addressAccessibilityIssues(insightReport) {
+function ensureHtmlLang() {
   const htmlElement = document.querySelector('html');
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', getLangAttribute());
   }
+}
+
+function addressAccessibilityIssues(report) {
+  return AddressabilityIssues.analyzeInsightReport(report);
 }
 
 function initializeAccessibility() {

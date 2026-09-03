@@ -38,7 +38,7 @@ function detectAndSetLang (content) {
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh' // Chinese
     } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
-      lang = 'ja' // Japanese (Hiragana/Katakana)
+      lang = 'ja' // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru' // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
@@ -272,7 +272,7 @@ function ensureUniqueLandmarks () {
   // Check for landmark IDs that should be unique
   const landmarksWithIds = document.querySelectorAll('nav, aside, section, main, header, footer')
   const ids = new Set()
-  landmarksWithIds.forEach((el) => {
+  landmarksWithIds.forEach(el => {
     const id = el.getAttribute('id')
     if (ids.has(id)) {
       errors.push(`Duplicate landmark id found: ${id}`)
@@ -284,4 +284,40 @@ function ensureUniqueLandmarks () {
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
-function createAccessibleLink (href,
+function createAccessibleLink (href, text, options = {}) {
+  // This function creates an accessible link
+  const { onClick, role = 'link', ariaLabel, className, target, rel } = options
+
+  if (!href && !onClick) {
+    return null
+  }
+
+  const link = document.createElement('a')
+  link.textContent = text
+
+  if (href) {
+    link.href = href
+    // Add rel="noopener noreferrer" for external links
+    if (target === '_blank' && !rel) {
+      link.rel = 'noopener noreferrer'
+    } else if (rel) {
+      link.rel = rel
+    }
+  } else {
+    link.href = '#'
+  }
+
+  if (onClick) {
+    link.addEventListener('click', (e) => {
+      e.preventDefault()
+      onClick(e)
+    })
+  }
+
+  if (role) link.setAttribute('role', role)
+  if (ariaLabel) link.setAttribute('aria-label', ariaLabel)
+  if (className) link.className = className
+  if (target) link.target = target
+
+  return link
+}

@@ -437,8 +437,141 @@ function fixFakeLinkIssue(doc) {
   return count;
 }
 
+/**
+ * Render dependency graph with proper accessibility attributes
+ * @param {HTMLElement} container - The container element for the dependency graph
+ * @param {Object} data - The dependency graph data
+ * @returns {HTMLElement} The configured dependency graph container
+ */
+function renderDependencyGraph(container, data) {
+  if (!container) {
+    console.warn('renderDependencyGraph: No container provided');
+    return null;
+  }
+
+  // Set proper ARIA role for the dependency graph container
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Dependency Graph');
+  
+  // Ensure the container has a unique ID if it doesn't have one
+  if (!container.id) {
+    container.id = 'dependency-graph-' + Date.now();
+  }
+
+  // Set additional accessibility attributes
+  container.setAttribute('tabindex', '0');
+  
+  // Clear any existing content
+  container.innerHTML = '';
+
+  // Create visually hidden heading for screen readers
+  const heading = document.createElement('h2');
+  heading.className = 'sr-only';
+  heading.id = 'dependency-graph-heading';
+  heading.textContent = 'Dependency Graph';
+  container.appendChild(heading);
+
+  // Create a description for screen readers
+  const description = document.createElement('p');
+  description.className = 'sr-only';
+  description.id = 'dependency-graph-description';
+  description.textContent = 'Interactive visualization of project dependencies';
+  container.appendChild(description);
+
+  // Link the heading and description to the container
+  container.setAttribute('aria-labelledby', 'dependency-graph-heading');
+  container.setAttribute('aria-describedby', 'dependency-graph-description');
+
+  return container;
+}
+
+/**
+ * Create a dependency graph container with proper accessibility attributes
+ * @returns {HTMLElement} The created dependency graph container
+ */
+function createDependencyGraphContainer() {
+  const container = document.createElement('div');
+  return renderDependencyGraph(container, null);
+}
+
+/**
+ * Ensure dependency graph has proper ARIA attributes
+ * @param {HTMLElement} graphElement - The dependency graph element
+ * @returns {boolean} True if the graph has proper ARIA attributes
+ */
+function ensureDependencyGraphAccessibility(graphElement) {
+  if (!graphElement) {
+    return false;
+  }
+
+  // Check if the element has proper ARIA role
+  const role = graphElement.getAttribute('role');
+  if (!role || role === 'presentation' || role === 'none') {
+    graphElement.setAttribute('role', 'region');
+  }
+
+  // Ensure aria-label exists
+  if (!graphElement.hasAttribute('aria-label')) {
+    graphElement.setAttribute('aria-label', 'Dependency Graph');
+  }
+
+  // Ensure the element has an ID
+  if (!graphElement.id) {
+    graphElement.id = 'dependency-graph-' + Date.now();
+  }
+
+  // Ensure tabindex for focus management
+  if (!graphElement.hasAttribute('tabindex')) {
+    graphElement.setAttribute('tabindex', '0');
+  }
+
+  return true;
+}
+
 function renderDependencyGraphContent() {
   // Placeholder for dependency graph rendering
+}
+
+/**
+ * Render dependency graph content with accessibility support
+ * @param {HTMLElement} container - The container element for rendering
+ * @param {Object} dependencies - The dependencies data to render
+ */
+function renderDependencyGraphContent(container, dependencies) {
+  if (!container) {
+    console.warn('renderDependencyGraphContent: No container provided');
+    return;
+  }
+
+  // Ensure the container has proper accessibility attributes
+  ensureDependencyGraphAccessibility(container);
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Create a title element for screen readers
+  const title = document.createElement('h2');
+  title.id = 'dependency-graph-title';
+  title.className = 'sr-only';
+  title.textContent = 'Dependency Visualization';
+  container.appendChild(title);
+
+  // Create description for screen readers
+  const description = document.createElement('p');
+  description.className = 'sr-only';
+  description.textContent = 'This visualization shows the dependencies of the project';
+  container.appendChild(description);
+
+  // Update aria attributes to reference the title and description
+  container.setAttribute('aria-labelledby', 'dependency-graph-title');
+  container.setAttribute('aria-describedby', 'dependency-graph-description');
+
+  // Render the actual graph content (placeholder)
+  const graphWrapper = document.createElement('div');
+  graphWrapper.setAttribute('role', 'img');
+  graphWrapper.setAttribute('aria-label', 'Dependency graph visualization');
+  graphWrapper.setAttribute('tabindex', '0');
+  container.appendChild(graphWrapper);
 }
 
 function createServer() {
@@ -635,7 +768,10 @@ if (typeof module !== 'undefined' && module.exports) {
     startApp,
     addressInsightIssues,
     initializeApp,
-    addressNewAccessibilityIssues
+    addressNewAccessibilityIssues,
+    renderDependencyGraph,
+    createDependencyGraphContainer,
+    ensureDependencyGraphAccessibility
   };
 } else {
   // Browser environment - wait for DOM

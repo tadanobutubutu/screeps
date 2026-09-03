@@ -3,16 +3,16 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from ...
 import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -28,14 +28,20 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
  * @returns {string} The lang attribute value
  */
 export function getLangAttribute() {
-  // Implementation to be added
+  if (typeof document !== 'undefined') {
+    return document.documentElement.getAttribute('lang') || 'en';
+  }
+  return 'en';
 }
 
 /**
  * Adds lang attribute to HTML element
+ * @param {string} lang - The language code to set (default: 'en')
  */
-export function addLangAttribute() {
-  // Implementation to be added
+export function addLangAttribute(lang = 'en') {
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('lang', lang);
+  }
 }
 
 /**
@@ -85,7 +91,7 @@ export function validateLandmarkStructure() {
 /**
  * Validates landmark attributes
  */
-export function validateLandmarkAttributes() {
+export function ... {
   // Implementation to be added
 }
 
@@ -135,6 +141,6 @@ export function handleFakeLinks() {
 /**
  * Adds proper landmark regions to the page
  */
-export function addProperLandmarkRegions() {
+export function ... {
   // Implementation to be added
 }

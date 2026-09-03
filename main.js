@@ -266,6 +266,517 @@ function handleAccessibilityIssues() {
     });
 }
 
+// Keyboard navigation state management
+const keyboardNavigationState = {
+  currentFocusIndex: -1,
+  focusableElements: [],
+  rovingTabIndexContainers: new Map(),
+  keyboardShortcuts: new Map(),
+  skipLinkTarget: null,
+  focusTrapStack: []
+};
+
+// Initialize keyboard navigation enhancement
+function initializeKeyboardNavigation(container = document) {
+  if (!container || typeof container !== 'object') {
+    console.warn('Invalid container for keyboard navigation initialization');
+    return false;
+  }
+
+  // Add visible focus styles if not already present
+  addVisibleFocusStyles();
+
+  // Set up focusable elements
+  updateFocusableElements(container);
+
+  // Initialize roving tabindex for navigation menus
+  initializeRovingTabindex(container);
+
+  // Set up keyboard event handlers
+  setupKeyboardEventHandlers(container);
+
+  // Create skip link if not present
+  createSkipLinkIfNeeded(container);
+
+  // Enhance landmark navigation
+  enhanceLandmarkKeyboardNavigation(container);
+
+  return true;
+}
+
+// Add visible focus indicator styles
+function addVisibleFocusStyles() {
+  const styleId = 'keyboard-navigation-focus-styles';
+  if (document.getElementById(styleId)) {
+    return; // Styles already added
+  }
+
+  const style = document.createElement('style');
+  style.id = styleId;
+  style.textContent = `
+    [data-keyboard-focus="true"]:focus {
+      outline: 2px solid #0066cc !important;
+      outline-offset: 2px !important;
+      box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.3) !important;
+    }
+    [data-keyboard-focus="true"]:focus:not(:focus-visible) {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+    [data-keyboard-focus="true"]:focus-visible {
+      outline: 2px solid #0066cc !important;
+      outline-offset: 2px !important;
+      box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.3) !important;
+    }
+    .keyboard-nav-active *:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+    .keyboard-nav-active [data-keyboard-focus="true"]:focus {
+      outline: 2px solid #0066cc !important;
+      outline-offset: 2px !important;
+      box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.3) !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// Update list of focusable elements
+function updateFocusableElements(container) {
+  if (!container || typeof container !== 'object') {
+    return;
+  }
+
+  const focusableSelectors = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+    '[contenteditable="true"]'
+  ];
+
+  const focusableElements = container.querySelectorAll(focusableSelectors.join(', '));
+  
+  keyboardNavigationState.focusableElements = Array.from(focusableElements);
+
+  // Mark elements for keyboard focus visibility
+  keyboardNavigationState.focusableElements.forEach((element, index) => {
+    element.setAttribute('data-keyboard-nav-index', index);
+    element.setAttribute('data-keyboard-focus', 'true');
+  });
+}
+
+// Initialize roving tabindex pattern for navigation menus
+function initializeRovingTabindex(container) {
+  if (!container || typeof container !== 'object') {
+    return;
+  }
+
+  const menus = container.querySelectorAll('[role="menu"], [role="menubar"], [role="navigation"] ul, nav ul');
+  
+  menus.forEach(menu => {
+    const menuItems = menu.querySelectorAll('a, button');
+    
+    if (menuItems.length === 0) {
+      return;
+    }
+
+    // Store menu container for tracking
+    const menuId = menu.id || `menu-${keyboardNavigationState.rovingTabIndexContainers.size}`;
+    keyboardNavigationState.rovingTabIndexContainers.set(menuId, {
+      container: menu,
+      items: Array.from(menuItems)
+    });
+
+    // Set initial tabindex -1 for all except first item
+    menuItems.forEach((item, index) => {
+      item.setAttribute('data-roving-menu', menuId);
+      item.setAttribute('data-roving-index', index);
+      item.setAttribute('tabindex', index === 0 ? '0' : '-1');
+    });
+  });
+}
+
+// Handle roving tabindex navigation
+function handleRovingTabindexNavigation(menuId, direction) {
+  const menuData = keyboardNavigationState.rovingTabIndexContainers.get(menuId);
+  
+  if (!menuData || !menuData.items || menuData.items.length === 0) {
+    return;
+  }
+
+  const items = menuData.items;
+  const currentIndex = items.findIndex(item => item === document.activeElement);
+  
+  if (currentIndex === -1) {
+    return;
+  }
+
+  let newIndex;
+  if (direction === 'next') {
+    newIndex = (currentIndex + 1) % items.length;
+  } else if (direction === 'prev') {
+    newIndex = (currentIndex - 1 + items.length) % items.length;
+  } else if (direction === 'first') {
+    newIndex = 0;
+  } else if (direction === 'last') {
+    newIndex = items.length - 1;
+  } else {
+    return;
+  }
+
+  // Update tabindex values
+  items.forEach((item, index) => {
+    item.setAttribute('tabindex', index === newIndex ? '0' : '-1');
+  });
+
+  // Focus the new item
+  items[newIndex].focus();
+}
+
+// Set up keyboard event handlers
+function setupKeyboardEventHandlers(container) {
+  if (!container || typeof container !== 'object') {
+    return;
+  }
+
+  container.addEventListener('keydown', (event) => {
+    // Handle arrow key navigation within roving tabindex containers
+    const target = event.target;
+    if (target.hasAttribute('data-roving-menu')) {
+      const menuId = target.getAttribute('data-roving-menu');
+      
+      switch (event.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          event.preventDefault();
+          handleRovingTabindexNavigation(menuId, 'next');
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          event.preventDefault();
+          handleRovingTabindexNavigation(menuId, 'prev');
+          break;
+        case 'Home':
+          event.preventDefault();
+          handleRovingTabindexNavigation(menuId, 'first');
+          break;
+        case 'End':
+          event.preventDefault();
+          handleRovingTabindexNavigation(menuId, 'last');
+          break;
+      }
+    }
+
+    // Handle Escape key to close modals/dropdowns
+    if (event.key === 'Escape') {
+      const activeModal = document.querySelector('[role="dialog"]:focus-within, [aria-modal="true"]:focus-within');
+      if (activeModal) {
+        const closeButton = activeModal.querySelector('[aria-label="Close"], [data-close]');
+        if (closeButton) {
+          closeButton.click();
+        }
+      }
+    }
+
+    // Handle Tab key for focus management
+    if (event.key === 'Tab') {
+      document.body.classList.add('keyboard-nav-active');
+      setTimeout(() => {
+        document.body.classList.remove('keyboard-nav-active');
+      }, 100);
+    }
+  });
+
+  // Track keyboard navigation state
+  container.addEventListener('keydown', (event) => {
+    if (event.key.startsWith('Arrow') || event.key === 'Tab') {
+      keyboardNavigationState.isKeyboardNavigating = true;
+    }
+  });
+
+  container.addEventListener('mousedown', () => {
+    keyboardNavigationState.isKeyboardNavigating = false;
+  });
+}
+
+// Create skip link if not present
+function createSkipLinkIfNeeded(container) {
+  if (!container || typeof container !== 'object') {
+    return;
+  }
+
+  const existingSkipLink = container.querySelector('.skip-link, [data-skip-link]');
+  if (existingSkipLink) {
+    keyboardNavigationState.skipLinkTarget = existingSkipLink.getAttribute('href');
+    return;
+  }
+
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.className = 'skip-link';
+  skipLink.setAttribute('data-skip-link', 'true');
+  skipLink.style.cssText = `
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 9999;
+    padding: 1em;
+    background: #000;
+    color: #fff;
+    text-decoration: none;
+  `;
+
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.left = '0';
+    skipLink.style.top = '0';
+  });
+
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.left = '-9999px';
+  });
+
+  container.insertBefore(skipLink, container.firstChild);
+  keyboardNavigationState.skipLinkTarget = '#main-content';
+}
+
+// Enhance landmark keyboard navigation
+function enhanceLandmarkKeyboardNavigation(container) {
+  if (!container || typeof container !== 'object') {
+    return;
+  }
+
+  // Add landmark navigation keyboard shortcuts
+  registerKeyboardShortcut('g m', () => {
+    const main = container.querySelector('main, [role="main"]');
+    if (main) {
+      main.setAttribute('tabindex', '-1');
+      main.focus();
+    }
+  });
+
+  registerKeyboardShortcut('g n', () => {
+    const nav = container.querySelector('nav, [role="navigation"]');
+    if (nav) {
+      nav.setAttribute('tabindex', '-1');
+      nav.focus();
+    }
+  });
+
+  registerKeyboardShortcut('g s', () => {
+    const search = container.querySelector('[role="search"]');
+    if (search) {
+      search.setAttribute('tabindex', '-1');
+      search.focus();
+    }
+  });
+}
+
+// Register keyboard shortcuts (g as prefix)
+function registerKeyboardShortcut(shortcut, callback) {
+  if (typeof shortcut !== 'string' || typeof callback !== 'function') {
+    return;
+  }
+  keyboardNavigationState.keyboardShortcuts.set(shortcut.toLowerCase(), callback);
+}
+
+// Main function to enhance keyboard navigation
+function enhanceKeyboardNavigation(container = document) {
+  if (!container || typeof container !== 'object') {
+    console.warn('Invalid container provided for keyboard navigation enhancement');
+    return false;
+  }
+
+  // Initialize keyboard navigation
+  const initialized = initializeKeyboardNavigation(container);
+  
+  if (!initialized) {
+    return false;
+  }
+
+  // Handle global keyboard shortcuts
+  let gKeyPending = false;
+  let gKeyTimeout = null;
+
+  document.addEventListener('keydown', (event) => {
+    // Only handle shortcuts when not in an input field
+    const activeElement = document.activeElement;
+    const isInputField = activeElement.tagName === 'INPUT' || 
+                         activeElement.tagName === 'TEXTAREA' || 
+                         activeElement.getAttribute('contenteditable') === 'true';
+
+    if (isInputField) {
+      return;
+    }
+
+    const key = event.key.toLowerCase();
+
+    // Handle 'g' prefix for landmark shortcuts
+    if (gKeyPending) {
+      clearTimeout(gKeyTimeout);
+      const shortcut = `g ${key}`;
+      const callback = keyboardNavigationState.keyboardShortcuts.get(shortcut);
+      if (callback) {
+        event.preventDefault();
+        callback();
+      }
+      gKeyPending = false;
+      return;
+    }
+
+    // Start 'g' sequence
+    if (key === 'g' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      gKeyPending = true;
+      clearTimeout(gKeyTimeout);
+      gKeyTimeout = setTimeout(() => {
+        gKeyPending = false;
+      }, 1000); // Reset after 1 second
+    }
+  });
+
+  // Set up live region announcements for screen readers
+  setupLiveRegion(container);
+
+  // Enhance dropdown and menu keyboard interaction
+  enhanceMenuKeyboardInteraction(container);
+
+  return true;
+}
+
+// Set up ARIA live region for announcements
+function setupLiveRegion(container) {
+  if (!container || typeof container !== 'object') {
+    return;
+  }
+
+  let liveRegion = container.querySelector('[aria-live], [role="status"]');
+  
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.setAttribute('role', 'status');
+    liveRegion.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
+    liveRegion.id = 'keyboard-nav-announcer';
+    container.appendChild(liveRegion);
+  }
+
+  keyboardNavigationState.announcer = liveRegion;
+}
+
+// Announce message to screen readers
+function announceToScreenReader(message, priority = 'polite') {
+  const announcer = keyboardNavigationState.announcer;
+  if (!announcer) {
+    return;
+  }
+
+  announcer.setAttribute('aria-live', priority);
+  announcer.textContent = '';
+  
+  // Use setTimeout to ensure the announcement is made after the DOM update
+  setTimeout(() => {
+    announcer.textContent = message;
+  }, 100);
+}
+
+// Enhance menu keyboard interaction
+function enhanceMenuKeyboardInteraction(container) {
+  if (!container || typeof container !== 'object') {
+    return;
+  }
+
+  const dropdowns = container.querySelectorAll('[aria-haspopup="true"]');
+  
+  dropdowns.forEach(dropdown => {
+    dropdown.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        const expanded = dropdown.getAttribute('aria-expanded') === 'true';
+        dropdown.setAttribute('aria-expanded', !expanded);
+        
+        if (!expanded) {
+          // Menu just opened - focus first item
+          const menu = container.querySelector(`#${dropdown.getAttribute('aria-controls')}`);
+          if (menu) {
+            const firstItem = menu.querySelector('a, button');
+            if (firstItem) {
+              setTimeout(() => firstItem.focus(), 100);
+            }
+          }
+        }
+      }
+
+      if (event.key === 'Escape') {
+        dropdown.setAttribute('aria-expanded', 'false');
+        dropdown.focus();
+      }
+    });
+
+    // Close dropdown when clicking outside
+    dropdown.addEventListener('blur', (event) => {
+      setTimeout(() => {
+        const relatedTarget = event.relatedTarget;
+        if (!dropdown.contains(relatedTarget)) {
+          dropdown.setAttribute('aria-expanded', 'false');
+        }
+      }, 100);
+    });
+  });
+}
+
+// Validate landmark regions for keyboard navigation
+function validateLandmarkRegions() {
+  const landmarks = document.querySelectorAll('[role]');
+  const landmarkRegions = {
+    banner: [],
+    navigation: [],
+    main: [],
+    complementary: [],
+    contentinfo: [],
+    search: [],
+    other: []
+  };
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (landmarkRegions.hasOwnProperty(role)) {
+      landmarkRegions[role].push(landmark);
+    } else {
+      landmarkRegions.other.push(landmark);
+    }
+  });
+
+  // Check for keyboard navigation readiness
+  const results = {
+    isValid: true,
+    regions: landmarkRegions,
+    issues: []
+  };
+
+  // Validate main landmark exists
+  if (landmarkRegions.main.length === 0) {
+    results.issues.push('No main landmark found - keyboard navigation to main content may not work');
+    results.isValid = false;
+  }
+
+  // Validate navigation exists
+  if (landmarkRegions.navigation.length === 0) {
+    results.issues.push('No navigation landmark found - menu keyboard navigation may not work');
+  }
+
+  // Check for duplicate landmarks
+  Object.keys(landmarkRegions).forEach(role => {
+    if (landmarkRegions[role].length > 1 && role !== 'other') {
+      results.issues.push(`Multiple ${role} landmarks found - keyboard users may get confused`);
+    }
+  });
+
+  return results;
+}
+
 // Export all existing and new functions
 module.exports = {
     validateTableAccessibility,
@@ -288,5 +799,11 @@ module.exports = {
     validateInput,
     processData,
     validateLandmarkRegions,
-    initializeApp
+    initializeApp,
+    enhanceKeyboardNavigation,
+    initializeKeyboardNavigation,
+    updateFocusableElements,
+    handleRovingTabindexNavigation,
+    announceToScreenReader,
+    validateLandmarkRegions
 };

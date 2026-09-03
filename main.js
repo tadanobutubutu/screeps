@@ -588,7 +588,59 @@ function upgradeSystem() {
  * @returns {Object} Result with internal and npm dependency counts
  */
 const countDependencies = () => {
-  // ... existing countDependencies function implementation ...
+  // Count internal functions (exported functions in this module)
+  const internalFunctions = [
+    'newBranchFunction',
+    'validateLandmark',
+    'validateTableAccessibility',
+    'validateTableStructure',
+    'addLangAttribute',
+    'getLangAttribute',
+    'getFullLangAttribute',
+    'validateLandmarkAttributes',
+    'validateLandmarkStructure',
+    'ensureUniqueLandmarks',
+    'getSvgAccessibleName',
+    'processCredentialAuthentication',
+    'initializeApp',
+    'getConfig',
+    'validateInput',
+    'processData',
+    'createInPageButton',
+    'handleAccessibilityIssues',
+    'createAccessibleLink',
+    'addLandmarkRegions',
+    'fixTableStructure',
+    'addMainLandmark',
+    'setSvgAttributes',
+    'handleFakeLinks',
+    'handleCredentialResponse',
+    'validateCredentialToken',
+    'upgradeSystem',
+    'countDependencies'
+  ];
+
+  // Try to count npm dependencies from package.json if available
+  let npmDependencyCount = 0;
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const packageJsonPath = path.resolve(process.cwd(), 'package.json');
+    if (fs.existsSync(packageJsonPath)) {
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+      const deps = packageJson.dependencies || {};
+      const devDeps = packageJson.devDependencies || {};
+      npmDependencyCount = Object.keys(deps).length + Object.keys(devDeps).length;
+    }
+  } catch (error) {
+    // If we can't read package.json, default to 0
+    npmDependencyCount = 0;
+  }
+
+  return {
+    internal: internalFunctions.length,
+    npm: npmDependencyCount
+  };
 };
 
 module.exports = {

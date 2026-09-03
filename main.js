@@ -575,6 +575,8 @@ function upgradeSystem(harvestedData) {
   return true;
 }
 
+// TODO: Add new functions below this line
+
 // Export all functions
 module.exports = {
   config,

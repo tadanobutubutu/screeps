@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserve
+// TODO: This is the existing code that needs to be preserved
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
@@ -252,7 +252,7 @@ function generateAccessibilityReport() {
     }
   });
 
-  // Check for buttons without accessible names
+  // Check for buttons without accessible name
   const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
@@ -266,7 +266,7 @@ function generateAccessibilityReport() {
     }
   });
 
-  // Check for links without accessible names
+  // Check for links without accessible name
   const links = document.querySelectorAll('a');
   links.forEach((link, index) => {
     const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');

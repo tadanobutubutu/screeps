@@ -37,7 +37,6 @@ const config = {
 };
 
 // Load landmarks from file (new addition)
-import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
     const filePath = path.join(__dirname, 'landmarks.json');
@@ -57,7 +56,7 @@ function generateDependencyReport(dependencies) {
   return { graph };
 }
 
-export const checkSafetyCategories = () => {
+const checkSafetyCategories = () => {
   let safetyCategoriesMessage = '';
 
   if (safetyCategories.includes('Authorized Advice')) {
@@ -806,79 +805,6 @@ function initialize() {
 }
 
 // Export all functions
-export {
-  checkSafetyCategories,
-  addBook,
-  getBooksList,
-  safetyCategory,
-  createInPageButton,
-  getLangAttribute,
-  generateAccessibilityReport,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createBookForm,
-  announceBookAdded,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  addressAccessibilityIssues,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  main,
-  checkUserSafety,
-  createAccessibleInput,
-  createUnrotateButton,
-  fixAccessibilityIssues,
-  generateDependencyReport,
-  renderDependencyGraphContent,
-  countDependencies,
-  enhanceAddBookFormAccessibility,
-  ensureLandmarkUniqueness,
-  visualizeDependencyTree,
-  rotateBack,
-  UserSafety,
-  SafetyCategories,
-  generateDependencyReport as generateDependency,
-  getUserSafety,
-  main as mainFunction,
-  fixAccessibilityIssues as fixAccessibilityIssuesFunc,
-  accessiblyHelper,
-  createAccessibleInput as createAccessibleInputFunc,
-  getUserSafetyAdvice,
-  appState,
-  updateAppData,
-  fetchData,
-  validateInputForDataFetch,
-  initializeApp,
-  initialize,
-  landmarkStructureCheck,
-  addMainLandmark,
-  fixTableStructureIssues,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  createInPageButton as createInPageButtonFunc,
-  isSecureContext,
-  ensureFocusableElements,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  fixFakeLinks as fixFakeLinksAlias,
-  ensureUniqueLandmarksDoc,
-  fixButtonIdentifiers,
-  ensureDependencyGraphAriaRole,
-  googleSignIn
-};
-
 module.exports = {
   addBook,
   getBooksList,

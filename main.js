@@ -87,36 +87,6 @@ function getLangAttribute() {
 
   // Your code for detecting the language based on the content
 
-  // Implement the fix for providing ARIA role and accessible attributes to the dependency graph container
-  function fixDependencyGraphAccessibility(container) {
-    if (typeof container === 'string') {
-      let result = container;
-      const graphRegex = /<([a-z][a-z0-9]*)([^>]*)(class|id)="[^"]*dependency-graph[^"]*"[^>]*>/gi;
-      result = result.replace(graphRegex, (match, tag, attrs, attrName) => {
-        let newAttrs = attrs;
-        if (!/role\s*=/.test(newAttrs)) {
-          newAttrs += ' role="img"';
-        }
-        if (!/aria-label\s*=/.test(newAttrs)) {
-          newAttrs += ' aria-label="Dependency graph"';
-        }
-        return `<${tag}${newAttrs}${attrName}="${match.split('"')[1]}"${match.split('"')[2] || ''}">`;
-      });
-      return result;
-    }
-
-    if (container && container.setAttribute) {
-      if (!container.getAttribute('role')) {
-        container.setAttribute('role', 'img');
-      }
-      if (!container.getAttribute('aria-label')) {
-        container.setAttribute('aria-label', 'Dependency graph');
-      }
-    }
-
-    return container;
-  }
-
   // New function for validating table accessibility
   function validateTableAccessibility(table) {
     // Check 26 table structure issues
@@ -329,6 +299,9 @@ function renderDependencyGraphContent() {
   if (!container) {
     return;
   }
+
+  // Fix dependency graph accessibility
+  fixDependencyGraphAccessibility(container);
 
   // Use the new functions for rendering
   if (typeof renderDependencyGraph === 'function') {
@@ -772,3 +745,33 @@ module.exports = {
   validateInput,
   processData
 };
+
+// Moved function: fixDependencyGraphAccessibility (originally inside getLangAttribute)
+function fixDependencyGraphAccessibility(container) {
+  if (typeof container === 'string') {
+    let result = container;
+    const graphRegex = /<([a-z][a-z0-9]*)([^>]*)(class|id)="[^"]*dependency-graph[^"]*"[^>]*>/gi;
+    result = result.replace(graphRegex, (match, tag, attrs, attrName) => {
+      let newAttrs = attrs;
+      if (!/role\s*=/.test(newAttrs)) {
+        newAttrs += ' role="img"';
+      }
+      if (!/aria-label\s*=/.test(newAttrs)) {
+        newAttrs += ' aria-label="Dependency graph"';
+      }
+      return `<${tag}${newAttrs}${attrName}="${match.split('"')[1]}"${match.split('"')[2] || ''}">`;
+    });
+    return result;
+  }
+
+  if (container && container.setAttribute) {
+    if (!container.getAttribute('role')) {
+      container.setAttribute('role', 'img');
+    }
+    if (!container.getAttribute('aria-label')) {
+      container.setAttribute('aria-label', 'Dependency graph');
+    }
+  }
+
+  return container;
+}

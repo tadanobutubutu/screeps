@@ -60,8 +60,14 @@ def main():
     print(f"Resolving conflicts for PR #{pr_no}...")
 
     # Configure Git
-    run_cmd(["git", "config", "--global", "user.name", "AI Merge Bot"])
-    run_cmd(["git", "config", "--global", "user.email", "ai-merge-bot@screeps.local"])
+    bot_name = "github-actions[bot]"
+    bot_email = "41898282+github-actions[bot]@users.noreply.github.com"
+    run_cmd(["git", "config", "user.name", bot_name], check=False)
+    run_cmd(["git", "config", "user.email", bot_email], check=False)
+    os.environ["GIT_AUTHOR_NAME"] = bot_name
+    os.environ["GIT_AUTHOR_EMAIL"] = bot_email
+    os.environ["GIT_COMMITTER_NAME"] = bot_name
+    os.environ["GIT_COMMITTER_EMAIL"] = bot_email
 
     # Checkout PR branch
     run_cmd(["gh", "pr", "checkout", pr_no])

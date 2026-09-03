@@ -757,7 +757,8 @@ function createInPageButton(parent = document.body) {
   return btn
 }
 
-// TODO: Implement tower defense
+// TODO: This is the existing code that needs to be preserved
+// Line 113 - towerDefense function
 function towerDefense() {
   const towers = []
   const enemies = []

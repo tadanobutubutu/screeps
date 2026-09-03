@@ -91,7 +91,6 @@ const {
   uniqueLandmarks,
   addSvgAccessibleNames,
   validateSession,
-  handleCredentialResponse,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,

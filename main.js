@@ -5,7 +5,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
+// - ADD: Address new accessibility issues from insight report (DONE: addSkipLink)
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -631,6 +631,26 @@ function renderIndexView(indexPath, container, options = {}) {
   }
 }
 
+// New function to address new accessibility issues from insight report: skip link
+function addSkipLink() {
+  if (typeof document === 'undefined' || !document.body) {
+    return;
+  }
+
+  // Avoid adding duplicate skip links
+  if (document.querySelector('.skip-link')) {
+    return;
+  }
+
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.className = 'skip-link';
+
+  // Insert at the beginning of the body
+  document.body.insertBefore(skipLink, document.body.firstChild);
+}
+
 // TODO: Implement tower defense
 function towerDefense() {
   // A simple tower defense game implementation
@@ -803,5 +823,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  towerDefense
+  towerDefense,
+  addSkipLink
 };

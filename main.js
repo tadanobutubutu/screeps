@@ -324,6 +324,14 @@ function addressAccessibilityIssues() {
   accessibilityIssues.forEach((issue) => {
     issue.action(issue.context);
   });
+
+  // Additional code to address specific SVG issues
+  const svgsToCheck = document.querySelectorAll('svg');
+  svgsToCheck.forEach((svg) => {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title') && !svg.getAttribute('aria-hidden')) {
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
 }
 
 // Add accessibility functions to address specific issues

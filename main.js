@@ -256,6 +256,32 @@ function createInPageButtons() {
     // Implementation for creating in-page buttons
 }
 
+/**
+ * Add scope attribute to table header cells for accessibility
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with scope attributes added to th elements in table headers
+ */
+function addTableScopeAttributes(html) {
+    if (!html) return html;
+    
+    // Add scope="col" to th elements in thead sections
+    html = html.replace(/(<thead[^>]*>[\s\S]*?<tr[^>]*>[\s\S]*?<th)(?![^>]*scope=)([^>]*>)/gi, function(match, prefix, suffix) {
+        return prefix + ' scope="col"' + suffix;
+    });
+    
+    // Add scope="col" to th elements in tfoot sections (footer headers)
+    html = html.replace(/(<tfoot[^>]*>[\s\S]*?<tr[^>]*>[\s\S]*?<th)(?![^>]*scope=)([^>]*>)/gi, function(match, prefix, suffix) {
+        return prefix + ' scope="col"' + suffix;
+    });
+    
+    // Add scope="row" to th elements in tbody sections (row headers)
+    html = html.replace(/(<tbody[^>]*>[\s\S]*?<tr[^>]*>[\s\S]*?<th)(?![^>]*scope=)([^>]*>)/gi, function(match, prefix, suffix) {
+        return prefix + ' scope="row"' + suffix;
+    });
+    
+    return html;
+}
+
 // Export all required functions and utilities
 module.exports = {
     renderDependencyGraph,
@@ -276,5 +302,6 @@ module.exports = {
     ensureElementHasId,
     getTables,
     getConfig,
-    setConfig
+    setConfig,
+    addTableScopeAttributes
 };

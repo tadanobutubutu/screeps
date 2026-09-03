@@ -188,6 +188,76 @@ function fixFakeLinks(html) {
     return html;
 }
 
+// Upgrade accessibility patterns to newer, more semantic HTML5 standards
+function upgradeAccessibilityPatterns(html) {
+    if (typeof html !== 'string') return html;
+
+    // Convert divs with landmark roles to their semantic HTML5 equivalents
+    const roleToElement = {
+        'navigation': 'nav',
+        'main': 'main',
+        'banner': 'header',
+        'contentinfo': 'footer',
+        'complementary': 'aside'
+    };
+
+    Object.keys(roleToElement).forEach(role => {
+        const element = roleToElement[role];
+        const pattern = new RegExp(`<div([^>]*)role=["']${role}["']([^>]*)>`, 'gi');
+        html = html.replace(pattern, (match, before, after) => {
+            const attrs = (before + after).replace(/role=["']${role}["']/gi, '');
+            return `<${element}${attrs}>`;
+        });
+    });
+
+    // Convert divs with role="search" to a div with proper semantics
+    html = html.replace(/<div([^>]*)role=["']search["']([^>]*)>/gi, (match, before, after) => {
+        const attrs = (before + after).replace(/role=["']search["']/gi, '');
+        return `<div${attrs} role="search">`;
+    });
+
+    // Convert divs with role="form" to <form> elements
+    html = html.replace(/<div([^>]*)role=["']form["']([^>]*)>/gi, (match, before, after) => {
+        const attrs = (before + after).replace(/role=["']form["']/gi, '');
+        return `<form${attrs}>`;
+    });
+
+    // Convert spans with role="button" to <button> elements
+    html = html.replace(/<span([^>]*)role=["']button["']([^>]*)>/gi, (match, before, after) => {
+        const attrs = (before + after).replace(/role=["']button["']/gi, '');
+        return `<button${attrs}>`;
+    });
+
+    html = html.replace(/<\/span>/gi, '</button>');
+
+    // Convert divs with role="button" to <button> elements
+    html = html.replace(/<div([^>]*)role=["']button["']([^>]*)>/gi, (match, before, after) => {
+        const attrs = (before + after).replace(/role=["']button["']/gi, '');
+        return `<button${attrs}>`;
+    });
+
+    html = html.replace(/<\/div>(?=[\s\S]*?<button)/gi, '</button>');
+
+    // Upgrade img elements with alt="" to have role="presentation" for decorative images
+    html = html.replace(/<img([^>]*)alt=["']["']([^>]*)>/gi, (match, before, after) => {
+        if (/\balt=["']["']/.test(match) && !/\brole=/i.test(match)) {
+            return `<img${before}alt="" role="presentation"${after}>`;
+        }
+        return match;
+    });
+
+    // Convert elements with tabindex="0" that could use semantic HTML instead
+    html = html.replace(/<div([^>]*)tabindex=["']0["']([^>]*)>/gi, (match, before, after) => {
+        if (/\brole=["']button["']/i.test(match)) {
+            const attrs = (before + after).replace(/tabindex=["']0["']/gi, '');
+            return `<button${attrs}>`;
+        }
+        return match;
+    });
+
+    return html;
+}
+
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes(html) {
     let result = html;
@@ -197,6 +267,7 @@ function applyAccessibilityFixes(html) {
     result = addSvgAccessibleNames(result);
     result = ensureUniqueLandmarks(result);
     result = fixFakeLinks(result);
+    result = upgradeAccessibilityPatterns(result);
     return result;
 }
 
@@ -287,3 +358,44 @@ function parseColor(colorString) {
     }
 
     // Handle named colors (limited support)
+    const namedColors = {
+        'black': { r: 0, g: 0, b: 0 },
+        'white': { r: 255, g: 255, b: 255 },
+        'red': { r: 255, g: 0, b: 0 },
+        'green': { r: 0, g: 128, b: 0 },
+        'blue': { r: 0, g: 0, b: 255 },
+        'yellow': { r: 255, g: 255, b: 0 },
+        'cyan': { r: 0, g: 255, b: 255 },
+        'magenta': { r: 255, g: 0, b: 255 },
+        'gray': { r: 128, g: 128, b: 128 },
+        'grey': { r: 128, g: 128, b: 128 },
+        'orange': { r: 255, g: 165, b: 0 },
+        'purple': { r: 128, g: 0, b: 128 },
+        'pink': { r: 255, g: 192, b: 203 },
+        'brown': { r: 165, g: 42, b: 42 },
+        'navy': { r: 0, g: 0, b: 128 },
+        'teal': { r: 0, g: 128, b: 128 },
+        'olive': { r: 128, g: 128, b: 0 },
+        'maroon': { r: 128, g: 0, b: 0 },
+        'silver': { r: 192, g: 192, b: 192 },
+        'lime': { r: 0, g: 255, b: 0 },
+        'aqua': { r: 0, g: 255, b: 255 },
+        'fuchsia': { r: 255, g: 0, b: 255 },
+        'transparent': { r: 0, g: 0, b: 0 }
+    };
+
+    return namedColors[colorString.toLowerCase()] || null;
+}
+
+// Helper function to calculate relative luminance
+function calculateLuminance(rgb) {
+    const rsRGB = rgb.r / 255;
+    const gsRGB = rgb.g / 255;
+    const bsRGB = rgb.b / 255;
+
+    const r = rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4);
+    const g = gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4);
+    const b = bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4);
+
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}

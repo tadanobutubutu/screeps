@@ -31,6 +31,146 @@ import {
   decodeJwtResponse
 } from './AccessibilityHelpers'
 
+/**
+ * Person name formatter for accessibility
+ * REACT_015 and REACT_036
+ */
+export function personName(first, last) {
+  if (!first && !last) return ''
+  if (!first) return last || ''
+  if (!last) return first
+  return `${first} ${last}`
+}
+
+/**
+ * Validate table accessibility
+ * REACT_027
+ */
+export function validateTableAccessibility(tableElement) {
+  if (!tableElement) return false
+  
+  const hasCaption = tableElement.querySelector('caption') !== null
+  const hasSummary = tableElement.hasAttribute('summary') || tableElement.querySelector('thead') !== null
+  const hasHeaders = tableElement.querySelectorAll('th').length > 0
+  
+  return hasCaption && hasHeaders
+}
+
+/**
+ * Validate and fix table structure
+ * REACT_027
+ */
+export function validateTableStructure(tableElement) {
+  if (!tableElement) return null
+  
+  // Add caption if missing
+  if (!tableElement.querySelector('caption')) {
+    const caption = document.createElement('caption')
+    caption.textContent = 'Data table'
+    tableElement.insertBefore(caption, tableElement.firstChild)
+  }
+  
+  // Fix headers
+  const rows = tableElement.querySelectorAll('tr')
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td')
+    cells.forEach(cell => {
+      if (!cell.hasAttribute('headers')) {
+        const rowContainingHeader = tableElement.querySelectorAll('th')
+        if (rowContainingHeader.length > 0) {
+          const headerText = rowContainingHeader[0].textContent.trim()
+          const cellHeaders = headerText.replace(/\s+/g, '').toLowerCase()
+          cell.setAttribute('headers', cellHeaders)
+        }
+      }
+    })
+  })
+  
+  return tableElement
+}
+
+/**
+ * Validate landmark structure
+ * REACT_017
+ */
+export function validateLandmarkStructure(container) {
+  if (!container) return container
+  
+  const mainElement = container.querySelector('main') || container.querySelector('[role="main"]')
+  if (!mainElement) {
+    const div = container.querySelector('div')
+    if (div) {
+      div.setAttribute('role', 'main')
+    }
+  }
+  
+  return container
+}
+
+/**
+ * New focus trap function for keyboard navigation
+ * REACT_017
+ */
+export function newFocusTrap(container) {
+  if (!container) return function() {}
+  
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  )
+  
+  if (focusableElements.length === 0) return function() {}
+  
+  const firstElement = focusableElements[0]
+  const lastElement = focusableElements[focusableElements.length - 1]
+  
+  return function(e) {
+    const isTab = e.key === 'Tab'
+    if (!isTab) return
+    
+    if (e.shiftKey) {
+      if (document.activeElement === firstElement) {
+        e.preventDefault()
+        if (lastElement) lastElement.focus()
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        e.preventDefault()
+        if (firstElement) firstElement.focus()
+      }
+    }
+  }
+}
+
+/**
+ * Create in-page navigation button
+ * REACT_036
+ */
+export function createInPageButton(text, targetId) {
+  const button = document.createElement('button')
+  button.type = 'button'
+  button.textContent = text
+  
+  if (targetId) {
+    button.setAttribute('aria-controls', targetId)
+  }
+  
+  button.setAttribute('role', 'button')
+  button.setAttribute('tabindex', '0')
+  
+  return button
+}
+
+/**
+ * Handle focus trap for keyboard navigation
+ * Uses newFocusTrap function
+ */
+export function handleFocusTrap(container) {
+  const trap = newFocusTrap(container)
+  if (typeof trap === 'function') {
+    container.addEventListener('keydown', trap)
+  }
+}
+
 // Implement the function for addressing accessibility issues from insight report
 function newFunction () {
   // TODO: Implement the new function as per the issue requirements
@@ -43,7 +183,9 @@ function implementAccessibilityFixesFromReport (container, report) {
     mainLandmarkAdded: false,
     landmarksFixed: 0,
     svgNamesAdded: 0,
-    fakeLinksFixed: 0
+    fakeLinksFixed: 0,
+    tableStructuresFixed: 0,
+    focusTrapAdded: false
   }
 
   if (!report || !report.issues) {
@@ -88,20 +230,9 @@ function implementAccessibilityFixesFromReport (container, report) {
   if (typeof validateLandmark === 'function') {
     validateLandmark(container)
   }
-}
-
-  // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg)
-    if (
-      accessibleName &&
-      accessibleName.trim() !== ''
-    ) {
-      addSvgAccessibleNames(svg, accessibleName)
-      fixes.svgNamesAdded++
-    }
-  })
+  if (typeof validateLandmarkStructure === 'function') {
+    validateLandmarkStructure(container)
+  }
 
   // Fix fake link issues (elements that look like links but are missing href)
   const fakeLinks = container.querySelectorAll('[onclick]:not(a):not(button)')
@@ -118,8 +249,9 @@ function implementAccessibilityFixesFromReport (container, report) {
   }
 
   // Implement focus trap for keyboard navigation
-  if (typeof focusTrap === 'function') {
-    focusTrap(container)
+  if (typeof newFocusTrap === 'function') {
+    handleFocusTrap(container)
+    fixes.focusTrapAdded = true
   }
 
   if (fixes.langAdded) {
@@ -149,6 +281,11 @@ function implementAccessibilityFixesFromReport (container, report) {
   const fakeLinkFixes = fixes.fakeLinksFixed || 0
   if (fakeLinkFixes > 0) {
     log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
+  }
+
+  const tableFixes = fixes.tableStructuresFixed || 0
+  if (tableFixes > 0) {
+    log(`Fixed ${tableFixes} table structures`, 'info')
   }
 
   return fixes
@@ -425,4 +562,15 @@ export function fixFakeLinksInContainer(container) {
   })
 
   return container
+}
+
+// Export all new functions
+export {
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  newFocusTrap,
+  createInPageButton,
+  handleFocusTrap
 }

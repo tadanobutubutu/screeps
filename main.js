@@ -510,9 +510,9 @@ app.use(express.json());
  */
 
 function renderDependencyGraph(container, svgElements) {
-  const accessibleName = getSvgAccessibleName(svg);
+  const accessibleName = getSvgAccessibleName(svgElements);
 
-  setSvgAttributes(svg);
+  setSvgAttributes(svgElements);
   return accessibleName;
 }
 

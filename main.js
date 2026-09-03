@@ -167,6 +167,17 @@
       });
     }
 
+    // Implementing the new function for checking landmark elements
+    function checkLandmarkElements() {
+      const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
+      landmarks.forEach(landmark => {
+        const element = document.querySelector(`[role="${landmark}"]`);
+        if (element) {
+          element.setAttribute('aria-label', `Navigation: ${landmark}`);
+        }
+      });
+    }
+
     // Function to fix 1 fake link issue
     function fixFakeLink() {
       const fakeLinks = document.querySelectorAll(':not([href])[role="link"]');
@@ -174,17 +185,6 @@
         link.removeAttribute('role'); // Remove the role attribute after fixing the issue
         link.setAttribute('href', '#');
       });
-
-      // Implementing the new function for checking landmark elements
-      function checkLandmarkElements() {
-        const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
-        landmarks.forEach(landmark => {
-          const element = document.querySelector(`[role="${landmark}"]`);
-          if (element) {
-            element.setAttribute('aria-label', `Navigation: ${landmark}`);
-          }
-        });
-      }
 
       // Call the new function to check landmark elements
       checkLandmarkElements();
@@ -752,6 +752,7 @@
       writeReport: writeReport,
       scanAccessibility: scanAccessibility,
       addBookWithAccessibility: addBookWithAccessibility,
+      checkLandmarkElements: checkLandmarkElements,
       ...accessibilityUtils,
       // Required exports to preserve existing functionality
       existingFunction1: existingFunction1,
@@ -785,7 +786,7 @@
         addressAccessibilityIssues();
 
         // Create the in-page button
-        createInPageButton();
+        createInPageButton('Initialize Button', function() {});
 
         // Add accessible names to 2 SVGs
         setSvgAccessibleNames('svg1Id', 'svg2Id', 'aria-label for SVG1', 'aria-label for SVG2');

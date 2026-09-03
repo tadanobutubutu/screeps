@@ -33,7 +33,7 @@ const {
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
     focusTrap,
-    checkAccessibility as oldCheckAccessibility,
+    checkAccessibility: oldCheckAccessibility,
 } = main;
 
 function processSvgElements() {

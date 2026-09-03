@@ -58,6 +58,12 @@ function handleTabNavigation(event, activeElement) {
   console.log('Handling tab navigation');
 }
 
+// New function: Harvest logic
+function harvestLogic() {
+  // TODO: Implement harvest logic
+  console.log('Harvest logic is not implemented yet.');
+}
+
 // Import and use existing functions from utilities
 const { renderDependencyGraphs, ...mainUtilities } = main;
 
@@ -66,6 +72,9 @@ module.exports = {
   addTask,
   setFocus,
   handleKeyboardNavigation,
+  navigateWithArrow,
+  handleTabNavigation,
   renderDependencyGraphs,
+  harvestLogic,
   ...mainUtilities
 }

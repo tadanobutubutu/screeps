@@ -1,19 +1,10 @@
-Below is the resolved file content that integrates both changes:
-
-```javascript
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-// TODO: This is the existing code that needs to be preserved
 const fastMap = require('fast-map');
 const path = require('path');
-const accessiblyHelper = require('./accessibly-helper'); // Added this import
+const accessiblyHelper = require('./accessibly-helper');
 
-// TODO: This is the existing code that needs to be preserved
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
@@ -25,10 +16,74 @@ function getUserSafetyAdvice() {
   return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
 }
 
+/**
+ * Adds SVG accessibility props to an element
+ * @param {SVGElement} element - The SVG element to add accessibility props to
+ * @param {Object} props - Accessibility properties object
+ * @returns {SVGElement} The element with accessibility props added
+ */
+function addSvgAccessibilityProps(element, props) {
+  if (!element || typeof element.setAttribute !== 'function') {
+    return element;
+  }
+
+  // Add aria-label if provided
+  if (props && props.ariaLabel) {
+    element.setAttribute('aria-label', props.ariaLabel);
+  }
+
+  // Add role if provided (use 'img' for decorative graphics, 'graphics-document' for complex graphics)
+  if (props && props.role) {
+    element.setAttribute('role', props.role);
+  } else {
+    // Default role for SVG graphics
+    element.setAttribute('role', 'img');
+  }
+
+  // Add focusable="false" to prevent keyboard navigation issues
+  element.setAttribute('focusable', 'false');
+
+  // Add tabindex="-1" to improve keyboard accessibility
+  element.setAttribute('tabindex', '-1');
+
+  // Add title for basic accessibility (will be used as tooltip)
+  if (props && props.title) {
+    const titleElement = element.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'title');
+    titleElement.textContent = props.title;
+    
+    // Insert title as first child
+    if (element.firstChild) {
+      element.insertBefore(titleElement, element.firstChild);
+    } else {
+      element.appendChild(titleElement);
+    }
+  }
+
+  // Add desc for description if provided
+  if (props && props.description) {
+    const descElement = element.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    descElement.textContent = props.description;
+    
+    // Insert desc after title
+    if (element.firstChild && element.firstChild.tagName === 'title') {
+      element.insertBefore(descElement, element.firstChild.nextSibling);
+    } else {
+      element.insertBefore(descElement, element.firstChild);
+    }
+  }
+
+  // Apply any additional accessibility props using accessiblyHelper
+  if (props && accessiblyHelper && typeof accessiblyHelper.applyProps === 'function') {
+    accessiblyHelper.applyProps(element, props);
+  }
+
+  return element;
+}
+
 module.exports = {
   UserSafety: 'unsafe',
-  getUserSafetyAdvice
+  getUserSafetyAdvice,
+  addSvgAccessibilityProps
 };
-```
 
-In this resolution, I preserved both sets of comments and changes related to the `getUserSafetyAdvice()` function. The accessiblyHelper import was added since it does not interfere with the existing code or the new function. Other comments with the `todo-hash` and `_Commit` information were moved to continue preserving the commit history and context for future reference.
+// TODO: Implement this function for adding SVG accessibility props

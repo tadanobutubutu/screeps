@@ -1,3 +1,18 @@
+// TODO: This is the existing code that needs to be preserved
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+// _Commit: dec99b86b66013fcd30722b40439605891dd0ad1_
+// _Commit: ca07afdb3852933670d8d59e11575814d1bda9e5_
+// <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+
+// _Commit: 08aa9452ee7a7a34d5e50346ffee28ae555f1c37_
+
+<!-- todo-hash: 22d219617ccb2188150a8a9092f8def56c72e7a8 -->
+
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
@@ -8,7 +23,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0',
@@ -16,7 +31,7 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('#content') || document.querySelector('.content') || null : null;
 
 const AddressabilityIssues = {
   validateTableAccessibility: function(table) {
@@ -45,21 +60,21 @@ function loadConfigurations() {
 function countDependencies() {
     const path = require('path');
     const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     const dependencies = packageJson.dependencies || {};
     const devDependencies = packageJson.devDependencies || {};
 
     return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
+        dependencies: Object.keys(dependencies),
+        devDependencies: Object.keys(devDependencies),
         total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
 }
 
 // SVG accessibility helper functions from HEAD branch
-function addSvgAccessibilityProps(svg) {
-  if (!svg.getAttribute('role')) {
+function ensureSvgAccessibility(svg) {
+  if (svg && !svg.getAttribute('role')) {
     svg.setAttribute('role', 'img');
   }
 
@@ -84,12 +99,10 @@ const XYZ = function () {
     // Implementation for XYZ function
 };
 
-setHtmlLangAttribute('en');
-
 // Validate the table structure for accessibility issues
 if (typeof document !== 'undefined') {
   function validateAllTables() {
-    const tables = document.getElementsByTagName('table');
+    const tables = document.querySelectorAll('table');
     for (const table of tables) {
       const accessible = validateTableAccessibility(table);
       const structure = validateTableStructure(table);
@@ -128,7 +141,7 @@ module.exports = {
         const seen = new Map();
 
         elements.forEach(element => {
-            const key = element.id || element.name || JSON.stringify(element);
+            const key = element.id || element.name || element.className;
             if (!seen.has(key)) {
                 seen.set(key, true);
                 uniqueElements.push(element);
@@ -140,35 +153,35 @@ module.exports = {
 
     addressInsightIssues: function () {
         this.getLangAttribute();
-        this.addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+        const landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
 
         if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
             this.ensureLandmarkUniqueness(landmarks);
         }
+        this.validateLandmark(landmarks);
         this.ensureUniqueLandmarks();
 
-        this.validateTableAccessibility();
-        this.validateTableStructure();
+        this.validateTableAccessibility(landmarks);
+        this.checkElementAccessibility(landmarks);
+        this.addAriaLabel(landmarks, 'main-content');
 
-        this.getSvgAccessibleName();
-
-        this.createInPageButton();
-        this.createAccessibleLink();
+        this.renderDependencyGraphContent();
         this.handleAccessibilityIssues();
+        this.setupHandlers();
 
-        this.validateLandmark();
-        this.validateLandmarkStructure();
+        this.validateInput(landmarks);
+        this.processData(landmarks);
     },
 
     initializeApp: function () {
         this.addressInsightIssues();
-        this.loadConfigurations();
+        loadConfigurations();
         countDependencies();
         if (typeof wrapPrimaryContentInMain === 'function') {
             wrapPrimaryContentInMain();
         }
         if (typeof fixLandmarkStructure === 'function') {
-            document.body.innerHTML = fixLandmarkStructure();
+            fixLandmarkStructure();
         }
     },
 
@@ -242,7 +255,7 @@ module.exports = {
         if (typeof doc === 'undefined' || !doc.querySelectorAll) {
             return;
         }
-        const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
+        const clickableElements = doc.querySelectorAll('[onclick]');
         let count = 0;
 
         clickableElements.forEach(element => {
@@ -251,9 +264,9 @@ module.exports = {
 
             if (tagName !== 'a' && !hasHref) {
                 const isInteractive = element.getAttribute('role') === 'link' ||
-                                       (element.hasAttribute('onclick') && element.onclick && element.onclick.toString().includes('window.location'));
+                                       element.getAttribute('tabindex') === '0' && element.onclick && typeof element.onclick === 'function';
 
-                if (isInteractive && !element.hasAttribute('aria-label')) {
+                if (isInteractive && element.textContent.trim()) {
                     const text = element.textContent.trim();
                     if (text) {
                         element.setAttribute('aria-label', text);
@@ -284,11 +297,11 @@ module.exports = {
     },
 
     startApp: function () {
-        this.loadConfigurations();
+        this.initializeApp();
         const server = this.createServer();
         return server;
     },
 
-    addSvgAccessibilityProps: addSvgAccessibilityProps,
+    ensureSvgAccessibility: ensureSvgAccessibility,
     setSvgAttributes: setSvgAttributes
 };

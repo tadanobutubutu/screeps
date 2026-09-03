@@ -1,23 +1,15 @@
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
 
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-// TODO: This is the existing code that needs to be preserved
 const fastMap = require('fast-map');
 const path = require('path');
 
 const accessiblyHelper = require('./accessibly-helper'); // Added this import
 
 // TODO: This is the existing code that needs to be preserved
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-// _Commit: e1060a659ba0acd8f70570301019d02d1d671c81_
-
 function getUserSafetyAdvice() {
   const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
   return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
@@ -34,7 +26,6 @@ async function generateAccessibilityReport(issuesData) {
   let issues = [];
 
   if (!issuesData) {
-    // Check for images without alt attributes
     const images = document.querySelectorAll('img');
     images.forEach((img, index) => {
       if (!img.hasAttribute('alt')) {
@@ -47,7 +38,6 @@ async function generateAccessibilityReport(issuesData) {
       }
     });
 
-    // Check for buttons without accessible names
     const buttons = document.querySelectorAll('button');
     buttons.forEach((btn, index) => {
       const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
@@ -61,7 +51,6 @@ async function generateAccessibilityReport(issuesData) {
       }
     });
 
-    // Check for links without accessible names
     const links = document.querySelectorAll('a');
     links.forEach((link, index) => {
       const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
@@ -75,7 +64,6 @@ async function generateAccessibilityReport(issuesData) {
       }
     });
 
-    // Check for form inputs without labels
     const inputs = document.querySelectorAll('input');
     inputs.forEach((input, index) => {
       const inputType = input.getAttribute('type');
@@ -94,7 +82,6 @@ async function generateAccessibilityReport(issuesData) {
       }
     });
 
-    // Check for empty headings
     const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
     headings.forEach((heading, index) => {
       if (!heading.textContent.trim()) {
@@ -107,8 +94,7 @@ async function generateAccessibilityReport(issuesData) {
       }
     });
   } else {
-    // If data is provided, use the analysis logic
-    issues = await accessiblyHelper(issuesData);
+    issues = accessiblyHelper(issuesData);
   }
 
   const report = {
@@ -121,12 +107,8 @@ async function generateAccessibilityReport(issuesData) {
 }
 
 async function renderFunction1() {
-  // Existing functionality
-
-  // Using accessible utilities instead of undefined modules
   const moduleAReturnValue = await accessiblyHelper();
 
-  // Ensure the dependencyGraph container has a proper ARIA role
   function ensureDependencyGraphRole(container) {
     if (!container) return;
     if (!container.hasAttribute('role')) {
@@ -137,7 +119,6 @@ async function renderFunction1() {
     }
   }
 
-  // Application data structure
   const appData = {
     title: 'Screeps',
     version: '1.0.0'
@@ -147,9 +128,6 @@ async function renderFunction1() {
 }
 
 async function renderFunction2() {
-  // Existing functionality
-
-  // Using accessible utilities instead of undefined modules
   const moduleBReturnValue = await accessiblyHelper();
 
   return { moduleBReturnValue };
@@ -204,15 +182,12 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
 function addressAccessibilityIssues() {
-  // Ensure the root container has an accessible name
   const rootContainer = document.getElementById('root');
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }
 
-  // Initialize skip link functionality
   const skipLink = document.getElementById('skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', function(e) {
@@ -225,7 +200,6 @@ function addressAccessibilityIssues() {
     });
   }
 
-  // Add role="button" to all buttons
   const buttons = document.querySelectorAll('button');
   buttons.forEach(button => {
     if (!button.hasAttribute('role')) {
@@ -233,7 +207,6 @@ function addressAccessibilityIssues() {
     }
   });
 
-  // Add focusVisible polyfill behavior
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Tab') {
       document.body.classList.add('keyboard-nav');
@@ -244,27 +217,23 @@ function addressAccessibilityIssues() {
     document.body.classList.remove('keyboard-nav');
   });
 
-  // Assuming a modal/dialog element with the ID "modal"
   if (typeof a11y !== 'undefined') {
     a11y.announce('Welcome to the bot!', 'assertive');
   }
 
-  // Adding an alt attribute to an image
   const imageElement = document.querySelector('img:not([alt])');
   if (imageElement) {
     imageElement.setAttribute('alt', 'A description of the image');
   }
 
-  // Correcting the ARIA role for a div
   const divElement = document.querySelector('[data-list]');
   if (divElement) {
     divElement.setAttribute('role', 'list');
   }
 
-  // Adding the lang attribute to the HTML element
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', getLangAttribute());
+    htmlElement.setAttribute('lang', 'en');
   }
 }
 
@@ -275,25 +244,21 @@ const CONFIG = {
     timeout: 5000
 };
 
-// Alternative config style for backwards compatibility
 const config = CONFIG;
 
-// Application state
 let isInitialized = false;
 const appData_originSide = {};
 const appState = {
   initialized: false,
   data: null,
   cache: new Map(),
-  lang: 'en' // Added lang property
+  lang: 'en'
 };
 
-// Helper for input transformation
 function helper(input) {
   return input ? input.toUpperCase() : '';
 }
 
-// Helper function to format dates
 function formatDate(date) {
   if (!(date instanceof Date)) {
     date = new Date(date);
@@ -301,18 +266,15 @@ function formatDate(date) {
   return date.toISOString();
 }
 
-// Validate input helper
 function validateInput(input) {
   return input && typeof input === 'string' && input.trim().length > 0;
 }
 
-// Process data helper
 function processData(data) {
   if (!data) return null;
   return { ...data, processed: true };
 }
 
-// Landmark validation from HEAD
 function isValidLandmark(landmark) {
     return landmark && typeof landmark.id !== 'undefined' && landmark.id !== null;
 }
@@ -369,19 +331,16 @@ function ensureUniqueLandmarksList(landmarks) {
     });
 }
 
-// Initialize function
 function initialize() {
   appState.initialized = true;
   console.log('App initialized');
 }
 
-// Initialize app function
 function initializeApp() {
   initialize();
   return appState;
 }
 
-// Fetch user function
 async function fetchUser(userId) {
   if (!userId) {
     return null;
@@ -389,25 +348,20 @@ async function fetchUser(userId) {
   return { id: userId, name: 'User ' + userId };
 }
 
-// Clear cache function
 function clearCache() {
   appState.cache.clear();
 }
 
-// Helper function
 function someFunction() {
   return 'some value';
 }
 
-// Configuration
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
 
+const expressApp = express();
 // Application main entry point
 const app = express();
-
-// New function or changes requested in the issue
-// TODO: Implement new function3 logic here
 
 module.exports = {
   UserSafety: 'unsafe',

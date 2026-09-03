@@ -13,7 +13,7 @@ const AddressabilityIssues = {
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
 
-  addressAccessibilityIssues(insightReport) {
+  findAccessibilityIssues(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }
@@ -131,18 +131,106 @@ const AddressabilityIssues = {
     }
   },
 
+  getLangAttribute(element) {
+    if (element && element.getAttribute) {
+      return element.getAttribute('lang') || document.documentElement.getAttribute('lang');
+    }
+    return document.documentElement ? document.documentElement.getAttribute('lang') : 'en';
+  },
+
+  personName(name) {
+    if (!name) return '';
+    return name.trim().charAt(0).toUpperCase() + name.trim().slice(1);
+  },
+
   countDependencies() {
     const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
 
-    const dependencies = JSON.parse(packageJsonPath).dependencies || {};
-    const devDependencies = JSON.parse(packageJsonPath).devDependencies || {};
+    const dependencies = JSON.parse(packageJson).dependencies || {};
+    const devDependencies = JSON.parse(packageJson).devDependencies || {};
 
     return {
       dependencies: Object.keys(dependencies).length,
       devDependencies: Object.keys(devDependencies).length,
       total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
+  },
+
+  validateTableAccessibility(table) {
+    if (!table) {
+      return { valid: false, errors: ['Table element is required'] };
+    }
+    
+    const errors = [];
+    
+    if (!table.querySelector('caption')) {
+      errors.push('Table is missing a caption element');
+    }
+    
+    if (!table.querySelector('thead')) {
+      errors.push('Table is missing a thead element');
+    }
+    
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+      const cells = row.querySelectorAll('th, td');
+      if (cells.length === 0) {
+        errors.push(`Row ${index} has no cells`);
+      }
+    });
+    
+    return {
+      valid: errors.length === 0,
+      errors: errors
+    };
+  },
+
+  validateTableStructure(table) {
+    if (!table) {
+      return { valid: false, error: 'Table element is required' };
+    }
+    
+    const errors = [];
+    const rows = table.querySelectorAll('tr');
+    
+    rows.forEach((row, rowIndex) => {
+      const cells = row.querySelectorAll('td, th');
+      cells.forEach((cell, cellIndex) => {
+        if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
+          errors.push(`Cell at row ${rowIndex}, column ${cellIndex} missing scope or headers attribute`);
+        }
+      });
+    });
+    
+    return {
+      valid: errors.length === 0,
+      errors: errors
+    };
+  },
+
+  getSvgAccessibleName(svg) {
+    if (!svg) return '';
+    
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel) return ariaLabel;
+    
+    const labelledBy = svg.getAttribute('aria-labelledby');
+    if (labelledBy) {
+      const labelElement = document.getElementById(labelledBy);
+      if (labelElement) return labelElement.textContent;
+    }
+    
+    const titleElement = svg.querySelector('title');
+    if (titleElement) return titleElement.textContent;
+    
+    const role = svg.getAttribute('role');
+    if (role === 'img') {
+      const altText = svg.getAttribute('alt');
+      if (altText) return altText;
+    }
+    
+    return '';
   },
 
   fixMainLandmarkIssues(source) {
@@ -210,6 +298,22 @@ const AddressabilityIssues = {
   }
 };
 
+function fixMainLandmarkIssues(source) {
+  return AddressabilityIssues.fixMainLandmarkIssues(source);
+}
+
+function fixSemanticMarkup(source) {
+  return AddressabilityIssues.fixSemanticMarkup(source);
+}
+
+function validateLandmarkStructure() {
+  return AddressabilityIssues.validateLandmarkStructure();
+}
+
+function addressAccessibilityIssues(report) {
+  return AddressabilityIssues.findAccessibilityIssues(report);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     AddressabilityIssues,
@@ -258,3 +362,4 @@ function createServer() {
 
 function generateAccessibilityReport() {
   // Placeholder implementation
+}

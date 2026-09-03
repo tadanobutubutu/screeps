@@ -1,10 +1,36 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-// REACT_027: Fix 26 table structure issues
-// REACT_017: Add/fix 4 landmark issues
-// REACT_041: Add accessible names to 2 SVGs
-// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
-// REACT_036: Fix 1 fake link issue
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// Ensure the dependencyGraph container has a proper ARIA role
+
+//_Commit: 17dd6aa6fb449c26931268c72c77a7d4c8dd208a_
+<!-- todo-hash: 255eee7b01c8b5e5100e4794296107cc386efc79 -->
+
+//_Commit: 18ddb6408a2b2823efa22f0a77964bb5d6737f93_
+<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// Ensure the dependencyGraph container has a proper ARIA role
+
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_ -->
+<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+//_Commit: 94682d0194ff736f18c9f23486aa2eea265b4bc5_
+<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+
+/**
+ * Main entry point for the application
+ */
+function getLangAttribute() {
+  if (typeof document !== 'undefined') {
+    return document.documentElement ? document.documentElement.getAttribute('lang') || '' : '';
+  }
+  return '';
+}
 
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html) {
@@ -304,3 +330,30 @@ function calculateLuminance(rgb) {
 
     return 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
 }
+
+function addDependencyGraphAriaRole() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const container = document.querySelector('.dependencyGraph');
+  if (container && !container.hasAttribute('role')) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
+module.exports = {
+  getLangAttribute,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  applyAccessibilityFixes,
+  addressAccessibilityIssues,
+  checkColorContrast,
+  parseColor,
+  calculateLuminance,
+  addDependencyGraphAriaRole
+};

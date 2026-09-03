@@ -1,6 +1,3 @@
-Here is the resolved file content with both changes integrated:
-
-```javascript
 // TODO: Add back any required exports that might have been removed
 
 const React = require('react');
@@ -76,13 +73,13 @@ function addTask(taskFn, priority = 'medium') {
   return taskId;
 }
 
-// Accessibility functions
-function setFocus(elementId) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.focus();
-    element.setAttribute('tabindex', '0');
-  }
+// TODO: Implement this function for creating in-page buttons
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    return button;
 }
 
 // New function: Keyboard event handler for accessibility
@@ -232,24 +229,23 @@ export { harvestResources, newFunction3, countDependencies };
 
 // Merged exports from both conflicting changes
 const {
-  isLandmarkElement,
-  parseCredentialResponse,
-  sanitizeFilename,
-  processData,
-  generateSessionId,
-  validateTableStructure,
-  validateTableAccessibility,
-  validateLandmark,
-  validateLandmarkStructure,
-  createInPageButton,
-  personName,
-  revokeSession,
-  server,
-  updateDependencyGraph,
-  calculateComplexity,
-  setHtmlLangAttribute,
-  validateTableStructureForAccessibility
+  isLandmarkElement: _isLandmarkElement,
+  parseCredentialResponse: _parseCredentialResponse,
+  sanitizeFilename: _sanitizeFilename,
+  processData: _processData,
+  generateSessionId: _generateSessionId,
+  validateTableStructure: _validateTableStructure,
+  validateTableAccessibility: _validateTableAccessibility,
+  validateLandmark: _validateLandmark,
+  validateLandmarkStructure: _validateLandmarkStructure,
+  createInPageButton: _createInPageButton,
+  personName: _personName,
+  revokeSession: _revokeSession,
+  server: _server,
+  updateDependencyGraph: _updateDependencyGraph,
+  calculateComplexity: _calculateComplexity,
+  setHtmlLangAttribute: _setHtmlLangAttribute,
+  validateTableStructureForAccessibility: _validateTableStructureForAccessibility
 } = main;
 
 export { createWebResourceButton, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, ensureElementHasIdOrigin, setupFocusTrap, restoreFocus, checkAccessibility, implementAccessibilityFixesFromReport, checkAccessibilityForReport, trapFocus, getActiveSessionsCount, validateSession, handleCredentialResponse, createAnnouncer, prefersReducedMotion, initializeAccessibility, newFunction, a11yStore, SetElementLabel, setElementLabelFromAccessibilityHelpers };
-```

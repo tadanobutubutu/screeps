@@ -1,21 +1,7 @@
-// TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
-// (This comment remains as-is)
-=======
-// _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
-// <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
->>>>>>> origin/main
+// TODO: This is the modified and merged code
 
 // _Commit: 8f0d48f8354074f769cfe667f27609b1d99a444c_
 // <!-- todo-hash: 469dfeab59b4116886abe058392a60b81da4857c -->
-
-const main = require('./utilities');
 
 // Import necessary dependencies
 import React from 'react';
@@ -38,16 +24,12 @@ import {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs
-<<<<<<< HEAD
-} from './AccessibilityHelpers'
-
-const main = require('./utilities');
-=======
 } from './AccessibilityHelpers';
 
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
+// Initialize utilities from main module
+const main = require('./utilities');
 
+// Create or update the affected functions to be accessible
 const {
   createInPageButton,
   createWebResourceButton,
@@ -58,16 +40,13 @@ const {
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
-  ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility
-} = main
+} = main;
 
 // Implement the function for addressing accessibility issues from insight report
 function newFunction () {
@@ -194,7 +173,6 @@ function checkAccessibilityForReport (content) {
   // For now, it just returns an empty array
   return []
 }
->>>>>>> origin/main
 
 // New rendering function
 function renderGraphIndex(content, options = {}) {
@@ -495,7 +473,6 @@ const accessibilityUtils = {
   },
   
   announceToScreenReader: function(message, priority) {
-<<<<<<< HEAD
     if (priority === undefined) {
       priority = 'polite'
     }
@@ -514,9 +491,6 @@ const accessibilityUtils = {
     }, 1000)
   }
 };
-=======
-    if (
->>>>>>> origin/main
 
 // Create announcer function
 function createAnnouncer() {
@@ -637,7 +611,7 @@ function initializeAccessibility() {
   
   return {
     announce: announcer.announce,
-    getLastMessage: announcer.getLast
+    getLastMessage: announcer.getLastMessage
   }
 }
 
@@ -653,8 +627,6 @@ fixFakeLinkIssue()
 googleSignIn()
 fixButtonIdentifiers()
 
-// Other code...
-
 // Preserve all existing exports
 module.exports = {
   renderDependencyGraph,
@@ -662,7 +634,6 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   // Preserve any other existing exports here
-  // Required exports restored from previous version
   // Re-export the imported dependencies that were previously exported
   googleSignIn,
   decodeJwtResponse,
@@ -709,13 +680,11 @@ function renderAdditionalContent (additionalData) {
 
 // Add the new function to the exports
 module.exports.renderAdditionalContent = renderAdditionalContent
->>>>>>> origin/main
 
 // Resolved file content begins here
 // TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
 // (This comment remains as-is)
-=======
+
 // _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
 // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -724,180 +693,6 @@ module.exports.renderAdditionalContent = renderAdditionalContent
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
->>>>>>> origin/main
 
-// _Commit: 8f0d48f8354074f769cfe667f27609b1d99a444c_
-// <!-- todo-hash: 469dfeab59b4116886abe058392a60b81da4857c -->
-
-const main = require('./utilities');
-
-// Import necessary dependencies
-import React from 'react';
-import { render } from 'react-dom';
-import {
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
-} from './AccessibilityHelpers';
-
-const main = require('./utilities');
-
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
-
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility
-} = main
-
-// Implement the function for addressing accessibility issues from insight report
-function newFunction () {
-  // TODO: Implement the new function as per the issue requirements
-}
-
-// Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport (container, report) {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0
-  }
-
-  if (!report || !report.issues) {
-    return fixes
-  }
-
-  // Add lang attribute to HTML element if missing
-  const htmlEl =
-        document.documentElement ||
-        (container.ownerDocument && container.ownerDocument.documentElement)
-  if (htmlEl && !htmlEl.getAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en')
-    fixes.langAdded = true
-  }
-
-  // Add main landmark if missing
-  const mainElement = container.querySelector('main')
-  if (!mainElement) {
-    const body = container.ownerDocument ? container.ownerDocument.body : document.body
-    if (body) {
-      const newMain = document.createElement('main')
-      while (body.firstChild) {
-        newMain.appendChild(body.firstChild)
-      }
-      body.appendChild(newMain)
-      fixes.mainLandmarkAdded = true
-    }
-  }
-
-  // Update the existing function using the new functions for rendering graph/index
-  renderDependencyGraphs(container)
-  fixButtonIdentifiers(container)
-  fixDependencyGraphAria(container)
-  ensureElementHasId(container)
-  addAriaLabel(container)
-  addMainLandmarkToIndex(container)
-
-  // Fix landmark issues
-  validateLandmark(container)
-  validateLandmarkStructure(container)
-  fixes.landmarksFixed++
-
-  // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg)
-    if (
-      accessibleName &&
-            !svg.getAttribute('aria-label') &&
-            !svg.querySelector('title')
-    ) {
-      svg.setAttribute('aria-label', accessibleName)
-      fixes.svgNamesAdded++
-    }
-  })
-
-  // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('[role="link"]:not([href])')
-  fakeLinks.forEach(link => {
-    link.setAttribute('href', '#' + (link.id || 'link'))
-    link.setAttribute('role', 'link')
-    fixes.fakeLinksFixed++
-  })
-
-  // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(container)
-  if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
-  }
-
-  // Implement focus trap for keyboard navigation
-  focusTrap(container)
-
-  if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info')
-  }
-
-  if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info')
-  }
-
-  // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container)
-  if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error')
-  }
-
-  const landmarkFixesCount = fixes.landmarksFixed || 0
-  if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
-  }
-
-  const svgFixes = fixes.svgNamesAdded || 0
-  if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
-  }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0
-  if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
-  }
-
-  return fixes
-}
-
-// Accessibility-related function to be added
-function checkAccessibilityForReport (content) {
-  // Placeholder for accessibility
+// _Commit: 30ef8e29cd62106e16ae2d441ead52d9ae15933f_
+// <!-- todo-hash: 1d97675bc11010472aad1caddcda4ac5f45439b3 -->

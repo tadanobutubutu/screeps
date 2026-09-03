@@ -17,7 +17,6 @@ import {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
-  fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
   addTaskWithPriority,
@@ -251,15 +250,15 @@ function newFunction2() {
 }
 
 function anotherNewFunction() {
-  // Another new function implementation
-}
-
-function newFunction3() {
   // New function implementation 3
 }
 
-function newFunction4() {
+function newFunction3() {
   // New function implementation 4
+}
+
+function newFunction4() {
+  // New function implementation 5
 }
 
 // Accessibility helper functions
@@ -355,8 +354,12 @@ function addAccessibleName(svgString) {
   const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
   const svgElement = svgDoc.documentElement;
 
+  // Extract accessible name from the SVG title if available
+  const title = svgElement.querySelector('title');
+  const accessibleName = title ? title.textContent.trim() : 'Descriptive label for SVG';
+
   if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+    svgElement.setAttribute('aria-label', accessibleName);
   }
   return new XMLSerializer().serializeToString(svgElement);
 }

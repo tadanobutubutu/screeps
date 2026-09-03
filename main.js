@@ -20,15 +20,10 @@ const {
   fixFakeLinks,
   ensureUniqueLandmarks,
   getUniqueLandmarks,
-  validateLandmark,
   validateLandmarkAttributes,
   validateLandmarkStructure,
   validateTableAccessibility,
   validateTableStructure,
-  getSvgAccessibleName,
-  addSvgAccessibilityProps,
-  setSvgAccessibilityProps,
-  handleAccessibilityIssues,
   validateLinkAccessibility,
   handleFakeLinks,
   createInPageButton
@@ -85,102 +80,125 @@ function personName(firstName, lastName) {
 }
 
 /**
- * Validates landmark elements
- * @param {Object} element - The landmark element to validate
- * @returns {Object} Validation result with success status and any issues found
+ * Exports Express app for testing
+ * @param {Object} config - Configuration object
+ * @returns {Object} Express app instance
  */
-function validateLandmark(element) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+function createApp(config) {
+  const app = express();
 
-  if (!element.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${element.tagName}`);
-  }
-  if (!element.hasAttribute('id')) {
-    issues.push('Missing id attribute');
+  // Debug logging middleware
+  if (config.debug) {
+    app.use((req, res, next) => {
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+      next();
+    });
   }
 
-  if (!element.getAttribute('role')) {
-    issues.push('Missing role attribute');
-  }
+  // API routes
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', version: config.version });
+  });
 
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
-/**
- * Validates table accessibility compliance
- * @param {Object} table - The table object to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateTableAccessibility(table) {
-  const issues = [];
-
-  // Check for caption (from origin/main)
-  if (!table.querySelector || !table.querySelector('caption')) {
-    issues.push('Missing caption element');
-  }
-
-  // Check for headers attribute (from HEAD)
-  if (!table.getAttribute('headers')) {
-    issues.push('Missing headers attribute');
-  }
-
-  // Check for scope attribute on header cells (from HEAD)
-  const headerCells = table.querySelectorAll('th');
-  headerCells.forEach(cell => {
-    if (!cell.hasAttribute('scope')) {
-      issues.push('Missing scope attribute on header cell');
+  app.get('/api/data', async (req, res) => {
+    try {
+      const data = await fetchDataFromAPI(config.apiUrl, config.timeout);
+      res.json({ success: true, data });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
     }
   });
 
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
-/**
- * Validates the structure of tables for accessibility
- * @param {Array} tables - Array of table objects or single table element to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateTableStructure(tables) {
-  const allIssues = [];
-
-  // Handle both single table element and array of tables
-  const tableArray = Array.isArray(tables) ? tables : [tables];
-
-  tableArray.forEach((table, index) => {
-    // Check for rows (from origin/main)
-    const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
-    if (rows.length === 0) {
-      allIssues.push({
-        tableIndex: index,
-        issues: ['Table has no rows']
-      });
-    }
-
-    // Validate table accessibility (from HEAD)
-    const result = validateTableAccessibility(table);
-    if (!result.success) {
-      allIssues.push({
-        tableIndex: index,
-        issues: result.issues
-      });
+  // Accessibility validation endpoint
+  app.post('/api/validate', async (req, res) => {
+    try {
+      const { html, options = {} } = req.body;
+      const results = await validateAccessibility(html, options);
+      res.json(results);
+    } catch (error) {
+      res.status(400).json({ success: false, error: error.message });
     }
   });
 
-  return {
-    success: allIssues.length === 0,
-    issues: allIssues
-  };
+  // Catch-all for accessibility testing
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  });
+
+  return app;
 }
 
 /**
- * Validates landmark elements for accessibility
- * @param {
+ * Fetch data from external API
+ * @param {string} url - API URL
+ * @param {number} timeout - Request timeout in ms
+ * @returns {Promise<Object>} API response data
+ */
+async function fetchDataFromAPI(url, timeout) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    clearTimeout(timeoutId);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error(`Request timeout after ${timeout}ms`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Validate HTML accessibility using axe-core
+ * @param {string} html - HTML string to validate
+ * @param {Object} options - Validation options
+ * @returns {Promise<Object>} Axe results
+ */
+async function validateAccessibility(html, options = {}) {
+  const results = await axe.run(html, options);
+  return results;
+}
+
+/**
+ * Check if element has valid landmark role
+ * @param {Object} element - DOM element to check
+ * @returns {boolean} True if valid landmark
+ */
+function hasValidLandmarkRole(element) {
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'article', 'section'];
+  const role = element.getAttribute('role');
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+  
+  return validRoles.includes(role) || ['header', 'nav', 'main', 'aside', 'footer'].includes(tagName);
+}
+
+// Initialize app when run directly
+if (require.main === module) {
+  const server = createApp(config);
+  const port = process.env.PORT || 3000;
+  server.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
+module.exports = {
+  createApp,
+  validateAccessibility,
+  fetchDataFromAPI,
+  getLangAttribute,
+  getFullLangAttribute,
+  addLangAttribute,
+  personName,
+  hasValidLandmarkRole
+};

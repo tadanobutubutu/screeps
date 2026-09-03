@@ -511,11 +511,6 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-function addressAccessibilityIssues(insightReport) {
-  // Implementation for addressing accessibility issues
-  return AddressabilityIssues.addressAccessibilityIssues(insightReport);
-}
-
 function generateAccessibilityReport(accessibilityReport) {
   // Implementation for generating accessibility report
   return {
@@ -611,32 +606,6 @@ function validateLandmarkElement(element, landmarkType) {
   return true;
 }
 
-function getSvgAccessibleName(svgElement, name) {
-  if (!svgElement) return name || '';
-
-  const title = svgElement.querySelector('title');
-  if (title && title.textContent.trim()) {
-    return title.textContent.trim();
-  }
-
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-
-  const alt = svgElement.getAttribute('alt');
-  if (alt) {
-    return alt;
-  }
-
-  const dataName = svgElement.getAttribute('data-name');
-  if (dataName) {
-    return dataName;
-  }
-
-  return name || '';
-}
-
 function addSvgAccessibleName(svgElement, name) {
   if (!svgElement || !name) return;
 
@@ -647,16 +616,6 @@ function addSvgAccessibleName(svgElement, name) {
     const newTitle = document.createElement('title');
     newTitle.textContent = name;
     svgElement.insertBefore(newTitle, svgElement.firstChild);
-  }
-}
-
-function setSvgAttributes(svg) {
-  if (typeof document === 'undefined') return;
-  if (!svg.hasAttribute('role')) {
-    svg.setAttribute('role', 'img');
-  }
-  if (!svg.hasAttribute('focusable')) {
-    svg.setAttribute('focusable', 'true');
   }
 }
 

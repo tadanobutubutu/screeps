@@ -353,6 +353,30 @@ function setSvgAttributes(svgElement, name) {
     }
 }
 
+// New function to check color contrast for accessibility
+function checkColorContrast(foreground, background) {
+    // Calculate relative luminance
+    function getLuminance(color) {
+        const rgb = color.match(/[A-Fa-f0-9]{2}/g).map(x => parseInt(x, 16) / 255);
+        const [r, g, b] = rgb.map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    const l1 = getLuminance(foreground);
+    const l2 = getLuminance(background);
+    const lighter = Math.max(l1, l2);
+    const darker = Math.min(l1, l2);
+
+    const contrastRatio = (lighter + 0.05) / (darker + 0.05);
+
+    return {
+        ratio: contrastRatio,
+        meetsWCAGAA: contrastRatio >= 4.5,
+        meetsWCAGAAA: contrastRatio >= 7,
+        meetsWCAGAAAForLargeText: contrastRatio >= 4.5
+    };
+}
+
 // Function to write the generated report to a file
 function writeReport(report) {
     const reportFile = path.join(__dirname, 'accessibility_report.json');
@@ -442,6 +466,7 @@ module.exports = {
     validateLandmarkStructure,
     getSvgAccessibleName,
     setSvgAttributes,
+    checkColorContrast,
     initialize,
     renderDependencyGraph,
     a11y

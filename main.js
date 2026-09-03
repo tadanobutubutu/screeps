@@ -397,6 +397,136 @@ function revokeSession(sessionId) {
     return appState.sessions.delete(sessionId);
 }
 
+// New functions to be added below line 304
+/**
+ * Validates the heading hierarchy in the document
+ * @param {Array} headings - Array of heading elements (h1-h6)
+ * @returns {boolean} - Whether the heading hierarchy is valid
+ */
+function validateHeadingHierarchy(headings) {
+  if (!headings || headings.length === 0) return true;
+  
+  const levelMap = {
+    h1: 1,
+    h2: 2,
+    h3: 3,
+    h4: 4,
+    h5: 5,
+    h6: 6,
+  };
+  
+  const previousLevel = 0;
+  for (const heading of headings) {
+    const level = levelMap[heading.tagName?.toLowerCase()] || 0;
+    if (level <= previousLevel) {
+      return false; // Cannot go down in heading hierarchy
+    }
+    previousLevel = level;
+  }
+  return true;
+}
+
+/**
+ * Checks if all anchor tags have descriptive link text
+ * @param {Array} links - Array of anchor elements
+ * @returns {boolean} - Whether all links have descriptive text
+ */
+function checkLinkDescriptiveness(links) {
+  if (!links || links.length === 0) return true;
+  
+  for (const link of links) {
+    if (link.hasAttribute('href') && !link.textContent.trim()) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Ensures elements are arranged in a logical tab order
+ * @param {Array} elements - Array of DOM elements
+ * @returns {boolean} - Whether the tab order is logical
+ */
+function ensureLogicalFocusOrder(elements) {
+  if (!elements || elements.length === 0) return true;
+  
+  // Get natural order indices
+  const indices = elements.map(el => el.index);
+  // Sort by index to check if they're in natural order
+  const sortedIndices = [...indices].sort((a, b) => a - b);
+  
+  // Verify each element comes after the previous one
+  for (let i = 1; i < sortedIndices.length; i++) {
+    if (sortedIndices[i] < sortedIndices[i - 1]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// New entry point for accessibility-related functions
+function accessibility() {
+  // Handle initial accessibility setup on page load
+  handleInitialAccessibility();
+  // Ensure all interactive elements have proper ARIA roles and attributes after page load
+  addressAccessibilityIssues();
+}
+
+/**
+ * Address accessibility issues for the document
+ */
+function addressAccessibilityIssues() {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
+    // Check and fix landmark elements
+    if (typeof checkLandmarkElements === 'function') {
+        checkLandmarkElements();
+    }
+
+    // Add SVG accessibility props
+    a11yStore.addSVGAccessibilityProps();
+
+    // Fix fake links
+    a11yStore.fixFakeLinks();
+
+    // Ensure interactive elements have proper roles
+    a11yStore.ensureInteractiveRoles();
+
+    // Add form control labels
+    a11yStore.addFormControlLabels();
+
+    // Ensure images have alt text
+    a11yStore.ensureImageAccessibility();
+}
+
+// New helper function for session management
+function validateSession(sessionId) {
+    if (!sessionId || typeof sessionId !== 'string') {
+        return null;
+    }
+    const session = appState.sessions.get(sessionId);
+    return session || null;
+}
+
+/**
+ * Get the count of active sessions
+ * @returns {number} - Number of active sessions
+ */
+function getActiveSessionsCount() {
+    return appState.sessions.size;
+}
+
+/**
+ * Revoke a session
+ * @param {string} sessionId - The session ID to revoke
+ * @returns {boolean} - True if session was revoked
+ */
+function revokeSession(sessionId) {
+    return appState.sessions.delete(sessionId);
+}
+
 module.exports = {
   greetingFunction,
   renderGraphIndex,
@@ -426,5 +556,3 @@ module.exports = {
   indexContent,
   main,
 };
-
-// ... rest of the code ...

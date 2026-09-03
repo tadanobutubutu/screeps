@@ -440,12 +440,28 @@ function setConfig(config) {
 }
 
 const renderIndex = (data, options = {}) => {
-  const content = indexContent(data, options);
+  // Update the existing function to use the new renderIndexView function
+  const content = renderIndexView({ data, ...options });
   if (content && typeof content === 'string') {
     return addLangAttribute(content);
   }
   return content;
 };
+
+/**
+ * Renders the dependency graph view using the new renderDependencyGraph function.
+ * This function updates the existing rendering to use the new accessibility-aware function.
+ * @param {Object} props - Props for rendering the dependency graph
+ * @returns {React.ReactElement} The rendered dependency graph content
+ */
+function renderDependencyGraphView(props) {
+  // Update the existing function to use the new renderDependencyGraph function
+  const content = renderDependencyGraph(props);
+  if (content && typeof content === 'string') {
+    return addLangAttribute(content);
+  }
+  return content;
+}
 
 // Implement the function for addressing accessibility issues from insight report
 function applyAccessibilityFixes(report) {

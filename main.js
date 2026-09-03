@@ -258,3 +258,4 @@ function createServer() {
 
 function generateAccessibilityReport() {
   // Placeholder implementation
+}

@@ -6,6 +6,8 @@
 const http = require('http');
 const path = require('path');
 
+// TODO: Add back any required exports that might have been removed
+
 // TODO: This is the existing code that needs to be preserved
 // (Implementation added above)
 
@@ -261,7 +263,9 @@ if (typeof module !== 'undefined' && module.exports) {
     fixFakeLinkIssues,
     googleSignIn,
     fixButtonIdentifiers,
-    ensureDependencyGraphAriaRole
+    ensureDependencyGraphAriaRole,
+    createInPageButton,
+    handleFakeLinks
   };
 } else {
   // Browser environment - wait for DOM

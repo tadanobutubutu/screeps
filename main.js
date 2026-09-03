@@ -334,9 +334,75 @@ function checkAccessibilityForReport (content) {
   return []
 }
 
-// New rendering function
-function renderGraphIndex(content, options = {}) {
-  return content
+/**
+ * Renders dependency graphs for the given container
+ * @param {HTMLElement} container - The container element to render dependency graphs in
+ * @param {Object} options - Rendering options
+ * @returns {HTMLElement} The rendered graph element
+ */
+export function renderDependencyGraphs(container, options = {}) {
+  if (!container) {
+    console.warn('No container provided for dependency graph rendering')
+    return null
+  }
+
+  const {
+    graphType = 'dependency',
+    showLabels = true,
+    interactive = true
+  } = options
+
+  // Find or create a container for the dependency graph
+  let graphContainer = container.querySelector('[data-dependency-graph]')
+  if (!graphContainer) {
+    graphContainer = document.createElement('div')
+    graphContainer.setAttribute('data-dependency-graph', 'true')
+    graphContainer.setAttribute('role', 'img')
+    graphContainer.setAttribute('aria-label', `Dependency graph showing ${graphType} relationships`)
+    container.appendChild(graphContainer)
+  }
+
+  // Add accessible attributes based on options
+  if (showLabels) {
+    graphContainer.setAttribute('aria-label', `Dependency graph: ${graphType} visualization`)
+  }
+
+  if (interactive) {
+    graphContainer.setAttribute('tabindex', '0')
+    graphContainer.setAttribute('role', 'application')
+  }
+
+  return graphContainer
+}
+
+/**
+ * Renders the graph index with proper accessibility
+ * @param {string} content - The content to render
+ * @param {Object} options - Rendering options
+ * @returns {string} Rendered content HTML
+ */
+export function renderGraphIndex(content, options = {}) {
+  if (!content) {
+    return ''
+  }
+
+  const {
+    includeGraph = true,
+    accessibilityLabel = 'Dependency graph index'
+  } = options
+
+  // If content is already HTML, return it with accessibility attributes
+  if (typeof content === 'string' && content.includes('<')) {
+    // Wrap in accessible container
+    return `<div class="graph-index" role="region" aria-label="${accessibilityLabel}">
+      ${includeGraph ? `<div class="graph-container" data-graph-index="true">${content}</div>` : content}
+    </div>`
+  }
+
+  // For non-HTML content, create structured output
+  return `<div class="graph-index" role="region" aria-label="${accessibilityLabel}">
+    ${includeGraph ? `<div class="graph-container" data-graph-index="true">${content}</div>` : content}
+  </div>`
 }
 
 // Helper to manage focus within a container

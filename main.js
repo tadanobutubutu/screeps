@@ -1,6 +1,6 @@
 // main.js - Application entry point
 // TODO: Existing main.js content before the merge conflict...
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be supported
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -421,7 +421,7 @@ async function scanAccessibility(filePaths) {
   }
 
   // Check for unique landmarks
-  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  const uniqueLandmarkIssues = ensureUniqueLandmarks(landmarks); // Fixed: pass landmarks
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
     uniqueLandmarkIssues.forEach(function(issue) {
       issues.push({
@@ -497,14 +497,6 @@ function generateAccessibilityReport(issuesData) {
 function writeReport(report) {
   const reportFile = path.join(__dirname, 'accessibility_report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
 }
 
 // Existing utility function

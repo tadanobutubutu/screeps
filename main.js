@@ -285,6 +285,31 @@ function ensureUniqueLandmarks() {
   return { valid: errors.length === 0, errors };
 }
 
+/**
+ * Calculate discount for a given price and discount percentage
+ * @param {number} price - The original price
+ * @param {number} discountPercentage - The discount percentage (0-100)
+ * @returns {number} - The discounted price
+ */
+function calculateDiscount(price, discountPercentage) {
+  if (typeof price !== 'number' || typeof discountPercentage !== 'number') {
+    return price;
+  }
+  if (discountPercentage < 0 || discountPercentage > 100) {
+    return price;
+  }
+  const discountAmount = (price * discountPercentage) / 100;
+  return price - discountAmount;
+}
+
+// Main entry point function
+function main() {
+  // Calculate a discount example
+  const originalPrice = 100;
+  const discountedPrice = calculateDiscount(originalPrice, 20);
+  return discountedPrice;
+}
+
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 
 const renderGraphIndex = (graphData) => {
@@ -424,6 +449,7 @@ module.exports = {
   median,
   dependencyGraphContent,
   indexContent,
+  calculateDiscount,
   main,
 };
 

@@ -45,7 +45,63 @@ const {
   checkAccessibility,
   implementAccessibilityFixesFromReport,
   wrapPrimaryContentInMain
-} = main
+} = main;
+
+const accessibilityUtils = {
+    createInPageButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    validateAccessibilityReport,
+    exportUtils,
+    addressAccessibilityIssues,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    focusTrap,
+    announceToScreenReader: function (message, priority) {
+        if (priority === undefined) {
+            priority = 'polite';
+        }
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
+        announcer.className = 'sr-only';
+        announcer.style.position = 'absolute';
+        announcer.style.left = '-9999px';
+        announcer.textContent = message;
+        document.body.appendChild(announcer);
+        setTimeout(function () {
+            announcer.remove();
+        }, 1000);
+    },
+    newFocusTrap: function (element, customFocusableSelector) {
+        const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (focusableElements.length === 0) return;
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+
+        element.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === first) {
+                    last.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    first.focus();
+                    e.preventDefault();
+                }
+            }
+        });
+    }
+};
+
+// Utility functions for ensuring elements have IDs and adding labels
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element;
+};
 
 const addNewFunction = function(element) {
   // Validates that an element has proper accessibility attributes
@@ -183,9 +239,6 @@ function wrapPrimaryContentInMain(container, options = {}) {
     }
   }
 
-  // Implement the function for addressing accessibility issues from insight report
-  implementAccessibilityFixesFromReport(container);
-
   return mainElement;
 }
 
@@ -203,37 +256,37 @@ function checkAccessibilityForReport(content) {
   // Placeholder for accessibility checking logic
   // This function should be implemented to check for accessibility issues
   // For now, it just returns an empty array
-  return []
+  return [];
 }
 
 // New rendering function
 function renderGraphIndex(content, options = {}) {
-  return content
+  return content;
 }
 
 // Helper to manage focus within a container
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  )
-  const firstElement = focusableElements[0]
-  const lastElement = focusableElements[focusableElements.length - 1]
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
 
   return function(e) {
-    const isTab = e.key === 'Tab'
-    if (!isTab) return
+    const isTab = e.key === 'Tab';
+    if (!isTab) return;
     if (e.shiftKey) {
       if (document.activeElement === firstElement) {
-        e.preventDefault()
-        if (lastElement) lastElement.focus()
+        e.preventDefault();
+        if (lastElement) lastElement.focus();
       }
     } else {
       if (document.activeElement === lastElement) {
-        e.preventDefault()
-        if (firstElement) firstElement.focus()
+        e.preventDefault();
+        if (firstElement) firstElement.focus();
       }
     }
-  }
+  };
 }
 
 module.exports = {
@@ -242,24 +295,10 @@ module.exports = {
   addNewFunction,
   checkAccessibilityForReport,
   renderGraphIndex,
-  trapFocus
-};
-
-// Email functions and functions for managing focus
-// ... (existing functions removed for brevity)
-
-// Export all functions and modules
-export {
-  main,
-  wrapPrimaryContentInMain,
-  addNewFunction,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus
-};
-
-// Add export of newFunction for testing
-module.exports = {
-  // ... Existing functions and modules
+  trapFocus,
+  accessibilityUtils,
+  ensureElementId,
+  addAriaLabel,
+  primaryContent,
   newFunction: addNewFunction
 };

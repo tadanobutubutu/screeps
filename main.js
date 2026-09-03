@@ -397,7 +397,55 @@ function countDependencies() {
 }
 
 function handleCredentialResponse(response) {
-  // Implement function for handling credential responses
+  // Full implementation for handling credential responses
+  try {
+    // Split the JWT and decode the payload
+    const parts = response.split('.');
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT format');
+    }
+    const payloadBase64 = parts[1];
+    // Replace URL-safe characters
+    const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+    // Add padding if necessary
+    const padding = '='.repeat((4 - base64.length % 4) % 4);
+    const payload = JSON.parse(atob(base64 + padding));
+
+    // Validate the token
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp < now) {
+      console.error('Token has expired');
+      return;
+    }
+
+    if (payload.iss !== 'accounts.google.com' && payload.iss !== 'https://accounts.google.com') {
+      console.error('Invalid issuer');
+      return;
+    }
+
+    // Get client ID from meta tag
+    const metaTag = document.querySelector('meta[name="google-signin-client_id"]');
+    const clientId = metaTag ? metaTag.getAttribute('content') : null;
+    if (!clientId) {
+      console.error('Client ID not found in meta tag');
+      return;
+    }
+
+    if (payload.aud !== clientId) {
+      console.error('Token audience does not match client ID');
+      return;
+    }
+
+    // Store the payload (user profile) in sessionStorage
+    sessionStorage.setItem('googleUser', JSON.stringify(payload));
+    // Optionally, store the ID token if needed for backend authentication
+    // sessionStorage.setItem('googleIdToken', credentialResponse);
+
+    // Dispatch a custom event to notify the app of successful sign-in
+    window.dispatchEvent(new CustomEvent('google-signin-success', { detail: payload }));
+  } catch (error) {
+    console.error('Error handling credential response:', error);
+  }
 }
 
 function getLangAttribute(element) {
@@ -454,64 +502,13 @@ function generateAccessibilityReport() {
 
 // Calculate accessibility score wrapper
 function calculateAccessibilityScore() {
-  return AddressabilityIssues.calculateAccessibilityScore ? AddressabilityIssues.calculateAccessibilityScore([]) : 100;
-}
-
-// Full implementation for handling credential response
-function handleCredentialResponse(credentialResponse) {
-  try {
-    // Split the JWT and decode the payload
-    const parts = credentialResponse.split('.');
-    if (parts.length !== 3) {
-      throw new Error('Invalid JWT format');
-    }
-    const payloadBase64 = parts[1];
-    // Replace URL-safe characters
-    const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
-    // Add padding if necessary
-    const padding = '='.repeat((4 - base64.length % 4) % 4);
-    const payload = JSON.parse(atob(base64 + padding));
-
-    // Validate the token
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp < now) {
-      console.error('Token has expired');
-      return;
-    }
-
-    if (payload.iss !== 'accounts.google.com' && payload.iss !== 'https://accounts.google.com') {
-      console.error('Invalid issuer');
-      return;
-    }
-
-    // Get client ID from meta tag
-    const metaTag = document.querySelector('meta[name="google-signin-client_id"]');
-    const clientId = metaTag ? metaTag.getAttribute('content') : null;
-    if (!clientId) {
-      console.error('Client ID not found in meta tag');
-      return;
-    }
-
-    if (payload.aud !== clientId) {
-      console.error('Token audience does not match client ID');
-      return;
-    }
-
-    // Store the payload (user profile) in sessionStorage
-    sessionStorage.setItem('googleUser', JSON.stringify(payload));
-    // Optionally, store the ID token if needed for backend authentication
-    // sessionStorage.setItem('googleIdToken', credentialResponse);
-
-    // Dispatch a custom event to notify the app of successful sign-in
-    window.dispatchEvent(new CustomEvent('google-signin-success', { detail: payload }));
-  } catch (error) {
-    console.error('Error handling credential response:', error);
-  }
+  return AddressabilityIssues.calculateAccessibilityScore([]);
 }
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     processSvgElements,
+    sampleInsightReport,
     AddressabilityIssues,
     fixMainLandmarkIssues,
     fixSemanticMarkup,
@@ -524,7 +521,6 @@ if (typeof module !== 'undefined' && module.exports) {
     checkLandmarkElements,
     createServer,
     startApp,
-    sampleInsightReport,
     addressAccessibilityIssues,
     initializeAccessibility,
     handleCredentialResponse,
@@ -539,8 +535,16 @@ if (typeof module !== 'undefined' && module.exports) {
     generateAccessibilityReport,
     calculateAccessibilityScore,
     handleFakeLinks,
-    addBook,
+    ensureUniqueLandmarks,
+    validateLandmark,
+    fixMainLandmarkIssues: AddressabilityIssues.fixMainLandmarkIssues,
+    fixSemanticMarkup: AddressabilityIssues.fixSemanticMarkup,
+    validateLandmarkStructure: AddressabilityIssues.validateLandmarkStructure,
+    checkLandmarkElements,
+    newFunction,
+    setARIARoleForDependencyGraph,
     addLangAttribute: AddressabilityIssues.addLangAttribute,
+    addBook,
     spawnSomeCommand: AddressabilityIssues.spawnSomeCommand
   };
 
@@ -551,6 +555,10 @@ if (typeof module !== 'undefined' && module.exports) {
 } else {
   // Browser environment - wait for DOM
   if (typeof document !== 'undefined') {
-    // DOM-ready handling is managed above in the browser initialization block
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeAccessibility);
+    } else {
+      initializeAccessibility();
+    }
   }
 }

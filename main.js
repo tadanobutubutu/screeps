@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file where both versions of the code have been harmonized:
-
-```javascript
 // main.js - Application entry point
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute (handled by getLangAttribute() and createInPageButton())
@@ -132,6 +129,51 @@ app.get('/', async (req, res) => {
     console.log('App is listening on port 3000');
   });
 });
-```
 
-This merged version combines both versions of the code, preserving functionality and keeping the file structure as unaltered as possible.
+// Upgrade logic implementation
+function performUpgrade(harvestedData) {
+  if (!harvestedData || !harvestedData.length) {
+    return {
+      success: false,
+      message: 'No harvested data available for upgrade'
+    };
+  }
+
+  const improvements = {
+    efficiency: 0,
+    capacity: 0,
+    upgrades: []
+  };
+
+  for (const data of harvestedData) {
+    if (data.type === 'energy') {
+      improvements.efficiency += (data.amount || 0) * 0.1;
+    }
+    if (data.type === 'resource') {
+      improvements.capacity += (data.amount || 0) * 0.05;
+    }
+    if (data.metadata && data.metadata.upgradeable) {
+      improvements.upgrades.push({
+        target: data.id,
+        level: (data.metadata.level || 0) + 1
+      });
+    }
+  }
+
+  return {
+    success: true,
+    improvements: improvements,
+    timestamp: Date.now()
+  };
+}
+
+function applySystemUpgrades(harvestedData) {
+  const upgradeResult = performUpgrade(harvestedData);
+  
+  if (upgradeResult.success) {
+    console.log(`System upgraded: Efficiency +${upgradeResult.improvements.efficiency.toFixed(2)}`);
+    console.log(`Capacity increased by ${upgradeResult.improvements.capacity.toFixed(2)}`);
+  }
+  
+  return upgradeResult;
+}

@@ -87,7 +87,7 @@ const AddressabilityIssues = {
       // Check for potentially inaccessible link text
       if (section.content && section.content.toLowerCase().includes('click here')) {
         issues.push({
-          type: 'inaccessible-link-text',
+          type: 'inaccessible-link_text',
           severity: 'low',
           message: `Section "${section.heading}" contains "click here" text which is not accessible`,
           suggestedFix: 'Use descriptive link text instead of "click here"'

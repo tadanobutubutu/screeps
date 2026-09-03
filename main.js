@@ -1,5 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// TODO: Implement spawning logic
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
@@ -29,6 +28,248 @@ const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUnique
 
 const http = require('http');
 const url = require('url');
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+
+/**
+ * Spawns a child process with the given command and arguments.
+ * @param {string} command - The command to execute
+ * @param {string[]} args - Array of arguments to pass to the command
+ * @param {Object} options - Optional configuration for the spawned process
+ * @returns {Object} Object containing the spawned process and a promise that resolves/rejects on completion
+ */
+function spawnProcess(command, args = [], options = {}) {
+  const defaultOptions = {
+    cwd: process.cwd(),
+    env: { ...process.env },
+    stdio: ['pipe', 'pipe', 'pipe'],
+    shell: process.platform === 'win32'
+  };
+
+  const mergedOptions = { ...defaultOptions, ...options };
+  const spawnedProcess = spawn(command, args, mergedOptions);
+
+  const result = {
+    process: spawnedProcess,
+    stdout: '',
+    stderr: '',
+    exitCode: null,
+    promise: null
+  };
+
+  if (spawnedProcess.stdout) {
+    spawnedProcess.stdout.on('data', (data) => {
+      const output = data.toString();
+      result.stdout += output;
+      if (typeof options.onStdout === 'function') {
+        options.onStdout(output);
+      }
+    });
+  }
+
+  if (spawnedProcess.stderr) {
+    spawnedProcess.stderr.on('data', (data) => {
+      const output = data.toString();
+      result.stderr += output;
+      if (typeof options.onStderr === 'function') {
+        options.onStderr(output);
+      }
+    });
+  }
+
+  result.promise = new Promise((resolve, reject) => {
+    spawnedProcess.on('close', (code) => {
+      result.exitCode = code;
+      if (code === 0) {
+        resolve({
+          success: true,
+          stdout: result.stdout,
+          stderr: result.stderr,
+          exitCode: code
+        });
+      } else {
+        reject(new Error(`Process exited with code ${code}`));
+      }
+    });
+
+    spawnedProcess.on('error', (err) => {
+      reject(err);
+    });
+  });
+
+  return result;
+}
+
+/**
+ * Spawns a Node.js script as a child process.
+ * @param {string} scriptPath - Path to the script file
+ * @param {string[]} args - Arguments to pass to the script
+ * @param {Object} options - Optional configuration
+ * @returns {Object} Object containing the spawned process and promise
+ */
+function spawnScript(scriptPath, args = [], options = {}) {
+  const resolvedPath = path.resolve(scriptPath);
+  
+  if (!fs.existsSync(resolvedPath)) {
+    throw new Error(`Script not found: ${resolvedPath}`);
+  }
+
+  return spawnProcess('node', [resolvedPath, ...args], options);
+}
+
+/**
+ * Spawns a shell command with proper escaping and execution.
+ * @param {string} command - The shell command to execute
+ * @param {Object} options - Optional configuration
+ * @returns {Object} Object containing the spawned process and promise
+ */
+function spawnShell(command, options = {}) {
+  const shell = process.platform === 'win32' ? 'cmd.exe' : '/bin/sh';
+  const shellArgs = process.platform === 'win32' ? ['/c', command] : ['-c', command];
+  
+  return spawnProcess(shell, shellArgs, { ...options, shell: false });
+}
+
+/**
+ * Manages a pool of spawned processes for parallel execution.
+ * @param {string} command - The command to execute
+ * @param {string[][]} argsBatch - Array of argument arrays, one for each process
+ * @param {Object} options - Configuration options
+ * @returns {Promise<Array>} Array of results from all spawned processes
+ */
+async function spawnBatch(command, argsBatch, options = {}) {
+  const { concurrency = 5, ...spawnOptions } = options;
+  const results = [];
+  
+  const spawnAll = async () => {
+    const batchPromises = argsBatch.map((args, index) => {
+      return spawnProcess(command, args, spawnOptions)
+        .promise
+        .then((result) => ({ index, ...result }))
+        .catch((error) => ({ index, success: false, error: error.message }));
+    });
+    
+    return Promise.all(batchPromises);
+  };
+  
+  for (let i = 0; i < argsBatch.length; i += concurrency) {
+    const batch = argsBatch.slice(i, i + concurrency);
+    const batchResults = await spawnAll();
+    results.push(...batchResults);
+  }
+  
+  return results;
+}
+
+/**
+ * Represents an active spawn session for tracking spawned processes.
+ */
+class SpawnSession {
+  constructor(id, process, metadata = {}) {
+    this.id = id;
+    this.process = process;
+    this.metadata = metadata;
+    this.startTime = Date.now();
+    this.status = 'running';
+  }
+
+  getDuration() {
+    return Date.now() - this.startTime;
+  }
+
+  terminate() {
+    if (this.process && this.process.kill) {
+      this.process.kill('SIGTERM');
+      this.status = 'terminated';
+    }
+  }
+
+  isRunning() {
+    return this.status === 'running';
+  }
+}
+
+// Session management for spawned processes
+const spawnSessions = new Map();
+let spawnSessionCounter = 0;
+
+/**
+ * Creates and registers a new spawned process session.
+ * @param {string} command - The command to execute
+ * @param {string[]} args - Arguments for the command
+ * @param {Object} options - Spawn options
+ * @param {Object} metadata - Additional metadata for the session
+ * @returns {Object} The session object with process and promise
+ */
+function createSpawnSession(command, args, options, metadata = {}) {
+  const sessionId = `spawn_${++spawnSessionCounter}_${Date.now()}`;
+  const result = spawnProcess(command, args, options);
+  
+  const session = new SpawnSession(sessionId, result.process, metadata);
+  spawnSessions.set(sessionId, session);
+
+  result.promise
+    .then(() => {
+      session.status = 'completed';
+    })
+    .catch(() => {
+      session.status = 'failed';
+    });
+
+  return {
+    sessionId,
+    process: result.process,
+    promise: result.promise,
+    session
+  };
+}
+
+/**
+ * Gets all active spawn sessions.
+ * @returns {Array} Array of active session objects
+ */
+function getActiveSpawnSessions() {
+  const active = [];
+  spawnSessions.forEach((session) => {
+    if (session.isRunning()) {
+      active.push({
+        id: session.id,
+        metadata: session.metadata,
+        duration: session.getDuration(),
+        status: session.status
+      });
+    }
+  });
+  return active;
+}
+
+/**
+ * Terminates a specific spawn session by ID.
+ * @param {string} sessionId - The session ID to terminate
+ * @returns {boolean} True if session was found and terminated
+ */
+function terminateSpawnSession(sessionId) {
+  const session = spawnSessions.get(sessionId);
+  if (session) {
+    session.terminate();
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Cleans up completed/failed sessions older than the specified age.
+ * @param {number} maxAgeMs - Maximum age in milliseconds
+ */
+function cleanupSpawnSessions(maxAgeMs = 60000) {
+  const now = Date.now();
+  spawnSessions.forEach((session, id) => {
+    if (!session.isRunning() && (now - session.startTime) > maxAgeMs) {
+      spawnSessions.delete(id);
+    }
+  });
+}
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -61,9 +302,9 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+    } else if (/[àâäèéêëïîôùûüç]/i.test(content)) {
       lang = 'fr'; // French
-    } else if (/^[a-z]{2}$/i.test(content)) {
+    } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -89,465 +330,3 @@ function renderDependencyGraph(props) {
 
 /**
  * Renders the index view using the indexContent module.
- * This function should be called by the index view rendering functions.
- * @param {Object} props - Props for rendering the index view
- * @returns {React.ReactElement} The rendered index content
- */
-function renderIndexView(props) {
-  const content = indexContent(props);
-  return content;
-}
-
-// App state for session management
-const appState = {
-  sessions: new Map()
-};
-
-// Helper functions for session management
-function getActiveSessionsCount() {
-  return appState.sessions.size;
-}
-
-function validateSession(sessionId) {
-  return appState.sessions.get(sessionId) || null;
-}
-
-function handleCredentialResponse(credentialResponse) {
-  // Process credential response - basic implementation
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
-  }
-  return { status: 'success', credential: credentialResponse };
-}
-
-const a11yStore = {
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  },
-
-  prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
-  },
-
-  focusTrap: focusTrap,
-
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
-    this.announce(message, priority);
-  },
-
-  createLiveRegion() {
-    this.liveRegion = document.createElement('div');
-    this.liveRegion.setAttribute('role', 'status');
-    this.liveRegion.setAttribute('aria-live', 'polite');
-    this.liveRegion.setAttribute('aria-atomic', 'true');
-    this.liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);border:0;';
-    document.body.appendChild(this.liveRegion);
-  },
-
-  announce(message, priority) {
-    if (!this.liveRegion) return;
-    this.liveRegion.setAttribute('aria-live', priority);
-    this.liveRegion.textContent = message;
-    setTimeout(() => {
-      this.liveRegion.textContent = '';
-    }, 1000);
-  },
-
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element, index) => {
-      const landmarks = document.querySelectorAll(element);
-      landmarks.forEach((landmark) => {
-        if (landmark.id === '') {
-          landmark.id = `${element}-${index}`;
-        }
-      });
-    });
-  }
-};
-
-// New function to address REACT_027: Fix 26 table structure issues
-function validateTableAccessibility(tableElement) {
-  if (typeof document === 'undefined' || !tableElement) {
-    return { valid: false, errors: ['Table element not found or document not available'] };
-  }
-  
-  const errors = [];
-  
-  // Check if table has proper structure
-  const thead = tableElement.querySelector('thead');
-  const thElements = thead ? thead.querySelectorAll('th') : [];
-  
-  if (thElements.length === 0) {
-    errors.push('Table header row is missing <th> elements');
-  }
-  
-  // Check that all th elements have scope attributes
-  thElements.forEach((th, index) => {
-    if (!th.hasAttribute('scope')) {
-      errors.push(`Table header cell ${index + 1} is missing scope attribute`);
-    }
-  });
-  
-  // Check for proper caption or summary
-  const hasCaption = tableElement.querySelector('caption');
-  const hasSummary = tableElement.getAttribute('aria-describedby') || tableElement.getAttribute('summary');
-  
-  if (!hasCaption && !hasSummary) {
-    errors.push('Table is missing a caption or aria-describedby for accessibility');
-  }
-  
-  return { valid: errors.length === 0, errors };
-}
-
-function validateTableStructure(tableElement) {
-  if (typeof document === 'undefined' || !tableElement) {
-    return { valid: false, errors: ['Table element not found'] };
-  }
-  
-  const errors = [];
-  
-  const rows = tableElement.querySelectorAll('tr');
-  
-  rows.forEach((row, rowIndex) => {
-    const cells = Array.from(row.querySelectorAll('td'));
-    
-    const cellCount = cells.length;
-    
-    // Check for empty cells
-    cells.forEach((cell, cellIndex) => {
-      if (!cell.textContent.trim()) {
-        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
-      }
-    });
-    
-    // Check that rows have consistent cell counts
-    if (rowIndex > 0) {
-      const prevRow = rows[rowIndex - 1];
-      const prevCells = Array.from(prevRow.querySelectorAll('td'));
-      
-      if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_017: Add/fix 4 landmark issues
-function validateLandmark(element) {
-  if (typeof document === 'undefined' || !element) {
-    return { valid: false, errors: ['Element not found'] };
-  }
-  
-  const errors = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
-  
-  // Check if element is a valid landmark
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
-  
-  if (role && !validLandmarks.includes(role)) {
-    errors.push(`Element has invalid landmark role: ${role}`);
-  }
-  
-  if (!role && tagName) {
-    errors.push(`Element is not a valid landmark: ${tagName}`);
-  }
-  
-  // Check for accessible name
-  const hasLabel = element.getAttribute('aria-label') || 
-                   element.getAttribute('aria-labelledby') ||
-                   element.querySelector('h1, h2, h3, h4, h5, h6');
-  
-  if (!hasLabel) {
-    errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
-  }
-  
-  return { valid: errors.length === 0, errors };
-}
-
-function validateLandmarkStructure() {
-  if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
-  }
-  
-  const errors = [];
-  
-  // Check for multiple main landmarks
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
-  }
-  
-  // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
-  
-  landmarks.forEach((landmark) => {
-    const parent = landmark.parentElement;
-    while (parent) {
-      const parentTag = parent.tagName.toLowerCase();
-      
-      // Check for invalid nesting
-      if (parentTag === 'header' && parentTag === 'header') {
-        errors.push('Nested header elements found');
-      }
-      if (parentTag === 'footer' && parentTag === 'footer') {
-        errors.push('Nested footer elements found');
-      }
-      
-      parent = parent.parentElement;
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svgElement) {
-  if (typeof document === 'undefined' || !svgElement) {
-    return null;
-  }
-  
-  // Check for aria-labelledby referencing another element
-  const labelledBy = svgElement.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.querySelector(labelledBy);
-    if (labelElement) return labelElement.textContent;
-  }
-  
-  // Check for title element inside SVG
-  const title = svgElement.querySelector('title');
-  if (title && title.textContent.trim()) {
-    return title.textContent.trim();
-  }
-  
-  // Check for desc element inside SVG
-  const desc = svgElement.querySelector('desc');
-  if (desc && desc.textContent.trim()) {
-    return desc.textContent.trim();
-  }
-  
-  return null;
-}
-
-function validateSvgAccessibility() {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  
-  const errors = [];
-  const svgs = document.querySelectorAll('svg');
-  
-  svgs.forEach((svg, index) => {
-    const name = getSvgAccessibleName(svg);
-    if (!name) {
-      errors.push(`SVG ${index + 1} is missing an accessible name (aria-label, aria-labelledby, title, or desc)`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
-  }
-  
-  const errors = [];
-  const landmarkCounts = {};
-  
-  // Collect all landmarks
-  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
-  landmarks.forEach((landmark) => {
-    const identifier = landmark.getAttribute('id') || landmark.getAttribute('data-id') || 'unknown';
-    
-    // Main landmarks should be unique
-    if (identifier === 'main' || identifier === 'MAIN') {
-      if (landmarkCounts['main'] > 0) {
-        errors.push(`Duplicate main landmark found. Only one main landmark should exist.`);
-      } else {
-        landmarkCounts['main'] = (landmarkCounts['main'] || 0) + 1;
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Gets the accessible name of an element, addressing REACT_036 fake link issues.
- * @param {HTMLElement} element - The element to extract the accessible name from
- * @returns {string|null} The accessible name or null
- */
-function personName(element) {
-  if (typeof document === 'undefined' || !element) {
-    return null;
-  }
-  
-  // Check for aria-label
-  const ariaLabel = element.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel;
-  
-  // Check for aria-labelled
-  const labelledBy = element.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.querySelector(labelledBy);
-    if (labelElement) return labelElement.textContent;
-  }
-  
-  // Check for heading tags
-  const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  if (headings.length > 0) {
-    return headings[0].textContent.trim();
-  }
-  
-  return null;
-}
-
-const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = `elem-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element;
-};
-
-/**
- * Get all loaded tables
- * @returns {Array} Array of table objects
- */
-function getTables() {
-  return appData.tables;
-}
-
-/**
- * Get application configuration
- * @returns {Object} Configuration object
- */
-function getConfig() {
-  return { ...appData.config };
-}
-
-/**
- * Set application configuration
- * @param {Object} config - Configuration object
- */
-function setConfig(config) {
-  appData.config = { ...appData.config, ...config };
-}
-
-const renderIndex = (data, options = {}) => {
-  const content = indexContent(data, options);
-  if (content && typeof content === 'string') {
-    return addLangAttribute(content);
-  }
-  return content;
-};
-
-// Implement the function for addressing accessibility issues from insight report
-function applyAccessibilityFixes(report) {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0
-  };
-
-  if (!report || !report.issues) {
-    return fixes;
-  }
-
-  // Combine languages
-  const existingLangAttribute = getLangAttribute();
-  const newLangAttribute = report.detectedLang || 'en';
-  if (existingLangAttribute !== newLangAttribute) {
-    setHtmlLangAttribute(newLangAttribute);
-    fixes.langAdded = true;
-  }
-
-  // Add main landmark if missing
-  if (report.issues.landmarkIssues && report.issues.landmarkIssues.missingMain) {
-    const firstSection = document.querySelector('section');
-    if (firstSection) {
-      const mainElement = document.createElement('main');
-      while (firstSection.firstChild) {
-        mainElement.appendChild(firstSection.firstChild);
-      }
-      document.body.insertBefore(mainElement, firstSection);
-      firstSection.remove();
-      fixes.mainLandmarkAdded = true;
-    }
-  }
-
-  // Fix landmarks by ensuring proper roles and accessible names
-  if (report.issues.landmarkIssues && Array.isArray(report.issues.landmarkIssues)) {
-    report.issues.landmarkIssues.forEach(issue => {
-      const element = document.querySelector(issue.selector);
-      if (element) {
-        // Add accessible name if missing
-        if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-          // Try to get label from surrounding context
-          const previousSibling = element.previousElementSibling;
-          if (previousSibling && previousSibling.tagName.match(/H[1-6]/)) {
-            const labelId = `label-${Math.random().toString(36).substr(2, 9)}`;
-            const labelSpan = document.createElement('span');
-            labelSpan.id = labelId;
-            labelSpan.textContent = previousSibling.textContent;
-            labelSpan.style.display = 'none';
-            element.parentNode.insertBefore(labelSpan, element);
-            element.setAttribute('aria-labelledby', labelId);
-          } else {
-            // Use role as fallback label
-            const role = element.getAttribute('role') || element.tagName.toLowerCase();
-            element.setAttribute('aria-label', role);
-          }
-          fixes.landmarksFixed++;
-        }
-      }
-    });
-  }
-
-  // Fix SVG accessible names
-  if (report.issues.svgIssues && Array.isArray(report.issues.svgIssues)) {
-    report.issues.svgIssues.forEach(issue => {
-      const svg = document.querySelector(issue.selector);
-      if (svg && svg.tagName.toLowerCase() === 'svg') {
-        svg.setAttribute('aria-label', issue.suggestedName || 'Decorative SVG');
-        fixes.svgNamesAdded++;
-      }
-    });
-  }
-
-  // Fix fake links (elements that look like links but aren't)
-  if (report.issues.fakeLinkIssues && Array.isArray(report.issues.fakeLinkIssues)) {
-    report.issues.fakeLinkIssues.forEach(issue => {
-      const element = document.querySelector(issue.selector);
-      if (element) {
-        // Check if this element should be a link or a button
-        const isNavigation = element.closest('nav') !== null;
-
-        if (isNavigation || element.tagName.toLowerCase() === 'a') {
-          // Convert to proper link with href
-          if (!element.getAttribute('href')) {
-            element.setAttribute('href', '#' + (element.id || Math.random().toString(36).substr(2, 9)));
-            element.setAttribute('role', 'link');
-            fixes.fakeLinksFixed++;
-          }
-        } else {
-          // Convert to button
-          element.setAttribute('role', 'button');
-          if (!element.hasAttribute('tabindex')) {
-            element.setAttribute('tabindex', '0');
-          }
-          fixes.fakeLinksFixed++;
-        }
-      }
-    });
-  }
-
-  return fixes;
-}

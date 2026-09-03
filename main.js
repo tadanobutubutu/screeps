@@ -383,9 +383,30 @@ export function fixTableStructure(tableElement) {
   return tableElement
 }
 
+// Function to create in-page buttons
+function createInPageButton(text, container = document.body, options = {}) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  if (options.id) {
+    button.id = options.id;
+  }
+  if (options.className) {
+    button.className = options.className;
+  }
+  if (options.ariaLabel) {
+    button.setAttribute('aria-label', options.ariaLabel);
+  }
+  if (options.onClick) {
+    button.addEventListener('click', options.onClick);
+  }
+  container.appendChild(button);
+  return button;
+}
+
 // Add the new function to the exports
 module.exports.renderAdditionalContent = renderAdditionalContent
 module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport
 module.exports.checkAccessibilityForReport = checkAccessibilityForReport
 module.exports.renderGraphIndex = renderGraphIndex
 module.exports.trapFocus = trapFocus
+module.exports.createInPageButton = createInPageButton

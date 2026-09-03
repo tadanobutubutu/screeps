@@ -14,8 +14,18 @@ function getUserSafetyAdvice() {
   return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
 }
 
+// New function for accessibility improvements
+function getAccessibleAdvice() {
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  // Use a more descriptive error message for accessibility purposes
+  if (safetyCategories.length === 0) {
+    throw new Error('No safety advice available');
+  }
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+}
+
 module.exports = {
   UserSafety: 'unsafe',
-  getUserSafetyAdvice
+  getUserSafetyAdvice,
+  getAccessibleAdvice
 };
-```

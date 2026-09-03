@@ -152,6 +152,15 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  /**
+   * Ensure interactive elements have proper accessibility attributes
+   */
+  ensureInteractiveElementsAccessible() {
+    this.ensureInteractiveRoles();
+    this.addFormControlLabels();
+    this.ensureImageAccessibility();
+  }
 };
 
 // New functions

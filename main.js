@@ -237,20 +237,6 @@ function processLandmarks(landmarks) {
   return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
-function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-  const seen = new Set();
-  return landmarks.filter(landmark => {
-    if (!seen.has(landmark.id)) {
-      seen.add(landmark.id);
-      return true;
-    }
-    return false;
-  });
-}
-
 function checkLandmarkElement(id) {
   const element = document.getElementById(id);
   return element !== null;
@@ -380,6 +366,9 @@ function renderFunction2() {
   // ... (Rest of renderFunction2 implementation)
 }
 
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
+
 module.exports = {
   initialize,
   getUniqueLandmarks,
@@ -406,4 +395,3 @@ module.exports = {
   CONFIG,
   appState
 };
-```

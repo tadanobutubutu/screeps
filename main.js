@@ -28,6 +28,14 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
+// New function to add aria-label to an element
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label)
+  }
+  return element
+}
+
 const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('#content') || document.querySelector('.content') || document.querySelector('article') || document.getElementById('primary-content') || document.body : null;
 
 // Load configurations from package.json if it exists
@@ -551,7 +559,7 @@ function fixFakeLinkIssue(doc) {
  * @param {string} label - The label to add
  * @returns {HTMLElement} - The element with aria-label
  */
-function addAriaLabel(element, label) {
+function addAriaLabelLegacy(element, label) {
     if (!element.ariaLabel) {
         element.ariaLabel = label;
     }

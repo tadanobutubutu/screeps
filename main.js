@@ -33,7 +33,43 @@ const ensureElementIdUtil = (element) => {
 };
 
 const newFocusTrap = (element) => {
-  // Focus trap implementation
+  if (!element) return;
+
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  };
+
+  const handleFocusIn = () => {
+    if (!element.contains(document.activeElement)) {
+      firstElement.focus();
+    }
+  };
+
+  element.addEventListener('keydown', handleKeyDown);
+  element.addEventListener('focusin', handleFocusIn);
+
+  // Return cleanup function
+  return function cleanup() {
+    element.removeEventListener('keydown', handleKeyDown);
+    element.removeEventListener('focusin', handleFocusIn);
+  };
 };
 
 const accessibilityUtils = {
@@ -53,7 +89,7 @@ const accessibilityUtils = {
 
   trapFocus: function (element) {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled)], [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
@@ -111,7 +147,9 @@ const accessibilityUtils = {
 
   ensureElementHasId: ensureElementIdUtil,
 
-  mainFocusTrap: newFocusTrap,
+  mainFocusTrap: function (element) {
+    return newFocusTrap(element);
+  },
 
   /**
    * Initializes the accessibility utilities, including skip link functionality and focus trap.

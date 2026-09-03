@@ -440,10 +440,6 @@ function createInPageButton(element, label) {
   return element;
 }
 
-function newFunction() {
-  console.log('New function called');
-}
-
 function checkLandmarkElements(response) {
   // Implement the logic to check for landmark elements
   // For the purpose of this example, let's assume a simple check for the presence of 'landmark'
@@ -469,7 +465,6 @@ function startApp() {
   });
   server.on('listening', () => {
     setARIARoleForDependencyGraph();
-    newFunction();
   });
   return server;
 }
@@ -540,7 +535,6 @@ if (typeof module !== 'undefined' && module.exports) {
     createServer,
     startApp,
     checkLandmarkElements,
-    newFunction,
     setARIARoleForDependencyGraph,
     addLangAttribute: AddressabilityIssues.addLangAttribute,
     validateLandmarkElement,

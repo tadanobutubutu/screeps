@@ -359,6 +359,53 @@ function createInPageButtons() {
     // Implementation for creating in-page buttons
 }
 
+// Main function to address accessibility issues from insight report — FIXED
+function addressAccessibilityIssuesFromReport(report) {
+    if (!report) return;
+    
+    // Apply table accessibility fixes
+    if (report.tableIssues) {
+        const tables = getTables();
+        tables.forEach(table => {
+            validateTableAccessibility(table);
+            validateTableStructure(table);
+        });
+    }
+    
+    // Apply landmark fixes
+    if (report.landmarkIssues) {
+        fixLandmarkIssues();
+        addMainLandmark();
+        addLandmarkRegions();
+        ensureUniqueLandmarks();
+    }
+    
+    // Apply SVG accessibility fixes
+    if (report.svgIssues) {
+        const svgs = document.querySelectorAll('svg');
+        svgs.forEach(svg => {
+            getSvgAccessibleName(svg);
+        });
+    }
+    
+    // Apply fake link fixes
+    if (report.fakeLinkIssues) {
+        fixFakeLinkIssues();
+    }
+    
+    // Apply button identifier fixes
+    if (report.buttonIssues) {
+        fixButtonIdentifiers();
+    }
+    
+    // Apply language attribute fixes
+    if (report.langIssues) {
+        const content = document.documentElement.outerHTML;
+        const lang = detectAndSetLang(content);
+        setHtmlLangAttribute(lang);
+    }
+}
+
 class ScreepsBot {
   // ... (The rest of the class definition remains the same as in the original conflict branch)
 
@@ -506,6 +553,8 @@ module.exports = {
   getTables,
   getConfig,
   setConfig,
+  addressAccessibilityIssues,
+  addressAccessibilityIssuesFromReport,
   // ... other exports from AccessibilityHelpers
   fixTableStructure,
   fixLandmarkIssues,

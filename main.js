@@ -387,6 +387,15 @@ function createInPageButton() {
 
 function setSvgAccessibleNames(id1, id2, label1, label2) {
     // Add accessible names to 2 SVGs
+    const svg1 = document.getElementById(id1);
+    if (svg1) {
+        svg1.setAttribute('aria-label', label1);
+    }
+    
+    const svg2 = document.getElementById(id2);
+    if (svg2) {
+        svg2.setAttribute('aria-label', label2);
+    }
 }
 
 function fixFakeLink() {

@@ -186,6 +186,14 @@ function ensureUniqueLandmarks(landmarksArray) {
     seen.add(key);
     return true;
   });
+
+  // Additional code to address specific SVG issues
+  const svgsToCheck = document.querySelectorAll('svg');
+  svgsToCheck.forEach((svg) => {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title') && !svg.getAttribute('aria-hidden')) {
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
 }
 
 // NEW: Implement a new function to handle focus trap for keyboard navigation

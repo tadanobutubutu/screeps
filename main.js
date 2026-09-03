@@ -17,17 +17,17 @@ export const checkUserSafety = () => {
 export const checkSafetyCategories = () => {
   let safetyCategoriesMessage = '';
 
-  if (safetyCategories.includes('Authorized Advice')) {
+  if (safetyCategories === 'Unauthorized Advice') {
     safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
   }
 
   return safetyCategoriesMessage;
 };
 
-export const visualizeDependencyTree(dependencies) {
+export const visualizeDependencyTree = (dependencies) => {
   const report = generateDependencyReport(dependencies);
   console.log(report.graph);
-}
+};
 
 function generateDependencyReport(dependencies) {
   let graph = 'Dependency Tree:\n';
@@ -49,14 +49,11 @@ function fixAccessibilityIssues() {
 
   // Validate and fix landmark issues
   validateLandmark();
-  validateLandmarkStructure();
 
   // Validate and fix SVG accessibility issues
-  getSvgAccessibleName();
   setSvgAttributes();
 
   // Validate and fix link accessibility issues
-  validateLinkAccessibility();
   checkLinkAccessibility();
 
   // Set language attributes
@@ -100,8 +97,6 @@ export const main = {
     form.appendChild(isbnInput);
     form.appendChild(submitButton);
 
-    document.body.appendChild(form);
-
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       console.log('Book added:', {
@@ -116,7 +111,7 @@ export const main = {
 };
 
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
+  const container = document.getElementById('dependency-graph-container');
   if (!container) {
     return;
   }

@@ -37,6 +37,8 @@ function getLangAttribute() {
 
 // Accessibility utilities for keyboard navigation and screen reader support
 const accessibilityUtils = {
+    // ... (Preserve existing accessibilityUtils methods)
+
     /**
      * Initialize skip link functionality
      * @param {HTMLElement} skipLink - The skip link element

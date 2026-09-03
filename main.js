@@ -5,7 +5,8 @@ const url = require('url');
 const { dependencyGraphContent, indexContent } = require('./dependencyContent');
 const { main } = require('./utilities');
 
-const main = require('./utilities');
+// Redefine main if necessary, or remove this line if it's not needed
+// const main = require('./utilities');
 
 const {
   createInPageButton,

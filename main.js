@@ -11,7 +11,6 @@ const CONFIG = {
 let isInitialized = false;
 const appData = {};
 
-// Utility functions from HEAD
 function helper(input) {
   return input ? input.toUpperCase() : '';
 }

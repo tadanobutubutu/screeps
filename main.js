@@ -7,6 +7,8 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 
+// TODO: add the new functions or changes requested in the issue
+
 /**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
@@ -144,7 +146,7 @@ function validateLandmark(element) {
 
   // Check if landmark has accessible name when required
   const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
-  if (role && landmarksNeedingNames.includes(role)) {
+  if (role && landmarksNeedingNames.indexOf(role) !== -1) {
     const hasLabel = element.getAttribute('aria-label') ||
                      element.getAttribute('aria-labelledby') ||
                      element.querySelector('h1, h2, h3, h4, h5, h6');
@@ -251,7 +253,7 @@ function ensureUniqueLandmarks() {
   // Check for landmark IDs that should be unique
   const landmarksWithIds = document.querySelectorAll('[role][id]');
   const ids = new Set();
-  landmarksWithIds.forEach(el => {
+  landmarksWithIds.forEach(function(el) {
     const id = el.getAttribute('id');
     if (ids.has(id)) {
       errors.push(`Duplicate landmark id found: ${id}`);
@@ -263,22 +265,21 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
-function createAccessibleLink(href, text, options = {}) {
+function createAccessibleLink(href, text, options) {
   // This function creates an accessible link
-  const {
-    onClick,
-    role = 'link',
-    ariaLabel,
-    className,
-    target,
-    rel
-  } = options;
+  options = options || {};
+  var onClick = options.onClick;
+  var role = options.role || 'link';
+  var ariaLabel = options.ariaLabel;
+  var className = options.className;
+  var target = options.target;
+  var rel = options.rel;
 
   if (!href && !onClick) {
     return null;
   }
 
-  const link = document.createElement('a');
+  var link = document.createElement('a');
   link.textContent = text;
 
   if (href) {
@@ -292,7 +293,7 @@ function createAccessibleLink(href, text, options = {}) {
   } else {
     // If no href, it's a button disguised as a link
     link.href = '#';
-    link.addEventListener('click', (e) => {
+    link.addEventListener('click', function(e) {
       e.preventDefault();
       if (onClick) {
         onClick(e);
@@ -325,7 +326,7 @@ function createAccessibleLink(href, text, options = {}) {
  * @returns {Object} Result with valid boolean and errors array
  */
 function isLinkAccessible(link) {
-  const errors = [];
+  var errors = [];
 
   if (!link) {
     return { valid: false, errors: ['Link element is required'] };
@@ -334,14 +335,14 @@ function isLinkAccessible(link) {
   // Check if it's an anchor element
   if (link.tagName !== 'A') {
     errors.push('Element is not an anchor tag');
-    return { valid: false, errors };
+    return { valid: false, errors: errors };
   }
 
   // Check for href attribute
-  const href = link.getAttribute('href');
+  var href = link.getAttribute('href');
   if (!href || href === '#' || href === '') {
     // If no href, check if it's properly set up as a button
-    const role = link.getAttribute('role');
+    var role = link.getAttribute('role');
     if (role !== 'button') {
       errors.push('Link missing href attribute and not configured as a button');
     }
@@ -352,10 +353,10 @@ function isLinkAccessible(link) {
   }
 
   // Check for accessible name
-  const textContent = link.textContent ? link.textContent.trim() : '';
-  const ariaLabel = link.getAttribute('aria-label');
-  const ariaLabelledby = link.getAttribute('aria-labelledby');
-  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
+  var textContent = link.textContent ? link.textContent.trim() : '';
+  var ariaLabel = link.getAttribute('aria-label');
+  var ariaLabelledby = link.getAttribute('aria-labelledby');
+  var hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
 
   if (!hasAccessibleName) {
     errors.push('Link is missing accessible name (text content, aria-label, or aria-labelledby)');
@@ -364,30 +365,30 @@ function isLinkAccessible(link) {
   // Check for valid href if present
   if (href && href !== '#') {
     // Check for javascript: links
-    if (href.toLowerCase().startsWith('javascript:')) {
+    if (href.toLowerCase().indexOf('javascript:') === 0) {
       errors.push('Link uses javascript: protocol which is not accessible');
     }
     // Check for mailto: links without proper labeling
-    if (href.toLowerCase().startsWith('mailto:') && !ariaLabel && !textContent.includes('@')) {
+    if (href.toLowerCase().indexOf('mailto:') === 0 && !ariaLabel && textContent.indexOf('@') === -1) {
       errors.push('Mailto link may need aria-label for clarity');
     }
   }
 
   // Check target="_blank" has rel="noopener noreferrer"
   if (link.getAttribute('target') === '_blank') {
-    const rel = link.getAttribute('rel');
-    if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
+    var rel = link.getAttribute('rel');
+    if (!rel || rel.indexOf('noopener') === -1 || rel.indexOf('noreferrer') === -1) {
       errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
     }
   }
 
   // Check for redundant title attribute
-  const title = link.getAttribute('title');
+  var title = link.getAttribute('title');
   if (title && title === textContent) {
     errors.push('Link title attribute duplicates link text');
   }
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors: errors };
 }
 
 /**
@@ -395,8 +396,9 @@ function isLinkAccessible(link) {
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
  */
-function createInPageButton(parent = document.body) {
-  const btn = document.createElement('button');
+function createInPageButton(parent) {
+  parent = parent || document.body;
+  var btn = document.createElement('button');
   btn.type = 'button';
   btn.setAttribute('role', 'button');
   btn.setAttribute('aria-label', 'Open modal');
@@ -412,8 +414,10 @@ function createInPageButton(parent = document.body) {
  * @param {string} options.idAttribute - Attribute to use as node identifier (default: 'id')
  * @returns {Object} The dependency graph structure
  */
-function buildDependencyGraph(node, options = {}) {
-  const { dependencyAttribute = 'data-dependency', idAttribute = 'id' } = options;
+function buildDependencyGraph(node, options) {
+  options = options || {};
+  var dependencyAttribute = options.dependencyAttribute || 'data-dependency';
+  var idAttribute = options.idAttribute || 'id';
   
   if (!node) {
     return { success: false, errors: ['Node is required'] };
@@ -422,7 +426,7 @@ function buildDependencyGraph(node, options = {}) {
   function processNode(domNode) {
     if (!domNode) return null;
     
-    const nodeData = {
+    var nodeData = {
       id: domNode.getAttribute ? domNode.getAttribute(idAttribute) || domNode.id || 'anonymous' : 'anonymous',
       tagName: domNode.tagName ? domNode.tagName.toLowerCase() : 'unknown',
       dependencies: [],
@@ -430,9 +434,9 @@ function buildDependencyGraph(node, options = {}) {
     };
 
     // Find dependencies
-    const depElements = domNode.querySelectorAll ? domNode.querySelectorAll(`[${dependencyAttribute}]`) : [];
-    depElements.forEach(dep => {
-      const depId = dep.getAttribute(dependencyAttribute);
+    var depElements = domNode.querySelectorAll ? domNode.querySelectorAll('[' + dependencyAttribute + ']') : [];
+    depElements.forEach(function(dep) {
+      var depId = dep.getAttribute(dependencyAttribute);
       nodeData.dependencies.push({
         id: depId,
         name: dep.getAttribute(idAttribute) || depId,
@@ -442,8 +446,8 @@ function buildDependencyGraph(node, options = {}) {
 
     // Process child nodes recursively
     if (domNode.children) {
-      Array.from(domNode.children).forEach(child => {
-        const childData = processNode(child);
+      Array.from(domNode.children).forEach(function(child) {
+        var childData = processNode(child);
         if (childData) {
           nodeData.children.push(childData);
         }
@@ -466,15 +470,17 @@ function buildDependencyGraph(node, options = {}) {
  * @param {Object} options - Rendering options
  * @returns {Object} Result with success status and rendered graph data
  */
-function renderDependencyGraph(rootNode, container, options = {}) {
+function renderDependencyGraph(rootNode, container, options) {
   try {
     // Validate rootNode parameter
     if (!rootNode) {
       return { success: false, errors: ['Root node is required'] };
     }
 
+    options = options || {};
+
     // Build the dependency graph structure
-    const graphData = buildDependencyGraph(rootNode, options);
+    var graphData = buildDependencyGraph(rootNode, options);
 
     // Log for debugging
     console.log('Rendering dependency graph starting from:', rootNode);
@@ -482,19 +488,19 @@ function renderDependencyGraph(rootNode, container, options = {}) {
 
     // If container provided, render visual elements
     if (container && typeof document !== 'undefined') {
-      const graphContainer = document.createElement('div');
+      var graphContainer = document.createElement('div');
       graphContainer.setAttribute('role', 'img');
       graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
       graphContainer.className = options.className || 'dependency-graph';
       
       // Create SVG for graph visualization
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.setAttribute('width', options.width || '100%');
       svg.setAttribute('height', options.height || '400');
       svg.setAttribute('aria-hidden', 'true');
       
       // Add accessible description
-      const description = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      var description = document.createElementNS('http://www.w3.org/2000/svg', 'title');
       description.textContent = 'Dependency Graph';
       description.setAttribute('id', 'graph-title');
       svg.appendChild(description);
@@ -528,20 +534,22 @@ function renderDependencyGraph(rootNode, container, options = {}) {
  * @param {Object} options - Configuration options
  * @returns {Object} The breadcrumb structure
  */
-function buildBreadcrumbData(indexPath, options = {}) {
-  const { baseUrl = '', separator = '/' } = options;
+function buildBreadcrumbData(indexPath, options) {
+  options = options || {};
+  var baseUrl = options.baseUrl || '';
+  var separator = options.separator || '/';
   
   if (!indexPath) {
     return { success: false, errors: ['Index path is required'] };
   }
 
   // Split path into segments and filter empty ones
-  const segments = indexPath.split(separator).filter(s => s.trim());
+  var segments = indexPath.split(separator).filter(function(s) { return s.trim(); });
   
-  const breadcrumbs = segments.map((segment, index) => {
-    const url = baseUrl + separator + segments.slice(0, index + 1).join(separator);
+  var breadcrumbs = segments.map(function(segment, index) {
+    var url = baseUrl + separator + segments.slice(0, index + 1).join(separator);
     return {
-      label: segment.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      label: segment.replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); }),
       original: segment,
       url: url,
       position: index + 1,
@@ -563,15 +571,17 @@ function buildBreadcrumbData(indexPath, options = {}) {
  * @param {Object} options - Rendering options
  * @returns {Object} Result with success status and rendered index view data
  */
-function renderIndexView(indexPath, container, options = {}) {
+function renderIndexView(indexPath, container, options) {
   try {
     // Validate indexPath parameter
     if (!indexPath) {
       return { success: false, errors: ['Index path is required'] };
     }
 
+    options = options || {};
+
     // Build breadcrumb data from the path
-    const breadcrumbData = buildBreadcrumbData(indexPath, {
+    var breadcrumbData = buildBreadcrumbData(indexPath, {
       baseUrl: options.baseUrl || '',
       separator: options.separator || '/'
     });
@@ -582,23 +592,25 @@ function renderIndexView(indexPath, container, options = {}) {
 
     // If container provided, render visual elements
     if (container && typeof document !== 'undefined') {
-      const nav = document.createElement('nav');
+      var nav = document.createElement('nav');
       nav.setAttribute('aria-label', options.ariaLabel || 'Breadcrumb');
       
-      const ol = document.createElement('ol');
+      var ol = document.createElement('ol');
       ol.className = options.listClassName || 'breadcrumb';
       
-      breadcrumbData.breadcrumbs.forEach((crumb, index) => {
-        const li = document.createElement('li');
+      breadcrumbData.breadcrumbs.forEach(function(crumb, index) {
+        var li = document.createElement('li');
         li.className = 'breadcrumb-item';
-        li.setAttribute('aria-current', crumb.isLast ? 'page' : undefined);
+        if (crumb.isLast) {
+          li.setAttribute('aria-current', 'page');
+        }
         
         if (crumb.isLast) {
-          const span = document.createElement('span');
+          var span = document.createElement('span');
           span.textContent = crumb.label;
           li.appendChild(span);
         } else {
-          const link = document.createElement('a');
+          var link = document.createElement('a');
           link.href = crumb.url;
           link.textContent = crumb.label;
           li.appendChild(link);
@@ -635,13 +647,13 @@ function renderIndexView(indexPath, container, options = {}) {
 function towerDefense() {
   // A simple tower defense game implementation
   // Define towers, enemies, waves, and game loop
-  const towers = [];
-  const enemies = [];
-  let wave = 1;
-  let gameRunning = false;
-  let lastEnemySpawnTime = 0;
-  const spawnInterval = 3000; // Spawn enemies every 3 seconds
-  const pathPoints = [
+  var towers = [];
+  var enemies = [];
+  var wave = 1;
+  var gameRunning = false;
+  var lastEnemySpawnTime = 0;
+  var spawnInterval = 3000; // Spawn enemies every 3 seconds
+  var pathPoints = [
     { x: 0, y: 50 },
     { x: 200, y: 50 },
     { x: 200, y: 200 },
@@ -681,7 +693,7 @@ function towerDefense() {
 
   // Spawn a new enemy at the start of the path
   function spawnEnemy() {
-    const startPoint = pathPoints[0];
+    var startPoint = pathPoints[0];
     addEnemy(startPoint.x, startPoint.y, 100, 2);
   }
 
@@ -696,13 +708,14 @@ function towerDefense() {
     }
 
     // Logic for enemy movement, tower shooting, etc.
-    enemies.forEach((enemy, index) => {
+    for (var i = enemies.length - 1; i >= 0; i--) {
+      var enemy = enemies[i];
       // Move enemy along path
       if (enemy.pathIndex < pathPoints.length - 1) {
-        const target = pathPoints[enemy.pathIndex + 1];
-        const dx = target.x - enemy.x;
-        const dy = target.y - enemy.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        var target = pathPoints[enemy.pathIndex + 1];
+        var dx = target.x - enemy.x;
+        var dy = target.y - enemy.y;
+        var distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance > enemy.speed) {
           enemy.x += (dx / distance) * enemy.speed;
@@ -712,24 +725,24 @@ function towerDefense() {
         }
       } else {
         // Enemy reached end of path - remove it
-        enemies.splice(index, 1);
+        enemies.splice(i, 1);
       }
-    });
+    }
 
     // Tower shooting logic
-    towers.forEach(tower => {
+    towers.forEach(function(tower) {
       if (currentTime - tower.lastShot > tower.rate) {
         // Find closest enemy in range
-        let closestEnemy = null;
-        let minDistance = Infinity;
+        var closestEnemy = null;
+        var minDistance = Infinity;
 
-        enemies.forEach(enemy => {
-          const dx = enemy.x - tower.x;
-          const dy = enemy.y - tower.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+        enemies.forEach(function(enemy) {
+          var edx = enemy.x - tower.x;
+          var edy = enemy.y - tower.y;
+          var eDistance = Math.sqrt(edx * edx + edy * edy);
 
-          if (distance < tower.range && distance < minDistance) {
-            minDistance = distance;
+          if (eDistance < tower.range && eDistance < minDistance) {
+            minDistance = eDistance;
             closestEnemy = enemy;
           }
         });
@@ -741,7 +754,7 @@ function towerDefense() {
 
           // Remove enemy if health <= 0
           if (closestEnemy.health <= 0) {
-            const index = enemies.indexOf(closestEnemy);
+            var index = enemies.indexOf(closestEnemy);
             if (index > -1) {
               enemies.splice(index, 1);
             }
@@ -750,7 +763,7 @@ function towerDefense() {
       }
     });
 
-    console.log(`Wave ${wave} - updating game state`);
+    console.log('Wave ' + wave + ' - updating game state');
   }
 
   // Start the game
@@ -772,36 +785,36 @@ function towerDefense() {
 
   // Expose game functions
   return {
-    start,
-    stop,
-    addTower,
-    addEnemy,
-    update,
-    getWave: () => wave,
-    getEnemies: () => enemies,
-    getTowers: () => towers,
-    isRunning: () => gameRunning
+    start: start,
+    stop: stop,
+    addTower: addTower,
+    addEnemy: addEnemy,
+    update: update,
+    getWave: function() { return wave; },
+    getEnemies: function() { return enemies; },
+    getTowers: function() { return towers; },
+    isRunning: function() { return gameRunning; }
   };
 }
 
 // Export all functions to maintain current exports
 module.exports = {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  personName,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  ensureUniqueLandmarks,
-  createAccessibleLink,
-  isLinkAccessible,
-  renderDependencyGraph,
-  renderIndexView,
-  buildDependencyGraph,
-  buildBreadcrumbData,
-  towerDefense
+  setHtmlLangAttribute: setHtmlLangAttribute,
+  detectAndSetLang: detectAndSetLang,
+  getLangAttribute: getLangAttribute,
+  personName: personName,
+  createInPageButton: createInPageButton,
+  validateTableAccessibility: validateTableAccessibility,
+  validateTableStructure: validateTableStructure,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  getSvgAccessibleName: getSvgAccessibleName,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  createAccessibleLink: createAccessibleLink,
+  isLinkAccessible: isLinkAccessible,
+  renderDependencyGraph: renderDependencyGraph,
+  renderIndexView: renderIndexView,
+  buildDependencyGraph: buildDependencyGraph,
+  buildBreadcrumbData: buildBreadcrumbData,
+  towerDefense: towerDefense
 };

@@ -516,15 +516,6 @@ function renderDependencyGraph(container, svgElements) {
   return accessibleName;
 }
 
-const checkTableStructure = function(tables) {
-  if (!tables || !Array.isArray(tables)) {
-    return false;
-  }
-  return tables.every(function(table) {
-    return table.rows && table.rows.length > 0;
-  });
-};
-
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
   sections: [

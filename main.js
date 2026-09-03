@@ -790,6 +790,10 @@ const appInstance = {
         return server;
     },
 
+    spawnProcess: function (command, args, options) {
+        // Spawning a child process to perform a command
+        return spawn(command, args, options);
+    },
     configureSvgAccessibility: configureSvgAccessibility,
     makeSvgAccessible: makeSvgAccessible,
     setSvgAttributes: setSvgAttributes

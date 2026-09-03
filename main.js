@@ -80,6 +80,13 @@ function validateLandmark(element) {
   return false;
 }
 
+function checkLandmarkElements(elements) {
+  if (!Array.isArray(elements)) {
+    return false;
+  }
+  return elements.every(validateLandmark);
+}
+
 function spawnSomeCommand() {
   /* existing code */
 }

@@ -5,7 +5,7 @@
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibleNames())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
@@ -159,6 +159,15 @@ function createInPageButton() {
 
 function setSvgAccessibleNames(id1, id2, label1, label2) {
     // Add accessible names to 2 SVGs
+    const svg1 = document.getElementById(id1);
+    if (svg1) {
+        svg1.setAttribute('aria-label', label1);
+    }
+    
+    const svg2 = document.getElementById(id2);
+    if (svg2) {
+        svg2.setAttribute('aria-label', label2);
+    }
 }
 
 function fixFakeLink() {

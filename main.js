@@ -274,14 +274,14 @@ function addLangAttribute() {
 }
 
 function getFullLangAttribute() {
-    const htmlElement = document.querySelector('html');
-    return htmlElement ? htmlElement.getAttribute('lang') : null;
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
 function ensureUniqueLandmarksFromString(landmarkString) {
-    const landmarks = landmarkString.split(',').map(l => l.trim());
-    const uniqueLandmarks = [...new Set(landmarks)];
-    return uniqueLandmarks.join(', ');
+  const landmarks = landmarkString.split(',').map(l => l.trim());
+  const uniqueLandmarks = [...new Set(landmarks)];
+  return uniqueLandmarks.join(', ');
 }
 
 // REACT_025: Ensure unique landmarks
@@ -578,7 +578,7 @@ function ensureLandmarkUniqueness(elements) {
   const seen = new Map();
 
   elements.forEach(element => {
-    const key = element.id || element.name || ...
+    const key = element.id || element.name || element.type || element.role || JSON.stringify(element);
     if (!seen.has(key)) {
       seen.set(key, true);
       uniqueElements.push(element);
@@ -590,7 +590,7 @@ function ensureLandmarkUniqueness(elements) {
 
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = ...
+  const container = document.getElementById('dependency-graph-container');
   if (!container) {
     return;
   }
@@ -603,12 +603,11 @@ function renderDependencyGraphContent() {
 function addressInsightIssues() {
   getLangAttribute();
   addLangAttribute();
-  ensureUniqueLandmarks(landmarks);
+  ensureUniqueLandmarks();
   addMainLandmark();
-  ...
-  ensureLandmarkUniqueness(landmarks);
+  renderDependencyGraphContent();
+  ensureLandmarkUniqueness([]);
   fixFakeLinkIssue();
-  ...
 }
 
 function fixTableStructure() {

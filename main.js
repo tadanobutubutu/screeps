@@ -13,19 +13,24 @@ const {
   transformInputData,
   initSkipLink,
   trapFocus,
+  newFocusTrap: originalNewFocusTrap,
+  ensureElementId,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addAriaLabel,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
   renderAdditionalContent,
-  ensureElementId,
   ensureElementHasId,
-  newFocusTrap,
   renderDependencyGraph,
   renderIndex,
   addAccessibleName,
-  handleCredentialResponse,
   initAccessibility,
   groupByCategory,
   log,
@@ -65,10 +70,30 @@ const accessibilityUtils = {
         if (e.shiftKey && document.activeElement === firstElement) {
           e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
           e.preventDefault();
           firstElement.focus();
+        }
+      }
+    });
+  },
+
+  newFocusTrap: (element) => {
+    if (!element) return originalNewFocusTrap(element);
+    const focusable = element.querySelectorAll(
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
           e.preventDefault();
         }
       }
@@ -95,12 +120,10 @@ const accessibilityUtils = {
   },
 
   addAriaLabel: (element) => {
-    // Add ARIA label to improve accessibility
     element.setAttribute('aria-label', 'Accessible element');
   },
 
   addressAccessibilityIssues: () => {
-    // Address accessibility issues based on the harvested data (Imaginary implementation)
     const issues = [
       {
         element: null,
@@ -149,17 +172,10 @@ const accessibilityUtils = {
   renderDependencyGraph,
   renderIndex,
   addAccessibleName,
-  handleCredentialResponse,
-  initAccessibility,
-  groupByCategory,
-  log,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  exportUtilities,
-  harvest,
-  harvestSync,
+
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
 };
 
 // Utility functions for ensuring elements have IDs and adding labels
@@ -177,14 +193,11 @@ const ensureElementHasIdFn = (element, prefix = 'element') => {
 };
 
 const wrapPrimaryContentInMain = () => {
-  // Check if a main element already exists
   let mainElement = document.querySelector('main');
 
   if (!mainElement) {
-    // If no main element exists, create one
     mainElement = document.createElement('main');
 
-    // Find the primary content container (commonly #content, .content, #main, .main, article, [role="main"])
     const contentSelectors = ['#content', '.content', '#main', '.main', 'article', '[role="main"]'];
     let primaryContent = null;
 
@@ -196,7 +209,6 @@ const wrapPrimaryContentInMain = () => {
     }
 
     if (primaryContent) {
-      // Insert the main element before the primary content and move the primary content into it
       primaryContent.parentNode.insertBefore(mainElement, primaryContent);
       mainElement.appendChild(primaryContent);
     }
@@ -236,10 +248,8 @@ function function3(insightReport) {
     }
   });
 
-  // Log summary for debugging
   console.log('Accessibility Compliance Report:', results.summary);
 
-  // Perform automated fixes for common issues
   const htmlElement = document.documentElement;
   if (!htmlElement.hasAttribute('lang')) {
     const langAttr = getFullLangAttribute();
@@ -273,9 +283,6 @@ function function3(insightReport) {
 }
 
 function harvest() {
-    // This function should collect resources or data from available sources
-    // Add your implementation here
-    
     const resources = {
         timestamp: new Date().toISOString(),
         url: window.location.href,
@@ -286,7 +293,6 @@ function harvest() {
         forms: []
     };
 
-    // Collect meta tags
     const metaTags = document.querySelectorAll('meta');
     metaTags.forEach(meta => {
         const name = meta.getAttribute('name') || meta.getAttribute('property') || meta.getAttribute('http-equiv');
@@ -296,7 +302,6 @@ function harvest() {
         }
     });
 
-    // Collect links
     const links = document.querySelectorAll('a[href]');
     links.forEach(link => {
         resources.links.push({
@@ -306,7 +311,6 @@ function harvest() {
         });
     });
 
-    // Collect images
     const images = document.querySelectorAll('img[src]');
     images.forEach(img => {
         resources.images.push({
@@ -317,7 +321,6 @@ function harvest() {
         });
     });
 
-    // Collect forms
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
         const formData = {
@@ -340,40 +343,6 @@ function harvest() {
 
     console.log('Harvest completed:', resources);
     return resources;
-}
-
-function addressAccessibilityIssues(insightReport) {
-  console.log('Addressing accessibility issues:', insightReport);
-
-  const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
-    const langAttr = getFullLangAttribute();
-    if (langAttr) {
-      htmlElement.setAttribute('lang', langAttr);
-    }
-  }
-
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-
-  validateLandmark(document);
-  validateLandmarkStructure(document);
-  ensureUniqueLandmarks();
-
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      setSvgAttributes(svg, { 'aria-label': accessibleName });
-    }
-  });
-
-  handleFakeLinks();
-
-  return { success: true };
 }
 
 function updateFunction() {
@@ -401,7 +370,6 @@ function anotherNewFunction() {
 }
 
 function getLangAttribute() {
-  // Return the document language or default to 'en'
   return document.documentElement.lang || 'en';
 }
 
@@ -473,7 +441,6 @@ function implementAccessibilityFixesFromReport(container, report) {
     fixes.fakeLinksFixed++;
   });
 
-  // REACT_015: Add lang attribute to HTML element
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', getLangAttribute());
@@ -513,8 +480,6 @@ function implementAccessibilityFixesFromReport(container, report) {
   if (fakeLinkFixes > 0) {
     console.log(`Fixed fake link issues for ${fakeLinkFixes} elements`);
   }
-
-  // Additional accessibility fixes can be added here
 
   return fixes;
 }

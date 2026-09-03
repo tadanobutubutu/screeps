@@ -367,7 +367,9 @@ module.exports = {
   spawnCommand,
   processSvgElements,
   ensureElementId,
-  ensureUniqueLandmarksFromString
+  ensureUniqueLandmarksFromString,
+  validateNewAccessibilityIssues,
+  validateLandmarkStructure
 };
 
 if (require.main === module) {

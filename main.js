@@ -13,10 +13,10 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from ...
 import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />
@@ -24,7 +24,7 @@ root.render(
 );
 
 // If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
+// to log results (for example: ...
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
@@ -37,6 +37,8 @@ reportWebVitals();
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+// TODO: Implement createResourceButton
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
@@ -128,7 +130,7 @@ export function validateLandmarkStructure() {
 /**
  * Validates landmark attributes
  */
-export function validateLandmarkAttributes() {
+export function ... {
   // Implementation to be added
 }
 
@@ -182,6 +184,45 @@ export function handleFakeLinks() {
   // Implementation to be added
 }
 
+/**
+ * Creates a resource button for accessibility
+ * @param {string} text - The button text
+ * @param {Function} onClick - The click handler
+ * @param {Object} options - Additional options (icon, ariaLabel, etc.)
+ * @returns {HTMLButtonElement} The button element
+ */
+export function createResourceButton(text, onClick, options = {}) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text || '';
+
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  if (options.ariaLabel) {
+    button.setAttribute('aria-label', options.ariaLabel);
+  }
+
+  if (options.id) {
+    button.id = options.id;
+  }
+
+  if (options.className) {
+    button.className = options.className;
+  }
+
+  if (options.disabled) {
+    button.disabled = true;
+  }
+
+  if (options.icon) {
+    button.setAttribute('aria-hidden', 'true');
+  }
+
+  return button;
+}
+
 // TODO: Re-add the required exports for functionA and functionB
 
 /**
@@ -221,12 +262,13 @@ export {
   handleFakeLinks,
   functionA,
   functionB,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  createResourceButton
 };
 
 /**
  * Adds proper landmark regions to the page
  */
-export function addProperLandmarkRegions() {
+export function ... {
   // Implementation to be added
 }

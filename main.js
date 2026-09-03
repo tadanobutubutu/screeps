@@ -27,13 +27,10 @@ const renderGraphIndex = (graphData) => {
   renderDependencyGraphs(graphData);
 }
 
-// TODO: Update the existing function using the new functions for rendering graph/index
-// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
-
-// TODO: Add a language attribute to the HTML element
+// Add a language attribute to the HTML element
+addLanguageAttribute();
 
 // Update the call to the new function in the existing context
-// For instance, if there was a call to `renderDependencyGraphs` somewhere in the codebase, replace it with `renderGraphIndex`
 // Example:
 // renderDependencyGraphs(graphData); // Before
 // renderGraphIndex(graphData); // After

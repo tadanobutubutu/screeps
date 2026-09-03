@@ -1,27 +1,13 @@
-Looking at this Git merge conflict, I need to understand what both branches are contributing:
-
-1. **HEAD branch**: Adds accessibility-related functionality including:
-   - `renderGraphIndex` and `renderGraphIndexAlt` functions
-   - `a11yStore` object with accessibility methods
-   - Functions for validating landmark elements and table accessibility
-   - Dependency counting and processing utilities
-
-2. **origin/main**: Adds:
-   - HTTP and Express server setup
-   - Configuration loading from package.json
-   - Basic accessibility validation functions
-   - Event handler setup
-
-The conflict is complex with overlapping function names and both adding new features. I'll resolve by:
-- Keeping all imports from origin/main (they're essential for the server)
-- Integrating both accessibility improvements from HEAD
-- Merging configuration and dependency functions
-- Resolving overlapping function definitions
-- Preserving all unique functionality
-
-Here's the resolved file:
-
-===const http = require('http');
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
+// TODO: This is the existing code that needs to be preserve
+// - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
+const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
@@ -660,7 +646,7 @@ function renderDependencyGraphs(graphData) {
  */
 function getLangAttribute() {
     if (typeof document === 'undefined') return 'en';
-    return document.documentElement.lang || navigator.language.split('-')[0'];
+    return document.documentElement.lang || navigator.language.split('-')[0];
 }
 
 /**

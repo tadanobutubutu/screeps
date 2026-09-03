@@ -1,5 +1,7 @@
-// TODO: This is the modified and merged code
-// (This comment remains as-is)
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// Main entry point for dependency visualization tool
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
@@ -296,4 +298,11 @@ export function uniqueLandmarksHelper(container) {
     const elements = container.querySelectorAll(`[role="${role}"]`);
     elements.forEach((el, index) => {
       if (index > 0 && !el.getAttribute('aria-label')) {
-        const count = index +
+        const count = index + 1;
+        el.setAttribute('aria-label', `${role} ${count}`);
+      }
+    });
+  });
+  
+  return container;
+}

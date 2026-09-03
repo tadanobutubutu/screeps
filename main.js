@@ -51,6 +51,39 @@ module.exports = {
         return uniqueElements;
     },
 
+    // Handle credential response - implemented per issue
+    handleCredentialResponse(response) {
+        try {
+            // Parse the response (assuming JSON format)
+            const parsed = response.json();
+            
+            // Extract credentials from the response
+            // Support common credential formats: { credentials: {...} }, { token: ... }, etc.
+            let credentials = null;
+            if (parsed && typeof parsed.credentials === 'object' && parsed.credentials !== null) {
+                credentials = parsed.credentials;
+            } else if (parsed && typeof parsed.token === 'string') {
+                credentials = parsed.token;
+            } else if (parsed && typeof parsed.user === 'object') {
+                credentials = parsed.user;
+            }
+
+            // Validate the credentials if present
+            if (credentials) {
+                // Basic validation - ensure it's not empty/null
+                if (credentials && Object.keys(credentials).length > 0) {
+                    // Store the credentials for later use
+                    window.credentials = credentials;
+                    console.log('Credential response handled successfully');
+                }
+            }
+        } catch (error) {
+            console.error('Error handling credential response:', error);
+        }
+        
+        return credentials;
+    },
+
     // Address all accessibility issues
     addressInsightIssues() {
         getLangAttribute();

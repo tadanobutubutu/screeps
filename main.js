@@ -154,6 +154,9 @@ function setConfig(config) {
 }
 
 // Implement the new function(s) here
+function updateAccessibilityConfig(newConfig) {
+    setConfig(newConfig);
+}
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.querySelector('.dependency-graph');
@@ -185,5 +188,6 @@ module.exports = {
   validateTableStructure,
   accessibilityUtils,
   getConfig,
-  setConfig
+  setConfig,
+  updateAccessibilityConfig
 };

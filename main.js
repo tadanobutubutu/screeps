@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0',
@@ -16,7 +16,7 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('#content') || document.querySelector('.content') || document.querySelector('article') : null;
 
 const AddressabilityIssues = {
   validateTableAccessibility: function(table) {
@@ -27,7 +27,7 @@ const AddressabilityIssues = {
 // Load configurations from package.json if it exists
 function loadConfigurations() {
     try {
-        const packagePath = path.join(__dirname, 'package.json');
+        const packagePath = path.join(process.cwd(), 'package.json');
         if (fs.existsSync(packagePath)) {
             const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
             config.name = packageJson.name || 'dependency-counter';
@@ -51,15 +51,15 @@ function countDependencies() {
     const devDependencies = packageJson.devDependencies || {};
 
     return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
+        dependencies: Object.keys(dependencies),
+        devDependencies: Object.keys(devDependencies),
         total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
 }
 
 // SVG accessibility helper functions from HEAD branch
-function addSvgAccessibilityProps(svg) {
-  if (!svg.getAttribute('role')) {
+function configureSvgAccessibility(svg) {
+  if (svg && svg.setAttribute) {
     svg.setAttribute('role', 'img');
   }
 
@@ -73,6 +73,10 @@ function addSvgAccessibilityProps(svg) {
 
 function setSvgAttributes(svg) {
     // Code to set other svg attributes goes here
+    if (svg && svg.setAttribute) {
+        svg.setAttribute('focusable', 'false');
+        svg.setAttribute('aria-hidden', 'true');
+    }
 }
 
 // Existing functionality
@@ -84,12 +88,10 @@ const XYZ = function () {
     // Implementation for XYZ function
 };
 
-setHtmlLangAttribute('en');
-
 // Validate the table structure for accessibility issues
 if (typeof document !== 'undefined') {
   function validateAllTables() {
-    const tables = document.getElementsByTagName('table');
+    const tables = document.querySelectorAll('table');
     for (const table of tables) {
       const accessible = validateTableAccessibility(table);
       const structure = validateTableStructure(table);
@@ -128,7 +130,7 @@ module.exports = {
         const seen = new Map();
 
         elements.forEach(element => {
-            const key = element.id || element.name || JSON.stringify(element);
+            const key = element.id || element.name || element.className;
             if (!seen.has(key)) {
                 seen.set(key, true);
                 uniqueElements.push(element);
@@ -140,35 +142,30 @@ module.exports = {
 
     addressInsightIssues: function () {
         this.getLangAttribute();
-        this.addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+        const landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
 
         if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
             this.ensureLandmarkUniqueness(landmarks);
         }
-        this.ensureUniqueLandmarks();
 
-        this.validateTableAccessibility();
-        this.validateTableStructure();
+        configureSvgAccessibility(this.primaryContent);
 
-        this.getSvgAccessibleName();
-
-        this.createInPageButton();
-        this.createAccessibleLink();
         this.handleAccessibilityIssues();
 
-        this.validateLandmark();
-        this.validateLandmarkStructure();
+        this.setupHandlers();
+
+        return landmarks;
     },
 
     initializeApp: function () {
         this.addressInsightIssues();
-        this.loadConfigurations();
+        loadConfigurations();
         countDependencies();
         if (typeof wrapPrimaryContentInMain === 'function') {
             wrapPrimaryContentInMain();
         }
         if (typeof fixLandmarkStructure === 'function') {
-            document.body.innerHTML = fixLandmarkStructure();
+            fixLandmarkStructure();
         }
     },
 
@@ -199,6 +196,15 @@ module.exports = {
     },
 
     getSvgAccessibleName: function (svgElement, name) {
+        if (name) {
+            return name;
+        }
+        if (svgElement && svgElement.getAttribute) {
+            const title = svgElement.querySelector('title');
+            if (title) {
+                return title.textContent;
+            }
+        }
         return svgElement;
     },
 
@@ -242,7 +248,7 @@ module.exports = {
         if (typeof doc === 'undefined' || !doc.querySelectorAll) {
             return;
         }
-        const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
+        const clickableElements = doc.querySelectorAll('[onclick]');
         let count = 0;
 
         clickableElements.forEach(element => {
@@ -251,9 +257,9 @@ module.exports = {
 
             if (tagName !== 'a' && !hasHref) {
                 const isInteractive = element.getAttribute('role') === 'link' ||
-                                       (element.hasAttribute('onclick') && element.onclick && element.onclick.toString().includes('window.location'));
+                                       element.getAttribute('role') === 'button' && element.onclick;
 
-                if (isInteractive && !element.hasAttribute('aria-label')) {
+                if (isInteractive) {
                     const text = element.textContent.trim();
                     if (text) {
                         element.setAttribute('aria-label', text);
@@ -284,11 +290,11 @@ module.exports = {
     },
 
     startApp: function () {
-        this.loadConfigurations();
+        this.createServer();
         const server = this.createServer();
         return server;
     },
 
-    addSvgAccessibilityProps: addSvgAccessibilityProps,
+    configureSvgAccessibility: configureSvgAccessibility,
     setSvgAttributes: setSvgAttributes
 };

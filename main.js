@@ -256,6 +256,112 @@ function handleAccessibilityIssues() {
     });
 }
 
+// Fix fake link issues - handles links that don't work properly
+// Fake links are <a> tags without href or with invalid href values
+
+function fixFakeLinkIssue(linkElement) {
+  if (!linkElement) {
+    return false;
+  }
+
+  const isAnchor = linkElement.tagName && linkElement.tagName.toLowerCase() === 'a';
+  
+  if (!isAnchor) {
+    return false;
+  }
+
+  const href = linkElement.getAttribute('href');
+  const fakeHrefValues = ['#', 'javascript:void(0)', 'javascript:;', 'javascript:void(0);', ''];
+  const isFakeLink = !href || fakeHrefValues.includes(href) || href === window.location.href;
+
+  if (isFakeLink) {
+    // Remove the href attribute to prevent navigation
+    linkElement.removeAttribute('href');
+    
+    // Ensure the element has proper accessibility attributes
+    if (!linkElement.getAttribute('role')) {
+      linkElement.setAttribute('role', 'button');
+    }
+    
+    // Ensure the element has an accessible name
+    const hasText = linkElement.textContent.trim().length > 0;
+    const hasAriaLabel = linkElement.getAttribute('aria-label');
+    
+    if (!hasText && !hasAriaLabel) {
+      linkElement.setAttribute('aria-label', 'Interactive element');
+    }
+    
+    return true;
+  }
+
+  return false;
+}
+
+function fixFakeLinkIssues(container = document) {
+  const issues = [];
+  
+  // Find all <a> tags
+  const anchors = container.querySelectorAll('a');
+  
+  anchors.forEach(anchor => {
+    const href = anchor.getAttribute('href');
+    const fakeHrefValues = ['#', 'javascript:void(0)', 'javascript:;', 'javascript:void(0);', ''];
+    const isFakeLink = !href || fakeHrefValues.includes(href) || href === window.location.href;
+    
+    if (isFakeLink) {
+      const wasFixed = fixFakeLinkIssue(anchor);
+      
+      issues.push({
+        element: anchor,
+        type: 'fake-link',
+        fixed: wasFixed,
+        href: href || '(no href)'
+      });
+    }
+  });
+
+  // Check for non-anchor elements with onclick that look like links
+  const fakeLinkSelectors = [
+    '[role="link"]',
+    'span.clickable',
+    'div.clickable',
+    'button[href]',
+    '[onclick]:not(a):not(button)'
+  ];
+
+  fakeLinkSelectors.forEach(selector => {
+    try {
+      const elements = container.querySelectorAll(selector);
+      elements.forEach(element => {
+        const isAnchor = element.tagName && element.tagName.toLowerCase() === 'a';
+        if (!isAnchor) {
+          // Check if it looks like a link (has cursor: pointer or link styling)
+          const style = window.getComputedStyle(element);
+          const isClickable = style.cursor === 'pointer' || element.classList.contains('link');
+          
+          if (isClickable) {
+            // Add warning about fake link element
+            issues.push({
+              element: element,
+              type: 'fake-link-element',
+              fixed: false,
+              message: 'Non-anchor element styled as link'
+            });
+          }
+        }
+      });
+    } catch (e) {
+      // Invalid selector, skip
+    }
+  });
+
+  return {
+    totalIssues: issues.length,
+    fixed: issues.filter(i => i.fixed).length,
+    issues: issues
+  };
+}
+
 // Export all existing and new functions
 module.exports = {
     validateTableAccessibility,
@@ -278,5 +384,7 @@ module.exports = {
     validateInput,
     processData,
     validateLandmarkRegions,
-    addLandmarkRegions
+    addLandmarkRegions,
+    fixFakeLinkIssue,
+    fixFakeLinkIssues
 };

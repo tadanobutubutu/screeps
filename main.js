@@ -54,11 +54,6 @@ const dependencyGraph = document.getElementById('dependencyGraph');
 
 // TODO: This is the existing code that needs to be preserved
 //_Commit: 18ddb6408a2b2823efa22f0a77964bb5d6737f93_
-//<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_ -->
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 //_Commit: 94682d0194ff736f18c9f23486aa2eea265b4bc5_

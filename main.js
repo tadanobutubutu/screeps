@@ -107,7 +107,12 @@ const accessibilityUtils = {
     }
 };
 
-// Utility functions for ensuring elements have IDs and adding labels
+/**
+ * Ensures an element has a unique ID attribute
+ * @param {Element} element - The DOM element to assign an ID to
+ * @param {string} prefix - Optional prefix for the generated ID
+ * @returns {string} The ID of the element
+ */
 const ensureElementHasId = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');

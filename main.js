@@ -115,6 +115,9 @@ function countDependencies() {
     };
 }
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// todo-hash: 654a80fdcb20fd082b4cb475a4b9c1d38acd5f24
+
 /**
  * Ensures an element has a unique id attribute
  * @param {HTMLElement} element - The element to ensure has an id

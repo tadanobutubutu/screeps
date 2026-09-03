@@ -35,6 +35,15 @@ function validateLandmark(element) {
     issues
   };
 }
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by fixTableStructureIssues() and fixTableHeaderCellScope())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), addLandmarkRolesAndFixIssues() and fixLandmarkIssues())
+// - REACT_041: Add accessible names to 2 SVGs (handled by addSvgAccessibleNames())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 const appData = {
   title: 'Screeps',

@@ -1,3 +1,8 @@
+// TODO: This is the existing code that needs to be preserved
+// Existing code that needs to be preserved
+// Changes to be applied
+// New code that needs to be added
+
 // main.js - Accessibility improvements implementation
 
 // TODO: Any additional changes requested in the issue

@@ -43,7 +43,7 @@ function validateLandmarkStructure() {
     const missingLandmarks = [];
 
     requiredLandmarks.forEach(landmark => {
-        const element = document.querySelector(landmark);
+        const element = document.getElementsByTagName(landmark)[0];
         if (!element) {
             missingLandmarks.push(landmark);
         }
@@ -65,7 +65,7 @@ function analyzeHarvestedData(data) {
     // ... (existing implementation here)
 }
 
-function applyImprovements(insights) {
+function applyImprovements(data) {
     // ... (existing implementation here)
 }
 
@@ -127,7 +127,7 @@ function renderGraphIndex(containerId, data) {
     container.appendChild(graphElement);
 
     // Check for required ARIA role on the container and set it if missing
-    if (!container.hasAttribute('role')) {
+    if (!container.getAttribute('role')) {
         container.setAttribute('role', 'group');
     }
 

@@ -267,7 +267,16 @@ module.exports = {
     },
 
     renderDependencyGraphContent: function () {
-        // Placeholder for dependency graph rendering
+        this.renderGraph();
+        this.renderIndex();
+    },
+
+    renderGraph: function () {
+        // Render graph
+    },
+
+    renderIndex: function () {
+        // Render index
     },
 
     addBook: function (book) {

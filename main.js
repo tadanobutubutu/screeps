@@ -69,6 +69,37 @@ function applyImprovements(data) {
     // ... (existing implementation here)
 }
 
+function function3(input) {
+    // Handle null or undefined input
+    if (input === null || input === undefined) {
+        return null;
+    }
+    
+    // Handle string input - trim whitespace and convert to lowercase
+    if (typeof input === 'string') {
+        return input.trim().toLowerCase();
+    }
+    
+    // Handle arrays - process each element recursively
+    if (Array.isArray(input)) {
+        return input.map(item => function3(item));
+    }
+    
+    // Handle objects - process each value recursively
+    if (typeof input === 'object') {
+        const result = {};
+        for (const key in input) {
+            if (input.hasOwnProperty(key)) {
+                result[key] = function3(input[key]);
+            }
+        }
+        return result;
+    }
+    
+    // Return other types as-is (numbers, booleans, etc.)
+    return input;
+}
+
 function upgrade(harvestedData) {
     // Validate that harvested data is provided
     if (!harvestedData || typeof harvestedData !== 'object') {
@@ -76,20 +107,23 @@ function upgrade(harvestedData) {
         return false;
     }
 
+    // Normalize harvested data using function3
+    const normalizedData = function3(harvestedData);
+
     // Process harvested data to improve the system
     try {
         // Apply harvested data improvements
-        if (harvestedData.settings) {
+        if (normalizedData.settings) {
             // Apply settings upgrades
             console.log('Applying settings upgrades from harvested data');
         }
 
-        if (harvestedData.configuration) {
+        if (normalizedData.configuration) {
             // Apply configuration improvements
             console.log('Applying configuration improvements from harvested data');
         }
 
-        if (harvestedData.preferences) {
+        if (normalizedData.preferences) {
             // Apply user preference improvements
             console.log('Applying user preferences from harvested data');
         }

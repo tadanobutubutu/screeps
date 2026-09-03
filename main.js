@@ -26,7 +26,7 @@ function fixTableStructure(html) {
         if (/<thead/i.test(content)) return match;
         const rows = content.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
         if (rows.length === 0) return match;
-        const firstRows = rows.slice(0, 1).join('');
+        let firstRows = rows.slice(0, 1).join('');
         const restRows = rows.slice(1).join('');
         if (!firstRows.includes('<th')) {
             firstRows = firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>');
@@ -126,10 +126,21 @@ function checkFunctionB(arg1, arg2) {
   // Implement your logic here
 }
 
+/**
+ * Counts the number of dependencies in an object.
+ * @param {Object} obj - The object containing dependencies.
+ * @returns {number} The count of dependencies.
+ */
+function countDependencies(obj) {
+  if (!obj || typeof obj !== 'object') return 0;
+  return Object.keys(obj).length;
+}
+
 // Save both functions as new exports
 module.exports = {
     ...module.exports, // Preserve existing exports, including the upgraded analyzeContentSafety, divide, and existingFunction1
     applyAccessibilityFixes, // Add the updated applyAccessibilityFixes with the ARIA role setting
     checkFunctionA, // Add the new function
-    checkFunctionB // Add another new function
+    checkFunctionB, // Add another new function
+    countDependencies // Add the function to count dependencies
 };

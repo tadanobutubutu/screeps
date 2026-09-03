@@ -596,7 +596,29 @@ const accessiblyHelper = function() { return Promise.resolve([]); };
       validateLandmarkStructure,
       ensureUniqueLandmarks,
       checkLinkAccessibility,
-      function3
+      function3,
+      validateLinkAccessibility,
+      handleFakeLinks,
+      addProperLandmarkRegions,
+      fastMap,
+      formatDate,
+      validateInput,
+      processData,
+      isValidLandmark,
+      loadLandmarks,
+      processLandmarks,
+      sortLandmarks,
+      getLandmarkById,
+      addFixLandmarkIssues,
+      clearCache,
+      someFunction,
+      helper,
+      renderFunction1,
+      renderFunction2,
+      appState,
+      CONFIG,
+      config,
+      accessiblyHelper
     };
 
     // Initialize the application with accessibility improvements

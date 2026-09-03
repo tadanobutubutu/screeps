@@ -1,4 +1,5 @@
-// TODO: This is the modified and merged code
+// TODO: Identify and update specific functions that render dependency graphs or
+
 // (This comment remains as-is)
 
 const { dependencyGraphContent } = require('./dependencyGraphContent');
@@ -27,6 +28,78 @@ const {
 
 function greetingFunction() {
   return "Hello, World!";
+}
+
+// Render dependency graphs in the container
+function renderDependencyGraphs(container) {
+  if (!container) {
+    return false;
+  }
+  
+  const graphContent = dependencyGraphContent;
+  if (!graphContent) {
+    log('No dependency graph content available', 'warn');
+    return false;
+  }
+  
+  // Find or create a container for the dependency graph
+  let graphContainer = container.querySelector('[data-dependency-graph]');
+  if (!graphContainer) {
+    graphContainer = document.createElement('div');
+    graphContainer.setAttribute('data-dependency-graph', 'true');
+    graphContainer.setAttribute('role', 'img');
+    graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+    container.appendChild(graphContainer);
+  }
+  
+  // Render the dependency graph content
+  if (graphContent.nodes && graphContent.edges) {
+    graphContainer.innerHTML = renderGraphSVG(graphContent);
+    return true;
+  } else if (typeof graphContent === 'string') {
+    graphContainer.innerHTML = graphContent;
+    return true;
+  }
+  
+  return false;
+}
+
+// Render SVG representation of the dependency graph
+function renderGraphSVG(content) {
+  const nodes = content.nodes || [];
+  const edges = content.edges || [];
+  const width = content.width || 800;
+  const height = content.height || 600;
+  
+  let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">`;
+  svg += '<style>';
+  svg += '.node { fill: #4A90E2; stroke: #333; stroke-width: 2px; cursor: pointer; }';
+  svg += '.node:hover { fill: #357ABD; }';
+  svg += '.edge { stroke: #999; stroke-width: 2px; fill: none; marker-end: url(#arrowhead); }';
+  svg += '.label { fill: #333; font-size: 12px; font-family: Arial, sans-serif; text-anchor: middle; }';
+  svg += '</style>';
+  svg += '<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#999"/></marker></defs>';
+  
+  // Render edges
+  edges.forEach((edge, index) => {
+    const fromNode = nodes.find(n => n.id === edge.from);
+    const toNode = nodes.find(n => n.id === edge.to);
+    if (fromNode && toNode) {
+      svg += `<line class="edge" x1="${fromNode.x}" y1="${fromNode.y}" x2="${toNode.x}" y2="${toNode.y}" data-edge-index="${index}"/>`;
+    }
+  });
+  
+  // Render nodes
+  nodes.forEach((node, index) => {
+    const radius = node.radius || 20;
+    svg += `<circle class="node" cx="${node.x}" cy="${node.y}" r="${radius}" data-node-index="${index}" aria-label="${node.label || node.id}"/>`;
+    if (node.label) {
+      svg += `<text class="label" x="${node.x}" y="${node.y + radius + 15}">${node.label}</text>`;
+    }
+  });
+  
+  svg += '</svg>';
+  return svg;
 }
 
 // Implement the function for addressing accessibility issues from insight report
@@ -142,7 +215,40 @@ function checkAccessibilityForReport (content) {
 
 // New rendering function
 function renderGraphIndex(content, options = {}) {
-  return content;
+  if (!content) {
+    return '';
+  }
+  
+  const indexContentData = indexContent;
+  if (!indexContentData) {
+    return content;
+  }
+  
+  // Create a container for the index
+  let indexContainer = document.createElement('div');
+  indexContainer.setAttribute('data-graph-index', 'true');
+  indexContainer.setAttribute('role', 'navigation');
+  indexContainer.setAttribute('aria-label', 'Dependency graph index');
+  
+  // Build the index from content
+  if (content.nodes && Array.isArray(content.nodes)) {
+    const list = document.createElement('ul');
+    list.setAttribute('role', 'list');
+    
+    content.nodes.forEach((node, index) => {
+      const listItem = document.createElement('li');
+      const link = document.createElement('a');
+      link.setAttribute('href', `#node-${index}`);
+      link.setAttribute('data-node-id', node.id);
+      link.textContent = node.label || node.id;
+      listItem.appendChild(link);
+      list.appendChild(listItem);
+    });
+    
+    indexContainer.appendChild(list);
+  }
+  
+  return indexContainer.outerHTML;
 }
 
 // Helper to manage focus within a container
@@ -296,4 +402,9 @@ export function uniqueLandmarksHelper(container) {
     const elements = container.querySelectorAll(`[role="${role}"]`);
     elements.forEach((el, index) => {
       if (index > 0 && !el.getAttribute('aria-label')) {
-        const count = index +
+        const count = index + 1;
+        el.setAttribute('aria-label', `${role} ${count}`);
+      }
+    });
+  });
+}

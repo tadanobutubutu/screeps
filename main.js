@@ -18,24 +18,19 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
-
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
-
 /**
  * Gets the lang attribute for the HTML element
  * @returns {string} The lang attribute value
  */
 export function getLangAttribute() {
-  // Implementation to be added
+  return a11y.getLangAttribute();
 }
 
 /**
  * Adds lang attribute to HTML element
  */
 export function addLangAttribute() {
-  // Implementation to be added
+  a11y.addLangAttribute();
 }
 
 /**
@@ -44,49 +39,49 @@ export function addLangAttribute() {
  * @returns {boolean} True if table is accessible
  */
 export function validateTableAccessibility(table) {
-  // Implementation to be added
+  return a11y.validateTableAccessibility(table);
 }
 
 /**
  * Validates table structure
  */
 export function validateTableStructure() {
-  // Implementation to be added
+  a11y.validateTableStructure();
 }
 
 /**
  * Fixes table structure issues
  */
 export function fixTableStructure() {
-  // Implementation to be added
+  a11y.fixTableStructure();
 }
 
 /**
  * Adds main landmark to page
  */
 export function addMainLandmark() {
-  // Implementation to be added
+  a11y.addMainLandmark();
 }
 
 /**
  * Validates landmark accessibility
  */
 export function validateLandmark() {
-  // Implementation to be added
+  a11y.validateLandmark();
 }
 
 /**
  * Validates landmark structure
  */
 export function validateLandmarkStructure() {
-  // Implementation to be added
+  a11y.validateLandmarkStructure();
 }
 
 /**
  * Validates landmark attributes
  */
 export function validateLandmarkAttributes() {
-  // Implementation to be added
+  a11y.validateLandmarkAttributes();
 }
 
 /**
@@ -94,47 +89,47 @@ export function validateLandmarkAttributes() {
  * @returns {string} The accessible name for SVG element
  */
 export function getSvgAccessibleName() {
-  // Implementation to be added
+  return a11y.getSvgAccessibleName();
 }
 
 /**
  * Sets SVG attributes for accessibility
  */
 export function setSvgAttributes() {
-  // Implementation to be added
+  a11y.setSvgAttributes();
 }
 
 /**
  * Ensures unique landmarks on the page
  */
 export function ensureUniqueLandmarks() {
-  // Implementation to be added
+  a11y.ensureUniqueLandmarks();
 }
 
 /**
  * Creates an in-page navigation button
  */
 export function createInPageButton() {
-  // Implementation to be added
+  a11y.createInPageButton();
 }
 
 /**
  * Validates link accessibility
  */
 export function validateLinkAccessibility() {
-  // Implementation to be added
+  a11y.validateLinkAccessibility();
 }
 
 /**
  * Handles fake links on the page
  */
 export function handleFakeLinks() {
-  // Implementation to be added
+  a11y.handleFakeLinks();
 }
 
 /**
  * Adds proper landmark regions to the page
  */
 export function addProperLandmarkRegions() {
-  // Implementation to be added
+  a11y.addProperLandmarkRegions();
 }

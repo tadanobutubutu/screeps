@@ -17,7 +17,6 @@ import {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
-  fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
   addTaskWithPriority,
@@ -99,26 +98,10 @@ if (dependencyGraph) {
     dependencyGraph.setAttribute('id', 'dependencyGraph');
   }
 
-  // Validate table accessibility
-  const validateTableAccessibility = (html) => {
-    // ... (existing code)
-  };
-
-  // Function to validate table accessibility
-  dependencyGraph.addEventListener('click', (event) => {
-    const target = event.target;
-    if (target.matches('button')) {
-      const table = target.closest('table');
-      if (table) {
-        const tableHref = target.getAttribute('href');
-        const tableContent = tableHref ? fetch(tableHref).then(response => response.text()).then(html => validateTableAccessibility(html)) : validateTableAccessibility(table.outerHTML);
-        tableContent.then(results => {
-          const message = results.map(issue => `Table accessibility issue: ${issue.message}`).join('\n');
-          a11yStore.updateLiveRegion(message, 'assertive');
-        });
-      }
-    }
-  });
+  // Add language attribute to the HTML element
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.lang = 'en';
+  }
 }
 
 class ScreepsBot {
@@ -251,11 +234,11 @@ function newFunction2() {
 }
 
 function anotherNewFunction() {
-  // Another new function implementation
+  // New function implementation 3
 }
 
 function newFunction3() {
-  // New function implementation 3
+  // Another new function implementation
 }
 
 function newFunction4() {

@@ -161,4 +161,9 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureImageAccessibility();
 }
 
+// Export the new function in the format expected by the repository
+module.exports = {
+  ensureInteractiveElementsAccessible,
+}
+
 // ... rest of the code ...

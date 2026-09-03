@@ -268,6 +268,264 @@ function addProperLandmarkRegions() {
   }
 }
 
+/* TODO: Implement the required changes to improve accessibility for adding a new book */
+
+/**
+ * Validates accessibility of a book form
+ * @param {HTMLElement} form - The book form element to validate
+ * @returns {boolean} True if form is accessible
+ */
+function validateBookFormAccessibility(form) {
+  if (!form || !(form instanceof HTMLElement)) {
+    return false;
+  }
+  const inputs = form.querySelectorAll('input, select, textarea');
+  let hasLabel = false;
+  let hasAccessibleName = false;
+  
+  inputs.forEach(input => {
+    const id = input.getAttribute('id');
+    const label = id ? form.querySelector('label[for="' + id + '"]') : null;
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledby = input.getAttribute('aria-labelledby');
+    
+    if (label || ariaLabel || ariaLabelledby) {
+      hasLabel = true;
+    }
+    
+    if (input.getAttribute('aria-label') || input.getAttribute('aria-labelledby') || form.querySelector('label[for="' + input.id + '"]')) {
+      hasAccessibleName = true;
+    }
+  });
+  
+  return hasLabel && hasAccessibleName;
+}
+
+/**
+ * Fixes accessibility issues in a book form
+ * @param {HTMLElement} form - The book form element to fix
+ */
+function fixBookFormAccessibility(form) {
+  if (!form || !(form instanceof HTMLElement)) {
+    return;
+  }
+  
+  if (!form.hasAttribute('role')) {
+    form.setAttribute('role', 'form');
+  }
+  
+  const inputs = form.querySelectorAll('input, select, textarea');
+  const formId = form.id || 'book-form-' + Math.random().toString(36).substr(2, 9);
+  form.id = formId;
+  
+  inputs.forEach(input => {
+    if (!input.id) {
+      input.id = formId + '-input-' + Math.random().toString(36).substr(2, 9);
+    }
+    
+    const inputType = input.tagName.toLowerCase() === 'input' ? input.type : input.tagName.toLowerCase();
+    const accessibleName = input.getAttribute('aria-label') || 
+                           (input.getAttribute('aria-labelledby') && document.getElementById(input.getAttribute('aria-labelledby'))) ||
+                           form.querySelector('label[for="' + input.id + '"]');
+    
+    if (!accessibleName) {
+      const label = document.createElement('label');
+      label.setAttribute('for', input.id);
+      const inputName = input.getAttribute('name') || inputType;
+      label.textContent = inputName.charAt(0).toUpperCase() + inputName.slice(1).replace(/([A-Z])/g, ' $1');
+      input.parentNode.insertBefore(label, input);
+    }
+    
+    if (input.hasAttribute('required') && !input.getAttribute('aria-required')) {
+      input.setAttribute('aria-required', 'true');
+    }
+  });
+  
+  const legend = form.querySelector('legend');
+  const fieldset = form.querySelector('fieldset');
+  if (!legend && fieldset) {
+    const newLegend = document.createElement('legend');
+    newLegend.textContent = 'Add New Book';
+    fieldset.insertBefore(newLegend, fieldset.firstChild);
+  } else if (!fieldset) {
+    const newFieldset = document.createElement('fieldset');
+    const newLegend = document.createElement('legend');
+    newLegend.textContent = 'Add New Book';
+    newFieldset.appendChild(newLegend);
+    while (form.firstChild) {
+      newFieldset.appendChild(form.firstChild);
+    }
+    form.appendChild(newFieldset);
+  }
+}
+
+/**
+ * Creates an accessible book form
+ * @param {Object} options - Form configuration options
+ * @returns {HTMLElement} The accessible book form
+ */
+function createAccessibleBookForm(options = {}) {
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'book-form-title');
+  form.id = options.id || 'add-book-form';
+  
+  const title = document.createElement('h2');
+  title.id = 'book-form-title';
+  title.textContent = options.title || 'Add New Book';
+  form.appendChild(title);
+  
+  const fields = options.fields || ['title', 'author', 'isbn', 'year'];
+  
+  fields.forEach(field => {
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('class', 'form-group');
+    
+    const label = document.createElement('label');
+    const fieldId = 'book-' + field;
+    label.setAttribute('for', fieldId);
+    label.textContent = field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1');
+    label.setAttribute('id', fieldId + '-label');
+    
+    const input = document.createElement('input');
+    input.type = field === 'year' ? 'number' : 'text';
+    input.id = fieldId;
+    input.name = field;
+    input.setAttribute('aria-labelledby', fieldId + '-label');
+    
+    if (field === 'title' || field === 'author') {
+      input.required = true;
+      input.setAttribute('aria-required', 'true');
+    }
+    
+    const errorId = fieldId + '-error';
+    input.setAttribute('aria-describedby', errorId);
+    input.setAttribute('aria-invalid', 'false');
+    
+    const error = document.createElement('span');
+    error.id = errorId;
+    error.setAttribute('class', 'error-message');
+    error.setAttribute('role', 'alert');
+    error.style.display = 'none';
+    
+    wrapper.appendChild(label);
+    wrapper.appendChild(input);
+    wrapper.appendChild(error);
+    form.appendChild(wrapper);
+  });
+  
+  const submitBtn = document.createElement('button');
+  submitBtn.type = 'submit';
+  submitBtn.id = 'submit-book-btn';
+  submitBtn.textContent = options.submitText || 'Add Book';
+  submitBtn.setAttribute('aria-label', options.submitText || 'Add Book');
+  form.appendChild(submitBtn);
+  
+  const liveRegion = document.createElement('div');
+  liveRegion.id = 'book-form-status';
+  liveRegion.setAttribute('role', 'status');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.className = 'visually-hidden';
+  form.appendChild(liveRegion);
+  
+  return form;
+}
+
+/**
+ * Announces book addition to screen readers
+ * @param {string} bookTitle - The title of the added book
+ */
+function announceBookAdded(bookTitle) {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  
+  let liveRegion = document.getElementById('book-added-announcement');
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.id = 'book-added-announcement';
+    liveRegion.setAttribute('role', 'status');
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.className = 'visually-hidden';
+    document.body.appendChild(liveRegion);
+  }
+  
+  liveRegion.textContent = 'Book "' + bookTitle + '" has been added successfully.';
+  
+  setTimeout(() => {
+    liveRegion.textContent = '';
+  }, 1000);
+}
+
+/**
+ * Handles book form submission with accessibility improvements
+ * @param {HTMLElement} form - The book form element
+ * @param {Function} callback - Callback function when form is submitted
+ * @returns {boolean} True if form is valid and submitted
+ */
+function handleBookFormSubmit(form, callback) {
+  if (!form || !(form instanceof HTMLElement)) {
+    return false;
+  }
+  
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const inputs = form.querySelectorAll('input, select, textarea');
+    let isValid = true;
+    const formData = {};
+    
+    inputs.forEach(input => {
+      const errorId = input.getAttribute('aria-describedby');
+      const errorElement = errorId ? document.getElementById(errorId) : null;
+      
+      if (input.required && !input.value.trim()) {
+        isValid = false;
+        input.setAttribute('aria-invalid', 'true');
+        if (errorElement) {
+          errorElement.textContent = input.labels && input.labels[0] ? 
+            input.labels[0].textContent + ' is required' : 
+            'This field is required';
+          errorElement.style.display = 'block';
+        }
+      } else {
+        input.setAttribute('aria-invalid', 'false');
+        if (errorElement) {
+          errorElement.textContent = '';
+          errorElement.style.display = 'none';
+        }
+      }
+      
+      formData[input.name] = input.value;
+    });
+    
+    if (isValid) {
+      const titleInput = form.querySelector('input[name="title"]');
+      const bookTitle = titleInput ? titleInput.value : 'New Book';
+      
+      announceBookAdded(bookTitle);
+      
+      if (typeof callback === 'function') {
+        callback(formData);
+      }
+      
+      form.reset();
+      
+      const firstInput = form.querySelector('input, select, textarea');
+      if (firstInput) {
+        firstInput.focus();
+      }
+    } else {
+      const firstInvalid = form.querySelector('[aria-invalid="true"]');
+      if (firstInvalid) {
+        firstInvalid.focus();
+      }
+    }
+    
+    return isValid;
+  });
+}
+
 // Existing code from origin/main
 function existingFunction1() {
   // Existing implementation
@@ -302,5 +560,10 @@ module.exports = {
   addProperLandmarkRegions,
   existingFunction1,
   existingFunction2,
-  newFunction
+  newFunction,
+  validateBookFormAccessibility,
+  fixBookFormAccessibility,
+  createAccessibleBookForm,
+  announceBookAdded,
+  handleBookFormSubmit
 };

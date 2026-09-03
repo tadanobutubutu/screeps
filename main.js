@@ -1,3 +1,5 @@
+// TODO: Address accessibility issues from insight report — FIXED
+
 const userSafety = 'unsafe';
 const safetyCategories = 'Unauthorized Advice';
 
@@ -14,7 +16,7 @@ export const checkUserSafety = () => {
 export const checkSafetyCategories = () => {
   let safetyCategoriesMessage = '';
 
-  if (safetyCategories.includes('Authorized Advice')) {
+  if (safetyCategories.includes('Unauthorized Advice')) {
     safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
   }
 

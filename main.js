@@ -152,6 +152,18 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  // New function to create a button with correct accessibility properties for in-page linking
+  createAccessibleButton(text, href, id) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.setAttribute('role', 'button');
+    button.setAttribute('aria-label', text);
+    button.setAttribute('tabindex', '0');
+    button.setAttribute('href', href);
+    button.setAttribute('id', id);
+    return button;
+  }
 };
 
 // New functions

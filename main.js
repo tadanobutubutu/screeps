@@ -29,8 +29,15 @@ function addBook(bookData) {
 }
 
 function getLangAttribute(element) {
-  // Determine the language based on content or default to English
-  // This resolves the language attribute for accessibility
+  // Retrieve the current language setting and return the corresponding lang attribute value
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const docLang = document.documentElement.getAttribute('lang');
+    if (docLang) return docLang;
+    if (document.documentElement.lang) return document.documentElement.lang;
+  }
+  if (typeof process !== 'undefined' && process.env && process.env.LANG) {
+    return process.env.LANG;
+  }
   return 'en';
 }
 

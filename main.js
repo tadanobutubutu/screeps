@@ -8,6 +8,8 @@
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 // _Commit: ca07afdb3852933670d8d59e11575814d1bda9e5_
 // <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+// _Commit: 243c66538868c6b87845660312397ab39e0f830d_
+// <!-- todo-hash: 7c12cc42f05e324f0d3f19923f0cc04843e50c4c -->
 
 // TODO: add the new functions or changes requested in the issue
 function newFunction() {
@@ -513,7 +515,6 @@ module.exports = {
   ensureHeadingHierarchy,
   renderAdditionalContent,
   calculateComplexity,
-  renderDependencyGraph,
   renderDependencyGraph,
   renderIndex,
   newFunction,

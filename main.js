@@ -50,6 +50,22 @@ function handleCredentialResponse(credential) {
     return { success: false, error: 'Unknown credential response type' };
 }
 
+// Implement calculateDiscount function
+function calculateDiscount(price, discountPercentage) {
+    if (typeof price !== 'number' || typeof discountPercentage !== 'number') {
+        throw new Error('Price and discount percentage must be numbers');
+    }
+    
+    const discountAmount = price * (discountPercentage / 100);
+    const finalPrice = price - discountAmount;
+    
+    return {
+        originalPrice: price,
+        discountAmount: discountAmount,
+        finalPrice: finalPrice
+    };
+}
+
 // TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');

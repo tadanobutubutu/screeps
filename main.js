@@ -196,6 +196,8 @@ function getLangAttribute() {
   // ... (other functions omitted for brevity)
 
   // Implementation for getting language attribute
+
+  return lang;
 }
 
 function getFullLangAttribute() {
@@ -271,13 +273,18 @@ function ensureLandmarkUniqueness(elements) {
 addLangAttribute(getLangAttribute());
 
 // Process accessibility report issues
-const report = accessibilityReport.issues.map(issue => ({
-  issueType: issue.type,
-  status: issue.status || 'pending',
-  fixApplied: issue.fixApplied || ''
-}));
+function processAccessibilityReport(accessibilityReport) {
+  if (!accessibilityReport || !accessibilityReport.issues) {
+    return [];
+  }
+  
+  const report = accessibilityReport.issues.map(issue => ({
+    issueType: issue.type,
+    status: issue.status || 'pending',
+    fixApplied: issue.fixApplied || ''
+  }));
 
-return report;
+  return report;
 }
 
 // Score calculation
@@ -770,5 +777,6 @@ module.exports = {
   checkElementAccessibility,
   setupHandlers,
   validateInput,
-  processData
+  processData,
+  processAccessibilityReport
 };

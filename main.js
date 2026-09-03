@@ -31,12 +31,12 @@ const {
   initSkipLink,
   trapFocus,
   newFocusTrap: function (element, customFocusableSelector) {
-      const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, ...');
       if (focusableElements.length === 0) return;
       const first = focusableElements[0];
       const last = focusableElements[focusableElements.length - 1];
 
-      element.addEventListener('keydown', (e) => {
+      element.addEventListener('keydown', function (e) {
           if (e.key === 'Tab') {
               if (e.shiftKey && document.activeElement === first) {
                   last.focus();
@@ -88,12 +88,12 @@ const accessibilityUtils = {
         }, 1000);
     },
     newFocusTrap: function (element, customFocusableSelector) {
-        const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, ...');
         if (focusableElements.length === 0) return;
         const first = focusableElements[0];
         const last = focusableElements[focusableElements.length - 1];
 
-        element.addEventListener('keydown', (e) => {
+        element.addEventListener('keydown', function (e) {
             if (e.key === 'Tab') {
                 if (e.shiftKey && document.activeElement === first) {
                     last.focus();
@@ -108,7 +108,7 @@ const accessibilityUtils = {
 };
 
 // Utility functions for ensuring elements have IDs and adding labels
-const ensureElementHasId = (element, prefix = 'element') => {
+const ensureElementHasIdWithPrefix = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');
   }
@@ -117,14 +117,14 @@ const ensureElementHasId = (element, prefix = 'element') => {
     return element.id;
   }
 
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const id = prefix + '-' + Math.random().toString(36).substring(2, 9);
   element.id = id;
   return id;
 };
 
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = 'el-' + Math.random().toString(36).substring(2, 9);
   }
   return element;
 };
@@ -157,7 +157,7 @@ function setConfig(config) {
 }
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph');
+const dependencyGraph = document.querySelector('.dependency-graph');
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
@@ -173,21 +173,25 @@ if (dependencyGraph) {
 }
 
 // Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName(svgString) {
+function addAccessibleName(svgString, label) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, "image/svg+xml");
+  const parser = new DOMParser();
+  const svg = parser.parseFromString(svgString, "image/svg+xml");
   const svgElement = svg.documentElement;
-  if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+  if (!svgElement.hasAttribute('aria-label')) {
+    svgElement.setAttribute('aria-label', label || 'Descriptive label for SVG');
   }
-  return new XMLSerializer().serializeToString(svg);
+  const serializer = new XMLSerializer();
+  return serializer.serializeToString(svg);
 }
 
 // Example usage of the function
-const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
-const modifiedSvgString = addAccessibleName(originalSvgString);
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" dy="0.35em">Test</text></svg>';
+const modifiedSvgString = addAccessibleName(originalSvgString, 'Screeps Dashboard SVG');
+
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
 /**
  * Validates table accessibility
@@ -236,9 +240,9 @@ function validateTableAccessibilityFn(tableData) {
     }
 
     // Add accessible names to 2 SVGs
-    const svgElements = table.querySelectorAll('svg');
+    const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
-      if (!svg.getAttribute('aria-label')) {
+      if (!svg.hasAttribute('aria-label')) {
         svg.setAttribute('aria-label', 'Accessible SVG element');
       }
     });
@@ -271,7 +275,7 @@ function function3() {
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c8cf4389f9c -->
 // _Commit: 4a63dcac59b893a2efdccd50635fab9cc54e7989_
-<!-- todo-hash: 69d71664fd0827cd05d345427adf276b26830ba5 -->
+// <!-- todo-hash: 69d71664fd0827cd05d345427adf276b26830ba5 -->
 
 module.exports = {
   ...accessibilityUtils,
@@ -282,6 +286,7 @@ module.exports = {
   validateTableStructure: validateTableStructureFn,
   ensureElementId,
   ensureElementHasId,
+  ensureElementHasIdWithPrefix,
   getTables,
   getConfig,
   setConfig,

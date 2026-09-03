@@ -569,6 +569,412 @@ if (typeof document !== 'undefined' && document.documentElement) {
   document.documentElement.lang = getLangAttribute();
 }
 
+// Tower Defense System for accessibility validation
+const TowerDefense = {
+  towers: [],
+  enemies: [],
+  projectiles: [],
+  score: 0,
+  lives: 20,
+  wave: 0,
+  isRunning: false,
+  gameLoop: null,
+
+  // Tower types with their properties
+  towerTypes: {
+    'accessibility-checker': {
+      name: 'Accessibility Checker',
+      range: 120,
+      damage: 15,
+      fireRate: 1500,
+      cost: 50,
+      color: '#4CAF50'
+    },
+    'aria-validator': {
+      name: 'ARIA Validator',
+      range: 100,
+      damage: 20,
+      fireRate: 2000,
+      cost: 75,
+      color: '#2196F3'
+    },
+    'contrast-analyzer': {
+      name: 'Contrast Analyzer',
+      range: 80,
+      damage: 25,
+      fireRate: 2500,
+      cost: 100,
+      color: '#FF9800'
+    },
+    'landmark-guardian': {
+      name: 'Landmark Guardian',
+      range: 150,
+      damage: 10,
+      fireRate: 1000,
+      cost: 60,
+      color: '#9C27B0'
+    }
+  },
+
+  // Enemy types representing accessibility issues
+  enemyTypes: {
+    'missing-alt': {
+      name: 'Missing Alt Text',
+      health: 50,
+      speed: 1.5,
+      reward: 10,
+      damage: 1
+    },
+    'color-contrast': {
+      name: 'Color Contrast Issue',
+      health: 75,
+      speed: 1.2,
+      reward: 15,
+      damage: 2
+    },
+    'invalid-aria': {
+      name: 'Invalid ARIA',
+      health: 60,
+      speed: 1.8,
+      reward: 12,
+      damage: 1
+    },
+    'missing-label': {
+      name: 'Missing Label',
+      health: 40,
+      speed: 2.0,
+      reward: 8,
+      damage: 1
+    },
+    'landmark-violation': {
+      name: 'Landmark Violation',
+      health: 100,
+      speed: 0.8,
+      reward: 20,
+      damage: 3
+    }
+  },
+
+  // Create a tower at specified position
+  createTower: function(x, y, type) {
+    const towerType = this.towerTypes[type];
+    if (!towerType) {
+      return null;
+    }
+
+    return {
+      x: x,
+      y: y,
+      type: type,
+      range: towerType.range,
+      damage: towerType.damage,
+      fireRate: towerType.fireRate,
+      lastFire: 0,
+      name: towerType.name,
+      color: towerType.color,
+      target: null
+    };
+  },
+
+  // Place a tower on the game board
+  placeTower: function(x, y, type) {
+    const tower = this.createTower(x, y, type);
+    if (tower) {
+      this.towers.push(tower);
+      return tower;
+    }
+    return null;
+  },
+
+  // Create an enemy
+  createEnemy: function(type) {
+    const enemyType = this.enemyTypes[type];
+    if (!enemyType) {
+      return null;
+    }
+
+    return {
+      x: 0,
+      y: Math.random() * 400 + 50,
+      type: type,
+      health: enemyType.health,
+      maxHealth: enemyType.health,
+      speed: enemyType.speed,
+      reward: enemyType.reward,
+      damage: enemyType.damage,
+      name: enemyType.name
+    };
+  },
+
+  // Spawn an enemy at the start of the path
+  spawnEnemy: function(type) {
+    const enemy = this.createEnemy(type);
+    if (enemy) {
+      this.enemies.push(enemy);
+      return enemy;
+    }
+    return null;
+  },
+
+  // Create a projectile from tower to enemy
+  createProjectile: function(tower, enemy) {
+    return {
+      x: tower.x,
+      y: tower.y,
+      targetX: enemy.x,
+      targetY: enemy.y,
+      damage: tower.damage,
+      speed: 5,
+      target: enemy
+    };
+  },
+
+  // Calculate distance between two points
+  getDistance: function(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+  },
+
+  // Find the closest enemy in range
+  findTarget: function(tower) {
+    let closest = null;
+    let closestDist = tower.range;
+
+    for (const enemy of this.enemies) {
+      const dist = this.getDistance(tower.x, tower.y, enemy.x, enemy.y);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closest = enemy;
+      }
+    }
+
+    return closest;
+  },
+
+  // Update all towers
+  updateTowers: function(timestamp) {
+    for (const tower of this.towers) {
+      const target = this.findTarget(tower);
+      tower.target = target;
+
+      if (target && timestamp - tower.lastFire >= tower.fireRate) {
+        const projectile = this.createProjectile(tower, target);
+        this.projectiles.push(projectile);
+        tower.lastFire = timestamp;
+      }
+    }
+  },
+
+  // Update all projectiles
+  updateProjectiles: function() {
+    for (let i = this.projectiles.length - 1; i >= 0; i--) {
+      const proj = this.projectiles[i];
+      
+      // Move projectile towards target
+      const dx = proj.targetX - proj.x;
+      const dy = proj.targetY - proj.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < proj.speed) {
+        // Projectile reached target
+        if (proj.target && proj.target.health > 0) {
+          proj.target.health -= proj.damage;
+          
+          if (proj.target.health <= 0) {
+            this.score += proj.target.reward;
+            const idx = this.enemies.indexOf(proj.target);
+            if (idx > -1) {
+              this.enemies.splice(idx, 1);
+            }
+          }
+        }
+        this.projectiles.splice(i, 1);
+      } else {
+        // Move projectile
+        proj.x += (dx / dist) * proj.speed;
+        proj.y += (dy / dist) * proj.speed;
+      }
+    }
+  },
+
+  // Update all enemies
+  updateEnemies: function() {
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      const enemy = this.enemies[i];
+      
+      // Move enemy along the path
+      enemy.x += enemy.speed;
+
+      // Enemy reached the end
+      if (enemy.x >= 800) {
+        this.lives -= enemy.damage;
+        this.enemies.splice(i, 1);
+
+        if (this.lives <= 0) {
+          this.gameOver();
+        }
+      }
+    }
+  },
+
+  // Start a new wave of enemies
+  startWave: function() {
+    this.wave++;
+    const enemyCount = 5 + this.wave * 2;
+    const types = Object.keys(this.enemyTypes);
+
+    for (let i = 0; i < enemyCount; i++) {
+      setTimeout(() => {
+        const randomType = types[Math.floor(Math.random() * types.length)];
+        this.spawnEnemy(randomType);
+      }, i * 500);
+    }
+
+    return { wave: this.wave, enemies: enemyCount };
+  },
+
+  // Main game loop
+  update: function(timestamp) {
+    if (!this.isRunning) return;
+
+    this.updateTowers(timestamp);
+    this.updateProjectiles();
+    this.updateEnemies();
+
+    this.gameLoop = requestAnimationFrame((ts) => this.update(ts));
+  },
+
+  // Start the game
+  start: function() {
+    this.isRunning = true;
+    this.score = 0;
+    this.lives = 20;
+    this.wave = 0;
+    this.enemies = [];
+    this.projectiles = [];
+    this.towers = [];
+    this.update(performance.now());
+    return { status: 'started', lives: this.lives, score: this.score };
+  },
+
+  // Stop the game
+  stop: function() {
+    this.isRunning = false;
+    if (this.gameLoop) {
+      cancelAnimationFrame(this.gameLoop);
+    }
+    return { status: 'stopped', finalScore: this.score, wave: this.wave };
+  },
+
+  // Game over
+  gameOver: function() {
+    this.stop();
+    return { gameOver: true, finalScore: this.score, wave: this.wave };
+  },
+
+  // Get current game state
+  getState: function() {
+    return {
+      towers: this.towers.map(t => ({ x: t.x, y: t.y, type: t.type, target: t.target ? t.target.name : null })),
+      enemies: this.enemies.map(e => ({ x: e.x, y: e.y, type: e.type, health: e.health, maxHealth: e.maxHealth })),
+      projectiles: this.projectiles.length,
+      score: this.score,
+      lives: this.lives,
+      wave: this.wave,
+      isRunning: this.isRunning
+    };
+  },
+
+  // Reset the game
+  reset: function() {
+    this.stop();
+    this.towers = [];
+    this.enemies = [];
+    this.projectiles = [];
+    this.score = 0;
+    this.lives = 20;
+    this.wave = 0;
+    return { status: 'reset' };
+  },
+
+  // Buy a tower (with cost check)
+  buyTower: function(x, y, type) {
+    const towerType = this.towerTypes[type];
+    if (!towerType) {
+      return { success: false, error: 'Invalid tower type' };
+    }
+
+    if (this.score < towerType.cost) {
+      return { success: false, error: 'Not enough points' };
+    }
+
+    const tower = this.placeTower(x, y, type);
+    if (tower) {
+      this.score -= towerType.cost;
+      return { success: true, tower: tower, remainingPoints: this.score };
+    }
+
+    return { success: false, error: 'Failed to place tower' };
+  },
+
+  // Upgrade a tower
+  upgradeTower: function(towerIndex) {
+    if (towerIndex < 0 || towerIndex >= this.towers.length) {
+      return { success: false, error: 'Invalid tower index' };
+    }
+
+    const tower = this.towers[towerIndex];
+    const upgradeCost = 30;
+
+    if (this.score < upgradeCost) {
+      return { success: false, error: 'Not enough points for upgrade' };
+    }
+
+    tower.damage *= 1.5;
+    tower.range *= 1.2;
+    tower.fireRate *= 0.8;
+    this.score -= upgradeCost;
+
+    return { success: true, tower: tower, remainingPoints: this.score };
+  },
+
+  // Sell a tower
+  sellTower: function(towerIndex) {
+    if (towerIndex < 0 || towerIndex >= this.towers.length) {
+      return { success: false, error: 'Invalid tower index' };
+    }
+
+    const tower = this.towers[towerIndex];
+    const refund = 25;
+    this.towers.splice(towerIndex, 1);
+    this.score += refund;
+
+    return { success: true, refund: refund, remainingPoints: this.score };
+  },
+
+  // Get available tower types
+  getAvailableTowers: function() {
+    return Object.entries(this.towerTypes).map(([key, value]) => ({
+      type: key,
+      name: value.name,
+      cost: value.cost,
+      range: value.range,
+      damage: value.damage,
+      fireRate: value.fireRate
+    }));
+  },
+
+  // Get available enemy types
+  getAvailableEnemies: function() {
+    return Object.entries(this.enemyTypes).map(([key, value]) => ({
+      type: key,
+      name: value.name,
+      health: value.health,
+      speed: value.speed,
+      reward: value.reward
+    }));
+  }
+};
+
 // Export additional functions
 module.exports.addressAccessibilityIssues = AddressabilityIssues.addressAccessibilityIssues;
 module.exports.generateAccessibilityReport = AddressabilityIssues.generateAccessibilityReport;
@@ -635,7 +1041,8 @@ if (typeof module !== 'undefined' && module.exports) {
     startApp,
     addressInsightIssues,
     initializeApp,
-    addressNewAccessibilityIssues
+    addressNewAccessibilityIssues,
+    TowerDefense
   };
 } else {
   // Browser environment - wait for DOM

@@ -464,6 +464,8 @@ function buildDependencyGraph(node, options = {}) {
  * @param {HTMLElement} rootNode - The root DOM node to render the graph from
  * @param {HTMLElement} container - Optional container element to render into
  * @param {Object} options - Rendering options
+ * @param {string} options.graphId - Optional ID for the graph container (default: generated)
+ * @param {string} options.titleId - Optional ID for the SVG title element (default: generated)
  * @returns {Object} Result with success status and rendered graph data
  */
 function renderDependencyGraph(rootNode, container, options = {}) {
@@ -476,6 +478,10 @@ function renderDependencyGraph(rootNode, container, options = {}) {
     // Build the dependency graph structure
     const graphData = buildDependencyGraph(rootNode, options);
 
+    // Generate unique IDs for accessibility
+    const graphId = options.graphId || `dependency-graph-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const titleId = options.titleId || `${graphId}-title`;
+
     // Log for debugging
     console.log('Rendering dependency graph starting from:', rootNode);
     console.log('Graph data:', JSON.stringify(graphData, null, 2));
@@ -486,18 +492,25 @@ function renderDependencyGraph(rootNode, container, options = {}) {
       graphContainer.setAttribute('role', 'img');
       graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
       graphContainer.className = options.className || 'dependency-graph';
+      graphContainer.id = graphId;
       
-      // Create SVG for graph visualization
+      // Create SVG for graph visualization with proper accessible naming
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.setAttribute('width', options.width || '100%');
       svg.setAttribute('height', options.height || '400');
       svg.setAttribute('aria-hidden', 'true');
       
-      // Add accessible description
+      // Add accessible title with unique ID and associate with SVG via aria-labelledby
       const description = document.createElementNS('http://www.w3.org/2000/svg', 'title');
       description.textContent = 'Dependency Graph';
-      description.setAttribute('id', 'graph-title');
+      description.setAttribute('id', titleId);
       svg.appendChild(description);
+      
+      // Create desc element for additional context
+      const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+      desc.setAttribute('id', `${graphId}-desc`);
+      desc.textContent = generateGraphDescription(graphData);
+      svg.appendChild(desc);
       
       graphContainer.appendChild(svg);
       container.appendChild(graphContainer);
@@ -507,19 +520,56 @@ function renderDependencyGraph(rootNode, container, options = {}) {
         message: 'Dependency graph rendered successfully',
         container: graphContainer,
         svg: svg,
-        data: graphData
+        data: graphData,
+        graphId: graphId,
+        titleId: titleId
       };
     }
 
     return {
       success: true,
       message: 'Dependency graph data built successfully',
-      data: graphData
+      data: graphData,
+      graphId: graphId,
+      titleId: titleId
     };
   } catch (error) {
     console.error('Error rendering dependency graph:', error);
     return { success: false, errors: [error.message] };
   }
+}
+
+/**
+ * Generates a text description of the dependency graph for accessibility
+ * @param {Object} graphData - The dependency graph data
+ * @returns {string} Text description of the graph
+ */
+function generateGraphDescription(graphData) {
+  if (!graphData || !graphData.root) {
+    return 'Empty dependency graph';
+  }
+
+  function countNodes(node, counts = { nodes: 0, dependencies: 0 }) {
+    if (!node) return counts;
+    counts.nodes++;
+    counts.dependencies += (node.dependencies ? node.dependencies.length : 0);
+    if (node.children) {
+      node.children.forEach(child => countNodes(child, counts));
+    }
+    return counts;
+  }
+
+  const counts = countNodes(graphData.root);
+  const rootId = graphData.root.id || 'root';
+  
+  let description = `Dependency graph with root node "${rootId}" containing ${counts.nodes} nodes and ${counts.dependencies} dependencies.`;
+  
+  if (graphData.root.dependencies && graphData.root.dependencies.length > 0) {
+    const depNames = graphData.root.dependencies.map(d => d.name || d.id).join(', ');
+    description += ` Root dependencies: ${depNames}.`;
+  }
+
+  return description;
 }
 
 /**
@@ -803,5 +853,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  towerDefense
+  towerDefense,
+  generateGraphDescription
 };

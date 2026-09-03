@@ -575,6 +575,10 @@ function upgradeSystem(harvestedData) {
   return true;
 }
 
+// N/A: No functions in this file render dependency graphs.
+// The existing dependencyGraph references in initialize() only set ARIA attributes
+// on an existing container; they do not render a dependency graph.
+
 // Export all functions
 module.exports = {
   config,

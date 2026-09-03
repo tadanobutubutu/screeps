@@ -125,7 +125,7 @@ function handleAccessibilityIssues() {
 // New functions to address the listed issues
 function addLangAttribute(element) {
   // Adds lang attribute to the given HTML element
-  if (element && typeof element.setAttribute === 'function') {
+  if (typeof element.setAttribute === 'function') {
     element.setAttribute('lang', 'en');
   }
   return element;
@@ -762,6 +762,12 @@ function countDependencies() {
   return 0;
 }
 
+// TODO: New code that was added to the branch
+// New function that does something different
+function newBranchFunction() {
+  return 'new-branch-code';
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -809,5 +815,6 @@ module.exports = {
   validateInput,
   processData,
   spawnSomeCommand,
-  closeOpenDialogs
+  closeOpenDialogs,
+  newBranchFunction
 };

@@ -34,26 +34,12 @@ const {
   createAnnouncer,
   prefersReducedMotion,
   renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
   addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,
@@ -87,7 +73,7 @@ if (dependencyGraph) {
 }
 
 // Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName (svgString) {
+function addAccessibleNameToSVG (svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
@@ -102,7 +88,7 @@ function addAccessibleName (svgString) {
 // Example usage of the function
 const originalSvgString =
     'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
-const modifiedSvgString = addAccessibleName(originalSvgString)
+const modifiedSvgString = addAccessibleNameToSVG(originalSvgString)
 
 /**
  * Validates table accessibility
@@ -291,9 +277,9 @@ module.exports = {
   createAnnouncer,
   prefersReducedMotion,
   renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
+  addAccessibleNameToSVG,
   addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
   addLangAttribute,
   fixTableStructure,

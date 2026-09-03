@@ -51,7 +51,20 @@ function renderDependencyGraph(graphData) {
 function newFunction3(input) {
     // Placeholder for function3 logic
     // This should be replaced with the actual implementation
-    return input;
+    // Example implementation below
+    if (input === null || input === undefined) {
+        return null;
+    }
+    if (typeof input !== 'object') {
+        return input;
+    }
+    const result = {};
+    for (const key in input) {
+        if (input.hasOwnProperty(key)) {
+            result[key] = newFunction3(input[key]);
+        }
+    }
+    return result;
 }
 
 // TODO: Add new function4 logic here

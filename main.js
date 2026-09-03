@@ -1,65 +1,6 @@
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent')
 const { indexContent } = require('./indexContent')
-const { accessibilityUtils } = require('./accessibilityUtils');
-
-const main = require('./utilities')
-
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  initializeAccessibility,
-  renderIndex,
-  newFunction,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
-  renderAdditionalContent,
-  googleSignIn,
-  decodeJwtResponse,
-  ensureUniqueLandmarks,
-  addSvgAccessibleName
-} = main
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')
@@ -177,37 +118,154 @@ function createInPageButton (label, onClick) {
   return button
 }
 
-function validateTableStructure(container) {
-  return validateTableStructureForAccessibility(container);
+// Function to fix fake link issues
+function fixFakeLinkIssue (linkElement) {
+  if (linkElement && linkElement.tagName === 'A') {
+    const role = linkElement.getAttribute('role')
+    if (role === 'button' || (linkElement.textContent && !linkElement.getAttribute('href'))) {
+      linkElement.setAttribute('role', 'button')
+    }
+  }
+  return linkElement
 }
 
-function validateHeadingHierarchy(headings) {
-  // Implementation placeholder - function to be implemented
-  return true
+// New focus trap function for keyboard navigation accessibility
+function newFocusTrap () {
+  const focusableElements = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(',')
+  
+  const firstElement = document.querySelector(focusableElements)
+  const lastElement = document.querySelectorAll(focusableElements)
+  const lastFocusable = lastElement[lastElement.length - 1]
+  
+  return {
+    activate: function () {
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Tab') {
+          if (e.shiftKey) {
+            if (document.activeElement === firstElement) {
+              e.preventDefault()
+              lastFocusable.focus()
+            }
+          } else {
+            if (document.activeElement === lastFocusable) {
+              e.preventDefault()
+              firstElement.focus()
+            }
+          }
+        }
+      })
+    },
+    deactivate: function () {
+      document.removeEventListener('keydown', null)
+    }
+  }
 }
 
-function ensureHeadingHierarchy(container) {
-  if (!container) return null;
+// Function to ensure unique landmarks
+function ensureUniqueLandmarks (landmarks, property = 'id') {
+  const seen = new Map()
+  landmarks.forEach(landmark => {
+    const value = landmark.getAttribute(property) || ''
+    if (value) {
+      if (seen.has(value)) {
+        landmark.setAttribute(property, `${value}-${seen.get(value)}`)
+        seen.set(value, seen.get(value) + 1)
+      } else {
+        seen.set(value, 1)
+      }
+    }
+  })
+  return landmarks
+}
 
-  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  let previousLevel = 0;
+// Function to fix table structure accessibility
+function fixTableStructure (tableElement) {
+  if (!tableElement || tableElement.tagName !== 'TABLE') return null
+  
+  const rows = tableElement.querySelectorAll('tr')
+  let hasHeader = false
+  
+  rows.forEach(row => {
+    const thElements = row.querySelectorAll('th')
+    if (thElements.length > 0) {
+      hasHeader = true
+      row.setAttribute('role', 'row')
+      thElements.forEach(th => th.setAttribute('role', 'columnheader'))
+    }
+  })
+  
+  if (hasHeader) {
+    tableElement.setAttribute('role', 'table')
+  }
+  
+  return tableElement
+}
 
+// Function to ensure element has unique ID
+function ensureElementHasId (element) {
+  if (!element) return null
+  if (!element.id) {
+    const uniqueId = `element-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+    element.id = uniqueId
+  }
+  return element
+}
+
+// Function to validate heading hierarchy
+function validateHeadingHierarchy (container) {
+  if (!container) return null
+  
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  let previousLevel = 0
+  
   headings.forEach(heading => {
-    const currentLevel = parseInt(heading.tagName.substring(1), 10);
+    const currentLevel = parseInt(heading.tagName.substring(1), 10)
     if (previousLevel > 0 && currentLevel - previousLevel > 1) {
       // Fix skipped heading levels by promoting or demoting as needed
-      const correctedLevel = previousLevel + 1;
-      const newHeading = document.createElement(`h${correctedLevel}`);
-      newHeading.innerHTML = heading.innerHTML;
-      newHeading.className = heading.className;
-      heading.parentNode.replaceChild(newHeading, heading);
-      previousLevel = correctedLevel;
+      const correctedLevel = previousLevel + 1
+      const newHeading = document.createElement(`h${correctedLevel}`)
+      newHeading.innerHTML = heading.innerHTML
+      newHeading.className = heading.className
+      heading.parentNode.replaceChild(newHeading, heading)
+      previousLevel = correctedLevel
     } else {
-      previousLevel = currentLevel;
+      previousLevel = currentLevel
     }
-  });
+  })
+  
+  return container
+}
 
-  return container;
+// Function to ensure heading hierarchy
+function ensureHeadingHierarchy (container) {
+  if (!container) return null
+  
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  let previousLevel = 0
+  
+  headings.forEach(heading => {
+    const currentLevel = parseInt(heading.tagName.substring(1), 10)
+    if (previousLevel > 0 && currentLevel - previousLevel > 1) {
+      // Fix skipped heading levels by promoting or demoting as needed
+      const correctedLevel = previousLevel + 1
+      const newHeading = document.createElement(`h${correctedLevel}`)
+      newHeading.innerHTML = heading.innerHTML
+      newHeading.className = heading.className
+      heading.parentNode.replaceChild(newHeading, heading)
+      previousLevel = correctedLevel
+    } else {
+      previousLevel = currentLevel
+    }
+  })
+  
+  return container
 }
 
 /**
@@ -233,70 +291,56 @@ function renderGraphIndex(content, options = {}) {
   return indexContent(content, options)
 }
 
+// New rendering function for dependency graph
 function renderDependencyGraph(deps, options = {}) {
   // Use dependencyGraphContent from the imported module
   const graphContent = dependencyGraphContent(deps, options)
   return `<div class="dependency-graph-container" role="img" aria-label="Dependency graph visualization">${graphContent}</div>`
 }
 
-function renderIndex(data, options = {}) {
-  // Use indexContent from the imported module
-  return indexContent(data, options)
+// New function for handling accessibility issues
+function addressAccessibilityIssues () {
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="region"]')
+  ensureUniqueLandmarks(landmarks)
+  
+  const tables = document.querySelectorAll('table')
+  tables.forEach(table => fixTableStructure(table))
+  
+  const svgElements = document.querySelectorAll('svg')
+  svgElements.forEach(svg => {
+    if (!svg.getAttribute('aria-label') && svg.querySelector('title')) {
+      svg.setAttribute('aria-label', svg.querySelector('title').textContent)
+    }
+  })
+  
+  const focusableElements = document.querySelectorAll('button, input, select, textarea, a[href]')
+  focusableElements.forEach(element => {
+    if (element.textContent.trim() === '' || element.textContent === null) {
+      element.setAttribute('aria-label', 'Interactive element')
+    }
+  })
 }
 
 // Export for use in other modules
 module.exports = {
-  ...main,
   createInPageButton,
-  createWebResourceButton,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
   getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
+  personName,
   validateTableAccessibility,
   validateTableStructure,
-  initializeAccessibility,
-  renderIndex,
-  newFunction,
+  fixFakeLinkIssue,
+  newFocusTrap,
+  ensureUniqueLandmarks,
+  fixTableStructure,
+  ensureElementHasId,
   validateHeadingHierarchy,
   ensureHeadingHierarchy,
   renderAdditionalContent,
-  newFocusTrap,
   calculateComplexity,
-  renderDependencyGraph
+  renderGraphIndex,
+  renderDependencyGraph,
+  addressAccessibilityIssues
 };

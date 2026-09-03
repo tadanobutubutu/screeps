@@ -152,6 +152,12 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  // New function
+  calculateDiscount(originalPrice, discountPercentage) {
+    const discountAmount = (originalPrice * discountPercentage) / 100;
+    return originalPrice - discountAmount;
+  }
 };
 
 // New functions

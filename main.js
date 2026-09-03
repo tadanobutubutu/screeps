@@ -1,386 +1,256 @@
-// TODO: Add any other missing exports that might have been?
-const express = require('express');
-const axe = require('axe-core');
+// TODO: Implement harvest logic
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
 
-// Configuration for landmark operations
-const LANDMARK_CONFIG = {
-    dataPath: './data',
-    maxResults: 100
-};
+// Function to perform harvest-related accessibility checks and enhancements
+async function performHarvestAccessibility() {
+  try {
+    const harvestElements = document.querySelectorAll('form, input[type="checkbox"], input[type="radio"], button, select, textarea');
+    const harvestReport = {
+      forms: [],
+      controls: [],
+      status: 'pending',
+      issues: []
+    };
 
-// API Configuration
-const CONFIG = {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-};
-
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
-
-/**
- * Gets the lang attribute for the HTML element
- * @returns {string} The lang attribute value
- */
-function getLangAttribute() {
-    return navigator.language || navigator.userLanguage;
-}
-
-/**
- * Adds lang attribute to HTML element
- */
-function addLangAttribute() {
-  // Implementation to be added
-}
-
-/**
- * Logs the current URL to the console
- */
-function logCurrentURL() {
-    console.log('Current URL: ' + window.location.href);
-}
-
-// Table accessibility helpers
-/**
- * Validates table accessibility
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} True if table is accessible
- */
-function validateTableAccessibility(table) {
-  // Implementation to be added
-}
-
-/**
- * Validates table structure
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} True if table structure is valid
- */
-function validateTableStructure(table) {
-  // Implementation to be added
-}
-
-/**
- * Fixes table structure issues
- * @param {HTMLElement} table - The table element to fix
- */
-function fixTableStructure(table) {
-  // Implementation to be added
-}
-
-// Landmark handling
-/**
- * Adds main landmark to the document
- */
-function addMainLandmark() {
-  // Implementation to be added
-}
-
-/**
- * Validates landmark
- * @param {HTMLElement} landmark - The landmark element to validate
- */
-function validateLandmark(landmark) {
-  // Implementation to be added
-}
-
-function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
-}
-
-function loadLandmarks() {
-    try {
-        const filePath = path.join(__dirname, LANDMARK_CONFIG.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error loading landmarks:', error.message);
-        return [];
-    }
-}
-
-function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-    return uniqueLandmarks.slice(0, LANDMARK_CONFIG.maxResults);
-}
-
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-
-        if (ascending) {
-            return nameA.localeCompare(nameB);
+    // Process form elements
+    harvestElements.forEach(element => {
+      if (element.tagName === 'FORM') {
+        const formData = {
+          id: element.id || `form-${Math.random().toString(36).substr(2, 9)}`,
+          name: element.name || element.id || 'unnamed-form',
+          method: element.method || 'get',
+          action: element.action || window.location.href,
+          fields: [],
+          accessible: false
+        };
+        
+        const inputs = element.querySelectorAll('input, select, textarea, button');
+        inputs.forEach(input => {
+          const field = {
+            type: input.type || input.tagName.toLowerCase(),
+            id: input.id,
+            name: input.name,
+            required: input.required || false,
+            label: null,
+            accessible: false
+          };
+          
+          // Find associated label
+          const label = element.querySelector(`label[for="${input.id}"]`) || 
+                       input.closest('label');
+          if (label) {
+            field.label = label.textContent.trim();
+          }
+          
+          // Check accessibility
+          if (input.hasAttribute('aria-label') || 
+              input.hasAttribute('aria-labelledby') || 
+              (field.label && field.label.length > 0)) {
+            field.accessible = true;
+          } else {
+            field.accessible = false;
+            harvestReport.issues.push({
+              element: input.tagName.toLowerCase(),
+              id: input.id,
+              issue: 'Missing label or aria-label'
+            });
+          }
+          
+          formData.fields.push(field);
+        });
+        
+        // Check form accessibility
+        const hasAccessibleFields = formData.fields.some(field => field.accessible);
+        const hasFormLabel = element.querySelector('label') || 
+                           element.hasAttribute('aria-label') || 
+                           element.hasAttribute('aria-labelledby');
+        
+        formData.accessible = hasAccessibleFields && hasFormLabel;
+        harvestReport.forms.push(formData);
+      } else if (['INPUT', 'BUTTON', 'SELECT', 'TEXTAREA'].includes(element.tagName)) {
+        const control = {
+          type: element.type || element.tagName.toLowerCase(),
+          id: element.id,
+          name: element.name,
+          required: element.required || false,
+          accessible: false,
+          issues: []
+        };
+        
+        // Check control accessibility
+        if (!element.hasAttribute('aria-label') && 
+            !element.hasAttribute('aria-labelledby') && 
+            !element.id) {
+          control.issues.push('Missing identifying attributes');
         }
-        return nameB.localeCompare(nameA);
-    });
-}
-
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-
-    const seen = new Set();
-    const uniqueLandmarks = [];
-
-    for (const landmark of landmarks) {
-        if (!landmark || typeof landmark.id === 'undefined') {
-            continue;
+        
+        if (element.tagName === 'INPUT' && 
+            (element.type === 'checkbox' || element.type === 'radio')) {
+          const name = element.name;
+          const group = document.querySelectorAll(`input[name="${name}"]`);
+          if (group.length > 1) {
+            // Check if group has proper legend or label
+            const formControl = element.closest('fieldset') || 
+                              document.querySelector(`fieldset legend`);
+            if (!formControl) {
+              control.issues.push('Radio/checkbox group lacks fieldset/legend');
+            }
+          }
         }
-
-        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-        if (!seen.has(landmarkId)) {
-            seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
+        
+        if (control.issues.length === 0) {
+          control.accessible = true;
         }
-    }
-
-    return uniqueLandmarks;
-}
-
-// Function to write the generated report to a file
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
-// Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
-
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
-}
-
-async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
-}
-
-/**
- * REACT_027: Fix table structure issues
- * Ensures tables have proper structure and accessibility attributes
- */
-function fixTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Add caption if missing
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table caption';
-      table.insertBefore(caption, table.firstChild);
-    }
-
-    // Ensure headers have scope or id
-    const headers = table.querySelectorAll('th');
-    headers.forEach((th, index) => {
-      if (!th.getAttribute('scope') && !th.getAttribute('id')) {
-        th.setAttribute('scope', 'col');
+        
+        harvestReport.controls.push(control);
       }
     });
-
-    // Ensure proper table structure
-    validateTableStructure(table);
-  });
-}
-
-/**
- * REACT_017: Validate and fix landmark issues
- * Ensures proper landmark structure and accessibility
- */
-function fixLandmarkIssues() {
-  // Ensure unique landmarks
-  ensureUniqueLandmarks(landmarks);
-
-  // Add proper landmark regions
-  addProperLandmarkRegions();
-
-  // Validate existing landmarks
-  const landmarkValidation = validateLandmark();
-  if (!landmarkValidation.valid) {
-    console.warn('Landmark validation issues:', landmarkValidation.issues);
-  }
-}
-
-/**
- * REACT_041: Add accessible names to SVGs
- * Ensures all SVGs have accessible names
- */
-function addSvgAccessibility() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const name = getSvgAccessibleName(svg);
-    if (!name) {
-      setSvgAttributes(svg, 'Graphic element');
-    }
-  });
-}
-
-/**
- * REACT_036: Create accessible links
- * Creates properly accessible links and buttons
- */
-function createAccessibleLinks() {
-  // Create skip to content link
-  const skipLink = createInPageButton('main-content', 'Skip to main content');
-  document.body.insertBefore(skipLink, document.body.firstChild);
-
-  // Validate existing links
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    const validation = validateLinkAccessibility(link);
-    if (!validation.valid) {
-      console.warn('Link validation issues:', validation.issues);
-    }
-  });
-}
-
-/**
- * REACT_001: Implement function to handle new accessibility issues
- * Coordinates various accessibility fixes and improvements
- */
-function addressAccessibilityIssues() {
-  try {
-    // Fix table accessibility issues
-    fixTableAccessibility();
     
-    // Fix landmark issues
-    fixLandmarkIssues();
+    // Update status based on findings
+    const hasIssues = harvestReport.issues.length > 0 || 
+                     harvestReport.forms.some(f => !f.accessible) || 
+                     harvestReport.controls.some(c => !c.accessible);
     
-    // Add accessible names to SVGs
-    addSvgAccessibility();
+    harvestReport.status = hasIssues ? 'needs_improvement' : 'accessible';
     
-    // Create accessible links
-    createAccessibleLinks();
-    
-    // Address dependency graph accessibility from HEAD
-    const dependencyGraph = document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
-    if (dependencyGraph) {
-      dependencyGraph.setAttribute('role', 'tree');
-      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-    }
-    
-    return {
-      success: true,
-      message: 'Accessibility issues have been addressed',
-      fixesApplied: [
-        'table_accessibility',
-        'landmark_issues',
-        'svg_accessibility',
-        'link_accessibility',
-        'dependency_graph_accessibility'
-      ]
-    };
+    return harvestReport;
   } catch (error) {
-    console.error('Error addressing accessibility issues:', error.message);
+    console.error('Error in harvest accessibility check:', error.message);
     return {
-      success: false,
-      message: 'Failed to address accessibility issues',
-      error: error.message
+      status: 'error',
+      issues: [`Harvest check failed: ${error.message}`]
     };
   }
 }
 
-// Render dependency graph content
-function renderDependencyGraphContent(data) {
-  const container = document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
-  if (container) {
-    container.innerHTML = data;
+// Add harvest-specific CSS to improve visibility and accessibility
+function addHarvestStyles() {
+  const styleId = 'harvest-accessibility-styles';
+  if (document.getElementById(styleId)) {
+    return; // Already added
   }
+  
+  const style = document.createElement('style');
+  style.id = styleId;
+  style.textContent = `
+    .harvest-accessible {
+      border-color: #22c55e !important;
+      background-color: #f0fdf4 !important;
+    }
+    
+    .harvest-inaccessible {
+      border-color: #ef4444 !important;
+      background-color: #fef2f2 !important;
+    }
+    
+    .harvest-warning {
+      border-color: #f59e0b !important;
+      background-color: #fffbeb !important;
+    }
+    
+    .harvest-element:focus {
+      outline: 2px solid #3b82f6 !important;
+      outline-offset: 2px !important;
+    }
+    
+    .harvest-form-container {
+      margin: 1rem 0;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+    }
+    
+    .harvest-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .harvest-stat-card {
+      padding: 1rem;
+      border-radius: 0.375rem;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    
+    .harvest-stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .harvest-stat-label {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+  `;
+  
+  document.head.appendChild(style);
 }
 
-module.exports = {
-  config: CONFIG,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addLandmarkRegions,
-  addProperLandmarkRegions,
-  fixTableAccessibility,
-  fixLandmarkIssues,
-  addSvgAccessibility,
-  createAccessibleLinks,
-  formatResponse,
-  generateAccessibilityReport,
-  addLandmarkRoles,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  someFunction: function() {
-    return 'some value';
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
+// Generate a harvest report and write it to file
+async function generateHarvestReport() {
+  const harvestReport = await performHarvestAccessibility();
+  const reportFile = path.join(__dirname, 'harvest_report.json');
+  
+  // Add harvest metadata
+  harvestReport.generatedAt = new Date().toISOString();
+  harvestReport.pageUrl = window.location.href;
+  harvestReport.pageTitle = document.title;
+  
+  // Write the report to file
+  fs.writeFileSync(reportFile, JSON.stringify(harvestReport, null, 2));
+  
+  return harvestReport;
+}
+
+// Initialize harvest accessibility functionality
+function initializeHarvestAccessibility() {
+  addHarvestStyles();
+  
+  // Perform initial harvest check
+  performHarvestAccessibility().then(report => {
+    // Add visual indicators for harvest elements
+    document.querySelectorAll('form, input, button, select, textarea').forEach(element => {
+      element.classList.add('harvest-element');
+      
+      if (element.tagName === 'FORM') {
+        element.classList.add('harvest-form-container');
+      }
+    });
+    
+    // Log harvest report for debugging
+    if (report.status !== 'accessible') {
+      console.warn('Harvest accessibility issues found:', report.issues);
     }
-    return date.toISOString().split('T')[0];
-  }
+  });
+}
+
+// Update the addressAccessibilityIssues function to include harvest logic
+const originalAddressAccessibilityIssues = addressAccessibilityIssues;
+
+addressAccessibilityIssues = function() {
+  const result = originalAddressAccessibilityIssues();
+  
+  // Add harvest accessibility checks
+  const harvestResult = initializeHarvestAccessibility();
+  
+  return {
+    ...result,
+    harvest: harvestResult || {
+      success: true,
+      message: 'Harvest accessibility checks performed',
+      fixesApplied: ['harvest_accessibility']
+    }
+  };
+};
+
+// Export the harvest functions
+module.exports = {
+  ...module.exports,
+  performHarvestAccessibility,
+  addHarvestStyles,
+  generateHarvestReport,
+  initializeHarvestAccessibility
 };

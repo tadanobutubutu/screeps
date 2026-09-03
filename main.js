@@ -1,3 +1,6 @@
+// This is the existing code that needs to be preserved
+// _Commit: 243c66538868c6b87845660312397ab39e0f830d_
+// <!-- todo-hash: ... -->
 const main = require('./utilities')
 
 function createInPageButton(buttonId, buttonText, buttonClass) {
@@ -336,7 +339,7 @@ function ensureLandmarks() {
   return validateLandmarkStructure();
 }
 
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarksImpl() {
   const landmarks = document.querySelectorAll('header[role="banner"], footer[role="contentinfo"], main[role="main"], nav[role="navigation"]');
   const seenIds = new Set();
   
@@ -358,6 +361,10 @@ function ensureUniqueLandmarks() {
   const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
   const uniqueIds = new Set(allIds);
   return uniqueIds.size === allIds.length;
+}
+
+function ensureUniqueLandmarks() {
+  return ensureUniqueLandmarksImpl();
 }
 
 function fixTableStructures() {
@@ -625,36 +632,8 @@ function focusTrap(container) {
   // Implementation placeholder
 }
 
-function renderDependencyGraphs(container) {
-  // Implementation placeholder
-}
-
 function handleFakeLinks() {
   // Implementation placeholder
-}
-
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('header[role="banner"], footer[role="contentinfo"], main[role="main"], nav[role="navigation"]');
-  const seenIds = new Set();
-  
-  landmarks.forEach(landmark => {
-    if (!landmark.id) {
-      const tagName = landmark.tagName.toLowerCase();
-      let id = tagName;
-      let counter = 1;
-      while (seenIds.has(id)) {
-        id = `${tagName}-${counter++}`;
-      }
-      landmark.id = id;
-      seenIds.add(id);
-    } else {
-      seenIds.add(landmark.id);
-    }
-  });
-
-  const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
-  const uniqueIds = new Set(allIds);
-  return uniqueIds.size === allIds.length;
 }
 
 // Export for use in other modules
@@ -693,6 +672,5 @@ module.exports = {
     getLangAttribute,
     ensureDependencyGraphARIA,
     validateSession,
-    handleCredentialResponse,
-    addAriaLabel
+    handleCredentialResponse
 };

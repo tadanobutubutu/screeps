@@ -1,5 +1,8 @@
 // main.js - Accessibility-focused implementation
 
+// Functions to ensure the element has an id, add aria-label, render dependency graph
+// todo-hash: 479849cecb0ac0a8c0f11ea9eebbacc3bee5d9b2
+
 /**
  * Main application entry point
  */
@@ -52,6 +55,7 @@ function checkLandmarkElements(response) {
 
 // New function as per the issue
 function newFunction() {
+  console.log('New function called');
   // TODO: Implement the new function logic here
   // Example implementation (to be replaced with the actual logic):
   return 'New function result';
@@ -68,14 +72,14 @@ function setARIARoleForDependencyGraph() {
   }
 }
 
-// Function imported from the Git base
+// Function imported from the newFunction base
 function ensureElementHasId(element) {
   if (!element.id) {
     element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
   }
 }
 
-// Function imported from the Git base
+// Function imported from the newFunction base
 function addAriaLabel(element, label) {
   if (!element.hasAttribute('aria-label')) {
     element.setAttribute('aria-label', label);
@@ -163,11 +167,35 @@ function startDependencyGraphRenders() {
 }
 
 /**
+ * Creates in-page buttons and appends them to a specified container element.
+ * Each button is given an accessible aria-label based on its text content.
+ * @param {Element} container - The container element to which the buttons will be appended
+ * @param {Array<{text: string, onClick: Function}>} buttons - Array of button definitions
+ * @returns {Array<HTMLButtonElement>} The array of created button elements
+ */
+function createInPageButtons(container, buttons) {
+  if (!container || !Array.isArray(buttons)) {
+    return [];
+  }
+  return buttons.map((buttonDef) => {
+    const button = document.createElement('button');
+    button.textContent = buttonDef.text;
+    button.setAttribute('aria-label', buttonDef.text);
+    if (typeof buttonDef.onClick === 'function') {
+      button.addEventListener('click', buttonDef.onClick);
+    }
+    container.appendChild(button);
+    return button;
+  });
+}
+
+/**
  * Starts the application
  */
 function startApp() {
   const server = createServer();
   server.on('listening', () => {
+    setARIARoleForDependencyGraph();
     updateElementWithIdOrAriaLabel(document.getElementById('MyElement'), 'My Element'); // Example usage
     newFunction();
     // Apply accessibility fixes
@@ -216,14 +244,14 @@ module.exports = {
   addLandmarkRoles,
   ensureUniqueLandmarks,
   fixFakeLink,
-  addAccessibleNamesToSVGs
+  addAccessibleNamesToSVGs,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs,
+  createInPageButtons
 };
 
 // Start the application if run directly
 if (require.main === module) {
   startApp();
 }
-
-// New functions to resolve conflicts
-
-// ... existing code ...

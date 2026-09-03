@@ -19,8 +19,9 @@ const {
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementHasId: ensureElementIdOrigin,
-  ensureElementHasId,
+  ensureElementHasId: originalEnsureElementHasId,
+  ensureElementIdOrigin,
+  ensureElementId, // New function with the same functionality as original func
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -108,20 +109,6 @@ const accessibilityUtils = {
 };
 
 // Utility functions for ensuring elements have IDs and adding labels
-const ensureElementHasId = (element, prefix = 'element') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (element.id) {
-    return element.id;
-  }
-
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
-};
-
 const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -280,8 +267,9 @@ module.exports = {
   addAccessibleName,
   validateTableAccessibility: validateTableAccessibilityFn,
   validateTableStructure: validateTableStructureFn,
-  ensureElementId,
-  ensureElementHasId,
+  originalEnsureElementHasId, // Preserve the original function
+  ensureElementId, // New function with the same functionality as original func
+  ensureElementIdOrigin, // Just in case needed later
   getTables,
   getConfig,
   setConfig,

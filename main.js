@@ -1,11 +1,11 @@
-// main.js - Accessibility-focused implementation
+// main.js - Accessibility improvements implementation
 
-// TODO: This is the existing code that needs to be preserved
+// TODO: Any additional changes requested in the issue
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 
 // Functions to ensure the element has an id, add aria-label, render dependency graph
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
+// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e88
 
 /**
  * Main application entry point
@@ -31,6 +31,48 @@ const AddressabilityIssues = {
   MISSING_ID: 'missing-id',
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
+
+  inspectAccessibilityIssues(insightReport) {
+    if (!insightReport || !insightReport.sections) {
+      return [];
+    }
+
+    const issues = [];
+
+    insightReport.sections.forEach((section, index) => {
+      // Check for missing headings
+      if (!section.heading) {
+        issues.push({
+          type: 'missing-heading',
+          severity: 'high',
+          message: `Section ${index} is missing a heading`,
+          suggestedFix: 'Add a descriptive heading to each section'
+        });
+      }
+
+      // Check for empty content
+      if (!section.content || section.content.trim() === '') {
+        issues.push({
+          type: 'empty-content',
+          severity: 'medium',
+          message: `Section "${section.heading}" has no content`,
+          suggestedFix: 'Add meaningful content to the section'
+        });
+      }
+
+      // Check for potentially inaccessible link text
+      if (section.content && section.content.toLowerCase().includes('click here')) {
+        issues.push({
+          type: 'inaccessible-link-text',
+          severity: 'low',
+          message: `Section "${section.heading}" contains "click here" text which is not accessible`,
+          suggestedFix: 'Use descriptive link text instead of "click here"'
+        });
+      }
+    });
+
+    return issues;
+  },
 
   addressAccessibilityIssues(insightReport) {
     // ... (existing implementation)
@@ -83,8 +125,30 @@ function setARIARoleForDependencyGraph() {
   }
 }
 
+function renderGraph() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const graphContainer = document.getElementById('dependencyGraph');
+  if (graphContainer) {
+    graphContainer.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
+function renderIndex() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const indexContainer = document.getElementById('index');
+  if (indexContainer) {
+    indexContainer.setAttribute('role', 'main');
+  }
+}
+
 function newFunction() {
   console.log('New function called');
+  renderGraph();
+  renderIndex();
 }
 
 function checkLandmarkElements(response) {

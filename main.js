@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom/root';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -14,6 +14,16 @@ import { greet, add, getDependencies, addDependency, removeDependency, countDepe
 import { validateTableAccessibility, validateTableStructure, fixTableStructure, addMainLandmark, validateLandmark, validateLandmarkAttributes, validateLandmarkStructure } from './mainAccessibility';
 
 const config = {};
+
+// Spawning logic implementation
+const spawn = (command, args, options) => {
+    const { spawn } = require('child_process');
+    return spawn(command, args, {
+        stdio: 'inherit',
+        shell: true,
+        ...options
+    });
+};
 
 const initialize = () => {
     // Add the existing accessibility initialisation logic here if needed
@@ -46,6 +56,7 @@ export {
     validateLandmark,
     validateLandmarkAttributes,
     validateLandmarkStructure,
+    spawn,
     initialize
 };
 

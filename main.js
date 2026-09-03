@@ -222,7 +222,7 @@ const ensureAccessibilityAttributesForAddBook = (form) => {
   
   // Get the submit button
   const submitButton = form.querySelector('button[type="submit"]');
-  if (submitButton && !submitButton.getAttribute('aria-label') && !submitButton.textContent.trim()) {
+  if (.submitButton && !submit​Button.getAttribute('aria-label') && !submit​Button.textContent.trim()) {
     submitButton.setAttribute('aria-label', 'Submit form');
   }
   
@@ -402,6 +402,28 @@ function MainComponent() {
     </div>
   );
 }
+
+// TODO: Implement the logic to enhance keyboard navigation
+function enhanceKeyboardNavigation() {
+  // Add keyboard navigation support
+  document.addEventListener('keydown', (e) => {
+    // Example: Arrow keys for navigation
+    const focusableElements = document.querySelectorAll('[tabindex], a, button, input, select, textarea');
+    const focusedIndex = Array.from(focusableElements).indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = (focusedIndex + 1) % focusableElements.length;
+      focusableElements[nextIndex]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = (focusedIndex - 1 + focusableElements.length) % focusableElements.length;
+      focusableElements[prevIndex]?.focus();
+    }
+  });
+}
+
+// Initialize keyboard navigation
+enhanceKeyboardNavigation();
 
 // Export all functions
 export {

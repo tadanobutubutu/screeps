@@ -1,5 +1,6 @@
 // main.js - Main application entry point
 
+// TODO: This is the existing code that needs to be preserved
 // Main module
 
 // Dependency imports

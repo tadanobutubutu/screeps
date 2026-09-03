@@ -46,7 +46,7 @@ function getUserSafetyAdvice() {
 // <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 // _Commit: e1060a659ba0acd8f70570301019d02d1d671c81_
 
-function generateAccessibilityReport(issuesData) {
+async function generateAccessibilityReport(issuesData) {
   let issues = [];
 
   if (!issuesData) {
@@ -124,7 +124,7 @@ function generateAccessibilityReport(issuesData) {
     });
   } else {
     // If data is provided, use the analysis logic
-    issues = accessiblyHelper(issuesData);
+    issues = await accessiblyHelper(issuesData);
   }
 
   const report = {
@@ -419,7 +419,7 @@ function processLandmarks(landmarks) {
     }
 
     const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    const uniqueLandmarks = ensureUniqueLandmarksList(validLandmarks);
 
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
@@ -490,7 +490,12 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
 
 // Application main entry point
-const app = expressApp;
+const app = express();
 
-// Exports
-export { UserSafety, SafetyCategories, getDependencyGraph, getUserSafetyAdvice };
+// New function or changes requested in the issue
+// TODO: Implement new function3 logic here
+
+module.exports = {
+  UserSafety: 'unsafe',
+  getUserSafetyAdvice
+};

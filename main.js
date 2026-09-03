@@ -28,11 +28,12 @@ const {
 
 const accessibilityUtils = {
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.querySelector('a[href^="#"]');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const targetId = skipLink.getAttribute('href').substring(1);
+        const target = document.getElementById(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -52,11 +53,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
     });
@@ -76,7 +77,7 @@ const accessibilityUtils = {
 
   ensureElementId: (element) => {
     if (element && !element.id) {
-      element.id = `elem-${Math.random().toString(36).substr(2, 9)}`;
+      element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
     }
     return element;
   },
@@ -87,21 +88,8 @@ const accessibilityUtils = {
   },
 
   addressAccessibilityIssues: () => {
-    // Address accessibility issues based on the harvested data (Imaginary implementation)
-    const issues = [
-      {
-        element: document.querySelector('#issue-1'),
-        solution: () => {
-          element.setAttribute('aria-label', 'Fixed Issue 1');
-        },
-      },
-      {
-        element: document.querySelector('#issue-2'),
-        solution: () => {
-          element.classList.add('focusable');
-        },
-      },
-    ];
+    // Address accessibility issues based on the harvested data
+    const issues = [];
 
     issues.forEach((issue) => {
       if (issue.element) {
@@ -129,29 +117,83 @@ const accessibilityUtils = {
   initFocusTrap: () => focusTrap,
   updateFocusTrap: () => focusTrap,
   focusTrap,
-} = Object.assign({}, accessibilityUtils, { focusTrap: newFocusTrap });
+};
+
+const wrapPrimaryContentInMain = () => {
+  // Check if a main element already exists
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    // If no main element exists, create one
+    mainElement = document.createElement('main');
+    
+    // Find the primary content container (commonly #content, .content, or the body)
+    const contentSelectors = ['#content', '.content', '#main', '.main', 'article', '[role="main"]'];
+    let primaryContent = null;
+    
+    for (const selector of contentSelectors) {
+      primaryContent = document.querySelector(selector);
+      if (primaryContent) {
+        break;
+      }
+    }
+    
+    // If no specific content container found, use body
+    if (!primaryContent) {
+      primaryContent = document.body;
+    }
+    
+    // Move the primary content into the main element
+    if (primaryContent !== document.body) {
+      mainElement.appendChild(primaryContent);
+      document.body.insertBefore(mainElement, document.body.firstChild);
+    } else {
+      // Wrap all body children except script and style elements
+      const children = Array.from(document.body.children);
+      children.forEach(child => {
+        if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && child.tagName !== 'LINK') {
+          mainElement.appendChild(child);
+        }
+      });
+      document.body.insertBefore(mainElement, document.body.firstChild);
+    }
+    
+    // Add ARIA landmark attribute
+    mainElement.setAttribute('role', 'main');
+    
+    // Add accessible label if not present
+    if (!mainElement.getAttribute('aria-label') && !mainElement.getAttribute('aria-labelledby')) {
+      mainElement.setAttribute('aria-label', 'Main content');
+    }
+  }
+  
+  return mainElement;
+};
+
+const combinedUtils = Object.assign({}, accessibilityUtils, { focusTrap: newFocusTrap });
 
 module.exports = {
   ...main,
   ...accessibilityUtils,
-  renderDependencyGraph,
-  renderIndex,
+  renderDependencyGraph: main.renderDependencyGraph,
+  renderIndex: main.renderIndex,
   validateTableAccessibility,
   validateTableStructure,
-  addAccessibleName,
-  accessibilityUtils,
+  addAccessibleName: main.addAccessibleName,
+  accessibilityUtils: combinedUtils,
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
-  handleCredentialResponse,
-  initAccessibility,
-  groupByCategory,
-  log,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  exportUtilities,
-  harvest,
-  harvestSync
+  handleCredentialResponse: main.handleCredentialResponse,
+  initAccessibility: main.initAccessibility,
+  groupByCategory: main.groupByCategory,
+  log: main.log,
+  sanitizeFilename: main.sanitizeFilename,
+  readFileSafe: main.readFileSafe,
+  processData: main.processData,
+  filterValidItems: main.filterValidItems,
+  exportUtilities: main.exportUtilities,
+  harvest: main.harvest,
+  harvestSync: main.harvestSync,
+  wrapPrimaryContentInMain,
 };

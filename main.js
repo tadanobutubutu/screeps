@@ -382,3 +382,223 @@ function validateLandmarkStructureFn(container) {
     missingRoles
   };
 }
+
+/**
+ * Add lang attribute to the document/html element for accessibility (REACT_015)
+ * @param {string} lang - Language code (e.g., 'en', 'es', 'fr')
+ * @param {HTMLElement} root - Root element to set lang on (defaults to documentElement)
+ */
+function setDocumentLanguage(lang = 'en', root = null) {
+  const element = root || document.documentElement;
+  if (!element.hasAttribute('lang')) {
+    element.setAttribute('lang', lang);
+  }
+}
+
+/**
+ * Fix tables to ensure they have proper accessibility structure (REACT_027)
+ * Adds captions and scope attributes to header cells
+ * @param {HTMLElement} container - Container to search for tables
+ */
+function fixTableAccessibility(container = document) {
+  const tables = container.querySelectorAll('table');
+  
+  tables.forEach((table, tableIndex) => {
+    // Check if table has a caption, add one if missing
+    let caption = table.querySelector('caption');
+    if (!caption) {
+      caption = document.createElement('caption');
+      caption.textContent = `Table ${tableIndex + 1}`;
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    // Ensure all headers have scope attributes
+    const headers = table.querySelectorAll('th');
+    headers.forEach((header, headerIndex) => {
+      if (!header.hasAttribute('scope')) {
+        // Determine if this is a column header or row header
+        const row = header.parentElement;
+        const rowHeaders = Array.from(row.querySelectorAll('th'));
+        const positionInRow = rowHeaders.indexOf(header);
+        
+        // Check if this header spans multiple columns (is likely a column header)
+        const isColumnHeader = positionInRow === 0 && rowHeaders.length > 1;
+        header.setAttribute('scope', isColumnHeader ? 'col' : 'row');
+      }
+    });
+  });
+}
+
+/**
+ * Ensure all SVG elements have accessible names (REACT_041)
+ * @param {HTMLElement} container - Container to search for SVGs
+ */
+function fixSvgAccessibility(container = document) {
+  const svgs = container.querySelectorAll('svg');
+  
+  svgs.forEach((svg, index) => {
+    // Check if SVG has a title element
+    let title = svg.querySelector('title');
+    if (!title) {
+      title = document.createElement('title');
+      title.textContent = `Graphic ${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+    }
+
+    // Ensure title has an ID for aria-labelledby
+    if (!title.id) {
+      title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // Set aria-labelledby to reference the title
+    if (!svg.getAttribute('aria-labelledby') && !svg.getAttribute('aria-label')) {
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+
+    // Ensure SVG has a role of img
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+  });
+}
+
+/**
+ * Ensure all landmarks have unique identifiers (REACT_025)
+ * @param {HTMLElement} container - Container to search for landmarks
+ */
+function fixLandmarkUniqueness(container = document) {
+  const landmarkSelectors = ['main', 'nav', 'header', 'footer', 'aside'];
+  const landmarkCounts = {};
+  
+  landmarkSelectors.forEach(selector => {
+    const landmarks = container.querySelectorAll(selector);
+    landmarks.forEach((landmark, index) => {
+      const tagName = landmark.tagName.toLowerCase();
+      
+      // Initialize count for this tag if not exists
+      if (landmarkCounts[tagName] === undefined) {
+        landmarkCounts[tagName] = 0;
+      }
+      
+      // For multiple landmarks of the same type, ensure uniqueness
+      if (landmarks.length > 1) {
+        landmarkCounts[tagName]++;
+        
+        if (!landmark.id) {
+          landmark.id = `${tagName}-${landmarkCounts[tagName]}`;
+        }
+        
+        // Add aria-label if no label exists
+        if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+          landmark.setAttribute('aria-label', `${tagName} ${landmarkCounts[tagName] + 1}`);
+        }
+      } else if (!landmark.id) {
+        // For single landmarks, still add id if missing
+        landmark.id = tagName;
+      }
+    });
+  });
+}
+
+/**
+ * Ensure all landmarks have proper structure (REACT_017)
+ * @param {HTMLElement} container - Container to search for landmarks
+ */
+function fixLandmarkStructure(container = document) {
+  const landmarkSelectors = ['main', 'nav', 'header', 'footer', 'aside'];
+  
+  landmarkSelectors.forEach(selector => {
+    const landmarks = container.querySelectorAll(selector);
+    const count = landmarks.length;
+    
+    landmarks.forEach((landmark, index) => {
+      // Generate unique id if not present
+      if (!landmark.id) {
+        const idSuffix = count > 1 ? `-${index}` : '';
+        landmark.id = `${selector}${idSuffix}`;
+      }
+    });
+  });
+}
+
+/**
+ * Fix fake links to have proper accessibility attributes (REACT_036)
+ * @param {HTMLElement} container - Container to search for fake links
+ */
+function fixFakeLinksAccessibility(container = document) {
+  const fakeLinks = container.querySelectorAll('[data-link]');
+  
+  fakeLinks.forEach((link, index) => {
+    // Add proper role attribute
+    if (!link.getAttribute('role') || link.getAttribute('role') === '') {
+      link.setAttribute('role', 'link');
+    }
+    
+    // Add tabindex if not present
+    if (!link.hasAttribute('tabindex')) {
+      link.setAttribute('tabindex', '0');
+    }
+    
+    // Add aria-pressed if not present
+    if (!link.hasAttribute('aria-pressed')) {
+      link.setAttribute('aria-pressed', 'false');
+    }
+    
+    // Add aria-label if link has no text content
+    const hasTextContent = link.textContent && link.textContent.trim().length > 0;
+    if (!hasTextContent && !link.getAttribute('aria-label')) {
+      link.setAttribute('aria-label', `Link ${index + 1}`);
+    }
+  });
+}
+
+/**
+ * Run all accessibility fixes to address open checks
+ * @param {HTMLElement} container - Container element to fix (defaults to document)
+ * @param {Object} options - Configuration options
+ */
+function runAccessibilityFixes(container = document, options = {}) {
+  const lang = options.lang || 'en';
+  
+  // REACT_015: Set document language
+  setDocumentLanguage(lang);
+  
+  // REACT_027: Fix table accessibility
+  fixTableAccessibility(container);
+  
+  // REACT_041: Fix SVG accessible names
+  fixSvgAccessibility(container);
+  
+  // REACT_025: Fix landmark uniqueness
+  fixLandmarkUniqueness(container);
+  
+  // REACT_017: Fix landmark structure
+  fixLandmarkStructure(container);
+  
+  // REACT_036: Fix fake links
+  fixFakeLinksAccessibility(container);
+}
+
+// Export all functions for external use
+module.exports = {
+  renderGraphIndex,
+  renderGraphIndexAlt,
+  isLandmarkElement,
+  sanitizeFilename,
+  processData,
+  handleCredentialResponseFn,
+  generateSessionId,
+  validateTableStructure,
+  validateTableAccessibility,
+  getSvgAccessibleName,
+  checkLandmarkAccessibility,
+  validateLandmarkStructureFn,
+  setDocumentLanguage,
+  fixTableAccessibility,
+  fixSvgAccessibility,
+  fixLandmarkUniqueness,
+  fixLandmarkStructure,
+  fixFakeLinksAccessibility,
+  runAccessibilityFixes,
+  a11yStore
+};

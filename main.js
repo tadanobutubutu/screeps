@@ -452,7 +452,7 @@ function addSvgAccessibleNames() {
   
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       const title = document.createElement('title');
       title.textContent = `SVG icon ${index + 1}`;
       title.id = `svg-title-${index + 1}`;
@@ -710,7 +710,7 @@ function applyAllAccessibilityFixes(html) {
     result = fixFakeLinkIssue(result);
     result = fixGoogleSignInLogic(result);
     result = replaceMyButtonWithActualButton(result);
-    result = ensureDependencyGraphARIArole(result);
+    result = ensureDependencyGraphARIAroleHTML(result);
     result = addressAccessibilityIssues(result);
     return result;
 }

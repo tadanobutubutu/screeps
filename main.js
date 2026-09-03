@@ -1,6 +1,6 @@
-// main.js - Accessibility-focused implementation
+// main.js - Accessibility improvements implementation
 
-// TODO: This is the existing code that needs to be preserved
+// TODO: Any additional changes requested in the issue
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 

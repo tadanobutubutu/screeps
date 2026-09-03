@@ -82,14 +82,14 @@ function setARIARoleForDependencyGraph() {
   }
 }
 
-// Function imported from the Git base
+// Function imported from the newFunction base
 function ensureElementHasId(element) {
   if (!element.id) {
     element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
   }
 }
 
-// Function imported from the Git base
+// Function imported from the newFunction base
 function addAriaLabel(element, label) {
   if (!element.hasAttribute('aria-label')) {
     element.setAttribute('aria-label', label);

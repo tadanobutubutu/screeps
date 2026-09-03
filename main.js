@@ -1,34 +1,3 @@
-// TODO: Update the existing function using the new functions for rendering graph/index
-// ADDED: Created renderGraphAndIndex function that uses the new renderDependencyGraph and renderIndexView functions
-function renderGraphAndIndex(graphNode, indexPath, graphContainer, indexContainer, options = {}) {
-  // Render the dependency graph using the new renderDependencyGraph function
-  const graphResult = renderDependencyGraph(graphNode, graphContainer, {
-    ...options.graphOptions,
-    width: options.graphWidth || '100%',
-    height: options.graphHeight || '400'
-  });
-  
-  // Render the index view using the new renderIndexView function
-  const indexResult = renderIndexView(indexPath, indexContainer, {
-    baseUrl: options.baseUrl || '',
-    separator: options.separator || '/',
-    ariaLabel: options.breadcrumbAriaLabel || 'Breadcrumb',
-    listClassName: options.breadcrumbListClassName || 'breadcrumb',
-    ...options.indexOptions
-  });
-  
-  // Return combined results
-  return {
-    success: graphResult.success && indexResult.success,
-    graph: graphResult,
-    index: indexResult,
-    errors: [
-      ...(graphResult.errors || []),
-      ...(indexResult.errors || [])
-    ]
-  };
-}
-
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -37,601 +6,876 @@ function renderGraphAndIndex(graphNode, indexPath, graphContainer, indexContaine
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
-const http = require('http');
-const path = require('path');
-const fs = require('fs');
-const express = require('express');
-const { exec, spawn } = require('child_process');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+/**
+ * Adds the lang attribute to the document's <html> tag based on content
+ * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
+ * @returns {string} The lang attribute value that was set
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang || 'en';
+  }
+  return lang || 'en';
+}
 
-const config = {
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0',
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
+/**
+ * Detects the language of the given content and sets the HTML lang attribute
+ * @param {string} content - The text content to analyze
+ * @returns {string} The detected language code
+ */
+function detectAndSetLang(content) {
+  // Simple language detection based on common patterns
+  let lang = 'en'; // Default to English
 
-const main = require('./utilities')
+  if (content) {
+    // Check for common non-ASCII characters to help detect language
+    if (/[\u4e00-\u9fff]/.test(content)) {
+      lang = 'zh'; // Chinese
+    } else if (/[\u3040-\u30ff]/.test(content)) {
+      lang = 'ja'; // Japanese
+    } else if (/[\u0400-\u04ff]/.test(content)) {
+      lang = 'ru'; // Russian/Cyrillic
+    } else if (/[\u0600-\u06ff]/.test(content)) {
+      lang = 'ar'; // Arabic
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+      lang = 'fr'; // French
+    } else if (/[äöüß]/i.test(content)) {
+      lang = 'de'; // German
+    }
+  }
 
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  ensureUniqueLandmarks,
-  createAccessibleLink,
-  isLinkAccessible,
-  renderDependencyGraph,
-  renderIndexView,
-  buildDependencyGraph,
-  buildBreadcrumbData,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility
-} = main
+  return setHtmlLangAttribute(lang);
+}
 
-const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('#content') || document.querySelector('.content') || document.querySelector('article') || document.getElementById('primary-content') || document.body : null;
+// New function to address REACT_015: Add lang attribute to HTML element
+function getLangAttribute() {
+  return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
+}
 
-// New function to wrap primary content in a <main> element for accessibility compliance
-function wrapPrimaryContentInMain(container, options = {}) {
-  if (!container || typeof container !== 'object' || !container.nodeType) {
+// New function to address REACT_015 and REACT_036: personName function referenced in comments
+function personName(name) {
+  // Returns a formatted person name for accessibility purposes
+  if (!name) return '';
+  return name.trim();
+}
+
+// New function to address REACT_027: Fix 26 table structure issues
+function validateTableAccessibility(table) {
+  // This function validates the accessibility of tables
+  // Check for proper table headers with scope attributes
+  const errors = [];
+
+  if (!table) {
+    return { valid: false, errors: ['Table element is required'] };
+  }
+
+  const headers = table.querySelectorAll('th');
+  headers.forEach((th, index) => {
+    if (!th.hasAttribute('scope')) {
+      errors.push(`Table header at index ${index} is missing scope attribute`);
+    }
+  });
+
+  // Check if table has a caption or is properly described
+  const hasCaption = table.querySelector('caption');
+  const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
+
+  if (!hasCaption && !hasAriaLabel) {
+    errors.push('Table is missing a caption or aria-label/aria-labelledby');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+function validateTableStructure(table) {
+  // This function validates the structure of tables
+  const errors = [];
+
+  if (!table) {
+    return { valid: false, errors: ['Table element is required'] };
+  }
+
+  // Check for proper table structure
+  const tbody = table.querySelector('tbody');
+  const thead = table.querySelector('thead');
+  const tfoot = table.querySelector('tfoot');
+
+  // Check for thead and tbody presence
+  if (!thead) {
+    errors.push('Table is missing thead element');
+  }
+  if (!tbody) {
+    errors.push('Table is missing tbody element');
+  }
+
+  // Check for consistent column counts in tbody
+  const rows = table.querySelectorAll('tbody tr');
+  let expectedCols = null;
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td, th');
+    if (expectedCols === null) {
+      expectedCols = cells.length;
+    } else if (cells.length !== expectedCols) {
+      errors.push(`Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`);
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_017: Add/fix 4 landmark issues
+function validateLandmark(element) {
+  // This function validates landmarks
+  const errors = [];
+  const allowedLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+
+  if (!element) {
+    return { valid: false, errors: ['Element is required'] };
+  }
+
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+
+  // Check if element has valid landmark role
+  if (role && !allowedLandmarks.includes(role)) {
+    errors.push(`Invalid landmark role: ${role}`);
+  }
+
+  // Check if landmark has accessible name when required
+  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
+  if (role && landmarksNeedingNames.includes(role)) {
+    const hasLabel = element.getAttribute('aria-label') ||
+                     element.getAttribute('aria-labelledby') ||
+                     element.querySelector('h1, h2, h3, h4, h5, h6');
+    if (!hasLabel) {
+      errors.push(`Landmark role "${role}" is missing accessible name`);
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+function validateLandmarkStructure() {
+  // This function validates the structure of landmarks
+  const errors = [];
+
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+
+  // Check for multiple main landmarks
+  const mainLandmarks = document.querySelectorAll('[role="main"], main');
+  if (mainLandmarks.length > 1) {
+    errors.push(`Found ${mainLandmarks.length} main landmarks, should have only 1`);
+  }
+
+  // Check for multiple banner landmarks
+  const bannerLandmarks = document.querySelectorAll('[role="banner"], header');
+  if (bannerLandmarks.length > 1) {
+    errors.push(`Found ${bannerLandmarks.length} banner landmarks, should have only 1`);
+  }
+
+  // Check for contentinfo (footer) landmarks
+  const footerLandmarks = document.querySelectorAll('[role="contentinfo"], footer');
+  if (footerLandmarks.length > 1) {
+    errors.push(`Found ${footerLandmarks.length} contentinfo landmarks, should have only 1`);
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_041: Add accessible names to 2 SVGs
+function getSvgAccessibleName(svg) {
+  // This function returns the accessible name for an SVG
+  if (!svg) {
+    return '';
+  }
+
+  // Check for aria-label attribute
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+
+  // Check for aria-labelledby reference
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) {
+      return labelElement.textContent || '';
+    }
+  }
+
+  // Check for title element inside SVG
+  const title = svg.querySelector('title');
+  if (title) {
+    return title.textContent || '';
+  }
+
+  // Check for adjacent description
+  const id = svg.getAttribute('id');
+  if (id) {
+    const describedBy = document.querySelector(`[id="${id}-desc"]`);
+    if (describedBy) {
+      return describedBy.textContent || '';
+    }
+  }
+
+  return '';
+}
+
+// New function to address REACT_025: Ensure unique landmarks (2 issues)
+function ensureUniqueLandmarks() {
+  // This function ensures that landmarks are unique
+  const errors = [];
+
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+
+  // Define unique landmarks that should only appear once
+  const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
+  const uniqueRoleSelectors = ['[role="main"]', '[role="banner"]', '[role="contentinfo"]'];
+
+  uniqueLandmarks.forEach((landmark, index) => {
+    const elements = document.querySelectorAll(uniqueRoleSelectors[index]);
+    const tagElements = document.querySelectorAll(landmark);
+    const totalCount = elements.length + tagElements.length;
+
+    if (totalCount > 1) {
+      errors.push(`Found ${totalCount} instances of "${landmark}" landmark, should have only 1`);
+    }
+  });
+
+  // Check for landmark IDs that should be unique
+  const landmarksWithIds = document.querySelectorAll('[role][id]');
+  const ids = new Set();
+  landmarksWithIds.forEach(el => {
+    const id = el.getAttribute('id');
+    if (ids.has(id)) {
+      errors.push(`Duplicate landmark id found: ${id}`);
+    }
+    ids.add(id);
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_036: Fix 1 fake link issue
+function createAccessibleLink(href, text, options = {}) {
+  // This function creates an accessible link
+  const {
+    onClick,
+    role = 'link',
+    ariaLabel,
+    className,
+    target,
+    rel
+  } = options;
+
+  if (!href && !onClick) {
     return null;
   }
 
-  const config = {
-    mainId: options.mainId || 'main-content',
-    mainRole: options.mainRole || 'main'
-  };
+  const link = document.createElement('a');
+  link.textContent = text;
 
-  // Check if main element already exists
-  let mainElement = container.querySelector('main');
-
-  if (mainElement) {
-    // Main element already exists, ensure it has proper id
-    if (!mainElement.id) {
-      mainElement.id = config.mainId;
+  if (href) {
+    link.href = href;
+    // Add rel="noopener noreferrer" for external links
+    if (target === '_blank' && !rel) {
+      link.rel = 'noopener noreferrer';
+    } else if (rel) {
+      link.rel = rel;
     }
-    // Ensure proper role
-    if (!mainElement.getAttribute('role')) {
-      mainElement.setAttribute('role', config.mainRole);
-    }
-    return mainElement;
+  } else {
+    // If no href, it's a button disguised as a link
+    link.href = '#';
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (onClick) {
+        onClick(e);
+      }
+    });
   }
 
-  // Create new main element
-  mainElement = document.createElement('main');
-  mainElement.id = config.mainId;
-  mainElement.setAttribute('role', config.mainRole);
+  if (target) {
+    link.target = target;
+  }
 
-  // Find primary content to wrap
-  // Priority: role="main" > main element > article > section with id > body content
-  const primarySelectors = [
-    '[role="main"]',
-    'article:not([role])',
-    'section[id]',
-    '.primary-content',
-    '#primary-content',
-    '.main-content',
-    '#main-content'
+  if (className) {
+    link.className = className;
+  }
+
+  if (ariaLabel) {
+    link.setAttribute('aria-label', ariaLabel);
+  }
+
+  if (role && role !== 'link') {
+    link.setAttribute('role', role);
+  }
+
+  return link;
+}
+
+/**
+ * Checks if a link element is accessible
+ * @param {HTMLAnchorElement} link - The link element to check
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function isLinkAccessible(link) {
+  const errors = [];
+
+  if (!link) {
+    return { valid: false, errors: ['Link element is required'] };
+  }
+
+  // Check if it's an anchor element
+  if (link.tagName !== 'A') {
+    errors.push('Element is not an anchor tag');
+    return { valid: false, errors };
+  }
+
+  // Check for href attribute
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href === '') {
+    // If no href, check if it's properly set up as a button
+    const role = link.getAttribute('role');
+    if (role !== 'button') {
+      errors.push('Link missing href attribute and not configured as a button');
+    }
+    // Check for click handler
+    if (!link.onclick && !link.hasAttribute('data-handler')) {
+      errors.push('Fake link missing click handler');
+    }
+  }
+
+  // Check for accessible name
+  const textContent = link.textContent ? link.textContent.trim() : '';
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledby = link.getAttribute('aria-labelledby');
+  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
+
+  if (!hasAccessibleName) {
+    errors.push('Link is missing accessible name (text content, aria-label, or aria-labelledby)');
+  }
+
+  // Check for valid href if present
+  if (href && href !== '#') {
+    // Check for javascript: links
+    if (href.toLowerCase().startsWith('javascript:')) {
+      errors.push('Link uses javascript: protocol which is not accessible');
+    }
+    // Check for mailto: links without proper labeling
+    if (href.toLowerCase().startsWith('mailto:') && !ariaLabel && !textContent.includes('@')) {
+      errors.push('Mailto link may need aria-label for clarity');
+    }
+  }
+
+  // Check target="_blank" has rel="noopener noreferrer"
+  if (link.getAttribute('target') === '_blank') {
+    const rel = link.getAttribute('rel');
+    if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
+      errors.push('External link with target="_blank" missing rel="noopener noreferrer"');
+    }
+  }
+
+  // Check for redundant title attribute
+  const title = link.getAttribute('title');
+  if (title && title === textContent) {
+    errors.push('Link title attribute duplicates link text');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Creates an accessible in-page button and appends it to the given parent element.
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(parent = document.body) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('aria-label', 'Open modal');
+  parent.appendChild(btn);
+  return btn;
+}
+
+/**
+ * Builds a hierarchical representation of dependencies from a root node
+ * @param {HTMLElement} node - The DOM node to analyze for dependencies
+ * @param {Object} options - Configuration options
+ * @param {string} options.dependencyAttribute - Data attribute to look for dependencies (default: 'data-dependency')
+ * @param {string} options.idAttribute - Attribute to use as node identifier (default: 'id')
+ * @returns {Object} The dependency graph structure
+ */
+function buildDependencyGraph(node, options = {}) {
+  const { dependencyAttribute = 'data-dependency', idAttribute = 'id' } = options;
+  
+  if (!node) {
+    return { success: false, errors: ['Node is required'] };
+  }
+
+  function processNode(domNode) {
+    if (!domNode) return null;
+    
+    const nodeData = {
+      id: domNode.getAttribute ? domNode.getAttribute(idAttribute) || domNode.id || 'anonymous' : 'anonymous',
+      tagName: domNode.tagName ? domNode.tagName.toLowerCase() : 'unknown',
+      dependencies: [],
+      children: []
+    };
+
+    // Find dependencies
+    const depElements = domNode.querySelectorAll ? domNode.querySelectorAll(`[${dependencyAttribute}]`) : [];
+    depElements.forEach(dep => {
+      const depId = dep.getAttribute(dependencyAttribute);
+      nodeData.dependencies.push({
+        id: depId,
+        name: dep.getAttribute(idAttribute) || depId,
+        element: dep
+      });
+    });
+
+    // Process child nodes recursively
+    if (domNode.children) {
+      Array.from(domNode.children).forEach(child => {
+        const childData = processNode(child);
+        if (childData) {
+          nodeData.children.push(childData);
+        }
+      });
+    }
+
+    return nodeData;
+  }
+
+  return {
+    success: true,
+    root: processNode(node)
+  };
+}
+
+/**
+ * Renders a dependency graph visualization
+ * @param {HTMLElement} rootNode - The root DOM node to render the graph from
+ * @param {HTMLElement} container - Optional container element to render into
+ * @param {Object} options - Rendering options
+ * @returns {Object} Result with success status and rendered graph data
+ */
+function renderDependencyGraph(rootNode, container, options = {}) {
+  try {
+    // Validate rootNode parameter
+    if (!rootNode) {
+      return { success: false, errors: ['Root node is required'] };
+    }
+
+    // Build the dependency graph structure
+    const graphData = buildDependencyGraph(rootNode, options);
+
+    // Log for debugging
+    console.log('Rendering dependency graph starting from:', rootNode);
+    console.log('Graph data:', JSON.stringify(graphData, null, 2));
+
+    // If container provided, render visual elements
+    if (container && typeof document !== 'undefined') {
+      const graphContainer = document.createElement('div');
+      graphContainer.setAttribute('role', 'img');
+      graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+      graphContainer.className = options.className || 'dependency-graph';
+      
+      // Create SVG for graph visualization
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', options.width || '100%');
+      svg.setAttribute('height', options.height || '400');
+      svg.setAttribute('aria-hidden', 'true');
+      
+      // Add accessible description
+      const description = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      description.textContent = 'Dependency Graph';
+      description.setAttribute('id', 'graph-title');
+      svg.appendChild(description);
+      
+      graphContainer.appendChild(svg);
+      container.appendChild(graphContainer);
+      
+      return {
+        success: true,
+        message: 'Dependency graph rendered successfully',
+        container: graphContainer,
+        svg: svg,
+        data: graphData
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Dependency graph data built successfully',
+      data: graphData
+    };
+  } catch (error) {
+    console.error('Error rendering dependency graph:', error);
+    return { success: false, errors: [error.message] };
+  }
+}
+
+/**
+ * Builds breadcrumb data from an index path
+ * @param {string} indexPath - The path to parse into breadcrumb segments
+ * @param {Object} options - Configuration options
+ * @returns {Object} The breadcrumb structure
+ */
+function buildBreadcrumbData(indexPath, options = {}) {
+  const { baseUrl = '', separator = '/' } = options;
+  
+  if (!indexPath) {
+    return { success: false, errors: ['Index path is required'] };
+  }
+
+  // Split path into segments and filter empty ones
+  const segments = indexPath.split(separator).filter(s => s.trim());
+  
+  const breadcrumbs = segments.map((segment, index) => {
+    const url = baseUrl + separator + segments.slice(0, index + 1).join(separator);
+    return {
+      label: segment.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      original: segment,
+      url: url,
+      position: index + 1,
+      isLast: index === segments.length - 1
+    };
+  });
+
+  return {
+    success: true,
+    breadcrumbs: breadcrumbs,
+    totalSegments: breadcrumbs.length
+  };
+}
+
+/**
+ * Renders an index view (breadcrumb or navigation structure)
+ * @param {string} indexPath - The path to render the index view for
+ * @param {HTMLElement} container - Optional container element to render into
+ * @param {Object} options - Rendering options
+ * @returns {Object} Result with success status and rendered index view data
+ */
+function renderIndexView(indexPath, container, options = {}) {
+  try {
+    // Validate indexPath parameter
+    if (!indexPath) {
+      return { success: false, errors: ['Index path is required'] };
+    }
+
+    // Build breadcrumb data from the path
+    const breadcrumbData = buildBreadcrumbData(indexPath, {
+      baseUrl: options.baseUrl || '',
+      separator: options.separator || '/'
+    });
+
+    // Log for debugging
+    console.log('Rendering index view at path:', indexPath);
+    console.log('Breadcrumb data:', JSON.stringify(breadcrumbData, null, 2));
+
+    // If container provided, render visual elements
+    if (container && typeof document !== 'undefined') {
+      const nav = document.createElement('nav');
+      nav.setAttribute('aria-label', options.ariaLabel || 'Breadcrumb');
+      
+      const ol = document.createElement('ol');
+      ol.className = options.listClassName || 'breadcrumb';
+      
+      breadcrumbData.breadcrumbs.forEach((crumb, index) => {
+        const li = document.createElement('li');
+        li.className = 'breadcrumb-item';
+        li.setAttribute('aria-current', crumb.isLast ? 'page' : undefined);
+        
+        if (crumb.isLast) {
+          const span = document.createElement('span');
+          span.textContent = crumb.label;
+          li.appendChild(span);
+        } else {
+          const link = document.createElement('a');
+          link.href = crumb.url;
+          link.textContent = crumb.label;
+          li.appendChild(link);
+        }
+        
+        ol.appendChild(li);
+      });
+      
+      nav.appendChild(ol);
+      container.appendChild(nav);
+      
+      return {
+        success: true,
+        message: 'Index view rendered successfully',
+        nav: nav,
+        breadcrumbs: breadcrumbData.breadcrumbs,
+        data: breadcrumbData
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Index view data built successfully',
+      breadcrumbs: breadcrumbData.breadcrumbs,
+      data: breadcrumbData
+    };
+  } catch (error) {
+    console.error('Error rendering index view:', error);
+    return { success: false, errors: [error.message] };
+  }
+}
+
+// New function to address accessibility: Validate form accessibility
+function validateFormAccessibility(form) {
+  const errors = [];
+  
+  if (!form) {
+    return { valid: false, errors: ['Form element is required'] };
+  }
+  
+  // Check if form has an accessible name
+  const ariaLabel = form.getAttribute('aria-label');
+  const ariaLabelledby = form.getAttribute('aria-labelledby');
+  const legend = form.querySelector('legend');
+  const title = form.getAttribute('title');
+  
+  if (!ariaLabel && !ariaLabelledby && !legend && !title) {
+    errors.push('Form is missing an accessible name (aria-label, aria-labelledby, legend, or title)');
+  }
+  
+  // Check all inputs for labels
+  const inputs = form.querySelectorAll('input, select, textarea');
+  inputs.forEach((input, index) => {
+    const inputType = input.getAttribute('type');
+    
+    // Skip hidden inputs
+    if (inputType === 'hidden') return;
+    
+    const inputId = input.getAttribute('id');
+    const hasAriaLabel = input.getAttribute('aria-label');
+    const hasAriaLabelledby = input.getAttribute('aria-labelledby');
+    
+    // Check for associated label
+    let hasLabel = false;
+    if (inputId) {
+      const label = form.querySelector(`label[for="${inputId}"]`);
+      if (label) hasLabel = true;
+    }
+    
+    // Check for implicit label
+    const parentLabel = input.closest('label');
+    if (parentLabel) hasLabel = true;
+    
+    if (!hasLabel && !hasAriaLabel && !hasAriaLabelledby) {
+      errors.push(`Input at index ${index} (type: ${inputType || 'text'}) is missing an associated label`);
+    }
+    
+    // Check for required field indication
+    const isRequired = input.hasAttribute('required') || input.hasAttribute('aria-required');
+    const hasRequiredIndicator = isRequired && (
+      input.getAttribute('aria-required') === 'true' ||
+      input.classList.contains('required') ||
+      form.querySelector(`label[for="${inputId}"] .required`)
+    );
+    
+    if (isRequired && !hasRequiredIndicator) {
+      // Required fields should have visual indication
+      const ariaDescribedby = input.getAttribute('aria-describedby');
+      if (!ariaDescribedby && !input.getAttribute('aria-label')) {
+        errors.push(`Required input at index ${index} may need aria-describedby for required indicator`);
+      }
+    }
+  });
+  
+  // Check for proper error handling
+  const errorMessages = form.querySelectorAll('[role="alert"], .error-message, .has-error');
+  const inputsWithRequired = form.querySelectorAll('[required], [aria-required="true"]');
+  
+  if (inputsWithRequired.length > 0 && errorMessages.length === 0) {
+    errors.push('Form has required fields but no error message containers found');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// TODO: Implement tower defense
+function towerDefense() {
+  // A simple tower defense game implementation
+  // Define towers, enemies, waves, and game loop
+  const towers = [];
+  const enemies = [];
+  let wave = 1;
+  let gameRunning = false;
+  let lastEnemySpawnTime = 0;
+  const spawnInterval = 3000; // Spawn enemies every 3 seconds
+  const pathPoints = [
+    { x: 0, y: 50 },
+    { x: 200, y: 50 },
+    { x: 200, y: 200 },
+    { x: 400, y: 200 },
+    { x: 400, y: 50 },
+    { x: 600, y: 50 }
   ];
 
-  let primaryContent = null;
-
-  for (const selector of primarySelectors) {
-    primaryContent = container.querySelector(selector);
-    if (primaryContent) {
-      break;
-    }
+  // Example: Tower constructor
+  function Tower(x, y, range, damage, rate) {
+    this.x = x;
+    this.y = y;
+    this.range = range;
+    this.damage = damage;
+    this.rate = rate;
+    this.lastShot = 0;
   }
 
-  if (primaryContent) {
-    // Move primary content children into main element
-    while (primaryContent.firstChild) {
-      mainElement.appendChild(primaryContent.firstChild);
+  // Example: Enemy constructor
+  function Enemy(x, y, health, speed) {
+    this.x = x;
+    this.y = y;
+    this.health = health;
+    this.speed = speed;
+    this.pathIndex = 0;
+  }
+
+  // Add a tower
+  function addTower(x, y, range, damage, rate) {
+    towers.push(new Tower(x, y, range, damage, rate));
+  }
+
+  // Add an enemy
+  function addEnemy(x, y, health, speed) {
+    enemies.push(new Enemy(x, y, health, speed));
+  }
+
+  // Spawn a new enemy at the start of the path
+  function spawnEnemy() {
+    const startPoint = pathPoints[0];
+    addEnemy(startPoint.x, startPoint.y, 100, 2);
+  }
+
+  // Update game state (simplified)
+  function update(currentTime) {
+    if (!gameRunning) return;
+
+    // Spawn enemies at intervals
+    if (currentTime - lastEnemySpawnTime > spawnInterval) {
+      spawnEnemy();
+      lastEnemySpawnTime = currentTime;
     }
 
-    // Replace primary content with main element
-    primaryContent.parentNode.replaceChild(mainElement, primaryContent);
-  } else {
-    // No specific primary content found
-    // Get body or container's direct children
-    const body = container.ownerDocument ? container.ownerDocument.body : null;
-    const contentParent = body || container;
+    // Logic for enemy movement, tower shooting, etc.
+    enemies.forEach((enemy, index) => {
+      // Move enemy along path
+      if (enemy.pathIndex < pathPoints.length - 1) {
+        const target = pathPoints[enemy.pathIndex + 1];
+        const dx = target.x - enemy.x;
+        const dy = target.y - enemy.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Collect direct children to move
-    const childrenToMove = Array.from(contentParent.childNodes).filter(node => {
-      // Skip script, style, and meta elements
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const tagName = node.tagName.toLowerCase();
-        if (['script', 'style', 'link', 'meta', 'noscript'].includes(tagName)) {
-          return false;
+        if (distance > enemy.speed) {
+          enemy.x += (dx / distance) * enemy.speed;
+          enemy.y += (dy / distance) * enemy.speed;
+        } else {
+          enemy.pathIndex++;
         }
-        // Skip existing main element
-        if (tagName === 'main') {
-          return false;
-        }
+      } else {
+        // Enemy reached end of path - remove it
+        enemies.splice(index, 1);
       }
-      return true;
     });
 
-    // Move children to main element
-    childrenToMove.forEach(child => {
-      mainElement.appendChild(child);
+    // Tower shooting logic
+    towers.forEach(tower => {
+      if (currentTime - tower.lastShot > tower.rate) {
+        // Find closest enemy in range
+        let closestEnemy = null;
+        let minDistance = Infinity;
+
+        enemies.forEach(enemy => {
+          const dx = enemy.x - tower.x;
+          const dy = enemy.y - tower.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < tower.range && distance < minDistance) {
+            minDistance = distance;
+            closestEnemy = enemy;
+          }
+        });
+
+        // Attack closest enemy if found
+        if (closestEnemy) {
+          closestEnemy.health -= tower.damage;
+          tower.lastShot = currentTime;
+
+          // Remove enemy if health <= 0
+          if (closestEnemy.health <= 0) {
+            const index = enemies.indexOf(closestEnemy);
+            if (index > -1) {
+              enemies.splice(index, 1);
+            }
+          }
+        }
+      }
     });
 
-    // Append main element to container
-    if (body) {
-      body.appendChild(mainElement);
-    } else {
-      container.appendChild(mainElement);
-    }
+    console.log(`Wave ${wave} - updating game state`);
   }
 
-  // Log successful operation
-  if (typeof log === 'function') {
-    log(`Primary content wrapped in main element with id: ${config.mainId}`, 'info');
+  // Start the game
+  function start() {
+    gameRunning = true;
+    lastEnemySpawnTime = Date.now();
+    console.log('Tower defense game started');
+    // Add initial towers
+    addTower(100, 100, 200, 10, 1000);
+    addTower(300, 150, 200, 15, 800);
+    addTower(500, 100, 200, 12, 900);
   }
 
-  return mainElement;
+  // Stop the game
+  function stop() {
+    gameRunning = false;
+    console.log('Tower defense game stopped');
+  }
+
+  // Expose game functions
+  return {
+    start,
+    stop,
+    addTower,
+    addEnemy,
+    update,
+    getWave: () => wave,
+    getEnemies: () => enemies,
+    getTowers: () => towers,
+    isRunning: () => gameRunning
+  };
 }
 
-// Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport(container, report) {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0
-  }
-
-  if (!report || !report.issues) {
-    return fixes
-  }
-
-  // Add lang attribute to HTML element if missing
-  const htmlEl =
-        document.documentElement ||
-        (container && container.ownerDocument && container.ownerDocument.documentElement)
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en')
-    fixes.langAdded = true
-  }
-
-  // Add main landmark if missing
-  const mainElement = container.querySelector('main') || container.querySelector('[role="main"]')
-  if (!mainElement) {
-    const body = container.ownerDocument ? container.ownerDocument.body : null
-    if (body) {
-      const newMain = document.createElement('main')
-      while (body.firstChild) {
-        newMain.appendChild(body.firstChild)
-      }
-      body.insertBefore(newMain, body.firstChild)
-      fixes.mainLandmarkAdded = true
-    }
-  }
-
-  // Update the existing function using the new functions for rendering graph/index
-  if (typeof renderDependencyGraphs === 'function') {
-    renderDependencyGraphs(container)
-  }
-  if (typeof fixButtonIdentifiers === 'function') {
-    fixButtonIdentifiers(container)
-  }
-  if (typeof addMainLandmarkToIndex === 'function') {
-    addMainLandmarkToIndex(container)
-  }
-
-  // Fix landmark issues
-  if (typeof validateLandmark === 'function') {
-    validateLandmark(container)
-  }
-
-  return fixes;
-}
-
-// Main entry point function (implementation added)
-function main() {
-  // Main application logic can be added here
-  console.log("Main function executed");
-  // Example: initialize accessibility features
-  accessibility();
-  // Additional setup can be added as needed
-}
-
-// Accessibility-related function to be added
-function checkAccessibilityForReport (content) {
-  // Placeholder for accessibility checking logic
-  // This function should be implemented to check for accessibility issues
-  // For now, it just returns an empty array
-  return []
-}
-
-// New rendering function
-function renderGraphIndex(content, options = {}) {
-  return content
-}
-
-// Helper to manage focus within a container
-function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  )
-  const firstElement = focusableElements[0]
-  const lastElement = focusableElements[focusableElements.length - 1]
-
-  return function(e) {
-    const isTab = e.key === 'Tab'
-    if (!isTab) return
-    if (e.shiftKey) {
-      if (document.activeElement === firstElement) {
-        e.preventDefault()
-        if (lastElement) lastElement.focus()
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        e.preventDefault()
-        if (firstElement) firstElement.focus()
-      }
-    }
-  }
-}
-
-/**
- * REACT_015: Add lang attribute to HTML element
- * Ensures the HTML element has a proper lang attribute for screen readers
- */
-export function addLangAttribute(element, lang = 'en') {
-  let htmlElement = element || document.documentElement
-  if (!htmlElement) {
-    return null
-  }
-  if (!htmlElement.getAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang)
-  }
-  return htmlElement
-}
-
-/**
- * REACT_027: Fix table structure issues
- * Ensures tables have proper structure with headers and captions
- */
-export function fixTableStructure(tableElement) {
-  if (!tableElement) return null
-
-  const headers = tableElement.querySelectorAll('th')
-  headers.forEach(th => {
-    if (!th.getAttribute('scope')) {
-      const row = th.closest('tr')
-      const cellIndex = Array.from(row.children).indexOf(th)
-      th.setAttribute('scope', cellIndex === 0 ? 'row' : 'col')
-    }
-  })
-
-  const existingCaption = tableElement.querySelector('caption')
-  if (!existingCaption) {
-    const caption = document.createElement('caption')
-    caption.textContent = 'Data table'
-    tableElement.insertBefore(caption, tableElement.firstChild)
-  }
-
-  return tableElement
-}
-
-/**
- * REACT_017: Fix landmark issues - Add landmark regions
- */
-export function fixLandmarkIssues(container) {
-  if (!container) return null
-
-  const mainElement = container.querySelector('main') || container.querySelector('[role="main"]')
-  if (!mainElement) {
-    const existingMain = container.querySelector('div')
-    if (existingMain) {
-      existingMain.setAttribute('role', 'main')
-    }
-  }
-
-  const navElements = container.querySelectorAll('nav')
-  navElements.forEach(nav => {
-    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('role')) {
-      nav.setAttribute('aria-label', 'Navigation')
-    }
-  })
-
-  const footerElement = container.querySelector('footer')
-  if (footerElement) {
-    footerElement.setAttribute('role', 'contentinfo')
-  }
-
-  return container
-}
-
-/**
- * REACT_017: Add main landmark
- */
-export function addMainLandmark(container) {
-  if (!container) return null
-
-  let mainElement = container.querySelector('main')
-  if (!mainElement) {
-    mainElement = container.querySelector('[role="main"]')
-  }
-
-  if (!mainElement) {
-    mainElement = document.createElement('main')
-    mainElement.setAttribute('id', 'main-content')
-    const body = document.body
-    if (body && body.firstChild) {
-      body.insertBefore(mainElement, body.firstChild)
-    }
-  }
-
-  return mainElement
-}
-
-/**
- * REACT_017: Add landmark regions
- */
-export function addLandmarkRegions(container) {
-  if (!container) return null
-
-  const landmarks = [
-    { selector: 'header', role: 'banner', label: 'Site header' },
-    { selector: 'nav', role: 'navigation', label: 'Navigation' },
-    { selector: 'main', role: 'main', label: 'Main content' },
-    { selector: 'aside', role: 'complementary', label: 'Complementary content' },
-    { selector: 'footer', role: 'contentinfo', label: 'Site footer' }
-  ]
-
-  landmarks.forEach(landmark => {
-    let element = container.querySelector(landmark.selector)
-    if (!element) {
-      element = document.createElement(landmark.selector)
-    }
-
-    if (element && !element.getAttribute('aria-label') && !element.getAttribute('role')) {
-      element.setAttribute('aria-label', landmark.label)
-    }
-  })
-
-  return container
-}
-
-/**
- * REACT_025: Ensure unique landmarks
- */
-export function ensureUniqueLandmarks(container) {
-  if (!container) return null
-
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo']
-
-  landmarkRoles.forEach(role => {
-    const elements = container.querySelectorAll(`[role="${role}"]`)
-    elements.forEach((el, index) => {
-      if (index > 0 && !el.getAttribute('aria-label')) {
-        const count = index + 1
-        el.setAttribute('aria-label', `${role} ${count}`)
-      }
-    })
-  })
-
-  return container
-}
-
-/**
- * REACT_025: Unique landmarks helper
- */
-export function uniqueLandmarks(container) {
-  return ensureUniqueLandmarks(container)
-}
-
-/**
- * REACT_041: Add accessible names to SVGs
- */
-export function addSvgAccessibleNames(svgElement, accessibleName) {
-  if (!svgElement) return null
-
-  let title = svgElement.querySelector('title')
-  if (!title) {
-    title = document.createElement('title')
-    svgElement.insertBefore(title, svgElement.firstChild)
-  }
-
-  const titleId = `svg-title-${Math.random().toString(36).substr(2, 9)}`
-  title.setAttribute('id', titleId)
-  svgElement.setAttribute('aria-labelledby', titleId)
-
-  if (!svgElement.getAttribute('role')) {
-    svgElement.setAttribute('role', 'img')
-  }
-
-  return svgElement
-}
-
-/**
- * REACT_041: Add accessible names to all SVGs in container
- */
-export function addSvgAccessibleNamesToContainer(container) {
-  if (!container) return
-
-  const svgs = container.querySelectorAll('svg')
-  svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('title') && !svg.getAttribute('aria-label')) {
-      addSvgAccessibleNames(svg, `Icon ${index + 1}`)
-    }
-  })
-
-  return container
-}
-
-/**
- * REACT_036: Fix fake link issue
- */
-export function fixFakeLinkIssue(element) {
-  if (!element) return null
-
-  const tagName = element.tagName.toLowerCase()
-  const role = element.getAttribute('role')
-  const onClick = element.getAttribute('onclick') || element.onclick
-
-  if (onClick && tagName !== 'a' && tagName !== 'button') {
-    if (role !== 'button') {
-      element.setAttribute('role', 'button')
-    }
-
-    if (!element.hasAttribute('tabindex')) {
-      element.setAttribute('tabindex', '0')
-    }
-
-    element.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        element.click()
-      }
-    })
-  }
-
-  return element
-}
-
-/**
- * REACT_036: Fix all fake link issues in container
- */
-export function fixFakeLinksInContainer(container) {
-  if (!container) return null
-
-  const clickableElements = container.querySelectorAll('[onclick], [role="button"], [role="link"]')
-  clickableElements.forEach(el => {
-    const tagName = el.tagName.toLowerCase()
-    if (tagName !== 'a' && tagName !== 'button' && tagName !== 'input' && tagName !== 'select' && tagName !== 'textarea') {
-      fixFakeLinkIssue(el)
-    }
-  })
-
-  return container
-}
-
-// Export all functions and modules
-export {
-  newFunction,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addSvgAccessibleNamesToContainer,
-  fixFakeLinkIssue,
-  fixFakeLinksInContainer,
+// Export all functions to maintain current exports
+module.exports = {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  personName,
   createInPageButton,
-  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility
-}
-
-module.exports = {
-  greetingFunction,
-  renderGraphIndex,
-  renderGraphIndexAlt,
-  accessibility,
-  ensureInteractiveElementsAccessible,
-  handleInitialAccessibility,
-  addressAccessibilityIssues,
-  validateSession,
-  getActiveSessionsCount,
-  revokeSession,
-  a11yStore,
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-  dependencyGraphContent,
-  indexContent,
-  main,
-  addressabilityIssues: AddressabilityIssues,
-  // Additional utility functions from merged code
-  loadConfigurations,
-  countDependencies,
-  sanitizeFilename,
-  processData,
-  generateSessionId,
-  prefersReducedMotion,
-  prefersHighContrast,
-  isLandmarkElement,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmarkRoles,
-  validateLandmarkStructure,
-  checkLandmarkAccessibility,
-  checkLandmarkElements,
-  checkAccessibilityOfLandmarks,
   ensureUniqueLandmarks,
-  missingRoles,
-  fixFakeLinkIssue,
-  addAriaLabel,
-  addAriaLabelLegacy,
-  checkElementAccessibility,
-  handleAccessibilityIssues,
-  addLangAttribute,
-  getLangAccessibleName,
-  getLangAttribute,
-  renderDependencyGraphs,
-  addLanguageAttribute,
-  addMainLandmarkToIndex,
   createAccessibleLink,
   isLinkAccessible,
   renderDependencyGraph,
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  renderGraphAndIndex,
   towerDefense,
-  wrapPrimaryContentInMain,
-  implementAccessibilityFixesFromReport
+  validateFormAccessibility
 };

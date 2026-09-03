@@ -161,4 +161,111 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureImageAccessibility();
 }
 
+/**
+ * Creates in-page navigation buttons
+ * @param {Object} options - Configuration options for the buttons
+ * @param {string} [options.containerId='in-page-buttons'] - ID for the button container
+ * @param {string} [options.containerClass='in-page-nav'] - CSS class for the container
+ * @param {string} [options.buttonClass='in-page-button'] - CSS class for buttons
+ * @param {boolean} [options.showLabels=true] - Whether to show button text labels
+ * @param {boolean} [options.useSmoothScroll=true] - Whether to use smooth scrolling
+ * @returns {HTMLElement} The created navigation container element
+ */
+function createInPageButtons(options = {}) {
+  const {
+    containerId = 'in-page-buttons',
+    containerClass = 'in-page-nav',
+    buttonClass = 'in-page-button',
+    showLabels = true,
+    useSmoothScroll = true,
+  } = options;
+
+  // Check if container already exists
+  let container = document.getElementById(containerId);
+  if (!container) {
+    container = document.createElement('nav');
+    container.id = containerId;
+    container.className = containerClass;
+    container.setAttribute('aria-label', 'In-page navigation');
+    container.setAttribute('role', 'navigation');
+  }
+
+  // Find all sections with IDs to create buttons for
+  const sections = document.querySelectorAll('section[id], div[id], article[id], aside[id], main[id]');
+  
+  sections.forEach((section) => {
+    const sectionId = section.id;
+    const sectionTitle = section.querySelector('h1, h2, h3, h4, h5, h6');
+    const buttonText = sectionTitle ? sectionTitle.textContent.trim() : sectionId.replace(/-/g, ' ');
+
+    // Check if button already exists for this section
+    const existingButton = container.querySelector(`[data-target="${sectionId}"]`);
+    if (existingButton) return;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = buttonClass;
+    button.setAttribute('data-target', sectionId);
+    button.setAttribute('aria-label', `Navigate to ${buttonText}`);
+    
+    if (showLabels) {
+      button.textContent = buttonText;
+    }
+
+    // Add click handler for smooth scrolling
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetElement = document.getElementById(sectionId);
+      if (targetElement) {
+        const scrollOptions = {
+          behavior: useSmoothScroll && !a11yStore.prefersReducedMotion() ? 'smooth' : 'auto',
+          block: 'start',
+          inline: 'nearest',
+        };
+        targetElement.scrollIntoView(scrollOptions);
+        
+        // Set focus to the target for accessibility
+        targetElement.setAttribute('tabindex', '-1');
+        targetElement.focus({ preventScroll: true });
+        
+        // Update live region for screen readers
+        a11yStore.updateLiveRegion(`Navigated to ${buttonText}`);
+      }
+    });
+
+    // Add keyboard support
+    button.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        button.click();
+      }
+    });
+
+    container.appendChild(button);
+  });
+
+  return container;
+}
+
+/**
+ * Initialize in-page navigation buttons
+ * @param {string} [targetContainerId] - Optional ID of element to append buttons to
+ * @param {Object} [options] - Additional options for button creation
+ */
+function setupInPageNavigation(targetContainerId = null, options = {}) {
+  const navButtons = createInPageButtons(options);
+  
+  if (targetContainerId) {
+    const targetContainer = document.getElementById(targetContainerId);
+    if (targetContainer) {
+      targetContainer.appendChild(navButtons);
+    }
+  } else {
+    // Insert at the beginning of the body
+    document.body.insertBefore(navButtons, document.body.firstChild);
+  }
+  
+  return navButtons;
+}
+
 // ... rest of the code ...

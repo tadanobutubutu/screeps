@@ -88,7 +88,6 @@ function implementAccessibilityFixesFromReport (container, report) {
   if (typeof validateLandmark === 'function') {
     validateLandmark(container)
   }
-}
 
   // Fix SVG accessible names
   const svgElements = container.querySelectorAll('svg')

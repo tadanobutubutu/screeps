@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserve
 
 // User Safety: unsafe
@@ -135,4 +132,3 @@ if (require.main === module) {
     return validLandmarks;
   }
 }
-```

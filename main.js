@@ -135,6 +135,21 @@ if (typeof window !== 'undefined') {
   wrapContentWithMain();
 }
 
+// Additional function to wrap primary content in <main> as per issue
+function wrapPrimaryContentInMain() {
+  const contentToWrap = document.querySelector('div.container');
+  if (contentToWrap) {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(contentToWrap);
+    document.body.insertBefore(mainElement, document.body.firstChild);
+  }
+}
+
+// Call the new function
+if (typeof window !== 'undefined') {
+  wrapPrimaryContentInMain();
+}
+
 // ... (Preserve all existing code, exports, and functions)
 
 module.exports = {

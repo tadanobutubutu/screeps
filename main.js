@@ -27,10 +27,16 @@ const renderGraphIndex = (graphData) => {
   renderDependencyGraphs(graphData);
 }
 
-// TODO: Update the existing function using the new functions for rendering graph/index
-// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+// Update the existing function using the new functions for rendering graph/index
+const renderGraphIndexUpdated = (graphData) => {
+  addLanguageAttribute();
+  renderGraphIndex(graphData);
+}
 
-// TODO: Add a language attribute to the HTML element
+// Add a language attribute to the HTML element
+const initializePageLanguage = () => {
+  addLanguageAttribute();
+}
 
 module.exports = {
   createInPageButton,
@@ -43,5 +49,7 @@ module.exports = {
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   addressAccessibilityIssues,
-  renderGraphIndex
+  renderGraphIndex,
+  renderGraphIndexUpdated,
+  initializePageLanguage
 }

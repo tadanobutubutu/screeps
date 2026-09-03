@@ -39,17 +39,48 @@ function checkIfBodyContainButton(buttonId) {
 
 // NEW FUNCTION: Add a function to handle getLangAttribute() if needed
 function getLangAttribute() {
-    // Implement this function as necessary
+    const html = document.documentElement;
+    return html.lang || html.getAttribute('lang') || navigator.language || navigator.userLanguage;
 }
 
 // NEW FUNCTION: Wrap primary content in 'main' if needed
 function wrapPrimaryContentInMain() {
-    // Implement this function as necessary
+    const primaryContent = document.querySelector('main');
+    if (!primaryContent) {
+        const main = document.createElement('main');
+        document.body.appendChild(main);
+        main.appendChild(document.body.firstChild);
+    }
 }
 
 // FUNCTIONS TO HANDLE ADDRESSED ACCESSIBILITY ISSUES:
 // - REACT_015, - REACT_027, - REACT_017, - REACT_041, - REACT_025, - REACT_036
-// Add these functions as needed based on the existing code and the issue description
+function addAriaRoles() {
+    // Add ARIA roles as needed
+    const nav = document.querySelector('nav');
+    if (nav) {
+        nav.setAttribute('role', 'navigation');
+    }
+
+    const searchInput = document.querySelector('input[type="search"]');
+    if (searchInput) {
+        searchInput.setAttribute('aria-label', 'Search');
+    }
+}
+
+function addAriaLabels() {
+    const buttons = document.querySelectorAll('button:not([aria-label])');
+    buttons.forEach(button => {
+        button.setAttribute('aria-label', button.textContent);
+    });
+}
+
+function addRoleDescription() {
+    const footer = document.querySelector('footer');
+    if (footer) {
+        footer.setAttribute('aria-label', 'Footer');
+    }
+}
 
 // TODO: Implement this new function for showing a modal
 function showModal(modalId, modalContent) {
@@ -70,24 +101,11 @@ function spawnButtons(buttonDefinitions) {
 
 // TODO: Address accessibility issues from insight report — FIXED
 function fixAccessibilityIssues() {
-    // Example of a function to fix accessibility issues
-    // This is a placeholder for the actual accessibility fixes
-    // Implement the necessary changes based on the insight report
-    // For example, adding ARIA roles, labels, or other attributes
-
-    // Example fix: Add ARIA role to a navigation landmark
-    const nav = document.querySelector('nav');
-    if (nav) {
-        nav.setAttribute('role', 'navigation');
-    }
-
-    // Example fix: Add ARIA label to a search input
-    const searchInput = document.querySelector('input[type="search"]');
-    if (searchInput) {
-        searchInput.setAttribute('aria-label', 'Search');
-    }
-
-    // Additional accessibility fixes can be added here
+    validateLandmarkStructure();
+    wrapPrimaryContentInMain();
+    addAriaRoles();
+    addAriaLabels();
+    addRoleDescription();
 }
 
 // Function to generate accessibility report
@@ -98,7 +116,21 @@ function generateAccessibilityReport() {
         report.landmark = 'Missing required landmarks';
     }
 
-    // You can add more checks here to generate the report
+    if (!wrapPrimaryContentInMain()) {
+        report.primary_content = 'Primary content is not wrapped in a <main> tag';
+    }
+
+    if (!addAriaRoles()) {
+        report.aria_roles = 'Missing ARIA roles';
+    }
+
+    if (!addAriaLabels()) {
+        report.aria_labels = 'Missing ARIA labels';
+    }
+
+    if (!addRoleDescription()) {
+        report.footer = 'Footer lacking ARIA description';
+    }
 
     return report;
 }
@@ -114,8 +146,4 @@ function performActionWithButton(buttonId, actionFunction) {
 }
 
 // Preserve any existing exports here
-// ADD NEW FUNCTIONS REQUIRED TO ADDRESS ISSUES AS PER THE TO-DO LIST IN THE ISSUE BODY
-// ADD YOUR OWN IMPLEMENTATIONS OF THESE FUNCTIONS HERE
-
-// Export the new functions for accessibility and the new button action function
 export { performActionWithButton, generateAccessibilityReport, fixAccessibilityIssues, checkIfBodyContainButton, showModal, spawnButtons };

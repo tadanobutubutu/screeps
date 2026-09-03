@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 const fs = require('fs');
 const main = require('./utilities');
 
@@ -11,7 +12,6 @@ const {
     validateLandmark,
     validateLandmarkStructure,
     getSvgAccessibleName,
-    getLangAttribute,
     validateAccessibilityReport,
     announceToScreenReader,
     handleKeyboardNav,

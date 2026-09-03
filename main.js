@@ -7,6 +7,17 @@ function getLangAttribute() {
     : 'en'
 }
 
+/**
+ * Formats a person's name from first and last name components
+ * @param {string} firstName - The first name
+ * @param {string} [lastName] - The last name
+ * @returns {string} The formatted full name
+ */
+function personName(firstName, lastName) {
+  if (!firstName) return ''
+  return `${firstName} ${lastName || ''}`.trim()
+}
+
 // Function for ensuring that each landmark on the page has a unique id attribute
 function ensureUniqueLandmarks() {
   const errors = []

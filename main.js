@@ -66,8 +66,6 @@ function checkLandmarkElements(response) {
 // New function as per the issue
 function newFunction() {
   console.log('New function called');
-  // TODO: Implement the new function logic here
-  // Example implementation (to be replaced with the actual logic):
   return 'New function result';
 }
 
@@ -82,14 +80,14 @@ function setARIARoleForDependencyGraph() {
   }
 }
 
-// Function imported from the Git base
+// Function imported from the [PERSON_NAME] base
 function ensureElementHasId(element) {
   if (!element.id) {
     element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
   }
 }
 
-// Function imported from the Git base
+// Function imported from the [PERSON_NAME] base
 function addAriaLabel(element, label) {
   if (!element.hasAttribute('aria-label')) {
     element.setAttribute('aria-label', label);

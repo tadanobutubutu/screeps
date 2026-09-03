@@ -88,7 +88,8 @@ const sampleInsightReport = {
 
 function countDependencies() {
   const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
+  const path = require('path');
+  const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
   const dependencies = packageJson.dependencies || {};
@@ -101,4 +102,12 @@ function countDependencies() {
   };
 }
 
-export { existingFunction1, existingVariable, newFunction, newVariable, checkLandmarkElements, sampleInsightReport };
+// New function to address accessibility issues
+function addLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', 'en'); // Example language
+  }
+}
+
+export { existingFunction1, existingVariable, newFunction, newVariable, checkLandmarkElements, sampleInsightReport, addLangAttribute, countDependencies };

@@ -96,12 +96,35 @@ function initializeApp() {
     validateLandmarkStructure();
 }
 
-// TODO: Implement new function3 logic here
+// Implement new function3 logic here
 function function3(input) {
-    // Example implementation:
+    // Handle null or undefined input
+    if (input === null || input === undefined) {
+        return null;
+    }
+    
+    // Handle string input - trim whitespace and convert to lowercase
     if (typeof input === 'string') {
         return input.trim().toLowerCase();
     }
+    
+    // Handle arrays - process each element recursively
+    if (Array.isArray(input)) {
+        return input.map(item => function3(item));
+    }
+    
+    // Handle objects - process each value recursively
+    if (typeof input === 'object') {
+        const result = {};
+        for (const key in input) {
+            if (input.hasOwnProperty(key)) {
+                result[key] = function3(input[key]);
+            }
+        }
+        return result;
+    }
+    
+    // Return other types as-is (numbers, booleans, etc.)
     return input;
 }
 

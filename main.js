@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import a11y from './AccessibilityUtilities';
+import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
 
 // Import any required modules
 const requiredModule1 = require('required-module-1');

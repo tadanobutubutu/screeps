@@ -510,9 +510,14 @@ app.use(express.json());
  */
 
 function renderDependencyGraph(container, svgElements) {
-  const accessibleName = getSvgAccessibleName(svg);
-
-  setSvgAttributes(svg);
+  let accessibleName = null;
+  
+  if (svgElements && svgElements.length > 0) {
+    const firstSvg = svgElements[0];
+    accessibleName = getSvgAccessibleName(firstSvg);
+    setSvgAttributes(firstSvg);
+  }
+  
   return accessibleName;
 }
 
@@ -610,7 +615,7 @@ function handleCredentialResponse(response) {
  * @param {string} langCode - The language code to set (e.g., 'en', 'es', 'fr')
  * @returns {boolean} - Whether the lang attribute was successfully added
  */
-function addLangAttribute(langCode) {
+function addLangAttributeToDocument(langCode) {
     if (typeof document === 'undefined') {
         return false;
     }

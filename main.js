@@ -199,6 +199,10 @@ const AddressabilityIssues = {
     return result;
   },
 
+  validateLandmark(element) {
+    return AddressabilityIssues.validateLandmark(element);
+  },
+
   validateLandmarkStructure() {
     if (typeof document === 'undefined') return true;
     const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
@@ -327,7 +331,6 @@ function init() {
   setupAriaLiveRegions();
   enhanceSemanticMarkup();
   setupFocusManagement();
-  setupKeyboardNavigation();
   addressInsightIssues();
   enforceAccessibility();
 }
@@ -622,161 +625,3 @@ function spawnSomeCommand(command) {
 }
 
 function addAriaLabel(element, label) {
-  if (label) {
-    element.setAttribute('aria-label', label);
-  }
-}
-
-function setARIARoleForDependencyGraph() {
-  if (typeof document === 'undefined') return;
-  const dependencyGraph = document.getElementById('dependencyGraph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'grid');
-  }
-}
-
-function ensureDependencyGraphAriaRole() {
-  if (typeof document === 'undefined') return;
-  const dependencyGraph = document.getElementById('dependencyGraph');
-  if (dependencyGraph && !dependencyGraph.hasAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'grid');
-  }
-}
-
-function renderDependencyGraph(graphData, container) {
-  if (typeof document === 'undefined') return null;
-  addAriaLabel(container, 'Dependency graph');
-  const graph = document.createElement('div');
-  graph.className = 'dependency-graph';
-  graph.textContent = JSON.stringify(graphData, null, 2);
-  container.appendChild(graph);
-  return graph;
-}
-
-function renderDependencyGraphs() {
-  if (typeof document === 'undefined') return;
-  const containers = document.querySelectorAll('[data-graph-container]');
-  containers.forEach(container => {
-    renderDependencyGraph({}, container);
-  });
-}
-
-function validateTableAccessibility(table) {
-  if (!table) return true;
-
-  const headers = table.querySelectorAll('th');
-  headers.forEach(th => {
-    if (!th.textContent.trim()) {
-      th.setAttribute('aria-label', 'Empty header');
-    }
-  });
-
-  return true;
-}
-
-function validateTableStructure(table) {
-  return checkTableStructure(table);
-}
-
-function validateLandmarkElement(element, landmarkType) {
-  if (!element) return false;
-
-  const existingLandmark = element.getAttribute('role');
-  if (!existingLandmark) {
-    element.setAttribute('role', landmarkType);
-  }
-
-  return true;
-}
-
-function getSvgAccessibleName(svgElement, name) {
-  if (!svgElement) return name || '';
-
-  const title = svgElement.querySelector('title');
-  if (title && title.textContent.trim()) {
-    return title.textContent.trim();
-  }
-
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-
-  const alt = svgElement.getAttribute('alt');
-  if (alt) {
-    return alt;
-  }
-
-  const dataName = svgElement.getAttribute('data-name');
-  if (dataName) {
-    return dataName;
-  }
-
-  return name || '';
-}
-
-function addSvgAccessibleName(svgElement, name) {
-  if (!svgElement || !name) return;
-
-  const title = svgElement.querySelector('title');
-  if (title) {
-    title.textContent = name;
-  } else {
-    const newTitle = document.createElement('title');
-    newTitle.textContent = name;
-    svgElement.insertBefore(newTitle, svgElement.firstChild);
-  }
-}
-
-function setSvgAttributes(svg) {
-  if (typeof document === 'undefined') return;
-  if (!svg.hasAttribute('role')) {
-    svg.setAttribute('role', 'img');
-  }
-  if (!svg.hasAttribute('focusable')) {
-    svg.setAttribute('focusable', 'true');
-  }
-}
-
-function fixButtonIdentifiers() {
-  if (typeof document === 'undefined') return;
-  const buttons = document.querySelectorAll('button:not([aria-label]):not([aria-labelledby])');
-  buttons.forEach(button => {
-    if (!button.textContent.trim() && !button.hasAttribute('aria-label')) {
-      button.setAttribute('aria-label', 'Unlabeled button');
-    }
-  });
-}
-
-function getLandmarkElements() {
-  if (typeof document === 'undefined') return [];
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role]');
-  return Array.from(landmarks);
-}
-
-module.exports = {
-  app,
-  config,
-  AddressabilityIssues,
-  init,
-  countDependencies,
-  checkTableStructure,
-  handleCredentialResponse,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  renderDependencyGraphs,
-  fixFakeLinkIssues,
-  fixButtonIdentifiers,
-  setupAriaLiveRegions,
-  setupFocusManagement,
-  enhanceSemanticMarkup,
-  getLandmarkElements,
-  createInPageButton,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  validateLandmark,
-  validateLandmarkStructure,
-  addressAccessibilityIssues,
-  addLangAttribute,
-  getLangAttribute
-};

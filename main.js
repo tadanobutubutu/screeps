@@ -1,17 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and addAriaToFormControls())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
-// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
-
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-=======
->>>>>>> origin/main
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -585,4 +572,184 @@ function addressNewAccessibilityIssues() {
   }
 
   // Check for color contrast issues (simplified check)
-  const textElements = document.querySelectorAll('
+  const textElements = document.querySelectorAll('body, div, p, span, h1, h2, h3, h4, h5, h6, a, button, li, td, th');
+
+  textElements.forEach(el => {
+    const style = window.getComputedStyle(el);
+    const bgColor = style.backgroundColor;
+    const textColor = style.color;
+
+    // Basic check - could be enhanced with real contrast ratio calculation
+    if (bgColor && textColor && bgColor === textColor) {
+      issues.push({
+        code: 'CONTRAST',
+        element: el,
+        message: 'Text has same color as background'
+      });
+    }
+  });
+
+  return { valid: issues.length === 0, issues };
+}
+
+// Additional helper functions for accessibility
+
+/**
+ * Wraps primary content in a main element for accessibility
+ * @returns {HTMLElement} The main element
+ */
+function wrapPrimaryContentInMain() {
+  if (typeof document === 'undefined') return null;
+
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+
+  // Try to find the primary content container
+  const primary = document.querySelector('main') || document.querySelector('[role="main"]');
+  if (primary) {
+    // Move existing main content into the main element
+    while (primary.firstChild) {
+      main.appendChild(primary.firstChild);
+    }
+    return main;
+  }
+
+  // If no existing main, create one and move body children
+  const body = document.body;
+  if (body) {
+    while (body.firstChild) {
+      main.appendChild(body.firstChild);
+    }
+    body.appendChild(main);
+  }
+
+  return main;
+}
+
+/**
+ * Adds aria-label to form controls
+ * @param {HTMLFormElement} form - The form element
+ * @returns {number} Number of controls that were fixed
+ */
+function addAriaToFormControls(form) {
+  if (!form || typeof document === 'undefined') return 0;
+
+  let fixedCount = 0;
+  const inputs = form.querySelectorAll('input, select, textarea, button');
+
+  inputs.forEach(input => {
+    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
+      const label = document.querySelector(`label[for="${input.id}"]`) ||
+                    input.closest('label');
+
+      if (label) {
+        if (label.hasAttribute('for')) {
+          input.setAttribute('aria-labelledby', label.id);
+          if (!label.id) {
+            label.id = `${input.id}-label`;
+            input.setAttribute('aria-labelledby', label.id);
+          }
+        } else {
+          input.setAttribute('aria-label', label.textContent.trim());
+        }
+        fixedCount++;
+      }
+    }
+  });
+
+  return fixedCount;
+}
+
+/**
+ * Fixes fake link issues in the document
+ * @param {HTMLElement} container - Container to search for links (defaults to document)
+ * @returns {number} Number of fake links that were fixed
+ */
+function fixFakeLinkIssues(container = document) {
+  if (typeof document === 'undefined') return 0;
+
+  let fixedCount = 0;
+  const links = container.querySelectorAll('a');
+
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    if ((!href || href === '#' || href === '') && !link.hasAttribute('role')) {
+      link.setAttribute('role', 'button');
+      link.tabIndex = 0;
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+      fixedCount++;
+    }
+  });
+
+  return fixedCount;
+}
+
+/**
+ * Ensures unique landmarks in the document by adding identifiers if needed
+ * @returns {number} Number of landmarks that were modified
+ */
+function addFixLandmarkIssues() {
+  if (typeof document === 'undefined') return 0;
+
+  let modifiedCount = 0;
+  const landmarks = document.querySelectorAll('[role], main, header, nav, aside, footer, section, article');
+
+  const landmarkTypes = new Map();
+
+  landmarks.forEach(landmark => {
+    let role = landmark.getAttribute('role');
+    if (!role) {
+      const tagName = landmark.tagName.toLowerCase();
+      const landmarkMap = {
+        'main': 'main',
+        'header': 'banner',
+        'nav': 'navigation',
+        'aside': 'complementary',
+        'footer': 'contentinfo'
+      };
+      role = landmarkMap[tagName] || 'region';
+    }
+
+    if (role) {
+      const count = landmarkTypes.get(role) || 0;
+      landmarkTypes.set(role, count + 1);
+
+      if (count > 0) {
+        // Add unique ID if not present
+        if (!landmark.hasAttribute('id')) {
+          landmark.setAttribute('id', `${role}-${count}`);
+          modifiedCount++;
+        }
+      }
+    }
+  });
+
+  return modifiedCount;
+}
+
+// Export functions for module usage
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    setHtmlLangAttribute,
+    detectAndSetLang,
+    getLangAttribute,
+    personName,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    ensureUniqueLandmarks,
+    createAccessibleLink,
+    isLinkAccessible,
+    createInPageButton,
+    newFocusTrap,
+    addressNewAccessibilityIssues,
+    wrapPrimaryContentInMain,
+    addAriaToFormControls,
+    fixFakeLinkIssues,
+    addFixLandmarkIssues
+  };
+}

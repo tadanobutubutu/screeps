@@ -2,7 +2,7 @@ const fs = require('fs');
 const url = require('url');
 
 // Dependency imports
-const { dependencyGraphContent, indexContent } = require('./dependencyContent');
+const { dependencyGraphContent, indexContent } = require('./some-module');
 
 const {
   createInPageButton,
@@ -52,7 +52,7 @@ const accessibilityUtils = {
 
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).substr(2, 9);
   }
   return element;
 };
@@ -94,7 +94,7 @@ accessibilityUtils.trapFocus = (element) => {
   }
 
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
 
   if (focusableElements.length === 0) {
@@ -117,7 +117,7 @@ accessibilityUtils.trapFocus = (element) => {
     }
 
     if (e.key === 'Escape') {
-      element.dispatchEvent(new KeyboardEvent('escape'));
+      element.dispatchEvent(new CustomEvent('escapePressed'));
     }
   };
 
@@ -221,7 +221,7 @@ const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
 
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('button, a, input, select, textarea').forEach(element => {
+  document.querySelectorAll('a, input, select, textarea').forEach(element => {
     element.addEventListener('keydown', (e) => {
       const handlers = {
         Enter: () => element.click(),
@@ -246,17 +246,17 @@ function groupByCategory(items, getCategory) {
 }
 
 // Accessibility-related functions
-function ensureDependencyGraphARIA() {
-  const dependencyGraphElement = document.querySelector('.dependency-graph');
-  if (dependencyGraphElement) {
+function ensureDependencyGraphARIA(dependencyGraphElement) {
+  const depGraphElement = dependencyGraphElement || document.querySelector('.dependency-graph');
+  if (depGraphElement) {
     // Set appropriate ARIA role for the dependency graph container
-    if (!dependencyGraphElement.getAttribute('role')) {
-      dependencyGraphElement.setAttribute('role', 'region');
+    if (!depGraphElement.getAttribute('role')) {
+      depGraphElement.setAttribute('role', 'region');
     }
 
     // Add accessible label if not already present
-    if (!dependencyGraphElement.getAttribute('aria-label')) {
-      dependencyGraphElement.setAttribute('aria-label', 'Dependency graph visualization');
+    if (!depGraphElement.getAttribute('aria-label')) {
+      depGraphElement.setAttribute('aria-label', 'Dependency graph visualization');
     }
   }
 }
@@ -268,33 +268,17 @@ const initiateAnnounceToScreenReader = (message, priority) => {
 
 const announcementDelayHandler = () => {
   setTimeout(() => {
-    const announcer = document.querySelector('#sr-announcer');
+    const announcer = document.getElementById('announcer');
     if (announcer) {
-      document.body.removeChild(announcer);
+      announcer.textContent = '';
     }
   }, 1000);
-};
-
-function handleKeyboardNav(e, handlers) {
-  handleKeyboardNav(e, handlers);
-  handleKeyboardNavKeyDownEvent(e, handlers);
-}
-
-const handleKeyboardNavKeyDownEvent = (e, handlers) => {
-  if (e.key === 'Tab') {
-    Object.values(handlers).forEach((handler) => {
-      if (handler) {
-        handler(e);
-      }
-    });
-  }
 };
 
 // Merge newFocusTrap function from the original import
 const newFocusTrap = originNewFocusTrap;
 
 module.exports = {
-  ...main,
   ...accessibilityUtils,
   ensureElementId,
   ensureElementIdOrigin,
@@ -316,20 +300,4 @@ module.exports = {
   filterValidItems,
   exportUtilities,
   calculateSum,
-  ensureDependencyGraphARIA,
-  ensureElementAccessibility,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  handleKeyboardNavKeyDownEvent
-};
+  ensureDependencyGraph

@@ -1,6 +1,4 @@
 // TODO: Add any other missing exports that might have been?
-const config = {};
-
 // Application state
 let isInitialized = false;
 const appData = {};
@@ -242,3 +240,39 @@ function addressAccessibilityIssues() {
       fixesApplied: [
         'table_accessibility',
         'landmark_issues',
+        'svg_accessibility',
+        'accessible_links'
+      ]
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Failed to address accessibility issues',
+      error: error.message
+    };
+  }
+}
+
+module.exports = {
+  getLangAttribute,
+  addLangAttribute,
+  logCurrentURL,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  ensureUniqueLandmarks,
+  writeReport,
+  createAccessibleLinks,
+  addressAccessibilityIssues
+};

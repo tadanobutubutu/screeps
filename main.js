@@ -39,6 +39,159 @@ function newFunction () {
 }
 
 /**
+ * Validates landmark structure for accessibility issues
+ * Checks for proper landmark elements, unique landmarks, and proper ARIA attributes
+ * @param {HTMLElement} container - The container element to check for landmarks
+ * @returns {Array} Array of accessibility issues found
+ */
+function validateLandmarkStructure(container) {
+  const issues = [];
+  
+  if (!container) {
+    return issues;
+  }
+  
+  const landmarkRoles = [
+    { role: 'banner', selector: 'header', multiple: false },
+    { role: 'navigation', selector: 'nav', multiple: false },
+    { role: 'main', selector: 'main', multiple: false },
+    { role: 'complementary', selector: 'aside', multiple: false },
+    { role: 'contentinfo', selector: 'footer', multiple: false }
+  ];
+  
+  landmarkRoles.forEach(landmark => {
+    const elements = container.querySelectorAll(`${landmark.selector}, [role="${landmark.role}"]`);
+    
+    if (elements.length === 0) {
+      issues.push({
+        type: 'landmark-missing',
+        message: `Required landmark "${landmark.role}" is missing`,
+        element: null
+      });
+    } else if (!landmark.multiple && elements.length > 1) {
+      issues.push({
+        type: 'landmark-duplicate',
+        message: `Multiple instances of landmark "${landmark.role}" found (only one should exist)`,
+        element: elements[1]
+      });
+    }
+    
+    elements.forEach((element, index) => {
+      const hasLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
+      const hasDescribedBy = element.hasAttribute('aria-describedby');
+      
+      if (!hasLabel && !hasDescribedBy) {
+        issues.push({
+          type: 'landmark-missing-label',
+          message: `Landmark "${landmark.role}" is missing an accessible label (aria-label or aria-labelledby)`,
+          element: element
+        });
+      }
+      
+      if (hasLabel) {
+        const label = element.getAttribute('aria-label');
+        if (label && label.trim() === '') {
+          issues.push({
+            type: 'landmark-empty-label',
+            message: `Landmark "${landmark.role}" has an empty aria-label`,
+            element: element
+          });
+        }
+      }
+    });
+  });
+  
+  const existingLandmarks = container.querySelectorAll('[role]');
+  const roleCounts = {};
+  
+  existingLandmarks.forEach(el => {
+    const role = el.getAttribute('role');
+    if (!roleCounts[role]) {
+      roleCounts[role] = [];
+    }
+    roleCounts[role].push(el);
+  });
+  
+  Object.keys(roleCounts).forEach(role => {
+    const elements = roleCounts[role];
+    const uniqueRoles = ['banner', 'main', 'contentinfo'];
+    
+    if (uniqueRoles.includes(role) && elements.length > 1) {
+      elements.slice(1).forEach((el, index) => {
+        if (!el.getAttribute('aria-label')) {
+          issues.push({
+            type: 'landmark-duplicate-without-label',
+            message: `Duplicate landmark role "${role}" (instance ${index + 2}) is missing an aria-label to distinguish it`,
+            element: el
+          });
+        }
+      });
+    }
+  });
+  
+  const mainElements = container.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    const body = container.querySelector('body');
+    if (body) {
+      issues.push({
+        type: 'landmark-missing-main',
+        message: 'No main landmark found. Consider adding a <main> element or an element with role="main"',
+        element: body
+      });
+    }
+  }
+  
+  const navElements = container.querySelectorAll('nav, [role="navigation"]');
+  navElements.forEach((nav, index) => {
+    const hasLabel = nav.hasAttribute('aria-label') || nav.hasAttribute('aria-labelledby');
+    if (!hasLabel) {
+      const isMultiple = navElements.length > 1;
+      issues.push({
+        type: 'nav-missing-label',
+        message: isMultiple 
+          ? `Navigation landmark ${index + 1} is missing an aria-label to distinguish it from other navigation`
+          : 'Navigation landmark is missing an aria-label',
+        element: nav
+      });
+    }
+  });
+  
+  const headerElements = container.querySelectorAll('header, [role="banner"]');
+  if (headerElements.length > 1) {
+    headerElements.forEach((header, index) => {
+      if (index > 0) {
+        const withinMain = header.closest('main') || header.closest('[role="main"]');
+        if (withinMain) {
+          issues.push({
+            type: 'banner-inside-main',
+            message: 'Banner landmark should not be placed inside the main content area',
+            element: header
+          });
+        }
+      }
+    });
+  }
+  
+  const footerElements = container.querySelectorAll('footer, [role="contentinfo"]');
+  if (footerElements.length > 1) {
+    footerElements.forEach((footer, index) => {
+      if (index > 0) {
+        const withinMain = footer.closest('main') || footer.closest('[role="main"]');
+        if (withinMain) {
+          issues.push({
+            type: 'contentinfo-inside-main',
+            message: 'Contentinfo landmark should not be placed inside the main content area',
+            element: footer
+          });
+        }
+      }
+    });
+  }
+  
+  return issues;
+}
+
+/**
  * Validates table structure for accessibility issues
  * Checks for proper table headers, scope attributes, captions, and structure
  * @param {HTMLElement} container - The container element to check for tables
@@ -628,75 +781,6 @@ if (dependencyGraph) {
   }
 }
 
-  // TODO: Implement function for generating a report based on accessibility issues
-  // Replaced placeholder with full implementation using axe-core scanning and report writing
-  /**
-   * Generates a report of accessibility issues by scanning the current document
-   * using axe-core and logging the results.
-   * 
-   * @param {Object} axe - An instance of axe-core for accessibility scanning.
-   * @returns {Promise<void>}
-   */
-  async generateAccessibilityReport(axe) {
-    try {
-      // Scan the entire document for accessibility violations
-      const results = await axe.run(document, {
-        runOnly: {
-          type: 'tag',
-          values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']
-        },
-        resultTypes: ['violations', 'incomplete', 'passes']
-      });
-
-      // Construct the report content
-      const report = {
-        violations: results.violations,
-        incomplete: results.incomplete,
-        passes: results.passes,
-        timestamp: new Date().toISOString()
-      };
-
-      // Log detailed information about violations
-      console.log('=== Accessibility Report ===');
-      console.log(`Scan completed at: ${report.timestamp}`);
-
-      if (report.violations.length > 0) {
-        console.warn(`Found ${report.violations.length} accessibility violations:`);
-        report.violations.forEach((violation, index) => {
-          console.warn(`[${index + 1}] [${violation.id}] ${violation.description}`);
-          console.warn(`   Help: ${violation.help}`);
-          console.warn(`   Impact: ${violation.impact}`);
-          console.warn(`   Affected nodes:`);
-          violation.nodes.forEach(node => {
-            console.warn(`     - ${node.html}`);
-            console.warn(`       Fix: ${node.failureSummary}`);
-          });
-        });
-      } else {
-        console.log('No accessibility violations found.');
-      }
-
-      if (report.incomplete.length > 0) {
-        console.info(`Found ${report.incomplete.length} incomplete items requiring manual review.`);
-        report.incomplete.forEach((item, index) => {
-          console.info(`[${index + 1}] [${item.id}] ${item.description}`);
-          console.info(`   Help: ${item.help}`);
-          item.nodes.forEach(node => {
-            console.info(`     - ${node.html}`);
-          });
-        });
-      }
-
-      console.log(`Total passed checks: ${report.passes.length}`);
-
-      return report;
-    } catch (error) {
-      console.error('Failed to generate accessibility report:', error.message);
-      throw error;
-    }
-  }
-}
-
 // Function to render dependency graph
 function renderDependencyGraph(element) {
   console.log('Rendering dependency graph for element:', element);
@@ -787,6 +871,11 @@ function renderAdditionalContent (additionalData) {
   return `<div>${JSON.stringify(additionalData)}</div>`
 }
 
+// Function to render index
+function renderIndex() {
+  return renderGraphIndex.apply(this, arguments);
+}
+
 // Preserve all existing exports
 module.exports = {
   ...main,
@@ -841,9 +930,5 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   initializeAccessibility,
-  renderIndex: function() { return renderGraphIndex.apply(this, arguments); },
   renderAdditionalContent
 };
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent

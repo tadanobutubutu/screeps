@@ -58,6 +58,11 @@ function handleTabNavigation(event, activeElement) {
   console.log('Handling tab navigation');
 }
 
+// New function: Calculate discount based on some criteria
+function calculateDiscount(price, discountRate) {
+  return price * (1 - discountRate);
+}
+
 // Import and use existing functions from utilities
 const { renderDependencyGraphs, ...mainUtilities } = main;
 
@@ -66,6 +71,9 @@ module.exports = {
   addTask,
   setFocus,
   handleKeyboardNavigation,
+  navigateWithArrow,
+  handleTabNavigation,
+  calculateDiscount,
   renderDependencyGraphs,
   ...mainUtilities
 }

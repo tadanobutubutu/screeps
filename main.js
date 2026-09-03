@@ -429,7 +429,7 @@ function ensureSvgAccessibleNames() {
 }
 
 function ensureDependencyGraphAriaRole() {
-  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph");
+  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph');
   
   if (container) {
     if (!container.hasAttribute('role')) {
@@ -581,32 +581,16 @@ function focusTrap(container) {
   // Implementation placeholder
 }
 
-function renderDependencyGraphs(container) {
-  // Implementation placeholder
+function navigate() {
+  return main.navigate();
 }
 
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('header[role="banner"], footer[role="contentinfo"], main[role="main"], nav[role="navigation"]');
-  const seenIds = new Set();
-  
-  landmarks.forEach(landmark => {
-    if (!landmark.id) {
-      const tagName = landmark.tagName.toLowerCase();
-      let id = tagName;
-      let counter = 1;
-      while (seenIds.has(id)) {
-        id = `${tagName}-${counter++}`;
-      }
-      landmark.id = id;
-      seenIds.add(id);
-    } else {
-      seenIds.add(landmark.id);
-    }
-  });
+function trapFocus() {
+  return main.trapFocus();
+}
 
-  const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
-  const uniqueIds = new Set(allIds);
-  return uniqueIds.size === allIds.length;
+function handleFakeLinks() {
+  // Implementation placeholder
 }
 
 // Export for use in other modules

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from ...
+import reportWebVitals from 'report-web-vitals';
 import a11y from './AccessibilityUtilities';
 
 import { axe } from 'axe-core';

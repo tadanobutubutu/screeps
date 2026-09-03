@@ -15,6 +15,10 @@ const primaryContent = (typeof document !== 'undefined') ? (document.querySelect
 // Adding the required export that was removed
 const XYZ = function () {
     // Implementation for XYZ function
+    return {
+        status: 'initialized',
+        message: 'XYZ module ready'
+    };
 };
 
 module.exports = {

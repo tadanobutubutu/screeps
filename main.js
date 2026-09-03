@@ -149,5 +149,7 @@ module.exports = {
   setFocus,
   handleKeyboardNavigation,
   renderDependencyGraphs,
-  ...mainUtilities
+  ...mainUtilities,
+  // ADD: New accessibility functions
+  accessibilityUtils,
 }

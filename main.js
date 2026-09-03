@@ -1,42 +1,31 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// REACT_015: Add lang attribute
-// REACT_017 & REACT_025: Fix and ensure unique landmarks
-// REACT_027: Fix 26 table structure issues
-// REACT_025: Ensure unique landmarks
-// REACT_041: Add accessible names to 2 SVGs
-// REACT_036: Fix 1 fake link issue
-// REACT_037: Google sign-in logic
-// REACT_040: Replace my-button with actual button id for accessibility
-// REACT_042: Ensure dependencyGraph container has proper ARIA role
+// main.js - Application entry point
+// TODO: Existing main.js content before the merge conflict...
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-// main.js - Entry point for the application
-
-// Module imports and configuration
 const config = require('./config');
 const logger = require('./utils/logger');
 const express = require('express');
 const axe = require('axe-core');
-const fs = require('fs');
-const path = require('path');
-const fastMap = require('fast-map');
+const utils = require('./utils');
+const { a11y } = require('@accessible/react');
 
-// Configuration - merged
+// Configuration
 const CONFIG = {
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  maxResults: 100,
-  dataPath: './data'
+    name: 'MyApp',
+    version: '1.0.0',
+    debug: false,
+    dataPath: './data',
+    maxResults: 100
 };
 
-// Application state
-const appState = {
-    initialized: false,
-    data: null,
-    cache: {}
-};
+// Application configuration (alias for CONFIG)
+const config = CONFIG;
 
 // Export functions for addressing accessibility issues
 const ensureLangAttribute = () => {

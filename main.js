@@ -631,6 +631,200 @@ function renderIndexView(indexPath, container, options = {}) {
   }
 }
 
+/**
+ * Handles a focus trap for keyboard navigation within a container element.
+ * Traps Tab/Shift+Tab focus within the container, supports Escape to deactivate,
+ * and restores focus to the previously focused element when deactivated.
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @param {Object} options - Configuration options
+ * @param {boolean} options.escapeDeactivates - Whether Escape key deactivates the trap (default: true)
+ * @param {HTMLElement} options.initialFocus - Element to focus when trap activates (default: first focusable element)
+ * @param {HTMLElement} options.returnFocus - Element to return focus to on deactivation (default: previously focused element)
+ * @param {string} options.trapKey - Keydown event type to use (default: 'keydown')
+ * @returns {Object} An object with activate() and deactivate() methods to control the trap
+ */
+function focusTrap(container, options = {}) {
+  const config = {
+    escapeDeactivates: options.escapeDeactivates !== undefined ? options.escapeDeactivates : true,
+    initialFocus: options.initialFocus || null,
+    returnFocus: options.returnFocus || null,
+    trapKey: options.trapKey || 'keydown'
+  };
+
+  // Selectors for elements that can receive focus
+  const FOCUSABLE_SELECTORS = [
+    'a[href]',
+    'area[href]',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    'button:not([disabled])',
+    'object',
+    'embed',
+    '[tabindex]:not(.focus-trap-ignore)',
+    '[contenteditable]'
+  ].join(',');
+
+  let previouslyFocusedElement = null;
+  let active = false;
+  let eventListener = null;
+
+  // Validate container (allow graceful behavior when document is undefined)
+  const isContainerValid = container && typeof container.querySelectorAll === 'function';
+
+  /**
+   * Get all focusable elements within the container
+   * @returns {Array} Array of focusable elements
+   */
+  function getFocusableElements() {
+    if (!isContainerValid) return [];
+    const elements = Array.from(container.querySelectorAll(FOCUSABLE_SELECTORS));
+    return elements.filter(el => {
+      // Filter out elements that are not visible or have negative tabindex
+      if (el.hasAttribute('tabindex') && parseInt(el.getAttribute('tabindex'), 10) < 0) {
+        return false;
+      }
+      // Filter out elements that are hidden
+      if (el.offsetWidth === 0 && el.offsetHeight === 0 && el.getClientRects().length === 0) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  /**
+   * Handle keydown events to trap focus
+   * @param {KeyboardEvent} event - The keyboard event
+   */
+  function handleKeyDown(event) {
+    if (!active || !isContainerValid) return;
+
+    const key = event.key || event.keyCode;
+
+    // Handle Escape key
+    if (config.escapeDeactivates && (key === 'Escape' || key === 'Esc' || key === 27)) {
+      event.preventDefault();
+      deactivate();
+      return;
+    }
+
+    // Handle Tab key
+    if (key === 'Tab' || key === 9) {
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const currentActiveElement = document.activeElement;
+
+      if (event.shiftKey) {
+        // Shift+Tab: if on first element, move to last
+        if (currentActiveElement === firstElement || !container.contains(currentActiveElement)) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        // Tab: if on last element, move to first
+        if (currentActiveElement === lastElement || !container.contains(currentActiveElement)) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  }
+
+  /**
+   * Activate the focus trap
+   * @returns {Object} Result with success status
+   */
+  function activate() {
+    if (!isContainerValid) {
+      return { success: false, errors: ['Container element is required and must be a valid DOM element'] };
+    }
+
+    if (active) {
+      return { success: false, errors: ['Focus trap is already active'] };
+    }
+
+    // Save the currently focused element to restore later
+    previouslyFocusedElement = config.returnFocus || (typeof document !== 'undefined' ? document.activeElement : null);
+
+    // Add event listener
+    eventListener = handleKeyDown;
+    if (typeof document !== 'undefined' && document.addEventListener) {
+      document.addEventListener(config.trapKey, eventListener, true);
+    }
+
+    // Focus the initial element
+    if (config.initialFocus) {
+      try {
+        config.initialFocus.focus();
+      } catch (e) {
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length > 0) {
+          focusableElements[0].focus();
+        }
+      }
+    } else {
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      }
+    }
+
+    active = true;
+
+    return { success: true, message: 'Focus trap activated' };
+  }
+
+  /**
+   * Deactivate the focus trap and restore focus
+   * @returns {Object} Result with success status
+   */
+  function deactivate() {
+    if (!active) {
+      return { success: false, errors: ['Focus trap is not active'] };
+    }
+
+    // Remove event listener
+    if (eventListener && typeof document !== 'undefined' && document.removeEventListener) {
+      document.removeEventListener(config.trapKey, eventListener, true);
+      eventListener = null;
+    }
+
+    // Restore focus to the previously focused element
+    if (previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
+      try {
+        previouslyFocusedElement.focus();
+      } catch (e) {
+        // Silently ignore focus errors
+      }
+    }
+
+    active = false;
+    previouslyFocusedElement = null;
+
+    return { success: true, message: 'Focus trap deactivated' };
+  }
+
+  /**
+   * Check if the focus trap is currently active
+   * @returns {boolean} True if active
+   */
+  function isActive() {
+    return active;
+  }
+
+  return {
+    activate,
+    deactivate,
+    isActive
+  };
+}
+
 // TODO: Implement tower defense
 function towerDefense() {
   // A simple tower defense game implementation
@@ -803,5 +997,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
+  focusTrap,
   towerDefense
 };

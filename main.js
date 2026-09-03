@@ -22,7 +22,6 @@ const {
   addMainLandmarkToIndex,
   focusTrap,
   renderAdditionalContent,
-  transformInputData,
   initSkipLink,
   trapFocus,
   ensureElementHasId,

@@ -493,6 +493,24 @@ function addSvgAccessibleNames() {
 }
 
 /**
+ * Harvests data from the environment and external sources
+ * @returns {Object} Harvested data including system information
+ */
+function harvestData() {
+  const harvested = {
+    environment: {
+      apiUrl: process.env.API_URL,
+      timeout: process.env.TIMEOUT,
+      upgradeNeeded: process.env.UPGRADE_NEEDED === 'true'
+    },
+    timestamp: Date.now(),
+    config: getConfig()
+  };
+
+  return harvested;
+}
+
+/**
  * Implements upgrade logic using harvested data to improve the system
  * This function checks environment variables for upgrade triggers and updates the system configuration accordingly.
  */
@@ -654,6 +672,7 @@ module.exports = {
   getSvgAccessibleNameAlt,
   setSvgAttributes,
   addSvgAccessibleNames,
+  harvestData,
   upgradeSystem,
   addLangAttribute,
   fixTableStructureIssues,

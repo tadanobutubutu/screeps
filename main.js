@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
@@ -143,6 +140,3 @@ function renderDependencyGraph(containerId, graphData) {
 
 // Preserve any existing exports here
 export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, upgrade, renderGraphIndex, renderDependencyGraph };
-```
-
-This resolves the Git merge conflict by combining both sets of changes. The accessibility changes for the dependencyGraph container, which was added in one commit but missing in the other, has been integrated. The new `renderGraphIndex()` function and the corresponding export has been added, replacing the old `renderDependencyGraph()` function. The rest of the changes are preserved.

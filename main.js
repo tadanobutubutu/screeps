@@ -84,6 +84,12 @@ const XYZ = function () {
     // Implementation for XYZ function
 };
 
+function setHtmlLangAttribute(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('lang', lang);
+    }
+}
+
 setHtmlLangAttribute('en');
 
 // Validate the table structure for accessibility issues
@@ -103,6 +109,93 @@ if (typeof document !== 'undefined') {
   } else {
     validateAllTables();
   }
+}
+
+// NEW: Implement a new function to handle focus trap for keyboard navigation
+function newFocusTrap(container) {
+    if (typeof container === 'undefined' || !container.querySelectorAll) {
+        return () => {};
+    }
+
+    const focusableElements = container.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    function handleTabKey(e) {
+        if (e.key !== 'Tab') return;
+
+        if (e.shiftKey) {
+            if (document.activeElement === firstFocusable) {
+                e.preventDefault();
+                lastFocusable.focus();
+            }
+        } else {
+            if (document.activeElement === lastFocusable) {
+                e.preventDefault();
+                firstFocusable.focus();
+            }
+        }
+    }
+
+    container.addEventListener('keydown', handleTabKey);
+
+    if (firstFocusable) {
+        firstFocusable.focus();
+    }
+
+    return () => {
+        container.removeEventListener('keydown', handleTabKey);
+    };
+}
+
+// Function to handle person name accessibility
+function personName(element) {
+    if (!element) return;
+
+    const name = element.textContent?.trim() || element.getAttribute('aria-label') || element.getAttribute('title');
+    if (name && !element.hasAttribute('aria-label')) {
+        element.setAttribute('aria-label', name);
+    }
+    return element;
+}
+
+// Function to wrap primary content in main landmark
+function wrapPrimaryContentInMain() {
+    if (typeof document === 'undefined') return;
+
+    const main = document.querySelector('main') || document.querySelector('[role="main"]');
+    if (main) return;
+
+    const content = primaryContent;
+    if (content && content.parentNode) {
+        const newMain = document.createElement('main');
+        newMain.id = 'main-content';
+        newMain.setAttribute('role', 'main');
+        content.parentNode.insertBefore(newMain, content);
+        newMain.appendChild(content);
+    }
+}
+
+// Function to fix landmark structure
+function fixLandmarkStructure() {
+    if (typeof document === 'undefined') return document.body?.innerHTML || '';
+
+    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="form"], header, nav, main, aside, footer');
+    const seenRoles = new Set();
+
+    landmarks.forEach(landmark => {
+        const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+        if (seenRoles.has(role)) {
+            landmark.removeAttribute('role');
+        } else {
+            seenRoles.add(role);
+        }
+    });
+
+    return document.body.innerHTML;
 }
 
 module.exports = {
@@ -192,6 +285,26 @@ module.exports = {
         const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
         const role = element.getAttribute('role');
         return validLandmarks.includes(role);
+    },
+
+    validateLandmarkStructure: function () {
+        if (typeof document === 'undefined') return true;
+
+        const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="form"], header, nav, main, aside, footer');
+        const seenRoles = new Set();
+        let valid = true;
+
+        landmarks.forEach(landmark => {
+            const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+            if (seenRoles.has(role)) {
+                console.warn(`Duplicate landmark role detected: ${role}`);
+                valid = false;
+            } else {
+                seenRoles.add(role);
+            }
+        });
+
+        return valid;
     },
 
     ensureUniqueLandmarks: function () {
@@ -290,5 +403,10 @@ module.exports = {
     },
 
     addSvgAccessibilityProps: addSvgAccessibilityProps,
-    setSvgAttributes: setSvgAttributes
+    setSvgAttributes: setSvgAttributes,
+    newFocusTrap: newFocusTrap,
+    personName: personName,
+    wrapPrimaryContentInMain: wrapPrimaryContentInMain,
+    fixLandmarkStructure: fixLandmarkStructure,
+    setHtmlLangAttribute: setHtmlLangAttribute
 };

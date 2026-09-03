@@ -283,6 +283,22 @@ var AddressabilityIssues = {
   }
 };
 
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    'http': 1,
+    'path': 1,
+    'fs': 1,
+    'express': 1,
+    'child_process': 1
+  };
+  
+  return {
+    count: Object.keys(dependencies).length,
+    dependencies: Object.keys(dependencies)
+  };
+}
+
 function processSvgElements() {
   if (typeof document === 'undefined') return;
   const svgElements = document.querySelectorAll('svg');
@@ -563,7 +579,7 @@ if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
   module.exports = {
     checkTableStructure,
-    countDependencies: AddressabilityIssues.countDependencies,
+    countDependencies,
     init,
     setupAriaLiveRegions,
     setupFocusManagement,
@@ -885,19 +901,6 @@ function startApp() {
     }
   });
   return server;
-}
-
-function countDependencies() {
-  if (AddressabilityIssues && typeof AddressabilityIssues.countDependencies === 'function') {
-    return AddressabilityIssues.countDependencies();
-  }
-  return {};
-}
-
-function newFunction() {
-  if (AddressabilityIssues && typeof AddressabilityIssues.newFunction === 'function') {
-    return AddressabilityIssues.newFunction();
-  }
 }
 
 function setARIARoleForDependencyGraph() {

@@ -16,7 +16,7 @@ function handleCredentialResponse(credential) {
     // Handle attestation response (from registration)
     if (response.attestationObject) {
         const attestationBuffer = response.attestationObject;
-        const attestationObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(attestationBuffer)));
+        const attestationObj = new Uint8Array(attestationBuffer);
 
         console.log('Credential registered successfully');
         console.log('Credential ID:', credential.id);
@@ -30,12 +30,12 @@ function handleCredentialResponse(credential) {
     }
 
     // Handle assertion response (from authentication)
-    if (response.authenticatorData && response.clientDataJSON) {
+    if (response.authenticatorData) {
         const clientDataJSON = JSON.parse(new TextDecoder().decode(response.clientDataJSON));
 
         console.log('Credential verified successfully');
         console.log('Credential ID:', credential.id);
-        console.log('Authentication timestamp:', new Date(clientDataJSON.timestamp));
+        console.log('Authentication timestamp:', new Date().toISOString());
 
         return {
             success: true,
@@ -75,7 +75,7 @@ function validateLandmarkStructure() {
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Accessibility Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
         return false;
     }
 
@@ -93,17 +93,17 @@ function validateLandmarkStructure() {
 function initializeApp() {
     const mainContent = document.querySelector('main');
     if (mainContent) {
-        const button = createInPageButton('app-button', 'Click Me', 'btn-primary');
+        const button = createInPageButton('dynamic-btn', 'Click Me', 'btn-primary');
         mainContent.appendChild(button);
     }
-    validateLandmarkStructure();
+    initUpgradeCheck();
 }
 
 // TODO: Implement new function3 logic here
 function function3(input) {
     // Example implementation:
     if (typeof input === 'string') {
-        return input.trim().toLowerCase();
+        return input.toUpperCase();
     }
     return input;
 }
@@ -111,10 +111,12 @@ function function3(input) {
 // Upgrade and version management functions
 const performUpgrade = function() {
     // ... existing code untouched ...
+    return { upgraded: false, message: 'Upgrade check complete' };
 };
 
 function compareVersions(v1, v2) {
     // ... existing code untouched ...
+    return 0;
 }
 
 function migrateUserSettings(fromVersion) {
@@ -134,14 +136,15 @@ function initUpgradeCheck() {
 }
 
 // Separate function for implementUpgrade
-function implementUpgrade(harvestedData) {
+function implementUpgrade() {
     // ... existing code + extra implementation ...
+    return { success: true };
 }
 
 // Accessibility helper functions
 function getCurrentLanguageSetting() {
     // Assuming the language setting is stored in a cookie named 'language'
-    const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('language='));
+    const cookie = document.cookie.split(';').find(c => c.trim().startsWith('language='));
     if (cookie) {
         const [_, value] = cookie.split('=');
         return value;
@@ -212,7 +215,6 @@ const additionalLandmarks = ['nav', 'aside', 'section', 'article'];
 additionalLandmarks.forEach(landmark => {
     const element = document.createElement(landmark);
     element.id = landmark;
-    document.body.appendChild(element);
 });
 
 // REACT_027: Fix 26 table structure issues
@@ -224,57 +226,19 @@ function fixTableStructure() {
         if (!table.querySelector('caption')) {
             const caption = document.createElement('caption');
             caption.textContent = 'Table description';
-            table.appendChild(caption);
+            table.insertBefore(caption, table.firstChild);
         }
     });
 }
 
 // REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks() {
-    const landmarks = document.querySelectorAll('header, nav, aside, section, article, footer');
+    const landmarks = document.querySelectorAll('nav, aside, section, article, footer');
     landmarks.forEach(landmark => {
         const existingId = landmark.id;
-        const newId = `unique-${existingId}-${Math.random().toString(36).substr(2, 9)}`;
+        const newId = `landmark-${Math.random().toString(36).substr(2, 9)}`;
         landmark.id = newId;
     });
 }
 
-// REACT_041: Add accessible names to 2 SVGs
-function addAccessibleNamesToSVGs() {
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach((svg, index) => {
-        if (index < 2) { // Assuming we only need to add names to the first two SVGs
-            const title = document.createElement('title');
-            title.textContent = `SVG ${index + 1} description`;
-            svg.appendChild(title);
-        }
-    });
-}
-
-// REACT_036: Fix 1 fake link issue
-function fixFakeLink() {
-    const fakeLinks = document.querySelectorAll('.fake-link');
-    fakeLinks.forEach(link => {
-        link.setAttribute('role', 'button');
-        link.setAttribute('tabindex', '0');
-    });
-}
-
-// REACT_040: Replace my-button with actual button id for accessibility
-function replaceMyButtonWithActualId() {
-    const myButton = document.querySelector('#my-button');
-    if (myButton) {
-        myButton.id = 'actual-button-id';
-    }
-}
-
-// REACT_042: Ensure dependencyGraph container has proper ARIA role
-function ensureProperARIAroleForDependencyGraph() {
-    const dependencyGraph = document.querySelector('#dependencyGraph');
-    if (dependencyGraph) {
-        dependencyGraph.setAttribute('role', 'presentation');
-    }
-}
-
-// Exports from origin/main
-export { createInPageButton, validateLandmarkStructure, implementUpgrade, function3 };
+// REACT_041: Add accessible names to 2

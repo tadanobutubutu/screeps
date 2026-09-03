@@ -413,6 +413,7 @@ function createFocusTrap(container, options = {}) {
   const activate = () => {
     if (active) return;
     active = true;
+    deactivateHandler = document.activeElement;
     document.addEventListener('keydown', handleKeyDown);
     if (config.onActivate) config.onActivate();
   };
@@ -458,6 +459,78 @@ function checkLandmarkElements(container) {
   return { valid: errors.length === 0, errors };
 }
 
+function validateAccessibilityReport() {
+  if (typeof document === 'undefined') {
+    return { valid: true, issues: [] };
+  }
+
+  const issues = [];
+
+  // Check REACT_015: Lang attribute
+  const langAttribute = getLangAttribute();
+  if (!langAttribute) {
+    issues.push({ rule: 'REACT_015', message: 'Lang attribute is missing from HTML element' });
+  }
+
+  // Check REACT_027: Table structure issues
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    const tableResult = validateTableAccessibility(table);
+    if (!tableResult.valid) {
+      tableResult.errors.forEach(error => {
+        issues.push({ rule: 'REACT_027', message: `Table ${index + 1}: ${error}` });
+      });
+    }
+    const structureResult = validateTableStructure(table);
+    if (!structureResult.valid) {
+      structureResult.errors.forEach(error => {
+        issues.push({ rule: 'REACT_027', message: `Table ${index + 1} structure: ${error}` });
+      });
+    }
+  });
+
+  // Check REACT_017: Landmark issues
+  const landmarkElements = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  landmarkElements.forEach((landmark, index) => {
+    const landmarkResult = validateLandmark(landmark);
+    if (!landmarkResult.valid) {
+      landmarkResult.errors.forEach(error => {
+        issues.push({ rule: 'REACT_017', message: `Landmark ${index + 1}: ${error}` });
+      });
+    }
+  });
+  const landmarkStructureResult = validateLandmarkStructure();
+  if (!landmarkStructureResult.valid) {
+    landmarkStructureResult.errors.forEach(error => {
+      issues.push({ rule: 'REACT_017', message: `Landmark structure: ${error}` });
+    });
+  }
+  const uniqueLandmarksResult = ensureUniqueLandmarks();
+  if (!uniqueLandmarksResult.valid) {
+    uniqueLandmarksResult.errors.forEach(error => {
+      issues.push({ rule: 'REACT_025', message: error });
+    });
+  }
+
+  // Check REACT_041: SVG accessibility
+  const svgAccessibilityResult = validateSvgAccessibility();
+  if (!svgAccessibilityResult.valid) {
+    svgAccessibilityResult.errors.forEach(error => {
+      issues.push({ rule: 'REACT_041', message: error });
+    });
+  }
+
+  // Check REACT_036: Fake link issues
+  const linksResult = validateLinks();
+  if (!linksResult.valid) {
+    linksResult.errors.forEach(error => {
+      issues.push({ rule: 'REACT_036', message: error });
+    });
+  }
+
+  return { valid: issues.length === 0, issues };
+}
+
 // Combined export code for accessibility utilities (FIXES: REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 export {
   setHtmlLangAttribute,
@@ -473,5 +546,6 @@ export {
   personName,
   validateLinks,
   createFocusTrap,
-  checkLandmarkElements
+  checkLandmarkElements,
+  validateAccessibilityReport
 };

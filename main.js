@@ -50,16 +50,47 @@ function handleCredentialResponse(credential) {
     return { success: false, error: 'Unknown credential response type' };
 }
 
-// TODO: Implement this function for creating in- page buttons
+// Function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
+    // Validate required parameters
+    if (!buttonId || typeof buttonId !== 'string') {
+        console.error('Invalid buttonId provided to createInPageButton');
+        return null;
+    }
+    
+    if (!buttonText || typeof buttonText !== 'string') {
+        console.error('Invalid buttonText provided to createInPageButton');
+        return null;
+    }
+    
+    // Create the button element
     const button = document.createElement('button');
+    
+    // Set basic attributes
     button.id = buttonId;
     button.textContent = buttonText;
-    button.className = buttonClass;
+    button.className = buttonClass || '';
+    
+    // Set accessibility attributes
     button.setAttribute('aria-label', buttonText);
-    button.addEventListener('click', function() {
-        // Button click handler can be added here
+    button.setAttribute('type', 'button');
+    
+    // Add click event handler
+    button.addEventListener('click', function(event) {
+        // Prevent default behavior for button
+        event.preventDefault();
+        
+        // Log button click for debugging
+        console.log(`Button clicked: ${buttonId}`);
+        
+        // Dispatch custom event for external handling
+        const customEvent = new CustomEvent('inPageButtonClick', {
+            bubbles: true,
+            detail: { buttonId: buttonId, buttonText: buttonText }
+        });
+        button.dispatchEvent(customEvent);
     });
+    
     return button;
 }
 

@@ -272,7 +272,7 @@ const announcementDelayHandler = () => {
   }, 1000);
 };
 
-function handleKeyboardNav(e, handlers) {
+function handleKeyboardNavWrapper(e, handlers) {
   handleKeyboardNav(e, handlers);
   handleKeyboardNavKeyDownEvent(e, handlers);
 }
@@ -288,7 +288,7 @@ const handleKeyboardNavKeyDownEvent = (e, handlers) => {
 };
 
 const newFocusTrap = (element) => {
-  const focusZone = newFocusTrap(element, { allowFocusOut: false });
+  const focusZone = originNewFocusTrap(element, { allowFocusOut: false });
   return { focus, blur, update } => {
     focusZone.focus();
     focusZone.on('focusout', () => focusZone.update());
@@ -296,12 +296,10 @@ const newFocusTrap = (element) => {
 };
 
 module.exports = {
-  ...main,
   ...accessibilityUtils,
-  ensureElementId,
+  ensureElementId: ensureElementIdFromMain,
   ensureElementIdOrigin,
   addAriaLabel,
-  renderDependencyGraph,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -319,19 +317,5 @@ module.exports = {
   exportUtilities,
   calculateSum,
   ensureDependencyGraphARIA,
-  ensureElementAccessibility,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
   handleKeyboardNavKeyDownEvent
 };

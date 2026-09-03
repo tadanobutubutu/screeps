@@ -1,6 +1,3 @@
-Here is the resolved file content with both changes integrated:
-
-```javascript
 // Main.js
 
 const http = require('http');
@@ -130,7 +127,19 @@ function loadConfigurations() {
     }
 }
 
+function initializeApp() {
+    addressInsightIssues();
+    if (typeof wrapPrimaryContentInMain === 'function') {
+      wrapPrimaryContentInMain();
+    }
+}
+
 // ... (Add other functions as required)
+
+// Implements the new addressNewAccessibilityIssues function
+function addressNewAccessibilityIssues(insightReport) {
+  return AddressabilityIssues.addressAccessibilityIssues(insightReport);
+}
 
 module.exports = {
     config,
@@ -141,4 +150,3 @@ module.exports = {
     startApp,
     AddressabilityIssues
 };
-```

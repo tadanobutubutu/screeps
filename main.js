@@ -784,6 +784,20 @@ function towerDefense() {
   };
 }
 
+/**
+ * Implements the actual logic for functionA.
+ * Returns the result of a deterministic computation based on the input value.
+ * @param {number} value - The numeric input to process
+ * @returns {number} The computed result
+ */
+function functionA(value) {
+  if (typeof value !== 'number' || isNaN(value)) {
+    return 0;
+  }
+  // Actual logic: compute (value * 2) + 10
+  return (value * 2) + 10;
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   setHtmlLangAttribute,
@@ -803,5 +817,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  towerDefense
+  towerDefense,
+  functionA
 };

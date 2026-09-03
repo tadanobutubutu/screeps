@@ -77,7 +77,29 @@ const accessibilityUtils = {
   addAriaLabel
 };
 
+// Implement this function for checking landmark elements
+function checkLandmarkAccessibility(landmark) {
+  if (!landmark) {
+    throw new Error('Invalid landmark element');
+  }
+  const landmarkType = landmark.getAttribute('role');
+  const requiredAttributes = ['aria-labelledby', 'aria-describedby'];
+
+  if (!landmarkType) {
+    throw new Error('Role attribute is missing from the landmark element');
+  }
+
+  requiredAttributes.forEach(attribute => {
+    if (!landmark.getAttribute(attribute)) {
+      throw new Error(`Required attribute ${attribute} is missing from the landmark element with role ${landmarkType}`);
+    }
+  });
+
+  // Further accessibility checks can be implemented here as needed
+}
+
 module.exports = {
   ...main,
   ...accessibilityUtils,
+  checkLandmarkAccessibility
 };

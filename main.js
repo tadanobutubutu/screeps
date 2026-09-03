@@ -17,6 +17,15 @@ function addLangAttribute(html) {
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
 
+// Implement a function to count dependencies
+function countDependencies(dependencyGraph) {
+    if (!dependencyGraph) return 0;
+    
+    // Count nodes in the dependency graph
+    const nodes = dependencyGraph.querySelectorAll('[data-dependency-node]');
+    return nodes.length;
+}
+
 // Add your new functions and changes below this line.
 
 function analyzeContentSafety(content) {
@@ -108,6 +117,7 @@ module.exports = {
     applyAccessibilityFixes, // No changes
     applyAllAccessibilityFixes, // Add the updated function to include the ARIA role setting
     addressAccessibilityIssues, // No changes
+    countDependencies, // Count dependencies in dependency graph
 }
 
 // TODO: Implement function for generating a report based on accessibility issues

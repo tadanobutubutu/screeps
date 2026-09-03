@@ -34,7 +34,10 @@ const {
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
-  addAriaLabel
+  addAriaLabel,
+  renderIndex,
+  addAccessibleName,
+  ensureElementHasId
 } = main;
 
 // Accessibility utilities and functions
@@ -80,7 +83,7 @@ const accessibilityUtils = {
 module.exports = {
   ...main,
   ...accessibilityUtils,
-  renderDependencyGraph,
+  renderDependencyGraphs,
   renderIndex,
   validateTableAccessibility,
   validateTableStructure,

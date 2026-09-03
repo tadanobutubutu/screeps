@@ -16,14 +16,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import fs from 'fs';
-import fastMap from 'fast-map';
-import path from 'path';
-import accessiblyHelper from './accessibly-helper';
-import { axe } from 'axe-core';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
 import './styles.css';
 import './styles.less';
 import { calculateSum } from './utils';
@@ -555,4 +547,3 @@ module.exports = {
   CONFIG,
   appState
 };
-```

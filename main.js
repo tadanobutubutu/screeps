@@ -1,9 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
-<<<<<<< HEAD
+
 // Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-=======
->>>>>>> origin/main
 
 const main = require('./utilities')
 
@@ -101,7 +99,6 @@ function implementAccessibilityFixesFromReport (container, report) {
      To preserve both changes (both are valid additions), we include
      both calls in the final implementation.
      -------------------------------------------------------------- */
-}
 
   // Fix SVG accessible names
   const svgElements = container.querySelectorAll('svg')
@@ -202,6 +199,72 @@ function trapFocus(container) {
       }
     }
   };
+}
+
+/**
+ * Focus trap for keyboard navigation.
+ * Traps keyboard focus within the specified container so that Tab and
+ * Shift+Tab cycle through the container's focusable elements only.
+ *
+ * @param {HTMLElement} container - The container element to trap focus within.
+ * @returns {Function} A keydown event handler that can be attached/removed.
+ */
+function focusTrapHandler (container) {
+  if (!container) {
+    return function noop () {}
+  }
+
+  const focusableSelector =
+    'a[href], area[href], input:not([disabled]), select:not([disabled]),' +
+    ' textarea:not([disabled]), button:not([disabled]),' +
+    ' iframe, object, embed, [tabindex]:not([tabindex="-1"]),' +
+    ' [contenteditable="true"]'
+
+  const getFocusableElements = () =>
+    Array.from(container.querySelectorAll(focusableSelector)).filter(
+      (el) => !el.hasAttribute('disabled') && el.offsetParent !== null
+    )
+
+  const handler = function (e) {
+    if (e.key !== 'Tab' && e.keyCode !== 9) {
+      return
+    }
+
+    const focusableElements = getFocusableElements()
+    if (focusableElements.length === 0) {
+      e.preventDefault()
+      return
+    }
+
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
+    const activeElement = document.activeElement
+
+    if (e.shiftKey) {
+      if (activeElement === firstElement || !container.contains(activeElement)) {
+        e.preventDefault()
+        lastElement.focus()
+      }
+    } else {
+      if (activeElement === lastElement || !container.contains(activeElement)) {
+        e.preventDefault()
+        firstElement.focus()
+      }
+    }
+  }
+
+  container.addEventListener('keydown', handler)
+
+  // Auto-focus the first focusable element when trap is activated
+  const initialFocusable = getFocusableElements()[0]
+  if (initialFocusable) {
+    initialFocusable.focus()
+  }
+
+  // Return a cleanup function to remove the event listener
+  return function cleanup () {
+    container.removeEventListener('keydown', handler)
+  }
 }
 
 /**
@@ -743,6 +806,7 @@ module.exports = {
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
+  focusTrapHandler,
   addLandmarkRegions,
   uniqueLandmarks,
   fixFakeLinkIssues,

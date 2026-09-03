@@ -426,5 +426,3 @@ module.exports = {
   indexContent,
   main,
 };
-
-// ... rest of the code ...

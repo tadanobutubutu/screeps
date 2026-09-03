@@ -72,7 +72,7 @@ function detectAndSetLang(content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
@@ -80,7 +80,7 @@ function detectAndSetLang(content) {
       lang = 'ar'; // Arabic
     } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
-    } else if (/^[a-z]{2}$/i.test(content)) {
+    } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -137,7 +137,7 @@ function validateTableStructure(tableElement) {
   const rows = tableElement.querySelectorAll('tr');
   
   rows.forEach((row, rowIndex) => {
-    const cells = Array.from(row.querySelectorAll('td'));
+    const cells = row.querySelectorAll('td, th');
     
     const cellCount = cells.length;
     
@@ -151,7 +151,7 @@ function validateTableStructure(tableElement) {
     // Check that rows have consistent cell counts
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = Array.from(prevRow.querySelectorAll('td'));
+      const prevCells = prevRow.querySelectorAll('td, th');
       
       if (cellCount !== prevCells.length) {
         errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
@@ -179,7 +179,7 @@ function validateLandmark(element) {
     errors.push(`Element has invalid landmark role: ${role}`);
   }
   
-  if (!role && tagName) {
+  if (!role && tagName && !validLandmarks.includes(tagName)) {
     errors.push(`Element is not a valid landmark: ${tagName}`);
   }
   
@@ -209,18 +209,18 @@ function validateLandmarkStructure() {
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
   
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
-      const parentTag = parent.tagName.toLowerCase();
+      const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
       
       // Check for invalid nesting
-      if (parentTag === 'header' && parentTag === 'header') {
+      if (parentTag === 'header' && landmark.tagName.toLowerCase() === 'header') {
         errors.push('Nested header elements found');
       }
-      if (parentTag === 'footer' && parentTag === 'footer') {
+      if (parentTag === 'footer' && landmark.tagName.toLowerCase() === 'footer') {
         errors.push('Nested footer elements found');
       }
       
@@ -240,96 +240,6 @@ function getSvgAccessibleName(svgElement) {
   // Check for aria-labelledby referencing another element
   const labelledBy = svgElement.getAttribute('aria-labelledby');
   if (labelledBy) {
-    const labelElement = document.querySelector(labelledBy);
+    const labelElement = document.getElementById(labelledBy);
     if (labelElement) return labelElement.textContent;
   }
-  
-  // Check for title element inside SVG
-  const title = svgElement.querySelector('title');
-  if (title && title.textContent.trim()) {
-    return title.textContent.trim();
-  }
-  
-  // Check for desc element inside SVG
-  const desc = svgElement.querySelector('desc');
-  if (desc && desc.textContent.trim()) {
-    return desc.textContent.trim();
-  }
-  
-  return null;
-}
-
-function validateSvgAccessibility() {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  
-  const errors = [];
-  const svgs = document.querySelectorAll('svg');
-  
-  svgs.forEach((svg, index) => {
-    const name = getSvgAccessibleName(svg);
-    if (!name) {
-      errors.push(`SVG ${index + 1} is missing an accessible name (aria-label, aria-labelledby, title, or desc)`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
-  }
-  
-  const errors = [];
-  const landmarkCounts = {};
-  
-  // Collect all landmarks
-  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
-  landmarks.forEach((landmark) => {
-    const identifier = landmark.getAttribute('id') || landmark.getAttribute('data-id') || 'unknown';
-    
-    // Main landmarks should be unique
-    if (identifier === 'main' || identifier === 'MAIN') {
-      if (landmarkCounts['main'] > 0) {
-        errors.push(`Duplicate main landmark found. Only one main landmark should exist.`);
-      } else {
-        landmarkCounts['main'] = (landmarkCounts['main'] || 0) + 1;
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Gets the accessible name of an element, addressing REACT_036 fake link issues.
- * @param {HTMLElement} element - The element to extract the accessible name from
- * @returns {string|null} The accessible name or null
- */
-function personName(element) {
-  if (typeof document === 'undefined' || !element) {
-    return null;
-  }
-  
-  // Check for aria-label
-  const ariaLabel = element.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel;
-  
-  // Check for aria-labelled
-  const labelledBy = element.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.querySelector(labelledBy);
-    if (labelElement) return labelElement.textContent;
-  }
-  
-  // Check for heading tags
-  const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  if (headings.length > 0) {
-    return headings[0].textContent.trim();
-  }
-  
-  return null;
-}

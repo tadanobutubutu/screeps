@@ -390,11 +390,6 @@ const validateLandmarkStructure = () => {
   // Implementation for landmark structure validation
 };
 
-// New function to ensure unique landmarks
-const ensureUniqueLandmarks = () => {
-  // Implementation for ensuring unique landmarks
-};
-
 // New function to fix fake link issues
 const fixFakeLinkIssues = () => {
   // Implementation for fixing fake link issues
@@ -584,7 +579,6 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  ensureUniqueLandmarks,
   fixFakeLinkIssues,
   updateLiveRegion,
   addLandmarkIds,

@@ -344,7 +344,6 @@ function validateLinks(container) {
   return { valid: errors.length === 0, errors };
 }
 
-// TODO: Implement a new function to handle focus trap for keyboard navigation
 /**
  * Creates a focus trap within a container element for keyboard navigation.
  * Keeps focus within the trapped area and cycles focus between focusable elements.
@@ -413,6 +412,7 @@ function createFocusTrap(container, options = {}) {
   const activate = () => {
     if (active) return;
     active = true;
+    deactivateHandler = document.activeElement;
     document.addEventListener('keydown', handleKeyDown);
     if (config.onActivate) config.onActivate();
   };

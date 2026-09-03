@@ -32,11 +32,15 @@ function validateLandmarkStructure() {
     return true;
 }
 
-// TODO: Implement harvest logic
+// Implement harvest logic
 function harvest() {
     // This function should collect resources or data from available sources
     // Add your implementation here
+
+    // Example implementation: collecting page title
+    const pageTitle = document.querySelector('title').textContent;
+    console.log('Collected page title:', pageTitle);
 }
 
 // Preserve any existing exports here
-// export { createInPageButton, validateLandmarkStructure, harvest };
+export { createInPageButton, validateLandmarkStructure, harvest };

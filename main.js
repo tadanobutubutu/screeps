@@ -482,6 +482,44 @@ function handleFakeLinks(link) {
 }
 
 /**
+ * Fixes a single fake link by converting it to a button if it's a fake link.
+ * @param {HTMLAnchorElement} link - The link element to check and fix if necessary.
+ * @returns {HTMLElement} The fixed element (either a button or the original link).
+ */
+function fixFakeLinkIssue(link) {
+  if (link.href === '#' || link.href === 'javascript:void(0)') {
+    // Create a button with the same text and click handler
+    const button = document.createElement('button');
+    button.textContent = link.textContent;
+    if (link.onclick) {
+      button.onclick = link.onclick;
+    }
+    // Set aria-label if the link had one, otherwise use the text content
+    button.setAttribute('aria-label', link.getAttribute('aria-label') || link.textContent);
+    return button;
+  }
+  return link;
+}
+
+/**
+ * Fixes all fake links in the document by converting them to buttons.
+ * @returns {number} The number of fake links fixed.
+ */
+function fixFakeLinkIssues() {
+  const links = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
+  let count = 0;
+  links.forEach(link => {
+    const fixed = fixFakeLinkIssue(link);
+    if (fixed !== link) {
+      // Replace the link with the fixed element in the DOM
+      link.parentNode.replaceChild(fixed, link);
+      count++;
+    }
+  });
+  return count;
+}
+
+/**
  * Adds proper landmark regions to the document
  * @param {Object} document - The document object
  * @returns {Object} The modified document with proper landmark regions
@@ -557,5 +595,7 @@ module.exports = {
   addMainLandmark,
   validateLinkAccessibility,
   handleFakeLinks,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues
 };

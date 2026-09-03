@@ -42,7 +42,7 @@ const accessibilityUtils = {
   initSkipLink,
   trapFocus,
   newFocusTrap: (element) => {
-    if (!element) return originNewFocusTrap(element);
+    if (!element) return;
     const focusable = element.querySelectorAll(
       'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
     );
@@ -50,7 +50,7 @@ const accessibilityUtils = {
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
 
-    element.addEventListener('keydown', (e) => {
+    const handleTab = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === first) {
           last.focus();
@@ -60,7 +60,10 @@ const accessibilityUtils = {
           e.preventDefault();
         }
       }
-    });
+    };
+
+    element.addEventListener('keydown', handleTab);
+    return () => element.removeEventListener('keydown', handleTab);
   },
   announceToScreenReader: (message, priority = 'polite') => {
     const announcer = document.createElement('div');
@@ -74,7 +77,25 @@ const accessibilityUtils = {
     setTimeout(() => announcer.remove(), 1000);
   },
   ensureElementId,
-  addAriaLabel
+  addAriaLabel,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleName,
+  // Address all accessibility issues from insight report
+  addressAllAccessibilityIssues: (rootElement = document) => {
+    // REACT_015: Add lang attribute
+    addLangAttribute(rootElement);
+    
+    // REACT_027: Fix table structure issues
+    fixTableStructureIssues(rootElement);
+    
+    // REACT_017: Add/fix landmark issues
+    addMainLandmark(rootElement);
+    
+    // REACT_041: Add accessible names to SVGs
+    addSvgAccessibleName(rootElement);
+  }
 };
 
 module.exports = {

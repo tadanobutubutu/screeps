@@ -359,7 +359,6 @@ function sortLandmarks(landmarks, ascending = true) {
     return landmarks.sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
-
         if (ascending) {
             return nameA.localeCompare(nameB);
         }

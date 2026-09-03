@@ -48,15 +48,12 @@ function handleCredentialResponse(credential) {
     return { success: false, error: 'Unknown credential response type' };
 }
 
+// Function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    button.setAttribute('aria-label', buttonText);
-    button.addEventListener('click', function() {
-        // Button click handler can be added here
-    });
     return button;
 }
 
@@ -66,7 +63,8 @@ function validateLandmarkStructure() {
     const missingLandmarks = [];
 
     requiredLandmarks.forEach(landmark => {
-        if (!document.querySelector(landmark)) {
+        const element = document.querySelector(landmark);
+        if (!element) {
             missingLandmarks.push(landmark);
         }
     });
@@ -79,19 +77,13 @@ function validateLandmarkStructure() {
     return true;
 }
 
-// TODO: implement a function to count dependencies
-function countDependencies(packageJson) {
-    // Count all direct dependencies
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-    const peerDependencies = packageJson.peerDependencies || {};
-    const optionalDependencies = packageJson.optionalDependencies || {};
-
-    // Return the total count of all dependency types
-    return Object.keys(dependencies).length +
-           Object.keys(devDependencies).length +
-           Object.keys(peerDependencies).length +
-           Object.keys(optionalDependencies).length;
+// TODO: Implement harvest logic
+function harvest() {
+    // Collect resources from elements with class 'resource'
+    const resources = Array.from(document.querySelectorAll('.resource'))
+        .map(el => el.textContent.trim())
+        .filter(text => text.length > 0);
+    return resources;
 }
 
 // This function is merged with the original implementation from both branches
@@ -137,4 +129,12 @@ function harvestResources() {
 // Other functions merged from both branches
 
 // Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure, implementUpgrade, function3, initializeApp };
+export { 
+    createInPageButton, 
+    validateLandmarkStructure, 
+    harvest, 
+    initializeApp, 
+    function3, 
+    getCurrentLanguageSetting, 
+    harvestResources 
+};

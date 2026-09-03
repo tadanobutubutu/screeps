@@ -324,6 +324,63 @@ function getSvgAccessibleName(svg) {
   return '';
 }
 
+// Extract the accessible name for an SVG from its content
+function extractSvgAccessibleName(svg) {
+  // This function extracts the accessible name for an SVG from its content
+  if (!svg) {
+    return '';
+  }
+
+  // Check for aria-label attribute first (highest priority)
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim()) {
+    return ariaLabel.trim();
+  }
+
+  // Check for aria-labelledby reference
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby && typeof document !== 'undefined') {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) {
+      const text = labelElement.textContent || '';
+      if (text.trim()) {
+        return text.trim();
+      }
+    }
+  }
+
+  // Check for title element inside SVG
+  const title = svg.querySelector('title');
+  if (title && title.textContent && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+
+  // Check for desc element inside SVG
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+
+  // Check for adjacent description element by id pattern
+  const id = svg.getAttribute('id');
+  if (id && typeof document !== 'undefined') {
+    const describedBy = document.querySelector(`[id="${id}-desc"]`);
+    if (describedBy) {
+      const text = describedBy.textContent || '';
+      if (text.trim()) {
+        return text.trim();
+      }
+    }
+  }
+
+  // Fall back to combining all text content from the SVG
+  if (svg.textContent && svg.textContent.trim()) {
+    return svg.textContent.trim();
+  }
+
+  return '';
+}
+
 // New function to address REACT_025: Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
   // This function ensures that landmarks are unique
@@ -843,6 +900,7 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
+  extractSvgAccessibleName,
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,

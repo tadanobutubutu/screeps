@@ -429,6 +429,55 @@ const accessibilityUtils = {
     }
 };
 
+/**
+ * Renders the dependency graph with accessibility improvements
+ * Uses the new accessibility functions to ensure proper ARIA attributes
+ */
+function renderGraphWithAccessibility() {
+  // Ensure the dependencyGraph container has proper accessibility
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'region');
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+    
+    // Apply landmark validation
+    addMainLandmark();
+    
+    // Ensure unique landmarks
+    ensureUniqueLandmarks();
+    
+    // Add proper landmark regions
+    addProperLandmarkRegions();
+    
+    // Handle any fake links
+    handleFakeLinks();
+    
+    // Apply SVG accessibility if present
+    const svgs = dependencyGraph.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg);
+      setSvgAttributes(svg, accessibleName);
+    });
+    
+    // Fix table structure if tables are present
+    const tables = dependencyGraph.querySelectorAll('table');
+    tables.forEach(table => {
+      if (!validateTableAccessibility(table) || !validateTableStructure(table)) {
+        fixTableStructure(table);
+      }
+    });
+    
+    // Validate landmark structure
+    validateLandmarkStructure();
+    
+    // Validate landmark attributes
+    if (validateLandmark(dependencyGraph)) {
+      validateLandmarkAttributes(dependencyGraph);
+    }
+  }
+  
+  return dependencyGraph;
+}
+
 // Export the report generation function
 module.exports = {
   generateAccessibilityReport: generateAccessibilityReport,
@@ -441,11 +490,8 @@ module.exports = {
 
 // Initialize the application with accessibility improvements
 function initialize() {
-    // Ensure the dependencyGraph container has a proper ARIA role
-    if (dependencyGraph) {
-        dependencyGraph.setAttribute('role', 'region');
-        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-    }
+    // Render the graph/index with accessibility using the new functions
+    renderGraphWithAccessibility();
 
     // Address accessibility issues
     addressAccessibilityIssues();

@@ -345,3 +345,5 @@ if (typeof module !== 'undefined' && module.exports) {
     initializeAccessibility
   };
 } else {
+  // No exports for browser environment
+}

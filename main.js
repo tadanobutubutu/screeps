@@ -161,4 +161,48 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureImageAccessibility();
 }
 
+/**
+ * Get the language attribute from the HTML element
+ * @returns {string} The language attribute value or 'en' as default
+ */
+function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
+}
+
+/**
+ * Create an accessible in-page button with proper ARIA attributes
+ * @param {Object} options - Button options
+ * @param {string} options.text - The button text
+ * @param {Function} options.onClick - The click handler
+ * @param {string} options.id - Optional ID for the button
+ * @param {string} options.className - Optional CSS class name
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(options = {}) {
+  const { text = '', onClick, id, className } = options;
+  
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text;
+  
+  // Add lang attribute from HTML element for accessibility (REACT_015)
+  const lang = getLangAttribute();
+  button.setAttribute('lang', lang);
+  
+  if (id) {
+    button.id = id;
+  }
+  
+  if (className) {
+    button.className = className;
+  }
+  
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
+}
+
 // ... rest of the code ...

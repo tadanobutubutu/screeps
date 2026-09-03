@@ -6,6 +6,219 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
+// - NEW: Implement a new function to handle focus trap for keyboard navigation (DONE: handled by newFocusTrap())
+
+/**
+ * Creates a focus trap for keyboard navigation within a container element.
+ * This function manages focus trapping to ensure keyboard users can navigate
+ * within a modal dialog or overlay without escaping the container.
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @param {Object} options - Configuration options
+ * @param {boolean} options.active - Whether the trap is currently active (default: true)
+ * @param {Function} options.onDeactivate - Callback function when trap is deactivated
+ * @returns {Object} Object with activate, deactivate, and isActive methods
+ */
+function newFocusTrap(container, options = {}) {
+  if (!container || !(container instanceof HTMLElement)) {
+    console.error('Focus trap requires a valid container element');
+    return {
+      activate: () => {},
+      deactivate: () => {},
+      isActive: () => false,
+      updateContainer: () => {}
+    };
+  }
+
+  let isActiveTrap = options.active !== undefined ? options.active : true;
+  let lastFocusedElement = null;
+  let handleTabKey = null;
+  let handleOutsideClick = null;
+  let handleFocusLeave = null;
+
+  // Get all focusable elements within the container
+  function getFocusableElements() {
+    const focusableSelectors = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled]):not([type="hidden"])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      'iframe[title]',
+      '[tabindex]:not([tabindex="-1"])',
+      '[contenteditable="true"]:not([contenteditable="false"])'
+    ];
+    
+    return Array.from(container.querySelectorAll(focusableSelectors.join(',')))
+      .filter(el => {
+        // Filter out hidden elements
+        const style = window.getComputedStyle(el);
+        return style.display !== 'none' && 
+               style.visibility !== 'hidden' && 
+               el.offsetWidth > 0 && 
+               el.offsetHeight > 0;
+      });
+  }
+
+  // Activate the focus trap
+  function activate() {
+    if (!isActiveTrap) {
+      isActiveTrap = true;
+    }
+    
+    // Store the last focused element before trap activation
+    lastFocusedElement = document.activeElement;
+    
+    // Add aria attributes to container
+    container.setAttribute('data-focus-trap-active', 'true');
+    container.setAttribute('aria-hidden', 'false');
+    
+    // Make container accessible
+    const isLandmark = container.getAttribute('role') && 
+                       ['dialog', 'alertdialog', 'application', 'document'].includes(container.getAttribute('role'));
+    if (isLandmark && !container.getAttribute('aria-modal')) {
+      container.setAttribute('aria-modal', 'true');
+    }
+    
+    // Get focusable elements
+    const focusableElements = getFocusableElements();
+    
+    // If there are focusable elements, focus the first one
+    // Otherwise, make container focusable
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    } else {
+      container.setAttribute('tabindex', '-1');
+      container.focus();
+    }
+    
+    // Add event listeners
+    handleTabKey = handleTabKey || handleTabKeyListener;
+    handleFocusLeave = handleFocusLeave || handleFocusListener;
+    
+    document.addEventListener('keydown', handleTabKey);
+    container.addEventListener('focusout', handleFocusLeave);
+    
+    // Listen for outside clicks (for modals)
+    if (options.onDeactivate || options.deactivateOnOutsideClick) {
+      handleOutsideClick = handleOutsideClick || handleOutsideClickListener;
+      document.addEventListener('click', handleOutsideClick);
+    }
+    
+    // Call onActivate callback if provided
+    if (options.onActivate) {
+      options.onActivate();
+    }
+  }
+
+  // Deactivate the focus trap
+  function deactivate() {
+    if (!isActiveTrap) return;
+    
+    isActiveTrap = false;
+    
+    // Remove event listeners
+    document.removeEventListener('keydown', handleTabKey);
+    container.removeEventListener('focusout', handleFocusLeave);
+    document.removeEventListener('click', handleOutsideClick);
+    
+    // Remove aria attributes
+    container.removeAttribute('data-focus-trap-active');
+    container.removeAttribute('aria-hidden');
+    container.removeAttribute('tabindex');
+    
+    // Restore focus to the last focused element
+    if (lastFocusedElement && lastFocusedElement instanceof HTMLElement) {
+      // Verify element is still in DOM
+      if (document.contains(lastFocusedElement)) {
+        lastFocusedElement.focus();
+      }
+    }
+    
+    // Reset stored element
+    lastFocusedElement = null;
+    
+    // Call onDeactivate callback if provided
+    if (options.onDeactivate) {
+      options.onDeactivate();
+    }
+  }
+
+  // Check if trap is active
+  function isActive() {
+    return isActiveTrap;
+  }
+
+  // Update container reference (useful if container is moved in DOM)
+  function updateContainer(newContainer) {
+    if (newContainer && newContainer instanceof HTMLElement) {
+      container = newContainer;
+    }
+  }
+
+  // Tab key handler to keep focus within container
+  function handleTabKeyListener(event) {
+    if (event.key !== 'Tab') return;
+    
+    const focusableElements = getFocusableElements();
+    
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      return;
+    }
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    if (event.shiftKey) {
+      // Shift + Tab: focus previous
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    } else {
+      // Tab: focus next
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    }
+  }
+
+  // Focus out handler to prevent focus from leaving container
+  function handleFocusListener(event) {
+    if (!isActiveTrap) return;
+    
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length === 0) return;
+    
+    // If focus moves outside container, bring it back
+    if (!container.contains(document.activeElement)) {
+      event.preventDefault();
+      focusableElements[0].focus();
+    }
+  }
+
+  // Outside click handler for deactivation
+  function handleOutsideClickListener(event) {
+    if (!container.contains(event.target) && isActiveTrap) {
+      if (options.deactivateOnOutsideClick) {
+        deactivate();
+      }
+    }
+  }
+
+  // Initialize based on active option
+  if (isActiveTrap) {
+    activate();
+  }
+
+  return {
+    activate,
+    deactivate,
+    isActive,
+    updateContainer
+  };
+}
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -803,5 +1016,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  towerDefense
+  towerDefense,
+  newFocusTrap
 };

@@ -263,6 +263,17 @@ class ScreepsBot {
   checkLandmarks() {
     // Implementation for checking landmarks
   }
+
+  checkLinkButtonAccessibility() {
+    // Implementation for checking link and button accessibility
+    const links = document.querySelectorAll('a, button');
+    links.forEach(el => {
+      const hasAccessibleName = el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby') || el.hasAttribute('title');
+      if (!hasAccessibleName) {
+        console.warn(`Link or button missing accessible name:`, el);
+      }
+    });
+  }
 }
 
 // TODO: Implement new function3 logic here

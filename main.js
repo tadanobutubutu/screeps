@@ -204,6 +204,20 @@ function newFocusTrap(element, options = {}) {
     };
 }
 
+// New functions to satisfy missing exports
+function renderIndex(options = {}) {
+    // Use the imported indexContent to generate the index page
+    return indexContent;
+}
+
+function createInPageButtons(container, options = {}) {
+    // Create in-page navigation buttons
+    // This is a placeholder implementation; extend as needed
+    const buttons = [];
+    // Example: could create buttons for sections, etc.
+    return buttons;
+}
+
 // Export all required functions and utilities
 module.exports = {
     renderDependencyGraph,

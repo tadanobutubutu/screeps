@@ -108,20 +108,6 @@ const accessibilityUtils = {
 };
 
 // Utility functions for ensuring elements have IDs and adding labels
-const ensureElementHasId = (element, prefix = 'element') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (element.id) {
-    return element.id;
-  }
-
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
-};
-
 const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

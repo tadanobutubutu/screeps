@@ -334,3 +334,16 @@ googleSignIn()
 fixButtonIdentifiers()
 
 // Other code...
+
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+function wrapPrimaryContentInMain(container) {
+  if (!container) return;
+  // If there is already a main element, do nothing
+  if (container.querySelector('main')) return;
+  const mainElement = document.createElement('main');
+  // Move all child nodes into the main element
+  while (container.firstChild) {
+    mainElement.appendChild(container.firstChild);
+  }
+  container.appendChild(mainElement);
+}

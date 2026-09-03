@@ -558,6 +558,73 @@ function personName(name) {
   return name;
 }
 
+// Address accessibility issues from insight report
+function addressInsightReportAccessibility(insightReport) {
+  if (!insightReport || !insightReport.sections) {
+    return [];
+  }
+  
+  const issues = [];
+  const sections = insightReport.sections;
+  
+  sections.forEach((section, index) => {
+    // REACT_017: Check for missing headings (landmark issues)
+    if (!section.heading) {
+      issues.push({
+        type: 'missing-heading',
+        severity: 'high',
+        message: 'Section ' + index + ' is missing a heading',
+        suggestedFix: 'Add a descriptive heading to each section for landmark accessibility'
+      });
+    }
+
+    // Check for empty content
+    if (!section.content || section.content.trim() === '') {
+      issues.push({
+        type: 'empty-content',
+        severity: 'medium',
+        message: 'Section "' + (section.heading || '') + '" has no content',
+        suggestedFix: 'Add meaningful content to the section'
+      });
+    }
+
+    // REACT_036: Check for fake link text like "click here"
+    if (section.content && section.content.toLowerCase().includes('click here')) {
+      issues.push({
+        type: 'inaccessible-link-text',
+        severity: 'low',
+        message: 'Section "' + (section.heading || '') + '" contains "click here" text which is not accessible',
+        suggestedFix: 'Use descriptive link text instead of "click here"'
+      });
+    }
+    
+    // Check for other common accessibility issues in content
+    if (section.content) {
+      // Check for placeholder text
+      if (section.content.toLowerCase().includes('lorem ipsum')) {
+        issues.push({
+          type: 'placeholder-content',
+          severity: 'medium',
+          message: 'Section "' + (section.heading || '') + '" contains placeholder text',
+          suggestedFix: 'Replace placeholder text with meaningful content'
+        });
+      }
+      
+      // Check for missing alt text references (images without descriptions)
+      if (section.content.toLowerCase().includes('[image]') || section.content.toLowerCase().includes('[photo]')) {
+        issues.push({
+          type: 'missing-alt-text-reference',
+          severity: 'medium',
+          message: 'Section "' + (section.heading || '') + '" may be missing image descriptions',
+          suggestedFix: 'Ensure all images have descriptive alt text'
+        });
+      }
+    }
+  });
+  
+  return issues;
+}
+
 // Ensure DOM is fully loaded before executing scripts
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
@@ -614,7 +681,8 @@ if (typeof module !== 'undefined' && module.exports) {
     handleCredentialResponse,
     addBook,
     addressAccessibilityIssues,
-    initializeAccessibility
+    initializeAccessibility,
+    addressInsightReportAccessibility
   };
 } else {
   // Browser environment - wait for DOM
@@ -951,7 +1019,8 @@ if (typeof module !== 'undefined' && module.exports) {
     handleCredentialResponse,
     addBook,
     addressAccessibilityIssues,
-    initializeAccessibility
+    initializeAccessibility,
+    addressInsightReportAccessibility
   };
 } else {
   if (typeof require !== 'undefined' && require.main === module) {

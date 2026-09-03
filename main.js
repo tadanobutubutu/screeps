@@ -145,6 +145,9 @@ function renderGraphIndex(containerId, data) {
 
     const graphElement = document.createElement('div');
     graphElement.className = 'graph-index';
+    // Ensure the dependencyGraph container has a proper ARIA role
+    graphElement.setAttribute('role', 'img');
+    graphElement.setAttribute('aria-label', 'Dependency graph showing package dependencies and versions');
     graphElement.innerHTML = '<h2>Dependency Graph</h2>';
 
     if (data && data.dependencies) {

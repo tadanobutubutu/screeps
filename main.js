@@ -87,68 +87,67 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Fix landmark issues
   if (typeof validateLandmark === 'function') {
     validateLandmark(container)
-  }
-}
 
-  // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg)
-    if (
-      accessibleName &&
-      accessibleName.trim() !== ''
-    ) {
-      addSvgAccessibleNames(svg, accessibleName)
-      fixes.svgNamesAdded++
+    // Fix SVG accessible names
+    const svgElements = container.querySelectorAll('svg')
+    svgElements.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg)
+      if (
+        accessibleName &&
+        accessibleName.trim() !== ''
+      ) {
+        addSvgAccessibleNames(svg, accessibleName)
+        fixes.svgNamesAdded++
+      }
+    })
+
+    // Fix fake link issues (elements that look like links but are missing href)
+    const fakeLinks = container.querySelectorAll('[onclick]:not(a):not(button)')
+    fakeLinks.forEach(link => {
+      link.setAttribute('href', '#' + (link.id || 'fake-link'))
+      link.setAttribute('role', 'link')
+      fixes.fakeLinksFixed++
+    })
+
+    // Validate accessibility report
+    const accessibilityReport = validateAccessibilityReport(report)
+    if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
+      log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
     }
-  })
 
-  // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('[onclick]:not(a):not(button)')
-  fakeLinks.forEach(link => {
-    link.setAttribute('href', '#' + (link.id || 'fake-link'))
-    link.setAttribute('role', 'link')
-    fixes.fakeLinksFixed++
-  })
+    // Implement focus trap for keyboard navigation
+    if (typeof focusTrap === 'function') {
+      focusTrap(container)
+    }
 
-  // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(report)
-  if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
-  }
+    if (fixes.langAdded) {
+      log('Lang attribute added to HTML element', 'info')
+    }
 
-  // Implement focus trap for keyboard navigation
-  if (typeof focusTrap === 'function') {
-    focusTrap(container)
-  }
+    if (fixes.mainLandmarkAdded) {
+      log('Main landmark added', 'info')
+    }
 
-  if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info')
-  }
+    // Check for new accessibility issues
+    const newAccessibilityIssues = checkAccessibility(container)
+    if (newAccessibilityIssues.length > 0) {
+      log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error')
+    }
 
-  if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info')
-  }
+    const landmarkFixesCount = fixes.landmarksFixed || 0
+    if (landmarkFixesCount > 0) {
+      log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
+    }
 
-  // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container)
-  if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error')
-  }
+    const svgFixes = fixes.svgNamesAdded || 0
+    if (svgFixes > 0) {
+      log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
+    }
 
-  const landmarkFixesCount = fixes.landmarksFixed || 0
-  if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
-  }
-
-  const svgFixes = fixes.svgNamesAdded || 0
-  if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
-  }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0
-  if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
+    const fakeLinkFixes = fixes.fakeLinksFixed || 0
+    if (fakeLinkFixes > 0) {
+      log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
+    }
   }
 
   return fixes

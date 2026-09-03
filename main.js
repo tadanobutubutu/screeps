@@ -1,6 +1,6 @@
 // TODO: Add back any required exports that might have been removed
-// TODO: This is the existing code that needs to be preserved
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+//_Commmit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: 49e339d5ff675ce559aa9f4f66ff29aef3f6166b -->
 
 // TODO: Implement the logic to handle the credential response
@@ -16,7 +16,7 @@ function handleCredentialResponse(credential) {
     // Handle attestation response (from registration)
     if (response.attestationObject) {
         const attestationBuffer = response.attestationObject;
-        const attestationObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(attestationBuffer)));
+        const attestationObj = CBOR.decode(attestationBuffer);
 
         console.log('Credential registered successfully');
         console.log('Credential ID:', credential.id);
@@ -30,12 +30,12 @@ function handleCredentialResponse(credential) {
     }
 
     // Handle assertion response (from authentication)
-    if (response.authenticatorData && response.clientDataJSON) {
+    if (response.authenticatorData && response.signature) {
         const clientDataJSON = JSON.parse(new TextDecoder().decode(response.clientDataJSON));
 
         console.log('Credential verified successfully');
         console.log('Credential ID:', credential.id);
-        console.log('Authentication timestamp:', new Date(clientDataJSON.timestamp));
+        console.log('Authentication timestamp:', new Date().toISOString());
 
         return {
             success: true,

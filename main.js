@@ -539,24 +539,24 @@
      * @returns {Array} Array of dependency objects
      */
     function getDependencies(root) {
-        const deps = [];
+      const deps = [];
 
-        function traverse(obj) {
-            if (!obj || typeof obj !== 'object') return;
+      function traverse(obj) {
+          if (!obj || typeof obj !== 'object') return;
 
-            if (obj.dependencies) {
-                deps.push(...obj.dependencies);
-            }
+          if (obj.dependencies) {
+              deps.push(...obj.dependencies);
+          }
 
-            for (const key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    traverse(obj[key]);
-                }
-            }
-        }
+          for (const key in obj) {
+              if (obj.hasOwnProperty(key)) {
+                  traverse(obj[key]);
+              }
+          }
+      }
 
-        traverse(root);
-        return deps;
+      traverse(root);
+      return deps;
     }
 
     // TODO: Create or update the affected functions to be accessible
@@ -640,12 +640,12 @@
      * @returns {Array} Array of landmark elements
      */
     function loadLandmarks() {
-        const landmarks = [];
-        CONFIG.landmarks.forEach(role => {
-            const elements = document.querySelectorAll(`[role="${role}"]`);
-            elements.forEach(el => landmarks.push(el));
-        });
-        return landmarks;
+      const landmarks = [];
+      CONFIG.landmarks.forEach(role => {
+          const elements = document.querySelectorAll(`[role="${role}"]`);
+          elements.forEach(el => landmarks.push(el));
+      });
+      return landmarks;
     }
 
     /**
@@ -815,8 +815,8 @@
             initialize();
         }
     }
+    
+    // Import any required modules
+    const fs = require('fs');
+    const path = require('path');
 })();
-
-// Import any required modules
-const fs = require('fs');
-const path = require('path');

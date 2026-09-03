@@ -1,8 +1,8 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Existing main.js content before the merge conflict...
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -78,12 +78,13 @@ function validateLandmark(landmark) {
 
   // Check if it's a valid HTML5 landmark element
   const html5Landmarks = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
-  const isHtml5Landmark = html5Landmarks.includes(landmark.tagName.toLowerCase());
+  const tagName = landmark.tagName.toLowerCase();
+  const isHtml5Landmark = html5Landmarks.includes(tagName);
 
   // Check if it's a valid ARIA landmark role
   const ariaLandmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'region', 'search'];
   const role = landmark.getAttribute('role');
-  const isAriaLandmark = role && ariaLandmarkRoles.includes(role);
+  const isAriaLandmark = role && ariaLandmarkRoles.includes(role.toLowerCase());
 
   // Must be either HTML5 landmark or ARIA landmark
   if (!isHtml5Landmark && !isAriaLandmark) {

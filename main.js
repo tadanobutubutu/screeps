@@ -369,9 +369,66 @@ function validateTableAccessibility(tableData) {
   return true;
 }
 
-// Validate table structure
+// Validate table structure for accessibility issues
 function validateTableStructure(tableData) {
-  return true;
+  const issues = [];
+  
+  if (!tableData) {
+    issues.push('No table data provided');
+    return issues;
+  }
+
+  // Parse HTML string if needed
+  let tableElement;
+  if (typeof tableData === 'string') {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(tableData, 'text/html');
+    tableElement = doc.querySelector('table');
+  } else if (tableData.nodeType && tableData.nodeType === 1) {
+    tableElement = tableData;
+  }
+
+  if (!tableElement) {
+    issues.push('No table element found');
+    return issues;
+  }
+
+  // Check for table headers
+  const headers = tableElement.querySelectorAll('th');
+  const hasHeaders = headers.length > 0;
+  
+  if (!hasHeaders) {
+    issues.push('Table lacks header cells (th elements)');
+  } else {
+    // Check if headers have proper scope
+    headers.forEach((header, index) => {
+      if (!header.getAttribute('scope')) {
+        issues.push(`Header cell ${index + 1} missing scope attribute`);
+      }
+    });
+  }
+
+  // Check for table caption
+  const caption = tableElement.querySelector('caption');
+  if (!caption) {
+    issues.push('Table missing caption element');
+  }
+
+  // Check for proper table structure (thead, tbody, tfoot)
+  const hasThead = tableElement.querySelector('thead') !== null;
+  const hasTbody = tableElement.querySelector('tbody') !== null;
+  
+  if (!hasThead && !hasTbody) {
+    issues.push('Table missing proper section structure (thead/tbody)');
+  }
+
+  // Check for empty table
+  const rows = tableElement.querySelectorAll('tr');
+  if (rows.length === 0) {
+    issues.push('Table has no rows');
+  }
+
+  return issues;
 }
 
 // Handle additional rendering logic

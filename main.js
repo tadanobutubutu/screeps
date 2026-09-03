@@ -160,13 +160,3 @@ function implementAccessibilityFixesFromReport(container, report) {
   // Fix SVG accessible names
   const svgElements = container.querySelectorAll('svg');
   svgElements.forEach((svg) => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName && !svg.hasAttribute('aria-label')) {
-      svg.setAttribute('aria-label', accessibleName);
-      fixes.svgNamesAdded++;
-    }
-  });
-
-  // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href]), [role="link"]:not([href])');
-  fakeLinks.forEach((link) => {

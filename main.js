@@ -45,7 +45,7 @@ const AddressabilityIssues = {
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
 
-  addressAccessibilityIssues(insightReport) {
+  analyzeInsightReport(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }
@@ -225,11 +225,11 @@ const AddressabilityIssues = {
       const tagName = landmark.tagName ? landmark.tagName.toLowerCase() : '';
       const role = landmark.getAttribute('role');
       const implicitRole = {
-        header: 'banner',
-        nav: 'navigation',
-        main: 'main',
-        aside: 'complementary',
-        footer: 'contentinfo'
+        'header': 'banner',
+        'nav': 'navigation',
+        'main': 'main',
+        'aside': 'complementary',
+        'footer': 'contentinfo'
       };
 
       if (!landmark.hasAttribute('role')) {
@@ -601,7 +601,16 @@ fakeLinks.forEach((link) => {
 
 // Accessibility-focused implementation functions
 function countDependencies() {
-  // Implement function for counting dependencies with Node.js
+  const packageJsonPath = path.join(__dirname, 'package.json');
+  const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
+  const dependencies = JSON.parse(packageJson).dependencies || {};
+  const devDependencies = JSON.parse(packageJson).devDependencies || {};
+  
+  return {
+    dependencies: Object.keys(dependencies).length,
+    devDependencies: Object.keys(devDependencies).length,
+    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+  };
 }
 
 function handleCredentialResponse(response) {

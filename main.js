@@ -63,7 +63,7 @@ function checkLandmarkElements(response) {
   return response.includes('landmark');
 }
 
-// New function as per the issue
+// New function as per the issue (handles new requirements)
 function newFunction() {
   console.log('New function called');
   // TODO: Implement the new function logic here

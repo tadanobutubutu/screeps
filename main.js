@@ -1,6 +1,3 @@
-Here is the conflict-resolved file content:
-
-```javascript
 const config = [PERSON_NAME] process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
@@ -37,7 +34,7 @@ const AddressabilityIssues = {
 
     const issues = [];
 
-    // From HEAD - new accessibility checks for sections, empty content, and inaccessible link text
+    // From HEAD - new accessibility checks for sections, empty content, inaccessible link text, table structure, and invalid landmarks
     insightReport.sections.forEach((section, index) => {
       // Check for missing headings
       if (!section.heading) {
@@ -68,10 +65,19 @@ const AddressabilityIssues = {
           suggestedFix: 'Use descriptive link text instead of "click here"'
         });
       }
-    });
 
-    // From ORIGINAL CODE - existing functions to check for missing ID, missing alt text, missing aria label, missing role, and low contrast elements
-    ...
+      // Check for missing ID, missing alt text, missing aria label, missing role, and low contrast elements (from ORIGINAL CODE)
+      ...
+
+      // New functions from ORIGINAL CODE
+      if (!section.isTableAccessible) {
+        issues.push(...validateTableAccessibility(section.table));
+      }
+
+      if (!section.isLandmarkAccessible) {
+        issues.push(...validateLandmarkAccessibility(section.landmarkElements));
+      }
+    });
 
     return issues;
   },
@@ -231,22 +237,21 @@ const AddressabilityIssues = {
   setState: (newState) => { state = { ...state, ...newState }; }
 
   // New functions to address accessibility issues from origin/main
-  fixTableStructureIssues() { ... },
-  fixTableHeaderCellScope() { ... },
-  addMainLandmark() { ... },
-  addLandmarkRolesAndFixIssues() { ... },
-  fixLandmarkIssues() { ... },
-  ensureUniqueLandmarks() { ... },
-  fixSvgAccessibleNames() { ... },
-  addSvgAccessibilityProps(svgElement, accessibleName, role = 'img') { ... },
-  fixButtonIdentifiers() { ... },
-  createResourceButton(resourceName, onClick) { ... }
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addLandmarkRolesAndFixIssues,
+  fixLandmarkIssues,
+  ensureUniqueLandmarks,
+  fixSvgAccessibleNames,
+  addSvgAccessibilityProps(svgElement, accessibleName, role = 'img'),
+  fixButtonIdentifiers,
+  createResourceButton
 };
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     ...,
-    // New functions from origin/main
     fixTableStructureIssues,
     fixTableHeaderCellScope,
     addMainLandmark,
@@ -259,4 +264,3 @@ if (typeof module !== 'undefined' && module.exports) {
     createResourceButton
   };
 }
-```

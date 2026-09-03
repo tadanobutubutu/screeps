@@ -21,13 +21,6 @@ const appData = {
 // Functions to ensure the element has an id, add aria-label, render dependency graphs, checkTableStructure, generateUniqueId, detectAccessibilityIssues, handleCredentialResponse, getStoredCredentials, clearCredentials
 
 const AddressabilityIssues = {
-  MISSING_ID: 'missing-id',
-  MISSING_ALT: 'missing-alt',
-  MISSING_ARIA_LABEL: 'missing-aria-label',
-  MISSING_ROLE: 'missing-role',
-  LOW_CONTRAST: 'low-contrast',
-  TINY_SIZE: 'tiny-size',
-
   analyzeInsightReport: function(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
@@ -355,6 +348,7 @@ if (typeof module !== 'undefined' && module.exports) {
     getState: AddressabilityIssues.getState,
     setState: AddressabilityIssues.setState,
     generateAccessibilityReport: AddressabilityIssues.generateAccessibilityReport,
+    analyzeInsightReport: AddressabilityIssues.analyzeInsightReport,
     addLangAttribute: AddressabilityIssues.addLangAttribute,
     countDependencies: AddressabilityIssues.countDependencies,
     spawnSomeCommand: AddressabilityIssues.spawnSomeCommand,

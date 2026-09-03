@@ -1,21 +1,5 @@
-Looking at the code, I can see several issues:
-
-1. **Main syntax error**: `newFocusTrap` is being destructured twice in the destructuring assignment (once as `originNewFocusTrap` and again with a function definition), which is invalid JavaScript
-2. `accessibilityUtils` also has duplicate `newFocusTrap` definition
-3. There's also a duplicate `announceToScreenReader` definition in `accessibilityUtils`
-4. `validateTableAccessibility` is referenced in `accessibilityUtils` but not destructured from `main`
-5. The truncated code with `...` makes the file incomplete
-6. `appData` is used but never defined
-
-I'll fix these issues while preserving all existing code:
-
-```javascript
 const fs = require('fs');
 const main = require('./utilities');
-
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
 
 const {
   createInPageButton,
@@ -30,8 +14,7 @@ const {
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementHasId: ensureElementIdOrigin,
-  ensureElementHasId,
+  ensureElementId: ensureElementIdOrigin,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -43,9 +26,8 @@ const {
   trapFocus,
 } = main;
 
-// Define newFocusTrap function
-const newFocusTrap = function (element, customFocusableSelector) {
-    const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+const newFocusTrap = function (element, customFocusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"]') {
+    const focusableElements = element.querySelectorAll(customFocusableSelector);
     if (focusableElements.length === 0) return;
     const first = focusableElements[0];
     const last = focusableElements[focusableElements.length - 1];
@@ -87,22 +69,21 @@ const accessibilityUtils = {
         if (priority === undefined) {
             priority = 'polite';
         }
-        const announcer = document.createElement('div');
-        announcer.setAttribute('aria-live', priority);
-        announcer.setAttribute('aria-atomic', 'true');
+        const announcer = ...
+        ... priority);
+        ... 'true');
         announcer.className = 'sr-only';
         announcer.style.position = 'absolute';
         announcer.style.left = '-9999px';
         announcer.textContent = message;
-        document.body.appendChild(announcer);
+        ...
         setTimeout(function () {
             announcer.remove();
         }, 1000);
     },
-    newFocusTrap: newFocusTrap,
+    newFocusTrap,
 };
 
-// Utility functions for ensuring elements have IDs and adding labels
 const ensureElementHasId = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');
@@ -112,14 +93,14 @@ const ensureElementHasId = (element, prefix = 'element') => {
     return element.id;
   }
 
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const id = Math.random().toString(36).substr(2, 9);
   element.id = id;
   return id;
 };
 
-const ensureElementId = (element) => {
+const ensureElementId = element => {
   if (element && !element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
@@ -131,7 +112,7 @@ const addAriaLabel = (element, label) => {
   return element;
 };
 
-const renderDependencyGraph = (data) => {
+const renderDependencyGraph = data => {
   // Implementation for rendering dependency graphs
   return {
     nodes: data.nodes || [],
@@ -139,7 +120,6 @@ const renderDependencyGraph = (data) => {
   };
 };
 
-// Define appData if not already defined
 const appData = {
   tables: [],
   config: {}
@@ -163,14 +143,19 @@ const dependencyGraph = document.querySelector('.dependency-graph');
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
   // Using 'region' role for a contained section of content
-  if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region');
+  if (dependencyGraph.hasAttribute('role')) {
+    // Already has role attribute, check if it's correct
+    if (dependencyGraph.getAttribute('role') === 'region') {
+      return;
+    }
   }
 
-  // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-  }
+  dependencyGraph.setAttribute('role', 'region');
+}
+
+// Add accessible label if not already present
+if (!dependencyGraph || !dependencyGraph.hasAttribute('aria-label')) {
+  dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
 }
 
 // Required changes to fix the React SVG Accessible Name issue
@@ -180,10 +165,11 @@ function addAccessibleName(svgString, label) {
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
   const parser = new DOMParser();
   const svg = parser.parseFromString(svgString, "image/svg+xml");
-  const svgElement = svg.documentElement;
-  if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', label || 'Descriptive label for SVG');
+
+  if (!svg.firstChild.getAttribute('aria-label')) {
+    svg.firstChild.setAttribute('aria-label', label || 'Descriptive label for SVG');
   }
+
   return new XMLSerializer().serializeToString(svg);
 }
 
@@ -236,14 +222,6 @@ function validateTableAccessibilityFn(tableData) {
     if (table.role === undefined) {
       table.role = 'table';
     }
-
-    // Add accessible names to 2 SVGs
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach(function(svg) {
-      if (!svg.getAttribute('aria-label')) {
-        svg.setAttribute('aria-label', 'Accessible SVG element');
-      }
-    });
   }
 
   return errors.length === 0;
@@ -264,21 +242,11 @@ function function3() {
   return "function3 implemented";
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c8cf4389f9c -->
-// _Commit: 4a63dcac59b893a2efdccd50635fab9cc54e7989_
-// <!-- todo-hash: 69d71664fd0827cd05d345427adf276b26830ba5 -->
-
 module.exports = {
   ...accessibilityUtils,
   renderDependencyGraph,
   addAriaLabel,
   addAccessibleName,
   validateTableAccessibility: validateTableAccessibilityFn,
-  validateTableStructure: validateTable
+  validateTableStructure: validateTableStructureFn
+};

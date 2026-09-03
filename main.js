@@ -523,6 +523,274 @@ const app = express();
 // Here is the implementation for checking link accessibility
 // The existing isLinkAccessible function implementation
 
+/* TODO: Implement the required changes to improve accessibility for adding a new book */
+
+// Function to validate book data for accessibility compliance
+function validateBookAccessibility(bookData) {
+  const errors = [];
+  
+  if (!bookData.title || bookData.title.trim() === '') {
+    errors.push({
+      field: 'title',
+      message: 'Book title is required for accessibility (provides accessible name)',
+      severity: 'critical'
+    });
+  }
+  
+  if (!bookData.author || bookData.author.trim() === '') {
+    errors.push({
+      field: 'author',
+      message: 'Book author is required for accessibility',
+      severity: 'high'
+    });
+  }
+  
+  if (bookData.isbn && !/^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$/.test(bookData.isbn)) {
+    errors.push({
+      field: 'isbn',
+      message: 'Invalid ISBN format',
+      severity: 'medium'
+    });
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+// Function to create an accessible book entry object
+function createAccessibleBookEntry(bookData) {
+  const validation = validateBookAccessibility(bookData);
+  if (!validation.isValid) {
+    throw new Error(`Accessibility validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
+  }
+  
+  const bookId = `book-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
+  return {
+    id: bookId,
+    title: bookData.title.trim(),
+    author: bookData.author.trim(),
+    isbn: bookData.isbn ? bookData.isbn.trim() : null,
+    description: bookData.description ? bookData.description.trim() : '',
+    publishedDate: bookData.publishedDate || null,
+    genre: bookData.genre || 'General',
+    accessibility: {
+      ariaLabel: `Book: ${bookData.title.trim()} by ${bookData.author.trim()}`,
+      role: 'article',
+      labelledBy: `${bookId}-title`,
+      describedBy: bookData.description ? `${bookId}-desc` : undefined
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+}
+
+// Function to save book to data store
+function saveBook(bookEntry) {
+  const booksPath = path.join(__dirname, config.dataPath, 'books.json');
+  let books = [];
+  
+  try {
+    if (fs.existsSync(booksPath)) {
+      const data = fs.readFileSync(booksPath, 'utf8');
+      books = JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error reading books file:', error.message);
+  }
+  
+  books.push(bookEntry);
+  
+  try {
+    fs.writeFileSync(booksPath, JSON.stringify(books, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving book:', error.message);
+    return false;
+  }
+}
+
+// Endpoint for adding a new book with accessibility validation
+app.post('/books', express.json(), (req, res) => {
+  try {
+    const bookData = req.body;
+    
+    if (!bookData || typeof bookData !== 'object') {
+      return res.status(400).json({
+        error: 'Invalid request body',
+        message: 'Book data is required'
+      });
+    }
+    
+    const bookEntry = createAccessibleBookEntry(bookData);
+    const saved = saveBook(bookEntry);
+    
+    if (!saved) {
+      return res.status(500).json({
+        error: 'Failed to save book',
+        message: 'Could not write to data store'
+      });
+    }
+    
+    // Return the created book with accessibility metadata
+    res.status(201).json({
+      success: true,
+      book: bookEntry,
+      accessibilityInfo: {
+        ariaLabel: bookEntry.accessibility.ariaLabel,
+        role: bookEntry.accessibility.role,
+        labelledBy: bookEntry.accessibility.labelledBy,
+        describedBy: bookEntry.accessibility.describedBy
+      }
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: 'Validation failed',
+      message: error.message
+    });
+  }
+});
+
+// Endpoint for getting all books
+app.get('/books', (req, res) => {
+  const booksPath = path.join(__dirname, config.dataPath, 'books.json');
+  let books = [];
+  
+  try {
+    if (fs.existsSync(booksPath)) {
+      const data = fs.readFileSync(booksPath, 'utf8');
+      books = JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error reading books file:', error.message);
+  }
+  
+  res.json(books);
+});
+
+// Endpoint for getting a specific book by ID
+app.get('/books/:id', (req, res) => {
+  const booksPath = path.join(__dirname, config.dataPath, 'books.json');
+  let books = [];
+  
+  try {
+    if (fs.existsSync(booksPath)) {
+      const data = fs.readFileSync(booksPath, 'utf8');
+      books = JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error reading books file:', error.message);
+    return res.status(500).json({ error: 'Failed to read books data' });
+  }
+  
+  const book = books.find(b => b.id === req.params.id);
+  
+  if (!book) {
+    return res.status(404).json({ error: 'Book not found' });
+  }
+  
+  res.json(book);
+});
+
+// Endpoint for updating a book with accessibility validation
+app.put('/books/:id', express.json(), (req, res) => {
+  const booksPath = path.join(__dirname, config.dataPath, 'books.json');
+  let books = [];
+  
+  try {
+    if (fs.existsSync(booksPath)) {
+      const data = fs.readFileSync(booksPath, 'utf8');
+      books = JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error reading books file:', error.message);
+    return res.status(500).json({ error: 'Failed to read books data' });
+  }
+  
+  const bookIndex = books.findIndex(b => b.id === req.params.id);
+  
+  if (bookIndex === -1) {
+    return res.status(404).json({ error: 'Book not found' });
+  }
+  
+  try {
+    const bookData = req.body;
+    const validation = validateBookAccessibility(bookData);
+    
+    if (!validation.isValid) {
+      return res.status(400).json({
+        error: 'Accessibility validation failed',
+        errors: validation.errors
+      });
+    }
+    
+    const updatedBook = {
+      ...books[bookIndex],
+      title: bookData.title.trim(),
+      author: bookData.author.trim(),
+      isbn: bookData.isbn ? bookData.isbn.trim() : books[bookIndex].isbn,
+      description: bookData.description ? bookData.description.trim() : books[bookIndex].description,
+      publishedDate: bookData.publishedDate || books[bookIndex].publishedDate,
+      genre: bookData.genre || books[bookIndex].genre,
+      accessibility: {
+        ariaLabel: `Book: ${bookData.title.trim()} by ${bookData.author.trim()}`,
+        role: 'article',
+        labelledBy: `${req.params.id}-title`,
+        describedBy: bookData.description ? `${req.params.id}-desc` : undefined
+      },
+      updatedAt: new Date().toISOString()
+    };
+    
+    books[bookIndex] = updatedBook;
+    
+    fs.writeFileSync(booksPath, JSON.stringify(books, null, 2));
+    
+    res.json({
+      success: true,
+      book: updatedBook
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: 'Validation failed',
+      message: error.message
+    });
+  }
+});
+
+// Endpoint for deleting a book
+app.delete('/books/:id', (req, res) => {
+  const booksPath = path.join(__dirname, config.dataPath, 'books.json');
+  let books = [];
+  
+  try {
+    if (fs.existsSync(booksPath)) {
+      const data = fs.readFileSync(booksPath, 'utf8');
+      books = JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error reading books file:', error.message);
+    return res.status(500).json({ error: 'Failed to read books data' });
+  }
+  
+  const bookIndex = books.findIndex(b => b.id === req.params.id);
+  
+  if (bookIndex === -1) {
+    return res.status(404).json({ error: 'Book not found' });
+  }
+  
+  books.splice(bookIndex, 1);
+  
+  try {
+    fs.writeFileSync(booksPath, JSON.stringify(books, null, 2));
+    res.json({ success: true, message: 'Book deleted successfully' });
+  } catch (error) {
+    console.error('Error saving books file:', error.message);
+    res.status(500).json({ error: 'Failed to save books data' });
+  }
+});
+
 // Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {
   const landmarks = loadLandmarks();
@@ -616,6 +884,10 @@ module.exports = {
   validateInput,
   processData,
   upgradeSystem,
+  // New book accessibility functions
+  validateBookAccessibility,
+  createAccessibleBookEntry,
+  saveBook,
   functionA: {
     X: 'valueX',
     Y: 'valueY',

@@ -203,7 +203,7 @@ function implementAccessibilityFixesFromReport(container, report) {
     console.log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`);
   }
 
-  focusTrap(container);
+  trapFocus(container);
 
   if (fixes.langAdded) {
     console.log('Lang attribute added to HTML element');
@@ -234,6 +234,50 @@ function implementAccessibilityFixesFromReport(container, report) {
   }
 
   return fixes;
+}
+
+function navigate(destination) {
+  if (typeof destination === 'string') {
+    window.location.href = destination;
+  } else if (destination && typeof destination.click === 'function') {
+    destination.click();
+  }
+}
+
+function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  function handleKeyDown(e) {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    }
+    
+    if (e.key === 'Escape') {
+      element.setAttribute('aria-hidden', 'true');
+      element.removeEventListener('keydown', handleKeyDown);
+    }
+  }
+
+  element.addEventListener('keydown', handleKeyDown);
+  
+  if (firstFocusable) {
+    firstFocusable.focus();
+  }
 }
 
 function renderDependencyGraphs(container) {
@@ -429,7 +473,7 @@ function ensureSvgAccessibleNames() {
 }
 
 function ensureDependencyGraphAriaRole() {
-  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph");
+  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph');
   
   if (container) {
     if (!container.hasAttribute('role')) {
@@ -582,6 +626,10 @@ function focusTrap(container) {
 }
 
 function renderDependencyGraphs(container) {
+  // Implementation placeholder
+}
+
+function handleFakeLinks() {
   // Implementation placeholder
 }
 

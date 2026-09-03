@@ -283,6 +283,41 @@ function trapFocus(element) {
   }
 }
 
+// Function to check link accessibility
+function isLinkAccessible() {
+    const links = document.querySelectorAll('a[href]');
+    const inaccessibleLinks = [];
+
+    links.forEach(link => {
+        const href = link.getAttribute('href');
+
+        // Skip empty links and anchor links
+        if (!href || href.startsWith('#') || href.startsWith('javascript:')) {
+            return;
+        }
+
+        // Check if link has valid href
+        if (!href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('/')) {
+            inaccessibleLinks.push({
+                text: link.textContent.trim() || href,
+                href: href,
+                reason: 'Invalid or incomplete URL'
+            });
+        }
+    });
+
+    if (inaccessibleLinks.length > 0) {
+        console.warn(`Warning: Found ${inaccessibleLinks.length} potentially inaccessible links`);
+        inaccessibleLinks.forEach(link => {
+            console.warn(`  - ${link.text} (${link.href}): ${link.reason}`);
+        });
+        return false;
+    }
+
+    return true;
+}
+
+// New function for rendering graph/index
 function renderDependencyGraphs(container) {
   // Implementation placeholder
 }
@@ -433,6 +468,24 @@ function fixFakeLinks() {
       }
     }
   });
+}
+
+// New function for rendering graph/index
+function renderGraphIndex(container, data) {
+  const containerElement = typeof container === 'string' 
+    ? document.getElementById(container) 
+    : container;
+  
+  if (!containerElement) {
+    console.error('Container not found for rendering graph/index');
+    return false;
+  }
+
+  // Implementation logic would go here using both container and data
+  // This combines both the container-based and containerId+data approaches
+  renderDependencyGraphs(containerElement);
+  
+  return true;
 }
 
 function initGoogleSignIn() {
@@ -653,10 +706,6 @@ function validateAccessibilityReport(container) {
   return { issues: [] };
 }
 
-function renderGraphIndex(container) {
-  // Implementation placeholder
-}
-
 function focusTrap(container) {
   // Implementation placeholder
 }
@@ -700,6 +749,7 @@ module.exports = {
     anotherNewFunction,
     getLangAttribute,
     ensureDependencyGraphARIA,
+    isLinkAccessible,
     validateSession,
     handleCredentialResponse
 };

@@ -55,8 +55,6 @@ function createInPageButton(text) {
   // Ensure the returned value is a valid link when appropriate
 }
 
-// Modify or add functions as necessary to address new accessibility issues from the insight report
-
 // Function for addressing accessibility issues from insight report
 export function addressAccessibilityIssues(insightReport) {
   // If no report provided, return an empty array

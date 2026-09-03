@@ -5,7 +5,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
+// ADD: Address new accessibility issues from insight report
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -464,8 +464,7 @@ function buildDependencyGraph(node, options = {}) {
  * @param {HTMLElement} rootNode - The root DOM node to render the graph from
  * @param {HTMLElement} container - Optional container element to render into
  * @param {Object} options - Rendering options
- * @returns {Object} Result with success status and rendered graph data
- */
+ * @returns {Object} Result with success status and rendered graph data */
 function renderDependencyGraph(rootNode, container, options = {}) {
   try {
     // Validate rootNode parameter

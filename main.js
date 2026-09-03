@@ -155,97 +155,24 @@ const report = accessibilityReport.issues.map(issue => ({
   fixApplied: issue.fixApplied || ''
 }));
 
-return report;
-}
-
-// Score calculation
-function calculateAccessibilityScore(fixedIssues) {
-  if (!Array.isArray(fixedIssues)) {
-    return 0;
-  }
-
-  const scorePoints = {
-    'color-contrast': 5,
-    'missing-alt-text': 3,
-    'missing-aria-label': 5,
-    'heading-order': 2,
-    'other': 1
-  };
-
-  return fixedIssues.reduce((total, issue) => {
-    const points = scorePoints[issue.type] || scorePoints.other;
-    return total + points;
-  }, 0);
-}
-
-// Validate landmark role
-function validateLandmark(element) {
-  const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
-  const role = element.getAttribute('role');
-  return validLandmarks.includes(role);
-}
-
-// Spawn some command (placeholder)
-function spawnSomeCommand(command) {
-  console.log('Spawning command:', command);
-  return { status: 'ok', command };
-}
-
-// Add language attribute to HTML element
-function addLangAttribute(lang) {
-  if (document && document.documentElement) {
-    document.documentElement.setAttribute('lang', lang);
+// Modify the checkAccessibility function to use checkElementAccessibility
+function checkAccessibility() {
+  if (primaryContent) {
+    [...primaryContent.querySelectorAll('a,button')].forEach(element => {
+      if (!checkElementAccessibility(element)) {
+        console.error(`${element} is not accessible`);
+      }
+    });
   }
 }
 
-// Updated function using the new functions for rendering graph/index
-function renderDependencyGraphContent() {
-  if (typeof document === 'undefined') {
-    return;
-  }
-  const container = document.getElementById('dependencyGraph');
-  if (!container) {
-    return;
-  }
-
-  // Use the new functions for rendering
-  if (typeof renderDependencyGraph === 'function') {
-    renderDependencyGraph(container);
-  }
-  if (typeof renderIndexView === 'function') {
-    renderIndexView(container);
-  }
-}
-
-// Address all accessibility issues
-function addressInsightIssues() {
-  getLangAttribute();
-  addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
-  
-  if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
-    ensureLandmarkUniqueness(landmarks);
-  }
-  ensureUniqueLandmarks();
-  
-  validateTableAccessibility();
-  validateTableStructure();
-  
-  getSvgAccessibleName();
-  
-  createInPageButton();
-  createAccessibleLink();
-  handleAccessibilityIssues();
-  
-  validateLandmark();
-  validateLandmarkStructure();
-}
-
-// Initialize app
+// Modify the initializeApp function to call checkAccessibility
 function initializeApp() {
   addressInsightIssues();
   if (typeof wrapPrimaryContentInMain === 'function') {
     wrapPrimaryContentInMain();
   }
+  checkAccessibility(); // Added checkAccessibility call
 }
 
 export {

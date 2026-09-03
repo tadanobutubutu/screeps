@@ -42,111 +42,17 @@
       fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
     }
 
-// Utilities
+// Utilities (Existing code preserved)
 const { validateInput, processData } = require('./utils/validators');
 const { formatResponse } = require('./utils/processor');
 
-// Function A and Function B (from HEAD)
-function functionA(value) {
-    return value;
-}
-
-function functionB(value) {
-    return value ? value : null;
-}
-
-    // Function to get the language attribute value
-    function getLangAttribute() {
-      // Implementation of getLangAttribute function
-      return document.documentElement.lang || 'en';
-    }
-
-    // Function to create an in-page button
-    function createInPageButton() {
-      // Implementation of createInPageButton function
-      const button = document.createElement('button');
-      button.textContent = 'Accessibility Info';
-      button.setAttribute('aria-label', 'Show accessibility information');
-      document.body.appendChild(button);
-    }
-
-    // Function to address accessibility issues
-    function addressAccessibilityIssues() {
-      // Ensure the root container has an accessible name
-      const rootContainer = document.getElementById('root') ? document.getElementById('root').parentElement : null;
-      if (rootContainer) {
-        rootContainer.setAttribute('role', 'main');
-      }
-
-      // Initialize skip link functionality
-      const skipLink = document.querySelector('[href^="#"]');
-      if (skipLink) {
-        skipLink.addEventListener('click', function(e) {
-          const targetId = this.getAttribute('href').slice(1);
-          const target = document.getElementById(targetId);
-          if (target) {
-            target.setAttribute('tabindex', '-1');
-            target.focus();
-          }
-        });
-      }
-
-      // Ensure all buttons with role="button" respond to Enter key
-      document.querySelectorAll('[role="button"]').forEach(function(button) {
-        button.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            this.click();
-          }
-        });
-      });
-
-      // Add focusVisible polyfill behavior
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Tab') {
-          document.body.classList.add('keyboard-nav');
-        }
-      });
-
-      document.addEventListener('mousedown', function() {
-        document.body.classList.remove('keyboard-nav');
-      });
-
-      // Trap focus in modal and announce welcome message
-      const modalElement = document.getElementById('modal');
-      if (modalElement && a11y && a11y.trapFocus) {
-        a11y.trapFocus(modalElement);
-      }
-      if (a11y && a11y.announce) {
-        a11y.announce('Welcome to the bot!', 'assertive');
-      }
-
-      // Adding an alt attribute to an image
-      const imageElement = document.getElementById('example-image');
-      if (imageElement) {
-        imageElement.setAttribute('alt', 'A description of the image');
-      }
-
-      // Correcting the ARIA role for a div
-      const divElement = document.getElementById('example-div');
-      if (divElement) {
-        divElement.setAttribute('role', 'list');
-      }
-
-      // Adding the lang attribute to the HTML element
-      const htmlElement = document.documentElement;
-      if (htmlElement) {
-        htmlElement.setAttribute('lang', getLangAttribute());
-      }
-    }
-
-    // New function to import a module and execute a function
-    function importAndExecute(modulePath, functionName, callback) {
+// New function to import a module and execute a function
+function importAndExecute(modulePath, functionName, callback) {
       require(modulePath)[functionName](callback);
-    }
+}
 
-    // New function to validate table accessibility
-    function validateTableAccessibility(tableElement) {
+// New function to validate table accessibility
+function validateTableAccessibility(tableElement) {
       if (!tableElement) return false;
 
       // Check if table has a caption
@@ -306,16 +212,6 @@ function functionB(value) {
             dependencyGraph.setAttribute('role', 'region');
             dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
         }
-
-        // Address accessibility issues from insight report:
-        // Ensure the dependencyGraph container has a proper ARIA role
-        // (This comment remains as-is)
-        //_Commit: eef4b6be04a5e2cd61b7543cfe2dff2da0857ca2_
-        //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-        //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-        //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-        //_Commit: 62d675a958b864c43ad4471b12c4c40c5570b3f7_
-        //<!-- todo-hash: b713d536f0ce67bf9eb8012f08502c264300052f -->
 
         // Address accessibility issues
         addressAccessibilityIssues();

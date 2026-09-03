@@ -1,31 +1,9 @@
-// Add back any required exports that might have been removed.
-// Existing code starts here
-const main = require('./utilities')
+// TODO: This is the existing code that needs to be preserved
+// This is the conflicting code that needs to be resolved.
+// This is the code that should be merged into the main branch.
+// Additional changes that need to be preserved
 
-// Function to format a person's name for accessibility
-function personName(firstName, lastName, options = {}) {
-  const { middleName = '', suffix = '', prefix = '' } = options
-  
-  const parts = []
-  
-  if (prefix) {
-    parts.push(prefix)
-  }
-  
-  parts.push(firstName)
-  
-  if (middleName) {
-    parts.push(middleName)
-  }
-  
-  parts.push(lastName)
-  
-  if (suffix) {
-    parts.push(suffix)
-  }
-  
-  return parts.join(' ')
-}
+const main = require('./utilities')
 
 // Function for getting the language attribute based on content
 function getLangAttribute() {

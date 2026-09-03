@@ -49,11 +49,11 @@ const a11yStore = {
    * Check if the user prefers reduced motion
    * @returns {boolean} True if the user prefers reduced motion
    */
-  prefersReducedMotion() {
+  preferReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
-  prefersHighContrast() {
+  preferHighContrast() {
     return window.matchMedia('(prefers-contrast: more)').matches;
   },
 
@@ -66,7 +66,7 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
+      landmarks.forEach((landmark) => {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
@@ -150,9 +150,56 @@ const a11yStore = {
       }
     });
   },
-
-  // ... remaining a11yStore methods ...
 };
+
+/**
+ * Validates the accessibility report by running all accessibility checks
+ * and ensuring the a11yStore methods are properly configured.
+ */
+function validateAccessibilityReport() {
+  console.log('Validating accessibility report...');
+  
+  // Check if a11yStore exists and has required methods
+  if (!a11yStore) {
+    throw new Error('a11yStore is not initialized');
+  }
+  
+  const requiredMethods = [
+    'preferReducedMotion',
+    'preferHighContrast',
+    'updateLiveRegion',
+    'checkLandmarkElements',
+    'addSVGAccessibilityProps',
+    'fixFakeLinks',
+    'ensureInteractiveRoles',
+    'addFormControlLabels',
+    'ensureImageAccessibility'
+  ];
+  
+  for (const methodName of requiredMethods) {
+    if (!a11yStore[methodName]) {
+      throw new Error(`Missing accessibility method: ${methodName}`);
+    }
+  }
+  
+  // Run each accessibility check
+  try {
+    a11yStore.preferReducedMotion();
+    a11yStore.preferHighContrast();
+    a11yStore.updateLiveRegion('Test message');
+    a11yStore.checkLandmarkElements();
+    a11yStore.addSVGAccessibilityProps();
+    a11yStore.fixFakeLinks();
+    a11yStore.ensureInteractiveRoles();
+    a11yStore.addFormControlLabels();
+    a11yStore.ensureImageAccessibility();
+    
+    console.log('Accessibility report validation passed successfully.');
+  } catch (error) {
+    console.error('Accessibility validation failed:', error.message);
+    process.exit(1);
+  }
+}
 
 // New functions
 function ensureInteractiveElementsAccessible() {

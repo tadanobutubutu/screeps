@@ -2,12 +2,13 @@
 // TODO: Existing main.js content before the merge conflict...
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 // Accessibility improvements:
 // - Added semantic HTML structure
@@ -141,10 +142,6 @@ function getSvgAccessibleName() {
   return [];
 }
 
-function validateLinkAccessibility() {
-  return [];
-}
-
 function analyzeAccessibility(issuesData) {
   return issuesData || [];
 }
@@ -210,25 +207,6 @@ function wrapPrimaryContentInMain(parent) {
   return mainElement;
 }
 
-// New function to validate link accessibility
-function validateLinkAccessibility(link) {
-  if (!link || typeof link !== 'object') {
-    return false;
-  }
-
-  // Check if link has href and is not empty
-  if (!link.href || link.href.trim() === '') {
-    return false;
-  }
-
-  // Check if link has accessible name
-  if (!link.textContent || link.textContent.trim() === '') {
-    return false;
-  }
-
-  return true;
-}
-
 // New function to handle fake links
 function handleFakeLinks() {
   const fakeLinks = document.querySelectorAll('a[role="button"], a[href="#"]');
@@ -287,6 +265,10 @@ const initializeApp = () => {
   setLanguageAttribute();
   addLandmarkRoles();
   fixFakeLinks();
+  addLangAttribute();
+  fixTableStructure();
+  addMainLandmark();
+  addProperLandmarkRegions();
 
   // Address accessibility issues
   addressAccessibilityIssues();
@@ -298,7 +280,7 @@ const initializeApp = () => {
   setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
 
   // Ensure unique landmarks (2 issues)
-  ensureUniqueLandmarks();
+  ensureUniqueLandmarks([]);
 
   // Fix 1 fake link issue
   fixFakeLink();
@@ -421,7 +403,7 @@ async function scanAccessibility(filePaths) {
   }
 
   // Check for unique landmarks
-  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  const uniqueLandmarkIssues = ensureUniqueLandmarks([]);
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
     uniqueLandmarkIssues.forEach(function(issue) {
       issues.push({
@@ -499,14 +481,6 @@ function writeReport(report) {
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
 // Existing utility function
 const formatResponse = (data) => {
   return JSON.stringify(data, null, 2);
@@ -575,6 +549,128 @@ function upgradeSystem(harvestedData) {
   return true;
 }
 
+// New function: Add lang attribute to HTML element
+function addLangAttribute() {
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
+}
+
+// New function: Fix table structure issues
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has proper structure
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const headerRow = document.createElement('tr');
+        firstRow.querySelectorAll('td, th').forEach(cell => {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          th.setAttribute('scope', 'col');
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+    if (!table.querySelector('tbody')) {
+      const tbody = document.createElement('tbody');
+      const rows = table.querySelectorAll('tr');
+      rows.forEach(row => {
+        if (!row.parentElement || row.parentElement.tagName !== 'THEAD') {
+          tbody.appendChild(row);
+        }
+      });
+      table.appendChild(tbody);
+    }
+  });
+}
+
+// New function: Add main landmark
+function addMainLandmark() {
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  if (!mainContent) {
+    const main = document.createElement('main');
+    document.body.insertBefore(main, document.body.firstChild);
+  } else if (!mainContent.getAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+}
+
+// New function: Set SVG attributes for accessibility
+function setSvgAttributes(svgElement, accessibleName) {
+  if (svgElement) {
+    svgElement.setAttribute('aria-label', accessibleName);
+    svgElement.setAttribute('role', 'img');
+  }
+}
+
+// New function: Add proper landmark regions
+function addProperLandmarkRegions() {
+  const nav = document.querySelector('nav');
+  if (nav && !nav.getAttribute('role')) {
+    nav.setAttribute('role', 'navigation');
+  }
+  const main = document.querySelector('main');
+  if (main && !main.getAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+  const aside = document.querySelector('aside');
+  if (aside && !aside.getAttribute('role')) {
+    aside.setAttribute('role', 'complementary');
+  }
+  const footer = document.querySelector('footer');
+  if (footer && !footer.getAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+  const header = document.querySelector('header');
+  if (header && !header.getAttribute('role')) {
+    header.setAttribute('role', 'banner');
+  }
+}
+
+// Updated validateLinkAccessibility function to handle both single link and full scan
+function validateLinkAccessibility(link) {
+  if (link) {
+    // Validate a single link
+    if (!link || typeof link !== 'object') {
+      return false;
+    }
+    if (!link.href || link.href.trim() === '') {
+      return false;
+    }
+    if (!link.textContent || link.textContent.trim() === '') {
+      return false;
+    }
+    return true;
+  } else {
+    // Scan all links and return issues
+    const issues = [];
+    const links = document.querySelectorAll('a');
+    links.forEach(link => {
+      if (!link.href || link.href.trim() === '') {
+        issues.push({
+          type: 'REACT_036',
+          description: 'Link is missing href',
+          severity: 'high',
+          element: link
+        });
+      } else if (!link.textContent || link.textContent.trim() === '') {
+        issues.push({
+          type: 'REACT_036',
+          description: 'Link has no accessible name',
+          severity: 'high',
+          element: link
+        });
+      }
+    });
+    return issues;
+  }
+}
+
 // Export all functions
 module.exports = {
   config,
@@ -625,5 +721,11 @@ module.exports = {
     X: 'valueX',
     Y: 'valueY',
     Z: 'valueZ'
-  }
+  },
+  // New accessibility functions
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  setSvgAttributes,
+  addProperLandmarkRegions
 };

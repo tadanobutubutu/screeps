@@ -176,3 +176,26 @@ function addSvgAccessibleNames() {
     }
   });
 }
+
+// Export all functions to make them accessible to other modules/tests
+module.exports = {
+  helper,
+  formatDate,
+  validateInput,
+  processData,
+  initializeApp,
+  loadLandmarks,
+  processLandmarks,
+  ensureUniqueLandmarks,
+  ensureElementHasId,
+  addAriaLabel,
+  handleDependencyGraph,
+  createInPageButton,
+  extractSvgAccessibleName,
+  addressAccessibilityIssues,
+  importAndExecute,
+  analyzeModuleDependenciesLocal,
+  ensureLangAttribute,
+  fixLandmarks,
+  addSvgAccessibleNames
+};

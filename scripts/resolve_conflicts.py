@@ -54,6 +54,9 @@ def main():
         sys.exit(1)
 
     pr_no = sys.argv[1]
+    if not pr_no.isdigit():
+        print("Error: PR number must be a numeric integer.")
+        sys.exit(1)
     print(f"Resolving conflicts for PR #{pr_no}...")
 
     # Configure Git
@@ -144,7 +147,7 @@ def main():
     )
 
     # Push to origin
-    run_cmd(["git", "push", "origin", f"HEAD:{head_branch}"])
+    run_cmd(["git", "push", "origin", "--", f"HEAD:{head_branch}"])
     print(f"Successfully resolved conflicts and pushed to {head_branch}.")
 
 

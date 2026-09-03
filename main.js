@@ -40,6 +40,32 @@ function getWelcomeMessage() {
   return greetingFunction() + " This is a new function that returns a welcome message.";
 }
 
+// Function to render dependency graphs
+function renderDependencyGraph(containerId = 'dependency-graph') {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with id "${containerId}" not found`);
+    return;
+  }
+  
+  const graphContent = dependencyGraphContent();
+  container.innerHTML = graphContent;
+  container.setAttribute('role', 'img');
+  container.setAttribute('aria-label', 'Dependency graph visualization');
+}
+
+// Function to render index content
+function renderIndexContent(containerId = 'index-content') {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with id "${containerId}" not found`);
+    return;
+  }
+  
+  const content = indexContent();
+  container.innerHTML = content;
+}
+
 const { class1, function1, Object1 } = require('./path/to/module');
 
 const a11yStore = {

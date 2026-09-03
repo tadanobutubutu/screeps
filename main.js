@@ -1,5 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// TODO: Address accessibility issues from insight report:
+// (Accessibility fixes implemented in this file)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
@@ -371,7 +371,7 @@ function createFocusTrap(container, options = {}) {
   };
 
   let active = false;
-  let deactivateHandler = null;
+  let previousActiveElement = null;
 
   const getFocusableElements = () => {
     return Array.from(container.querySelectorAll(
@@ -413,7 +413,12 @@ function createFocusTrap(container, options = {}) {
   const activate = () => {
     if (active) return;
     active = true;
+    previousActiveElement = document.activeElement;
     document.addEventListener('keydown', handleKeyDown);
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    }
     if (config.onActivate) config.onActivate();
   };
 
@@ -421,8 +426,9 @@ function createFocusTrap(container, options = {}) {
     if (!active) return;
     active = false;
     document.removeEventListener('keydown', handleKeyDown);
-    if (config.returnFocusOnDeactivate && deactivateHandler) {
-      deactivateHandler.focus();
+    if (config.returnFocusOnDeactivate && previousActiveElement) {
+      previousActiveElement.focus();
+      previousActiveElement = null;
     }
     if (config.onDeactivate) config.onDeactivate();
   };

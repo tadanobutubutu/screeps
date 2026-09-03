@@ -46,6 +46,41 @@ function addLangAttribute(html) {
 }
 
 // REACT_027: Fix table structure issues (add thead, tbody, th scope, caption)
+function fixTableStructure(html) {
+    if (typeof html !== 'string') return html;
+    
+    // Add tbody if tables have direct tr children
+    html = html.replace(/(<table[^>]*>)\s*(<tr[^>]*>)/gi, '$1<tbody>$2');
+    html = html.replace(/(<\/tr>)(?!\s*<\/tbody>)(?=\s*<(?:t(?:able|body|foot|head)|\/table>))/gi, '$1</tbody>');
+    
+    // Add thead if table has headers in first row without thead wrapper
+    html = html.replace(/(<table[^>]*>)[\s\n]*(<tbody>)?(<tr[^>]*>)[\s\n]*(<th[^>]*>)/gi, '$1<thead>$3$4');
+    html = html.replace(/(<\/tr>)(<\/thead>)?(?=\s*<tr)/gi, '$1</thead>');
+    
+    // Add scope="col" to th elements in thead
+    html = html.replace(/<thead[^>]*>([\s\S]*?)<\/thead>/gi, (match, theadContent) => {
+        return match.replace(/<th(?![^>]*\bscope=)/gi, '<th scope="col"');
+    });
+    
+    // Add scope="row" to th elements in tbody
+    html = html.replace(/<tbody[^>]*>([\s\S]*?)<\/tbody>/gi, (match, tbodyContent) => {
+        return match.replace(/<th(?![^>]*\bscope=)/gi, '<th scope="row"');
+    });
+    
+    // Ensure th elements in tbody without scope get scope="row"
+    html = html.replace(/<tbody[^>]*>([\s\S]*?)<\/tbody>/gi, (match, tbodyContent) => {
+        if (tbodyContent.includes('<th')) {
+            return match.replace(/<th(?![^>]*\bscope=)/gi, '<th scope="row"');
+        }
+        return match;
+    });
+    
+    // Add caption if table doesn't have one
+    html = html.replace(/(<table(?![^>]*>[\s\S]*?<caption)([^>]*)>)/gi, '$1<caption></caption>');
+    
+    return html;
+}
+
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
 
@@ -226,11 +261,141 @@ function improveAccessibility() {
   addSvgAccessibleNames();
 }
 
+// Accessibility fix functions - fully implemented
+
+function fixLandmarks(html) {
+    if (typeof html !== 'string') return html;
+    
+    // Ensure exactly one main landmark
+    const mainCount = (html.match(/<main[^>]*>/gi) || []).length;
+    if (mainCount === 0) {
+        // Wrap content with main if no main exists
+        html = html.replace(/<body([^>]*)>/i, '<body$1><main>');
+        if (!html.includes('</main>')) {
+            html = html.replace(/<\/body>/i, '</main></body>');
+        }
+    } else if (mainCount > 1) {
+        // Keep only first main, convert others to div with role="region"
+        let count = 0;
+        html = html.replace(/<main([^>]*)>/gi, (match, attrs) => {
+            count++;
+            if (count === 1) return match;
+            return `<div${attrs} role="region">`;
+        });
+        html = html.replace(/<\/main>/gi, (match, offset) => {
+            const opens = (html.substring(0, offset).match(/<main/gi) || []).length;
+            const closes = (html.substring(0, offset).match(/<\/main>/gi) || []).length;
+            if (opens === closes) return match;
+            return '</div>';
+        });
+    }
+    
+    // Ensure header has appropriate role (banner if top-level)
+    html = html.replace(/<header([^>]*)>/gi, (match, attrs) => {
+        if (/\brole=/i.test(match)) return match;
+        // Only add role="banner" if inside body (top-level header)
+        if (!/<article/i.test(html.substring(0, html.indexOf(match)))) {
+            return `<header${attrs} role="banner">`;
+        }
+        return match;
+    });
+    
+    // Ensure footer has appropriate role (contentinfo if top-level)
+    html = html.replace(/<footer([^>]*)>/gi, (match, attrs) => {
+        if (/\brole=/i.test(match)) return match;
+        if (!/<article/i.test(html.substring(0, html.indexOf(match)))) {
+            return `<footer${attrs} role="contentinfo">`;
+        }
+        return match;
+    });
+    
+    // Ensure nav elements have role="navigation"
+    html = html.replace(/<nav([^>]*)>/gi, (match, attrs) => {
+        if (/\brole=/i.test(match)) return match;
+        return `<nav${attrs} role="navigation">`;
+    });
+    
+    // Ensure aside has role="complementary"
+    html = html.replace(/<aside([^>]*)>/gi, (match, attrs) => {
+        if (/\brole=/i.test(match)) return match;
+        return `<aside${attrs} role="complementary">`;
+    });
+    
+    // Ensure form with search has role="search"
+    html = html.replace(/<form([^>]*)>/gi, (match, attrs) => {
+        if (/\brole=/i.test(match)) return match;
+        const lowerAttrs = attrs.toLowerCase();
+        if (lowerAttrs.includes('search')) {
+            return `<form${attrs} role="search">`;
+        }
+        return match;
+    });
+    
+    return html;
+}
+
+function addSvgAccessibleNames(html) {
+    if (typeof html !== 'string') return html;
+    
+    // Add title element to SVGs that don't have one
+    html = html.replace(/<svg([^>]*)>(?!\s*<title)/gi, (match, attrs) => {
+        return `<svg${attrs}><title>SVG Graphic</title>`;
+    });
+    
+    // Add aria-label to SVGs with empty or missing title
+    html = html.replace(/<svg([^>]*)(?=>|\s)(?!\s*[^>]*aria-label)/gi, (match, attrs) => {
+        if (/aria-label=/i.test(match)) return match;
+        return `<svg${attrs} aria-label="SVG Graphic">`;
+    });
+    
+    // Ensure SVGs have role="img"
+    html = html.replace(/<svg(?![^>]*\brole=)/gi, '<svg role="img"');
+    
+    return html;
+}
+
+function fixFakeLinks(html) {
+    if (typeof html !== 'string') return html;
+    
+    // Find divs and spans with href attributes (fake links) and convert to proper links or add button role
+    html = html.replace(/<(div|span)([^>]*\shref=["'][^"']+["']|[^>]*\srole=["'](?:link|button)["'])([^>]*)>/gi, (match, tag, middle, rest) => {
+        const hasHref = /href=/i.test(middle);
+        const hasRole = /role=/i.test(middle);
+        
+        if (hasHref && !hasRole) {
+            // Convert fake link to proper anchor
+            return `<a${middle}${rest}>`;
+        }
+        return match;
+    });
+    
+    // Add role="link" to anchors without proper href handling
+    html = html.replace(/<a(?![^>]*\bhref)([^>]*)>/gi, (match, attrs) => {
+        if (/role=/i.test(attrs)) return match;
+        // If it looks like a link (has onclick or is styled as link), add role
+        if (/onclick|pointer/i.test(attrs)) {
+            return `<a${attrs} role="link">`;
+        }
+        return match;
+    });
+    
+    // Ensure links have accessible text
+    html = html.replace(/<a([^>]*)>(?=\s*<\/a>)/gi, (match, attrs) => {
+        const hasText = /<a[^>]*>(?!\s*<\/a>)/i.test(match);
+        const hasAriaLabel = /aria-label=/i.test(attrs);
+        const hasTitle = /title=/i.test(attrs);
+        
+        if (!hasText && !hasAriaLabel && !hasTitle) {
+            // Add accessible text if missing
+            return `<a${attrs}><span class="sr-only">Link</span>`;
+        }
+        return match;
+    });
+    
+    return html;
+}
+
 // Placeholder functions referenced but not implemented in the conflict
-function fixTableStructure(html) { return html; }
-function fixLandmarks(html) { return html; }
-function addSvgAccessibleNames(html) { return html; }
-function fixFakeLinks(html) { return html; }
 function fixTableStructureIssues() {}
 function fixTableHeaderCellScope() {}
 function addMainLandmark() {}

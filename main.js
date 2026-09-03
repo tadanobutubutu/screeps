@@ -587,18 +587,75 @@ function upgradeSystem(harvestedData) {
   // Use harvested data to improve the system
   console.log('Applying upgrade logic with harvested data:', harvestedData);
 
-  // Example: update configuration based on harvested data
-  if (harvestedData) {
-    if (harvestedData.maxResults) {
-      config.maxResults = harvestedData.maxResults;
-    }
-    if (harvestedData.debug !== undefined) {
-      config.debug = harvestedData.debug;
-    }
-    // Additional upgrade logic can be added here
+  // Validate harvested data
+  if (!harvestedData || typeof harvestedData !== 'object') {
+    console.warn('Invalid harvested data received for upgrade');
+    return false;
   }
 
-  return true;
+  // Track configuration changes
+  const changes = [];
+
+  // Update configuration based on harvested data
+  if (harvestedData.maxResults !== undefined) {
+    const oldValue = config.maxResults;
+    config.maxResults = harvestedData.maxResults;
+    changes.push(`maxResults: ${oldValue} → ${config.maxResults}`);
+  }
+
+  if (harvestedData.debug !== undefined) {
+    const oldValue = config.debug;
+    config.debug = harvestedData.debug;
+    changes.push(`debug: ${oldValue} → ${config.debug}`);
+  }
+
+  if (harvestedData.dataPath !== undefined) {
+    const oldValue = config.dataPath;
+    config.dataPath = harvestedData.dataPath;
+    changes.push(`dataPath: ${oldValue} → ${config.dataPath}`);
+  }
+
+  if (harvestedData.version !== undefined) {
+    const oldValue = CONFIG.version;
+    CONFIG.version = harvestedData.version;
+    changes.push(`version: ${oldValue} → ${CONFIG.version}`);
+  }
+
+  if (harvestedData.name !== undefined) {
+    const oldValue = CONFIG.name;
+    CONFIG.name = harvestedData.name;
+    changes.push(`name: ${oldValue} → ${CONFIG.name}`);
+  }
+
+  // Process any data-related upgrades
+  if (harvestedData.landmarks && Array.isArray(harvestedData.landmarks)) {
+    console.log(`Processing ${harvestedData.landmarks.length} landmarks from harvested data`);
+    // Here you could add logic to merge or replace landmark data
+  }
+
+  if (harvestedData.configUpdates && typeof harvestedData.configUpdates === 'object') {
+    Object.keys(harvestedData.configUpdates).forEach(key => {
+      if (config.hasOwnProperty(key) || CONFIG.hasOwnProperty(key)) {
+        const oldValue = config[key];
+        config[key] = harvestedData.configUpdates[key];
+        changes.push(`${key}: ${oldValue} → ${config[key]}`);
+      }
+    });
+  }
+
+  // Log changes if debug mode is enabled
+  if (config.debug && changes.length > 0) {
+    console.log('Configuration changes applied:');
+    changes.forEach(change => console.log(`  - ${change}`));
+  }
+
+  // Return upgrade status with details
+  return {
+    success: true,
+    changesApplied: changes.length > 0,
+    changes: changes,
+    timestamp: new Date().toISOString()
+  };
 }
 
 // Harvest logic implementation

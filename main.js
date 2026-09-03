@@ -451,6 +451,7 @@ function addressAccessibilityIssues(insightReport) {
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', getLangAttribute());
   }
+  return AddressabilityIssues.addressAccessibilityIssues(insightReport);
 }
 
 function initializeAccessibility() {

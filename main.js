@@ -233,22 +233,6 @@ function setSvgAttributes(svgElement, name) {
   return true;
 }
 
-function validateLinkAccessibility(link) {
-  const issues = [];
-  if (!link) {
-    return { valid: false, issues: ['Link element is required'] };
-  }
-  const text = link.textContent.trim();
-  const ariaLabel = link.getAttribute('aria-label');
-  if (!text && !ariaLabel) {
-    issues.push('REACT_036: Link has no accessible name (no text or aria-label)');
-  }
-  if (text && (text === 'click here' || text === 'read more' || text === 'learn more')) {
-    issues.push(`REACT_036: Link text "${text}" is not descriptive`);
-  }
-  return { valid: issues.length === 0, issues };
-}
-
 function handleFakeLinks(container) {
   const issues = [];
   const elements = container ? container.querySelectorAll('a, button') : document.querySelectorAll('a, button');

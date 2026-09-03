@@ -11,7 +11,7 @@ const path = require('path');
 // Ensure the dependencyGraph container has a proper ARIA role
 
 // Functions to ensure the element has an id, add aria-label, render dependency graph
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
+// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e88
 
 // TODO: This is the existing code that needs to be preserved
 // Line 7
@@ -52,12 +52,12 @@ function ensureElementHasId(element) {
   }
 }
 
-const AddressabilityIssues = {
+const ADDRESS = {
   MISSING_ID: 'missing-id',
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
 
-  addressAccessibilityIssues(insightReport) {
+  getIssues(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }
@@ -237,11 +237,11 @@ const AddressabilityIssues = {
       const tagName = landmark.tagName ? landmark.tagName.toLowerCase() : '';
       const role = landmark.getAttribute('role');
       const implicitRole = {
-        header: 'banner',
-        nav: 'navigation',
-        main: 'main',
-        aside: 'complementary',
-        footer: 'contentinfo'
+        'header': 'banner',
+        'nav': 'navigation',
+        'main': 'main',
+        'aside': 'complementary',
+        'footer': 'contentinfo'
       };
 
       if (!landmark.hasAttribute('role')) {
@@ -595,7 +595,7 @@ if (typeof module !== 'undefined' && module.exports) {
   } else {
     initializeAccessibility();
   }
-  
+
   // Fix 26 table structure issues
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {

@@ -203,6 +203,22 @@ function setSvgAttributes(svg, name) {
   }
 }
 
+// New function to add SVG accessibility props
+function addSVGAccessibilityProps(svgElement) {
+  if (!svgElement) return;
+  
+  // Add aria-label if not present
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (!ariaLabel) {
+    svgElement.setAttribute('aria-label', 'Accessible SVG graphic');
+  }
+  
+  // Add role if not present
+  if (!svgElement.hasAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+}
+
 function ensureUniqueLandmarks() {
   if (typeof document === 'undefined') {
     return;

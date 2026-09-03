@@ -468,6 +468,7 @@ root.render(
 reportWebVitals();
 
 export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
+export { addressAccessibilityIssues, getLangAttribute, a11y, accessibilityUtils };
 
 // Initialize after React render to ensure DOM is updated
 initialize();

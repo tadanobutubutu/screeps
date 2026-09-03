@@ -132,6 +132,24 @@ const accessibilityUtils = {
     }
 };
 
+/**
+ * Spawn an accessibility announcement element
+ * @param {string} message - The message to announce
+ * @param {string} priority - 'polite' or 'assertive'
+ * @returns {HTMLElement} The created announcement element
+ */
+function spawnAnnouncement(message, priority = 'polite') {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    return announcer;
+}
+
 function generateAccessibilityReport(container) {
     // TODO: Implement function for generating a report based on accessibility issues
     // Replaced placeholder with full implementation using axe-core scanning and report writing

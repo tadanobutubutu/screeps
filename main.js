@@ -41,19 +41,6 @@ const {
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,
@@ -66,23 +53,25 @@ const {
 } = main
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
+if (typeof document !== 'undefined') {
+  const dependencyGraph = document.getElementById('dependencyGraph')
 
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region')
-  }
+  if (dependencyGraph) {
+    // Set appropriate ARIA role for the dependency graph container
+    // Using 'region' role for a contained section of content
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region')
+    }
 
-  // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
-  }
+    // Add accessible label if not already present
+    if (!dependencyGraph.getAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
+    }
 
-  // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph');
+    // Ensure element has an ID if not present
+    if (!dependencyGraph.getAttribute('id')) {
+      dependencyGraph.setAttribute('id', 'dependencyGraph');
+    }
   }
 }
 

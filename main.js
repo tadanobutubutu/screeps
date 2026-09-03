@@ -483,7 +483,8 @@ function renderDependencyGraph(rootNode, container, options = {}) {
     // If container provided, render visual elements
     if (container && typeof document !== 'undefined') {
       const graphContainer = document.createElement('div');
-      graphContainer.setAttribute('role', 'img');
+      // Ensure proper ARIA role for accessibility (address insight report)
+      graphContainer.setAttribute('role', 'region');
       graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
       graphContainer.className = options.className || 'dependency-graph';
       

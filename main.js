@@ -285,6 +285,37 @@ function ensureUniqueLandmarks() {
   return { valid: errors.length === 0, errors };
 }
 
+/**
+ * Ensures the dependency graph container has proper accessibility attributes
+ * @param {HTMLElement} container - The dependency graph container element
+ */
+function ensureDependencyGraphAccessibility(container) {
+  if (typeof document === 'undefined' || !container) {
+    return;
+  }
+
+  // Add role="region" if not present
+  if (!container.getAttribute('role')) {
+    container.setAttribute('role', 'region');
+  }
+
+  // Add aria-label or aria-labelledby if not present
+  if (!container.getAttribute('aria-label') && !container.getAttribute('aria-labelledby')) {
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+
+  // Ensure tabIndex is set for keyboard navigation
+  if (container.getAttribute('tabindex') === null) {
+    container.setAttribute('tabindex', '0');
+  }
+
+  // Ensure sufficient color contrast and focus styles are available via CSS
+  // This is handled by CSS classes, but we can add a class if needed
+  if (!container.classList.contains('dependency-graph-container')) {
+    container.classList.add('dependency-graph-container');
+  }
+}
+
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 
 const renderGraphIndex = (graphData) => {

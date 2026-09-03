@@ -784,6 +784,22 @@ function towerDefense() {
   };
 }
 
+/**
+ * Calculates the discounted price given original price and discount percentage.
+ * @param {number} originalPrice - The original price before discount.
+ * @param {number} discountPercent - The discount percentage (0-100).
+ * @returns {number} The final price after discount.
+ */
+function calculateDiscount(originalPrice, discountPercent) {
+  if (typeof originalPrice !== 'number' || typeof discountPercent !== 'number') {
+    throw new Error('Original price and discount percent must be numbers');
+  }
+  if (discountPercent < 0 || discountPercent > 100) {
+    throw new Error('Discount percent must be between 0 and 100');
+  }
+  return originalPrice - (originalPrice * discountPercent / 100);
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   setHtmlLangAttribute,
@@ -803,5 +819,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  towerDefense
+  towerDefense,
+  calculateDiscount
 };

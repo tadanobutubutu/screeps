@@ -5,8 +5,6 @@ const url = require('url');
 const { dependencyGraphContent, indexContent } = require('./dependencyContent');
 const { main } = require('./utilities');
 
-const main = require('./utilities');
-
 const {
   createInPageButton,
   validateTableAccessibility,
@@ -16,14 +14,13 @@ const {
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
-  announceToScreenReader,
-  handleKeyboardNav,
-  newFocusTrap: originNewFocusTrap,
+  announceToScreenReader: announceToScreenReaderWrapper,
+  handleKeyboardNav: handleKeyboardNavWrapper,
+  newFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
   ensureElementHasId: ensureElementIdOrigin,
-  ensureElementId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -33,9 +30,6 @@ const {
   transformInputData,
   initSkipLink,
   trapFocus,
-  newFocusTrap,
-  announceToScreenReader: announceToScreenReaderWrapper,
-  handleKeyboardNav: handleKeyboardNavWrapper
 } = main;
 
 const ensureElementId = (element) => {

@@ -103,7 +103,19 @@ function initializeApp() {
 function function3(input) {
     // Example implementation:
     if (typeof input === 'string') {
-        return input.trim().toLowerCase();
+        const normalized = input.trim().toLowerCase();
+        
+        // UPGRADE LOGIC: Detect and handle upgrade scenarios
+        if (normalized.startsWith('v') || normalized.includes('upgrade')) {
+            console.log('Upgrade logic detected');
+            return {
+                success: true,
+                upgradeType: normalized.startsWith('v') ? 'version' : 'general-upgrade',
+                message: 'Upgrade detected and processed'
+            };
+        }
+        
+        return normalized;
     }
     return input;
 }

@@ -296,7 +296,7 @@ function wrapPrimaryContentInMain(parent) {
 }
 
 // New function to validate link accessibility
-function validateLinkAccessibility(link) {
+function validateLinkAccessibilityAlt(link) {
   if (!link || typeof link !== 'object') {
     return false;
   }
@@ -315,7 +315,7 @@ function validateLinkAccessibility(link) {
 }
 
 // New function to handle fake links
-function handleFakeLinks() {
+function handleFakeLinksAlt() {
   const fakeLinks = document.querySelectorAll('a[role="button"], a[href="#"]');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
@@ -329,9 +329,10 @@ function initialize() {
   
   // Load landmarks for accessibility processing
   const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
+  const processedLandmarks = processLandmarks(landmarks);
   
   // Ensure the dependencyGraph container has a proper ARIA role
+  const dependencyGraph = document ? document.getElementById('dependencyGraph') : null;
   if (dependencyGraph) {
     if (!dependencyGraph.id) {
       dependencyGraph.id = 'dependencyGraph';
@@ -347,7 +348,7 @@ function initialize() {
   // Set app state
   appState.initialized = true;
   
-  return true;
+  return processedLandmarks;
 }
 
 // Main initialization function
@@ -355,7 +356,7 @@ const initializeApp = () => {
   console.log('Application initialized');
 
   // Call the initialize function
-  initialize();
+  const processedLandmarks = initialize();
 
   // Ensure the app is accessible
   const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
@@ -400,8 +401,8 @@ const initializeApp = () => {
   }
 
   // Upgrade logic: use harvested data to improve the system
-  if (processed.length > 0) {
-    enhanceSystemWithHarvestedData(processed);
+  if (processedLandmarks && processedLandmarks.length > 0) {
+    enhanceSystemWithHarvestedData(processedLandmarks);
   }
 };
 
@@ -700,7 +701,7 @@ module.exports = {
   getSvgAccessibleName,
   validateLinkAccessibility,
   wrapPrimaryContentInMain,
-  handleFakeLinks,
+  handleFakeLinksAlt,
   formatResponse,
   // landmark functions
   isValidLandmark,
@@ -800,7 +801,7 @@ function analyzeModuleDependencies(modules) {
   return report;
 }
 
-async function renderFunction1() {
+async function renderFunction1(html) {
   // Existing functionality
 
   // Using accessible utilities instead of undefined modules
@@ -818,12 +819,12 @@ async function renderFunction1() {
   }
 
   // Add scope="col" to th elements that don't have it
-  html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (/\bscope=/i.test(match)) return match
-    return `<th${attrs} scope="col">`
-  })
+  const processedHtml = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
+    if (/\bscope=/i.test(match)) return match;
+    return `<th${attrs} scope="col">`;
+  });
 
-  return html
+  return processedHtml;
 }
 
 async function renderFunction2() {
@@ -868,15 +869,19 @@ function sortLandmarksByRole(landmarks) {
 }
 
 function getLandmarkById(id) {
-  const element = document.getElementById(id);
-  if (element && isValidLandmarkElement(element)) {
-    return element;
+  if (typeof document !== 'undefined') {
+    const element = document.getElementById(id);
+    if (element && isValidLandmarkElement(element)) {
+      return element;
+    }
   }
   return null;
 }
 
 // Accessibility fixing functions from HEAD (DOM-based, kept for compatibility if needed)
 function fixTableAccessibility() {
+  if (typeof document === 'undefined') return;
+  
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Add caption if missing
@@ -895,7 +900,7 @@ function fixTableAccessibility() {
     });
 
     // Ensure proper table structure
-    validateTableStructure(table);
+    validateTableStructureDom(table);
   });
 }
 
@@ -914,6 +919,8 @@ function fixLandmarkIssues() {
 }
 
 function addSvgAccessibility() {
+  if (typeof document === 'undefined') return;
+  
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const name = getSvgAccessibleName(svg);
@@ -923,7 +930,7 @@ function addSvgAccessibility() {
   });
 }
 
-function validateTableStructure(table) {
+function validateTableStructureDom(table) {
   // Implementation of validateTableStructure function
   // Check for necessary table elements (thead, tbody, etc.)
   if (!table) return;
@@ -951,7 +958,7 @@ function validateTableStructure(table) {
     const rows = table.querySelectorAll('tr');
     rows.forEach(row => {
       // Skip rows already in thead
-      if (!thead.contains(row)) {
+      if (!thead || !thead.contains(row)) {
         newTbody.appendChild(row);
       }
     });
@@ -971,7 +978,7 @@ function setSvgAttributes(svg, accessibleName) {
   }
 }
 
-function validateLinkAccessibility(link) {
+function validateLinkAccessibilityDom(link) {
   if (!link) return { valid: false, issues: ['Link element is required'] };
 
   const issues = [];
@@ -994,6 +1001,8 @@ function validateLinkAccessibility(link) {
 }
 
 function handleFakeLinks() {
+  if (typeof document === 'undefined') return;
+  
   const fakeLinks = document.querySelectorAll('a[href=""], a[href="#"], a:not([href])');
   fakeLinks.forEach(link => {
     // Convert to button if it's acting as a interactive element
@@ -1011,6 +1020,8 @@ function handleFakeLinks() {
 }
 
 function addProperLandmarkRegions() {
+  if (typeof document === 'undefined') return;
+  
   // Add main landmark if missing
   const main = document.querySelector('main');
   if (!main) {
@@ -1041,6 +1052,8 @@ function addProperLandmarkRegions() {
 }
 
 function createAccessibleLinks() {
+  if (typeof document === 'undefined') return;
+  
   // Create skip to content link
   const skipLink = createInPageButton('main-content', 'Skip to main content');
   document.body.insertBefore(skipLink, document.body.firstChild);
@@ -1048,15 +1061,15 @@ function createAccessibleLinks() {
   // Validate existing links
   const links = document.querySelectorAll('a');
   links.forEach(link => {
-    const validation = validateLinkAccessibility(link);
+    const validation = validateLinkAccessibilityDom(link);
     if (!validation.valid) {
       console.warn('Link validation issues:', validation.issues);
     }
   });
 }
 
-function getLangAttribute(element) {
-  return element.getAttribute('lang') || document.documentElement.getAttribute('lang');
+function getLangAttributeFromElement(element) {
+  return element.getAttribute('lang') || (typeof document !== 'undefined' ? document.documentElement.getAttribute('lang') : null);
 }
 
 function addLangAttribute(element, lang) {
@@ -1078,28 +1091,14 @@ function createInPageButton(targetId, text) {
   return button;
 }
 
-function validateLandmark(element) {
+function validateLandmarkDom(element) {
   const role = element.getAttribute('role');
   return CONFIG.landmarkRoles.includes(role);
 }
 
-function getSvgAccessibleName(svg) {
+function getSvgAccessibleNameFromElement(svg) {
   // Implementation to get accessible name from SVG
   return svg.getAttribute('aria-label') || svg.getAttribute('title');
-}
-
-function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-  const seen = new Set();
-  return landmarks.filter(landmark => {
-    if (seen.has(landmark.id)) {
-      return false;
-    }
-    seen.add(landmark.id);
-    return true;
-  });
 }
 
 // Export the additional functions
@@ -1111,16 +1110,16 @@ module.exports.clearCache = clearCache;
 module.exports.fixTableAccessibility = fixTableAccessibility;
 module.exports.fixLandmarkIssues = fixLandmarkIssues;
 module.exports.addSvgAccessibility = addSvgAccessibility;
-module.exports.validateTableStructure = validateTableStructure;
+module.exports.validateTableStructure = validateTableStructureDom;
 module.exports.setSvgAttributes = setSvgAttributes;
-module.exports.validateLinkAccessibility = validateLinkAccessibility;
+module.exports.validateLinkAccessibility = validateLinkAccessibilityDom;
 module.exports.handleFakeLinks = handleFakeLinks;
 module.exports.addProperLandmarkRegions = addProperLandmarkRegions;
 module.exports.createAccessibleLinks = createAccessibleLinks;
-module.exports.getLangAttribute = getLangAttribute;
+module.exports.getLangAttribute = getLangAttributeFromElement;
 module.exports.addLangAttribute = addLangAttribute;
 module.exports.createInPageButton = createInPageButton;
-module.exports.getSvgAccessibleName = getSvgAccessibleName;
+module.exports.getSvgAccessibleName = getSvgAccessibleNameFromElement;
 module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
 module.exports.loadLandmarksFromDOM = loadLandmarksFromDOM;
 module.exports.processLandmarksFromDOM = processLandmarksFromDOM;

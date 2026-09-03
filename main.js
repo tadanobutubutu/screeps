@@ -20,6 +20,12 @@ const renderGraphIndex = (graphData) => {
   renderDependencyGraphs(graphData);
 }
 
+const harvestLogic = (landmarkData) => {
+  // TODO: Implement harvest logic
+  // Placeholder for the actual implementation
+  console.log('Harvesting data for landmark:', landmarkData);
+}
+
 module.exports = {
   createInPageButton,
   createWebResourceButton,
@@ -31,5 +37,6 @@ module.exports = {
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   addressAccessibilityIssues,
-  renderGraphIndex
+  renderGraphIndex,
+  harvestLogic
 }

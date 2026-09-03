@@ -233,6 +233,34 @@
       }
     }
 
+    // New function: Tower defense mechanism
+    function towerDefense() {
+        // Setup a mutation observer to defend against accessibility issues
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            // Ensure new images have alt text
+                            if (node.tagName === 'IMG' && !node.hasAttribute('alt')) {
+                                node.setAttribute('alt', 'Image');
+                            }
+                            // Ensure new buttons have accessible names
+                            if (node.tagName === 'BUTTON' && !node.hasAttribute('aria-label') && !node.textContent) {
+                                node.setAttribute('aria-label', 'Button');
+                            }
+                            // Ensure new inputs have labels
+                            if (node.tagName === 'INPUT' && !node.hasAttribute('aria-label') && !node.hasAttribute('id')) {
+                                node.setAttribute('aria-label', 'Input');
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
     // Export the report generation function
     module.exports = {
       generateAccessibilityReport: async function () {
@@ -249,7 +277,8 @@
       validateLandmark,
       validateLandmarkStructure,
       getSvgAccessibleName,
-      setSvgAttributes
+      setSvgAttributes,
+      towerDefense
     };
 
     // Initialize the application with accessibility improvements
@@ -260,21 +289,14 @@
             dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
         }
 
-        // Address accessibility issues from insight report:
-        // Ensure the dependencyGraph container has a proper ARIA role
-        // (This comment remains as-is)
-        //_Commit: eef4b6be04a5e2cd61b7543cfe2dff2da0857ca2_
-        //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-        //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-        //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-        //_Commit: 62d675a958b864c43ad4471b12c4c40c5570b3f7_
-        //<!-- todo-hash: b713d536f0ce67bf9eb8012f08502c264300052f -->
-
         // Address accessibility issues
         addressAccessibilityIssues();
 
         // Create the in-page button
         createInPageButton();
+
+        // Initialize tower defense
+        towerDefense();
 
         // Existing initialization logic preserved
         // Accessibility: Ensure main content is keyboard accessible

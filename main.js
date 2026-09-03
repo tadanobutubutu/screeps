@@ -24,8 +24,8 @@ function isValidLandmark(landmark) {
 
 function loadLandmarks() {
     try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
+        const filePath = ... CONFIG.dataPath, 'landmarks.json');
+        const data = ... 'utf8');
         return JSON.parse(data);
     } catch (error) {
         console.error('Error loading landmarks:', error.message);
@@ -38,14 +38,14 @@ function processLandmarks(landmarks) {
         return [];
     }
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    const validLandmarks = ...
+    const uniqueLandmarks = ...
 
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+    return ... CONFIG.maxResults);
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return ... b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -56,7 +56,7 @@ function sortLandmarks(landmarks, ascending = true) {
     });
 }
 
-function getLandmarkById(landmarks, id) {
+function ... id) {
     return landmarks.find(landmark => landmark.id === id) || null;
 }
 
@@ -73,11 +73,11 @@ function ensureUniqueLandmarks(landmarks, idField = 'id') {
             continue;
         }
 
-        const landmarkId = typeof landmark[idField] === 'string' ? landmark[idField] : String(landmark[idField]);
+        const landmarkId = typeof landmark[idField] === 'string' ? landmark[idField] : ...
 
         if (!seen.has(landmarkId)) {
             seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
+            ...
         }
     }
 
@@ -86,18 +86,18 @@ function ensureUniqueLandmarks(landmarks, idField = 'id') {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-    const reportFile = path.join(__dirname, 'accessibility_report.json');
-    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+    const reportFile = ... ...
+    ... ... null, 2));
 }
 
-// Styling improvements for game UI elements
+// TODO: This section is merged from both branches to address accessibility issues
 function addressAccessibilityIssues() {
-    const container = document.querySelector('[role="main"]') || document.querySelector('main');
+    const container = document.getElementById('main-container') || document.querySelector('.container');
     if (container) {
         container.setAttribute('aria-label', 'Landing page content');
     }
 
-    const elements = document.querySelectorAll('[data-category="info"]');
+    const elements = document.querySelectorAll('[role="region"], [role="group"]');
     elements.forEach(element => {
         if (!element.getAttribute('aria-label')) {
             element.setAttribute('aria-label', 'Information panel');
@@ -115,7 +115,7 @@ function addressAccessibilityIssues() {
 
 // Initialize accessibility on game load
 if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', addressAccessibilityIssues);
+    ... addressAccessibilityIssues);
 }
 
 module.exports = {
@@ -123,5 +123,6 @@ module.exports = {
     processLandmarks,
     sortLandmarks,
     getLandmarkById,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    addressAccessibilityIssues
 };

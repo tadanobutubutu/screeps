@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+
 function setSvgAttributes(svg) {
   if (!svg.hasAttribute('aria-label')) {
     const accessibleName = svg.getAttribute('id') || '';
@@ -14,6 +16,7 @@ function main() {
   setSvgAttributes(svgElements); // Adding the call to setSvgAttributes here
 
   checkLandmarkElements();
+  countSvgElements(svgElements);
 }
 
 function renderDependencyGraphs(svgElements) {
@@ -61,7 +64,11 @@ function checkLandmarkElements() {
   checkLandmarkElement('[role="search"], [role="form"], form', 'form');
 }
 
-export { setSvgAttributes, main, checkLandmarkElements };
+function countSvgElements(svgElements) {
+  return svgElements.length;
+}
+
+export { setSvgAttributes, main, checkLandmarkElements, countSvgElements };
 
 function countDependencies() {
   const fs = require('fs');

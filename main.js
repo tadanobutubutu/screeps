@@ -1,20 +1,41 @@
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const path = require('path');
+const { a11y } = require('@accessible/react');
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getLangAttribute,
+  validateLinkAccessibility,
+  analyzeAccessibility,
+  addressAccessibilityIssues,
+  handleFakeLinks
+} = require('./utils');
+
+import React, { useState, useEffect, useRef } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
 import './styles.css';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import express from 'express';
-import axe from 'axe-core';
-import fs from 'fs';
-import fastMap from 'fast-map';
-import path from 'path';
-import accessiblyHelper from './accessibly-helper';
-import { calculateSum, getLangAttribute, getFullLangAttribute } from './utils/index.js';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils.js';
-import { validateLinkAccessibility } from './utils/linkAccessibilityUtils.js';
-import { addProperLandmarkRegions } from './utils/landmarkUtils.js';
-import { CONFIG } from './utils/constants.js';
-import { newFunction3, newFunction4 } from './utils/newFunctions.js';
-import { googleSignIn } from './utils/googleSignIn.js';
-import { validateBookAccessibility, createAccessibleBookEntry, saveBook } from './utils/bookAccessibilityUtils.js';
+import './styles.less';
+import { calculateSum } from './utils';
+import { getLangAttribute as getLangAttributeFromUtils, getFullLangAttribute } from './utils/accessibilityUtils';
+import { validateTableAccessibility as validateTableAccessibilityFromUtils, validateTableStructure as validateTableStructureFromUtils } from './utils/tableAccessibilityUtils';
+import { validateLandmark as validateLandmarkFromUtils, validateLandmarkStructure as validateLandmarkStructureFromUtils } from './utils/landmarkUtils';
+import { validateLinkAccessibility as validateLinkAccessibilityFromUtils, handleFakeLinks as handleFakeLinksFromUtils } from './utils/linkAccessibilityUtils';
+import { CONFIG } from './utils/constants';
+import App from './App';
+import { helper, formatDate } from './utils';
 
 const config = {
   name: 'MyApp',
@@ -150,9 +171,8 @@ function initialize() {
      * - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
      * - REACT_025: Ensure unique landmarks (handled by ensureUniqueLandmarks())
      * - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility(), and handleFakeLinks())
-     * todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
      */
-
+    
     addLangAttribute();
     wrapPrimaryContentInMain();
     // validateTableStructureIssues();
@@ -198,8 +218,6 @@ function processLandmarks(landmarks) {
   }
 
   const validLandmarks = landmarks.filter(isValidLandmark);
-
-  // ... (Preserved the line from the conflict)
 
   return validLandmarks;
 }

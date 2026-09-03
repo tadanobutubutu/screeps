@@ -146,6 +146,39 @@ function validateLandmark(element) {
 }
 
 /**
+ * Validates landmark attributes for accessibility
+ * @param {Object} element - The element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmarkAttributes(element) {
+  const issues = [];
+
+  if (!element) {
+    issues.push('No element provided');
+  } else {
+    // Check for role attribute
+    const role = element.getAttribute ? element.getAttribute('role') : null;
+    if (!role) {
+      issues.push('Missing role attribute on landmark element');
+    }
+
+    // Check for accessible name (aria-label, aria-labelledby, or text content)
+    const ariaLabel = element.getAttribute ? element.getAttribute('aria-label') : null;
+    const ariaLabelledby = element.getAttribute ? element.getAttribute('aria-labelledby') : null;
+    const hasText = element.textContent && element.textContent.trim().length > 0;
+
+    if (!ariaLabel && !ariaLabelledby && !hasText) {
+      issues.push('Landmark element lacks accessible name');
+    }
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
  * Validates the structure of landmark elements
  * @param {Array} landmarks - Array of landmark elements to validate (optional)
  * @returns {Object} Validation result with success status and any issues found
@@ -349,6 +382,105 @@ function getSvgAccessibleName(svgElement) {
     if (title) return title.textContent;
     if (ariaLabel) return ariaLabel;
     return 'Accessible SVG Icon';
+}
+
+/**
+ * Adds SVG accessibility properties
+ * @param {Object} svg - The SVG element
+ * @param {string} accessibleName - The accessible name for the SVG
+ * @returns {Object} The modified SVG element
+ */
+function addSvgAccessibilityProps(svg, accessibleName) {
+  if (!svg || typeof svg !== 'object') {
+    return svg;
+  }
+
+  if (svg.setAttribute) {
+    svg.setAttribute('role', 'img');
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+  }
+
+  return svg;
+}
+
+/**
+ * Adds language attribute to the HTML element
+ * @param {string} lang - The language code to set (optional, defaults to 'en')
+ * @returns {string} The language attribute value
+ */
+function addLangAttribute(lang = 'en') {
+  const htmlElement = document.documentElement || document.querySelector('html');
+  if (htmlElement && htmlElement.setAttribute && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+  }
+  return htmlElement ? (htmlElement.getAttribute('lang') || lang) : lang;
+}
+
+/**
+ * Fixes table structure issues for accessibility
+ * @param {Object} table - The table element to fix
+ * @returns {Object} Result with success status and any issues found
+ */
+function fixTableStructure(table) {
+  const issues = [];
+
+  if (!table || !table.querySelector) {
+    issues.push('Invalid table element');
+    return { success: false, issues };
+  }
+
+  // Add caption if missing
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    const newCaption = document.createElement('caption');
+    newCaption.textContent = 'Table caption';
+    if (table.firstChild) {
+      table.insertBefore(newCaption, table.firstChild);
+    } else {
+      table.appendChild(newCaption);
+    }
+  }
+
+  // Add scope attributes to header cells if missing
+  const headers = table.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Adds main landmark to the page
+ * @param {Object} element - The element to add main landmark to (optional)
+ * @returns {Object} The element with main landmark role
+ */
+function addMainLandmark(element) {
+  let targetElement = element;
+
+  // If no element provided, try to find or create a main element
+  if (!targetElement) {
+    targetElement = document.querySelector('main') || document.querySelector('[role="main"]');
+  }
+
+  if (targetElement && typeof targetElement === 'object') {
+    if (targetElement.setAttribute) {
+      targetElement.setAttribute('role', 'main');
+    }
+    // If it's a DOM element, also add the tag name if it's not already main
+    if (targetElement.tagName && targetElement.tagName.toLowerCase() !== 'main') {
+      // Keep the role attribute for accessibility
+    }
+  }
+
+  return targetElement;
 }
 
 /**

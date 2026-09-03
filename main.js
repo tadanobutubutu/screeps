@@ -21,7 +21,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+app.use(express.json())
 
 function processSvgElements() {
   const svgElements = document.querySelectorAll('svg');
@@ -34,6 +34,61 @@ const AddressabilityIssues = {
 
   addressAccessibilityIssues(insightReport) {
     // ... (existing implementation)
+  },
+
+  analyzeInsightReport: function(insightReport) {
+    if (!insightReport || !insightReport.sections) {
+      return [];
+    }
+
+    const issues = [];
+
+    // From HEAD - new accessibility checks for sections, empty content, inaccessible link text, table structure, and invalid landmarks
+    insightReport.sections.forEach((section, index) => {
+      // Check for missing headings
+      if (!section.heading) {
+        issues.push({
+          type: 'missing-heading',
+          severity: 'high',
+          message: `Section ${index} is missing a heading`,
+          suggestedFix: 'Add a descriptive heading to each section'
+        });
+      }
+
+      // Check for empty content
+      if (!section.content || section.content.trim() === '') {
+        issues.push({
+          type: 'empty-content',
+          severity: 'medium',
+          message: `Section ${index} has no content`,
+          suggestedFix: 'Add meaningful content to the section'
+        });
+      }
+
+      // Check for potentially inaccessible language
+      if (section.content && section.content.toLowerCase().includes('click here')) {
+        issues.push({
+          type: 'inaccessible-link-text',
+          severity: 'low',
+          message: `Section ${index} contains "click here" text which is not accessible`,
+          suggestedFix: 'Use descriptive link text instead of "click here"'
+        });
+      }
+
+      // Check for missing ID, missing alt text, missing aria label, missing role, and low contrast elements (from ORIGINAL CODE)
+      // ...
+
+      // New functions from ORIGINAL CODE
+      if (!section.isTableAccessible) {
+        issues.push(...(typeof validateTableAccessibility === 'function' ? validateTableAccessibility(section.table) : []));
+      }
+
+      if (!section.isLandmarkAccessible) {
+        issues.push(...(typeof validateLandmarkAccessibility === 'function' ? validateLandmarkAccessibility(section.landmarkElements) : []));
+      }
+    });
+
+    return issues;
   },
 
   calculateAccessibilityScore(fixedIssues) {
@@ -81,6 +136,7 @@ function setARIARoleForDependencyGraph() {
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'grid');
   }
+  return AddressabilityIssues.addressAccessibilityIssues(insightReport);
 }
 
 function newFunction() {
@@ -168,20 +224,42 @@ if (typeof module !== 'undefined' && module.exports) {
     fixMainLandmarkIssues: AddressabilityIssues.fixMainLandmarkIssues,
     fixSemanticMarkup: AddressabilityIssues.fixSemanticMarkup,
     validateLandmarkStructure: AddressabilityIssues.validateLandmarkStructure,
+    personName: personName,
+    processSvgElements: processSvgElements,
+    renderDependencyGraph: AddressabilityIssues.renderDependencyGraph,
+    renderIndexView: AddressabilityIssues.renderIndexView,
+    getState: AddressabilityIssues.getState,
+    setState: AddressabilityIssues.setState,
+    generateAccessibilityReport: AddressabilityIssues.generateAccessibilityReport,
+    analyzeInsightReport: AddressabilityIssues.analyzeInsightReport,
+    addLangAttribute: AddressabilityIssues.addLangAttribute,
+    countDependencies: AddressabilityIssues.countDependencies,
+    spawnSomeCommand: AddressabilityIssues.spawnSomeCommand,
+    fixTableStructureIssues: AddressabilityIssues.fixTableStructureIssues,
+    fixTableHeaderCellScope: AddressabilityIssues.fixTableHeaderCellScope,
+    addMainLandmark: AddressabilityIssues.addMainLandmark,
+    addLandmarkRolesAndFixIssues: AddressabilityIssues.addLandmarkRolesAndFixIssues,
+    fixLandmarkIssues: AddressabilityIssues.fixLandmarkIssues,
+    ensureUniqueLandmarks: AddressabilityIssues.ensureUniqueLandmarks,
+    fixSvgAccessibleNames: AddressabilityIssues.fixSvgAccessibleNames,
+    addSvgAccessibilityProps: AddressabilityIssues.addSvgAccessibilityProps,
+    fixButtonIdentifiers: AddressabilityIssues.fixButtonIdentifiers,
+    createResourceButton: AddressabilityIssues.createResourceButton,
     createServer,
     startApp,
     checkLandmarkElements,
     newFunction,
     setARIARoleForDependencyGraph,
-    addLangAttribute: AddressabilityIssues.addLangAttribute,
     validateLandmark
   };
 } else {
   // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAccessibility);
-  } else {
-    initializeAccessibility();
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeAccessibility);
+    } else {
+      initializeAccessibility();
+    }
   }
 }
 

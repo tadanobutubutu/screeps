@@ -103,44 +103,141 @@ function harvestResources() {
 // New function to address accessibility issues from insight report
 function getLangAttribute() {
     // Implementation to add lang attribute to HTML element
+    const html = document.documentElement;
+    html.setAttribute('lang', getCurrentLanguageSetting());
 }
 
 function wrapPrimaryContentInMain() {
     // Implementation to wrap primary content in <main> element
+    const primaryContent = document.querySelector('#primary-content');
+    if (primaryContent) {
+        const mainElement = document.createElement('main');
+        mainElement.id = 'main';
+        mainElement.appendChild(primaryContent);
+        document.body.insertBefore(mainElement, document.body.firstChild);
+    }
 }
 
 function validateTableAccessibility() {
     // Implementation to fix 26 table structure issues
+    // Example: Add 'role="table"' to tables without it
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        if (!table.hasAttribute('role') || table.getAttribute('role') !== 'table') {
+            table.setAttribute('role', 'table');
+        }
+    });
 }
 
 function validateTableStructure() {
     // Implementation to fix 26 table structure issues
+    // Example: Ensure that all tables have a `<thead>` and `<tbody>`
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        if (!table.querySelector('thead')) {
+            const thead = document.createElement('thead');
+            table.appendChild(thead);
+        }
+        if (!table.querySelector('tbody')) {
+            const tbody = document.createElement('tbody');
+            table.appendChild(tbody);
+        }
+    });
 }
 
 function validateLandmark() {
     // Implementation to add/fix 4 landmark issues
+    // Example: Ensure that the 'header' landmark has an 'aria-label'
+    const header = document.querySelector('header');
+    if (header && !header.hasAttribute('aria-label')) {
+        header.setAttribute('aria-label', 'Page header');
+    }
 }
 
 function addFixLandmarkIssues() {
     // Implementation to ensure unique landmarks
+    // Example: Rename duplicate landmarks to have unique IDs
+    const landmarks = ['header', 'main', 'footer'];
+    landmarks.forEach(landmark => {
+        const elements = document.querySelectorAll(landmark);
+        elements.forEach((element, index) => {
+            if (index > 0) {
+                element.id = `${landmark}-${index}`;
+            }
+        });
+    });
 }
 
 function getSvgAccessibleName() {
     // Implementation to add accessible names to SVGs
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+        if (!svg.hasAttribute('aria-label')) {
+            svg.setAttribute('aria-label', 'SVG content');
+        }
+    });
 }
 
 function addAriaToFormControls() {
     // Implementation to add ARIA attributes to form controls
+    const formControls = document.querySelectorAll('input, select, textarea');
+    formControls.forEach(control => {
+        if (!control.hasAttribute('aria-label')) {
+            control.setAttribute('aria-label', 'Form control');
+        }
+    });
 }
 
 function ensureUniqueLandmarks() {
     // Implementation to ensure unique landmarks
+    // Example: Rename duplicate landmarks to have unique IDs
+    const landmarks = ['header', 'main', 'footer'];
+    landmarks.forEach(landmark => {
+        const elements = document.querySelectorAll(landmark);
+        elements.forEach((element, index) => {
+            if (index > 0) {
+                element.id = `${landmark}-${index}`;
+            }
+        });
+    });
 }
 
 function fixFakeLinkIssues() {
     // Implementation to fix 1 fake link issue
+    const links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+        if (link.hasAttribute('style') && link.style.display === 'none') {
+            link.style.display = 'inline';
+            link.setAttribute('aria-hidden', 'true');
+        }
+    });
 }
 
 function createAccessibleLink() {
     // Implementation to create accessible links
+    // Example: Add `role="button"` to links that look like buttons
+    const links = document.querySelectorAll('a.button');
+    links.forEach(link => {
+        if (!link.hasAttribute('role')) {
+            link.setAttribute('role', 'button');
+        }
+    });
 }
+
+// Run the accessibility checks
+function runAccessibilityChecks() {
+    getLangAttribute();
+    wrapPrimaryContentInMain();
+    validateTableAccessibility();
+    validateTableStructure();
+    validateLandmark();
+    addFixLandmarkIssues();
+    getSvgAccessibleName();
+    addAriaToFormControls();
+    ensureUniqueLandmarks();
+    fixFakeLinkIssues();
+    createAccessibleLink();
+}
+
+// Run the accessibility checks on page load
+window.addEventListener('load', runAccessibilityChecks);

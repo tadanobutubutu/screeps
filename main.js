@@ -6,9 +6,6 @@ const path = require('path');
 const { validateInput, processData } = require('./utils/validators');
 const { formatResponse } = require('./utils/processor');
 
-// Existing code preserved - all functions, exports, and utilities maintained
-// (Implementation added above)
-
 const CONFIG = {
     dataPath: './data',
     maxResults: 100
@@ -82,7 +79,6 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
-// Filter issues based on allowed rules
 function filterIssuesByRules(violations, allowedRules) {
     if (!allowedRules || allowedRules.length === 0) {
         return violations;
@@ -90,7 +86,6 @@ function filterIssuesByRules(violations, allowedRules) {
     return violations.filter(violation => allowedRules.includes(violation.id));
 }
 
-// Generate a summary of the report
 function generateReportSummary(issues) {
     const summary = {
         critical: 0,
@@ -109,16 +104,13 @@ function generateReportSummary(issues) {
     return summary;
 }
 
-// Function to write the generated report to a file
 function writeReport(report) {
     const reportFile = path.join(__dirname, 'accessibility_report.json');
     fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
 async function scanAccessibility(context, axeOptions = {}, includeIncomplete = true) {
-    // Scanning and reporting accessibility issues using axe-core ...
     try {
-        // Run axe-core accessibility analysis
         const results = await axe.run(context, {
             runOnly: {
                 type: 'tag',
@@ -156,13 +148,10 @@ async function generateAccessibilityReport(options = {}) {
         allowedRules = []
     } = options;
     
-    // Scan the page for accessibility issues using axe-core
     const scanResults = await scanAccessibility(context, axeOptions, includeIncomplete);
     
-    // Process and filter issues based on allowed rules
     const filteredIssues = filterIssuesByRules(scanResults.violations, allowedRules);
     
-    // Build the comprehensive report
     const report = {
         timestamp: new Date().toISOString(),
         summary: generateReportSummary(filteredIssues),
@@ -175,44 +164,11 @@ async function generateAccessibilityReport(options = {}) {
         }
     };
     
-    // Write the report to file
     writeReport(report);
     
     return report;
 }
 
-// Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
-
-// Additional imports from origin/main
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
-const { 
-    improveAccessibility, 
-    addressInsightReportIssues, 
-    renderDependencyGraph, 
-    renderIndexView, 
-    calculateSum, 
-    fixLandmarkIssues, 
-    addLandmarkRoles, 
-    fixFakeLinks, 
-    fixTableStructureIssues, 
-    fixTableHeaderCellScope, 
-    addMainLandmark, 
-    addSvgAccessibleNames, 
-    implementNewFunction, 
-    addLangAttribute, 
-    main, 
-    someFunction, 
-    createInPageButtons, 
-    fixUniqueLandmarks 
-} = require('./');
-
-// Application state
-let isInitialized = false;
-const appData = {};
-
-// Address accessibility issues from insight report
 function addressAccessibilityIssues() {
     // Ensure the dependencyGraph container has a proper ARIA role
     // ... (Existing code preserved)
@@ -226,7 +182,6 @@ function addressAccessibilityIssues() {
     // Fix unique landmarks based on insight report (REACT_025)
     fixUniqueLandmarks(insightReport());
 
-    // Utilities
     const accessibilityScanner = axe.createInstance({
         rules: {
             'color-contrast': { enabled: false }, // Disable this rule if not needed
@@ -255,13 +210,11 @@ function addressAccessibilityIssues() {
     return scanAccessibilityWithAxeInstance();
 }
 
-// Render dependency graph content
 function renderDependencyGraphContent(data) {
     // Replace the existing content within the dependencyGraph div using the provided data.
     renderDependencyGraph(data);
 }
 
-// Main execution when run directly
 if (require.main === module) {
     const landmarks = loadLandmarks();
     const processed = processLandmarks(landmarks);
@@ -277,22 +230,6 @@ if (require.main === module) {
 
     // Uncomment to run the accessibility report generation
     // generateAccessibilityReport();
-}
-
-// New function for generating a report based on accessibility issues
-async function scanAccessibility() {
-    const axeOptions = {
-        // ... axe-core options ...
-    };
-    return new Promise((resolve, reject) => {
-        axe.run(axeOptions, (error, results) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results);
-            }
-        });
-    });
 }
 
 module.exports = {

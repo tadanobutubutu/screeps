@@ -244,8 +244,8 @@ class ScreetsBot {
     }
 }
 
-// Add lang attribute to HTML element
-function getLangAttribute() {
+// Add lang attribute to HTML element - local implementation
+function getLangAttributeLocal() {
     // Implementation to add lang attribute
     return document.documentElement.lang || 'en';
 }
@@ -324,6 +324,7 @@ module.exports = {
     renderDependencyGraph,
     renderIndex,
     getLangAttribute,
+    getLangAttributeLocal,
     accessibilityUtils,
     trapFocus: accessibilityUtils.trapFocus,
     newFocusTrap,

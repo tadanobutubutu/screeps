@@ -87,6 +87,38 @@ const landmarkSelectors = [
 
 const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
 
+// TODO: Implement a function to count dependencies
+function countDependencies() {
+  const dependencies = [
+    'express',
+    'axe-core',
+    'fs',
+    'path',
+    '@accessible/react',
+    'react',
+    'antd',
+    'react-redux',
+    './actions/dependencyGraph',
+    './bookFunctions',
+    './accessibly-helper',
+    './app.js',
+    'effector-sw',
+    './utils',
+    './utils/accessibilityUtils',
+    './utils/tableAccessibilityUtils',
+    './utils/landmarkUtils',
+    './utils/linkAccessibilityUtils',
+    './utils/constants',
+    './App',
+    './utils/someFunction',
+    './utils/user',
+    './newFunctions',
+    './somemodule'
+  ];
+  
+  return dependencies.length;
+}
+
 let isInitialized = false;
 let dependencyGraph = null;
 
@@ -553,5 +585,6 @@ module.exports = {
   wrapPrimaryContentInMain,
   addLangAttribute,
   CONFIG,
-  appState
+  appState,
+  countDependencies
 };

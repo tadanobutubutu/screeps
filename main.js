@@ -244,12 +244,6 @@ class ScreetsBot {
     }
 }
 
-// Add lang attribute to HTML element
-function getLangAttribute() {
-    // Implementation to add lang attribute
-    return document.documentElement.lang || 'en';
-}
-
 // Utility functions for ensuring elements have IDs and adding labels
 const ensureElementIdLocal = (element) => {
   if (element && !element.id) {

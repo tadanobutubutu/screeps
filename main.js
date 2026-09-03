@@ -429,7 +429,7 @@ function ensureSvgAccessibleNames() {
 }
 
 function ensureDependencyGraphAriaRole() {
-  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph");
+  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependency-graph');
   
   if (container) {
     if (!container.hasAttribute('role')) {
@@ -558,7 +558,36 @@ function getSvgAccessibleName(svg) {
 }
 
 function validateLandmark(container) {
-  // Implementation placeholder
+  if (!container) return;
+  const doc = container.ownerDocument || document;
+  // Ensure main landmark
+  let main = container.querySelector('main');
+  if (!main) {
+    main = doc.createElement('main');
+    main.setAttribute('role', 'main');
+    container.appendChild(main);
+  }
+  // Ensure banner (header)
+  let header = container.querySelector('header');
+  if (!header) {
+    header = doc.createElement('header');
+    header.setAttribute('role', 'banner');
+    container.insertBefore(header, container.firstChild);
+  }
+  // Ensure contentinfo (footer)
+  let footer = container.querySelector('footer');
+  if (!footer) {
+    footer = doc.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    container.appendChild(footer);
+  }
+  // Ensure navigation
+  let nav = container.querySelector('nav');
+  if (!nav) {
+    nav = doc.createElement('nav');
+    nav.setAttribute('aria-label', 'main navigation');
+    container.insertBefore(nav, container.firstChild);
+  }
 }
 
 function validateLandmarkStructure(container) {

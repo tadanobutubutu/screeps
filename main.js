@@ -36,6 +36,18 @@ const app = express();
 var { AddressabilityIssues } = require('./accessibility');
 const PORT = process.env.PORT || 3000;
 
+// Function to count dependencies in main.js
+function countDependencies() {
+  if (AddressabilityIssues && typeof AddressabilityIssues.countDependencies === 'function') {
+    return AddressabilityIssues.countDependencies();
+  }
+  const dependencies = ['http', 'path', 'fs', 'express', 'child_process', './accessibility'];
+  return {
+    total: dependencies.length,
+    dependencies: dependencies
+  };
+}
+
 app.use(express.json());
 
 const config = {
@@ -885,13 +897,6 @@ function startApp() {
     }
   });
   return server;
-}
-
-function countDependencies() {
-  if (AddressabilityIssues && typeof AddressabilityIssues.countDependencies === 'function') {
-    return AddressabilityIssues.countDependencies();
-  }
-  return {};
 }
 
 function newFunction() {

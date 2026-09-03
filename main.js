@@ -333,7 +333,7 @@ function init() {
 }
 
 function addressInsightIssues() {
-  getLandmarkElements();
+  const landmarks = getLandmarkElements();
   AddressabilityIssues.ensureLandmarkUniqueness(landmarks);
   validateTableAccessibility();
   checkTableStructure();

@@ -377,6 +377,7 @@ if (typeof module !== 'undefined' && module.exports) {
       initializeAccessibility();
     }
   }
+  return AddressabilityIssues.addressAccessibilityIssues(insightReport);
 }
 
 function initializeAccessibility() {

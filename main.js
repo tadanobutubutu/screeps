@@ -15,7 +15,13 @@ import { setSvgAttributes } from './utils/svgAccessibilityUtils.js';
 import { CONFIG } from './utils/constants.js';
 
 const CONFIG = {
-  dataPath: './data'
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  timeout: 5000,
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
 
 const appData = {
@@ -37,11 +43,11 @@ function getUniqueLandmarks() {
 }
 
 function getSvgAccessibleName(svg) {
-  // ... (existing function implementation)
+  return svg && svg.title ? svg.title : 'Accessible SVG';
 }
 
 function getLangAttribute() {
-  return getFullLangAttribute(document.documentElement);
+  return GAME.lang || 'en';
 }
 
 function analyzeModuleDependencies(modules) {
@@ -122,8 +128,15 @@ function function3(param1, param2) {
     param2: param2,
     timestamp: new Date().toISOString()
   };
-
   return result;
+}
+
+function getAccessibleLinkProps(href, label) {
+  return {
+    href,
+    'aria-label': label,
+    role: 'link'
+  };
 }
 
 function generateDependencyReport(dependencies) {
@@ -215,4 +228,5 @@ function upgradeUserSettings() {
   };
 }
 
-// ... (other functions not included here)
+function getSvgAccessibleNameAlt(svgElement) {
+  return svgElement && svgElement.title ? svgElement.title

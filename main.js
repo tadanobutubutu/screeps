@@ -334,9 +334,131 @@
       }
     }
 
-    // Function to render graph index
-    function renderGraphIndex() {
-      // Placeholder for graph rendering functionality
+    // Function to render dependency graph
+    function renderGraphIndex(graphData = null) {
+      if (!dependencyGraph) {
+        console.warn('Dependency graph container not found');
+        return;
+      }
+
+      // Clear existing content
+      dependencyGraph.innerHTML = '';
+
+      // If no graph data provided, mark as N/A
+      if (!graphData) {
+        const naMessage = document.createElement('div');
+        naMessage.setAttribute('role', 'status');
+        naMessage.setAttribute('aria-live', 'polite');
+        naMessage.textContent = 'Dependency graph: N/A - No graph data available';
+        naMessage.style.padding = '1rem';
+        naMessage.style.textAlign = 'center';
+        naMessage.style.color = '#666';
+        dependencyGraph.appendChild(naMessage);
+        return;
+      }
+
+      // Render dependency graph visualization
+      try {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '100%');
+        svg.setAttribute('viewBox', '0 0 800 600');
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-label', 'Dependency graph visualization');
+
+        // Add title for accessibility
+        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = 'Dependency Graph';
+        svg.appendChild(title);
+
+        const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+        desc.textContent = 'Directed graph showing dependencies between modules';
+        svg.appendChild(desc);
+
+        // Simple force-directed graph layout simulation
+        const nodes = graphData.nodes || [];
+        const links = graphData.links || [];
+
+        if (nodes.length === 0) {
+          const emptyMessage = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          emptyMessage.setAttribute('x', '400');
+          emptyMessage.setAttribute('y', '300');
+          emptyMessage.setAttribute('text-anchor', 'middle');
+          emptyMessage.setAttribute('fill', '#666');
+          emptyMessage.textContent = 'No dependencies to display';
+          svg.appendChild(emptyMessage);
+        } else {
+          // Render links
+          const linkGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          linkGroup.setAttribute('class', 'links');
+          links.forEach(link => {
+            const source = nodes.find(n => n.id === link.source);
+            const target = nodes.find(n => n.id === link.target);
+            if (source && target) {
+              const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+              line.setAttribute('x1', source.x || 0);
+              line.setAttribute('y1', source.y || 0);
+              line.setAttribute('x2', target.x || 0);
+              line.setAttribute('y2', target.y || 0);
+              line.setAttribute('stroke', '#999');
+              line.setAttribute('stroke-width', '1.5');
+              line.setAttribute('marker-end', 'url(#arrowhead)');
+              linkGroup.appendChild(line);
+            }
+          });
+          svg.appendChild(linkGroup);
+
+          // Render nodes
+          const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          nodeGroup.setAttribute('class', 'nodes');
+          nodes.forEach(node => {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', node.x || 0);
+            circle.setAttribute('cy', node.y || 0);
+            circle.setAttribute('r', node.size || 20);
+            circle.setAttribute('fill', node.color || '#4a90d9');
+            circle.setAttribute('stroke', '#fff');
+            circle.setAttribute('stroke-width', '2');
+            nodeGroup.appendChild(circle);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', (node.x || 0) + (node.size || 20) + 5);
+            label.setAttribute('y', node.y || 0);
+            label.setAttribute('dominant-baseline', 'middle');
+            label.setAttribute('font-size', '12');
+            label.setAttribute('fill', '#333');
+            label.textContent = node.label || node.id;
+            nodeGroup.appendChild(label);
+          });
+          svg.appendChild(nodeGroup);
+
+          // Add arrowhead marker
+          const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+          const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+          marker.setAttribute('id', 'arrowhead');
+          marker.setAttribute('markerWidth', '10');
+          marker.setAttribute('markerHeight', '7');
+          marker.setAttribute('refX', '9');
+          marker.setAttribute('refY', '3.5');
+          marker.setAttribute('orient', 'auto');
+          const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+          polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+          polygon.setAttribute('fill', '#999');
+          marker.appendChild(polygon);
+          defs.appendChild(marker);
+          svg.insertBefore(defs, svg.firstChild);
+        }
+
+        dependencyGraph.appendChild(svg);
+      } catch (error) {
+        console.error('Error rendering dependency graph:', error);
+        const errorMessage = document.createElement('div');
+        errorMessage.setAttribute('role', 'alert');
+        errorMessage.textContent = 'Error rendering dependency graph';
+        errorMessage.style.padding = '1rem';
+        errorMessage.style.color = '#d32f2f';
+        dependencyGraph.appendChild(errorMessage);
+      }
     }
 
     // Existing function 1
@@ -614,6 +736,9 @@
       if (a11y && a11y.init) {
         a11y.init();
       }
+
+      // Render dependency graph (will show N/A if no data available)
+      renderGraphIndex();
     }
 
     // Initialize on DOM ready

@@ -143,11 +143,51 @@ function handleTabNavigation(event, activeElement) {
 // Import and use existing functions from utilities
 const { renderDependencyGraphs, ...mainUtilities } = main
 
+// Function to address accessibility issues from an insight report
+function addressAccessibilityIssues(report) {
+  if (!report || typeof report !== 'object') {
+    return false
+  }
+
+  // Handle form accessibility issues
+  if (Array.isArray(report.forms)) {
+    report.forms.forEach(formId => {
+      const form = document.getElementById(formId)
+      if (form) {
+        accessibilityUtils.validateAndFixFormAccessibility(form)
+      }
+    })
+  }
+
+  // Handle link accessibility issues
+  if (Array.isArray(report.links)) {
+    report.links.forEach(linkId => {
+      const link = document.getElementById(linkId)
+      if (link) {
+        accessibilityUtils.validateAndFixLinkAccessibility(link)
+      }
+    })
+  }
+
+  // Handle button accessibility issues
+  if (Array.isArray(report.buttons)) {
+    report.buttons.forEach(buttonId => {
+      const button = document.getElementById(buttonId)
+      if (button) {
+        accessibilityUtils.validateAndFixButtonAccessibility(button)
+      }
+    })
+  }
+
+  return true
+}
+
 // Replace the original export with the updated and extended one
 module.exports = {
   addTask,
   setFocus,
   handleKeyboardNavigation,
+  addressAccessibilityIssues,
   renderDependencyGraphs,
   ...mainUtilities
 }

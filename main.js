@@ -135,6 +135,11 @@ module.exports = {
     },
 
     ensureUniqueLandmarks: function () {
+        // Ensure unique landmarks by processing the global `landmarks` array if it exists
+        if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
+            // Use the existing ensureLandmarkUniqueness utility to get unique elements
+            this.ensureLandmarkUniqueness(landmarks);
+        }
         return true;
     },
 

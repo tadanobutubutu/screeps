@@ -42,7 +42,7 @@ function validateLandmarkStructure() {
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Warning: Missing required landmarks: ${missingLandarks.join(', ')}`);
+        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
         return false;
     }
 
@@ -53,12 +53,12 @@ function validateLandmarkStructure() {
 // This function should use harvested data to improve the system
 function performUpgrade(harvestedData) {
     if (!harvestedData || typeof harvestedData !== 'object') {
-        console.warn('Upgrade skipped: no harvested data provided.');
+        console.warn('performUpgrade skipped: no harvested data provided.');
         return false;
     }
 
     const insights = analyzeHarvestedData(harvestedData);
-    applyImprovements(insights);
+    applyUpgradeInsights(insights);
     return true;
 }
 
@@ -84,7 +84,7 @@ function analyzeHarvestedData(data) {
     return insights;
 }
 
-function applyImprovements(insights) {
+function applyUpgradeInsights(insights) {
     if (insights.itemCount === 0) {
         console.info('No harvested items available to drive an upgrade.');
         return;
@@ -116,7 +116,7 @@ function upgrade(harvestedData) {
             console.log('Applying settings upgrades from harvested data');
         }
 
-        if (harvestedData.configuration) {
+        if (harvestedData.config) {
             // Apply configuration improvements
             console.log('Applying configuration improvements from harvested data');
         }
@@ -167,4 +167,4 @@ function renderDependencyGraph(containerId, graphData) {
 }
 
 // Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, upgrade, renderGraphIndex, renderDependencyGraph };
+export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, analyzeHarvestedData, upgrade, renderGraphIndex, renderDependencyGraph };

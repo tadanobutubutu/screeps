@@ -172,9 +172,31 @@ function getCurrentLanguageSetting() {
 
 // Function to harvest resources
 function harvestResources() {
-    // TODO: Implement the actual harvest logic
-    console.log('Harvesting resources...');
-    // Implement the actual logic here, e.g., fetching data, processing it, etc.
+    const harvestedData = {
+        buttons: [],
+        landmarks: [],
+        accessibility: {}
+    };
+
+    // Harvest all buttons
+    const buttons = Array.from(document.querySelectorAll('button'));
+    harvestedData.buttons = buttons.map(button => ({
+        id: button.id,
+        text: button.textContent,
+        class: button.className
+    }));
+
+    // Harvest landmark elements
+    const landmarkTags = ['header', 'main', 'footer'];
+    harvestedData.landmarks = landmarkTags.filter(tag => document.querySelector(tag));
+
+    // Example accessibility settings (could be extended)
+    harvestedData.accessibility = {
+        optimizeContrast: false,
+        language: getCurrentLanguageSetting()
+    };
+
+    return harvestedData;
 }
 
 // Preserve any existing exports here

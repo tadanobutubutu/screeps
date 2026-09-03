@@ -13,7 +13,6 @@ const {
   setSvgAccessibilityProps,
   addAccessibleNamesToSVGs,
   addSvgAccessibleNames,
-  ensureElementHasId,
   addAriaLabel: addAriaLabelAlt,
   googleSignIn,
   handleCredentialResponseAlt,

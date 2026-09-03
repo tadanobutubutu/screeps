@@ -1,5 +1,5 @@
 // Find the primary content element in the DOM
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('[role="main"]') || document.querySelector('.main-content') || document.querySelector('#content') : null;
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -94,10 +94,9 @@ const report = accessibilityReport.issues.map(issue => ({
 }));
 
 return report;
-}
 
 // Score calculation
-function calculateAccessibilityScore(fixedIssues) {
+function calculateScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;
   }
@@ -132,7 +131,7 @@ function spawnSomeCommand(command) {
 // Add language attribute to HTML element
 function addLangAttribute(lang) {
   if (document && document.documentElement) {
-    document.documentElement.setAttribute('lang', lang);
+    document.documentElement.lang = lang;
   }
 }
 
@@ -141,7 +140,7 @@ function renderDependencyGraphContent() {
   if (typeof document === 'undefined') {
     return;
   }
-  const container = document.getElementById('dependencyGraph');
+  const container = document.getElementById('dependency-graph');
   if (!container) {
     return;
   }
@@ -158,7 +157,7 @@ function renderDependencyGraphContent() {
 // Address all accessibility issues
 function addressInsightIssues() {
   getLangAttribute();
-  addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+  const landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
   
   if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
     ensureLandmarkUniqueness(landmarks);
@@ -168,14 +167,13 @@ function addressInsightIssues() {
   validateTableAccessibility();
   validateTableStructure();
   
-  getSvgAccessibleName();
+  validateLandmark();
   
   createInPageButton();
   createAccessibleLink();
   handleAccessibilityIssues();
   
   validateLandmark();
-  validateLandmarkStructure();
 }
 
 // Initialize app

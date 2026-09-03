@@ -73,6 +73,50 @@ module.exports = {
         }
     },
 
+    // Implement the new function to handle focus trap for keyboard navigation
+    handleFocusTrap(container) {
+        if (!container || typeof container.querySelectorAll !== 'function') {
+            return null;
+        }
+
+        const focusableSelectors = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+        const focusableElements = Array.from(container.querySelectorAll(focusableSelectors)).filter(el => {
+            return el.offsetParent !== null;
+        });
+
+        if (focusableElements.length === 0) {
+            return null;
+        }
+
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        const trapFocus = (event) => {
+            if (event.key !== 'Tab') {
+                return;
+            }
+
+            if (event.shiftKey) {
+                if (document.activeElement === firstFocusable) {
+                    event.preventDefault();
+                    lastFocusable.focus();
+                }
+            } else {
+                if (document.activeElement === lastFocusable) {
+                    event.preventDefault();
+                    firstFocusable.focus();
+                }
+            }
+        };
+
+        container.addEventListener('keydown', trapFocus);
+        firstFocusable.focus();
+
+        return () => {
+            container.removeEventListener('keydown', trapFocus);
+        };
+    },
+
     // Preserve other exports
     // ... (Other exports would be listed here)
 };

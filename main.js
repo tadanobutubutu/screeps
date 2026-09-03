@@ -152,6 +152,18 @@ const a11yStore = {
   },
 
   // ... remaining a11yStore methods ...
+
+  /**
+   * Wraps primary content in a 'main' element with an appropriate ARIA role
+   * @param {string} content - The primary content to wrap
+   * @returns {string} The wrapped content
+   */
+  wrapPrimaryContentInMain(content) {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    mainElement.innerHTML = content;
+    return mainElement.outerHTML;
+  }
 };
 
 // New functions

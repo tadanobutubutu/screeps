@@ -49,6 +49,107 @@ const {
   checkAccessibility
 } = main
 
+/**
+ * Creates an accessible button/link for external web resources (e.g., GitHub, Stack Overflow, etc.)
+ * @param {Object} options - Configuration options for the web resource button
+ * @param {string} options.url - The URL to link to
+ * @param {string} options.label - The accessible label/name for the button (required for screen readers)
+ * @param {string} options.icon - Optional icon class name or SVG markup to display
+ * @param {string} options.type - Type of resource (e.g., 'github', 'stackoverflow', 'twitter', 'linkedin')
+ * @param {string} options.variant - Button variant style (e.g., 'primary', 'secondary', 'icon-only')
+ * @param {string} options.className - Additional CSS class names
+ * @param {boolean} options.openInNewTab - Whether to open link in new tab (default: true for external resources)
+ * @param {string} options.ariaDescription - Additional aria-description for more context
+ * @returns {HTMLAnchorElement|HTMLButtonElement} - The accessible web resource button element
+ */
+export function createWebResourceButton(options = {}) {
+  const {
+    url,
+    label,
+    icon,
+    type,
+    variant = 'secondary',
+    className = '',
+    openInNewTab = true,
+    ariaDescription
+  } = options;
+
+  // Validate required parameters
+  if (!url || typeof url !== 'string') {
+    console.warn('createWebResourceButton: URL is required and must be a string');
+    return null;
+  }
+
+  if (!label || typeof label !== 'string') {
+    console.warn('createWebResourceButton: Label is required for accessibility and must be a string');
+    return null;
+  }
+
+  // Create the anchor element for external links
+  const button = document.createElement('a');
+  
+  // Set core attributes
+  button.href = url;
+  button.textContent = label;
+  
+  // Ensure accessible name for screen readers
+  button.setAttribute('aria-label', label);
+  
+  // Handle external link accessibility
+  if (openInNewTab || url.startsWith('http://') || url.startsWith('https://')) {
+    button.target = '_blank';
+    button.rel = 'noopener noreferrer';
+    // Announce that link opens in new tab for screen reader users
+    button.setAttribute('aria-describedby', 'external-link-description');
+  }
+
+  // Add type-specific class for styling
+  if (type) {
+    button.classList.add(`web-resource-btn`, `web-resource-btn--${type.toLowerCase()}`);
+  }
+
+  // Add variant class
+  button.classList.add(`btn`, `btn--${variant}`);
+  
+  // Add any additional custom classes
+  if (className) {
+    const additionalClasses = className.split(' ').filter(c => c.trim());
+    additionalClasses.forEach(c => button.classList.add(c));
+  }
+
+  // Add icon if provided
+  if (icon) {
+    if (icon.startsWith('<')) {
+      // SVG markup - insert as HTML
+      button.innerHTML = icon + label;
+    } else {
+      // Icon class - wrap in span
+      const iconSpan = document.createElement('span');
+      iconSpan.className = icon;
+      iconSpan.setAttribute('aria-hidden', 'true');
+      button.insertBefore(iconSpan, button.firstChild);
+    }
+  }
+
+  // Add additional aria-description if provided
+  if (ariaDescription) {
+    button.setAttribute('aria-description', ariaDescription);
+  }
+
+  // Ensure keyboard accessibility
+  button.tabIndex = 0;
+  
+  // Add Enter key support for keyboard activation
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      button.click();
+    }
+  });
+
+  return button;
+}
+
 // Implement the function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport (container, report) {
   const fixes = {

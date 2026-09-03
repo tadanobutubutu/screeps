@@ -6,6 +6,18 @@
  * Main application entry point with accessibility features
  */
 
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+  return null;
+}
+
 function addSvgAccessibilityProps() {
   const svgElements = document.querySelectorAll('svg');
 

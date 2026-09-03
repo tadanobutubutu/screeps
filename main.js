@@ -198,4 +198,4 @@ function createAccessibleLink() {
 }
 
 // Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure, implementUpgrade, function3 };
+export { handleCredentialResponse, createInPageButton, validateLandmarkStructure, initializeApp, function3, performUpgrade, compareVersions, migrateUserSettings, clearDeprecatedCache, initUpgradeCheck, implementUpgrade, getCurrentLanguageSetting, harvestResources, getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, addFixLandmarkIssues, getSvgAccessibleName, addAriaToFormControls, ensureUniqueLandmarks, fixFakeLinkIssues, createAccessibleLink };

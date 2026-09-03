@@ -222,6 +222,25 @@ function getSvgAccessibleName(svg) {
     }
   }
 
+  // TODO: Extract the accessible name for an SVG from its content
+  // Extract text content from SVG text elements as fallback
+  const textElements = svg.querySelectorAll('text, tspan, textPath');
+  const textContent = Array.from(textElements)
+    .map(el => el.textContent || '')
+    .filter(text => text.trim())
+    .join(' ')
+    .trim();
+
+  if (textContent) {
+    return textContent;
+  }
+
+  // Check for desc element as fallback
+  const desc = svg.querySelector('desc');
+  if (desc) {
+    return desc.textContent || '';
+  }
+
   return '';
 }
 

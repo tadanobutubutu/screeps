@@ -13,29 +13,6 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-const {
-    createInPageButton,
-    createWebResourceButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    getLangAttribute,
-    validateAccessibilityReport,
-    exportUtils,
-    handleCredentialResponse,
-    ensureElementHasId,
-    ensureElementHasIdOrigin,
-    addAriaLabel,
-    renderDependencyGraphs,
-    fixButtonIdentifiers,
-    fixDependencyGraphAria,
-    addMainLandmarkToIndex,
-    focusTrap,
-    checkAccessibility: oldCheckAccessibility,
-} = main;
-
 function processSvgElements() {
   if (typeof document !== 'undefined') {
     const svgElements = document.querySelectorAll('svg');
@@ -268,6 +245,44 @@ const AddressabilityIssues = {
   }
 };
 
+// TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const seen = new Map();
+  const result = [];
+
+  landmarks.forEach(landmark => {
+    if (!landmark) return;
+
+    // Ensure the landmark has an id
+    if (!landmark.id) {
+      landmark.id = `landmark-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // Check for duplicate ids
+    if (!seen.has(landmark.id)) {
+      seen.set(landmark.id, 1);
+      result.push(landmark);
+    } else {
+      // Make the id unique by appending a suffix
+      let counter = seen.get(landmark.id);
+      let uniqueId = `${landmark.id}-${counter}`;
+      while (seen.has(uniqueId)) {
+        counter++;
+        uniqueId = `${landmark.id}-${counter}`;
+      }
+      landmark.id = uniqueId;
+      seen.set(uniqueId, 1);
+      result.push(landmark);
+    }
+  });
+
+  return result;
+}
+
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
   sections: [
@@ -281,61 +296,6 @@ const sampleInsightReport = {
     }
   ]
 };
-
-function addressAccessibilityIssuesNew(container, insightReport) {
-    const fixes = {
-        langAdded: false,
-        mainLandmarkAdded: false,
-        landmarksFixed: 0,
-        svgNamesAdded: 0,
-        fakeLinksFixed: 0,
-    };
-
-    // Implement focus trap for keyboard navigation
-    focusTrap(container);
-
-    if (fixes.langAdded) {
-        log('Lang attribute added to HTML element', 'info');
-    }
-
-    if (fixes.mainLandmarkAdded) {
-        log('Main landmark added', 'info');
-    }
-
-    // Check for new accessibility issues
-    const newAccessibilityIssues = oldCheckAccessibility(container); // Use the existing function to check for new issues
-    if (newAccessibilityIssues.length > 0) {
-        log(
-            `New accessibility issues found: ${newAccessibilityIssues.map((i) => i.message || i).join(', ')}`,
-            'error'
-        );
-    }
-
-    const landmarkFixesCount = fixes.landmarksFixed || 0;
-    if (landmarkFixesCount > 0) {
-        log(`Fixed accessibility for ${landmarkFixesCount} unique landmarks`, 'info');
-    }
-
-    const svgFixes = fixes.svgNamesAdded || 0;
-    if (svgFixes > 0) {
-        log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
-    }
-
-    const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-    if (fakeLinkFixes > 0) {
-        log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
-    }
-
-    return fixes;
-}
-
-function checkAccessibility(content) {
-    return [];
-}
-
-function newFunction(input) {
-  return input;
-}
 
 function countDependencies() {
   return AddressabilityIssues.countDependencies();
@@ -411,8 +371,8 @@ function init() {
 }
 
 function addressInsightIssues() {
-  getLandmarkElements();
-  AddressabilityIssues.ensureLandmarkUniqueness(landmarks);
+  const landmarks = getLandmarkElements();
+  ensureUniqueLandmarks(landmarks);
   validateTableAccessibility();
   checkTableStructure();
 
@@ -624,6 +584,11 @@ function fixFakeLinkIssues() {
   });
 }
 
+function getLangAttribute() {
+  if (typeof document === 'undefined') return 'en';
+  return document.documentElement.lang || 'en';
+}
+
 function addLangAttribute(element, lang) {
   if (element) {
     if (lang) {
@@ -670,6 +635,10 @@ function calculateAccessibilityScore(fixedIssues) {
   return AddressabilityIssues.calculateAccessibilityScore(fixedIssues);
 }
 
+function validateLandmark(element) {
+  return AddressabilityIssues.validateLandmark(element);
+}
+
 function validateLandmarkStructure(container) {
   if (!container) return true;
 
@@ -688,6 +657,12 @@ function validateLandmarkStructure(container) {
 
 function spawnSomeCommand(command) {
   return AddressabilityIssues.spawnSomeCommand(command);
+}
+
+function addAriaLabel(element, label) {
+  if (label) {
+    element.setAttribute('aria-label', label);
+  }
 }
 
 function setARIARoleForDependencyGraph() {
@@ -840,9 +815,7 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   addressAccessibilityIssues,
-  addressAccessibilityIssuesNew,
   addLangAttribute,
   getLangAttribute,
-  checkAccessibility,
-  newFunction
+  ensureUniqueLandmarks
 };

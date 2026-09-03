@@ -6,6 +6,7 @@ const main = require('./utilities')
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
+class TaskScheduler {
   addTaskWithPriority(taskFn, priority = 'medium') {
     const taskId = this.generateTaskId();
     this.tasks.push({ task: taskFn, priority, id: taskId });
@@ -244,6 +245,18 @@ const main = require('./utilities')
     // New implementation of addAccessibleName function
     // ...
   }
+
+  wrapPrimaryContentInMain(content) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    const bodyContent = doc.body.innerHTML;
+    
+    const mainElement = document.createElement('main');
+    mainElement.innerHTML = bodyContent;
+    
+    const result = main.wrapPrimaryContentInMain(mainElement);
+    return result || mainElement.outerHTML;
+  }
 }
 
 // REACT_015: Add lang attribute to the <html> element
@@ -360,6 +373,7 @@ require('./utilities').fixTableStructure
 // Export all functions
 module.exports = {
   ...main,
+  TaskScheduler,
   applyAccessibilityFixes
 }
 

@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
@@ -38,10 +38,6 @@ const {
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
@@ -64,18 +60,16 @@ function implementAccessibilityFixesFromReport (container, report) {
   }
 
   // Add lang attribute to HTML element if missing
-  const htmlEl =
-    container.querySelector('html') ||
-    (container.ownerDocument && container.ownerDocument.querySelector('html'))
+  const htmlEl = container && container.ownerDocument && container.ownerDocument.documentElement;
   if (htmlEl && !htmlEl.hasAttribute('lang')) {
     htmlEl.setAttribute('lang', 'en')
     fixes.langAdded = true
   }
 
   // Add main landmark if missing
-  const mainElement = container.querySelector('main')
+  const mainElement = container && container.querySelector('main');
   if (!mainElement) {
-    const body = container.querySelector('body')
+    const body = container && container.ownerDocument && container.ownerDocument.body;
     if (body) {
       const newMain = document.createElement('main')
       while (body.firstChild) {
@@ -89,7 +83,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Update the existing function using the new functions for rendering graph/index
   renderDependencyGraphs(container)
   fixButtonIdentifiers(container)
-  fixDependencyGraphAria(container)
+  ensureElementHasId(container)
 
   // Fix landmark issues
   validateLandmark(container)
@@ -97,29 +91,33 @@ function implementAccessibilityFixesFromReport (container, report) {
   fixes.landmarksFixed++
 
   // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach((svg) => {
-    const accessibleName = getSvgAccessibleName(svg)
-    if (
-      accessibleName &&
-            !svg.getAttribute('aria-label') &&
-            !svg.getAttribute('aria-labelledby')
-    ) {
-      svg.setAttribute('aria-label', accessibleName)
-      fixes.svgNamesAdded++
-    }
-  })
+  const svgElements = container && container.querySelectorAll('svg');
+  if (svgElements) {
+    svgElements.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg)
+      if (
+        accessibleName &&
+        !svg.hasAttribute('aria-label') &&
+        !svg.hasAttribute('aria-labelledby')
+      ) {
+        svg.setAttribute('aria-label', accessibleName)
+        fixes.svgNamesAdded++
+      }
+    })
+  }
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href])')
-  fakeLinks.forEach((link) => {
-    link.setAttribute('href', '#' + (link.id || `link-${Date.now()}`))
-    link.setAttribute('role', 'link')
-    fixes.fakeLinksFixed++
-  })
+  const fakeLinks = container && container.querySelectorAll('span[role="link"], div[role="link"]');
+  if (fakeLinks) {
+    fakeLinks.forEach(link => {
+      link.setAttribute('href', '#' + (link.id || 'link-' + Math.random().toString(36).substr(2, 9)))
+      link.setAttribute('role', 'link')
+      fixes.fakeLinksFixed++
+    })
+  }
 
   // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(container)
+  const accessibilityReport = validateAccessibilityReport(container, report)
   if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
     log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
   }
@@ -138,7 +136,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Check for new accessibility issues
   const newAccessibilityIssues = checkAccessibility(container)
   if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`, 'error')
+    log(`New accessibility issues found: ${newAccessibilityIssues.map(i => i.message).join(', ')}`, 'error')
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0
@@ -250,4 +248,9 @@ export function fixTableStructure(tableElement) {
     if (!th.hasAttribute('scope')) {
       const row = th.closest('tr')
       const cellIndex = Array.from(row.children).indexOf(th)
-      th.setAttribute('scope',
+      th.setAttribute('scope', cellIndex === 0 ? 'row' : 'col')
+    }
+  })
+  
+  return tableElement
+}

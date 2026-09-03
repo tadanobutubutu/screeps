@@ -7,9 +7,9 @@
 //_Commit: 30b5f08a59d5ec914a59aa66e32dc3a3eb059e_
 //<!-- todo-hash: 1f8a6325b07b9b809ac49f5e1c81cf4f89f9c1 -->
 //_Commit: 669117b4c3d1a635653f730f0a059efacbb752_
-//<!-- todo-hash: 312aa8ea4c5e1c9430e4b7c36c210eb9a72dea -->
-//_Commit: 54b7c4d06282fbf48e78de43e5e115814006658c_
-//<!-- todo-hash: d290c9a63ee693e91602163f7ca6757def47f63e -->
+//<!-- todo-hash: 312aa8ea4c5e1c94e30e4b7c36c210eb9a72dea -->
+//_Commit: 54b7c4d06f2fbf48e78de43e5e115814006658c_
+//<!-- todo-hash: d290c9a63ee693e91602f63f7ca6757def47f63e -->
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 // TODO: Address accessibility issues from insight report:
@@ -24,7 +24,7 @@ import React from 'react';
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang language code (e.g., 'en', 'es', 'fr')
+ * @param {string} lang language code (e. g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
  */
 function setHtmlLangAttribute(lang) {
@@ -45,17 +45,17 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if ... {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if ... {
+    } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if ... {
+    } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if ... {
+    } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if ... {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
-    } else if ... {
+    } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -77,31 +77,31 @@ function validateTableAccessibility(tableElement) {
   const errors = [];
   
   // Check if table has proper structure
-  if ... {
+  if (!tableElement.querySelector('thead')) {
     errors.push('Table is missing <thead> element');
   }
   
-  if ... {
+  if (!tableElement.querySelector('tbody')) {
     errors.push('Table is missing <tbody> element');
   }
   
   // Check for th elements in thead
-  const thead = ...
-  const thElements = thead ? ... : [];
+  const thead = tableElement.querySelector('thead');
+  const thElements = thead ? thead.querySelectorAll('th') : [];
   if (thElements.length === 0) {
     errors.push('Table header row is missing <th> elements');
   }
   
   // Check that all th elements have scope attributes
   thElements.forEach((th, index) => {
-    if ... {
+    if (!th.getAttribute('scope')) {
       errors.push(`Table header cell ${index + 1} is missing scope attribute`);
     }
   });
   
   // Check for proper caption or summary
-  const hasCaption = ...
-  const hasSummary = ... || ...
+  const hasCaption = tableElement.querySelector('caption');
+  const hasSummary = tableElement.getAttribute('aria-describedby') || tableElement.querySelector('[id]');
   if (!hasCaption && !hasSummary) {
     errors.push('Table is missing a caption or aria-describedby for accessibility');
   }
@@ -115,10 +115,10 @@ function validateTableStructure(tableElement) {
   }
   
   const errors = [];
-  const rows = ...
+  const rows = tableElement.querySelectorAll('tr');
   
   rows.forEach((row, rowIndex) => {
-    const cells = ... td'));
+    const cells = row.querySelectorAll('td');
     const cellCount = cells.length;
     
     // Check for empty cells
@@ -131,9 +131,9 @@ function validateTableStructure(tableElement) {
     // Check that rows have consistent cell counts
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = ... td'));
+      const prevCells = prevRow.querySelectorAll('td');
       if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ...
+        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
       }
     }
   });
@@ -154,11 +154,11 @@ function validateLandmark(element) {
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
   
-  if (role && ... {
-    ... landmark role: ${role}`);
+  if (role && !validLandmarks.includes(role)) {
+    errors.push(`Element has invalid landmark role: ${role}`);
   }
   
-  if (!role && ... {
+  if (!role && !validLandmarks.includes(tagName)) {
     errors.push(`Element is not a valid landmark: ${tagName}`);
   }
   
@@ -182,24 +182,24 @@ function validateLandmarkStructure() {
   const errors = [];
   
   // Check for multiple main landmarks
-  const mainElements = ... [role="main"]');
+  const mainElements = document.querySelectorAll('main, [role="main"]');
   if (mainElements.length > 1) {
     errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = ... nav, main, aside, footer, section, article, [role]');
+  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
-      const parentTag = ...
+      const parentTag = parent.tagName.toLowerCase();
       const parentRole = parent.getAttribute('role');
       
       // Check for invalid nesting
-      if (parentTag === 'header' && ... === 'header') {
+      if (parentTag === 'header' && parentRole === 'header') {
         errors.push('Nested header elements found');
       }
-      if (parentTag === 'footer' && ... === 'footer') {
+      if (parentTag === 'footer' && parentRole === 'footer') {
         errors.push('Nested footer elements found');
       }
       
@@ -211,83 +211,26 @@ function validateLandmarkStructure() {
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
-function ... {
+function getSvgAccessibleName(svgElement) {
   if (typeof document === 'undefined' || !svgElement) {
     return null;
   }
   
   // Check for aria-label
-  let accessibleName = ...
+  let accessibleName = svgElement.getAttribute('aria-label');
   if (accessibleName) return accessibleName;
   
   // Check for aria-labelledby referencing another element
-  const labelledBy = ...
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
   if (labelledBy) {
-    const labelElement = ...
+    const labelElement = document.getElementById(labelledBy);
     if (labelElement) return labelElement.textContent;
   }
   
   // Check for title element inside SVG
-  const title = ...
+  const title = svgElement.querySelector('title');
   if (title && title.textContent.trim()) {
     return title.textContent.trim();
   }
   
   // Check for desc element inside SVG
-  const desc = ...
-  if (desc && desc.textContent.trim()) {
-    return desc.textContent.trim();
-  }
-  
-  return null;
-}
-
-function validateSvgAccessibility() {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  
-  const errors = [];
-  const svgs = ...
-  
-  svgs.forEach((svg, index) => {
-    const name = getSvgAccessibleName(svg);
-    if (!name) {
-      errors.push(`SVG ${index + 1} is missing an accessible name (aria-label, aria-labelledby, title, or desc)`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
-  }
-  
-  const errors = [];
-  const landmarkCounts = {};
-  
-  // Count landmarks by role or tag
-  const landmarks = ... nav, main, aside, footer, section, article, [role]');
-  landmarks.forEach((landmark) => {
-    const identifier = ... || ...
-    
-    // main landmarks should be unique
-    if (identifier === 'main' || identifier === 'MAIN') {
-      if ... {
-        errors.push(`Duplicate main landmark found. Only one main landmark should exist.`);
-      } else {
-        ... = 1;
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Gets the accessible name of an element, addressing REACT_036 fake link issues.
- * @param {HTMLElement} element - The element to extract the accessible name from
- * @returns {string|null

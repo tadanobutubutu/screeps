@@ -37,7 +37,7 @@ function detectAndSetLang (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh' // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
       lang = 'ja' // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru' // Russian/Cyrillic
@@ -235,7 +235,7 @@ function getSvgAccessibleName (svg) {
   // Check for adjacent description
   const id = svg.getAttribute('id')
   if (id) {
-    const describedBy = document.querySelector(`[id="${id}-desc"]`)
+    const describedBy = document.getElementById(`${id}-desc`)
     if (describedBy) {
       return describedBy.textContent || ''
     }
@@ -272,7 +272,7 @@ function ensureUniqueLandmarks () {
   // Check for landmark IDs that should be unique
   const landmarksWithIds = document.querySelectorAll('[role][id]')
   const ids = new Set()
-  landmarksWithIds.forEach((el) => {
+  landmarksWithIds.forEach(el => {
     const id = el.getAttribute('id')
     if (ids.has(id)) {
       errors.push(`Duplicate landmark id found: ${id}`)
@@ -303,206 +303,4 @@ function createAccessibleLink (href, text, options = {}) {
     } else if (rel) {
       link.rel = rel
     }
-  } else {
-    // If no href, it's a button disguised as a link
-    link.href = '#'
-    link.addEventListener('click', (e) => {
-      e.preventDefault()
-      if (onClick) {
-        onClick(e)
-      }
-    })
-  }
-
-  if (target) {
-    link.target = target
-  }
-
-  if (className) {
-    link.className = className
-  }
-
-  if (ariaLabel) {
-    link.setAttribute('aria-label', ariaLabel)
-  }
-
-  if (role && role !== 'link') {
-    link.setAttribute('role', role)
-  }
-
-  return link
-}
-
-/**
- * Checks if a link element is accessible
- * @param {HTMLAnchorElement} link - The link element to check
- * @returns {Object} Result with valid boolean and errors array
- */
-function isLinkAccessible (link) {
-  const errors = []
-
-  if (!link) {
-    return { valid: false, errors: ['Link element is required'] }
-  }
-
-  // Check if it's an anchor element
-  if (link.tagName !== 'A') {
-    errors.push('Element is not an anchor tag')
-    return { valid: false, errors }
-  }
-
-  // Check for href attribute
-  const href = link.getAttribute('href')
-  if (!href || href === '#' || href === '') {
-    // If no href, check if it's properly set up as a button
-    const role = link.getAttribute('role')
-    if (role !== 'button') {
-      errors.push('Link missing href attribute and not configured as a button')
-    }
-    // Check for click handler
-    if (!link.onclick && !link.hasAttribute('data-handler')) {
-      errors.push('Fake link missing click handler')
-    }
-  }
-
-  // Check for accessible name
-  const textContent = link.textContent ? link.textContent.trim() : ''
-  const ariaLabel = link.getAttribute('aria-label')
-  const ariaLabelledby = link.getAttribute('aria-labelledby')
-  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby
-
-  if (!hasAccessibleName) {
-    errors.push(
-      'Link is missing accessible name (text content, aria-label, or aria-labelledby)'
-    )
-  }
-
-  // Check for valid href if present
-  if (href && href !== '#') {
-    // Check for javascript: links
-    if (href.toLowerCase().startsWith('javascript:')) {
-      errors.push('Link uses javascript: protocol which is not accessible')
-    }
-    // Check for mailto: links without proper labeling
-    if (href.toLowerCase().startsWith('mailto:') && !ariaLabel && !textContent.includes('@')) {
-      errors.push('Mailto link may need aria-label for clarity')
-    }
-  }
-
-  // Check target="_blank" has rel="noopener noreferrer"
-  if (link.getAttribute('target') === '_blank') {
-    const rel = link.getAttribute('rel')
-    if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
-      errors.push('External link with target="_blank" missing rel="noopener noreferrer"')
-    }
-  }
-
-  // Check for redundant title attribute
-  const title = link.getAttribute('title')
-  if (title && title === textContent) {
-    errors.push('Link title attribute duplicates link text')
-  }
-
-  return { valid: errors.length === 0, errors }
-}
-
-/**
- * Creates an accessible in-page button and appends it to the given parent element.
- * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton (parent = document.body) {
-  const btn = document.createElement('button')
-  btn.type = 'button'
-  btn.setAttribute('role', 'button')
-  btn.setAttribute('aria-label', 'Open modal')
-  parent.appendChild(btn)
-  return btn
-}
-
-// TODO: This is the existing code that needs to be preserved
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-
-// TODO: Implement tower defense
-function towerDefense () {
-  // A simple tower defense game implementation
-  // Define towers, enemies, waves, and game loop
-  const towers = []
-  const enemies = []
-  const wave = 1
-
-  // Example: Tower constructor
-  function Tower (x, y, range, damage, rate) {
-    this.x = x
-    this.y = y
-    this.range = range
-    this.damage = damage
-    this.rate = rate
-    this.lastShot = 0
-  }
-
-  // Example: Enemy constructor
-  function Enemy (x, y, health, speed) {
-    this.x = x
-    this.y = y
-    this.health = health
-    this.speed = speed
-  }
-
-  // Add a tower
-  function addTower (x, y, range, damage, rate) {
-    towers.push(new Tower(x, y, range, damage, rate))
-  }
-
-  // Add an enemy
-  function addEnemy (x, y, health, speed) {
-    enemies.push(new Enemy(x, y, health, speed))
-  }
-
-  // Update game state (simplified)
-  function update () {
-    // Logic for enemy movement, tower shooting, etc.
-    console.log(`Wave ${wave} - updating game state`)
-  }
-
-  // Start the game
-  function start () {
-    console.log('Tower defense game started')
-    // Add initial towers and enemies
-    addTower(100, 100, 200, 10, 1000)
-    addEnemy(0, 50, 100, 2)
-    // Game loop would be here
-  }
-
-  // Expose game functions
-  return {
-    start,
-    addTower,
-    addEnemy,
-    update,
-    getWave: () => wave
-  }
-}
-
-// Export all functions to maintain current exports
-module.exports = {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  personName,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  ensureUniqueLandmarks,
-  createAccessibleLink,
-  isLinkAccessible,
-  towerDefense
-}
+  } else

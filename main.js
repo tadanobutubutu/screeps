@@ -405,6 +405,202 @@ function createInPageButton(parent = document.body) {
 }
 
 /**
+ * Validates the accessibility report for issues in main.js
+ * @param {HTMLElement} rootElement - The root element to validate (defaults to document.body)
+ * @param {Object} options - Validation options
+ * @returns {Object} Validation result with all accessibility issues
+ */
+function validateAccessibilityReport(rootElement, options = {}) {
+  const root = rootElement || (typeof document !== 'undefined' ? document.body : null);
+  const results = {
+    success: true,
+    timestamp: new Date().toISOString(),
+    summary: {
+      totalIssues: 0,
+      tables: { issues: 0, valid: 0 },
+      landmarks: { issues: 0, valid: 0 },
+      svgs: { issues: 0, valid: 0 },
+      links: { issues: 0, valid: 0 },
+      langAttribute: { issues: 0, valid: 0 }
+    },
+    issues: {
+      tables: [],
+      landmarks: [],
+      svgs: [],
+      links: [],
+      langAttribute: []
+    },
+    details: {}
+  };
+
+  if (!root) {
+    results.success = false;
+    results.error = 'Root element or document not available';
+    return results;
+  }
+
+  // Validate REACT_015: Check lang attribute on HTML element
+  const htmlLang = getLangAttribute();
+  if (!htmlLang || htmlLang === '') {
+    results.issues.langAttribute.push({
+      rule: 'REACT_015',
+      severity: 'error',
+      message: 'HTML lang attribute is missing or empty'
+    });
+    results.summary.langAttribute.issues++;
+    results.summary.totalIssues++;
+  } else {
+    results.summary.langAttribute.valid++;
+  }
+  results.details.langAttribute = { value: htmlLang };
+
+  // Validate REACT_027: Check table accessibility and structure
+  const tables = root.querySelectorAll ? root.querySelectorAll('table') : [];
+  results.details.tables = [];
+  tables.forEach((table, index) => {
+    const accessibilityResult = validateTableAccessibility(table);
+    const structureResult = validateTableStructure(table);
+    
+    const tableResult = {
+      index,
+      accessibility: accessibilityResult,
+      structure: structureResult
+    };
+    results.details.tables.push(tableResult);
+
+    if (!accessibilityResult.valid) {
+      accessibilityResult.errors.forEach(error => {
+        results.issues.tables.push({
+          rule: 'REACT_027',
+          severity: 'error',
+          message: `Table ${index}: ${error}`,
+          tableIndex: index
+        });
+        results.summary.tables.issues++;
+        results.summary.totalIssues++;
+      });
+    } else {
+      results.summary.tables.valid++;
+    }
+
+    if (!structureResult.valid) {
+      structureResult.errors.forEach(error => {
+        results.issues.tables.push({
+          rule: 'REACT_027',
+          severity: 'error',
+          message: `Table ${index} structure: ${error}`,
+          tableIndex: index
+        });
+        results.summary.tables.issues++;
+        results.summary.totalIssues++;
+      });
+    }
+  });
+
+  // Validate REACT_017 and REACT_025: Check landmark accessibility and uniqueness
+  const landmarks = root.querySelectorAll ? root.querySelectorAll('[role], nav, header, main, footer, aside') : [];
+  results.details.landmarks = [];
+  landmarks.forEach((element, index) => {
+    const landmarkResult = validateLandmark(element);
+    if (!landmarkResult.valid) {
+      landmarkResult.errors.forEach(error => {
+        results.issues.landmarks.push({
+          rule: 'REACT_017',
+          severity: 'error',
+          message: `Landmark ${index}: ${error}`,
+          landmarkIndex: index
+        });
+        results.summary.landmarks.issues++;
+        results.summary.totalIssues++;
+      });
+    } else {
+      results.summary.landmarks.valid++;
+    }
+    results.details.landmarks.push(landmarkResult);
+  });
+
+  // Check landmark structure for uniqueness
+  const structureResult = validateLandmarkStructure();
+  if (!structureResult.valid) {
+    structureResult.errors.forEach(error => {
+      results.issues.landmarks.push({
+        rule: 'REACT_025',
+        severity: 'error',
+        message: error
+      });
+      results.summary.landmarks.issues++;
+      results.summary.totalIssues++;
+    });
+  }
+
+  // Check for unique landmarks
+  const uniqueResult = ensureUniqueLandmarks();
+  if (!uniqueResult.valid) {
+    uniqueResult.errors.forEach(error => {
+      results.issues.landmarks.push({
+        rule: 'REACT_025',
+        severity: 'error',
+        message: error
+      });
+      results.summary.landmarks.issues++;
+      results.summary.totalIssues++;
+    });
+  }
+
+  // Validate REACT_041: Check SVG accessible names
+  const svgs = root.querySelectorAll ? root.querySelectorAll('svg') : [];
+  results.details.svgs = [];
+  svgs.forEach((svg, index) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (!accessibleName || accessibleName === '') {
+      results.issues.svgs.push({
+        rule: 'REACT_041',
+        severity: 'error',
+        message: `SVG at index ${index} is missing accessible name`,
+        svgIndex: index
+      });
+      results.summary.svgs.issues++;
+      results.summary.totalIssues++;
+    } else {
+      results.summary.svgs.valid++;
+    }
+    results.details.svgs.push({ index, accessibleName });
+  });
+
+  // Validate REACT_036: Check link accessibility (especially fake links)
+  const links = root.querySelectorAll ? root.querySelectorAll('a') : [];
+  results.details.links = [];
+  links.forEach((link, index) => {
+    const linkResult = isLinkAccessible(link);
+    if (!linkResult.valid) {
+      linkResult.errors.forEach(error => {
+        results.issues.links.push({
+          rule: 'REACT_036',
+          severity: 'error',
+          message: `Link ${index}: ${error}`,
+          linkIndex: index
+        });
+        results.summary.links.issues++;
+        results.summary.totalIssues++;
+      });
+    } else {
+      results.summary.links.valid++;
+    }
+    results.details.links.push(linkResult);
+  });
+
+  // Set overall success based on issues found
+  results.success = results.summary.totalIssues === 0;
+
+  if (options.verbose) {
+    console.log('Accessibility Report Validation Results:');
+    console.log(JSON.stringify(results, null, 2));
+  }
+
+  return results;
+}
+
+/**
  * Builds a hierarchical representation of dependencies from a root node
  * @param {HTMLElement} node - The DOM node to analyze for dependencies
  * @param {Object} options - Configuration options
@@ -803,5 +999,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
+  validateAccessibilityReport,
   towerDefense
 };

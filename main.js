@@ -1,8 +1,6 @@
 const main = require('./utilities')
 
 const {
-  createInPageButton,
-  createWebResourceButton,
   validateLandmark,
   validateLandmarkStructure,
   validateAccessibilityReport,
@@ -10,6 +8,7 @@ const {
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
+  addressAccessibilityIssues,
   setSvgAccessibilityProps,
   addAccessibleNamesToSVGs,
   addSvgAccessibleNames,
@@ -17,11 +16,17 @@ const {
   addAriaLabel: addAriaLabelAlt,
   googleSignIn,
   handleCredentialResponseAlt,
-  renderGraphIndexUtil,
-  addressAccessibilityIssues
-} = require('./utilities');
+  renderGraphIndexUtil
+} = main
 
 const http = require('http')
+
+// Function to add language attribute to HTML element
+const addLanguageAttribute = () => {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = 'en';
+  }
+}
 
 // New function to ensure the element has an id
 const ensureElementHasId = (element, prefix = 'element') => {
@@ -58,8 +63,9 @@ const addLangAttribute = (target, lang = 'en') => {
 
 // Updated function using new functions for rendering graph/index
 const renderGraphIndex = (graphData) => {
-  addressAccessibilityIssues()
-  renderDependencyGraphs(graphData)
+  addressAccessibilityIssues();
+  addLanguageAttribute();
+  renderDependencyGraphs(graphData);
 }
 
 function renderGraphIndexAlt(graphData) {
@@ -200,6 +206,8 @@ const init = () => {
 };
 
 module.exports = {
+  createInPageButton,
+  createWebResourceButton,
   ensureElementHasId,
   addAriaLabel,
   addLangAttribute,
@@ -230,4 +238,4 @@ module.exports = {
   enforceAccessibility,
   primaryContent,
   landmarks
-};
+}

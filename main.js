@@ -99,6 +99,7 @@ function initialize() {
 
   const processed = processLandmarks(validLandmarks); // Keep both processLandmarks calls for consistency
 
+  // Address accessibility issues from insight report:
   // Ensure the dependencyGraph container has a proper ARIA role
   let dependencyGraph = document.getElementById('dependencyGraph');
   if (dependencyGraph) {
@@ -296,5 +297,6 @@ module.exports = {
   visualizeModuleRelationships,
   ensureElementHasId,
   addAriaLabel,
-  writeReport
+  writeReport,
+  initialize
 };

@@ -53,7 +53,6 @@ const { validateLandmark, validateLandmarkStructure } = require('./utils/landmar
 const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
 const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
 const { checkLinkAccessibility } = require('./utils/linkAccessibilityUtils');
-const { CONFIG } = require('./utils/constants');
 
 const express = require('express');
 const axe = require('axe-core');

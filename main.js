@@ -12,28 +12,10 @@ const appState = {
   cache: new Map()
 };
 
-function validateLandmark(landmark) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
-  if (!landmark.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${landmark.tagName}`);
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
 const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
-
-// const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -44,16 +26,6 @@ const appData = {
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-function getLangAttribute() {
-    // Implementation to get language attribute
-    return document.documentElement.lang || 'en';
-}
-
-function getFullLangAttribute() {
-    // Implementation to get full language attribute
-    return document.documentElement.lang || navigator.language || 'en-US';
-}
 
 /**
  * Validates table accessibility compliance
@@ -169,32 +141,6 @@ function addSvgAccessibilityProps(svg, options = {}) {
   }
 
   return enhancedSvg;
-}
-
-/**
- * Adds lang attribute to HTML element
- * @param {Object} element - The HTML element to modify
- * @returns {Object} The modified element with lang attribute
- */
-function addLangAttribute(element) {
-  element.lang = getFullLangAttribute();
-  return element;
-}
-
-/**
- * Gets the lang attribute value
- * @returns {string} The lang attribute value
- */
-function getLangAttribute() {
-  return document && document.documentElement ? document.documentElement.lang || 'en' : 'en';
-}
-
-/**
- * Gets the full lang attribute value
- * @returns {string} The full lang attribute value
- */
-function getFullLangAttribute() {
-  return document && document.documentElement ? document.documentElement.lang || document && navigator.language || 'en-US' : 'en-US';
 }
 
 /**
@@ -341,130 +287,30 @@ function ensureUniqueLandmarks(landmarks) {
   };
 }
 
-function initializeApp() {
-  appState.initialized = true;
-  console.log('Initializing application...');
-  return true;
-}
-
-function getConfig() {
-  return config;
-}
-
-function validateInput(input) {
-  return input !== null && input !== undefined;
-}
-
-function processData(data) {
-  if (!validateInput(data)) {
-    throw new Error('Invalid input data');
-  }
-  return {
-    processed: true,
-    data: data,
-    timestamp: Date.now()
-  };
+/**
+ * Gets the lang attribute value
+ * @returns {string} The lang attribute value
+ */
+function getLangAttribute() {
+  return document && document.documentElement ? document.documentElement.lang || 'en' : 'en';
 }
 
 /**
- * Creates an accessible in-page button element
- * @param {string} text - The button text content
- * @param {Function} onClick - Click handler function
- * @returns {Object} Button element with accessibility attributes
+ * Gets the full lang attribute value
+ * @returns {string} The full lang attribute value
  */
-function createInPageButton(text, onClick) {
-    // Implementation to create accessible in-page button
-    const button = document ? document.createElement('button') : { tagName: 'BUTTON' };
-    button.textContent = text;
-    button.onclick = onClick;
-    button.setAttribute('aria-label', text);
-    if (text.length === 0) {
-      button.setAttribute('aria-label', 'Empty button');
-    }
-    return button;
+function getFullLangAttribute() {
+  return document && document.documentElement ? document.documentElement.lang || document && navigator.language || 'en-US' : 'en-US';
 }
 
 /**
- * Creates an accessible link element
- * @param {string} href - The link URL
- * @param {string} text - The link text content
- * @returns {Object} Anchor element with accessibility attributes
+ * Adds lang attribute to HTML element
+ * @param {Object} element - The HTML element to modify
+ * @returns {Object} The modified element with lang attribute
  */
-function createAccessibleLink(href, text) {
-    // Implementation to create accessible link
-    const link = document ? document.createElement('a') : { tagName: 'A' };
-    link.href = href;
-    link.textContent = text;
-    link.setAttribute('aria-label', text);
-    return link;
-}
-
-/**
- * Handles accessibility issues found during validation
- * @param {Array} issues - Array of accessibility issues (optional)
- * @returns {Object} Summary of handled issues
- */
-function handleAccessibilityIssues(issues = []) {
-  const handled = [];
-  const unhandled = [];
-
-  // Process provided issues
-  issues.forEach(issue => {
-    if (issue.fixable) {
-      handled.push(issue);
-    } else {
-      unhandled.push(issue);
-    }
-  });
-
-  // Perform DOM validation
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-
-  const landmarks = document.querySelectorAll('[role]');
-  landmarks.forEach(landmark => {
-    validateLandmark(landmark);
-  });
-
-  validateLandmarkStructure();
-  ensureUniqueLandmarks();
-
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    getSvgAccessibleName(svg);
-  });
-
-  return {
-    total: issues.length,
-    handled: handled.length,
-    unhandled: unhandled.length,
-    unhandledIssues: unhandled
-  };
-}
-
-function newBranchFunction() {
-  return 'New branch function executed';
-}
-
-/**
- * Adds a main landmark element to the document if not present
- * @param {Object} document - The document object
- * @returns {Object} The modified document object
- */
-function addMainLandmark(document) {
-  if (document) {
-    const main = document.createElement ? document.createElement('main') : null;
-    if (main) {
-      main.setAttribute('role', 'main');
-      if (document.body) {
-        document.body.appendChild(main);
-      }
-    }
-  }
-  return document;
+function addLangAttribute(element) {
+  element.lang = getFullLangAttribute();
+  return element;
 }
 
 /**

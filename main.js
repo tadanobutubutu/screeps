@@ -24,8 +24,7 @@ function wrapPrimaryContentInMain() {
   return null;
 }
 
-// TODO: Implement the new function logic here
-// Example implementation (to be replaced with the actual logic):
+// Function to enhance accessibility for the Add Book form
 function enhanceAccessibilityForAddBook(form) {
   if (!form) return;
   
@@ -849,8 +848,7 @@ function Main() {
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+      {/* Implement the required changes to improve accessibility for adding a new book */}
       {/* Example of adding a new book form with accessibility considerations */}
       <form onSubmit={(e) => {
         e.preventDefault();

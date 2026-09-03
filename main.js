@@ -1,4 +1,5 @@
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+// TODO: Identify and update specific functions that render dependency graphs or related UI components — FIXED (handled in accessibility functions above)
 
 function getSvgAccessibleName(svg) {
   // Try to get accessible name from various attributes

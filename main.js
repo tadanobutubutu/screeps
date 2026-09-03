@@ -13,6 +13,7 @@ function main() {
   const svgElements = document.querySelectorAll('svg');
 
   renderDependencyGraphs(svgElements);
+  setSvgAttributes(svgElements); // Adding the call to setSvgAttributes here
 
   checkLandmarkElements();
   countSvgElements(svgElements);

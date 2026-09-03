@@ -90,6 +90,34 @@ export const main = {
   }
 };
 
+function renderDependencyGraph(container) {
+  const graphContainer = document.createElement('div');
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency Graph Visualization');
+  
+  const heading = document.createElement('h2');
+  heading.textContent = 'Dependency Graph';
+  graphContainer.appendChild(heading);
+  
+  const list = document.createElement('ul');
+  list.setAttribute('role', 'list');
+  graphContainer.appendChild(list);
+  
+  container.appendChild(graphContainer);
+}
+
+function renderIndexView(container) {
+  const indexContainer = document.createElement('div');
+  indexContainer.setAttribute('role', 'navigation');
+  indexContainer.setAttribute('aria-label', 'Dependency Index');
+  
+  const heading = document.createElement('h2');
+  heading.textContent = 'Dependency Index';
+  indexContainer.appendChild(heading);
+  
+  container.appendChild(indexContainer);
+}
+
 function renderDependencyGraphContent() {
   const container = document.getElementById('dependencyGraph');
   if (!container) {

@@ -1,16 +1,3 @@
-let dependencyGraph = {};
-
-function getDependencyGraph() {
-  if (Object.keys(dependencyGraph).length === 0) {
-    return { message: "No dependency graph found." };
-  }
-
-  return dependencyGraph;
-}
-
-let UserSafety = "unsafe";
-let SafetyCategories = "Unauthorized Advice";
-
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
@@ -21,11 +8,7 @@ const fs = require('fs');
 // TODO: This is the existing code that needs to be preserved
 const fastMap = require('fast-map');
 const path = require('path');
-
-// Define accessiblyHelper function
-const accessiblyHelper = async (...args) => {
-  return args;
-};
+const accessiblyHelper = require('./accessibly-helper'); // Added this import
 
 // TODO: This is the existing code that needs to be preserved
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
@@ -453,5 +436,10 @@ function runHarvestAndUpgrade(creep) {
   }
 }
 
-// Exports
-export { UserSafety, SafetyCategories, getDependencyGraph, getUserSafetyAdvice, harvest, upgrade, runHarvestAndUpgrade };
+module.exports = {
+  UserSafety: 'unsafe',
+  getUserSafetyAdvice,
+  harvest,
+  upgrade,
+  runHarvestAndUpgrade
+};

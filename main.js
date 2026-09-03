@@ -1,3 +1,19 @@
+// TODO: This is the existing code that needs to be preserve
+// (This comment remains as-is)
+
+const React = require('react');
+const { render } = require('react-dom');
+const {
+  renderDependencyGraph,
+  renderIndex,
+  setElementLabel,
+  renderDependencyGraphs,
+  renderGraphIndex
+} = require('./AccessibilityHelpers');
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
+const main = require('./utilities');
+
 class ScreepsBot {
   constructor() {
     this.network = null;
@@ -22,24 +38,11 @@ class ScreepsBot {
     this.scheduleTasks();
   }
 
-  scheduleTasks() {
-    this.tasks.sort((a, b) => {
-      const prioOrder = { high: 0, medium: 1, low: 2 };
-      return prioOrder[b.priority] - prioOrder[a.priority];
-    });
-
-    if (this.tasks.length > 0) {
-      const nextTask = this.tasks[0];
-      try {
-        nextTask.task();
-      } catch (err) {
-        console.error(`Task failed: ${err.message}`);
-      }
-    }
-  }
-
-  generateTaskId() {
-    return '_' + Math.random().toString(36).substr(2, 9);
+  scheduleTask(taskFn, ...args) {
+    const priority = args[0] || 'medium';
+    const taskId = this.generateTaskId();
+    this.tasks.push({ task: taskFn, priority, id: taskId });
+    this.scheduleTasks();
   }
 
   cancelTask(id) {
@@ -138,19 +141,6 @@ class ScreepsBot {
     // Implementation of getActiveSessionsCount
   }
 
-  getSvgAccessibleName() {
-    // Implementation of getSvgAccessibleName
-  }
-
-  addSvgLabelledby() {
-    // Implementation of addSvgLabelledby
-  }
-
-  fixFakeLinks() {
-    // Implementation of fixFakeLinks
-  }
-
-  // Custom accessibility implementations
   setFocus(elementId) {
     const element = document.getElementById(elementId);
     if (element) {
@@ -168,7 +158,7 @@ class ScreepsBot {
       case 'ArrowDown':
       case 'ArrowLeft':
       case 'ArrowRight':
-        this.navigateElement(activeElement);
+        this.handleArrowNavigation(activeElement);
         break;
       case 'Tab':
         this.handleTabNavigation(event, activeElement);
@@ -178,7 +168,7 @@ class ScreepsBot {
     }
   }
 
-  navigateElement(activeElement) {
+  handleArrowNavigation(activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
   }
@@ -201,10 +191,12 @@ class ScreepsBot {
     const svg = parser.parseFromString(svgString, 'image/svg+xml');
     const svgElement = svg.documentElement;
 
-    if (svgElement) {
-      svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+    if (svgElement.tagName === 'svg') {
+      const title = document.createElement('title');
+      title.textContent = 'Descriptive label for SVG';
+      svgElement.insertBefore(title, svgElement.firstChild);
     }
-    return new XMLSerializer().serializeToString(svgElement);
+    return svgElement;
   }
 
   validateTableAccessibilityNew(tableData) {
@@ -220,8 +212,6 @@ class ScreepsBot {
   renderAdditionalContent(additionalData) {
     // Your implementation for additional rendering logic
     // ...
-
-    // Exported function from main
     return renderAdditionalContent(additionalData);
   }
 
@@ -235,8 +225,8 @@ class ScreepsBot {
     // ...
   }
 
-  navigateElementNew(activeElement) {
-    // New implementation of navigateElement function
+  handleArrowNavigationNew(activeElement) {
+    // New implementation of handleArrowNavigation function
     // ...
   }
 
@@ -263,6 +253,14 @@ class ScreepsBot {
     }
   }
 
+  // Additional accessibility functions
+  checkLandmarks() {
+    const dependencyGraph = document.querySelector('[data-dependency-graph]');
+    if (dependencyGraph) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+  }
+
   renderGraphIndex(content, options = {}) {
     // ... (existing code)
   }
@@ -273,6 +271,11 @@ class ScreepsBot {
 
   buildDependencyGraph() {
     // Implementation for building dependency graph
+  }
+
+  addSvgAccessibleNames() {
+    // Implementation for adding accessible names to SVGs
+    // ...
   }
 
   processLandmarks(graph, type) {
@@ -287,16 +290,13 @@ class ScreepsBot {
     // Implementation for checking landmarks
   }
 
-  // TODO: This is the existing code that needs to be preserved
-}
-
-// TODO: Implement new function3 logic here
-function newFunction3() {
+  // TODO: This is the existing code that needs to be preserve
+  // TODO: Implement new function3 logic here
+  function newFunction3() {
     // Placeholder implementation for new function3 logic
     console.log('New function3 logic implemented.');
-}
+  }
 
 // Preserve any existing exports here
 // export { existingFunction1, existingFunction2, ... };
-
-const main = require('./utilities');
+}

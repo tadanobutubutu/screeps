@@ -34,9 +34,12 @@ function validateLandmarkStructure() {
 
 // TODO: Implement harvest logic
 function harvest() {
-    // This function should collect resources or data from available sources
-    // Add your implementation here
+    // Collect resources from elements with class 'resource'
+    const resources = Array.from(document.querySelectorAll('.resource'))
+        .map(el => el.textContent.trim())
+        .filter(text => text.length > 0);
+    return resources;
 }
 
 // Preserve any existing exports here
-// export { createInPageButton, validateLandmarkStructure, harvest };
+export { createInPageButton, validateLandmarkStructure, harvest };

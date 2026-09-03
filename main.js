@@ -277,6 +277,12 @@ const AddressabilityIssues = {
 
 function processSvgElements() {
   const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      addSvgAccessibleName(svg, accessibleName);
+    }
+  });
 }
 
 function validateLandmarkAttributes(landmark) {

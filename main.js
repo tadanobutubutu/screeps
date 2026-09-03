@@ -274,7 +274,7 @@ const announcementDelayHandler = () => {
   }, 1000);
 };
 
-function handleKeyboardNav(e, handlers) {
+function handleKeyboardNavWrapper(e, handlers) {
   handleKeyboardNav(e, handlers);
   handleKeyboardNavKeyDownEvent(e, handlers);
 }
@@ -290,7 +290,7 @@ const handleKeyboardNavKeyDownEvent = (e, handlers) => {
 };
 
 const newFocusTrap = (element) => {
-  const focusZone = newFocusTrap(element, { allowFocusOut: false });
+  const focusZone = originNewFocusTrap(element, { allowFocusOut: false });
   return { focus, blur, update } => {
     focusZone.focus();
     focusZone.on('focusout', () => focusZone.update());
@@ -310,14 +310,14 @@ const addSvgAccessibleName = function(svgString, label) {
 };
 
 /**
- * Function to handle additional rendering logic using new functions for rendering graph/index
- * @param {string|HTMLElement} container - Container element or selector
- * @param {Object} options - Options for rendering
- * @param {string} options.title - Title for the graph/index view
- * @param {string} options.graphType - Type of graph to render
- * @param {boolean} options.showLegend - Whether to show legend
- * @returns {string} Rendered HTML content
- */
+* Function to handle additional rendering logic using new functions for rendering graph/index
+* @param {string|HTMLElement} container - Container element or selector
+* @param {Object} options - Options for rendering
+* @param {string} options.title - Title for the graph/index view
+* @param {string} options.graphType - Type of graph to render
+* @param {boolean} options.showLegend - Whether to show legend
+* @returns {string} Rendered HTML content
+*/
 function renderGraphIndex(container, options = {}) {
   const defaultOptions = {
     title: 'Dependency Graph',
@@ -350,11 +350,48 @@ function renderGraphIndex(container, options = {}) {
   return tempContainer.innerHTML;
 }
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+const enhancedRenderGraphIndex = function(container, options = {}) {
+  const defaultOptions = {
+    title: 'Dependency Graph',
+    graphType: 'dependency',
+    showLegend: true,
+    enableAccessibility: true
+  };
+
+  const mergedOptions = { ...defaultOptions, ...options };
+
+  let graphHtml = renderDependencyGraphs(container, {
+    ...mergedOptions,
+    onRender: (graphData) => {
+      if (addressAccessibilityIssues && mergedOptions.enableAccessibility) {
+        addressAccessibilityIssues(graphData);
+      }
+    }
+  });
+
+  if (mergedOptions.enableAccessibility) {
+    graphHtml = addSvgAccessibleName(graphHtml, mergedOptions.title);
+  }
+
+  const tempContainer = document.createElement('div');
+  tempContainer.innerHTML = graphHtml;
+  const elements = tempContainer.querySelectorAll('a, [role="button"]');
+  elements.forEach((element, index) => {
+    if (!element.id) {
+      element.id = `enhanced-accessible-element-${index}`;
+    }
+  });
+
+  return tempContainer.innerHTML;
+};
+
 /**
- * New function to handle additional rendering logic
- * @param {Object} additionalData - Additional data for rendering
- * @returns {string} Rendered additional content HTML
- */
+* New function to handle additional rendering logic
+* @param {Object} additionalData - Additional data for rendering
+* @returns {string} Rendered additional content HTML
+*/
 function renderAdditionalContent(additionalData) {
   return '<div class="additional-content">' + (additionalData ? additionalData.content : '') + '</div>';
 }
@@ -383,7 +420,7 @@ function ensureUniqueLandmarks() {
 
   const issues = [];
   const landmarks = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
-  
+
   landmarks.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
     if (elements.length > 1) {
@@ -541,6 +578,7 @@ module.exports = {
   filterValidItems,
   renderGraphIndex,
   renderAdditionalContent,
+  enhancedRenderGraphIndex,
   addSvgAccessibleNameToElement,
   addMainLandmarkToIndex,
   fixButtonIdentifiers,

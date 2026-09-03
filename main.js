@@ -4,9 +4,6 @@ const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
 
-// Existing code preserved - all functions, exports, and utilities maintained
-// (Implementation added above)
-
 const CONFIG = {
     dataPath: './data',
     maxResults: 100
@@ -80,7 +77,6 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
-// Filter issues based on allowed rules
 function filterIssuesByRules(violations, allowedRules) {
     if (!allowedRules || allowedRules.length === 0) {
         return violations;
@@ -88,7 +84,6 @@ function filterIssuesByRules(violations, allowedRules) {
     return violations.filter(violation => allowedRules.includes(violation.id));
 }
 
-// Generate a summary of the report
 function generateReportSummary(issues) {
     const summary = {
         critical: 0,
@@ -107,16 +102,13 @@ function generateReportSummary(issues) {
     return summary;
 }
 
-// Function to write the generated report to a file
 function writeReport(report) {
     const reportFile = path.join(__dirname, 'accessibility_report.json');
     fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
 async function scanAccessibility(context, axeOptions = {}, includeIncomplete = true) {
-    // Scanning and reporting accessibility issues using axe-core ...
     try {
-        // Run axe-core accessibility analysis
         const results = await axe.run(context, {
             runOnly: {
                 type: 'tag',
@@ -154,13 +146,10 @@ async function generateAccessibilityReport(options = {}) {
         allowedRules = []
     } = options;
     
-    // Scan the page for accessibility issues using axe-core
     const scanResults = await scanAccessibility(context, axeOptions, includeIncomplete);
     
-    // Process and filter issues based on allowed rules
     const filteredIssues = filterIssuesByRules(scanResults.violations, allowedRules);
     
-    // Build the comprehensive report
     const report = {
         timestamp: new Date().toISOString(),
         summary: generateReportSummary(filteredIssues),
@@ -173,17 +162,14 @@ async function generateAccessibilityReport(options = {}) {
         }
     };
     
-    // Write the report to file
     writeReport(report);
     
     return report;
 }
 
-// Utilities
 const { validateInput, processData } = require('./utils/validators');
 const { formatResponse } = require('./utils/processor');
 
-// Additional imports from origin/main
 const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
 const { 
     improveAccessibility, 
@@ -206,31 +192,19 @@ const {
     fixUniqueLandmarks 
 } = require('./');
 
-// Application state
 let isInitialized = false;
 const appData = {};
 
-// Address accessibility issues from insight report
 function addressAccessibilityIssues() {
-    // Ensure the dependencyGraph container has a proper ARIA role
-    // ... (Existing code preserved)
-
-    // New function to add landmark roles and fix issues
     addLandmarkRoles(insightReport());
-
-    // New function for creating in-page buttons
     createInPageButtons(buttonElements, containerSelector);
-
-    // Fix unique landmarks based on insight report (REACT_025)
     fixUniqueLandmarks(insightReport());
 
-    // Utilities
     const accessibilityScanner = axe.createInstance({
         rules: {
-            'color-contrast': { enabled: false }, // Disable this rule if not needed
-            'aria-roles': { enabled: false }, // Disable this rule if not needed
-            'aria-properties': { enabled: false }, // Disable this rule if not needed
-            // Add any custom rules you want to use here
+            'color-contrast': { enabled: false },
+            'aria-roles': { enabled: false },
+            'aria-properties': { enabled: false }
         }
     });
 
@@ -240,26 +214,17 @@ function addressAccessibilityIssues() {
 
         if (results.violations.length > 0) {
             console.warn('Accessibility issues found:', results);
-
-            // You can implement custom handling for accessibility issues here
-            // For example, create an accessibility report or perform fixes automatically
-
-            // Generate an accessibility report based on scan results
             const accessibilityReport = generateAccessibilityReport(results);
-            // Save the report to a file or send it elsewhere
         }
     }
 
     return scanAccessibilityWithAxeInstance();
 }
 
-// Render dependency graph content
 function renderDependencyGraphContent(data) {
-    // Replace the existing content within the dependencyGraph div using the provided data.
     renderDependencyGraph(data);
 }
 
-// Main execution when run directly
 if (require.main === module) {
     const landmarks = loadLandmarks();
     const processed = processLandmarks(landmarks);

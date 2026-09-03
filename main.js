@@ -628,72 +628,69 @@ if (dependencyGraph) {
   }
 }
 
-  // TODO: Implement function for generating a report based on accessibility issues
-  // Replaced placeholder with full implementation using axe-core scanning and report writing
-  /**
-   * Generates a report of accessibility issues by scanning the current document
-   * using axe-core and logging the results.
-   * 
-   * @param {Object} axe - An instance of axe-core for accessibility scanning.
-   * @returns {Promise<void>}
-   */
-  async generateAccessibilityReport(axe) {
-    try {
-      // Scan the entire document for accessibility violations
-      const results = await axe.run(document, {
-        runOnly: {
-          type: 'tag',
-          values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']
-        },
-        resultTypes: ['violations', 'incomplete', 'passes']
+/**
+ * Generates a report of accessibility issues by scanning the current document
+ * using axe-core and logging the results.
+ * 
+ * @param {Object} axe - An instance of axe-core for accessibility scanning.
+ * @returns {Promise<void>}
+ */
+async function generateAccessibilityReport(axe) {
+  try {
+    // Scan the entire document for accessibility violations
+    const results = await axe.run(document, {
+      runOnly: {
+        type: 'tag',
+        values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']
+      },
+      resultTypes: ['violations', 'incomplete', 'passes']
+    });
+
+    // Construct the report content
+    const report = {
+      violations: results.violations,
+      incomplete: results.incomplete,
+      passes: results.passes,
+      timestamp: new Date().toISOString()
+    };
+
+    // Log detailed information about violations
+    console.log('=== Accessibility Report ===');
+    console.log(`Scan completed at: ${report.timestamp}`);
+
+    if (report.violations.length > 0) {
+      console.warn(`Found ${report.violations.length} accessibility violations:`);
+      report.violations.forEach((violation, index) => {
+        console.warn(`[${index + 1}] [${violation.id}] ${violation.description}`);
+        console.warn(`   Help: ${violation.help}`);
+        console.warn(`   Impact: ${violation.impact}`);
+        console.warn(`   Affected nodes:`);
+        violation.nodes.forEach(node => {
+          console.warn(`     - ${node.html}`);
+          console.warn(`       Fix: ${node.failureSummary}`);
+        });
       });
-
-      // Construct the report content
-      const report = {
-        violations: results.violations,
-        incomplete: results.incomplete,
-        passes: results.passes,
-        timestamp: new Date().toISOString()
-      };
-
-      // Log detailed information about violations
-      console.log('=== Accessibility Report ===');
-      console.log(`Scan completed at: ${report.timestamp}`);
-
-      if (report.violations.length > 0) {
-        console.warn(`Found ${report.violations.length} accessibility violations:`);
-        report.violations.forEach((violation, index) => {
-          console.warn(`[${index + 1}] [${violation.id}] ${violation.description}`);
-          console.warn(`   Help: ${violation.help}`);
-          console.warn(`   Impact: ${violation.impact}`);
-          console.warn(`   Affected nodes:`);
-          violation.nodes.forEach(node => {
-            console.warn(`     - ${node.html}`);
-            console.warn(`       Fix: ${node.failureSummary}`);
-          });
-        });
-      } else {
-        console.log('No accessibility violations found.');
-      }
-
-      if (report.incomplete.length > 0) {
-        console.info(`Found ${report.incomplete.length} incomplete items requiring manual review.`);
-        report.incomplete.forEach((item, index) => {
-          console.info(`[${index + 1}] [${item.id}] ${item.description}`);
-          console.info(`   Help: ${item.help}`);
-          item.nodes.forEach(node => {
-            console.info(`     - ${node.html}`);
-          });
-        });
-      }
-
-      console.log(`Total passed checks: ${report.passes.length}`);
-
-      return report;
-    } catch (error) {
-      console.error('Failed to generate accessibility report:', error.message);
-      throw error;
+    } else {
+      console.log('No accessibility violations found.');
     }
+
+    if (report.incomplete.length > 0) {
+      console.info(`Found ${report.incomplete.length} incomplete items requiring manual review.`);
+      report.incomplete.forEach((item, index) => {
+        console.info(`[${index + 1}] [${item.id}] ${item.description}`);
+        console.info(`   Help: ${item.help}`);
+        item.nodes.forEach(node => {
+          console.info(`     - ${node.html}`);
+        });
+      });
+    }
+
+    console.log(`Total passed checks: ${report.passes.length}`);
+
+    return report;
+  } catch (error) {
+    console.error('Failed to generate accessibility report:', error.message);
+    throw error;
   }
 }
 
@@ -841,6 +838,7 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   initializeAccessibility,
+  generateAccessibilityReport,
   renderIndex: function() { return renderGraphIndex.apply(this, arguments); },
   renderAdditionalContent
 };

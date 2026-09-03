@@ -1,3 +1,34 @@
+// TODO: Update the existing function using the new functions for rendering graph/index
+// ADDED: Created renderGraphAndIndex function that uses the new renderDependencyGraph and renderIndexView functions
+function renderGraphAndIndex(graphNode, indexPath, graphContainer, indexContainer, options = {}) {
+  // Render the dependency graph using the new renderDependencyGraph function
+  const graphResult = renderDependencyGraph(graphNode, graphContainer, {
+    ...options.graphOptions,
+    width: options.graphWidth || '100%',
+    height: options.graphHeight || '400'
+  });
+  
+  // Render the index view using the new renderIndexView function
+  const indexResult = renderIndexView(indexPath, indexContainer, {
+    baseUrl: options.baseUrl || '',
+    separator: options.separator || '/',
+    ariaLabel: options.breadcrumbAriaLabel || 'Breadcrumb',
+    listClassName: options.breadcrumbListClassName || 'breadcrumb',
+    ...options.indexOptions
+  });
+  
+  // Return combined results
+  return {
+    success: graphResult.success && indexResult.success,
+    graph: graphResult,
+    index: indexResult,
+    errors: [
+      ...(graphResult.errors || []),
+      ...(indexResult.errors || [])
+    ]
+  };
+}
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -803,5 +834,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
+  renderGraphAndIndex,
   towerDefense
 };

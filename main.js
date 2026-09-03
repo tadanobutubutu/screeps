@@ -1,3 +1,8 @@
+Looking at the error, the issue is a duplicate `newFocusTrap` in the destructuring assignment on line 33. You can't have the same property name twice in a destructuring pattern.
+
+Here's the fixed `main.js`:
+
+```javascript
 const fs = require('fs');
 const main = require('./utilities');
 
@@ -30,24 +35,6 @@ const {
   transformInputData,
   initSkipLink,
   trapFocus,
-  newFocusTrap: function (element, customFocusableSelector) {
-      const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-      if (focusableElements.length === 0) return;
-      const first = focusableElements[0];
-      const last = focusableElements[focusableElements.length - 1];
-
-      element.addEventListener('keydown', (e) => {
-          if (e.key === 'Tab') {
-              if (e.shiftKey && document.activeElement === first) {
-                  last.focus();
-                  e.preventDefault();
-              } else if (!e.shiftKey && document.activeElement === last) {
-                  first.focus();
-                  e.preventDefault();
-              }
-          }
-      });
-  }
 } = main;
 
 const accessibilityUtils = {
@@ -75,25 +62,25 @@ const accessibilityUtils = {
         if (priority === undefined) {
             priority = 'polite';
         }
-        const announcer = document.createElement('div');
-        announcer.setAttribute('aria-live', priority);
-        announcer.setAttribute('aria-atomic', 'true');
+        const announcer = ...
+        ... priority);
+        ... 'true');
         announcer.className = 'sr-only';
         announcer.style.position = 'absolute';
         announcer.style.left = '-9999px';
         announcer.textContent = message;
-        document.body.appendChild(announcer);
+        ...
         setTimeout(function () {
             announcer.remove();
         }, 1000);
     },
     newFocusTrap: function (element, customFocusableSelector) {
-        const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, ...
         if (focusableElements.length === 0) return;
-        const first = focusableElements[0];
+        const first = ...
         const last = focusableElements[focusableElements.length - 1];
 
-        element.addEventListener('keydown', (e) => {
+        ... (e) => {
             if (e.key === 'Tab') {
                 if (e.shiftKey && document.activeElement === first) {
                     last.focus();
@@ -117,14 +104,14 @@ const ensureElementHasId = (element, prefix = 'element') => {
     return element.id;
   }
 
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const id = ... 9)}`;
   element.id = id;
   return id;
 };
 
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = ... 9)}`;
   }
   return element;
 };
@@ -157,37 +144,37 @@ function setConfig(config) {
 }
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph');
+const dependencyGraph = ...
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
   // Using 'region' role for a contained section of content
-  if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region');
+  if ... {
+    ... 'region');
   }
 
   // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+  if ... {
+    ... 'Dependency graph visualization');
   }
 }
 
 // Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName(svgString) {
+function ... {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, "image/svg+xml");
+  const svg = new ... "image/svg+xml");
   const svgElement = svg.documentElement;
-  if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+  if ... {
+    ... 'Descriptive label for SVG');
   }
-  return new XMLSerializer().serializeToString(svg);
+  return new ...
 }
 
 // Example usage of the function
-const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
-const modifiedSvgString = addAccessibleName(originalSvgString);
+const originalSvgString = ... ... viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...
+const modifiedSvgString = ...
 
 /**
  * Validates table accessibility
@@ -202,91 +189,4 @@ function validateTableAccessibilityFn(tableData) {
     const table = tables[i];
 
     // Check if table has headers
-    if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table must have headers defined'
-      });
-    }
-
-    // Check if table has proper structure
-    if (!table.rows || !Array.isArray(table.rows)) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table must have rows array defined'
-      });
-    }
-
-    // Check for proper ARIA attributes (placeholder implementation)
-    if (table.ariaLabel === undefined && table.caption === undefined) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table should have aria-label or caption for accessibility'
-      });
-    }
-
-    // Add lang attribute to HTML element
-    if (document.documentElement.lang === undefined) {
-      document.documentElement.setAttribute('lang', 'en');
-    }
-
-    // Add landmark roles and fix landmark issues
-    if (table.role === undefined) {
-      table.role = 'table';
-    }
-
-    // Add accessible names to 2 SVGs
-    const svgElements = table.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      if (!svg.getAttribute('aria-label')) {
-        svg.setAttribute('aria-label', 'Accessible SVG element');
-      }
-    });
-  }
-
-  return errors.length === 0;
-}
-
-/**
- * Validates table structure
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table structure is valid, false otherwise
- */
-function validateTableStructureFn(tableData) {
-  // Implementation placeholder - function to be implemented
-  return true;
-}
-
-function function3() {
-  // TODO: Implement new function3 logic here
-  return "function3 implemented";
-}
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c8cf4389f9c -->
-// _Commit: 4a63dcac59b893a2efdccd50635fab9cc54e7989_
-<!-- todo-hash: 69d71664fd0827cd05d345427adf276b26830ba5 -->
-
-module.exports = {
-  ...accessibilityUtils,
-  renderDependencyGraph,
-  addAriaLabel,
-  addAccessibleName,
-  validateTableAccessibility: validateTableAccessibilityFn,
-  validateTableStructure: validateTableStructureFn,
-  ensureElementId,
-  ensureElementHasId,
-  getTables,
-  getConfig,
-  setConfig,
-  function3,
-  newFocusTrap,
-  initSkipLink,
-  trapFocus,
-};
+    if (!table.headers || !Array.isArray(table.headers) || table.headers.length

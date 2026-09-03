@@ -491,6 +491,55 @@ function towerDefenseGame(levelData) {
     // Actual implementation would go here
 }
 
+// TODO: Implement upgrade logic
+function upgrade(currentVersion, previousVersion) {
+    if (!previousVersion) {
+        console.log('First installation, no upgrade needed');
+        return true;
+    }
+
+    const currentParts = currentVersion.split('.').map(Number);
+    const previousParts = previousVersion.split('.').map(Number);
+
+    for (let i = 0; i < Math.max(currentParts.length, previousParts.length); i++) {
+        const currentPart = currentParts[i] || 0;
+        const previousPart = previousParts[i] || 0;
+
+        if (currentPart > previousPart) {
+            console.log(`Upgrading from version ${previousVersion} to ${currentVersion}`);
+            performUpgradeTasks(previousVersion, currentVersion);
+            return true;
+        } else if (currentPart < previousPart) {
+            console.warn(`Downgrade detected from ${previousVersion} to ${currentVersion}`);
+            return false;
+        }
+    }
+
+    console.log('Version unchanged, no upgrade needed');
+    return true;
+}
+
+function performUpgradeTasks(fromVersion, toVersion) {
+    // Clear old cached data
+    if (typeof localStorage !== 'undefined') {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('legacy_')) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+    }
+
+    // Update stored version
+    if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('app_version', toVersion);
+    }
+
+    console.log(`Upgrade tasks completed: ${fromVersion} -> ${toVersion}`);
+}
+
 // Preserve any existing exports here
 export { createInPageButton, validateLandmarkStructure, renderGraphIndex, renderDependencyGraph };
 

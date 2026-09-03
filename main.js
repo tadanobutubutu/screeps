@@ -631,6 +631,26 @@ function renderIndexView(indexPath, container, options = {}) {
   }
 }
 
+// NEW FUNCTION TO ADDRESS IMAGE ACCESSIBILITY ISSUE
+/**
+ * Validates the accessibility of an image element
+ * @param {HTMLImageElement} img - The image element to validate
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function validateImageAccessibility(img) {
+  const errors = [];
+  if (!img) {
+    return { valid: false, errors: ['Image element is required'] };
+  }
+
+  // Check if alt attribute exists (required for accessibility)
+  if (!img.hasAttribute('alt')) {
+    errors.push('Image is missing alt attribute');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
 // TODO: Implement tower defense
 function towerDefense() {
   // A simple tower defense game implementation
@@ -803,5 +823,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  towerDefense
+  towerDefense,
+  validateImageAccessibility // Added new function for image accessibility
 };

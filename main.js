@@ -1,6 +1,3 @@
-// TODO: This is the modified and merged code
-// (This comment remains as-is)
-
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 
@@ -254,7 +251,7 @@ export function addLandmarkRegions(container) {
       element.setAttribute('role', landmark.role);
       container.appendChild(element);
     }
-    
+
     if (!element.getAttribute('aria-label') && !element.getAttribute('role')) {
       element.setAttribute('aria-label', landmark.label);
     }
@@ -268,9 +265,9 @@ export function addLandmarkRegions(container) {
  */
 export function ensureUniqueLandmarks(container) {
   if (!container) return null;
-  
+
   const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  
+
   landmarks.forEach(role => {
     const elements = container.querySelectorAll(`[role="${role}"]`);
     elements.forEach((el, index) => {
@@ -280,7 +277,7 @@ export function ensureUniqueLandmarks(container) {
       }
     });
   });
-  
+
   return container;
 }
 
@@ -289,9 +286,9 @@ export function ensureUniqueLandmarks(container) {
  */
 export function uniqueLandmarksHelper(container) {
   if (!container) return;
-  
+
   const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  
+
   landmarks.forEach(role => {
     const elements = container.querySelectorAll(`[role="${role}"]`);
     elements.forEach((el, index) => {

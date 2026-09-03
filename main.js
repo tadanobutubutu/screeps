@@ -36,6 +36,51 @@ async function generateAccessibilityReport(issuesData) {
   return report;
 }
 
+async function scanAccessibility() {
+  // Run axe-core scan on the current document
+  const results = await axe.run(document, {
+    runOnly: {
+      type: 'tag',
+      values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'],
+    },
+  });
+
+  // Process violations into a structured format
+  const issues = results.violations.map((violation) => ({
+    id: violation.id,
+    impact: violation.impact,
+    description: violation.description,
+    help: violation.help,
+    helpUrl: violation.helpUrl,
+    nodes: violation.nodes.map((node) => ({
+      target: node.target,
+      html: node.html,
+      failureSummary: node.failureSummary,
+    })),
+  }));
+
+  return {
+    violations: issues,
+    passes: results.passes.length,
+    incomplete: results.incomplete.length,
+    inapplicable: results.inapplicable.length,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+function writeReport(report, outputPath) {
+  // Determine the output file path
+  const reportPath = outputPath || path.join(process.cwd(), 'accessibility-report.json');
+
+  // Serialize the report to JSON with indentation
+  const reportContent = JSON.stringify(report, null, 2);
+
+  // Write the report to disk
+  fs.writeFileSync(reportPath, reportContent, 'utf8');
+
+  return reportPath;
+}
+
 async function renderFunction1() {
   // ... (existing code for renderFunction1)
 }
@@ -161,6 +206,8 @@ module.exports = {
   createInPageButtons,
   fixUniqueLandmarks,
   generateAccessibilityReport,
+  scanAccessibility,
+  writeReport,
   config: CONFIG,
   appState,
   validateTableAccessibility,
@@ -200,8 +247,6 @@ module.exports = {
   getLangAttribute,
   addLangAttribute,
   improveAccessibility,
-  scanAccessibility,
-  writeReport,
   renderDependencyGraph,
   checkLandmarkElement,
   landmarkStructureCheck,

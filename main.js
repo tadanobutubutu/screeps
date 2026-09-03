@@ -1,6 +1,7 @@
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
+// TODO: This is the existing code that needs to be preserved
 const express = require('express');
 const { exec } = require('child_process');
 
@@ -55,7 +56,7 @@ function ensureUniqueLandmarks() {
   return true; // Set the default value to true
 }
 
-function getSvgAccessibleName(svgElement, name) {
+function setSVGAccessibleName(svgElement, name) {
   // Your implementation for setting the SVG accessible name
   return svgElement;
 }
@@ -180,7 +181,7 @@ function validateLandmark(element) {
 // Add language attribute to HTML element
 function addLangAttribute(lang) {
   if (document && document.documentElement) {
-    document.documentElement.setAttribute('lang', lang);
+    document.documentElement.lang = lang;
   }
 }
 
@@ -189,7 +190,7 @@ function renderDependencyGraphContent() {
   if (typeof document === 'undefined') {
     return;
   }
-  const container = document.getElementById('dependencyGraph');
+  const container = document.getElementById('container');
   if (!container) {
     return;
   }
@@ -204,9 +205,9 @@ function renderDependencyGraphContent() {
 }
 
 // REACT_036: Fix fake link issue
-function fixFakeLinkIssue(document) {
+function fixFakeLinks() {
   // Find elements that look like links but aren't <a> tags
-  const clickableElements = document.querySelectorAll('[role="link"]:not(a), [onclick]');
+  const clickableElements = document.querySelectorAll('[onclick]');
   let count = 0;
 
   clickableElements.forEach(element => {
@@ -216,9 +217,9 @@ function fixFakeLinkIssue(document) {
     if (tagName !== 'a' && !hasHref) {
       // Check if it should be a real link
       const isInteractive = element.getAttribute('role') === 'link' ||
-                             (element.hasAttribute('onclick') && element.onclick.toString().includes('window.location'));
+                             element.onclick !== null;
 
-      if (isInteractive && !element.hasAttribute('aria-label')) {
+      if (isInteractive) {
         // Add accessible name
         const text = element.textContent.trim();
         if (text) {
@@ -227,3 +228,6 @@ function fixFakeLinkIssue(document) {
       }
       count++;
     }
+  });
+  return count;
+}

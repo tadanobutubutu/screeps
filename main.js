@@ -26,4 +26,6 @@ class ScreetsBot {
 module.exports = {
   // ... (The existing exports remain the same)
   createInPageButtons,
+  renderDependencyGraph,
+  ScreetsBot
 };

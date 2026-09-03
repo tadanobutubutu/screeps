@@ -1,5 +1,4 @@
 // TODO: Add any other missing exports that might have been?
-const config = {};
 
 // Application state
 let isInitialized = false;
@@ -15,35 +14,26 @@ const appData = {};
 // Import the required module
 const { axe } = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
 
 // Import other functions
 const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, implementNewFunction, addLangAttribute, main, someFunction, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport } = require('./');
 
 // Import helper functions from utils
-const { validateInput, processData, formatResponse } = require('./utils/validators');
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
+const { validateInput, processData, formatResponse } = require('./utils');
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and addProperLandmarkRegions())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-// - REACT_001: Implement function to handle new accessibility issues (addProperLandmarkRegions)
+// - REACT_001: Implement function to handle new accessibility issues ...
 
 // Configuration
 const config = CONFIG;
-
-// Application state
-let isInitialized = false;
-const appData = {};
-
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
 
 /**
  * Gets the lang attribute for the HTML element
@@ -142,7 +132,7 @@ function isValidLandmark(landmark) {
 
 function loadLandmarks() {
     try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -163,7 +153,7 @@ function processLandmarks(landmarks) {
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return landmarks.sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -174,7 +164,7 @@ function sortLandmarks(landmarks, ascending = true) {
     });
 }
 
-function getLandmarkById(landmarks, id) {
+function findLandmarkById(landmarks, id) {
     return landmarks.find(landmark => landmark.id === id) || null;
 }
 
@@ -204,7 +194,7 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  const reportFile = path.join(CONFIG.outputPath, 'accessibility-report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
@@ -214,7 +204,7 @@ function writeReport(report) {
  */
 function createAccessibleLinks() {
   const skipLink = createInPageButton('main-content', 'Skip to main content');
-  document.body.insertBefore(skipLink, document.body.firstChild);
+  const inPageNav = createInPageButton('navigation', 'Skip to navigation');
 
   const links = document.querySelectorAll('a');
   links.forEach(link => {
@@ -232,8 +222,7 @@ function createAccessibleLinks() {
 function addressAccessibilityIssues() {
   try {
     fixTableAccessibility();
-    fixLandmarkIssues();
-    addSvgAccessibility();
+    addMainLandmark();
     createAccessibleLinks();
 
     return {
@@ -242,3 +231,42 @@ function addressAccessibilityIssues() {
       fixesApplied: [
         'table_accessibility',
         'landmark_issues',
+        'link_accessibility'
+      ]
+    };
+  } catch (error) {
+    console.error('Error addressing accessibility issues:', error);
+    return {
+      success: false,
+      message: 'Failed to address accessibility issues',
+      error: error.message
+    };
+  }
+}
+
+module.exports = {
+  config,
+  isInitialized,
+  appData,
+  getLangAttribute,
+  addLangAttribute,
+  logCurrentURL,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  findLandmarkById,
+  ensureUniqueLandmarks,
+  writeReport,
+  createAccessibleLinks,
+  addressAccessibilityIssues
+};

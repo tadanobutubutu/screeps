@@ -21,7 +21,6 @@ const axe = require('axe-core');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { a11y } = require('@accessible/react');
 
 // Configuration
 const CONFIG = {
@@ -114,7 +113,10 @@ function checkLinkAccessibility(linkUrl) {
 
 // Placeholder functions for accessibility utilities
 function getLangAttribute() {
-  return document.documentElement.lang;
+  if (typeof document !== 'undefined') {
+    return document.documentElement.lang;
+  }
+  return 'en';
 }
 
 function validateTableAccessibility() {
@@ -141,8 +143,34 @@ function getSvgAccessibleName() {
   return [];
 }
 
-function validateLinkAccessibility() {
-  return [];
+function validateLinkAccessibility(link) {
+  if (!link || typeof link !== 'object') {
+    return [];
+  }
+
+  const issues = [];
+
+  // Check if link has href and is not empty
+  if (!link.href || link.href.trim() === '') {
+    issues.push({
+      type: 'REACT_036',
+      description: 'Link is missing href attribute',
+      severity: 'medium',
+      element: link
+    });
+  }
+
+  // Check if link has accessible name
+  if (!link.textContent || link.textContent.trim() === '') {
+    issues.push({
+      type: 'REACT_036',
+      description: 'Link is missing accessible name',
+      severity: 'medium',
+      element: link
+    });
+  }
+
+  return issues;
 }
 
 function analyzeAccessibility(issuesData) {
@@ -167,30 +195,36 @@ function fixFakeLink() {
 
 // Function to set language attribute on the document
 function setLanguageAttribute() {
-  document.documentElement.lang = 'en';
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = 'en';
+  }
 }
 
 // Function to add landmark roles to main containers
 function addLandmarkRoles() {
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.getAttribute('role')) {
-    mainElement.setAttribute('role', 'main');
-  }
+  if (typeof document !== 'undefined') {
+    const mainElement = document.querySelector('main');
+    if (mainElement && !mainElement.getAttribute('role')) {
+      mainElement.setAttribute('role', 'main');
+    }
 
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
+    const navElement = document.querySelector('nav');
+    if (navElement && !navElement.getAttribute('role')) {
+      navElement.setAttribute('role', 'navigation');
+    }
   }
 }
 
 // Function to fix fake links (links without href)
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
-  fakeLinks.forEach(link => {
-    if (!link.getAttribute('role')) {
-      link.setAttribute('role', 'button');
-    }
-  });
+  if (typeof document !== 'undefined') {
+    const fakeLinks = document.querySelectorAll('a:not([href])');
+    fakeLinks.forEach(link => {
+      if (!link.getAttribute('role')) {
+        link.setAttribute('role', 'button');
+      }
+    });
+  }
 }
 
 // New function to wrap primary content in main element for accessibility
@@ -200,7 +234,7 @@ function wrapPrimaryContentInMain(parent) {
   }
 
   // If already a main element, return as-is
-  if (parent.tagName?.toLowerCase() === 'main') {
+  if (parent.tagName && parent.tagName.toLowerCase() === 'main') {
     return parent;
   }
 
@@ -210,32 +244,15 @@ function wrapPrimaryContentInMain(parent) {
   return mainElement;
 }
 
-// New function to validate link accessibility
-function validateLinkAccessibility(link) {
-  if (!link || typeof link !== 'object') {
-    return false;
-  }
-
-  // Check if link has href and is not empty
-  if (!link.href || link.href.trim() === '') {
-    return false;
-  }
-
-  // Check if link has accessible name
-  if (!link.textContent || link.textContent.trim() === '') {
-    return false;
-  }
-
-  return true;
-}
-
 // New function to handle fake links
 function handleFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a[role="button"], a[href="#"]');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.removeAttribute('href');
-  });
+  if (typeof document !== 'undefined') {
+    const fakeLinks = document.querySelectorAll('a[role="button"], a[href="#"]');
+    fakeLinks.forEach(link => {
+      link.setAttribute('role', 'button');
+      link.removeAttribute('href');
+    });
+  }
 }
 
 // Helper function
@@ -247,7 +264,7 @@ function initialize() {
   const processed = processLandmarks(landmarks);
   
   // Ensure the dependencyGraph container has a proper ARIA role
-  if (dependencyGraph) {
+  if (typeof dependencyGraph !== 'undefined' && dependencyGraph) {
     if (!dependencyGraph.id) {
       dependencyGraph.id = 'dependencyGraph';
     }
@@ -267,21 +284,23 @@ const initializeApp = () => {
   console.log('Application initialized');
 
   // Ensure the app is accessible
-  const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
-  if (mainContent) {
-    mainContent.setAttribute('aria-label', 'Main content area');
-  }
-
-  // Set up keyboard navigation
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Tab') {
-      document.body.classList.add('keyboard-nav');
+  if (typeof document !== 'undefined') {
+    const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
+    if (mainContent) {
+      mainContent.setAttribute('aria-label', 'Main content area');
     }
-  });
 
-  document.addEventListener('mousedown', () => {
-    document.body.classList.remove('keyboard-nav');
-  });
+    // Set up keyboard navigation
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Tab') {
+        document.body.classList.add('keyboard-nav');
+      }
+    });
+
+    document.addEventListener('mousedown', () => {
+      document.body.classList.remove('keyboard-nav');
+    });
+  }
 
   // Call accessibility helper functions
   setLanguageAttribute();
@@ -298,15 +317,12 @@ const initializeApp = () => {
   setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
 
   // Ensure unique landmarks (2 issues)
-  ensureUniqueLandmarks();
+  ensureUniqueLandmarks([]);
 
   // Fix 1 fake link issue
   fixFakeLink();
 
-  // Initialize accessibility features from a11y utilities
-  if (a11y && a11y.init) {
-    a11y.init();
-  }
+  return true;
 };
 
 // Accessibility scanning function using axe-core library
@@ -329,22 +345,28 @@ async function scanAccessibility(filePaths) {
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
     tableAccessibilityIssues.forEach(function(issue) {
       issues.push({
-        file: filePaths[0] || 'unknown',
+        file: (filePaths && filePaths[0]) || 'unknown',
         issues: [issue],
       });
     });
   }
 
   // Use axe.analyze for additional scanning
-  for (const filePath of filePaths) {
-    const fileEmitted = path.join(process.cwd(), filePath);
-    const { violations } = await axe.analyze(fileEmitted);
+  if (filePaths && Array.isArray(filePaths)) {
+    for (const filePath of filePaths) {
+      try {
+        const fileEmitted = path.join(process.cwd(), filePath);
+        const { violations } = await axe.analyze(fileEmitted);
 
-    if (violations.length > 0) {
-      issues.push({
-        file: filePath,
-        issues: violations,
-      });
+        if (violations.length > 0) {
+          issues.push({
+            file: filePath,
+            issues: violations,
+          });
+        }
+      } catch (error) {
+        console.error('Error analyzing file:', filePath, error.message);
+      }
     }
   }
 
@@ -421,7 +443,7 @@ async function scanAccessibility(filePaths) {
   }
 
   // Check for unique landmarks
-  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  const uniqueLandmarkIssues = ensureUniqueLandmarks([]);
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
     uniqueLandmarkIssues.forEach(function(issue) {
       issues.push({
@@ -435,7 +457,7 @@ async function scanAccessibility(filePaths) {
   }
 
   // Check link accessibility
-  const linkIssues = validateLinkAccessibility();
+  const linkIssues = validateLinkAccessibility({});
   if (linkIssues && linkIssues.length > 0) {
     linkIssues.forEach(function(issue) {
       issues.push({
@@ -499,14 +521,6 @@ function writeReport(report) {
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
 // Existing utility function
 const formatResponse = (data) => {
   return JSON.stringify(data, null, 2);
@@ -518,10 +532,6 @@ const { processData } = require('./utils/processor');
 
 // Application main entry point
 const app = express();
-
-// TODO: add the new functions or changes requested in the issue
-// Here is the implementation for checking link accessibility
-// The existing isLinkAccessible function implementation
 
 // Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {

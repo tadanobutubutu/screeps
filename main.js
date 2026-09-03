@@ -10,6 +10,9 @@
     //_Commit: 0cc7acc93dade1532e36e2e26adc7bd895ef60df_
     //<!-- todo-hash: 398424c02b2e0a493981d83f7e0c15b42542e233 -->
 
+    // TODO: This is the existing code that needs to be preserved
+    // ----- END ORIGINAL CODE -----
+    
     // DOM Elements
     const dependencyGraph = document.getElementById('dependencyGraph');
 

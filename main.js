@@ -1,3 +1,4 @@
+// TODO: Add back any required exports that might have been?
 const express = require('express');
 const { exec } = require('child_process');
 const fs = require('fs');
@@ -13,7 +14,7 @@ const AddressabilityIssues = {
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
 
-  addressAccessibilityIssues(insightReport) {
+  analyzeAccessibility(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }
@@ -36,17 +37,17 @@ const AddressabilityIssues = {
         issues.push({
           type: 'empty-content',
           severity: 'medium',
-          message: `Section "${section.heading}" has no content`,
+          message: `Section ${index} has no content`,
           suggestedFix: 'Add meaningful content to the section'
         });
       }
 
       // Check for potentially inaccessible link text
-      if (section.content && section.content.toLowerCase().includes('click here')) {
+      if (section.content && section.content.includes('click here')) {
         issues.push({
           type: 'inaccessible-link-text',
           severity: 'low',
-          message: `Section "${section.heading}" contains "click here" text which is not accessible`,
+          message: `Section ${index} contains "click here" text which is not accessible`,
           suggestedFix: 'Use descriptive link text instead of "click here"'
         });
       }
@@ -103,7 +104,7 @@ const AddressabilityIssues = {
     };
 
     const isLandmark = landmarkRoles.includes(role) ||
-                       (tagName && implicitLandmarks[tagName]);
+                       (tagName && implicitLandmarks[tagName] === role);
 
     return {
       valid: isLandmark,
@@ -113,11 +114,11 @@ const AddressabilityIssues = {
   },
 
   spawnSomeCommand(command) {
-    const childProcess = require('child_process');
-    return childProcess.spawn(command, [], {
+    const childProcess = exec(command, [], {
       stdio: 'inherit',
       shell: true
     });
+    return childProcess;
   },
 
   addLangAttribute(element, lang) {
@@ -125,7 +126,7 @@ const AddressabilityIssues = {
       element.setAttribute('lang', lang);
     } else {
       const html = document.documentElement;
-      if (!html.hasAttribute('lang')) {
+      if (html) {
         html.setAttribute('lang', 'en');
       }
     }
@@ -133,22 +134,22 @@ const AddressabilityIssues = {
 
   countDependencies() {
     const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-    const dependencies = JSON.parse(packageJsonPath).dependencies || {};
-    const devDependencies = JSON.parse(packageJsonPath).devDependencies || {};
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
 
     return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
+      dependencies: Object.keys(dependencies),
+      devDependencies: Object.keys(devDependencies),
       total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
   },
 
   fixMainLandmarkIssues(source) {
-    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+    const mainBlockRegex = /<main>[\s\S]*?<\/main>/g;
 
-    const matches = Array.from(source.matchAll(mainBlockRegex));
+    const matches = source.match(mainBlockRegex);
     if (matches.length <= 1) {
       return source;
     }
@@ -166,7 +167,7 @@ const AddressabilityIssues = {
   },
 
   fixSemanticMarkup(source) {
-    const mainBlockRegex = /<main[^>]*>[\s\S]*?<\/main>/gi;
+    const mainBlockRegex = /<main>[\s\S]*?<\/main>/g;
 
     const matches = source.match(mainBlockRegex);
     if (!matches || matches.length <= 1) {
@@ -186,7 +187,7 @@ const AddressabilityIssues = {
   },
 
   validateLandmarkStructure() {
-    const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
+    const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
 
     landmarks.forEach(landmark => {
@@ -200,7 +201,7 @@ const AddressabilityIssues = {
         footer: 'contentinfo'
       };
 
-      if (!landmark.hasAttribute('role')) {
+      if (!role) {
         const implicitLandmark = implicitRole[tagName];
         if (implicitLandmark) {
           landmark.setAttribute('role', implicitLandmark);
@@ -210,25 +211,38 @@ const AddressabilityIssues = {
   }
 };
 
+function initializeAccessibility() {
+  if (typeof document === 'undefined') return;
+  // Initialize accessibility features
+}
+
+function addBook(bookData) {
+  // ... Existing code ...
+  return bookData;
+}
+
+function createServer() {
+  // ... Existing code ...
+  return null;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     AddressabilityIssues,
+    addBook,
+    createServer,
     fixMainLandmarkIssues,
     fixSemanticMarkup,
+    initializeAccessibility,
     validateLandmarkStructure
   };
 } else {
   // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
+  if (typeof document !== 'undefined' && document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeAccessibility);
   } else {
     initializeAccessibility();
   }
-}
-
-function initializeAccessibility() {
-  if (!document.querySelectorAll) return;
-  addressAccessibilityIssues(sampleInsightReport);
 }
 
 const sampleInsightReport = {
@@ -246,15 +260,6 @@ const sampleInsightReport = {
 };
 
 // Additional utility functions from origin/main
-function addBook(bookData) {
-  // ... Existing code ...
-  return bookData;
-}
-
-function createServer() {
-  // ... Existing code ...
-  return null;
-}
-
-function generateAccessibilityReport() {
+function someOtherFunction() {
   // Placeholder implementation
+}

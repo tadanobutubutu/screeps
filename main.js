@@ -6,6 +6,8 @@ const { exec } = require('child_process');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// TODO: This is the existing code that needs to be preserve
+
 app.use(express.json());
 
 const config = {
@@ -199,6 +201,10 @@ const AddressabilityIssues = {
     return result;
   },
 
+  validateLandmark(element) {
+    return AddressabilityIssues.validateLandmark(element);
+  },
+
   validateLandmarkStructure() {
     if (typeof document === 'undefined') return true;
     const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
@@ -244,6 +250,44 @@ const AddressabilityIssues = {
     return uniqueElements;
   }
 };
+
+// TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const seen = new Map();
+  const result = [];
+
+  landmarks.forEach(landmark => {
+    if (!landmark) return;
+
+    // Ensure the landmark has an id
+    if (!landmark.id) {
+      landmark.id = `landmark-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // Check for duplicate ids
+    if (!seen.has(landmark.id)) {
+      seen.set(landmark.id, 1);
+      result.push(landmark);
+    } else {
+      // Make the id unique by appending a suffix
+      let counter = seen.get(landmark.id);
+      let uniqueId = `${landmark.id}-${counter}`;
+      while (seen.has(uniqueId)) {
+        counter++;
+        uniqueId = `${landmark.id}-${counter}`;
+      }
+      landmark.id = uniqueId;
+      seen.set(uniqueId, 1);
+      result.push(landmark);
+    }
+  });
+
+  return result;
+}
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -327,14 +371,13 @@ function init() {
   setupAriaLiveRegions();
   enhanceSemanticMarkup();
   setupFocusManagement();
-  setupKeyboardNavigation();
   addressInsightIssues();
   enforceAccessibility();
 }
 
 function addressInsightIssues() {
-  getLandmarkElements();
-  AddressabilityIssues.ensureLandmarkUniqueness(landmarks);
+  const landmarks = getLandmarkElements();
+  ensureUniqueLandmarks(landmarks);
   validateTableAccessibility();
   checkTableStructure();
 
@@ -779,6 +822,7 @@ module.exports = {
   addressAccessibilityIssues,
   addLangAttribute,
   getLangAttribute,
+  ensureUniqueLandmarks,
   setupKeyboardNavigation,
   handleKeyNavigation,
   trapFocus,

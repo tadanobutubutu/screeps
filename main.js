@@ -250,4 +250,9 @@ export function fixTableStructure(tableElement) {
     if (!th.hasAttribute('scope')) {
       const row = th.closest('tr')
       const cellIndex = Array.from(row.children).indexOf(th)
-      th.setAttribute('scope',
+      th.setAttribute('scope', 'row')
+    }
+  })
+}
+
+// ... (rest of the existing code from main.js)

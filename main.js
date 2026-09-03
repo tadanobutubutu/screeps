@@ -113,7 +113,191 @@ function addSvgAccessibleNames() {
   });
 }
 
-const checkTableStructure = function() {
+// New functions to address accessibility issues from the TODO comment
+
+/**
+ * Get language attribute from HTML element
+ * @returns {string} The lang attribute value
+ */
+function getLangAttribute() {
+  return document.documentElement.getAttribute('lang') || 'en';
+}
+
+/**
+ * Get full language attribute (language + region/script)
+ * @returns {string} The full lang attribute value
+ */
+function getFullLangAttribute() {
+  const lang = getLangAttribute();
+  return lang.includes('-') ? lang : `${lang}-.UTF-8`;
+}
+
+/**
+ * Validate table accessibility
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation results
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+  
+  if (!table.hasAttribute('role')) {
+    issues.push('Table missing role="table"');
+  }
+  
+  if (!table.querySelector('caption') && !table.querySelector('thead')) {
+    issues.push('Table missing caption or header');
+  }
+  
+  const allHeaders = table.querySelectorAll('th, th[scope]');
+  if (allHeaders.length === 0) {
+    issues.push('Table missing header cells');
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validate table structure
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Structure validation results
+ */
+function validateTableStructure(table) {
+  const structureIssues = [];
+  
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) {
+    structureIssues.push('Table has no rows');
+  }
+  
+  const headers = table.querySelectorAll('th');
+  const cells = table.querySelectorAll('td');
+  
+  // Check if header row exists
+  if (headers.length === 0) {
+    // Try to identify header row by structure
+    const firstRow = rows[0];
+    if (firstRow) {
+      const thCells = firstRow.querySelectorAll('th');
+      if (thCells.length === 0) {
+        structureIssues.push('No header row found');
+      }
+    }
+  }
+  
+  return {
+    isValid: structureIssues.length === 0,
+    issues: structureIssues
+  };
+}
+
+/**
+ * Validate landmark structure
+ * @param {Element} landmark - The landmark element to validate
+ * @returns {Object} Landmark structure validation results
+ */
+function validateLandmarkStructure(landmark) {
+  const issues = [];
+  
+  const role = landmark.getAttribute('role');
+  if (!role) {
+    issues.push('Landmark missing role attribute');
+  }
+  
+  const validRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'region', 'search', 'form'];
+  if (role && !validRoles.includes(role)) {
+    issues.push(`Invalid landmark role: ${role}`);
+  }
+  
+  const accessibleName = landmark.getAttribute('aria-label') || 
+                         landmark.getAttribute('aria-labelledby');
+  if (!accessibleName && !['banner', 'contentinfo'].includes(role)) {
+    issues.push(`Landmark '${role}' missing accessible name`);
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Create an in-page button for accessibility
+ * @param {string} id - The button ID
+ * @param {string} text - The button text
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(id, text) {
+  const button = document.createElement('button');
+  button.id = id;
+  button.textContent = text;
+  button.setAttribute('type', 'button');
+  button.className = 'in-page-button';
+  return button;
+}
+
+/**
+ * Create an accessible link
+ * @param {string} href - The link href
+ * @param {string} text - The link text
+ * @param {string} ariaLabel - Optional aria-label for the link
+ * @returns {HTMLAnchorElement} The created link element
+ */
+function createAccessibleLink(href, text, ariaLabel = null) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  
+  if (ariaLabel) {
+    link.setAttribute('aria-label', ariaLabel);
+  } else if (!text && !ariaLabel) {
+    link.setAttribute('aria-label', 'Link');
+  }
+  
+  return link;
+}
+
+/**
+ * Handle accessibility issues
+ * @param {Array} issues - Array of accessibility issues to handle
+ */
+function handleAccessibilityIssues(issues) {
+  if (!Array.isArray(issues)) return;
+  
+  issues.forEach(issue => {
+    console.log(`Handling accessibility issue: ${issue.type} - ${issue.description}`);
+    
+    switch(issue.type) {
+      case 'fake-link':
+        handleFakeLink(issue.element);
+        break;
+      case 'missing-alt':
+        addAltText(issue.element, issue.text);
+        break;
+      case 'missing-aria':
+        addAriaAttribute(issue.element, issue.attribute, issue.value);
+        break;
+    }
+  });
+}
+
+/**
+ * Add proper landmark regions
+ * @param {string} selector - CSS selector for regions to convert
+ * @param {string} role - ARIA role to apply
+ */
+function addProperLandmarkRegions(selector, role) {
+  const elements = document.querySelectorAll(selector);
+  elements.forEach(element => {
+    if (!element.hasAttribute('role') && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      element.setAttribute('role', role);
+    }
+  });
+}
+
+function checkTableStructure() {
   // Check and fix table structure issues
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {

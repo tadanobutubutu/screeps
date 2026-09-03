@@ -90,7 +90,7 @@ const AddressabilityIssues = {
     ];
 
     const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-    const role = element.getAttribute('role');
+    const role = element.getAttribute ? element.getAttribute('role') : null;
 
     const implicitLandmarks = {
       'header': 'banner',
@@ -121,9 +121,9 @@ const AddressabilityIssues = {
   },
 
   addLangAttribute(element, lang) {
-    if (element) {
+    if (element && typeof element.setAttribute === 'function') {
       element.setAttribute('lang', lang);
-    } else {
+    } else if (typeof document !== 'undefined' && document.documentElement) {
       const html = document.documentElement;
       if (!html.hasAttribute('lang')) {
         html.setAttribute('lang', 'en');
@@ -133,10 +133,11 @@ const AddressabilityIssues = {
 
   countDependencies() {
     const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
+    const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+    const packageJson = JSON.parse(packageJsonContent);
 
-    const dependencies = JSON.parse(packageJsonPath).dependencies || {};
-    const devDependencies = JSON.parse(packageJsonPath).devDependencies || {};
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
 
     return {
       dependencies: Object.keys(dependencies).length,
@@ -186,19 +187,21 @@ const AddressabilityIssues = {
   },
 
   validateLandmarkStructure() {
+    if (typeof document === 'undefined' || !document.querySelectorAll) {
+      return;
+    }
     const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
-    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+    const implicitRole = {
+      header: 'banner',
+      nav: 'navigation',
+      main: 'main',
+      aside: 'complementary',
+      footer: 'contentinfo'
+    };
 
     landmarks.forEach(landmark => {
       const tagName = landmark.tagName ? landmark.tagName.toLowerCase() : '';
       const role = landmark.getAttribute('role');
-      const implicitRole = {
-        header: 'banner',
-        nav: 'navigation',
-        main: 'main',
-        aside: 'complementary',
-        footer: 'contentinfo'
-      };
 
       if (!landmark.hasAttribute('role')) {
         const implicitLandmark = implicitRole[tagName];
@@ -210,6 +213,19 @@ const AddressabilityIssues = {
   }
 };
 
+// Standalone function exports for backward compatibility
+function fixMainLandmarkIssues(source) {
+  return AddressabilityIssues.fixMainLandmarkIssues(source);
+}
+
+function fixSemanticMarkup(source) {
+  return AddressabilityIssues.fixSemanticMarkup(source);
+}
+
+function validateLandmarkStructure() {
+  return AddressabilityIssues.validateLandmarkStructure();
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     AddressabilityIssues,
@@ -219,16 +235,18 @@ if (typeof module !== 'undefined' && module.exports) {
   };
 } else {
   // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAccessibility);
-  } else {
-    initializeAccessibility();
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeAccessibility);
+    } else {
+      initializeAccessibility();
+    }
   }
 }
 
 function initializeAccessibility() {
-  if (!document.querySelectorAll) return;
-  addressAccessibilityIssues(sampleInsightReport);
+  if (typeof document === 'undefined' || !document.querySelectorAll) return;
+  AddressabilityIssues.addressAccessibilityIssues(sampleInsightReport);
 }
 
 const sampleInsightReport = {
@@ -258,3 +276,9 @@ function createServer() {
 
 function generateAccessibilityReport() {
   // Placeholder implementation
+  return {
+    timestamp: new Date().toISOString(),
+    issues: [],
+    score: 100
+  };
+}

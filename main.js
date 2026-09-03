@@ -38,9 +38,9 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+    } else if (/[\u00e0-\u00ff]/.test(content)) {
       lang = 'fr'; // French
-    } else if (/[äöüß]/i.test(content)) {
+    } else if (/[\u00c0-\u00ff]/.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -402,6 +402,19 @@ function createInPageButton(parent = document.body) {
   btn.setAttribute('aria-label', 'Open modal');
   parent.appendChild(btn);
   return btn;
+}
+
+/**
+ * Wraps primary content in a main landmark element.
+ * @param {HTMLElement} content - The content element to wrap.
+ * @returns {HTMLElement} The created main element containing the content.
+ */
+function wrapPrimaryContentInMain(content) {
+  if (!content) return null;
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+  main.appendChild(content);
+  return main;
 }
 
 /**
@@ -803,5 +816,6 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  towerDefense
+  towerDefense,
+  wrapPrimaryContentInMain
 };

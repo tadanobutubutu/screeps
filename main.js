@@ -15,6 +15,7 @@ app.use(express.json());
 const addressabilityIssues = {
   processIssues: function(issues) {
     /* existing code */
+    return issues || [];
   },
 
   generateAccessibilityReport: function(accessibilityReport) {
@@ -53,7 +54,7 @@ const addressabilityIssues = {
   addressAccessibilityIssues: function(source) {
     const mainBlockRegex = /\{[\s\S]*?\}/g;
 
-    const matches = source.match(mainBlockRegex);
+    const matches = source.match(mainBlockRegex) || [];
     if (matches.length <= 1) {
       return source;
     }
@@ -72,12 +73,22 @@ function validateLandmark(element) {
 
   const landmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'];
   const role = element.getAttribute && element.getAttribute('role');
-  if (role && landmarkRoles.includes(role)) return true;
+  if (role && landmarkRoles.includes(role.toLowerCase())) return true;
 
   const landmarkTags = ['HEADER', 'FOOTER', 'NAV', 'MAIN', 'ASIDE', 'SECTION', 'ARTICLE'];
-  if (element.tagName && landmarkTags.includes(element.tagName)) return true;
+  if (element.tagName && landmarkTags.includes(element.tagName.toUpperCase())) return true;
 
   return false;
+}
+
+function ensureDependencyGraphAriaRole(container) {
+  if (!container) return;
+  
+  const existingRole = container.getAttribute('role');
+  if (existingRole) return;
+  
+  container.setAttribute('role', 'img');
+  container.setAttribute('aria-label', container.getAttribute('aria-label') || 'Dependency Graph');
 }
 
 function spawnSomeCommand() {
@@ -105,27 +116,25 @@ function createServer() {
   return server;
 }
 
-app.get('/fake-link', (req, res) => {
+app.get('/redirect', (req, res) => {
   res.redirect('#');
 });
 
-app.post('/accessibility-report', (req, res) => {
+app.post('/api/accessibility/report', (req, res) => {
   const report = req.body;
 
   const issues = addressabilityIssues.processIssues(report);
   const accessibilityReport = addressabilityIssues.generateAccessibilityReport(report);
-  const accessibilityScore = addressabilityIssues.calculateAccessibilityScore(issues);
+  const accessibilityScore = addressabilityIssues.calculateAccessibilityScore(accessibilityReport);
 
   res.json({ issues, accessibilityReport, accessibilityScore });
 });
 
-app.get('/accessibility-scan', (req, res) => {
-  // Execute accessibility scan command (e.g., a bat/sh script) and return the result
-
+app.get('/api/accessibility/scan', (req, res) => {
   exec('accessibility-scan.sh', (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
-      res.status(500).send('Accessibility scan failed');
+      res.status(500).json({ error: 'Accessibility scan failed' });
       return;
     }
 
@@ -143,23 +152,45 @@ function ensureDomIsLoaded() {
 function init() {
   ensureDomIsLoaded();
 
-  addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+  const rootElement = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
 
-  if (validateLandmark(document.body)) {
+  if (rootElement && validateLandmark(rootElement)) {
     console.log('Landmark validation passed.');
   } else {
     console.log('Landmark validation failed.');
   }
 
-  calculateAccessibilityScore([
-    { type: 'missing-aria-label', element: document.querySelector('input') },
-    { type: 'missing-alt-text', element: document.querySelector('img') }
+  addressabilityIssues.calculateAccessibilityScore([
+    { type: 'missing-aria-label', element: 'button' },
+    { type: 'missing-alt-text', element: 'image' }
   ]);
+
+  const dependencyGraphContainer = typeof document !== 'undefined' ? document.getElementById('dependencyGraph') : null;
+  if (dependencyGraphContainer) {
+    ensureDependencyGraphAriaRole(dependencyGraphContainer);
+  }
 
   // Trigger accessibility scan with `accessibility-scan.sh` command
   spawnSomeCommand();
 }
 
+function startApp() {
+  const server = createServer();
+  server.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
+  });
+}
+
 if (require.main === module) {
   startApp();
 }
+
+module.exports = {
+  getConfig,
+  createServer,
+  addressabilityIssues,
+  validateLandmark,
+  ensureDependencyGraphAriaRole,
+  addLangAttribute,
+  init
+};

@@ -174,6 +174,17 @@ function validateLandmarks() {
 
 // ... remaining imported functions and modules from both branches
 
+// New function that was added to the branch
+function newFunction() {
+  // New function implementation
+  console.log('New function executed');
+}
+
+const server = http.createServer(app);
+server.listen(config.port, () => {
+  console.log(`Server running on port ${config.port}`);
+});
+
 // Export functions for testing
 module.exports = {
   addLangAttribute,
@@ -183,7 +194,8 @@ module.exports = {
   renderDependencyGraph,
   countDependencies,
   validateTableStructure,
-  validateLandmarks
+  validateLandmarks,
+  newFunction
 };
 
 if (require.main === module) {

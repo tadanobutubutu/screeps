@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserve
+// TODO: Address accessibility issues from insight report — FIXED
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice

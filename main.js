@@ -38,6 +38,7 @@ let html = '';
 // Landmark configuration
 const LANDMARK_CONFIG = {
   landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  landmarks: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
   maxLandmarks: 50,
   allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
   maxResults: 100,
@@ -53,6 +54,11 @@ const CONFIG = {
   apiUrl: process.env.API_URL || 'https://example.com',
   timeout: 5000
 };
+
+// Get configuration function (added to support module.exports)
+function getConfig() {
+  return CONFIG;
+}
 
 // Apply HTML transformation to column headers
 const transformHtmlHeaders = (html) => {
@@ -1176,44 +1182,6 @@ function processLandmarks(landmarks) {
   return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
-function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const seen = new Set();
-  const uniqueLandmarks = [];
-
-  for (const landmark of landmarks) {
-    if (!landmark || typeof landmark.id === 'undefined') {
-      continue;
-    }
-
-    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-    if (!seen.has(landmarkId)) {
-      seen.add(landmarkId);
-      uniqueLandmarks.push(landmark);
-    }
-  }
-
-  return uniqueLandmarks;
-}
-
-function ensureElementHasId(element, id) {
-    if (!element.id) {
-        element.id = id;
-    }
-    return element;
-}
-
-function addAriaLabel(element, label) {
-    if (!element.getAttribute('aria-label')) {
-        element.setAttribute('aria-label', label);
-    }
-    return element;
-}
-
 function handleDependencyGraph(html) {
   let dependencyGraph = html.getElementById('dependencyGraph');
   if (dependencyGraph) {
@@ -1240,12 +1208,8 @@ function extractSvgAccessibleName(svgContent) {
   return title ? title.textContent : 'No accessible name found';
 }
 
-function addressAccessibilityIssues() {
-  improveAccessibility();
-  ensureLangAttribute();
-  addLandmarkRoles();
-  console.log('Accessibility issues have been addressed');
-  return true;
+function improveAccessibility() {
+  // Implementation for improving accessibility
 }
 
 function importAndExecute(modulePath, functionName, callback) {

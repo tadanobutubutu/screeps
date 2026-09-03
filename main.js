@@ -21,8 +21,8 @@ export function myNewFunction() {
 }
 
 // Utility Functions
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
+const { validateInput, processData } = ...
+const { formatResponse } = ...
 
 // Main execution when run directly
 if (require.main === module) {
@@ -42,12 +42,12 @@ if (require.main === module) {
 async function scanAccessibility() {
     // Run axe-core scanning
     const axeResult = await axe.run({
-        url: 'https://example.com', // Placeholder URL
+        url: ... // Placeholder URL
         // other options...
     });
 
     // Handle credential response
-    const credentials = await handleCredentialResponse(axeResult);
+    const credentials = await ...
 
     return {
         issues: axeResult.issues,
@@ -126,14 +126,14 @@ function addLangAttribute() {
 
 function validateTableAccessibility(table) {
   // Check for caption or aria-label
-  return !!(table.querySelector('caption') ||
+  return table.querySelector('caption') ||
            table.getAttribute('aria-label') ||
-           table.getAttribute('aria-labelledby'));
+           table.getAttribute('aria-labelledby');
 }
 
 function validateTableStructure(table) {
-  const hasHeader = !!table.querySelector('thead th');
-  const hasBody = !!table.querySelector('tbody td');
+  const hasHeader = table.querySelector('th');
+  const hasBody = table.querySelector('td');
   return hasHeader && hasBody;
 }
 
@@ -145,7 +145,7 @@ function fixTableStructure(table) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const headerRow = document.createElement('tr');
-        Array.from(firstRow.children).forEach(cell => {
+        Array.from(firstRow.cells).forEach(cell => {
           const th = document.createElement('th');
           th.textContent = cell.textContent;
           headerRow.appendChild(th);
@@ -158,7 +158,7 @@ function fixTableStructure(table) {
 }
 
 function addMainLandmark() {
-  const rootContainer = document.getElementById('root');
+  const rootContainer = document.querySelector('main') || document.querySelector('#main');
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }
@@ -167,10 +167,10 @@ function addMainLandmark() {
 function validateLandmark(landmark) {
   const validRoles = ['main', 'navigation', 'banner', 'contentinfo', 'search', 'complementary', 'form', 'region'];
   const role = landmark.getAttribute('role');
-  return validRoles.includes(role);
+  return role && validRoles.includes(role);
 }
 
-function validateLandmarkAttributes(landmark) {
+function hasValidLabel(landmark) {
   const ariaLabel = landmark.getAttribute('aria-label');
   const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
   return !!(ariaLabel || ariaLabelledBy || landmark.textContent.trim());
@@ -191,7 +191,7 @@ function validateLandmarkStructure() {
   });
 
   if (missingLandmarks.length > 0) {
-    console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+    console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
     return false;
   }
 
@@ -211,7 +211,7 @@ function setSvgAttributes(svg, name) {
 }
 
 function ensureUniqueLandmarks() {
-  const mainLandmarks = document.querySelectorAll('[role="main"], main');
+  const mainLandmarks = document.querySelectorAll('[role="main"]');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((landmark, index) => {
       if (index > 0) {
@@ -225,7 +225,7 @@ function createInPageButton() {
   const button = document.createElement('button');
   button.textContent = 'Skip to content';
   button.addEventListener('click', function() {
-    const mainContent = document.getElementById('main-content');
+    const mainContent = document.querySelector('main');
     if (mainContent) {
       mainContent.focus();
     }
@@ -249,9 +249,9 @@ function validateLinkAccessibility(link) {
  * Handles fake links in the document
  */
 function handleFakeLinks() {
-  const links = document.querySelectorAll('a');
+  const links = document.querySelectorAll('a[href=""]');
   links.forEach(link => {
-    if (!validateLinkAccessibility(link)) {
+    if (!link.textContent.trim()) {
       link.setAttribute('aria-label', 'Link to ' + (link.href || 'unknown destination'));
     }
   });
@@ -260,7 +260,7 @@ function handleFakeLinks() {
 /**
  * Adds proper landmark regions to the document
  */
-function addProperLandmarkRegions() {
+function addLandmarkRegions() {
   // Ensure document has proper landmark structure
   const header = document.querySelector('header');
   if (header && !header.getAttribute('role')) {
@@ -298,7 +298,7 @@ function generateAccessibilityReport() {
     }
   });
 
-  // Check for buttons without accessible names
+  // Check for buttons without accessible name
   const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
@@ -312,7 +312,7 @@ function generateAccessibilityReport() {
     }
   });
 
-  // Check for links without accessible names
+  // Check for links without accessible name
   const links = document.querySelectorAll('a');
   links.forEach((link, index) => {
     const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
@@ -333,68 +333,3 @@ function generateAccessibilityReport() {
     if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
       const labelId = input.getAttribute('aria-labelledby');
       const labelText = input.getAttribute('aria-label');
-      const hasLabel = document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
-      if (!hasLabel) {
-        issues.push({
-          type: 'missing-label',
-          element: 'input',
-          index: index,
-          message: `Input at index ${index} is missing an associated label`
-        });
-      }
-    }
-  });
-
-  // Check for empty headings
-  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  headings.forEach((heading, index) => {
-    if (!heading.textContent.trim()) {
-      issues.push({
-        type: 'empty-heading',
-        element: 'heading',
-        index: index,
-        message: `Heading at index ${index} has no text content`
-      });
-    }
-  });
-
-  // Generate report
-  const report = {
-    timestamp: new Date().toISOString(),
-    totalIssues: issues.length,
-    issues: issues
-  };
-
-  console.log('Accessibility Report:', report);
-  return report;
-}
-
-/* ============================================================================
-   Main Application Logic
-   ============================================================================ */
-
-// Accessibility utilities
-const accessibilityUtils = {
-    // Function for addressing new accessibility issues
-    addressNewAccessibilityIssues: function(issues) {
-        // Implementation for handling new accessibility issues
-        if (!issues || !Array.isArray(issues)) {
-            return [];
-        }
-
-        return issues.map(issue => {
-            return {
-                id: issue.id,
-                description: issue.description,
-                severity: issue.severity,
-                status: 'addressed',
-                addressedAt: new Date().toISOString()
-            };
-        });
-    },
-    // New function to validate landmark elements
-    validateLandmark: function() {
-      const requiredLandmarks = ['main', 'nav', 'footer'];
-      const missingLandmarks = [];
-
-      requiredLand

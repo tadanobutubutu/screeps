@@ -63,7 +63,7 @@ class ScreepsBot {
 
   anotherNewFunction() {
     // Another new function implementation from both branches
-    return 'another new function result';
+    return 'new function 3 result';
   }
 
   updateFunction() {

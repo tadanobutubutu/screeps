@@ -60,6 +60,29 @@ function upgrade(harvestedData) {
     }
 }
 
+function checkEmptyHeadings() {
+  // Check for empty headings in the document
+  const issues = [];
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headings.forEach((heading, index) => {
+    if (!heading.textContent.trim()) {
+      issues.push({
+        type: 'empty-heading',
+        element: heading.tagName.toLowerCase(),
+        index: index,
+        message: `Heading at index ${index} has no text content`
+      });
+    }
+  });
+  return issues;
+}
+
+function accessiblyHelper(issuesData) {
+  // Process accessibility issues data
+  // Implementation would go here
+  return issuesData || [];
+}
+
 function existingFunction1() {
   // Existing implementation
 }
@@ -77,6 +100,8 @@ function newFunction() {
 module.exports = {
   analyzeContentSafety,
   upgrade,
+  checkEmptyHeadings,
+  accessiblyHelper,
   existingFunction1,
   existingFunction2,
   newFunction

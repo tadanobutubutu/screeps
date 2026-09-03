@@ -333,3 +333,108 @@ function personName(element) {
   
   return null;
 }
+
+/**
+ * Creates an accessible in-page navigation button to address fake link issues (REACT_036).
+ * @param {string} text - The visible text for the button
+ * @param {string} targetId - The ID of the element to scroll to
+ * @returns {JSX.Element} A React button element with accessibility features
+ */
+function createInPageButton(text, targetId) {
+  const handleClick = (e) => {
+    e.preventDefault();
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Set tabindex to allow focusing if target is not focusable
+      target.setAttribute('tabindex', '-1');
+      target.focus();
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-label={`${text} (in-page navigation)`}
+    >
+      {text}
+    </button>
+  );
+}
+
+/**
+ * Validates that all images within a given container have appropriate alt text or are marked as decorative.
+ * @param {HTMLElement} containerElement - The container element to validate images within
+ * @returns {{valid: boolean, errors: string[]}} Validation result
+ */
+function validateImageAltAttributes(containerElement) {
+  if (typeof document === 'undefined' || !containerElement) {
+    return { valid: false, errors: ['Container element not found'] };
+  }
+
+  const errors = [];
+  const images = containerElement.querySelectorAll('img');
+
+  images.forEach((img, index) => {
+    const alt = img.getAttribute('alt');
+    const role = img.getAttribute('role');
+
+    // If role is 'presentation' or alt is empty, it's considered decorative
+    if (role === 'presentation' || alt === '') {
+      return; // decorative image, acceptable
+    }
+
+    if (!alt) {
+      errors.push(`Image ${index + 1} is missing alt text`);
+    } else if (alt.trim() === '') {
+      // Empty alt without presentation role is not acceptable
+      errors.push(`Image ${index + 1} has empty alt text without presentation role`);
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Runs a comprehensive set of accessibility validations on the provided container (defaults to document).
+ * This function consolidates checks for tables, landmarks, SVGs, unique landmarks, and image alt attributes.
+ * @param {Document|HTMLElement} [container=document] - The DOM container to validate
+ * @returns {{valid: boolean, errors: string[], details: object[]}} Aggregated validation results
+ */
+function runAccessibilityValidations(container = document) {
+  const results = [];
+
+  // Table structure
+  const tables = container.querySelectorAll('table');
+  tables.forEach((table) => {
+    results.push(validateTableAccessibility(table));
+    results.push(validateTableStructure(table));
+  });
+
+  // Landmark
+  const landmarks = container.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  landmarks.forEach((landmark) => {
+    results.push(validateLandmark(landmark));
+  });
+  results.push(validateLandmarkStructure());
+
+  // SVG
+  results.push(validateSvgAccessibility());
+
+  // Unique landmarks
+  results.push(ensureUniqueLandmarks());
+
+  // Images
+  results.push(validateImageAltAttributes(container));
+
+  // Combine all errors
+  const allErrors = results.flatMap(r => r.errors || []);
+  const allValid = allErrors.length === 0;
+
+  return {
+    valid: allValid,
+    errors: allErrors,
+    details: results
+  };
+}

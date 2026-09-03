@@ -1,5 +1,36 @@
 // main.js - Screeps bot main loop
 
+// Exporting all preserved and new functions:
+module.exports = {
+  CONFIG,
+  appState,
+  accessiblyHelper,
+  processAccessibilityReport,
+  loadLandmarks,
+  processLandmarks,
+  isValidLandmark,
+  validateLandmark,
+  validateInput,
+  processData,
+  getLangAttribute,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  createAccessibleLinks,
+  getLangAttributeEl,
+  addLangAttributeEl,
+  createInPageButtonEl,
+  validateLandmarkElCheck,
+  getSvgAccessibleNameEl,
+  ensureUniqueLandmarksFn,
+  initialize,
+  initializeApp
+};
+
 module.exports.loop = function () {
   // Clean up memory of dead creeps
   for (const name in Memory.creeps) {

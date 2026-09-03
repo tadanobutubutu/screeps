@@ -32,5 +32,17 @@ function validateLandmarkStructure() {
     return true;
 }
 
+// Function to wrap primary content in main element
+function wrapPrimaryContentInMain() {
+    const primaryContent = document.querySelector('article > *:not(header, nav, footer)');
+
+    if (primaryContent) {
+        primaryContent. wrapperElement = document.createElement('main');
+        primaryContent. wrapperElement.appendChild(primaryContent);
+        primaryContent.parentNode.insertBefore(primaryContent. wrapperElement, primaryContent);
+        primaryContent.parentElement.removeChild(primaryContent);
+    }
+}
+
 // Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
+export { createInPageButton, validateLandmarkStructure, wrapPrimaryContentInMain };

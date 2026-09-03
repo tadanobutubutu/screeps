@@ -341,6 +341,96 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
+// New functions for accessibility improvements
+function addKeyboardNavigation(element) {
+  if (!element) return element;
+  
+  // Make element focusable if it's not natively focusable
+  if (!element.hasAttribute('tabindex')) {
+    element.setAttribute('tabindex', '0');
+  }
+  
+  // Add keyboard event listener for Enter and Space keys
+  element.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      element.click();
+    }
+  });
+  
+  return element;
+}
+
+function addAriaLabelsToInteractiveElements() {
+  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  
+  interactiveElements.forEach((element) => {
+    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+      const labelText = element.textContent.trim() || element.getAttribute('title');
+      if (labelText) {
+        addAriaLabel(element, labelText);
+      }
+    }
+  });
+}
+
+function announceToScreenReader(message) {
+  let announcer = document.getElementById('screen-reader-announcer');
+  if (!announcer) {
+    announcer = document.createElement('div');
+    announcer.id = 'screen-reader-announcer';
+    announcer.setAttribute('aria-live', 'polite');
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-10000px';
+    announcer.style.width = '1px';
+    announcer.style.height = '1px';
+    announcer.style.overflow = 'hidden';
+    document.body.appendChild(announcer);
+  }
+  
+  // Clear previous content
+  announcer.textContent = '';
+  
+  // Use setTimeout to ensure screen readers pick up the change
+  setTimeout(() => {
+    announcer.textContent = message;
+  }, 100);
+}
+
+function trapFocus(modalElement) {
+  if (!modalElement) return;
+  
+  const focusableElements = modalElement.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  
+  if (focusableElements.length === 0) return;
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  
+  // Focus first element when modal opens
+  firstElement.focus();
+  
+  // Handle tab key to trap focus within modal
+  modalElement.addEventListener('keydown', (event) => {
+    if (event.key === 'Tab') {
+      if (event.shiftKey) {
+        if (document.activeElement === firstElement) {
+          lastElement.focus();
+          event.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          firstElement.focus();
+          event.preventDefault();
+        }
+      }
+    }
+  });
+}
+
 module.exports = {
   createServer,
   startApp,
@@ -367,7 +457,11 @@ module.exports = {
   spawnCommand,
   processSvgElements,
   ensureElementId,
-  ensureUniqueLandmarksFromString
+  ensureUniqueLandmarksFromString,
+  addKeyboardNavigation,
+  addAriaLabelsToInteractiveElements,
+  announceToScreenReader,
+  trapFocus
 };
 
 if (require.main === module) {

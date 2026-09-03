@@ -3,7 +3,6 @@
 const main = require('./utilities')
 const React = require('react');
 
-const { createInPageButton, createWebResourceButton } = require('./utilities')
 const { addLangAttribute, validateTableAccessibility, validateTableStructure, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, addSvgAccessibleName, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, validateLandmark, validateLandmarkStructure, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, setupFocusTrap, restoreFocus } = require('./AccessibilityHelpers')
 
 const DOMParser = require('@xmldom/xmldom').DOMParser;

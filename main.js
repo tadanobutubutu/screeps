@@ -1,8 +1,7 @@
-Here is the resolved file content:
-
-```javascript
+/**
+ * Main entry point for the Screeps bot accessibility dashboard
+ */
 import './styles.css';
-import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import express from 'express';
 import axe from 'axe-core';
@@ -67,6 +66,3 @@ module.exports = {
   calculateSum,
   ...accessiblyHelper
 };
-```
-
-This resolved file integrates both changes, preserves functionality, and avoids any syntax errors. It exports the `initializeApp` function, as well as the functions related to accessibility, language handling, memory usage check, and the `calculateSum` function. Additionally, it exports functions from the `accessiblyHelper` module to make more accessibility-related functions easily accessible.

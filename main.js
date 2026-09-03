@@ -141,6 +141,52 @@ function ensureUniqueLandmarks(landmarksArray) {
 const sortByTitle = sortByTitleLocal || sortByTitle;
 const sortByAuthor = sortByAuthorLocal || sortByAuthor;
 
+// Harvest logic for collecting and processing data
+function harvest() {
+  // Collect data from various sources
+  return {
+    books: [...books],
+    landmarks: appState.data?.landmarks || [],
+    config: { ...config },
+    timestamp: new Date().toISOString()
+  };
+}
+
+// Upgrade logic for migrating data structures and versions
+function upgrade() {
+  // Check version and perform necessary migrations
+  if (!appState.data) {
+    appState.data = {};
+  }
+  
+  // If no version exists, this is a fresh install
+  if (!appState.data.version) {
+    appState.data.version = '1.0.0';
+    appState.initialized = false;
+  }
+  
+  // Perform version migrations if needed
+  const currentVersion = appState.data.version;
+  
+  // Version 1.0.0 to 1.1.0 migration
+  if (currentVersion === '1.0.0') {
+    // Migrate config structure if needed
+    if (!appState.data.config) {
+      appState.data.config = { ...config };
+    }
+    appState.data.version = '1.1.0';
+  }
+  
+  // Ensure safe state after upgrade
+  UserSafety = "safe";
+  
+  return {
+    success: true,
+    version: appState.data.version,
+    migratedFrom: currentVersion
+  };
+}
+
 // Application initializations
 
 export const validateLandmark = (landmark) => {
@@ -553,5 +599,7 @@ module.exports = {
   wrapPrimaryContentInMain,
   addLangAttribute,
   CONFIG,
-  appState
+  appState,
+  harvest,
+  upgrade
 };

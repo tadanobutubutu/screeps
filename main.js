@@ -33,7 +33,9 @@ const appConfig = {
   version: '1.0.0',
   debug: false,
   dataPath: './data',
-  maxResults: 100
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
 };
 
 const CONFIG = {
@@ -41,7 +43,8 @@ const CONFIG = {
   maxResults: 100,
   dataPath: './data',
   maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  requiredLandmarks: ['banner', 'navigation', 'main']
 };
 
 // Application state
@@ -49,6 +52,12 @@ const appState = {
     initialized: false,
     data: null,
     cache: {}
+};
+
+// App data
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
 };
 
 // Find the primary content element in the DOM
@@ -127,6 +136,11 @@ function visualizeModuleRelationshipsLocal(modules) {
 
 function processLandmarks(landmarks) {
   // ... Implementation to process landmarks locally
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  return validLandmarks.slice(0, config.maxResults);
 }
 
 function processLandmarksLocal(landmarks) {
@@ -373,6 +387,24 @@ function ensureUniqueLandmarks(html) {
     return html;
 }
 
+// Ensure unique landmarks from array
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (!landmark || typeof landmark.id === 'undefined') {
+      return false;
+    }
+    if (!seen.has(landmark.id)) {
+      seen.add(landmark.id);
+      return true;
+    }
+    return false;
+  });
+}
+
 function fixFakeLinks(html) {
     if (typeof html !== 'string') return html;
     
@@ -573,6 +605,30 @@ function fixTableHeaderCellScope() {}
 function addMainLandmark() {}
 function addSvgAccessibleNamesLocal() {}
 
+// Load landmarks from file
+function loadLandmarks() {
+  try {
+    const filePath = path.join(__dirname, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+      console.error('Error loading landmarks:', error.message);
+      return [];
+  }
+}
+
+function isValidLandmark(landmark) {
+  return landmark && landmark.id && landmark.role;
+}
+
+function validateLandmark(landmark) {
+  return landmark &&
+         typeof landmark.id !== 'undefined' &&
+         landmark.id !== null;
+}
+
+function validateLandmarkAttributes(html) { return true; }
+
 // Ensure the dependencyGraph container has a proper ARIA role
 function ensureDependencyGraphAriaRole() {
   if (typeof document !== 'undefined') {
@@ -740,7 +796,6 @@ function validateTableAccessibility(html) { return true; }
 function validateTableStructure(html) { return true; }
 function validateLandmark(html) { return true; }
 function validateLandmarkStructure(html) { return true; }
-function validateLandmarkAttributes(html) { return true; }
 function getSvgAccessibleName(svg) { return ''; }
 function setSvgAttributes(svg) { return svg; }
 function validateLinkAccessibility(link) { return true; }
@@ -762,12 +817,8 @@ function helper() {}
 function formatDate(date) { return date.toISOString(); }
 function validateInput(input) { return true; }
 function initialize() {}
-function loadLandmarks() { return []; }
 function sortLandmarks(landmarks) { return landmarks; }
 function getLandmarkById(id) { return null; }
-
-// Configuration and state
-// const appState = {}; // Already defined above
 
 // Define createAccessibleInput function (referenced by main.addBook)
 function createAccessibleInput(type, id, label, value) {

@@ -4,7 +4,7 @@
 // ----- END ORIGINAL CODE-----
 
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-const main = require('./utilities')
+const utilities = require('./utilities')
 
 // Import necessary dependencies
 import React from 'react';
@@ -47,8 +47,7 @@ import {
 
 // Create or update the affected functions to be accessible
 // The functions below have been created to match the exported names
-// TODO: This is the existing code that needs to be preserve
-const { main } = require('./utilities');
+const main = utilities.main;
 const { functionA, functionB } = require('./functionModule');
 
 // Module-level function definitions
@@ -141,7 +140,7 @@ const a11yStore = {
   transformInputData
 };
 
-function getSvgAccessibleName(svgElement) {
+function getSvgAccessibleNameFunc(svgElement) {
   // ... (existing implementation) ...
 }
 
@@ -353,6 +352,8 @@ function ensureElementHasId(element, prefix) {
     return element.id;
 }
 
+const ensureElementHasIdOriginal = ensureElementHasId;
+
 function addLangAttribute() {
     if (typeof document !== 'undefined' && document.documentElement) {
         document.documentElement.lang = 'en';
@@ -361,39 +362,39 @@ function addLangAttribute() {
 
 // Task scheduling functions
 function addTask(taskFn, priority = 'medium') {
-    // ... New task scheduling code
+  // ... New task scheduling code
 }
 
 function generateTaskId() {
-    // ... New task generating code
+  // ... New task generating code
 }
 
 function cancelTask(id) {
-    // ... New task cancelling code
+  // ... New task cancelling code
 }
 
 // Focus management functions
 function setElementLabel(elementId, label) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.setAttribute('aria-label', label);
-    }
+  const element = document.getElementById(elementId);
+  if (element) {
+      element.setAttribute('aria-label', label);
+  }
 }
 
 function setFocus(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.focus();
-    }
+  const element = document.getElementById(elementId);
+  if (element) {
+      element.focus();
+  }
 }
 
 function handleKeyboardNavigation(event) {
-    // ... New keyboard event handler code
+  // ... New keyboard event handler code
 }
 
 // New function to handle additional rendering logic
-function renderAdditionalContent(additionalData) {
-    return '<div class="additional-content">' + (additionalData ? additionalData.content : '') + '</div>';
+function renderAdditionalContentFunc(additionalData) {
+  return '<div class="additional-content">' + (additionalData ? additionalData.content : '') + '</div>';
 }
 
 // Implement the function for addressing accessibility issues from insight report
@@ -430,7 +431,7 @@ function newFocusTrap() {
     };
 }
 
-function fixTableStructure(tableElement) {
+function fixTableStructureFunc(tableElement) {
     // Fix table structure for accessibility
     return tableElement;
 }
@@ -475,13 +476,11 @@ if (typeof window !== 'undefined') {
     window.main = mainEntry;
     window.getLangAttribute = getLangAttribute;
     window.ensureDependencyGraphARIA = ensureDependencyGraphARIA;
-    window.newFunction = a11yStore.newFunction;
-    window.anotherNewFunction = a11yStore.anotherNewFunction;
     window.ensureElementId = ensureElementId;
     window.addAriaLabel = addAriaLabel;
     window.newFocusTrap = newFocusTrap;
     window.addLangAttribute = addLangAttribute;
-    window.fixTableStructure = fixTableStructure;
+    window.fixTableStructure = fixTableStructureFunc;
     window.addLandmarkIssues = addLandmarkIssues;
     window.addSvgAccessibleNames = addSvgAccessibleNames;
     window.ensureUniqueLandmarks = ensureUniqueLandmarks;
@@ -495,7 +494,7 @@ if (typeof window !== 'undefined') {
     window.validateTableStructure = validateTableStructure;
     window.validateLandmark = validateLandmark;
     window.validateLandmarkStructure = validateLandmarkStructure;
-    window.getSvgAccessibleName = getSvgAccessibleName;
+    window.getSvgAccessibleName = getSvgAccessibleNameFunc;
     window.createInPageButton = createInPageButton;
     window.setHtmlLangAttribute = setHtmlLangAttribute;
     window.ensureElementAccessibility = ensureElementAccessibility;
@@ -506,7 +505,7 @@ if (typeof window !== 'undefined') {
     window.setElementLabel = setElementLabel;
     window.setFocus = setFocus;
     window.handleKeyboardNavigation = handleKeyboardNavigation;
-    window.renderAdditionalContent = renderAdditionalContent;
+    window.renderAdditionalContent = renderAdditionalContentFunc;
 }
 
 // Export functions to make them accessible
@@ -538,9 +537,9 @@ module.exports = {
   setElementLabel,
   setFocus,
   handleKeyboardNavigation,
-  renderAdditionalContent,
+  renderAdditionalContent: renderAdditionalContentFunc,
   newFocusTrap,
-  fixTableStructure,
+  fixTableStructure: fixTableStructureFunc,
   addLandmarkIssues,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
@@ -550,7 +549,7 @@ module.exports = {
   initializeGraphControls,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName,
+  getSvgAccessibleName: getSvgAccessibleNameFunc,
   validateAccessibilityReport,
   checkAccessibility,
   focusTrap,
@@ -558,8 +557,8 @@ module.exports = {
   createWebResourceButton,
   exportUtils,
   addressAccessibilityIssues,
-  ensureElementHasIdOrigin,
+  ensureElementHasIdOrigin: ensureElementHasIdOriginal,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   checkAccessibilityForReport
-} = main
+}

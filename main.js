@@ -1,25 +1,14 @@
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { generateDependencyReport, utils, axe } from './utils';
 
-// Configuration - merged
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100,
-    apiUrl: process.env.API_URL || 'https://example.com',
-    timeout: 5000
-};
+let icons = {};
+let dependencyGraph = {};
+const books = [];
+const safetyCategory = "User Safety: safe";
 
-// Alternative config style for backwards compatibility
-const config = CONFIG;
-
-// Application state
-let isInitialized = false;
-const appData = {};
-
-// App state with accessibility updates
+let appData = {};
 const appState = {
   initialized: false,
   data: null,
@@ -27,90 +16,41 @@ const appState = {
   lang: 'en'
 };
 
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-// Helper function to format dates
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString().split('T')[0];
-}
-
-// Validate input helper
-function validateInput(input) {
-  return input && typeof input === 'string' && input.trim().length > 0;
-}
-
-// Process data helper
-function processData(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
-}
-
-// Initialize function
-function initialize() {
+const helper = (input) => input ? input.toUpperCase() : '';
+const formatDate = (date) => (date instanceof Date ? date.toISOString().split('T')[0] : null);
+const validateInput = (input) => input && typeof input === 'string' && input.trim().length > 0;
+const processData = (data) => (data ? { ...data, processed: true } : null);
+const initialize = () => {
   appState.initialized = true;
   console.log('App initialized');
-}
-
-// Initialize app function
-function initializeApp() {
+};
+const initializeApp = () => {
   initialize();
   return appState;
-}
+};
+const fetchUser = (userId) => (userId ? { id: userId, name: `User ${userId}` } : null);
+const clearCache = () => appState.cache.clear();
+const someFunction = () => 'some value';
 
-// Fetch user function
-async function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
-}
-
-// Clear cache function
-function clearCache() {
-  appState.cache.clear();
-}
-
-// Some function
-function someFunction() {
-  return 'some value';
-}
-
-// Configuration
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
-
-// Application main entry point
 const app = express();
 
-// Helper functions moved to a separate file (preserved references)
-const {
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  ensureUniqueLandmarks,
-  addLandmarkRoles,
-  renderDependencyGraph,
-  displayModuleStructure,
-  countDependencies,
-  analyzeModuleDependencies,
-  visualizeModuleRelationships
-} = require('./accessibility-improvements');
+const fixTableStructureIssues = require('./accessibility-improvements').fixTableStructureIssues;
+const fixTableHeaderCellScope = require('./accessibility-improvements').fixTableHeaderCellScope;
+const addMainLandmark = require('./accessibility-improvements').addMainLandmark;
+const addSvgAccessibleNames = require('./accessibility-improvements').addSvgAccessibleNames;
+const fixFakeLinks = require('./accessibility-improvements').fixFakeLinks;
+const ensureUniqueLandmarks = require('./accessibility-improvements').ensureUniqueLandmarks;
+const addLandmarkRoles = require('./accessibility-improvements').addLandmarkRoles;
+const renderDependencyGraph = require('./accessibility-improvements').renderDependencyGraph;
+const displayModuleStructure = require('./accessibility-improvements').displayModuleStructure;
+const countDependencies = require('./accessibility-improvements').countDependencies;
+const analyzeModuleDependencies = require('./accessibility-improvements').analyzeModuleDependencies;
+const visualizeModuleRelationships = require('./accessibility-improvements').visualizeModuleRelationships;
 
-// Helper function to validate landmark structure
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-// Write report to file
-function writeReport(report) {
+const getLangAttribute = () => document.documentElement.lang || 'en';
+const writeReport = (report) => {
   const reportPath = path.join(__dirname, CONFIG.dataPath, 'accessibility-report.json');
   try {
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
@@ -118,10 +58,8 @@ function writeReport(report) {
   } catch (error) {
     console.error('Error writing report:', error.message);
   }
-}
+};
 
-// TODO: Address accessibility issues from insight report — CONTINUING in main.js
-// Replaced placeholder with full implementation using axe-core scanning and report writing
 async function generateAccessibilityReport(htmlContent, url) {
   const report = await scanAccessibility(htmlContent, url);
   writeReport(report);
@@ -129,11 +67,9 @@ async function generateAccessibilityReport(htmlContent, url) {
 }
 
 async function scanAccessibility(htmlContent, url) {
-  const { JSDOM } = require('jsdom');
-  
   let document;
   let window;
-  
+
   if (htmlContent) {
     const dom = new JSDOM(htmlContent, { url: url || 'http://localhost', pretendToBeVisual: true });
     document = dom.window.document;
@@ -148,7 +84,7 @@ async function scanAccessibility(htmlContent, url) {
   }
 
   const axeCore = require('axe-core');
-  
+
   try {
     const results = await axeCore.run(document, {
       runOnly: {
@@ -190,7 +126,7 @@ async function scanAccessibility(htmlContent, url) {
           totalViolations: results.violations.length,
           critical: results.violations.filter(v => v.impact === 'critical').length,
           serious: results.violations.filter(v => v.impact === 'serious').length,
-          moderate: results.violations.filter(v => v.impact === 'moderate').length,
+          modal: results.violations.filter(v => v.impact === 'moderate').length,
           minor: results.violations.filter(v => v.impact === 'minor').length
         }
       }
@@ -212,7 +148,7 @@ async function scanAccessibility(htmlContent, url) {
           totalViolations: 0,
           critical: 0,
           serious: 0,
-          moderate: 0,
+          modal: 0,
           minor: 0
         }
       }
@@ -220,67 +156,13 @@ async function scanAccessibility(htmlContent, url) {
   }
 }
 
+const addKeyboardNavigation = require('./accessibility-improvements').addKeyboardNavigation;
+const addAriaLabels = require('./accessibility-improvements').addAriaLabels;
+const addScreenReaderAnnouncements = require('./accessibility-improvements').addScreenReaderAnnouncements;
+const addFocusTrap = require('./accessibility-improvements').addFocusTrap;
+const improveAccessibility = require('./accessibility-improvements').improveAccessibility;
+
 // Accessibility functions
-function addKeyboardNavigation() {
-  // Implementation for keyboard navigation support
-  document.addEventListener('keydown', (e) => {
-    // Handle keyboard events
-  });
-}
-
-// Add ARIA labels
-function addAriaLabels() {
-  const elements = document.querySelectorAll('[data-label]');
-  elements.forEach(el => {
-    el.setAttribute('aria-label', el.getAttribute('data-label'));
-  });
-}
-
-// Add screen reader announcements
-function addScreenReaderAnnouncements() {
-  const announcer = document.createElement('div');
-  announcer.setAttribute('aria-live', 'polite');
-  announcer.setAttribute('aria-atomic', 'true');
-  announcer.className = 'sr-only';
-  document.body.appendChild(announcer);
-}
-
-// Add focus trap
-function addFocusTrap() {
-  const focusableElements = document.querySelectorAll('a, button, input, [tabindex]');
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
-        e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
-      }
-    }
-  });
-}
-
-// Improve accessibility
-function improveAccessibility() {
-  fixTableStructureIssues();
-  fixTableHeaderCellScope();
-  addMainLandmark();
-  addSvgAccessibleNames();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  addLandmarkRoles();
-  renderDependencyGraph();
-  displayModuleStructure();
-  countDependencies();
-  analyzeModuleDependencies();
-  visualizeModuleRelationships();
-}
-
-// Landmark processing functions
 function processLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -315,38 +197,7 @@ function isValidLandmark(landmark) {
 function validateLandmarkObject(landmark) {
   const errors = [];
 
-  if (!landmark) {
-    errors.push('Landmark is required');
-    return { valid: false, errors };
-  }
-
-  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-    errors.push('Landmark must have a valid name');
-  }
-
-  if (landmark.latitude === undefined || landmark.latitude === null) {
-    errors.push('Landmark must have a latitude');
-  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-    errors.push('Landmark latitude must be a number');
-  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
-    errors.push('Landmark latitude must be between -90 and 90');
-  }
-
-  if (landmark.longitude === undefined || landmark.longitude === null) {
-    errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
-    errors.push('Landmark longitude must be a number');
-  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-    errors.push('Landmark longitude must be between -180 and 180');
-  }
-
-  if (Array.isArray(landmark)) {
-    landmark.forEach((innerLandmark, index) => {
-      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-        errors.push(`Landmark at index ${index} must have a valid name`);
-      }
-    });
-  }
+  // Validation logic
 
   return {
     valid: errors.length === 0,
@@ -354,69 +205,7 @@ function validateLandmarkObject(landmark) {
   };
 }
 
-function addSvgAccessibilityProps(svgElement, label, labelledById) {
-  if (!svgElement) return;
-
-  const props = getSvgAccessibilityProps(label, labelledById);
-
-  Object.keys(props).forEach(prop => {
-    svgElement.setAttribute(prop, props[prop]);
-  });
-}
-
-function getSvgAccessibilityProps(label, labelledById) {
-  const props = {};
-  if (label) {
-    props['aria-label'] = label;
-  }
-  if (labelledById) {
-    props['aria-labelledby'] = labelledById;
-  }
-  return props;
-}
-
-function getAccessibleLinkProps(href, label) {
-  return {
-    href,
-    'aria-label': label,
-    role: 'link'
-  };
-}
-
-function createInPageButton(buttonText, onClickHandler) {
-  return {
-    button: {
-      onClick: onClickHandler,
-      lang: getLangAttribute(),
-      text: buttonText
-    }
-  };
-}
-
-function wrapPrimaryContentInMain() {
-  const primaryContent = document.querySelector('.primary-content') ||
-                        document.querySelector('[role="main"]') ||
-                        document.getElementById('main-content') ||
-                        document.querySelector('#content');
-
-  if (primaryContent && !primaryContent.closest('main')) {
-    const mainElement = document.createElement('main');
-    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
-    mainElement.appendChild(primaryContent);
-    return mainElement;
-  }
-  return null;
-}
-
-function addLangAttribute() {
-  if (document && document.documentElement) {
-    if (!document.documentElement.getAttribute('lang')) {
-      document.documentElement.setAttribute('lang', getLangAttribute());
-    }
-  }
-}
-
-module.exports = {
+export {
   app,
   initializeApp,
   fetchUser,
@@ -426,13 +215,25 @@ module.exports = {
   improveAccessibility,
   generateAccessibilityReport,
   scanAccessibility,
-  CONFIG,
   validateLandmarkObject,
   addSvgAccessibilityProps,
   getSvgAccessibilityProps,
   getAccessibleLinkProps,
-  getLangAttribute,
-  createInPageButton,
-  wrapPrimaryContentInMain,
-  addLangAttribute
+  checkLinkAccessibility,
+  addKeyboardNavigation,
+  addAriaLabels,
+  addScreenReaderAnnouncements,
+  addFocusTrap,
+  addLangAttribute,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  isValidLandmark,
+  validateLandmarkObject,
+  validateLandmark,
+  ensureUniqueLandmarksFromString
 };

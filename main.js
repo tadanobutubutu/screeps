@@ -190,7 +190,7 @@ function BookForm() {
   const dispatch = useDispatch();
 
   // Define state for the form inputs
-  const [title, setTitle] = useState('');
+  const [title, setTitle] useState('')
   const [author, setAuthor] = useState('');
 
   // Handle input changes
@@ -274,14 +274,14 @@ function addLangAttribute() {
 }
 
 function getFullLangAttribute() {
-    const htmlElement = document.querySelector('html');
-    return htmlElement ? htmlElement.getAttribute('lang') : null;
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
 function ensureUniqueLandmarksFromString(landmarkString) {
-    const landmarks = landmarkString.split(',').map(l => l.trim());
-    const uniqueLandmarks = [...new Set(landmarks)];
-    return uniqueLandmarks.join(', ');
+  const landmarks = landmarkString.split(',').map(l => l.trim());
+  const uniqueLandmarks = [...new Set(landmarks)];
+  return uniqueLandmarks.join(', ');
 }
 
 // REACT_025: Ensure unique landmarks
@@ -658,7 +658,7 @@ function main() {
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// _Commit: eef4b6be04a5e2cd61b75c04a5e2cd61b75c43cfe2dff2da0857ca2_
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
@@ -674,18 +674,22 @@ if (require.main === module) {
 
 export {
   config,
-  appState,
   getLangAttribute,
   addLangAttribute,
   validateTableAccessibility,
-  validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   ensureUniqueLandmarks,
   getSvgAccessibleName,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  validateLandmarkData,
+  setSvgAttributes,
+  addProperLandmarkRegions,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  function3,
+  defaultSorting,
+  onTitleSort,
+  onAuthorSort,
+  renderDependencyGraphContent,
   ensureLandmarkUniqueness,
   initializeApp,
   setupHandlers,
@@ -696,61 +700,6 @@ export {
   BookForm,
   AddBookForm,
   createInPageButton,
-  setSvgAttributes,
-  addProperLandmarkRegions,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  function3,
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort,
-  renderDependencyGraphContent,
-  addLangAttribute,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  finalizeResolvedFile,
-  renderDependencyGraph,
-  wrapPrimaryContentInMain,
-  handleUserInteraction,
-  cleanup,
-  initApp,
-  VisualizeDependencyTree,
-  checkLandmarkElement,
-  ensureLandmarkUniqueness,
-  validateLandmark,
-  renderDependencyGraphContent,
-  landmarks,
-  appData,
-  icons,
-  countDependencies,
-  addBook,
-  BookItem,
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort,
-  ensureDependencyGraphARIA,
-  Main,
-  validateLandmarkInput,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  ensureFocusableElements,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  createInPageButtons,
-  fixFakeLinkIssue,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarksDoc,
-  calculateDependencyTree,
-  generateDependencyString,
-  effector,
   handleCredentialResponse,
   validateCredentialResponse,
   extractCredentialData,

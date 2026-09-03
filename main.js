@@ -206,8 +206,43 @@ const accessibilityUtils = {
 
 // TODO: add the new functions or changes requested in the issue
 // Here's a sample implementation for a new function named 'myNewFunction'
-function myNewFunction() {
-  // sample implementation
+function myNewFunction(element) {
+  // Validates that an element has proper accessibility attributes
+  if (!element) {
+    return { valid: false, message: 'No element provided' };
+  }
+  
+  const hasId = element.id && element.id.trim() !== '';
+  const hasAriaLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
+  const hasRole = element.hasAttribute('role');
+  
+  const result = {
+    valid: true,
+    checks: {
+      hasId: hasId,
+      hasAriaLabel: hasAriaLabel,
+      hasRole: hasRole
+    },
+    issues: []
+  };
+  
+  if (!hasId) {
+    result.issues.push('Element is missing an id attribute');
+    result.valid = false;
+  }
+  
+  if (!hasAriaLabel && hasRole) {
+    result.issues.push('Element with role is missing accessible name (aria-label or aria-labelledby)');
+    result.valid = false;
+  }
+  
+  if (result.issues.length === 0) {
+    result.message = 'Element has proper accessibility attributes';
+  } else {
+    result.message = result.issues.join('; ');
+  }
+  
+  return result;
 }
 
 // TODO: This is the existing code that needs to be preserved

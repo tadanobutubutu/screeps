@@ -233,5 +233,18 @@ module.exports = {
         this.loadConfigurations();
         const server = this.createServer();
         return server;
+    },
+    
+    function3: function (element) {
+        // New function3 logic - implements custom accessibility check
+        if (element && typeof element.getAttribute === 'function') {
+            const role = element.getAttribute('role');
+            if (role) {
+                // Check for commonly used semantic roles
+                const allowedRoles = ['main', 'nav', 'heading', 'p', 'div', 'article'];
+                return allowedRoles.includes(role);
+            }
+        }
+        return false;
     }
 };

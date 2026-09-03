@@ -259,7 +259,7 @@ class ScreepsBot {
     console.log('Screenspider bot started');
   }
 
-  addTaskWithPriority(taskFn, priority = 'medium') {
+  addTask(taskFn, priority = 'medium') {
     const taskId = this.generateTaskId();
     this.tasks.push({ task: taskFn, priority, id: taskId });
     this.scheduleTasks();
@@ -361,8 +361,131 @@ class ScreepsBot {
     // Implementation of validateLandmark
   }
 
-  validateLandmarkStructure() {
-    // Implementation of validateLandmarkStructure
+  validateLandmarkStructure(html = document.documentElement.outerHTML) {
+    // Validate the landmark structure for accessibility issues
+    const issues = [];
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Standard landmark roles
+    const landmarkRoles = [
+      'banner', 'navigation', 'main', 'article', 'aside', 
+      'footer', 'complementary', 'form', 'region'
+    ];
+    
+    // Find all elements with landmark roles
+    const allElements = doc.querySelectorAll('*');
+    const landmarkElements = [];
+    
+    allElements.forEach(element => {
+      const role = element.getAttribute('role');
+      if (role && landmarkRoles.includes(role)) {
+        landmarkElements.push({
+          element: element,
+          role: role,
+          id: element.getAttribute('id') || 'none',
+          ariaLabel: element.getAttribute('aria-label'),
+          ariaLabelledby: element.getAttribute('aria-labelledby')
+        });
+      }
+    });
+    
+    // Check for missing accessible names
+    landmarkElements.forEach(landmark => {
+      if (!landmark.ariaLabel && !landmark.ariaLabelledby && landmark.role !== 'main') {
+        issues.push({
+          element: landmark.element.tagName,
+          id: landmark.id,
+          role: landmark.role,
+          issue: 'Missing accessible name (aria-label or aria-labelledby)',
+          severity: 'warning'
+        });
+      }
+    });
+    
+    // Check for nested landmarks
+    landmarkElements.forEach((landmark, index) => {
+      const parentLandmarks = Array.from(landmarkElements).filter(l => {
+        return l.element !== landmark.element && 
+               landmark.element.contains(l.element);
+      });
+      
+      if (parentLandmarks.length > 0) {
+        issues.push({
+          element: landmark.element.tagName,
+          id: landmark.id,
+          role: landmark.role,
+          issue: 'Landmark nested within another landmark',
+          severity: 'warning',
+          parentRoles: parentLandmarks.map(l => l.role)
+        });
+      }
+    });
+    
+    // Check for multiple main landmarks
+    const mainLandmarks = landmarkElements.filter(l => l.role === 'main');
+    if (mainLandmarks.length > 1) {
+      issues.push({
+        element: 'main',
+        id: 'multiple',
+        role: 'main',
+        issue: 'Multiple main landmarks detected (should be only one)',
+        severity: 'error'
+      });
+    }
+    
+    // Check for nested landmark roles (one landmark inside another)
+    const nestedLandmarks = [];
+    landmarkElements.forEach((landmark, index) => {
+      landmarkElements.forEach((other, otherIndex) => {
+        if (index !== otherIndex && landmark.element.contains(other.element)) {
+          nestedLandmarks.push({
+            parent: landmark.role,
+            child: other.role,
+            parentId: landmark.id
+          });
+        }
+      });
+    });
+    
+    if (nestedLandmarks.length > 0) {
+      issues.push({
+        element: 'multiple',
+        id: 'nested',
+        issue: 'Nested landmark roles detected',
+        severity: 'warning',
+        nestedLandmarks: nestedLandmarks
+      });
+    }
+    
+    // Validate each landmark element
+    landmarkElements.forEach(landmark => {
+      const validation = validateLandmark(landmark.element);
+      if (validation && validation.issues) {
+        validation.issues.forEach(issue => {
+          issues.push({
+            element: landmark.element.tagName,
+            id: landmark.id,
+            role: landmark.role,
+            issue: issue.message || issue,
+            severity: issue.severity || 'warning'
+          });
+        });
+      }
+    });
+    
+    return {
+      isValid: issues.length === 0,
+      issues: issues,
+      landmarkCount: landmarkElements.length,
+      landmarks: landmarkElements.map(l => ({
+        tagName: l.element.tagName,
+        id: l.id,
+        role: l.role,
+        ariaLabel: l.ariaLabel ? 'present' : 'missing',
+        ariaLabelledby: l.ariaLabelledby ? 'present' : 'missing'
+      }))
+    };
   }
 
   createInPageButton() {
@@ -415,7 +538,7 @@ class ScreepsBot {
       case 'ArrowDown':
       case 'ArrowLeft':
       case 'ArrowRight':
-        this.handleArrowKeyNavigation(key, activeElement);
+        this.handleArrowNavigation(key, activeElement);
         break;
       case 'Tab':
         this.handleTabNavigation(event, activeElement);
@@ -425,7 +548,7 @@ class ScreepsBot {
     }
   }
 
-  handleArrowKeyNavigation(key, activeElement) {
+  handleArrowNavigation(key, activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
   }
@@ -435,7 +558,7 @@ class ScreepsBot {
     console.log('Handling tab navigation');
   }
 
-  navigateWithArrows(key, activeElement) {
+  handleArrowNavigationNew(key, activeElement) {
     // Implement custom navigation logic based on element type
     console.log(`Navigating with ${key} key`);
   }
@@ -458,10 +581,10 @@ class ScreepsBot {
     const svg = parser.parseFromString(svgString, 'image/svg+xml');
     const svgElement = svg.documentElement;
 
-    if (!svgElement.getAttribute('aria-label')) {
+    if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
       svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
     }
-    return new XMLSerializer().serializeToString(svg);
+    return new XMLSerializer().serializeToString(svgElement);
   }
 
   validateTableAccessibilityNew(tableData) {
@@ -492,12 +615,12 @@ class ScreepsBot {
     // ...
   }
 
-  handleArrowKeyNavigationNew(key, activeElement) {
-    // New implementation of handleArrowKeyNavigation function
+  handleArrowNavigationFinal(key, activeElement) {
+    // New implementation of handleArrowNavigation function
     // ...
   }
 
-  handleTabNavigationNew(event, activeElement) {
+  handleTabNavigationFinal(event, activeElement) {
     // New implementation of handleTabNavigation function
     // ...
   }
@@ -507,16 +630,16 @@ class ScreepsBot {
     // ...
   }
 
-  addAccessibleNameNew(svgString) {
+  addAccessibleNameFinal(svgString) {
     // New implementation of addAccessibleName function
     // ...
   }
 
   // Additional accessibility functions from HEAD branch
-  ensureDependencyGraphARIA() {
-    const dependencyGraph = document.getElementById('dependencyGraph')
+  checkAccessibilityIssues() {
+    const dependencyGraph = this.analyzeDependencies();
     if (dependencyGraph) {
-      dependencyGraph.setAttribute('role', 'region')
+      this.addLandmarksToDOM(dependencyGraph, 'region')
     }
   }
 
@@ -528,7 +651,7 @@ class ScreepsBot {
     // ... (existing code)
   }
 
-  addAccessibleNamesToSVGs() {
+  addAccessibleNamesToSvg() {
     // Implementation for adding accessible names to SVGs
   }
 

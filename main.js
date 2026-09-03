@@ -14,7 +14,19 @@ const config = {
 };
 
 function processSvgElements() {
+  if (typeof document === 'undefined' || !document.querySelectorAll) {
+    return;
+  }
   const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+    if (!svg.id) {
+      ensureElementHasId(svg);
+    }
+  });
 }
 
 function ensureElementHasId(element) {
@@ -510,6 +522,7 @@ if (typeof module !== 'undefined' && module.exports) {
     countDependencies: AddressabilityIssues.countDependencies,
     checkLandmarkElements,
     sampleInsightReport,
+    processSvgElements,
     // From origin/main
     ensureElementHasId,
     addAriaLabel,

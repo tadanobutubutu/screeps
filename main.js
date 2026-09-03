@@ -87,7 +87,7 @@ function validateTableAccessibility(tableElement) {
   const thead = tableElement.querySelector('thead');
   const thElements = thead ? Array.from(thead.querySelectorAll('th')) : [];
   if (thElements.length === 0) {
-    errors.push('Table header row is missing <th> elements');
+    errros.push('Table header row is missing <th> elements');
   }
 
   // Check that all th elements have scope attributes
@@ -103,38 +103,6 @@ function validateTableAccessibility(tableElement) {
   if (!hasCaption && !hasSummary) {
     errors.push('Table is missing a caption or aria-describedby for accessibility');
   }
-
-  return { valid: errors.length === 0, errors };
-}
-
-function validateTableStructure(tableElement) {
-  if (typeof document === 'undefined' || !tableElement) {
-    return { valid: false, errors: ['Table element not found'] };
-  }
-
-  const errors = [];
-  const rows = tableElement.querySelectorAll('tr');
-
-  rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td');
-    const cellCount = cells.length;
-
-    // Check for empty cells
-    cells.forEach((cell, cellIndex) => {
-      if (!cell.textContent.trim()) {
-        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
-      }
-    });
-
-    // Check that rows have consistent cell counts
-    if (rowIndex > 0) {
-      const prevRow = rows[rowIndex - 1];
-      const prevCells = prevRow.querySelectorAll('td');
-      if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
-      }
-    }
-  });
 
   return { valid: errors.length === 0, errors };
 }

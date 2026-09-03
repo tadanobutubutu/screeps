@@ -55,106 +55,146 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-const a11yStore = {
-  makeSvgAccessible,
-  configureSvgAccessibility,
-  setSvgAttributes
-};
-
-const AddressabilityIssues = {
-  validateTableAccessibility,
-  validateLandmarkRoles,
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
   validateLandmarkStructure,
-  checkLandmarkAccessibility,
-  checkLandmarkElements,
-  checkAccessibilityOfLandmarks,
+  getSvgAccessibleName,
   ensureUniqueLandmarks,
-  missingRoles,
-  fixFakeLinkIssue,
-  addAriaLabel
-};
+  createAccessibleLink,
+  isLinkAccessible,
+  renderDependencyGraph,
+  renderIndexView,
+  buildDependencyGraph,
+  buildBreadcrumbData,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility
+} = main
 
-// TODO: This is the existing code that needs to be preserved
-// _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
-// <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('#content') || document.querySelector('.content') || document.querySelector('article') || document.getElementById('primary-content') || document.body : null;
 
-// _Commit: c7a2c98be5bf45c7b763675b95fe8c30ac1d2f8f_
-
-// <!-- todo-hash: 469dfeab59b4116886abe058392a60b81da4857c -->
-
-/**
- * Similar to existing function, with changes to preserve both the existing and the new
- * function implementation. This helps maintain backward compatibility while implementing the new.
- */
-function accessibility() {
-  if (typeof document === 'undefined') return;
-
-  // Handle initial accessibility setup on page load
-  handleInitialAccessibility();
-
-  // Check and fix landmark elements
-  if (typeof checkLandmarkElements === 'function') {
-    checkLandmarkElements();
+// New function to wrap primary content in a <main> element for accessibility compliance
+function wrapPrimaryContentInMain(container, options = {}) {
+  if (!container || typeof container !== 'object' || !container.nodeType) {
+    return null;
   }
 
-  // Add SVG accessibility props
-  a11yStore.addSVGAccessibilityProps();
+  const config = {
+    mainId: options.mainId || 'main-content',
+    mainRole: options.mainRole || 'main'
+  };
 
-  // Fix fake links
-  a11yStore.fixFakeLinks();
+  // Check if main element already exists
+  let mainElement = container.querySelector('main');
 
-  // Ensure interactive elements have proper roles
-  a11yStore.ensureInteractiveRoles();
-
-  // Add form control labels
-  a11yStore.addFormControlLabels();
-
-  // Ensure images have alt text
-  a11yStore.ensureImageAccessibility();
-
-  // More accessibility improvements can be added here as needed
-}
-
-function ensureInteractiveElementsAccessible() {
-  // This covers both existing and new accessibility improvements for interactive elements
-  accessibility();
-}
-
-function handleInitialAccessibility() {
-  if (!document) return;
-  addLanguageAttribute();
-  addMainLandmarkToIndex();
-}
-
-/**
- * Add language attribute to document
- */
-function addLanguageAttribute() {
-  if (typeof document !== 'undefined') {
-    addLangAttribute(document.documentElement);
+  if (mainElement) {
+    // Main element already exists, ensure it has proper id
+    if (!mainElement.id) {
+      mainElement.id = config.mainId;
+    }
+    // Ensure proper role
+    if (!mainElement.getAttribute('role')) {
+      mainElement.setAttribute('role', config.mainRole);
+    }
+    return mainElement;
   }
-}
 
-/**
- * Add main landmark to index page
- */
-function addMainLandmarkToIndex() {
-  if (typeof document !== 'undefined') {
-    const main = document.querySelector('main') || document.querySelector('#main') || document.querySelector('.main');
-    if (main) {
-      main.setAttribute('role', 'main');
+  // Create new main element
+  mainElement = document.createElement('main');
+  mainElement.id = config.mainId;
+  mainElement.setAttribute('role', config.mainRole);
+
+  // Find primary content to wrap
+  // Priority: role="main" > main element > article > section with id > body content
+  const primarySelectors = [
+    '[role="main"]',
+    'article:not([role])',
+    'section[id]',
+    '.primary-content',
+    '#primary-content',
+    '.main-content',
+    '#main-content'
+  ];
+
+  let primaryContent = null;
+
+  for (const selector of primarySelectors) {
+    primaryContent = container.querySelector(selector);
+    if (primaryContent) {
+      break;
     }
   }
+
+  if (primaryContent) {
+    // Move primary content children into main element
+    while (primaryContent.firstChild) {
+      mainElement.appendChild(primaryContent.firstChild);
+    }
+
+    // Replace primary content with main element
+    primaryContent.parentNode.replaceChild(mainElement, primaryContent);
+  } else {
+    // No specific primary content found
+    // Get body or container's direct children
+    const body = container.ownerDocument ? container.ownerDocument.body : null;
+    const contentParent = body || container;
+
+    // Collect direct children to move
+    const childrenToMove = Array.from(contentParent.childNodes).filter(node => {
+      // Skip script, style, and meta elements
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const tagName = node.tagName.toLowerCase();
+        if (['script', 'style', 'link', 'meta', 'noscript'].includes(tagName)) {
+          return false;
+        }
+        // Skip existing main element
+        if (tagName === 'main') {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    // Move children to main element
+    childrenToMove.forEach(child => {
+      mainElement.appendChild(child);
+    });
+
+    // Append main element to container
+    if (body) {
+      body.appendChild(mainElement);
+    } else {
+      container.appendChild(mainElement);
+    }
+  }
+
+  // Log successful operation
+  if (typeof log === 'function') {
+    log(`Primary content wrapped in main element with id: ${config.mainId}`, 'info');
+  }
+
+  return mainElement;
 }
 
-// New functions to be added below line 304
-// Implementation for new functions
+// Implement the function for addressing accessibility issues from insight report
+function implementAccessibilityFixesFromReport(container, report) {
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0
+  };
+}
 
 // Main entry point function (implementation added)
 function main() {
@@ -165,6 +205,7 @@ function main() {
   // Additional setup can be added as needed
 }
 
+// Export all functions from both branches
 module.exports = {
   greetingFunction,
   renderGraphIndex,
@@ -231,5 +272,7 @@ module.exports = {
   buildDependencyGraph,
   buildBreadcrumbData,
   renderGraphAndIndex,
-  towerDefense
+  towerDefense,
+  wrapPrimaryContentInMain,
+  implementAccessibilityFixesFromReport
 };

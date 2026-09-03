@@ -1,7 +1,7 @@
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent')
 const { indexContent } = require('./indexContent')
-const { accessibilityUtils } = require('./accessibilityUtils');
+const { accessibilityUtils } = require('./accessibilityUtils')
 
 const main = require('./utilities')
 
@@ -24,8 +24,6 @@ const {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
@@ -62,7 +60,7 @@ const {
 } = main
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
+const dependencyGraph = document.getElementById('dependency-graph')
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
@@ -77,8 +75,8 @@ if (dependencyGraph) {
   }
 
   // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph');
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph'
   }
 }
 
@@ -89,15 +87,14 @@ function addAccessibleName (svgString) {
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
   const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
   const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
   }
   return new XMLSerializer().serializeToString(svg)
 }
 
 // Example usage of the function
-const originalSvgString =
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**
@@ -177,8 +174,41 @@ function createInPageButton (label, onClick) {
   return button
 }
 
+/**
+ * Creates a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
+ * @param {Object} options - Options for creating the web resource button
+ * @param {string} options.url - The URL to link to
+ * @param {string} options.label - The accessible label for the button
+ * @param {string} options.title - The title attribute for additional context
+ * @param {string} options.icon - Optional SVG icon for the button
+ * @param {string} options.type - The type of resource (e.g., 'github', 'stackoverflow', 'docs')
+ * @returns {HTMLAnchorElement} The created accessible button element
+ */
+function createWebResourceButton ({ url, label, title, icon, type }) {
+  const button = document.createElement('a')
+  button.href = url
+  button.setAttribute('role', 'button')
+  button.setAttribute('aria-label', label)
+  
+  if (title) {
+    button.setAttribute('title', title)
+  }
+  
+  button.className = `web-resource-button web-resource-${type || 'link'}`
+  
+  if (icon) {
+    button.innerHTML = icon
+  }
+  
+  // Ensure the button opens in a new tab with proper security attributes
+  button.setAttribute('target', '_blank')
+  button.setAttribute('rel', 'noopener noreferrer')
+  
+  return button
+}
+
 function validateTableStructure(container) {
-  return validateTableStructureForAccessibility(container);
+  return container && container.querySelectorAll('table').length > 0
 }
 
 function validateHeadingHierarchy(headings) {
@@ -187,27 +217,27 @@ function validateHeadingHierarchy(headings) {
 }
 
 function ensureHeadingHierarchy(container) {
-  if (!container) return null;
+  if (!container) return null
 
-  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  let previousLevel = 0;
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  let previousLevel = 0
 
   headings.forEach(heading => {
-    const currentLevel = parseInt(heading.tagName.substring(1), 10);
+    const currentLevel = parseInt(heading.tagName.charAt(1), 10)
     if (previousLevel > 0 && currentLevel - previousLevel > 1) {
       // Fix skipped heading levels by promoting or demoting as needed
-      const correctedLevel = previousLevel + 1;
-      const newHeading = document.createElement(`h${correctedLevel}`);
-      newHeading.innerHTML = heading.innerHTML;
-      newHeading.className = heading.className;
-      heading.parentNode.replaceChild(newHeading, heading);
-      previousLevel = correctedLevel;
+      const correctedLevel = previousLevel + 1
+      const newHeading = document.createElement(`h${correctedLevel}`)
+      newHeading.innerHTML = heading.innerHTML
+      newHeading.className = heading.className
+      heading.parentNode.replaceChild(newHeading, heading)
+      previousLevel = correctedLevel
     } else {
-      previousLevel = currentLevel;
+      previousLevel = currentLevel
     }
-  });
+  })
 
-  return container;
+  return container
 }
 
 /**
@@ -218,12 +248,12 @@ function ensureHeadingHierarchy(container) {
 function renderAdditionalContent(additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
+  return '<div class="additional-content"></div>'
 }
 
 // New accessibility function for calculating complexity of a module
 function calculateComplexity(moduleData) {
-  return moduleData.dependencies ? moduleData.dependencies.length : 0;
+  return moduleData.dependencies ? moduleData.dependencies.length : 0
 }
 
 // New rendering function
@@ -236,7 +266,7 @@ function renderGraphIndex(content, options = {}) {
 function renderDependencyGraph(deps, options = {}) {
   // Use dependencyGraphContent from the imported module
   const graphContent = dependencyGraphContent(deps, options)
-  return `<div class="dependency-graph-container" role="img" aria-label="Dependency graph visualization">${graphContent}</div>`
+  return `<div class="dependency-graph" role="img" aria-label="Dependency graph">${graphContent}</div>`
 }
 
 function renderIndex(data, options = {}) {
@@ -265,8 +295,6 @@ module.exports = {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
@@ -299,4 +327,4 @@ module.exports = {
   newFocusTrap,
   calculateComplexity,
   renderDependencyGraph
-};
+}

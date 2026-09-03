@@ -360,7 +360,7 @@ function newFunction2() {
 // Function to analyze content safety
 function analyzeContentSafety(content) {
   // Analyze the content for safety issues and return a safety rating.
-  // ... (Your implementation here)
+// ... (Your implementation here)
 }
 
 // Function to address accessibility issues
@@ -614,7 +614,7 @@ function createAccessibleInput(type, id, label, value) {
 }
 
 // Main entry point for dependency visualization tool
-export const main = {
+const main = {
   init: function() {
     console.log('Application initialized');
   },
@@ -749,5 +749,6 @@ module.exports = {
     getLandmarkById,
     CONFIG,
     appState,
-    experience
+    experience,
+    main
 };

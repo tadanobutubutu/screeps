@@ -10,13 +10,18 @@ const { createServer, startApp, config } = require('./');
 const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
 
 // TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
+// <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+// _Commit: 9f4ca23445c76674f7b5dd5047c707b41ba67409_
+// <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+// _Commit: c1b5227659fea786dcefc1034ca17cbb6e533b80_
+// <!-- todo-hash: c6b10cf4940af973c1be3c94aea9ca9e66578b26 -->
 
 /**
  * Checks if a link or button element is accessible by verifying:
@@ -278,7 +283,6 @@ const report = accessibilityReport.issues.map(issue => ({
 }));
 
 return report;
-}
 
 // Score calculation
 function calculateAccessibilityScore(fixedIssues) {

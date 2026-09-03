@@ -113,8 +113,6 @@ function applyAccessibilityFixes(html) {
     return result;
 }
 
-// Todo: Fix the test failures shown above
-
 // TODO: add the new functions requested in the issue
 // Function A implementation
 function checkFunctionA(arg1, arg2) {

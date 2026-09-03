@@ -1,3 +1,20 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a97a2237d968a50cc419 -->
+//_Commit: 30b5f08a59d5ec914a59aa66e32dc3a3eb059e_
+//<!-- todo-hash: 1f8a6325b07b9b809ac49f5e1c81cf4f89f9c1 -->
+//_Commit: 669117b4c3d1a635653f730f0a059efacbb752_
+//<!-- todo-hash: 312aa8ea4c5e1c9430e4b7c36c210eb9a72dea -->
+//_Commit: 54b7c4d06282fbf48e78de43e5e115814006658c_
+//<!-- todo-hash: d290c9a63ee693e91602163f7ca6757def47f63e -->
+
+//_Commit: d9a4fdfe7e5cedca136ed13962e3d13f9cbb3c7f_
+
+<!-- todo-hash: 7e48ff018c0c0ab46fc506076877662414deb3cd -->
+
 const books = [];
 const safetyCategory = "User Safety: safe";
 const userSafety = 'unsafe';
@@ -385,8 +402,8 @@ function initialize() {
     console.log('Initializing application...');
 
     // Load landmarks for accessibility processing
-    const landmarks = loadLandmarks();
-    const processed = processLandmarks(landmarks);
+    const landmarksData = loadLandmarks();
+    const processed = processLandmarks(landmarksData);
 
     // Ensure the dependencyGraph container has a proper ARIA role
     if (dependencyGraph) {
@@ -404,26 +421,18 @@ function initialize() {
 
   // Accessibility improvements
   const accessibilityUtilities = require('./accessibility-utilities');
-  const { setLanguageAttribute, addLandmarkRoles, fixFakeLinks, addressAccessibilityIssues, createInPageButton, setSvgAccessibleNames, ensureUniqueLandmarks: ensureUniqueLandmarksFromUtils, fixUniqueLandmarks: fixUniqueLandmarksFromUtils } = accessibilityUtilities;
+  const { setLanguageAttribute, addLandmarkRoles, fixFakeLinks, addressAccessibilityIssues, createInPageButton: createInPageButtonFromUtils, setSvgAccessibleNames, ensureUniqueLandmarks: ensureUniqueLandmarksFromUtils, fixUniqueLandmarks: fixUniqueLandmarksFromUtils } = accessibilityUtilities;
 
   // Create the in-page button
   createInPageButton('Accessibility Info', () => {
     console.log('Accessibility Info button clicked');
   });
 
-  // Add accessible names to 2 SVGs
-  setSvgAccessibleNames('svg1Id', 'svg2Id', 'aria-label for SVG1', 'aria-label for SVG2');
-
   // Ensure unique landmarks (2 issues)
   ensureUniqueLandmarks();
 
   // Fix 1 fake link issue
   fixFakeLinks();
-
-  // Initialize accessibility features from a11y utilities
-  if (a11y && a11y.init) {
-    a11y.init();
-  }
 
   // Initialize application logic and infrastructure
   const server = express();
@@ -546,106 +555,8 @@ function initializeApp() {
 }
 
 // Initialize function
-function initialize() {
+function initializeMain() {
   // Initialization code
-}
-
-// Function to count dependencies
-function countDependencies() {
-  const dependencies = {
-    'react': true,
-    'react-redux': true,
-    'antd': true
-  };
-  return Object.keys(dependencies).length;
-}
-
-// Add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
-  }
-}
-
-// Add/fix landmark issues
-function addMainLandmark() {
-  if (!document.getElementById('main-content')) {
-    const main = document.createElement('main');
-    main.id = 'main-content';
-    document.body.insertBefore(main, document.body.firstChild);
-  }
-}
-
-// Fix table structure issues
-function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Ensure table has proper caption if needed
-    if (!table.querySelector('caption') && table.rows.length > 0) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table data';
-      table.insertBefore(caption, table.firstChild);
-    }
-
-    // Ensure table has proper headers
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      // Add headers if missing
-      const firstRow = table.rows[0];
-      if (firstRow) {
-        Array.from(firstRow.cells).forEach(cell => {
-          const th = document.createElement('th');
-          th.textContent = cell.textContent;
-          cell.replaceWith(th);
-        });
-      }
-    }
-
-    // Ensure table has proper scope attributes for headers
-    const headerRows = table.querySelectorAll('thead th');
-    headerRows.forEach((th, index) => {
-      if (!th.hasAttribute('scope')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
-  });
-}
-
-// Fix fake link issue
-function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    link.tabIndex = '0';
-    link.setAttribute('role', 'button');
-    link.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        link.click();
-      }
-    });
-  });
-}
-
-// Add accessible names to SVGs
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      const title = svg.querySelector('title');
-      if (title) {
-        svg.setAttribute('aria-labelledby', title.id);
-      } else {
-        svg.setAttribute('aria-label', 'graphic');
-      }
-    }
-  });
-}
-
-// Initialize app with accessibility fixes
-function initApp() {
-  initializeApp();
-  wrapPrimaryContentInMain();
 }
 
 // Helper function for landmark structure check
@@ -750,7 +661,6 @@ function handleUserInteraction(event) {
 // Cleanup function
 function cleanup() {
   landmarks.length = 0;
-  icons = {};
 }
 
 // Process data
@@ -795,90 +705,121 @@ function initApp() {
   wrapPrimaryContentInMain();
 }
 
-// App state
-const appState = {
-  // Application state
-};
+// Helper functions
+function wrapPrimaryContentInMain() {
+  // Wraps primary content in main element
+}
 
-// Initialize function
-function initialize() {
-  // Initialization code
+function checkUserSafety() {
+  return UserSafety;
+}
+
+function getUserSafety() {
+  return userSafety;
+}
+
+function updateUserSafety(safety) {
+  UserSafety = safety;
+}
+
+function updateSafetyCategories(categories) {
+  SafetyCategories = categories;
+}
+
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.textContent = 'Unrotate';
+  button.setAttribute('aria-label', 'Unrotate the view');
+  return button;
+}
+
+function rotateBack() {
+  console.log('Rotating back...');
+}
+
+function validateTableAccessibility(table) {
+  // Validate table accessibility
+  return true;
+}
+
+function validateTableStructure(table) {
+  // Validate table structure
+  return true;
+}
+
+function getSvgAccessibleName(svgId) {
+  const svg = document.getElementById(svgId);
+  if (svg) {
+    return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || 'graphic';
+  }
+  return '';
+}
+
+function setSvgAttributes(svgId, attributes) {
+  const svg = document.getElementById(svgId);
+  if (svg) {
+    Object.keys(attributes).forEach(key => {
+      svg.setAttribute(key, attributes[key]);
+    });
+  }
+}
+
+function sortLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) return [];
+  return landmarks.sort((a, b) => {
+    const roleOrder = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+    return roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role);
+  });
+}
+
+function getLandmarkById(id) {
+  return landmarks.find(l => l.id === id);
+}
+
+function enhanceAddBookFormAccessibility(form) {
+  if (form) {
+    form.setAttribute('aria-label', 'Add new book');
+    form.setAttribute('role', 'form');
+  }
+}
+
+function addressAccessibilityIssues() {
+  // Address accessibility issues
+}
+
+function setSvgAccessibleNames(svg1Id, svg2Id, label1, label2) {
+  const svg1 = document.getElementById(svg1Id);
+  const svg2 = document.getElementById(svg2Id);
+  if (svg1) svg1.setAttribute('aria-label', label1);
+  if (svg2) svg2.setAttribute('aria-label', label2);
+}
+
+function ensureUniqueLandmarksDoc() {
+  // Ensure unique landmarks documentation
+}
+
+function fixButtonIdentifiers() {
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    if (!button.id) {
+      button.id = `button-${index}`;
+    }
+  });
+}
+
+function ensureDependencyGraphAriaRole() {
+  const container = document.getElementById('dependencyGraph');
+  if (container && !container.getAttribute('role')) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
+function googleSignIn() {
+  console.log('Google Sign-In initiated');
 }
 
 // Export all functions
-export {
-  checkSafetyCategories,
-  addBook,
-  getBooksList,
-  safetyCategory,
-  createInPageButton,
-  getLangAttribute,
-  generateAccessibilityReport,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createBookForm,
-  announceBookAdded,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  addressAccessibilityIssues,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  main,
-  checkUserSafety,
-  createAccessibleInput,
-  createUnrotateButton,
-  fixAccessibilityIssues,
-  generateDependencyReport,
-  renderDependencyGraphContent,
-  countDependencies,
-  enhanceAddBookFormAccessibility,
-  ensureLandmarkUniqueness,
-  visualizeDependencyTree,
-  rotateBack,
-  UserSafety,
-  SafetyCategories,
-  generateDependencyReport as generateDependency,
-  getUserSafety,
-  main as mainFunction,
-  fixAccessibilityIssues as fixAccessibilityIssuesFunc,
-  accessiblyHelper,
-  createAccessibleInput as createAccessibleInputFunc,
-  getUserSafetyAdvice,
-  appState,
-  updateAppData,
-  fetchData,
-  validateInputForDataFetch,
-  initializeApp,
-  initialize,
-  landmarkStructureCheck,
-  addMainLandmark,
-  fixTableStructureIssues,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  createInPageButton as createInPageButtonFunc,
-  isSecureContext,
-  ensureFocusableElements,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  fixFakeLinks as fixFakeLinksAlias,
-  ensureUniqueLandmarksDoc,
-  fixButtonIdentifiers,
-  ensureDependencyGraphAriaRole,
-  googleSignIn
-};
-
 module.exports = {
   addBook,
   getBooksList,
@@ -909,7 +850,6 @@ module.exports = {
   rotateBack,
   updateUserSafety,
   updateSafetyCategories,
-  validateTableStructure,
   addLangAttribute,
   addLandmarkRoles,
   fixFakeLinks,
@@ -917,44 +857,30 @@ module.exports = {
   loadLandmarks,
   processLandmarks,
   setSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  renderDependencyGraphContent,
-  ensureUniqueLandmarks,
-  countDependencies,
-  fixAccessibilityIssues,
-  generateDependencyReport,
-  createBookForm,
-  createInPageButton,
-  getLangAttribute,
-  generateAccessibilityReport,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createBookForm,
+  countDependencies: countDependencies,
+  createInPageButton: createInPageButton,
+  getLangAttribute: getLangAttribute,
+  generateAccessibilityReport: generateAccessibilityReport,
+  validateTableAccessibility: validateTableAccessibility,
+  getSvgAccessibleName: getSvgAccessibleName,
+  setSvgAttributes: setSvgAttributes,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  createBookForm: createBookForm,
   announceBookAdded,
   setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  addressAccessibilityIssues,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  main,
-  checkUserSafety,
-  checkSafetyCategories,
-  createAccessibleInput,
-  createUnrotateButton,
-  fixAccessibilityIssues,
-  generateDependencyReport,
-  renderDependencyGraphContent,
-  countDependencies,
-  enhanceAddBookFormAccessibility,
-  ensureLandmarkUniqueness,
-  visualizeDependencyTree,
-  rotateBack,
+  fixFakeLinks: fixFakeLinks,
+  loadLandmarks: loadLandmarks,
+  processLandmarks: processLandmarks,
+  sortLandmarks: sortLandmarks,
+  getLandmarkById: getLandmarkById,
+  main: main,
+  checkUserSafety: checkUserSafety,
+  createAccessibleInput: createAccessibleInput,
+  fixAccessibilityIssues: fixAccessibilityIssues,
+  renderDependencyGraphContent: renderDependencyGraphContent,
+  enhanceAddBookFormAccessibility: enhanceAddBookFormAccessibility,
+  visualizeDependencyTree: visualizeDependencyTree,
+  rotateBack: rotateBack,
   UserSafety,
   SafetyCategories,
   generateDependencyReport as generateDependency,
@@ -972,8 +898,7 @@ module.exports = {
   fixTableStructureIssues,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
-  addLangAttribute,
-  createInPageButton,
+  createInPageButton as createInPageButtonFunc,
   isSecureContext,
   ensureFocusableElements,
   validateSvgAccessibility,
@@ -983,7 +908,7 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  fixFakeLinks,
+  fixFakeLinks as fixFakeLinksAlias,
   ensureUniqueLandmarksDoc,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,

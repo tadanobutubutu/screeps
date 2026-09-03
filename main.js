@@ -13,7 +13,6 @@ const {
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
-  createInPageButton,
   createWebResourceButton,
   validateLandmark,
   validateLandmarkStructure,
@@ -548,6 +547,22 @@ function implementAccessibilityFixesFromReport (container, report) {
   }
 
   return fixes
+}
+
+// TODO: Implement this function for creating in-page buttons
+// (Now implemented with accessibility improvements)
+function createInPageButton(label, onClick, options = {}) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.setAttribute('aria-label', label);
+  if (options.className) {
+    button.className = options.className;
+  }
+  if (options.type) {
+    button.type = options.type;
+  }
+  button.addEventListener('click', onClick);
+  return button;
 }
 
 // ... Rest of the file remains unchanged

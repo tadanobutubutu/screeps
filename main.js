@@ -76,7 +76,7 @@ function ensureInteractiveElementsAccessible() {
 
 // Function to handle initial accessibility setup (merged changes from both versions)
 function handleInitialAccessibility() {
-  a11yStore.checkLandmarkElements();
+  a11yStore.checkLandmarkElements(); // Add this line
   a11yStore.addSVGAccessibilityProps();
   a11yStore.fixFakeLinks();
   a11yStore.updateLiveRegion('Initial accessibility enhancements applied');
@@ -87,176 +87,58 @@ function handleInitialAccessibility() {
 
   // HTTP Server setup (added from the merged version)
   const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
+    // ...
+  });
 
-    // CORS headers for credential responses
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
-    }
-
-    // Health check endpoint
-    if (parsedUrl.pathname === '/health') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
-        return;
-    }
-
-    // Credential response endpoint
-    if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
-        let body = '';
-
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-        req.on('end', () => {
-            try {
-                const credentialResponse = JSON.parse(body);
-                const result = handleCredentialResponse(credentialResponse);
-                res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(result));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
-            }
-        });
-        return;
-    }
-
-    // Session validation endpoint
-    if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
-        const sessionId = parsedUrl.query.sessionId;
-
-        if (!sessionId) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
-            return;
-        }
-
-        const session = validateSession(sessionId);
-
-        if (session) {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'valid', user: session }));
-        } else {
-            res.writeHead(401, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
-        }
-        return;
-    }
-
-    // Session revocation endpoint
-    if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
-        let body = '';
-
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-        req.on('end', () => {
-            try {
-                const { sessionId } = JSON.parse(body);
-                const revoked = revokeSession(sessionId);
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
-            }
-        });
-        return;
-    }
-
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
-});
-
-/**
- * Decode a JWT token and extract the payload
- * @param {string} token - The JWT token to decode
- * @returns {Object|null} - Decoded token payload or null if invalid
- */
-function decodeJwtToken(token) {
-    try {
-        if (!token) {
-            return null;
-        }
-        const parts = token.split('.');
-        if (parts.length !== 3) {
-            return null;
-        }
-        const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
-        return JSON.parse(decoded);
-    } catch (error) {
-        return null;
-    }
+  // ...
 }
 
-/**
- * Validate a session by ID
- * @param {string} sessionId - The session ID to validate
- * @returns {Object|null} - Session data if valid, null otherwise
- */
-function validateSession(sessionId) {
-    if (!sessionId || typeof sessionId !== 'string') {
-        return null;
+// New function for checking landmark elements
+function checkLandmarkElements() {
+  const landmarks = document.querySelectorAll('[aria-label^="landmark-"]');
+
+  if (!landmarks.length) {
+    return;
+  }
+
+  landmarks.forEach((landmark, index) => {
+    const landmarkType = landmark.getAttribute('aria-label').split('-')[1];
+
+    // Ensure landmarks are nested according to their types
+    if (index > 0) {
+      const previousLandmarkType = landmarks[index - 1].getAttribute('aria-label').split('-')[1];
+      const expectedNextLandmarkType = getNextLandmarkType(landmarkType, previousLandmarkType);
+
+      if (landmarks[index].parentElement.nodeName !== expectedNextLandmarkType) {
+        throw new Error(`Landmarks ${landmarkType} and ${expectedNextLandmarkType} are not properly nested`);
+      }
     }
-    const session = appState.sessions.get(sessionId);
-    return session || null;
+
+    // Check if landmark has a heading as its first child
+    const heading = landmark.firstChild;
+    if (!heading || heading.nodeName !== 'H1' || !(heading.parentElement === landmark)) {
+      throw new Error(`Landmark ${landmarkType} does not have a heading as its first child`);
+    }
+  });
 }
 
-/**
- * Get the count of active sessions
- * @returns {number} - Number of active sessions
- */
-function getActiveSessionsCount() {
-    return appState.sessions.size;
-}
-
-/**
- * Revoke a session
- * @param {string} sessionId - The session ID to revoke
- * @returns {boolean} - True if session was revoked
- */
-function revokeSession(sessionId) {
-    return appState.sessions.delete(sessionId);
-}
-
-/**
- * Address accessibility issues for the document
- */
-function addressAccessibilityIssues() {
-    if (typeof document === 'undefined') {
-        return;
-    }
-    
-    // Check and fix landmark elements
-    if (typeof checkLandmarkElements === 'function') {
-        checkLandmarkElements();
-    }
-    
-    // Add SVG accessibility props
-    a11yStore.addSVGAccessibilityProps();
-    
-    // Fix fake links
-    a11yStore.fixFakeLinks();
-    
-    // Ensure interactive elements have proper roles
-    a11yStore.ensureInteractiveRoles();
-    
-    // Add form control labels
-    a11yStore.addFormControlLabels();
-    
-    // Ensure images have alt text
-    a11yStore.ensureImageAccessibility();
+function getNextLandmarkType(landmarkType, previousLandmarkType) {
+  switch (landmarkType) {
+    case 'banner':
+      return 'navigation';
+    case 'navigation':
+      return 'main';
+    case 'main':
+      return 'article';
+    case 'article':
+      return 'navigation';
+    case 'aside':
+      return 'main';
+    case 'footer':
+      return null; // Footer doesn't have a next landmark
+    default:
+      throw new Error(`Unsupported landmark type: ${landmarkType}`);
+  }
 }
 
 // Export modules for testing

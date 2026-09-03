@@ -84,6 +84,15 @@ function ensureUniqueLandmarks(landmarks, idField = 'id') {
     return uniqueLandmarks;
 }
 
+// Performance check for upgrading the database
+function performUpgrade() {
+    if (CONFIG.version && CONFIG.version < 1) {
+        console.log('Performing database upgrade...');
+        // Perform necessary database upgrade actions if needed
+        CONFIG.version = 1;
+    }
+}
+
 // Function to write the generated report to a file
 function writeReport(report) {
     const reportFile = path.join(__dirname, 'accessibility_report.json');
@@ -115,6 +124,7 @@ function addressAccessibilityIssues() {
 
 // Initialize accessibility on game load
 if (typeof document !== 'undefined') {
+    performUpgrade();
     document.addEventListener('DOMContentLoaded', addressAccessibilityIssues);
 }
 

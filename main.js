@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Find the primary content element in the DOM
 const primaryContent = document.querySelector('.primary-content') ||
                         document.querySelector('[role="main"]') ||
@@ -172,6 +169,4 @@ export {
   generateDependencyString,
   effectorSW,
   effector
-```
-
-I kept both sets of imports and functions to satisfy both changes, removed the TODO comments, and organized the code somewhat. Keep in mind that this is a simplified example and resolving actual conflicts might require more context about the specific changes and their interactions.
+};

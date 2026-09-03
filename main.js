@@ -28,6 +28,13 @@ app.get('/api/countDependencies', (req, res) => {
   res.json({ count });
 });
 
+// TODO: New code that was added to the branch
+// New function that does something different
+function newFunction() {
+  // New function implementation
+  console.log('New function executed');
+}
+
 const server = http.createServer(app);
 server.listen(config.port, () => {
   console.log(`Server running on port ${config.port}`);

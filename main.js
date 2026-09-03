@@ -471,6 +471,69 @@ function createInPageButton(parent = document.body) {
 }
 
 /**
+ * Wraps primary content in a <main> element for proper landmark structure
+ * Addresses REACT_017: Add/fix landmark issues
+ * @param {HTMLElement} content - The content element to wrap
+ * @param {HTMLElement} container - The container element to append the main element to
+ * @param {Object} options - Configuration options
+ * @param {string} options.id - The id attribute for the main element (default: 'main-content')
+ * @param {string} options.className - The class name for the main element (default: 'primary-content')
+ * @param {string} options.role - The ARIA role for the element (default: 'main')
+ * @param {string} options.ariaLabel - Optional aria-label for the main element
+ * @returns {HTMLElement|null} The created main element, or null if validation fails
+ */
+function wrapPrimaryContentInMain(content, container, options = {}) {
+  const {
+    id = 'main-content',
+    className = 'primary-content',
+    role = 'main',
+    ariaLabel
+  } = options;
+
+  // Validate required parameters
+  if (!container) {
+    if (typeof document !== 'undefined') {
+      console.warn('wrapPrimaryContentInMain: Container element is required');
+    }
+    return null;
+  }
+
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  // Check for existing main elements to ensure uniqueness (per ARIA best practices)
+  const existingMains = document.querySelectorAll('main, [role="main"]');
+  if (existingMains.length > 0) {
+    console.warn(`wrapPrimaryContentInMain: Found ${existingMains.length} existing main element(s). There should be only one main landmark per page.`);
+  }
+
+  // Create the main element
+  const mainElement = document.createElement('main');
+  mainElement.id = id;
+  mainElement.className = className;
+  mainElement.setAttribute('role', role);
+
+  if (ariaLabel) {
+    mainElement.setAttribute('aria-label', ariaLabel);
+  }
+
+  // If content is provided, append it to the main element
+  if (content) {
+    if (content instanceof HTMLElement) {
+      mainElement.appendChild(content);
+    } else if (typeof content === 'string') {
+      mainElement.textContent = content;
+    }
+  }
+
+  // Append the main element to the container
+  container.appendChild(mainElement);
+
+  return mainElement;
+}
+
+/**
  * Builds a hierarchical representation of dependencies from a root node
  * @param {HTMLElement} node - The DOM node to analyze for dependencies
  * @param {Object} options - Configuration options
@@ -980,6 +1043,7 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  wrapPrimaryContentInMain,
   renderDependencyGraph,
   renderIndexView,
   buildDependencyGraph,

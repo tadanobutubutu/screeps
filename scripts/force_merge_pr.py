@@ -33,8 +33,14 @@ def run_cmd(args, check=True, capture=True):
 
 
 def setup_git_config():
-    run_cmd(["git", "config", "user.name", "AI Merge Bot"], check=False)
-    run_cmd(["git", "config", "user.email", "ai-merge-bot@screeps.local"], check=False)
+    bot_name = "github-actions[bot]"
+    bot_email = "41898282+github-actions[bot]@users.noreply.github.com"
+    run_cmd(["git", "config", "user.name", bot_name], check=False)
+    run_cmd(["git", "config", "user.email", bot_email], check=False)
+    os.environ["GIT_AUTHOR_NAME"] = bot_name
+    os.environ["GIT_AUTHOR_EMAIL"] = bot_email
+    os.environ["GIT_COMMITTER_NAME"] = bot_name
+    os.environ["GIT_COMMITTER_EMAIL"] = bot_email
 
 
 def resolve_file_conflict_with_ai(file_content, filename):

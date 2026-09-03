@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const main = require('./utilities')
 
 function createInPageButton(buttonId, buttonText, buttonClass) {
@@ -250,4 +247,3 @@ function implementAccessibilityFixesFromReport(container, report) {
 }
 
 // ... (Remaining functions are preserved as they were in the original content)
-```

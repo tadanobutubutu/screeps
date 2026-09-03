@@ -75,6 +75,13 @@ function countDependencies() {
     };
 }
 
+// Credential response handling state
+const credentialState = {
+  pending: null,
+  resolved: new Map(),
+  handlers: new Map()
+};
+
 /**
  * Handle credential response from browser authentication
  * @param {Object} response - The credential response object
@@ -121,6 +128,134 @@ function handleCredentialResponse(response) {
     }
 
     return processedCredential;
+}
+
+/**
+ * Process and validate credential response with full implementation
+ * @param {Object} credentialResponse - The raw credential response from the client
+ * @returns {Promise<Object>} A promise resolving to the processed credential data
+ */
+async function processCredentialResponse(credentialResponse) {
+    if (!credentialResponse) {
+        throw new Error('Credential response is required');
+    }
+
+    // Extract the credential token
+    const token = credentialResponse.credential || credentialResponse.token;
+    
+    if (!token) {
+        throw new Error('No credential token found in response');
+    }
+
+    // Parse JWT token if it's a Google credential
+    let credentialData = {
+        raw: credentialResponse,
+        token: token,
+        timestamp: Date.now()
+    };
+
+    if (credentialResponse.credential) {
+        try {
+            const parts = credentialResponse.credential.split('.');
+            if (parts.length === 3) {
+                const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+                credentialData.user = {
+                    id: payload.sub || credentialResponse.id,
+                    email: payload.email,
+                    name: payload.name,
+                    picture: payload.picture,
+                    emailVerified: payload.email_verified
+                };
+                credentialData.expiry = payload.exp;
+                credentialData.issuedAt = payload.iat;
+            }
+        } catch (parseError) {
+            console.error('Error parsing credential JWT:', parseError);
+            throw new Error('Invalid credential token format');
+        }
+    } else if (credentialResponse.token) {
+        // Handle generic token response
+        credentialData.user = {
+            id: credentialResponse.id,
+            name: credentialResponse.name || credentialResponse.username,
+            email: credentialResponse.email
+        };
+    }
+
+    // Store resolved credential
+    credentialState.resolved.set(credentialData.user?.id || token, credentialData);
+
+    return {
+        success: true,
+        data: credentialData,
+        message: 'Credential response processed successfully'
+    };
+}
+
+/**
+ * Register a handler for credential response events
+ * @param {string} eventType - The type of event ('success', 'error', 'pending')
+ * @param {Function} handler - The handler function to call
+ * @returns {Function} A function to unregister the handler
+ */
+function onCredentialResponse(eventType, handler) {
+    if (typeof handler !== 'function') {
+        throw new Error('Handler must be a function');
+    }
+
+    if (!credentialState.handlers.has(eventType)) {
+        credentialState.handlers.set(eventType, new Set());
+    }
+
+    credentialState.handlers.get(eventType).add(handler);
+
+    // Return unsubscribe function
+    return () => {
+        const handlers = credentialState.handlers.get(eventType);
+        if (handlers) {
+            handlers.delete(handler);
+        }
+    };
+}
+
+/**
+ * Emit a credential response event to all registered handlers
+ * @param {string} eventType - The type of event to emit
+ * @param {Object} data - The event data to pass to handlers
+ */
+function emitCredentialEvent(eventType, data) {
+    const handlers = credentialState.handlers.get(eventType);
+    if (handlers) {
+        handlers.forEach((handler) => {
+            try {
+                handler(data);
+            } catch (error) {
+                console.error(`Error in credential event handler for ${eventType}:`, error);
+            }
+        });
+    }
+}
+
+/**
+ * Get the current credential state
+ * @returns {Object} The current credential state
+ */
+function getCredentialState() {
+    return {
+        hasPendingCredential: credentialState.pending !== null,
+        resolvedCount: credentialState.resolved.size,
+        pendingCredential: credentialState.pending
+    };
+}
+
+/**
+ * Clear all stored credential data
+ * @returns {boolean} True if successful
+ */
+function clearCredentialData() {
+    credentialState.pending = null;
+    credentialState.resolved.clear();
+    return true;
 }
 
 // Accessibility utilities
@@ -604,6 +739,11 @@ if (typeof module !== 'undefined' && module.exports) {
     spawnSomeCommand,
     addLangAttribute,
     handleCredentialResponse,
+    processCredentialResponse,
+    onCredentialResponse,
+    emitCredentialEvent,
+    getCredentialState,
+    clearCredentialData,
     config,
     XYZ,
     calculateSum,

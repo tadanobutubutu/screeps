@@ -3,8 +3,9 @@
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 // ----- END ORIGINAL CODE-----
 
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+// TODO: Import required module(s) and export the new necessary function(8) here in main.js (preserving the original code)
 const main = require('./utilities')
+
 
 // Import necessary dependencies
 import React from 'react';
@@ -46,12 +47,12 @@ import {
 // Utility functions for accessibility
 const accessibilityUtils = {
     initSkipLink: () => {
-        const skipLink = document.querySelector('.skip-link');
+        const skipLink = ...
         if (skipLink) {
-            skipLink.addEventListener('click', (e) => {
+            ... (e) => {
                 e.preventDefault();
-                const targetId = skipLink.getAttribute('href').substring(1);
-                const target = document.getElementById(targetId);
+                const targetId = ...
+                const target = ...
                 if (target) {
                     target.setAttribute('tabindex', '-1');
                     target.focus();
@@ -62,18 +63,18 @@ const accessibilityUtils = {
 
     trapFocus: (element) => {
         const focusableElements = element.querySelectorAll(
-            'a[href], textarea, input, select, button, [tabindex]:not([tabindex="-1"])'
+            'a[href], textarea, input, select, button, ...
         );
-        const firstElement = focusableElements[0];
+        const firstElement = ...
         const lastElement = focusableElements[focusableElements.length - 1];
 
-        element.addEventListener('keydown', (e) => {
+        ... (e) => {
             if (e.key === 'Tab') {
                 if (e.shiftKey && document.activeElement === firstElement) {
-                    lastElement.focus();
+                    ...
                     e.preventDefault();
                 } else if (!e.shiftKey && document.activeElement === lastElement) {
-                    firstElement.focus();
+                    ...
                     e.preventDefault();
                 }
             }
@@ -87,11 +88,50 @@ const accessibilityUtils = {
     }
 }
 
+// Extract the accessible name for an SVG from its content
+// _Commit: 99ad73e624419419bcc0a150bc9bde64d54c492_
+// _TODO-HASH: 088a77e02482ebe433e3cfd22afa982b134cbdd7_
+// ----- END ORIGINAL CODE-----
+function getSvgAccessibleName(svgElement) {
+  // Check for aria-label attribute first
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim()) {
+    return ariaLabel.trim();
+  }
+
+  // Check for aria-labelledby attribute
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby && ariaLabelledby.trim()) {
+    const id = ariaLabelledby.trim();
+    // Look for the referenced element in the document
+    const labelElement = svgElement.ownerDocument?.getElementById(id) ||
+                        document.getElementById(id) ||
+                        svgElement.querySelector(`#${id}`);
+    if (labelElement && labelElement.textContent) {
+      return labelElement.textContent.trim();
+    }
+  }
+
+  // Check for title element inside the SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent && titleElement.textContent.trim()) {
+    return titleElement.textContent.trim();
+  }
+
+  // Check for desc element inside the SVG
+  const descElement = svgElement.querySelector('desc');
+  if (descElement && descElement.textContent && descElement.textContent.trim()) {
+    return descElement.textContent.trim();
+  }
+
+  return '';
+}
+
 // Accessibility enhancement: Ensure all UI elements are properly labeled
 const handleKeyDown = (event) => {
   const activeElement = document.activeElement;
 
-  // Handle keyboard navigation (e.g., arrow keys, tab)
+  // Handle keyboard navigation (e. g., arrow keys, tab)
   switch (event.key) {
     case 'ArrowUp':
     case 'ArrowDown':
@@ -118,7 +158,7 @@ const handleTabNavigation = (event, activeElement) => {
 };
 
 // Address accessibility issues from insight report
-function implementAccessibilityFixesFromReport(container, report) {
+function ... report) {
   const fixes = {
     langAdded: false,
     mainLandmarkAdded: false,
@@ -133,40 +173,50 @@ function implementAccessibilityFixesFromReport(container, report) {
 
   // Add lang attribute to HTML element if missing
   const htmlEl = document.documentElement || (container.ownerDocument && container.ownerDocument.documentElement);
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en');
+  if (htmlEl && ... {
+    ... 'en');
     fixes.langAdded = true;
   }
 
   // Add main landmark if missing
-  const mainElement = container.querySelector('main');
+  const mainElement = ...
   if (!mainElement) {
     const body = container.ownerDocument ? container.ownerDocument.body : document.body;
     if (body) {
-      const newMain = document.createElement('main');
+      const newMain = ...
       while (body.firstChild) {
-        newMain.appendChild(body.firstChild);
+        ...
       }
-      body.appendChild(newMain);
+      ...
       fixes.mainLandmarkAdded = true;
     }
   }
 
   // Fix landmark issues
   validateLandmark(container);
-  validateLandmarkStructure(container);
-  fixes.landmarksFixed++;
+  ...
+  ...
 
   // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg');
-  svgElements.forEach((svg) => {
+  const svgElements = ...
+  ... => {
     const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName && !svg.hasAttribute('aria-label')) {
-      svg.setAttribute('aria-label', accessibleName);
+    if (accessibleName && ... {
+      ... accessibleName);
       fixes.svgNamesAdded++;
     }
   });
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href]), [role="link"]:not([href])');
-  fakeLinks.forEach((link) => {
+  const fakeLinks = ... ...
+  ... => {
+    ...
+    fixes.fakeLinksFixed++;
+  }
+  ...;
+
+  return fixes;
+}
+
+// Export the function for use in other modules
+export { getSvgAccessibleName };

@@ -1,10 +1,9 @@
-// Accessibility Functions for Screeps
-
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
+const { notifyUser } = require('./notifications');
 
 let dependencyGraph = {};
 let UserSafety = "unsafe";
@@ -19,141 +18,46 @@ function generateDependencyReport(dependencies) {
 }
 
 function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
-  // REACT_015: Add lang attribute
-  setLangAttribute('en');
+  addLangAttribute();
+  addLandmarkRolesAndFixIssues();
+  fixLandmarkIssues();
+  fixFakeLinks();
+  addProperLandmarkRegions();
+  replaceMyButton();
+  ensureDependencyGraphAriaRole();
 }
 
-const accessiblyHelper = async (...args) => {
-  return args;
-};
+async function accessibilityAudit() {
+  const issuesData = await axe.analyze('./index.html');
+  const report = generateAccessibilityReport(issuesData);
 
-function createAccessibleInput(type, id, labelText, value = '') {
-  const container = document.createElement('div');
-  container.className = 'form-group';
-
-  const label = document.createElement('label');
-  label.setAttribute('for', id);
-  label.textContent = labelText;
-
-  const input = document.createElement('input');
-  input.setAttribute('type', type);
-  input.setAttribute('id', id);
-  input.setAttribute('name', id);
-  input.setAttribute('aria-required', 'true');
-  input.setAttribute('aria-label', labelText);
-  input.value = value;
-
-  container.appendChild(label);
-  container.appendChild(input);
-  return container;
-}
-
-function getUserSafetyAdvice() {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
-}
-
-function generateAccessibilityReport(issuesData) {
-  let issues;
-
-  if (!issuesData) {
-    issues = axe.analyze('./index.html');
+  if (issuesData.violations.length > 0) {
+    UserSafety = "danger";
+    SafetyCategories = "Potential Scam";
+    notifyUser("Accessibility Issue Found", `Refer to the report below for details:\n${JSON.stringify(report, null, 2)}`);
   } else {
-    issues = axe.analyze('./index.html');
+    UserSafety = "safe";
+    SafetyCategories = "No Issues";
+    notifyUser("Accessibility Check Passed", "The application has passed the accessibility audit.");
   }
-
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: issues,
-    conclusions: '',
-  };
-
-  return report;
 }
 
-function getLangAttribute() {
-  const htmlElement = document.documentElement;
-  return htmlElement.getAttribute('lang') || 'en';
+function checkForDependencyUpdates() {
+  // Check for updates here
 }
 
-// REACT_015: Add lang attribute - Address accessibility issues from insight report
-function setLangAttribute(lang = 'en') {
-  const htmlElement = document.documentElement;
-  htmlElement.setAttribute('lang', lang);
-  return htmlElement.getAttribute('lang');
+function main(creep) {
+  creep.room.controller.notifyWhenMy(): void; // Notify controller when my code is running
+  accessibilityAudit();
+  checkForDependencyUpdates();
 }
 
-function createInPageButton(targetId, label) {
-  const button = document.createElement('button');
-  button.textContent = label;
-  button.id = targetId;
-  button.setAttribute('role', 'button');
-  button.setAttribute('aria-label', `Go to ${targetId}`);
-  button.addEventListener('click', () => {
-    const target = document.getElementById(targetId);
-    if (target) {
-      target.focus();
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
-  });
-  return button;
-}
+const app = express();
 
-export const main = {
-  init: function() {
-    console.log('Application initialized');
-  },
+app.listen(3000, () => {
+  console.log('Express server listening on port 3000');
+});
 
-  greet: function(name) {
-    return `Hello, ${name}!`;
-  },
-
-  rotateBack: function() {
-    console.log('Reverting back the rotation.');
-  },
-
-  addressAccessibilityIssues: function() {
-    fixAccessibilityIssues();
-  },
-
-  addBook: function(title, author, isbn) {
-    // Create form with proper accessibility attributes
-    const form = document.createElement('form');
-    form.setAttribute('role', 'form');
-
-    // Create accessible input fields
-    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
-    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
-    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
-
-    // Create accessible submit button
-    const submitButton = document.createElement('button');
-    submitButton.setAttribute('type', 'submit');
-    submitButton.textContent = 'Add Book';
-
-    // Append all elements to form
-    form.appendChild(titleInput);
-    form.appendChild(authorInput);
-    form.appendChild(isbnInput);
-    form.appendChild(submitButton);
-
-    // Add form to document body
-    document.body.appendChild(form);
-
-    // Add event listener for form submission
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      // Handle form submission logic here
-      console.log('Book added:', {
-        title: titleInput.querySelector('input').value,
-        author: authorInput.querySelector('input').value,
-        isbn: isbnInput.querySelector('input').value
-      });
-    });
-
-    return form;
-  },
-
-  // ... (preserve existing functionality)
+module.exports = {
+  main
 };

@@ -1,3 +1,10 @@
+// TODO: Address accessibility issues from insight report:
+// - Ensure proper ARIA labels for interactive elements
+// - Implement skip navigation functionality
+// - Add proper focus management for accessibility
+// - Ensure color contrast and keyboard navigation compliance
+// - Implement screen reader announcements for dynamic content
+
 // TODO: This is the existing code that needs to be preserve
 
 // User Safety: unsafe
@@ -224,9 +231,11 @@ function ensureUniqueLandmarks() {
 function createInPageButton() {
   const button = document.createElement('button');
   button.textContent = 'Skip to content';
+  button.setAttribute('aria-label', 'Skip to main content');
   button.addEventListener('click', function() {
     const mainContent = document.getElementById('main-content');
     if (mainContent) {
+      mainContent.setAttribute('tabindex', '-1');
       mainContent.focus();
     }
   });
@@ -397,4 +406,69 @@ const accessibilityUtils = {
       const requiredLandmarks = ['main', 'nav', 'footer'];
       const missingLandmarks = [];
 
-      requiredLand
+      requiredLandmarks.forEach(landmark => {
+        if (!document.querySelector(landmark)) {
+          missingLandmarks.push(landmark);
+        }
+      });
+
+      if (missingLandmarks.length > 0) {
+        console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        return false;
+      }
+
+      return true;
+    }
+};
+
+// Initialize accessibility features when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Add skip to content button for better navigation
+  const skipButton = createInPageButton();
+  skipButton.style.position = 'absolute';
+  skipButton.style.top = '-40px';
+  skipButton.style.left = '6px';
+  skipButton.style.padding = '8px';
+  skipButton.style.background = '#000';
+  skipButton.style.color = '#fff';
+  skipButton.style.textDecoration = 'none';
+  skipButton.style.borderRadius = '4px';
+  skipButton.style.zIndex = '1000';
+  
+  document.body.appendChild(skipButton);
+  
+  // Improve skip button accessibility with focus styles
+  skipButton.addEventListener('focus', function() {
+    this.style.outline = '3px solid #ffbf47';
+    this.style.top = '6px';
+  });
+  
+  skipButton.addEventListener('blur', function() {
+    this.style.outline = 'none';
+    this.style.top = '-40px';
+  });
+  
+  // Add main landmark
+  addMainLandmark();
+  
+  // Apply proper landmark regions
+  addProperLandmarkRegions();
+  
+  // Handle fake links for screen readers
+  handleFakeLinks();
+});
+
+// Export accessibility functions for use in other modules
+module.exports = {
+  addLangAttribute,
+  createInPageButton,
+  generateAccessibilityReport,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  validateLandmark,
+  ensureUniqueLandmarks,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  accessibilityUtils
+};

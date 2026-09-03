@@ -123,6 +123,8 @@ function main() {
   // Additional setup can be added as needed
 }
 
+// TODO: Add new functions below this line
+
 module.exports = {
   greetingFunction,
   renderGraphIndex,

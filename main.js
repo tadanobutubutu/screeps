@@ -1,4 +1,4 @@
-// main.js - Accessibility-focused implementation
+const main = require('./utilities')
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs, fix fake links
 const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('[role="main"]') || document.body : null;
@@ -15,14 +15,85 @@ const primaryContent = (typeof document !== 'undefined') ? document.querySelecto
 // _Commit: 9f4ca23445c76674f7b5dd5047c707b41ba67409_
 // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
-// New functions to address the listed issues
-const addLangAttribute = (element) => {
-  if (element && typeof element.setAttribute === 'function') {
-    element.setAttribute('lang', 'en');
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  setSvgAccessibilityProps,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  ensureElementHasIdOrigin,
+  addAriaLabel: addAriaLabelAlt,
+  googleSignIn,
+  handleCredentialResponseAlt,
+  renderGraphIndexUtil,
+  addressAccessibilityIssues
+} = require('./utilities');
+
+const http = require('http')
+
+// New function to ensure the element has an id
+const ensureElementHasId = (element, prefix = 'element') => {
+  if (!element.id) {
+    element.id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   }
-  return element;
+  return element.id
+}
+
+// New function to add aria-label to an element
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label)
+  }
+  return element
+}
+
+// REACT_015: Add lang attribute - supports both document and element
+const addLangAttribute = (target, lang = 'en') => {
+  if (typeof document !== 'undefined') {
+    if (target && typeof target.setAttribute === 'function') {
+      // Called with element
+      target.setAttribute('lang', lang);
+      return target;
+    } else if (document.documentElement) {
+      // Called with lang string or no args
+      const language = typeof target === 'string' ? target : lang;
+      document.documentElement.setAttribute('lang', language);
+      return document.documentElement;
+    }
+  }
+  return null;
 };
 
+// Updated function using new functions for rendering graph/index
+const renderGraphIndex = (graphData) => {
+  addressAccessibilityIssues()
+  renderDependencyGraphs(graphData)
+}
+
+function renderGraphIndexAlt(graphData) {
+  addressAccessibilityIssues();
+  renderDependencyGraphs(graphData);
+}
+
+// Primary content element detection
+const primaryContent = (typeof document !== 'undefined') 
+  ? document.getElementById('primary-content') 
+    || document.querySelector('main') 
+    || document.querySelector('[role="main"]') 
+    || null 
+  : null;
+
+// Initialize landmarks array
+let landmarks = [];
+
+// New functions to address the listed issues
 const ensureLandmarkUniqueness = (elements) => {
   if (!Array.isArray(elements)) {
     return [];
@@ -32,7 +103,7 @@ const ensureLandmarkUniqueness = (elements) => {
   const seen = new Map();
 
   elements.forEach(element => {
-    const key = element.id || element.name || element.tagName;
+    const key = element.id || element.name || element.className || '';
     if (!seen.has(key)) {
       seen.set(key, true);
       uniqueElements.push(element);
@@ -44,16 +115,16 @@ const ensureLandmarkUniqueness = (elements) => {
 
 const getSvgAccessibleName = (svgElement, name) => {
   // Try to get accessible name from various attributes
-  return svgElement.getAttribute('aria-label') ||
-         svgElement.getAttribute('aria-labelledby') ||
-         svgElement.getAttribute('title') ||
-         svgElement.getAttribute('desc') ||
-         name || null;
+  return svgElement.getAttribute('aria-label') 
+    || svgElement.getAttribute('aria-labelledby') 
+    || svgElement.getAttribute('title') 
+    || (svgElement.querySelector('title') && svgElement.querySelector('title').textContent)
+    || name || null;
 };
 
 const setSvgAttributes = (svg) => {
   // Set default SVG attributes for accessibility
-  if (svg && svg.tagName && svg.tagName.toLowerCase() === 'svg') {
+  if (svg && svg.tagName === 'SVG') {
     svg.setAttribute('role', 'img');
   }
   if (svg && !svg.hasAttribute('aria-hidden')) {
@@ -61,57 +132,13 @@ const setSvgAttributes = (svg) => {
   }
 };
 
-const init = () => {
-  addLangAttribute();
-  addressInsightIssues(); // Integrated function from the first branch
-  enforceAccessibility(); // Integrated function from the second branch
-};
-
-const addressInsightIssues = () => {
-  getLandmarkElements();
-  ensureLandmarkUniqueness(landmarks);
-  validateTableAccessibility();
-  validateTableStructure();
-
-  createInPageButton();
-  createAccessibleLink();
-
-  validateLandmark();
-  validateLandmarkStructure();
-};
-
-const enforceAccessibility = () => {
-  renderDependencyGraphs(); // From the second branch
-  fixButtonIdentifiers(); // From the second branch
-  fixFakeLinkIssues(); // From the second branch
-  handleAccessibilityIssues(); // From the second branch
-  getSvgAccessibleName(); // From the second branch
-  setSvgAttributes(); // From the second branch
-  setupFocusManagement(); // From the second branch
-  checkTableStructure(); // From the second branch
-};
-
-// Preserve other exports and utility functions
-const checkTableStructure = /* existing code */ function checkTableStructure() {
-  // Implementation for checking table structure
-  return true;
-};
-
-const countDependencies = /* existing code */ function countDependencies() {
-  // Implementation for counting dependencies
-  return 0;
-};
-
-const handleCredentialResponse = /* existing code */ function handleCredentialResponse(response) {
-  // Implementation for handling credential response
-  console.log('Credential response received');
-};
-
-// Utility functions from origin/main
 const getLandmarkElements = () => {
-  // Your implementation for accessing landmarks
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
-  return Array.from(landmarks);
+  // Implementation for accessing landmarks
+  if (typeof document !== 'undefined') {
+    const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+    return Array.from(landmarks);
+  }
+  return [];
 };
 
 const createInPageButton = () => {
@@ -198,8 +225,69 @@ const setupFocusManagement = () => {
   });
 };
 
-// Export the init function and the combined functions from both source code branches
-export {
+const checkTableStructure = /* existing code */ function checkTableStructure() {
+  // Implementation for checking table structure
+  return true;
+};
+
+const countDependencies = /* existing code */ function countDependencies() {
+  // Implementation for counting dependencies
+  return 0;
+};
+
+const handleCredentialResponse = /* existing code */ function handleCredentialResponse(response) {
+  // Implementation for handling credential response
+  console.log('Credential response received');
+};
+
+const ensureDependencyGraphAriaRole = () => {
+  // Implementation for ensuring dependency graph aria role
+};
+
+const setupAriaLiveRegions = () => {
+  // Implementation for setting up aria live regions
+};
+
+const enhanceSemanticMarkup = () => {
+  // Implementation for enhancing semantic markup
+};
+
+const addressInsightIssues = () => {
+  landmarks = getLandmarkElements();
+  landmarks = ensureLandmarkUniqueness(landmarks);
+  validateTableAccessibility();
+  validateTableStructure();
+
+  createInPageButton();
+  createAccessibleLink();
+
+  validateLandmark();
+  validateLandmarkStructure();
+};
+
+const enforceAccessibility = () => {
+  renderDependencyGraphs(); // From the second branch
+  fixButtonIdentifiers(); // From the second branch
+  fixFakeLinkIssues(); // From the second branch
+  handleAccessibilityIssues(); // From the second branch
+  getSvgAccessibleName(); // From the second branch
+  setSvgAttributes(); // From the second branch
+  setupFocusManagement(); // From the second branch
+  checkTableStructure(); // From the second branch
+};
+
+const init = () => {
+  addLangAttribute();
+  addressInsightIssues(); // Integrated function from the first branch
+  enforceAccessibility(); // Integrated function from the second branch
+};
+
+module.exports = {
+  ensureElementHasId,
+  addAriaLabel,
+  addLangAttribute,
+  renderGraphIndex,
+  renderGraphIndexAlt,
   init,
   countDependencies,
   handleCredentialResponse,
@@ -208,5 +296,21 @@ export {
   setSvgAttributes,
   renderDependencyGraphs,
   fixFakeLinkIssues,
-  fixButtonIdentifiers
+  fixButtonIdentifiers,
+  ensureLandmarkUniqueness,
+  getLandmarkElements,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureDependencyGraphAriaRole,
+  setupAriaLiveRegions,
+  setupFocusManagement,
+  enhanceSemanticMarkup,
+  validateTableAccessibility,
+  validateTableStructure,
+  addressInsightIssues,
+  enforceAccessibility,
+  primaryContent,
+  landmarks
 };

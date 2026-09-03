@@ -33,21 +33,16 @@ const {
   setLanguageAttribute, 
   addLandmarkRoles, 
   fixFakeLinks, 
-  addressAccessibilityIssues, 
   setSvgAccessibleNames, 
   ensureUniqueLandmarks, 
   fixUniqueLandmarks 
 } = require('./AccessibilityUtilities');
 
-const { 
-  validateInput, processData, formatResponse 
-} = require('./utils/validators');
+const { validateInput, processData, formatResponse } = require('./utils/validators');
 const { calculateSum } = require('./utils');
-const { getLangAttribute, getFullLangAttribute } = require('./utils/accessibilityUtils');
-const { validateTableAccessibility, validateTableStructure } = require('./utils/tableAccessibilityUtils');
+const { validateTableAccessibility } = require('./utils/tableAccessibilityUtils');
 const { validateLandmark, validateLandmarkStructure } = require('./utils/landmarkUtils');
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
-const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
+const { getSvgAccessibleName } = require('./utils/svgAccessibilityUtils');
 const { checkLinkAccessibility } = require('./utils/linkAccessibilityUtils');
 const { CONFIG: CONFIG_UTILS } = require('./utils/constants');
 

@@ -380,9 +380,6 @@ function updateFunction() {
   return main.updateFunction();
 }
 
-// Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
-
 function accessibleFunction() {
   return main.accessibleFunction();
 }
@@ -522,6 +519,9 @@ function implementAccessibilityFixesFromReport(container, report) {
   return fixes;
 }
 
+// Preserve any existing exports here
+export { createInPageButton, validateLandmarkStructure, renderGraphIndex, renderDependencyGraph };
+
 module.exports = {
   ...accessibilityUtils,
   accessibilityUtils,
@@ -542,4 +542,13 @@ module.exports = {
   harvest,
   function3,
   implementAccessibilityFixesFromReport,
+  accessibleFunction,
+  newFunction1,
+  newFunction2,
+  newFunction,
+  anotherNewFunction,
+  getLangAttribute,
+  ensureDependencyGraphARIA,
+  renderGraphIndex,
+  validateLandmarkStructure,
 };

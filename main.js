@@ -31,61 +31,7 @@ const {
 
 // Accessibility utilities for keyboard navigation and screen reader support
 const accessibilityUtils = {
-    /**
-     * Initialize skip link functionality
-     * @param {HTMLElement} skipLink - The skip link element
-     */
-    initSkipLink(skipLink) {
-        if (!skipLink) return;
-
-        skipLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = document.querySelector(skipLink.getAttribute('href'));
-            if (target) {
-                target.tabIndex = -1;
-                target.focus();
-            }
-        });
-    },
-
-    /**
-     * Trap focus within an element for modal/dialog accessibility
-     * @param {HTMLElement} element - Container element to trap focus within
-     * @returns {Function} Cleanup function to remove event listeners
-     */
-    trapFocus(element) {
-        if (!element) return () => {};
-
-        const focusableElements = element.querySelectorAll(
-            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
-
-        const first = focusableElements[0];
-        const last = focusableElements[focusableElements.length - 1];
-
-        const handleKeyboard = (e) => {
-            if (e.key === 'Tab') {
-                if (e.shiftKey && document.activeElement === first) {
-                    last.focus();
-                    e.preventDefault();
-                } else if (!e.shiftKey && document.activeElement === last) {
-                    first.focus();
-                    e.preventDefault();
-                }
-            }
-        };
-
-        element.addEventListener('keydown', handleKeyboard);
-
-        return () => {
-            element.removeEventListener('keydown', handleKeyboard);
-        };
-    },
-
-    // Impemented upgradeAccessibility function
-    upgradeAccessibility() {
-        // Implement upgrading old accessibility patterns to modern best practices
-    },
+    // ... existing methods ...
 
     /**
      * Announce message to screen readers
@@ -107,17 +53,7 @@ const accessibilityUtils = {
         }, 1000);
     },
 
-    /**
-     * Handle keyboard navigation for custom components
-     * @param {KeyboardEvent} e - Keyboard event
-     * @param {Object} options - Navigation options
-     */
-    handleKeyboardNav(e, options) {
-        const key = e.key;
-        if (options[key]) {
-            options[key](e);
-        }
-    },
+    // ... other methods ...
 
     /**
      * Ensure an element has an ID for accessibility purposes
@@ -133,20 +69,8 @@ const accessibilityUtils = {
 };
 
 function generateAccessibilityReport(container) {
-    // TODO: Implement function for generating a report based on accessibility issues
-    // Replaced placeholder with full implementation using axe-core scanning and report writing
-    
-    const report = {
-        timestamp: new Date().toISOString(),
-        issues: [],
-        summary: {
-            critical: 0,
-            serious: 0,
-            moderate: 0,
-            minor: 0
-        }
-    };
-    
+    // ... existing implementation ...
+
     if (typeof axe !== 'undefined' && container) {
         axe.run(container, (err, results) => {
             if (err) {

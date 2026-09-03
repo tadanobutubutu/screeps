@@ -26,7 +26,7 @@ const http = require('http')
 // New function to ensure the element has an id
 const ensureElementHasId = (element, prefix = 'element') => {
   if (!element.id) {
-    element.id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    element.id = `${prefix}-Date.now()-${Math.random().toString(36).substr(2, 9)}`
   }
   return element.id
 }
@@ -37,6 +37,14 @@ const addAriaLabel = (element, label) => {
     element.setAttribute('aria-label', label)
   }
   return element
+}
+
+// REACT_015: Add lang attribute
+const addLangAttribute = (lang = 'en') => {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang)
+  }
+  return document.documentElement
 }
 
 // Updated function using new functions for rendering graph/index
@@ -53,6 +61,7 @@ function renderGraphIndexAlt(graphData) {
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
+  addLangAttribute,
   renderGraphIndex,
   renderGraphIndexAlt
 };

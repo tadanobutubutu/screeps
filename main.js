@@ -17,10 +17,10 @@ function handleCredentialResponse(credential) {
     if (response.attestationObject) {
         const attestationBuffer = response.attestationObject;
         const attestationObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(attestationBuffer)));
-        
+
         console.log('Credential registered successfully');
         console.log('Credential ID:', credential.id);
-        
+
         return {
             success: true,
             type: 'registration',
@@ -32,11 +32,11 @@ function handleCredentialResponse(credential) {
     // Handle assertion response (from authentication)
     if (response.authenticatorData && response.clientDataJSON) {
         const clientDataJSON = JSON.parse(new TextDecoder().decode(response.clientDataJSON));
-        
+
         console.log('Credential verified successfully');
         console.log('Credential ID:', credential.id);
         console.log('Authentication timestamp:', new Date(clientDataJSON.timestamp));
-        
+
         return {
             success: true,
             type: 'authentication',
@@ -176,9 +176,6 @@ function harvestResources() {
     console.log('Harvesting resources...');
     // Implement the actual logic here, e.g., fetching data, processing it, etc.
 }
-
-// Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
 
 // New function to address accessibility issues from insight report
 function getLangAttribute() {

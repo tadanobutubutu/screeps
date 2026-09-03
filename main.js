@@ -17,14 +17,14 @@ export const checkUserSafety = () => {
 export const checkSafetyCategories = () => {
   let safetyCategoriesMessage = '';
 
-  if (safetyCategories.includes('Authorized Advice')) {
+  if (safetyCategories.includes('Unauthorized Advice')) {
     safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
   }
 
   return safetyCategoriesMessage;
 };
 
-export const visualizeDependencyTree(dependencies) {
+export const visualizeDependencyTree = (dependencies) => {
   const report = generateDependencyReport(dependencies);
   console.log(report.graph);
 }
@@ -84,7 +84,7 @@ export const main = {
   addBook: function(title, author, isbn) {
     const form = document.createElement('form');
     form.setAttribute('role', 'form');
-    form.setAttribute('aria-label', 'Add Book Form');
+    form.setAttribute('aria-labelledby', 'add-book-form-title');
 
     const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
     const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
@@ -99,8 +99,6 @@ export const main = {
     form.appendChild(authorInput);
     form.appendChild(isbnInput);
     form.appendChild(submitButton);
-
-    document.body.appendChild(form);
 
     // Add event listener for form submission
     form.addEventListener('submit', function(e) {
@@ -188,7 +186,7 @@ function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
+  button.setAttribute('aria-label', 'rotate back');
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
@@ -206,7 +204,7 @@ if (fakeLink && fakeLink.tagName === 'A') {
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(__dirname, 'landmarks.json');
+      const filePath = CONFIG.dataPath + '/' + ('landmarks.json');
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
   } catch (error) {
@@ -238,7 +236,7 @@ function ensureLandmarkUniqueness(elements) {
 
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependency-graph');
+  const container = document.getElementById('dependencyGraph');
   if (!container) {
     return;
   }
@@ -280,7 +278,7 @@ function enhanceAddBookFormAccessibility(formElement) {
 
     // Add labels if missing
     if (!input.id) {
-      input.id = `input_${Math.random().toString(36).substr(2, 9)}`;
+      input.id = 'input_' + Math.random().toString(36).substr(2, 9);
     }
   });
 }

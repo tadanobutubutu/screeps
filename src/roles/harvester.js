@@ -119,9 +119,10 @@ function _harvest(creep) {
  */
 function _findDroppedEnergy(creep) {
     const dropped = cache.getDroppedResources(creep.room);
-    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to avoid filter array allocation and find closest directly.
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop and hoist position check outside search loop.
     let bestDrop = null;
     let minDistance = Infinity;
+    // Hoist position method check outside loop to prevent redundant evaluations per iteration
     const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
     for (let i = 0; i < dropped.length; i++) {
         const r = dropped[i];
@@ -143,9 +144,10 @@ function _findDroppedEnergy(creep) {
  */
 function _findAvailableContainer(creep) {
     const containers = cache.getContainers(creep.room);
-    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to avoid filter array allocation and find closest directly.
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop and hoist position check outside search loop.
     let bestContainer = null;
     let minDistance = Infinity;
+    // Hoist position method check outside loop to prevent redundant evaluations per iteration
     const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
     for (let i = 0; i < containers.length; i++) {
         const c = containers[i];

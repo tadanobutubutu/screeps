@@ -134,6 +134,7 @@ function renderGraphIndex(containerId, data) {
     return true;
 }
 
+// Update the existing function using the new functions for rendering graph/index
 function renderDependencyGraph(containerId, graphData) {
     return renderGraphIndex(containerId, graphData);
 }

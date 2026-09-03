@@ -54,7 +54,7 @@ const { calculateSum } from './utils';
 const { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
 const { validateTableAccessibility, validateTableStructure } = require('./utils/tableAccessibilityUtils');
 const { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
+const { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 const { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 const { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
 const { CONFIG: CONFIG_UTILS } = require('./utils/constants');
@@ -116,10 +116,10 @@ export const checkSafetyCategories = () => {
   return safetyCategoriesMessage;
 };
 
-export const visualizeDependencyTree(dependencies) {
+export const visualizeDependencyTree = (dependencies) => {
   const report = generateDependencyReport(dependencies);
   console.log(report.graph);
-}
+};
 
 function generateDependencyReport(dependencies) {
   let graph = 'Dependency Tree:\n';
@@ -321,10 +321,10 @@ function ensureUniqueLandmarks(landmarks) {
   }
   const seen = new Set();
   return landmarks.filter(landmark => {
-    if (!landmark || typeof landmark.id !== 'undefined' && landmark.id !== null && seen.has(landmark.id)) {
+    if (!landmark || (landmark.id !== undefined && landmark.id !== null && seen.has(landmark.id))) {
       return false;
     }
-    if (landmark && typeof landmark.id !== 'undefined' && landmark.id !== null) {
+    if (landmark && landmark.id !== undefined && landmark.id !== null) {
       seen.add(landmark.id);
     }
     return true;
@@ -343,7 +343,7 @@ function isValidLandmark(landmark) {
   return landmark && landmark.id && landmark.name;
 }
 
-// Landmark helper functions
+// Load landmarks from file (new addition)
 function loadLandmarks() {
   try {
     const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
@@ -458,7 +458,7 @@ function getUniqueLandmarks(landmarks) {
   const uniqueLandmarks = [];
 
   for (const landmark of landmarks) {
-    if (!landmark || typeof landmark.id !== 'undefined' && landmark.id !== null) {
+    if (landmark && landmark.id !== undefined && landmark.id !== null) {
       if (!seen.has(landmark.id)) {
         seen.add(landmark.id);
         uniqueLandmarks.push(landmark);
@@ -713,9 +713,6 @@ function getFullLangAttribute() {
   return document.documentElement.lang || 'en-US';
 }
 
-// Ensure that all interactive elements have appropriate keyboard support
-// Check that ARIA attributes are correctly paired and have appropriate values
-
 // Additional accessibility functions from HEAD (not provided by AccessibilityUtilities)
 function validateLandmark(landmark) {
   const issues = [];
@@ -757,4 +754,109 @@ function validateTableAccessibility(tableElement) {
   return true;
 }
 
-function
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement || svgElement.tagName !== 'svg') {
+    return '';
+  }
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labeledElement = document.getElementById(ariaLabelledby);
+    if (labeledElement) {
+      return labeledElement.textContent || '';
+    }
+  }
+  const title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent || '';
+  }
+  return '';
+}
+
+/**
+ * Collects resources or data from available sources.
+ * This function harvests data from configured data sources including landmarks,
+ * files, and API endpoints.
+ * @returns {Object} An object containing harvested data from various sources
+ */
+function harvest() {
+  const harvestedData = {
+    landmarks: [],
+    resources: [],
+    metadata: {}
+  };
+
+  // Harvest landmarks from file system
+  try {
+    const landmarks = loadLandmarks();
+    harvestedData.landmarks = processLandmarks(landmarks);
+  } catch (error) {
+    console.error('Failed to harvest landmarks:', error.message);
+  }
+
+  // Harvest resources from configured sources
+  harvestedData.resources = harvestResources();
+
+  // Add metadata
+  harvestedData.metadata = {
+    timestamp: new Date().toISOString(),
+    version: CONFIG.version || '1.0.0',
+    sourceCount: harvestedData.landmarks.length + harvestedData.resources.length
+  };
+
+  return harvestedData;
+}
+
+/**
+ * Helper function to harvest resources from various sources.
+ * @returns {Array} Array of harvested resources
+ */
+function harvestResources() {
+  const resources = [];
+
+  // Harvest from books if available
+  if (typeof books !== 'undefined' && Array.isArray(books)) {
+    books.forEach((book, index) => {
+      resources.push({
+        id: `book-${index}`,
+        type: 'book',
+        name: book.title,
+        author: book.author,
+        data: book
+      });
+    });
+  }
+
+  // Harvest from files in data directory
+  try {
+    const dataDir = CONFIG.dataPath || './data';
+    if (fs.existsSync(dataDir)) {
+      const files = fs.readdirSync(dataDir);
+      files.forEach(file => {
+        if (file.endsWith('.json')) {
+          try {
+            const filePath = path.join(dataDir, file);
+            const fileData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            resources.push({
+              id: `file-${file}`,
+              type: 'file',
+              name: file,
+              data: fileData
+            });
+          } catch (e) {
+            // Skip files that can't be parsed
+          }
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Failed to harvest file resources:', error.message);
+  }
+
+  return resources;
+}
+
+export { harvest };

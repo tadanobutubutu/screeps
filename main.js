@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const CONFIG = {
     dataPath: './data',
     maxResults: 100

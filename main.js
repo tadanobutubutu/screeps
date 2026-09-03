@@ -1,55 +1,56 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import a11y from './AccessibilityUtilities';
+import { renderDependencyGraphContent, renderDependencyGraph, addressAccessibilityIssues, createInPageButton, createInPageButtonAlt, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, setSvgAttributes, initialize, greet, add, getDependencies, addDependency, removeDependency, countDependencies, appData, someFunction, functionA, functionB, getLangAttribute, scanAccessibility, writeReport, generateAccessibilityReport, importAndExecute, validateInput, processData, formatResponse
 
-import { axe } from 'axe-core';
-import fastMap from 'fast-map';
-import path from 'path';
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+<React.StrictMode>
+<App />
+</React.StrictMode>
+);
 
-const config = {};
-const dependencies = [
-    { name: 'lodash', version: '4.17.21' },
-    { name: 'express', version: '4.18.2' },
-    { name: 'react', version: '18.2.0' }
-];
-
-const getDependencies = () => dependencies;
-
-const addDependency = (name, version) => {
-    dependencies.push({ name, version });
-    return dependencies;
+// Some existing utility functions
+function greet(name) {
+ return `Hello, ${name}!`;
 }
 
-const removeDependency = (name) => {
-    return dependencies.filter(dep => dep.name !== name);
+function add(a, b) {
+ return a + b;
 }
 
-const countDependencies = () => dependencies.length;
+let appData = {};
 
-const appData = {};
+function getDependencies() {
+ return Object.keys(appData.dependencies || {});
+}
 
-const someFunction = () => 'someFunction result';
+function addDependency(name, version) {
+ if (!appData.dependencies) {
+ appData.dependencies = {};
+ }
+ appData.dependencies[name] = version;
+}
 
-const { axeInstance } = axe;
+function removeDependency(name) {
+ if (appData.dependencies && appData.dependencies[name]) {
+ delete appData.dependencies[name];
+ }
+}
 
-const greet = (name) => `Hello, ${name}!`;
+function countDependencies() {
+ return appData.dependencies ? Object.keys(appData.dependencies).length : 0;
+}
 
-const add = (a, b) => a + b;
+function someFunction() {
+ return 'Some result';
+}
 
-const validateInput = (input) => {
-    if (!input) {
-        return 'Input is required';
-    }
+function functionA(param) {
+ return `Function A with param: ${param}`;
+}
 
-    if (typeof input !== 'string') {
-        return 'Input must be a string';
-    }
-
-    return null;
+function functionB(param) {
+ return `Function B with param: ${param}`;
 }
 
 const processData = (data) => {
@@ -199,29 +200,54 @@ const initialize = () => {
     console.log('Application initialized');
 };
 
-// Adapted main execution
-if (require.main === module) {
-    initialize();
-}
-
-export {
-    greet,
-    add,
-    getDependencies,
-    addDependency,
-    removeDependency,
-    countDependencies,
-    appData,
-    someFunction,
-    validateInput,
-    processData,
-    formatResponse,
-    validateTableAccessibility,
-    validateTableStructure,
+// Export all functions for use elsewhere in the repository
+module.exports = {
+ greet,
+ add,
+ getDependencies,
+ addDependency,
+ removeDependency,
+ countDependencies,
+ appData,
+ someFunction,
+ addressAccessibilityIssues,
+ renderDependencyGraphContent,
+ renderDependencyGraph,
+ createInPageButton,
+ createInPageButtonAlt,
+ validateTableAccessibility,
+ validateTableStructure,
+ validateLandmark,
+ validateLandmarkStructure,
+ getSvgAccessibleName,
+ setSvgAttributes,
+ initialize,
+ scanAccessibility,
+ writeReport,
+ generateAccessibilityReport,
+ importAndExecute,
+ validateInput,
+ processData,
+ formatResponse,
+ functionA,
+ functionB,
+ getLangAttribute,
     fixTableStructure,
     addMainLandmark,
-    validateLandmark,
-    validateLandmarkAttributes,
-    validateLandmarkStructure,
-    initialize
+    validateLandmarkAttributes
 };
+
+// Main execution when run directly
+if (require.main === module) {
+ const landmarks = [];
+ const processed = [];
+ const sorted = [];
+
+ console.log(`Loaded ${landmarks.length} landmarks`);
+ console.log(`Processed to ${processed.length} unique landmarks`);
+ console.log(`Sorted ${sorted.length} landmarks`);
+
+ if (sorted.length > 0) {
+ console.log('First landmark:', sorted[0]);
+ }
+}

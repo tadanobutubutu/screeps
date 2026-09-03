@@ -118,10 +118,10 @@ function handleKeyboardNavigation(event) {
     case 'ArrowDown':
     case 'ArrowLeft':
     case 'ArrowRight':
-      this.navigateWithArrow(key, activeElement);
+      navigateWithArrow(key, activeElement);
       break;
     case 'Tab':
-      this.handleTabNavigation(event, activeElement);
+      handleTabNavigation(event, activeElement);
       break;
     default:
       break;
@@ -238,7 +238,7 @@ function harvestResources() {
     return harvestedData;
 }
 
-// New function to address accessibility issues from insight report
+// Function to address accessibility issues from insight report
 function getLangAttribute() {
     // Implementation to add lang attribute to HTML element
 }

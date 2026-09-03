@@ -287,3 +287,30 @@ function parseColor(colorString) {
     }
 
     // Handle named colors (limited support)
+    const colorNames = {
+        'black': [0, 0, 0],
+        'silver': [192, 192, 192],
+        'gray': [128, 128, 128],
+        'white': [255, 255, 255],
+        'maroon': [128, 0, 0],
+        'red': [255, 0, 0],
+        'purple': [128, 0, 128],
+        'fuchsia': [255, 0, 255],
+        'green': [0, 128, 0],
+        'lime': [0, 255, 0],
+        'olive': [128, 128, 0],
+        'yellow': [255, 255, 0],
+        'navy': [0, 0, 128],
+        'blue': [0, 0, 255],
+        'teal': [0, 128, 128],
+        'aqua': [0, 255, 255]
+    };
+
+    const lowerColor = colorString.toLowerCase();
+    if (colorNames[lowerColor] !== undefined) {
+        const [r, g, b] = colorNames[lowerColor];
+        return { r, g, b };
+    }
+
+    return null;
+}

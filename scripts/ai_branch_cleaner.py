@@ -142,7 +142,7 @@ def main():
     for branch in to_delete:
         if branch.lower() in ["main", "master", "prod", "gh-pages", "ptr"]: continue
         print(f"🗑️ Purging stale branch: {branch}")
-        subprocess.run(["git", "push", "origin", "--delete", branch])
+        subprocess.run(["git", "push", "origin", "--delete", "--", branch])
         deleted_count += 1
 
     print(f"🚀 Cleanup complete. {deleted_count} branches removed.")

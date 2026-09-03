@@ -149,10 +149,51 @@ function createInPageButtons(buttonData) {
   document.body.appendChild(buttonsContainer);
 }
 
-// TODO: Implement new function3 logic here
+// Implement wrapPrimaryContentInMain function
+function wrapPrimaryContentInMain() {
+  // Find the primary content element (assumed to be the dependency graph)
+  const primaryContent = document.getElementById('dependencyGraph');
+  
+  if (primaryContent) {
+    // Create a main landmark element
+    const mainWrapper = document.createElement('main');
+    mainWrapper.setAttribute('role', 'main');
+    mainWrapper.setAttribute('aria-label', 'Primary content area');
+    
+    // Copy the innerHTML of the primary content
+    primaryContent.innerHTML = '';
+    mainWrapper.innerHTML = primaryContent.innerHTML;
+    
+    // Remove the original primary content and append to main wrapper
+    primaryContent.remove();
+    primaryContent.parentNode?.replaceChild(mainWrapper, primaryContent);
+  }
+}
+
+// Implement newFunction3 logic
 function newFunction3() {
-    // Placeholder implementation for new function3 logic
-    console.log('New function3 logic implemented.');
+  // Logic to process the dependency graph content
+  // Extract and analyze the main content for accessibility improvements
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  
+  if (dependencyGraph) {
+    // Get the text content from the dependency graph
+    const contentText = dependencyGraph.textContent || 
+                        (dependencyGraph.innerText || '');
+
+    // Perform some processing - e.g., count sections or extract key information
+    const words = contentText.split(/\s+/).filter(word => word.length > 0);
+    const sectionCount = words.filter(w => w.toLowerCase().includes('section')).length;
+    
+    // Return processed result
+    return {
+      totalWords: words.length,
+      sectionCount: sectionCount,
+      contentPreview: contentText.substring(0, 100) + '...'
+    };
+  }
+  
+  return null;
 }
 
 // Function to count dependencies
@@ -469,6 +510,20 @@ class ScreepsBot {
 
   wrapPrimaryContentInMain() {
     // Implementation for wrapping primary content in main landmark
+    const primaryContent = document.getElementById('dependencyGraph');
+    if (primaryContent) {
+      const mainWrapper = document.createElement('main');
+      mainWrapper.setAttribute('role', 'main');
+      mainWrapper.setAttribute('aria-label', 'Primary content area');
+      
+      // Copy the innerHTML of the primary content
+      primaryContent.innerHTML = '';
+      mainWrapper.innerHTML = primaryContent.innerHTML;
+      
+      // Remove the original primary content and append to main wrapper
+      primaryContent.remove();
+      primaryContent.parentNode?.replaceChild(mainWrapper, primaryContent);
+    }
   }
 
   checkLandmarks() {

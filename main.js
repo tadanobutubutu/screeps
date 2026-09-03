@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserve
+// (This comment remains as-is)
 import React from 'react';
 import { render } from 'react-dom';
 import {
@@ -41,14 +43,13 @@ import {
   renderIndex
 } from './AccessibilityHelpers';
 
-const ScreepsBot = require('./ScreepsBot').default;
+const ScreepsBotFactory = require('./ScreepsBot').default;
 const updateUI = require('./updateUI').default;
 const main = require('./utilities');
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 const { accessibilityUtils } = require('./accessibilityUtils');
 
-const setElementLabel = main.setElementLabel;
 const { validateTableStructureForAccessibility } = main;
 
 const DOMParser = require('@xmldom/xmldom').DOMParser;
@@ -100,7 +101,7 @@ if (dependencyGraph) {
   }
 
   // Validate table accessibility
-  const validateTableAccessibility = (html) => {
+  const validateTableAccessibilityGraph = (html) => {
     // ... (existing code)
   };
 
@@ -111,7 +112,7 @@ if (dependencyGraph) {
       const table = target.closest('table');
       if (table) {
         const tableHref = target.getAttribute('href');
-        const tableContent = tableHref ? fetch(tableHref).then(response => response.text()).then(html => validateTableAccessibility(html)) : validateTableAccessibility(table.outerHTML);
+        const tableContent = tableHref ? fetch(tableHref).then(response => response.text()).then(html => validateTableAccessibilityGraph(html)) : validateTableAccessibilityGraph(table.outerHTML);
         tableContent.then(results => {
           const message = results.map(issue => `Table accessibility issue: ${issue.message}`).join('\n');
           a11yStore.updateLiveRegion(message, 'assertive');
@@ -375,9 +376,9 @@ function validateTableStructure(tableData) {
 }
 
 // Handle additional rendering logic
-function renderAdditionalContent(additionalData) {
+function renderAdditionalContentData(additionalData) {
   // Your implementation for additional rendering logic
-  return renderAdditionalContent(additionalData);
+  return additionalData;
 }
 
 // Main entry point

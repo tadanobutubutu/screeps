@@ -222,11 +222,12 @@ export function addMainLandmark(container) {
   
   let mainElement = container.querySelector('main');
   if (!mainElement) {
-    mainElement = document.createElement('main');
-    mainElement.setAttribute('id', 'main-content');
-    const body = document.body;
-    if (body && body.firstChild) {
-      body.firstChild.appendChild(mainElement);
+    const body = container.querySelector('body');
+    if (body) {
+      const newMain = document.createElement('main');
+      newMain.setAttribute('id', 'main-content');
+      newMain.appendChild(body.firstChild);
+      mainElement = newMain;
     }
   }
   
@@ -254,7 +255,11 @@ export function addLandmarkRegions(container) {
       element.setAttribute('role', landmark.role);
       container.appendChild(element);
     }
-    
+
+    if (landmark.selector === 'main') {
+      addMainLandmark(element);
+    }
+
     if (!element.getAttribute('aria-label') && !element.getAttribute('role')) {
       element.setAttribute('aria-label', landmark.label);
     }
@@ -268,9 +273,9 @@ export function addLandmarkRegions(container) {
  */
 export function ensureUniqueLandmarks(container) {
   if (!container) return null;
-  
+
   const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  
+
   landmarks.forEach(role => {
     const elements = container.querySelectorAll(`[role="${role}"]`);
     elements.forEach((el, index) => {
@@ -280,7 +285,7 @@ export function ensureUniqueLandmarks(container) {
       }
     });
   });
-  
+
   return container;
 }
 
@@ -289,11 +294,18 @@ export function ensureUniqueLandmarks(container) {
  */
 export function uniqueLandmarksHelper(container) {
   if (!container) return;
-  
+
   const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  
+
   landmarks.forEach(role => {
     const elements = container.querySelectorAll(`[role="${role}"]`);
     elements.forEach((el, index) => {
       if (index > 0 && !el.getAttribute('aria-label')) {
-        const count = index +
+        const count = index + 1;
+        el.setAttribute('aria-label', `${role} ${count}`);
+      }
+    });
+  });
+
+  return container;
+}

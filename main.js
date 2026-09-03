@@ -2,16 +2,16 @@ const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const path = require('path');
-const { a11y } = require('@accessible/react');
 import React, { useState, useEffect, useRef } from 'react';
 import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from 'redux/store';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook } from './bookFunctions';
 import './styles.css';
-import './styles.less';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
+import { generateDependencyReport, utils, axe as axeUtils } from './utils';
+import { validateLandmark, checkLinkAccessibility, newExportedFunction } from './main';
 import fastMap from 'fast-map';
 import accessiblyHelper from './accessibly-helper';
 import { calculateSum, getLangAttribute, getFullLangAttribute } from './utils/index.js';
@@ -34,7 +34,8 @@ const config = {
   dataPath: './data',
   maxResults: 100,
   apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: 5000
+  timeout: 5000,
+  landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
 
 const landmarkSelectors = [
@@ -70,6 +71,8 @@ const appState = {
 };
 
 let dependencyGraph = null;
+let books = [];
+let safetyCategory = "User Safety: safe";
 
 // TODO: Identify and update specific functions that render dependency graphs or
 // display module structure for debugging purposes.
@@ -132,6 +135,201 @@ function someNewFunction() {
 
   // Additional safety validation logic
   return false;
+}
+
+export const validateLandmarkEx = (landmark) => {
+  const errors = [];
+
+  // Validation logic
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+};
+
+export const checkLinkAccessibilityEx = (url) => {
+  // Implementation logic here...
+  return true;
+};
+
+export const newExportedFunctionEx = () => {
+  // New export logic here...
+};
+
+function ensureAccessibilityAttributesForAddBook() {
+  // Implementation for ensuring accessibility attributes
+}
+
+// TODO: Implement the logic to handle the credential response
+// This function should be called when a credential response is received
+// For example, you might parse the response, validate it, and then store or use the credentials
+function handleCredentialResponseEx(credentialResponse) {
+  // Validate that credential response is provided
+  if (!credentialResponse) {
+    console.error('Credential response is required');
+    return { success: false, error: 'Credential response is required' };
+  }
+
+  try {
+    // Parse the credential response if it's a string
+    let parsedResponse = credentialResponse;
+    if (typeof credentialResponse === 'string') {
+      parsedResponse = JSON.parse(credentialResponse);
+    }
+
+    // Validate the credential response structure
+    const validationResult = validateCredentialResponseEx(parsedResponse);
+    if (!validationResult.valid) {
+      console.error('Credential response validation failed:', validationResult.errors);
+      return { success: false, error: validationResult.errors.join(', ') };
+    }
+
+    // Extract and store credentials
+    const credentialData = extractCredentialDataEx(parsedResponse);
+
+    // Store the credential data for later use
+    storeCredentialDataEx(credentialData);
+
+    // Dispatch an action or callback to notify the application
+    if (typeof onCredentialSuccess === 'function') {
+      onCredentialSuccess(credentialData);
+    }
+
+    console.log('Credential response handled successfully');
+    return { success: true, credentialData };
+
+  } catch (error) {
+    console.error('Error handling credential response:', error);
+    return { success: false, error: error.message || 'Unknown error occurred' };
+  }
+}
+
+// Helper function to extract credential data from the response
+function extractCredentialDataEx(response) {
+  return {
+    id: response.credential?.id || response.id || null,
+    type: response.credential?.type || response.type || 'credential',
+    token: response.token || response.accessToken || null,
+    data: response.data || response.payload || response.credential || null,
+    timestamp: Date.now(),
+    rawResponse: response
+  };
+}
+
+// Helper function to store credential data
+function storeCredentialDataEx(credentialData) {
+  try {
+    // Store in session storage for session-based access
+    if (credentialData.token) {
+      sessionStorage.setItem('authToken', credentialData.token);
+    }
+    if (credentialData.id) {
+      sessionStorage.setItem('credentialId', credentialData.id);
+    }
+    // Store full credential data in a serialized format
+    sessionStorage.setItem('credentialData', JSON.stringify(credentialData));
+  } catch (error) {
+    console.warn('Unable to store credential data in session storage:', error);
+  }
+}
+
+// Function to render a single book item
+function BookItemEx({ book }) {
+  return {
+    type: 'List.Item',
+    props: {
+      key: generateKey(book),
+      children: {
+        type: 'List.Item.Meta',
+        props: {
+          title: book.title,
+          description: `by ${book.author}`
+        }
+      }
+    }
+  };
+}
+
+// Function to render the form for adding a new book entry
+function BookFormEx() {
+  const dispatch = useDispatch();
+
+  // Define state for the form inputs
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+
+  // Handle input changes
+  const handleTitleChange = (e) => setTitle(e.target.value);
+  const handleAuthorChange = (e) => setAuthor(e.target.value);
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Perform any necessary validation or processing before adding the book
+    // ...
+
+    // Dispatch an action to add the book to the books list in the Redux store
+    dispatch({ type: 'ADD_BOOK', payload: { title, author } });
+  };
+
+  // Render the form
+  return {
+    type: 'form',
+    props: {
+      onSubmit: handleSubmit,
+      children: [
+        {
+          type: 'label',
+          props: {
+            htmlFor: 'title',
+            children: 'Title:'
+          }
+        },
+        {
+          type: 'input',
+          props: {
+            type: 'text',
+            id: 'title',
+            value: title,
+            onChange: handleTitleChange,
+            'aria-label': 'Book title'
+          }
+        },
+        {
+          type: 'label',
+          props: {
+            htmlFor: 'author',
+            children: 'Author:'
+          }
+        },
+        {
+          type: 'input',
+          props: {
+            type: 'text',
+            id: 'author',
+            value: author,
+            onChange: handleAuthorChange,
+            'aria-label': 'Book author'
+          }
+        },
+        {
+          type: 'button',
+          props: {
+            type: 'submit',
+            children: 'Add Book'
+          }
+        }
+      ]
+    }
+  };
+}
+
+// Accessibility helper functions
+
+function getLangAttribute() {
+    // Implementation to get language attribute
+    return document.documentElement.lang || 'en';
 }
 
 /**
@@ -352,18 +550,6 @@ function validateLinkAccessibility() {
   return true;
 }
 
-function handleFakeLinks() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    if (link.tagName === 'A' && link.getAttribute('href') === '#') {
-      link.setAttribute('role', 'button');
-      if (!link.id) {
-        link.id = `fake-link-${Math.random().toString(36).substr(2, 9)}`;
-      }
-    }
-  });
-}
-
 function validateLandmarkStructureLocal(landmarks) {
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region', 'banner', 'application'];
   const results = {
@@ -417,17 +603,6 @@ function validateLandmarkStructureLocal(landmarks) {
 function newFunction() {
   console.log('New function called');
   // Implementation details would go here
-}
-
-function validateLandmark(landmark) {
-  const errors = [];
-
-  // Validation logic
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
 }
 
 function checkLinkAccessibility(url) {
@@ -490,6 +665,15 @@ function wrapPrimaryContentInMain() {
       return mainElement;
   }
   return null;
+}
+
+function wrapPrimaryContentInMainEx() {
+  return {
+    elementType: 'main',
+    lang: getLangAttribute(),
+    role: 'main',
+    'aria-label': 'Primary Content'
+  };
 }
 
 function processLandmarks(landmarks) {
@@ -661,17 +845,6 @@ function validateLandmarkStructure(landmarks) {
   return results;
 }
 
-function validateLandmark(landmark) {
-  const errors = [];
-
-  // Validation logic
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
 function checkLandmarkElement(elementOrId) {
   // Implementation addressed accessibility issues from insight report
   // Handle both DOM elements and id strings
@@ -713,11 +886,6 @@ function validateLinkAccessibilityLocal() {
   return true;
 }
 
-function addFixLandmarkIssues() {
-  // Implement the actual logic for fixing landmark issues
-  // For now, we do nothing to avoid breaking existing tests.
-}
-
 function loadLandmarks() {
   try {
     const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
@@ -727,57 +895,6 @@ function loadLandmarks() {
     console.error('Error loading landmarks:', error.message);
     return [];
   }
-}
-
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-function fixDependencyGraphContainer() {
-  const dependencyGraphEl = dependencyGraph;
-  if (dependencyGraphEl) {
-    dependencyGraphEl.setAttribute('role', 'region');
-    if (!dependencyGraphEl.id) {
-      dependencyGraphEl.id = 'dependencyGraph';
-    }
-    if (!dependencyGraphEl.getAttribute('aria-label')) {
-      dependencyGraphEl.setAttribute('aria-label', 'Dependency Graph Visualization');
-    }
-  }
-}
-
-function addFixLandmarkIssues() {
-  // Implement the actual logic for fixing landmark issues
-  // For now, we do nothing to avoid breaking existing tests.
-}
-
-function getSvgAccessibleNameLocal(svgElement) {
-  if (!svgElement) return '';
-
-  const title = svgElement.querySelector('title');
-  if (title) {
-    return title.textContent;
-  }
-
-  const desc = svgElement.querySelector('desc');
-  if (desc) {
-    return desc.textContent;
-  }
-
-  return svgElement.getAttribute('aria-label') || '';
-}
-
-function validateTableAccessibilityLocal(tableElement) {
-  if (!tableElement) return false;
-
-  const headers = tableElement.querySelectorAll('th');
-  const cells = tableElement.querySelectorAll('td, th');
-
-  for (const cell of cells) {
-    if (!cell.id && !cell.getAttribute('headers')) {
-      return false;
-    }
-  }
-
-  return true;
 }
 
 function handleFakeLinksLocal(container) {
@@ -793,50 +910,7 @@ function handleFakeLinksLocal(container) {
   return issues;
 }
 
-function validateTableStructureLocal(tableElement) {
-  if (!tableElement) return false;
-
-  const rows = tableElement.querySelectorAll('tr');
-  let hasHeader = false;
-
-  for (const row of rows) {
-    const cells = row.querySelectorAll('td, th');
-    for (const cell of cells) {
-      if (cell.tagName === 'th') {
-        hasHeader = true;
-        if (!cell.id) {
-          return false;
-        }
-      }
-    }
-  }
-
-  return hasHeader;
-}
-
-async function scanAccessibility() {
-  const violations = [];
-
-  if (typeof document !== 'undefined') {
-    const results = await axe.run(document);
-    violations.push(...results.violations);
-  }
-
-  return { violations };
-}
-
-function validateLinkAccessibilityLocal() {
-  const links = document.querySelectorAll('a[href]');
-  for (const link of links) {
-    if (!link.textContent.trim()) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function handleFakeLinksLocal() {
+function handleFakeLinksLocalDefault() {
   const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach(link => {
     if (link.tagName === 'A' && link.getAttribute('href') === '#') {
@@ -1006,14 +1080,6 @@ const {
   sortByAuthor: sortByAuthorLocal,
   getLangAttribute: getLangAttributeLocal,
   createInPageButton,
-  validateTableAccessibility: validateTableAccessibilityLocal,
-  validateLandmarkStructure: validateLandmarkStructureLocal,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks: ensureUniqueLandmarksModule,
-  addProperLandmarkRegions,
-  validateLinkAccessibility: validateLinkAccessibilityLocal,
-  handleFakeLinks: handleFakeLinksLocal,
   someFunction: someFunctionLocal,
   fetchUser: fetchUserLocal,
   clearCache: clearCacheLocal,
@@ -1024,16 +1090,6 @@ import { someFunction } from './utils/someFunction';
 import { fetchUser, clearCache } from './utils/user';
 import * as newFunctions from './newFunctions';
 import { helper, formatDate } from './utils';
-
-function loadLandmarks() {
-  // ... implementation
-}
-
-function processLandmarks(landmarks) {
-  // ... implementation
-}
-
-let isInitialized = false;
 
 // Export any new functions or anything else that needs to be accessible from outside this module
 module.exports = {
@@ -1075,5 +1131,9 @@ module.exports = {
   appState,
   dependencyGraph,
   newFunction3,
-  newFunction4
+  newFunction4,
+  handleCredentialResponseEx,
+  validateLandmarkEx
 };
+
+export { handleCredentialResponseEx, validateLandmarkEx };

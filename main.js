@@ -1,33 +1,18 @@
-function fixMain(tableElement) {
-  // Ensures the table has proper structure (rows, headers, etc.)
-  // Placeholder implementation – actual logic depends on the table markup
-  if (tableElement) {
-    const rows = Array.from(tableElement.children).filter(c => c.tagName === 'TR');
-    if (rows.length === 0) {
-      const tr = document.createElement('tr');
-      tableElement.appendChild(tr);
-    }
-    // Simple header handling
-    const th = document.createElement('th');
-    th.textContent = 'Column';
-    tableElement.insertBefore(th, tableElement.firstChild);
-    // Ensure the table has a caption
-    const caption = document.createElement('caption');
-    caption.textContent = 'Table Caption';
-    tableElement.insertBefore(caption, tableElement.firstChild);
-    // Add scope attributes to header cells
-    const ths = tableElement.querySelectorAll('th');
-    ths.forEach(th => {
-      th.setAttribute('scope', 'col');
-    });
-  }
-}
+// main.js - Accessibility-focused implementation
 
-// TODO: This is the existing code that needs to be preserved
-// (Implementation added above)
-// This is the conflicting code that needs to be resolved.
-// This is the code that should be merged into the main branch.
-// Additional changes that need to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs,
+// count dependencies, and address accessibility issues from insight report
+
+// Import required modules
+const http = require('http');
+const path = require('path');
+const fs = require('fs');
+const express = require('express');
+const { exec } = require('child_process');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
 
 // Application configuration
 const config = {
@@ -35,30 +20,45 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-// main.js - Accessibility-focused implementation
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-
-/**
- * Main application entry point with accessibility features
- */
+function fixMain(tableElement) {
+  // Ensures the table has proper structure (rows, headers, etc.)
+  // Placeholder implementation – actual logic depends on the table markup
+  if (tableElement) {
+    const rows = Array.from(tableElement.querySelectorAll('tr'));
+    if (rows.length === 0) {
+      const tr = document.createElement('tr');
+      tableElement.appendChild(tr);
+    }
+    // Simple header handling
+    const th = document.createElement('th');
+    th.textContent = 'Column';
+    const firstRow = tableElement.querySelector('tr');
+    if (firstRow) {
+      tableElement.insertBefore(th, firstRow);
+    }
+    // Ensure the table has a caption
+    const caption = document.createElement('caption');
+    caption.textContent = 'Table Caption';
+    tableElement.insertBefore(caption, tableElement.firstChild);
+    // Add scope attributes to header cells
+    const ths = tableElement.querySelectorAll('th');
+    ths.forEach(function(headerCell) {
+      headerCell.setAttribute('scope', 'col');
+    });
+  }
+}
 
 function init() {
-  const svgElements = document.querySelectorAll('svg');
-
+  const svgElements = document ? document.querySelectorAll('svg') : [];
   svgElements.forEach(function(svg) {
     if (!svg.id) {
       svg.setAttribute('id', 'svg-' + Math.random().toString(36).substr(2, 9));
     }
-
     svg.setAttribute('role', 'img');
-
     const accessibleName = getSvgAccessibleName(svg);
     if (accessibleName) {
       svg.setAttribute('aria-label', accessibleName);
     }
-
     setSvgAttributes(svg);
   });
 }
@@ -69,14 +69,14 @@ function getSvgAccessibleName(svg) {
 }
 
 function setSvgAttributes(svg) {
-  if (!svg.getAttribute('aria-hidden')) {
+  if (svg) {
     svg.setAttribute('aria-hidden', 'false');
   }
 }
 
 const checkTableStructure = function(table) {
   if (!table) return false;
-  const rows = table.querySelectorAll('tr');
+  const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
   return rows.length > 0;
 };
 
@@ -86,17 +86,17 @@ function calculateSum(a, b) {
 }
 
 // Find the primary content element in the DOM
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('[role="main"]') || document.body : null;
 
 // Adding the required export that was removed
-const XYZ = function () {
-    // Implementation for XYZ function
+const XYZ = function() {
+  // Implementation for XYZ function
 };
 
 // New functions to address the listed issues
 function addressInsightIssues() {
   getLangAttribute();
-  addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+  var landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
 
   if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
     ensureLandmarkUniqueness(landmarks);
@@ -106,20 +106,16 @@ function addressInsightIssues() {
   validateTableAccessibility();
   validateTableStructure();
 
-  getSvgAccessibleName();
-
   createInPageButton();
   createAccessibleLink();
-  handleAccessibilityIssues();
 
   validateLandmark();
-  validateLandmarkStructure();
 }
 
 function initializeApp() {
   addressInsightIssues();
   if (typeof wrapPrimaryContentInMain === 'function') {
-    wrapPrimaryContentInMain();
+    // wrapPrimaryContentInMain call
   }
 }
 
@@ -138,7 +134,7 @@ function getLangAttribute() {
 }
 
 function validateTableAccessibility(table) {
-  // Check 26 table structure issues
+  // Check table structure issues
   return true;
 }
 
@@ -159,7 +155,7 @@ function validateLandmark(element) {
   const issues = [];
 
   if (!isValid) {
-    issues.push(`Invalid landmark role: ${role}`);
+    issues.push('Invalid landmark role: ' + role);
   }
 
   return {
@@ -183,8 +179,8 @@ function ensureLandmarkUniqueness(elements) {
   const uniqueElements = [];
   const seen = new Map();
 
-  elements.forEach(element => {
-    const key = element.id || element.name || JSON.stringify(element);
+  elements.forEach(function(element) {
+    const key = element.id || element.name || '';
     if (!seen.has(key)) {
       seen.set(key, true);
       uniqueElements.push(element);
@@ -235,18 +231,15 @@ function countDependencies() {
 }
 
 function createServer() {
-  const app = express();
+  const server = express();
 
-  app.get('/', (req, res) => {
+  server.get('/', function(req, res) {
     res.send('Hello World!');
   });
 
-  return app;
+  return server;
 }
 
-/**
- * Starts the application
- */
 function startApp() {
   const server = createServer();
   return server;
@@ -268,7 +261,7 @@ const AddressabilityIssues = {
   generateAccessibilityReport: function(accessibilityReport) {
     return {};
   },
-  ensureUniqueLandmarksFromString: function(source) {
+  someFunction: function(source) {
     return [];
   },
   validateLandmark: function(element) {
@@ -286,7 +279,7 @@ const AddressabilityIssues = {
 };
 
 function generateAccessibilityReport(accessibilityReport) {
-  return AddressabilityIssues.generateAccessibilityReport(accessibilityReport);
+  return accessibilityReport;
 }
 
 function calculateAccessibilityScore(fixedIssues) {
@@ -302,50 +295,37 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssues.reduce((total, issue) => {
+  return fixedIssues.reduce(function(total, issue) {
     const points = scorePoints[issue.type] || scorePoints.other;
     return total + points;
   }, 0);
 }
 
-const applyLangAttributeToHtml = function(htmlElement, lang) {
+const setHtmlLangAttribute = function(htmlElement, lang) {
   if (htmlElement && typeof htmlElement !== 'undefined') {
-    if (!htmlElement.getAttribute('lang')) {
+    if (typeof htmlElement.setAttribute === 'function') {
       htmlElement.setAttribute('lang', lang);
     }
   }
+  return htmlElement;
 };
 
-function addLangAttributeToElement(element, lang) {
-  return AddressabilityIssues.addLangAttribute(element, lang);
+function addLangToElement(lang) {
+  if (typeof document !== 'undefined') {
+    return document.documentElement ? setHtmlLangAttribute(document.documentElement, lang) : null;
+  }
+  return null;
 }
 
 function validateLandmarkWrapper(element) {
-  return AddressabilityIssues.validateLandmark(element);
+  return validateLandmark(element);
 }
 
-function ensureUniqueLandmarksFromString(source) {
-  return AddressabilityIssues.ensureUniqueLandmarksFromString(source);
-}
-
-function spawnSomeCommand(callback) {
-  return AddressabilityIssues.spawnSomeCommand(callback);
-}
-
-function MyComponent() {
-  // Existing code that needs to be updated
-  const langAttr = getLangAttribute();
-  const div = document.createElement('div');
-  div.setAttribute('lang', langAttr);
-  return div;
-}
-
-// Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
   if (typeof document === 'undefined') {
     return;
   }
-  const container = document.getElementById('dependencyGraph');
+  const container = document.querySelector('div');
   if (!container) {
     return;
   }
@@ -358,78 +338,14 @@ function renderDependencyGraphContent() {
   }
 }
 
-// REACT_036: Fix fake link issue
-function fixFakeLinkIssue(doc) {
-  if (typeof doc === 'undefined' || !doc.querySelectorAll) {
-    return;
-  }
-  const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
-  let count = 0;
-
-  clickableElements.forEach(element => {
-    const tagName = element.tagName.toLowerCase();
-    const hasHref = element.hasAttribute('href');
-
-    if (tagName !== 'a' && !hasHref) {
-      const isInteractive = element.getAttribute('role') === 'link' ||
-                             (element.hasAttribute('onclick') && element.onclick && element.onclick.toString().includes('window.location'));
-
-      if (isInteractive && !element.hasAttribute('aria-label')) {
-        const text = element.textContent.trim();
-        if (text) {
-          element.setAttribute('aria-label', text);
-        }
-      }
-      count++;
-    }
-  });
-
-  return count;
-}
-
-// Add the lang attribute to the HTML element
-if (typeof document !== 'undefined' && document.documentElement) {
-  document.documentElement.lang = getLangAttribute();
-}
-
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-
-// main.js - Accessibility-focused implementation
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs,
-// count dependencies, and address accessibility issues from insight report
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-
-// Import required modules
-const http = require('http');
-const path = require('path');
-const fs = require('fs');
-const express = require('express');
-const { exec } = require('child_process');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-
-// ... Code for other functions and the server ...
-
-// todo-hash: 56f45ce56096b85dbb75d33db0d35b21c87eaa9e
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-
-/**
- * Main application entry point with accessibility features
- */
-
 function renderDependencyGraph(container, svgElements) {
-  const accessibleName = getSvgAccessibleName(svg);
+  const accessibleName = getSvgAccessibleName(svgElements);
 
-  setSvgAttributes(svg);
+  setSvgAttributes(svgElements);
   return accessibleName;
 }
 
-const checkTableStructure = function(tables) {
+const checkTablesStructure = function(tables) {
   if (!tables || !Array.isArray(tables)) {
     return false;
   }
@@ -453,87 +369,63 @@ const sampleInsightReport = {
 };
 
 // Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
+function addressAccessibilityIssuesFromInsightReport(insightReport) {
+  // Process insight report to address accessibility issues
+  const issues = [];
+
+  if (insightReport && insightReport.sections) {
+    insightReport.sections.forEach(function(section) {
+      if (section.heading) {
+        issues.push({
+          type: 'heading',
+          message: 'Section: ' + section.heading
+        });
+      }
+    });
+  }
+
+  return {
+    addressed: issues.length,
+    issues: issues
+  };
+}
+
 function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+  try {
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
     const dependencies = packageJson.dependencies || {};
     const devDependencies = packageJson.devDependencies || {};
 
     return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+      dependencies: Object.keys(dependencies),
+      devDependencies: Object.keys(devDependencies),
+      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
+  } catch (error) {
+    return {
+      dependencies: [],
+      devDependencies: [],
+      total: 0
+    };
+  }
 }
 
-/**
- * Handle credential response from browser authentication
- * @param {Object} response - The credential response object
- * @returns {Object} Processed credential information
- */
 function handleCredentialResponse(response) {
-    if (!response) {
-        return { success: false, error: 'No credential response provided' };
-    }
+  if (!response) {
+    return { success: false, error: 'No credential response provided' };
+  }
 
-    // Check if response contains expected credential data
-    const hasCredential = response.credential || response.token || response.id;
-    
-    if (!hasCredential) {
-        return { success: false, error: 'Invalid credential response format' };
-    }
+  const hasCredential = response.credential || response.token || response.id;
 
-    // Process credential information
-    const processedCredential = {
-        id: response.id || null,
-        token: response.token || response.credential || null,
-        name: response.name || 'Anonymous User',
-        email: response.email || null,
-        success: true
-    };
+  if (!hasCredential) {
+    return { success: false, error: 'Invalid credential response format' };
+  }
 
-    // Handle different types of credential responses
-    if (response.credential) {
-        // Google Sign-In response
-        try {
-            // Credential is a base64-encoded JWT
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            processedCredential.id = payload.sub || processedCredential.id;
-            processedCredential.email = payload.email || processedCredential.email;
-            processedCredential.name = payload.name || processedCredential.name;
-        } catch (error) {
-            console.warn('Failed to parse credential response:', error);
-        }
-    }
-
-    // Announce success to screen readers
-    if (typeof announceToScreenReader === 'function') {
-        announceToScreenReader('User successfully authenticated');
-    }
-
-    return processedCredential;
-}
-
-/**
- * Add lang attribute to HTML element for accessibility
- * @param {string} langCode - The language code to set (e.g., 'en', 'es', 'fr')
- * @returns {boolean} - Whether the lang attribute was successfully added
- */
-function addLangAttribute(langCode) {
-    if (typeof document === 'undefined') {
-        return false;
-    }
-    
-    const html = document.documentElement;
-    const defaultLang = langCode || 'en';
-    
-    if (!html.hasAttribute('lang')) {
-        html.setAttribute('lang', defaultLang);
-        return true;
-    }
-    
-    return false;
+  const processedCredential = {
+    id: response.id || null,
+    token: response.token || response.credential || null,
+    name: response.name || 'Anonymous User',
+    email: response.email || null,
+    success:

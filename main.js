@@ -8,7 +8,23 @@ const config = {
 
 const AddressabilityIssues = {
   addressAccessibilityIssues(insightReport) {
-    /* existing code */
+    if (!insightReport) {
+      return [];
+    }
+
+    // Handle different possible formats of the insight report
+    if (Array.isArray(insightReport)) {
+      // If it's an array, return it directly (assuming each item is an issue)
+      return insightReport;
+    }
+
+    if (insightReport.issues) {
+      // If it's an object with an issues property, return those
+      return insightReport.issues;
+    }
+
+    // Otherwise, wrap the report itself as a single issue
+    return [insightReport];
   },
 
   generateAccessibilityReport(accessibilityReport) {

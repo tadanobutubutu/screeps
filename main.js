@@ -42,6 +42,34 @@
       fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
     }
 
+    // Function to generate a comprehensive accessibility report
+    function generateAccessibilityReport() {
+      const issues = scanAccessibility();
+      const reportContent = issues.map(issue => {
+        return `File: ${issue.file}\n` +
+               `Issues:\n` +
+               issue.issues.map(violation => {
+                 return `  - ${violation.id}: ${violation.description}\n` +
+                        `    Impact: ${violation.impact}\n` +
+                        `    Help: ${violation.help}\n` +
+                        `    Affected nodes: ${violation.nodes.length}`;
+               }).join('\n');
+      }).join('\n\n');
+
+      const report = {
+        title: 'Accessibility Issues Report',
+        date: new Date().toISOString(),
+        summary: {
+          totalFiles: issues.length,
+          totalIssues: issues.reduce((sum, issue) => sum + issue.issues.length, 0)
+        },
+        details: issues
+      };
+
+      writeReport(report);
+      return reportContent;
+    }
+
 // Utilities
 const { validateInput, processData } = require('./utils/validators');
 const { formatResponse } = require('./utils/processor');

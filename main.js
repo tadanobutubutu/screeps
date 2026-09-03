@@ -789,6 +789,12 @@ function initializeApp() {
   }
 }
 
+// TODO: New code that was added to the branch
+// New function that does something different
+function newBranchFunction() {
+  return 'new-branch-code';
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
@@ -837,5 +843,6 @@ module.exports = {
   validateInput,
   processData,
   spawnSomeCommand,
-  closeOpenDialogs
+  closeOpenDialogs,
+  newBranchFunction
 };

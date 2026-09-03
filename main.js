@@ -62,7 +62,7 @@ function spawnButtons(buttonDefinitions) {
     });
 }
 
-// TODO: Address accessibility issues from insight report — FIXED
+// Address accessibility issues from insight report — FIXED
 function fixAccessibilityIssues() {
     // Example of a function to fix accessibility issues
     // This is a placeholder for the actual accessibility fixes

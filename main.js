@@ -108,11 +108,68 @@ function countDependencies() {
     const dependencies = packageJson.dependencies || {};
     const devDependencies = packageJson.devDependencies || {};
 
+    const allDeps = Object.keys(dependencies).concat(Object.keys(devDependencies));
+
+    renderDependencyGraph(allDeps);
+    renderIndex(allDeps);
+
     return {
         dependencies: Object.keys(dependencies),
         devDependencies: Object.keys(devDependencies),
         total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
+}
+
+function renderDependencyGraph(dependencies) {
+  if (!Array.isArray(dependencies)) return null;
+
+  const graphContainer = document.createElement('div');
+  graphContainer.id = 'dependencyGraph';
+  graphContainer.setAttribute('role', 'region');
+  graphContainer.setAttribute('aria-label', 'Dependency Graph');
+  graphContainer.className = 'dependency-graph';
+
+  dependencies.forEach(dep => {
+    const depItem = document.createElement('div');
+    depItem.className = 'dependency-item';
+    depItem.textContent = dep;
+    graphContainer.appendChild(depItem);
+  });
+
+  const existing = document.getElementById('dependencyGraph');
+  if (existing) {
+    existing.parentNode.replaceChild(graphContainer, existing);
+  } else {
+    document.body.appendChild(graphContainer);
+  }
+
+  return graphContainer;
+}
+
+function renderIndex(dependencies) {
+  if (!Array.isArray(dependencies)) return null;
+
+  const indexContainer = document.createElement('div');
+  indexContainer.id = 'dependencyIndex';
+  indexContainer.setAttribute('role', 'region');
+  indexContainer.setAttribute('aria-label', 'Dependency Index');
+  indexContainer.className = 'dependency-index';
+
+  dependencies.forEach((dep, index) => {
+    const indexItem = document.createElement('div');
+    indexItem.className = 'index-item';
+    indexItem.textContent = `${index + 1}. ${dep}`;
+    indexContainer.appendChild(indexItem);
+  });
+
+  const existing = document.getElementById('dependencyIndex');
+  if (existing) {
+    existing.parentNode.replaceChild(indexContainer, existing);
+  } else {
+    document.body.appendChild(indexContainer);
+  }
+
+  return indexContainer;
 }
 
 /**
@@ -169,6 +226,8 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     checkTableStructure,
     countDependencies,
+    renderDependencyGraph,
+    renderIndex,
     init,
     setupAriaLiveRegions,
     setupFocusManagement,

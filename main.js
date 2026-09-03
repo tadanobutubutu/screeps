@@ -34,29 +34,14 @@ const {
   createAnnouncer,
   prefersReducedMotion,
   renderSimpleDependencyGraph,
-  addAccessibleName,
   addAccessibleNamesToSVGs,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixLandmarkIssues,
   validateTableAccessibility,
-  validateTableStructure,
   initializeAccessibility,
   renderIndex,
   newFunction,
@@ -212,7 +197,7 @@ function newFocusTrap (element) {
   })
 }
 
-function validateTableStructure(container) {
+function validateTableStructureForContainer(container) {
   return validateTableStructureForAccessibility(container);
 }
 

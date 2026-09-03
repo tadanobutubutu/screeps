@@ -150,7 +150,49 @@ function analyzeAccessibility(issuesData) {
 }
 
 function addressAccessibilityIssues() {
-    // Address accessibility issues
+  // Load the insight report
+  const reportPath = path.join(__dirname, 'accessibility_report.json');
+  let report;
+  try {
+    report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  } catch (error) {
+    console.error('Failed to load accessibility report:', error.message);
+    return;
+  }
+
+  if (!report || !report.issues) {
+    return;
+  }
+
+  report.issues.forEach(issue => {
+    switch (issue.type) {
+      case 'REACT_015':
+        setLanguageAttribute();
+        break;
+      case 'REACT_027':
+        // Fix table structure issues
+        validateTableStructure();
+        break;
+      case 'REACT_017':
+        // Fix landmark issues
+        addLandmarkRoles();
+        break;
+      case 'REACT_041':
+        // Add accessible names to SVGs
+        setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
+        break;
+      case 'REACT_025':
+        // Ensure unique landmarks
+        ensureUniqueLandmarks();
+        break;
+      case 'REACT_036':
+        // Fix fake links
+        fixFakeLinks();
+        break;
+      default:
+        break;
+    }
+  });
 }
 
 function createInPageButton() {

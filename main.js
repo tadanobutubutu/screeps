@@ -6,8 +6,6 @@ const { exec } = require('child_process');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// TODO: This is the existing code that needs to be preserve
-
 app.use(express.json());
 
 const config = {
@@ -25,6 +23,54 @@ function ensureElementHasId(element) {
   if (!element.id) {
     element.id = `element-${Math.random().toString(36).substr(2, 11)}`;
   }
+}
+
+function getAccessibilitySummary() {
+  if (typeof document === 'undefined') {
+    return {
+      landmarks: 0,
+      images: 0,
+      links: 0,
+      buttons: 0,
+      forms: 0,
+      hasLangAttribute: false,
+      score: 0
+    };
+  }
+
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role]');
+  const images = document.querySelectorAll('img');
+  const links = document.querySelectorAll('a');
+  const buttons = document.querySelectorAll('button');
+  const forms = document.querySelectorAll('form');
+  const htmlElement = document.querySelector('html');
+  const hasLangAttribute = htmlElement && htmlElement.hasAttribute('lang');
+
+  const imagesWithoutAlt = Array.from(images).filter(img => !img.hasAttribute('alt')).length;
+  const buttonsWithoutLabel = Array.from(buttons).filter(btn => 
+    !btn.hasAttribute('aria-label') && 
+    !btn.hasAttribute('aria-labelledby') && 
+    !btn.textContent.trim()
+  ).length;
+  const linksWithoutText = Array.from(links).filter(link => 
+    !link.textContent.trim() && 
+    !link.hasAttribute('aria-label')
+  ).length;
+
+  const score = Math.max(0, 100 - (imagesWithoutAlt * 5) - (buttonsWithoutLabel * 3) - (linksWithoutText * 2));
+
+  return {
+    landmarks: landmarks.length,
+    images: images.length,
+    imagesWithoutAlt,
+    links: links.length,
+    linksWithoutText,
+    buttons: buttons.length,
+    buttonsWithoutLabel,
+    forms: forms.length,
+    hasLangAttribute,
+    score
+  };
 }
 
 const AddressabilityIssues = {
@@ -60,7 +106,7 @@ const AddressabilityIssues = {
 
       if (section.content && section.content.toLowerCase().includes('click here')) {
         issues.push({
-          type: 'inaccessible-link-text',
+          type: 'inaccessible-link_text',
           severity: 'low',
           message: `Section "${section.heading}" contains "click here" text which is not accessible`,
           suggestedFix: 'Use descriptive link text instead of "click here"'
@@ -201,10 +247,6 @@ const AddressabilityIssues = {
     return result;
   },
 
-  validateLandmark(element) {
-    return AddressabilityIssues.validateLandmark(element);
-  },
-
   validateLandmarkStructure() {
     if (typeof document === 'undefined') return true;
     const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
@@ -250,44 +292,6 @@ const AddressabilityIssues = {
     return uniqueElements;
   }
 };
-
-// TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const seen = new Map();
-  const result = [];
-
-  landmarks.forEach(landmark => {
-    if (!landmark) return;
-
-    // Ensure the landmark has an id
-    if (!landmark.id) {
-      landmark.id = `landmark-${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    // Check for duplicate ids
-    if (!seen.has(landmark.id)) {
-      seen.set(landmark.id, 1);
-      result.push(landmark);
-    } else {
-      // Make the id unique by appending a suffix
-      let counter = seen.get(landmark.id);
-      let uniqueId = `${landmark.id}-${counter}`;
-      while (seen.has(uniqueId)) {
-        counter++;
-        uniqueId = `${landmark.id}-${counter}`;
-      }
-      landmark.id = uniqueId;
-      seen.set(uniqueId, 1);
-      result.push(landmark);
-    }
-  });
-
-  return result;
-}
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -371,13 +375,14 @@ function init() {
   setupAriaLiveRegions();
   enhanceSemanticMarkup();
   setupFocusManagement();
+  setupKeyboardNavigation();
   addressInsightIssues();
   enforceAccessibility();
 }
 
 function addressInsightIssues() {
-  const landmarks = getLandmarkElements();
-  ensureUniqueLandmarks(landmarks);
+  getLandmarkElements();
+  AddressabilityIssues.ensureLandmarkUniqueness(landmarks);
   validateTableAccessibility();
   checkTableStructure();
 
@@ -822,31 +827,5 @@ module.exports = {
   addressAccessibilityIssues,
   addLangAttribute,
   getLangAttribute,
-  ensureUniqueLandmarks,
-  setupKeyboardNavigation,
-  handleKeyNavigation,
-  trapFocus,
-  closeOpenDialogs,
-  announceToScreenReader,
-  calculateDifference,
-  calculateProduct,
-  isNumber,
-  clamp,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  generateAccessibilityReport,
-  calculateAccessibilityScore,
-  spawnSomeCommand,
-  addAriaLabel,
-  setARIARoleForDependencyGraph,
-  ensureDependencyGraphAriaRole,
-  renderDependencyGraph,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmarkElement,
-  addSvgAccessibleName,
-  processSvgElements,
-  ensureElementHasId,
-  addressInsightIssues,
-  enforceAccessibility
+  getAccessibilitySummary
 };

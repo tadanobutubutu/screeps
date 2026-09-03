@@ -45,17 +45,17 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if ... {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if ... {
+    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if ... {
+    } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if ... {
+    } else if (/[\u0600-\u06ff\u0750-\u077f]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if ... {
+    } else if (/[\u00c0-\u00ff\u0100-\u017f]/.test(content)) {
       lang = 'fr'; // French
-    } else if ... {
+    } else if (/[\u00c0-\u00ff\u0100-\u017f]/.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -77,31 +77,31 @@ function validateTableAccessibility(tableElement) {
   const errors = [];
   
   // Check if table has proper structure
-  if ... {
+  if (!tableElement.querySelector('thead')) {
     errors.push('Table is missing <thead> element');
   }
   
-  if ... {
+  if (!tableElement.querySelector('tbody')) {
     errors.push('Table is missing <tbody> element');
   }
   
   // Check for th elements in thead
-  const thead = ...
-  const thElements = thead ? ... : [];
+  const thead = tableElement.querySelector('thead');
+  const thElements = thead ? thead.querySelectorAll('th') : [];
   if (thElements.length === 0) {
     errors.push('Table header row is missing <th> elements');
   }
   
   // Check that all th elements have scope attributes
   thElements.forEach((th, index) => {
-    if ... {
+    if (!th.getAttribute('scope')) {
       errors.push(`Table header cell ${index + 1} is missing scope attribute`);
     }
   });
   
   // Check for proper caption or summary
-  const hasCaption = ...
-  const hasSummary = ... || ...
+  const hasCaption = !!tableElement.querySelector('caption');
+  const hasSummary = tableElement.getAttribute('aria-describedby') || tableElement.getAttribute('summary');
   if (!hasCaption && !hasSummary) {
     errors.push('Table is missing a caption or aria-describedby for accessibility');
   }
@@ -115,10 +115,10 @@ function validateTableStructure(tableElement) {
   }
   
   const errors = [];
-  const rows = ...
+  const rows = tableElement.querySelectorAll('tr');
   
   rows.forEach((row, rowIndex) => {
-    const cells = ... td'));
+    const cells = row.querySelectorAll('td');
     const cellCount = cells.length;
     
     // Check for empty cells
@@ -131,9 +131,9 @@ function validateTableStructure(tableElement) {
     // Check that rows have consistent cell counts
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = ... td'));
+      const prevCells = prevRow.querySelectorAll('td');
       if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ...
+        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
       }
     }
   });
@@ -154,11 +154,11 @@ function validateLandmark(element) {
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
   
-  if (role && ... {
-    ... landmark role: ${role}`);
+  if (role && validLandmarks.indexOf(role) === -1) {
+    errors.push(`Invalid landmark role: ${role}`);
   }
   
-  if (!role && ... {
+  if (!role && validLandmarks.indexOf(tagName) === -1) {
     errors.push(`Element is not a valid landmark: ${tagName}`);
   }
   
@@ -182,24 +182,24 @@ function validateLandmarkStructure() {
   const errors = [];
   
   // Check for multiple main landmarks
-  const mainElements = ... [role="main"]');
+  const mainElements = document.querySelectorAll('main, [role="main"]');
   if (mainElements.length > 1) {
     errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = ... nav, main, aside, footer, section, article, [role]');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
-      const parentTag = ...
+      const parentTag = parent.tagName.toLowerCase();
       const parentRole = parent.getAttribute('role');
       
       // Check for invalid nesting
-      if (parentTag === 'header' && ... === 'header') {
+      if (parentTag === 'header' && landmark.tagName.toLowerCase() === 'header') {
         errors.push('Nested header elements found');
       }
-      if (parentTag === 'footer' && ... === 'footer') {
+      if (parentTag === 'footer' && landmark.tagName.toLowerCase() === 'footer') {
         errors.push('Nested footer elements found');
       }
       
@@ -211,30 +211,30 @@ function validateLandmarkStructure() {
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
-function ... {
+function getSvgAccessibleName(svgElement) {
   if (typeof document === 'undefined' || !svgElement) {
     return null;
   }
   
   // Check for aria-label
-  let accessibleName = ...
+  let accessibleName = svgElement.getAttribute('aria-label');
   if (accessibleName) return accessibleName;
   
   // Check for aria-labelledby referencing another element
-  const labelledBy = ...
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
   if (labelledBy) {
-    const labelElement = ...
+    const labelElement = document.getElementById(labelledBy);
     if (labelElement) return labelElement.textContent;
   }
   
   // Check for title element inside SVG
-  const title = ...
+  const title = svgElement.querySelector('title');
   if (title && title.textContent.trim()) {
     return title.textContent.trim();
   }
   
   // Check for desc element inside SVG
-  const desc = ...
+  const desc = svgElement.querySelector('desc');
   if (desc && desc.textContent.trim()) {
     return desc.textContent.trim();
   }
@@ -248,7 +248,7 @@ function validateSvgAccessibility() {
   }
   
   const errors = [];
-  const svgs = ...
+  const svgs = document.querySelectorAll('svg');
   
   svgs.forEach((svg, index) => {
     const name = getSvgAccessibleName(svg);
@@ -270,16 +270,16 @@ function ensureUniqueLandmarks() {
   const landmarkCounts = {};
   
   // Count landmarks by role or tag
-  const landmarks = ... nav, main, aside, footer, section, article, [role]');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
   landmarks.forEach((landmark) => {
-    const identifier = ... || ...
+    const identifier = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
     
     // main landmarks should be unique
     if (identifier === 'main' || identifier === 'MAIN') {
-      if ... {
+      if (landmarkCounts[identifier]) {
         errors.push(`Duplicate main landmark found. Only one main landmark should exist.`);
       } else {
-        ... = 1;
+        landmarkCounts[identifier] = 1;
       }
     }
   });
@@ -290,4 +290,80 @@ function ensureUniqueLandmarks() {
 /**
  * Gets the accessible name of an element, addressing REACT_036 fake link issues.
  * @param {HTMLElement} element - The element to extract the accessible name from
- * @returns {string|null
+ * @returns {string|null} The accessible name or null if not found
+ */
+function getAccessibleName(element) {
+  if (typeof document === 'undefined' || !element) {
+    return null;
+  }
+  
+  // Check for aria-label
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check for aria-labelledby
+  const labelledBy = element.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelElement = document.getElementById(labelledBy);
+    if (labelElement) return labelElement.textContent;
+  }
+  
+  // Check for title attribute
+  const title = element.getAttribute('title');
+  if (title) return title;
+  
+  // Check for text content
+  const textContent = element.textContent.trim();
+  if (textContent) return textContent;
+  
+  // Check for alt attribute (for images)
+  const alt = element.getAttribute('alt');
+  if (alt) return alt;
+  
+  return null;
+}
+
+/**
+ * Wraps the primary content of the page in a <main> element for proper landmark semantics.
+ * Ensures there is exactly one main landmark wrapping the primary content.
+ * @returns {{valid: boolean, errors: string[]}} Validation result with any errors encountered
+ */
+function wrapPrimaryContentInMain() {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+  
+  // Find primary content element
+  const primaryContent = document.getElementById('primary-content') ||
+                         document.querySelector('.primary-content') ||
+                         document.querySelector('[role="main"]') ||
+                         document.querySelector('main') ||
+                         document.querySelector('article') ||
+                         document.body;
+  
+  if (!primaryContent) {
+    return { valid: false, errors: ['No primary content element found'] };
+  }
+  
+  // Check if already wrapped in a main element
+  if (primaryContent.tagName === 'MAIN' || primaryContent.closest('main')) {
+    return { valid: true, errors: [] };
+  }
+  
+  // Check if there are already multiple main elements
+  const existingMainElements = document.querySelectorAll('main');
+  if (existingMainElements.length > 0) {
+    // Move primary content into the first existing main element
+    const existingMain = existingMainElements[0];
+    primaryContent.parentNode.removeChild(primaryContent);
+    existingMain.appendChild(primaryContent);
+    return { valid: true, errors: [] };
+  }
+  
+  // Create a new main element and wrap the primary content
+  const mainElement = document.createElement('main');
+  primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+  mainElement.appendChild(primaryContent);
+  
+  return { valid: true, errors: [] };
+}

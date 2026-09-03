@@ -11,14 +11,12 @@ function getDependencyGraph() {
 let UserSafety = "unsafe";
 let SafetyCategories = "Unauthorized Advice";
 
-// TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-// TODO: This is the existing code that needs to be preserved
 const fastMap = require('fast-map');
 const path = require('path');
 
@@ -126,3 +124,4 @@ function generateAccessibilityReport(issuesData) {
     // If data is provided, use the analysis logic
     issues = accessiblyHelper(issuesData);
   }
+}

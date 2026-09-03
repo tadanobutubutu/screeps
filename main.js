@@ -21,9 +21,9 @@
 // - ADD: Address new accessibility issues from insight report
 import React from 'react';
 
-const { dependencyGraphContent } = require('./dependencyGraph');
-const { indexContent } = require('./indexContent');
-const { functionA, functionB } = require('./someModule');
+const { dependencyGraphContent } = ...
+const { indexContent } = ...
+const { functionA, functionB } = ...
 
 const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn } = require('./utilities');
 
@@ -53,17 +53,17 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if ... {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if ... {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
+    } else if ... {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
+    } else if ... {
       lang = 'ar'; // Arabic
     } else if (/[\u00e0-\u00ff]/.test(content)) {
       lang = 'fr'; // French
-    } else if (/^[a-z]{2}$/i.test(content)) {
+    } else if ... {
       lang = 'de'; // German
     }
   }
@@ -133,8 +133,8 @@ function addressAccessibilityIssues(report) {
   }
 
   // Fix landmarks by ensuring proper roles and accessible names
-  if (report.issues.landmarkIssues && Array.isArray(report.issues.landmarkIssues)) {
-    report.issues.landmarkIssues.forEach(issue => {
+  if (report.issues.landmarkIssues && ... {
+    ... => {
       const element = null;
       if (element) {
         // Add accessible name if missing
@@ -142,8 +142,8 @@ function addressAccessibilityIssues(report) {
           // Try to get label from surrounding context
           const previousSibling = element.previousElementSibling;
           if (previousSibling) {
-            const labelId = `landmark-label-${Date.now().toString(36)}`;
-            const labelSpan = document.createElement('span');
+            const labelId = ...
+            const labelSpan = ...
             labelSpan.id = labelId;
             labelSpan.textContent = 'Label';
             labelSpan.style.display = 'none';
@@ -169,8 +169,8 @@ function addressAccessibilityIssues(report) {
   }
 
   // Fix fake links (elements that look like links but aren't)
-  if (report.issues.fakeLinkIssues && Array.isArray(report.issues.fakeLinkIssues)) {
-    report.issues.fakeLinkIssues.forEach(issue => {
+  if (report.issues.fakeLinkIssues && ... {
+    ... => {
       const element = null;
       if (element) {
         // Check if this element should be a link or a button
@@ -235,17 +235,17 @@ const a11yStore = {
   },
 
   createLiveRegion() {
-    this.liveRegion = document.createElement('div');
-    this.liveRegion.setAttribute('role', 'status');
-    this.liveRegion.setAttribute('aria-live', 'polite');
-    this.liveRegion.setAttribute('aria-atomic', 'true');
-    this.liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);border:0;';
-    document.body.appendChild(this.liveRegion);
+    this.liveRegion = ...
+    ... 'status');
+    ... 'polite');
+    ... 'true');
+    this.liveRegion.style.cssText = ...
+    ...
   },
 
   announce(message, priority) {
     if (!this.liveRegion) return;
-    this.liveRegion.setAttribute('aria-live', priority);
+    ... priority);
     this.liveRegion.textContent = message;
     setTimeout(() => {
       this.liveRegion.textContent = '';
@@ -254,7 +254,7 @@ const a11yStore = {
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element, index) => {
+    ... index) => {
       const landmarks = document.querySelectorAll(element);
       landmarks.forEach((landmark) => {
         if (landmark.id === '') {
@@ -274,8 +274,8 @@ function validateTableAccessibility(tableElement) {
   const errors = [];
   
   // Check if table has proper structure
-  const thead = tableElement.querySelector('thead');
-  const thElements = thead ? thead.querySelectorAll('th') : [];
+  const thead = ...
+  const thElements = thead ? ... : [];
   
   if (thElements.length === 0) {
     errors.push('Table header row is missing <th> elements');
@@ -283,14 +283,14 @@ function validateTableAccessibility(tableElement) {
   
   // Check that all th elements have scope attributes
   thElements.forEach((th, index) => {
-    if (!th.hasAttribute('scope')) {
+    if ... {
       errors.push(`Table header cell ${index + 1} is missing scope attribute`);
     }
   });
   
   // Check for proper caption or summary
-  const hasCaption = tableElement.querySelector('caption');
-  const hasSummary = tableElement.getAttribute('aria-describedby') || tableElement.getAttribute('summary');
+  const hasCaption = ...
+  const hasSummary = ... || ...
   
   if (!hasCaption && !hasSummary) {
     errors.push('Table is missing a caption or aria-describedby for accessibility');
@@ -306,10 +306,10 @@ function validateTableStructure(tableElement) {
   
   const errors = [];
   
-  const rows = tableElement.querySelectorAll('tr');
+  const rows = ...
   
   rows.forEach((row, rowIndex) => {
-    const cells = Array.from(row.querySelectorAll('td'));
+    const cells = ...
     
     const cellCount = cells.length;
     
@@ -323,224 +323,6 @@ function validateTableStructure(tableElement) {
     // Check that rows have consistent cell counts
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = Array.from(prevRow.querySelectorAll('td'));
+      const prevCells = ...
       
-      if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_017: Add/fix 4 landmark issues
-function validateLandmark(element) {
-  if (typeof document === 'undefined' || !element) {
-    return { valid: false, errors: ['Element not found'] };
-  }
-  
-  const errors = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
-  
-  // Check if element is a valid landmark
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
-  
-  if (role && !validLandmarks.includes(role)) {
-    errors.push(`Element has invalid landmark role: ${role}`);
-  }
-  
-  if (!role && tagName) {
-    errors.push(`Element is not a valid landmark: ${tagName}`);
-  }
-  
-  // Check for accessible name
-  const hasLabel = element.getAttribute('aria-label') || 
-                   element.getAttribute('aria-labelledby') ||
-                   element.querySelector('h1, h2, h3, h4, h5, h6');
-  
-  if (!hasLabel) {
-    errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
-  }
-  
-  return { valid: errors.length === 0, errors };
-}
-
-function validateLandmarkStructure() {
-  if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
-  }
-  
-  const errors = [];
-  
-  // Check for multiple main landmarks
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
-  }
-  
-  // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
-  
-  landmarks.forEach((landmark) => {
-    const parent = landmark.parentElement;
-    while (parent) {
-      const parentTag = parent.tagName.toLowerCase();
-      
-      // Check for invalid nesting
-      if (parentTag === 'header' && parentTag === 'header') {
-        errors.push('Nested header elements found');
-      }
-      if (parentTag === 'footer' && parentTag === 'footer') {
-        errors.push('Nested footer elements found');
-      }
-      
-      parent = parent.parentElement;
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svgElement) {
-  if (typeof document === 'undefined' || !svgElement) {
-    return null;
-  }
-  
-  // Check for aria-labelledby referencing another element
-  const labelledBy = svgElement.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.querySelector(labelledBy);
-    if (labelElement) return labelElement.textContent;
-  }
-  
-  // Check for title element inside SVG
-  const title = svgElement.querySelector('title');
-  if (title && title.textContent.trim()) {
-    return title.textContent.trim();
-  }
-  
-  // Check for desc element inside SVG
-  const desc = svgElement.querySelector('desc');
-  if (desc && desc.textContent.trim()) {
-    return desc.textContent.trim();
-  }
-  
-  return null;
-}
-
-function validateSvgAccessibility() {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  
-  const errors = [];
-  const svgs = document.querySelectorAll('svg');
-  
-  svgs.forEach((svg, index) => {
-    const name = getSvgAccessibleName(svg);
-    if (!name) {
-      errors.push(`SVG ${index + 1} is missing an accessible name (aria-label, aria-labelledby, title, or desc)`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
-  }
-  
-  const errors = [];
-  const landmarkCounts = {};
-  
-  // Collect all landmarks
-  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
-  landmarks.forEach((landmark) => {
-    const identifier = landmark.getAttribute('id') || landmark.getAttribute('data-id') || 'unknown';
-    
-    // Main landmarks should be unique
-    if (identifier === 'main' || identifier === 'MAIN') {
-      if (landmarkCounts['main'] > 0) {
-        errors.push(`Duplicate main landmark found. Only one main landmark should exist.`);
-      } else {
-        landmarkCounts['main'] = (landmarkCounts['main'] || 0) + 1;
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Gets the accessible name of an element, addressing REACT_036 fake link issues.
- * @param {HTMLElement} element - The element to extract the accessible name from
- * @returns {string|null} The accessible name or null
- */
-function personName(element) {
-  if (typeof document === 'undefined' || !element) {
-    return null;
-  }
-  
-  // Check for aria-label
-  const ariaLabel = element.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel;
-  
-  // Check for aria-labelledby
-  const labelledBy = element.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.querySelector(labelledBy);
-    if (labelElement) return labelElement.textContent;
-  }
-  
-  // Check for heading tags
-  const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  if (headings.length > 0) {
-    return headings[0].textContent.trim();
-  }
-  
-  return null;
-}
-
-const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = `elem-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element;
-};
-
-/**
- * Get all loaded tables
- * @returns {Array} Array of table objects
- */
-function getTables() {
-  return appData.tables;
-}
-
-/**
- * Get application configuration
- * @returns {Object} Configuration object
- */
-function getConfig() {
-  return { ...appData.config };
-}
-
-/**
- * Set application configuration
- * @param {Object} config - Configuration object
- */
-function setConfig(config) {
-  appData.config = { ...appData.config, ...config };
-}
-
-const renderIndex = (data, options = {}) => {
-  const content = indexContent(data, options);
-  if (content && typeof content === 'string') {
-    return addLangAttribute(content);
-  }
-  return content;
-};
+      if (cell

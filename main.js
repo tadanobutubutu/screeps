@@ -3,10 +3,11 @@ const url = require('url');
 
 // Dependency imports
 const { dependencyGraphContent, indexContent } = require('./dependencyContent');
-const { main } = require('./utilities');
 
-const main = require('./utilities');
+// Rename the main function in utilities to avoid the latest issue
+const { main: renamedMain } = require('./utilities');
 
+// Dependency imports from the renamed main function
 const {
   createInPageButton,
   validateTableAccessibility,
@@ -22,8 +23,8 @@ const {
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementHasId: ensureElementIdOrigin,
-  ensureElementId,
+  ensureElementId: ensureElementIdOrigin,
+  ensureElementHasId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -36,23 +37,27 @@ const {
   newFocusTrap,
   announceToScreenReader: announceToScreenReaderWrapper,
   handleKeyboardNav: handleKeyboardNavWrapper
-} = main;
+} = renamedMain;
 
-const ensureElementId = (element) => {
+// Renamed the main function to match the name of the variable
+const main = {};
+
+// Add the following functions since they were expected in the exports
+main.ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
   }
   return element;
 };
 
-const addAriaLabel = (element, label) => {
+main.addAriaLabel = (element, label) => {
   if (element) {
     element.setAttribute('aria-label', label);
   }
   return element;
 };
 
-const renderDependencyGraph = (data) => {
+main.renderDependencyGraph = (data) => {
   // Implementation for rendering dependency graphs
   return {
     nodes: data.nodes || [],
@@ -61,7 +66,7 @@ const renderDependencyGraph = (data) => {
 };
 
 // Accessibility-related functions
-function ensureDependencyGraphARIA() {
+function main.ensureDependencyGraphARIA() {
   const dependencyGraphElement = document.querySelector('.dependency-graph');
   if (dependencyGraphElement) {
     // Set appropriate ARIA role for the dependency graph container
@@ -76,23 +81,23 @@ function ensureDependencyGraphARIA() {
   }
 }
 
-const initiateAnnounceToScreenReader = (message, priority) => {
+function main.initiateAnnounceToScreenReader(message, priority) {
   announceToScreenReaderWrapper(message, priority);
-  announcementDelayHandler();
-};
+  main.announcementDelayHandler();
+}
 
-const announcementDelayHandler = () => {
+function main.announcementDelayHandler() {
   setTimeout(() => {
     document.body.removeChild(document.querySelector('#sr-announcer'));
   }, 1000);
-};
-
-function handleKeyboardNav(e, handlers) {
-  handleKeyboardNavWrapper(e, handlers);
-  handleKeyboardNavKeyDownEvent(e, handlers);
 }
 
-const handleKeyboardNavKeyDownEvent = (e, handlers) => {
+function main.handleKeyboardNav(e, handlers) {
+  handleKeyboardNavWrapper(e, handlers);
+  main.handleKeyboardNavKeyDownEvent(e, handlers);
+}
+
+function main.handleKeyboardNavKeyDownEvent(e, handlers) {
   if (e.key === 'Tab') {
     Object.values(handlers).forEach((handler) => {
       if (handler) {
@@ -100,7 +105,7 @@ const handleKeyboardNavKeyDownEvent = (e, handlers) => {
       }
     });
   }
-};
+}
 
 module.exports = {
   ...require('./AnotherModule'),
@@ -133,8 +138,8 @@ module.exports = {
   validateTableStructure,
   addAccessibleName,
   accessibilityUtils,
-  ensureElementId,
-  ensureElementHasId,
+  main.ensureElementId,
+  main.ensureElementHasId,
   newFocusTrap,
   // Preserve any other existing exports here
   newFunction,
@@ -143,7 +148,7 @@ module.exports = {
   renderAdditionalContent,
   googleSignIn,
   decodeJwtResponse,
-  ensureUniqueLandmarks,
+  main.ensureUniqueLandmarks,
   addSvgAccessibleName,
   calculateComplexity,
   newFocusTrap,
@@ -153,21 +158,21 @@ module.exports = {
   a11yStore,
   ...mainUtilities,
   anotherNewFunction,
-  ensureDependencyGraphARIA,
-  ensureElementAccessibility,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  improveSvgAccessibility,
-  createAccessibleInPageButton,
-  handleAccessibilityIssues,
-  initAccessibility,
-  renderDependencyGraphWithAccessibility,
-  initSkipLink,
-  handleKeyboardNav,
-  validateAndFixFormAccessibility,
-  validateAndFixLinkAccessibility,
-  validateAndFixButtonAccessibility,
-  announceToScreenReader: initiateAnnounceToScreenReader,
-  handleTabNavigation: handleKeyboardNavKeyDownEvent,
+  main.ensureDependencyGraphARIA,
+  main.ensureElementAccessibility,
+  main.validateLandmark,
+  main.validateLandmarkStructure,
+  main.getSvgAccessibleName,
+  main.improveSvgAccessibility,
+  main.createAccessibleInPageButton,
+  main.handleAccessibilityIssues,
+  main.initAccessibility,
+  main.renderDependencyGraphWithAccessibility,
+  main.initSkipLink,
+  main.handleKeyboardNav,
+  main.validateAndFixFormAccessibility,
+  main.validateAndFixLinkAccessibility,
+  main.validateAndFixButtonAccessibility,
+  main.announceToScreenReader: main.initiateAnnounceToScreenReader,
+  main.handleTabNavigation: main.handleKeyboardNavKeyDownEvent,
 };

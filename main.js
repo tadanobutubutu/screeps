@@ -73,11 +73,40 @@ const sampleInsightReport = {
   ]
 };
 
+function countDependencies() {
+  const fs = require('fs');
+  const path = require('path');
+
+  try {
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+    const dependencies = Object.keys(packageJson.dependencies || {}).length;
+    const devDependencies = Object.keys(packageJson.devDependencies || {}).length;
+    const peerDependencies = Object.keys(packageJson.peerDependencies || {}).length;
+    const optionalDependencies = Object.keys(packageJson.optionalDependencies || {}).length;
+
+    return {
+      dependencies,
+      devDependencies,
+      peerDependencies,
+      optionalDependencies,
+      total: dependencies + devDependencies + peerDependencies + optionalDependencies
+    };
+  } catch (error) {
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      peerDependencies: 0,
+      optionalDependencies: 0,
+      total: 0,
+      error: error.message
+    };
+  }
+}
+
 function init() {
   // Accessibility-focused implementation functions
-  function countDependencies() {
-    // Implement function for counting dependencies with Node.js
-  }
 
   function handleCredentialResponse(response) {
     // Implement function for handling credential responses

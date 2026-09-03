@@ -749,5 +749,14 @@ module.exports = {
     getLandmarkById,
     CONFIG,
     appState,
-    experience
+    experience,
+    // Exported functions made accessible as per issue:
+    addBook,
+    announceBookAdded,
+    getBooksList,
+    harvestData,
+    visualizeDependencyTree,
+    generateDependencyReport,
+    fixAccessibilityIssues,
+    writeReportLog
 };

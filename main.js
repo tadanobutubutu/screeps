@@ -630,6 +630,175 @@ function ensureDependencyGraphAriaRole() {
     }
 }
 
+/**
+ * Scans and identifies all accessibility issues in the document
+ * @returns {Object} Object containing categorized accessibility issues
+ */
+function scanAccessibilityIssues() {
+  const issues = {
+    lang: { count: 0, issues: [] },
+    tables: { count: 0, issues: [] },
+    landmarks: { count: 0, issues: [] },
+    svgs: { count: 0, issues: [] },
+    fakeLinks: { count: 0, issues: [] }
+  };
+
+  // Check lang attribute on HTML element
+  const htmlElement = document.querySelector('html');
+  if (!htmlElement || !htmlElement.hasAttribute('lang')) {
+    issues.lang.issues.push({
+      type: 'REACT_015',
+      message: 'Missing lang attribute on HTML element',
+      fixable: true
+    });
+    issues.lang.count++;
+  }
+
+  // Check tables for accessibility
+  const tables = document.querySelectorAll ? document.querySelectorAll('table') : [];
+  tables.forEach((table, index) => {
+    const tableIssues = validateTableAccessibility(table);
+    if (!tableIssues.success) {
+      tableIssues.issues.forEach(issue => {
+        issues.tables.issues.push({
+          type: 'REACT_027',
+          message: `Table ${index}: ${issue}`,
+          fixable: true
+        });
+        issues.tables.count++;
+      });
+    }
+  });
+
+  // Check landmarks
+  const landmarks = document.querySelectorAll('[role]');
+  landmarks.forEach((landmark, index) => {
+    const landmarkIssues = validateLandmark(landmark);
+    if (!landmarkIssues.success) {
+      landmarkIssues.issues.forEach(issue => {
+        issues.landmarks.issues.push({
+          type: 'REACT_017',
+          message: `Landmark ${index}: ${issue}`,
+          fixable: true
+        });
+        issues.landmarks.count++;
+      });
+    }
+  });
+
+  // Check SVGs for accessible names
+  const svgs = document.querySelectorAll ? document.querySelectorAll('svg') : [];
+  svgs.forEach((svg, index) => {
+    const name = getSvgAccessibleName(svg);
+    if (name === 'Unnamed SVG') {
+      issues.svgs.issues.push({
+        type: 'REACT_041',
+        message: `SVG ${index}: Missing accessible name`,
+        fixable: true
+      });
+      issues.svgs.count++;
+    }
+  });
+
+  // Check for fake links
+  const links = document.querySelectorAll ? document.querySelectorAll('a') : [];
+  links.forEach((link, index) => {
+    const result = fixFakeLinkIssues({ href: link.getAttribute('href'), text: link.textContent });
+    if (result.isFake) {
+      issues.fakeLinks.issues.push({
+        type: 'REACT_036',
+        message: `Link ${index}: Fake link detected`,
+        fixable: true
+      });
+      issues.fakeLinks.count++;
+    }
+  });
+
+  return {
+    totalIssues: issues.lang.count + issues.tables.count + issues.landmarks.count + issues.svgs.count + issues.fakeLinks.count,
+    issues
+  };
+}
+
+/**
+ * Implements function to handle new accessibility issues
+ * This function coordinates all accessibility fixes based on the insight report
+ * @returns {Object} Summary of all accessibility issues handled
+ */
+function implementAccessibilityFixes() {
+  const results = {
+    lang: { fixed: false, message: '' },
+    tables: { fixed: false, message: '' },
+    landmarks: { fixed: false, message: '' },
+    svgs: { fixed: false, message: '' },
+    fakeLinks: { fixed: false, message: '' }
+  };
+
+  // Fix REACT_015: Add lang attribute to HTML element
+  try {
+    addLangAttribute();
+    results.lang.fixed = true;
+    results.lang.message = 'Lang attribute added successfully';
+  } catch (error) {
+    results.lang.message = `Failed to add lang attribute: ${error.message}`;
+  }
+
+  // Fix REACT_027: Fix table structure issues
+  try {
+    fixTableStructureIssues();
+    fixTableHeaderCellScope();
+    results.tables.fixed = true;
+    results.tables.message = 'Table structure issues fixed';
+  } catch (error) {
+    results.tables.message = `Failed to fix table issues: ${error.message}`;
+  }
+
+  // Fix REACT_017 & REACT_025: Landmark issues
+  try {
+    addMainLandmark();
+    addLandmarkRolesAndFixIssues();
+    fixLandmarkIssues();
+    results.landmarks.fixed = true;
+    results.landmarks.message = 'Landmark issues fixed and unique landmarks ensured';
+  } catch (error) {
+    results.landmarks.message = `Failed to fix landmark issues: ${error.message}`;
+  }
+
+  // Fix REACT_041: Add accessible names to SVGs
+  try {
+    addSvgAccessibleNames();
+    results.svgs.fixed = true;
+    results.svgs.message = 'SVG accessible names added';
+  } catch (error) {
+    results.svgs.message = `Failed to add SVG accessible names: ${error.message}`;
+  }
+
+  // Fix REACT_036: Fix fake link issues
+  try {
+    fixFakeLinks();
+    results.fakeLinks.fixed = true;
+    results.fakeLinks.message = 'Fake link issues fixed';
+  } catch (error) {
+    results.fakeLinks.message = `Failed to fix fake links: ${error.message}`;
+  }
+
+  // Fix REACT_037: Add proper landmark regions
+  try {
+    addProperLandmarkRegions();
+  } catch (error) {
+    console.error('Failed to add proper landmark regions:', error);
+  }
+
+  const totalFixed = Object.values(results).filter(r => r.fixed).length;
+  
+  return {
+    success: totalFixed === 5,
+    totalFixed,
+    totalChecks: 5,
+    results
+  };
+}
+
 // Export all existing and new functions
 module.exports = {
   getLangAttribute,
@@ -658,5 +827,7 @@ module.exports = {
   replaceMyButton,
   ensureDependencyGraphAriaRole,
   addSvgAccessibleNames,
-  upgradeSystem
+  upgradeSystem,
+  scanAccessibilityIssues,
+  implementAccessibilityFixes
 };

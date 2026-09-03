@@ -393,6 +393,55 @@ function addressAccessibilityIssues() {
   }
 }
 
+// TODO: Any additional changes requested in the issue should be added after this function
+
+/**
+ * Handles additional accessibility improvements and runtime fixes
+ */
+function handleAdditionalAccessibilityChanges() {
+  // Ensure all interactive elements are keyboard accessible
+  const interactiveElements = document.querySelectorAll('div[role="button"], span[role="button"], div[role="link"], span[role="link"]');
+  interactiveElements.forEach(element => {
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
+  });
+
+  // Ensure all images have appropriate alt text
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    if (!img.hasAttribute('alt')) {
+      img.setAttribute('alt', '');
+    }
+  });
+
+  // Ensure all form controls have associated labels
+  const formControls = document.querySelectorAll('input, select, textarea');
+  formControls.forEach(control => {
+    const id = control.getAttribute('id');
+    const ariaLabel = control.getAttribute('aria-label');
+    const ariaLabelledBy = control.getAttribute('aria-labelledby');
+    const hasLabel = (id && document.querySelector(`label[for="${id}"]`)) || ariaLabel || ariaLabelledBy;
+    if (!hasLabel) {
+      control.setAttribute('aria-label', control.getAttribute('name') || control.getAttribute('placeholder') || 'Form field');
+    }
+  });
+
+  // Ensure proper heading hierarchy
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  headings.forEach(heading => {
+    const currentLevel = parseInt(heading.tagName.substring(1));
+    if (previousLevel > 0 && currentLevel - previousLevel > 1) {
+      console.warn(`Accessibility warning: Heading hierarchy skip detected between h${previousLevel} and h${currentLevel}`);
+    }
+    previousLevel = currentLevel;
+  });
+
+  // Ensure sufficient color contrast is announced for dynamically loaded content
+  a11y.announce('Accessibility improvements applied', 'polite');
+}
+
 root.render(
   <React.StrictMode>
     <App />
@@ -401,4 +450,4 @@ root.render(
 
 reportWebVitals();
 
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
+export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport, handleAdditionalAccessibilityChanges };

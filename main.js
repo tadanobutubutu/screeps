@@ -471,3 +471,33 @@ export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTab
 
 // Initialize after React render to ensure DOM is updated
 initialize();
+
+/**
+ * Addresses accessibility issues from insight report
+ * This function consolidates all required fixes based on the insight report
+ */
+function addressInsightReportIssues() {
+  // Ensure lang attribute is present
+  addLangAttribute();
+
+  // Fix table structures
+  document.querySelectorAll('table').forEach(table => {
+    if (!validateTableAccessibility(table)) {
+      fixTableStructure(table);
+    }
+  });
+
+  // Add landmark roles
+  addMainLandmark();
+  addProperLandmarkRegions();
+  ensureUniqueLandmarks();
+
+  // Add accessible names to SVGs
+  document.querySelectorAll('svg').forEach(svg => {
+    const name = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, name);
+  });
+
+  // Handle fake links
+  handleFakeLinks();
+}

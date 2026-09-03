@@ -28,17 +28,14 @@ const {
 
 const accessibilityUtils = {
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.querySelector('a[href^="#"]');
     if (skipLink) {
-      skipLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetId = skipLink.getAttribute('href');
-        const target = document.querySelector(targetId);
-        if (target) {
-          target.setAttribute('tabindex', '-1');
-          target.focus();
-        }
-      });
+      const targetId = skipLink.getAttribute('href').substring(1);
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.setAttribute('tabindex', '-1');
+        target.focus();
+      }
     }
   },
 
@@ -92,7 +89,7 @@ const accessibilityUtils = {
     if (!report || !report.issues || !Array.isArray(report.issues)) {
       return { addressed: 0, failed: 0 };
     }
-
+    
     let addressed = 0;
     let failed = 0;
 
@@ -197,11 +194,58 @@ const accessibilityUtils = {
   focusTrap,
 };
 
-accessibilityUtils.announceToScreenReader = Object.assign(
-  {},
-  accessibilityUtils,
-  { focusTrap: newFocusTrap }
-);
+const wrapPrimaryContentInMain = () => {
+  // Check if a main element already exists
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    // If no main element exists, create one
+    mainElement = document.createElement('main');
+    
+    // Find the primary content container (commonly #content, .content, or the body)
+    const contentSelectors = ['#content', '.content', '#main', '.main', 'article', '[role="main"]'];
+    let primaryContent = null;
+    
+    for (const selector of contentSelectors) {
+      primaryContent = document.querySelector(selector);
+      if (primaryContent) {
+        break;
+      }
+    }
+    
+    // If no specific content container found, use body
+    if (!primaryContent) {
+      primaryContent = document.body;
+    }
+    
+    // Move the primary content into the main element
+    if (primaryContent !== document.body) {
+      mainElement.appendChild(primaryContent);
+      document.body.insertBefore(mainElement, document.body.firstChild);
+    } else {
+      // Wrap all body children except script and style elements
+      const children = Array.from(document.body.children);
+      children.forEach(child => {
+        if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && child.tagName !== 'LINK') {
+          mainElement.appendChild(child);
+        }
+      });
+      document.body.insertBefore(mainElement, document.body.firstChild);
+    }
+    
+    // Add ARIA landmark attribute
+    mainElement.setAttribute('role', 'main');
+    
+    // Add accessible label if not present
+    if (!mainElement.getAttribute('aria-label') && !mainElement.getAttribute('aria-labelledby')) {
+      mainElement.setAttribute('aria-label', 'Main content');
+    }
+  }
+  
+  return mainElement;
+};
+
+const combinedUtils = Object.assign({}, accessibilityUtils, { focusTrap: newFocusTrap });
 
 module.exports = {
   ...main,
@@ -215,15 +259,5 @@ module.exports = {
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
-  handleCredentialResponse: main.handleCredentialResponse || (() => {}),
-  initAccessibility: main.initAccessibility || (() => {}),
-  groupByCategory: main.groupByCategory || ((arr) => arr),
-  log,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  exportUtilities: exportUtils,
-  harvest,
-  harvestSync
+  wrapPrimaryContentInMain,
 };

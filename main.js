@@ -355,6 +355,47 @@ function setConfig(config) {
     // Implementation for setting config
 }
 
+// NEW FUNCTION: wrapPrimaryContentInMain
+function wrapPrimaryContentInMain() {
+    // Selectors to try for the main content area
+    const selectors = [
+        '#content',
+        '.main',
+        '.main-content',
+        'article',
+        '[role="main"]',
+        'main' // if there's already a main, we might not need to do anything, but we'll check below
+    ];
+
+    let targetElement = null;
+    for (const selector of selectors) {
+        const element = document.querySelector(selector);
+        if (element) {
+            targetElement = element;
+            break;
+        }
+    }
+
+    // If we didn't find any of the above, we might try to look for the first element that is a direct child of body and is not a header, footer, nav, etc.
+    // But for simplicity, if we didn't find with the above, we do nothing.
+    if (!targetElement) {
+        console.warn('wrapPrimaryContentInMain: Could not find primary content to wrap.');
+        return;
+    }
+
+    // Check if the targetElement is already inside a <main> element
+    if (targetElement.parentElement && targetElement.parentElement.tagName.toLowerCase() === 'main') {
+        return; // already wrapped
+    }
+
+    // Create a new main element
+    const mainElement = document.createElement('main');
+    
+    // We want to wrap the targetElement. We'll insert the mainElement before the targetElement, then move the targetElement inside.
+    targetElement.parentNode.insertBefore(mainElement, targetElement);
+    mainElement.appendChild(targetElement);
+}
+
 function createInPageButtons() {
     // Implementation for creating in-page buttons
 }
@@ -506,6 +547,7 @@ module.exports = {
   getTables,
   getConfig,
   setConfig,
+  wrapPrimaryContentInMain,
   // ... other exports from AccessibilityHelpers
   fixTableStructure,
   fixLandmarkIssues,

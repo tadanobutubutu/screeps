@@ -63,6 +63,11 @@ function renderGraphIndex(containerId, data) {
     return true;
 }
 
+// New function3 logic here - Function to generate unique IDs for dynamic elements
+function generateUniqueId(prefix = 'elem') {
+    return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
 // TODO: Update the existing function using the new functions for rendering graph/index
 function renderDependencyGraph(containerId, graphData) {
     return renderGraphIndex(containerId, graphData);

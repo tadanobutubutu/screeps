@@ -337,7 +337,7 @@ function ensureUniqueLandmarks() {
 
 // Handle focus trap for modal dialogs
 function handleFocusTrap(container) {
-  const focusableElements = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const focusableElements = container.querySelectorAll('button, [href], input, select, select, textarea, [tabindex]:not([tabindex="-1"])');
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
@@ -514,29 +514,20 @@ module.exports = {
   renderAdditionalContent,
   calculateComplexity,
   renderDependencyGraph,
-  renderDependencyGraph,
-  renderIndex,
-  newFunction,
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   checkLandmarks,
   ensureUniqueLandmarks,
   handleFocusTrap,
   revokeSession,
-  validateTableAccessibility,
-  getActiveSessionsCount,
-  validateSession,
   a11yStore,
-  getSvgAccessibleName,
   affectedFunction,
   updateFunction,
   accessibleFunction,
   newFunction1,
   newFunction2,
   main: mainEntry,
-  getLangAttribute,
   ensureDependencyGraphARIA,
-  newFunction,
   anotherNewFunction
 };
 

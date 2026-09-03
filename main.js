@@ -30,24 +30,7 @@ const {
   transformInputData,
   initSkipLink,
   trapFocus,
-  newFocusTrap: function (element, customFocusableSelector) {
-      const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-      if (focusableElements.length === 0) return;
-      const first = focusableElements[0];
-      const last = focusableElements[focusableElements.length - 1];
-
-      element.addEventListener('keydown', (e) => {
-          if (e.key === 'Tab') {
-              if (e.shiftKey && document.activeElement === first) {
-                  last.focus();
-                  e.preventDefault();
-              } else if (!e.shiftKey && document.activeElement === last) {
-                  first.focus();
-                  e.preventDefault();
-              }
-          }
-      });
-  }
+  validateTableAccessibility
 } = main;
 
 const accessibilityUtils = {
@@ -108,20 +91,6 @@ const accessibilityUtils = {
 };
 
 // Utility functions for ensuring elements have IDs and adding labels
-const ensureElementHasId = (element, prefix = 'element') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (element.id) {
-    return element.id;
-  }
-
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
-};
-
 const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -260,6 +229,26 @@ function validateTableStructureFn(tableData) {
 function function3() {
   // TODO: Implement new function3 logic here
   return "function3 implemented";
+}
+
+// Define newFocusTrap separately to avoid syntax issues with inline definition
+function newFocusTrap(element, customFocusableSelector) {
+    const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusableElements.length === 0) return;
+    const first = focusableElements[0];
+    const last = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            if (e.shiftKey && document.activeElement === first) {
+                last.focus();
+                e.preventDefault();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                first.focus();
+                e.preventDefault();
+            }
+        }
+    });
 }
 
 module.exports = {

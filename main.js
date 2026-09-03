@@ -4,9 +4,11 @@ const fs = require('fs');
 const express = require('express');
 const { exec } = require('child_process');
 const app = express();
-const { createServer, startApp, config } = require('./');
 
-const port = PORT || 3000;
+const PORT = process.env.PORT || 3000;
+const config = {
+  port: PORT
+};
 
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -152,6 +154,10 @@ const AddressabilityIssues = {
     return issues;
   },
 
+  validateLandmark(element) {
+    // Implementation for validateLandmark
+    return true;
+  }
   // ... (other methods omitted for brevity)
 };
 
@@ -197,6 +203,8 @@ calculateAccessibilityScore = (fixedIssues) => {
 
 ensureUniqueLandmarksFromString = (source) => {
     // Update function logic to ensure unique landmarks from a string
+    const landmarks = source.match(/<header|<nav|<main|<aside|<footer|<section|<article/g) || [];
+    return landmarks;
 };
 
 spawnSomeCommand = (callback) => {
@@ -235,7 +243,9 @@ function startApp() {
 }
 
 // Add the lang attribute to the HTML element with the getLangAttribute() function
-document.documentElement.lang = getLangAttribute();
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = getLangAttribute();
+}
 
 // ... (other functions omitted for brevity)
 

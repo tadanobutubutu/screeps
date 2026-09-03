@@ -3,6 +3,8 @@ const { dependencyGraphContent, indexContent } = require('./contentGenerators');
 
 // Existing rendering functions (preserving existing exports and functions)
 
+// TODO: This is the existing code that needs to be preserved
+
 function renderDependencyGraph(deps, options = {}) {
     // The original renderDependencyGraph function has been updated to work with the new changes
     // ... (Updated code goes here)

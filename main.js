@@ -2,16 +2,28 @@
 // (This comment remains as-is)
 // ... existing code ...
 
+// Helper function to create in-page buttons
+function createInPageButton(options) {
+  return {
+    text: options.text,
+    ariaLabel: options.ariaLabel,
+    onClick: options.onClick,
+    type: 'button'
+  };
+}
+
 // Function to count dependencies (both internal private functions and npm dependencies)
 const countDependencies = () => {
   // Count internal private functions (starting with '_')
   const internalDependencies = [];
   // Use appropriate global object for the environment
   const globalObj = (typeof window !== 'undefined') ? window : global;
-  const functions = [...Object.getOwnPropertyNames(globalObj)];
-  functions.forEach((functionName) => {
-    if (functionName.startsWith('_') && typeof globalObj[functionName] === 'function') {
-      internalDependencies.push(functionName);
+  const functions = Object.keys(globalObj).filter(key => {
+    return typeof globalObj[key] === 'function' && key.startsWith('_');
+  });
+  functions.forEach(func => {
+    if (func.startsWith('_') && typeof globalObj[func] === 'function') {
+      internalDependencies.push(func);
     }
   });
   const internalCount = internalDependencies.length;
@@ -102,9 +114,9 @@ function createAccessibleBookForm(options) {
       },
       required: field.required || false,
       'aria-required': field.required ? 'true' : 'false',
-      'aria-describedby': field.description ? `${fieldId}-description` : undefined,
+      'aria-describedby': field.description ? `${fieldId}-desc` : undefined,
       description: field.description ? {
-        id: `${fieldId}-description`,
+        id: `${fieldId}-desc`,
         text: field.description
       } : undefined,
       value: field.value || '',
@@ -153,8 +165,8 @@ function addProperLandmarkRegions(regions) {
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
   regions.forEach(region => {
-    if (!validLandmarks.includes(region.tagName.toLowerCase())) {
-      issues.push(`Invalid landmark region: ${region.tagName}`);
+    if (!validLandmarks.includes(region.type)) {
+      issues.push(`Invalid landmark region: ${region.type}`);
     }
   });
 
@@ -196,14 +208,16 @@ function addAriaSupport(element, label) {
 }
 
 // Example usage of makeAccessible and addAriaSupport within the addBook function or form
-function enhanceAddBookAccessibility() {
+function setupBookForm() {
     const addBookButton = document.getElementById('addBookButton');
-    makeAccessible(addBookButton);
-    addAriaSupport(addBookButton, 'Add a new book');
+    if (addBookButton) {
+        makeAccessible(addBookButton);
+        addAriaSupport(addBookButton, 'Add a new book');
+    }
 }
 
 // Ensure accessibility improvements are applied
-enhanceAddBookAccessibility();
+document.addEventListener('DOMContentLoaded', setupBookForm);
 
 /**
  * Handles credential response
@@ -258,7 +272,7 @@ function handleCredentialResponse(response, options) {
 
     // Call success callback if provided
     if (options.onSuccess) {
-      options.onSuccess(parsedCredential, storedCredential);
+      options.onSuccess(storedCredential || parsedCredential);
     }
 
     return {
@@ -292,6 +306,6 @@ module.exports = {
   addBook,
   makeAccessible,
   addAriaSupport,
-  enhanceAddBookAccessibility,
+  setupBookForm,
   handleCredentialResponse
 };

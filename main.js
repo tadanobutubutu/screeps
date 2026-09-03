@@ -38,6 +38,7 @@ const config = {
 
 // Load landmarks from file (new addition)
 import {CONFIG} from './utils/constants';
+
 function loadLandmarks() {
   try {
     const filePath = path.join(__dirname, 'landmarks.json');
@@ -545,109 +546,6 @@ function initializeApp() {
   // Initialize the app
 }
 
-// Initialize function
-function initialize() {
-  // Initialization code
-}
-
-// Function to count dependencies
-function countDependencies() {
-  const dependencies = {
-    'react': true,
-    'react-redux': true,
-    'antd': true
-  };
-  return Object.keys(dependencies).length;
-}
-
-// Add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
-  }
-}
-
-// Add/fix landmark issues
-function addMainLandmark() {
-  if (!document.getElementById('main-content')) {
-    const main = document.createElement('main');
-    main.id = 'main-content';
-    document.body.insertBefore(main, document.body.firstChild);
-  }
-}
-
-// Fix table structure issues
-function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Ensure table has proper caption if needed
-    if (!table.querySelector('caption') && table.rows.length > 0) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table data';
-      table.insertBefore(caption, table.firstChild);
-    }
-
-    // Ensure table has proper headers
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      // Add headers if missing
-      const firstRow = table.rows[0];
-      if (firstRow) {
-        Array.from(firstRow.cells).forEach(cell => {
-          const th = document.createElement('th');
-          th.textContent = cell.textContent;
-          cell.replaceWith(th);
-        });
-      }
-    }
-
-    // Ensure table has proper scope attributes for headers
-    const headerRows = table.querySelectorAll('thead th');
-    headerRows.forEach((th, index) => {
-      if (!th.hasAttribute('scope')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
-  });
-}
-
-// Fix fake link issue
-function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    link.tabIndex = '0';
-    link.setAttribute('role', 'button');
-    link.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        link.click();
-      }
-    });
-  });
-}
-
-// Add accessible names to SVGs
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      const title = svg.querySelector('title');
-      if (title) {
-        svg.setAttribute('aria-labelledby', title.id);
-      } else {
-        svg.setAttribute('aria-label', 'graphic');
-      }
-    }
-  });
-}
-
-// Initialize app with accessibility fixes
-function initApp() {
-  initializeApp();
-  wrapPrimaryContentInMain();
-}
-
 // Helper function for landmark structure check
 function landmarkStructureCheck(landmark) {
   const validRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -750,7 +648,6 @@ function handleUserInteraction(event) {
 // Cleanup function
 function cleanup() {
   landmarks.length = 0;
-  icons = {};
 }
 
 // Process data
@@ -784,6 +681,95 @@ function visualizeDependencyTree(data) {
   console.log('Visualizing dependency tree:', data);
 }
 
+// Additional stub functions that are exported but not defined
+function validateTableAccessibility(table) {
+  return true;
+}
+
+function validateTableStructure(table) {
+  return true;
+}
+
+function getSvgAccessibleName(svgId) {
+  return '';
+}
+
+function setSvgAttributes(svgId, attributes) {
+  // Set SVG attributes
+}
+
+function sortLandmarks(landmarks) {
+  return landmarks;
+}
+
+function getLandmarkById(id) {
+  return null;
+}
+
+function checkUserSafety() {
+  return UserSafety;
+}
+
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.textContent = 'Unrotate';
+  return button;
+}
+
+function enhanceAddBookFormAccessibility(form) {
+  return form;
+}
+
+function rotateBack() {
+  // Rotate back functionality
+}
+
+function updateUserSafety(safety) {
+  UserSafety = safety;
+}
+
+function updateSafetyCategories(categories) {
+  SafetyCategories = categories;
+}
+
+function setSvgAccessibleNames(id1, id2, label1, label2) {
+  // Set SVG accessible names
+}
+
+function addressAccessibilityIssues() {
+  // Address accessibility issues
+}
+
+function getUserSafety() {
+  return UserSafety;
+}
+
+function wrapPrimaryContentInMain() {
+  const main = document.getElementById('main-content');
+  if (main) {
+    // Wrap primary content in main landmark
+  }
+}
+
+function ensureUniqueLandmarksDoc() {
+  ensureUniqueLandmarks();
+}
+
+function fixButtonIdentifiers() {
+  // Fix button identifiers
+}
+
+function ensureDependencyGraphAriaRole() {
+  const container = document.getElementById('dependencyGraph');
+  if (container && !container.getAttribute('role')) {
+    container.setAttribute('role', 'region');
+  }
+}
+
+function googleSignIn() {
+  // Google Sign In functionality
+}
+
 addressInsightIssues();
 fixTableStructureIssues();
 fixFakeLinkIssue();
@@ -793,16 +779,6 @@ addSvgAccessibleNames();
 function initApp() {
   initializeApp();
   wrapPrimaryContentInMain();
-}
-
-// App state
-const appState = {
-  // Application state
-};
-
-// Initialize function
-function initialize() {
-  // Initialization code
 }
 
 // Export all functions
@@ -909,7 +885,6 @@ module.exports = {
   rotateBack,
   updateUserSafety,
   updateSafetyCategories,
-  validateTableStructure,
   addLangAttribute,
   addLandmarkRoles,
   fixFakeLinks,
@@ -917,44 +892,7 @@ module.exports = {
   loadLandmarks,
   processLandmarks,
   setSvgAccessibleNames,
-  ensureUniqueLandmarks,
   renderDependencyGraphContent,
-  ensureUniqueLandmarks,
-  countDependencies,
-  fixAccessibilityIssues,
-  generateDependencyReport,
-  createBookForm,
-  createInPageButton,
-  getLangAttribute,
-  generateAccessibilityReport,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createBookForm,
-  announceBookAdded,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  addressAccessibilityIssues,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  main,
-  checkUserSafety,
-  checkSafetyCategories,
-  createAccessibleInput,
-  createUnrotateButton,
-  fixAccessibilityIssues,
-  generateDependencyReport,
-  renderDependencyGraphContent,
-  countDependencies,
-  enhanceAddBookFormAccessibility,
-  ensureLandmarkUniqueness,
-  visualizeDependencyTree,
-  rotateBack,
   UserSafety,
   SafetyCategories,
   generateDependencyReport as generateDependency,
@@ -972,7 +910,6 @@ module.exports = {
   fixTableStructureIssues,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
-  addLangAttribute,
   createInPageButton,
   isSecureContext,
   ensureFocusableElements,
@@ -983,7 +920,6 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  fixFakeLinks,
   ensureUniqueLandmarksDoc,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,

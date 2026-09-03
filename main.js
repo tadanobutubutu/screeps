@@ -16,7 +16,7 @@ function handleCredentialResponse(credential) {
     // Handle attestation response (from registration)
     if (response.attestationObject) {
         const attestationBuffer = response.attestationObject;
-        const attestationObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(attestationBuffer)));
+        const attestationObj = cbor.decodeAllSync ? cbor.decodeAllSync(attestationBuffer) : null;
         
         console.log('Credential registered successfully');
         console.log('Credential ID:', credential.id);
@@ -30,12 +30,12 @@ function handleCredentialResponse(credential) {
     }
 
     // Handle assertion response (from authentication)
-    if (response.authenticatorData && response.clientDataJSON) {
-        const clientDataJSON = JSON.parse(new TextDecoder().decode(response.clientDataJSON));
+    if (response.authenticatorData) {
+        const clientDataJSON = JSON.parse(new TextDecoder().decode(response.clientDataJSON || new ArrayBuffer(0)));
         
         console.log('Credential verified successfully');
         console.log('Credential ID:', credential.id);
-        console.log('Authentication timestamp:', new Date(clientDataJSON.timestamp));
+        console.log('Authentication timestamp:', new Date().toISOString());
         
         return {
             success: true,
@@ -56,7 +56,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues
@@ -84,7 +84,7 @@ function validateLandmarkStructure() {
  * @param {Object} harvestedData - Data collected from the system for upgrades
  * @returns {Object} Result object containing upgrade status and details
  */
-function implementUpgrade(harvestedData) {
+function upgradeWithHarvestedData(harvestedData) {
     if (!harvestedData || typeof harvestedData !== 'object') {
         return {
             success: false,
@@ -100,10 +100,10 @@ function implementUpgrade(harvestedData) {
     };
 
     // Process button improvements
-    if (Array.isArray(harvestedData.buttons)) {
+    if (harvestedData.buttons && Array.isArray(harvestedData.buttons)) {
         harvestedData.buttons.forEach(buttonConfig => {
             if (buttonConfig.id && buttonConfig.text && buttonConfig.class) {
-                createInPageButton(buttonConfig.id, buttonConfig.text, buttonConfig.class);
+                const button = createInPageButton(buttonConfig.id, buttonConfig.text, buttonConfig.class);
                 result.improvements.push({
                     type: 'button',
                     action: 'created',
@@ -114,13 +114,12 @@ function implementUpgrade(harvestedData) {
     }
 
     // Process landmark improvements
-    if (Array.isArray(harvestedData.landmarks)) {
+    if (harvestedData.landmarks && Array.isArray(harvestedData.landmarks)) {
         harvestedData.landmarks.forEach(landmarkType => {
-            if (landmarkType && !document.querySelector(landmarkType)) {
+            if (landmarkType) {
                 const landmark = document.createElement(landmarkType);
-                landmark.setAttribute('role', landmarkType);
-                landmark.setAttribute('aria-label', `${landmarkType} section`);
                 document.body.appendChild(landmark);
+                console.log(`Created ${landmarkType} section`);
                 result.improvements.push({
                     type: 'landmark',
                     action: 'created',
@@ -132,11 +131,11 @@ function implementUpgrade(harvestedData) {
 
     // Process accessibility enhancements
     if (harvestedData.accessibility) {
-        if (harvestedData.accessibility.optimizeContrast !== undefined) {
+        if (harvestedData.accessibility.contrastRatio !== undefined) {
             const style = document.createElement('style');
             style.textContent = `
                 :root {
-                    --contrast-ratio: ${harvestedData.accessibility.optimizeContrast ? 7 : 4.5};
+                    --contrast-ratio: ${harvestedData.accessibility.contrastRatio > 7 ? 7 : 4.5};
                 }
             `;
             document.head.appendChild(style);
@@ -161,9 +160,10 @@ function implementUpgrade(harvestedData) {
 // Function to retrieve the current language setting
 function getCurrentLanguageSetting() {
     // Assuming the language setting is stored in a cookie named 'language'
-    const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('language='));
-    if (cookie) {
-        const [_, value] = cookie.split('=');
+    const cookies = document.cookie.split(';');
+    const languageCookie = cookies.find(cookie => cookie.trim().startsWith('language='));
+    if (languageCookie) {
+        const [_, value] = languageCookie.split('=');
         return value;
     }
     // Default to English if no language setting is found

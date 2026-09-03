@@ -252,6 +252,25 @@ export {
       }
     }
 
+    // Function to check if a link is accessible
+    function isLinkAccessible(linkElement) {
+      if (!linkElement) return false;
+
+      // Check if the link has an href attribute
+      const hasHref = linkElement.hasAttribute('href') && linkElement.getAttribute('href').trim() !== '';
+
+      // Check if the link has accessible text content
+      const linkText = linkElement.textContent ? linkElement.textContent.trim() : '';
+      const hasAriaLabel = linkElement.hasAttribute('aria-label') && linkElement.getAttribute('aria-label').trim() !== '';
+      const hasAriaLabelledBy = linkElement.hasAttribute('aria-labelledby');
+      const hasTitle = linkElement.hasAttribute('title') && linkElement.getAttribute('title').trim() !== '';
+
+      // Link is accessible if it has href and accessible text
+      const hasAccessibleText = linkText.length > 0 || hasAriaLabel || hasAriaLabelledBy || hasTitle;
+
+      return hasHref && hasAccessibleText;
+    }
+
     // Function to render the index view
     function renderIndexView() {
         // Ensure the dependencyGraph container has a proper ARIA role
@@ -278,6 +297,7 @@ export {
       validateLandmarkStructure,
       getSvgAccessibleName,
       setSvgAttributes,
+      isLinkAccessible,
       renderIndexView
     };
 

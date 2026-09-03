@@ -14,7 +14,7 @@ const path = require('path');
 const config = require('./config');
 const logger = require('./utils/logger');
 
-const accessiblyHelper = async (...args) => {
+const accessiblyHelper = (...args) => {
   return args;
 }
 
@@ -335,7 +335,7 @@ function getSafetyCategories() {
 
 // TODO: Implement calculateDiscount
 function calculateDiscount(price, discountPercentage) {
-    return price * (1 - discountPercentage / 100);
+  return price * (1 - discountPercentage / 100);
 }
 
 // Existing code
@@ -614,7 +614,7 @@ function createAccessibleInput(type, id, label, value) {
 }
 
 // Main entry point for dependency visualization tool
-export const main = {
+const main = {
   init: function() {
     console.log('Application initialized');
   },
@@ -749,5 +749,6 @@ module.exports = {
     getLandmarkById,
     CONFIG,
     appState,
-    experience
+    experience,
+    main
 };

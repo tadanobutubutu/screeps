@@ -381,6 +381,98 @@ function upgradeSystem() {
   return config;
 }
 
+// New functions implementing the missing accessibility fixes
+function addLangAttribute() {
+    const html = document.documentElement;
+    if (!html.lang) {
+        html.lang = getLangAttribute();
+    }
+}
+
+function fixTableStructureIssues() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        if (!table.querySelector('caption')) {
+            const caption = document.createElement('caption');
+            caption.textContent = 'Table';
+            table.prepend(caption);
+        }
+    });
+}
+
+function fixTableHeaderCellScope() {
+    const headerCells = document.querySelectorAll('th');
+    headerCells.forEach(cell => {
+        if (!cell.hasAttribute('scope')) {
+            cell.setAttribute('scope', 'col');
+        }
+    });
+}
+
+function addMainLandmark() {
+    if (!document.querySelector('main') && !document.querySelector('[role="main"]')) {
+        const main = document.createElement('main');
+        document.body.prepend(main);
+    }
+}
+
+function addLandmarkRolesAndFixIssues() {
+    const potentialLandmarks = document.querySelectorAll('header, nav, aside, footer, section, article');
+    potentialLandmarks.forEach(el => {
+        if (!el.hasAttribute('role')) {
+            el.setAttribute('role', el.tagName.toLowerCase());
+        }
+    });
+    fixLandmarkIssues();
+}
+
+function fixLandmarkIssues() {
+    const landmarks = document.querySelectorAll('[role]');
+    let hasMain = false;
+    let hasNavigation = false;
+    landmarks.forEach(el => {
+        const role = el.getAttribute('role');
+        if (role === 'main') hasMain = true;
+        if (role === 'navigation') hasNavigation = true;
+    });
+    if (!hasMain) {
+        addMainLandmark();
+    }
+    if (!hasNavigation) {
+        const nav = document.createElement('nav');
+        document.body.prepend(nav);
+    }
+}
+
+function addSvgAccessibleNames() {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+        if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
+            const accessibleName = getSvgAccessibleName(svg);
+            setSvgAttributes(svg, accessibleName);
+        }
+    });
+}
+
+function fixFakeLinks() {
+    const links = document.querySelectorAll('a');
+    links.forEach(link => {
+        if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+            link.setAttribute('aria-label', 'Link');
+        }
+    });
+}
+
+function addProperLandmarkRegions() {
+    const regions = ['header', 'nav', 'main', 'aside', 'footer'];
+    regions.forEach(region => {
+        if (!document.querySelector(region) && !document.querySelector(`[role="${region}"]`)) {
+            const el = document.createElement(region);
+            document.body.prepend(el);
+        }
+    });
+}
+
 // Export all existing and new functions
 module.exports = {
     getLangAttribute,
@@ -400,6 +492,14 @@ module.exports = {
     processData,
     addLandmarkRegions,
     setSvgAttributes,
-    upgradeSystem
+    upgradeSystem,
+    addLangAttribute,
+    fixTableStructureIssues,
+    fixTableHeaderCellScope,
+    addMainLandmark,
+    addLandmarkRolesAndFixIssues,
+    fixLandmarkIssues,
+    addSvgAccessibleNames,
+    fixFakeLinks,
+    addProperLandmarkRegions
 };
-```

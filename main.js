@@ -1,6 +1,3 @@
-// TODO: This is the modified and merged code
-// (This comment remains as-is)
-
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 
@@ -40,7 +37,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   };
 
   if (!report || !report.issues) {
-    return fixes
+    return fixes;
   }
 
   // Add lang attribute to HTML element if missing
@@ -129,7 +126,7 @@ function implementAccessibilityFixesFromReport (container, report) {
     log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
   }
 
-  return fixes
+  return fixes;
 }
 
 // Accessibility-related function to be added
@@ -268,27 +265,6 @@ export function addLandmarkRegions(container) {
  */
 export function ensureUniqueLandmarks(container) {
   if (!container) return null;
-  
-  const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  
-  landmarks.forEach(role => {
-    const elements = container.querySelectorAll(`[role="${role}"]`);
-    elements.forEach((el, index) => {
-      if (index > 0 && !el.getAttribute('aria-label')) {
-        const count = index + 1;
-        el.setAttribute('aria-label', `${role} ${count}`);
-      }
-    });
-  });
-  
-  return container;
-}
-
-/**
- * REACT_025: Unique landmarks helper
- */
-export function uniqueLandmarksHelper(container) {
-  if (!container) return;
   
   const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
   

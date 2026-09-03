@@ -777,6 +777,17 @@ renderDependencyGraphs(container);
 fixButtonIdentifiers(container);
 fixDependencyGraphAria(container);
 
+// Calculate discount function
+function calculateDiscount(price, discountPercent) {
+  if (typeof price !== 'number' || typeof discountPercent !== 'number') {
+    return 0;
+  }
+  if (price < 0 || discountPercent < 0 || discountPercent > 100) {
+    return 0;
+  }
+  return price * (discountPercent / 100);
+}
+
 // Export all functions
 module.exports = {
   // Functions from HEAD
@@ -847,5 +858,8 @@ module.exports = {
   cancelTask,
   setElementLabel,
   setFocus,
-  handleKeyboardNavigation
+  handleKeyboardNavigation,
+
+  // New function for the issue
+  calculateDiscount
 };

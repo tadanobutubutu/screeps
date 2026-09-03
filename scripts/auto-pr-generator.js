@@ -203,7 +203,7 @@ ${analysis.rootCause}`;
 
     execFileSync('git', ['add', '-A'], { stdio: 'inherit' });
     execFileSync('git', ['commit', '-m', commitMessage], { stdio: 'inherit' });
-    execFileSync('git', ['push', 'origin', fullBranchName], { stdio: 'inherit' });
+    execFileSync('git', ['push', 'origin', '--', fullBranchName], { stdio: 'inherit' });
 
     return { branchName: fullBranchName, commitMessage };
 }

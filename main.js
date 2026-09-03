@@ -1,14 +1,15 @@
-Looking at the error, the issue is that `ensureUniqueLandmarks` is declared twice - once as an import from `./utils` and again as a local function definition. I need to remove the duplicate local function.
-
-Looking at the code structure, I also see functions like `fixFakeLinkIssues` being called but it may not be imported. Let me fix the duplicate declaration issue and ensure proper exports.
+Looking at this conflict, I need to merge the two versions meaningfully. The HEAD branch uses CommonJS with imports from `./utils`, while `origin/main` uses ES6 imports with specific utility files. I'll keep both styles of functionality where possible, resolve the duplicate `ensureUniqueLandmarks` issue, and integrate the accessibility functions from both sides.
 
 ```javascript
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const path = require('path');
-const { a11y } = require('@accessible/react');
-const {
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import express from 'express';
+import axe from 'axe-core';
+import fs from 'fs';
+import path from 'path';
+import { a11y } from '@accessible/react';
+import {
   fixTableStructureIssues,
   fixTableHeaderCellScope,
   addMainLandmark,
@@ -17,15 +18,22 @@ const {
   ensureUniqueLandmarks,
   addFixLandmarkIssues,
   fixFakeLinkIssues
-} = require('./utils');
+} from './utils/index.js';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils.js';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkAccessibilityUtils.js';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils.js';
+import { validateLinkAccessibility } from './utils/linkAccessibilityUtils.js';
+import { addProperLandmarkRegions } from './utils/landmarkUtils.js';
+import { CONFIG } from './utils/constants.js';
 
-const CONFIG = {
+const config = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
   dataPath: './data',
   maxResults: 100,
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: 5000,
-  debug: true,
-  version: '1.0.0'
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
 };
 
 let isInitialized = false;
@@ -36,6 +44,23 @@ const appState = {
   data: null,
   cache: new Map()
 };
+
+const landmarkSelectors = [
+  '[role="banner"]',
+  '[role="navigation"]',
+  '[role="main"]',
+  '[role="complementary"]',
+  '[role="contentinfo"]',
+  '[role="region"]',
+  'header:not([role])',
+  'nav:not([role])',
+  'main:not([role])',
+  'footer:not([role])',
+  'aside:not([role])',
+  'section:not([role])'
+];
+
+const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
 
 function processLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
@@ -50,24 +75,39 @@ function processLandmarks(landmarks) {
     });
     return elements;
   }
+  return [];
+}
 
-  const seen = new Set();
-  const uniqueLandmarks = [];
+// Implementation merged from both changes
+function countDependencies() {
+  const dependencies = [
+    'express',
+    'axe-core',
+    'fs',
+    'path',
+    '@accessible/react',
+    'react',
+    'antd',
+    'react-redux',
+    './actions/dependencyGraph',
+    './bookFunctions',
+    './accessibly-helper',
+    './app.js',
+    'effector-sw',
+    './utils',
+    './utils/accessibilityUtils',
+    './utils/tableAccessibilityUtils',
+    './utils/landmarkUtils',
+    './utils/linkAccessibilityUtils',
+    './utils/constants',
+    './App',
+    './utils/someFunction',
+    './utils/user',
+    './newFunctions',
+    './somemodule'
+  ];
 
-  for (const landmark of landmarks) {
-    if (!landmark || typeof landmark.id === 'undefined') {
-      continue;
-    }
-
-    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-    if (!seen.has(landmarkId)) {
-      seen.add(landmarkId);
-      uniqueLandmarks.push(landmark);
-    }
-  }
-
-  return uniqueLandmarks;
+  return dependencies.length;
 }
 
 function getSvgAccessibleName(svgElement) {
@@ -86,7 +126,7 @@ function getSvgAccessibleName(svgElement) {
   return svgElement.getAttribute('aria-label') || svgElement.id || '';
 }
 
-function validateTableAccessibility(tableElement) {
+function validateTableAccessibilityLocal(tableElement) {
   if (!tableElement) return false;
 
   const headers = tableElement.querySelectorAll('th');
@@ -101,7 +141,7 @@ function validateTableAccessibility(tableElement) {
   return true;
 }
 
-function validateTableStructure(tableElement) {
+function validateTableStructureLocal(tableElement) {
   if (!tableElement) return false;
 
   const rows = tableElement.querySelectorAll('tr');
@@ -133,7 +173,12 @@ async function scanAccessibility() {
   return { violations };
 }
 
-function validateLinkAccessibility() {
+// Function for generating a report based on accessibility issues
+async function generateAccessibilityReport() {
+  return scanAccessibility();
+}
+
+function validateLinkAccessibilityLocal() {
   const links = document.querySelectorAll('a');
 
   for (const link of links) {
@@ -154,12 +199,12 @@ function handleFakeLinks() {
   });
 }
 
-function validateLandmark() {
+function validateLandmarkLocal() {
   const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
   return landmarks.length > 0;
 }
 
-function validateLandmarkStructure() {
+function validateLandmarkStructureLocal() {
   const landmarks = document.querySelectorAll('[role="main"]');
 
   for (const landmark of landmarks) {
@@ -171,51 +216,45 @@ function validateLandmarkStructure() {
   return true;
 }
 
-function initialize() {
-  console.log('Initializing application...');
+// Address accessibility issues from insight report
+function addressInsightIssues() {
+  ensureDependencyGraphAriaRole();
+  addAccessibilityProps();
+}
 
-  if (!isInitialized) {
-    isInitialized = true;
-    appState.initialized = true;
+// Implementation merged from both changes
+function addAccessibilityProps() {
+  const landmarks = getUniqueLandmarks();
+  addProperLandmarkRegions(landmarks);
+  validateTableStructure();
+  validateLinkAccessibility();
+}
 
-    const appData = {
-      title: 'Screeps',
-      version: CONFIG.version
-    };
+function getUniqueLandmarks() {
+  if (typeof document === 'undefined') return [];
+  const landmarks = document.querySelectorAll(landmarkSelectors.join(','));
+  const seen = new Set();
+  const unique = [];
+  landmarks.forEach(el => {
+    const id = el.id || el.getAttribute('aria-label') || el.tagName.toLowerCase();
+    if (!seen.has(id)) {
+      seen.add(id);
+      unique.push(el);
+    }
+  });
+  return unique;
+}
 
-    /**
-     * Address accessibility issues from insight report:
-     * - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute() and wrapPrimaryContentInMain())
-     * - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-     * - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
-     * - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-     * - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
-     * - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
-     * todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
-     */
-
-    addLangAttribute();
-    wrapPrimaryContentInMain();
-    addMainLandmark();
-    addFixLandmarkIssues();
-    fixFakeLinkIssues();
-    ensureUniqueLandmarks();
-
-    // Load landmarks for accessibility processing
-    const landmarks = loadLandmarks();
-    const processed = processLandmarks(landmarks);
-
-    // Ensure the dependencyGraph container has a proper ARIA role
-    if (dependencyGraph) {
-      if (!dependencyGraph.id) {
-        dependencyGraph.id = 'dependencyGraph';
-      }
-      if (!dependencyGraph.getAttribute('role')) {
-        dependencyGraph.setAttribute('role', 'region');
-      }
-      if (!dependencyGraph.getAttribute('aria-label')) {
-        dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
-      }
+function ensureDependencyGraphAriaRole() {
+  if (dependencyGraph) {
+    if (!dependencyGraph.id) {
+      dependencyGraph.id = 'dependencyGraph';
+    }
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    if (!dependencyGraph.getAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
     }
   }
 }
@@ -232,6 +271,7 @@ function loadLandmarks() {
 }
 
 function checkLandmarkElement(id) {
+  if (typeof document === 'undefined') return false;
   const element = document.getElementById(id);
   return element !== null;
 }
@@ -278,7 +318,7 @@ function validateLandmarkData(landmark) {
   };
 }
 
-function setSvgAttributes(svgElement, label, labelledById) {
+function setSvgAttributesLocal(svgElement, label, labelledById) {
   if (!svgElement) return;
 
   const props = getSvgProps(label, labelledById);
@@ -308,7 +348,16 @@ function createAccessibleLink(href, label) {
 }
 
 function getLangAttribute() {
+  if (typeof document === 'undefined') return 'en';
   return document.documentElement.lang || 'en';
+}
+
+function getFullLangAttribute() {
+  return getLangAttribute();
+}
+
+function calculateSum(a, b) {
+  return a + b;
 }
 
 function createInPageButton(buttonText, onClickHandler) {
@@ -322,6 +371,7 @@ function createInPageButton(buttonText, onClickHandler) {
 }
 
 function wrapPrimaryContentInMain() {
+  if (typeof document === 'undefined') return;
   const primaryContent = document.querySelector('#content') ||
                         document.querySelector('main') ||
                         document.querySelector('[role="main"]') ||
@@ -330,4 +380,88 @@ function wrapPrimaryContentInMain() {
   if (primaryContent && primaryContent.parentElement.tagName !== 'MAIN') {
     const mainElement = document.createElement('main');
     mainElement.innerHTML = primaryContent.innerHTML;
-    primary
+    primaryContent.parentElement.replaceChild(mainElement, primaryContent);
+  }
+}
+
+function initialize() {
+  if (!isInitialized) {
+    isInitialized = true;
+    appState.initialized = true;
+
+    const appData = {
+      title: 'Screeps',
+      version: CONFIG.version
+    };
+
+    /**
+     * Address accessibility issues from insight report:
+     * - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute() and wrapPrimaryContentInMain())
+     * - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+     * - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
+     * - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+     * - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
+     * - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
+     */
+
+    addLangAttribute();
+    wrapPrimaryContentInMain();
+    addMainLandmark();
+    addFixLandmarkIssues();
+    fixFakeLinkIssues();
+    ensureUniqueLandmarks();
+
+    // Load landmarks for accessibility processing
+    const landmarks = loadLandmarks();
+    const processed = processLandmarks(landmarks);
+
+    // Ensure the dependencyGraph container has a proper ARIA role
+    ensureDependencyGraphAriaRole();
+
+    // Process accessibility props for landmarks
+    addressInsightIssues();
+  }
+}
+
+function addLangAttribute() {
+  if (typeof document === 'undefined') return;
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
+}
+
+module.exports = {
+  initialize,
+  processLandmarks,
+  countDependencies,
+  getSvgAccessibleName,
+  validateTableAccessibility: validateTableAccessibilityLocal,
+  validateTableStructure: validateTableStructureLocal,
+  scanAccessibility,
+  generateAccessibilityReport,
+  validateLinkAccessibility: validateLinkAccessibilityLocal,
+  handleFakeLinks,
+  validateLandmark: validateLandmarkLocal,
+  validateLandmarkStructure: validateLandmarkStructureLocal,
+  addressInsightIssues,
+  addAccessibilityProps,
+  getUniqueLandmarks,
+  ensureDependencyGraphAriaRole,
+  loadLandmarks,
+  checkLandmarkElement,
+  validateLandmarkData,
+  setSvgAttributes: setSvgAttributesLocal,
+  getSvgProps,
+  createAccessibleLink,
+  getLangAttribute,
+  getFullLangAttribute,
+  calculateSum,
+  createInPageButton,
+  wrapPrimaryContentInMain,
+  addLangAttribute,
+  config,
+  appState,
+  landmarkSelectors,
+  landmarkRoles
+};
+```

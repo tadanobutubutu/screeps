@@ -419,6 +419,31 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 /**
+ * Adds accessibility attributes to SVG elements
+ * @param {Object} svg - The SVG element to make accessible
+ * @param {string} accessibleName - The accessible name for the SVG
+ * @returns {Object} The SVG element with accessibility attributes added
+ */
+function addSvgAccessibility(svg, accessibleName) {
+  if (!svg || typeof svg !== 'object') {
+    return svg;
+  }
+
+  svg.setAttribute('role', 'img');
+  
+  if (accessibleName) {
+    svg.setAttribute('aria-label', accessibleName);
+  } else {
+    const name = getSvgAccessibleName(svg);
+    if (name !== 'Accessible SVG Icon' || svg.querySelector('title')) {
+      svg.setAttribute('aria-label', name);
+    }
+  }
+
+  return svg;
+}
+
+/**
  * Handles accessibility issues found during validation
  * @param {Array} issues - Array of accessibility issues (optional)
  * @returns {Object} Summary of handled issues

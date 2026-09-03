@@ -318,10 +318,6 @@ function checkLinkAccessibility(container) {
   return issues;
 }
 
-function validateLandmarkStructure(landmarks) {
-  return validateLandmarkStructure(landmarks);
-}
-
 function fixUniqueLandmarks(landmarks) {
   return ensureUniqueLandmarks(landmarks);
 }

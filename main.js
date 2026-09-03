@@ -114,7 +114,66 @@ export function addMainLandmark() {
  * @returns {boolean} True if landmarks are valid
  */
 export function validateLandmark() {
-  // Implementation to be added
+  // Get all landmark elements on the page
+  const landmarks = document.querySelectorAll([
+    'main',
+    'nav',
+    'aside',
+    'header',
+    'footer',
+    '[role="main"]',
+    '[role="navigation"]',
+    '[role="complementary"]',
+    '[role="banner"]',
+    '[role="contentinfo"]',
+    '[role="search"]',
+    '[role="form"]',
+    '[role="region"]'
+  ].join(', '));
+  
+  // Check if there is at least one main landmark
+  const mainLandmarks = document.querySelectorAll('main, [role="main"]');
+  if (mainLandmarks.length === 0) {
+    console.warn('Missing main landmark element');
+    return false;
+  }
+  
+  // Ensure each landmark has an accessible name
+  let isValid = true;
+  landmarks.forEach(landmark => {
+    const accessibleName = landmark.getAttribute('aria-label') || 
+                          landmark.getAttribute('aria-labelledby') ||
+                          landmark.title;
+    
+    if (!accessibleName) {
+      // For certain landmark types, accessible name may not be required
+      const tagName = landmark.tagName.toLowerCase();
+      const role = landmark.getAttribute('role');
+      
+      // These landmarks typically need accessible names
+      const needsAccessibleName = ['nav', 'main', 'aside'].includes(tagName) || 
+                                 ['navigation', 'main', 'complementary'].includes(role);
+      
+      if (needsAccessibleName) {
+        console.warn('Landmark element missing accessible name:', landmark);
+        isValid = false;
+      }
+    }
+    
+    // Check for proper role usage
+    if (role && !['main', 'navigation', 'complementary', 'banner', 'contentinfo', 'search', 'form', 'region'].includes(role)) {
+      console.warn('Invalid role on landmark element:', landmark);
+      isValid = false;
+    }
+  });
+  
+  // Ensure there is only one main landmark
+  if (mainLandmarks.length > 1) {
+    console.warn('Multiple main landmarks found');
+    isValid = false;
+  }
+  
+  return isValid;
 }
 
 /**

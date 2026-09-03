@@ -207,7 +207,7 @@ function newFocusTrap(element, options = {}) {
 // Export all required functions and utilities
 module.exports = {
     renderDependencyGraph,
-    renderIndex,
+    renderIndex, // Added the export 'renderIndex'
     getLangAttribute,
     accessibilityUtils,
     trapFocus: accessibilityUtils.trapFocus,
@@ -215,5 +215,5 @@ module.exports = {
     initSkipLink: accessibilityUtils.initSkipLink,
     announceToScreenReader: accessibilityUtils.announceToScreenReader,
     handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
-    createInPageButtons
+    createInPageButtons // Added the export 'createInPageButtons'
 };

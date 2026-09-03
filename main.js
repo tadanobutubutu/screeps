@@ -161,4 +161,13 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureImageAccessibility();
 }
 
+// Functions to render dependency graphs or index views
+function renderDependencyGraph() {
+  return dependencyGraphContent();
+}
+
+function renderIndexView() {
+  return indexContent();
+}
+
 // ... rest of the code ...

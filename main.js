@@ -30,6 +30,34 @@ const appState = {
   cache: new Map()
 };
 
+// TODO: Implement a function to count dependencies
+function countDependencies(depGraph) {
+  if (!depGraph || typeof depGraph !== 'object') {
+    return 0;
+  }
+
+  let count = 0;
+
+  function countRecursive(obj) {
+    if (!obj || typeof obj !== 'object') {
+      return;
+    }
+
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        count++;
+        const value = obj[key];
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          countRecursive(value);
+        }
+      }
+    }
+  }
+
+  countRecursive(depGraph);
+  return count;
+}
+
 function getUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     const elements = Array.from(document.querySelectorAll(landmarkSelectors.join(',')));
@@ -370,4 +398,9 @@ async function renderFunction1() {
   function wrapPrimaryContentInMain() {
     if (document.body.firstChild) {
       const wrapper = document.createElement('main');
-      wrapper.innerHTML
+      wrapper.innerHTML = document.body.innerHTML;
+      document.body.innerHTML = '';
+      document.body.appendChild(wrapper);
+    }
+  }
+}

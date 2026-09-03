@@ -151,6 +151,16 @@ const a11yStore = {
     });
   },
 
+  /**
+   * Extract the accessible name for an SVG from its content
+   * @param {SVGElement} svg The SVG element to extract the name from
+   * @returns {string} The accessible name of the SVG
+   */
+  extractSVGAccessibleName(svg) {
+    let titleElement = svg.querySelector('title');
+    return titleElement ? titleElement.textContent : 'Image';
+  },
+
   // ... remaining a11yStore methods ...
 };
 

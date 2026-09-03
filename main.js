@@ -1,6 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Existing code starts here
+
 const userSafety = 'unsafe';
 const safetyCategories = 'Unauthorized Advice';
 
@@ -17,14 +16,14 @@ export const checkUserSafety = () => {
 export const checkSafetyCategories = () => {
   let safetyCategoriesMessage = '';
 
-  if (safetyCategories.includes('Authorized Advice')) {
+  if (safetyCategories.includes('Unauthorized Advice')) {
     safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
   }
 
   return safetyCategoriesMessage;
 };
 
-export const visualizeDependencyTree(dependencies) {
+export const visualizeDependencyTree = (dependencies) => {
   const report = generateDependencyReport(dependencies);
   console.log(report.graph);
 }
@@ -49,14 +48,11 @@ function fixAccessibilityIssues() {
 
   // Validate and fix landmark issues
   validateLandmark();
-  validateLandmarkStructure();
 
   // Validate and fix SVG accessibility issues
-  getSvgAccessibleName();
   setSvgAttributes();
 
   // Validate and fix link accessibility issues
-  validateLinkAccessibility();
   checkLinkAccessibility();
 
   // Set language attributes
@@ -99,8 +95,6 @@ export const main = {
     form.appendChild(authorInput);
     form.appendChild(isbnInput);
     form.appendChild(submitButton);
-
-    document.body.appendChild(form);
 
     // Add event listener for form submission
     form.addEventListener('submit', function(e) {
@@ -188,7 +182,7 @@ function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.ariaLabel = 'rotate back';
+  button.setAttribute('aria-label', 'rotate back');
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
@@ -206,8 +200,8 @@ if (fakeLink && fakeLink.tagName === 'A') {
 import {CONFIG} from './utils/constants';
 function loadLandmarks() {
   try {
-      const filePath = path.join(__dirname, 'landmarks.json');
-      const data = fs.readFileSync(filePath, 'utf8');
+      const filePath = CONFIG.PATHS.data + 'landmarks.json';
+      const data = readFileSync(filePath, 'utf8');
       return JSON.parse(data);
   } catch (error) {
       console.error('Error loading landmarks:', error.message);
@@ -238,7 +232,7 @@ function ensureLandmarkUniqueness(elements) {
 
 // Updated function using the new functions for rendering graph/index
 function renderDependencyGraphContent() {
-  const container = document.getElementById('dependency-graph');
+  const container = document.getElementById('dependencyGraph');
   if (!container) {
     return;
   }
@@ -268,19 +262,10 @@ function enhanceAddBookFormAccessibility(formElement) {
 
   // Add ARIA attributes to form elements
   formElement.setAttribute('role', 'form');
-  formElement.setAttribute('aria-labelledby', 'add-book-form-title');
+  formElement.setAttribute('aria-label', 'add-book-form-title');
 
   // Find and enhance form controls
   const inputs = formElement.querySelectorAll('input, textarea, select');
   inputs.forEach(input => {
     // Add required attribute if needed
-    if (input.required) {
-      input.setAttribute('aria-required', 'true');
-    }
-
-    // Add labels if missing
-    if (!input.id) {
-      input.id = `input_${Math.random().toString(36).substr(2, 9)}`;
-    }
-  });
-}
+    if (input.required)

@@ -57,79 +57,27 @@
       document.body.appendChild(button);
     }
 
-    // Function to address accessibility issues
-    function addressAccessibilityIssues() {
-      // Ensure the root container has an accessible name
-      const rootContainer = document.getElementById('root') ? document.getElementById('root').parentElement : null;
-      if (rootContainer) {
-        rootContainer.setAttribute('role', 'main');
-      }
-
-      // Initialize skip link functionality
-      const skipLink = document.querySelector('[href^="#"]');
-      if (skipLink) {
-        skipLink.addEventListener('click', function(e) {
-          const targetId = this.getAttribute('href').slice(1);
-          const target = document.getElementById(targetId);
-          if (target) {
-            target.setAttribute('tabindex', '-1');
-            target.focus();
+    // Function to ensure unique landmarks
+    function ensureUniqueLandmarks() {
+      // Find all landmark elements
+      const landmarks = document.querySelectorAll('[role="landmark"]');
+      
+      // Group by ID to detect duplicates
+      const landmarkMap = {};
+      landmarks.forEach(landmark => {
+        const id = landmark.id || landmark.getAttribute('id');
+        if (id) {
+          if (landmarkMap[id]) {
+            console.warn(`Duplicate landmark found: ${id}`);
           }
-        });
-      }
-
-      // Ensure all buttons with role="button" respond to Enter key
-      document.querySelectorAll('[role="button"]').forEach(function(button) {
-        button.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            this.click();
-          }
-        });
-      });
-
-      // Add focusVisible polyfill behavior
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Tab') {
-          document.body.classList.add('keyboard-nav');
+          landmarkMap[id] = landmark;
         }
       });
-
-      document.addEventListener('mousedown', function() {
-        document.body.classList.remove('keyboard-nav');
-      });
-
-      // Trap focus in modal and announce welcome message
-      const modalElement = document.getElementById('modal');
-      if (modalElement && a11y && a11y.trapFocus) {
-        a11y.trapFocus(modalElement);
-      }
-      if (a11y && a11y.announce) {
-        a11y.announce('Welcome to the bot!', 'assertive');
-      }
-
-      // Adding an alt attribute to an image
-      const imageElement = document.getElementById('example-image');
-      if (imageElement) {
-        imageElement.setAttribute('alt', 'A description of the image');
-      }
-
-      // Correcting the ARIA role for a div
-      const divElement = document.getElementById('example-div');
-      if (divElement) {
-        divElement.setAttribute('role', 'list');
-      }
-
-      // Adding the lang attribute to the HTML element
-      const htmlElement = document.documentElement;
-      if (htmlElement) {
-        htmlElement.setAttribute('lang', getLangAttribute());
-      }
-    }
-
-    // New function to import a module and execute a function
-    function importAndExecute(modulePath, functionName, callback) {
-      require(modulePath)[functionName](callback);
+      
+      // Collect unique landmarks (first occurrence kept)
+      const uniqueLandmarks = Object.values(landmarkMap);
+      
+      return uniqueLandmarks;
     }
 
     // New function to validate table accessibility
@@ -233,6 +181,16 @@
       }
     }
 
+    // New function to create an accessible link
+    function createAccessibleLink(url) {
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.setAttribute('aria-label', 'Go to: ' + url.substring(0, 60).replace(/[^a-zA-Z0-9]/g, ''));
+      anchor.setAttribute('aria-haspopup', 'false');
+      document.body.appendChild(anchor);
+      return anchor;
+    }
+
     // Export the report generation function
     module.exports = {
       generateAccessibilityReport: async function () {
@@ -249,7 +207,9 @@
       validateLandmark,
       validateLandmarkStructure,
       getSvgAccessibleName,
-      setSvgAttributes
+      setSvgAttributes,
+      ensureUniqueLandmarks,
+      createAccessibleLink
     };
 
     // Initialize the application with accessibility improvements

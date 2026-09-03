@@ -20,6 +20,39 @@ export function myNewFunction() {
   return "New function implemented successfully";
 }
 
+// Implement logic to retrieve the current language setting
+function getCurrentLanguage() {
+  // Check document.documentElement.lang attribute first
+  if (document.documentElement && document.documentElement.lang) {
+    return document.documentElement.lang;
+  }
+  
+  // Check for content-language meta tag
+  const contentLanguageMeta = document.querySelector('meta[http-equiv="content-language"]');
+  if (contentLanguageMeta && contentLanguageMeta.content) {
+    return contentLanguageMeta.content;
+  }
+  
+  // Check for lang attribute on <html> element via tagName
+  const htmlElement = document.getElementsByTagName('html')[0];
+  if (htmlElement && htmlElement.lang) {
+    return htmlElement.lang;
+  }
+  
+  // Check navigator language as fallback
+  if (navigator && navigator.language) {
+    return navigator.language;
+  }
+  
+  // Check for accept-language header simulation via navigator.languages
+  if (navigator && navigator.languages && navigator.languages.length > 0) {
+    return navigator.languages[0];
+  }
+  
+  // Default to 'en' if no language setting is found
+  return 'en';
+}
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
@@ -436,7 +469,8 @@ module.exports = {
   getLangAttribute,
   createInPageButton,
   a11y,
-  accessibilityUtils
+  accessibilityUtils,
+  getCurrentLanguage
 };
 
 // Initialize the application with accessibility improvements
@@ -467,7 +501,7 @@ root.render(
 
 reportWebVitals();
 
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
+export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport, getCurrentLanguage };
 
 // Initialize after React render to ensure DOM is updated
 initialize();

@@ -173,6 +173,38 @@ function addProperLandmarkRegions() {
   // Implementation to be added
 }
 
+/**
+ * Wraps primary content in a main element for improved accessibility
+ * @returns {HTMLElement|null} The main element or null if no content to wrap
+ */
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.getElementById('primary') || 
+                         document.querySelector('[id="main-content"]') ||
+                         document.querySelector('[role="main"]') ||
+                         document.querySelector('main');
+  
+  if (!primaryContent) {
+    return null;
+  }
+  
+  // If already a main element, return it
+  if (primaryContent.tagName === 'MAIN') {
+    return primaryContent;
+  }
+  
+  // Check if parent is already a main element
+  if (primaryContent.parentElement && primaryContent.parentElement.tagName === 'MAIN') {
+    return primaryContent.parentElement;
+  }
+  
+  // Wrap the primary content in a main element
+  const mainElement = document.createElement('main');
+  primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+  mainElement.appendChild(primaryContent);
+  
+  return mainElement;
+}
+
 // Existing code from origin/main
 function existingFunction1() {
   // Existing implementation
@@ -217,6 +249,7 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   addProperLandmarkRegions,
+  wrapPrimaryContentInMain,
   existingFunction1,
   existingFunction2,
   newFunction,

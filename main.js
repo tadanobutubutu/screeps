@@ -564,11 +564,6 @@ function startApp() {
   return server;
 }
 
-// Add the lang attribute to the HTML element
-if (typeof document !== 'undefined' && document.documentElement) {
-  document.documentElement.lang = getLangAttribute();
-}
-
 // Export additional functions
 module.exports.addressAccessibilityIssues = AddressabilityIssues.addressAccessibilityIssues;
 module.exports.generateAccessibilityReport = AddressabilityIssues.generateAccessibilityReport;
@@ -647,6 +642,11 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 function init() {
+  // TODO: Add a language attribute to the HTML element
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = getLangAttribute();
+  }
+  
   initAccessibilityFeatures();
   setupFocusManagement();
   setupAriaLiveRegions();

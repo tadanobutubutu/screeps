@@ -5,7 +5,7 @@
 // Ensure the dependencyGraph container has a proper ARIA role
 
 // Functions to ensure the element has an id, add aria-label, render dependency graph
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
+// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e88
 
 /**
  * Main application entry point
@@ -32,7 +32,7 @@ const AddressabilityIssues = {
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
 
-  addressAccessibilityIssues(insightReport) {
+  analyzeInsightReport(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }
@@ -139,9 +139,9 @@ const AddressabilityIssues = {
     });
   },
 
-  addLangAttribute(element, lang) {
+  addLangAttribute(element) {
     if (element) {
-      element.setAttribute('lang', lang);
+      element.setAttribute('lang', getLangAttribute(element));
     } else {
       const html = document.documentElement;
       if (!html.hasAttribute('lang')) {
@@ -154,8 +154,8 @@ const AddressabilityIssues = {
     const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
 
-    const dependencies = JSON.parse(packageJsonPath).dependencies || {};
-    const devDependencies = JSON.parse(packageJsonPath).devDependencies || {};
+    const dependencies = JSON.parse(packageJson).dependencies || {};
+    const devDependencies = JSON.parse(packageJson).devDependencies || {};
 
     return {
       dependencies: Object.keys(dependencies).length,
@@ -392,7 +392,8 @@ fakeLinks.forEach((link) => {
 
 // Accessibility-focused implementation functions
 function countDependencies() {
-  // Implement function for counting dependencies with Node.js
+  // Implement function for counting dependencies with AddressabilityIssues
+  return AddressabilityIssues.countDependencies();
 }
 
 function handleCredentialResponse(response) {
@@ -410,6 +411,10 @@ function personName() {
 
 function validateTableStructure(table) {
   return { valid: true, error: null };
+}
+
+function validateTableAccessibility(table) {
+  return validateTableStructure(table);
 }
 
 function getSvgAccessibleName(svg) {

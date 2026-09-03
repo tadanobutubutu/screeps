@@ -7,6 +7,20 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 
+// TODO: This is the existing code that needs to be preserved
+// _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
+// <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+
+// _Commit: c7a2c98be5bf45c7b763675b95fe8c30ac1d2f8f_
+
+// <!-- todo-hash: 469dfeab59b4116886abe058392a60b81da4857c -->
+
 /**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')

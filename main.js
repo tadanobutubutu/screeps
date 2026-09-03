@@ -2,7 +2,7 @@
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: 641688d91e4de9a82ff894b47ca3fcdab7317b3d -->
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
+// TODO: This is the existing code that needs to be preserved
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
 // TODO: This is the existing code that needs to be preserve
 // - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())

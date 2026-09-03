@@ -116,10 +116,7 @@ function ensureElementHasId(element) {
 }
 
 // Add your logic here after the existing functions
-
-function implementCountDependenciesInMain() {
-    const path = require('path');
-    const fs = require('fs');
+function countDependencies() {
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
@@ -146,19 +143,6 @@ function enhanceKeyboardNavigation() {
 // export function someExistingFunction() {
 //   // Existing function implementation
 // }
-
-// New function to count dependencies
-function countDependencies(dependencies) {
-  if (!Array.isArray(dependencies)) {
-    return 0;
-  }
-  return dependencies.filter(Boolean).length;
-}
-
-// Existing exports
-export function someExistingFunction() {
-  // Existing function implementation
-}
 
 // New exports (if any)
 export function enhanceKeyboardNavigation() {
@@ -420,11 +404,6 @@ addLangAttribute = (element, lang) => {
 
 // TODO: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 // This has been addressed by ensuring all elements have proper IDs and accessibility attributes
-
-function countDependencies() {
-    // Implement the function to count dependencies
-    return implementCountDependenciesInMain();
-}
 
 function createServer() {
   const server = http.createServer((req, res) => {
@@ -1224,5 +1203,6 @@ module.exports = {
   makeAccessible,
   addAriaSupport,
   addProperLandmarkRegions,
-  renderDependencyGraph
+  renderDependencyGraph,
+  countDependencies
 };

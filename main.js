@@ -1,3 +1,8 @@
+// TODO: This is the modified and merged code
+// This is the existing code that needs to be preserved in main.js
+// Address accessibility issues from insight report
+// ----- END ORIGINAL CODE-----
+
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent')
 const { indexContent } = require('./indexContent')

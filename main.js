@@ -294,5 +294,6 @@ module.exports = {
     validateInput,
     processData,
     addLandmarkRegions,
-    setSvgAttributes
+    setSvgAttributes,
+    addressAccessibilityIssues // New export
 };

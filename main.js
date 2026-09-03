@@ -18,10 +18,22 @@ function initializeApp() {
 // TODO: Identify and update specific functions that render dependency graphs or
 // display module structure for debugging purposes.
 
+// Function to render dependency graph (new function)
+function renderDependencyGraph() {
+    // Logic to render dependency graph
+}
+
+// Function to display module structure (new function)
+function displayModuleStructure() {
+    // Logic to display module structure
+}
+
 // Export main functions
 module.exports = {
     initializeApp,
-    config
+    config,
+    renderDependencyGraph,
+    displayModuleStructure
 };
 
 // Start application if run directly

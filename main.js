@@ -6,7 +6,7 @@ const { setElementLabel } = require('./AccessibilityHelpers');
 // Handles core game logic and integration points.
 
 // Accessibility enhancement: Ensure all UI elements are properly labeled
-setElementLabel('dependencyGraph', 'Dependency graph visualization');
+setElementLabel(document.getElementByTagName('html')[0], 'html');
 
 // New feature: Priority-based task scheduling
 function addTask(taskFn, priority = 'medium') {

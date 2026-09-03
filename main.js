@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Accessibility Functions for Screeps
 
 const express = require('express');
@@ -94,6 +91,34 @@ function createInPageButton(targetId, label) {
   return button;
 }
 
+// New function: checks link accessibility
+function checkLinkAccessibility() {
+  const links = document.querySelectorAll('a');
+  const results = [];
+
+  links.forEach(link => {
+    const hasHref = link.hasAttribute('href');
+    const hasAccessibleText = link.textContent.trim().length > 0 ||
+                              link.hasAttribute('aria-label') ||
+                              link.hasAttribute('aria-labelledby');
+    const target = link.getAttribute('target');
+    const opensInNewWindow = target === '_blank';
+    const hasWarning = opensInNewWindow && !link.hasAttribute('aria-label');
+
+    results.push({
+      element: link,
+      isAccessible: hasHref && hasAccessibleText && !hasWarning,
+      issues: {
+        missingHref: !hasHref,
+        missingAccessibleText: !hasAccessibleText,
+        opensNewWindowWithoutWarning: hasWarning
+      }
+    });
+  });
+
+  return results;
+}
+
 export const main = {
   init: function() {
     console.log('Application initialized');
@@ -148,6 +173,9 @@ export const main = {
     return form;
   },
 
+  checkLinkAccessibility: function() {
+    return checkLinkAccessibility();
+  },
+
   // ... (preserve existing functionality)
 };
-```

@@ -573,14 +573,6 @@ function writeReport(report) {
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
 // Existing utility function
 const formatResponse = (data) => {
   return JSON.stringify(data, null, 2);

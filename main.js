@@ -5,13 +5,24 @@
 const books = [];
 const safetyCategory = "User Safety: safe";
 
+const express = require('express');
+const config = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000,
+  landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  requiredLandmarks: ['banner', 'navigation', 'main']
+};
+
 // Module imports and configuration
 const utils = require('./utils');
 const axe = require('axe-core');
-const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const config = require('./config');
 const logger = require('./utils/logger');
 
 const { calculateSum } = require('./utils');
@@ -49,6 +60,11 @@ const appState = {
     initialized: false,
     data: null,
     cache: {}
+};
+
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
 };
 
 // Find the primary content element in the DOM
@@ -125,12 +141,28 @@ function visualizeModuleRelationshipsLocal(modules) {
   // ... Implementation to visualize local module relationships
 }
 
+// Load landmarks from file
+function loadLandmarks() {
+  try {
+    const filePath = path.join(__dirname, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+      console.error('Error loading landmarks:', error.message);
+      return [];
+  }
+}
+
 function processLandmarks(landmarks) {
   // ... Implementation to process landmarks locally
 }
 
 function processLandmarksLocal(landmarks) {
   // ... Implementation to process landmarks locally
+}
+
+function isValidLandmark(landmark) {
+  return landmark && landmark.id && landmark.role;
 }
 
 function ensureElementHasId(element) {
@@ -371,6 +403,24 @@ function ensureUniqueLandmarks(html) {
     });
 
     return html;
+}
+
+// REACT_025: Ensure unique landmarks (DOM-based)
+function ensureUniqueLandmarksDom(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (!landmark || typeof landmark.id === 'undefined') {
+      return false;
+    }
+    if (!seen.has(landmark.id)) {
+      seen.add(landmark.id);
+      return true;
+    }
+    return false;
+  });
 }
 
 function fixFakeLinks(html) {
@@ -762,7 +812,6 @@ function helper() {}
 function formatDate(date) { return date.toISOString(); }
 function validateInput(input) { return true; }
 function initialize() {}
-function loadLandmarks() { return []; }
 function sortLandmarks(landmarks) { return landmarks; }
 function getLandmarkById(id) { return null; }
 
@@ -856,6 +905,7 @@ module.exports = {
     fixLandmarksDom,
     addSvgAccessibleNamesDom,
     fixFakeLinksDom,
+    ensureUniqueLandmarksDom,
     replaceButtonIds,
     ensureDependencyGraphAriaRole,
     ensureDependencyGraphAriaRoleAlt,
@@ -920,6 +970,8 @@ module.exports = {
     processLandmarks,
     sortLandmarks,
     getLandmarkById,
+    isValidLandmark,
+    appData,
     CONFIG,
     appState,
     experience,

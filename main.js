@@ -265,6 +265,7 @@ module.exports = {
   newFocusTrap,
   handleCredentialResponse,
   initAccessibility,
+  initSkipLink,
   groupByCategory,
   log,
   sanitizeFilename,

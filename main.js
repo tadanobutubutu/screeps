@@ -24,8 +24,6 @@ function wrapPrimaryContentInMain() {
   return null;
 }
 
-// TODO: Implement the new function logic here
-// Example implementation (to be replaced with the actual logic):
 function enhanceAccessibilityForAddBook(form) {
   if (!form) return;
   

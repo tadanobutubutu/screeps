@@ -288,8 +288,6 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse,
-    addSvgAccessibleNames,
     fixTableStructure,
     fixLandmarkIssues,
     addMainLandmark,
@@ -300,7 +298,13 @@ if (typeof module !== 'undefined' && module.exports) {
     fixFakeLinkIssues,
     googleSignIn,
     fixButtonIdentifiers,
-    ensureDependencyGraphAriaRole
+    ensureDependencyGraphAriaRole,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    sampleInsightReport,
+    AddressabilityIssues,
+    createInPageButton,
+    handleFakeLinks
   };
 } else {
   // Browser environment - wait for DOM

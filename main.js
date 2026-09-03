@@ -32,6 +32,95 @@ import {
   decodeJwtResponse
 } from './AccessibilityHelpers'
 
+/**
+ * Creates an in-page button element with accessibility support
+ * @param {Object} options - Button configuration options
+ * @param {string} options.id - Unique identifier for the button
+ * @param {string} options.label - Text content of the button
+ * @param {Function} options.onClick - Click event handler
+ * @param {string} options.className - CSS class names for styling
+ * @param {string} options.title - Tooltip text
+ * @param {string} options.ariaLabel - Accessible label for screen readers
+ * @param {boolean} options.disabled - Whether the button is disabled
+ * @param {string} options.type - Button type (button, submit, reset)
+ * @param {string} options.icon - Optional icon to include
+ * @returns {HTMLButtonElement} The created button element
+ */
+export function createInPageButton(options = {}) {
+  const {
+    id,
+    label = '',
+    onClick,
+    className = '',
+    title,
+    ariaLabel,
+    disabled = false,
+    type = 'button',
+    icon
+  } = options;
+
+  const button = document.createElement('button');
+  button.type = type;
+
+  if (id) {
+    button.id = id;
+  }
+
+  if (className) {
+    button.className = className;
+  }
+
+  if (title) {
+    button.title = title;
+  }
+
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+
+  if (disabled) {
+    button.disabled = true;
+    button.setAttribute('aria-disabled', 'true');
+  }
+
+  // Create button content
+  if (icon && label) {
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'button-icon';
+    iconSpan.textContent = icon;
+    
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'button-label';
+    labelSpan.textContent = label;
+    
+    button.appendChild(iconSpan);
+    button.appendChild(labelSpan);
+  } else if (icon) {
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'button-icon';
+    iconSpan.textContent = icon;
+    button.appendChild(iconSpan);
+  } else {
+    button.textContent = label;
+  }
+
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  // Add keyboard support for accessibility
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      if (!disabled) {
+        e.preventDefault();
+        button.click();
+      }
+    }
+  });
+
+  return button;
+}
+
 // Implement the function for addressing accessibility issues from insight report
 function newFunction () {
   // TODO: Implement the new function as per the issue requirements
@@ -360,98 +449,3 @@ export function ... accessibleName) {
 
 /**
  * REACT_041: Add accessible names to all SVGs in container
- */
-export function ... {
-  if (!container) return;
-  
-  const svgs = ...
-  svgs.forEach((svg, index) => {
-    if ... && ... {
-      addSvgAccessibleNames(svg, `Icon ${index + 1}`);
-    }
-  });
-  
-  return container;
-}
-
-/**
- * REACT_036: Fix fake link issue
- */
-export function fixFakeLinkIssue(element) {
-  if (!element) return null;
-  
-  const tagName = element.tagName.toLowerCase();
-  const role = element.getAttribute('role');
-  const onClick = element.getAttribute('onclick') || element.onclick;
-  
-  if (onClick && tagName !== 'a' && tagName !== 'button') {
-    if (role !== 'button') {
-      element.setAttribute('role', 'button');
-    }
-    
-    if ... {
-      element.setAttribute('tabindex', '0');
-    }
-    
-    ... function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        element.click();
-      }
-    });
-  }
-  
-  return element;
-}
-
-/**
- * REACT_036: Fix all fake link issues in container
- */
-export function ... {
-  if (!container) return null;
-  
-  const clickableElements = ... [role="button"], [role="link"]');
-  ... => {
-    const tagName = el.tagName.toLowerCase();
-    if (tagName !== 'a' && tagName !== 'button' && tagName !== 'input') {
-      fixFakeLinkIssue(el);
-    }
-  });
-  
-  return container;
-}
-
-// Helper functions for session management
-function getActiveSessionsCount() {
-  return appState.sessions.size;
-}
-
-function validateSession(sessionId) {
-  return appState.sessions.get(sessionId) || null;
-}
-
-function handleCredentialResponse(credentialResponse) {
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
-  }
-  return { status: 'success', credential: credentialResponse };
-}
-
-// Accessibility Utilities
-const accessibilityUtils = {
-  initSkipLink: function() {
-    const skipLink = ... [href^="#skip"]');
-    if (skipLink) {
-      ... function(e) {
-        e.preventDefault();
-        const target = ...
-        if (target) {
-          target.setAttribute('tabindex', '-1');
-          target.focus();
-        }
-      });
-    }
-  },
-  
-  announceToScreenReader: function(message, priority) {
-    if (

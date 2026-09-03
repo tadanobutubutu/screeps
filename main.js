@@ -25,18 +25,6 @@ import {
   getLangAttribute,
   validateAccessibilityReport,
   implementAccessibilityFixesFromReport,
-  addressAccessibilityIssues,
-  trapFocus,
-  addLangAttribute as addLangAttributeOrigin,
-  setDependencyGraphRole,
-  setElementLabel,
-  addTask,
-  scheduleTasks,
-  setFocus,
-  handleKeyboardNavigation,
-  handleArrowNavigation,
-  handleTabNavigation,
-  ensureDependencyGraphARIA,
   document
 } from './AccessibilityHelpers'
 

@@ -1,7 +1,7 @@
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
+const { fastMap } = require('fast-map');
 const path = require('path');
 
 // Configuration - merged
@@ -30,6 +30,14 @@ const appState = {
 // Helper for input transformation
 function helper(input) {
   return input ? input.toUpperCase() : '';
+}
+
+// function3 - implemented new logic for processing items using fast-map
+function function3(items, transformFn) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return fastMap(items, transformFn);
 }
 
 // Helper function to format dates
@@ -349,5 +357,6 @@ module.exports = {
   getLangAttribute,
   createInPageButton,
   wrapPrimaryContentInMain,
-  addLangAttribute
+  addLangAttribute,
+  function3
 };

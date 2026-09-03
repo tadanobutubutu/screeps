@@ -458,6 +458,133 @@ function checkLandmarkElements(container) {
   return { valid: errors.length === 0, errors };
 }
 
+/**
+ * Harvests resources from the game world.
+ * Collects available resources, items, or commodities.
+ * 
+ * @param {Object} playerState - The current player state
+ * @param {Array} resources - Available resources in the world
+ * @returns {Object} Updated player state with harvested resources
+ */
+function harvest(playerState, resources) {
+  // Initialize harvested resources if not present
+  if (!playerState.harvestedResources) {
+    playerState.harvestedResources = {
+      food: 0,
+      wood: 0,
+      stone: 0,
+      gold: 0,
+      rare: 0
+    };
+  }
+  
+  // Simulate harvesting logic
+  const harvested = {};
+  resources.forEach(resource => {
+    const amount = Math.floor(Math.random() * (resource.maxYield - resource.minYield + 1)) + resource.minYield;
+    if (amount > 0) {
+      harvested[resource.type] = (harvested[resource.type] || 0) + amount;
+      playerState.harvestedResources[resource.type] += amount;
+      playerState.totalHarvested = (playerState.totalHarvested || 0) + amount;
+    }
+  });
+  
+  // Update player state with harvested amounts
+  Object.keys(harvested).forEach(resourceType => {
+    playerState[resourceType] = (playerState[resourceType] || 0) + harvested[resourceType];
+  });
+  
+  return {
+    ...playerState,
+    harvestedResources: playerState.harvestedResources,
+    lastHarvestTime: Date.now(),
+    harvestCount: (playerState.harvestCount || 0) + 1
+  };
+}
+
+/**
+ * Upgrades a building or structure in the game.
+ * Increases the level or efficiency of the specified structure.
+ * 
+ * @param {Object} playerState - The current player state
+ * @param {string} structureId - The ID of the structure to upgrade
+ * @param {Object} upgradeCosts - Cost requirements for the upgrade
+ * @param {Object} upgradeEffects - Benefits provided by the upgrade
+ * @returns {Object} Updated player state with upgraded structure
+ */
+function upgrade(playerState, structureId, upgradeCosts, upgradeEffects) {
+  // Initialize structures if not present
+  if (!playerState.structures) {
+    playerState.structures = {};
+  }
+  
+  const structure = playerState.structures[structureId];
+  if (!structure) {
+    throw new Error(`Structure with ID ${structureId} not found`);
+  }
+  
+  // Check if player has enough resources for upgrade
+  const hasEnoughResources = Object.keys(upgradeCosts).every(resourceType => {
+    return (playerState[resourceType] || 0) >= upgradeCosts[resourceType];
+  });
+  
+  if (!hasEnoughResources) {
+    throw new Error('Insufficient resources for upgrade');
+  }
+  
+  // Deduct upgrade costs from player resources
+  Object.keys(upgradeCosts).forEach(resourceType => {
+    playerState[resourceType] -= upgradeCosts[resourceType];
+  });
+  
+  // Apply upgrade effects
+  const newStructure = {
+    ...structure,
+    level: (structure.level || 1) + 1,
+    ...upgradeEffects
+  };
+  
+  // Update the structure in player state
+  playerState.structures[structureId] = newStructure;
+  
+  // Update player state
+  return {
+    ...playerState,
+    structures: playerState.structures,
+    lastUpgradeTime: Date.now(),
+    upgradeCount: (playerState.upgradeCount || 0) + 1
+  };
+}
+
+/**
+ * Checks if a player can perform a harvest action based on current state.
+ * 
+ * @param {Object} playerState - The current player state
+ * @param {Object} harvestRequirements - Requirements for harvesting
+ * @returns {boolean} True if harvest is possible, false otherwise
+ */
+function canHarvest(playerState, harvestRequirements) {
+  if (!harvestRequirements) return true;
+  
+  return Object.keys(harvestRequirements).every(requirement => {
+    const hasRequirement = playerState[requirement] || 0;
+    return hasRequirement >= harvestRequirements[requirement];
+  });
+}
+
+/**
+ * Checks if a player can perform an upgrade action based on current state.
+ * 
+ * @param {Object} playerState - The current player state
+ * @param {Object} upgradeCosts - Cost requirements for the upgrade
+ * @returns {boolean} True if upgrade is possible, false otherwise
+ */
+function canUpgrade(playerState, upgradeCosts) {
+  return Object.keys(upgradeCosts).every(resourceType => {
+    return (playerState[resourceType] || 0) >= upgradeCosts[resourceType];
+  });
+}
+
 // Combined export code for accessibility utilities (FIXES: REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 export {
   setHtmlLangAttribute,
@@ -473,5 +600,9 @@ export {
   personName,
   validateLinks,
   createFocusTrap,
-  checkLandmarkElements
+  checkLandmarkElements,
+  harvest,
+  upgrade,
+  canHarvest,
+  canUpgrade
 };

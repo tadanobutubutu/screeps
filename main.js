@@ -98,7 +98,24 @@ function harvestResources() {
 }
 
 // Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
+export {
+    handleCredentialResponse,
+    createInPageButton,
+    validateLandmarkStructure,
+    getCurrentLanguageSetting,
+    harvestResources,
+    getLangAttribute,
+    wrapPrimaryContentInMain,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    addFixLandmarkIssues,
+    getSvgAccessibleName,
+    addAriaToFormControls,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssues,
+    createAccessibleLink
+};
 
 // New function to address accessibility issues from insight report
 function getLangAttribute() {

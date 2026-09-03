@@ -320,6 +320,45 @@ function renderDependencyGraphs(graphData) {
   mainElement.appendChild(container);
 }
 
+/**
+ * Ensure dependency graph container is accessible
+ * @param {Element} container - The dependency graph container element
+ */
+function ensureDependencyGraphAccessibility(container) {
+  if (!container) return;
+
+  container.setAttribute('role', 'region');
+  if (!container.getAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+}
+
+/**
+ * Render a dependency graph (stub implementation)
+ * @param {Object} graphData - Data for rendering dependency graphs
+ * @returns {string} HTML string for the dependency graph
+ */
+function renderDependencyGraph(graphData) {
+  return '<div class="dependency-graph">Dependency graph content</div>';
+}
+
+/**
+ * Check landmark elements for accessibility
+ */
+function checkLandmarkElements() {
+  if (typeof document === 'undefined') return;
+
+  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
+  landmarks.forEach((landmark) => {
+    const hasLabel = landmark.getAttribute('aria-label') ||
+                     landmark.getAttribute('aria-labelledby') ||
+                     landmark.querySelector('h1, h2, h3, h4, h5, h6');
+    if (!hasLabel) {
+      landmark.setAttribute('aria-label', landmark.tagName.toLowerCase());
+    }
+  });
+}
+
 // New functions (merged changes from both versions)
 function ensureInteractiveElementsAccessible() {
   a11yStore.ensureInteractiveRoles();
@@ -426,5 +465,3 @@ module.exports = {
   indexContent,
   main,
 };
-
-// ... rest of the code ...

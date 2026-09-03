@@ -1,7 +1,7 @@
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
+const fastMap = require('fastmap');
 const path = require('path');
 
 // Existing code preserved - all functions, exports, and utilities maintained
@@ -20,7 +20,7 @@ function isValidLandmark(landmark) {
 
 function loadLandmarks() {
     try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -41,7 +41,7 @@ function processLandmarks(landmarks) {
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return [...landmarks].sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -82,7 +82,7 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  const reportFile = path.join(CONFIG.dataPath, 'accessibility-report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
@@ -95,8 +95,8 @@ async function generateAccessibilityReport() {
 }
 
 // Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
+const { validateInput, processData } = require('./utils');
+const { formatResponse } = require('./formatters');
 
 // Main execution when run directly
 if (require.main === module) {
@@ -118,6 +118,16 @@ if (require.main === module) {
 
 async function scanAccessibility() {
     // ... Scanning and reporting accessibility issues using axe-core ...
+    const app = express();
+    
+    // Basic accessibility scan setup
+    const results = {
+        timestamp: new Date().toISOString(),
+        violations: [],
+        passes: []
+    };
+    
+    return results;
 }
 
 module.exports = {
@@ -125,6 +135,7 @@ module.exports = {
     processData,
     formatResponse,
     config: CONFIG,
+    fastMap,
     generateAccessibilityReport,
     loadLandmarks,
     processLandmarks,

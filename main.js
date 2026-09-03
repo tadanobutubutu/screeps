@@ -1,3 +1,4 @@
+const http = require('http')
 const main = require('./utilities')
 
 const {
@@ -12,8 +13,6 @@ const {
   addMainLandmarkToIndex,
   addressAccessibilityIssues
 } = main
-
-const http = require('http')
 
 const renderGraphIndex = (graphData) => {
   addressAccessibilityIssues();

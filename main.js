@@ -151,6 +151,73 @@ const a11yStore = {
     });
   },
 
+  /**
+   * Set up a focus trap within a container element
+   * @param {HTMLElement} container - The container element to trap focus within
+   * @returns {Object} An object containing the container element and a destroy function
+   */
+  setupFocusTrap(container) {
+    const focusableSelectors = [
+      'a[href]',
+      'area[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      'button:not([disabled])',
+      'iframe',
+      'object',
+      'embed',
+      '[tabindex]:not([tabindex="-1"])',
+      '[contenteditable]',
+      '[role="button"]:not([disabled])'
+    ];
+
+    const focusableElements = Array.from(container.querySelectorAll(focusableSelectors.join(',')));
+
+    if (focusableElements.length === 0) {
+      return { container, destroy: () => {} };
+    }
+
+    let firstFocusable = focusableElements[0];
+    let lastFocusable = focusableElements[focusableElements.length - 1];
+
+    const handleKeyDown = (event) => {
+      if (event.key !== 'Tab') return;
+
+      if (event.shiftKey) {
+        // Shift + Tab - focus previous
+        if (document.activeElement === firstFocusable) {
+          event.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        // Tab - focus next
+        if (document.activeElement === lastFocusable) {
+          event.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    };
+
+    const handleFocusIn = (event) => {
+      if (!container.contains(event.target)) {
+        event.preventDefault();
+        firstFocusable.focus();
+      }
+    };
+
+    container.addEventListener('keydown', handleKeyDown);
+    container.addEventListener('focusin', handleFocusIn);
+
+    return {
+      container,
+      destroy: () => {
+        container.removeEventListener('keydown', handleKeyDown);
+        container.removeEventListener('focusin', handleFocusIn);
+      }
+    };
+  },
+
   // ... remaining a11yStore methods ...
 };
 

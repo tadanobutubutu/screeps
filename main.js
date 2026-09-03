@@ -293,8 +293,10 @@ const handleKeyboardNavKeyDownEvent = (e, handlers) => {
 // Merge newFocusTrap function from the original import
 const newFocusTrap = originNewFocusTrap;
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+
 module.exports = {
-  ...main,
   ...accessibilityUtils,
   ensureElementId,
   ensureElementIdOrigin,

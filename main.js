@@ -1,3 +1,51 @@
+// TODO: Implement this function
+/**
+ * Addresses accessibility issues identified in an insight report
+ * @param {Object} insightReport - The report containing sections to check for accessibility issues
+ * @returns {Array} Array of issues found and fixed
+ */
+function addressAccessibilityIssuesFromInsightReport(insightReport) {
+  const issues = [];
+  
+  if (!insightReport || !insightReport.sections) {
+    return issues;
+  }
+  
+  insightReport.sections.forEach((section, index) => {
+    // Check for missing headings
+    if (!section.heading) {
+      issues.push({
+        type: 'missing-heading',
+        severity: 'high',
+        message: `Section ${index} is missing a heading`,
+        suggestedFix: 'Add a descriptive heading to each section'
+      });
+    }
+    
+    // Check for empty content
+    if (!section.content || section.content.trim() === '') {
+      issues.push({
+        type: 'empty-content',
+        severity: 'medium',
+        message: `Section "${section.heading}" has no content`,
+        suggestedFix: 'Add meaningful content to the section'
+      });
+    }
+    
+    // Check for inaccessible link text
+    if (section.content && section.content.toLowerCase().includes('click here')) {
+      issues.push({
+        type: 'inaccessible-link-text',
+        severity: 'low',
+        message: `Section "${section.heading}" contains "click here" text which is not accessible`,
+        suggestedFix: 'Use descriptive link text instead of "click here"'
+      });
+    }
+  });
+  
+  return issues;
+}
+
 // TODO: Address accessibility issues from insight report:
 
 // TODO: This is the existing code that needs to be preserved
@@ -515,6 +563,7 @@ function addressAccessibilityIssues() {
 }
 
 function initializeAccessibility() {
+  if (typeof document === 'undefined') return;
   if (!document.querySelectorAll) return;
   addressAccessibilityIssues(sampleInsightReport);
 }
@@ -544,61 +593,66 @@ if (typeof module !== 'undefined' && module.exports) {
     setARIARoleForDependencyGraph,
     addLangAttribute: AddressabilityIssues.addLangAttribute,
     validateLandmarkElement,
-    handleFakeLinks
+    handleFakeLinks,
+    addressAccessibilityIssuesFromInsightReport
   };
 } else {
   // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAccessibility);
-  } else {
-    initializeAccessibility();
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeAccessibility);
+    } else {
+      initializeAccessibility();
+    }
   }
 }
 
 // Fix 26 table structure issues
-const tables = document.querySelectorAll('table');
-tables.forEach((table) => {
-  const validationResult = validateTableStructure(table);
-  if (!validationResult.valid) {
-    // Handle invalid table structure
-    console.error(`Table structure issues found: ${validationResult.error}`);
-  }
-});
+if (typeof document !== 'undefined') {
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table) => {
+    const validationResult = validateTableStructure(table);
+    if (!validationResult.valid) {
+      // Handle invalid table structure
+      console.error(`Table structure issues found: ${validationResult.error}`);
+    }
+  });
 
-// Add/fix 4 landmark issues
-const landmarks = document.querySelectorAll('main, nav, aside, header, footer');
-landmarks.forEach((landmark) => {
-  const validationResult = validateLandmark(landmark);
-  if (!validationResult.valid) {
-    // Handle invalid landmark
-    console.error(`Landmark issues found: ${validationResult.error}`);
-  }
-});
+  // Add/fix 4 landmark issues
+  const landmarks = document.querySelectorAll('main, nav, aside, header, footer');
+  landmarks.forEach((landmark) => {
+    const validationResult = validateLandmark(landmark);
+    if (!validationResult.valid) {
+      // Handle invalid landmark
+      console.error(`Landmark issues found: ${validationResult.error}`);
+    }
+  });
 
-// Add accessible names to 2 SVGs
-const svgElements = document.querySelectorAll('svg');
-svgElements.forEach((svg) => {
-  const accessibleName = getSvgAccessibleName(svg);
-  if (accessibleName) {
-    svg.setAttribute('aria-label', accessibleName);
-  }
-});
+  // Add accessible names to 2 SVGs
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+  });
 
-// Ensure unique landmarks
-const uniqueLandmarks = ensureUniqueLandmarks(document);
-if (!uniqueLandmarks) {
-  console.error('Non-unique landmarks detected');
+  // Ensure unique landmarks
+  const uniqueLandmarks = ensureUniqueLandmarks(document);
+  if (!uniqueLandmarks) {
+    console.error('Non-unique landmarks detected');
+  }
+
+  // Fix 1 fake link issue
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach((link) => {
+    handleFakeLinks([{
+      type: 'fake',
+      message: 'Link points to an invalid location'
+    }]);
+    link.setAttribute('href', '#');
+  });
 }
-
-// Fix 1 fake link issue
-const fakeLinks = document.querySelectorAll('a[href="#"]');
-fakeLinks.forEach((link) => {
-  handleFakeLinks([{
-    type: 'fake',
-    message: 'Link points to an invalid location'
-  }]);
-  link.setAttribute('href', '#');
-});
 
 // Accessibility-focused implementation functions
 function countDependencies() {
@@ -610,7 +664,20 @@ function handleCredentialResponse(response) {
 }
 
 function handleFakeLinks(issues) {
-  // Placeholder
+  if (!issues || !Array.isArray(issues)) return;
+  
+  issues.forEach(issue => {
+    if (issue.type === 'fake') {
+      const fakeLinks = document.querySelectorAll('a[href="#"]');
+      fakeLinks.forEach(link => {
+        link.setAttribute('role', 'link');
+        const existingLabel = link.getAttribute('aria-label');
+        if (!existingLabel) {
+          link.setAttribute('aria-label', 'Non-navigable link');
+        }
+      });
+    }
+  });
 }
 
 // Additional utility functions from origin/main

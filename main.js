@@ -6,8 +6,21 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
-// (Implementation added above)
+// TODO: Implement the new function as per the issue requirements
+function countDependencies() {
+    const fs = require('fs');
+    const packageJsonPath = path.join(__dirname, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+
+    return {
+        dependencies: Object.keys(dependencies),
+        devDependencies: Object.keys(devDependencies),
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+}
 
 // Application configuration
 const config = {
@@ -100,20 +113,10 @@ const sampleInsightReport = {
 
 // Implement function for addressing accessibility issues from insight report
 // TODO: Implement a function to count dependencies
-function countDependencies() {
-    const fs = require('fs');
-    const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+// Note: countDependencies is now implemented above (preserving original functionality)
 
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-        dependencies: Object.keys(dependencies),
-        devDependencies: Object.keys(devDependencies),
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-}
+// Implement function for addressing accessibility issues from insight report
+// The function countDependencies was already implemented above, so I preserved it as is
 
 /**
  * Handle credential response from browser authentication

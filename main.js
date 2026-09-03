@@ -97,11 +97,19 @@ async function generateAccessibilityReport() {
 }
 
 async function scanAccessibility() {
+    // Fetch the page content from the configured API URL
+    const response = await fetch(CONFIG.apiUrl);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch ${CONFIG.apiUrl}: ${response.status}`);
+    }
+    const html = await response.text();
+
+    // Run axe-core on the fetched HTML
     const report = await axe.run({
-        // axe configuration
+        html,
+        timeout: CONFIG.timeout,
     });
 
-    // Assuming report is the format returned by axe.run
     return report;
 }
 
@@ -140,16 +148,6 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
   addLandmarkRegions,
   addProperLandmarkRegions,
   fixTableAccessibility,

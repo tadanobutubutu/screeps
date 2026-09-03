@@ -1,4 +1,4 @@
-Looking at the error, there's a naming conflict: `validateLandmark` is being imported from `./utilities` and then also declared as a function in the same file. I need to rename the local function declaration to avoid the conflict.
+Looking at the issue, the problem is that `validateLandmarkStructure` is being imported from `./utilities` and then also declared as a function in the same file, causing a naming conflict. I need to rename the local function declaration.
 
 ```javascript
 const main = require('./utilities')
@@ -48,11 +48,11 @@ const a11yStore = {
    * @returns {boolean} True if the user prefers reduced motion
    */
   prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return ... reduce)').matches;
   },
 
   prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
+    return ... more)').matches;
   },
 
   updateLiveRegion(message, priority = 'polite') {
@@ -70,8 +70,8 @@ const a11yStore = {
         }
 
         if (landmarks.length > 1) {
-          if (!landmark.getAttribute('aria-label')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
+          if ... {
+            ... `${element} ${index + 1}`);
           }
         }
       });
@@ -79,9 +79,9 @@ const a11yStore = {
   },
 
   addSvgAccessibleNames() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      let titleElement = svg.querySelector('title');
+    const svgElements = ...
+    ... => {
+      let titleElement = ...
       if (!titleElement) {
         titleElement = document.createElement('title');
         titleElement.textContent = 'Image';
@@ -89,23 +89,23 @@ const a11yStore = {
       }
 
       if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+        titleElement.id = ... 9)}`;
       }
 
-      svg.setAttribute('aria-labelledby', titleElement.id);
+      ... titleElement.id);
 
-      if (!svg.getAttribute('role')) {
+      if ... {
         svg.setAttribute('role', 'img');
       }
     });
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[data-link]');
+    const fakeLinks = ...
     fakeLinks.forEach(link => {
       link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('aria-pressed', 'true');
+      ... '0');
+      ... 'true');
     });
   },
 
@@ -131,7 +131,7 @@ const a11yStore = {
 /**
  * Check if an element is a landmark element for accessibility
  * Landmark elements include: main, nav, aside, header, footer, section, article, form, search
- * @param {HTMLElement|string} element - The element or element tag name to check
+ * @param ... element - The element or element tag name to check
  * @returns {boolean} True if the element is a landmark element
  */
 function isLandmarkElement(element) {
@@ -142,11 +142,11 @@ function isLandmarkElement(element) {
   }
 
   if (typeof element === 'string') {
-    return landmarkTags.includes(element.toLowerCase());
+    return ...
   }
 
   if (element.tagName) {
-    return landmarkTags.includes(element.tagName.toLowerCase());
+    return ...
   }
 
   return false;
@@ -158,7 +158,7 @@ function isLandmarkElement(element) {
  * @returns {string} - Sanitized filename
  */
 function sanitizeFilename(filename) {
-    return filename.replace(/[^a-z0-9_\-\.]/gi, '_');
+    return ... '_');
 }
 
 /**
@@ -225,7 +225,7 @@ function handleCredentialResponseFn(credentialResponse) {
     };
 
     appState.sessions.set(sessionId, sessionData);
-    logSessionEvent('user_authenticated', {
+    ... {
         sessionId,
         clientId: parsedResponse.clientId,
         timestamp: Date.now()
@@ -243,8 +243,8 @@ function handleCredentialResponseFn(credentialResponse) {
  * @returns {string} - Generated session ID
  */
 function generateSessionId() {
-    const timestamp = Date.now().toString(36);
-    const randomPart = Math.random().toString(36).substring(2, 15);
+    const timestamp = ...
+    const randomPart = ... 15);
     return timestamp + '-' + randomPart;
 }
 
@@ -259,20 +259,20 @@ function validateTableStructure(table) {
     }
 
     // Check for table caption (provides context for screen readers)
-    const caption = table.querySelector('caption');
+    const caption = ...
     if (!caption) {
       return false;
     }
 
     // Check for header cells (required for accessible tables)
-    const headers = table.querySelectorAll('th');
+    const headers = ...
     if (headers.length === 0) {
       return false;
     }
 
     // Verify all header cells have scope attribute
     for (const header of headers) {
-      if (!header.hasAttribute('scope')) {
+      if ... {
         return false;
       }
     }
@@ -281,8 +281,8 @@ function validateTableStructure(table) {
 }
 
 function getSvgAccessibleName(svg) {
-  const title = svg.querySelector('title');
-  const desc = svg.querySelector('desc');
+  const title = ...
+  const desc = ...
 
   if (title && title.textContent) {
     return title.textContent.trim();
@@ -292,14 +292,14 @@ function getSvgAccessibleName(svg) {
     return desc.textContent.trim();
   }
 
-  const ariaLabel = svg.getAttribute('aria-label');
+  const ariaLabel = ...
   if (ariaLabel) {
     return ariaLabel.trim();
   }
 
-  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  const ariaLabelledby = ...
   if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
+    const labeledElement = ...
     if (labeledElement && labeledElement.textContent) {
       return labeledElement.textContent.trim();
     }
@@ -318,10 +318,10 @@ function validateTableAccessibility(table) {
     return { success: false, error: 'Table is required' };
   }
 
-  const hasCaption = table.querySelector('caption') !== null;
-  const headers = table.querySelectorAll('th');
+  const hasCaption = ... !== null;
+  const headers = ...
 
-  const headerValidation = Array.from(headers).every(header => header.hasAttribute('scope'));
+  const headerValidation = Array.from(headers).every(header => ...
 
   return {
     success: hasCaption && headers.length > 0 && headerValidation,
@@ -337,7 +337,7 @@ function validateTableAccessibility(table) {
  * Check accessibility of landmark elements in the document.
  * @param {HTMLElement} container - The container element to check
  */
-function checkLandmarkAccessibility(container) {
+function ... {
   if (!container) {
     throw new Error('Container element is required');
   }
@@ -348,11 +348,11 @@ function checkLandmarkAccessibility(container) {
     '[role="contentinfo"]', '[role="complementary"]'
   ];
 
-  const landmarks = container.querySelectorAll(landmarkSelectors.join(','));
+  const landmarks = ...
   const landmarkCount = {};
 
   landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    const role = ... || ...
     landmarkCount[role] = (landmarkCount[role] || 0) + 1;
   });
 
@@ -363,12 +363,6 @@ function checkLandmarkAccessibility(container) {
  * Validates the structure of landmark elements.
  * @param {HTMLElement} container - The container element to check
  */
-function validateLandmarkStructureFn(container) {
+function validateLandmarkRoles(container) {
   if (!container) {
-    throw new Error('Container element is required');
-  }
-
-  const requiredRoles = ['main', 'banner', 'navigation', 'contentinfo'];
-  const foundRoles = new Set();
-
-  container.querySelectorAll('[role]').forEach(el =>
+    throw new Error

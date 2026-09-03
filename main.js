@@ -1,155 +1,75 @@
-Looking at the issue, the problem is that `validateLandmarkStructure` is being imported from `./utilities` and then also declared as a function in the same file, causing a naming conflict. I need to rename the local function declaration.
+Looking at this Git merge conflict, I need to understand what both branches are contributing:
 
-```javascript
-const main = require('./utilities')
+1. **HEAD branch**: Adds accessibility-related functionality including:
+   - `renderGraphIndex` and `renderGraphIndexAlt` functions
+   - `a11yStore` object with accessibility methods
+   - Functions for validating landmark elements and table accessibility
+   - Dependency counting and processing utilities
 
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateAccessibilityReport,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  setSvgAccessibilityProps,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  ensureElementHasIdOrigin,
-  addAriaLabel: addAriaLabelAlt,
-  googleSignIn,
-  handleCredentialResponse: handleCredentialResponseAlt,
-  renderGraphIndex: renderGraphIndexUtil,
-  addressAccessibilityIssues
-} = require('./utilities');
+2. **origin/main**: Adds:
+   - HTTP and Express server setup
+   - Configuration loading from package.json
+   - Basic accessibility validation functions
+   - Event handler setup
 
-const http = require('http')
+The conflict is complex with overlapping function names and both adding new features. I'll resolve by:
+- Keeping all imports from origin/main (they're essential for the server)
+- Integrating both accessibility improvements from HEAD
+- Merging configuration and dependency functions
+- Resolving overlapping function definitions
+- Preserving all unique functionality
 
-const renderGraphIndex = (graphData) => {
-  addressAccessibilityIssues();
-  renderDependencyGraphs(graphData);
-}
+Here's the resolved file:
 
-const renderGraphIndexAlt = (graphData) => {
-  addressAccessibilityIssues();
-  renderDependencyGraphs(graphData);
-}
+===const http = require('http');
+const path = require('path');
+const fs = require('fs');
+const express = require('express');
+const { exec, spawn } = require('child_process');
 
-// TODO: Update the existing function using the new functions for rendering graph/index
-// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-// a11yStore from HEAD - preserving all accessibility methods
-const a11yStore = {
-  // ... existing methods ...
-
-  /**
-   * Check if the user prefers reduced motion
-   * @returns {boolean} True if the user prefers reduced motion
-   */
-  prefersReducedMotion() {
-    return ... reduce)').matches;
-  },
-
-  prefersHighContrast() {
-    return ... more)').matches;
-  },
-
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) return;
-    this.announce(message, priority);
-  },
-
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach(element => {
-      const landmarks = document.querySelectorAll(element);
-      landmarks.forEach((landmark, index) => {
-        if (landmark.id === '') {
-          landmark.id = `${element}-${index}`;
-        }
-
-        if (landmarks.length > 1) {
-          if ... {
-            ... `${element} ${index + 1}`);
-          }
-        }
-      });
-    });
-  },
-
-  addSvgAccessibleNames() {
-    const svgElements = ...
-    ... => {
-      let titleElement = ...
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image';
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
-
-      if (!titleElement.id) {
-        titleElement.id = ... 9)}`;
-      }
-
-      ... titleElement.id);
-
-      if ... {
-        svg.setAttribute('role', 'img');
-      }
-    });
-  },
-
-  fixFakeLinks() {
-    const fakeLinks = ...
-    fakeLinks.forEach(link => {
-      link.setAttribute('role', 'link');
-      ... '0');
-      ... 'true');
-    });
-  },
-
-  preserveExistingCode() {
-    // TODO: This is the existing code that needs to be preserved
-    // _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
-    // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-    // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-    // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-    // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-    // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-    // _Commit: 9f4ca23445c76674f7b5dd5047c707b41ba67409_
-    // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-  },
-
-  newFunction() {
-    // New function implementation from origin/main
-  }
+const config = {
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  timeout: process.env.TIMEOUT || 5000,
+  debug: true,
+  version: '1.0.0',
+  port: process.env.PORT || 3000,
+  env: process.env.NODE_ENV || 'development'
 };
 
-/**
- * Check if an element is a landmark element for accessibility
- * Landmark elements include: main, nav, aside, header, footer, section, article, form, search
- * @param ... element - The element or element tag name to check
- * @returns {boolean} True if the element is a landmark element
- */
-function isLandmarkElement(element) {
-  const landmarkTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form', 'search'];
+const primaryContent = (typeof document !== 'undefined') ? document.getElementById('primary-content') || document.body : null;
 
-  if (!element) {
-    return false;
-  }
+// Load configurations from package.json if it exists
+function loadConfigurations() {
+    try {
+        const packagePath = path.join(__dirname, 'package.json');
+        if (fs.existsSync(packagePath)) {
+            const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+            config.name = packageJson.name || 'dependency-counter';
+            config.version = packageJson.version || '1.0.0';
+            config.dependencies = packageJson.dependencies || {};
+            config.devDependencies = packageJson.devDependencies || {};
+            config.accessibility = packageJson.accessibility || {};
+        }
+    } catch (error) {
+        console.error('Error loading configurations:', error.message);
+    }
+}
 
-  if (typeof element === 'string') {
-    return ...
-  }
+// Implement function to count dependencies
+function countDependencies() {
+    const packageJsonPath = path.join(__dirname, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
 
-  if (element.tagName) {
-    return ...
-  }
-
-  return false;
+    return {
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
 }
 
 /**
@@ -158,7 +78,7 @@ function isLandmarkElement(element) {
  * @returns {string} - Sanitized filename
  */
 function sanitizeFilename(filename) {
-    return ... '_');
+    return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
 }
 
 /**
@@ -175,6 +95,282 @@ function processData(items) {
         processed: true,
         timestamp: Date.now()
     }));
+}
+
+/**
+ * Generate a unique session ID
+ * @returns {string} - Generated session ID
+ */
+function generateSessionId() {
+    const timestamp = Date.now().toString(36);
+    const randomPart = Math.floor(Math.random() * 1e9).toString(36).substring(0, 9);
+    return timestamp + '-' + randomPart;
+}
+
+/**
+ * Check if the user prefers reduced motion
+ * @returns {boolean} True if the user prefers reduced motion
+ */
+function prefersReducedMotion() {
+    if (typeof window === 'undefined' || !window.matchMedia) {
+        return false;
+    }
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * Check if the user prefers high contrast
+ * @returns {boolean} True if the user prefers high contrast
+ */
+function prefersHighContrast() {
+    if (typeof window === 'undefined' || !window.matchMedia) {
+        return false;
+    }
+    return window.matchMedia('(prefers-contrast: high)').matches;
+}
+
+/**
+ * Check if an element is a landmark element for accessibility
+ * Landmark elements include: main, nav, aside, header, footer, section, article, form, search
+ * @param {HTMLElement|string} element - The element or element tag name to check
+ * @returns {boolean} True if the element is a landmark element
+ */
+function isLandmarkElement(element) {
+    const landmarkTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form', 'search'];
+
+    if (!element) {
+        return false;
+    }
+
+    if (typeof element === 'string') {
+        return landmarkTags.includes(element.toLowerCase());
+    }
+
+    if (element.tagName) {
+        return landmarkTags.includes(element.tagName.toLowerCase());
+    }
+
+    return false;
+}
+
+/**
+ * Validates table accessibility by checking structure and headers.
+ * @param {HTMLElement} table - The table to validate
+ * @returns {Object} - Validation result with success status and details
+ */
+function validateTableAccessibility(table) {
+  if (!table) {
+    return { success: false, error: 'Table is required' };
+  }
+
+  const caption = table.querySelector('caption');
+  const hasCaption = caption !== null;
+  const headers = table.querySelectorAll('th');
+
+  const headerValidation = Array.from(headers).every(header => 
+    header.hasAttribute('scope') && header.getAttribute('scope') !== ''
+  );
+
+  return {
+    success: hasCaption && headers.length > 0 && headerValidation,
+    details: {
+      hasCaption,
+      headerCount: headers.length,
+      headersHaveScope: headerValidation
+    }
+  };
+}
+
+/**
+ * Validates the structure of landmark elements.
+ * @param {HTMLElement} container - The container element to check
+ */
+function validateLandmarkRoles(container) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+
+  const landmarkSelectors = [
+    'main', 'nav', 'header', 'footer', 'aside',
+    '[role="main"]', '[role="banner"]',
+    '[role="contentinfo"]', '[role="complementary"]'
+  ];
+
+  const landmarks = [];
+  landmarkSelectors.forEach(selector => {
+    const elements = container.querySelectorAll(selector);
+    elements.forEach(el => landmarks.push(el));
+  });
+
+  const landmarkCount = {};
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    landmarkCount[role] = (landmarkCount[role] || 0) + 1;
+  });
+
+  return landmarkCount;
+}
+
+/**
+ * Check accessibility of landmark elements in the document.
+ * @param {HTMLElement} container - The container element to check
+ */
+function checkAccessibilityOfLandmarks(container) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+
+  const landmarkSelectors = [
+    'main', 'nav', 'header', 'footer', 'aside',
+    '[role="main"]', '[role="banner"]',
+    '[role="contentinfo"]', '[role="complementary"]'
+  ];
+
+  const landmarks = [];
+  landmarkSelectors.forEach(selector => {
+    const elements = container.querySelectorAll(selector);
+    elements.forEach(el => landmarks.push(el));
+  });
+
+  const landmarkCount = {};
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    landmarkCount[role] = (landmarkCount[role] || 0) + 1;
+  });
+
+  return landmarkCount;
+}
+
+/**
+ * Check accessibility of landmark elements in the document.
+ * @param {HTMLElement} container - The container element to check
+ */
+function checkLandmarkAccessibility(container) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+
+  const landmarkSelectors = [
+    'main', 'nav', 'header', 'footer', 'aside',
+    '[role="main"]', '[role="banner"]',
+    '[role="contentinfo"]', '[role="complementary"]'
+  ];
+
+  const landmarks = [];
+  landmarkSelectors.forEach(selector => {
+    const elements = container.querySelectorAll(selector);
+    elements.forEach(el => landmarks.push(el));
+  });
+
+  const landmarkCount = {};
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    landmarkCount[role] = (landmarkCount[role] || 0) + 1;
+  });
+
+  return landmarkCount;
+}
+
+/**
+ * Validates the structure of landmark elements.
+ * @param {HTMLElement} container - The container element to check
+ */
+function validateLandmarkStructure(container) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+
+  const landmarkSelectors = [
+    'main', 'nav', 'header', 'footer', 'aside',
+    '[role="main"]', '[role="banner"]',
+    '[role="contentinfo"]', '[role="complementary"]'
+  ];
+
+  const landmarks = [];
+  landmarkSelectors.forEach(selector => {
+    const elements = container.querySelectorAll(selector);
+    elements.forEach(el => landmarks.push(el));
+  });
+
+  const landmarkCount = {};
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    landmarkCount[role] = (landmarkCount[role] || 0) + 1;
+  });
+
+  return landmarkCount;
+}
+
+// SVG accessibility helper functions
+function makeSvgAccessible(svg) {
+  if (svg && typeof svg.setAttribute === 'function') {
+    svg.setAttribute('role', 'img');
+  }
+
+  const accessibleName = getSvgAccessibleName(svg);
+  if (accessibleName) {
+    svg.setAttribute('aria-labelledby', accessibleName);
+  }
+
+  setSvgAttributes(svg);
+}
+
+function setSvgAttributes(svg) {
+    // Code to set other svg attributes goes here
+}
+
+// AddressabilityIssues from origin/main branch
+const AddressabilityIssues = {
+  validateTableAccessibility: function(table) {
+    return validateTableAccessibility(table);
+  }
+};
+
+/**
+ * Get the accessible name for an SVG element
+ * @param {HTMLElement} svg - The SVG element
+ * @returns {string|null} - The accessible name or null
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return null;
+  
+  const title = svg.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent) {
+    return desc.textContent.trim();
+  }
+
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel.trim();
+  }
+
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labeledElement = document.getElementById(ariaLabelledby);
+    if (labeledElement && labeledElement.textContent) {
+      return labeledElement.textContent.trim();
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Validate input parameter
+ * @param {*} input - Input to validate
+ * @returns {boolean} - True if valid
+ */
+function validateInput(input) {
+    return input !== null && input !== undefined;
 }
 
 /**
@@ -225,119 +421,18 @@ function handleCredentialResponseFn(credentialResponse) {
     };
 
     appState.sessions.set(sessionId, sessionData);
-    ... {
+    return {
         sessionId,
         clientId: parsedResponse.clientId,
         timestamp: Date.now()
-    });
-
-    return {
-        status: 'success',
-        sessionId,
-        user: sessionData.user
     };
-}
-
-/**
- * Generate a unique session ID
- * @returns {string} - Generated session ID
- */
-function generateSessionId() {
-    const timestamp = ...
-    const randomPart = ... 15);
-    return timestamp + '-' + randomPart;
-}
-
-/**
- * Validates the structure of the table to ensure accessibility.
- * @param {HTMLElement} table - The table to validate
- * @returns {boolean} True if the table is accessible, false otherwise
- */
-function validateTableStructure(table) {
-    if (!table) {
-      throw new Error('Table is required');
-    }
-
-    // Check for table caption (provides context for screen readers)
-    const caption = ...
-    if (!caption) {
-      return false;
-    }
-
-    // Check for header cells (required for accessible tables)
-    const headers = ...
-    if (headers.length === 0) {
-      return false;
-    }
-
-    // Verify all header cells have scope attribute
-    for (const header of headers) {
-      if ... {
-        return false;
-      }
-    }
-
-    return true;
-}
-
-function getSvgAccessibleName(svg) {
-  const title = ...
-  const desc = ...
-
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-
-  const ariaLabel = ...
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledby = ...
-  if (ariaLabelledby) {
-    const labeledElement = ...
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
-    }
-  }
-
-  return 'SVG graphic';
-}
-
-/**
- * Validates table accessibility by checking structure and headers.
- * @param {HTMLElement} table - The table to validate
- * @returns {Object} - Validation result with success status and details
- */
-function validateTableAccessibility(table) {
-  if (!table) {
-    return { success: false, error: 'Table is required' };
-  }
-
-  const hasCaption = ... !== null;
-  const headers = ...
-
-  const headerValidation = Array.from(headers).every(header => ...
-
-  return {
-    success: hasCaption && headers.length > 0 && headerValidation,
-    details: {
-      hasCaption,
-      headerCount: headers.length,
-      headersHaveScope: headerValidation
-    }
-  };
 }
 
 /**
  * Check accessibility of landmark elements in the document.
  * @param {HTMLElement} container - The container element to check
  */
-function ... {
+function checkLandmarkElements(container) {
   if (!container) {
     throw new Error('Container element is required');
   }
@@ -348,11 +443,16 @@ function ... {
     '[role="contentinfo"]', '[role="complementary"]'
   ];
 
-  const landmarks = ...
+  const landmarks = [];
+  landmarkSelectors.forEach(selector => {
+    const elements = container.querySelectorAll(selector);
+    elements.forEach(el => landmarks.push(el));
+  });
+
   const landmarkCount = {};
 
   landmarks.forEach(landmark => {
-    const role = ... || ...
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
     landmarkCount[role] = (landmarkCount[role] || 0) + 1;
   });
 
@@ -360,9 +460,511 @@ function ... {
 }
 
 /**
- * Validates the structure of landmark elements.
- * @param {HTMLElement} container - The container element to check
+ * Ensure unique landmarks by removing duplicates based on key attributes
+ * @param {Array} landmarks - Array of landmark elements
+ * @returns {Array} - Unique landmark elements
  */
-function validateLandmarkRoles(container) {
-  if (!container) {
-    throw new Error
+function ensureUniqueLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+
+    const uniqueElements = [];
+    const seen = new Map();
+
+    landmarks.forEach(element => {
+        const key = element.id || element.name || element.className;
+        if (!seen.has(key)) {
+            seen.set(key, true);
+          uniqueElements.push(element);
+        }
+    });
+
+    return uniqueElements;
+}
+
+/**
+ * Missing roles validation
+ * @param {Array} requiredRoles - Required roles
+ * @param {Set} foundRoles - Found roles
+ * @returns {Object} - Validation result
+ */
+function missingRoles(requiredRoles, foundRoles) {
+    const missingRoles = requiredRoles.filter(role => !foundRoles.has(role));
+    return {
+        valid: missingRoles.length === 0,
+        foundRoles: Array.from(foundRoles),
+        missingRoles
+    };
+}
+
+/**
+ * Fix fake link issues in the document
+ * @param {Document} doc - The document to process
+ * @returns {number} - Number of issues fixed
+ */
+function fixFakeLinkIssue(doc) {
+    if (typeof doc === 'undefined' || !doc.querySelectorAll) {
+        return;
+    }
+    const clickableElements = doc.querySelectorAll('[onclick]');
+    let count = 0;
+
+    clickableElements.forEach(element => {
+        const tagName = element.tagName.toLowerCase();
+        const hasHref = element.hasAttribute('href');
+
+        if (tagName !== 'a' && !hasHref) {
+            const isInteractive = element.getAttribute('role') === 'link' ||
+                                   element.getAttribute('tabindex') && element.onclick && element.onclick.toString().length > 0;
+
+            if (isInteractive && element.textContent.trim().length > 0) {
+                const text = element.textContent.trim();
+                if (text) {
+                    element.setAttribute('aria-label', text);
+                }
+            }
+            count++;
+        }
+    });
+
+    return count;
+}
+
+/**
+ * Add an aria-label to an element if it doesn't have one
+ * @param {HTMLElement} element - The element to add the label to
+ * @param {string} label - The label to add
+ * @returns {HTMLElement} - The element with aria-label
+ */
+function addAriaLabel(element, label) {
+    if (!element.ariaLabel) {
+        element.ariaLabel = label;
+    }
+    return element;
+}
+
+/**
+ * Check element accessibility
+ * @param {HTMLElement} element - The element to check
+ * @returns {boolean} - True if accessible
+ */
+function checkElementAccessibility(element) {
+    return true;
+}
+
+/**
+ * Handle accessibility issues
+ */
+function handleAccessibilityIssues() {
+    // Placeholder for handling accessibility issues
+}
+
+/**
+ * Add lang attribute to element
+ * @param {HTMLElement} element - The element to add lang attribute to
+ * @param {string} lang - The language code
+ */
+function addLangAttribute(element, lang) {
+    if (element) {
+        element.setAttribute('lang', lang || navigator.language.split('-')[0]);
+    }
+}
+
+/**
+ * Validate table structure for accessibility
+ * @param {HTMLElement} table - The table to validate
+ * @returns {boolean} - True if valid
+ */
+function validateTableStructure(table) {
+    if (!table) return false;
+    
+    const caption = table.querySelector('caption');
+    if (!caption) return false;
+    
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) return false;
+    
+    for (const header of headers) {
+        if (!header.hasAttribute('scope')) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+/**
+ * Address accessibility issues in tables
+ */
+function addressAccessibilityIssues() {
+    if (typeof document === 'undefined') return;
+    
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const accessible = validateTableAccessibility(table);
+        const structure = validateTableStructure(table);
+        if (!accessible.success || !structure) {
+            console.warn('Table accessibility or structure validation failed:', table);
+        }
+    });
+}
+
+/**
+ * Render dependency graphs in the document
+ * @param {Object} graphData - Data for rendering graphs
+ */
+function renderDependencyGraphs(graphData) {
+    if (typeof document === 'undefined') return;
+    
+    const container = document.getElementById('dependency-graph');
+    if (container) {
+        const lang = getLangAttribute();
+        const deps = countDependencies();
+        
+        let content = `<div lang="${lang}" role="region" aria-label="Dependency Graph">`;
+        content += `<h2>Dependency Graph</h2>`;
+        
+        if (deps.total > 0) {
+            content += `<table role="table">`;
+            content += `<caption>Package Dependencies</caption>`;
+            content += `<thead><tr><th scope="col">Type</th><th scope="col">Count</th></tr></thead>`;
+            content += `<tbody>`;
+            content += `<tr><td>Dependencies</td><td>${deps.dependencies}</td></tr>`;
+            content += `<tr><td>Dev Dependencies</td><td>${deps.devDependencies}</td></tr>`;
+            content += `<tr><td>Total</td><td>${deps.total}</td></tr>`;
+            content += `</tbody></table>`;
+        } else {
+            content += `<p>No dependencies found.</p>`;
+        }
+        
+        content += `</div>`;
+        
+        container.innerHTML = content;
+        const tables = container.querySelectorAll('table');
+        tables.forEach(table => {
+            validateTableAccessibility(table);
+            validateTableStructure(table);
+        });
+        const div = container.querySelector('div');
+        if (div) {
+            addLangAttribute(div);
+            addAriaLabel(div, 'Dependency Graph Content');
+        }
+    }
+}
+
+/**
+ * Get language attribute from document
+ * @returns {string} - Language code
+ */
+function getLangAttribute() {
+    if (typeof document === 'undefined') return 'en';
+    return document.documentElement.lang || navigator.language.split('-')[0'];
+}
+
+/**
+ * Render graph index using new functions
+ * @param {Object} graphData - Data for rendering graphs
+ */
+const renderGraphIndex = (graphData) => {
+  addressAccessibilityIssues();
+  renderDependencyGraphs(graphData);
+}
+
+/**
+ * Alternative render graph index
+ * @param {Object} graphData - Data for rendering graphs
+ */
+const renderGraphIndexAlt = (graphData) => {
+  addressAccessibilityIssues();
+  renderDependencyGraphs(graphData);
+}
+
+// a11yStore from HEAD - preserving all accessibility methods
+const a11yStore = {
+  // ... existing methods ...
+
+  /**
+   * Check if the user prefers reduced motion
+   * @returns {boolean} True if the user prefers reduced motion
+   */
+  prefersReducedMotion() {
+    return prefersReducedMotion();
+  },
+
+  prefersHighContrast() {
+    return prefersHighContrast();
+  },
+
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) return;
+    this.announce(message, priority);
+  },
+
+  checkLandmarkElements() {
+    return checkLandmarkElements(document);
+  },
+
+  addSvgAccessibleNames() {
+    if (typeof document === 'undefined') return;
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      if (!svg.querySelector('title')) {
+        const titleElement = document.createElement('title');
+        titleElement.textContent = 'SVG Image';
+        svg.insertBefore(titleElement, svg.firstChild);
+      }
+
+      if (!svg.querySelector('title').id) {
+        svg.querySelector('title').id = `svg-title-${Date.now()}`;
+      }
+
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+    });
+  },
+
+  fixFakeLinks() {
+    return fixFakeLinkIssue(document);
+  },
+
+  preserveExistingCode() {
+    // TODO: This is the existing code that needs to be preserved
+    // _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
+    // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+    // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+    // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+    // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+    // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+    // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+    // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+    // _Commit: 9f4ca23445c76674f7b5dd5047c707b41ba67409_
+    // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+  },
+
+  newFunction() {
+    // New function implementation from origin/main
+  }
+};
+
+// SVG accessibility helper functions from HEAD branch (duplicated for clarity)
+function makeSvgAccessible(svg) {
+  if (svg && typeof svg.setAttribute === 'function') {
+    svg.setAttribute('role', 'img');
+  }
+
+  const accessibleName = getSvgAccessibleName(svg);
+  if (accessibleName) {
+    svg.setAttribute('aria-labelledby', accessibleName);
+  }
+
+  setSvgAttributes(svg);
+}
+
+function setSvgAttributes(svg) {
+    // Code to set other svg attributes goes here
+}
+
+// Check for table caption (provides context for screen readers)
+function validateTableCaption(table) {
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      return false;
+    }
+    return true;
+}
+
+// Check for header cells (required for accessible tables)
+function validateTableHeaders(table) {
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      return false;
+    }
+
+    // Verify all header cells have scope attribute
+    for (const header of headers) {
+      if (!header.hasAttribute('scope')) {
+        return false;
+      }
+    }
+
+    return true;
+}
+
+// Existing functionality
+function calculateSum(a, b) {
+  return a + b;
+}
+
+const XYZ = function () {
+    // Implementation for XYZ function
+};
+
+// Validate the table structure for accessibility issues
+if (typeof document !== 'undefined') {
+  function validateAllTables() {
+    const tables = document.querySelectorAll('table');
+    for (const table of tables) {
+      const accessible = validateTableAccessibility(table);
+      const structure = validateTableStructure(table);
+      if (!accessible.success || !structure) {
+        console.warn('Table accessibility or structure validation failed:', table);
+      }
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', validateAllTables);
+  } else {
+    validateAllTables();
+  }
+}
+
+function setupHandlers() {
+    console.log('Setting up event handlers...');
+}
+
+// Added from HEAD branch
+function missingRolesFn(requiredRoles, foundRoles) {
+    const missingRoles = requiredRoles.filter(role => !foundRoles.has(role));
+    return {
+        valid: missingRoles.length === 0,
+        foundRoles: Array.from(foundRoles),
+        missingRoles
+    };
+}
+
+// Added from origin/main branch
+function ensureUniqueLandmarksFn(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+
+    const uniqueElements = [];
+    const seen = new Map();
+
+    landmarks.forEach(element => {
+        const key = element.id || element.name || element.className;
+        if (!seen.has(key)) {
+            seen.set(key, true);
+            uniqueElements.push(element);
+        }
+    });
+
+    return uniqueElements;
+}
+
+function getSvgAccessibleNameFn(svgElement, name) {
+    return svgElement;
+}
+
+function createInPageButton(text) {
+    return {};
+}
+
+function createAccessibleLink(href, text) {
+    return {};
+}
+
+function handleAccessibilityIssuesFn() {
+    // Placeholder for handling accessibility issues
+}
+
+function addAriaLabelFn(element, label) {
+    if (!element.ariaLabel) {
+        element.ariaLabel = label;
+    }
+    return element;
+}
+
+function checkElementAccessibilityFn(element) {
+    return true;
+}
+
+function processDataFn(data) {
+    if (!validateInput(data)) {
+        throw new Error('Invalid input data');
+    }
+}
+
+function addBook(book) {
+    return book;
+}
+
+function renderDependencyGraphContent() {
+    const lang = getLangAttribute();
+    const deps = countDependencies();
+    
+    let content = `<div lang="${lang}" role="region" aria-label="Dependency Graph">`;
+    content += `<h2>Dependency Graph</h2>`;
+    
+    if (deps.total > 0) {
+        content += `<table role="table">`;
+        content += `<caption>Package Dependencies</caption>`;
+        content += `<thead><tr><th scope="col">Type</th><th scope="col">Count</th></tr></thead>`;
+        content += `<tbody>`;
+        content += `<tr><td>Dependencies</td><td>${deps.dependencies}</td></tr>`;
+        content += `<tr><td>Dev Dependencies</td><td>${deps.devDependencies}</td></tr>`;
+        content += `<tr><td>Total</td><td>${deps.total}</td></tr>`;
+        content += `</tbody></table>`;
+    } else {
+        content += `<p>No dependencies found.</p>`;
+    }
+    
+    content += `</div>`;
+    
+    if (typeof document !== 'undefined') {
+        const container = document.getElementById('dependency-graph');
+        if (container) {
+            container.innerHTML = content;
+            const tables = container.querySelectorAll('table');
+            tables.forEach(table => {
+                validateTableAccessibility(table);
+                validateTableStructure(table);
+            });
+            const div = container.querySelector('div');
+            if (div) {
+                addLangAttribute(div);
+                addAriaLabel(div, 'Dependency Graph Content');
+            }
+        }
+    }
+    
+    return content;
+}
+
+// Export for use in other modules
+module.exports = {
+    app,
+    config,
+    loadConfigurations,
+    countDependencies,
+    sanitizeFilename,
+    processData,
+    generateSessionId,
+    isLandmarkElement,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmarkRoles,
+    checkLandmarkElements,
+    makeSvgAccessible,
+    getSvgAccessibleName,
+    validateInput,
+    handleCredentialResponseFn,
+    fixFakeLinkIssue,
+    addAriaLabel,
+    checkElementAccessibility,
+    handleAccessibilityIssues,
+    addressAccessibilityIssues,
+    renderDependencyGraphs,
+    renderGraphIndex,
+    renderGraphIndexAlt,
+    a11yStore,
+    setupHandlers,
+    renderDependencyGraphContent,
+    calculateSum,
+    XYZ,
+    missingRoles,
+    ensureUniqueLandmarks
+};

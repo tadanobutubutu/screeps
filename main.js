@@ -1,4 +1,4 @@
-const main = require('./utilities')
+const main = require('./utilities');
 
 const {
   createInPageButton,
@@ -26,7 +26,7 @@ const {
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
   fixAllFakeLinks
-} = './utilities';
+} = main;
 
 const {
   newFunction,
@@ -205,7 +205,6 @@ module.exports = {
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
-  ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
   renderDependencyGraphs,

@@ -784,6 +784,35 @@ function towerDefense() {
   };
 }
 
+// Added missing exports to address TODO
+function addLangAttribute(lang) {
+  return setHtmlLangAttribute(lang);
+}
+
+function fixTableStructure(table) {
+  const errors = [];
+  const accessibility = validateTableAccessibility(table);
+  const structure = validateTableStructure(table);
+  if (accessibility) errors.push(...accessibility.errors);
+  if (structure) errors.push(...structure.errors);
+  return { valid: errors.length === 0, errors };
+}
+
+function addLandmarkIssues(element) {
+  const errors = [];
+  const landmarkValidation = validateLandmark(element);
+  if (landmarkValidation) errors.push(...landmarkValidation.errors);
+  return { valid: errors.length === 0, errors };
+}
+
+function addSvgAccessibleName(svg) {
+  return getSvgAccessibleName(svg);
+}
+
+function fixFakeLinkIssue(link) {
+  return isLinkAccessible(link);
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   setHtmlLangAttribute,
@@ -803,5 +832,10 @@ module.exports = {
   renderIndexView,
   buildDependencyGraph,
   buildBreadcrumbData,
-  towerDefense
+  towerDefense,
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleName,
+  fixFakeLinkIssue
 };

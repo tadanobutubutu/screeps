@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: 5000,
@@ -26,6 +23,10 @@ const CONFIG = {
   allowedRoles
 };
 
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// Accessibility utilities
+
 const landmarkSelectors = [
   '[role="banner"]',
   '[role="navigation"]',
@@ -42,6 +43,3 @@ const landmarkSelectors = [
 ];
 
 // ... (Unchanged rest of the code)
-```
-
-I preserved the existing code and incorporated the changes from both branches, keeping both sets of configuration variables and landmarkRoles. LandmarkRoles is now assigned from the `config.allowedRoles` property.

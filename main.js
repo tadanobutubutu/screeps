@@ -423,5 +423,35 @@ const HOST = process.env.HOST || 'localhost';
 // Application main entry point
 const app = expressApp;
 
+// TODO: Implement harvest and upgrade logic
+function harvest(creep) {
+  if (!creep) return;
+  const sources = creep.room.find(FIND_SOURCES);
+  if (sources.length > 0) {
+    if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(sources[0]);
+    }
+  }
+}
+
+function upgrade(creep) {
+  if (!creep) return;
+  const controller = creep.room.controller;
+  if (controller) {
+    if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(controller);
+    }
+  }
+}
+
+function runHarvestAndUpgrade(creep) {
+  if (!creep) return;
+  if (creep.store.getFreeCapacity() > 0) {
+    harvest(creep);
+  } else {
+    upgrade(creep);
+  }
+}
+
 // Exports
-export { UserSafety, SafetyCategories, getDependencyGraph, getUserSafetyAdvice };
+export { UserSafety, SafetyCategories, getDependencyGraph, getUserSafetyAdvice, harvest, upgrade, runHarvestAndUpgrade };

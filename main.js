@@ -161,4 +161,77 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureImageAccessibility();
 }
 
+function generateAccessibilityReport() {
+  const report = {
+    reducedMotion: a11yStore.prefersReducedMotion(),
+    highContrast: a11yStore.prefersHighContrast(),
+    landmark: {
+      missingId: 0,
+      missingLabel: 0
+    },
+    svg: {
+      missingTitle: 0,
+      missingAriaLabelledby: 0,
+      missingRoleImg: 0
+    },
+    fakeLinks: 0,
+    interactiveRoles: 0,
+    formControlLabels: 0,
+    images: 0
+  };
+
+  // Check landmark elements
+  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+  landmarkElements.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((el, index) => {
+      if (!el.id) {
+        report.landmark.missingId++;
+      }
+      if (elements.length > 1) {
+        if (!el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
+          report.landmark.missingLabel++;
+        }
+      }
+    });
+  });
+
+  // Check SVG elements
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const titleElement = svg.querySelector('title');
+    if (!titleElement) {
+      report.svg.missingTitle++;
+    }
+    if (!svg.hasAttribute('aria-labelledby')) {
+      report.svg.missingAriaLabelledby++;
+    }
+    if (!svg.hasAttribute('role') || svg.getAttribute('role') !== 'img') {
+      report.svg.missingRoleImg++;
+    }
+  });
+
+  // Check fake links
+  const fakeLinks = document.querySelectorAll('[href]:not(a)');
+  report.fakeLinks = fakeLinks.length;
+
+  // Check interactive elements without role
+  const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
+  report.interactiveRoles = Array.from(interactiveElements).filter(el => !el.hasAttribute('role')).length;
+
+  // Check form controls without id
+  const formControls = document.querySelectorAll('input, select, textarea');
+  report.formControlLabels = Array.from(formControls).filter(control => !control.id).length;
+
+  // Check images without accessibility attributes
+  const images = document.querySelectorAll('img');
+  report.images = Array.from(images).filter(img => 
+    !img.hasAttribute('alt') && 
+    !img.hasAttribute('aria-hidden') && 
+    !img.hasAttribute('role')
+  ).length;
+
+  return report;
+}
+
 // ... rest of the code ...

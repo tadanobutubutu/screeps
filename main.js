@@ -141,5 +141,19 @@ function log(message) {
   console.log(message);
 }
 
+// Implement calculateDiscount
+function calculateDiscount(price, discountPercent) {
+  if (typeof price !== 'number' || typeof discountPercent !== 'number') {
+    throw new Error('Price and discount percent must be numbers');
+  }
+  if (discountPercent < 0 || discountPercent > 100) {
+    throw new Error('Discount percent must be between 0 and 100');
+  }
+  return price * (1 - discountPercent / 100);
+}
+
 // Export the updated implementAccessibilityFixesFromReport function
 exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport;
+
+// Export calculateDiscount
+exports.calculateDiscount = calculateDiscount;

@@ -150,9 +150,10 @@ const a11yStore = {
       }
     });
   },
-
-  // ... remaining a11yStore methods ...
 };
+
+// Export the a11yStore object as required
+export default a11yStore;
 
 // New functions
 function ensureInteractiveElementsAccessible() {

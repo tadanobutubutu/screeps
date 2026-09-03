@@ -3,70 +3,6 @@ const { dependencyGraphContent } = require('./dependencyGraphContent')
 const { indexContent } = require('./indexContent')
 const { accessibilityUtils } = require('./accessibilityUtils');
 
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  initializeAccessibility,
-  renderIndex,
-  newFunction,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
-  renderAdditionalContent,
-  googleSignIn,
-  decodeJwtResponse,
-  ensureUniqueLandmarks,
-  addSvgAccessibleName,
-  calculateComplexity,
-  newFocusTrap,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  a11yStore,
-  ...main = require('./utilities').main,
-  anotherNewFunction
-} = require('./utilities');
-
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')
 
@@ -87,9 +23,7 @@ if (dependencyGraph) {
     dependencyGraph.setAttribute('id', 'dependencyGraph');
   }
 
-  // Preserve existing code
-
-  // cater for the new addition for SVG accessibility
+  // Include the new accessibleName function for SVGs
   function addAccessibleName(svgString) {
     const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
     const svgElement = svg.documentElement;
@@ -104,7 +38,7 @@ if (dependencyGraph) {
     // ... (existing code)
   };
 
-  // Function to validate table accessibility
+  // Function to validate table accessibility on dependency graph clicks
   dependencyGraph.addEventListener('click', (event) => {
     const target = event.target;
     if (target.matches('button')) {
@@ -121,7 +55,7 @@ if (dependencyGraph) {
   });
 }
 
-//.... rest of the preserved code (main.js)
+// Preserve existing code
 
 // New functions added for the issue
 function newFunction1() {
@@ -132,10 +66,7 @@ function newFunction2() {
   // New function implementation 2
 }
 
-// main.js
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
-// TODO: This is the existing code that needs to be preserve
+// **Affected functions for accessibility**
 const { main } = require('./utilities');
 const { functionA, functionB } = require('./functionModule');
 
@@ -155,7 +86,7 @@ function accessibleFunction() {
   return 'accessible function result';
 }
 
-// New functions added for the issue
+// **New functions added for the issue**
 function newFunction3() {
   // New function implementation 3
 }
@@ -164,7 +95,7 @@ function newFunction4() {
   // New function implementation 4
 }
 
-// Accessibility helper functions
+// **Accessibility helper functions**
 function getLangAttribute() {
   // Get the language attribute from the HTML element
   return document.documentElement.lang || 'en';
@@ -251,20 +182,14 @@ function checkLandmarks() {
   return allLandmarks.length;
 }
 
-// ... rest of the preserved code
-```
+// Function for rendering the index with updated information
+function renderIndex() {
+  main(['dependencyGraphContent', 'indexContent', 'accessibilityUtils']);
+}
 
-The main differences between the original conflicting code and the resolved version are:
+// Function for rendering Dependency Graphs
+function renderDependencyGraphs() {
+  main(['dependencyGraphContent', 'accessibilityUtils', 'resolveConflictWithMerge']);
+}
 
-1. The addition of the `addAccessibleName` function for modifying SVGs with aria-label.
-2. Adding the event listener to the dependency graph container to validate table accessibility when a button within the table-related dependency graph is clicked.
-3. The addition of two new functions (`newFunction1` and `newFunction2`) defined at the end of the file.
-4. Updating the `checkLandmarkElement` function to return the missing landmarks.
-5. Adding an `ensureDependencyGraphARIA` function to handle the ARIA role and aria-label for the dependency graph.
-6. Adding an `wrapPrimaryContentInMain` function to ensure that the primary content is wrapped in a main element for better accessibility.
-7. Modifying the renderIndex function to include the Dependency Graph, as well as the main functions and common functions.
-8. Updating `renderDependencyGraphs` to include the `resolveConflictWithMerge` function.
-9. Adding the focus trap functionality.
-10. Ensuring that landmarks have unique IDs by calling `ensureUniqueLandmarks`.
-
-The preserved code is untouched except for some minor style changes (indentation, spaces, and newlines) to improve readability and maintain consistency throughout the file.
+//... rest of the preserved code

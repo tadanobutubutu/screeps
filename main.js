@@ -372,6 +372,7 @@ app.use(express.json());
 // todo-hash: 56f45ce56096b85dbb75d33db0d35b21c87eaa9e
 
 module.exports = {
+  fixMain,
   MyComponent,
   AddressabilityIssues,
   renderIndexView,

@@ -33,7 +33,8 @@ function validateLandmarkStructure() {
 
 // NEW FUNCTION: Add a function to handle getLangAttribute() if needed
 function getLangAttribute() {
-    // Implement this function as necessary
+    // Return the document language or default to 'en'
+    return document.documentElement.lang || 'en';
 }
 
 // NEW FUNCTION: Wrap primary content in 'main' if needed
@@ -79,6 +80,12 @@ function fixAccessibilityIssues() {
     const searchInput = document.querySelector('input[type="search"]');
     if (searchInput) {
         searchInput.setAttribute('aria-label', 'Search');
+    }
+
+    // REACT_015: Add lang attribute to HTML element
+    const htmlElement = document.documentElement;
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', getLangAttribute());
     }
 
     // Additional accessibility fixes can be added here

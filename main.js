@@ -67,5 +67,22 @@ function renderDependencyGraph(containerId, graphData) {
     return renderGraphIndex(containerId, graphData);
 }
 
+// TODO: New function added as requested in the issue
+function processUserRequest(requestData) {
+    if (!requestData || typeof requestData !== 'object') {
+        console.error('Invalid request data provided');
+        return null;
+    }
+    
+    const processed = {
+        id: requestData.id || Date.now(),
+        timestamp: new Date().toISOString(),
+        status: 'processed',
+        data: requestData
+    };
+    
+    return processed;
+}
+
 // Preserve any existing exports here
 export { createInPageButton, validateLandmarkStructure };

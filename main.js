@@ -3,7 +3,6 @@
 // (Previously existing code that needs to be preserved)
 
 const express = require('express');
-const axe = require('axe-core');
 const fs = require('fs');
 // TODO: This is the existing code that needs to be preserved
 const fastMap = require('fast-map');

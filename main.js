@@ -43,12 +43,18 @@ function setSvgAttributes(svg) {
 }
 
 function renderDependencyGraphs(svgElements) {
-  const accessibleName = getSvgAccessibleName(svgElements);
-  if (accessibleName) {
-    // Use accessibleName
+  if (!svgElements) {
+    return;
   }
 
-  setSvgAttributes(svgElements);
+  const elements = svgElements.length ? svgElements : [svgElements];
+  elements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+    setSvgAttributes(svg);
+  });
 }
 
 function checkLandmarkElements() {
@@ -357,8 +363,6 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse,
-    addSvgAccessibleNames,
     fixTableStructure,
     fixLandmarkIssues,
     addMainLandmark,

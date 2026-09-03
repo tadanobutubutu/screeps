@@ -86,10 +86,10 @@ function validateTableAccessibility(table, index) {
 
 function validateTableStructure(table) {
   // Check 26 table structure issues
-  if (/* condition for first change */) {
+  if (/* TODO: condition for first change */ true) {
     // Validation logic for the first change
   }
-  if (/* condition for second change */) {
+  if (/* TODO: condition for second change */ true) {
     // Validation logic for the second change
   }
 

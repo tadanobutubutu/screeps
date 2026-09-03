@@ -1,8 +1,8 @@
-Here is the resolved file content following the Git merge conflict, keeping both changes:
-
-```javascript
 const fs = require('fs');
 const main = require('./utilities');
+
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
 
 // TODO: This is the existing code that needs to be preserved
 // (This should be preserved)
@@ -31,62 +31,56 @@ const {
   focusTrap,
   renderAdditionalContent,
   transformInputData,
-  initSkipLink, // New function from the higher branch
-  trapFocus, // New function from the higher branch
-  newFocusTrap: function (element, customFocusableSelector) { // Merged function from both branches, extending the originNewFocusTrap function
-      const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-      if (focusableElements.length === 0) return;
-      const first = focusableElements[0];
-      const last = focusableElements[focusableElements.length - 1];
-
-      element.addEventListener('keydown', (e) => {
-          if (e.key === 'Tab') {
-              if (e.shiftKey && document.activeElement === first) {
-                  last.focus();
-                  e.preventDefault();
-              } else if (!e.shiftKey && document.activeElement === last) {
-                  first.focus();
-                  e.preventDefault();
-              }
-          }
-      });
-  }
+  initSkipLink,
+  trapFocus
 } = main;
 
-const accessibilityUtils = {
-    // Existing functions
-    // ...
-    newFocusTrap, // Merged function from both branches, using the extended function from the previous block
-    // New function from the lower branch
-    announceToScreenReader: function (message, priority) {
-        if (priority === undefined) {
-            priority = 'polite';
-        }
-        const announcer = document.createElement('div');
-        announcer.setAttribute('aria-live', priority);
-        announcer.setAttribute('aria-atomic', 'true');
-        announcer.className = 'sr-only';
-        announcer.style.position = 'absolute';
-        announcer.style.left = '-9999px';
-        announcer.textContent = message;
-        document.body.appendChild(announcer);
-        setTimeout(function () {
-            announcer.remove();
-        }, 1000);
-    }
-};
+// Merged newFocusTrap function
+function newFocusTrap(element, customFocusableSelector) {
+  const focusableElements = element.querySelectorAll(customFocusableSelector || 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (focusableElements.length === 0) return;
+  const first = focusableElements[0];
+  const last = focusableElements[focusableElements.length - 1];
 
-// ...
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
+
+const accessibilityUtils = {
+  // Existing functions
+  // ...
+  newFocusTrap,
+  announceToScreenReader: function (message, priority) {
+    if (priority === undefined) {
+      priority = 'polite';
+    }
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(function () {
+      announcer.remove();
+    }, 1000);
+  }
+};
 
 module.exports = {
   // Export functions for use in other modules
   // ...
-  newFocusTrap, // Merged function from both branches, using the extended function from the previous block
+  newFocusTrap,
   accessibilityUtils,
   // ...
 };
-```
-
-In the `newFocusTrap` function, I've merged the implementations from both branches by using the extended version from the lower branch and allowing the user to pass a custom focusable element selector if needed.
-
-In the `announceToScreenReader` function, I've added the function from the lower branch to provide more options for users.

@@ -8,39 +8,10 @@ const { indexContent } = require('./indexContent');
 
 const main = require('./utilities');
 
-const {
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-} = require('./mathHelpers');
-
-// Existing rendering functions (preserving existing exports and functions)
-
-function greetingFunction() {
-  return "Hello, World!";
+// Set default language for accessibility
+if (typeof document !== 'undefined' && document.documentElement) {
+  document.documentElement.lang = 'en';
 }
-
-const config = {
-  port: 3000,
-  debug: false
-};
-
-function getWelcomeMessage() {
-  return greetingFunction() + " This is a new function that returns a welcome message.";
-}
-
-const { class1, function1, Object1 } = require('./path/to/module');
 
 const a11yStore = {
   // ... existing methods ...
@@ -151,7 +122,40 @@ const a11yStore = {
     });
   },
 
-  // ... remaining a11yStore methods ...
+  /**
+   * Ensure all landmark elements have unique IDs
+   */
+  ensureUniqueLandmarks() {
+    const landmarkElements = document.querySelectorAll(
+      `[role="main"], [role="nav"], [role="header"], [role="footer"], [role="aside"]`
+    );
+    const idMap = new Map();
+
+    // First pass: collect existing ids and resolve duplicates
+    landmarkElements.forEach((el) => {
+      const id = el.id || '';
+      if (id) {
+        if (idMap.has(id)) {
+          // Conflict: make unique by appending a counter
+          let newId = id;
+          let count = 1;
+          while (idMap.has(newId)) {
+            newId = `${id}-${count}`;
+            count++;
+          }
+          el.id = newId;
+          idMap.set(id, count);
+        } else {
+          idMap.set(id, 1);
+        }
+      } else {
+        // Generate a random ID if none exists
+        const randomId = Math.floor(Math.random() * 100000) + 1;
+        el.id = randomId;
+        idMap.set(randomId, 1);
+      }
+    });
+  },
 };
 
 // New functions

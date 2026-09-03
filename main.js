@@ -74,7 +74,14 @@ const accessibilityUtils = {
     setTimeout(() => announcer.remove(), 1000);
   },
   ensureElementId,
-  addAriaLabel
+  addAriaLabel,
+  // New function to extract the accessible name for an SVG from its content
+  extractSvgAccessibleNameFromContent: (svgContent) => {
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+    const title = svgDoc.querySelector('title');
+    return title ? title.textContent : '';
+  }
 };
 
 module.exports = {

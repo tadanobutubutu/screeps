@@ -107,17 +107,52 @@ const AddressabilityIssues = {
   },
 
   validateLandmark(element) {
-    // ... (existing implementation)
+    if (!element) {
+      return { valid: false, error: 'Element is required' };
+    }
+
+    const landmarkRoles = [
+      'banner',
+      'main',
+      'navigation',
+      'search',
+      'contentinfo',
+      'complementary',
+      'region',
+      'form'
+    ];
+
+    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+    const role = element.getAttribute ? element.getAttribute('role') : null;
+
+    const implicitLandmarks = {
+      'header': 'banner',
+      'main': 'main',
+      'nav': 'navigation',
+      'aside': 'complementary',
+      'footer': 'contentinfo',
+      'section': 'region',
+      'form': 'form'
+    };
+
+    const isLandmark = landmarkRoles.includes(role) ||
+                       (tagName && implicitLandmarks[tagName]);
+
+    return {
+      valid: isLandmark,
+      tagName: tagName,
+      role: role
+    };
   },
 
   spawnSomeCommand(command) {
     // ... (existing implementation)
   },
 
-  addLangAttribute(element) {
-    if (element) {
-      element.setAttribute('lang', getLangAttribute(element));
-    } else {
+  addLangAttribute(element, lang) {
+    if (element && typeof element.setAttribute === 'function') {
+      element.setAttribute('lang', lang);
+    } else if (typeof document !== 'undefined' && document.documentElement) {
       const html = document.documentElement;
       if (!html.hasAttribute('lang')) {
         html.setAttribute('lang', 'en');
@@ -127,10 +162,11 @@ const AddressabilityIssues = {
 
   countDependencies() {
     const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
+    const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+    const packageJson = JSON.parse(packageJsonContent);
 
-    const dependencies = JSON.parse(packageJson).dependencies || {};
-    const devDependencies = JSON.parse(packageJson).devDependencies || {};
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
 
     return {
       dependencies: Object.keys(dependencies).length,
@@ -148,7 +184,29 @@ const AddressabilityIssues = {
   },
 
   validateLandmarkStructure() {
-    // ... (existing implementation)
+    if (typeof document === 'undefined' || !document.querySelectorAll) {
+      return;
+    }
+    const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
+    const implicitRole = {
+      header: 'banner',
+      nav: 'navigation',
+      main: 'main',
+      aside: 'complementary',
+      footer: 'contentinfo'
+    };
+
+    landmarks.forEach(landmark => {
+      const tagName = landmark.tagName ? landmark.tagName.toLowerCase() : '';
+      const role = landmark.getAttribute('role');
+
+      if (!landmark.hasAttribute('role')) {
+        const implicitLandmark = implicitRole[tagName];
+        if (implicitLandmark) {
+          landmark.setAttribute('role', implicitLandmark);
+        }
+      }
+    });
   }
 };
 
@@ -256,31 +314,9 @@ function addressAccessibilityIssues() {
 }
 
 function initializeAccessibility() {
-  if (!document.querySelectorAll) return;
+  if (typeof document === 'undefined' || !document.querySelectorAll) return;
+  AddressabilityIssues.addressAccessibilityIssues(sampleInsightReport);
   addressAccessibilityIssues(sampleInsightReport);
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    AddressabilityIssues,
-    fixMainLandmarkIssues: AddressabilityIssues.fixMainLandmarkIssues,
-    fixSemanticMarkup: AddressabilityIssues.fixSemanticMarkup,
-    validateLandmarkStructure: AddressabilityIssues.validateLandmarkStructure,
-    createServer,
-    startApp,
-    checkLandmarkElements,
-    newFunction,
-    setARIARoleForDependencyGraph,
-    addLangAttribute: AddressabilityIssues.addLangAttribute,
-    validateLandmark
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAccessibility);
-  } else {
-    initializeAccessibility();
-  }
 }
 
 // Fix 26 table structure issues
@@ -335,66 +371,10 @@ function countDependencies() {
 }
 
 function handleCredentialResponse(response) {
-  // Implement function for handling credential responses
-}
-
-function getLangAttribute(element) {
-  // Implement function to get the appropriate lang attribute value
-  return 'en';
-}
-
-function personName() {
-  // Implement function to handle person name accessibility
-}
-
-function validateTableStructure(table) {
-  return { valid: true, error: null };
-}
-
-function validateTableAccessibility(table) {
-  return validateTableStructure(table);
-}
-
-function getSvgAccessibleName(svg) {
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || null;
-}
-
-function ensureUniqueLandmarks() {
-  return true;
-}
-
-// Placeholder config object
-const config = {};
-
-// Placeholder function for getting stored credentials
-function getStoredCredentials() {
-  return {};
-}
-
-function handleFakeLinks(issues) {
-  // Placeholder
-}
-
-// Additional utility functions from origin/main
-function addBook(bookData) {
-  // ... Existing code ...
-  return bookData;
-}
-
-function generateAccessibilityReport() {
-  // Placeholder implementation
-}
-
-// Calculate accessibility score wrapper
-function calculateAccessibilityScore() {
-  return AddressabilityIssues.calculateAccessibilityScore([]);
-}
-
-// Full implementation for handling credential response
-function handleCredentialResponse(credentialResponse) {
+  // Full implementation for handling credential responses
   try {
     // Split the JWT and decode the payload
-    const parts = credentialResponse.split('.');
+    const parts = response.split('.');
     if (parts.length !== 3) {
       throw new Error('Invalid JWT format');
     }
@@ -442,10 +422,66 @@ function handleCredentialResponse(credentialResponse) {
   }
 }
 
+function getLangAttribute(element) {
+  // Implement function to get the appropriate lang attribute value
+  return 'en';
+}
+
+function personName() {
+  // Implement function to handle person name accessibility
+}
+
+function validateTableStructure(table) {
+  return { valid: true, error: null };
+}
+
+function validateTableAccessibility(table) {
+  return validateTableStructure(table);
+}
+
+function getSvgAccessibleName(svg) {
+  return svg.getAttribute('aria-label') || svg.getAttribute('title') || null;
+}
+
+function ensureUniqueLandmarks() {
+  return true;
+}
+
+// Placeholder config object
+const config = {};
+
+// Placeholder function for getting stored credentials
+function getStoredCredentials() {
+  return {};
+}
+
+function handleFakeLinks(issues) {
+  // Placeholder
+}
+
+// Additional utility functions from origin/main
+function addBook(bookData) {
+  // ... Existing code ...
+  return bookData;
+}
+
+function generateAccessibilityReport() {
+  // Placeholder implementation
+  return {
+    timestamp: new Date().toISOString(),
+    issues: [],
+    score: 100
+  };
+}
+
+// Calculate accessibility score wrapper
+function calculateAccessibilityScore() {
+  return AddressabilityIssues.calculateAccessibilityScore([]);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     processSvgElements,
-    checkTableStructure,
     sampleInsightReport,
     AddressabilityIssues,
     createServer,
@@ -453,16 +489,12 @@ if (typeof module !== 'undefined' && module.exports) {
     config,
     handleCredentialResponse,
     getStoredCredentials,
-    handleAddLangAttribute,
-    newFunctionality,
     countDependencies,
     addressAccessibilityIssues,
     generateAccessibilityReport,
     calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
+    ensureUniqueLandmarks,
     validateLandmark,
-    createInPageButton,
-    implementTowerDefense,
     fixMainLandmarkIssues: AddressabilityIssues.fixMainLandmarkIssues,
     fixSemanticMarkup: AddressabilityIssues.fixSemanticMarkup,
     validateLandmarkStructure: AddressabilityIssues.validateLandmarkStructure,
@@ -477,5 +509,14 @@ if (typeof module !== 'undefined' && module.exports) {
   // Start the application if run directly
   if (typeof require !== 'undefined' && require.main === module) {
     startApp();
+  }
+} else {
+  // Browser environment - wait for DOM
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeAccessibility);
+    } else {
+      initializeAccessibility();
+    }
   }
 }

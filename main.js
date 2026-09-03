@@ -3,7 +3,7 @@ const countDependencies = () => {
   const internalDependencies = [];
   // Use appropriate global object for the environment
   const globalObj = (typeof window !== 'undefined') ? window : global;
-  const functions = [...Object.getOwnPropertyNames(globalObj)];
+  const functions = Array.from(Object.getOwnPropertyNames(globalObj));
   functions.forEach((functionName) => {
     if (functionName.startsWith('_') && typeof globalObj[functionName] === 'function') {
       internalDependencies.push(functionName);
@@ -21,7 +21,7 @@ const countDependencies = () => {
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// - REACT_037: Fix proper landmark regions (DONE: addProperLandmarkRegions)
 // todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
 
 const config = {
@@ -174,7 +174,7 @@ function helper(input) {
   return input ? input.toUpperCase() : '';
 }
 
-function safetyCategoriesList = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+let safetyCategoriesList = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
 
 function getUserSafetyAdvice() {
   return safetyCategoriesList[Math.floor(Math.random() * safetyCategoriesList.length)];
@@ -201,15 +201,6 @@ function getBooksList() {
   return booksList.join("\n");
 }
 
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-function getFullLangAttribute() {
-  // Implementation to get full language attribute
-  return document.documentElement.lang || navigator.language || 'en-US';
-}
-
 function validateTableAccessibility(tableElement) {
   if (!tableElement) {
     console.warn('Table missing caption');
@@ -225,25 +216,6 @@ function validateTableStructure(tableElement) {
     return false;
   }
   return true;
-}
-
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return 'Accessible SVG Icon';
-
-  const title = svgElement.querySelector ? svgElement.querySelector('title') : null;
-  const ariaLabel = svgElement.getAttribute ? svgElement.getAttribute('aria-label') : null;
-
-  return title ? title.textContent : ariaLabel;
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  if (svg && typeof svg === 'object') {
-    svg.setAttribute('role', 'img');
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-  }
-  return svg;
 }
 
 function createInPageButton(text, onClick) {
@@ -338,3 +310,170 @@ function addLangAttribute() {
   const lang = getFullLangAttribute();
   document.documentElement.setAttribute('lang', lang);
   return lang;
+}
+
+function enhanceKeyboardNavigation() {
+  // Add keyboard event listeners for interactive elements
+  document.addEventListener('keydown', function(event) {
+    // Handle Enter key on elements with role="button"
+    if (event.key === 'Enter' || event.keyCode === 13) {
+      const target = event.target;
+      if (target.getAttribute('role') === 'button' || 
+          target.getAttribute('tabindex') !== null ||
+          target.classList.contains('interactive-element')) {
+        event.preventDefault();
+        target.click();
+      }
+    }
+    
+    // Handle Space key on elements with role="button"
+    if (event.key === ' ' || event.keyCode === 32) {
+      const target = event.target;
+      if (target.getAttribute('role') === 'button' || 
+          target.getAttribute('tabindex') !== null ||
+          target.classList.contains('interactive-element')) {
+        event.preventDefault();
+        target.click();
+      }
+    }
+    
+    // Handle Escape key to close modals/dropdowns
+    if (event.key === 'Escape' || event.key === 'Esc' || event.keyCode === 27) {
+      const target = event.target;
+      if (target.getAttribute('aria-expanded') === 'true') {
+        target.setAttribute('aria-expanded', 'false');
+        const popupId = target.getAttribute('aria-controls');
+        if (popupId) {
+          const popup = document.getElementById(popupId);
+          if (popup) {
+            popup.style.display = 'none';
+          }
+        }
+      }
+    }
+  });
+  
+  // Make focusable elements navigable via keyboard
+  const interactiveElements = document.querySelectorAll('div[role="button"], div[tabindex]');
+  interactiveElements.forEach(element => {
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
+    
+    // Add visual focus indicator
+    element.addEventListener('focus', function() {
+      element.classList.add('keyboard-focus');
+    });
+    
+    element.addEventListener('blur', function() {
+      element.classList.remove('keyboard-focus');
+    });
+    
+    // Ensure accessible name for screen readers
+    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+      const textContent = element.textContent.trim();
+      if (textContent) {
+        element.setAttribute('aria-label', textContent);
+      }
+    }
+  });
+  
+  // Improve form field navigation
+  const formFields = document.querySelectorAll('input, select, textarea, button');
+  formFields.forEach(field => {
+    // Ensure proper labeling
+    const id = field.getAttribute('id');
+    if (id) {
+      const labels = document.querySelectorAll(`label[for="${id}"]`);
+      if (labels.length === 0) {
+        // Look for associated label
+        const parentLabel = field.closest('label');
+        if (!parentLabel) {
+          // Add aria-label if text content exists
+          const fieldText = field.getAttribute('value') || field.textContent;
+          if (fieldText) {
+            field.setAttribute('aria-label', fieldText);
+          }
+        }
+      }
+    }
+  });
+  
+  // Enable skip links for better navigation
+  const mainContent = document.querySelector('main, [role="main"]');
+  if (mainContent && !document.getElementById('skip-to-content')) {
+    const skipLink = document.createElement('a');
+    skipLink.id = 'skip-to-content';
+    skipLink.href = '#main-content';
+    skipLink.textContent = 'Skip to main content';
+    skipLink.classList.add('skip-link');
+    skipLink.style.position = 'absolute';
+    skipLink.style.top = '-40px';
+    skipLink.style.left = '6px';
+    skipLink.style.backgroundColor = '#fff';
+    skipLink.style.padding = '8px';
+    skipLink.style.zIndex = '1000';
+    skipLink.style.transition = 'top 0.3s';
+    
+    skipLink.addEventListener('focus', function() {
+      this.style.top = '6px';
+    });
+    
+    skipLink.addEventListener('blur', function() {
+      this.style.top = '-40px';
+    });
+    
+    mainContent.setAttribute('id', 'main-content');
+    document.body.insertBefore(skipLink, document.body.firstChild);
+  }
+  
+  // Add keyboard navigation for dropdown menus
+  const dropdownToggles = document.querySelectorAll('[data-dropdown-toggle]');
+  dropdownToggles.forEach(toggle => {
+    toggle.setAttribute('tabindex', '0');
+    toggle.setAttribute('aria-haspopup', 'true');
+    toggle.setAttribute('aria-expanded', 'false');
+    
+    toggle.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' || event.key === ' ' || event.keyCode === 13 || event.keyCode === 32) {
+        event.preventDefault();
+        const dropdown = document.getElementById(toggle.getAttribute('data-dropdown-toggle'));
+        if (dropdown) {
+          const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+          toggle.setAttribute('aria-expanded', !isExpanded);
+          dropdown.style.display = isExpanded ? 'none' : 'block';
+          
+          if (!isExpanded) {
+            // Move focus to first item in dropdown
+            const firstItem = dropdown.querySelector('a, button, [tabindex]');
+            if (firstItem) {
+              firstItem.focus();
+            }
+          }
+        }
+      }
+      
+      // Navigate through dropdown items with arrow keys
+      if (event.key === 'ArrowDown' || event.keyCode === 40) {
+        event.preventDefault();
+        const nextItem = getNextFocusableElement(toggle);
+        if (nextItem) {
+          nextItem.focus();
+        }
+      }
+    });
+  });
+}
+
+function getNextFocusableElement(currentElement) {
+  const focusableElements = document.querySelectorAll(
+    'a[href], button, textarea, input[type]:not([type="hidden"]), select, [tabindex]:not([tabindex="-1"])'
+  );
+  
+  const currentIndex = Array.from(focusableElements).indexOf(currentElement);
+  if (currentIndex === -1 || currentIndex === focusableElements.length - 1) {
+    return focusableElements[0];
+  }
+  
+  return focusableElements[currentIndex + 1];
+}

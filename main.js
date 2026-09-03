@@ -154,11 +154,34 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 };
 
-// New functions
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
+// New functions for creating in-page buttons
+
+function createButton(elmId, txt, callback, disableFn) {
+  const button = document.createElement("button");
+  button.id = elmId;
+  button.textContent = txt;
+
+  button.addEventListener("click", callback);
+
+  if (disableFn) {
+    const disableButton = document.createElement("button");
+    disableButton.textContent = "Disable";
+    disableButton.addEventListener("click", disableFn);
+
+    button.appendChild(disableButton);
+  }
+
+  document.body.appendChild(button);
 }
+
+function myFunction() {
+  // Code for handling the button click event
+}
+
+function disableMyFunction() {
+  // Code for disabling the button click event
+}
+
+createButton("my-button", "Click me!", myFunction, disableMyFunction);
 
 // ... rest of the code ...

@@ -82,14 +82,14 @@ function setARIARoleForDependencyGraph() {
   }
 }
 
-// Function imported from the Git base
+// Function imported from the newFunction base
 function ensureElementHasId(element) {
   if (!element.id) {
     element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
   }
 }
 
-// Function imported from the Git base
+// Function imported from the newFunction base
 function addAriaLabel(element, label) {
   if (!element.hasAttribute('aria-label')) {
     element.setAttribute('aria-label', label);
@@ -165,6 +165,29 @@ function startDependencyGraphRenders() {
 }
 
 /**
+ * Creates in-page buttons and appends them to a specified container element.
+ * Each button is given an accessible aria-label based on its text content.
+ * @param {Element} container - The container element to which the buttons will be appended
+ * @param {Array<{text: string, onClick: Function}>} buttons - Array of button definitions
+ * @returns {Array<HTMLButtonElement>} The array of created button elements
+ */
+function createInPageButtons(container, buttons) {
+  if (!container || !Array.isArray(buttons)) {
+    return [];
+  }
+  return buttons.map((buttonDef) => {
+    const button = document.createElement('button');
+    button.textContent = buttonDef.text;
+    button.setAttribute('aria-label', buttonDef.text);
+    if (typeof buttonDef.onClick === 'function') {
+      button.addEventListener('click', buttonDef.onClick);
+    }
+    container.appendChild(button);
+    return button;
+  });
+}
+
+/**
  * Starts the application
  */
 function startApp() {
@@ -195,7 +218,8 @@ module.exports = {
   fixFakeLink,
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  createInPageButtons
 };
 
 // Start the application if run directly

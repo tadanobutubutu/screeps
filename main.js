@@ -19,8 +19,6 @@ const {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
@@ -41,19 +39,6 @@ const {
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,
@@ -81,27 +66,27 @@ if (dependencyGraph) {
   }
 
   // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph');
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph'
   }
 }
 
 // Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName (svgString) {
+function addAccessibleName(svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
+  const parser = new DOMParser()
+  const svg = parser.parseFromString(svgString, 'image/svg+xml')
   const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.querySelector('title')) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
   }
-  return new XMLSerializer().serializeToString(svg)
+  return new XMLSerializer().serializeToString(svgElement)
 }
 
 // Example usage of the function
-const originalSvgString =
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**
@@ -109,7 +94,7 @@ const modifiedSvgString = addAccessibleName(originalSvgString)
  * @param {Array} tableData - Table data to validate
  * @returns {boolean} True if table is accessible, false otherwise
  */
-function validateTableAccessibility (tableData) {
+function validateTableAccessibility(tableData) {
   // Implementation placeholder - function to be implemented
   return true
 }
@@ -119,7 +104,7 @@ function validateTableAccessibility (tableData) {
  * @param {Array} tableData - Table data to validate
  * @returns {boolean} True if table structure is valid, false otherwise
  */
-function validateTableStructure (tableData) {
+function validateTableStructure(tableData) {
   // Implementation placeholder - function to be implemented
   return true
 }
@@ -128,7 +113,7 @@ function validateTableStructure (tableData) {
  * Gets the lang attribute for the HTML element.
  * @returns {string} The lang attribute value.
  */
-function getLangAttribute () {
+function getLangAttribute() {
   return document.documentElement.lang || 'en'
 }
 
@@ -137,7 +122,7 @@ function getLangAttribute () {
  * @param {Object} person - The person object.
  * @returns {string} The person's name.
  */
-function personName (person) {
+function personName(person) {
   return person && person.name || 'Unknown'
 }
 
@@ -146,7 +131,7 @@ function personName (person) {
  * @param {HTMLElement} landmark - The landmark element to validate.
  * @returns {boolean} True if the landmark is valid, false otherwise.
  */
-function validateLandmark (landmark) {
+function validateLandmark(landmark) {
   return !!landmark
 }
 
@@ -155,7 +140,7 @@ function validateLandmark (landmark) {
  * @param {HTMLElement} landmark - The landmark element to validate.
  * @returns {boolean} True if the landmark structure is valid, false otherwise.
  */
-function validateLandmarkStructure (landmark) {
+function validateLandmarkStructure(landmark) {
   return !!landmark
 }
 
@@ -164,8 +149,8 @@ function validateLandmarkStructure (landmark) {
  * @param {SVGElement} svg - The SVG element.
  * @returns {string} The accessible name of the SVG.
  */
-function getSvgAccessibleName (svg) {
-  return svg && (svg.getAttribute('aria-label') || svg.getAttribute('title')) || ''
+function getSvgAccessibleName(svg) {
+  return svg && (svg.getAttribute('aria-label') || svg.querySelector('title') && svg.querySelector('title').textContent) || ''
 }
 
 /**
@@ -174,7 +159,7 @@ function getSvgAccessibleName (svg) {
  * @param {Function} onClick - The click handler.
  * @returns {HTMLButtonElement} The created button element.
  */
-function createInPageButton (label, onClick) {
+function createInPageButton(label, onClick) {
   const button = document.createElement('button')
   button.textContent = label
   button.addEventListener('click', onClick)
@@ -185,10 +170,10 @@ function createInPageButton (label, onClick) {
  * New function to handle focus trap for keyboard navigation.
  * @param {HTMLElement} element - The element to trap focus within.
  */
-function newFocusTrap (element) {
+function newFocusTrap(element) {
   if (!element) return
   const focusableElements = element.querySelectorAll(
-    'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+    'a[href], button, textarea, input[type="text"], select, textarea, [tabindex]:not([tabindex="-1"])'
   )
   if (focusableElements.length === 0) return
 
@@ -213,7 +198,17 @@ function newFocusTrap (element) {
 }
 
 function validateTableStructure(container) {
-  return validateTableStructureForAccessibility(container);
+  if (!container) return false
+  const tables = container.querySelectorAll('table')
+  let allValid = true
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th')
+    const rows = table.querySelectorAll('tr')
+    if (headers.length === 0) {
+      allValid = false
+    }
+  })
+  return allValid
 }
 
 function validateHeadingHierarchy(headings) {
@@ -222,27 +217,27 @@ function validateHeadingHierarchy(headings) {
 }
 
 function ensureHeadingHierarchy(container) {
-  if (!container) return null;
+  if (!container) return null
 
-  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  let previousLevel = 0;
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  let previousLevel = 0
 
   headings.forEach(heading => {
-    const currentLevel = parseInt(heading.tagName.substring(1), 10);
+    const currentLevel = parseInt(heading.tagName.charAt(1), 10)
     if (previousLevel > 0 && currentLevel - previousLevel > 1) {
       // Fix skipped heading levels by promoting or demoting as needed
-      const correctedLevel = previousLevel + 1;
-      const newHeading = document.createElement(`h${correctedLevel}`);
-      newHeading.innerHTML = heading.innerHTML;
-      newHeading.className = heading.className;
-      heading.parentNode.replaceChild(newHeading, heading);
-      previousLevel = correctedLevel;
+      const correctedLevel = previousLevel + 1
+      const newHeading = document.createElement('h' + correctedLevel)
+      newHeading.innerHTML = heading.innerHTML
+      newHeading.className = heading.className
+      heading.parentNode.replaceChild(newHeading, heading)
+      previousLevel = correctedLevel
     } else {
-      previousLevel = currentLevel;
+      previousLevel = currentLevel
     }
-  });
+  })
 
-  return container;
+  return container
 }
 
 /**
@@ -253,7 +248,8 @@ function ensureHeadingHierarchy(container) {
 function renderAdditionalContent(additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
+  if (!additionalData) return ''
+  return '<div class="additional-content">' + (additionalData.content || '') + '</div>'
 }
 
 module.exports = {
@@ -276,8 +272,6 @@ module.exports = {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
@@ -308,4 +302,4 @@ module.exports = {
   ensureHeadingHierarchy,
   renderAdditionalContent,
   newFocusTrap
-};
+}

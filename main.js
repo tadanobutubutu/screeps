@@ -15,13 +15,16 @@ const {
   exportUtils,
   transformInputData,
   addressAccessibilityIssues,
+  handleCredentialResponse,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
   renderAdditionalContent,
-  ensureElementId,
+  transformInputData,
+  initSkipLink,
+  trapFocus,
   ensureElementHasId,
   newFocusTrap,
 } = main;
@@ -197,27 +200,27 @@ const accessibilityUtils = {
 const wrapPrimaryContentInMain = () => {
   // Check if a main element already exists
   let mainElement = document.querySelector('main');
-  
+
   if (!mainElement) {
     // If no main element exists, create one
     mainElement = document.createElement('main');
-    
+
     // Find the primary content container (commonly #content, .content, or the body)
     const contentSelectors = ['#content', '.content', '#main', '.main', 'article', '[role="main"]'];
     let primaryContent = null;
-    
+
     for (const selector of contentSelectors) {
       primaryContent = document.querySelector(selector);
       if (primaryContent) {
         break;
       }
     }
-    
+
     // If no specific content container found, use body
     if (!primaryContent) {
       primaryContent = document.body;
     }
-    
+
     // Move the primary content into the main element
     if (primaryContent !== document.body) {
       mainElement.appendChild(primaryContent);
@@ -232,16 +235,16 @@ const wrapPrimaryContentInMain = () => {
       });
       document.body.insertBefore(mainElement, document.body.firstChild);
     }
-    
+
     // Add ARIA landmark attribute
     mainElement.setAttribute('role', 'main');
-    
+
     // Add accessible label if not present
     if (!mainElement.getAttribute('aria-label') && !mainElement.getAttribute('aria-labelledby')) {
       mainElement.setAttribute('aria-label', 'Main content');
     }
   }
-  
+
   return mainElement;
 };
 

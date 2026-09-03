@@ -324,3 +324,15 @@ module.exports = {
 if (require.main === module) {
   startApp();
 }
+
+// New function to create a button with correct accessibility properties for in-page linking
+function createAccessibleButton(text, href) {
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.setAttribute('aria-label', `Go to ${text}`);
+  button.innerHTML = text;
+  button.setAttribute('role', 'button');
+  button.setAttribute('tabindex', '0'); // Make sure the button is focusable
+  button.setAttribute('href', href);
+  return button;
+}

@@ -35,9 +35,6 @@ const CONFIG = {
   timeout: 5000
 };
 
-// Import the required module
-const { someFunction } = { someFunction: () => 'someFunction result' };
-
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
 

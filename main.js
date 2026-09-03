@@ -738,6 +738,52 @@ if (require.main === module) {
   console.log('Main function executed');
 }
 
+// Function to generate a report based on accessibility issues
+function generateAccessibilityReport() {
+  const issues = [];
+
+  // Gather issues from various accessibility checks
+  const landmarkIssues = validateLandmarkStructure();
+  issues.push(...landmarkIssues);
+
+  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  issues.push(...uniqueLandmarkIssues);
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const tableIssues = validateTableAccessibility(table);
+    issues.push(...tableIssues);
+  });
+
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (!accessibleName) {
+      issues.push('SVG missing accessible name');
+    }
+  });
+
+  const fakeLinkIssues = handleFakeLinks();
+  issues.push(...fakeLinkIssues);
+
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    const linkIssues = validateLinkAccessibility(link);
+    issues.push(...linkIssues);
+  });
+
+  const lang = getLangAttribute();
+  if (!lang) {
+    issues.push('Missing lang attribute on HTML element');
+  }
+
+  return {
+    timestamp: Date.now(),
+    issues,
+    summary: `Found ${issues.length} accessibility issue(s)`
+  };
+}
+
 export {
   config,
   appState,
@@ -814,5 +860,6 @@ export {
   extractCredentialData,
   storeCredentialData,
   checkLinkAccessibility,
-  newExportedFunction
+  newExportedFunction,
+  generateAccessibilityReport
 };

@@ -66,6 +66,8 @@ module.exports = {
   addTask,
   setFocus,
   handleKeyboardNavigation,
+  navigateWithArrow,
+  handleTabNavigation,
   renderDependencyGraphs,
   ...mainUtilities
 }

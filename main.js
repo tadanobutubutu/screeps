@@ -446,7 +446,12 @@ function checkLandmarkElements(container) {
 
   const errors = [];
   const root = container || document;
-  const landmarks = root.querySelectorAll('header, nav, main, aside, footer, section, article, [role="header"], [role="nav"], [role="main"], [role="aside"], [role="footer"], [role="section"], [role="article"], [role="search"]');
+  // Use template literals to avoid quote escaping issues
+  const selector = 'header, nav, main, aside, footer, section, article, ' +
+                  '[role="header"], [role="nav"], [role="main"], [role="aside"], ' +
+                  '[role="footer"], [role="section"], [role="article"], [role="search"]';
+  
+  const landmarks = Array.from(root.querySelectorAll(selector));
 
   landmarks.forEach((landmark, index) => {
     const result = validateLandmark(landmark);

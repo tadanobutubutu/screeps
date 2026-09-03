@@ -160,6 +160,11 @@ function validateLandmark(element) {
   return { valid: errors.length === 0, errors };
 }
 
+/**
+ * Validates the landmark structure for accessibility issues
+ * Checks for proper landmark roles, unique landmarks, and accessible names
+ * @returns {Object} Result with valid boolean and errors array
+ */
 function validateLandmarkStructure() {
   // This function validates the structure of landmarks
   const errors = [];

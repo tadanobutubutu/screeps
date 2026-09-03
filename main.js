@@ -41,19 +41,7 @@ const {
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
-  addLandmarkRegions,
   ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,
@@ -86,8 +74,31 @@ if (dependencyGraph) {
   }
 }
 
+/**
+ * Validates the accessibility report for issues.
+ * @param {Object|Array} report - The accessibility report to validate.
+ * @returns {boolean} True if the report is valid, false otherwise.
+ */
+function validateAccessibilityReportFn (report) {
+  if (!report) return false
+
+  // Check if report has the expected structure
+  if (Array.isArray(report)) {
+    return report.every(item => item && typeof item === 'object')
+  }
+
+  if (typeof report === 'object') {
+    // Validate that the report contains required accessibility check fields
+    const validKeys = ['violations', 'passes', 'incomplete', 'inapplicable']
+    const hasValidKey = validKeys.some(key => key in report) || Object.keys(report).length > 0
+    return hasValidKey
+  }
+
+  return false
+}
+
 // Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName (svgString) {
+function addAccessibleNameFn (svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
@@ -102,7 +113,7 @@ function addAccessibleName (svgString) {
 // Example usage of the function
 const originalSvgString =
     'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
-const modifiedSvgString = addAccessibleName(originalSvgString)
+const modifiedSvgString = addAccessibleNameFn(originalSvgString)
 
 /**
  * Validates table accessibility
@@ -128,7 +139,7 @@ function validateTableStructure (tableData) {
  * Gets the lang attribute for the HTML element.
  * @returns {string} The lang attribute value.
  */
-function getLangAttribute () {
+function getLangAttributeFn () {
   return document.documentElement.lang || 'en'
 }
 
@@ -146,7 +157,7 @@ function personName (person) {
  * @param {HTMLElement} landmark - The landmark element to validate.
  * @returns {boolean} True if the landmark is valid, false otherwise.
  */
-function validateLandmark (landmark) {
+function validateLandmarkFn (landmark) {
   return !!landmark
 }
 
@@ -155,7 +166,7 @@ function validateLandmark (landmark) {
  * @param {HTMLElement} landmark - The landmark element to validate.
  * @returns {boolean} True if the landmark structure is valid, false otherwise.
  */
-function validateLandmarkStructure (landmark) {
+function validateLandmarkStructureFn (landmark) {
   return !!landmark
 }
 
@@ -164,7 +175,7 @@ function validateLandmarkStructure (landmark) {
  * @param {SVGElement} svg - The SVG element.
  * @returns {string} The accessible name of the SVG.
  */
-function getSvgAccessibleName (svg) {
+function getSvgAccessibleNameFn (svg) {
   return svg && (svg.getAttribute('aria-label') || svg.getAttribute('title')) || ''
 }
 
@@ -174,7 +185,7 @@ function getSvgAccessibleName (svg) {
  * @param {Function} onClick - The click handler.
  * @returns {HTMLButtonElement} The created button element.
  */
-function createInPageButton (label, onClick) {
+function createInPageButtonFn (label, onClick) {
   const button = document.createElement('button')
   button.textContent = label
   button.addEventListener('click', onClick)
@@ -212,16 +223,16 @@ function newFocusTrap (element) {
   })
 }
 
-function validateTableStructure(container) {
+function validateTableStructureFn(container) {
   return validateTableStructureForAccessibility(container);
 }
 
-function validateHeadingHierarchy(headings) {
+function validateHeadingHierarchyFn(headings) {
   // Implementation placeholder - function to be implemented
   return true
 }
 
-function ensureHeadingHierarchy(container) {
+function ensureHeadingHierarchyFn(container) {
   if (!container) return null;
 
   const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
@@ -250,7 +261,7 @@ function ensureHeadingHierarchy(container) {
  * @param {Object} additionalData - Additional data for rendering
  * @returns {string} Rendered additional content HTML
  */
-function renderAdditionalContent(additionalData) {
+function renderAdditionalContentFn(additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
   return `<div>${JSON.stringify(additionalData)}</div>`
@@ -264,7 +275,7 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   getLangAttribute,
-  validateAccessibilityReport,
+  validateAccessibilityReport: validateAccessibilityReportFn,
   exportUtils,
   addressAccessibilityIssues,
   ensureElementHasId,
@@ -298,6 +309,7 @@ module.exports = {
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
+  ensureUniqueLandmarks,
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,

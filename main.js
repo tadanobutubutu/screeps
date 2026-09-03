@@ -1,8 +1,19 @@
+Looking at the code and test failures, I can identify several issues:
+
+1. **Line 9 has incomplete syntax** (`... 11)` - this needs to be a complete value
+2. **`handleKeyboardNav` is declared twice** - once imported and once as a function
+3. **Duplicate exports** in the module.exports
+4. **Several undefined exports** referenced
+5. **Object assignments using ellipsis** that are incomplete
+
+Let me fix all these issues:
+
+```javascript
 const fs = require('fs');
 const url = require('url');
 
 // Dependency imports
-const { dependencyGraphContent, indexContent } = require('./dependencyContent');
+const { dependencyGraphContent, indexContent } = require('./dependency');
 
 const {
   createInPageButton,
@@ -49,7 +60,7 @@ const accessibilityUtils = {
   transformInputData,
   ensureElementId: (element) => {
     if (element && !element.id) {
-      element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+      element.id = "element-" + Date.now() + "-" + Math.random().toString(36).substr(2, 11);
     }
     return element;
   },
@@ -82,6 +93,7 @@ accessibilityUtils.initSkipLink = () => {
     skipLinkElement.ariaLabel = 'Skip to main content';
     skipContainer.appendChild(skipLinkElement);
     document.body.appendChild(skipContainer);
+    document.body.insertBefore(skipContainer, document.body.firstChild);
   }
 };
 
@@ -114,7 +126,7 @@ accessibilityUtils.trapFocus = (element) => {
     }
 
     if (e.key === 'Escape') {
-      element.dispatchEvent(new KeyboardEvent('escape'));
+      element.dispatchEvent(new CustomEvent('escape-pressed'));
     }
   };
 
@@ -138,15 +150,15 @@ function log(message, level = 'info') {
 const exportUtilities = {
   exportData: (data, filename, mimeType) => {
     const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
+    const urlBlob = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = url;
+    link.href = urlBlob;
     link.download = filename;
     link.setAttribute('aria-label', "Download " + filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(urlBlob);
 
     // Announce download completion to screen readers
     announceToScreenReader("Download of " + filename + " started");
@@ -179,7 +191,7 @@ const exportUtilities = {
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9.-]/gi, '_');
+  return filename.replace(/[^a-z0-9_.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
@@ -218,7 +230,7 @@ const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
 
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('button, a, input, select, textarea').forEach(element => {
+  document.querySelectorAll('a, input, select, textarea').forEach(element => {
     element.addEventListener('keydown', (e) => {
       const handlers = {
         Enter: () => element.click(),
@@ -265,21 +277,16 @@ const initiateAnnounceToScreenReader = (message, priority) => {
 
 const announcementDelayHandler = () => {
   setTimeout(() => {
-    const announcer = document.querySelector('#sr-announcer');
+    const announcer = document.querySelector('[aria-live]');
     if (announcer) {
-      document.body.removeChild(announcer);
+      announcer.textContent = '';
     }
   }, 1000);
 };
 
-function handleKeyboardNav(e, handlers) {
-  handleKeyboardNav(e, handlers);
-  handleKeyboardNavKeyDownEvent(e, handlers);
-}
-
-const handleKeyboardNavKeyDownEvent = (e, handlers) => {
+const handleTabNavigation = (e, handlers) => {
   if (e.key === 'Tab') {
-    Object.values(handlers).forEach((handler) => {
+    handlers.forEach(handler => {
       if (handler) {
         handler(e);
       }
@@ -288,50 +295,28 @@ const handleKeyboardNavKeyDownEvent = (e, handlers) => {
 };
 
 const newFocusTrap = (element) => {
-  const focusZone = newFocusTrap(element, { allowFocusOut: false });
-  return { focus, blur, update } => {
+  const focusZone = originNewFocusTrap(element, { allowFocusOut: false });
+  return { focus: () => {
     focusZone.focus();
-    focusZone.on('focusout', () => focusZone.update());
-  };
+  }, blur: () => {}, update: () => {} };
 };
 
 module.exports = {
-  ...main,
-  ...accessibilityUtils,
-  ensureElementId,
-  ensureElementIdOrigin,
-  addAriaLabel,
-  renderDependencyGraph,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  newFocusTrap,
-  handleCredentialResponse,
-  initAccessibility,
-  groupByCategory,
+  calculateSum,
   log,
   sanitizeFilename,
   readFileSafe,
   processData,
   filterValidItems,
   exportUtilities,
-  calculateSum,
+  groupByCategory,
+  initAccessibility,
   ensureDependencyGraphARIA,
-  ensureElementAccessibility,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  handleKeyboardNavKeyDownEvent
-};
+  initiateAnnounceToScreenReader,
+  handleTabNavigation,
+  newFocusTrap,
+  handleCredentialResponse,
+  ...accessibilityUtils,
+  ensureElementIdOrigin,
+  ensureElementIdFromMain,
+  renderDependencyGraphs,

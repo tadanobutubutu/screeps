@@ -1,4 +1,4 @@
-const main = require('./utilities')
+const main = require('./utilities');
 const React = require('react');
 const { setElementLabel } = require('./AccessibilityHelpers');
 
@@ -58,6 +58,15 @@ function handleTabNavigation(event, activeElement) {
   console.log('Handling tab navigation');
 }
 
+// Function to create in-page buttons
+function createInPageButton(buttonId, buttonText, buttonCallback) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.addEventListener('click', buttonCallback);
+  document.body.appendChild(button);
+}
+
 // Import and use existing functions from utilities
 const { renderDependencyGraphs, ...mainUtilities } = main;
 
@@ -67,5 +76,8 @@ module.exports = {
   setFocus,
   handleKeyboardNavigation,
   renderDependencyGraphs,
+  navigateWithArrow,
+  handleTabNavigation,
+  createInPageButton,
   ...mainUtilities
 }

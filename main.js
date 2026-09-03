@@ -27,7 +27,7 @@ let dependencyGraph = null;
 const appState = {
   initialized: false,
   data: null,
-  cache: new Map()
+ cache: new Map()
 };
 
 function getUniqueLandmarks(landmarks) {
@@ -232,9 +232,25 @@ function processLandmarks(landmarks) {
   }
 
   const validLandmarks = landmarks.filter(isValidLandmark);
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+  const uniqueLandmarks = processLandmarksWithUniqueIds(validLandmarks);
 
   return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+function isValidLandmark(landmark) {
+  return landmark && typeof landmark === 'object';
+}
+
+function processLandmarksWithUniqueIds(landmarks) {
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    const id = landmark.id || landmark.name || JSON.stringify(landmark);
+    if (seen.has(id)) {
+      return false;
+    }
+    seen.add(id);
+    return true;
+  });
 }
 
 function ensureUniqueLandmarks(landmarks) {
@@ -364,6 +380,37 @@ function addLangAttribute() {
   }
 }
 
+function createNewBookForm() {
+  const formContainer = document.createElement('div');
+  formContainer.setAttribute('role', 'region');
+  formContainer.setAttribute('aria-labelledby', 'add-book-heading');
+
+  const heading = document.createElement('h2');
+  heading.setAttribute('id', 'add-book-heading');
+  heading.textContent = 'Add a New Book';
+
+  const label = document.createElement('label');
+  label.setAttribute('for', 'book-title-input');
+  label.textContent = 'Book Title';
+
+  const input = document.createElement('input');
+  input.setAttribute('type', 'text');
+  input.setAttribute('id', 'book-title-input');
+  input.setAttribute('name', 'title');
+  input.setAttribute('required', '');
+
+  const submitButton = document.createElement('button');
+  submitButton.setAttribute('type', 'submit');
+  submitButton.textContent = 'Add Book';
+
+  formContainer.appendChild(heading);
+  formContainer.appendChild(label);
+  formContainer.appendChild(input);
+  formContainer.appendChild(submitButton);
+
+  return formContainer;
+}
+
 async function renderFunction1() {
   await accessiblyHelper();
 
@@ -403,6 +450,9 @@ module.exports = {
   createInPageButton,
   wrapPrimaryContentInMain,
   addLangAttribute,
+  createNewBookForm,
+  isValidLandmark,
+  processLandmarksWithUniqueIds,
   CONFIG,
   appState
 };

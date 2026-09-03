@@ -82,7 +82,7 @@ const accessibilityUtils = {
         };
     },
 
-    // Impemented upgradeAccessibility function
+    // Implemented upgradeAccessibility function
     upgradeAccessibility() {
         // Implement upgrading old accessibility patterns to modern best practices
     },
@@ -208,3 +208,93 @@ if (dependencyGraph) {
         dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
     }
 }
+
+/**
+ * Harvest resources based on current state and configuration
+ * @param {Object} options - Harvesting options
+ * @returns {Object} Harvest results
+ */
+function harvest(options = {}) {
+    const state = getState();
+    const config = getConfig();
+    
+    const harvestAmount = options.amount || config.harvestAmount || 1;
+    const result = {
+        success: true,
+        amount: harvestAmount,
+        resources: 0,
+        level: state.level || 1
+    };
+    
+    // Calculate resources based on current level and any multipliers
+    result.resources = harvestAmount * result.level;
+    
+    // Update state with harvested resources
+    if (state.resources !== undefined) {
+        state.resources += result.resources;
+    }
+    
+    return result;
+}
+
+/**
+ * Upgrade a specific capability or the entire system
+ * @param {string} type - Type of upgrade (optional)
+ * @param {Object} options - Upgrade options
+ * @returns {Object} Upgrade results
+ */
+function upgrade(type, options = {}) {
+    const state = getState();
+    const config = getConfig();
+    
+    const upgradeCost = options.cost || config.upgradeCosts?.[type] || config.defaultUpgradeCost || 10;
+    const result = {
+        success: false,
+        type: type,
+        cost: upgradeCost,
+        level: state.level || 1,
+        message: ''
+    };
+    
+    // Check if we have enough resources for the upgrade
+    if (!type) {
+        // System-wide upgrade
+        const currentLevel = state.level || 1;
+        if (state.resources >= upgradeCost) {
+            state.resources -= upgradeCost;
+            state.level = currentLevel + 1;
+            result.success = true;
+            result.level = state.level;
+            result.message = `System upgraded to level ${state.level}`;
+        } else {
+            result.message = `Insufficient resources. Need ${upgradeCost}, have ${state.resources}`;
+        }
+    } else {
+        // Specific capability upgrade
+        if (state.resources >= upgradeCost) {
+            state.resources -= upgradeCost;
+            
+            // Track capability upgrades in state
+            if (!state.capabilities) {
+                state.capabilities = {};
+            }
+            state.capabilities[type] = (state.capabilities[type] || 0) + 1;
+            
+            result.success = true;
+            result.level = state.capabilities[type];
+            result.message = `${type} upgraded to level ${state.capabilities[type]}`;
+            
+            // Apply any immediate effects from the upgrade
+            if (config.upgradeEffects?.[type]) {
+                const effects = config.upgradeEffects[type];
+                Object.assign(state, effects);
+            }
+        } else {
+            result.message = `Insufficient resources. Need ${upgradeCost}, have ${state.resources}`;
+        }
+    }
+    
+    return result;
+}
+
+// TODO: Implement harvest and upgrade logic

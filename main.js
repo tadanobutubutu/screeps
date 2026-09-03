@@ -401,7 +401,7 @@ function checkLandmarkStructure(landmark) {
 }
 
 // Add ensureUniqueLandmarks function
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+const HTML = ({ lang }) => `<html lang="${lang}"></html>`;
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:

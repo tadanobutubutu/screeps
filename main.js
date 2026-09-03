@@ -67,6 +67,19 @@ function addressNewAccessibilityIssues() {
   if (submitBtn && typeof submitBtn !== 'undefined') {
     submitBtn.setAttribute('aria-label', personName());
   }
+
+  // Ensure the dependencyGraph container has a proper ARIA role
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    // Set role to 'img' if not already set
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'img');
+    }
+    // Set aria-label if not already set via aria-label or aria-labelledby
+    if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.getAttribute('aria-labelledby')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
 }
 
 // Export functions for both browser and Node.js environments

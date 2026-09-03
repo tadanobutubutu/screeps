@@ -57,6 +57,61 @@ function personName() {
 
 function processSvgElements() {
   const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const name = getSvgAccessibleName(svg);
+    if (name) {
+      setSvgAccessibilityProps(svg, name);
+    }
+  });
+}
+
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return null;
+  
+  // Check for existing accessible name
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
+  const title = svgElement.querySelector('title');
+  
+  if (ariaLabel) return ariaLabel;
+  if (ariaLabelledBy) {
+    const referenced = document.getElementById(ariaLabelledBy);
+    if (referenced) return referenced.textContent;
+  }
+  if (title && title.textContent) return title.textContent;
+  
+  // Try to derive from context
+  const parent = svgElement.parentElement;
+  if (parent) {
+    const label = parent.getAttribute('aria-label') || parent.textContent?.trim();
+    if (label) return label;
+  }
+  
+  return null;
+}
+
+function setSvgAccessibilityProps(svgElement, name) {
+  if (!svgElement || !name) return svgElement;
+
+  let title = svgElement.querySelector('title');
+  if (!title) {
+    title = document.createElement('title');
+    svgElement.insertBefore(title, svgElement.firstChild);
+  }
+  title.textContent = name;
+
+  const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
+  if (!ariaLabelledBy && !svgElement.getAttribute('aria-label')) {
+    title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+    svgElement.setAttribute('aria-labelledby', title.id);
+  }
+
+  // Ensure SVG has role="img" if it's purely decorative or informative
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+
+  return svgElement;
 }
 
 function validateTableAccessibility(table, index) {
@@ -67,7 +122,30 @@ function validateTableAccessibility(table, index) {
     return issues;
   }
   
-  // Additional table validation logic here
+  // Check for caption
+  if (!table.querySelector('caption')) {
+    issues.push(`Table at index ${index}: Missing <caption> element`);
+  }
+  
+  // Check for header cells
+  const hasTh = table.querySelector('th');
+  if (!hasTh) {
+    issues.push(`Table at index ${index}: Missing header cells (<th>)`);
+  }
+  
+  // Check for scope attributes on headers
+  const headers = table.querySelectorAll('th');
+  headers.forEach((th, i) => {
+    if (!th.getAttribute('scope')) {
+      issues.push(`Table at index ${index}, header ${i}: Missing scope attribute`);
+    }
+  });
+  
+  // Check for proper table structure
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) {
+    issues.push(`Table at index ${index}: No rows found`);
+  }
   
   return issues;
 }
@@ -146,13 +224,51 @@ function validateLandmark(element) {
 }
 
 function validateLandmarkStructure() {
-  // ... code for handling landmark structure issues (merged with the updated code)
-  return true;
+  const issues = [];
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role="banner"], [role="main"], [role="navigation"], [role="search"], [role="contentinfo"], [role="complementary"], [role="region"], [role="form"]');
+  
+  landmarks.forEach((landmark, index) => {
+    const validation = validateLandmark(landmark);
+    if (!validation.success) {
+      validation.issues.forEach(issue => {
+        issues.push(`Landmark ${index} (${landmark.tagName}): ${issue}`);
+      });
+    }
+  });
+  
+  // Check for duplicate main landmarks
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    issues.push(`Found ${mainElements.length} main landmarks - should have only one (REACT_025)`);
+  }
+  
+  // Check for missing main landmark
+  if (mainElements.length === 0) {
+    issues.push('Missing main landmark (REACT_017)');
+  }
+  
+  return issues;
 }
 
 function ensureUniqueLandmarks() {
-  // Your updated code for ensureUniqueLandmarks() function from both changes
-  return true;
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length <= 1) return true;
+  
+  let fixed = false;
+  for (let i = 1; i < mainElements.length; i++) {
+    const element = mainElements[i];
+    if (element.tagName.toLowerCase() === 'main') {
+      element.outerHTML = element.outerHTML
+        .replace(/<main([^>]*)>/, '<section$1>')
+        .replace(/<\/main>/, '</section>');
+    } else {
+      element.removeAttribute('role');
+      element.setAttribute('role', 'region');
+    }
+    fixed = true;
+  }
+  
+  return fixed;
 }
 
 function createInPageButton(buttonId, buttonText) {
@@ -205,7 +321,63 @@ function addAriaLabel(element, label) {
 }
 
 function handleFakeLinks(issues) {
-  // Placeholder
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"], a[onclick], div[onclick], span[onclick]');
+  const fixed = [];
+  
+  fakeLinks.forEach((link, index) => {
+    if (link.tagName.toLowerCase() === 'a' && (link.getAttribute('href') === '#' || link.getAttribute('href') === 'javascript:void(0)')) {
+      // Convert to button
+      const button = document.createElement('button');
+      button.textContent = link.textContent;
+      button.className = link.className;
+      button.id = link.id;
+      link.parentNode.replaceChild(button, link);
+      fixed.push(`Converted fake link ${index} to button`);
+    } else if ((link.tagName.toLowerCase() === 'div' || link.tagName.toLowerCase() === 'span') && link.onclick) {
+      // Convert to button
+      const button = document.createElement('button');
+      button.textContent = link.textContent;
+      button.className = link.className;
+      button.id = link.id;
+      button.onclick = link.onclick;
+      link.parentNode.replaceChild(button, link);
+      fixed.push(`Converted fake link ${index} (${link.tagName}) to button`);
+    }
+  });
+  
+  if (issues && Array.isArray(issues)) {
+    issues.push(...fixed);
+  }
+  
+  return fixed;
+}
+
+function validateLinkAccessibility(link) {
+  const issues = [];
+  
+  if (!link) return issues;
+  
+  // Check if it's a real link or fake link
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href.startsWith('javascript:')) {
+    issues.push('Fake link detected - should be a button');
+  }
+  
+  // Check for accessible name
+  const text = link.textContent?.trim();
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledBy = link.getAttribute('aria-labelledby');
+  
+  if (!text && !ariaLabel && !ariaLabelledBy) {
+    issues.push('Link missing accessible name');
+  }
+  
+  // Check for meaningful text
+  if (text && text.length < 2 && !ariaLabel && !ariaLabelledBy) {
+    issues.push('Link text may be too short to be meaningful');
+  }
+  
+  return issues;
 }
 
 function ensureUniqueLandmarksFromString(source) {
@@ -430,7 +602,11 @@ module.exports = {
   processSvgElements,
   ensureElementId,
   ensureUniqueLandmarksFromString,
-  addLangAttribute
+  addLangAttribute,
+  getSvgAccessibleName,
+  setSvgAccessibilityProps,
+  validateLinkAccessibility,
+  validateLandmarkStructure
 };
 
 if (require.main === module) {

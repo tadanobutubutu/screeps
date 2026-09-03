@@ -161,4 +161,55 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureImageAccessibility();
 }
 
+/**
+ * Create an accessible web resource button/link (e.g., GitHub, Stack Overflow)
+ * @param {Object} options - Configuration options
+ * @param {string} options.url - The URL of the web resource
+ * @param {string} options.label - Accessible label for the button/link
+ * @param {string} [options.icon] - Optional icon HTML (SVG or img) to include
+ * @param {string} [options.className] - Additional CSS classes
+ * @param {boolean} [options.asButton=false] - If true, creates a <button> with onclick navigation; otherwise creates an <a>
+ * @returns {HTMLElement} The created accessible element
+ */
+function createWebResourceButton({ url, label, icon, className = '', asButton = false }) {
+  if (!url || !label) {
+    throw new Error('createWebResourceButton requires both url and label parameters');
+  }
+
+  const element = asButton ? document.createElement('button') : document.createElement('a');
+  element.className = `web-resource-button ${className}`.trim();
+
+  if (asButton) {
+    element.type = 'button';
+    element.setAttribute('onclick', `window.open('${url.replace(/'/g, "\\'")}', '_blank', 'noopener,noreferrer')`);
+    element.setAttribute('data-url', url);
+  } else {
+    element.href = url;
+    element.target = '_blank';
+    element.rel = 'noopener noreferrer';
+  }
+
+  // Add icon if provided
+  if (icon) {
+    const iconContainer = document.createElement('span');
+    iconContainer.className = 'web-resource-icon';
+    iconContainer.setAttribute('aria-hidden', 'true');
+    iconContainer.innerHTML = icon;
+    element.appendChild(iconContainer);
+  }
+
+  // Add label
+  const labelElement = document.createElement('span');
+  labelElement.className = 'web-resource-label';
+  labelElement.textContent = label;
+  element.appendChild(labelElement);
+
+  // Ensure accessible name
+  if (asButton) {
+    element.setAttribute('aria-label', label);
+  }
+
+  return element;
+}
+
 // ... rest of the code ...

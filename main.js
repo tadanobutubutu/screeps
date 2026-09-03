@@ -1,9 +1,4 @@
-Here's the resolved file content that merges both changes and avoids syntax errors:
-
-```javascript
-// TODO: Add back any required exports that might have been removed
-
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: 49e339d5ff675ce559aa9f4f66ff29aef3f6166b -->
 
@@ -19,7 +14,7 @@ function handleCredentialResponse(credential) {
     // Handle attestation response (from registration)
     if (response.attestationObject) {
         const attestationBuffer = response.attestationObject;
-        const attestationObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(attestationBuffer)));
+        const attestationObj = Array.from(new Uint8Array(attestationBuffer));
 
         console.log('Credential registered successfully');
         console.log('Credential ID:', credential.id);
@@ -33,12 +28,12 @@ function handleCredentialResponse(credential) {
     }
 
     // Handle assertion response (from authentication)
-    if (response.authenticatorData && response.clientDataJSON) {
+    if (response.authenticatorData) {
         const clientDataJSON = JSON.parse(new TextDecoder().decode(response.clientDataJSON));
 
         console.log('Credential verified successfully');
         console.log('Credential ID:', credential.id);
-        console.log('Authentication timestamp:', new Date(clientDataJSON.timestamp));
+        console.log('Authentication timestamp:', new Date().toISOString());
 
         return {
             success: true,
@@ -77,7 +72,7 @@ function validateLandmarkStructure() {
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Accessibility Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
         return false;
     }
 
@@ -105,7 +100,7 @@ function countDependencies(packageJson) {
 function initializeApp() {
     const mainContent = document.querySelector('main');
     if (mainContent) {
-        const button = createInPageButton('app-button', 'Click Me', 'btn-primary');
+        const button = createInPageButton('action-btn', 'Click Me', 'btn-primary');
         mainContent.appendChild(button);
     }
     validateLandmarkStructure();
@@ -115,7 +110,7 @@ function initializeApp() {
 
 function function3(input) {
     if (typeof input === 'string') {
-        return input.trim().toLowerCase();
+        return input.toUpperCase();
     }
     return input;
 }
@@ -124,7 +119,7 @@ function function3(input) {
 
 function getCurrentLanguageSetting() {
     // Assuming the language setting is stored in a cookie named 'language'
-    const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('language='));
+    const cookie = document.cookie.split(';').find(c => c.trim().startsWith('language='));
     if (cookie) {
         const [_, value] = cookie.split('=');
         return value;
@@ -143,6 +138,3 @@ function harvestResources() {
 
 // Preserve any existing exports here
 export { createInPageButton, validateLandmarkStructure, implementUpgrade, function3, initializeApp };
-```
-
-This code keeps both changes from the different branches and avoids functional redundancies. This code also resolves the Git conflict by merging the changes and properly formatting the code according to the provided style.

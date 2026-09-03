@@ -194,4 +194,5 @@ module.exports = {
   fixDependencyGraphAria,
   addSvgAccessibleName,
   ensureElementIdOrigin,
+  renderAdditionalContent,
 };

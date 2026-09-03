@@ -367,10 +367,9 @@ function ensureUniqueLandmarks() {
     
     // Main landmarks should be unique
     if (identifier === 'main' || identifier === 'MAIN') {
-      if (landmarkCounts['main'] > 0) {
+      landmarkCounts['main'] = (landmarkCounts['main'] || 0) + 1;
+      if (landmarkCounts['main'] > 1) {
         errors.push(`Duplicate main landmark found. Only one main landmark should exist.`);
-      } else {
-        landmarkCounts['main'] = (landmarkCounts['main'] || 0) + 1;
       }
     }
   });

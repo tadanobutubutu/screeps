@@ -16,7 +16,8 @@ function handleCredentialResponse(credential) {
     // Handle attestation response (from registration)
     if (response.attestationObject) {
         const attestationBuffer = response.attestationObject;
-        const attestationObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(attestationBuffer)));
+        // Fixed syntax: use spread operator with String.fromCharCode
+        const attestationObj = JSON.parse(String.fromCharCode(...new Uint8Array(attestationBuffer)));
 
         console.log('Credential registered successfully');
         console.log('Credential ID:', credential.id);
@@ -188,9 +189,10 @@ function addAriaToFormControls() {
     // Implementation to add ARIA attributes to form controls
 }
 
-function ensureUniqueLandmarks() {
-    // Implementation to ensure unique landmarks
-}
+// First ensureUniqueLandmarks definition (empty) removed to avoid duplicate
+// function ensureUniqueLandmarks() {
+//     // Implementation to ensure unique landmarks
+// }
 
 function fixFakeLinkIssues() {
     // Implementation to fix 1 fake link issue

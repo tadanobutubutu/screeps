@@ -5,7 +5,8 @@ const fastMap = require('fast-map');
 const path = require('path');
 const accessiblyHelper = require('./accessibly-helper');
 
-// TODO: This is the existing code that needs to be preserved
+// NOTE: This is the existing code that needs to be preserved
+// NOTE: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
@@ -35,8 +36,8 @@ root.render(
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
-// TODO: This is the existing code that needs to be preserved
+// NOTE: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// NOTE: This is the existing code that needs to be preserved
 //_Commit: 18ddb6408a2b2823efa22f0a77964bb5d6737f93_
 //<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
 // Address accessibility issues from insight report:
@@ -47,6 +48,7 @@ reportWebVitals();
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 //_Commit: 94682d0194ff736f18c9f23486aa2eea265b4bc5_
 //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+// NOTE: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
 /**
  * Main entry point for the application

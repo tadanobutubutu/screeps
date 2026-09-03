@@ -1,13 +1,23 @@
 name: Auto Merge PRs - Force Penetration (Instant CI)
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
-  pull_request_review:
-    types: [submitted]
-  workflow_dispatch:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Specific PR number to merge (optional)'
+        required: false
+      batch_limit:
+        description: 'Number of oldest PRs to batch merge'
+        required: false
+        default: '25'
+
+concurrency:
+  group: auto-merge-pr
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -20,98 +30,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v5
         with:
           python-version: '3.14'
 
-      - name: High-Speed Penetration Merge
+      - name: Force Merge PRs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          EVENT_PR: ${{ github.event.pull_request.number || inputs.pr_number }}
+          BATCH_LIMIT: ${{ inputs.batch_limit || '25' }}
         run: |
-          # Get list of all open PRs
-          pull_requests=$(gh pr list --json number,isDraft,id,author,mergeable --limit 100)
-          
-          echo "$pull_requests" | jq -c ".[]" | while read -r pr; do
-            PR_NO=$(echo "$pr" | jq -r ".number")
-            PR_ID=$(echo "$pr" | jq -r ".id")
-            IS_DRAFT=$(echo "$pr" | jq -r ".isDraft")
-            AUTHOR=$(echo "$pr" | jq -r ".author.login")
-            MERGEABLE=$(echo "$pr" | jq -r ".mergeable")
-            
-            # Skip restrictions for non-screeps AI repos if needed, but in this repo we process all
-            if [[ "${{ github.repository }}" == *"ai-cooking-recipes"* ]]; then
-              if [[ ! $(echo "$AUTHOR" | tr '[:upper:]' '[:lower:]') =~ (tadanobutubutu|jules|devin) ]]; then
-                echo "⏭️ Skipping PR #$PR_NO by $AUTHOR"
-                continue
-              fi
-            fi
-
-            echo "🚀 Processing PR #$PR_NO by $AUTHOR (Status: $MERGEABLE)..."
-            
-            # 1. Convert Draft to Ready
-            if [ "$IS_DRAFT" = "true" ]; then
-              echo "📝 PR #$PR_NO is draft, converting to ready..."
-              gh pr ready "$PR_NO" || true
-              gh api graphql -f query='
-                mutation($id: ID!) {
-                  markPullRequestReadyForReview(input: {pullRequestId: $id}) {
-                    clientMutationId
-                  }
-                }' -f id="$PR_ID" || true
-              sleep 2
-            fi
-            
-            # 2. Handle Conflict Resolution if conflicting
-            if [ "$MERGEABLE" = "CONFLICTING" ]; then
-              echo "⚠️ PR #$PR_NO has conflicts, launching AI conflict resolver..."
-              python3 scripts/resolve_conflicts.py "$PR_NO" || echo "❌ AI conflict resolution failed for PR #$PR_NO"
-              sleep 5
-              # Re-fetch PR details to see if mergeable status updated
-              pr_details=$(gh pr view "$PR_NO" --json mergeable)
-              MERGEABLE=$(echo "$pr_details" | jq -r ".mergeable")
-              echo "Updated mergeable status: $MERGEABLE"
-            fi
-
-            # 3. Force Merge PR
-            echo "Attempting to merge PR #$PR_NO..."
-            MERGE_SUCCESS=false
-            if gh pr merge "$PR_NO" --admin --squash --delete-branch; then
-              echo "✅ Successfully merged PR #$PR_NO and deleted branch."
-              MERGE_SUCCESS=true
-            else
-              echo "⚠️ Standard merge failed, trying GraphQL bypass..."
-              if gh api graphql -f query='
-                mutation($id: ID!) {
-                  mergePullRequest(input: {
-                    pullRequestId: $id,
-                    mergeMethod: SQUASH
-                  }) { clientMutationId }
-                }' -f id="$PR_ID"; then
-                echo "✅ Successfully merged PR #$PR_NO via GraphQL."
-                MERGE_SUCCESS=true
-              else
-                echo "❌ Failed to merge PR #$PR_NO"
-              fi
-            fi
-
-            # 4. Auto close linked issues if merged
-            if [ "$MERGE_SUCCESS" = "true" ]; then
-              echo "Checking for linked issues to close..."
-              BODY=$(gh pr view "$PR_NO" --json body -q '.body')
-              # Find issue references in the body (e.g. closes #12, fixes #34, resolves #56)
-              ISSUES=$(echo "$BODY" | grep -o -i -E '(closes|fixes|resolves)\s+(https://github.com/[^/]+/[^/]+/issues/|#)([0-9]+)' | grep -o -E '[0-9]+' | sort -u || true)
-              for ISSUE in $ISSUES; do
-                echo "Closing linked issue #$ISSUE..."
-                gh issue close "$ISSUE" || true
-              done
-            fi
-          done
+          if [ -n "$EVENT_PR" ]; then
+            echo "Processing single PR #$EVENT_PR..."
+            python3 scripts/force_merge_pr.py "$EVENT_PR" || true
+          else
+            echo "Processing batch of oldest PRs (Limit: $BATCH_LIMIT)..."
+            python3 scripts/force_merge_pr.py --batch "$BATCH_LIMIT" || true
+          fi

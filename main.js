@@ -21,7 +21,7 @@ export function myNewFunction() {
 }
 
 // REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html) {
+function addLangAttributeToHtmlString(html) {
   if (typeof html !== 'string') return html;
   return html.replace(/<html([^>]*)>/i, (match, attrs) => {
     if (/\blang=/i.test(match)) return match;
@@ -46,7 +46,7 @@ const dependencyGraph = document.getElementById('dependencyGraph');
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...)
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -429,16 +429,6 @@ const accessibilityUtils = {
     }
 };
 
-// Export the report generation function
-module.exports = {
-  generateAccessibilityReport: generateAccessibilityReport,
-  addressAccessibilityIssues,
-  getLangAttribute,
-  createInPageButton,
-  a11y,
-  accessibilityUtils
-};
-
 // Initialize the application with accessibility improvements
 function initialize() {
     // Ensure the dependencyGraph container has a proper ARIA role
@@ -467,7 +457,28 @@ root.render(
 
 reportWebVitals();
 
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
+export { 
+  createInPageButton, 
+  validateLandmarkStructure, 
+  addLangAttribute, 
+  fixTableStructure, 
+  generateAccessibilityReport,
+  addLangAttributeToHtmlString,
+  validateTableAccessibility,
+  validateTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  addressAccessibilityIssues,
+  getLangAttribute,
+  accessibilityUtils
+};
 
 // Initialize after React render to ensure DOM is updated
 initialize();

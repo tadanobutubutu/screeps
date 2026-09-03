@@ -135,6 +135,15 @@ function implementAccessibilityFixesFromReport (container, report = {}) {
 
   // Handle focus trapping for keyboard navigation
   trapFocus(container);
+
+  // Implement calculateDiscount function
+  function calculateDiscount(originalPrice, discountPercentage) {
+    if (discountPercentage < 0 || discountPercentage > 100) {
+      throw new Error('Invalid discount percentage');
+    }
+    const discountAmount = (originalPrice * discountPercentage) / 100;
+    return originalPrice - discountAmount;
+  }
 }
 
 function log(message) {

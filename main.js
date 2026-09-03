@@ -120,6 +120,20 @@ function addressAccessibilityIssues() {
   }
 }
 
+function function3() {
+  // Implement new function3 logic here
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    const main = document.createElement('main');
+    const container = document.querySelector('div.container') || document.body.firstElementChild;
+    if (container) {
+      main.appendChild(container.cloneNode(true));
+      document.body.insertBefore(main, document.body.firstChild);
+    }
+  }
+  return mainElement || document.querySelector('main');
+}
+
 // New function or changes requested in the issue
 function wrapContentWithMain() {
   const contentToWrap = document.querySelector('div.container'); // Assuming the primary content is within a div with class 'container'
@@ -133,6 +147,21 @@ function wrapContentWithMain() {
 // Call the function to wrap the content with <main> in browser environment
 if (typeof window !== 'undefined') {
   wrapContentWithMain();
+}
+
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.querySelector('div.container');
+  if (primaryContent) {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(primaryContent);
+    document.body.insertBefore(mainElement, document.body.firstChild);
+    return mainElement;
+  }
+  return null;
+}
+
+function main() {
+  return document.querySelector('main') || document.createElement('main');
 }
 
 // ... (Preserve all existing code, exports, and functions)
@@ -206,5 +235,6 @@ module.exports = {
   checkLandmarkElement,
   landmarkStructureCheck,
   wrapPrimaryContentInMain,
-  main
+  main,
+  function3
 };

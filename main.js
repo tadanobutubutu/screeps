@@ -846,6 +846,11 @@ function focusTrap(container) {
   // Implementation placeholder
 }
 
+function navigate() {
+  // Implementation placeholder for navigation function
+  return main.navigate();
+}
+
 // Export for use in other modules
 module.exports = {
     ...main,

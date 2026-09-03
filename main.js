@@ -72,6 +72,7 @@ function validateTableAccessibility(table) {
 
   const headers = table.querySelectorAll('th');
   headers.forEach((th, index) => {
+    // TODO: This is the existing code that needs to be preserved
     if (!th.hasAttribute('scope')) {
       errors.push(`Table header at index ${index} is missing scope attribute`);
     }

@@ -156,7 +156,6 @@ const report = accessibilityReport.issues.map(issue => ({
 }));
 
 return report;
-}
 
 // Score calculation
 function calculateAccessibilityScore(fixedIssues) {

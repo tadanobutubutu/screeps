@@ -19,8 +19,6 @@ const {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
@@ -41,22 +39,9 @@ const {
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
-  addLandmarkRegions,
   ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixLandmarkIssues,
   validateTableAccessibility,
-  validateTableStructure,
   initializeAccessibility,
   renderIndex,
   newFunction,
@@ -66,7 +51,7 @@ const {
 } = main
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
+const dependencyGraph = document.querySelector('[data-dependency-graph]')
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
@@ -81,8 +66,8 @@ if (dependencyGraph) {
   }
 
   // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph');
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph'
   }
 }
 
@@ -91,17 +76,18 @@ function addAccessibleName (svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
+  const parser = new DOMParser()
+  const svg = parser.parseFromString(svgString, 'image/svg+xml')
   const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.querySelector('title')) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
   }
-  return new XMLSerializer().serializeToString(svg)
+  const serializer = new XMLSerializer()
+  return serializer.serializeToString(svg)
 }
 
 // Example usage of the function
-const originalSvgString =
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**
@@ -165,7 +151,7 @@ function validateLandmarkStructure (landmark) {
  * @returns {string} The accessible name of the SVG.
  */
 function getSvgAccessibleName (svg) {
-  return svg && (svg.getAttribute('aria-label') || svg.getAttribute('title')) || ''
+  return (svg && svg.querySelector('title') && svg.querySelector('title').textContent) || svg.getAttribute('aria-label') || svg.getAttribute('title') || ''
 }
 
 /**
@@ -188,7 +174,7 @@ function createInPageButton (label, onClick) {
 function newFocusTrap (element) {
   if (!element) return
   const focusableElements = element.querySelectorAll(
-    'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+    'a[href], button, textarea, input[type="text"], input[type="number"], select'
   )
   if (focusableElements.length === 0) return
 
@@ -212,37 +198,58 @@ function newFocusTrap (element) {
   })
 }
 
-function validateTableStructure(container) {
-  return validateTableStructureForAccessibility(container);
+/**
+ * Validates table structure for a given container
+ * @param {HTMLElement} container - The container element to validate
+ * @returns {boolean} True if table structure is valid, false otherwise
+ */
+function validateTableStructureContainer (container) {
+  if (!container) return false
+  const tables = container.querySelectorAll('table')
+  return tables.length === 0 || Array.from(tables).every(table => {
+    const headers = table.querySelectorAll('th')
+    const rows = table.querySelectorAll('tr')
+    return headers.length > 0 && rows.length > 0
+  })
 }
 
-function validateHeadingHierarchy(headings) {
+/**
+ * Validates heading hierarchy
+ * @param {Array} headings - Array of heading elements
+ * @returns {boolean} True if heading hierarchy is valid, false otherwise
+ */
+function validateHeadingHierarchy (headings) {
   // Implementation placeholder - function to be implemented
   return true
 }
 
-function ensureHeadingHierarchy(container) {
-  if (!container) return null;
+/**
+ * Ensures proper heading hierarchy in a container
+ * @param {HTMLElement} container - The container element
+ * @returns {HTMLElement|null} The container with corrected heading hierarchy
+ */
+function ensureHeadingHierarchy (container) {
+  if (!container) return null
 
-  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  let previousLevel = 0;
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  let previousLevel = 0
 
   headings.forEach(heading => {
-    const currentLevel = parseInt(heading.tagName.substring(1), 10);
+    const currentLevel = parseInt(heading.tagName.charAt(1))
     if (previousLevel > 0 && currentLevel - previousLevel > 1) {
       // Fix skipped heading levels by promoting or demoting as needed
-      const correctedLevel = previousLevel + 1;
-      const newHeading = document.createElement(`h${correctedLevel}`);
-      newHeading.innerHTML = heading.innerHTML;
-      newHeading.className = heading.className;
-      heading.parentNode.replaceChild(newHeading, heading);
-      previousLevel = correctedLevel;
+      const correctedLevel = previousLevel + 1
+      const newHeading = document.createElement(`h${correctedLevel}`)
+      newHeading.innerHTML = heading.innerHTML
+      newHeading.className = heading.className
+      heading.parentNode.replaceChild(newHeading, heading)
+      previousLevel = correctedLevel
     } else {
-      previousLevel = currentLevel;
+      previousLevel = currentLevel
     }
-  });
+  })
 
-  return container;
+  return container
 }
 
 /**
@@ -250,10 +257,11 @@ function ensureHeadingHierarchy(container) {
  * @param {Object} additionalData - Additional data for rendering
  * @returns {string} Rendered additional content HTML
  */
-function renderAdditionalContent(additionalData) {
+function renderAdditionalContent (additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
+  if (!additionalData) return ''
+  return `<div class="additional-content">${additionalData.content || ''}</div>`
 }
 
 module.exports = {
@@ -276,8 +284,6 @@ module.exports = {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
@@ -301,6 +307,7 @@ module.exports = {
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,
+  validateTableStructureContainer,
   initializeAccessibility,
   renderIndex,
   newFunction,
@@ -308,4 +315,4 @@ module.exports = {
   ensureHeadingHierarchy,
   renderAdditionalContent,
   newFocusTrap
-};
+}

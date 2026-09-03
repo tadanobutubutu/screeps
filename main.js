@@ -44,8 +44,7 @@ const countDependencies = () => {
   if (error) {
     return {
       internalCount,
-      external,
-      error
+      external
     };
   } else {
     return {

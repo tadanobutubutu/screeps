@@ -8,7 +8,6 @@ import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-// TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
@@ -20,8 +19,6 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
-
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
 /**
  * Gets the lang attribute for the HTML element

@@ -7,6 +7,8 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 
+// TODO: This is the existing code that needs to be preserved
+
 /**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')

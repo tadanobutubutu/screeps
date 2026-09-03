@@ -379,13 +379,13 @@ function initialize() {
 
     // Address accessibility issues from insight report:
     // Ensure the dependencyGraph container has a proper ARIA role
-    // (This comment remains as-is)
-    //_Commit: eef4b6be04a5e2cd61b7543cfe2dff2da0857ca2_
-    //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+    //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+    //<!-- todo-hash: 4798ccecb0ac0a8f11ea9eebbacc3bee5d9b2 -->
     //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
     //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    //_Commit: 62d675a958b864c43ad4471b12c4c40c5570b3f7_
-    //<!-- todo-hash: b713d536f0ce67bf9eb8012f08502c264300052f -->
+    //_Commit: fa9b7e33f0cdeb6096b301e6b8bb56dc7873f56e_
+    //<!-- todo-hash: 3eddfd1e15d7d6ffc2416c3cad0dbbe05524d4ed -->
+    //_Commit: 064f7a7fc16a0e477f91974e6c73241ed74f75ab_
 
     // Address accessibility issues
     addressAccessibilityIssues();

@@ -101,13 +101,13 @@ const XYZ = function () {
 // Add middleware for JSON parsing
 app.use(express.json());
 
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
+// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e88
 
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs,
 // count dependencies, and address accessibility issues from insight report
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
+// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e88
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888

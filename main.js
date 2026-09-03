@@ -8,6 +8,39 @@ function renderDependencyGraph(deps, options = {}) {
     // ... (Updated code goes here)
 }
 
+function renderIndex(options = {}) {
+    // Render the index page using the imported content generator
+    // This function preserves the added functionality from the original commitment
+    return indexContent(options);
+}
+
+function createInPageButtons(buttons) {
+    // Create in-page navigation buttons preserving the added functionality
+    if (!Array.isArray(buttons)) {
+        buttons = [];
+    }
+    const container = document.createElement('div');
+    container.className = 'in-page-buttons';
+    
+    buttons.forEach(btn => {
+        const button = document.createElement('button');
+        button.textContent = btn.text || btn.label || '';
+        button.className = btn.className || 'in-page-btn';
+        if (btn.onClick) {
+            button.addEventListener('click', btn.onClick);
+        }
+        if (btn.id) {
+            button.id = btn.id;
+        }
+        if (btn.ariaLabel) {
+            button.setAttribute('aria-label', btn.ariaLabel);
+        }
+        container.appendChild(button);
+    });
+    
+    return container;
+}
+
 class ScreetsBot {
   // ... (The rest of the class definition remains the same as in the original conflict branch)
 

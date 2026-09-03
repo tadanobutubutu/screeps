@@ -8,7 +8,6 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
 // - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), fixFakeLinks(), createAccessibleLink() and addFixLandmarkIssues())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-// todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
 
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
@@ -45,16 +44,6 @@ const appData = {
 };
 
 // const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
-
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by fixTableStructureIssues() and fixTableHeaderCellScope())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), addLandmarkRolesAndFixIssues() and fixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by addSvgAccessibleNames())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 function getLangAttribute() {
     // Implementation to get language attribute

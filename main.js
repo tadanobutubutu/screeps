@@ -164,6 +164,23 @@ function setSvgAttributes(svg, name) {
   svg.setAttribute('aria-label', name);
 }
 
+// TODO: Implement this function for adding SVG accessibility props
+// Function to add SVG accessibility props
+function addSvgAccessibilityProps(svg) {
+  if (!svg || !(svg instanceof Element) || svg.tagName.toLowerCase() !== 'svg') {
+    return false;
+  }
+  
+  // Skip if already has proper attributes
+  if (svg.getAttribute('role') === 'img' && svg.hasAttribute('aria-label')) {
+    return true;
+  }
+  
+  const name = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, name);
+  return true;
+}
+
 function ensureUniqueLandmarks() {
   const mainLandmarks = document.querySelectorAll('[role="main"], main');
   if (mainLandmarks.length > 1) {
@@ -252,7 +269,7 @@ function generateAccessibilityReport() {
     }
   });
 
-  // Check for buttons without accessible names
+  // Check for buttons without accessible name
   const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
@@ -266,7 +283,7 @@ function generateAccessibilityReport() {
     }
   });
 
-  // Check for links without accessible names
+  // Check for links without accessible name
   const links = document.querySelectorAll('a');
   links.forEach((link, index) => {
     const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
@@ -436,7 +453,8 @@ module.exports = {
   getLangAttribute,
   createInPageButton,
   a11y,
-  accessibilityUtils
+  accessibilityUtils,
+  addSvgAccessibilityProps
 };
 
 // Initialize the application with accessibility improvements
@@ -467,7 +485,7 @@ root.render(
 
 reportWebVitals();
 
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
+export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport, addSvgAccessibilityProps };
 
 // Initialize after React render to ensure DOM is updated
 initialize();

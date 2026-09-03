@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from ...
 import a11y from './AccessibilityUtilities';
 
 import { axe } from 'axe-core';
@@ -20,6 +20,21 @@ const initialize = () => {
     addMainLandmark();
 
     // Existing initialization logic preserved
+};
+
+// New functionality: Validate current page accessibility
+const validateCurrentPageAccessibility = async () => {
+    return new Promise((resolve) => {
+        axe.run(document, (results) => {
+            const { violations, passes } = results;
+            const accessibilityReport = {
+                violations: violations.length,
+                passes: passes.length,
+                timestamp: new Date().toISOString()
+            };
+            resolve(accessibilityReport);
+        });
+    });
 };
 
 // Adapted main execution
@@ -46,6 +61,7 @@ export {
     validateLandmark,
     validateLandmarkAttributes,
     validateLandmarkStructure,
+    validateCurrentPageAccessibility,
     initialize
 };
 
@@ -55,3 +71,4 @@ export {
 // Both sets of functions are imported separately and then combined by exporting them all together.
 // Meanwhile, the existing accessibility initialization logic was integrated into the 'initialize' function.
 // This way, both sets of functionality have been preserved without conflicting with each other.
+// Additionally, the new 'validateCurrentPageAccessibility' function has been added to provide page accessibility validation.

@@ -1,6 +1,6 @@
-// TODO: This is the existing code that needs to be preserve
+// Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
-const main = require('./utilities')
+import main from './utilities'
 
 const {
   createInPageButton,
@@ -283,4 +283,71 @@ export function addLandmarkRegions(container) {
     { selector: 'nav', role: 'navigation', label: 'Navigation' },
     { selector: 'main', role: 'main', label: 'Main content' },
     { selector: 'aside', role: 'complementary', label: 'Complementary content' },
-    { selector: 'footer', role: 'contentinfo', label: '
+    { selector: 'footer', role: 'contentinfo', label: 'Site footer' }
+  ]
+  
+  landmarks.forEach(landmark => {
+    let element = container.querySelector(landmark.selector)
+    if (!element) {
+      element = container.querySelector(`[role="${landmark.role}"]`)
+    }
+    
+    if (element && !element.getAttribute('aria-label') && !element.getAttribute('role')) {
+      element.setAttribute('aria-label', landmark.label)
+    }
+  })
+  
+  return container
+}
+
+/**
+ * REACT_025: Ensure unique landmarks
+ */
+export function ensureUniqueLandmarks(container) {
+  if (!container) return null
+  
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo']
+  
+  landmarkRoles.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"], ${role}`)
+    elements.forEach((el, index) => {
+      if (index > 0 && !el.getAttribute('aria-label')) {
+        const count = index + 1
+        el.setAttribute('aria-label', `${role} ${count}`)
+      }
+    })
+  })
+  
+  return container
+}
+
+/**
+ * REACT_025: Unique landmarks helper
+ */
+export function uniqueLandmarks(container) {
+  return ensureUniqueLandmarks(container)
+}
+
+/**
+ * REACT_041: Add accessible names to SVGs
+ */
+export function addSvgAccessibleNames(svgElement, accessibleName) {
+  if (!svgElement) return null
+  
+  let title = svgElement.querySelector('title')
+  if (!title) {
+    title = document.createElement('title')
+    svgElement.insertBefore(title, svgElement.firstChild)
+  }
+  title.textContent = accessibleName
+  
+  const titleId = `svg-title-${Math.random().toString(36).substr(2, 9)}`
+  title.setAttribute('id', titleId)
+  svgElement.setAttribute('aria-labelledby', titleId)
+  
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img')
+  }
+  
+  return svgElement
+}

@@ -6,6 +6,8 @@
 // REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
 // REACT_036: Fix 1 fake link issue
 
+// TODO: This is the existing code that needs to be preserve
+
 // REACT_015: Add lang attribute to the <html> element
 function addLangAttribute(html) {
     if (typeof html !== 'string') return html;
@@ -287,3 +289,17 @@ function parseColor(colorString) {
     }
 
     // Handle named colors (limited support)
+    return null;
+}
+
+// Helper function to calculate relative luminance
+function calculateLuminance(rgb) {
+    const sRGB = [rgb.r / 255, rgb.g / 255, rgb.b / 255];
+    const channel = sRGB.map((val) => {
+        if (val <= 0.03928) {
+            return val / 12.92;
+        }
+        return Math.pow((val + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * channel[0] + 0.7152 * channel[1] + 0.0722 * channel[2];
+}

@@ -6,6 +6,12 @@ const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
 
+// TODO: This is the existing code that needs to be preserved
+// Line 7
+// Line 8
+// Line 9
+// Line 10
+
 let dependencyGraph = {};
 let UserSafety = "unsafe";
 let SafetyCategories = "Unauthorized Advice";
@@ -43,11 +49,11 @@ const {
   validateInput, processData, formatResponse 
 } = require('./utils/validators');
 const { calculateSum } = require('./utils');
-const { getLangAttribute, getFullLangAttribute } = require('./utils/accessibilityUtils');
-const { validateTableAccessibility, validateTableStructure } = require('./utils/tableAccessibilityUtils');
-const { validateLandmark, validateLandmarkStructure } = require('./utils/landmarkUtils');
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
-const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
+const { getLangAttribute: getLangAttributeUtil, getFullLangAttribute: getFullLangAttributeUtil } = require('./utils/accessibilityUtils');
+const { validateTableAccessibility, validateTableStructure: validateTableStructureUtil } = require('./utils/tableAccessibilityUtils');
+const { validateLandmark: validateLandmarkUtil, validateLandmarkStructure: validateLandmarkStructureUtil } = require('./utils/landmarkUtils');
+const { getSvgAccessibleName, setSvgAttributes: setSvgAttributesUtil } = require('./utils/svgAccessibilityUtils');
+const { validateLinkAccessibility: validateLinkAccessibilityUtil, handleFakeLinks: handleFakeLinksUtil } = require('./utils/linkAccessibilityUtils');
 const { checkLinkAccessibility } = require('./utils/linkAccessibilityUtils');
 const { CONFIG: CONFIG_UTILS } = require('./utils/constants');
 
@@ -210,7 +216,7 @@ function ensureElementHasId(element, id) {
   return element;
 }
 
-function setSvgAttributes(svgElement, name) {
+function setSvgAttributesLocal(svgElement, name) {
   if (!svgElement || svgElement.tagName !== 'svg') {
     return false;
   }
@@ -233,7 +239,7 @@ function setSvgAttributes(svgElement, name) {
   return true;
 }
 
-function validateLinkAccessibility(link) {
+function validateLinkAccessibilityLocal(link) {
   const issues = [];
   if (!link) {
     return { valid: false, issues: ['Link element is required'] };
@@ -249,7 +255,7 @@ function validateLinkAccessibility(link) {
   return { valid: issues.length === 0, issues };
 }
 
-function handleFakeLinks(container) {
+function handleFakeLinksLocal(container) {
   const issues = [];
   const elements = container ? container.querySelectorAll('a, button') : document.querySelectorAll('a, button');
   elements.forEach((element, index) => {
@@ -265,7 +271,7 @@ function handleFakeLinks(container) {
 }
 
 function fixFakeLink() {
-  handleFakeLinks();
+  handleFakeLinksLocal();
 }
 
 function addLandmarkRegions() {
@@ -443,11 +449,11 @@ function addLangAttribute(element) {
   }
 }
 
-function getFullLangAttribute() {
+function getFullLangAttributeLocal() {
   return document.documentElement.lang || 'en-US';
 }
 
-function getLangAttribute() {
+function getLangAttributeLocal() {
   return document.documentElement.lang;
 }
 
@@ -456,7 +462,7 @@ function fixTableStructure() {
   tables.forEach(table => validateTableStructure(table));
 }
 
-function validateTableStructure(table) {
+function validateTableStructureLocal(table) {
   const issues = [];
   if (!table) {
     return { valid: false, issues: ['Table element is required'] };

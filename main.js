@@ -1,16 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
 // (This comment remains as-is)
-=======
-// _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
-// <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
->>>>>>> origin/main
 
 // _Commit: 8f0d48f8354074f769cfe667f27609b1d99a444c_
 // <!-- todo-hash: 469dfeab59b4116886abe058392a60b81da4857c -->
@@ -38,12 +27,9 @@ import {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs
-<<<<<<< HEAD
-} from './AccessibilityHelpers'
+} from './AccessibilityHelpers';
 
 const main = require('./utilities');
-=======
-} from './AccessibilityHelpers';
 
 // TODO: Create or update the affected functions to be accessible
 // The functions below have been created to match the exported names
@@ -68,6 +54,155 @@ const {
   focusTrap,
   checkAccessibility
 } = main
+
+/**
+ * Create an accessible in-page button
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {Function} options.onClick - Click handler function
+ * @param {string} options.id - Button ID
+ * @param {string} options.className - Additional CSS classes
+ * @param {string} options.ariaLabel - Accessible label for screen readers
+ * @param {boolean} options.disabled - Whether button is disabled
+ * @param {string} options.title - Title attribute for tooltip
+ * @param {string} options.icon - Icon HTML to include in button
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(options = {}) {
+  const {
+    text = '',
+    onClick = null,
+    id = `in-page-btn-${Math.random().toString(36).substr(2, 9)}`,
+    className = '',
+    ariaLabel = '',
+    disabled = false,
+    title = '',
+    icon = ''
+  } = options;
+  
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.setAttribute('id', id);
+  button.setAttribute('role', 'button');
+  
+  if (className) {
+    button.className = className;
+  }
+  
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  
+  if (title) {
+    button.setAttribute('title', title);
+  }
+  
+  if (disabled) {
+    button.setAttribute('disabled', 'disabled');
+    button.setAttribute('aria-disabled', 'true');
+  }
+  
+  if (icon) {
+    button.innerHTML = icon;
+    const span = document.createElement('span');
+    span.textContent = text;
+    if (ariaLabel) {
+      span.setAttribute('class', 'sr-only');
+    } else {
+      span.setAttribute('aria-hidden', 'true');
+    }
+    button.appendChild(span);
+  } else {
+    button.textContent = text;
+  }
+  
+  if (onClick && !disabled) {
+    button.addEventListener('click', onClick);
+    
+    button.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClick(e);
+      }
+    });
+  }
+  
+  return button;
+}
+
+/**
+ * Create an accessible web resource button
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {string} options.href - URL to navigate to
+ * @param {string} options.id - Button ID
+ * @param {string} options.className - Additional CSS classes
+ * @param {string} options.ariaLabel - Accessible label for screen readers
+ * @param {boolean} options.disabled - Whether button is disabled
+ * @param {string} options.title - Title attribute for tooltip
+ * @param {string} options.target - Link target (_blank, _self, etc.)
+ * @param {string} options.rel - Relationship attribute for security
+ * @param {boolean} options.external - Whether link opens in new tab
+ * @returns {HTMLElement} The created anchor element styled as button
+ */
+function createWebResourceButton(options = {}) {
+  const {
+    text = '',
+    href = '#',
+    id = `web-resource-btn-${Math.random().toString(36).substr(2, 9)}`,
+    className = '',
+    ariaLabel = '',
+    disabled = false,
+    title = '',
+    target = '',
+    rel = '',
+    external = false
+  } = options;
+  
+  const button = document.createElement('a');
+  button.setAttribute('id', id);
+  button.setAttribute('role', 'button');
+  
+  if (className) {
+    button.className = className;
+  }
+  
+  if (href && !disabled) {
+    button.setAttribute('href', href);
+  }
+  
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  
+  if (title) {
+    button.setAttribute('title', title);
+  }
+  
+  if (disabled) {
+    button.setAttribute('aria-disabled', 'true');
+    button.removeAttribute('href');
+    button.style.cursor = 'not-allowed';
+    button.style.pointerEvents = 'none';
+  }
+  
+  if (external || target === '_blank') {
+    button.setAttribute('target', '_blank');
+    if (!rel) {
+      button.setAttribute('rel', 'noopener noreferrer');
+    }
+  } else if (target) {
+    button.setAttribute('target', target);
+  }
+  
+  if (rel) {
+    button.setAttribute('rel', rel);
+  }
+  
+  button.textContent = text;
+  
+  return button;
+}
 
 // Implement the function for addressing accessibility issues from insight report
 function newFunction () {
@@ -194,7 +329,6 @@ function checkAccessibilityForReport (content) {
   // For now, it just returns an empty array
   return []
 }
->>>>>>> origin/main
 
 // New rendering function
 function renderGraphIndex(content, options = {}) {
@@ -495,7 +629,6 @@ const accessibilityUtils = {
   },
   
   announceToScreenReader: function(message, priority) {
-<<<<<<< HEAD
     if (priority === undefined) {
       priority = 'polite'
     }
@@ -514,9 +647,6 @@ const accessibilityUtils = {
     }, 1000)
   }
 };
-=======
-    if (
->>>>>>> origin/main
 
 // Create announcer function
 function createAnnouncer() {
@@ -692,7 +822,10 @@ module.exports = {
   initializeAccessibility,
   getActiveSessionsCount,
   validateSession,
-  handleCredentialResponse
+  handleCredentialResponse,
+  // Export the newly implemented button creation functions
+  createInPageButton,
+  createWebResourceButton
 }
 
 // New function or changes requested in the issue
@@ -709,195 +842,3 @@ function renderAdditionalContent (additionalData) {
 
 // Add the new function to the exports
 module.exports.renderAdditionalContent = renderAdditionalContent
->>>>>>> origin/main
-
-// Resolved file content begins here
-// TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
-// (This comment remains as-is)
-=======
-// _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
-// <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
->>>>>>> origin/main
-
-// _Commit: 8f0d48f8354074f769cfe667f27609b1d99a444c_
-// <!-- todo-hash: 469dfeab59b4116886abe058392a60b81da4857c -->
-
-const main = require('./utilities');
-
-// Import necessary dependencies
-import React from 'react';
-import { render } from 'react-dom';
-import {
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
-} from './AccessibilityHelpers';
-
-const main = require('./utilities');
-
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
-
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility
-} = main
-
-// Implement the function for addressing accessibility issues from insight report
-function newFunction () {
-  // TODO: Implement the new function as per the issue requirements
-}
-
-// Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport (container, report) {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0
-  }
-
-  if (!report || !report.issues) {
-    return fixes
-  }
-
-  // Add lang attribute to HTML element if missing
-  const htmlEl =
-        document.documentElement ||
-        (container.ownerDocument && container.ownerDocument.documentElement)
-  if (htmlEl && !htmlEl.getAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en')
-    fixes.langAdded = true
-  }
-
-  // Add main landmark if missing
-  const mainElement = container.querySelector('main')
-  if (!mainElement) {
-    const body = container.ownerDocument ? container.ownerDocument.body : document.body
-    if (body) {
-      const newMain = document.createElement('main')
-      while (body.firstChild) {
-        newMain.appendChild(body.firstChild)
-      }
-      body.appendChild(newMain)
-      fixes.mainLandmarkAdded = true
-    }
-  }
-
-  // Update the existing function using the new functions for rendering graph/index
-  renderDependencyGraphs(container)
-  fixButtonIdentifiers(container)
-  fixDependencyGraphAria(container)
-  ensureElementHasId(container)
-  addAriaLabel(container)
-  addMainLandmarkToIndex(container)
-
-  // Fix landmark issues
-  validateLandmark(container)
-  validateLandmarkStructure(container)
-  fixes.landmarksFixed++
-
-  // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg)
-    if (
-      accessibleName &&
-            !svg.getAttribute('aria-label') &&
-            !svg.querySelector('title')
-    ) {
-      svg.setAttribute('aria-label', accessibleName)
-      fixes.svgNamesAdded++
-    }
-  })
-
-  // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('[role="link"]:not([href])')
-  fakeLinks.forEach(link => {
-    link.setAttribute('href', '#' + (link.id || 'link'))
-    link.setAttribute('role', 'link')
-    fixes.fakeLinksFixed++
-  })
-
-  // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(container)
-  if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
-  }
-
-  // Implement focus trap for keyboard navigation
-  focusTrap(container)
-
-  if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info')
-  }
-
-  if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info')
-  }
-
-  // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container)
-  if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error')
-  }
-
-  const landmarkFixesCount = fixes.landmarksFixed || 0
-  if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
-  }
-
-  const svgFixes = fixes.svgNamesAdded || 0
-  if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
-  }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0
-  if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
-  }
-
-  return fixes
-}
-
-// Accessibility-related function to be added
-function checkAccessibilityForReport (content) {
-  // Placeholder for accessibility

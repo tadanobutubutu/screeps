@@ -155,6 +155,14 @@ function validateTableAccessibility(table) {
   const caption = table.querySelector('caption');
   const hasCaption = caption !== null;
   const headers = table.querySelectorAll('th');
+  const errors = [];
+
+  headers.forEach((th, index) => {
+    // TODO: This is the existing code that needs to be preserved
+    if (!th.hasAttribute('scope')) {
+      errors.push(`Table header at index ${index} is missing scope attribute`);
+    }
+  });
 
   const headerValidation = Array.from(headers).every(header => 
     header.hasAttribute('scope') && header.getAttribute('scope') !== ''

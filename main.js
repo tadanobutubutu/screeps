@@ -9,7 +9,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.id = buttonId;
     button.textContent = buttonText;
     button.className = buttonClass;
-    document.body.appendChild(button);
+    return button;
 }
 
 // Function to validate landmark structure for accessibility issues
@@ -18,13 +18,14 @@ function validateLandmarkStructure() {
     const missingLandmarks = [];
 
     requiredLandmarks.forEach(landmark => {
-        if (!document.querySelector(landmark)) {
+        const element = document.querySelector(landmark);
+        if (!element) {
             missingLandmarks.push(landmark);
         }
     });
 
     if (missingLandmarks.length > 0) {
-        console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
         return false;
     }
 
@@ -41,18 +42,34 @@ function generateAccessibilityReport() {
     // Example accessibility checks
     const landmarkCheck = validateLandmarkStructure();
     if (!landmarkCheck) {
-        report.errors.push('Invalid landmark structure detected.');
+        report.warnings.push('Invalid landmark structure detected.');
     }
 
     // Add more accessibility checks here
 
     // Generate the report content
     const reportContent = `Accessibility Report:
-    Warnings: ${report.warnings.join(', ')}
-    Errors: ${report.errors.join(', ')}`;
+    Warnings: ${report.warnings.length > 0 ? report.warnings.join(', ') : 'None'}
+    Errors: ${report.errors.length > 0 ? report.errors.join(', ') : 'None'}`;
 
     // Output the report content to the console
     console.log(reportContent);
+}
+
+// New function3 implementation
+function function3(data) {
+    if (!data || typeof data !== 'object') {
+        console.error('Invalid data provided to function3');
+        return null;
+    }
+
+    const results = {
+        processed: true,
+        timestamp: new Date().toISOString(),
+        summary: `Processed ${Object.keys(data).length} items`
+    };
+
+    return results;
 }
 
 // Preserve any existing exports here

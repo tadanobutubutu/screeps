@@ -163,9 +163,9 @@ const AddressabilityIssues = {
     });
   },
 
-  addLangAttribute(element, lang) {
+  addLangAttribute(element) {
     if (element) {
-      element.setAttribute('lang', lang);
+      element.setAttribute('lang', getLangAttribute(element));
     } else {
       const html = document.documentElement;
       if (!html.hasAttribute('lang')) {
@@ -438,7 +438,8 @@ fakeLinks.forEach((link) => {
 
 // Accessibility-focused implementation functions
 function countDependencies() {
-  // Implement function for counting dependencies with Node.js
+  // Implement function for counting dependencies with AddressabilityIssues
+  return AddressabilityIssues.countDependencies();
 }
 
 function handleCredentialResponse(response) {
@@ -456,6 +457,10 @@ function personName() {
 
 function validateTableStructure(table) {
   return { valid: true, error: null };
+}
+
+function validateTableAccessibility(table) {
+  return validateTableStructure(table);
 }
 
 function getSvgAccessibleName(svg) {

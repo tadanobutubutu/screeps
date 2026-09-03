@@ -249,7 +249,9 @@
       validateLandmark,
       validateLandmarkStructure,
       getSvgAccessibleName,
-      setSvgAttributes
+      setSvgAttributes,
+      scanAccessibility,
+      writeReport
     };
 
     // Initialize the application with accessibility improvements

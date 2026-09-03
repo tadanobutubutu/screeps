@@ -50,7 +50,7 @@ function handleCredentialResponse(credential) {
     return { success: false, error: 'Unknown credential response type' };
 }
 
-// TODO: Implement this function for creating in- page buttons
+// TODO: Implement this function for creating in-page buttons
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
     button.id = buttonId;

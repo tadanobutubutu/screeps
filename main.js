@@ -13,6 +13,63 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   return button;
 }
 
+const accessibilityUtils = {
+  initSkipLink,
+  trapFocus,
+  announceToScreenReader: originalAnnounceToScreenReader,
+  ensureElementId,
+
+  renderDependencyGraph,
+  renderIndex,
+  addAccessibleName,
+  handleCredentialResponse,
+  initAccessibility,
+  groupByCategory,
+  log,
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  exportUtilities,
+  harvest,
+  harvestSync,
+};
+
+// Utility functions for ensuring elements have IDs and adding labels
+const ensureElementIdFn = (element) => {
+  if (element && !element.id) {
+    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
+  }
+  return element;
+};
+
+const ensureElementHasIdFn = (element, prefix = 'element') => {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+};
+
+const wrapPrimaryContentInMain = () => {
+  // Check if a main element already exists
+  let mainElement = document.querySelector('main');
+
+  if (!mainElement) {
+    // If no main element exists, create one
+    mainElement = document.createElement('main');
+
+    // Find the primary content container (commonly #content, .content, #main, .main, article, [role="main"])
+    const contentSelectors = ['#content', '.content', '#main', '.main', 'article', '[role="main"]'];
+    let primaryContent = null;
+
+    for (const selector of contentSelectors) {
+      primaryContent = document.querySelector(selector);
+      if (primaryContent) {
+        break;
+      }
+    }
+  }
+};
+
 function function3(insightReport) {
   const results = {
     compliant: [],
@@ -331,3 +388,24 @@ function implementAccessibilityFixesFromReport(container, report) {
 
   return fixes;
 }
+
+module.exports = {
+  ...accessibilityUtils,
+  renderDependencyGraph: main.renderDependencyGraph || (() => {}),
+  renderIndex: main.renderIndex || (() => {}),
+  validateTableAccessibility,
+  validateTableStructure,
+  addAccessibleName: accessibilityUtils.addAriaLabel,
+  accessibilityUtils,
+  ensureElementId: ensureElementIdFn,
+  ensureElementHasId: ensureElementHasIdFn,
+  newFocusTrap,
+  addressAccessibilityIssues,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addSvgAccessibleName,
+  ensureElementIdOrigin,
+  renderAdditionalContent,
+  wrapPrimaryContentInMain,
+};

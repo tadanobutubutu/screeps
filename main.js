@@ -32,6 +32,12 @@ function helper(input) {
   return input ? input.toUpperCase() : '';
 }
 
+// New function3 logic implemented here
+function function3(...args) {
+  // Placeholder for actual logic; can be expanded based on requirements
+  return args.map(arg => arg.toString());
+}
+
 // Helper function to format dates
 function formatDate(date) {
   if (!(date instanceof Date)) {

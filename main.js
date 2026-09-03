@@ -350,7 +350,7 @@ function processLandmarks(landmarks) {
     }
 
     const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    const uniqueLandmarks = ensureUniqueLandmarksList(validLandmarks);
 
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
@@ -421,7 +421,38 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
 
 // Application main entry point
-const app = expressApp;
+const app = express();
 
 // Exports
-export { UserSafety, SafetyCategories, getDependencyGraph, getUserSafetyAdvice };
+module.exports = { 
+  UserSafety, 
+  SafetyCategories, 
+  getDependencyGraph, 
+  getUserSafetyAdvice, 
+  CONFIG, 
+  config, 
+  helper, 
+  formatDate, 
+  validateInput, 
+  processData, 
+  isValidLandmark, 
+  loadLandmarks, 
+  processLandmarks, 
+  sortLandmarks, 
+  getLandmarkById, 
+  ensureUniqueLandmarksList, 
+  initialize, 
+  initializeApp, 
+  fetchUser, 
+  clearCache, 
+  someFunction, 
+  accessiblyHelper,
+  generateAccessibilityReport,
+  renderFunction1,
+  renderFunction2,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  addressAccessibilityIssues
+};

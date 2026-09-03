@@ -151,6 +151,56 @@ const a11yStore = {
     });
   },
 
+  // New function to handle focus trap for keyboard navigation
+  newFocusTrap(element, { focusableElementsSelector }) {
+    const focusableElements = element.querySelectorAll(focusableElementsSelector);
+    const firstFocusableElement = focusableElements[0];
+    const lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+    let focusableElementsArray = Array.from(focusableElements);
+    let currentlyFocusedElement = focusableElementsArray[0];
+
+    const focusNext = (event) => {
+      event.preventDefault();
+      currentlyFocusedElement = focusableElementsArray[(focusableElementsArray.indexOf(currentlyFocusedElement) + 1) % focusableElementsArray.length];
+      currentlyFocusedElement.focus();
+    };
+
+    const focusPrevious = (event) => {
+      event.preventDefault();
+      currentlyFocusedElement = focusableElementsArray[(focusableElementsArray.indexOf(currentlyFocusedElement) - 1 + focusableElementsArray.length) % focusableElementsArray.length];
+      currentlyFocusedElement.focus();
+    };
+
+    const trapFocus = () => {
+      firstFocusableElement.focus();
+      lastFocusableElement.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab' && !e.shiftKey) {
+          focusNext(e);
+        } else if (e.key === 'Tab' && e.shiftKey) {
+          focusPrevious(e);
+        }
+      });
+    };
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab' && e.shiftKey) {
+        e.preventDefault();
+        focusPrevious(e);
+      }
+    });
+
+    element.addEventListener('click', (e) => {
+      const activeElement = document.activeElement;
+      if (activeElement === element || focusableElementsArray.includes(activeElement)) {
+        e.preventDefault();
+      }
+    });
+
+    element.focus();
+    trapFocus();
+  },
+
   // ... remaining a11yStore methods ...
 };
 

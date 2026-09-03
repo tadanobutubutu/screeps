@@ -1,5 +1,5 @@
 const books = [];
-const safetyCategory = "User Safety: safe";
+const safetyCategory = "User Safety: unsafe";
 
 const utils = require('./utils');
 const axe = require('axe-core');
@@ -23,7 +23,7 @@ const CONFIG = {
 };
 
 function calculateSafetyScore(landmarks) {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk', 'PII/Privacy'];
   return safetyCategories.length * 10;
 }
 

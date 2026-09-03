@@ -16,6 +16,16 @@ function anotherNewFunction() {
   // Another new function implementation
 }
 
+function calculateDiscount(price, discountPercentage) {
+  if (typeof price !== 'number' || typeof discountPercentage !== 'number') {
+    throw new TypeError('Price and discount percentage must be numbers');
+  }
+  if (price < 0 || discountPercentage < 0 || discountPercentage > 100) {
+    throw new RangeError('Invalid input: price must be non-negative and discount must be between 0 and 100');
+  }
+  return price - (price * discountPercentage / 100);
+}
+
 // main.js
 // TODO: Create or update the affected functions to be accessible
 // The functions below have been created to match the exported names
@@ -524,6 +534,7 @@ if (typeof window !== 'undefined') {
   window.setElementLabel = setElementLabel;
   window.setFocus = setFocus;
   window.handleKeyboardNavigation = handleKeyboardNavigation;
+  window.calculateDiscount = calculateDiscount;
 }
 
 // Import additional functions from AccessibilityHelpers that are not defined in this file
@@ -847,5 +858,8 @@ module.exports = {
   cancelTask,
   setElementLabel,
   setFocus,
-  handleKeyboardNavigation
+  handleKeyboardNavigation,
+
+  // New function for discount calculation
+  calculateDiscount
 };

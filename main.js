@@ -99,7 +99,7 @@ const sampleInsightReport = {
 };
 
 // Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
+// TODO: Implement this function
 function countDependencies() {
     const fs = require('fs');
     const packageJsonPath = path.join(__dirname, 'package.json');

@@ -446,12 +446,6 @@ function getLangAttributeFn() {
   return document.documentElement.lang || 'en';
 }
 
-// Validate table accessibility and structure
-const validation = validateTableAccessibility(tableElement);
-if (!validation.valid) {
-  console.error('Table is not accessible:', validation.errors);
-}
-
 // Module-level function definitions
 function anotherNewFunction() {
   // Placeholder for future implementation
@@ -561,10 +555,6 @@ class ScreepsBot {
   }
 
   validateTableAccessibility() {
-    if (html) {
-      // Extract table structure from the provided HTML and check its accessibility according to the criteria
-      // ... (Add the logic to validate table accessibility)
-    }
     // Implementation of validateTableAccessibility
   }
 

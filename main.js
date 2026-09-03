@@ -256,6 +256,3 @@ export {
 };
 
 // REACT_037: Google sign-in logic, if needed
-```
-
-In this resolved version, both changes have been integrated by preserving existing code blocks and the imports, and then adding the new functions and methods defined in the "origin/main" commit. The existing code that needs to be preserved is marked with comments. The new functions added in the origin/main branch have been introduced while following modern JS coding practices, such as exporting all functions using ES module syntax.

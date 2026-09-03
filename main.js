@@ -220,6 +220,11 @@ function ensureUniqueLandmarks() {
   });
 }
 
+// Helper function to get the language attribute
+function getLangAttribute() {
+  return appState && appState.lang ? appState.lang : 'en';
+}
+
 // Uncomment the implementation of the function for addressing new accessibility issues from the insight report
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
@@ -350,7 +355,7 @@ function processLandmarks(landmarks) {
     }
 
     const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    const uniqueLandmarks = ensureUniqueLandmarksList(validLandmarks);
 
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }

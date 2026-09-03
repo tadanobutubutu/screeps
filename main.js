@@ -32,7 +32,7 @@ const {
   addLandmarkRoles,
   renderDependencyGraphContent,
   createInPageButtons,
-  addressAccessibilityIssues,
+  addressAccessibilityIssues: addressAccessibilityIssuesUtil,
   ...accessibilityUtils
 } = require('./accessibility-utils');
 

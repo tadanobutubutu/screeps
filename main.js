@@ -344,6 +344,120 @@ function validateLinks(container) {
   return { valid: errors.length === 0, errors };
 }
 
+// TODO: Validate the accessibility report for issues
+/**
+ * Validates the accessibility report for all known issues.
+ * Combines all individual validation functions to generate a comprehensive
+ * accessibility report addressing all issues from the insight report.
+ * @param {HTMLElement} container - Optional container element to validate within
+ * @returns {object} Comprehensive validation result with valid flag and categorized errors
+ */
+function validateAccessibilityReport(container) {
+  if (typeof document === 'undefined') {
+    return {
+      valid: false,
+      errors: ['Document not available'],
+      summary: {
+        totalErrors: 1,
+        tableErrors: 0,
+        landmarkErrors: 0,
+        svgErrors: 0,
+        linkErrors: 0
+      }
+    };
+  }
+
+  const root = container || document.body;
+  const allErrors = [];
+  const tableErrors = [];
+  const landmarkErrors = [];
+  const svgErrors = [];
+  const linkErrors = [];
+  const langErrors = [];
+
+  // Validate HTML lang attribute (REACT_015)
+  const lang = getLangAttribute();
+  if (!lang || lang === 'en' && document.documentElement.getAttribute('lang') === '') {
+    langErrors.push('HTML lang attribute is missing or not set properly');
+  }
+
+  // Validate tables (REACT_027)
+  const tables = root.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    const accessibilityResult = validateTableAccessibility(table);
+    if (!accessibilityResult.valid) {
+      accessibilityResult.errors.forEach(error => {
+        tableErrors.push(`Table ${index + 1}: ${error}`);
+      });
+    }
+    
+    const structureResult = validateTableStructure(table);
+    if (!structureResult.valid) {
+      structureResult.errors.forEach(error => {
+        tableErrors.push(`Table ${index + 1}: ${error}`);
+      });
+    }
+  });
+
+  // Validate landmarks (REACT_017)
+  const landmarkResult = validateLandmarkStructure();
+  if (!landmarkResult.valid) {
+    landmarkResult.errors.forEach(error => {
+      landmarkErrors.push(error);
+    });
+  }
+
+  // Validate SVG accessibility (REACT_041)
+  const svgResult = validateSvgAccessibility();
+  if (!svgResult.valid) {
+    svgResult.errors.forEach(error => {
+      svgErrors.push(error);
+    });
+  }
+
+  // Validate unique landmarks (REACT_025)
+  const uniqueLandmarkResult = ensureUniqueLandmarks();
+  if (!uniqueLandmarkResult.valid) {
+    uniqueLandmarkResult.errors.forEach(error => {
+      landmarkErrors.push(error);
+    });
+  }
+
+  // Validate links and interactive elements (REACT_036)
+  const linkResult = validateLinks(root);
+  if (!linkResult.valid) {
+    linkResult.errors.forEach(error => {
+      linkErrors.push(error);
+    });
+  }
+
+  // Check landmark elements
+  const landmarkCheckResult = checkLandmarkElements(root);
+  if (!landmarkCheckResult.valid) {
+    landmarkCheckResult.errors.forEach(error => {
+      landmarkErrors.push(error);
+    });
+  }
+
+  // Combine all errors
+  allErrors.push(...langErrors, ...tableErrors, ...landmarkErrors, ...svgErrors, ...linkErrors);
+
+  const totalErrors = allErrors.length;
+
+  return {
+    valid: totalErrors === 0,
+    errors: allErrors,
+    summary: {
+      totalErrors,
+      tableErrors: tableErrors.length,
+      landmarkErrors: landmarkErrors.length,
+      svgErrors: svgErrors.length,
+      linkErrors: linkErrors.length,
+      langErrors: langErrors.length
+    }
+  };
+}
+
 // TODO: Implement a new function to handle focus trap for keyboard navigation
 /**
  * Creates a focus trap within a container element for keyboard navigation.
@@ -473,5 +587,6 @@ export {
   personName,
   validateLinks,
   createFocusTrap,
-  checkLandmarkElements
+  checkLandmarkElements,
+  validateAccessibilityReport
 };

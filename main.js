@@ -8,8 +8,28 @@ function getDependencyGraph() {
   return dependencyGraph;
 }
 
-let UserSafety = "unsafe";
-let SafetyCategories = "Unauthorized Advice";
+// Implement harvest logic to populate the dependency graph
+function harvestDependencies() {
+  // Populate dependencyGraph with harvested data
+  // In a real scenario, this might involve scanning files, APIs, or other sources
+  dependencyGraph = {
+    libraries: [
+      { id: 'react', name: 'React', type: 'library' },
+      { id: 'lodash', name: 'Lodash', type: 'utility' },
+      { id: 'axios', name: 'Axios', type: 'http-client' },
+      { id: 'moment', name: 'Moment.js', type: 'utility' }
+    ],
+    frameworks: [
+      { id: 'express', name: 'Express', type: 'web-framework' },
+      { id: 'vue', name: 'Vue.js', type: 'framework' },
+      { id: 'angular', name: 'Angular', type: 'framework' }
+    ],
+    tools: [
+      { id: 'webpack', name: 'Webpack', type: 'build-tool' },
+      { id: 'eslint', name: 'ESLint', type: 'linter' }
+    ]
+  };
+}
 
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs

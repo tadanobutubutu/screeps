@@ -394,6 +394,90 @@ async function scanAccessibility() {
   return { violations };
 }
 
+/**
+ * Function for generating a report based on accessibility issues.
+ * Replaced placeholder with full implementation using axe-core scanning and report writing.
+ */
+async function generateAccessibilityReport() {
+  let report = {
+    timestamp: new Date().toISOString(),
+    summary: {
+      totalViolations: 0,
+      totalPasses: 0,
+      totalIncomplete: 0,
+      totalInapplicable: 0
+    },
+    violations: [],
+    passes: [],
+    incomplete: [],
+    inapplicable: []
+  };
+
+  try {
+    const results = await scanAccessibility();
+
+    if (results && results.violations && Array.isArray(results.violations)) {
+      report.violations = results.violations.map(violation => ({
+        id: violation.id,
+        impact: violation.impact,
+        description: violation.description,
+        help: violation.help,
+        helpUrl: violation.helpUrl,
+        tags: violation.tags,
+        nodes: violation.nodes ? violation.nodes.map(node => ({
+          html: node.html,
+          target: node.target,
+          failureSummary: node.failureSummary
+        })) : []
+      }));
+      report.summary.totalViolations = report.violations.length;
+    }
+
+    if (typeof document !== 'undefined' && axe) {
+      try {
+        const fullResults = await axe.run(document, {
+          resultTypes: ['violations', 'passes', 'incomplete', 'inapplicable']
+        });
+
+        if (fullResults.passes && Array.isArray(fullResults.passes)) {
+          report.passes = fullResults.passes;
+          report.summary.totalPasses = fullResults.passes.length;
+        }
+
+        if (fullResults.incomplete && Array.isArray(fullResults.incomplete)) {
+          report.incomplete = fullResults.incomplete;
+          report.summary.totalIncomplete = fullResults.incomplete.length;
+        }
+
+        if (fullResults.inapplicable && Array.isArray(fullResults.inapplicable)) {
+          report.inapplicable = fullResults.inapplicable;
+          report.summary.totalInapplicable = fullResults.inapplicable.length;
+        }
+      } catch (axeError) {
+        console.error('Error running full axe scan:', axeError.message);
+      }
+    }
+
+    const reportDir = path.join(__dirname, CONFIG.dataPath || './data', 'reports');
+    if (!fs.existsSync(reportDir)) {
+      fs.mkdirSync(reportDir, { recursive: true });
+    }
+
+    const reportFileName = `accessibility-report-${Date.now()}.json`;
+    const reportFilePath = path.join(reportDir, reportFileName);
+
+    fs.writeFileSync(reportFilePath, JSON.stringify(report, null, 2), 'utf8');
+
+    console.log(`Accessibility report generated: ${reportFilePath}`);
+    console.log(`Summary: ${report.summary.totalViolations} violations, ${report.summary.totalPasses} passes`);
+
+    return report;
+  } catch (error) {
+    console.error('Error generating accessibility report:', error.message);
+    return report;
+  }
+}
+
 function validateLinkAccessibility() {
   const links = document.querySelectorAll('a[href]');
 
@@ -755,6 +839,7 @@ export {
   validateTableAccessibility,
   validateTableStructure,
   scanAccessibility,
+  generateAccessibilityReport,
   validateLinkAccessibility,
   handleFakeLinks,
   validateLandmark,

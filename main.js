@@ -41,19 +41,9 @@ const {
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
-  addLandmarkRegions,
   ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
   googleSignIn,
   decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,
@@ -169,6 +159,86 @@ function anotherNewFunction() {
   // Another new function implementation
 }
 
+function newFocusTrap(element, options = {}) {
+  const {
+    onDeactivate,
+    allowOutsideClick = false,
+    escapeDeactivates = true,
+    clickDeactivates = true,
+    returnFocus = true
+  } = options;
+
+  let previouslyFocusedElement = null;
+  let focusableElements = [];
+  let firstFocusableElement = null;
+  let lastFocusableElement = null;
+
+  const updateFocusableElements = () => {
+    focusableElements = Array.from(element.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )).filter(el => !el.disabled && el.offsetParent !== null);
+    firstFocusableElement = focusableElements[0];
+    lastFocusableElement = focusableElements[focusableElements.length - 1];
+  };
+
+  const handleKeydown = (e) => {
+    if (e.key !== 'Tab') return;
+
+    updateFocusableElements();
+
+    if (focusableElements.length === 0) {
+      e.preventDefault();
+      return;
+    }
+
+    if (e.shiftKey) {
+      if (document.activeElement === firstFocusableElement) {
+        e.preventDefault();
+        lastFocusableElement?.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusableElement) {
+        e.preventDefault();
+        firstFocusableElement?.focus();
+      }
+    }
+  };
+
+  const handleEscape = (e) => {
+    if (e.key === 'Escape' && escapeDeactivates) {
+      deactivate();
+    }
+  };
+
+  const handleClick = (e) => {
+    if (allowOutsideClick) return;
+    if (!element.contains(e.target) && clickDeactivates) {
+      deactivate();
+    }
+  };
+
+  const activate = () => {
+    previouslyFocusedElement = document.activeElement;
+    updateFocusableElements();
+    firstFocusableElement?.focus();
+    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('click', handleClick);
+  };
+
+  const deactivate = () => {
+    document.removeEventListener('keydown', handleKeydown);
+    document.removeEventListener('keydown', handleEscape);
+    document.removeEventListener('click', handleClick);
+    if (returnFocus && previouslyFocusedElement) {
+      previouslyFocusedElement.focus();
+    }
+    onDeactivate?.();
+  };
+
+  return { activate, deactivate };
+}
+
 module.exports = {
   ...main,
   createInPageButton,
@@ -211,19 +281,9 @@ module.exports = {
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
-  addLandmarkRegions,
   ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
   googleSignIn,
   decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
   fixLandmarkIssues,
   validateTableAccessibility,
   validateTableStructure,

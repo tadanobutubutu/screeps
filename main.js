@@ -171,9 +171,9 @@ const primaryContent = document.querySelector('.primary-content') ||
                         document.querySelector('[role="main"]') ||
                         document.getElementById('main-content') ||
 // TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
-// ----- END ORIGINAL CODE -----
+// main.js - Accessibility-focused implementation
+
+_Commit: 08070f955b8e6d7f0b746f7aa2280e503303488e_
                         document.querySelector('#content');
 
 // Function to wrap primary content in a <main> element

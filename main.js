@@ -1,17 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
-
-//_Commit: ...
-
-<!-- todo-hash: 344a569ca20673dcf3d1ec08249ba2f2f8ffbf15 -->
+// Addressed accessibility issues from insight report
+// _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
+// ----- END ORIGINAL CODE-----
 
 // Import necessary dependencies
 import React from 'react'
@@ -37,7 +27,7 @@ import {
 } from './AccessibilityHelpers'
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.querySelector('#dependencyGraph, .dependency-graph, [data-dependency-graph]')
+const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]')
 
 if (dependencyGraph) {
   // Set appropriate ARIA role for the dependency graph container
@@ -47,7 +37,7 @@ if (dependencyGraph) {
   }
 
   // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.querySelector('title')) {
+  if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.getAttribute('aria-labelledby')) {
     dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
   }
 }
@@ -71,7 +61,7 @@ function addAccessibleName (svgString) {
     svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
     
     // Also add a <title> element as a fallback for older browsers
-    const title = svg.createElementNS('http://www.w3.org/2000/svg', 'title')
+    const title = document.createElement('title')
     title.textContent = 'Descriptive label for SVG'
     svgElement.insertBefore(title, svgElement.firstChild)
   }
@@ -81,7 +71,7 @@ function addAccessibleName (svgString) {
 }
 
 // Example usage of the function
-const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...</svg>'
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" x="50"></text></svg>'
 const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**

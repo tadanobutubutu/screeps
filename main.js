@@ -161,4 +161,90 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureImageAccessibility();
 }
 
+/**
+ * Harvest logic implementation
+ * Collects and processes data from various sources
+ * @param {Object} options - Harvest options
+ * @param {Array} options.sources - Array of data sources to harvest from
+ * @param {boolean} options.recursive - Whether to recursively harvest from nested sources
+ * @param {Function} options.transform - Optional transformation function for harvested data
+ * @returns {Object} Harvested data with metadata
+ */
+function harvest(options = {}) {
+  const { sources = [], recursive = false, transform = (data) => data } = options;
+  
+  const harvestedItems = [];
+  const harvestMetadata = {
+    timestamp: new Date().toISOString(),
+    sourceCount: sources.length,
+    itemCount: 0,
+    errors: []
+  };
+
+  sources.forEach((source) => {
+    try {
+      const data = source.data || source;
+      const items = Array.isArray(data) ? data : [data];
+      
+      items.forEach((item) => {
+        const transformedItem = transform(item);
+        harvestedItems.push({
+          ...transformedItem,
+          harvestedAt: new Date().toISOString(),
+          sourceId: source.id || 'unknown'
+        });
+        
+        if (recursive && item.children && Array.isArray(item.children)) {
+          const childOptions = {
+            ...options,
+            sources: item.children.map((child, index) => ({
+              id: `${source.id || 'source'}-child-${index}`,
+              data: child
+            }))
+          };
+          const childResults = harvest(childOptions);
+          harvestedItems.push(...childResults.data);
+        }
+      });
+    } catch (error) {
+      harvestMetadata.errors.push({
+        source: source.id || 'unknown',
+        error: error.message
+      });
+    }
+  });
+
+  harvestMetadata.itemCount = harvestedItems.length;
+
+  return {
+    data: harvestedItems,
+    metadata: harvestMetadata,
+    totalHarvested: harvestedItems.length
+  };
+}
+
 // ... rest of the code ...
+
+module.exports = {
+  greetingFunction,
+  getWelcomeMessage,
+  ensureInteractiveElementsAccessible,
+  harvest,
+  config,
+  a11yStore,
+  // math helpers
+  add,
+  subtract,
+  multiply,
+  divide,
+  power,
+  squareRoot,
+  factorial,
+  fibonacci,
+  sum,
+  average,
+  max,
+  min,
+  mode,
+  median,
+};

@@ -7,10 +7,10 @@ const { exec, spawn } = require('child_process');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('#main') || document.querySelector('.main') || document.querySelector('[role="main"]') : null;
 
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000/api',
   timeout: process.env.TIMEOUT || 5000,
   debug: true,
   version: '1.0.0',
@@ -27,7 +27,7 @@ const AddressabilityIssues = {
 // Load configurations from package.json if it exists
 function loadConfigurations() {
     try {
-        const packagePath = path.join(__dirname, 'package.json');
+        const packagePath = path.join(process.cwd(), 'package.json');
         if (fs.existsSync(packagePath)) {
             const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
             config.name = packageJson.name || 'dependency-counter';
@@ -72,7 +72,7 @@ module.exports = {
         const seen = new Map();
 
         elements.forEach(element => {
-            const key = element.id || element.name || JSON.stringify(element);
+            const key = element.id || element.name || element.className;
             if (!seen.has(key)) {
                 seen.set(key, true);
                 uniqueElements.push(element);
@@ -84,29 +84,20 @@ module.exports = {
 
     addressInsightIssues: function () {
         this.getLangAttribute();
-        this.addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+        const landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
 
         if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
             this.ensureLandmarkUniqueness(landmarks);
         }
-        this.ensureUniqueLandmarks();
-
-        this.validateTableAccessibility();
-        this.validateTableStructure();
-
-        this.getSvgAccessibleName();
-
-        this.createInPageButton();
-        this.createAccessibleLink();
+        this.checkElementAccessibility(document.body);
         this.handleAccessibilityIssues();
 
-        this.validateLandmark();
-        this.validateLandmarkStructure();
+        return true;
     },
 
     initializeApp: function () {
         this.addressInsightIssues();
-        this.loadConfigurations();
+        this.setupHandlers();
         if (typeof wrapPrimaryContentInMain === 'function') {
             wrapPrimaryContentInMain();
         }
@@ -186,7 +177,7 @@ module.exports = {
         if (typeof doc === 'undefined' || !doc.querySelectorAll) {
             return;
         }
-        const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
+        const clickableElements = doc.querySelectorAll('[onclick]');
         let count = 0;
 
         clickableElements.forEach(element => {
@@ -195,7 +186,7 @@ module.exports = {
 
             if (tagName !== 'a' && !hasHref) {
                 const isInteractive = element.getAttribute('role') === 'link' ||
-                                       (element.hasAttribute('onclick') && element.onclick && element.onclick.toString().includes('window.location'));
+                                       (element.onclick && typeof element.onclick === 'function');
 
                 if (isInteractive && !element.hasAttribute('aria-label')) {
                     const text = element.textContent.trim();
@@ -228,8 +219,70 @@ module.exports = {
     },
 
     startApp: function () {
-        this.loadConfigurations();
+        loadConfigurations();
         const server = this.createServer();
         return server;
+    },
+
+    // Ensure element has an id - creates one if missing
+    ensureElementHasId: function (element, prefix = 'element') {
+        if (!element) {
+            return null;
+        }
+        
+        if (element.id && element.id.trim() !== '') {
+            return element.id;
+        }
+        
+        // Generate a unique id if one doesn't exist
+        const id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        if (typeof element.setAttribute === 'function') {
+            element.setAttribute('id', id);
+        }
+        
+        return id;
+    },
+
+    // Ensure element has proper id and aria-label for accessibility
+    ensureElementAccessibility: function (element, label) {
+        if (!element) {
+            return null;
+        }
+        
+        // Ensure element has an id
+        this.ensureElementHasId(element, 'accessible');
+        
+        // Add aria-label if provided
+        if (label) {
+            this.addAriaLabel(element, label);
+        }
+        
+        return element;
+    },
+
+    // Render dependency graph with accessibility features
+    renderDependencyGraph: function (container, dependencies) {
+        if (!container || typeof container.appendChild !== 'function') {
+            return null;
+        }
+        
+        const graphElement = document.createElement('div');
+        graphElement.setAttribute('role', 'img');
+        graphElement.setAttribute('aria-label', 'Dependency graph visualization');
+        graphElement.id = this.ensureElementHasId(graphElement, 'dependency-graph');
+        
+        // Render graph content based on dependencies
+        if (dependencies && Array.isArray(dependencies)) {
+            dependencies.forEach((dep, index) => {
+                const node = document.createElement('div');
+                node.id = this.ensureElementHasId(node, `dep-node-${index}`);
+                node.textContent = dep.name || dep;
+                node.setAttribute('role', 'listitem');
+                graphElement.appendChild(node);
+            });
+        }
+        
+        container.appendChild(graphElement);
+        return graphElement;
     }
 };

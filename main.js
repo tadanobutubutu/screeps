@@ -1,106 +1,90 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import express from 'express';
+import axe from 'axe-core';
+import fs from 'fs';
+import fastMap from 'fast-map';
+import path from 'path';
+import accessiblyHelper from './accessibly-helper';
+import { calculateSum, getLangAttribute, getFullLangAttribute } from './utils/index.js';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils.js';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkAccessibilityUtils.js';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils.js';
+import { validateLinkAccessibility } from './utils/linkAccessibilityUtils.js';
+import { addProperLandmarkRegions } from './utils/landmarkUtils.js';
+import { CONFIG } from './utils/constants.js';
+import newFunction3 from './utils/newFunction3';
+import newFunction4 from './utils/newFunction4';
+import { countDependencies, analyzeModuleDependencies, visualizeModuleRelationships } from './accessibility-improvements';
 
-// Configuration - merged
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100,
-    apiUrl: process.env.API_URL || 'https://example.com',
-    timeout: 5000
-};
-
-// Alternative config style for backwards compatibility
 const config = CONFIG;
 
-// Application state
-let isInitialized = false;
-const appData = {};
-
-// App state with accessibility updates
-const appState = {
-  initialized: false,
-  data: null,
-  cache: {},
-  lang: 'en'
-};
-
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
+function renderDependencyGraph() {
+  // Logic to render dependency graph
 }
 
-// Helper function to format dates
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString().split('T')[0];
+function displayModuleStructure() {
+  // Logic to display module structure
 }
 
-// Validate input helper
-function validateInput(input) {
-  return input && typeof input === 'string' && input.trim().length > 0;
+function newFunction() {
+  console.log('New function called');
+  // Implementation details would go here
 }
 
-// Process data helper
-function processData(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
-}
+// ...
 
-// Initialize function
-function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
-}
-
-// Initialize app function
-function initializeApp() {
-  initialize();
-  return appState;
-}
-
-// Fetch user function
-async function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
-}
-
-// Clear cache function
-function clearCache() {
-  appState.cache.clear();
-}
-
-// Some function
-function someFunction() {
-  return 'some value';
-}
-
-// Configuration
-const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || 'localhost';
-
-// Application main entry point
-const app = express();
-
-// Helper functions moved to a separate file (preserved references)
-const {
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  ensureUniqueLandmarks,
-  addLandmarkRoles,
+// Export any new functions or anything else that needs to be accessible from outside this module
+module.exports = {
+  initializeApp,
+  config,
   renderDependencyGraph,
   displayModuleStructure,
   countDependencies,
   analyzeModuleDependencies,
-  visualizeModuleRelationships
-} = require('./accessibility-improvements');
+  visualizeModuleRelationships,
+  experience: null,
+  someNewFunction: null,
+  newFunction1: null,
+  newFunction2: null,
+  newFunction,
+  addressInsightIssues: null,
+  calculateSum,
+  addProperLandmarkRegions,
+  getUniqueLandmarks: null,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  validateTableStructure,
+  scanAccessibility,
+  generateAccessibilityReport,
+  validateLinkAccessibility,
+  newFocusTrap: null,
+  getLangAttribute,
+  ensureUniqueLandmarks: null,
+  getSvgAccessibleNameLocal: null,
+  validateTableAccessibilityLocal: null,
+  validateTableStructureLocal: null,
+  validateLinkAccessibilityLocal: null,
+  handleFakeLinks: null,
+  checkLandmarkElement: null,
+  addFixLandmarkIssues: null,
+  validateLandmarkStructureLocal: null,
+  getFullLangAttribute,
+  validateLandmark,
+  validateLandmarkStructure,
+  setSvgAttributes,
+  CONFIG,
+  isInitialized: false,
+  appData_origin: null,
+  appState: null,
+  dependencyGraph: null,
+  newFunction3,
+  newFunction4,
+  fixFakeLink: null,
+  addLandmarkRegions: null,
+  processAccessibilityReport: null
+};
 
 // Helper function to validate landmark structure
 function getLangAttribute() {
@@ -329,35 +313,3 @@ function addLangAttribute() {
     }
   }
 }
-
-// Address accessibility issues from insight report - FIXED
-// This section addresses the accessibility issues identified in the insight report
-// by implementing comprehensive accessibility improvements including:
-// - Keyboard navigation support
-// - ARIA labels for screen readers
-// - Focus trapping for modal dialogs
-// - Main landmark addition
-// - Table structure improvements
-// - SVG accessibility enhancements
-// - Fake link corrections
-// - Unique landmark enforcement
-
-module.exports = {
-  app,
-  initializeApp,
-  fetchUser,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  improveAccessibility,
-  generateAccessibilityReport,
-  CONFIG,
-  validateLandmarkObject,
-  addSvgAccessibilityProps,
-  getSvgAccessibilityProps,
-  getAccessibleLinkProps,
-  getLangAttribute,
-  createInPageButton,
-  wrapPrimaryContentInMain,
-  addLangAttribute
-};

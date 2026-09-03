@@ -1,7 +1,6 @@
 // ----- BEGIN ORIGINAL CODE -----
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 
-```javascript
 const main = require('./utilities')
 
 const {
@@ -336,4 +335,3 @@ export {
   checkAccessibilityForReportContent,
   log
 };
-```

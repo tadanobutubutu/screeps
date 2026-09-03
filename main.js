@@ -20,6 +20,12 @@ const renderGraphIndex = (graphData) => {
   renderDependencyGraphs(graphData);
 }
 
+// TODO: Implement the new function as per the issue requirements
+const AnotherExport = (input) => {
+  // Placeholder implementation, replace with actual functionality
+  return input;
+}
+
 module.exports = {
   createInPageButton,
   createWebResourceButton,
@@ -31,5 +37,6 @@ module.exports = {
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   addressAccessibilityIssues,
-  renderGraphIndex
+  renderGraphIndex,
+  AnotherExport
 }

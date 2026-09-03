@@ -14,8 +14,7 @@ const {
   handleKeyboardNav,
   exportUtils,
   transformInputData,
-  initSkipLink,
-  trapFocus,
+  addressAccessibilityIssues,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -25,6 +24,14 @@ const {
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
+} = main;
+
+const accessibilityUtils = {
+  initSkipLink,
+  trapFocus,
+  announceToScreenReader: originalAnnounceToScreenReader,
+  ensureElementId,
+
   renderDependencyGraph,
   renderIndex,
   addAccessibleName,
@@ -38,60 +45,13 @@ const {
   filterValidItems,
   exportUtilities,
   harvest,
-  harvestSync
-} = main;
-
-const accessibilityUtils = {
-  initSkipLink,
-  trapFocus,
-  announceToScreenReader: originalAnnounceToScreenReader,
-  ensureElementId,
-  addAriaLabel: (element) => {
-    // Add ARIA label to improve accessibility
-    element.setAttribute('aria-label', 'Accessible element');
-  },
-
-  addressAccessibilityIssues: () => {
-    // Address accessibility issues based on the harvested data
-    const issues = [];
-    issues.forEach((issue) => {
-      if (issue.element) {
-        issue.solution();
-      }
-    });
-  },
-
-  ensureElementIdOrigin: (element) => {
-    if (!element) return;
-    const id = `element-${Math.random().toString(36).substr(2, 9)}`;
-    element.id = id;
-    return id;
-  },
-
-  renderDependencyGraphs: () => {
-    // Render dependency graphs in the UI
-  },
-
-  fixButtonIdentifiers: () => {
-    // Fix button identifier issues
-  },
-
-  fixDependencyGraphAria: () => {
-    // Fix ARIA issues in dependency graphs
-  },
-
-  addSvgAccessibleName: (svgElement) => {
-    // Add accessible name to SVG elements
-  },
-
-  renderAdditionalContent,
-  transformInputData,
+  harvestSync,
 };
 
 // Utility functions for ensuring elements have IDs and adding labels
 const ensureElementIdFn = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
   }
   return element;
 };
@@ -100,33 +60,72 @@ const ensureElementHasIdFn = (element, prefix = 'element') => {
   if (!element) {
     throw new Error('Element is required');
   }
-
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
 };
+
+const wrapPrimaryContentInMain = () => {
+  // Check if a main element already exists
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    // If no main element exists, create one
+    mainElement = document.createElement('main');
+    
+    // Find the primary content container (commonly #content, .content, or the body)
+    const contentSelectors = ['#content', '.content', '#main', '.main', 'article', '[role="main"]'];
+    let primaryContent = null;
+    
+    for (const selector of contentSelectors) {
+      primaryContent = document.querySelector(selector);
+      if (primaryContent) {
+        break;
+      }
+    }
+    
+    // If no specific content container found, use body
+    if (!primaryContent) {
+      primaryContent = document.body;
+    }
+    
+    // Move the primary content into the main element
+    if (primaryContent !== document.body) {
+      mainElement.appendChild(primaryContent);
+      document.body.insertBefore(mainElement, document.body.firstChild);
+    } else {
+      // Wrap all body children except script and style elements
+      const children = Array.from(document.body.children);
+      children.forEach(child => {
+        if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && child.tagName !== 'LINK') {
+          mainElement.appendChild(child);
+        }
+      });
+      document.body.insertBefore(mainElement, document.body.firstChild);
+    }
+    
+    // Add ARIA landmark attribute
+    mainElement.setAttribute('role', 'main');
+    
+    // Add accessible label if not present
+    if (!mainElement.getAttribute('aria-label') && !mainElement.getAttribute('aria-labelledby')) {
+      mainElement.setAttribute('aria-label', 'Main content');
+    }
+  }
+  
+  return mainElement;
+};
+
+const combinedUtils = Object.assign({}, accessibilityUtils, { focusTrap: newFocusTrap });
 
 module.exports = {
   ...main,
   ...accessibilityUtils,
-  renderDependencyGraph,
-  renderIndex,
+  renderDependencyGraph: main.renderDependencyGraph || (() => {}),
+  renderIndex: main.renderIndex || (() => {}),
   validateTableAccessibility,
   validateTableStructure,
-  addAccessibleName,
+  addAccessibleName: accessibilityUtils.addAriaLabel,
   accessibilityUtils,
   ensureElementId: ensureElementIdFn,
   ensureElementHasId: ensureElementHasIdFn,
   newFocusTrap,
-  handleCredentialResponse,
-  initAccessibility,
-  groupByCategory,
-  log,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  exportUtilities,
-  harvest,
-  harvestSync
+  wrapPrimaryContentInMain,
 };

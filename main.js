@@ -41,6 +41,36 @@ function loadConfigurations() {
     }
 }
 
+// New implementation for checking link accessibility
+function checkLinkAccessibility(doc) {
+    if (typeof doc === 'undefined' || !doc.querySelectorAll) {
+        return 0;
+    }
+
+    const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
+    let count = 0;
+
+    clickableElements.forEach(element => {
+        const tagName = element.tagName.toLowerCase();
+        const hasHref = element.hasAttribute('href');
+
+        if (tagName !== 'a' && !hasHref) {
+            const isInteractive = element.getAttribute('role') === 'link' ||
+                                   (element.hasAttribute('onclick') && element.onclick && element.onclick.toString().includes('window.location'));
+
+            if (isInteractive && !element.hasAttribute('aria-label')) {
+                const text = element.textContent.trim();
+                if (text) {
+                    element.setAttribute('aria-label', text);
+                }
+            }
+            count++;
+        }
+    });
+
+    return count;
+}
+
 // Existing functionality
 function calculateSum(a, b) {
   return a + b;

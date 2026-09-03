@@ -28,12 +28,12 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-const primaryContent = (typeof document !== 'undefined') ? document.getElementById('primary-content') || document.body : null;
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('#content') || document.querySelector('.content') || document.querySelector('article') || document.getElementById('primary-content') || document.body : null;
 
 // Load configurations from package.json if it exists
 function loadConfigurations() {
     try {
-        const packagePath = path.join(__dirname, 'package.json');
+        const packagePath = path.join(process.cwd(), 'package.json');
         if (fs.existsSync(packagePath)) {
             const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
             config.name = packageJson.name || 'dependency-counter';
@@ -55,8 +55,8 @@ function countDependencies() {
     const devDependencies = packageJson.devDependencies || {};
 
     return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
+        dependencies: Object.keys(dependencies),
+        devDependencies: Object.keys(devDependencies),
         total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
 }
@@ -303,6 +303,19 @@ function validateLandmarkStructure(container) {
 }
 
 // SVG accessibility helper functions
+function configureSvgAccessibility(svg) {
+  if (svg && typeof svg.setAttribute === 'function') {
+    svg.setAttribute('role', 'img');
+  }
+
+  const accessibleName = getSvgAccessibleName(svg);
+  if (accessibleName) {
+    svg.setAttribute('aria-labelledby', accessibleName);
+  }
+
+  setSvgAttributes(svg);
+}
+
 function makeSvgAccessible(svg) {
   if (svg && typeof svg.setAttribute === 'function') {
     svg.setAttribute('role', 'img');
@@ -318,9 +331,13 @@ function makeSvgAccessible(svg) {
 
 function setSvgAttributes(svg) {
     // Code to set other svg attributes goes here
+    if (svg && svg.setAttribute) {
+        svg.setAttribute('focusable', 'false');
+        svg.setAttribute('aria-hidden', 'true');
+    }
 }
 
-// AddressabilityIssues from origin/main branch
+// AddressabilityIssues that uses the comprehensive validateTableAccessibility function
 const AddressabilityIssues = {
   validateTableAccessibility: function(table) {
     return validateTableAccessibility(table);
@@ -473,7 +490,7 @@ function ensureUniqueLandmarks(landmarks) {
         const key = element.id || element.name || element.className;
         if (!seen.has(key)) {
             seen.set(key, true);
-          uniqueElements.push(element);
+            uniqueElements.push(element);
         }
     });
 
@@ -502,7 +519,7 @@ function missingRoles(requiredRoles, foundRoles) {
  */
 function fixFakeLinkIssue(doc) {
     if (typeof doc === 'undefined' || !doc.querySelectorAll) {
-        return;
+        return 0;
     }
     const clickableElements = doc.querySelectorAll('[onclick]');
     let count = 0;
@@ -513,9 +530,9 @@ function fixFakeLinkIssue(doc) {
 
         if (tagName !== 'a' && !hasHref) {
             const isInteractive = element.getAttribute('role') === 'link' ||
-                                   element.getAttribute('tabindex') && element.onclick && element.onclick.toString().length > 0;
+                                   (element.getAttribute('role') === 'button' && element.onclick);
 
-            if (isInteractive && element.textContent.trim().length > 0) {
+            if (isInteractive) {
                 const text = element.textContent.trim();
                 if (text) {
                     element.setAttribute('aria-label', text);
@@ -564,7 +581,7 @@ function handleAccessibilityIssues() {
  */
 function addLangAttribute(element, lang) {
     if (element) {
-        element.setAttribute('lang', lang || navigator.language.split('-')[0]);
+        element.setAttribute('lang', lang || (typeof navigator !== 'undefined' ? navigator.language.split('-')[0] : 'en'));
     }
 }
 
@@ -627,8 +644,8 @@ function renderDependencyGraphs(graphData) {
             content += `<caption>Package Dependencies</caption>`;
             content += `<thead><tr><th scope="col">Type</th><th scope="col">Count</th></tr></thead>`;
             content += `<tbody>`;
-            content += `<tr><td>Dependencies</td><td>${deps.dependencies}</td></tr>`;
-            content += `<tr><td>Dev Dependencies</td><td>${deps.devDependencies}</td></tr>`;
+            content += `<tr><td>Dependencies</td><td>${deps.dependencies.length}</td></tr>`;
+            content += `<tr><td>Dev Dependencies</td><td>${deps.devDependencies.length}</td></tr>`;
             content += `<tr><td>Total</td><td>${deps.total}</td></tr>`;
             content += `</tbody></table>`;
         } else {
@@ -657,7 +674,7 @@ function renderDependencyGraphs(graphData) {
  */
 function getLangAttribute() {
     if (typeof document === 'undefined') return 'en';
-    return document.documentElement.lang || navigator.language.split('-')[0];
+    return document.documentElement.lang || (typeof navigator !== 'undefined' ? navigator.language.split('-')[0] : 'en');
 }
 
 /**
@@ -668,7 +685,6 @@ const renderGraphIndex = (graphData) => {
   addLanguageAttribute();
   addMainLandmarkToIndex();
   addressAccessibilityIssues();
-  addLanguageAttribute();
   renderDependencyGraphs(graphData);
 }
 
@@ -681,6 +697,97 @@ const renderGraphIndexAlt = (graphData) => {
   renderDependencyGraphs(graphData);
 }
 
-<<<<<<< HEAD
 // Update the call to the new function in the existing context
 // For instance, if there was a call to `renderDependencyGraphs` somewhere in the codebase, replace it with `renderGraphIndex`
+
+const appInstance = {
+    primaryContent: primaryContent,
+
+    addressInsightIssues: function () {
+        this.getLangAttribute();
+        const landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
+
+        if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
+            this.ensureLandmarkUniqueness(landmarks);
+        }
+
+        configureSvgAccessibility(this.primaryContent);
+
+        this.handleAccessibilityIssues();
+
+        this.setupHandlers();
+
+        return landmarks;
+    },
+
+    initializeApp: function () {
+        this.addressInsightIssues();
+        loadConfigurations();
+        countDependencies();
+        if (typeof wrapPrimaryContentInMain === 'function') {
+            wrapPrimaryContentInMain();
+        }
+        if (typeof fixLandmarkStructure === 'function') {
+            fixLandmarkStructure();
+        }
+    },
+
+    // Utility functions
+    getLangAttribute: function () {
+        let lang = 'en'; // Default to English
+        return lang;
+    },
+
+    validateLandmark: function (element) {
+        const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
+        const role = element.getAttribute('role');
+        return validLandmarks.includes(role);
+    },
+
+    ensureLandmarkUniqueness: function (landmarks) {
+        return ensureUniqueLandmarks(landmarks);
+    },
+
+    createInPageButton: function (text) {
+        return {};
+    },
+
+    createAccessibleLink: function (href, text) {
+        return {};
+    },
+
+    setupHandlers: function () {
+        console.log('Setting up event handlers...');
+    },
+
+    processData: function (data) {
+        if (!this.validateInput(data)) {
+            throw new Error('Invalid input data');
+        }
+        return processData(data);
+    },
+
+    createServer: function () {
+        const server = http.createServer(app);
+        app.get('/', (req, res) => {
+            res.send('Hello World!');
+        });
+
+        return server;
+    },
+
+    startApp: function () {
+        this.createServer();
+        const server = this.createServer();
+        return server;
+    },
+
+    configureSvgAccessibility: configureSvgAccessibility,
+    makeSvgAccessible: makeSvgAccessible,
+    setSvgAttributes: setSvgAttributes
+};
+
+// Export the app instance if running as a module
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = appInstance;
+}

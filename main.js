@@ -1,18 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
 // Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and addAriaToFormControls())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
-// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
-
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-=======
->>>>>>> origin/main
-// TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())
@@ -198,6 +185,93 @@ function validateLandmarkStructure() {
   }
 
   return { valid: errors.length === 0, errors };
+}
+
+// TODO: Implement this function for checking landmark elements
+function checkLandmarkElements() {
+  // This function checks all landmark elements on the page for accessibility compliance
+  const results = {
+    valid: true,
+    landmarks: [],
+    errors: [],
+    warnings: []
+  };
+
+  if (typeof document === 'undefined') {
+    return { valid: false, landmarks: [], errors: ['Document not available'], warnings: [] };
+  }
+
+  // Find all landmark elements (both ARIA roles and semantic HTML5 elements)
+  const landmarkSelectors = [
+    '[role="banner"]', 'header',
+    '[role="navigation"]', 'nav',
+    '[role="main"]', 'main',
+    '[role="complementary"]', 'aside',
+    '[role="contentinfo"]', 'footer',
+    '[role="search"]',
+    '[role="form"]', 'form',
+    '[role="region"]', 'section'
+  ];
+
+  const landmarkElements = document.querySelectorAll(landmarkSelectors.join(', '));
+
+  landmarkElements.forEach((element, index) => {
+    const validation = validateLandmark(element);
+    const landmarkInfo = {
+      index,
+      tagName: element.tagName.toLowerCase(),
+      role: element.getAttribute('role') || element.tagName.toLowerCase(),
+      id: element.getAttribute('id') || null,
+      valid: validation.valid,
+      errors: validation.errors
+    };
+
+    results.landmarks.push(landmarkInfo);
+
+    if (!validation.valid) {
+      results.valid = false;
+      validation.errors.forEach(error => {
+        results.errors.push(`Landmark ${index} (${landmarkInfo.role}): ${error}`);
+      });
+    }
+
+    // Check for unique landmark roles that should only appear once
+    const uniqueRoles = ['banner', 'main', 'contentinfo'];
+    const role = landmarkInfo.role;
+    if (uniqueRoles.includes(role)) {
+      const sameRoleElements = document.querySelectorAll(`[role="${role}"], ${role}`);
+      if (sameRoleElements.length > 1) {
+        results.warnings.push(`Multiple ${role} landmarks found (${sameRoleElements.length}). Consider using only one.`);
+      }
+    }
+
+    // Check for missing accessible names on landmarks that require them
+    const rolesNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
+    if (rolesNeedingNames.includes(role)) {
+      const hasLabel = element.getAttribute('aria-label') ||
+                       element.getAttribute('aria-labelledby') ||
+                       element.querySelector('h1, h2, h3, h4, h5, h6');
+      if (!hasLabel) {
+        results.warnings.push(`Landmark "${role}" at index ${index} is missing an accessible name (aria-label, aria-labelledby, or heading)`);
+      }
+    }
+  });
+
+  // Validate overall landmark structure
+  const structureValidation = validateLandmarkStructure();
+  if (!structureValidation.valid) {
+    results.valid = false;
+    structureValidation.errors.forEach(error => results.errors.push(error));
+  }
+
+  // Check for unique landmarks
+  const uniqueValidation = ensureUniqueLandmarks();
+  if (!uniqueValidation.valid) {
+    results.valid = false;
+    uniqueValidation.errors.forEach(error => results.errors.push(error));
+  }
+
+  return results;
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
@@ -585,4 +659,81 @@ function addressNewAccessibilityIssues() {
   }
 
   // Check for color contrast issues (simplified check)
-  const textElements = document.querySelectorAll('
+  const textElements = document.querySelectorAll('p, span, div, a, button, h1, h2, h3, h4, h5, h6, li, td, th');
+  let contrastWarnings = 0;
+  textElements.forEach(el => {
+    const style = window.getComputedStyle(el);
+    const color = style.color;
+    const bgColor = style.backgroundColor;
+    // Simplified check - in reality you'd compute actual contrast ratio
+    if (color === bgColor) {
+      contrastWarnings++;
+    }
+  });
+
+  if (contrastWarnings > 0) {
+    issues.push({
+      code: 'COLOR_CONTRAST',
+      severity: 'warning',
+      message: `Found ${contrastWarnings} elements with potential color contrast issues`
+    });
+  }
+
+  // Check for missing form labels
+  const inputs = document.querySelectorAll('input, select, textarea');
+  inputs.forEach(input => {
+    const id = input.getAttribute('id');
+    const hasLabel = id && document.querySelector(`label[for="${id}"]`);
+    const hasAriaLabel = input.getAttribute('aria-label');
+    const hasAriaLabelledby = input.getAttribute('aria-labelledby');
+    const hasTitle = input.getAttribute('title');
+
+    if (!hasLabel && !hasAriaLabel && !hasAriaLabelledby && !hasTitle) {
+      issues.push({
+        code: 'MISSING_FORM_LABEL',
+        severity: 'error',
+        message: `Form input missing accessible label: ${input.tagName.toLowerCase()}${id ? '#' + id : ''}`
+      });
+    }
+  });
+
+  // Check for images without alt text
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    if (!img.hasAttribute('alt')) {
+      issues.push({
+        code: 'MISSING_ALT_TEXT',
+        severity: 'error',
+        message: `Image missing alt attribute: ${img.src || 'unknown'}`
+      });
+    } else if (img.getAttribute('alt') === '') {
+      // Empty alt is okay for decorative images, but flag for review
+      issues.push({
+        code: 'EMPTY_ALT_TEXT',
+        severity: 'info',
+        message: `Image has empty alt text (decorative?): ${img.src || 'unknown'}`
+      });
+    }
+  });
+
+  // Check for landmark issues
+  const landmarkCheck = checkLandmarkElements();
+  if (!landmarkCheck.valid) {
+    landmarkCheck.errors.forEach(error => {
+      issues.push({
+        code: 'LANDMARK_ERROR',
+        severity: 'error',
+        message: error
+      });
+    });
+  }
+  landmarkCheck.warnings.forEach(warning => {
+    issues.push({
+      code: 'LANDMARK_WARNING',
+      severity: 'warning',
+      message: warning
+    });
+  });
+
+  return { valid: issues.filter(i => i.severity === 'error').length === 0, issues };
+}

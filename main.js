@@ -1,5 +1,3 @@
-// ... (The rest of the code remains the same as in the provided content)
-
 import React from 'react';
 import { render } from 'react-dom';
 import {
@@ -74,8 +72,17 @@ class ScreepsBot {
   // ... (Add the event listener for click events on the dependencyGraph element)
 }
 
+// Extract the accessible name for an SVG from its content
+function extractAccessibleNameFromSVG(svgContent) {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(svgContent, "image/svg+xml");
+  const title = xmlDoc.getElementsByTagName("title");
+  return title.length > 0 ? title[0].textContent : '';
+}
+
 // Export the new function
 module.exports = {
   // ... (The existing exports remain the same)
   createInPageButtons,
+  extractAccessibleNameFromSVG
 };

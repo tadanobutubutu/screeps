@@ -285,7 +285,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   browserA11y.init();
 }
 
-module.exports = {
+// Export all functions
+export {
   // ... existing export from the conflicting branch
 
   // Additions from both branches

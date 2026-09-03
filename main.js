@@ -1,3 +1,6 @@
+// TODO: This is the modified and merged code
+// This is the existing code that needs to be preserved in main.js
+
 const main = require('./utilities')
 
 // Function for getting the language attribute based on content

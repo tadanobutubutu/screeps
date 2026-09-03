@@ -60,6 +60,8 @@ const landmarks = [];
 
 let icons = {};
 
+const books = [];
+
 function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
@@ -101,6 +103,14 @@ function validateTableAccessibility(table) {
   };
 }
 
+function validateTableAccessibility(tableElement) {
+  if (!tableElement) {
+    console.warn('Table missing caption');
+    return false;
+  }
+  return true;
+}
+
 function validateTableStructure(tables) {
   const allIssues = [];
 
@@ -129,6 +139,15 @@ function validateTableStructure(tables) {
     success: allIssues.length === 0,
     issues: allIssues
   };
+}
+
+function validateTableStructure(tableElement) {
+  const rows = tableElement ? tableElement.querySelectorAll('tr') : [];
+  if (rows.length === 0) {
+    console.warn('Table has no rows');
+    return false;
+  }
+  return true;
 }
 
 function getSvgAccessibleName(svgElement) {
@@ -174,7 +193,7 @@ function helper(input) {
   return input ? input.toUpperCase() : '';
 }
 
-function safetyCategoriesList = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+const safetyCategoriesList = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
 
 function getUserSafetyAdvice() {
   return safetyCategoriesList[Math.floor(Math.random() * safetyCategoriesList.length)];
@@ -199,51 +218,6 @@ function getBooksList() {
   });
 
   return booksList.join("\n");
-}
-
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-function getFullLangAttribute() {
-  // Implementation to get full language attribute
-  return document.documentElement.lang || navigator.language || 'en-US';
-}
-
-function validateTableAccessibility(tableElement) {
-  if (!tableElement) {
-    console.warn('Table missing caption');
-    return false;
-  }
-  return true;
-}
-
-function validateTableStructure(tableElement) {
-  const rows = tableElement ? tableElement.querySelectorAll('tr') : [];
-  if (rows.length === 0) {
-    console.warn('Table has no rows');
-    return false;
-  }
-  return true;
-}
-
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return 'Accessible SVG Icon';
-
-  const title = svgElement.querySelector ? svgElement.querySelector('title') : null;
-  const ariaLabel = svgElement.getAttribute ? svgElement.getAttribute('aria-label') : null;
-
-  return title ? title.textContent : ariaLabel;
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  if (svg && typeof svg === 'object') {
-    svg.setAttribute('role', 'img');
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-  }
-  return svg;
 }
 
 function createInPageButton(text, onClick) {
@@ -320,12 +294,6 @@ function ensureUniqueLandmarks(landmarksArg) {
   return landmarks;
 }
 
-function initializeApp() {
-  appState.initialized = true;
-  console.log('Initializing application...');
-  return true;
-}
-
 function getConfig() {
   return config;
 }
@@ -338,3 +306,36 @@ function addLangAttribute() {
   const lang = getFullLangAttribute();
   document.documentElement.setAttribute('lang', lang);
   return lang;
+}
+
+module.exports = {
+  countDependencies,
+  config,
+  LANDMARK_CONFIG,
+  CONFIG,
+  landmarks,
+  icons,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  addLandmarkRegions,
+  transformHtmlHeaders,
+  addressInsightIssues,
+  helper,
+  safetyCategoriesList,
+  getUserSafetyAdvice,
+  addBook,
+  announceBookAdded,
+  getBooksList,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  initializeApp,
+  ensureUniqueLandmarks,
+  getConfig,
+  validateInput,
+  addLangAttribute
+};

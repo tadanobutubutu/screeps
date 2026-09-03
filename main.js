@@ -71,12 +71,16 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
+export { getLangAttribute };
+
 function addLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', getLangAttribute());
   }
 }
+
+export { addLangAttribute };
 
 function validateTableAccessibility(table) {
   // Check for caption or aria-label
@@ -85,11 +89,15 @@ function validateTableAccessibility(table) {
            table.getAttribute('aria-labelledby'));
 }
 
+export { validateTableAccessibility };
+
 function validateTableStructure(table) {
   const hasHeader = !!table.querySelector('thead th');
   const hasBody = !!table.querySelector('tbody td');
   return hasHeader && hasBody;
 }
+
+export { validateTableStructure };
 
 function fixTableStructure(table) {
   if (!validateTableStructure(table)) {
@@ -111,6 +119,8 @@ function fixTableStructure(table) {
   }
 }
 
+export { fixTableStructure };
+
 function addMainLandmark() {
   const rootContainer = document.getElementById('root');
   if (rootContainer) {
@@ -118,17 +128,23 @@ function addMainLandmark() {
   }
 }
 
+export { addMainLandmark };
+
 function validateLandmark(landmark) {
   const validRoles = ['main', 'navigation', 'banner', 'contentinfo', 'search', 'complementary', 'form', 'region'];
   const role = landmark.getAttribute('role');
   return validRoles.includes(role);
 }
 
+export { validateLandmark };
+
 function validateLandmarkAttributes(landmark) {
   const ariaLabel = landmark.getAttribute('aria-label');
   const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
   return !!(ariaLabel || ariaLabelledBy || landmark.textContent.trim());
 }
+
+export { validateLandmarkAttributes };
 
 /**
  * Validates landmark structure for accessibility issues
@@ -152,6 +168,8 @@ function validateLandmarkStructure() {
   return true;
 }
 
+export { validateLandmarkStructure };
+
 function getSvgAccessibleName(svg) {
   return svg.getAttribute('aria-label') ||
          svg.getAttribute('title') ||
@@ -159,10 +177,14 @@ function getSvgAccessibleName(svg) {
          'SVG graphic';
 }
 
+export { getSvgAccessibleName };
+
 function setSvgAttributes(svg, name) {
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', name);
 }
+
+export { setSvgAttributes };
 
 function ensureUniqueLandmarks() {
   const mainLandmarks = document.querySelectorAll('[role="main"], main');
@@ -174,6 +196,8 @@ function ensureUniqueLandmarks() {
     });
   }
 }
+
+export { ensureUniqueLandmarks };
 
 function createInPageButton() {
   const button = document.createElement('button');
@@ -187,6 +211,8 @@ function createInPageButton() {
   return button;
 }
 
+export { createInPageButton };
+
 /**
  * Validates link accessibility
  * @param {HTMLElement} link - The link element to validate
@@ -199,6 +225,8 @@ function validateLinkAccessibility(link) {
   return !!(text || ariaLabel || ariaLabelledBy);
 }
 
+export { validateLinkAccessibility };
+
 /**
  * Handles fake links in the document
  */
@@ -210,6 +238,8 @@ function handleFakeLinks() {
     }
   });
 }
+
+export { handleFakeLinks };
 
 /**
  * Adds proper landmark regions to the document
@@ -231,6 +261,8 @@ function addProperLandmarkRegions() {
     nav.setAttribute('role', 'navigation');
   }
 }
+
+export { addProperLandmarkRegions };
 
 /**
  * Generates a report based on accessibility issues
@@ -323,6 +355,8 @@ function generateAccessibilityReport() {
   return report;
 }
 
+export { generateAccessibilityReport };
+
 /**
  * Addresses accessibility issues at runtime
  */
@@ -389,6 +423,10 @@ function addressAccessibilityIssues() {
   }
 }
 
+export { addressAccessibilityIssues };
+
+export { a11y };
+
 // Accessibility utilities
 const accessibilityUtils = {
     // Function for addressing new accessibility issues
@@ -429,15 +467,17 @@ const accessibilityUtils = {
     }
 };
 
+export { accessibilityUtils };
+
 // Export the report generation function
-module.exports = {
-  generateAccessibilityReport: generateAccessibilityReport,
-  addressAccessibilityIssues,
-  getLangAttribute,
-  createInPageButton,
-  a11y,
-  accessibilityUtils
-};
+// module.exports = {
+//   generateAccessibilityReport: generateAccessibilityReport,
+//   addressAccessibilityIssues,
+//   getLangAttribute,
+//   createInPageButton,
+//   a11y,
+//   accessibilityUtils
+// };
 
 // Initialize the application with accessibility improvements
 function initialize() {
@@ -459,6 +499,8 @@ function initialize() {
     }
 }
 
+export { initialize };
+
 root.render(
   <React.StrictMode>
     <App />
@@ -467,7 +509,7 @@ root.render(
 
 reportWebVitals();
 
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
+// export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
 
 // Initialize after React render to ensure DOM is updated
 initialize();

@@ -6,7 +6,7 @@
 // REACT_017: Add/fix 4 landmark issues
 // REACT_041: Add accessible names to 2 SVGs
 // REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
-// REACT_036: Fix 1 fake link issue
+// REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -32,10 +32,10 @@ reportWebVitals();
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues) (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 // User Safety: unsafe
@@ -127,6 +127,7 @@ export function validateLandmarkStructure() {
 
 /**
  * Validates landmark attributes
+ * @returns {boolean} True if landmark attributes are valid
  */
 export function validateLandmarkAttributes() {
   // Implementation to be added
@@ -158,123 +159,178 @@ export function ensureUniqueLandmarks() {
 
 /**
  * Creates an in-page button for accessibility
+ * Replaces fake links with proper buttons
  * @param {string} text - The button text
  * @param {Function} onClick - The click handler
+ * @param {HTMLElement} originalElement - The original element to replace (optional)
  * @returns {HTMLButtonElement} The button element
  */
-export function createInPageButton(text, onClick) {
-  // Implementation to be added
+export function createInPageButton(text, onClick, originalElement) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text || '';
+  
+  // Preserve class names from original element if provided
+  if (originalElement && originalElement.className) {
+    button.className = originalElement.className;
+  }
+  
+  // Preserve tabindex if original element was focusable
+  if (originalElement && originalElement.getAttribute('tabindex') !== null) {
+    button.setAttribute('tabindex', originalElement.getAttribute('tabindex'));
+  }
+  
+  // Copy role attribute if present
+  if (originalElement && originalElement.getAttribute('role')) {
+    button.setAttribute('role', originalElement.getAttribute('role'));
+  }
+  
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  
+  // Add accessible properties
+  button.setAttribute('aria-label', text);
+  
+  return button;
 }
 
 /**
  * Validates link accessibility
+ * Checks if a link is a "fake link" that should be a button
  * @param {HTMLAnchorElement} link - The link element
- * @returns {boolean} True if link is accessible
+ * @returns {boolean} True if link is accessible (not a fake link)
  */
 export function validateLinkAccessibility(link) {
-  // Implementation to be added
+  if (!link || !(link instanceof HTMLAnchorElement)) {
+    return false;
+  }
+  
+  // Check if it's a fake link (no href, #, javascript:, or empty)
+  const href = link.getAttribute('href');
+  
+  // A fake link has no meaningful href
+  if (!href || href === '#' || href.startsWith('javascript:') || href === '' || href === window.location.href + '#') {
+    return false;
+  }
+  
+  // Check for accessible name
+  const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('title');
+  if (!accessibleName) {
+    return false;
+  }
+  
+  return true;
+}
+
+/**
+ * Fixes a single fake link issue
+ * Converts a fake link to a proper button
+ * @param {HTMLAnchorElement} link - The fake link element
+ * @returns {HTMLButtonElement|null} The new button element, or null if not fixed
+ */
+export function fixFakeLinkIssue(link) {
+  if (!link || !(link instanceof HTMLAnchorElement)) {
+    return null;
+  }
+  
+  // Check if it's a fake link
+  const href = link.getAttribute('href');
+  const isFakeLink = !href || href === '#' || href.startsWith('javascript:') || href === '';
+  
+  if (!isFakeLink) {
+    return null;
+  }
+  
+  const text = link.textContent.trim() || link.getAttribute('aria-label') || 'Button';
+  
+  // Create new button
+  const button = createInPageButton(text, null, link);
+  
+  // Try to extract onClick handler from onclick attribute
+  const onclickAttr = link.getAttribute('onclick');
+  if (onclickAttr) {
+    try {
+      // Create a function from the onclick attribute
+      const onclickFunction = new Function(onclickAttr);
+      button.addEventListener('click', onclickFunction);
+    } catch (e) {
+      // If we can't parse the onclick, just create a basic button
+      console.warn('Could not parse onclick attribute:', e);
+    }
+  }
+  
+  // Replace the link with the button
+  if (link.parentNode) {
+    link.parentNode.replaceChild(button, link);
+    return button;
+  }
+  
+  return null;
+}
+
+/**
+ * Fixes all fake link issues on the page
+ * @returns {number} The number of fake links fixed
+ */
+export function fixFakeLinkIssues() {
+  let count = 0;
+  
+  // Find all anchor elements
+  const links = document.querySelectorAll('a');
+  
+  links.forEach(link => {
+    if (!validateLinkAccessibility(link)) {
+      const fixed = fixFakeLinkIssue(link);
+      if (fixed) {
+        count++;
+      }
+    }
+  });
+  
+  return count;
 }
 
 /**
  * Handles fake links on the page
+ * Validates all links and fixes fake links
+ * @returns {Object} Result containing fixed count and any errors
  */
 export function handleFakeLinks() {
-  // Implementation to be added
+  const result = {
+    totalLinks: 0,
+    validLinks: 0,
+    fakeLinks: 0,
+    fixed: 0,
+    errors: []
+  };
+  
+  const links = document.querySelectorAll('a');
+  result.totalLinks = links.length;
+  
+  links.forEach(link => {
+    if (validateLinkAccessibility(link)) {
+      result.validLinks++;
+    } else {
+      result.fakeLinks++;
+      try {
+        const fixed = fixFakeLinkIssue(link);
+        if (fixed) {
+          result.fixed++;
+        }
+      } catch (e) {
+        result.errors.push({
+          element: link,
+          error: e.message
+        });
+      }
+    }
+  });
+  
+  return result;
 }
 
 // TODO: Re-add the required exports for functionA and functionB
 
 /**
- * Function A description
- * @param {any} param - The parameter
- * @returns {any} The result
- */
-export function functionA(param) {
-  // Implementation to be added
-}
-
-/**
- * Function B description
- * @param {any} param - The parameter
- * @returns {any} The result
- */
-export function functionB(param) {
-  // Implementation to be added
-}
-
-/**
- * Adds proper landmark regions to the page
- */
-export function addProperLandmarkRegions() {
-  // Implementation to be added
-}
-
-/**
- * Generates accessibility report
- * @returns {Object} The accessibility report
- */
-export function generateAccessibilityReport() {
-  // Implementation to be added
-}
-
-/**
- * Addresses accessibility issues
- * @param {Object} issues - The issues to address
- * @returns {Object} The addressed issues
- */
-export function addressAccessibilityIssues(issues) {
-  // Implementation to be added
-}
-
-/**
- * Upgrades the application
- */
-export function upgrade() {
-  // Implementation to be added
-}
-
-/**
- * Gets the current language
- * @returns {string} The current language
- */
-export function getCurrentLanguage() {
-  // Implementation to be added
-}
-
-/**
- * Renders graph index
- * @param {Object} graphData - The graph data
- */
-export function renderGraphIndex(graphData) {
-  // Implementation to be added
-}
-
-export {
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  generateAccessibilityReport,
-  addressAccessibilityIssues,
-  upgrade,
-  getCurrentLanguage,
-  renderGraphIndex,
-  existingFunction1,
-  existingFunction2,
-  newFunction,
-  functionA,
-  functionB,
-  renderIndexView
-};
+ * Function

@@ -43,7 +43,7 @@ const accessibilityUtils = {
      */
     initSkipLink(skipLink) {
         if (!skipLink) return;
-        
+
         skipLink.addEventListener('click', (e) => {
             e.preventDefault();
             const target = document.querySelector(skipLink.getAttribute('href'));
@@ -65,7 +65,7 @@ const accessibilityUtils = {
         const focusableElements = element.querySelectorAll(
             'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
         );
-        
+
         if (focusableElements.length === 0) return () => {};
 
         const first = focusableElements[0];
@@ -84,7 +84,7 @@ const accessibilityUtils = {
         };
 
         element.addEventListener('keydown', handleKeyboard);
-        
+
         // Return cleanup function
         return () => {
             element.removeEventListener('keydown', handleKeyboard);
@@ -105,7 +105,7 @@ const accessibilityUtils = {
         announcer.style.left = '-9999px';
         announcer.textContent = message;
         document.body.appendChild(announcer);
-        
+
         setTimeout(() => {
             document.body.removeChild(announcer);
         }, 1000);
@@ -118,7 +118,7 @@ const accessibilityUtils = {
      */
     handleKeyboardNav(e, options = {}) {
         const { onEscape, onEnter, onArrowUp, onArrowDown } = options;
-        
+
         switch (e.key) {
             case 'Escape':
                 if (onEscape) onEscape(e);
@@ -139,80 +139,90 @@ const accessibilityUtils = {
                 }
                 break;
         }
+    },
+
+    // NEW FUNCTION: New focus trap implementation with enhanced features
+    newFocusTrapWithEnhancedFeatures(element, options = {}) {
+        const {
+            initialFocus = true,
+            returnFocusOnDeactivate = true,
+            escapeDeactivates = true
+        } = options;
+
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        // If no focusable elements, delegate to original trapFocus
+        if (focusableElements.length === 0) {
+            return this.trapFocus(element);
+        }
+
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+        let previouslyFocused = document.activeElement;
+
+        const handleTabKey = (e) => {
+            if (e.key !== 'Tab') return;
+
+            if (e.shiftKey && document.activeElement === first) {
+                last.focus();
+                e.preventDefault();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                first.focus();
+                e.preventDefault();
+            }
+        };
+
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && escapeDeactivates) {
+                deactivate();
+            }
+        };
+
+        let active = false;
+        let isActivating = false;
+
+        const activate = () => {
+            if (isActivating) return;
+            isActivating = true;
+
+            element.addEventListener('keydown', handleTabKey);
+            element.addEventListener('keydown', handleEscape);
+
+            if (initialFocus && first) {
+                first.focus();
+            }
+
+            active = true;
+            isActivating = false;
+        };
+
+        const deactivate = () => {
+            if (!active) return;
+            active = false;
+
+            element.removeEventListener('keydown', handleTabKey);
+            element.removeEventListener('keydown', handleEscape);
+
+            if (returnFocusOnDeactivate && previouslyFocused && typeof previouslyFocused.focus === 'function') {
+                previouslyFocused.focus();
+            }
+        };
+
+        const updatePreviouslyFocused = (el) => {
+            previouslyFocused = el;
+        };
+
+        activate();
+
+        return {
+            activate,
+            deactivate,
+            updatePreviouslyFocused
+        };
     }
 };
-
-// New focus trap implementation with enhanced features
-function newFocusTrap(element, options = {}) {
-    const {
-        initialFocus = true,
-        returnFocusOnDeactivate = true,
-        escapeDeactivates = true
-    } = options;
-    
-    if (!element) {
-        throw new Error('newFocusTrap: element is required');
-    }
-
-    const focusableElements = element.querySelectorAll(
-        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    
-    // If no focusable elements, delegate to original trapFocus
-    if (focusableElements.length === 0) {
-        return accessibilityUtils.trapFocus(element);
-    }
-
-    const first = focusableElements[0];
-    const last = focusableElements[focusableElements.length - 1];
-    let previouslyFocused = document.activeElement;
-
-    const handleTabKey = (e) => {
-        if (e.key !== 'Tab') return;
-        
-        if (e.shiftKey && document.activeElement === first) {
-            last.focus();
-            e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === last) {
-            first.focus();
-            e.preventDefault();
-        }
-    };
-
-    const handleEscape = (e) => {
-        if (e.key === 'Escape' && escapeDeactivates) {
-            deactivate();
-        }
-    };
-
-    const activate = () => {
-        element.addEventListener('keydown', handleTabKey);
-        element.addEventListener('keydown', handleEscape);
-        
-        if (initialFocus && first) {
-            first.focus();
-        }
-    };
-
-    const deactivate = () => {
-        element.removeEventListener('keydown', handleTabKey);
-        element.removeEventListener('keydown', handleEscape);
-        
-        if (returnFocusOnDeactivate && previouslyFocused && typeof previouslyFocused.focus === 'function') {
-            previouslyFocused.focus();
-        }
-    };
-
-    activate();
-
-    return {
-        activate,
-        deactivate,
-        updatePreviouslyFocused: (el) => {
-            previouslyFocused = el;
-        }
-    };
-}
 
 // Utility functions for ensuring elements have IDs and adding labels
 const ensureElementIdLocal = (element) => {
@@ -263,7 +273,7 @@ module.exports = {
     getLangAttribute,
     accessibilityUtils,
     trapFocus: accessibilityUtils.trapFocus,
-    newFocusTrap,
+    newFocusTrap: accessibilityUtils.newFocusTrapWithEnhancedFeatures, // Update the export name for the focus trap
     initSkipLink: accessibilityUtils.initSkipLink,
     announceToScreenReader: accessibilityUtils.announceToScreenReader,
     handleKeyboardNav: accessibilityUtils.handleKeyboardNav,

@@ -11,7 +11,7 @@ function ensureAccessibleName(element) {
     // Use accessibleName
   }
 
-  setSvgAttributes(document.querySelectorAll('svg'));
+  return accessibleName;
 }
 
 function fixMain(tableElement) {
@@ -63,7 +63,7 @@ const config = {
 function init() {
   const svgElements = document.querySelectorAll('svg');
 
-  svgElements.forEach(function(svg) {
+  svgElements.forEach(svg => {
     if (!svg.id) {
       svg.setAttribute('id', 'svg-' + Math.random().toString(36).substr(2, 9));
     }
@@ -85,7 +85,7 @@ function getSvgAccessibleName(svg) {
 }
 
 function setSvgAttributes(svg) {
-  if (!svg.getAttribute('aria-hidden')) {
+  if (svg) {
     svg.setAttribute('aria-hidden', 'false');
   }
 }
@@ -102,7 +102,7 @@ function calculateSum(a, b) {
 }
 
 // Find the primary content element in the DOM
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('[role="main"]') || document.querySelector('main') || document.querySelector('#content') || null : null;
 
 // Adding the required export that was removed
 const XYZ = function () {
@@ -112,7 +112,7 @@ const XYZ = function () {
 // New functions to address the listed issues
 function addressInsightIssues() {
   getLangAttribute();
-  addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+  const landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
 
   if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
     ensureLandmarkUniqueness(landmarks);
@@ -122,14 +122,10 @@ function addressInsightIssues() {
   validateTableAccessibility();
   validateTableStructure();
 
-  getSvgAccessibleName();
-
   createInPageButton();
   createAccessibleLink();
-  handleAccessibilityIssues();
 
   validateLandmark();
-  validateLandmarkStructure();
 }
 
 function initializeApp() {
@@ -180,10 +176,11 @@ function validateLandmark(element) {
 
   return {
     issues: issues,
+    valid: isValid
   };
 }
 
-function addressNewAccessibilityIssues(insightReport) {
+function processInsightReport(insightReport) {
   const results = [];
 
   if (!insightReport) {
@@ -197,13 +194,13 @@ function addressNewAccessibilityIssues(insightReport) {
         case 'REACT_015':
           // Add lang attribute to HTML element
           const lang = getLangAttribute();
-          if (lang) {
+          if (lang && typeof document !== 'undefined') {
             document.documentElement.lang = lang;
           }
           break;
         case 'REACT_027':
           // Fix table structure issues
-          const tables = document.querySelectorAll('table');
+          const tables = typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
           tables.forEach((table, index) => {
             const tableResult = validateTableAccessibility(table);
             if (!tableResult.valid) {
@@ -213,8 +210,8 @@ function addressNewAccessibilityIssues(insightReport) {
           break;
         case 'REACT_017':
           // Fix landmark issues
-          const landmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="navigation"], [role="contentinfo"], [role="complementary"], [role="region"], [role="form"]');
-          landmarks.forEach(landmark => {
+          const landmarkElements = typeof document !== 'undefined' ? document.querySelectorAll('[role="main"], [role="navigation"], [role="contentinfo"], [role="complementary"], [role="region"], [role="form"]') : [];
+          landmarkElements.forEach(landmark => {
             const validation = validateLandmark(landmark);
             if (!validation.valid) {
               results.push({ type: 'REACT_017', message: validation.error });
@@ -223,7 +220,7 @@ function addressNewAccessibilityIssues(insightReport) {
           break;
         case 'REACT_041':
           // Add accessible names to SVGs
-          const svgs = document.querySelectorAll('svg');
+          const svgs = typeof document !== 'undefined' ? document.querySelectorAll('svg') : [];
           svgs.forEach(svg => {
             const accessibleName = getSvgAccessibleName(svg);
             if (!accessibleName) {
@@ -234,9 +231,9 @@ function addressNewAccessibilityIssues(insightReport) {
           break;
         case 'REACT_036':
           // Fix fake link issues
-          const fakeLinks = document.querySelectorAll('a:not([href]), [role="button"]');
+          const fakeLinks = typeof document !== 'undefined' ? document.querySelectorAll('[role="button"]') : [];
           fakeLinks.forEach(link => {
-            if (!link.hasAttribute('href') && link.getAttribute('role') === 'button') {
+            if (typeof document !== 'undefined' && link.getAttribute('role') === 'button') {
               // Convert to proper link
               link.setAttribute('href', '#');
             }
@@ -271,7 +268,7 @@ function ensureLandmarkUniqueness(elements) {
   const seen = new Map();
 
   elements.forEach(element => {
-    const key = element.id || element.name || JSON.stringify(element);
+    const key = element.id || element.name || element.className;
     if (!seen.has(key)) {
       seen.set(key, true);
       uniqueElements.push(element);
@@ -290,6 +287,7 @@ function createAccessibleLink(href, text) {
 }
 
 function handleAccessibilityIssues() {
+  // Implementation for handling accessibility issues
 }
 
 function addAriaLabel(element, label) {
@@ -355,7 +353,7 @@ const AddressabilityIssues = {
   generateAccessibilityReport: function(accessibilityReport) {
     return {};
   },
-  ensureUniqueLandmarksFromString: function(source) {
+  processSource: function(source) {
     return [];
   },
   validateLandmark: function(element) {
@@ -373,10 +371,10 @@ const AddressabilityIssues = {
 };
 
 function generateAccessibilityReport(accessibilityReport) {
-  return AddressabilityIssues.generateAccessibilityReport(accessibilityReport);
+  return accessibilityReport || {};
 }
 
-function calculateAccessibilityScore(fixedIssues) {
+function calculateScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;
   }
@@ -389,239 +387,38 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssues.reduce((total, issue) => {
+  return fixedIssues.reduce(function(total, issue) {
     const points = scorePoints[issue.type] || scorePoints.other;
     return total + points;
   }, 0);
 }
 
-const applyLangAttributeToHtml = function(htmlElement, lang) {
+const setHtmlLang = function(htmlElement, lang) {
   if (htmlElement && typeof htmlElement !== 'undefined') {
-    if (!htmlElement.getAttribute('lang')) {
+    if (typeof htmlElement.setAttribute === 'function') {
       htmlElement.setAttribute('lang', lang);
     }
   }
 };
 
-function addLangAttributeToElement(element, lang) {
-  return AddressabilityIssues.addLangAttribute(element, lang);
+function addHtmlLangAttribute(lang) {
+  return setHtmlLang(document.documentElement, lang);
 }
 
 function validateLandmarkWrapper(element) {
-  return AddressabilityIssues.validateLandmark(element);
+  return validateLandmark(element);
 }
 
-function ensureUniqueLandmarksFromString(source) {
-  return AddressabilityIssues.ensureUniqueLandmarksFromString(source);
+function processAccessibilityData(data) {
+  return data || [];
 }
 
-function spawnSomeCommand(callback) {
-  return AddressabilityIssues.spawnSomeCommand(callback);
+function handleInsightData(insightData) {
+  return insightData || {};
 }
 
 function MyComponent() {
   // Existing code that needs to be updated
   const langAttr = getLangAttribute();
   const div = document.createElement('div');
-  div.setAttribute('lang', langAttr);
-  return div;
-}
-
-// Updated function using the new functions for rendering graph/index
-function renderDependencyGraphContent() {
-  if (typeof document === 'undefined') {
-    return;
-  }
-  const container = document.getElementById('dependencyGraph');
-  if (!container) {
-    return;
-  }
-
-  if (typeof renderDependencyGraph === 'function') {
-    renderDependencyGraph(container);
-  }
-  if (typeof renderIndexView === 'function') {
-    renderIndexView(container);
-  }
-}
-
-// REACT_036: Fix fake link issue
-function fixFakeLinkIssue(doc) {
-  if (typeof doc === 'undefined' || !doc.querySelectorAll) {
-    return;
-  }
-  const clickableElements = doc.querySelectorAll('[role="link"]:not(a), [onclick]');
-  let count = 0;
-
-  clickableElements.forEach(element => {
-    const tagName = element.tagName.toLowerCase();
-    const hasHref = element.hasAttribute('href');
-
-    if (tagName !== 'a' && !hasHref) {
-      const isInteractive = element.getAttribute('role') === 'link' ||
-                             (element.hasAttribute('onclick') && element.onclick && element.onclick.toString().includes('window.location'));
-
-      if (isInteractive && !element.hasAttribute('aria-label')) {
-        const text = element.textContent.trim();
-        if (text) {
-          element.setAttribute('aria-label', text);
-        }
-      }
-      count++;
-    }
-  });
-
-  return count;
-}
-
-// Add the lang attribute to the HTML element
-if (typeof document !== 'undefined' && document.documentElement) {
-  document.documentElement.lang = getLangAttribute();
-}
-
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-
-// main.js - Accessibility-focused implementation
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs,
-// count dependencies, and address accessibility issues from insight report
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-
-// Import required modules
-const http = require('http');
-const path = require('path');
-const fs = require('fs');
-const express = require('express');
-const { exec } = require('child_process');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-
-// ... Code for other functions and the server ...
-
-// todo-hash: 56f45ce56096b85dbb75d33db0d35b21c87eaa9e
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-
-/**
- * Main application entry point with accessibility features
- */
-
-function renderDependencyGraph(container, svgElements) {
-  const accessibleName = getSvgAccessibleName(svg);
-
-  setSvgAttributes(svg);
-  return accessibleName;
-}
-
-const checkTableStructure = function(tables) {
-  if (!tables || !Array.isArray(tables)) {
-    return false;
-  }
-  return tables.every(function(table) {
-    return table.rows && table.rows.length > 0;
-  });
-};
-
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
-};
-
-// Implement function for addressing accessibility issues from insight report
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-}
-
-/**
- * Handle credential response from browser authentication
- * @param {Object} response - The credential response object
- * @returns {Object} Processed credential information
- */
-function handleCredentialResponse(response) {
-    if (!response) {
-        return { success: false, error: 'No credential response provided' };
-    }
-
-    // Check if response contains expected credential data
-    const hasCredential = response.credential || response.token || response.id;
-    
-    if (!hasCredential) {
-        return { success: false, error: 'Invalid credential response format' };
-    }
-
-    // Process credential information
-    const processedCredential = {
-        id: response.id || null,
-        token: response.token || response.credential || null,
-        name: response.name || 'Anonymous User',
-        email: response.email || null,
-        success: true
-    };
-
-    // Handle different types of credential responses
-    if (response.credential) {
-        // Google Sign-In response
-        try {
-            // Credential is a base64-encoded JWT
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            processedCredential.id = payload.sub || processedCredential.id;
-            processedCredential.email = payload.email || processedCredential.email;
-            processedCredential.name = payload.name || processedCredential.name;
-        } catch (error) {
-            console.warn('Failed to parse credential response:', error);
-        }
-    }
-
-    // Announce success to screen readers
-    if (typeof announceToScreenReader === 'function') {
-        announceToScreenReader('User successfully authenticated');
-    }
-
-    return processedCredential;
-}
-
-/**
- * Add lang attribute to HTML element for accessibility
- * @param {string} langCode - The language code to set (e.g., 'en', 'es', 'fr')
- * @returns {boolean} - Whether the lang attribute was successfully added
- */
-function addLangAttribute(langCode) {
-    if (typeof document === 'undefined') {
-        return false;
-    }
-    
-    const html = document.documentElement;
-    const defaultLang = langCode || 'en';
-    
-    if (!html.hasAttribute('lang')) {
-        html.setAttribute('lang', defaultLang);
-        return true;
-    }
-    
-    return false;
-}
+  div.setAttribute('lang', langAttr

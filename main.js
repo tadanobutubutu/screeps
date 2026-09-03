@@ -102,6 +102,19 @@ const accessibilityUtils = {
                 }
             }
         });
+    },
+    wrapPrimaryContentInMain: function () {
+        const primaryContent = document.querySelector('.primary-content');
+        
+        if (primaryContent) {
+            const mainElement = document.createElement('main');
+            const originalContent = primaryContent;
+            
+            mainElement.appendChild(originalContent);
+            primaryContent.replaceWith(mainElement);
+            
+            mainElement.setAttribute('role', 'main');
+        }
     }
 };
 
@@ -185,5 +198,6 @@ module.exports = {
   validateTableStructure,
   accessibilityUtils,
   getConfig,
-  setConfig
+  setConfig,
+  wrapPrimaryContentInMain: accessibilityUtils.wrapPrimaryContentInMain
 };

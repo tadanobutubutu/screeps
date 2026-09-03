@@ -68,4 +68,4 @@ function renderDependencyGraph(containerId, graphData) {
 }
 
 // Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure };
+export { createInPageButton, validateLandmarkStructure, renderGraphIndex, renderDependencyGraph };

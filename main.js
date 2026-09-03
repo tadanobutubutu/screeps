@@ -85,6 +85,129 @@ function trapFocus(container) {
 const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...';
 const modifiedSvgString = addAccessibleName(originalSvgString);
 
+// TODO: Implement this function for creating in-page buttons
+// (Now implemented with accessibility improvements)
+/**
+ * Creates an in-page button element with proper accessibility attributes.
+ * Implements an in-page button with accessibility improvements including
+ * aria-label, role, and tabindex support.
+ * @param {string} label - The visible text content of the button
+ * @param {Object} options - Configuration options for the button
+ * @param {string} options.ariaLabel - Accessible label for screen readers
+ * @param {string} options.id - The id attribute for the button element
+ * @param {string} options.className - CSS class name(s) for styling
+ * @param {Function} options.onClick - Click event handler
+ * @param {boolean} options.disabled - Whether the button is disabled
+ * @param {string} options.type - Button type (button, submit, reset)
+ * @param {number} options.tabIndex - Tab index for keyboard navigation
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(label, options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const button = document.createElement('button');
+
+  // Set the visible text content
+  button.textContent = label || '';
+
+  // Set the type attribute (default to 'button' to prevent form submission)
+  button.type = options.type || 'button';
+
+  // Set the id if provided
+  if (options.id) {
+    button.id = options.id;
+  }
+
+  // Set CSS class if provided
+  if (options.className) {
+    button.className = options.className;
+  }
+
+  // Set disabled state
+  if (options.disabled) {
+    button.disabled = true;
+    button.setAttribute('aria-disabled', 'true');
+  }
+
+  // Set tabindex
+  if (typeof options.tabIndex === 'number') {
+    button.setAttribute('tabindex', String(options.tabIndex));
+  }
+
+  // Set aria-label for accessibility (improvement)
+  if (options.ariaLabel) {
+    button.setAttribute('aria-label', options.ariaLabel);
+  } else if (label) {
+    // Fall back to visible label as aria-label if not explicitly provided
+    button.setAttribute('aria-label', label);
+  }
+
+  // Set role for explicit semantic meaning
+  button.setAttribute('role', 'button');
+
+  // Attach click handler if provided
+  if (typeof options.onClick === 'function') {
+    button.addEventListener('click', options.onClick);
+  }
+
+  return button;
+}
+
+/**
+ * Creates a web resource button (anchor styled as a button) with proper accessibility attributes.
+ * @param {string} label - The visible text content of the button
+ * @param {string} url - The URL the button links to
+ * @param {Object} options - Configuration options for the button
+ * @param {string} options.ariaLabel - Accessible label for screen readers
+ * @param {string} options.id - The id attribute for the button element
+ * @param {string} options.className - CSS class name(s) for styling
+ * @param {boolean} options.openInNewTab - Whether to open the link in a new tab
+ * @returns {HTMLAnchorElement} The created anchor element styled as a button
+ */
+function createWebResourceButton(label, url, options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const anchor = document.createElement('a');
+
+  // Set the visible text content
+  anchor.textContent = label || '';
+
+  // Set the href
+  anchor.href = url || '#';
+
+  // Set the id if provided
+  if (options.id) {
+    anchor.id = options.id;
+  }
+
+  // Set CSS class if provided
+  if (options.className) {
+    anchor.className = options.className;
+  }
+
+  // Set role for explicit semantic meaning
+  anchor.setAttribute('role', 'button');
+
+  // Set aria-label for accessibility
+  if (options.ariaLabel) {
+    anchor.setAttribute('aria-label', options.ariaLabel);
+  } else if (label) {
+    anchor.setAttribute('aria-label', label);
+  }
+
+  // Handle opening in new tab with proper accessibility attributes
+  if (options.openInNewTab) {
+    anchor.setAttribute('target', '_blank');
+    anchor.setAttribute('rel', 'noopener noreferrer');
+  }
+
+  return anchor;
+}
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -483,7 +606,9 @@ export {
   personName,
   validateLinks,
   createFocusTrap,
-  checkLandmarkElements
+  checkLandmarkElements,
+  createInPageButton,
+  createWebResourceButton
 };
 
 // Implement the function for addressing accessibility issues from insight report

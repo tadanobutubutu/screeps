@@ -1,7 +1,10 @@
 // main.js - Screeps game code
 // Address accessibility issues from insight report
 
-// Import any required modules
+// TODO: This is the existing code that needs to be preserved
+//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
+//<!-- todo-hash: ... -->
+
 const requiredModule1 = require('required-module-1');
 const requiredModule2 = require('required-module-2');
 const express = require('express');

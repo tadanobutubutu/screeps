@@ -1,18 +1,5 @@
-const books = [];
-const safetyCategory = "User Safety: safe";
-let userSafety = 'unsafe';
-let safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-let dependencyGraph = {};
-let UserSafety = "unsafe";
-let SafetyCategories = "Unauthorized Advice";
-const utils = require('./utils');
-const axe = require('axe-core');
 const express = require('express');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
-
-// Configuration
+const books = [];
 const config = {
   name: 'MyApp',
   version: '1.0.0',
@@ -30,7 +17,7 @@ const appData = {
     version: '1.0.0'
 };
 
-// Load landmarks from file (new addition)
+// Load landmarks from file
 function loadLandmarks() {
   try {
     const filePath = path.join(__dirname, 'landmarks.json');
@@ -98,27 +85,6 @@ function ensureUniqueLandmarksFromArray(landmarksArray) {
 function ensureLandmarkUniqueness(elements) {
   const landmarkTypes = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   const elementsById = {};
-
-  if (Array.isArray(elements)) {
-    for (const landmark of elements) {
-      if (landmark.id) {
-        if (elementsById[landmark.id]) {
-          landmark.id += '_duplicate';
-        } else {
-          elementsById[landmark.id] = true;
-        }
-      }
-    }
-  }
-
-  return elements;
-}
-
-async function analyzeModuleDependencies(modules) {
-  console.log('Analyzing dependencies for modules:', modules);
-  const dependencyMap = {};
-  let totalDependencies = 0;
-
   if (Array.isArray(modules)) {
     for (const mod of modules) {
       if (mod && mod.dependencies) {

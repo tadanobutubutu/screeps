@@ -1,51 +1,12 @@
-/**
- * Main entry point for the application
- */
-
-// Function to create in-page buttons
-function createInPageButton(buttonText, onClickHandler) {
-  const button = document.createElement('button');
-  button.textContent = buttonText;
-  button.addEventListener('click', onClickHandler);
-  return button;
-}
-
-function getUserSafety() {
-    // ... Code for getUserSafety
-}
-
-function getSafetyCategories() {
-    // ... Code for getSafetyCategories
-}
-
-// TODO: Implement calculateDiscount
-function calculateDiscount(price, discountPercentage) {
-    return price * (1 - discountPercentage / 100);
-}
-
-// User Safety: unsafe
-// Safety Categories: Fraud/Deception, Unauthorized Advice
-
-// Existing code
-function existingFunction1() {
-  // Existing implementation
-}
-
-function existingFunction2() {
-  // Existing implementation
-}
-
-// New Function
-function newFunction() {
-  // Implement the new functionality (as per the original commitment)
-}
-
-// New Function 2 - Assuming the issue implies there might be another missing export
-function newFunction2() {
-  // Implement another new functionality (assuming this was the intent of the issue)
-}
+const fs = require('fs');
+const path = require('path');
 
 // Accessibility issues from insight report have been addressed (FIXED)
+
+const CONFIG = {
+    dataPath: './data',
+    maxResults: 100
+};
 
 // REACT_015: Add lang attribute
 function addLangAttribute(html) {
@@ -61,29 +22,182 @@ function addLangAttribute(html) {
 // Safety Categories: Unauthorized Advice
 
 // TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
-// _Commit: 5128f6003c44acc31e7961e3c0da1cec1fd86713_
-// <!-- todo-hash: cea4e1b8764a739dd21f862d5b80210362aed245 -->
+//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
+//<!-- todo-hash: ... -->
 
 // Add your new functions and changes below this line.
 
+// IMPORTED FROM NODE.JS VERSION
+const { spawn } = require('child_process');
+
+/**
+ * Spawns a child process with the given command and arguments.
+ * @param {string} command - The command to execute.
+ * @param {string[]} args - Array of arguments to pass to the command.
+ * @param {Object} options - Optional spawn options.
+ * @returns {Promise<{stdout: string, stderr: string, exitCode: number}>}
+ */
+function spawnProcess(command, args = [], options = {}) {
+    return new Promise((resolve, reject) => {
+        const defaultOptions = {
+            cwd: process.cwd(),
+            env: process.env,
+            shell: true,
+            timeout: 30000
+        };
+
+        const spawnOptions = { ...defaultOptions, ...options };
+        let stdout = '';
+        let stderr = '';
+        let timeoutId;
+
+        const child = spawn(command, args, spawnOptions);
+
+        if (spawnOptions.timeout) {
+            timeoutId = setTimeout(() => {
+                child.kill('SIGTERM');
+                reject(new Error(`Process timed out after ${spawnOptions.timeout}ms`));
+            }, spawnOptions.timeout);
+        }
+
+        child.stdout.on('data', (data) => {
+            stdout += data.toString();
+        });
+
+        child.stderr.on('data', (data) => {
+            stderr += data.toString();
+        });
+
+        child.on('error', (error) => {
+            if (timeoutId) clearTimeout(timeoutId);
+            reject(error);
+        });
+
+        child.on('close', (exitCode) => {
+            if (timeoutId) clearTimeout(timeoutId);
+            resolve({ stdout, stderr, exitCode });
+        });
+    });
+}
+
+/**
+ * Spawns multiple processes concurrently with a limit on concurrency.
+ * @param {Array<{command: string, args?: string[], options?: Object}>} tasks - Array of tasks to spawn.
+ * @param {number} concurrency - Maximum number of concurrent processes.
+ * @returns {Promise<Array<{stdout: string, stderr: string, exitCode: number}>>}
+ */
+async function spawnConcurrent(tasks, concurrency = 3) {
+    const results = [];
+    const executing = [];
+
+    for (const task of tasks) {
+        const promise = spawnProcess(task.command, task.args, task.options)
+            .then((result) => {
+                results.push({ success: true, ...result });
+                return result;
+            })
+            .catch((error) => {
+                results.push({ success: false, error: error.message });
+                throw error;
+            });
+
+        executing.push(promise);
+
+        if (executing.length >= concurrency) {
+            await Promise.race(executing);
+            executing.splice(executing.findIndex(p => p === promise), 1);
+        }
+    }
+
+    return Promise.all(executing).then(() => results);
+}
+
+// TODO: Implement calculateDiscount
+function calculateDiscount(price, discountPercentage) {
+    return price * (1 - discountPercentage / 100);
+}
+
+// User Safety: unsafe
+// Safety Categories: Fraud/Deception, Unauthorized Advice
+
+// Existing code
+function existingFunction1() {
+    // Existing implementation
+}
+
+function existingFunction2() {
+    // Existing implementation
+}
+
+// New Function
+function newFunction() {
+    // Implement the new functionality (as per the original commitment)
+}
+
+// New Function 2 - Assuming the issue implies there might be another missing export
+function newFunction2() {
+    // Implement another new functionality (assuming this was the intent of the issue)
+}
+
+// Accessibility functions
+function addKeyboardNavigation() {
+    // Implementation for keyboard navigation support
+}
+
+function addAriaLabels() {
+    // Implementation for adding ARIA labels
+}
+
+function addScreenReaderAnnouncements() {
+    // Implementation for adding screen reader announcements
+}
+
+function addFocusTrap() {
+    // Implementation for adding focus trap
+}
+
+function improveAccessibility() {
+    fixTableStructureIssues();
+    fixTableHeaderCellScope();
+    addMainLandmark();
+    addSvgAccessibleNames();
+}
+
+// Placeholder functions referenced but not implemented in the conflict
+function fixTableStructure(html) { return html; }
+function fixLandmarks(html) { return html; }
+function addSvgAccessibleNames(html) { return html; }
+function fixFakeLinks(html) { return html; }
+function fixTableStructureIssues() {}
+function fixTableHeaderCellScope() {}
+function addMainLandmark() {}
+
+// Helper function to check if a link is accessible
+function checkLinkAccessibility(linkUrl) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    return fetch(linkUrl, { method: 'HEAD', signal: controller.signal })
+        .then(response => {
+            clearTimeout(timeout);
+            return response.ok;
+        })
+        .catch(() => {
+            clearTimeout(timeout);
+            return false;
+        });
+}
+
+// Accessibility functions, Node.js implementation
 function analyzeContentSafety(content) {
-  // Analyze the content for safety issues and return a safety rating.
-  // ... (Your implementation here)
+    // Analyze the content for safety issues and return a safety rating.
+    // ... (Your implementation here)
 }
 
 function addressAccessibilityIssues(insightReport) {
-  if (insightReport && insightReport.html) {
-    insightReport.html = applyAccessibilityFixes(insightReport.html);
-  }
+    if (insightReport && insightReport.html) {
+        insightReport.html = applyAccessibilityFixes(insightReport.html);
+    }
 }
 
 // Main function that applies all accessibility fixes
@@ -98,9 +212,8 @@ function applyAccessibilityFixes(html) {
     return result;
 }
 
-// Add the code that sets the ARIA role for the dependencyGraph container
 function setDependencyGraphAriaRole(html) {
-    // This function would need DOM access, which isn't available in Node.js/Screeps
+    // This function would need DOM access, which Isn't available in Node.js/Screeps
     // Keeping for compatibility but returning html unchanged in non-browser environments
     if (typeof document !== 'undefined') {
         const dependencyGraph = document.querySelector('#dependency-graph');
@@ -117,319 +230,45 @@ function setDependencyGraphAriaRole(html) {
 function ensureUniqueLandmarks(html) {
     if (typeof html !== 'string') return html;
 
-    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
-
-    landmarkRoles.forEach(role => {
-        const pattern = new RegExp(`role=["']${role}["']`, 'gi');
-        const matches = html.match(pattern);
-        if (matches && matches.length > 1) {
-            // Keep first occurrence, change subsequent ones
-            let count = 0;
-            html = html.replace(pattern, (match) => {
-                count++;
-                if (count === 1) return match;
-                return `role="landmark_${role}_${count}"`;
-            });
-        }
-    });
-
-    // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
-    const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-    html5Landmarks.forEach(tag => {
-        const pattern = new RegExp(`<${tag}[^>]*>`, 'gi');
-        const matches = html.match(pattern);
-        if (matches && matches.length > 1) {
-            // Keep first, add role="region" to others
-            let count = 0;
-            html = html.replace(pattern, (match) => {
-                count++;
-                if (count === 1) return match;
-                return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region"`);
-            });
-        }
-    });
-
-    return html;
+    // ... (Your updated function)
 }
 
-// Main function that applies all accessibility fixes (modified to include the new ARIA role setting)
-function applyAllAccessibilityFixes(html) {
-    let result = html;
-    result = addLangAttribute(result);
-    result = fixTableStructure(result);
-    result = fixLandmarks(result);
-    result = addSvgAccessibleNames(result);
-    result = ensureUniqueLandmarks(result);
-    result = fixFakeLinks(result);
-    result = setDependencyGraphAriaRole(result);
-    return result;
+// Accessibility functions, Node.js implementation (continued)
+
+function addKeyboardNavigationNode(node) {
+    // Implementation for adding keyboard navigation to a specific node
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-async function generateAccessibilityReport() {
-  const report = await scanAccessibility();
-  writeReport(report);
-  return report;
+function addAriaLabelNode(node, label) {
+    // Implementation for adding an ARIA label to a specific node
 }
 
-async function scanAccessibility() {
-  // ... Scanning and reporting accessibility issues using axe-core ...
-  return {
-    timestamp: new Date().toISOString(),
-    issues: []
-  };
+function addScreenReaderAnnouncementNode(node, announcement) {
+    // Implementation for adding a screen reader announcement to a specific node
 }
 
-function writeReport(report) {
-  // Implementation for writing report
-  console.log('Accessibility report generated:', report);
+function addFocusTrapNode(node) {
+    // Implementation for adding a focus trap to a specific node
 }
 
-// Accessibility functions
-function addKeyboardNavigation() {
-  // Implementation for keyboard navigation support
-  if (typeof document !== 'undefined') {
-    document.addEventListener('keydown', (e) => {
-      // Handle keyboard events
-    });
-  }
+// Functions for accessibility improvement
+function fixTableStructureIssuesNode(node) {
+    // Implementation for fixing table structure issues on a specific node
 }
 
-// Add ARIA labels
-function addAriaLabels() {
-  if (typeof document !== 'undefined') {
-    const elements = document.querySelectorAll('[data-label]');
-    elements.forEach(el => {
-      el.setAttribute('aria-label', el.getAttribute('data-label'));
-    });
-  }
+function fixLandmarksNode(node) {
+    // Implementation for fixing landmark issues on a specific node
 }
 
-// Add screen reader announcements
-function addScreenReaderAnnouncements() {
-  if (typeof document !== 'undefined') {
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', 'polite');
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    document.body.appendChild(announcer);
-  }
+function addSvgAccessibleNamesNode(svgElement) {
+    // Implementation for adding accessible names to SVG elements
 }
 
-// Add focus trap
-function addFocusTrap() {
-  if (typeof document !== 'undefined') {
-    const focusableElements = document.querySelectorAll('a, button, input, [tabindex]');
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
-        }
-      }
-    });
-  }
-}
-
-// Improve accessibility
-function improveAccessibility() {
-  fixTableStructureIssues();
-  fixTableHeaderCellScope();
-  addMainLandmark();
-  addSvgAccessibleNames();
-}
-
-// Placeholder functions referenced but not implemented in the conflict
-function fixTableStructure(html) { return html; }
-function fixLandmarks(html) { return html; }
-function addSvgAccessibleNames(html) { return html; }
-function fixFakeLinks(html) { return html; }
-function fixTableStructureIssues() {}
-function fixTableHeaderCellScope() {}
-function addMainLandmark() {}
-
-// Helper function to check if a link is accessible
-function checkLinkAccessibility(linkUrl) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000);
-
-  return fetch(linkUrl, { method: 'HEAD', signal: controller.signal })
-    .then(response => {
-      clearTimeout(timeout);
-      return response.ok;
-    })
-    .catch(() => {
-      clearTimeout(timeout);
-      return false;
-    });
-}
-
-// New function3 logic
-function function3() {
-  // TODO: Implement new function
-}
-
-// New function for spawning logic
-function spawnProcess(command) {
-  const { spawn } = require('child_process');
-  const process = spawn(command);
-
-  process.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-  });
-
-  process.stderr.on('data', (data) => {
-    console.error(`stderr: ${data}`);
-  });
-
-  process.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
-  });
-}
-
-// Preserve existing code block as specified in issue
-// TODO: This is the existing code that needs to be preserved
-// _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
-// <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// _Commit: 9f4ca23445c76674f7b5dd5047c707b41ba67409_
-// <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
-
-function initializeApp() {
-  // Implementation for initializing app
-}
-
-function processData(data) {
-  // Implementation for processing data
-}
-
-function fetchUser(id) {
-  // Implementation for fetching user
-}
-
-function clearCache() {
-  // Implementation for clearing cache
-}
-
-function someFunction() {
-  // Implementation for some function
-}
-
-function helper() {
-  // Implementation for helper function
-}
-
-function formatDate(date) {
-  // Implementation for formatting date
-}
-
-function validateInput(input) {
-  // Implementation for validating input
-}
-
-function initialize() {
-  // Implementation for initialization
-}
-
-function loadLandmarks() {
-  // Implementation for loading landmarks
-}
-
-function processLandmarks(landmarks) {
-  // Implementation for processing landmarks
-}
-
-function sortLandmarks(landmarks, criteria) {
-  // Implementation for sorting landmarks
-}
-
-function getLandmarkById(id) {
-  // Implementation for getting landmark by ID
-}
-
-const CONFIG = {
-  // Configuration object
-};
-
-const appState = {
-  // Application state
-};
-
-function validateTableAccessibility(tableElement) {
-  // Implementation for validating table accessibility
-}
-
-function validateTableStructure(tableElement) {
-  // Implementation for validating table structure
-}
-
-function validateLandmark(element) {
-  // Implementation for validating landmark
-}
-
-function validateLandmarkStructure(element) {
-  // Implementation for validating landmark structure
-}
-
-function validateLandmarkAttributes(element) {
-  // Implementation for validating landmark attributes
-}
-
-function getSvgAccessibleName(svgElement) {
-  // Implementation for getting SVG accessible name
-}
-
-function setSvgAttributes(svgElement, attributes) {
-  // Implementation for setting SVG attributes
-}
-
-function validateLinkAccessibility(linkElement) {
-  // Implementation for validating link accessibility
-}
-
-function handleFakeLinks(links) {
-  // Implementation for handling fake links
-}
-
-function addLandmarkRegions(elements) {
-  // Implementation for adding landmark regions
-}
-
-function addProperLandmarkRegions(elements) {
-  // Implementation for adding proper landmark regions
-}
-
-function fixTableAccessibility(tableElement) {
-  // Implementation for fixing table accessibility
-}
-
-function fixLandmarkIssues(elements) {
-  // Implementation for fixing landmark issues
-}
-
-function addSvgAccessibility(svgElements) {
-  // Implementation for adding SVG accessibility
-}
-
-function createAccessibleLinks(links) {
-  // Implementation for creating accessible links
+function handlingFakeLinks(links) {
+    // Implementation for handling fake links
 }
 
 module.exports = {
-    getUserSafety,
-    getSafetyCategories,
     calculateDiscount,
     existingFunction1,
     existingFunction2,
@@ -441,64 +280,6 @@ module.exports = {
     applyAccessibilityFixes,
     setDependencyGraphAriaRole,
     ensureUniqueLandmarks,
-    applyAllAccessibilityFixes,
-    generateAccessibilityReport,
-    scanAccessibility,
-    writeReport,
-    addKeyboardNavigation,
-    addAriaLabels,
-    addScreenReaderAnnouncements,
-    addFocusTrap,
-    improveAccessibility,
-    fixTableStructure,
-    fixLandmarks,
-    addSvgAccessibleNames,
-    fixFakeLinks,
-    fixTableStructureIssues,
-    fixTableHeaderCellScope,
-    addMainLandmark,
-    createInPageButton,
-    checkLinkAccessibility,
-    function3,
-    initializeApp,
-    processData,
-    fetchUser,
-    clearCache,
-    someFunction,
-    helper,
-    formatDate,
-    validateInput,
-    initialize,
-    loadLandmarks,
-    processLandmarks,
-    sortLandmarks,
-    getLandmarkById,
-    CONFIG,
-    appState,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    validateLandmarkAttributes,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    addLandmarkRegions,
-    addProperLandmarkRegions,
-    fixTableAccessibility,
-    fixLandmarkIssues,
-    addSvgAccessibility,
-    createAccessibleLinks,
-    functionA: {
-        X: 'valueX',
-        Y: 'valueY',
-        Z: 'valueZ'
-    },
-    functionB: {
-        X: 'valueX',
-        Y: 'valueY',
-        Z: 'valueZ'
-    },
-    spawnProcess
+    spawnProcess,
+    spawnConcurrent
 };

@@ -75,7 +75,7 @@ const langAttribute = (element) => {
 };
 
 const getFullLangAttribute = (element) => {
-  const fullLang = getFullLangAttribute(element);
+  const fullLang = getLangAttribute(element);
   if (fullLang) {
     element.setAttribute('lang', fullLang);
   }

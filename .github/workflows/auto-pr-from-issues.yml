@@ -1,7 +1,7 @@
 name: 🤖 Auto PR from Issues
 
 on:
-  issues:
+  # disabled_by_guard: issues:
     types: [opened, reopened]
   workflow_dispatch:
     inputs:
@@ -10,7 +10,7 @@ on:
         required: false
 
 permissions:
-  issues: write
+  # disabled_by_guard: issues: write
   pull-requests: write
   contents: write
 

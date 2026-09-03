@@ -405,6 +405,119 @@ function createInPageButton(parent = document.body) {
 }
 
 /**
+ * Validates an accessibility report for issues.
+ * Aggregates results of landmark validation, unique landmarks check,
+ * table accessibility/structure checks, SVG accessible names, and link accessibility.
+ * @param {Object} report - The accessibility report to validate
+ * @param {Array} report.landmarks - Array of landmark elements to validate
+ * @param {Array} report.tables - Array of table elements to validate
+ * @param {Array} report.svgs - Array of SVG elements to check for accessible names
+ * @param {Array} report.links - Array of link elements to validate
+ * @returns {Object} Result with valid boolean, errors array, and per-section details
+ */
+function validateAccessibilityReport(report) {
+  const errors = [];
+  const details = {
+    landmarks: { valid: true, errors: [] },
+    uniqueLandmarks: { valid: true, errors: [] },
+    tables: { valid: true, errors: [] },
+    tablesStructure: { valid: true, errors: [] },
+    svgs: { valid: true, errors: [] },
+    links: { valid: true, errors: [] }
+  };
+
+  if (!report || typeof report !== 'object') {
+    return {
+      valid: false,
+      errors: ['Accessibility report is required and must be an object'],
+      details: details
+    };
+  }
+
+  // Validate landmarks
+  if (Array.isArray(report.landmarks)) {
+    report.landmarks.forEach((landmark, index) => {
+      const result = validateLandmark(landmark);
+      if (!result.valid) {
+        result.errors.forEach(err => {
+          errors.push(`Landmark ${index}: ${err}`);
+          details.landmarks.errors.push(`Landmark ${index}: ${err}`);
+        });
+        details.landmarks.valid = false;
+      }
+    });
+  }
+
+  // Validate unique landmarks
+  if (typeof ensureUniqueLandmarks === 'function') {
+    const uniqueLandmarksResult = ensureUniqueLandmarks();
+    if (!uniqueLandmarksResult.valid) {
+      uniqueLandmarksResult.errors.forEach(err => {
+        errors.push(`Unique landmarks: ${err}`);
+        details.uniqueLandmarks.errors.push(err);
+      });
+      details.uniqueLandmarks.valid = false;
+    }
+  }
+
+  // Validate table accessibility
+  if (Array.isArray(report.tables)) {
+    report.tables.forEach((table, index) => {
+      const accResult = validateTableAccessibility(table);
+      if (!accResult.valid) {
+        accResult.errors.forEach(err => {
+          errors.push(`Table ${index} accessibility: ${err}`);
+          details.tables.errors.push(`Table ${index}: ${err}`);
+        });
+        details.tables.valid = false;
+      }
+
+      const structResult = validateTableStructure(table);
+      if (!structResult.valid) {
+        structResult.errors.forEach(err => {
+          errors.push(`Table ${index} structure: ${err}`);
+          details.tablesStructure.errors.push(`Table ${index}: ${err}`);
+        });
+        details.tablesStructure.valid = false;
+      }
+    });
+  }
+
+  // Validate SVG accessible names
+  if (Array.isArray(report.svgs)) {
+    report.svgs.forEach((svg, index) => {
+      const name = getSvgAccessibleName(svg);
+      if (!name || name.trim() === '') {
+        const err = `SVG ${index} is missing accessible name`;
+        errors.push(err);
+        details.svgs.errors.push(err);
+        details.svgs.valid = false;
+      }
+    });
+  }
+
+  // Validate link accessibility
+  if (Array.isArray(report.links)) {
+    report.links.forEach((link, index) => {
+      const linkResult = isLinkAccessible(link);
+      if (!linkResult.valid) {
+        linkResult.errors.forEach(err => {
+          errors.push(`Link ${index}: ${err}`);
+          details.links.errors.push(`Link ${index}: ${err}`);
+        });
+        details.links.valid = false;
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors: errors,
+    details: details
+  };
+}
+
+/**
  * Builds a hierarchical representation of dependencies from a root node
  * @param {HTMLElement} node - The DOM node to analyze for dependencies
  * @param {Object} options - Configuration options
@@ -799,6 +912,7 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  validateAccessibilityReport,
   renderDependencyGraph,
   renderIndexView,
   buildDependencyGraph,

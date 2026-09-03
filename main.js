@@ -5,13 +5,6 @@ const config = {};
 let isInitialized = false;
 const appData = {};
 
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
-// TODO: Add back any required exports that might have been removed
-
-// Address accessibility issues from insight report
-
 // Import the required module
 const { axe } = require('axe-core');
 const fs = require('fs');
@@ -83,12 +76,9 @@ module.exports = {
   formatResponse,
   getSvgAccessibleName,
   setSvgAttributes,
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
+  addressAccessibilityIssues, // This line was added to preserve the function
+  renderDependencyGraphContent, // This line was added to preserve the function
   createInPageButtons,
   fixUniqueLandmarks,
   // ... (Other exports preserved)
 };
-```
-
-This code integrates the new change related to the `addressAccessibilityIssues` function and updates the import sections. It also introduces the axe-core library for scanning accessibility issues and generates an accessibility report based on scan results.

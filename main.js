@@ -478,6 +478,140 @@ function validateLandmarkStructure(landmarks) {
   return results;
 }
 
+// Merged functions from origin/main
+
+/**
+ * Adds lang attribute to HTML element
+ */
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.lang) {
+    const lang = getLangAttribute();
+    if (lang) {
+      htmlElement.setAttribute('lang', lang);
+    }
+  }
+}
+
+/**
+ * Wraps primary content in a main landmark if not already present
+ */
+function wrapPrimaryContentInMain() {
+  const mainLandmark = document.querySelector('main');
+  if (!mainLandmark) {
+    const body = document.body;
+    if (body) {
+      const mainElement = document.createElement('main');
+      // Move all children of body into main, except scripts and styles
+      while (body.firstChild) {
+        if (body.firstChild.nodeType !== Node.SCRIPT_NODE && body.firstChild.nodeType !== Node.STYLE_NODE) {
+          mainElement.appendChild(body.firstChild);
+        } else {
+          body.removeChild(body.firstChild);
+        }
+      }
+      body.insertBefore(mainElement, body.firstChild);
+    }
+  }
+}
+
+/**
+ * Counts dependencies in the dependency graph
+ */
+function countDependencies() {
+  if (!dependencyGraph) return 0;
+  // Implementation depends on the structure of dependencyGraph
+  return Object.keys(dependencyGraph).length;
+}
+
+/**
+ * Ensures the dependency graph container has a proper ARIA role
+ */
+function ensureDependencyGraphAriaRole() {
+  const dependencyGraphEl = document.querySelector('#dependencyGraph');
+  if (dependencyGraphEl) {
+    dependencyGraphEl.setAttribute('role', 'region');
+  }
+}
+
+/**
+ * Deduplicates landmarks by name and role
+ */
+function deduplicateLandmarks(landmarks) {
+  if (!landmarks || !Array.isArray(landmarks)) return [];
+  
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    const key = `${landmark.name || ''}_${landmark.role || 'default'}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/**
+ * Loads landmarks from configuration
+ */
+function loadLandmarks() {
+  try {
+    const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
+  }
+}
+
+/**
+ * Processes landmarks array to ensure validity
+ */
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) return [];
+  return landmarks.filter(isValidLandmark);
+}
+
+/**
+ * Checks if a landmark object is valid
+ */
+function isValidLandmark(landmark) {
+  return landmark && 
+         typeof landmark === 'object' && 
+         landmark.role && 
+         config.landmarkRoles.includes(landmark.role);
+}
+
+/**
+ * Validates book data for accessibility compliance
+ */
+function validateBookAccessibility(bookData) {
+  if (!bookData) return false;
+  
+  // Check required accessibility attributes
+  const hasTitle = bookData.title && bookData.title.trim().length > 0;
+  const hasAuthor = bookData.author && bookData.author.trim().length > 0;
+  const hasAltText = !bookData.coverImage || bookData.coverAlt;
+  
+  return hasTitle && hasAuthor && hasAltText;
+}
+
+/**
+ * Creates an accessible book entry object
+ */
+function createAccessibleBookEntry(bookData) {
+  return {
+    id: bookData.id,
+    title: bookData.title,
+    author: bookData.author,
+    coverImage: bookData.coverImage,
+    coverAlt: bookData.coverAlt || `${bookData.title} cover`,
+    accessibility: {
+      hasAltText: !!bookData.coverAlt,
+      isValid: validateBookAccessibility(bookData)
+    }
+  };
+}
+
 // Export main functions
 module.exports = {
   initializeAppCore,
@@ -494,5 +628,15 @@ module.exports = {
   checkLandmarkElement,
   ensureUniqueLandmarks,
   experience,
-  scanAccessibility
+  scanAccessibility,
+  addLangAttribute,
+  wrapPrimaryContentInMain,
+  countDependencies,
+  ensureDependencyGraphAriaRole,
+  deduplicateLandmarks,
+  loadLandmarks,
+  processLandmarks,
+  isValidLandmark,
+  validateBookAccessibility,
+  createAccessibleBookEntry
 };

@@ -4,7 +4,11 @@
 //<!-- todo-hash: e6f420c2c4323fd22e178379d623df27c8f5c4eb -->
 const main = require('./utilities')
 
-function getCurrentLanguage() {
+/**
+ * Gets the lang attribute for the HTML element
+ * @returns {string} The lang attribute value
+ */
+export function getLangAttribute() {
     return navigator.language || navigator.userLanguage;
 }
 

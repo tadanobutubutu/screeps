@@ -439,8 +439,7 @@ function handleCredentialResponse(credentialResponse) {
 /**
  * Handles accessibility issues found during validation
  * @param {Array} issues - Array of accessibility issues
- * @returns {Object} Summary of handled issues
- */
+ * @returns {Object} Summary of handled issues */
 function handleAccessibilityIssues(issues) {
   const handled = [];
   const unhandled = [];

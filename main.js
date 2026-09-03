@@ -67,6 +67,15 @@ const primaryContent = typeof document !== 'undefined'
      document.getElementById('main'))
   : null;
 
+// Safety-related constants (preserved from HEAD)
+const userSafety = 'unsafe';
+const safetyCategories = 'Unauthorized Advice';
+
+let dependencyGraph = {};
+
+// Landmark data structure
+const landmarks = [];
+
 function getUserSafetyAdvice() {
   const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
   return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
@@ -183,6 +192,79 @@ function createInPageButton(buttonText, onClickHandler) {
   button.textContent = buttonText;
   button.addEventListener('click', onClickHandler);
   return button;
+}
+
+// Safety score computation (preserved from HEAD)
+function computeSafetyScore(safetyCategoriesInput) {
+  const safetyCategoryScores = {
+    'Unauthorized Advice': 0.2,
+    'Dangerous Action': 0.1,
+    'Potential Scam': 0.3,
+    'Privacy Risk': 0.4
+  };
+  let score = 1.0;
+  for (const category of safetyCategoriesInput) {
+    score *= safetyCategoryScores[category] || 1;
+  }
+  return score;
+}
+
+function checkUserSafety() {
+  let userSafetyMessage = '';
+  if (userSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
+  }
+  return userSafetyMessage;
+}
+
+function checkSafetyCategories() {
+  let safetyCategoriesMessage = '';
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+  return safetyCategoriesMessage;
+}
+
+function upgradeUserSettings() {
+  let upgradeMessage = '';
+  const upgrades = [];
+
+  if (userSafety !== 'safe') {
+    upgrades.push({ field: 'userSafety', from: userSafety, to: 'safe' });
+  }
+
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    upgrades.push({ field: 'safetyCategories', from: safetyCategories, to: 'Authorized Advice' });
+  }
+
+  if (upgrades.length > 0) {
+    upgradeMessage = `Upgrade needed: ${upgrades.length} setting(s) require update.`;
+  }
+
+  return {
+    message: upgradeMessage,
+    upgrades: upgrades,
+    requiresUpgrade: upgrades.length > 0
+  };
+}
+
+function ensureUniqueLandmarksFromArray(landmarksArray) {
+  if (!landmarksArray || !Array.isArray(landmarksArray) || landmarksArray.length === 0) {
+    return [];
+  }
+  const seen = new Set();
+  return landmarksArray.filter(landmark => {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function isValidLandmark(landmark) {
+  return landmark && landmark.id && landmark.name;
 }
 
 // Function to implement a new safety function (merged from both changes)
@@ -388,7 +470,7 @@ function ensureUniqueLandmarks(html) {
 }
 
 // Ensure unique landmarks from array
-function ensureUniqueLandmarks(landmarks) {
+function ensureUniqueLandmarksById(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
@@ -617,10 +699,6 @@ function loadLandmarks() {
   }
 }
 
-function isValidLandmark(landmark) {
-  return landmark && landmark.id && landmark.role;
-}
-
 function validateLandmark(landmark) {
   return landmark &&
          typeof landmark.id !== 'undefined' &&
@@ -830,6 +908,73 @@ function createAccessibleInput(type, id, label, value) {
   return input;
 }
 
+// Define createBookForm function (referenced by exports)
+function createBookForm(title, author, isbn) {
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-label', 'Add Book Form');
+
+  const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+  const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+  const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+  const submitButton = document.createElement('button');
+  submitButton.setAttribute('type', 'submit');
+  submitButton.setAttribute('aria-label', 'Add Book');
+  submitButton.textContent = 'Add Book';
+
+  form.appendChild(titleInput);
+  form.appendChild(authorInput);
+  form.appendChild(isbnInput);
+  form.appendChild(submitButton);
+
+  return form;
+}
+
+// Define enhanceAddBookFormAccessibility function
+function enhanceAddBookFormAccessibility(form) {
+  if (!form) return form;
+  form.setAttribute('aria-label', 'Add Book Form');
+  return form;
+}
+
+// Define ensureLandmarkUniqueness function
+function ensureLandmarkUniqueness(landmarks) {
+  return ensureUniqueLandmarksFromArray(landmarks);
+}
+
+// Define countDependencies function
+function countDependencies(dependencies) {
+  if (!Array.isArray(dependencies)) return 0;
+  return dependencies.length;
+}
+
+// Define renderDependencyGraphContent function
+function renderDependencyGraphContent(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  return report.graph;
+}
+
+// Define updateUserSafety function
+function updateUserSafety(newSafety) {
+  return { field: 'userSafety', from: userSafety, to: newSafety };
+}
+
+// Define updateSafetyCategories function
+function updateSafetyCategories(newCategories) {
+  return { field: 'safetyCategories', from: safetyCategories, to: newCategories };
+}
+
+// Define analyzeAccessibility function
+function analyzeAccessibility() {
+  return scanAccessibility();
+}
+
+// Define ensureElementHasId function (placeholder for export)
+function ensureElementHasIdExport(element) {
+  return ensureElementHasId(element);
+}
+
 // Main entry point for dependency visualization tool
 const main = {
   init: function() {
@@ -850,26 +995,7 @@ const main = {
 
   addBook: function(title, author, isbn) {
     // Create form with proper accessibility attributes
-    const form = document.createElement('form');
-    form.setAttribute('role', 'form');
-    form.setAttribute('aria-label', 'Add Book Form');
-
-    // Create accessible input fields
-    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
-    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
-    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
-
-    // Create accessible submit button
-    const submitButton = document.createElement('button');
-    submitButton.setAttribute('type', 'submit');
-    submitButton.setAttribute('aria-label', 'Add Book');
-    submitButton.textContent = 'Add Book';
-
-    // Append all elements to form
-    form.appendChild(titleInput);
-    form.appendChild(authorInput);
-    form.appendChild(isbnInput);
-    form.appendChild(submitButton);
+    const form = createBookForm(title, author, isbn);
 
     // Add form to document body
     if (typeof document !== 'undefined') {
@@ -881,10 +1007,11 @@ const main = {
       e.preventDefault();
       // Handle form submission logic here
       console.log('Book added:', {
-        title: titleInput.value,
-        author: authorInput.value,
-        isbn: isbnInput.value
+        title: title,
+        author: author,
+        isbn: isbn
       });
+      addBook(title, author);
     });
 
     return form;
@@ -978,5 +1105,27 @@ module.exports = {
     rotateBack,
     createUnrotateButton,
     replaceFakeLinksWithButtons,
-    googleSignIn
+    googleSignIn,
+    checkSafetyCategories,
+    addBook,
+    getBooksList,
+    safetyCategory,
+    createAccessibleInput,
+    createBookForm,
+    enhanceAddBookFormAccessibility,
+    ensureLandmarkUniqueness,
+    visualizeDependencyTree,
+    generateDependencyReport,
+    renderDependencyGraphContent,
+    countDependencies,
+    checkUserSafety,
+    updateUserSafety,
+    updateSafetyCategories,
+    computeSafetyScore,
+    upgradeUserSettings,
+    isValidLandmark,
+    ensureUniqueLandmarksById,
+    ensureElementHasId,
+    writeReport,
+    analyzeAccessibility
 };

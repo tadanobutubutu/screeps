@@ -1,5 +1,6 @@
 // main.js - Accessibility-focused implementation
 const http = require('http');
+// TODO: This is the existing code that needs to be preserved
 const path = require('path');
 const fs = require('fs');
 const express = require('express');

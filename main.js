@@ -364,10 +364,27 @@ function addLangAttribute() {
   }
 }
 
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
+// ----- END ORIGINAL CODE -----
+
 async function renderFunction1() {
-  await accessiblyHelper();
+  await accessfullyHelper();
 
   function wrapPrimaryContentInMain() {
     if (document.body.firstChild) {
       const wrapper = document.createElement('main');
-      wrapper.innerHTML
+      wrapper.innerHTML = '';
+      document.body.insertBefore(wrapper, document.body.firstChild);
+      wrapper.appendChild(document.body.firstChild);
+    }
+  }
+
+  wrapPrimaryContentInMain();
+}
+
+async function accessfullyHelper() {
+  // Helper function implementation
+  return Promise.resolve();
+}

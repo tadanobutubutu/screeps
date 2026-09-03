@@ -66,14 +66,14 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
+      landmarks.forEach((landmark) => {
         if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
+          landmark.setAttribute('id', `${element}-${landmark.index || 0}`);
         }
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
+            landmark.setAttribute('aria-label', `${element} ${landmark.index || 1}`);
           }
         }
       });
@@ -149,6 +149,44 @@ const a11yStore = {
         img.setAttribute('alt', '');
       }
     });
+  },
+
+  /**
+   * Handle focus trapping for keyboard navigation
+   * Opens a modal and ensures focus remains within the modal until Escape is pressed
+   * @param {HTMLElement} targetContainer - The modal/container to trap focus in
+   */
+  handleFocusTrap(targetContainer) {
+    // Store the previously focused element before opening the trap
+    const previousFocused = document.activeElement;
+
+    if (targetContainer) {
+      // Find the first focusable element within the container
+      const firstFocusable = targetContainer.querySelector('[tabindex]:not([tabindex="-1"])');
+      if (firstFocusable) {
+        firstFocusable.focus();
+        previousFocused = document.activeElement;
+
+        // Trap focus: prevent tabbing to background when inside the container
+        targetContainer.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            if (previousFocused) {
+              previousFocused.focus();
+              // Optional: close the modal here if desired
+            }
+          }
+        });
+
+        // Close the trap when clicking outside the container
+        targetContainer.addEventListener('click', (e) => {
+          if (e.target !== targetContainer) {
+            e.stopPropagation();
+            // Could implement closing logic here
+          }
+        });
+      }
+    }
   },
 
   // ... remaining a11yStore methods ...

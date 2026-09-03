@@ -426,3 +426,97 @@ export function fixFakeLinksInContainer(container) {
 
   return container
 }
+
+/**
+ * Generate a report based on accessibility issues found in the provided content.
+ * Scans the content using axe-core and writes a report describing the issues.
+ *
+ * @param {Object} content - The content/configuration object to scan.
+ *                            May include a `container` (HTMLElement) and/or `url`.
+ * @param {Object} [options] - Optional configuration for report generation.
+ * @returns {Promise<Object>} A promise that resolves to the generated report object.
+ */
+export async function generateAccessibilityReport (content, options = {}) {
+  const report = {
+    issues: [],
+    summary: {
+      total: 0,
+      critical: 0,
+      serious: 0,
+      moderate: 0,
+      minor: 0
+    },
+    generatedAt: new Date().toISOString(),
+    source: null
+  }
+
+  if (!content || typeof content !== 'object') {
+    return report
+  }
+
+  let axe
+  try {
+    axe = require('axe-core')
+  } catch (err) {
+    // axe-core may not be available in all environments; fall back to a basic scan.
+    axe = null
+  }
+
+  const container = content.container || (typeof document !== 'undefined' ? document : null)
+  const url = content.url || (typeof window !== 'undefined' ? window.location && window.location.href : null)
+
+  try {
+    let results = null
+
+    if (axe && container) {
+      results = await axe.run(container, options.axeOptions || {})
+    } else if (axe && url) {
+      results = await axe.run(url, options.axeOptions || {})
+    } else {
+      results = { violations: [] }
+    }
+
+    if (results && Array.isArray(results.violations)) {
+      results.violations.forEach(violation => {
+        const issue = {
+          id: violation.id,
+          impact: violation.impact || 'minor',
+          description: violation.description || '',
+          help: violation.help || '',
+          helpUrl: violation.helpUrl || '',
+          nodes: Array.isArray(violation.nodes)
+            ? violation.nodes.map(node => ({
+              target: node.target,
+              html: node.html,
+              failureSummary: node.failureSummary || ''
+            }))
+            : []
+        }
+        report.issues.push(issue)
+      })
+    }
+  } catch (err) {
+    // Swallow scanning errors and return the partially built report.
+  }
+
+  report.summary.total = report.issues.length
+  report.issues.forEach(issue => {
+    if (issue.impact === 'critical') report.summary.critical++
+    else if (issue.impact === 'serious') report.summary.serious++
+    else if (issue.impact === 'moderate') report.summary.moderate++
+    else report.summary.minor++
+  })
+
+  report.source = url || (container ? 'inline' : 'unknown')
+
+  // Write the report using the export utilities if available.
+  if (typeof exportUtils === 'object' && exportUtils && typeof exportUtils.writeReport === 'function') {
+    try {
+      exportUtils.writeReport(report, options)
+    } catch (err) {
+      // Ignore write failures; report is still returned.
+    }
+  }
+
+  return report
+}

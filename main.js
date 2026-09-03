@@ -26,7 +26,7 @@ const http = require('http')
 // New function to ensure the element has an id
 const ensureElementHasId = (element, prefix = 'element') => {
   if (!element.id) {
-    element.id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    element.id = `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   }
   return element.id
 }
@@ -49,6 +49,10 @@ function renderGraphIndexAlt(graphData) {
   addressAccessibilityIssues();
   renderDependencyGraphs(graphData);
 }
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd
 
 module.exports = {
   ensureElementHasId,

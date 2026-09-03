@@ -275,7 +275,7 @@ function ensureElementHasId(element) {
 }
 
 function addressIssues(report) {
-    return addressAccessibilityIssues(report);
+    return addressAccessibilityIsses(report);
 }
 
 function getTables() {

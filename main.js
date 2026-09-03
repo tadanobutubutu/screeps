@@ -453,6 +453,42 @@ function calculateAccessibilityScore(fixedIsses) {
   }, 0);
 }
 
+/**
+ * Address accessibility issues from insight report.
+ * This function processes the insight report and applies necessary fixes.
+ * @param {Object} insightReport - The insight report containing accessibility issues.
+ * @returns {Array} List of addressed issues.
+ */
+function addressInsightReportAccessibilityIssues(insightReport) {
+  const addressed = [];
+
+  if (!insightReport || !Array.isArray(insightReport)) {
+    return addressed;
+  }
+
+  insightReport.forEach(issue => {
+    // Ensure element has an ID
+    if (issue.element) {
+      ensureElementHasId(issue.element);
+      addressed.push(`Ensured element has ID for issue: ${issue.description || 'unknown'}`);
+    }
+
+    // Add ARIA label if provided
+    if (issue.element && issue.ariaLabel) {
+      addAriaLabel(issue.element, issue.ariaLabel);
+      addressed.push(`Added aria-label for issue: ${issue.description || 'unknown'}`);
+    }
+
+    // Additional accessibility fixes can be added here
+  });
+
+  return addressed;
+}
+
+/**
+ * Spawn a child process to run some command with proper error handling.
+ * @param {Function} callback - Invoked with (err, result) when the command exits.
+ */
 function startApp() {
   const server = createServer();
   server.listen(config.port || PORT, () => {
@@ -492,6 +528,7 @@ module.exports = {
   handleCredentialResponseOnReceive,
   ensureUniqueLandmarksFromString,
   addLangAttribute,
+  addressInsightReportAccessibilityIssues,
   newFunction
 };
 

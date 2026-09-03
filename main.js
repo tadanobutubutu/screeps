@@ -3,8 +3,6 @@ const url = require('url');
 
 // Dependency imports
 const { dependencyGraphContent, indexContent } = require('./dependencyContent');
-const { main } = require('./utilities');
-
 const main = require('./utilities');
 
 const {
@@ -17,13 +15,11 @@ const {
   getLangAttribute,
   validateAccessibilityReport,
   announceToScreenReader,
-  handleKeyboardNav,
   newFocusTrap: originNewFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementHasId: ensureElementIdOrigin,
-  ensureElementId,
+  ensureElementHasId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,

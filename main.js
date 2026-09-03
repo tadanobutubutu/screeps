@@ -14,14 +14,14 @@ export const checkUserSafety = () => {
 export const checkSafetyCategories = () => {
   let safetyCategoriesMessage = '';
 
-  if (safetyCategories.includes('Authorized Advice')) {
+  if (safetyCategories.includes('Unauthorized Advice')) {
     safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
   }
 
   return safetyCategoriesMessage;
 };
 
-export const visualizeDependencyTree(dependencies) {
+export function visualizeDependencyTree(dependencies) {
   const report = generateDependencyReport(dependencies);
   console.log(report.graph);
 }
@@ -57,9 +57,9 @@ export const main = {
   },
 
   addBook: function(title, author, isbn) {
-    const form = document.createElement('form');
+    const form = ...
     form.setAttribute('role', 'form');
-    form.setAttribute('aria-label', 'Add Book Form');
+    ... 'Add Book Form');
 
     const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
     const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
@@ -67,17 +67,17 @@ export const main = {
 
     const submitButton = document.createElement('button');
     submitButton.setAttribute('type', 'submit');
-    submitButton.setAttribute('aria-label', 'Add Book');
+    ... 'Add Book');
     submitButton.textContent = 'Add Book';
 
-    form.appendChild(titleInput);
-    form.appendChild(authorInput);
-    form.appendChild(isbnInput);
-    form.appendChild(submitButton);
+    ...
+    ...
+    ...
+    ...
 
-    document.body.appendChild(form);
+    ...
 
-    form.addEventListener('submit', (e) => {
+    ... (e) => {
       e.preventDefault();
       console.log('Book added:', {
         title: titleInput.value,
@@ -90,8 +90,8 @@ export const main = {
   }
 };
 
-function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
+export function renderDependencyGraphContent() {
+  const container = ...
   if (!container) {
     return;
   }

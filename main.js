@@ -42,7 +42,7 @@ const accessibilityUtils = {
   initSkipLink,
   trapFocus,
   newFocusTrap: (element) => {
-    if (!element) return originNewFocusTrap(element);
+    if (!element) return;
     const focusable = element.querySelectorAll(
       'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
     );
@@ -50,7 +50,7 @@ const accessibilityUtils = {
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
 
-    element.addEventListener('keydown', (e) => {
+    const trapHandler = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === first) {
           last.focus();
@@ -60,7 +60,14 @@ const accessibilityUtils = {
           e.preventDefault();
         }
       }
-    });
+    };
+
+    element.addEventListener('keydown', trapHandler);
+    first.focus();
+
+    return () => {
+      element.removeEventListener('keydown', trapHandler);
+    };
   },
   announceToScreenReader: (message, priority = 'polite') => {
     const announcer = document.createElement('div');

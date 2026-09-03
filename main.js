@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // main.js - Screeps bot main loop
 
 // Exporting all preserved and new functions:
@@ -72,3 +75,4 @@ function runHarvester(creep) {
     }
   }
 }
+```

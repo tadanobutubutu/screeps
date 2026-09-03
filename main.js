@@ -12,6 +12,24 @@ const newVariable = 'new value';
 
 // main.js - Accessibility-focused implementation
 
+// New function or changes requested in the issue
+function validateLinkAccessibility(link) {
+  // Check that the link has an href attribute and is accessible
+  return link && link.href !== undefined;
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  // Ensure all landmarks have unique IDs
+  const ids = new Set();
+  for (const landmark of landmarks) {
+    if (landmark.id && ids.has(landmark.id)) {
+      throw new Error(`Duplicate landmark ID: ${landmark.id}`);
+    }
+    ids.add(landmark.id || '');
+  }
+  return true;
+}
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 
 /**

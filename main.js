@@ -287,3 +287,93 @@ function parseColor(colorString) {
     }
 
     // Handle named colors (limited support)
+}
+
+// TODO: Implement the required changes to improve accessibility for adding a new book
+function improveAddBookAccessibility() {
+    // Create accessible form for adding a new book
+    const form = document.createElement('form');
+    form.setAttribute('aria-label', 'Add new book');
+    form.setAttribute('role', 'form');
+
+    // Title field with label
+    const titleLabel = document.createElement('label');
+    titleLabel.setAttribute('for', 'book-title');
+    titleLabel.textContent = 'Book Title';
+    const titleInput = document.createElement('input');
+    titleInput.type = 'text';
+    titleInput.id = 'book-title';
+    titleInput.name = 'title';
+    titleInput.setAttribute('aria-required', 'true');
+    titleInput.setAttribute('aria-describedby', 'title-help');
+    form.appendChild(titleLabel);
+    form.appendChild(titleInput);
+
+    const titleHelp = document.createElement('span');
+    titleHelp.id = 'title-help';
+    titleHelp.className = 'sr-only';
+    titleHelp.textContent = 'Enter the title of the book';
+    form.appendChild(titleHelp);
+
+    // Author field with label
+    const authorLabel = document.createElement('label');
+    authorLabel.setAttribute('for', 'book-author');
+    authorLabel.textContent = 'Author';
+    const authorInput = document.createElement('input');
+    authorInput.type = 'text';
+    authorInput.id = 'book-author';
+    authorInput.name = 'author';
+    authorInput.setAttribute('aria-required', 'true');
+    form.appendChild(authorLabel);
+    form.appendChild(authorInput);
+
+    // ISBN field with label
+    const isbnLabel = document.createElement('label');
+    isbnLabel.setAttribute('for', 'book-isbn');
+    isbnLabel.textContent = 'ISBN';
+    const isbnInput = document.createElement('input');
+    isbnInput.type = 'text';
+    isbnInput.id = 'book-isbn';
+    isbnInput.name = 'isbn';
+    isbnInput.setAttribute('aria-describedby', 'isbn-help');
+    form.appendChild(isbnLabel);
+    form.appendChild(isbnInput);
+
+    const isbnHelp = document.createElement('span');
+    isbnHelp.id = 'isbn-help';
+    isbnHelp.className = 'sr-only';
+    isbnHelp.textContent = 'Enter the 13-digit ISBN';
+    form.appendChild(isbnHelp);
+
+    // Submit button with accessible name
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Add Book';
+    submitButton.setAttribute('aria-label', 'Add book to library');
+    form.appendChild(submitButton);
+
+    // Live region for status announcements
+    const status = document.createElement('div');
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    status.id = 'add-book-status';
+    status.className = 'sr-only';
+    form.appendChild(status);
+
+    // Add form to page
+    const container = document.getElementById('add-book-container') || document.body;
+    container.appendChild(form);
+
+    // Focus management - move focus to first field
+    titleInput.focus();
+
+    // Announce the form to screen readers
+    const heading = document.createElement('h2');
+    heading.id = 'add-book-heading';
+    heading.textContent = 'Add New Book';
+    heading.setAttribute('tabindex', '-1');
+    form.setAttribute('aria-labelledby', 'add-book-heading');
+    form.insertBefore(heading, form.firstChild);
+
+    return form;
+}

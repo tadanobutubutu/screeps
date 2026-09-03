@@ -1,6 +1,6 @@
-// TODO: This is the existing code that needs to be preserved
-// _Commit: 9b0a0d6bb0214c2d74db539b8e33b7af757187a3_
-// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// TODO: Address accessibility issues from insight report:
+// _Commit: f163d9594d7623621d344259c18927a59de7c5f8_
+// <!-- todo-hash: f4aef230bb25bd341c307d16638c123de05bbec8 -->
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 
@@ -227,4 +227,63 @@ function trapFocus(container) {
     if (e.shiftKey) {
       if (document.activeElement === firstElement) {
         e.preventDefault()
-        if
+        if (lastElement) lastElement.focus()
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        e.preventDefault()
+        if (firstElement) firstElement.focus()
+      }
+    }
+  }
+}
+
+
+/**
+ * REACT_015: Add lang attribute to HTML element
+ * Ensures the HTML element has a proper lang attribute for screen readers
+ */
+export function addLangAttribute(element, lang = 'en') {
+  let htmlElement = element || document.documentElement
+  if (!htmlElement) {
+    return null
+  }
+
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang)
+  }
+  return htmlElement
+}
+
+/**
+ * REACT_027: Fix table structure issues
+ * Ensures tables have proper structure with headers and captions
+ */
+export function fixTableStructure(tableElement) {
+  if (!tableElement) return null
+ 
+  const headers = tableElement.querySelectorAll('th')
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const row = th.closest('tr')
+      const cellIndex = Array.from(row.children).indexOf(th)
+      th.setAttribute('scope', 'col')
+    }
+  })
+  
+  const existingCaption = tableElement.querySelector('caption')
+  if (!existingCaption) {
+    const caption = document.createElement('caption')
+    caption.textContent = 'Data table'
+    tableElement.insertBefore(caption, tableElement.firstChild)
+  }
+  
+  return tableElement
+}
+
+// Add the new function to the exports
+module.exports.renderAdditionalContent = renderAdditionalContent
+module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport
+module.exports.checkAccessibilityForReport = checkAccessibilityForReport
+module.exports.renderGraphIndex = renderGraphIndex
+module.exports.trapFocus = trapFocus

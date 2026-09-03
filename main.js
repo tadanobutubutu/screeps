@@ -164,6 +164,121 @@ function getTables() {
   return appData.tables;
 }
 
+// Implement the logic to handle the credential response
+function handleCredentialResponse(credentialResponse) {
+  // Validate the credential response
+  if (!credentialResponse) {
+    log('No credential response received', 'error');
+    return Promise.reject(new Error('No credential response provided'));
+  }
+
+  // Extract the credential data from the response
+  const credential = credentialResponse.credential || {};
+  const credentialId = credential.id || credentialResponse.id;
+  const rawId = credential.rawId || credentialResponse.rawId;
+  const response = credential.response || credentialResponse.response || {};
+  const authenticatorData = response.authenticatorData || response.clientDataJSON;
+  const clientDataJSON = response.clientDataJSON;
+  const signature = response.signature;
+  const userHandle = response.userHandle;
+
+  if (!clientDataJSON || (!signature && !authenticatorData)) {
+    log('Invalid credential response: missing required fields', 'error');
+    return Promise.reject(new Error('Invalid credential response'));
+  }
+
+  log('Processing credential response for ID: ' + credentialId, 'info');
+
+  // Build the payload to send to the server for verification
+  const verificationPayload = {
+    id: credentialId,
+    rawId: rawId,
+    type: credential.type || credentialResponse.type || 'public-key',
+    response: {
+      authenticatorData: authenticatorData,
+      clientDataJSON: clientDataJSON,
+      signature: signature,
+      userHandle: userHandle
+    }
+  };
+
+  // Determine the verification endpoint (default or from response)
+  const verifyEndpoint = credentialResponse.verifyEndpoint
+    || credentialResponse.verificationUrl
+    || '/api/auth/verify-credential';
+
+  // Send the credential response to the server for verification
+  return fetch(verifyEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(verificationPayload),
+    credentials: 'same-origin'
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error('Credential verification failed with status: ' + res.status);
+      }
+      return res.json();
+    })
+    .then((verificationResult) => {
+      log('Credential verification successful', 'info');
+
+      // Announce successful authentication to screen readers
+      try {
+        accessibilityUtils.announceToScreenReader(
+          'Authentication successful. You are now signed in.'
+        );
+      } catch (e) {
+        // Screen reader announcement is best-effort
+      }
+
+      // Dispatch a custom event so the application can react to successful auth
+      if (typeof document !== 'undefined') {
+        document.dispatchEvent(new CustomEvent('credentialVerified', {
+          detail: {
+            credentialId: credentialId,
+            result: verificationResult
+          }
+        }));
+      }
+
+      return {
+        success: true,
+        credentialId: credentialId,
+        result: verificationResult
+      };
+    })
+    .catch((error) => {
+      log('Credential verification error: ' + (error && error.message ? error.message : error), 'error');
+
+      try {
+        accessibilityUtils.announceToScreenReader(
+          'Authentication failed. Please try again.'
+        );
+      } catch (e) {
+        // Screen reader announcement is best-effort
+      }
+
+      if (typeof document !== 'undefined') {
+        document.dispatchEvent(new CustomEvent('credentialVerificationFailed', {
+          detail: {
+            credentialId: credentialId,
+            error: error
+          }
+        }));
+      }
+
+      return {
+        success: false,
+        credentialId: credentialId,
+        error: error
+      };
+    });
+}
+
 accessibilityUtils.initSkipLink = () => {
   const skipLink = document.querySelector('[data-skip-link]');
   if (!skipLink) {

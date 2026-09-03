@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // Addressed accessibility issues from insight report
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 // ----- END ORIGINAL CODE-----
@@ -46,12 +46,12 @@ import {
 // Utility functions for accessibility
 const accessibilityUtils = {
     initSkipLink: () => {
-        const skipLink = document.querySelector('.skip-link');
+        const skipLink = document.getElementById('skip-link');
         if (skipLink) {
             skipLink.addEventListener('click', (e) => {
                 e.preventDefault();
-                const targetId = skipLink.getAttribute('href').substring(1);
-                const target = document.getElementById(targetId);
+                const targetId = skipLink.getAttribute('href');
+                const target = document.querySelector(targetId);
                 if (target) {
                     target.setAttribute('tabindex', '-1');
                     target.focus();
@@ -118,7 +118,7 @@ const handleTabNavigation = (event, activeElement) => {
 };
 
 // Address accessibility issues from insight report
-function implementAccessibilityFixesFromReport(container, report) {
+function addressAccessibilityIssues(report, container) {
   const fixes = {
     langAdded: false,
     mainLandmarkAdded: false,
@@ -147,26 +147,74 @@ function implementAccessibilityFixesFromReport(container, report) {
       while (body.firstChild) {
         newMain.appendChild(body.firstChild);
       }
-      body.appendChild(newMain);
+      body.insertBefore(newMain, body.firstChild);
       fixes.mainLandmarkAdded = true;
     }
   }
 
   // Fix landmark issues
   validateLandmark(container);
-  validateLandmarkStructure(container);
-  fixes.landmarksFixed++;
+  fixes.landmarksFixed = validateLandmarkStructure(container).length;
 
   // Fix SVG accessible names
   const svgElements = container.querySelectorAll('svg');
-  svgElements.forEach((svg) => {
+  svgElements.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName && !svg.hasAttribute('aria-label')) {
+    if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', accessibleName);
       fixes.svgNamesAdded++;
     }
   });
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href]), [role="link"]:not([href])');
-  fakeLinks.forEach((link) => {
+  const fakeLinks = container.querySelectorAll('a:not([href])');
+  fakeLinks.forEach(link => {
+    if (link.textContent.trim() && !link.getAttribute('role')) {
+      link.setAttribute('role', 'link');
+      fixes.fakeLinksFixed++;
+    }
+  });
+
+  // Update total counts
+  fixes.landmarksFixed = validateLandmarkStructure(container).length;
+  fixes.fakeLinksFixed = container.querySelectorAll('a:not([href])[role="link"]').length;
+
+  return fixes;
+}
+
+// Export all necessary functions and utilities
+export {
+  accessibilityUtils,
+  handleKeyDown,
+  newArrowNavigation,
+  handleTabNavigation,
+  addressAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  fixButtonIdentifiers,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  implementAccessibilityFixesFromReport,
+  main
+};

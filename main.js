@@ -11,7 +11,7 @@ const {
     validateLandmark,
     validateLandmarkStructure,
     getSvgAccessibleName,
-    getLangAttribute,
+    getLangAttribute: getLangAttributeOrigin,
     validateAccessibilityReport,
     announceToScreenReader,
     handleKeyboardNav,
@@ -55,12 +55,6 @@ class ScreetsBot {
   }
 
   // ... (Add the event listener for click events on the dependencyGraph element)
-}
-
-// Add lang attribute to HTML element
-function getLangAttribute() {
-    // Implementation to add lang attribute
-    return document.documentElement.lang || 'en';
 }
 
 // Accessibility utilities for keyboard navigation and screen reader support
@@ -285,6 +279,11 @@ function harvest() {
     // Example harvest logic
     console.log('Harvesting resources...');
     return 'harvested';
+}
+
+// Add lang attribute to HTML element - use the imported function
+function getLangAttribute() {
+    return getLangAttributeOrigin();
 }
 
 // Access the dependencyGraph container and ensure it has proper ARIA role

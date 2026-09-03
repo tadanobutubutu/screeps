@@ -58,6 +58,61 @@ function handleTabNavigation(event, activeElement) {
   console.log('Handling tab navigation');
 }
 
+// Validate the accessibility report for issues
+function validateAccessibilityReport(report) {
+  const issues = [];
+  const criticalIssues = [];
+
+  if (!report) {
+    issues.push('Accessibility report is missing or null');
+    return { issues, criticalIssues, isValid: false };
+  }
+
+  if (report.violations && Array.isArray(report.violations)) {
+    report.violations.forEach(violation => {
+      issues.push({
+        type: 'violation',
+        description: violation.description,
+        nodes: violation.nodes,
+        impact: violation.impact
+      });
+      
+      if (violation.impact === 'critical' || violation.impact === 'serious') {
+        criticalIssues.push({
+          type: 'violation',
+          description: violation.description,
+          nodes: violation.nodes,
+          impact: violation.impact
+        });
+      }
+    });
+  }
+
+  if (report.incomplete && Array.isArray(report.incomplete)) {
+    report.incomplete.forEach(incomplete => {
+      issues.push({
+        type: 'incomplete',
+        description: incomplete.description,
+        nodes: incomplete.nodes
+      });
+      
+      if (incomplete.impact === 'critical' || incomplete.impact === 'serious') {
+        criticalIssues.push({
+          type: 'incomplete',
+          description: incomplete.description,
+          nodes: incomplete.nodes
+        });
+      }
+    });
+  }
+
+  return {
+    issues,
+    criticalIssues,
+    isValid: criticalIssues.length === 0 && issues.length === 0
+  };
+}
+
 // Import and use existing functions from utilities
 const { renderDependencyGraphs, ...mainUtilities } = main;
 
@@ -67,5 +122,6 @@ module.exports = {
   setFocus,
   handleKeyboardNavigation,
   renderDependencyGraphs,
+  validateAccessibilityReport,
   ...mainUtilities
 }

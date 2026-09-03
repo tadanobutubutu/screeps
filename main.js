@@ -70,3 +70,6 @@ function renderDependencyGraph(containerId, graphData) {
 
 // Preserve any existing exports here
 export { createInPageButton, validateLandmarkStructure };
+
+// Add lang attribute to the root <html> element
+document.documentElement.lang = 'en';

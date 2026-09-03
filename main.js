@@ -342,3 +342,4 @@ export function validateLinkAccessibility() {
   });
   
   return issues
+}

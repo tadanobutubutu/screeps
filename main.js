@@ -4,7 +4,7 @@ const fs = require('fs');
 const express = require('express');
 const { exec } = require('child_process');
 const app = express();
-const { createServer, startApp, config } = require('./');
+const { config } = require('./');
 
 const port = PORT || 3000;
 

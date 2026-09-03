@@ -764,9 +764,9 @@ if (require.main === module) {
   const processed = processLandmarks(landmarks);
   const sorted = sortLandmarks(processed);
 
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
+  console.log('Loaded ' + landmarks.length + ' landmarks');
+  console.log('Processed to ' + processed.length + ' unique landmarks');
+  console.log('Sorted ' + sorted.length + ' landmarks');
 
   if (sorted.length > 0) {
     console.log('First landmark:', sorted[0]);

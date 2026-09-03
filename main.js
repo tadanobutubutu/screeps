@@ -1,6 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 // TODO: Address accessibility issues from insight report:
@@ -484,6 +482,29 @@ function towerDefense () {
   }
 }
 
+/**
+ * Helper function to ensure unique landmarks by adding aria-labels to duplicate landmarks.
+ * @param {HTMLElement} container - The container element to process for landmark uniqueness
+ * @returns {HTMLElement|undefined} The container element with updated landmarks, or undefined if container is invalid
+ */
+function uniqueLandmarksHelper (container) {
+  if (!container) return;
+
+  const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+
+  landmarks.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((el, index) => {
+      if (index > 0 && !el.getAttribute('aria-label')) {
+        const count = index + 1;
+        el.setAttribute('aria-label', `${role} ${count}`);
+      }
+    });
+  });
+
+  return container;
+}
+
 // Export all functions to maintain current exports
 module.exports = {
   setHtmlLangAttribute,
@@ -499,5 +520,6 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
+  uniqueLandmarksHelper,
   towerDefense
 }

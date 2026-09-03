@@ -1,63 +1,13 @@
-// TODO: This is the existing code that needs to be preserved
-// This is the conflicting code that needs to be resolved.
-// This is the code that should be merged into the main branch.
-// Additional changes that need to be preserved
+// TODO: This is the modified and merged code
+// This is the existing code that needs to be preserved in main.js
 
 const main = require('./utilities')
-
-// Function for counting dependencies in a container
-function countDependencies(container) {
-  const dependencies = {
-    count: 0,
-    list: []
-  }
-
-  if (!container) {
-    return dependencies
-  }
-
-  // Look for elements that represent dependencies
-  const dependencySelectors = [
-    '[data-dependency]',
-    '[data-package]',
-    '[data-module]',
-    '[class*="dependency"]',
-    '[id*="dependency"]'
-  ]
-
-  dependencySelectors.forEach(selector => {
-    const elements = container.querySelectorAll(selector)
-    elements.forEach(el => {
-      const name = el.getAttribute('data-dependency') ||
-                   el.getAttribute('data-package') ||
-                   el.getAttribute('data-module') ||
-                   el.textContent.trim()
-      if (name && !dependencies.list.includes(name)) {
-        dependencies.list.push(name)
-        dependencies.count++
-      }
-    })
-  })
-
-  return dependencies
-}
 
 // Function for getting the language attribute based on content
 function getLangAttribute() {
   return typeof document !== 'undefined' && document.documentElement
     ? document.documentElement.lang
     : 'en'
-}
-
-/**
- * Formats a person's name from first and last name components
- * @param {string} firstName - The first name
- * @param {string} [lastName] - The last name
- * @returns {string} The formatted full name
- */
-function personName(firstName, lastName) {
-  if (!firstName) return ''
-  return `${firstName} ${lastName || ''}`.trim()
 }
 
 // Function for ensuring that each landmark on the page has a unique id attribute
@@ -793,10 +743,6 @@ function validateLandmarkStructure() {
   return { valid: errors.length === 0, errors }
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
-
 // Export all functions to maintain current exports
 module.exports = {
   setHtmlLangAttribute,
@@ -813,6 +759,5 @@ module.exports = {
   createAccessibleLink,
   isLinkAccessible,
   towerDefense,
-  createWebResourceButton,
-  countDependencies
+  createWebResourceButton
 }

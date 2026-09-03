@@ -76,7 +76,6 @@ class ScreepsBot {
     return 'accessible function result';
   }
 
-  // Imported functions from 'AnotherModule' for improved accessibility
   isLandmarkElement() {
     // Implementation of isLandmarkElement
   }
@@ -145,7 +144,6 @@ class ScreepsBot {
     // Implementation of fixFakeLinks
   }
 
-  // Custom accessibility implementations
   setFocus(elementId) {
     const element = document.getElementById(elementId);
     if (element) {
@@ -260,7 +258,6 @@ class ScreepsBot {
     // ...
   }
 
-  // Additional accessibility functions from HEAD branch
   ensureDependencyGraphARIA() {
     const dependencyGraph = document.getElementById('dependencyGraph')
     if (dependencyGraph) {

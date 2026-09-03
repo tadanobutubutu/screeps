@@ -1,6 +1,5 @@
 const main = require('./utilities')
 
-// Function for getting the language attribute based on content
 function getLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement) {
     const content = document.body ? document.body.textContent : ''

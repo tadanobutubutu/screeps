@@ -406,12 +406,14 @@ function isLinkAccessible(link) {
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
  */
-function createInPageButton(parent = document.body) {
+function createInPageButton(parent) {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.setAttribute('role', 'button');
   btn.setAttribute('aria-label', 'Open modal');
-  parent.appendChild(btn);
+  if (parent) {
+    parent.appendChild(btn);
+  }
   return btn;
 }
 
@@ -552,7 +554,7 @@ function validateButtonAccessibility(button) {
 }
 
 // New function to count dependencies
-function countDependencies(node, options = {}) {
+function countDependencies(node, options) {
   // Counts dependencies in a dependency graph
   // @param {Object} node - The root node to count dependencies from
   // @param {Object} options - Optional configuration
@@ -565,13 +567,16 @@ function countDependencies(node, options = {}) {
       return { count: 0, errors: ['Node is required'] };
     }
 
-    const { recursive = true, unique = false } = options;
+    options = options || {};
+    const recursive = options.recursive !== undefined ? options.recursive : true;
+    const unique = options.unique || false;
     const dependencyMap = new Map();
     let totalCount = 0;
 
     // Recursive function to traverse and count dependencies
-    function traverse(currentNode, depth = 0) {
+    function traverse(currentNode, depth) {
       if (!currentNode) return;
+      depth = depth || 0;
 
       // Get dependencies from various possible property names
       const dependencies = currentNode.dependencies || 
@@ -581,12 +586,12 @@ function countDependencies(node, options = {}) {
                           currentNode.modules ||
                           [];
 
-      dependencies.forEach(dep => {
+      dependencies.forEach(function(dep) {
         const depId = unique ? (dep.id || dep.name || dep) : totalCount;
         
         if (unique) {
           if (!dependencyMap.has(depId)) {
-            dependencyMap.set(depId, { ...dep, depth });
+            dependencyMap.set(depId, Object.assign({}, dep, { depth: depth }));
             totalCount++;
           }
         } else {
@@ -606,7 +611,7 @@ function countDependencies(node, options = {}) {
       count: totalCount,
       uniqueCount: unique ? dependencyMap.size : totalCount,
       success: true,
-      message: `Found ${totalCount} dependency${totalCount !== 1 ? 'ies' : 'y'}`,
+      message: 'Found ' + totalCount + ' dependency' + (totalCount !== 1 ? 'ies' : 'y'),
       dependencies: unique ? Array.from(dependencyMap.values()) : undefined
     };
   } catch (error) {
@@ -718,7 +723,7 @@ function towerDefense() {
     }
 
     // Logic for enemy movement, tower shooting, etc.
-    enemies.forEach((enemy, index) => {
+    enemies.forEach(function(enemy, index) {
       // Move enemy along path
       if (enemy.pathIndex < pathPoints.length - 1) {
         const target = pathPoints[enemy.pathIndex + 1];
@@ -739,13 +744,13 @@ function towerDefense() {
     });
 
     // Tower shooting logic
-    towers.forEach(tower => {
+    towers.forEach(function(tower) {
       if (currentTime - tower.lastShot > tower.rate) {
         // Find closest enemy in range
         let closestEnemy = null;
         let minDistance = Infinity;
 
-        enemies.forEach(enemy => {
+        enemies.forEach(function(enemy) {
           const dx = enemy.x - tower.x;
           const dy = enemy.y - tower.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
@@ -772,7 +777,7 @@ function towerDefense() {
       }
     });
 
-    console.log(`Wave ${wave} - updating game state`);
+    console.log('Wave ' + wave + ' - updating game state');
   }
 
   // Start the game
@@ -794,40 +799,39 @@ function towerDefense() {
 
   // Expose game functions
   return {
-    start,
-    stop,
-    addTower,
-    addEnemy,
-    update,
-    getWave: () => wave,
-    getEnemies: () => enemies,
-    getTowers: () => towers,
-    isRunning: () => gameRunning
+    start: start,
+    stop: stop,
+    addTower: addTower,
+    addEnemy: addEnemy,
+    update: update,
+    getWave: function() { return wave; },
+    getEnemies: function() { return enemies; },
+    getTowers: function() { return towers; },
+    isRunning: function() { return gameRunning; }
   };
 }
 
 // Export all functions to maintain current exports
 module.exports = {
-  ...main,
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  personName,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  ensureUniqueLandmarks,
-  createAccessibleLink,
-  isLinkAccessible,
-  validateFormAccessibility,
-  validateImageAccessibility,
-  validateButtonAccessibility,
-  countDependencies,
-  renderDependencyGraph,
-  renderIndexView,
-  checkAccessibilityNew,
-  towerDefense
+  setHtmlLangAttribute: setHtmlLangAttribute,
+  detectAndSetLang: detectAndSetLang,
+  getLangAttribute: getLangAttribute,
+  personName: personName,
+  createInPageButton: createInPageButton,
+  validateTableAccessibility: validateTableAccessibility,
+  validateTableStructure: validateTableStructure,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  getSvgAccessibleName: getSvgAccessibleName,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  createAccessibleLink: createAccessibleLink,
+  isLinkAccessible: isLinkAccessible,
+  validateFormAccessibility: validateFormAccessibility,
+  validateImageAccessibility: validateImageAccessibility,
+  validateButtonAccessibility: validateButtonAccessibility,
+  countDependencies: countDependencies,
+  renderDependencyGraph: renderDependencyGraph,
+  renderIndexView: renderIndexView,
+  checkAccessibilityNew: checkAccessibilityNew,
+  towerDefense: towerDefense
 };

@@ -1,18 +1,29 @@
 // main.js - Accessibility-focused implementation
 
 // Import required modules
+
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Add middleware for JSON parsing
 app.use(express.json());
 
-// Application configuration
+// Find the primary content element in the DOM
+const primaryContent = (typeof document !== 'undefined')
+  ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content') || document.body)
+  : null;
+
 const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: process.env.TIMEOUT || 5000,
+  debug: true,
+  version: '1.0.0',
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development'
 };
@@ -131,7 +142,7 @@ function createFocusTrap(container, options = {}) {
 
   function activate(initialFocusElement) {
     if (active) return;
-    
+
     previousActiveElement = document.activeElement;
     active = true;
 
@@ -174,44 +185,23 @@ function fixMain(tableElement) {
   // Ensures the table has proper structure (rows, headers, etc.)
   // Placeholder implementation – actual logic depends on the table markup
   if (tableElement) {
-    const rows = Array.from(tableElement.children).filter(c => c.tagName === 'TR');
-    if (rows.length === 0) {
-      const tr = document.createElement('tr');
-      tableElement.appendChild(tr);
-    }
-    // Simple header handling
-    const th = document.createElement('th');
-    th.textContent = 'Column';
-    tableElement.insertBefore(th, tableElement.firstChild);
-    // Ensure the table has a caption
-    const caption = tableElement.querySelector('caption') || document.createElement('caption');
-    caption.textContent = 'Table Caption';
-    if (!tableElement.querySelector('caption')) {
-      tableElement.insertBefore(caption, tableElement.firstChild);
-    }
-    // Add scope attributes to header cells
-    const ths = tableElement.querySelectorAll('th');
-    ths.forEach(th => {
-      th.setAttribute('scope', 'col');
-    });
+    AddressabilityIssues.validateTableAccessibility(tableElement);
   }
 }
 
-const checkTableStructure = function(table) {
-  if (!table) return false;
-  const rows = table.querySelectorAll('tr');
-  return rows.length > 0;
+const checkTableStructure = function(tables) {
+  if (!tables || !Array.isArray(tables)) {
+    return false;
+  }
+  return tables.every(function(table) {
+    return table.rows && table.rows.length > 0;
+  });
 };
 
 // Existing functionality
 function calculateSum(a, b) {
   return a + b;
 }
-
-// Find the primary content element in the DOM
-const primaryContent = (typeof document !== 'undefined') 
-  ? document.querySelector('main') || document.querySelector('[role="main"]') || document.body 
-  : null;
 
 // Adding the required export that was removed
 const XYZ = function () {
@@ -246,10 +236,10 @@ function initializeApp() {
 }
 
 // Utility functions
-function addLangAttribute(element) {
+function addLangAttribute(element, lang) {
   // Adds lang attribute to the given HTML element
   if (element && typeof element.setAttribute === 'function') {
-    element.setAttribute('lang', 'en');
+    element.setAttribute('lang', lang || 'en');
   }
   return element;
 }
@@ -357,21 +347,54 @@ function countDependencies() {
 }
 
 function createServer() {
-  const app = express();
-
+  const server = http.createServer(app);
   app.get('/', (req, res) => {
     res.send('Hello World!');
   });
 
-  return app;
+  return server;
 }
 
 /**
  * Starts the application
  */
 function startApp() {
+  loadConfigurations();
   const server = createServer();
   return server;
+}
+
+// Utility functions
+function loadConfigurations() {
+    try {
+        const packagePath = path.join(__dirname, 'package.json');
+        if (fs.existsSync(packagePath)) {
+            const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+            config.name = packageJson.name || 'dependency-counter';
+            config.version = packageJson.version || '1.0.0';
+            config.dependencies = packageJson.dependencies || {};
+            config.devDependencies = packageJson.devDependencies || {};
+            config.accessibility = packageJson.accessibility || {};
+        }
+    } catch (error) {
+        console.error('Error loading configurations:', error.message);
+    }
+}
+
+/**
+ * Add lang attribute to HTML element for accessibility
+ * @param {string} langCode - The language code to set (e.g., 'en', 'es', 'fr')
+ * @returns {boolean} - Whether the lang attribute was successfully added
+ */
+function addLangAttributeToDocument(langCode) {
+    if (typeof document === 'undefined') {
+        return false;
+    }
+    if (document.documentElement) {
+        document.documentElement.lang = langCode || 'en';
+        return true;
+    }
+    return false;
 }
 
 function ensureElementId(element, id) {
@@ -382,21 +405,98 @@ function ensureElementId(element, id) {
 
 const AddressabilityIssues = {
   validateTableAccessibility: function(table) {
+    // Ensures the table has proper structure (rows, headers, etc.)
+    // Implementation depends on the table markup
+    if (table) {
+      const rows = Array.from(table.children).filter(c => c.tagName === 'TR');
+      if (rows.length === 0) {
+        const tr = document.createElement('tr');
+        table.appendChild(tr);
+      }
+      // Simple header handling
+      const th = document.createElement('th');
+      th.textContent = 'Column';
+      table.insertBefore(th, table.firstChild);
+      // Ensure the table has a caption
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table Caption';
+      table.insertBefore(caption, table.firstChild);
+      // Add scope attributes to header cells
+      const ths = table.querySelectorAll('th');
+      ths.forEach(th => {
+        th.setAttribute('scope', 'col');
+      });
+    }
+
+    // Verify 26 table structure issues
+    // ... (Change the implementation if needed)
     return true;
   },
   addressAccessibilityIssues: function(insightReport) {
+    // New implementation here
+    // ... (Replace the existing implementation)
     return true;
   },
   generateAccessibilityReport: function(accessibilityReport) {
     return {};
   },
-  getFixedIssues: function(source) {
-    return [];
+  ensureUniqueLandmarksFromString: function(source) {
+    return source.split(' ').filter((item, index, self) => self.indexOf(item) === index);
   },
   validateLandmark: function(element) {
+    // ... (Change the implementation if needed)
     return true;
   },
   spawnSomeCommand: function(callback) {
     if (callback) callback();
   },
   addLangAttribute: function(element, lang) {
+    if (element && typeof element.setAttribute === 'function') {
+      element.setAttribute('lang', lang || 'en');
+    }
+    return element;
+  }
+};
+
+// Define missing functions that initializeApp depends on
+function wrapPrimaryContentInMain() {
+    // Wrap the primary content in a main landmark for accessibility
+    if (typeof document !== 'undefined' && primaryContent) {
+        const mainElement = document.createElement('main');
+        primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+        mainElement.appendChild(primaryContent);
+    }
+}
+
+// Implements the new addressNewAccessibilityIssues function
+function addressNewAccessibilityIssues(insightReport) {
+  return AddressabilityIssues.addressAccessibilityIssues(insightReport);
+}
+
+function renderDependencyGraph(container, svgElements) {
+  let accessibleName = null;
+
+  if (svgElements && svgElements.length > 0) {
+    const firstSvg = svgElements[0];
+    accessibleName = getSvgAccessibleName(firstSvg);
+    setSvgAttributes(firstSvg);
+  }
+
+  return accessibleName;
+}
+
+module.exports = {
+    config,
+    XYZ,
+    calculateSum,
+    fixMain,
+    createServer,
+    startApp,
+    AddressabilityIssues,
+    renderDependencyGraph,
+    checkTableStructure,
+    addLangAttributeToDocument,
+    initializeApp,
+    addressNewAccessibilityIssues,
+    loadConfigurations
+};

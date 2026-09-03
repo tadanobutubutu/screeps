@@ -1,3 +1,4 @@
+// TODO: This is the modified and merged code
 const main = require('./utilities')
 
 // Function for getting the language attribute based on content

@@ -18,9 +18,7 @@ const {
   googleSignIn,
   handleCredentialResponseAlt,
   renderGraphIndexUtil,
-  addressAccessibilityIssues,
-  renderGraphIndex,
-  renderGraphIndexAlt
+  addressAccessibilityIssues
 } = require('./utilities');
 
 const http = require('http')

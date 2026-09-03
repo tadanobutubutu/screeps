@@ -1,16 +1,13 @@
-Here is the resolved file content:
-
-```javascript
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: 5000,
   debug: false,
   version: '1.0.0',
   dataPath: './data',
   maxResults: 100,
-  landmarkRoles: config.allowedRoles,
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxLandmarks: 50
 };
 
 const CONFIG = {
@@ -19,11 +16,11 @@ const CONFIG = {
   name: 'ScreepsBot',
   version: '1.0.0',
   debug: false,
-  apiUrl: process.env.API_URL || 'https://example.com',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
   timeout: 5000,
-  landmarkRoles,
-  maxLandmarks,
-  allowedRoles
+  landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
 
 const landmarkSelectors = [
@@ -37,11 +34,7 @@ const landmarkSelectors = [
   'nav:not([role])',
   'main:not([role])',
   'footer:not([role])',
-  'aside:not([role])',
   'section:not([role])'
 ];
 
 // ... (Unchanged rest of the code)
-```
-
-I preserved the existing code and incorporated the changes from both branches, keeping both sets of configuration variables and landmarkRoles. LandmarkRoles is now assigned from the `config.allowedRoles` property.

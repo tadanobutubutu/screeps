@@ -64,94 +64,96 @@ function ensureDependencyGraphARIA() {
     }
     
     // New feature: Priority-based task scheduling
-    addTaskWithPriority(taskFn, priority = 'medium') {
-      const taskId = this.generateTaskId();
-      this.tasks.push({ task: taskFn, priority, id: taskId });
-      this.scheduleTasks();
-      return taskId;
-    }
+    const taskManager = {
+      tasks: [],
+      
+      addTaskWithPriority: function(taskFn, priority = 'medium') {
+        const taskId = this.generateTaskId();
+        this.tasks.push({ task: taskFn, priority, id: taskId });
+        this.scheduleTasks();
+        return taskId;
+      },
 
-    generateTaskId() {
-      return '_' + Math.random().toString(36).substr(2, 9);
-    }
+      generateTaskId: function() {
+        return '_' + Math.random().toString(36).substr(2, 9);
+      },
 
-    cancelTask(id) {
-      const index = this.tasks.findIndex(task => task.id === id);
-      if (index !== -1) {
-        this.tasks.splice(index, 1);
-        return true;
-      }
-      return false;
-    }
+      cancelTask: function(id) {
+        const index = this.tasks.findIndex(task => task.id === id);
+        if (index !== -1) {
+          this.tasks.splice(index, 1);
+          return true;
+        }
+        return false;
+      },
 
-    scheduleTasks() {
-      // Sort tasks by priority (high > medium > low)
-      this.tasks.sort((a, b) => {
-        const prioOrder = { high: 0, medium: 1, low: 2 };
-        return prioOrder[b.priority] - prioOrder[a.priority];
-      });
+      scheduleTasks: function() {
+        // Sort tasks by priority (high > medium > low)
+        this.tasks.sort((a, b) => {
+          const prioOrder = { high: 0, medium: 1, low: 2 };
+          return prioOrder[b.priority] - prioOrder[a.priority];
+        });
 
-      // Execute highest priority task
-      if (this.tasks.length > 0) {
-        const nextTask = this.tasks[0];
-        try {
-          nextTask.task();
-        } catch (err) {
-          console.error(`Task failed: ${err.message}`);
+        // Execute highest priority task
+        if (this.tasks.length > 0) {
+          const nextTask = this.tasks[0];
+          try {
+            nextTask.task();
+          } catch (err) {
+            console.error(`Task failed: ${err.message}`);
+          }
         }
       }
-    }
+    };
 
     // New accessibility function: Focus management for keyboard navigation
-    setFocus(elementId) {
-      const element = document.getElementById(elementId);
-      if (element) {
-        element.focus();
-        element.setAttribute('tabindex', '0');
+    const focusHandler = {
+      setFocus: function(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.focus();
+          element.setAttribute('tabindex', '0');
+        }
+      },
+
+      // New accessibility function: Keyboard event handler for accessibility
+      handleKeyboardNavigation: function(event) {
+        const key = event.key;
+        const activeElement = document.activeElement;
+
+        // Handle keyboard navigation (e.g., arrow keys, tab)
+        switch (key) {
+          case 'ArrowUp':
+          case 'ArrowDown':
+          case 'ArrowLeft':
+          case 'ArrowRight':
+            this.navigateWithArrows(key, activeElement);
+            break;
+          case 'Tab':
+            this.handleTabNavigation(event, activeElement);
+            break;
+          default:
+            break;
+        }
+      },
+
+      // Helper for arrow key navigation
+      navigateWithArrows: function(key, activeElement) {
+        // Implement custom navigation logic based on element type
+        console.log(`Navigating with ${key} key`);
+      },
+
+      // Helper for tab key navigation
+      handleTabNavigation: function(event, activeElement) {
+        // Implement custom tab navigation logic
+        console.log('Handling tab navigation');
       }
-    }
-
-    // New accessibility function: Keyboard event handler for accessibility
-    handleKeyboardNavigation(event) {
-      const key = event.key;
-      const activeElement = document.activeElement;
-
-      // Handle keyboard navigation (e.g., arrow keys, tab)
-      switch (key) {
-        case 'ArrowUp':
-        case 'ArrowDown':
-        case 'ArrowLeft':
-        case 'ArrowRight':
-          this.navigateWithArrows(key, activeElement);
-          break;
-        case 'Tab':
-          this.handleTabNavigation(event, activeElement);
-          break;
-        default:
-          break;
-      }
-    }
-
-    // Helper for arrow key navigation
-    navigateWithArrows(key, activeElement) {
-      // Implement custom navigation logic based on element type
-      console.log(`Navigating with ${key} key`);
-    }
-
-    // Helper for tab key navigation
-    handleTabNavigation(event, activeElement) {
-      // Implement custom tab navigation logic
-      console.log('Handling tab navigation');
-    }
-
-    // Ensure element has an ID if not present
-    if (!dependencyGraph.id) {
-      dependencyGraph.id = 'dependencyGraph'
-    }
+    };
 
     // Ensure the container is focusable if it's interactive
     if (!dependencyGraph.getAttribute('tabindex')) {
-      dependencyGraph.setAttribute('tabindex', '0')
+      dependencyGraph.setAttribute('tabindex', '0');
+    }
   }
 }
 
@@ -421,18 +423,6 @@ module.exports = {
 };
 
 // New function or changes requested in the issue
-/**
- * New function to handle additional rendering logic
- * @param {Object} additionalData - Additional data for rendering
- * @returns {string} Rendered additional content HTML
- */
-function renderAdditionalContent (additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return '<div class="additional-content">' + (additionalData ? additionalData.content : '') + '</div>'
-}
-
-// Add the new function to the exports
 module.exports.renderAdditionalContent = renderAdditionalContent
 module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport
 module.exports.checkAccessibilityForReport = checkAccessibilityForReport

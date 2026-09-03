@@ -108,8 +108,8 @@ const {
   addressAccessibilityIssues
 } = require('./AccessibilityHelpers')
 
-// Main entry point
-function main() {
+// Main entry point - renamed to avoid conflict with imported main
+function initializeApp() {
   // Application initialization
   return 'main function executed';
 }

@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 const http = require('http');
 const path = require('path');
 const fs = require('fs');

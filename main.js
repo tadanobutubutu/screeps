@@ -25,17 +25,15 @@ const {
   ensureElementId,
   ensureElementHasId,
   newFocusTrap,
-  renderAdditionalContent,
-  transformInputData,
 } = main;
 
 const accessibilityUtils = {
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.getElementById('skip-link');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const target = document.getElementById(skipLink.getAttribute('href').slice(1));
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -55,9 +53,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
           e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
           firstElement.focus();
           e.preventDefault();
         }
@@ -79,7 +79,7 @@ const accessibilityUtils = {
 
   ensureElementId: (element) => {
     if (element && !element.id) {
-      element.id = `elem-${Math.random().toString(36).substr(2, 9)}`;
+      element.id = `el-${Math.random().toString(36).substr(2, 9)}`;
     }
     return element;
   },
@@ -93,15 +93,15 @@ const accessibilityUtils = {
     // Address accessibility issues based on the harvested data (Imaginary implementation)
     const issues = [
       {
-        element: document.querySelector('#issue-1'),
+        element: null,
         solution: () => {
-          element.setAttribute('aria-label', 'Fixed Issue 1');
+          // element.setAttribute('aria-label', 'Fixed Issue 1');
         },
       },
       {
-        element: document.querySelector('#issue-2'),
+        element: null,
         solution: () => {
-          element.classList.add('focusable');
+          // logic here
         },
       },
     ];
@@ -115,7 +115,7 @@ const accessibilityUtils = {
 
   ensureElementIdOrigin: (element) => {
     if (!element) return;
-    const id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const id = `origin-${Math.random().toString(36).substr(2, 9)}`;
     element.id = id;
     return id;
   },
@@ -135,12 +135,12 @@ const accessibilityUtils = {
   addSvgAccessibleName: (svgElement) => {
     // Add accessible name to SVG elements
   }
-} = main;
+};
 
 // Utility functions for ensuring elements have IDs and adding labels
-const ensureElementId = (element) => {
+const ensureElementIdFn = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `el-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
@@ -160,38 +160,32 @@ const ensureElementHasId = (element, prefix = 'element') => {
 };
 
 // Accessibility utilities and functions
-const accessibilityUtils = {
+const accessibilityUtilsExports = {
   initSkipLink,
   trapFocus,
   newFocusTrap,
-  announceToScreenReader,
-  ensureElementId,
-  addAriaLabel,
-  addressAccessibilityIssues,
-  ensureElementIdOrigin,
+  announceToScreenReader: originalAnnounceToScreenReader,
+  ensureElementId: ensureElementIdFn,
+  addAriaLabel: accessibilityUtils.addAriaLabel,
+  addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
+  ensureElementIdOrigin: accessibilityUtils.ensureElementIdOrigin,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
-  addSvgAccessibleName,
-  ensureElementIdOrigin,
+  addSvgAccessibleName: accessibilityUtils.addSvgAccessibleName,
   renderAdditionalContent,
 };
 
 module.exports = {
-  ...accessibilityUtils,
-  renderDependencyGraph,
-  renderIndex,
-  validateTableAccessibility,
-  validateTableStructure,
-  addAccessibleName,
+  ...accessibilityUtilsExports,
   accessibilityUtils,
-  ensureElementId,
+  ensureElementId: ensureElementIdFn,
   ensureElementHasId,
   newFocusTrap,
-  addressAccessibilityIssues,
+  addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
-  addSvgAccessibleName,
-  ensureElementIdOrigin,
+  addSvgAccessibleName: accessibilityUtils.addSvgAccessibleName,
+  ensureElementIdOrigin: accessibilityUtils.ensureElementIdOrigin,
 };

@@ -186,7 +186,24 @@ function getLangAttribute() {
 }
 
 function wrapPrimaryContentInMain() {
-    // Implementation to wrap primary content in <main> element
+    // If a main element already exists, return it
+    const existingMain = document.querySelector('main');
+    if (existingMain) {
+        return existingMain;
+    }
+    
+    // Create a main element to wrap primary content
+    const mainElement = document.createElement('main');
+    
+    // Move all body content into the main element
+    while (document.body.firstChild) {
+        mainElement.appendChild(document.body.firstChild);
+    }
+    
+    // Append the main element back to the body
+    document.body.appendChild(mainElement);
+    
+    return mainElement;
 }
 
 function validateTableAccessibility() {

@@ -1,6 +1,3 @@
-Here is the resolved version of the conflicting 'main.js' file:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // Import required modules
@@ -98,6 +95,54 @@ AddressabilityIssues.calculateAccessibilityScore = function (fixedIssues) {
   }, 0);
 };
 
+/**
+ * Handles the credential response received from an identity provider.
+ * Validates the response and processes the credential.
+ */
+function handleCredentialResponse(response) {
+  if (!response || typeof response !== 'object') {
+    console.error('Invalid credential response received');
+    return null;
+  }
+
+  const credential = response.credential;
+  if (!credential || typeof credential !== 'string') {
+    console.error('Credential response missing credential field');
+    return null;
+  }
+
+  // Parse the JWT-like credential (header.payload.signature)
+  const parts = credential.split('.');
+  if (parts.length !== 3) {
+    console.error('Malformed credential token');
+    return null;
+  }
+
+  let payload = null;
+  try {
+    const decodedPayload = Buffer.from(parts[1], 'base64').toString('utf-8');
+    payload = JSON.parse(decodedPayload);
+  } catch (error) {
+    console.error(`Failed to decode credential payload: ${error.message}`);
+    return null;
+  }
+
+  if (!payload || !payload.sub) {
+    console.error('Credential payload missing required subject identifier');
+    return null;
+  }
+
+  // Notify any listeners that a valid credential was received
+  announceToScreenReader(`Signed in as ${payload.email || payload.sub}`);
+
+  return {
+    subject: payload.sub,
+    email: payload.email || null,
+    name: payload.name || null,
+    payload
+  };
+}
+
 // Ensure DOM is fully loaded before executing scripts
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
@@ -153,6 +198,3 @@ function init() {
 }
 
 // ... (other functions and setting up exports)
-```
-
-In this resolved version, I merged both BLOBs' additions without discarding any functionality. I added the missing `calculateAccessibilityScore` function from the second BLOB to the `AddressabilityIssues` module and updated the `spawnSomeCommand` function as both BLOBS had different implementations. I also moved the `AddressabilityIssues` module imports into their respective functions to maintain modularity. Lastly, I ensured the code maintains Style and stays syntactically correct.

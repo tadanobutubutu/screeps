@@ -11,6 +11,26 @@
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+
 // TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
 /**

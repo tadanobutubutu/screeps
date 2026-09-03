@@ -22,7 +22,8 @@ import {
   fixButtonIdentifiers,
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  createInPageButton
 } from './AccessibilityHelpers';
 
 // TODO: Create or update the affected functions to be accessible

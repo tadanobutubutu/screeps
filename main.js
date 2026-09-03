@@ -9,7 +9,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 function processSvgElements() {
-  const svgElements = document.querySelectorAll('svg');
+  const svgElements = [];
+  return svgElements;
 }
 
 const AddressabilityIssues = {
@@ -17,7 +18,7 @@ const AddressabilityIssues = {
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
 
-  addressAccessibilityIssues(insightReport) {
+  analyzeInsightReport: function(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }
@@ -40,17 +41,17 @@ const AddressabilityIssues = {
         issues.push({
           type: 'empty-content',
           severity: 'medium',
-          message: `Section "${section.heading}" has no content`,
+          message: `Section ${index} has no content`,
           suggestedFix: 'Add meaningful content to the section'
         });
       }
 
       // Check for potentially inaccessible link text
-      if (section.content && section.content.toLowerCase().includes('click here')) {
+      if (section.content && section.content.includes('click here')) {
         issues.push({
           type: 'inaccessible-link-text',
           severity: 'low',
-          message: `Section "${section.heading}" contains "click here" text which is not accessible`,
+          message: `Section ${index} contains "click here" text which is not accessible`,
           suggestedFix: 'Use descriptive link text instead of "click here"'
         });
       }
@@ -59,7 +60,7 @@ const AddressabilityIssues = {
     return issues;
   },
 
-  calculateAccessibilityScore(fixedIssues) {
+  calculateAccessibilityScore: function(fixedIssues) {
     if (!Array.isArray(fixedIssues)) {
       return 0;
     }
@@ -77,7 +78,7 @@ const AddressabilityIssues = {
     }, 0);
   },
 
-  validateLandmark(element) {
+  validateLandmark: function(element) {
     if (!element) {
       return { valid: false, error: 'Element is required' };
     }
@@ -107,7 +108,7 @@ const AddressabilityIssues = {
     };
 
     const isLandmark = landmarkRoles.includes(role) ||
-                       (tagName && implicitLandmarks[tagName]);
+                       (tagName && implicitLandmarks.hasOwnProperty(tagName));
 
     return {
       valid: isLandmark,
@@ -116,31 +117,31 @@ const AddressabilityIssues = {
     };
   },
 
-  spawnSomeCommand(command) {
-    const childProcess = require('child_process');
-    return childProcess.spawn(command, [], {
+  spawnSomeCommand: function(command) {
+    const childProcess = exec(command, [], {
       stdio: 'inherit',
       shell: true
     });
+    return childProcess;
   },
 
-  addLangAttribute(element, lang) {
+  addLangAttribute: function(element, lang) {
     if (element) {
       element.setAttribute('lang', lang);
     } else {
       const html = document.documentElement;
-      if (!html.hasAttribute('lang')) {
+      if (html) {
         html.setAttribute('lang', 'en');
       }
     }
   },
 
-  countDependencies() {
-    const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
+  countDependencies: function() {
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-    const dependencies = JSON.parse(packageJsonPath).dependencies || {};
-    const devDependencies = JSON.parse(packageJsonPath).devDependencies || {};
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
 
     return {
       dependencies: Object.keys(dependencies).length,
@@ -149,10 +150,10 @@ const AddressabilityIssues = {
     };
   },
 
-  fixMainLandmarkIssues(source) {
-    const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+  fixMainLandmarkIssues: function(source) {
+    const mainBlockRegex = /<main>[\s\S]*?<\/main>/gi;
 
-    const matches = Array.from(source.matchAll(mainBlockRegex));
+    const matches = source.match(mainBlockRegex);
     if (matches.length <= 1) {
       return source;
     }
@@ -169,8 +170,8 @@ const AddressabilityIssues = {
     return result;
   },
 
-  fixSemanticMarkup(source) {
-    const mainBlockRegex = /<main[^>]*>[\s\S]*?<\/main>/gi;
+  fixSemanticMarkup: function(source) {
+    const mainBlockRegex = /<main>[\s\S]*?<\/main>/gi;
 
     const matches = source.match(mainBlockRegex);
     if (!matches || matches.length <= 1) {
@@ -189,8 +190,8 @@ const AddressabilityIssues = {
     return result;
   },
 
-  validateLandmarkStructure() {
-    const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
+  validateLandmarkStructure: function() {
+    const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
 
     landmarks.forEach(landmark => {
@@ -204,7 +205,7 @@ const AddressabilityIssues = {
         footer: 'contentinfo'
       };
 
-      if (!landmark.hasAttribute('role')) {
+      if (!role) {
         const implicitLandmark = implicitRole[tagName];
         if (implicitLandmark) {
           landmark.setAttribute('role', implicitLandmark);
@@ -213,6 +214,12 @@ const AddressabilityIssues = {
     });
   }
 };
+
+function personName() {
+  const firstName = 'John';
+  const lastName = 'Doe';
+  return `${firstName} ${lastName}`;
+}
 
 function validateLandmark(element) {
   return AddressabilityIssues.validateLandmark(element);
@@ -223,7 +230,8 @@ if (typeof module !== 'undefined' && module.exports) {
     AddressabilityIssues,
     fixMainLandmarkIssues: AddressabilityIssues.fixMainLandmarkIssues,
     fixSemanticMarkup: AddressabilityIssues.fixSemanticMarkup,
-    validateLandmarkStructure: AddressabilityIssues.validateLandmarkStructure
+    validateLandmarkStructure: AddressabilityIssues.validateLandmarkStructure,
+    personName: personName
   };
 } else {
   // Browser environment - wait for DOM
@@ -235,8 +243,9 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 function initializeAccessibility() {
-  if (!document.querySelectorAll) return;
-  addressAccessibilityIssues(sampleInsightReport);
+  if (typeof document === 'undefined') return;
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
+  AddressabilityIssues.validateLandmarkStructure();
 }
 
 const sampleInsightReport = {
@@ -256,9 +265,9 @@ const sampleInsightReport = {
 // Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues() {
   // Add lang attribute to HTML element
-  const htmlElement = document.querySelector('html');
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', getLangAttribute(htmlElement));
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    AddressabilityIssues.addLangAttribute(htmlElement, 'en');
   }
 
   // Implement function for counting dependencies with Node.js
@@ -290,7 +299,7 @@ tables.forEach((table) => {
 });
 
 // Add/fix 4 landmark issues
-const landmarks = document.querySelectorAll('main, nav, aside, header, footer');
+const landmarks = document.querySelectorAll('nav, aside, header, footer');
 landmarks.forEach((landmark) => {
   const validationResult = validateLandmark(landmark);
   if (!validationResult.valid) {
@@ -304,7 +313,7 @@ const svgElements = document.querySelectorAll('svg');
 svgElements.forEach((svg) => {
   const accessibleName = getSvgAccessibleName(svg);
   if (accessibleName) {
-    svg.setAttribute('aria-label', accessibleName);
+    svg.setAttribute('aria-labelledby', accessibleName);
   }
 });
 
@@ -315,7 +324,7 @@ if (!uniqueLandmarks) {
 }
 
 // Fix 1 fake link issue
-const fakeLinks = document.querySelectorAll('a[href="#"]');
+const fakeLinks = document.querySelectorAll('.fake-link');
 fakeLinks.forEach((link) => {
   handleFakeLinks([{
     type: 'fake',
@@ -335,10 +344,6 @@ function handleCredentialResponse(response) {
 
 function getLangAttribute(element) {
   // Implement function to get the appropriate lang attribute value
-}
-
-function personName() {
-  // Implement function to handle person name accessibility
 }
 
 function validateTableStructure(table) {
@@ -368,6 +373,6 @@ function createServer() {
   return null;
 }
 
-function generateAccessibilityReport() {
+function initializeApp() {
   // Placeholder implementation
 }

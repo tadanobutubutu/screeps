@@ -3,7 +3,6 @@ const axe = require('axe-core');
 // Accessibility Functions for Screeps
 
 const express = require('express');
-const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
@@ -418,6 +417,16 @@ function validateInput(input) {
   // Validate input
 }
 
+// Harvest logic
+function harvest(target) {
+  if (!target || target.energy <= 0) {
+    return 0;
+  }
+  const amount = target.energy;
+  target.energy = 0;
+  return amount;
+}
+
 // Main execution
 function main() {
   initialize();
@@ -506,5 +515,6 @@ export {
   appState,
   generateDependencyReport as generateDependency,
   getUserSafety,
-  main as mainFunction
+  main as mainFunction,
+  harvest
 };

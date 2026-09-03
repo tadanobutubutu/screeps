@@ -14,7 +14,7 @@ export const checkUserSafety = () => {
 export const checkSafetyCategories = () => {
   let safetyCategoriesMessage = '';
 
-  if (safetyCategories.includes('Authorized Advice')) {
+  if (safetyCategories.includes('Unauthorized Advice')) {
     safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
   }
 
@@ -24,3 +24,25 @@ export const checkSafetyCategories = () => {
 // TODO: This section is merged from both branches to address accessibility issues
 // Keep existing code, exports, and functions from this point onwards
 // Add your existing code, exports, functions here...
+
+// TODO: Implement harvest logic
+// This function should collect resources or data from available sources
+export const harvest = (sources = []) => {
+  const collectedResources = [];
+  
+  if (!Array.isArray(sources) || sources.length === 0) {
+    return collectedResources;
+  }
+
+  for (const source of sources) {
+    if (source && typeof source === 'object' && 'data' in source) {
+      collectedResources.push({
+        id: source.id || null,
+        data: source.data,
+        timestamp: Date.now()
+      });
+    }
+  }
+
+  return collectedResources;
+};

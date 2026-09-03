@@ -187,8 +187,33 @@ function validateSession() {
 
 function handleCredentialResponse(response) {
   // Implementation of the handleCredentialResponse function
-  // Placeholder for actual implementation
-  console.log('Credential Response:', response)
+  // Process the credential response and extract relevant information
+  
+  if (!response) {
+    console.warn('No credential response provided');
+    return { success: false };
+  }
+  
+  // Extract token from various possible locations in the response
+  const token = response.token || 
+                response.access_token || 
+                response.auth_token || 
+                response.credentials?.token;
+  
+  if (!token) {
+    console.warn('No valid token found in credential response');
+    return { success: false };
+  }
+  
+  // Optionally decode the JWT token if needed
+  // Using the existing decodeJwtResponse helper
+  // Note: This would typically happen before storing the token
+  // For now, we'll just log it
+  
+  console.log('Credential Response processed successfully');
+  console.log('Extracted token:', token);
+  
+  return { success: true, token };
 }
 
 // New function to handle additional rendering logic

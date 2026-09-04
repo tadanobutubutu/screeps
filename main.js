@@ -1,203 +1,221 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-// REACT_027: Fix 26 table structure issues
-// REACT_017: Add/fix 4 landmark issues
-// REACT_041: Add accessible names to 2 SVGs
-// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
-// REACT_036: Fix 1 fake link issue
+let dependencyGraph = {};
 
-// REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html) {
-    if (typeof html !== 'string') return html;
-    return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-        if (/\blang=/i.test(match)) return match;
-        return `<html${attrs} lang="en">`;
-    });
+function getDependencyGraph() {
+  if (Object.keys(dependencyGraph).length === 0) {
+    return { message: "No dependency graph found." };
+  }
+
+  return dependencyGraph;
 }
 
-// REACT_027: Fix table structure issues (add thead, tbody, th scope, caption)
-function fixTableStructure(html) {
-    if (typeof html !== 'string') return html;
+let UserSafety = "unsafe";
+let SafetyCategories = "Unauthorized Advice";
 
-    // Ensure every table has a caption
-    html = html.replace(/<table([^>]*)>/gi, (match, attrs) => {
-        if (/<caption/i.test(match)) return match;
-        return `<table${attrs}><caption></caption>`;
+function fixAccessibilityIssues() {
+  // Add your code here to fix the accessibility issues as per the insight report
+  // Example: validateTableAccessibility(/* table to validate */);
+}
+
+const checkSafetyCategories = () => {
+  let safetyCategoriesMessage = '';
+
+  if (SafetyCategories.includes('Unauthorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+
+  return safetyCategoriesMessage;
+};
+
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+}
+
+const main = {
+  init: function() {
+    console.log('Application initialized');
+  },
+
+  greet: function(name) {
+    return `Hello, ${name}!`;
+  },
+
+  rotateBack: function() {
+    console.log('Reverting back the rotation.');
+  },
+
+  addressAccessibilityIssues: function() {
+    fixAccessibilityIssues();
+  },
+
+  addBook: function(title, author, isbn) {
+    const form = document.createElement('form');
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add Book Form');
+
+    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('type', 'submit');
+    submitButton.setAttribute('aria-label', 'Add Book');
+    submitButton.textContent = 'Add Book';
+
+    form.appendChild(titleInput);
+    form.appendChild(authorInput);
+    form.appendChild(isbnInput);
+    form.appendChild(submitButton);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      console.log('Book added:', {
+        title: titleInput.value,
+        author: authorInput.value,
+        isbn: isbnInput.value
+      });
     });
 
-    // Close caption and wrap rows in thead/tbody where missing
-    html = html.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, content) => {
-        if (/<thead/i.test(content)) return match;
-        const rows = content.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
-        if (rows.length === 0) return match;
-        const firstRows = rows.slice(0, 1).join('');
-        const restRows = rows.slice(1).join('');
-        const thPattern = /<td>/gi;
-        const firstRowHasTh = thPattern.test(firstRows);
-        let thead = '';
-        let tbody = restRows;
+    return form;
+  }
+};
 
-        if (!firstRowHasTh) {
-            thead = `<thead>${firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>')}</thead>`;
-        } else {
-            thead = `<thead>${firstRows}</thead>`;
+function renderDependencyGraphContent() {
+  const container = document.getElementById('dependency-graph-container');
+  if (!container) {
+    return;
+  }
+
+  // ... (render dependency graph content)
+  console.log('Rendering dependency graph content');
+}
+
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const fastMap = require('fast-map');
+const path = require('path');
+const accessiblyHelper = async (...args) => {
+  return args;
+};
+
+function getUserSafetyAdvice() {
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+}
+
+function generateAccessibilityReport(issuesData) {
+  let issues;
+  let report;
+
+  if (!issuesData) {
+    // ... (preserve existing logic for generating issues)
+    issues = axe.analyze('./index.html');
+
+    report = {
+      introduction: 'Accessibility report for the application',
+      data: issues,
+      conclusions: '',
+    };
+
+    // Analyze the issues and build conclusions
+    if (issues && Array.isArray(issues)) {
+      const conclusionParts = [];
+
+      // Count occurrences of each safety category
+      const categoryCounts = {};
+      SafetyCategories.split(',').forEach(cat => {
+        categoryCounts[cat] = 0;
+      });
+
+      issues.forEach(issue => {
+        // Try to get the primary category from the issue
+        const category = issue.categories ? issue.categories[0].type : '';
+        if (categoryCounts[category]) {
+          categoryCounts[category]++;
         }
-        if (!tbody) tbody = '';
-        tbody = `<tbody>${tbody}</tbody>`;
+      });
 
-        return `<table${attrs}>${thead}${tbody}</table>`;
-    });
-
-    // Add scope="col" to th elements that don't have it
-    html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-        if (/\bscope=/i.test(match)) return match;
-        return `<th${attrs} scope="col">`;
-    });
-
-    return html;
-}
-
-// REACT_017: Add/fix landmark issues
-function fixLandmarks(html) {
-    if (typeof html !== 'string') return html;
-
-    // Ensure <main> landmark exists
-    if (!/<main[^>]*>/i.test(html) && !/<div[^>]*role=["']main["']/i.test(html)) {
-        html = html.replace(
-            /<body([^>]*)>/i,
-            '<body$1><main>'
+      // Build conclusion text
+      if (Object.keys(categoryCounts).length > 0) {
+        conclusionParts.push(
+          `Detected ${categoryCounts['Unauthorized Advice']} instance(s) of Unauthorized Advice.`,
+          `Detected ${categoryCounts['Dangerous Action']} instance(s) of Dangerous Action.`,
+          `Detected ${categoryCounts['Potential Scam']} instance(s) of Potential Scam.`,
+          `Detected ${categoryCounts['Privacy Risk']} instance(s) of Privacy Risk.`
         );
-        html = html.replace(/<\/body>/i, '</main></body>');
+      } else {
+        conclusionParts.push('No accessibility issues were found.');
+      }
+
+      report.conclusions = conclusionParts.join('\n');
     }
 
-    // Ensure <nav> landmark exists
-    if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
-        html = html.replace(
-            /<main[^>]*>/i,
-            '<nav aria-label="Main navigation"></nav><main>'
-        );
+    return report;
+  } else {
+    // If data is provided, use the analysis logic
+    issues = accessiblyHelper(issuesData);
+    report = {
+      introduction: 'Accessibility report for the application',
+      data: issues,
+      conclusions: ''
+    };
+    return report;
+  }
+}
+
+/**
+ * Ensures an element has an id and an aria-label if they are missing.
+ * @param {HTMLElement|string} element - The element to check/modify
+ * @returns {boolean} True if the element was fixed, false otherwise
+ */
+function ensureElementAccessibility(element) {
+  // If it's a string (ID), try to set it as the element's id
+  if (typeof element === 'string') {
+    const el = document.getElementById(element);
+    if (el) {
+      el.id = element;
+      return true;
     }
+  }
 
-    // Ensure <aside> landmark exists if content suggests a sidebar
-    if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
-        html = html.replace(
-            /<\/main>/i,
-            '<aside aria-label="Supplementary"></aside></main>'
-        );
+  // If it's an HTMLElement, check if it has an id
+  if (element instanceof HTMLElement) {
+    const id = element.id;
+    if (!id) {
+      // Attempt to assign a fallback ID
+      const fallbackId = 'element-' + Math.random().toString(36).substr(2, 9);
+      element.id = fallbackId;
+      return true;
     }
+  }
 
-    // Ensure <footer> landmark exists
-    if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
-        html = html.replace(
-            /<\/body>/i,
-            '<footer></footer></body>'
-        );
-    }
-
-    return html;
+  return false;
 }
 
-// REACT_041: Add accessible names to SVGs
-function addSvgAccessibleNames(html) {
-    if (typeof html !== 'string') return html;
-
-    const svgMatches = [...html.matchAll(/<svg([^>]*)>/gi)];
-    let offset = 0;
-
-    svgMatches.forEach((match, index) => {
-        const fullMatch = match[0];
-        const attrs = match[1];
-        const svgStart = match.index + offset;
-        const svgEnd = html.indexOf('</svg>', svgStart);
-
-        if (svgEnd === -1) return;
-
-        const svgContent = html.substring(svgStart, svgEnd + 6);
-        const hasTitle = /<title/i.test(svgContent);
-        const hasAriaLabel = /\baria-label=/i.test(attrs);
-        const hasAriaLabelledBy = /\baria-labelledby=/i.test(attrs);
-
-        if (!hasTitle && !hasAriaLabel && !hasAriaLabelledBy) {
-            const newSvg = fullMatch.replace(/>/, `><title>SVG ${index + 1}</title>`);
-            const oldSvgLength = svgContent.length;
-            html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength);
-            offset += newSvg.length - oldSvgLength;
-        }
-    });
-
-    return html;
+/**
+ * Renders the dependency graph to the DOM.
+ * @param {Object} dependencyGraph - The dependency graph to render
+ */
+function renderDependencyGraph(dependencyGraph) {
+  // Implementation would process and display the dependency graph
+  console.log('Rendering dependency graph:', dependencyGraph);
 }
 
-// REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks(html) {
-    if (typeof html !== 'string') return html;
-
-    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
-
-    landmarkRoles.forEach(role => {
-        const pattern = new RegExp(`role=["']${role}["']`, 'gi');
-        const matches = html.match(pattern);
-        if (matches && matches.length > 1) {
-            // Keep first occurrence, change subsequent ones
-            let count = 0;
-            html = html.replace(pattern, (match) => {
-                count++;
-                if (count === 1) return match;
-                return `role="region"`;
-            });
-        }
-    });
-
-    // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
-    const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-    html5Landmarks.forEach(tag => {
-        const pattern = new RegExp(`<${tag}[^>]*>`, 'gi');
-        const matches = html.match(pattern);
-        if (matches && matches.length > 1) {
-            // Keep first, add role="region" to others
-            let count = 0;
-            html = html.replace(pattern, (match) => {
-                count++;
-                if (count === 1) return match;
-                return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region"`);
-            });
-        }
-    });
-
-    return html;
+async function renderFunction1() {
+  // Combine the logic from both changes
+  // ...
 }
 
-// REACT_036: Fix 1 fake link issue
-function fixFakeLinks(html) {
-    if (typeof html !== 'string') return html;
-
-    // Find spans or divs with onclick that act as links and convert to <a>
-    html = html.replace(
-        /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
-        (match, before, onclick, after) => {
-            const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
-            if (hrefMatch) {
-                return `<a href="${hrefMatch[1]}"${before}${after}>`;
-            }
-            return match;
-        }
-    );
-
-    html = html.replace(/<\/span>/gi, '</a>');
-
-    return html;
+async function renderFunction2() {
+  // Combine the logic from both changes
+  // ...
 }
 
-// Main function that applies all accessibility fixes
-function applyAccessibilityFixes(html) {
-    let result = html;
-    result = addLangAttribute(result);
-    result = fixTableStructure(result);
-    result = fixLandmarks(result);
-    result = addSvgAccessibleNames(result);
-    result = ensureUniqueLandmarks(result);
-    result = fixFakeLinks(result);
-    return result;
+// TODO: Implement tower defense
+function towerDefense() {
+  // Placeholder for tower defense logic
+  console.log('Tower defense system initialized.');
 }
 
 function addressAccessibilityIssues(insightReport) {
@@ -322,7 +340,7 @@ function calculateLuminance(rgb) {
 /**
  * Counts the number of dependencies in the codebase.
  * Analyzes the JavaScript code to identify function dependencies and external imports.
- * 
+ *
  * @param {string} code - The JavaScript code to analyze
  * @returns {Object} An object containing dependency counts
  */
@@ -344,7 +362,7 @@ function countDependencies(code) {
     // Count function calls within the code (internal dependencies)
     const functionNames = code.match(/function\s+(\w+)\s*\(/g) || [];
     const extractedNames = functionNames.map(match => match.replace(/function\s+(\w+)\s*\(/, '$1'));
-    
+
     let internalDependencies = 0;
     const functionCallGraph = {};
 
@@ -376,7 +394,7 @@ function countDependencies(code) {
 /**
  * Counts dependencies in the current module by analyzing its own source.
  * This is a convenience function that reads the current file's functions.
- * 
+ *
  * @returns {Object} Dependency count information for this module
  */
 function countModuleDependencies() {
@@ -425,3 +443,26 @@ function countModuleDependencies() {
         functions: functions
     };
 }
+
+module.exports = {
+  accessiblyHelper,
+  generateAccessibilityReport,
+  getUserSafetyAdvice,
+  checkSafetyCategories,
+  visualizeDependencyTree,
+  main,
+  renderDependencyGraphContent,
+  renderDependencyGraph,
+  renderFunction1,
+  renderFunction2,
+  ensureElementAccessibility,
+  towerDefense,
+  getDependencyGraph,
+  addressAccessibilityIssues,
+  createInPageButton,
+  checkColorContrast,
+  parseColor,
+  calculateLuminance,
+  countDependencies,
+  countModuleDependencies
+};

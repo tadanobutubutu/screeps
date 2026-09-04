@@ -1,11 +1,13 @@
 name: 🎫 Issue Management
 
 on:
-  issues:
+  workflow_dispatch:
+
+  # disabled_by_guard: issues:
     types: [opened, edited]
 
 permissions:
-  issues: write
+  # disabled_by_guard: issues: write
 
 jobs:
   auto-label:

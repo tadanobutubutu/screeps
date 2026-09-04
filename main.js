@@ -1,5 +1,12 @@
 // main.js
 
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+
+const config = require('./config');
+const logger = require('./utils/logger');
+
 import React from 'react';
 import { registSW } from 'effector-sw';
 import axe from 'axe-core';
@@ -41,6 +48,24 @@ const App = require('./App').default;
 
 // ... Code for the accessibility functions and utilities here...
 
+function computeSafetyScore(safetyCategories) {
+  const safetyCategory = safetyCategories.reduce((score, category) => {
+    switch (category) {
+      case 'Unauthorized Advice':
+        return score + 1;
+      case 'Dangerous Action':
+        return score + 2;
+      case 'Potential Scam':
+        return score + 3;
+      case 'Privacy Risk':
+        return score + 4;
+      default:
+        return score;
+    }
+  }, 0);
+  return safetyCategory;
+}
+
 // Upgrade logic: use harvested data to improve the system
 function upgradeSystem(harvestedData) {
   // Use harvested data to improve the system
@@ -58,7 +83,19 @@ function upgradeSystem(harvestedData) {
   return true;
 }
 
-// Export all functions
+function loadHarvestedData() {
+  const filePath = path.join(__dirname, 'harvested_data.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.log(`Error loading harvested data: ${error.message}`);
+    return null;
+  }
+}
+
+const app = express();
+
 const main = () => {
   // ... Code for setting up the main application and server...
 
@@ -73,18 +110,6 @@ const main = () => {
   });
 };
 
-function loadHarvestedData() {
-  const filePath = path.join(__dirname, 'harvested_data.json');
-  try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.log(`Error loading harvested data: ${error.message}`);
-  }
-  return null;
-}
+main();
 
 module.exports = { main, loadHarvestedData };
-```
-
-This version of the file merges both changes using a combination of the conflicted sections from both branches. Important accessibility improvements from the other branch were preserved, and the upgrade logic function was added, along with the necessary code to load harvested data and apply upgrades.

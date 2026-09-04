@@ -1,6 +1,3 @@
-User Safety: unsafe
-Safety Categories: Illegal Activity, Fraud/Deception, Controlled/Regulated Substances, Unauthorized Advice
-=======
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -18,9 +15,32 @@ const UserSafety = {
     }
 };
 
+// User Safety categories from origin/main
+const userSafetyCategories = {
+    unsafe: true,
+    categories: [
+        'Illegal Activity',
+        'Fraud/Deception',
+        'Controlled/Regulated Substances',
+        'Unauthorized Advice'
+    ]
+};
+
 export const getSafetyCategory = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus.category;
 
 export const getSafetyCategoryDetailed = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus;
+
+function getUserSafetyInfo() {
+    return userSafetyCategories;
+}
+
+function isUserSafetyUnsafe() {
+    return userSafetyCategories.unsafe;
+}
+
+function hasSafetyCategory(category) {
+    return userSafetyCategories.categories.includes(category);
+}
 
 const books = [];
 const config = {
@@ -94,7 +114,7 @@ function countDependencies() {
     const dependencies = packageJson.dependencies || {};
     const devDependencies = packageJson.devDependencies || {};
     const peerDependencies = packageJson.peerDependencies || {};
-    constoptionalDependencies = packageJson.optionalDependencies || {};
+    const optionalDependencies = packageJson.optionalDependencies || {};
 
     return {
       dependencies: Object.keys(dependencies).length,
@@ -280,7 +300,10 @@ module.exports = {
   fixTableStructureIssues,
   fixTableHeaderCellScope,
   addMainLandmark,
-  expressApp
+  expressApp,
+  userSafetyCategories,
+  getUserSafetyInfo,
+  isUserSafetyUnsafe,
+  hasSafetyCategory
 };
 // Conflict resolved: integrated safety categories and accessibility functions into main module
->>>>>>> HEAD

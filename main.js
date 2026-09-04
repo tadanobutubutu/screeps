@@ -1,3 +1,18 @@
+// main.js - Application entry point
+// TODO: Existing main.js content before the merge conflict...
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibleNames())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+// Add your new functions and changes below this line.
+
+// Import required modules
 const utils = require('./utils');
 const express = require('express');
 const axe = require('axe-core');
@@ -301,6 +316,17 @@ const upgradeUserSettings = () => {
       });
     }
 
+    // Function to check landmark elements (moved outside fixFakeLink for module-level access)
+    function checkLandmarkElements() {
+      const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
+      landmarks.forEach(landmark => {
+        const element = document.querySelector(`[role="${landmark}"]`);
+        if (element) {
+          element.setAttribute('aria-label', `Navigation: ${landmark}`);
+        }
+      });
+    }
+
     // Function to fix 1 fake link issue
     function fixFakeLink() {
       const fakeLinks = document.querySelectorAll(':not([href])[role="link"]');
@@ -309,18 +335,7 @@ const upgradeUserSettings = () => {
         link.setAttribute('href', '#');
       });
 
-      // Implementing the new function for checking landmark elements
-      function checkLandmarkElements() {
-        const landmarks = ['main', 'nav', 'aside', 'footer', 'header'];
-        landmarks.forEach(landmark => {
-          const element = document.querySelector(`[role="${landmark}"]`);
-          if (element) {
-            element.setAttribute('aria-label', `Navigation: ${landmark}`);
-          }
-        });
-      }
-
-      // Call the new function to check landmark elements
+      // Call the function to check landmark elements
       checkLandmarkElements();
 
       // Return the accessibilityUtils for proper integration
@@ -1131,7 +1146,12 @@ const upgradeUserSettings = () => {
       getLandmarkById: getLandmarkById,
       a11y: a11y,
       someFunction: someFunction,
-      writeReport: writeReport
+      writeReport: writeReport,
+
+      // Origin/main additions
+      main: main,
+      visualizeDependencyTree: visualizeDependencyTree,
+      createAccessibleInput: createAccessibleInput
     };
 
     // Assign exports to module.exports
@@ -1178,13 +1198,50 @@ const upgradeUserSettings = () => {
         container.appendChild(bookForm);
     }
 
-    // Initialize on DOM ready
-    if (typeof document !== 'undefined') {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initialize);
-        } else {
-            initialize();
+    // Add proper landmark regions for accessibility
+    function addProperLandmarkRegions() {
+      const regions = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+      const rolesMapping = {
+        'banner': 'banner',
+        'navigation': 'navigation',
+        'main': 'main',
+        'complementary': 'complementary',
+        'contentinfo': 'contentinfo',
+        'search': 'search',
+      };
+
+      // Create or update regions with ARIA-label when necessary
+      regions.forEach(role => {
+        const elements = document.querySelectorAll(`[role="${role}"]`);
+        elements.forEach(element => {
+          let ariaLabel = element.hasAttribute('aria-label') ? element.getAttribute('aria-label') : null;
+          if (!ariaLabel) {
+            ariaLabel = rolesMapping[role] || '';
+          }
+          if (element.getAttribute('role') === role && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+            element.setAttribute('aria-label', ariaLabel);
+          }
+        });
+      });
+    }
+
+    // Enhanced Table accessibility functions:
+    function validateTableAccessibility(table) {
+      let tableValid = validateTableStructure(table);
+      if (tableValid.valid) {
+        const headers = table.querySelectorAll('th');
+        const cells = table.querySelectorAll('td');
+
+        for (let i = 0; i < headers.length; i++) {
+          const header = headers[i];
+          const cell = cells[i];
+          if (!cell || !header) continue;
+          if (header.textContent && cell.textContent) {
+            cell.setAttribute('aria-labelledby', header.id || cell.id);
+          }
         }
+      }
+      return tableValid;
     }
 
     // Visualize dependency tree function
@@ -1304,6 +1361,16 @@ const upgradeUserSettings = () => {
       if (value) input.setAttribute('value', value);
       return input;
     }
+
+    // Initialize on DOM ready
+    if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            initialize();
+        }
+    }
+
 })();
 
 // ES module exports

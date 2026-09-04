@@ -1,4 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
+// ... (existing code up to line 86)
+
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
@@ -10,10 +12,8 @@
 //<!-- todo-hash: 312aa8ea4c5e1c9430e4b7c36c210eb9a72dea -->
 //_Commit: 54b7c4d06282fbf48e78de43e5e115814006658c_
 //<!-- todo-hash: d290c9a63ee693e91602163f7ca6757def47f63e -->
-
-_Commit: d9a4fdfe7e5cedca136ed13962e3d13f9cbb3c7f_
-
-<!-- todo-hash: 7e48ff018c0c0ab46fc506076877662414deb3cd -->
+//_Commit: d9a4fdfe7e5cedca136ed13962e3d13f9cbb3c7f_
+//<!-- todo-hash: 7e48ff018c0c0ab46fc506076877662414deb3cd -->
 
 function newBranchFunction() {
   return 'New branch function executed';
@@ -169,22 +169,6 @@ function getFullLangAttribute() {
 function addLangAttribute(element) {
   element.lang = getFullLangAttribute();
   return element;
-}
-
-/**
- * Gets the lang attribute value
- * @returns {string} The lang attribute value
- */
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-/**
- * Gets the full lang attribute value
- * @returns {string} The full lang attribute value
- */
-function getFullLangAttribute() {
-  return document.documentElement.lang || 'en';
 }
 
 /**
@@ -428,10 +412,6 @@ function createAccessibleLink(href, text) {
     return link;
 }
 
-function addLandmarkRegions() {
-  console.log('Adding landmark regions');
-}
-
 /**
  * Adds accessibility attributes to an SVG element
  * @param {Object} svgElement - The SVG element to enhance
@@ -503,6 +483,11 @@ function handleFakeLinks(link) {
 }
 
 function addLandmarkRegions(document) {
+  console.log('Adding landmark regions');
+  if (!document || typeof document.querySelectorAll !== 'function') {
+    return document;
+  }
+
   const regions = [
     { selector: 'header', role: 'banner' },
     { selector: 'nav', role: 'navigation' },
@@ -512,7 +497,7 @@ function addLandmarkRegions(document) {
   ];
 
   regions.forEach(region => {
-    const elements = document.querySelectorAll ? document.querySelectorAll(region.selector) : [];
+    const elements = document.querySelectorAll(region.selector);
     elements.forEach(element => {
       if (!element.getAttribute('role')) {
         element.setAttribute('role', region.role);

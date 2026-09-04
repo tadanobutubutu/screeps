@@ -354,9 +354,115 @@ function handleAccessibilityIssues(issues = []) {
  * @param {string} options.ariaLabel - ARIA label for the SVG
  * @param {string} options.ariaHidden - ARIA hidden state
  * @param {string} options.role - ARIA role for the SVG
- * @returns {Object} The enhanced SVG element with accessibility properties */
+ * @returns {Object} The enhanced SVG element with accessibility properties
+ */
 function addSvgAccessibleNames(svg, options = {}) {
   const enhancedSvg = { ...svg };
 
   if (options.ariaLabel) {
-    enhancedSvg.ariaLabel
+    enhancedSvg.setAttribute('aria-label', options.ariaLabel);
+  }
+
+  if (options.ariaHidden) {
+    enhancedSvg.setAttribute('aria-hidden', options.ariaHidden);
+  }
+
+  if (options.role) {
+    enhancedSvg.setAttribute('role', options.role);
+  }
+
+  return enhancedSvg;
+}
+
+/**
+ * Retrieves the accessible name for an SVG element
+ * @param {Object} svg - The SVG element
+ * @returns {string} The accessible name
+ */
+function getSvgAccessibleName(svg) {
+  return svg.getAttribute('aria-label') || svg.textContent || svg.title || '';
+}
+
+// Screeps bot functionality
+const botConfig = {
+  memory: {},
+  spawn: {
+    name: 'Spawn1',
+    structureType: STRUCTURE_SPAWN
+  },
+  rooms: [],
+  creeps: []
+};
+
+/**
+ * Main bot initialization
+ */
+function initializeBot() {
+  console.log('Initializing Screeps bot...');
+  Memory.config = botConfig.memory;
+  return true;
+}
+
+/**
+ * Spawn a new creep
+ * @param {Object} body - The body parts for the creep
+ * @param {string} name - The name for the creep
+ */
+function spawnCreep(body, name) {
+  const spawn = Game.spawns[botConfig.spawn.name];
+  if (spawn) {
+    const result = spawn.spawnCreep(body, name);
+    console.log(`Spawning creep ${name}: ${result}`);
+    return result;
+  }
+  return ERR_SPAWN_NOT_FOUND;
+}
+
+/**
+ * Run the bot's main logic
+ */
+function runBot()() {
+  // Handle creep behavior
+  Game.creeps.forEach(creep => {
+    // Basic creep logic
+    if (creep.store.getFreeCapacity() > 0) {
+      const source = creep.pos.findClosestByRange(LOGICAL_SOURCES);
+      if (source) {
+        if (creep.harvest(source) === ERR_NO_PATH) {
+          creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+      }
+    } else {
+      const target = creep.pos.findClosestByRange(LOGICAL_STRUCTURES);
+      if (target) {
+        if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NO_PATH) {
+          creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+      }
+    }
+  });
+
+  // Handle room logic
+  Game.rooms.forEach(room => {
+    const miners = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester' && creep.room.name === room.name);
+    
+    if (miners.length === 0) {
+      spawnCreep([WORK, CARRY, MOVE], 'Harvester' + Game.time);
+    }
+  });
+}
+
+// Export functions for use
+module.exports = {
+  initializeApp,
+  initializeBot,
+  runBot,
+  handleAccessibilityIssues,
+  addSvgAccessibleNames,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  spawnCreep,
+  getConfig
+};

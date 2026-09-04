@@ -153,15 +153,15 @@ function getLangAttribute() {
   return navigator.language || navigator.userLanguage;
 }
 
-function logCurrentURL() {
-  console.log('Current URL: ' + window.location.href);
-}
-
 function addLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', getLangAttribute());
   }
+}
+
+function logCurrentURL() {
+  console.log('Current URL: ' + window.location.href);
 }
 
 function initSkipLink() {
@@ -271,6 +271,23 @@ function validateLandmarkStructure(landmark) {
 function validateLandmarkAttributes(landmark) {
 }
 
+function getSvgAccessibleName(svg) {
+  return 'SVG Icon';
+}
+
+function setSvgAttributes(svg, name) {
+  document.querySelectorAll('svg').forEach((svg) => {
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+    if (!svg.getAttribute('aria-labelledby') && !svg.getAttribute('aria-label')) {
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = getSvgAccessibleName();
+      svg.appendChild(title);
+    }
+  });
+}
+
 function isValidLandmark(landmark) {
   return landmark &&
          typeof landmark.id !== 'undefined' &&
@@ -279,7 +296,7 @@ function isValidLandmark(landmark) {
 
 function loadLandmarks() {
   try {
-    const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
+    const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
     const data = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(data);
   } catch (error) {
@@ -362,6 +379,11 @@ function addSvgAccessibleNames() {
 }
 
 function addSvgAccessibility() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
 }
 
 function implementNewFunction() {
@@ -388,23 +410,6 @@ function renderIndexView() {
 
 function calculateSum(a, b) {
   return a + b;
-}
-
-function getSvgAccessibleName() {
-  return 'SVG Icon';
-}
-
-function setSvgAttributes() {
-  document.querySelectorAll('svg').forEach((svg) => {
-    if (!svg.getAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-    if (!svg.getAttribute('aria-labelledby') && !svg.getAttribute('aria-label')) {
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-      title.textContent = getSvgAccessibleName();
-      svg.appendChild(title);
-    }
-  });
 }
 
 function getCurrentLanguageSetting() {
@@ -885,7 +890,6 @@ function initialise() {
 }
 
 module.exports = {
-  // From HEAD
   getDependencyGraph,
   enforceAccessibility,
   addressAccessibilityIssues,

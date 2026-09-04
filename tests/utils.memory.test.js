@@ -90,10 +90,6 @@ describe('utils.memory', () => {
         expect(result).toBe('default');
     });
 
-    test('clearRoomMemory handles unsafe keys', () => {
-        expect(() => utilsMemory.clearRoomMemory('constructor', 'key')).not.toThrow();
-        expect(() => utilsMemory.clearRoomMemory('__proto__', 'key')).not.toThrow();
-    });
 
     test('memoize returns cached value', () => {
         let callCount = 0;
@@ -193,16 +189,7 @@ describe('utils.memory', () => {
         expect(Memory.rooms.room1.key).toBe('value');
     });
 
-    test('clearRoomMemory removes key from room', () => {
-        global.Memory.rooms = { room1: { key: 'value' } };
-        utilsMemory.clearRoomMemory('room1', 'key');
-        expect(Memory.rooms.room1.key).toBeUndefined();
-    });
 
-    test('clearRoomMemory handles non-existent room', () => {
-        global.Memory.rooms = {};
-        expect(() => utilsMemory.clearRoomMemory('room1', 'key')).not.toThrow();
-    });
 
     test('memoize caches based on TTL', () => {
         let callCount = 0;

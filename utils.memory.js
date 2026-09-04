@@ -74,26 +74,6 @@ module.exports = {
     isSafeKey,
 
     // Safe memory access with default values
-    getRoomMemory: function (roomName, key, defaultValue) {
-        // Security: Validate roomName and key to prevent prototype pollution
-        if (!isSafeKey(roomName) || !isSafeKey(key)) {
-            return defaultValue;
-        }
-
-        if (!Memory.rooms) {
-            Memory.rooms = {};
-        }
-
-        if (!Memory.rooms[roomName]) {
-            Memory.rooms[roomName] = {};
-        }
-
-        if (Memory.rooms[roomName][key] === undefined) {
-            Memory.rooms[roomName][key] = defaultValue;
-        }
-
-        return Memory.rooms[roomName][key];
-    },
 
     setRoomMemory: function (roomName, key, value) {
         // Security: Validate roomName and key to prevent prototype pollution
@@ -111,20 +91,6 @@ module.exports = {
         Memory.rooms[roomName][key] = value;
     },
 
-    clearRoomMemory: function (roomName, key) {
-        // Security: Validate roomName and key to prevent prototype pollution
-        if (!isSafeKey(roomName) || !isSafeKey(key)) {
-            return;
-        }
-
-        if (!Memory.rooms) {
-            return;
-        }
-
-        if (Memory.rooms[roomName]) {
-            delete Memory.rooms[roomName][key];
-        }
-    },
 
     /**
      * ⚡ PERFORMANCE: Sync local tracking with global.cache reference.
@@ -144,53 +110,6 @@ module.exports = {
                 }
             }
         }
-    },
-
-    // Memoization helper for expensive calculations
-    memoize: function (fn, cacheKey, ttl = 100) {
-        // Security: Validate cacheKey to prevent prototype pollution
-        if (!isSafeKey(cacheKey)) {
-            return fn();
-        }
-
-        this._syncCacheState();
-
-        const cached = Memory.cache[cacheKey];
-        if (cached && Game.time - cached.timestamp < ttl) {
-            // Update eviction order (Move to end)
-            _cacheOrder.delete(cacheKey);
-            _cacheOrder.set(cacheKey, true);
-            return cached.value;
-        }
-
-        if (Memory.cache[cacheKey] === undefined || Memory.cache[cacheKey] === null) {
-            // Capacity check before adding a new entry
-            if (_cacheSize >= MAX_CACHE_ENTRIES) {
-                this.cleanCache();
-                if (_cacheSize >= MAX_CACHE_ENTRIES) {
-                    // ⚡ PERFORMANCE: O(1) FIFO eviction using Map insertion order.
-                    const oldestKey = _cacheOrder.keys().next().value;
-                    if (oldestKey !== undefined) {
-                        delete Memory.cache[oldestKey];
-                        _cacheOrder.delete(oldestKey);
-                        _cacheSize--;
-                    }
-                }
-            }
-            _cacheSize++;
-        }
-
-        const result = fn();
-        Memory.cache[cacheKey] = {
-            value: result,
-            timestamp: Game.time,
-        };
-
-        // Update eviction order
-        _cacheOrder.delete(cacheKey);
-        _cacheOrder.set(cacheKey, true);
-
-        return result;
     },
 
     // Clean up old cache entries
@@ -249,18 +168,4 @@ module.exports = {
         }
     },
 
-    // Get creep working state
-    updateWorkingState: function (creep) {
-        if (!creep.memory.working && creep.store.getFreeCapacity() === 0) {
-            creep.memory.working = true;
-            return true;
-        }
-
-        if (creep.memory.working && creep.store.getUsedCapacity() === 0) {
-            creep.memory.working = false;
-            return false;
-        }
-
-        return creep.memory.working;
-    },
 };

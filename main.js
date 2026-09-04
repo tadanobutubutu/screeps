@@ -56,10 +56,15 @@ const {
   addMainLandmark,
   addSvgAccessibleNames,
   implementNewFunction,
-  addLangAttribute,
-  logCurrentURL,
   main,
   someFunction,
+  addressAccessibilityIssues,
+  renderDependencyGraphContent,
+  createInPageButtons,
+  fixUniqueLandmarks,
+  generateAccessibilityReport,
+  addLangAttribute,
+  logCurrentURL,
   validateTableAccessibility,
   validateTableStructure,
   fixTableStructure,
@@ -96,7 +101,7 @@ const { getSvgAccessibleName: getSvgAccessibleNameHelper, setSvgAttributes: setS
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 // _Commit: f8051b788bad4952d8d493f08d3c7d22a06ff80d3_
 // <!-- todo-hash: b498b47abee4b3f29c69a97abc23d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// _Commit: 30b5f0892a595ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f8ba25225b07b809ac49f5e1c81cf4f389f9c1 -->
 // _Commit: 71de896ff81b3d52019e1bf2f16abc2c913d96737_
 // <!-- todo-hash: 97ba409385ddd48f0a50b6cdeda666d4907b5fda2 -->
@@ -110,6 +115,13 @@ const { getSvgAccessibleName: getSvgAccessibleNameHelper, setSvgAttributes: setS
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 // - REACT_001: Implement function to handle new accessibility issues ...
+
+/* TODO: Implement functions/logic that were marked with comments such as:
+   - TODO: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
+*/
+
+// Configuration
+const config = CONFIG;
 
 // Application state
 let isInitialized = false;
@@ -139,9 +151,75 @@ function implementTowerDefense() {
 }
 
 /**
- * Gets the lang attribute for the HTML element
- * @returns {string} The lang attribute value
+ * Checks if a URL is accessible and valid
+ * @param {string} url - The URL to check
+ * @returns {Object} An object containing accessibility status and details
  */
+function checkLinkAccessibility(url) {
+  if (!url || typeof url !== 'string') {
+    return {
+      accessible: false,
+      error: 'Invalid or missing URL'
+    };
+  }
+
+  try {
+    const parsedUrl = new URL(url);
+
+    // Check for valid protocols
+    const validProtocols = ['http:', 'https:', 'ftp:', 'mailto:'];
+    if (!validProtocols.includes(parsedUrl.protocol)) {
+      return {
+        accessible: false,
+        error: 'URL uses unsupported protocol'
+      };
+    }
+
+    return {
+      accessible: true,
+      protocol: parsedUrl.protocol,
+      host: parsedUrl.host,
+      pathname: parsedUrl.pathname,
+      isSecure: parsedUrl.protocol === 'https:',
+      details: {} // Add more details if needed
+    };
+  } catch (e) {
+    return {
+      accessible: false,
+      error: 'Invalid URL format'
+    };
+  }
+}
+
+/**
+ * Checks accessibility for multiple URLs
+ * @param {string[]} urls - Array of URLs to check
+ * @returns {Object[]} Array of accessibility results
+ */
+function checkMultipleLinks(urls) {
+  if (!Array.isArray(urls)) {
+    return [];
+  }
+
+  return urls.map(checkLinkAccessibility);
+}
+
+/**
+ * Filters out inaccessible links from a list
+ * @param {string[]} urls - Array of URLs to filter
+ * @returns {string[]} Array of accessible URLs only
+ */
+function filterAccessibleLinks(urls) {
+  if (!Array.isArray(urls)) {
+    return [];
+  }
+
+  return urls
+    .map(checkLinkAccessibility)
+    .filter(result => result.accessible)
+    .map((result, index) => urls[index]);
+}
+
 function getLangAttribute() {
   return navigator.language || navigator.userLanguage;
 }
@@ -160,7 +238,7 @@ function addLangAttribute() {
  * Logs the current URL to the console
  */
 function logCurrentURL() {
-    console.log('Current URL: ' + window.location.href);
+  console.log(window.location.href);
 }
 
 // Landmark handling
@@ -305,7 +383,7 @@ function processLandmarks(landmarks) {
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-  return landmarks.sort((a, b) => {
+  return [...landmarks].sort((a, b) => {
     const nameA = (a.name || '').toLowerCase();
     const nameB = (b.name || '').toLowerCase();
 
@@ -378,6 +456,15 @@ function displayModuleStructure() {
  */
 function addressAccessibilityIssues() {
   try {
+    // Check user safety first
+    if (!isUserSafe() || isSafetyCategoryUnauthorizedAdvice()) {
+      console.warn("WARNING: User is not safe or safety category is unauthorized advice.");
+      return {
+        success: false,
+        message: 'User safety check failed: unsafe content detected'
+      };
+    }
+
     // Fix table accessibility issues
     fixTableAccessibility();
 
@@ -452,30 +539,6 @@ function initializeApp() {
 }
 
 async function scanAccessibility() {
-    const results = await axe.run();
-
-    if (results.violations && results.violations.length > 0) {
-        console.log('Accessibility issues found:', results);
-
-        // Check for user safety and unsafe categories
-        if (!isUserSafe() || isSafetyCategoryUnauthorizedAdvice()) {
-            console.warn("WARNING: User is not safe or safety category is unauthorized advice.");
-            return;
-        }
-
-        // Generate an accessibility report based on scan results
-        const accessibilityReport = generateAccessibilityReport(results);
-
-        // Save the report to a file or send it elsewhere
-    }
-
-    return {
-      timestamp: new Date().toISOString(),
-      issues: []
-    };
-}
-
-async function scanAccessibility() {
     // Initialize axe-core with a configuration object if needed
     const axeConfig = {};
 
@@ -518,7 +581,7 @@ function formatAccessibilityResults(results) {
  * Logs the current URL
  */
 function logCurrentURL() {
-  console.log(window.location.href);
+  console.log('Current URL: ' + window.location.href);
 }
 
 // Address accessibility issues from insight report
@@ -878,6 +941,17 @@ module.exports = {
   formatResponse,
   getSvgAccessibleName,
   setSvgAttributes,
+  createInPageButtons,
+  fixUniqueLandmarks,
+  harvestResources,
+  getLangAttribute,
+  addLangAttribute,
+  logCurrentURL,
+  improveAccessibility,
+  addressInsightReportIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
   fixLandmarkIssues,
   addLandmarkRoles,
   ensureUniqueLandmarks,
@@ -889,7 +963,6 @@ module.exports = {
   implementNewFunction,
   addLangAttribute,
   logCurrentURL,
-  improveAccessibility,
   main,
   someFunction,
   harvestResources,
@@ -907,6 +980,9 @@ module.exports = {
   findLandmarkById,
   writeReport,
   validateItem,
+  checkLinkAccessibility,
+  checkMultipleLinks,
+  filterAccessibleLinks,
   isUserSafe,
   isSafetyCategoryUnauthorizedAdvice,
   scanAccessibility,

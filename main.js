@@ -1,15 +1,28 @@
-User Safety: unsafe
-Safety Categories: Unauthorized Advice, PII/Privacy
-
-// TODO: This is the existing code that needs to be preserved
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: ... -->
+// _Commit: 243c66538868c6b87845660312397ab39e0f830d_
+// <!-- todo-hash: ... -->
 
 // Add your new functions and changes below this line.
 
 function analyzeContentSafety(content) {
   // Analyze the content for safety issues and return a safety rating.
   // ... (Your implementation here)
+  if (typeof content !== 'string') {
+    return { safe: true, rating: 'unknown', issues: [] };
+  }
+
+  const issues = [];
+  const lowerContent = content.toLowerCase();
+
+  // Check for unsafe patterns
+  if (lowerContent.includes('unsafe') || lowerContent.includes('dangerous')) {
+    issues.push('Potential safety concern detected');
+  }
+
+  return {
+    safe: issues.length === 0,
+    rating: issues.length === 0 ? 'safe' : 'warning',
+    issues: issues
+  };
 }
 
 function applyAccessibilityFixes(html) {
@@ -81,7 +94,6 @@ function divide(dividend, divisor) {
 // REACT_017: Add/fix landmark issues
 function fixLandmarks(html) {
     if (typeof html !== 'string') return html;
-    // KEEP OLD CODE HERE
 
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
 
@@ -98,27 +110,14 @@ function fixLandmarks(html) {
             });
         }
     });
-    // END OF OLD CODE
-    
-    return html;
-}
 
-// Main function that applies all accessibility fixes (modified to include the new ARIA role setting)
-function fixAccessibility(html) {
-    let result = html;
-    result = analyzeContentSafety(result);
-    result = fixTableStructure(result);
-    result = fixLandmarks(result);
-    result = applyAccessibilityFixes(result);
-    result = fixTableStructure(result);
-    result = fixLandmarks(result);
-    return result;
+    return html;
 }
 
 // Helper function to fix table structure
 function fixTableStructure(html) {
     if (typeof html !== 'string') return html;
-    
+
     // Ensure tables have proper structure
     html = html.replace(/(<table[^>]*>)/gi, (match, attrs) => {
         if (!/<caption/i.test(match)) {
@@ -126,39 +125,45 @@ function fixTableStructure(html) {
         }
         return match;
     });
-    
+
     // Wrap rows in thead/tbody
     html = html.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, content) => {
         if (/<thead/i.test(content)) return match;
-        
+
         const rows = content.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
         if (rows.length === 0) return match;
-        
+
         let firstRows = rows.slice(0, 1).join('');
         const restRows = rows.slice(1).join('');
-        
+
         if (/<th[^>]*(?!scope)/i.test(firstRows)) {
             firstRows = firstRows.replace(/<th/gi, '<th scope="col"');
         }
-        
+
         const thead = firstRows ? `<thead>${firstRows}</thead>` : '';
         const tbody = restRows ? `<tbody>${restRows}</tbody>` : '';
-        
+
         return `<table${attrs}>${thead}${tbody}</table>`;
     });
-    
+
     // Add scope="col" to th elements without it
     html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
         if (/scope=/i.test(attrs)) return match;
         return `<th${attrs} scope="col">`;
     });
-    
+
     return html;
 }
 
-// Todo: Fix the test failures shown above
+// Main function that applies all accessibility fixes (modified to include the new ARIA role setting)
+function fixAccessibility(html) {
+    let result = html;
+    result = applyAccessibilityFixes(result);
+    result = fixTableStructure(result);
+    result = fixLandmarks(result);
+    return result;
+}
 
-// TODO: add the new functions requested in the issue
 // Function A: Check accessibility for adding a new book
 function checkFunctionA(bookForm) {
   // Validates that the book form has proper accessibility attributes
@@ -166,19 +171,19 @@ function checkFunctionA(bookForm) {
   if (!bookForm || typeof bookForm !== 'object') {
     return false;
   }
-  
+
   // Check for required accessibility attributes
   const hasAccessibleLabel = bookForm.label || bookForm.title || bookForm.name;
   const hasRequiredAccessibility = bookForm.ariaLabel || hasAccessibleLabel;
-  
+
   // Ensure form inputs have proper labels for screen readers
   if (bookForm.inputs) {
-    const hasLabeledInputs = bookForm.inputs.every(input => 
+    const hasLabeledInputs = bookForm.inputs.every(input =>
       input.label || input.ariaLabel || input.id
     );
     return hasRequiredAccessibility && hasLabeledInputs;
   }
-  
+
   return !!hasRequiredAccessibility;
 }
 
@@ -189,31 +194,30 @@ function checkFunctionB(bookData) {
   if (!bookData || typeof bookData !== 'object') {
     return false;
   }
-  
+
   // Check for accessible book name/title
   const hasAccessibleName = bookData.name || bookData.title;
-  
+
   // Check for description (accessibility requirement)
   const hasDescription = bookData.description || bookData.summary;
-  
+
   // Check for cover image alt text if image exists
   let hasImageAlt = true;
   if (bookData.coverImage) {
     hasImageAlt = !!(bookData.coverImageAlt || bookData.alt);
   }
-  
+
   return !!(hasAccessibleName && hasDescription && hasImageAlt);
 }
 
 // Save both functions as new exports
 module.exports = {
-    ...module.exports, // Preserve existing exports, including the upgraded analyzeContentSafety, divide, and existingFunction1
     analyzeContentSafety,
     divide,
     fixLandmarks,
     fixTableStructure,
     fixAccessibility,
-    applyAccessibilityFixes, // Add the updated applyAccessibilityFixes with the ARIA role setting
-    checkFunctionA, // Add the new function
-    checkFunctionB // Add another new function
+    applyAccessibilityFixes,
+    checkFunctionA,
+    checkFunctionB
 };

@@ -50,6 +50,8 @@ export const harvestLogic = () => {
   // Determine if harvest can proceed based on safety checks
   const canHarvest = warnings.length === 0;
 
+  // Removed the merged content about accessibility issues, as it was not originally present in the file
+  // Add your existing code, exports, functions here...
   return {
     canHarvest,
     warnings,
@@ -58,6 +60,3 @@ export const harvestLogic = () => {
       : 'Harvest aborted due to safety concerns. Please review warnings.'
   };
 };
-
-// Removed the merged content about accessibility issues, as it was not originally present in the file
-// Add your existing code, exports, functions here...

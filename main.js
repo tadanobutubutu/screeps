@@ -425,3 +425,9 @@ module.exports = {
 };
 
 export { analyzeContentSafety, upgrade, checkEmptyHeadings, accessiblyHelper, existingFunction1, existingFunction2, newFunction };
+
+// Integrated safety configuration from origin/main
+const safetyConfig = {
+  userSafety: 'unsafe',
+  safetyCategories: ['Unauthorized Advice', 'Needs Caution']
+};

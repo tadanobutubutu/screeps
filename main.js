@@ -125,6 +125,22 @@ function addLangAttribute(element) {
 }
 
 /**
+ * Gets the lang attribute value
+ * @returns {string} The lang attribute value
+ */
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+/**
+ * Gets the full lang attribute value
+ * @returns {string} The full lang attribute value
+ */
+function getFullLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+/**
  * Validates landmark attributes
  * @param {Object} landmark - The landmark element to validate
  * @returns {Object} Validation result with success status and any issues found
@@ -608,6 +624,66 @@ function renderDependencyGraph() {
   return null;
 }
 
+/**
+ * Counts dependencies (both internal private functions and npm dependencies)
+ * @returns {Object} Result with internal and npm dependency counts
+ */
+function countDependencies() {
+  const internalFunctions = [
+    'newBranchFunction',
+    'validateLandmark',
+    'validateTableAccessibility',
+    'validateTableStructure',
+    'addLangAttribute',
+    'getLangAttribute',
+    'getFullLangAttribute',
+    'validateLandmarkAttributes',
+    'validateLandmarkStructure',
+    'ensureUniqueLandmarks',
+    'getSvgAccessibleName',
+    'processCredentialAuthentication',
+    'initializeApp',
+    'getConfig',
+    'validateInput',
+    'processData',
+    'createInPageButton',
+    'handleAccessibilityIssues',
+    'createAccessibleLink',
+    'addLandmarkRegions',
+    'fixTableStructure',
+    'addMainLandmark',
+    'setSvgAttributes',
+    'handleFakeLinks',
+    'handleCredentialResponse',
+    'validateCredentialToken',
+    'upgradeSystem',
+    'ensureElementHasId',
+    'addAriaLabel',
+    'renderDependencyGraph',
+    'countDependencies'
+  ];
+
+  const npmDependencies = [];
+  try {
+    const packageJson = require('./package.json');
+    if (packageJson.dependencies) {
+      npmDependencies.push(...Object.keys(packageJson.dependencies));
+    }
+    if (packageJson.devDependencies) {
+      npmDependencies.push(...Object.keys(packageJson.devDependencies));
+    }
+  } catch (e) {
+    // package.json not accessible or doesn't exist
+  }
+
+  return {
+    internal: internalFunctions.length,
+    npm: npmDependencies.length,
+    internalFunctions: internalFunctions,
+    npmDependencies: npmDependencies
+  };
+}
+
 module.exports = {
   getLangAttribute,
   getFullLangAttribute,
@@ -622,7 +698,6 @@ module.exports = {
   createAccessibleLink,
   handleAccessibilityIssues,
   handleCredentialResponse,
-  addSvgAccessibility,
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
@@ -639,5 +714,6 @@ module.exports = {
   upgradeSystem,
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraph
+  renderDependencyGraph,
+  countDependencies
 };

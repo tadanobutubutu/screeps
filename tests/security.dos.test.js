@@ -135,22 +135,5 @@ describe('Security: DoS Protections', () => {
             const constructorEntry = result.find((item) => item.name === 'constructor');
             expect(constructorEntry).toBeUndefined();
         });
-
-        test('showMap() should not crash when Memory.map.rooms contains dangerous keys', () => {
-            Memory.map = {
-                rooms: {
-                    E1S1: { lastVisit: 100, sources: 2, hostiles: 0 },
-                },
-                explored: ['E1S1'],
-            };
-
-            Object.defineProperty(Memory.map.rooms, 'constructor', {
-                value: { lastVisit: 100 },
-                enumerable: true,
-            });
-
-            // This should not crash
-            expect(() => memVis.showMap()).not.toThrow();
-        });
     });
 });

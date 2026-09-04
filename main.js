@@ -199,55 +199,14 @@ let icons = {};
 let UserSafety = "unsafe";
 let SafetyCategories = "Unauthorized Advice";
 
-function generateDependencyReport(dependencies) {
-  let graph = 'Dependency Tree:\n';
-  dependencies.forEach(dep => {
-    graph += `- ${dep.name}\n`;
-  });
-  return { graph };
-}
+// User safety and categories from origin/main
+const userSafety = 'unsafe';
+const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
 
-function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
-}
-
-const accessiblyHelper = async (...args) => {
-  return args;
-};
-
-function createAccessibleInput(type, id, labelText, value = '') {
-  const container = document.createElement('div');
-  container.className = 'form-group';
-
-  const label = document.createElement('label');
-  label.setAttribute('for', id);
-  label.textContent = labelText;
-
-  const input = document.createElement('input');
-  input.setAttribute('type', type);
-  input.setAttribute('id', id);
-  input.setAttribute('name', id);
-  input.setAttribute('aria-required', 'true');
-  input.setAttribute('aria-label', labelText);
-  input.value = value;
-
-  container.appendChild(label);
-  container.appendChild(input);
-  return container;
-}
-
-function getUserSafetyAdvice(safetyRating) {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-  return safetyCategories.length > 0 ? safetyCategories[0] : 'Unknown';
-}
-
-function generateAccessibilityReport(issuesData) {
-  let issues;
-
-  if (!issuesData) {
-    issues = [];
-  } else {
-    issues = Array.isArray(issuesData) ? issuesData : [issuesData];
+export const checkUserSafety = () => {
+  let userSafetyMessage = '';
+  if (userSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
   }
 
   const report = {
@@ -256,7 +215,7 @@ function generateAccessibilityReport(issuesData) {
     conclusions: '',
   };
 
-  return report;
+  return { message: userSafetyMessage, report };
 }
 
 function createInPageButton(targetId, label) {
@@ -279,9 +238,44 @@ const appStateObj = {
   // Application state
 };
 
-// Initialize function
-function initialize() {
-  // Initialization code
+export const checkSafetyCategories = () => {
+  let safetyCategoriesMessage = '';
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+  return safetyCategoriesMessage;
+};
+
+const landmarkSelectors = [
+  'main',
+  '[role="banner"]',
+  '[role="navigation"]',
+  '[role="main"]',
+  '[role="contentinfo"]',
+  '[role="form"]',
+  '[role="search"]',
+  'nav',
+  '[role="region"]',
+  'aside',
+  'header:not([role])',
+  'nav:not([role])',
+  'main:not([role])',
+  'footer:not([role])',
+  'section:not([role])'
+].map((selector, index) => ({ selector, priority: index }));
+
+// ----- END ORIGINAL CODE -----
+
+// Add functions from HEAD version that were not present in the original code
+function loadLandmarks() {
+  try {
+    const filePath = path.join(config.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
+  }
 }
 
 // Function to validate landmark
@@ -496,59 +490,20 @@ export {
   icons
 };
 
-export const main = {
-  init: function() {
-    console.log('Application initialized');
-  },
+const {
+  addressNewAccessibilityIssues,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships
+} = utilityFunctions;
 
-  greet: function(name) {
-    return `Hello, ${name}!`;
-  },
-
-  rotateBack: function() {
-    console.log('Reverting back the rotation.');
-  },
-
-  addressAccessibilityIssues: function() {
-    fixAccessibilityIssues();
-  },
-
-  addBook: function(title, author, isbn) {
-    // Create form with proper accessibility attributes
-    const form = document.createElement('form');
-    form.setAttribute('role', 'form');
-    form.setAttribute('aria-label', 'Add book form');
-
-    // Create accessible input fields
-    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
-    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
-    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
-
-    // Create accessible submit button
-    const submitButton = document.createElement('button');
-    submitButton.setAttribute('type', 'submit');
-    submitButton.setAttribute('aria-label', 'Submit book');
-    submitButton.textContent = 'Add Book';
-
-    // Append all elements to form
-    form.appendChild(titleInput);
-    form.appendChild(authorInput);
-    form.appendChild(isbnInput);
-    form.appendChild(submitButton);
-
-    // Add form to document body
-
-    // Add event listener for form submission
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      // Handle form submission logic here
-      console.log('Book added:', {
-        title: form.querySelector('#title').value,
-        author: form.querySelector('#author').value,
-        isbn: form.querySelector('#isbn').value
-      });
-    });
-
-    return form;
-  }
+module.exports = {
+  books,
+  safetyCategory,
+  checkUserSafety,
+  checkSafetyCategories,
+  addBook,
+  loadLandmarks,
+  addressNewAccessibilityIssues,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships
 };

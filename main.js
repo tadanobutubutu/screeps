@@ -1,8 +1,19 @@
 const books = [];
 const safetyCategory = "User Safety: safe";
-const CONFIG = { landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'], maxResults: 100, dataPath: './data', maxLandmarks: 50, allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'] };
-const mergedConfig = CONFIG;
-const axeConfig = { rules: { 'aria-invalid-2': { enabled: false }, 'color-contrast': { enabled: false }, 'name-role-value': { enabled: false }, 'paraphernalia': { enabled: false }, }, silent: true };
+const CONFIG = {
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxResults: 100,
+  dataPath: './data',
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  timeout: 5000,
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false
+};
+
+const config = CONFIG;
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())

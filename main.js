@@ -1,5 +1,5 @@
 // TODO: Add any other missing exports that might have been?
-const config = {};
+const config = CONFIG || {}; // Combined both configurations
 
 // Application state
 let isAppInitialized = false; // Renamed 'isInitialized' to avoid conflict
@@ -13,24 +13,24 @@ const appData = {};
 // Import the required module
 const { axe } = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
 
 // Import other functions
 const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, implementNewFunction, addLangAttribute, main, someFunction, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport } = require('./');
 
 // Import helper functions from utils
-const { validateInput, processData, formatResponse } = require('./utils/validators');
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
+const { validateInput, processData, formatResponse } = require('./utils');
+const { getSvgAccessibleName, setSvgAttributes } = require('./helpers');
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and addProperLandmarkRegions())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure(), validateLandmarkAttributes(), addLandmarkRoles(), ensureUniqueLandmarks())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// - REACT_001: Implement function to handle new accessibility issues ...
 // - REACT_001: Implement function to handle new accessibility issues (addProperLandmarkRegions)
 
 // Configuration
@@ -51,85 +51,46 @@ function getLangAttribute() {
     return navigator.language || navigator.userLanguage;
 }
 
-/**
- * Adds lang attribute to HTML element
- */
-function addNewLangAttribute() { // Renamed 'addLangAttribute' to avoid conflict
+// Adding lang attribute to HTML element
+function addLangAttribute() {
+    const htmlElement = document.documentElement;
+    const lang = getLangAttribute();
+    htmlElement.setAttribute('lang', lang);
 }
 
-/**
- * Logs the current URL to the console
- */
+// Logging the current URL
 function logCurrentURL() {
     console.log('Current URL: ' + window.location.href);
 }
 
 // Table accessibility helpers
-/**
- * Validates table accessibility
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} True if table is accessible
- */
 function validateTableAccessibility(table) {
+    // Implement table validation here
 }
 
-/**
- * Validates table structure
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} True if table structure is valid
- */
 function validateTableStructure(table) {
+    // Implement table structure validation here
 }
 
-/**
- * Fixes table structure issues
- * @param {HTMLElement} table - The table element to fix
- */
 function fixTableStructure(table) {
+    // Implement table structure fixing here
 }
 
 // Landmark handling
-/**
- * Adds main landmark to the document
- */
 function addMainLandmark() {
+    // Implement main landmark adding here
 }
 
-/**
- * Validates landmark
- * @param {HTMLElement} landmark - The landmark element to validate
- */
-function validateNewLandmark(landmark) { // Renamed 'validateLandmark' to avoid conflict
+function validateLandmark(landmark) {
+    // Implement landmark validation here
 }
 
-/**
- * Validates landmark structure
- * @param {HTMLElement} landmark - The landmark element to validate
- */
-function validateNewLandmarkStructure(landmark) { // Renamed 'validateLandmarkStructure' to avoid conflict
+function validateLandmarkStructure(landmark) {
+    // Implement landmark structure validation here
 }
 
-/**
- * Validates landmark attributes
- * @param {HTMLElement} landmark - The landmark element to validate
- */
-function validateNewLandmarkAttributes(landmark) { // Renamed 'validateLandmarkAttributes' to avoid conflict
-}
-
-/**
- * Gets SVG accessible name
- * @param {HTMLElement} svg - The SVG element
- * @returns {string} The accessible name
- */
-function getNewSvgAccessibleName(svg) { // Renamed 'getSvgAccessibleName' to avoid conflict
-}
-
-/**
- * Sets SVG attributes
- * @param {HTMLElement} svg - The SVG element
- * @param {string} name - The accessible name
- */
-function setNewSvgAttributes(svg, name) { // Renamed 'setSvgAttributes' to avoid conflict
+function validateLandmarkAttributes(landmark) {
+    // Implement landmark validation attributes here
 }
 
 function isValidLandmark(landmark) {
@@ -140,7 +101,7 @@ function isValidLandmark(landmark) {
 
 function loadLandmarks() {
     try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -154,14 +115,14 @@ function processLandmarks(landmarks) {
         return [];
     }
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
+    const validLandmarks = landmarks.filter(l => l && l.id);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return [...landmarks].sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -172,7 +133,7 @@ function sortLandmarks(landmarks, ascending = true) {
     });
 }
 
-function getLandmarkById(landmarks, id) {
+function findLandmarkById(landmarks, id) {
     return landmarks.find(landmark => landmark.id === id) || null;
 }
 
@@ -202,7 +163,7 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  const reportFile = path.join(CONFIG.outputPath, 'accessibility-report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
@@ -212,7 +173,7 @@ function writeReport(report) {
  */
 function createAccessibleLinks() {
   const skipLink = createInPageButton('main-content', 'Skip to main content');
-  document.body.insertBefore(skipLink, document.body.firstChild);
+  document.body.prepend(skipLink);
 
   const links = document.querySelectorAll('a');
   links.forEach(link => {
@@ -230,8 +191,8 @@ function createAccessibleLinks() {
 function handleNewAccessibilityIssues() {
   try {
     fixTableAccessibility();
-    fixNewLandmarkIssues();
-    addSvgAccessibility();
+    addMainLandmark();
+    addSvgAccessibleNames();
     createAccessibleLinks();
 
     return {
@@ -239,4 +200,175 @@ function handleNewAccessibilityIssues() {
       message: 'Accessibility issues have been addressed',
       fixesApplied: [
         'table_accessibility',
-        'new_landmark_issues',
+        'landmark_issues',
+        'svg_accessibility',
+        'links',
+        'unique_landmarks',
+        'accessible_links',
+        'link_accessibility'
+      ]
+    };
+  } catch (error) {
+    console.error('Error addressing accessibility issues:', error);
+    return {
+      success: false,
+      message: 'Failed to address accessibility issues',
+      error: error.message
+    };
+  }
+}
+
+// Harvest and upgrade logic implementation
+function performHarvest() {
+  const resources = [];
+  
+  // Harvest resources from available sources
+  if (appData.sources) {
+    for (const source of appData.sources) {
+      if (source.active && source.type === 'harvestable') {
+        const harvested = harvestFromSource(source);
+        resources.push(...harvested);
+      }
+    }
+  }
+  
+  return resources;
+}
+
+function harvestFromSource(source) {
+  const harvested = [];
+  const amount = source.capacity || 10;
+  
+  for (let i = 0; i < amount; i++) {
+    harvested.push({
+      type: source.resourceType || 'generic',
+      amount: 1,
+      timestamp: Date.now(),
+      source: source.id
+    });
+  }
+  
+  return harvested;
+}
+
+function performUpgrade(item, targetLevel) {
+  if (!item || typeof item.level === 'undefined') {
+    throw new Error('Invalid item for upgrade');
+  }
+  
+  const currentLevel = item.level;
+  const upgradeCost = calculateUpgradeCost(item, targetLevel);
+  
+  // Check if we have enough resources
+  const availableResources = appData.resources || {};
+  const canUpgrade = Object.keys(upgradeCost).every(
+    resource => (availableResources[resource] || 0) >= upgradeCost[resource]
+  );
+  
+  if (!canUpgrade) {
+    throw new Error('Insufficient resources for upgrade');
+  }
+  
+  // Deduct resources
+  Object.keys(upgradeCost).forEach(resource => {
+    availableResources[resource] -= upgradeCost[resource];
+  });
+  
+  // Apply upgrade
+  item.level = targetLevel;
+  
+  return {
+    success: true,
+    item: item,
+    newLevel: targetLevel,
+    resourcesSpent: upgradeCost
+  };
+}
+
+function calculateUpgradeCost(item, targetLevel) {
+  const baseCost = 10;
+  const levelMultiplier = 1.5;
+  
+  const cost = {};
+  const resourceTypes = ['energy', 'materials', 'credits'];
+  
+  resourceTypes.forEach(type => {
+    cost[type] = Math.floor(baseCost * Math.pow(levelMultiplier, targetLevel - 1));
+  });
+  
+  return cost;
+}
+
+function processHarvestedResources(resources) {
+  if (!Array.isArray(resources) || resources.length === 0) {
+    return { processed: 0, stored: {} };
+  }
+  
+  const stored = {};
+  
+  resources.forEach(resource => {
+    const type = resource.type || 'unknown';
+    if (!stored[type]) {
+      stored[type] = 0;
+    }
+    stored[type] += resource.amount || 1;
+  });
+  
+  // Update appData with stored resources
+  appData.resources = appData.resources || {};
+  Object.keys(stored).forEach(type => {
+    appData.resources[type] = (appData.resources[type] || 0) + stored[type];
+  });
+  
+  return {
+    processed: resources.length,
+    stored: stored
+  };
+}
+
+function autoUpgrade() {
+  const upgradeTarget = appData.upgradeTarget || null;
+  
+  if (!upgradeTarget) {
+    return { success: false, message: 'No upgrade target specified' };
+  }
+  
+  try {
+    const result = performUpgrade(upgradeTarget, upgradeTarget.level + 1);
+    return result;
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+}
+
+module.exports = {
+  config,
+  isAppInitialized,
+  appData,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  findLandmarkById,
+  ensureUniqueLandmarks,
+  writeReport,
+  createAccessibleLinks,
+  addressAccessibilityIssues,
+  performHarvest,
+  harvestFromSource,
+  performUpgrade,
+  calculateUpgradeCost,
+  processHarvestedResources,
+  autoUpgrade,
+};

@@ -102,6 +102,114 @@ function validateLinkAccessibilityLocal(link) {
   return link.href && !(link.href === "#" || link.href.startsWith("javascript") || checkLinkAccessibility(link.href));
 }
 
+/**
+ * Gets the accessible name for an SVG element
+ * @param {Object} svgElement - The SVG element
+ * @returns {string} The accessible name for the SVG
+ */
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return 'Accessible SVG Icon';
+
+  const title = svgElement.querySelector('title');
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (title) return title.textContent;
+  if (ariaLabel) return ariaLabel;
+  return 'Accessible SVG Icon';
+}
+
+/**
+ * Adds accessibility attributes to SVG elements
+ * @param {Object} svgElement - The SVG element to add accessibility attributes to
+ * @returns {Object} Result with success status and the modified SVG element
+ */
+function addSvgAccessibility(svgElement) {
+  if (!svgElement || typeof svgElement !== 'object') {
+    return {
+      success: false,
+      element: svgElement,
+      issues: ['Invalid SVG element provided']
+    };
+  }
+
+  const issues = [];
+  const element = svgElement;
+
+  // Ensure SVG has role="img" for screen readers
+  if (!element.hasAttribute('role')) {
+    element.setAttribute('role', 'img');
+  } else if (element.getAttribute('role') !== 'img' && element.getAttribute('role') !== 'graphic') {
+    issues.push('SVG role should be "img" or "graphic" for proper accessibility');
+  }
+
+  // Check for and add accessible name via aria-label or title element
+  const hasAriaLabel = element.hasAttribute('aria-label');
+  const hasAriaLabelledby = element.hasAttribute('aria-labelledby');
+  const hasTitle = element.querySelector && element.querySelector('title');
+
+  if (!hasAriaLabel && !hasAriaLabelledby && !hasTitle) {
+    issues.push('SVG missing accessible name (aria-label, aria-labelledby, or title element)');
+  }
+
+  // Ensure SVG is not hidden from assistive technology unnecessarily
+  if (element.getAttribute('aria-hidden') === 'true') {
+    issues.push('SVG should not have aria-hidden="true" if it conveys semantic meaning');
+  }
+
+  // Add aria-hidden to decorative SVGs if they have no accessible content
+  if (!hasAriaLabel && !hasAriaLabelledby && !hasTitle && !element.hasAttribute('aria-hidden')) {
+    element.setAttribute('aria-hidden', 'true');
+  }
+
+  return {
+    success: issues.length === 0,
+    element: element,
+    issues: issues
+  };
+}
+
+/**
+ * Processes the credential and returns appropriate authentication state
+ * @param {Object} credentialResponse - The credential response to process
+ * @returns {Object} Authentication state with user info and status
+ */
+function processCredentialAuthentication(credentialResponse) {
+  const result = handleCredentialResponse(credentialResponse);
+
+  if (!result.success) {
+    return {
+      authenticated: false,
+      user: null,
+      errors: result.issues
+    };
+  }
+
+  const user = result.parsedCredential || result.userData;
+
+  return {
+    authenticated: true,
+    user: {
+      email: user.email,
+      name: user.name,
+      picture: user.picture
+    },
+    errors: []
+  };
+}
+
+function initializeApp() {
+  appState.initialized = true;
+  console.log('Initializing application...');
+  return true;
+}
+
+function getConfig() {
+  return config;
+}
+
+function validateInput(input) {
+  return input !== null && input !== undefined;
+}
+
 function validateInputLocal(input) {
   return input !== null && input !== undefined;
 }

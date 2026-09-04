@@ -3,35 +3,6 @@ const config = {
   timeout: process.env.TIMEOUT || 5000,
 };
 
-// Accessibility Functions for Screeps
-
-const accessibilityUtilities = require('./AccessibilityUtilities');
-const { setLanguageAttribute, addLandmarkRoles, fixFakeLinks, addressAccessibilityIssues, setSvgAccessibleNames } = accessibilityUtilities;
-const tableAccessibilityUtilities = require('./tableAccessibilityUtils');
-const { validateTableAccessibility, validateTableStructure, fixTableStructure } = tableAccessibilityUtilities;
-const linkAccessibilityUtilities = require('./linkAccessibilityUtils');
-const { validateLinkAccessibility, handleFakeLinks } = linkAccessibilityUtilities;
-const landmarkUtilities = require('./landmarkUtils');
-const { addMainLandmark, validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks } = landmarkUtilities;
-const svgAccessibilityUtilities = require('./svgAccessibilityUtils');
-const { getSvgAccessibleName, setSvgAttributes } = svgAccessibilityUtilities;
-const utils = require('./utils');
-const { validateInput, processData, formatResponse } = utils;
-
-// Configuration for landmark operations
-const LANDMARK_CONFIG = {
-  dataPath: './data',
-  maxResults: 100
-};
-
-// General application configuration
-const CONFIG = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
-};
-
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
@@ -119,35 +90,44 @@ function fixTableStructure(table) {
  * Adds main landmark to the document
  */
 function addMainLandmark() {
-  addProperLandmarkRegions();
-  landmarkUtilities.addMainLandmark();
+  addLandmarkRoles([document.querySelector('main')]);
+  ensureUniqueLandmarks([document.querySelector('main')]);
 }
 
 /**
- * Validates landmark
- * @param {HTMLElement} landmark - The landmark element to validate
- * @returns {Object} Validation result with success status and issues
- */
-function validateLandmark(landmark) {
-  return landmarkUtilities.validateLandmark(landmark);
-}
-
-/**
- * Validates the structure of landmark elements
- * @param {Array} landmarks - Array of landmark elements to validate (optional)
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateLandmarkStructure(landmarks) {
-  return landmarkUtilities.validateLandmarkStructure(landmarks);
-}
-
-/**
- * Ensures all landmarks have unique accessible names
- * @param {Array} landmarks - Array of landmark elements to check (optional)
- * @returns {Object} Result with success status and any duplicate names found
+ * Ensures unique landmarks (2 issues)
+ * @param {Array<HTMLElement>} landmarks - Array of landmark elements to check
  */
 function ensureUniqueLandmarks(landmarks) {
-  return landmarkUtilities.ensureUniqueLandmarks(landmarks);
+  const seenIds = new Set();
+  const seenRoles = new Set();
+  const uniqueLandmarks = [];
+  const duplicates = [];
+
+  landmarks.forEach((landmark, index) => {
+    const id = landmark.id;
+    const role = landmark.getAttribute('role');
+
+    // Skip if duplicate ID
+    if (id && seenIds.has(id)) {
+      duplicates.push(`Duplicate ID: ${id}`);
+      return;
+    }
+    seenIds.add(id);
+
+    // Skip if duplicate role
+    if (role) {
+      if (seenRoles.has(role)) {
+        duplicates.push(`Duplicate role: ${role}`);
+        return;
+      }
+      seenRoles.add(role);
+    }
+
+    uniqueLandmarks.push(landmark);
+  });
+
+  return uniqueLandmarks;
 }
 
 /**
@@ -159,11 +139,10 @@ function ensureUniqueLandmarks(landmarks) {
 function createInPageButton(text, onClick) {
   const button = document.createElement('button');
   button.textContent = text;
-  button.addEventListener('click', onClick);
-  button.setAttribute('role', 'button');
   if (onClick) {
-    button.setAttribute('aria-label', text);
+    button.addEventListener('click', onClick);
   }
+  button.setAttribute('role', 'button');
   return button;
 }
 
@@ -243,7 +222,7 @@ function addSvgAccessibleNames(svgContent) {
  * @param {HTMLElement} container - The container element to scan for links to fix
  */
 function fixFakeLinks(container) {
-  handleFakeLinks(container);
+  handleFakeLinks(container, true);
   createInPageButton('Fix Fake Links', () => {
     fixFakeLinks(container);
     manageLandmarks();
@@ -350,22 +329,8 @@ module.exports = {
   createInPageButtons,
   addressAccessibilityIssuesFromModule,
   scanAccessibilityFromModule,
-  fixFakeLinks: ensureUniqueLandmarksFromFile,
-  ensureUniqueLandmarksFromFile,
-  addLandmarkRoles,
-  renderDependencyGraph,
-  displayModuleStructure,
-  countDependencies,
-  analyzeModuleDependencies,
-  visualizeModuleRelationships,
-  safetyCategories,
-  books,
-  safetyCategory,
-  isValidLandmark,
-  addMainLandmark,
-  renderDependencyGraphContent,
-  createInPageButtons,
+  fixFakeLinks: manageLandmarks,
   manageLandmarks,
   ensureLangAttribute,
-  addSvgAccessibleNames
+  addSvgAccessibleNames,
 };

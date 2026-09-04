@@ -40,16 +40,8 @@ const {
   processData, 
   formatResponse 
 } = require('./AccessibilityUtilities');
-const CONFIG = {};
 
 const pagesDir = './data';
-
-const config = {
-  name: 'MyApp',
-  version: '1.0.0',
-  debug: false,
-  dataPath: './data'
-};
 
 const CONFIG = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
@@ -128,7 +120,7 @@ async function scanAccessibility() {
   return issues;
 }
 
-export function processAccessibilityUpdates() {
+function processAccessibilityUpdates() {
   const results = {
     langAttribute: null,
     landmarks: null,
@@ -176,7 +168,7 @@ export function processAccessibilityUpdates() {
   return results;
 }
 
-export function analyzeContentSafety(content) {
+function analyzeContentSafety(content) {
   // Analyze the content for safety issues and return a safety rating.
   // ... (Your implementation here)
 }

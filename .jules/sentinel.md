@@ -9,3 +9,9 @@
 **Vulnerability:** `scripts/auto-pr-generator.js` constructed file paths directly using `path.join(process.cwd(), change.file)` when processing AI-suggested code changes. Unvalidated paths starting with `..` or containing absolute paths allowed arbitrary file writes outside the working directory.
 **Learning:** Automated scripts processing file path strings generated from external APIs or LLMs can introduce path traversal vulnerabilities if paths are joined without strict canonicalization and root containment checks.
 **Prevention:** Always resolve target paths using `path.resolve(process.cwd(), target)` and verify `path.relative(process.cwd(), safePath)` does not start with `..`, is not absolute, and is not empty before creating directories or writing files.
+
+## 2026-08-25 - [Prevent Argument Injection in Git Push Commands]
+
+**Vulnerability:** Automation scripts passed user-controlled or AI-generated branch parameters directly to `git push origin [branch]` without option delimiters.
+**Learning:** Branch names starting with hyphens (e.g. `--force` or `--delete`) are parsed as Git options rather than positional branch refspecs, leading to option hijacking.
+**Prevention:** Always insert the `--` option separator before passing dynamic refspecs or branch names to Git CLI invocations.

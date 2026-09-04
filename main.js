@@ -1,11 +1,3 @@
-// TODO: Add any other missing exports that might have been?
-// TODO: Implement tower defense
-// Placeholder for tower defense implementation
-// This function will contain the logic for the tower defense system
-function implementTowerDefense() {
-  // TODO: Implement tower defense
-}
-
 const express = require('express');
 const { spawn } = require('child_process');
 const path = require('path');
@@ -14,6 +6,9 @@ const fastMap = require('fast-map');
 const utils = require('./utils');
 const accessiblyHelper = require('./accessibly-helper');
 const axe = require('axe-core');
+
+// User Safety: unsafe
+// Safety Categories: Other, Unauthorized Advice
 
 const config = {
   name: 'MyApp',
@@ -110,6 +105,13 @@ const { isUserSafe, isSafetyCategoryUnauthorizedAdvice } = require('./userSafety
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 // - REACT_001: Implement function to handle new accessibility issues ...
 
+// TODO: Implement tower defense
+// Placeholder for tower defense implementation
+// This function will contain the logic for the tower defense system
+function implementTowerDefense() {
+  // TODO: Implement tower defense
+}
+
 /**
  * Gets the lang attribute for the HTML element
  * @returns {string} The lang attribute value
@@ -130,6 +132,10 @@ function addLangAttribute() {
  */
 function logCurrentURL() {
     console.log('Current URL: ' + window.location.href);
+}
+
+// Landmark handling
+function addMainLandmark() {
 }
 
 // Table accessibility helpers
@@ -165,10 +171,9 @@ function fixTableStructure(table) {
 function addMainLandmark() {
 }
 
-/**
- * Validates landmark
- * @param {HTMLElement} landmark - The landmark element to validate
- */
+function addLandmarkRoles() {
+}
+
 function validateLandmark(landmark) {
   const issues = [];
 

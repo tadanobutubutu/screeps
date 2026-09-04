@@ -29,6 +29,10 @@ const appConfig = {
   timeout: 5000
 };
 
+const accessiblyHelper = async (...args) => {
+  return args;
+}
+
 // Screeps CONFIG
 const CONFIG = {
   name: 'MyApp',
@@ -38,18 +42,20 @@ const CONFIG = {
   maxResults: 100,
   dataPath: './data',
   maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  apiUrl: process.env.API_URL || 'http://localhost:3020',
+  timeout: 5000
 };
 
+// Existing books array for compatibility
+const books = ['Book 1', 'Book 2'];
+
+// App state with merged properties
 const appState = {
   initialized: false,
   data: null,
   cache: new Map(),
   lang: 'en'
-};
-
-const accessiblyHelper = async (...args) => {
-  return args;
 };
 
 const helper = (input) => input ? input.toUpperCase() : '';
@@ -62,6 +68,38 @@ const validateInput = (input) => {
 const processData = utils.processors.processData;
 
 // Accessibility helper functions from HEAD branch
+
+// New function to initialize the app
+function initializeApp() {
+  initialize();
+  return appState;
+}
+
+// New function to fetch the user
+async function fetchUser(userId) {
+  if (!userId) {
+    return null;
+  }
+  return { id: userId, name: 'User ' + userId };
+}
+
+// New function needed for user book operations
+function addBook(book) {
+  const booksList = getBooksList();
+  booksList.push(book);
+}
+
+function getBooksList() {
+  return [];
+}
+
+function announceBookAdded(book) {
+  console.log('Book added:', book);
+}
+
+// Helper functions from the safe version
+
+// Ensure an element has an ID attribute
 function ensureElementHasId(element, id) {
   if (!element) return element;
   if (!element.hasAttribute('id')) {
@@ -70,6 +108,7 @@ function ensureElementHasId(element, id) {
   return element;
 }
 
+// Adds an aria-label to an element if it doesn't have one
 function addAriaLabel(element, label) {
   if (!element) return element;
   if (!element.hasAttribute('aria-label')) {
@@ -78,6 +117,7 @@ function addAriaLabel(element, label) {
   return element;
 }
 
+// Add proper landmark regions for accessibility
 function addProperLandmarkRegions() {
   const regions = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
 
@@ -96,6 +136,36 @@ function addProperLandmarkRegions() {
         element.setAttribute('aria-label', defaultLabels[role]);
       }
     });
+  });
+}
+
+function getAccessibleLinkProps(href, label) {
+  return {
+    href,
+    'aria-label': label,
+    role: 'link'
+  };
+}
+
+// Functionality from imported branch
+function getLangAttribute() {
+  if (typeof a11y !== 'undefined' && a11y.getLanguageAttribute) {
+    return a11y.getLanguageAttribute();
+  }
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || document.documentElement.getAttribute('lang');
+  }
+  return appState.lang || 'en';
+}
+
+function getLangAttributeFn() {
+  return GAME.lang || 'en';
+}
+
+function setSvgAttributes(svg, attrs) {
+  if (!svg || !attrs) return;
+  Object.entries(attrs).forEach(([key, value]) => {
+    svg.setAttribute(key, value);
   });
 }
 
@@ -123,7 +193,7 @@ function processLandmarks(landmarks) {
   const validLandmarks = landmarks.filter(isValidLandmark);
   const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
-  return uniqueLandmarks.slice(0, config.maxResults);
+  return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
 function ensureUniqueLandmarks(landmarks) {
@@ -192,27 +262,6 @@ function checkLinkAccessibility(linkUrl) {
       clearTimeout(timeout);
       return false;
     });
-}
-
-function getLangAttribute() {
-  if (typeof a11y !== 'undefined' && a11y.getLanguageAttribute) {
-    return a11y.getLanguageAttribute();
-  }
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || document.documentElement.getAttribute('lang');
-  }
-  return appState.lang || 'en';
-}
-
-function getSvgAccessibleName(svg) {
-  return svg && svg.title ? svg.title : 'Accessible SVG';
-}
-
-function setSvgAttributes(svg, attrs) {
-  if (!svg || !attrs) return;
-  Object.entries(attrs).forEach(([key, value]) => {
-    svg.setAttribute(key, value);
-  });
 }
 
 async function validateTableAccessibility() {
@@ -318,60 +367,74 @@ function initialize() {
   return appState;
 }
 
-function initializeApp() {
-  initialize();
-  return appState;
-}
-
-async function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
-}
-
 // Export all functions
 module.exports = {
   CONFIG,
   appState,
   appConfig,
   accessiblyHelper,
-  processAccessibilityReport,
+  config,
+  books,
+  getUserSafetyAdvice,
+  addBook,
+  announceBookAdded,
+  getBooksList,
+  calculateDiscount,
+  isValidLandmark,
   loadLandmarks,
   processLandmarks,
-  isValidLandmark,
+  ensureUniqueLandmarks,
+  writeReport,
+  getUniqueLandmarks,
+  ensureElementHasId,
+  addAriaLabel,
+  analyzeModuleDependenciesLocal,
+  visualizeModuleRelationshipsLocal,
   validateLandmark,
   validateLandmarkObject,
+  mergedConfig,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships,
+  UserSafety: 'safe',
+  initializeApp,
+  fetchUser,
+  clearCache,
+  someFunction,
+  formatDate,
   validateInput,
   processData,
-  getLangAttribute,
+  helper,
+  ensureUniqueLandmarksList,
+  sortLandmarks,
+  getLandmarkById,
+  addProperLandmarkRegions,
   getSvgAccessibleName,
-  setSvgAttributes,
+  getLangAttributeFn,
+  someNewFunction,
+  processAccessibilityReport,
   validateTableAccessibility,
   validateTableStructure,
   validateLinkAccessibility,
   handleFakeLinks,
-  addProperLandmarkRegions,
   createAccessibleLinks,
   getLangAttributeEl,
   addLangAttributeEl,
   createInPageButtonEl,
   validateLandmarkElCheck,
-  getSvgAccessibleNameEl,
   ensureUniqueLandmarksFn,
   ensureUniqueLandmarks,
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarksList,
   initialize,
-  initializeApp,
   checkLinkAccessibility,
   fetchUser,
   clearCache,
   someNewFunction,
   helper,
   formatDate,
-  validateInput
+  validateInput,
+  appState
 };
 
 // Screeps main game loop
@@ -398,6 +461,9 @@ module.exports.loop = function () {
     if (creep.memory.role === 'harvester') {
       runHarvester(creep);
     }
+    if (creep.memory.role === 'upgrader') {
+      runUpgrader(creep);
+    }
   }
 };
 
@@ -421,6 +487,16 @@ function runHarvester(creep) {
     if (targets.length > 0) {
       if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+      }
+    }
+  }
+}
+
+function runUpgrader(creep) {
+  if (creep.store.getFreeCapacity() > 0) {
+    if (creep.room.controller) {
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
       }
     }
   }

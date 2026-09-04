@@ -372,6 +372,65 @@ function addLandmarkRegions(document) {
   return document;
 }
 
+function countDependencies() {
+  const internalFunctions = [
+    'config',
+    'appState',
+    'validateLandmark',
+    'appData',
+    'getLangAttribute',
+    'getFullLangAttribute',
+    'validateTableAccessibility',
+    'validateTableStructure',
+    'getSvgAccessibleName',
+    'addSvgAccessibilityProps',
+    'addLangAttribute',
+    'validateLandmark',
+    'validateLandmarkAttributes',
+    'validateLandmarkStructure',
+    'ensureUniqueLandmarks',
+    'initializeApp',
+    'getConfig',
+    'validateInput',
+    'processData',
+    'createInPageButton',
+    'createAccessibleLink',
+    'handleAccessibilityIssues',
+    'newBranchFunction',
+    'addMainLandmark',
+    'setSvgAttributes',
+    'handleFakeLinks',
+    'addLandmarkRegions',
+    'validateLinkAccessibility',
+    'validateButtonAccessibility',
+    'checkLinkAndButtonAccessibility',
+    'handleCredentialResponse',
+    'validateCredentialToken',
+    'processCredentialAuthentication',
+    'upgradeSystem'
+  ].concat( // Include the new functions
+     ['addProperLandmarkRegions', 'replaceMyButton', 'ensureDependencyGraphAriaRole', 'ensureElementHasId', 'addAriaLabel', 'renderDependencyGraphs']
+   );
+
+  let npmDependencies = 0;
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    if (fs.existsSync(packageJsonPath)) {
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+      npmDependencies = Object.keys(packageJson.dependencies || {}).length;
+    }
+  } catch (e) {
+    // If we can't read package.json, npmDependencies stays 0
+  }
+
+  return {
+    internal: internalFunctions.length,
+    npm: npmDependencies
+  };
+}
+
 /**
  * Validates link accessibility
  * @param {Object} link - The link element to validate
@@ -599,14 +658,6 @@ function upgradeSystem() {
   return systemConfig;
 }
 
-/**
- * Counts dependencies (both internal private functions and npm dependencies)
- * @returns {Object} Result with internal and npm dependency counts
- */
-const countDependencies = () => {
-  // ... existing countDependencies function implementation ...
-};
-
 // Export all existing and new functions
 module.exports = {
     getLangAttribute,
@@ -636,8 +687,14 @@ module.exports = {
     validateCredentialToken,
     processCredentialAuthentication,
     upgradeSystem,
-    countDependencies,
+    addProperLandmarkRegions,
+    replaceMyButton,
+    ensureDependencyGraphAriaRole,
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraphs,
     validateLinkAccessibility,
     validateButtonAccessibility,
-    checkLinkAndButtonAccessibility
+    checkLinkAndButtonAccessibility,
+    countDependencies
 };

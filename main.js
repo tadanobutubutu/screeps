@@ -10,11 +10,12 @@
  */
 
 const express = require('express');
+const axe = require('axe-core');
 const fs = require('fs');
 const path = require('path');
 const fastMap = require('fast-map');
 const accessiblyHelper = require('./accessibly-helper');
-const axe = require('axe-core');
+const a11y = require('./AccessibilityUtilities');
 const axeConfig = {
   rules: {
     'aria-invalid-2': { enabled: false },
@@ -24,6 +25,10 @@ const axeConfig = {
   },
   silent: true
 };
+
+const books = [];
+const userSafety = 'unsafe';
+const safetyCategory = "User Safety: safe";
 
 const config = {
   name: 'MyApp',
@@ -41,12 +46,70 @@ const CONFIG = {
   dataPath: './data'
 };
 
+const userSafetyCategories = {
+  unsafe: true,
+  categories: [
+      'Illegal Activity',
+      'Fraud/Deception',
+      'Controlled/Regulated Substances',
+      'Unauthorized Advice'
+  ]
+};
+
+const UserSafety = {
+  unsafe: {
+    category: 'Unauthorized Advice',
+    description: 'This user may pose a risk to the system'
+  },
+  safe: {
+    category: 'Following Safety Guidelines',
+    description: 'This user follows safety guidelines'
+  }
+};
+
+const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+let SafetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+
+const getSafetyCategory = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus.category;
+
+const getSafetyCategoryDetailed = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus;
+
+const getUserSafetyInfo = loadUserSafetyInfo;
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
 function calculateMultiplier(factor) {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
   return factor * safetyCategories.length;
 }
 
-async function analyzeModuleDependencies(modules) {
+const loadUserSafetyInfo = () => {
+  const userSafetyData = {
+    'safe': 'This user follows safety guidelines',
+    'unsafe': 'This user may pose a risk to the system'
+  };
+
+  if (userSafety !== 'safe') {
+    const safetyMessage = checkSafetyCategories();
+    throw new Error(safetyMessage);
+  }
+
+  return {
+    category: userSafety,
+    description: userSafetyData[userSafety]
+  };
+}
+
+const checkUserSafety = () => {
+  let userSafetyMessage = '';
+  if (userSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
+  }
+  return userSafetyMessage;
+}
+
+function analyzeModuleDependencies(modules) {
   console.log('Analyzing dependencies for modules:', modules);
   return {
     totalDependencies: 0,
@@ -141,8 +204,8 @@ function generateAccessibilityReport(issuesData) {
   if (issues && Array.isArray(issues) && issues.length > 0) {
     const conclusionParts = [];
     const categoryCounts = {};
-    SafetyCategories.split(',').forEach(cat => {
-      categoryCounts[cat.trim()] = 0;
+    safetyCategories.forEach(cat => {
+      categoryCounts[cat] = 0;
     });
 
     issues.forEach(issue => {
@@ -173,16 +236,41 @@ function fixAccessibilityIssues() {
   // Example: validateTableAccessibility(/* table to validate */);
 }
 
-const checkSafetyCategories = () => {
+function upgradeUserSettings() {
+  let upgradeMessage = '';
+  const upgrades = [];
+
+  if (userSafety !== 'safe') {
+    upgrades.push({ field: 'userSafety', from: userSafety, to: 'safe' });
+  }
+
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    upgrades.push({ field: 'safetyCategories', from: safetyCategories, to: 'Authorized Advice' });
+  }
+
+  if (upgrades.length > 0) {
+    upgradeMessage = `Upgrade needed: ${upgrades.length} setting(s) require update.`;
+  }
+
+  return {
+    message: upgradeMessage,
+    upgrades: upgrades,
+    requiresUpgrade: upgrades.length > 0
+  };
+}
+
+function checkSafetyCategories() {
   let safetyCategoriesMessage = '';
 
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-  if (safetyCategories.includes('Unauthorized Advice')) {
+  const cats = SafetyCategories.map(cat => typeof cat === 'string' ? cat : cat.trim());
+  if (cats.includes('Unauthorized Advice')) {
     safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
   }
 
   return safetyCategoriesMessage;
 };
+
+let dependencyGraph = {};
 
 function visualizeDependencyTree(dependencies) {
   const report = countDependencies(dependencies);
@@ -197,29 +285,12 @@ function getDependencyGraph() {
   return dependencyGraph;
 }
 
-let UserSafety = "unsafe";
-let SafetyCategories = ["Unauthorized Advice"];
-
-function fixAccessibilityIssues() {
-  // Add your code here to fix the accessibility issues as per the insight report
-  // Example: validateTableAccessibility(/* table to validate */);
+function countDependencies(dependencies) {
+  return { functionCallGraph: {} };
 }
 
-const checkSafetyCategories = () => {
-  let safetyCategoriesMessage = '';
-
-  const safetyCategories = SafetyCategories.split(',').map(cat => cat.trim());
-
-  if (safetyCategories.includes('Unauthorized Advice')) {
-    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
-  }
-
-  return safetyCategoriesMessage;
-};
-
-function visualizeDependencyTree(dependencies) {
-  const report = generateDependencyReport(dependencies);
-  console.log(report.graph);
+function generateDependencyReport(dependencies) {
+  return { graph: {} };
 }
 
 const main = {
@@ -346,8 +417,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   button.className = buttonClass;
   document.body.appendChild(button);
 }
-
-const a11y = require('./AccessibilityUtilities');
 
 function getSvgRole(svgElement) {
   if (!svgElement) return '';
@@ -483,7 +552,6 @@ function findLandmarkById(landmarks, id) {
 }
 
 function someFunction() {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
   return safetyCategories.length;
 }
 
@@ -491,6 +559,37 @@ function someFunction() {
 function improveAddBookAccessibility() {
   return main.addBook('Untitled', 'Unknown Author', '');
 }
+
+function fixTableStructure(html) {
+  return html;
+}
+
+function fixLandmarks(html) {
+  return html;
+}
+
+function addSvgAccessibleNames(html) {
+  return html;
+}
+
+function fixFakeLinks(html) {
+  return html;
+}
+
+function checkColorContrast(html) {
+  return html;
+}
+
+function parseColor(color) {
+  return color;
+}
+
+function ensureUniqueLandmarksHTML(html) {
+  return html;
+}
+
+function renderFunction1() { }
+function renderFunction2() { }
 
 module.exports = {
   analyzeModuleDependencies,
@@ -531,5 +630,19 @@ module.exports = {
   fixFakeLinks,
   checkColorContrast,
   parseColor,
-  createInPageButton
+  createInPageButton,
+  books,
+  userSafety,
+  safetyCategory,
+  userSafetyCategories,
+  UserSafety,
+  safetyCategories,
+  getSafetyCategory,
+  getSafetyCategoryDetailed,
+  getUserSafetyInfo,
+  calculateSum,
+  loadUserSafetyInfo,
+  checkUserSafety,
+  checkSafetyCategories,
+  upgradeUserSettings
 };

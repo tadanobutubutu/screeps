@@ -263,8 +263,8 @@ function generateAccessibilityReport() {
 function addSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
+    const accessibleName = getSvgAccessibleNameUtil(svg);
+    setSvgAttributesUtil(svg, accessibleName);
   });
 }
 

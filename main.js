@@ -1,137 +1,113 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-// REACT_027: Fix 26 table structure issues
-// REACT_017: Add/fix 4 landmark issues
-// REACT_041: Add accessible names to 2 SVGs
-// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
-// REACT_036: Fix 1 fake link issue
+let dependencyGraph = {};
 
-// REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html) {
-    if (typeof html !== 'string') return html;
-    return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-        if (/\blang=/i.test(match)) return match;
-        return `<html${attrs} lang="en">`;
-    });
+const main = require('./utilities');
+
+// Dependency imports
+const { dependencyGraphContent, indexContent } = require('./dependencyContent');
+const {
+  renderGraphIndex,
+  checkAccessibilityForReport,
+  trapFocus,
+  addLandmarkRegions,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark
+} = main;
+
+// Improved accessibility report generation using axe-core
+async function generateAccessibilityReport(issuesData) {
+  let issues;
+
+  if (!issuesData) {
+    const report = await generateReport();
+    issues = report.data;
+  } else {
+    issues = await scanAccessibility();
+  }
+
+  issues = issues.concat(await checkAccessibilityForReport());
+
+  return issues;
 }
 
-// REACT_027: Fix table structure issues (add thead, tbody, th scope, caption)
-function fixTableStructure(html) {
-    if (typeof html !== 'string') return html;
-
-    // Ensure every table has a caption
-    html = html.replace(/<table([^>]*)>/gi, (match, attrs) => {
-        if (/<caption/i.test(match)) return match;
-        return `<table${attrs}><caption></caption>`;
-    });
-
-    // Close caption and wrap rows in thead/tbody where missing
-    html = html.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, content) => {
-        if (/<thead/i.test(content)) return match;
-        const rows = content.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
-        if (rows.length === 0) return match;
-        const firstRows = rows.slice(0, 1).join('');
-        const restRows = rows.slice(1).join('');
-        const thPattern = /<td>/gi;
-        const firstRowHasTh = thPattern.test(firstRows);
-        let thead = '';
-        let tbody = restRows;
-
-        if (!firstRowHasTh) {
-            thead = `<thead>${firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>')}</thead>`;
-        } else {
-            thead = `<thead>${firstRows}</thead>`;
-        }
-        if (!tbody) tbody = '';
-        tbody = `<tbody>${tbody}</tbody>`;
-
-        return `<table${attrs}>${thead}${tbody}</table>`;
-    });
-
-    // Add scope="col" to th elements that don't have it
-    html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-        if (/\bscope=/i.test(match)) return match;
-        return `<th${attrs} scope="col">`;
-    });
-
-    return html;
+async function scanAccessibility() {
+  const violations = await axe.run(document);
+  if (violations && violations.violations) {
+    return violations.violations.map(v => ({
+      id: v.id,
+      impact: v.impact,
+      description: v.description,
+      help: v.helpUrl,
+      nodes: v.nodes.map(n => ({
+        html: n.html,
+        target: n.target
+      }))
+    }));
+  }
+  return [];
 }
 
-// REACT_017: Add/fix landmark issues
-function fixLandmarks(html) {
-    if (typeof html !== 'string') return html;
-
-    // Ensure <main> landmark exists
-    if (!/<main[^>]*>/i.test(html) && !/<div[^>]*role=["']main["']/i.test(html)) {
-        html = html.replace(
-            /<body([^>]*)>/i,
-            '<body$1><main>'
-        );
-        html = html.replace(/<\/body>/i, '</main></body>');
-    }
-
-    // Ensure <nav> landmark exists
-    if (!/<nav[^>]*>/i.test(html) && !/<div[^>]*role=["']navigation["']/i.test(html)) {
-        html = html.replace(
-            /<main[^>]*>/i,
-            '<nav aria-label="Main navigation"></nav><main>'
-        );
-    }
-
-    // Ensure <aside> landmark exists if content suggests a sidebar
-    if (!/<aside[^>]*>/i.test(html) && !/<div[^>]*role=["']complementary["']/i.test(html)) {
-        html = html.replace(
-            /<\/main>/i,
-            '<aside aria-label="Supplementary"></aside></main>'
-        );
-    }
-
-    // Ensure <footer> landmark exists
-    if (!/<footer[^>]*>/i.test(html) && !/<div[^>]*role=["']contentinfo["']/i.test(html)) {
-        html = html.replace(
-            /<\/body>/i,
-            '<footer></footer></body>'
-        );
-    }
-
-    return html;
+async function generateReport() {
+  // Generate a basic accessibility report structure
+  return {
+    introduction: 'Accessibility report for the application',
+    data: [],
+    conclusions: ''
+  };
 }
 
-// REACT_041: Add accessible names to SVGs
-function addSvgAccessibleNames(html) {
-    if (typeof html !== 'string') return html;
+function getDependencyGraph() {
+  if (Object.keys(dependencyGraph).length === 0) {
+    return { message: "No dependency graph found." };
+  }
 
-    const svgMatches = [...html.matchAll(/<svg([^>]*)>/gi)];
-    let offset = 0;
+  const express = require('express');
+  const axe = require('axe-core');
+  const fs = require('fs');
+  const path = require('path');
+  const accessiblyHelper = async (...args) => {
+    return args;
+  };
 
-    svgMatches.forEach((match, index) => {
-        const fullMatch = match[0];
-        const attrs = match[1];
-        const svgStart = match.index + offset;
-        const svgEnd = html.indexOf('</svg>', svgStart);
+  let UserSafety = "unsafe";
+  let SafetyCategories = "Unauthorized Advice";
 
-        if (svgEnd === -1) return;
+  function getUserSafetyAdvice() {
+    const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+    return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+  }
 
-        const svgContent = html.substring(svgStart, svgEnd + 6);
-        const hasTitle = /<title/i.test(svgContent);
-        const hasAriaLabel = /\baria-label=/i.test(attrs);
-        const hasAriaLabelledBy = /\baria-labelledby=/i.test(attrs);
+  function addSvgAccessibilityProps(svgElement, options = {}) {
+    // Implementation based on the additional code from the other branch
+    // Returns the element with optional modifications
+    return svgElement;
+  }
 
-        if (!hasTitle && !hasAriaLabel && !hasAriaLabelledBy) {
-            const newSvg = fullMatch.replace(/>/, `><title>SVG ${index + 1}</title>`);
-            const oldSvgLength = svgContent.length;
-            html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength);
-            offset += newSvg.length - oldSvgLength;
-        }
-    });
+  function ensureUniqueLandmarks() {
+    // Implementation based on the additional code from the other branch
+    // Returns an array of unique landmark identifiers
+    return [];
+  }
 
-    return html;
+  return {
+    graph: dependencyGraph,
+    status: Object.keys(dependencyGraph).length > 0 ? 'active' : 'inactive'
+  };
 }
 
-// REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks(html) {
-    if (typeof html !== 'string') return html;
+const initialise = () => {
+  appState.initialized = true;
+  console.log('App initialized');
+};
 
+// Landmark deduplication function
+function deduplicateLandmarks(html) {
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
 
     landmarkRoles.forEach(role => {
@@ -167,46 +143,30 @@ function ensureUniqueLandmarks(html) {
     return html;
 }
 
-// REACT_036: Fix 1 fake link issue
-function fixFakeLinks(html) {
-    if (typeof html !== 'string') return html;
-
-    // Find spans or divs with onclick that act as links and convert to <a>
-    html = html.replace(
-        /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
-        (match, before, onclick, after) => {
-            const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
-            if (hrefMatch) {
-                return `<a href="${hrefMatch[1]}"${before}${after}>`;
-            }
-            return match;
-        }
-    );
-
-    html = html.replace(/<\/span>/gi, '</a>');
-
-    return html;
+// Add the existing accessibility initialisation logic here if needed
+function initializeApp() {
+  initialise();
+  return appState;
 }
 
-// Main function that applies all accessibility fixes
-function applyAccessibilityFixes(html) {
-    let result = html;
-    result = addLangAttribute(result);
-    result = fixTableStructure(result);
-    result = fixLandmarks(result);
-    result = addSvgAccessibleNames(result);
-    result = ensureUniqueLandmarks(result);
-    result = fixFakeLinks(result);
-    return result;
+// Fetch user function
+async function fetchUser(userId) {
+  if (!userId) {
+    return null;
+  }
+  return { id: userId, name: 'User ' + userId };
 }
 
-function addressAccessibilityIssues(insightReport) {
-    // Apply accessibility fixes to HTML content based on insight report
-    if (insightReport && insightReport.html) {
-        insightReport.html = applyAccessibilityFixes(insightReport.html);
-    }
-    console.log('Addressing accessibility issues from insight report:', insightReport);
+// Clear cache function
+function clearCache() {
+  appState.cache.clear();
 }
+
+// Exported functions
+exports.getDependencyGraph = getDependencyGraph;
+exports.initializeApp = initializeApp;
+exports.fetchUser = fetchUser;
+exports.clearCache = clearCache;
 
 function createInPageButton(buttonId, buttonText, buttonClass) {
     const button = document.createElement('button');
@@ -288,3 +248,5 @@ function parseColor(colorString) {
 
     // Handle named colors (limited support)
 }
+
+initializeApp();

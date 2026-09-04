@@ -1,19 +1,16 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-
-// Import required modules
 const utils = require('./utils');
 const axe = require('axe-core');
+const accessiblyHelper = require('./accessibly-helper');
 
 // User Safety constants and objects
-const UserSafety = 'safe';
-const UserSafety2 = "safe";
-const SafetyCategories = 'Descriptions and advice';
-const SafetyCategories2 = 'Descriptions and advice';
-const SafetyCategories3 = "Descriptions and advice";
-const safetyCategory = "User Safety: safe";
-const userSafety = 'safe';
+const userSafetyObject = {
+    unsafe: {
+      category: 'Unauthorized Advice'
+    }
+};
 
 // User Safety object structure for unsafe status
 const UserSafetyObject = {
@@ -28,129 +25,86 @@ let dependencyGraph = {};
 // Books array
 const books = [];
 
-// Config object
+// Config object - merged from both branches
 const config = {
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
+    apiUrl: process.env.API_URL || 'http://localhost:3000',
+    timeout: process.env.TIMEOUT || 5000,
+    debug: true,
+    version: '1.0.0',
+    name: 'MyApp',
+    dataPath: './data',
+    maxResults: 100
 };
 
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
-};
+// Accessibility improvements
+const getLangAttribute = () => document.documentElement.lang;
 
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
+function setLanguageAttribute(element, lang) {
+    element.setAttribute('lang', lang);
+}
 
-const HTML = ({ lang }) => {
-    return { lang };
-};
+function getLangAttributeNew() {
+    const lang = document?.documentElement?.lang || getLangAttribute();
+    setLanguageAttribute(document, lang);
+    return lang;
+}
 
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// REACT_015: Add lang attribute to HTML element
+function getLangAttributeNew() {
+  const lang = document?.documentElement?.lang || getLangAttributeFn();
+  setLanguageAttribute(document, lang);
+  return lang;
+}
 
-// User Safety Categories
-const userSafetyCategories = {
-    unsafe: true,
-    categories: [
-        'Illegal Activity',
-        'Fraud/Deception',
-        'Controlled/Regulated Substances',
-        'Unauthorized Advice'
-    ]
-};
-
-// User Safety: unsafe
-// Safety Categories: Illegal Activity, Fraud/Deception, Controlled/Regulated Substances, Unauthorized Advice
-
-// Function to handle credential response
-function handleCredentialResponse(response) {
-  // Parse the credential response
-  const credential = JSON.parse(response.credential);
-
-  // Validate the credential structure
-  if (!credential || !credential.credential || !credential.clientId) {
-    throw new Error('Invalid credential response structure');
+// REACT_041: Add accessible names to SVGs
+function getSvgAccessibleName(element, existingAccessibleName = undefined) {
+  if (!existingAccessibleName) {
+    existingAccessibleName = getSvgAccessibleNameLocal(element);
+  }
+  if (existingAccessibleName) {
+    return existingAccessibleName;
   }
 
-  // Store the credential in a secure way (implementation depends on your auth system)
-  // For example, you might store it in a secure cookie or local storage with encryption
-  // This is a placeholder for your actual implementation
-  localStorage.setItem('authCredential', JSON.stringify({
-    token: credential.credential,
-    clientId: credential.clientId,
-    timestamp: Date.now()
-  }));
-
-  // Return the parsed credential for further use
-  return credential;
-}
-
-// Function that complements the existing existing code with the new changes
-function loadUserSafetyInfo() {
-  const categoryData = {
-    'safe': 'This user follows safety guidelines',
-    'unsafe': 'This user may pose a risk to the system'
-  };
-
-  if (userSafety === 'unsafe') {
-    const safetyMessage = checkSafetyCategories();
-    throw new Error(safetyMessage);
-  }
-
-  return {
-    category: userSafety,
-    description: categoryData[userSafety]
-  };
-}
-
-export const getSafetyCategory = (userSafetyStatus = UserSafetyObject.unsafe) => userSafetyStatus.category;
-
-export const getSafetyCategoryDetailed = (userSafetyStatus = UserSafetyObject.unsafe) => userSafetyStatus;
-
-function getUserSafetyInfo() {
-    return userSafetyCategories;
-}
-
-function isUserSafetyUnsafe() {
-    return userSafetyCategories.unsafe;
-}
-
-function hasSafetyCategory(category) {
-    return userSafetyCategories.categories.includes(category);
-}
-
-function checkSafetyCategories() {
-    const categoryMessages = [];
-    if (isUserSafetyUnsafe()) {
-        categoryMessages.push('User may pose a risk: ' + userSafetyCategories.categories.join(', '));
+  const svg = element.getElementsByTagName('svg')[0];
+  if (svg) {
+    const newAccessibleName = svg.getAttribute('aria-label') || getSvgAccessibleNameLocal(svg);
+    if (newAccessibleName) {
+      return newAccessibleName;
     }
-    return categoryMessages.length > 0 ? categoryMessages.join('; ') : 'User is safe';
+
+    const fallbackId = `svg-fallback-title-${element.id}`;
+    const newTitle = document.createElement('title');
+    newTitle.id = fallbackId;
+    newTitle.textContent = `SVG image ${element.id}`;
+    svg.insertBefore(newTitle, svg.firstChild);
+    return newTitle.textContent;
+  }
+  return undefined;
 }
 
-// TODO: This is the modified and merged code
-
-function validateLandmark(landmark) {
-  const errors = [];
-  // Existing code that should be preserved
-  // Update landmark validation logic if needed
-  const role = landmark && landmark.role;
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role: ' + role);
+function getSvgAccessibleName(element, existingAccessibleName = undefined) {
+  if (!existingAccessibleName) {
+    existingAccessibleName = getSvgAccessibleNameLocal(element);
   }
-  return errors;
+  if (existingAccessibleName) {
+    return existingAccessibleName;
+  }
+
+  const svg = element.getElementsByTagName('svg')[0];
+  if (svg) {
+    const newAccessibleName = svg.getAttribute('aria-label') || getSvgAccessibleNameLocal(svg);
+    if (newAccessibleName) {
+      return newAccessibleName;
+    }
+
+    const fallbackId = `svg-fallback-title-${element.id}`;
+    const newTitle = document.createElement('title');
+    newTitle.id = fallbackId;
+    newTitle.textContent = `SVG image ${element.id}`;
+    svg.insertBefore(newTitle, svg.firstChild);
+    return newTitle.textContent;
+  }
+  return undefined;
 }
 
 // Function to create an accessible book entry object
@@ -173,162 +127,19 @@ function createAccessibleBookEntry(bookData) {
   };
 }
 
-function countDependencies() {
-  try {
-    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-    const peerDependencies = packageJson.peerDependencies || {};
-    const optionalDependencies = packageJson.optionalDependencies || {};
+// Utility functions
+function getLangAttribute() {
+  return document.documentElement.lang;
+}
 
-    return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      peerDependencies: Object.keys(peerDependencies).length,
-      optionalDependencies: Object.keys(optionalDependencies).length,
-      total: Object.keys(dependencies).length + 
-             Object.keys(devDependencies).length + 
-             Object.keys(peerDependencies).length + 
-             Object.keys(optionalDependencies).length
-    };
-  } catch (error) {
-    return {
-      dependencies: 0,
-      devDependencies: 0,
-      peerDependencies: 0,
-      optionalDependencies: 0,
-      total: 0,
-      error: error.message
-    };
+function setSvgAttributes(element, accessibleName) {
+  if (!accessibleName) {
+    accessibleName = getSvgAccessibleNameNew(element);
+  }
+  if (accessibleName) {
+    element.setAttribute('aria-label', accessibleName);
   }
 }
 
-function validateTableAccessibility(tableElement) {
-    // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement || !tableElement.caption) {
-        console.warn('Table missing caption');
-        return false;
-    }
-    return true;
-}
-
-function validateTableStructure(tableElement) {
-    // Implementation to validate table structure (conflict resolved: merged implementation)
-    const rows = tableElement && tableElement.rows;
-    if (!rows || rows.length === 0) {
-        console.warn('Table has no rows');
-        return false;
-    }
-    return true;
-}
-
-function validateLandmarkStructure() {
-    // Merged implementation (conflict resolved)
-    const landmarks = document.querySelectorAll('[role]');
-    let hasMain = false;
-    let hasNavigation = false;
-
-    landmarks.forEach(landmark => {
-        const role = landmark.getAttribute('role');
-        if (role === 'main') hasMain = true;
-        if (role === 'navigation') hasNavigation = true;
-    });
-
-    if (!hasMain) console.warn('Missing main landmark');
-    if (!hasNavigation) console.warn('Missing navigation landmark');
-
-    return hasMain && hasNavigation;
-}
-
-function addLandmarkRegions() {
-  console.log('Adding landmark regions');
-}
-
-function getSvgAccessibleName(svgElement) {
-    // Merged implementation (conflict resolved)
-    if (!svgElement) {
-        return 'Accessible SVG Icon';
-    }
-    const title = svgElement.querySelector('title');
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (title) return title.textContent;
-    if (ariaLabel) return ariaLabel;
-    return 'Accessible SVG Icon';
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  if (svg && typeof svg === 'object') {
-    svg.setAttribute('role', 'img');
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-  }
-}
-
-/**
- * Adds lang attribute to HTML element
- */
-function addLangAttribute() {
-    const lang = getFullLangAttribute();
-    document.documentElement.setAttribute('lang', lang);
-    return lang;
-}
-
-/**
- * Fixes table structure issues
- */
-function fixTableStructureIssues() {
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-        // ... existing table structure fixes
-    });
-}
-
-/**
- * Fixes scope attribute on header cells
- */
-function fixTableHeaderCellScope() {
-    const headerCells = document.querySelectorAll('th');
-    headerCells.forEach(cell => {
-        if (!cell.hasAttribute('scope')) {
-            cell.setAttribute('scope', 'col');
-        }
-    });
-}
-
-/**
- * Adds main landmark
- */
-function addMainLandmark() {
-    const main = document.querySelector('main');
-    if (!main) {
-        const newMain = document.createElement('main');
-        document.body.insertBefore(newMain, document.body.firstChild);
-    }
-}
-
-const expressApp = express();
-
-module.exports = {
-  ...module.exports,
-  loadUserSafetyInfo,
-  handleCredentialResponse,
-  getUserSafetyInfo,
-  isUserSafetyUnsafe,
-  hasSafetyCategory,
-  getSafetyCategory,
-  getSafetyCategoryDetailed,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateTableAccessibility,
-  validateTableStructure,
-  addLandmarkRegions,
-  addLangAttribute,
-  addMainLandmark,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createAccessibleBookEntry,
-  countDependencies
-};
+// Landmark functions
+function validateLandmark

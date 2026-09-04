@@ -1,23 +1,19 @@
 const userSafety = 'unsafe';
-const safetyCategories = 'Unauthorized Advice';
+let safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
 
-export const checkUserSafety = () => {
+const checkUserSafety = () => {
   let userSafetyMessage = '';
-
   if (userSafety !== 'safe') {
     userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
   }
-
   return userSafetyMessage;
 };
 
-export const checkSafetyCategories = () => {
+const checkSafetyCategories = () => {
   let safetyCategoriesMessage = '';
-
-  if (safetyCategories.includes('Authorized Advice')) {
+  if (safetyCategories.includes('Unauthorized Advice')) {
     safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
   }
-
   return safetyCategoriesMessage;
 };
 
@@ -33,4 +29,62 @@ export const harvestResources = () => {
 export const upgradeResource = (resource) => {
   // Placeholder logic for upgrading a resource
   console.log(`Upgrading resource: ${resource}`);
+};
+
+// Accessibility related functions from origin/main
+// From HEAD branch
+export const enhanceAccessibility = () => {
+  // Implementation for accessibility enhancements
+  console.log('Accessibility enhancements applied.');
+};
+
+// From origin/main branch
+const generateAccessibilityReport = () => {
+  const issues = [];
+
+  // Check for missing alt text for images
+  // This is a simple placeholder; real implementation should check actual images in the app
+  if (!document.images || document.images.length === 0 || !document.images[0].alt) {
+    issues.push('Image without alt text found.');
+  }
+
+  // Check for keyboard navigability
+  const isKeyboardNavigable = document.body.classList.contains('keyboard-navigable');
+  if (!isKeyboardNavigable) {
+    issues.push('The website is not keyboard navigable.');
+  }
+
+  // Check for high contrast mode support
+  const supportsHighContrast = document.body.classList.contains('high-contrast-supported');
+  if (!supportsHighContrast) {
+    issues.push('The website does not support high contrast mode.');
+  }
+
+  // Return a string with all issues found, or an empty string if none
+  return issues.join('\n');
+};
+
+export { generateAccessibilityReport };
+
+const upgradeUserSettings = () => {
+  let upgradeMessage = '';
+  const upgrades = [];
+
+  if (userSafety !== 'safe') {
+    upgrades.push({ field: 'userSafety', from: userSafety, to: 'safe' });
+  }
+
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    upgrades.push({ field: 'safetyCategories', from: safetyCategories, to: 'Authorized Advice' });
+  }
+
+  if (upgrades.length > 0) {
+    upgradeMessage = `Upgrade needed: ${upgrades.length} setting(s) require update.`;
+  }
+
+  return {
+    message: upgradeMessage,
+    upgrades: upgrades,
+    requiresUpgrade: upgrades.length > 0
+  };
 };

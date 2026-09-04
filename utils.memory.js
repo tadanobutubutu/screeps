@@ -74,26 +74,6 @@ module.exports = {
     isSafeKey,
 
     // Safe memory access with default values
-    getRoomMemory: function (roomName, key, defaultValue) {
-        // Security: Validate roomName and key to prevent prototype pollution
-        if (!isSafeKey(roomName) || !isSafeKey(key)) {
-            return defaultValue;
-        }
-
-        if (!Memory.rooms) {
-            Memory.rooms = {};
-        }
-
-        if (!Memory.rooms[roomName]) {
-            Memory.rooms[roomName] = {};
-        }
-
-        if (Memory.rooms[roomName][key] === undefined) {
-            Memory.rooms[roomName][key] = defaultValue;
-        }
-
-        return Memory.rooms[roomName][key];
-    },
 
     setRoomMemory: function (roomName, key, value) {
         // Security: Validate roomName and key to prevent prototype pollution

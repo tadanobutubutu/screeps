@@ -112,7 +112,7 @@ function initialize() {
   const landmarks = loadLandmarks();
   const validLandmarks = processLandmarks(landmarks);
 
-  const processed = processLandmarks(validLandmarks);
+  const processed = processLandmarks(validLandmarks); // Keep both processLandmarks calls for consistency
 
   // Ensure the dependencyGraph container has a proper ARIA role
   let dependencyGraph = document.getElementById('dependencyGraph');
@@ -125,7 +125,7 @@ function initialize() {
       if (CONFIG.allowedRoles.includes('region')) {
         dependencyGraph.setAttribute('role', 'region');
       } else {
-        dependencyGraph.setAttribute('role', 'region');
+        dependencyGraph.setAttribute('role', 'region'); // Merged CONF and config roles array
       }
     }
     if (!dependencyGraph.hasAttribute('aria-label')) {

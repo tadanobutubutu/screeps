@@ -12,6 +12,17 @@
 
 // Add your new functions and changes below this line.
 
+function calculateDiscount(price, discount) {
+    if (typeof price !== 'number' || typeof discount !== 'number') {
+        return 0;
+    }
+    if (price < 0 || discount < 0 || discount > 100) {
+        return 0;
+    }
+    const discountedPrice = price - (price * (discount / 100));
+    return parseFloat(discountedPrice.toFixed(2));
+}
+
 function analyzeContentSafety(content) {
   // Analyze the content for safety issues and return a safety rating.
   // ... (Your implementation here)
@@ -104,5 +115,6 @@ module.exports = {
   accessiblyHelper,
   existingFunction1,
   existingFunction2,
-  newFunction
+  newFunction,
+  calculateDiscount
 };

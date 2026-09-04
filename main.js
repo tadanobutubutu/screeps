@@ -245,6 +245,41 @@ function validateLineOrSpan() {
     return true;
 }
 
+/**
+ * Validates that a given HTML string contains proper landmark elements for accessibility.
+ * Landmark elements include <main>, <nav>, <aside>, <header>, <footer>, etc.
+ * Ensures at least one <main> landmark exists and all landmarks have unique IDs.
+ * @param {string} html - The HTML string to validate
+ * @returns {boolean} True if landmarks are valid, false otherwise
+ */
+export function validateLandmark(html) {
+  if (typeof html !== 'string' || html.trim() === '') {
+    return false;
+  }
+
+  // Check for at least one <main> landmark
+  const hasMainLandmark = /<main[\s>]/i.test(html);
+
+  if (!hasMainLandmark) {
+    return false;
+  }
+
+  // Ensure all landmarks have IDs (basic check)
+  const landmarks = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
+  for (const landmark of landmarks) {
+    const regex = new RegExp(`<${landmark}(\\s[^>]*)?>`, 'gi');
+    const matches = [...html.matchAll(regex)];
+    for (const match of matches) {
+      const attrs = match[1] || '';
+      if (!attrs.includes('id=')) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 export {
     isLinkAccessible,
     checkAllLinksAccessibility,

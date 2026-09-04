@@ -11,6 +11,8 @@ const CONFIG = {
   debug: false
 };
 
+const config = CONFIG;
+
 const books = [];
 const safetyCategory = "User Safety: safe";
 
@@ -113,6 +115,11 @@ function calculateSafetyScore(safetyCategories) {
   return totalRiskScore * 10;
 }
 
+function getUserSafetyAdvice() {
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+}
+
 function addBook(title, author) {
   const bookObject = { title, author };
   books.push(bookObject);
@@ -169,18 +176,13 @@ function ensureUniqueLandmarksOriginal(landmarksArray) {
 const sortByTitleCombined = sortByTitleLocal || sortByTitle;
 const sortByAuthorCombined = sortByAuthorLocal || sortByAuthor;
 
-function getUserSafetyAdvice() {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
-}
-
 function isValidLandmark(landmark) {
   return landmark && landmark.id && landmark.role;
 }
 
 function loadLandmarks() {
   try {
-    const filePath = path.join(config.dataPath, 'landmarks.json');
+    const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
     const data = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(data);
   } catch (error) {
@@ -542,6 +544,70 @@ function addAriaLabel(element, label) {
     return element;
 }
 
+function analyzeModuleDependenciesLocal(modules) {
+  // Implementation would analyze and return dependency relationships
+  console.log('Analyzing dependencies for modules:', modules);
+  return {
+    totalDependencies: 0,
+    dependencyMap: {}
+  };
+}
+
+function visualizeModuleRelationshipsLocal(modules) {
+  // Implementation would create a visual representation of module relationships
+  console.log('Visualizing relationships for modules:', modules);
+  return {
+    graph: {},
+    nodes: [],
+    edges: []
+  };
+}
+
+function validateLandmark(landmark) {
+  return landmark &&
+         typeof landmark.id !== 'undefined' &&
+         landmark.id !== null;
+}
+
+function analyzeModuleDependencies(modules) {
+  // Implementation would analyze and return dependency relationships
+  return analyzeModuleDependenciesLocal(modules);
+}
+
+function visualizeModuleRelationships(modules) {
+  // Implementation would create a visual representation of module relationships
+  return visualizeModuleRelationshipsLocal(modules);
+}
+
+/**
+ * Enhances accessibility for adding a new book by ensuring proper ARIA attributes
+ * @param {string} title - The title of the book
+ * @param {string} author - The author of the book
+ * @returns {Object} The created book object
+ */
+function addBookWithAccessibility(title, author) {
+  const bookObject = addBook(title, author);
+
+  // Create an accessibility announcement element
+  if (typeof document !== 'undefined') {
+    const announcementElement = document.createElement('div');
+    announcementElement.setAttribute('role', 'status');
+    announcementElement.setAttribute('aria-live', 'polite');
+    announcementElement.setAttribute('aria-label', `Book added: ${title} by ${author}`);
+    announcementElement.style.position = 'absolute';
+    announcementElement.style.left = '-10000px';
+    document.body.appendChild(announcementElement);
+
+    // Provide visible feedback for screen readers
+    setTimeout(() => {
+      announcementElement.textContent = `Successfully added "${title}" by "${author}" to your books collection.`;
+      document.body.removeChild(announcementElement);
+    }, 100);
+  }
+
+  return bookObject;
+}
+
 function applyAccessibilityFixesAndHarvestData(html) {
   let result = html;
   result = addLangAttribute(result);
@@ -574,7 +640,7 @@ function initialize() {
     }
 
     if (!dependencyGraph.hasAttribute('role')) {
-      if (config.allowedRoles.includes('region')) {
+      if (CONFIG.allowedRoles.includes('region')) {
         dependencyGraph.setAttribute('role', 'region');
       } else {
         dependencyGraph.setAttribute('role', 'region');
@@ -682,5 +748,9 @@ module.exports = {
   newExportedFunction,
   landmarkSelectors,
   landmarkRoles,
-  books
+  books,
+  addBookWithAccessibility,
+  analyzeModuleDependenciesLocal,
+  visualizeModuleRelationshipsLocal,
+  validateLandmark
 };

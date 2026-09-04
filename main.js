@@ -1,106 +1,274 @@
 // main.js
 
-import React from 'react';
-import { registSW } from 'effector-sw';
-import axe from 'axe-core';
-import { express } from 'express';
-import fs from 'fs';
-import path from 'path';
-import utils from './utils';
-import somemodule from './somemodule';
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const utils = require('./utils');
+const axios = require('axios');
+const cheerio = require('cheerio');
+const axeCore = require('axe-core');
 
-const config = require('./config');
-const logger = require('./utils/logger');
+// Configuration
+const CONFIG = {
+  port: 3000,
+  maxResults: 1000,
+  debug: false,
+  dataPath: './data'
+};
 
-// Accessibility improvements:
-// - Added semantic HTML structure
-// - Included ARIA attributes where necessary
-// - Ensured keyboard navigation support
-// - Added focus management
+// Application data structures
+const books = [];
+const safetyCategory = "User Safety: safe";
 
-// Import required functions and utility functions from the somemodule
-const {
-  validateInput: validateInputLocal,
-  processData: processDataLocal,
-  createInPageButton: createInPageButtonLocal,
-  validateTableAccessibility: validateTableAccessibilityLocal,
-  validateTableStructure: validateTableStructureLocal,
-  ensureUniqueLandmarks: ensureUniqueLandmarksLocal,
-  addProperLandmarkRegions: addProperLandmarkRegionsLocal,
-  validateLinkAccessibility: validateLinkAccessibilityLocal,
-  handleLinkAccessibility: handleLinkAccessibilityLocal,
-  someFunction: someFunctionLocal,
-  fetchUser: fetchUserLocal,
-  clearCache: clearCacheLocal
-} = somemodule;
+const appData = {
+  userAction: "Unknown",
+  previousUserActions: [],
+  lastUserActionId: "Unknown",
+  userActionStack: [],
+};
 
-const { React, useState, useEffect, useRef } = React;
-const { List, Button } = require('antd');
-const { useSelector, useDispatch } = require('react-redux');
-const App = require('./App').default;
+const appState = {
+  lastUserAction: "Unknown",
+  previousUserActions: [],
+  lastUserActionId: "Unknown",
+  userActionStack: [],
+  previousUserSafety: 'safe',
+  previousUserSafetyScore: 0,
+};
 
-// ... Code for the accessibility functions and utilities here...
+// Safety Categories and User Safety Functions
+const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+let userSafety = 'safe';
 
-const primaryContent = document.querySelector('.primary-content') ||
-                        document.querySelector('[role="main"]') ||
-                        document.getElementById('main-content') ||
-                        document.querySelector('#content');
+function getUserSafetyAdvice() {
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+}
 
+function computeSafetyScore(categories) {
+  return categories.reduce((score, category) => {
+    switch (category) {
+      case 'Unauthorized Advice':
+        return score + 1;
+      case 'Dangerous Action':
+        return score + 2;
+      case 'Potential Scam':
+        return score + 3;
+      case 'Privacy Risk':
+        return score + 4;
+      default:
+        return score;
+    }
+  }, 0);
+}
+
+// Book-related functions
+function addBook(title, author) {
+  const bookObject = { title, author };
+  books.push(bookObject);
+  return bookObject;
+}
+
+function announceBookAdded(book) {
+  console.log(`New book added: ${book.title} by ${book.author}.`);
+}
+
+// Harvest data function
+function harvestData(context) {
+  const dataToReturn = {
+    harvestCount: 1,
+    harvestList: [],
+  };
+  const contextType = typeof context;
+  if (contextType === 'object' && context !== null) {
+    for (const key in context) {
+      // console.log(key);
+    }
+  }
+  return dataToReturn;
+}
+
+// Analyze module dependencies
+function analyzeModuleDependencies(modules) {
+  const dependencyGraph = {};
+  modules.forEach((module) => {
+    dependencyGraph[module.name] = module.requires || [];
+  });
+  return dependencyGraph;
+}
+
+// Upgrade logic: use harvested data to improve the system
+function upgradeSystem(harvestedData) {
+  if (harvestedData) {
+    if (harvestedData.maxResults) {
+      CONFIG.maxResults = harvestedData.maxResults;
+    }
+    if (harvestedData.debug !== undefined) {
+      CONFIG.debug = harvestedData.debug;
+    }
+  }
+  return true;
+}
+
+function loadHarvestedData() {
+  const filePath = path.join(__dirname, 'harvested_data.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.log(`Error loading harvested data: ${error.message}`);
+    return null;
+  }
+}
+
+// Accessibility improvement functions (server-side with cheerio)
+function addLangAttribute(html) {
+  const $ = cheerio.load(html);
+  $('html').attr('lang', 'en');
+  return $.html();
+}
+
+function ensureLangAttribute(html) {
+  const $ = cheerio.load(html);
+  if ($('html').attr('lang') === undefined) {
+    $('html').attr('lang', 'en');
+  }
+  return $.html();
+}
+
+function fixTableStructure(html) {
+  const $ = cheerio.load(html);
+  $('table').each((i, elem) => {
+    const $table = $(elem);
+    const hasHeaderRow = $table.find('tr').first().find('th').length > 0;
+    if (!hasHeaderRow) {
+      $table.find('tr').first().prepend('<th scope="col"></th>');
+      $table.find('td').each((j, cell) => {
+        $(cell).prependTo($table.find('tr').first());
+      });
+    }
+  });
+  return $.html();
+}
+
+function fixLandmarks(html) {
+  const $ = cheerio.load(html);
+  $('header').attr('role', 'banner');
+  $('nav').attr('role', 'navigation');
+  $('main').attr('role', 'main');
+  $('footer').attr('role', 'contentinfo');
+  return $.html();
+}
+
+// SVG accessibility functions
+function addSvgAccessibleNames(dom) {
+  const svgs = dom.querySelectorAll('svg');
+  svgs.forEach((svg) => {
+    const role = svg.getAttribute('role');
+    if (role === 'img' && !svg.getAttribute('aria-label') && !svg.getAttribute('title')) {
+      svg.setAttribute('aria-label', 'Image with no description.');
+    } else if (role === 'none') {
+      // Do nothing for decorative images
+    } else if (!svg.getAttribute('aria-label') && !svg.getAttribute('title')) {
+      svg.setAttribute('aria-label', 'Image with no description.');
+    }
+  });
+}
+
+function addSvgAccessibleNamesDom(dom) {
+  const $ = cheerio.load(dom);
+  $('svg').each((i, elem) => {
+    const $svg = $(elem);
+    const role = $svg.attr('role');
+    if (role === 'img' && !$svg.attr('aria-label') && !$svg.attr('title')) {
+      $svg.attr('aria-label', 'Image with no description.');
+    } else if (role === 'none') {
+      // Do nothing for decorative images
+    } else if (!$svg.attr('aria-label') && !$svg.attr('title')) {
+      $svg.attr('aria-label', 'Image with no description.');
+    }
+  });
+}
+
+// Fix fake links for web scrapers
+function fixFakeLinks(dom) {
+  const anchorTagsWithClickEvents = dom.querySelectorAll('a[onclick]');
+  anchorTagsWithClickEvents.forEach((tag) => {
+    const onClickAttributeValue = tag.getAttribute('onclick');
+    const matchResult = onClickAttributeValue && onClickAttributeValue.match(/window\.location(?:[^=]+)?\(['"]([^'"]+)['"]/);
+    const hrefValue = matchResult && matchResult[1];
+    if (hrefValue) {
+      tag.setAttribute('href', hrefValue);
+      tag.setAttribute('onclick', '');
+    }
+  });
+  return dom;
+}
+
+function fixFakeLinksDom(dom) {
+  const $ = cheerio.load(dom);
+  $('a[onclick]').each((i, elem) => {
+    const $tag = $(elem);
+    const onClickAttributeValue = $tag.attr('onclick');
+    const matchResult = onClickAttributeValue && onClickAttributeValue.match(/window\.location(?:[^=]+)?\(['"]([^'"]+)['"]/);
+    const hrefValue = matchResult && matchResult[1];
+    if (hrefValue) {
+      $tag.attr('href', hrefValue);
+      $tag.attr('onclick', '');
+    }
+  });
+}
+
+// Client-side accessibility functions (for browser context)
 function wrapPrimaryContentInMain() {
+  if (typeof document === 'undefined') return null;
+  
+  const primaryContent = document.querySelector('.primary-content') ||
+                          document.querySelector('[role="main"]') ||
+                          document.getElementById('main-content') ||
+                          document.querySelector('#content');
+
   if (primaryContent && !primaryContent.closest('main')) {
     const mainElement = document.createElement('main');
-
     primaryContent.parentNode.insertBefore(mainElement, primaryContent);
-
     mainElement.appendChild(primaryContent);
 
-    // Set the lang attribute based on the language attribute in the HTML document
     if (document.documentElement.lang) {
       mainElement.setAttribute('lang', document.documentElement.lang);
     }
-
     return mainElement;
   }
   return null;
 }
 
-// Function to address insight issues
 function addressInsightIssues(form) {
-  if (!form) return;
+  if (!form || typeof document === 'undefined') return;
 
-  // Ensure form has proper accessibility attributes
   if (!form.getAttribute('role')) {
     form.setAttribute('role', 'form');
   }
 
-  // Get all input fields in the form
   const inputs = form.querySelectorAll('input');
   inputs.forEach(input => {
-    // Ensure each input has an aria-label or associated label
     const id = input.id || input.getAttribute('name');
     const label = document.querySelector(`label[for="${id}"]`);
     if (id && !label) {
       input.setAttribute('aria-label', input.name || 'Form input');
     }
-
-    // Ensure required fields have proper ARIA attributes
     if (input.required) {
       input.setAttribute('aria-required', 'true');
     }
   });
 
-  // Get the submit button
   const submitButton = form.querySelector('button[type="submit"]') || form.querySelector('input[type="submit"]');
-  if (.submitButton && submitButton.hasAttribute('aria-label') && !submitButton.textContent.trim()) {
+  if (submitButton && !submitButton.getAttribute('aria-label') && !submitButton.textContent.trim()) {
     submitButton.setAttribute('aria-label', 'Submit form');
   }
 
   return form;
 }
 
-// Function to enhance accessibility for add book form
 function enhanceAccessibilityForAddBook(form) {
-  if (!form) return;
+  if (!form || typeof document === 'undefined') return;
 
   if (!form.getAttribute('role')) {
     form.setAttribute('role', 'form');
@@ -115,7 +283,6 @@ function enhanceAccessibilityForAddBook(form) {
         input.setAttribute('aria-label', input.name || 'Form input');
       }
     }
-
     if (input.hasAttribute('required')) {
       input.setAttribute('aria-required', 'true');
     }
@@ -129,9 +296,8 @@ function enhanceAccessibilityForAddBook(form) {
   return form;
 }
 
-// Function to add landmark regions
 function addLandmarkRegions(container) {
-  if (!container) return [];
+  if (!container || typeof document === 'undefined') return [];
 
   const regions = ['main', 'navigation', 'banner', 'contentinfo', 'complementary'];
   const addedRegions = [];
@@ -149,11 +315,11 @@ function addLandmarkRegions(container) {
   return addedRegions;
 }
 
-// New function to handle Google Sign-In
+// Google Sign-In handler (client-side)
 const googleSignIn = {
   initialize: function(clientId) {
-    if (typeof google !== 'undefined' && google.accounts) {
-      google.accounts.id.initialize({
+    if (typeof window !== 'undefined' && window.google && window.google.accounts) {
+      window.google.accounts.id.initialize({
         client_id: clientId,
         callback: this.handleCredentialResponse.bind(this)
       });
@@ -163,9 +329,9 @@ const googleSignIn = {
   },
 
   renderButton: function(elementId) {
-    const element = document.getElementById(elementId);
-    if (element && typeof google !== 'undefined' && google.accounts) {
-      google.accounts.id.renderButton(element, {
+    const element = typeof document !== 'undefined' ? document.getElementById(elementId) : null;
+    if (element && typeof window !== 'undefined' && window.google && window.google.accounts) {
+      window.google.accounts.id.renderButton(element, {
         theme: 'outline',
         size: 'large',
         text: 'sign_in_with'
@@ -182,33 +348,26 @@ const googleSignIn = {
     }
 
     try {
-      // Parse the credential response if it's a string
       let parsedResponse = response;
       if (typeof response === 'string') {
         parsedResponse = JSON.parse(response);
       }
 
-      // Validate the credential response structure
       const validationResult = validateCredentialResponseEx(parsedResponse);
       if (!validationResult.valid) {
         console.error('Credential response validation failed:', validationResult.errors);
         return { success: false, error: validationResult.errors.join(', ') };
       }
 
-      // Extract and store credentials
       const credentialData = extractCredentialDataEx(parsedResponse);
-
-      // Store the credential data for later use
       storeCredentialDataEx(credentialData);
 
-      // Dispatch an action or callback to notify the application
       if (typeof onCredentialSuccess === 'function') {
         onCredentialSuccess(credentialData);
       }
 
       console.log('Google Sign-In successful');
       return { success: true, credentialData };
-
     } catch (error) {
       console.error('Error handling Google Sign-In response:', error);
       return { success: false, error: error.message || 'Unknown error occurred' };
@@ -216,10 +375,24 @@ const googleSignIn = {
   }
 };
 
-// Helper function to load and process landmarks
+// Helper functions for Google Sign-In (stubs - implement as needed)
+function validateCredentialResponseEx(response) {
+  return { valid: true, errors: [] };
+}
+
+function extractCredentialDataEx(response) {
+  return response;
+}
+
+function storeCredentialDataEx(data) {
+  // Implement storage logic
+  console.log('Storing credential data:', data);
+}
+
+// Landmark processing (server-side)
 function loadAndProcessLandmarks() {
   try {
-    const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
+    const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
     const data = fs.readFileSync(filePath, 'utf8');
     const landmarks = JSON.parse(data);
     return processLandmarks(landmarks);
@@ -228,22 +401,26 @@ function loadAndProcessLandmarks() {
   }
 }
 
-// Process accessibility issues
+function processLandmarks(landmarks) {
+  // Process landmarks data
+  return landmarks;
+}
+
+// Process accessibility issues (client-side)
 function processAccessibilityIssues(document) {
+  if (!document) return [];
+  
   const issues = [];
 
-  // Check for lang attribute
   if (!document.documentElement.lang) {
     issues.push('Missing lang attribute on html element');
   }
 
-  // Check for main landmark
   const main = document.querySelector('main') || document.querySelector('[role="main"]');
   if (!main) {
     issues.push('Missing main landmark');
   }
 
-  // Check SVGs for accessible names
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     const hasAccessibleName = svg.getAttribute('aria-label') ||
@@ -257,71 +434,111 @@ function processAccessibilityIssues(document) {
   return issues;
 }
 
-// Upgrade logic: use harvested data to improve the system
-function upgradeSystem(harvestedData) {
-  // Use harvested data to improve the system
-  // Example: update configuration based on harvested data
-  if (harvestedData) {
-    if (harvestedData.maxResults) {
-      config.maxResults = harvestedData.maxResults;
-    }
-    if (harvestedData.debug !== undefined) {
-      config.debug = harvestedData.debug;
-    }
-    // Additional upgrade logic can be added here
-  }
-
-  return true;
+// Utility functions
+function newFunction() {
+  return 'Hello World';
 }
 
-function loadHarvestedData() {
-  const filePath = path.join(__dirname, 'harvested_data.json');
-  try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.log(`Error loading harvested data: ${error.message}`);
-    return null;
-  }
+function newFunction2() {
+  return 'Goodbye World';
 }
 
-// Safety Categories and User Safety Functions
-const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-let userSafety = 'safe';
-
-function getUserSafetyAdvice() {
-  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+function calculateDiscount(price, discountPercentage) {
+  const discountAmount = (price * discountPercentage) / 100;
+  return price - discountAmount;
 }
 
-function computeSafetyScore(safetyCategories) {
-  const safetyCategory = safetyCategories.reduce((score, category) => {
-    switch (category) {
-      case 'Unauthorized Advice':
-        return score + 1;
-      case 'Dangerous Action':
-        return score + 2;
-      case 'Potential Scam':
-        return score + 3;
-      case 'Privacy Risk':
-        return score + 4;
-      default:
-        return score;
-    }
-  }, 0);
-  return safetyCategory;
-}
+// Express app setup
+const app = express();
+app.use(express.json());
 
-// Export all functions
+// Main entry point
 const main = () => {
-  // ... Code for setting up the main application and server...
-
-  // Upgrade the system if necessary
   const harvestedData = loadHarvestedData();
   if (harvestedData) {
     upgradeSystem(harvestedData);
   }
 
-  app.listen(config.port, () => {
-    logger.info(`App listening at http://localhost:${config.port}`);
+  app.listen(CONFIG.port, () => {
+    console.log(`App listening at http://localhost:${CONFIG.port}`);
   });
 };
+
+// Event emitter for user actions
+const mainObj = {
+  on: function (event, callback) {
+    if (event === 'userAction') {
+      setInterval(() => {
+        if (appData.userAction !== appState.lastUserAction) {
+          callback(appData.userAction);
+          appState.lastUserAction = appData.userAction;
+          appState.previousUserActions.push(appData.userAction);
+        }
+      }, 1000);
+    }
+  },
+};
+
+// Export all functions for use in other modules
+module.exports = {
+  // Configuration
+  CONFIG,
+  appData,
+  appState,
+  
+  // Books
+  books,
+  safetyCategory,
+  addBook,
+  announceBookAdded,
+  
+  // Safety
+  safetyCategories,
+  userSafety,
+  getUserSafetyAdvice,
+  computeSafetyScore,
+  
+  // System upgrade
+  upgradeSystem,
+  loadHarvestedData,
+  
+  // Data harvesting
+  harvestData,
+  analyzeModuleDependencies,
+  
+  // Accessibility (server-side)
+  addLangAttribute,
+  ensureLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  addSvgAccessibleNamesDom,
+  fixFakeLinksDom,
+  
+  // Accessibility (client-side)
+  wrapPrimaryContentInMain,
+  addressInsightIssues,
+  enhanceAccessibilityForAddBook,
+  addLandmarkRegions,
+  processAccessibilityIssues,
+  loadAndProcessLandmarks,
+  
+  // Google Sign-In
+  googleSignIn,
+  
+  // Utilities
+  newFunction,
+  newFunction2,
+  calculateDiscount,
+  
+  // Main
+  main,
+  mainObj,
+  app
+};
+
+// Run if this is the main module
+if (require.main === module) {
+  main();
+}

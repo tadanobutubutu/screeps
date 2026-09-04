@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Add any other missing exports that might have been?
 const config = CONFIG || {}; // Combined both configurations
 
@@ -25,7 +22,7 @@ const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph,
 
 // Import helper functions from utils
 const { validateInput, processData, formatResponse } = require('./utils');
-const { getSvgAccessibleName, setSvgAttributes } = require('./svgUtils');
+const { getSvgAccessibleName, setSvgAttributes } = require('./helpers');
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
@@ -37,9 +34,10 @@ const { getSvgAccessibleName, setSvgAttributes } = require('./svgUtils');
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 // - REACT_001: Implement function to handle new accessibility issues ...
 
-// Configuration
-
-// Getting lang attribute
+/**
+ * Gets the lang attribute for the HTML element
+ * @returns {string} The lang attribute value
+ */
 function getLangAttribute() {
     return navigator.language || navigator.userLanguage;
 }
@@ -108,14 +106,14 @@ function processLandmarks(landmarks) {
         return [];
     }
 
-    const validLandmarks = landmarks.filter(l => l && typeof l.id !== 'undefined');
+    const validLandmarks = landmarks.filter(l => l && l.id);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.sort((a, b) => {
+    return [...landmarks].sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -156,7 +154,7 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = 'accessibility-report.json';
+  const reportFile = path.join(CONFIG.outputPath, 'accessibility-report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
@@ -166,9 +164,9 @@ function writeReport(report) {
  */
 function createAccessibleLinks() {
   const skipLink = createInPageButton('main-content', 'Skip to main content');
-  const inPageLinks = document.querySelectorAll('a[href^="#"]');
+  document.body.prepend(skipLink);
 
-  const links = Array.from(inPageLinks);
+  const links = document.querySelectorAll('a');
   links.forEach(link => {
     const validation = validateLinkAccessibility(link);
     if (!validation.valid) {
@@ -185,7 +183,7 @@ function addressAccessibilityIssues() {
   try {
     fixTableAccessibility();
     addMainLandmark();
-    ensureUniqueLandmarks(loadLandmarks());
+    addSvgAccessibleNames();
     createAccessibleLinks();
 
     return {
@@ -197,15 +195,140 @@ function addressAccessibilityIssues() {
         'svg_accessibility',
         'links',
         'unique_landmarks',
-        'accessible_links'
-      ];
+        'accessible_links',
+        'link_accessibility'
+      ]
     };
   } catch (error) {
+    console.error('Error addressing accessibility issues:', error);
     return {
       success: false,
       message: 'Failed to address accessibility issues',
       error: error.message
     };
+  }
+}
+
+// Harvest and upgrade logic implementation
+function performHarvest() {
+  const resources = [];
+  
+  // Harvest resources from available sources
+  if (appData.sources) {
+    for (const source of appData.sources) {
+      if (source.active && source.type === 'harvestable') {
+        const harvested = harvestFromSource(source);
+        resources.push(...harvested);
+      }
+    }
+  }
+  
+  return resources;
+}
+
+function harvestFromSource(source) {
+  const harvested = [];
+  const amount = source.capacity || 10;
+  
+  for (let i = 0; i < amount; i++) {
+    harvested.push({
+      type: source.resourceType || 'generic',
+      amount: 1,
+      timestamp: Date.now(),
+      source: source.id
+    });
+  }
+  
+  return harvested;
+}
+
+function performUpgrade(item, targetLevel) {
+  if (!item || typeof item.level === 'undefined') {
+    throw new Error('Invalid item for upgrade');
+  }
+  
+  const currentLevel = item.level;
+  const upgradeCost = calculateUpgradeCost(item, targetLevel);
+  
+  // Check if we have enough resources
+  const availableResources = appData.resources || {};
+  const canUpgrade = Object.keys(upgradeCost).every(
+    resource => (availableResources[resource] || 0) >= upgradeCost[resource]
+  );
+  
+  if (!canUpgrade) {
+    throw new Error('Insufficient resources for upgrade');
+  }
+  
+  // Deduct resources
+  Object.keys(upgradeCost).forEach(resource => {
+    availableResources[resource] -= upgradeCost[resource];
+  });
+  
+  // Apply upgrade
+  item.level = targetLevel;
+  
+  return {
+    success: true,
+    item: item,
+    newLevel: targetLevel,
+    resourcesSpent: upgradeCost
+  };
+}
+
+function calculateUpgradeCost(item, targetLevel) {
+  const baseCost = 10;
+  const levelMultiplier = 1.5;
+  
+  const cost = {};
+  const resourceTypes = ['energy', 'materials', 'credits'];
+  
+  resourceTypes.forEach(type => {
+    cost[type] = Math.floor(baseCost * Math.pow(levelMultiplier, targetLevel - 1));
+  });
+  
+  return cost;
+}
+
+function processHarvestedResources(resources) {
+  if (!Array.isArray(resources) || resources.length === 0) {
+    return { processed: 0, stored: {} };
+  }
+  
+  const stored = {};
+  
+  resources.forEach(resource => {
+    const type = resource.type || 'unknown';
+    if (!stored[type]) {
+      stored[type] = 0;
+    }
+    stored[type] += resource.amount || 1;
+  });
+  
+  // Update appData with stored resources
+  appData.resources = appData.resources || {};
+  Object.keys(stored).forEach(type => {
+    appData.resources[type] = (appData.resources[type] || 0) + stored[type];
+  });
+  
+  return {
+    processed: resources.length,
+    stored: stored
+  };
+}
+
+function autoUpgrade() {
+  const upgradeTarget = appData.upgradeTarget || null;
+  
+  if (!upgradeTarget) {
+    return { success: false, message: 'No upgrade target specified' };
+  }
+  
+  try {
+    const result = performUpgrade(upgradeTarget, upgradeTarget.level + 1);
+    return result;
+  } catch (error) {
+    return { success: false, message: error.message };
   }
 }
 
@@ -233,7 +356,10 @@ module.exports = {
   writeReport,
   createAccessibleLinks,
   addressAccessibilityIssues,
+  performHarvest,
+  harvestFromSource,
+  performUpgrade,
+  calculateUpgradeCost,
+  processHarvestedResources,
+  autoUpgrade,
 };
-```
-
-This resolved file combines both configurations and integrates the missing table accessibility functions. Also, the file includes added Landmark handling helper functions.

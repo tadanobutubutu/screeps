@@ -1,6 +1,3 @@
-const books = [];
-const safetyCategory = "User Safety: safe";
-
 const CONFIG = {
   maxLandmarks: 50,
   allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
@@ -13,6 +10,9 @@ const CONFIG = {
   version: '1.0.0',
   debug: false
 };
+
+const books = [];
+const safetyCategory = "User Safety: safe";
 
 const express = require('express');
 const axe = require('axe-core');
@@ -68,17 +68,6 @@ const {
   landmarkStructureCheck
 } = require('./somemodule');
 
-const config = {
-  name: 'MyApp',
-  version: '1.0.0',
-  debug: false,
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: 5000,
-  dataPath: './data',
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
-};
-
 const landmarkSelectors = [
   '[role="banner"]',
   '[role="navigation"]',
@@ -104,8 +93,8 @@ const appState = {
 };
 
 let icons = {};
-let UserSafety = "unsafe";
-let SafetyCategories = "Unauthorized Advice";
+let userSafety = 'unsafe';
+let safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
 
 function calculateSafetyScore(safetyCategories) {
   const safetyCategoryMap = {
@@ -147,8 +136,6 @@ function getBooksList() {
   return booksList.join("\n");
 }
 
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
 function ensureDependencyGraphAccessibility() {
   const dependencyGraphEl = document.getElementById('dependencyGraph');
   if (dependencyGraphEl) {
@@ -156,8 +143,6 @@ function ensureDependencyGraphAccessibility() {
   }
 }
 
-// Address accessibility issues from insight report:
-// Ensure each landmark has an ID and add appropriate aria-label
 function ensureUniqueLandmarksOriginal(landmarksArray) {
   if (!landmarksArray || landmarksArray.length === 0) {
       return [];
@@ -181,7 +166,6 @@ function ensureUniqueLandmarksOriginal(landmarksArray) {
   }).filter(Boolean);
 }
 
-// Combine sortByTitle, sortByTitleLocal, and sortByAuthor, sortByAuthorLocal
 const sortByTitleCombined = sortByTitleLocal || sortByTitle;
 const sortByAuthorCombined = sortByAuthorLocal || sortByAuthor;
 
@@ -190,7 +174,6 @@ function getUserSafetyAdvice() {
   return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
 }
 
-// Helper functions
 function isValidLandmark(landmark) {
   return landmark && landmark.id && landmark.role;
 }
@@ -231,15 +214,6 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// Ensure accessibility attributes are set when adding a book
 function ensureBookAccessibility(book) {
   if (book && !book.ariaLabel) {
     book.ariaLabel = book.title || 'Book item';
@@ -247,13 +221,11 @@ function ensureBookAccessibility(book) {
   return book;
 }
 
-// Find the primary content element in the DOM
 let primaryContent = document.querySelector('main') ||
                         document.querySelector('[role="main"]') ||
                         document.querySelector('#main') ||
                         document.querySelector('.main-content');
 
-// Function to wrap primary content in a <main> element
 function wrapPrimaryContentInMain() {
   if (primaryContent && primaryContent.tagName !== 'MAIN') {
       const mainElement = document.createElement('main');
@@ -297,7 +269,6 @@ function processLandmarksUnique(landmarks) {
   return uniqueLandmarks;
 }
 
-// NEW: Implement a new function to handle focus trap for keyboard navigation
 function createFocusTrap(container, options = {}) {
   let previousActiveElement = null;
   let focusableElements = [];
@@ -371,13 +342,7 @@ function createFocusTrap(container, options = {}) {
   };
 }
 
-/**
- * Function to address accessibility issues from insight report.
- * Handles various accessibility issues including language attributes,
- * table structures, landmarks, SVG accessibility, fake links, and landmark regions.
- */
 function addressInsightIssues() {
-  // REACT_015: Add lang attribute to HTML element
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.lang) {
     const langAttribute = getLangAttribute();
@@ -386,25 +351,18 @@ function addressInsightIssues() {
     }
   }
 
-  // REACT_027: Fix table structure issues
   validateTableAccessibility();
   validateTableStructure();
 
-  // REACT_017: Add/fix landmark issues and ensure unique landmarks
   validateLandmark(landmarks);
   validateLandmarkStructure(landmarks);
   ensureUniqueLandmarks(landmarks);
 
-  // REACT_041: Add accessible names to SVGs
   getSvgAccessibleName();
   setSvgAttributes();
 
-  // REACT_025: Ensure unique landmarks (already handled by ensureUniqueLandmarks)
-
-  // REACT_036: Fix fake link issue
   handleFakeLinks();
 
-  // REACT_037: Add proper landmark regions
   addProperLandmarkRegions(landmarks);
 }
 
@@ -432,7 +390,6 @@ function validateTableAccessibility(tableElement) {
 
   for (const cell of cells) {
     if (!cell.id && cell.tagName === 'TH') {
-      // Handle TH cells without IDs
     }
   }
 
@@ -454,18 +411,13 @@ const getFullLangAttributeFn = (element) => {
 };
 
 const fixTableStructure = (html) => {
-  // Table structure validation and fixes
-  // Placeholder implementation - actual logic would go here
   return html;
 };
 
 const fixFakeLinks = (html) => {
-  // Fake link detection and correction
-  // Placeholder implementation - actual logic would go here
   return html;
 };
 
-// Helper functions
 function ensureElementHasId(element, fallbackId) {
   if (!element.id) {
     element.id = fallbackId;
@@ -480,14 +432,12 @@ function ensureLandmarkLabel(landmark) {
     : `${role} landmark`;
 }
 
-// New functions to write the generated report to a file
 function writeReport(report) {
   const reportFile = path.join(config.dataPath, 'report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
 async function analyzeModuleDependencies(modules) {
-  // Implementation would analyze and return dependency relationships
   console.log('Analyzing dependencies for modules:', modules);
   return {
     totalDependencies: 0,
@@ -496,7 +446,6 @@ async function analyzeModuleDependencies(modules) {
 }
 
 function visualizeModuleRelationships(modules) {
-  // Implementation would create a visual representation of module relationships
   console.log('Visualizing relationships for modules:', modules);
   return {
     graph: {},
@@ -559,7 +508,6 @@ function generateAccessibilityReport(issuesData) {
   return report;
 }
 
-// Helper functions from the safe version
 function ensureUniqueLandmarksWithLoop(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -580,25 +528,13 @@ function ensureUniqueLandmarksWithLoop(landmarks) {
   return uniqueLandmarks;
 }
 
-/**
- * Ensures an element has an ID attribute
- * @param {HTMLElement} element - The element to check
- * @param {string} id - The ID to set if missing
- * @returns {HTMLElement} The element with ensured ID
- */
 function ensureElementHasIdOriginal(element, id) {
     if (!element.id) {
-        Element.setAttribute('id', id);
+        element.setAttribute('id', id);
     }
     return element;
 }
 
-/**
- * Adds an aria-label to an element if it doesn't have one
- * @param {HTMLElement} element - The element to modify
- * @param {string} label - The aria-label to add
- * @returns {HTMLElement} The element with aria-label
- */
 function addAriaLabel(element, label) {
     if (!element.getAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
@@ -606,13 +542,11 @@ function addAriaLabel(element, label) {
     return element;
 }
 
-// Main function that applies all accessibility fixes and collects data
 function applyAccessibilityFixesAndHarvestData(html) {
   let result = html;
   result = addLangAttribute(result);
   result = fixTableStructure(result);
   result = fixFakeLinks(result);
-  // Add collected data to the html
   result += `<div id="collected-data">${harvestData()}</div>`;
   return result;
 }
@@ -625,17 +559,14 @@ function harvestData() {
   return '';
 }
 
-// Helper function
 function initialize() {
   console.log('Initializing application...');
 
-  // Load landmarks for accessibility processing
   const landmarks = loadLandmarks();
   const validLandmarks = processLandmarks(landmarks);
 
   const processed = processLandmarks(validLandmarks);
 
-  // Ensure the dependencyGraph container has a proper ARIA role
   let dependencyGraph = document.getElementById('dependencyGraph');
   if (dependencyGraph) {
     if (!dependencyGraph.id) {
@@ -657,62 +588,99 @@ function initialize() {
   return true;
 }
 
-// Main initialization function
 const initializeAppExport = () => {
-  // ... Main initialization function from the conflicting file (unmodified);
 };
 
-// Application initializations
-
-export const validateLandmarkExport = (landmark) => {
+const validateLandmarkExport = (landmark) => {
   const errors = [];
-
-  // Validation logic
-
   return {
     valid: errors.length === 0,
     errors
   };
 };
 
-export const checkLinkAccessibility = (url) => {
-  // Implementation logic here...
+const checkLinkAccessibility = (url) => {
   return true;
 };
 
-export const newExportedFunction = () => {
-  // New export logic here...
+const newExportedFunction = () => {
 };
 
+function checkUserSafety() {
+  let userSafetyMessage = '';
+
+  if (userSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
+  }
+
+  return userSafetyMessage;
+}
+
+function checkSafetyCategories() {
+  let safetyCategoriesMessage = '';
+
+  const dangerLevel = safetyCategories.reduce((acc, cat) => acc * 1.1, 1);
+
+  if (dangerLevel > 4) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice, dangerous actions, potential scams or privacy risks. Please review and update safety categories accordingly.';
+  }
+
+  return safetyCategoriesMessage;
+}
+
 module.exports = {
-  applyAccessibilityFixesAndHarvestData,
+  CONFIG,
+  config: CONFIG,
+  userSafety,
+  safetyCategories,
+  checkUserSafety,
+  checkSafetyCategories,
+  isValidLandmark,
+  calculateSafetyScore,
+  addBook,
+  announceBookAdded,
+  getBooksList,
+  ensureDependencyGraphAccessibility,
+  ensureUniqueLandmarksOriginal,
+  sortByTitleCombined,
+  sortByAuthorCombined,
+  getUserSafetyAdvice,
+  loadLandmarks,
+  processLandmarks,
+  ensureUniqueLandmarks,
+  ensureBookAccessibility,
+  primaryContent,
+  wrapPrimaryContentInMain,
+  processLandmarksUnique,
+  createFocusTrap,
+  addressInsightIssues,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  langAttribute,
+  getFullLangAttributeFn,
+  fixTableStructure,
+  fixFakeLinks,
+  ensureElementHasId,
+  ensureLandmarkLabel,
+  writeReport,
   analyzeModuleDependencies,
   visualizeModuleRelationships,
-  ensureElementHasId,
+  analyzeAccessibility,
+  axeConfig,
+  getAxeResults,
+  generateAccessibilityReport,
+  ensureUniqueLandmarksWithLoop,
+  ensureElementHasIdOriginal,
   addAriaLabel,
-  writeReport,
+  applyAccessibilityFixesAndHarvestData,
+  addLangAttribute,
+  harvestData,
+  initialize,
+  initializeApp: initializeAppExport,
   validateLandmarkExport,
   checkLinkAccessibility,
   newExportedFunction,
-  initialize,
-  initializeApp: initializeAppExport,
-  addressInsightIssues,
-  ensureDependencyGraphAccessibility,
-  ensureUniqueLandmarksOriginal,
-  ensureBookAccessibility,
-  wrapPrimaryContentInMain,
-  createFocusTrap,
-  getSvgAccessibleName,
-  validateTableAccessibility,
-  processLandmarks,
-  processLandmarksUnique,
-  books,
-  addBook,
-  getBooksList,
-  announceBookAdded,
-  getUserSafetyAdvice,
   landmarkSelectors,
   landmarkRoles,
-  config,
-  CONFIG
+  books
 };

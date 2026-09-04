@@ -655,11 +655,6 @@ function addressAccessibilityIssues(insightReport) {
     if (divElement) {
       divElement.setAttribute('role', 'list');
     }
-
-    const htmlElement = document.documentElement;
-    if (htmlElement) {
-      htmlElement.setAttribute('lang', getLangAttribute());
-    }
   }
 
   // Apply accessibility fixes to HTML content based on insight report
@@ -825,7 +820,8 @@ export {
     handleFakeLinks,
     scanAccessibility,
     writeReport,
-    setupDependencyGraph
+    setupDependencyGraph,
+    initializeApp
 };
 
 module.exports = {

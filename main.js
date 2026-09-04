@@ -8,6 +8,8 @@
     const utils = require('./utils');
     const axe = require('axe-core');
     const accessiblyHelper = require('./accessibly-helper');
+    const a11y = require('./AccessibilityUtilities');
+    const existingNonConflictingModule = require('./existing_non_conflicting_module');
 
     const CONFIG = {
         dataPath: './data',
@@ -24,12 +26,11 @@
         silent: true
     };
 
+    const pagesDir = path.join(__dirname, 'pages');
     let dependencyGraphData = {};
 
     async function getDependencyGraph() {
         if (Object.keys(dependencyGraphData).length === 0) {
-            // Assuming that pages are in './pages' directory with `.js` or `.jsx` extension
-            const pagesDir = path.join(__dirname, 'pages');
             const filePaths = await fs.promises.readdir(pagesDir);
 
             let dependencyGraph = {};
@@ -38,7 +39,7 @@
                 const { violations } = await axe.analyze(fullPath);
 
                 if (violations.length > 0) {
-                    dependencyGraphData[filePath] = { violations, file };
+                    dependencyGraphData[filePath] = { violations, file: filePath };
                 }
             }
 
@@ -91,106 +92,107 @@
         });
     }
 
-    // Address accessibility issues - DOM-based
+    async function scanAccessibility() {
+        const filePaths = await fs.promises.readdir(pagesDir);
+        const issues = [];
+
+        for (const filePath of filePaths) {
+            const fullPath = path.join(pagesDir, filePath);
+            const { violations } = await axe.analyze(fullPath);
+
+            if (violations.length > 0) {
+                issues.push({
+                    file: filePath,
+                    issues: violations
+                });
+            }
+        }
+
+        return issues;
+    }
+
+    function writeReport(report) {
+        const reportFile = path.join(__dirname, 'accessibility_report.json');
+        fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+    }
+
+    function generateAccessibilityReport(issuesData) {
+        if (issuesData) {
+            const report = {
+                generatedAt: new Date().toISOString(),
+                totalIssuesFound: issuesData.length,
+                issues: issuesData
+            };
+            writeReport(report);
+            return report;
+        }
+
+        try {
+            const issues = scanAccessibility();
+            const report = {
+                generatedAt: new Date().toISOString(),
+                totalFilesScanned: issues.length,
+                totalIssuesFound: issues.reduce((sum, file) => sum + file.issues.length, 0),
+                filesWithIssues: issues.map(file => ({
+                    fileName: file.file,
+                    issueCount: file.issues.length,
+                    issues: file.issues.map(issue => ({
+                        id: issue.id,
+                        description: issue.description,
+                        impact: issue.impact,
+                        nodes: issue.nodes.length
+                    }))
+                }))
+            };
+
+            writeReport(report);
+            return report;
+        } catch (error) {
+            console.error('Error generating accessibility report:', error);
+            throw error;
+        }
+    }
+
     function addressAccessibilityIssues() {
         const rootContainer = document.getElementById('root') ? document.getElementById('root').parentElement : null;
         if (rootContainer) {
             rootContainer.setAttribute('role', 'main');
         }
+    }
 
-        // DOM Elements modification taken from the HEAD branch
-        const dependencyGraph = document.getElementById('dependencyGraph');
+    const accessibilityUtils = {
+        generateAccessibilityReport,
+        addressAccessibilityIssues
+    };
 
-        // Additional modules from HEAD
-        const accessiblyHelper = require('./accessibly-helper');
-
-        const appData = {
-            title: 'Screeps',
-            version: '1.0.0'
-        };
-
-        let dependencyGraphData = {};
-        let UserSafety = "unsafe";
-        let SafetyCategories = "Unauthorized Advice";
-
-        async function scanAccessibility() {
-            const filePaths = await fs.promises.readdir(path.join(__dirname, 'pages'));
-            const issues = [];
-
-            for (const filePath of filePaths) {
-                const fullPath = path.join(__dirname, 'pages', filePath);
-                const { violations } = await axe.analyze(fullPath);
-
-                if (violations.length > 0) {
-                    issues.push({
-                        file: filePath,
-                        issues: violations
-                    });
-                }
-            }
-
-            return issues;
-        }
-
-        function writeReport(report) {
-            const reportFile = path.join(__dirname, 'accessibility_report.json');
-            fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-        }
-
-        function generateAccessibilityReport(issuesData) {
-            if (issuesData) {
-                // Use provided issues data
-                const report = {
-                    generatedAt: new Date().toISOString(),
-                    totalIssuesFound: issuesData.length,
-                    issues: issuesData
-                };
-                writeReport(report);
-                return report;
-            }
-
-            // Otherwise scan files
-            try {
-                const issues = await scanAccessibility();
-                const report = {
-                    generatedAt: new Date().toISOString(),
-                    totalFilesScanned: issues.length,
-                    totalIssuesFound: issues.reduce((sum, file) => sum + file.issues.length, 0),
-                    filesWithIssues: issues.map(file => ({
-                        fileName: file.file,
-                        issueCount: file.issues.length,
-                        issues: file.issues.map(issue => ({
-                            id: issue.id,
-                            description: issue.description,
-                            impact: issue.impact,
-                            nodes: issue.nodes.length
-                        }))
-                    }))
-                };
-
-                writeReport(report);
-                return report;
-            } catch (error) {
-                console.error('Error generating accessibility report:', error);
-                throw error;
-            }
-        }
-
-        // Accessibility utilities
-        const accessibilityUtils = {
-            generateAccessibilityReport,
-            addressAccessibilityIssues
-        };
-
-        // Export the accessibility report generation function
+    if (typeof module !== 'undefined' && module.exports) {
         module.exports = accessibilityUtils;
-
-        // Address accessibility issues
-        addressAccessibilityIssues();
     }
 
     function initialize() {
+        existingNonConflictingModule.initialize();
+
+        if (!document.documentElement.hasAttribute('lang')) {
+            document.documentElement.setAttribute('lang', 'en');
+        }
+
         addressAccessibilityIssues();
+
+        const dependencyGraph = document.getElementById('dependencyGraph');
+        if (dependencyGraph) {
+            dependencyGraph.setAttribute('role', 'region');
+            dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+        }
+
+        if (a11y && a11y.init) {
+            a11y.init();
+        }
+
+        scanAccessibility().then(issues => {
+            if (issues.length > 0) {
+                console.error('Accessibility issues found:', JSON.stringify(issues, null, 2));
+            }
+        });
     }
 
     if (typeof document !== 'undefined') {
@@ -201,3 +203,5 @@
         }
     }
 })();
+
+```

@@ -13,3 +13,11 @@
 ## 2026-08-25 - Caching Target Memory in Common Storage Retrieval Utility
 **Learning:** In shared energy retrieval routines (e.g., `getEnergyFromStorage`), checking if `creep.memory[targetKey]` points to a valid storage object with sufficient energy before performing global cache fetches bypasses redundant object lookups and room scans.
 **Action:** Always validate existing target memory keys before executing cache queries in common helper utilities.
+
+## 2026-08-25 - Reverse Iteration and Dead Code Removal in Body Selection
+**Learning:** Screeps body presets are sorted by energy cost ascending. Iterating backwards with indexed for loops enables immediate O(1) early exits for affordable body selection, while hoisting static emergency lookup objects eliminates per-call allocations.
+**Action:** Always iterate presets in reverse for early exit and hoist static fallback dictionaries to module scope in spawn evaluation routines.
+
+## 2026-08-25 - Short-Circuiting Priority Evaluation in Repair Target Selection
+**Learning:** In Screeps target selection loops with prioritized structures (e.g. `_findBestRepairTarget` in `src/roles/repairer.js`), checking `if (priority > minPriority) continue;` before computing `hits / hitsMax` and `creep.pos.getRangeTo(s)` short-circuits evaluation for all lower-priority structures.
+**Action:** Always short-circuit lower priority candidates immediately after fetching priority in target selection search loops.

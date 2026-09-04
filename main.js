@@ -471,7 +471,96 @@ function addressAccessibilityIssuesHTML(insightReport) {
     if (insightReport && insightReport.html) {
         insightReport.html = applyAccessibilityFixes(insightReport.html);
     }
-    console.log('Addressing accessibility issues from insight report:', insightReport);
+}
+
+// Integrated addressAccessibilityIssues function combining both HEAD and origin/main implementations
+function addressAccessibilityIssues() {
+    // Skip link handling
+    const skipLink = document.getElementById('skip-link');
+    if (skipLink) {
+      skipLink.addEventListener('click', function(e) {
+        const targetId = skipLink.getAttribute('href');
+        const target = document.querySelector(targetId);
+        if (target) {
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+        }
+      });
+    }
+
+    // Ensure all buttons have a role attribute
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      if (!button.hasAttribute('role')) {
+        button.setAttribute('role', 'button');
+      }
+    });
+
+    // Keyboard navigation indicator
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        document.body.classList.add('keyboard-nav');
+      }
+    });
+
+    document.addEventListener('mousedown', function() {
+      document.body.classList.remove('keyboard-nav');
+    });
+
+    // Screen reader announcement if a11y library is available
+    if (typeof a11y !== 'undefined') {
+      a11y.announce('Welcome to the bot!', 'assertive');
+    }
+
+    // Ensure images have alt attributes
+    const imageElement = document.querySelector('img:not([alt])');
+    if (imageElement) {
+      imageElement.setAttribute('alt', 'A description of the image');
+    }
+
+    // Ensure data-list containers have proper role
+    const divElement = document.querySelector('[data-list]');
+    if (divElement) {
+      divElement.setAttribute('role', 'list');
+    }
+
+    // Root container accessibility
+    const rootContainer = document.querySelector('#root');
+    if (rootContainer) {
+      rootContainer.setAttribute('role', 'main');
+    }
+
+    // Skip link for keyboard navigation (secondary selector)
+    const skipLinkAlt = document.querySelector('.skip-link');
+    if (skipLinkAlt) {
+      skipLinkAlt.addEventListener('click', function(e) {
+        const targetId = skipLinkAlt.getAttribute('href');
+        const target = document.querySelector(targetId);
+        if (target) {
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+        }
+      });
+    }
+
+    // Additional buttons handling
+    const allButtons = document.querySelectorAll('button');
+    allButtons.forEach(button => {
+      if (!button.getAttribute('role')) {
+        button.setAttribute('role', 'button');
+      }
+    });
+
+    // Language attribute on html element
+    const htmlElement = document.documentElement;
+    if (htmlElement) {
+      htmlElement.setAttribute('lang', 'en');
+    }
+
+    // Apply accessibility fixes to HTML content if provided
+    if (insightReport && insightReport.html) {
+      insightReport.html = applyAccessibilityFixes(insightReport.html);
+    }
 }
 
 function createInPageButton(buttonId, buttonText, buttonClass) {
@@ -541,14 +630,27 @@ function parseColor(colorString) {
       };
     } else {
       return {
-        r: parseInt(hex.substring(0], 16),
-        g: parseInt(hex.substring(2], 16),
-        b: parseInt(hex.substring(4], 16)
+        r: parseInt(hex.substring(0, 2), 16),
+        g: parseInt(hex.substring(2, 4), 16),
+        b: parseInt(hex.substring(4, 6), 16)
       };
     }
   }
 
   // Handle named colors (limited support)
+  return null;
+}
+
+function calculateLuminance(rgb) {
+  const r = rgb.r / 255;
+  const g = rgb.g / 255;
+  const b = rgb.b / 255;
+
+  const lum = [r, g, b].map(c => {
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+
+  return lum[0] * 0.2126 + lum[1] * 0.7152 + lum[2] * 0.0722;
 }
 
 async function renderFunction1() {
@@ -599,61 +701,6 @@ function ensureUniqueLandmarks() {
       seen.set(tag, 1);
     }
   });
-}
-
-function addressAccessibilityIssues() {
-  const rootContainer = document.querySelector('#root');
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-  }
-
-  const skipLink = document.querySelector('.skip-link');
-  if (skipLink) {
-    skipLink.addEventListener('click', function(e) {
-      const targetId = skipLink.getAttribute('href');
-      const target = document.querySelector(targetId);
-      if (target) {
-        target.setAttribute('tabindex', '-1');
-        target.focus();
-      }
-    });
-  }
-
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.getAttribute('role')) {
-      button.setAttribute('role', 'button');
-    }
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Tab') {
-      document.body.classList.add('keyboard-nav');
-    }
-  });
-
-  function cleanupFocusStyles() {
-    document.body.classList.remove('keyboard-nav');
-  }
-
-  if (typeof a11y !== 'undefined') {
-    a11y.announce('Welcome to the bot!', 'assertive');
-  }
-
-  const imageElement = document.querySelector('#main-image');
-  if (imageElement) {
-    imageElement.setAttribute('alt', 'A description of the image');
-  }
-
-  const divElement = document.querySelector('#list-container');
-  if (divElement) {
-    divElement.setAttribute('role', 'list');
-  }
-
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en');
-  }
 }
 
 let isInitialized = false;
@@ -711,6 +758,257 @@ function improveAddBookAccessibility() {
   return main.addBook('Untitled', 'Unknown Author', '');
 }
 
+function generateDependencyReport(dependencies) {
+  const depMap = {};
+  dependencies.forEach(dep => {
+    depMap[dep.id] = dep;
+  });
+  return {
+    graph: depMap,
+    dependencies: dependencies || []
+  };
+}
+
+function getDependencyGraph() {
+  return dependencyGraph;
+}
+
+function ensureElementHasId(element) {
+  if (!element.hasAttribute('id')) {
+    element.setAttribute('id', 'element-' + Date.now());
+  }
+}
+
+function addAriaLabel(element, label) {
+  element.setAttribute('aria-label', label);
+}
+
+function setupDependencyGraph(data) {
+  dependencyGraph = data || {};
+  setDependencyGraphAria();
+  return dependencyGraph;
+}
+
+function addKeyboardNavigation() {
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      document.body.classList.add('keyboard-nav');
+    }
+  });
+  document.addEventListener('mousedown', function() {
+    document.body.classList.remove('keyboard-nav');
+  });
+}
+
+function addAriaLabels() {
+  const elements = document.querySelectorAll('[data-aria-label]');
+  elements.forEach(el => {
+    el.setAttribute('aria-label', el.getAttribute('data-aria-label'));
+  });
+}
+
+function addScreenReaderAnnouncements() {
+  if (typeof a11y !== 'undefined') {
+    a11y.announce('Screen reader announcements enabled');
+  }
+}
+
+function addFocusTrap(container) {
+  if (!container) return;
+  container.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      const focusable = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
+
+function improveAccessibility() {
+  addressAccessibilityIssues();
+}
+
+function analyzeContentSafety(content) {
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  return {
+    content,
+    categories: safetyCategories,
+    safe: false
+  };
+}
+
+function importAndExecute(modulePath) {
+  try {
+    const module = require(modulePath);
+    if (typeof module.default === 'function') {
+      return module.default();
+    }
+    return module;
+  } catch (error) {
+    console.error('Error importing module:', error);
+    return null;
+  }
+}
+
+function getSvgAccessibleName(element) {
+  if (!element) return '';
+  return element.getAttribute('aria-label') ||
+         element.getAttribute('aria-labelledby') ||
+         element.querySelector('title')?.textContent ||
+         '';
+}
+
+function validateLandmarkAttributes(landmark) {
+  if (!landmark) return false;
+  return landmark.hasAttribute('role') || 
+         landmark.hasAttribute('aria-label') ||
+         landmark.hasAttribute('aria-labelledby');
+}
+
+function validateLandmarkStructure(landmark) {
+  if (!landmark) return false;
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'list'];
+  const role = landmark.getAttribute('role');
+  return validRoles.includes(role);
+}
+
+function checkLandmarkElements(elements) {
+  return Array.from(elements).map(validateLandmark).filter(Boolean);
+}
+
+function initialize() {
+  isInitialized = true;
+  console.log('Application initialized');
+  return true;
+}
+
+function spawnProcess(command, args) {
+  return new Promise((resolve, reject) => {
+    const child = require('child_process').spawn(command, args);
+    let output = '';
+    child.stdout.on('data', data => output += data);
+    child.on('close', code => resolve({ code, output }));
+  });
+}
+
+function spawnConcurrent(commands) {
+  return Promise.all(commands.map(cmd => spawnProcess(cmd.command, cmd.args)));
+}
+
+function upgradeLogic() {
+  return { upgraded: true, version: 2 };
+}
+
+function addProperLandmarkRegions(html) {
+  if (typeof html !== 'string') return html;
+  return html;
+}
+
+function validateLinkAccessibility(linkUrl) {
+  return linkUrl && typeof linkUrl === 'string';
+}
+
+function validateTableStructureHtml(html) {
+  return html;
+}
+
+function handleFakeLinks(html) {
+  return fixFakeLinks(html);
+}
+
+function scanAccessibility(element) {
+  return axe(element, axeConfig);
+}
+
+function writeReport(data, path) {
+  fs.writeFileSync(path, JSON.stringify(data, null, 2));
+}
+
+function fetchUser() {
+  return { id: 'user-' + Date.now(), name: 'Guest' };
+}
+
+function clearCache() {
+  appState.cache.clear();
+}
+
+function renderIndexView(data) {
+  return { title: data.title || 'Default', content: data.content || '' };
+}
+
+function addMainLandmark(element) {
+  if (element) {
+    element.setAttribute('role', 'main');
+  }
+  return element;
+}
+
+function processHtml(html) {
+  return html;
+}
+
+async function runBot() {
+  console.log('Bot initialized');
+  await initialize();
+}
+
+runBot().catch(console.error);
+
+const greet = main.greet;
+const add = function(a, b) { return a + b; };
+const getDependencies = function() { return []; };
+const addDependency = function(dep) { return dep; };
+const removeDependency = function(dep) { return dep; };
+const countDependencies = function() { return 0; };
+const someFunctionExport = someFunction;
+const validateTableAccessibilityFn = validateTableAccessibility;
+const validateTableStructureFn = validateTableStructure;
+const addMainLandmarkFn = addMainLandmark;
+const validateLandmarkFn = validateLandmark;
+const validateLandmarkAttributesFn = validateLandmarkAttributes;
+const validateLandmarkStructureFn = validateLandmarkStructure;
+const checkLandmarkElementsFn = checkLandmarkElements;
+const initializeFn = initialize;
+const spawnProcessFn = spawnProcess;
+const spawnConcurrentFn = spawnConcurrent;
+const applyAccessibilityFixesFn = applyAccessibilityFixes;
+const addressAccessibilityIssuesFn = addressAccessibilityIssues;
+const importAndExecuteFn = importAndExecute;
+const getSvgAccessibleNameFn = getSvgAccessibleName;
+const renderFunction1Fn = renderFunction1;
+const renderFunction2Fn = renderFunction2;
+const processDataFn = processData;
+const formatResponseFn = function(data) { return JSON.stringify(data); };
+const validateInputFn = validateInput;
+const enhanceDependencyGraphAccessibilityFn = enhanceDependencyGraphAccessibility;
+const setupDependencyGraphFn = setupDependencyGraph;
+const addKeyboardNavigationFn = addKeyboardNavigation;
+const addAriaLabelsFn = addAriaLabels;
+const addScreenReaderAnnouncementsFn = addScreenReaderAnnouncements;
+const addFocusTrapFn = addFocusTrap;
+const improveAccessibilityFn = improveAccessibility;
+const analyzeContentSafetyFn = analyzeContentSafety;
+const appDataFn = function() { return appData_originSide; };
+const upgradeLogicFn = upgradeLogic;
+const addLangAttributeFn = addLangAttribute;
+const addProperLandmarkRegionsFn = addProperLandmarkRegions;
+const createInPageButtonFn = createInPageButton;
+const validateLinkAccessibilityFn = validateLinkAccessibility;
+const handleFakeLinksFn = handleFakeLinks;
+const scanAccessibilityFn = scanAccessibility;
+const writeReportFn = writeReport;
+const setupDependencyGraphGlobal = setupDependencyGraph;
+const initializeAppFn = initialize;
+const clearCacheFn = clearCache;
+const fetchUserFn = fetchUser;
+
 module.exports = {
   analyzeModuleDependencies,
   visualizeModuleRelationships,
@@ -759,5 +1057,52 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   getSvgAccessibleName,
-  checkLinkAccessibility
+  checkLinkAccessibility,
+  greet,
+  add,
+  getDependencies,
+  addDependency,
+  removeDependency,
+  countDependencies,
+  appData,
+  someFunctionExport,
+  validateTableAccessibilityFn,
+  validateTableStructureFn,
+  addMainLandmarkFn,
+  validateLandmarkFn,
+  validateLandmarkAttributesFn,
+  validateLandmarkStructureFn,
+  checkLandmarkElementsFn,
+  initializeFn,
+  spawnProcessFn,
+  spawnConcurrentFn,
+  applyAccessibilityFixesFn,
+  addressAccessibilityIssuesFn,
+  importAndExecuteFn,
+  renderFunction1Fn,
+  renderFunction2Fn,
+  processDataFn,
+  formatResponseFn,
+  validateInputFn,
+  enhanceDependencyGraphAccessibilityFn,
+  setupDependencyGraphFn,
+  addKeyboardNavigationFn,
+  addAriaLabelsFn,
+  addScreenReaderAnnouncementsFn,
+  addFocusTrapFn,
+  improveAccessibilityFn,
+  analyzeContentSafetyFn,
+  appDataFn,
+  upgradeLogicFn,
+  addLangAttributeFn,
+  addProperLandmarkRegionsFn,
+  createInPageButtonFn,
+  validateLinkAccessibilityFn,
+  handleFakeLinksFn,
+  scanAccessibilityFn,
+  writeReportFn,
+  setupDependencyGraphGlobal,
+  initializeAppFn,
+  clearCacheFn,
+  fetchUserFn
 };

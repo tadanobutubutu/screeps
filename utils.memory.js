@@ -146,53 +146,6 @@ module.exports = {
         }
     },
 
-    // Memoization helper for expensive calculations
-    memoize: function (fn, cacheKey, ttl = 100) {
-        // Security: Validate cacheKey to prevent prototype pollution
-        if (!isSafeKey(cacheKey)) {
-            return fn();
-        }
-
-        this._syncCacheState();
-
-        const cached = Memory.cache[cacheKey];
-        if (cached && Game.time - cached.timestamp < ttl) {
-            // Update eviction order (Move to end)
-            _cacheOrder.delete(cacheKey);
-            _cacheOrder.set(cacheKey, true);
-            return cached.value;
-        }
-
-        if (Memory.cache[cacheKey] === undefined || Memory.cache[cacheKey] === null) {
-            // Capacity check before adding a new entry
-            if (_cacheSize >= MAX_CACHE_ENTRIES) {
-                this.cleanCache();
-                if (_cacheSize >= MAX_CACHE_ENTRIES) {
-                    // ⚡ PERFORMANCE: O(1) FIFO eviction using Map insertion order.
-                    const oldestKey = _cacheOrder.keys().next().value;
-                    if (oldestKey !== undefined) {
-                        delete Memory.cache[oldestKey];
-                        _cacheOrder.delete(oldestKey);
-                        _cacheSize--;
-                    }
-                }
-            }
-            _cacheSize++;
-        }
-
-        const result = fn();
-        Memory.cache[cacheKey] = {
-            value: result,
-            timestamp: Game.time,
-        };
-
-        // Update eviction order
-        _cacheOrder.delete(cacheKey);
-        _cacheOrder.set(cacheKey, true);
-
-        return result;
-    },
-
     // Clean up old cache entries
     cleanCache: function (maxAge = 500) {
         this._syncCacheState();

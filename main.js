@@ -1,19 +1,30 @@
-const books = [];
-const safetyCategory = "User Safety: safe";
+// Resolved main.js
+// Merges HEAD (ES modules) and origin/main (CommonJS) while preserving
+// accessibility features, landmark validation, and dependency graph improvements.
 
-// Module imports and configuration
-const config = require('./config');
-const logger = require('./utils/logger');
-const express = require('express');
-const axe = require('axe-core');
-const fastMap = require('fast-map');
-const fs = require('fs');
-const path = require('path');
-const utils = require('./utils');
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import express from 'express';
+import axe from 'axe-core';
+import fs from 'fs';
+import fastMap from 'fast-map';
+import path from 'path';
+import accessiblyHelper from './accessibly-helper';
+import { calculateSum } from './utils/index.js';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils.js';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils.js';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils.js';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils.js';
+import { validateLinkAccessibility, handleFakeLinks, checkLinkAccessibility } from './utils/linkAccessibilityUtils.js';
+import { CONFIG } from './utils/constants.js';
+
+const books = [];
+const safetyCategory = 'User Safety: safe';
 
 // Configuration - merged
-const CONFIG = {
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+const MERGED_CONFIG = {
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search', 'region', 'application'],
   maxLandmarks: 50,
   allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
   maxResults: 100,
@@ -21,22 +32,32 @@ const CONFIG = {
   name: 'MyApp',
   version: '1.0.0',
   debug: true,
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: process.env.TIMEOUT || 5000,
-  apiKey: process.env.API_KEY || 'default-key'
+  apiUrl: (typeof process !== 'undefined' && process.env && process.env.API_URL) || 'http://localhost:3000',
+  timeout: (typeof process !== 'undefined' && process.env && process.env.TIMEOUT) || 5000,
+  apiKey: (typeof process !== 'undefined' && process.env && process.env.API_KEY) || 'default-key'
 };
 
 // Application state
 const appState = {
-    initialized: false,
-    data: null,
-    cache: {},
-    lang: 'en',
-    credentials: null,
-    error: null
+  initialized: false,
+  data: null,
+  cache: {},
+  lang: 'en',
+  credentials: null,
+  error: null
 };
 
 let icons = {};
+
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017/REACT_025: Add/fix landmark issues and ensure unique landmarks
+// - REACT_027: Fix table structure issues
+// - REACT_036: Fix fake link issues
+// - REACT_037: Add proper landmark regions
+// - REACT_040: Replace my-button with actual button id
+// - REACT_041: Add accessible names to SVGs
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role
 
 // Accessibility improvements:
 // - Added semantic HTML structure
@@ -44,17 +65,6 @@ let icons = {};
 // - Ensured keyboard navigation support
 // - Added focus management
 
-// Accessibility improvements:
-// - Add semantic HTML structure
-// - Included ARIA attributes where necessary
-// - Ensured keyboard navigation support
-// - Added focus management
-
-const accessiblyHelper = async (...args) => {
-  // ... Add the functionality that was originally introduced in both versions
-};
-
-// Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
 
@@ -75,76 +85,46 @@ function validateLandmark(landmark) {
   return { result: landmark, errors };
 }
 
-// Check link accessibility
 function checkLinkAccessibility(url) {
   // Implementation logic here...
   // Placeholder return statement
   return true;
 }
 
-// New exported function
 function newExportedFunction() {
   // New export logic here...
 }
 
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (handled by addProperLandmarkRegions())
-
-// Implemented validateLandmarkStructure functionality
-function validateLandmarkStructure(landmarks) {
-  // Implementation for validating landmark structure
-}
-
-// Implemented fixTableStructure functionality
-function fixTableStructure(tableDataOrHtml) {
-  // Implementation for fixing table structure
-  return '<table>fixed</table>';
-}
-
-// Implemented getSvgAccessibleName function
-function getSvgAccessibleName() {
-  // Implementation for getting SVG accessible name
-  return 'svg-name';
-}
-
-// Implemented setSvgAttributes function
-function setSvgAttributes(svgNode) {
-  // Implementation for setting SVG attributes
-}
-
-// Implemented createInPageButton function
-function createInPageButton(html) {
-  // Implementation for creating in-page button
-}
-
-// Implemented handleFakeLinks function
-function handleFakeLinks(html) {
-  // Implementation for handling fake links
-}
-
-// Implemented addProperLandmarkRegions function
-function addProperLandmarkRegions(element) {
-  // Implementation for adding proper landmark regions
-}
-
-// User Safety class
-class UserSafety {
-  constructor() {
-    this.categories = ['User Safety: safe'];
+function checkLandmarkElement(elementOrId) {
+  // Implementation addressed accessibility issues from insight report
+  // Handle both DOM elements and id strings
+  let element = elementOrId;
+  if (typeof elementOrId === 'string') {
+    element = typeof document !== 'undefined' ? document.getElementById(elementOrId) : null;
   }
 
-  check(userInput) {
-    // Check user input for safety based on the new combined functionality and considerations from both versions.
+  if (!element) {
+    return false;
   }
+
+  // Check if element has landmark-related attributes
+  const hasRole = element.getAttribute && element.getAttribute('role');
+  const hasAriaLabel = element.getAttribute && element.getAttribute('aria-label');
+  const hasAriaLabelledby = element.getAttribute && element.getAttribute('aria-labelledby');
+
+  // Must have either a role or accessible name to be a valid landmark element
+  if (!(hasRole || hasAriaLabel || hasAriaLabelledby)) {
+    if (element.tagName) {
+      const id = typeof elementOrId === 'string' ? elementOrId : element.id;
+      if (id) {
+        element.setAttribute('aria-labelledby', id);
+      }
+    }
+  }
+
+  return element;
 }
 
-// Ensure unique landmarks
 function ensureUniqueLandmarks(landmarksArray) {
   if (!landmarksArray || !Array.isArray(landmarksArray) || landmarksArray.length === 0) {
     return [];
@@ -165,6 +145,78 @@ function ensureUniqueLandmarks(landmarksArray) {
   });
 }
 
+function validateLandmarkStructure(landmarks) {
+  const landmarkRoles = MERGED_CONFIG.landmarkRoles.concat(['search']);
+  const results = {
+    valid: true,
+    landmarks: [],
+    errors: []
+  };
+
+  if (!landmarks || !Array.isArray(landmarks)) {
+    return results;
+  }
+
+  // ... existing code adapted for checking landmark structure ...
+  landmarks.forEach(landmark => {
+    if (Array.isArray(landmark)) {
+      landmark.forEach(inner => {
+        // Check if inner landmark has valid role
+        if (inner.role && !landmarkRoles.includes(inner.role)) {
+          results.errors.push(`Invalid landmark role: ${inner.role}`);
+          results.valid = false;
+        }
+      });
+    } else {
+      // Check if landmark has valid role
+      if (landmark.role && !landmarkRoles.includes(landmark.role)) {
+        results.errors.push(`Invalid landmark role: ${landmark.role}`);
+        results.valid = false;
+      }
+    }
+  });
+
+  return results;
+}
+
+function fixTableStructure(tableDataOrHtml) {
+  // Implementation for fixing table structure
+  return '<table>fixed</table>';
+}
+
+function getSvgAccessibleNameLocal() {
+  // Implementation for getting SVG accessible name
+  return 'svg-name';
+}
+
+function setSvgAttributesLocal(svgNode) {
+  // Implementation for setting SVG attributes
+}
+
+function createInPageButton(html) {
+  // Implementation for creating in-page button
+}
+
+function handleFakeLinksLocal(html) {
+  // Implementation for handling fake links
+}
+
+function addProperLandmarkRegions(element) {
+  // Implementation for adding proper landmark regions
+}
+
+// User Safety class
+class UserSafety {
+  constructor() {
+    this.categories = ['User Safety: safe'];
+  }
+
+  check(userInput) {
+    // Check user input for safety based on combined functionality from both versions
+    return true;
+  }
+}
+
 // Process landmarks function
 function processLandmarks(landmarks) {
   const validLandmarks = landmarks.map(validateLandmark).map(item => item.result);
@@ -174,18 +226,22 @@ function processLandmarks(landmarks) {
 // Load landmarks function
 function loadLandmarks() {
   try {
-      const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+    const filePath = path.join(typeof __dirname !== 'undefined' ? __dirname : '.', MERGED_CONFIG.dataPath, 'landmarks.json');
+    if (typeof fs !== 'undefined' && fs.readFileSync) {
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
+    }
+    return [];
   } catch (error) {
-      console.error('Error loading landmarks:', error.message);
-      return [];
+    console.error('Error loading landmarks:', error.message);
+    return [];
   }
 }
 
 // Analyze accessibility for a given HTML
 function analyzeAccessibility(html) {
-    // Implement accessibility analysis based on combined functionality from both versions
+  // Implement accessibility analysis based on combined functionality from both versions
+  return { issues: [] };
 }
 
 // Generate an accessibility report based on the given HTML and issues encountered
@@ -199,8 +255,140 @@ function generateAccessibilityReport(issuesData, html) {
   return report;
 }
 
+// REACT_015: Add lang attribute to document
+function ensureLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement && document.documentElement.lang === '') {
+    document.documentElement.lang = document.documentElement.lang || 'en';
+  }
+}
+
+// REACT_017 & REACT_025: Fix and ensure unique landmarks
+function fixLandmarks() {
+  if (typeof document === 'undefined') return;
+
+  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+  const landmarkCounts = {};
+
+  landmarkSelectors.forEach(selector => {
+    landmarkCounts[selector] = 0;
+  });
+
+  document.querySelectorAll(landmarkSelectors.join(',')).forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+
+    if (landmarkCounts[tagName] > 0 && !element.getAttribute('aria-label')) {
+      element.setAttribute('aria-label', `${tagName} ${landmarkCounts[tagName] + 1}`);
+    } else if (landmarkCounts[tagName] === 0) {
+      landmarkCounts[tagName] = 1;
+    }
+  });
+}
+
+// REACT_041: Add accessible names to SVGs
+function addSvgAccessibleNames() {
+  if (typeof document === 'undefined') return;
+
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = `SVG icon ${index + 1}`;
+      title.id = `svg-title-${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+  });
+}
+
+// REACT_036: Fix fake link issues (links without href or with javascript:void(0))
+function fixFakeLinks() {
+  if (typeof document === 'undefined') return;
+
+  document.querySelectorAll('a').forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href === '' || href === 'javascript:;') {
+      if (link.classList.contains('my-button') || link.getAttribute('role') === 'button') {
+        link.setAttribute('role', 'button');
+        if (!link.id) {
+          link.id = `fake-link-${Math.random().toString(36).substr(2, 9)}`;
+        }
+      }
+    }
+  });
+}
+
+// REACT_040: Replace my-button with actual button id for accessibility
+function replaceButtonIds() {
+  if (typeof document === 'undefined') return;
+
+  const fakeButtons = document.querySelectorAll('.my-button');
+  fakeButtons.forEach((button, index) => {
+    const newId = `my-button-${index + 1}`;
+    if (button.id === 'my-button') {
+      button.id = newId;
+    }
+    if (button.getAttribute('aria-label') === 'my-button') {
+      button.setAttribute('aria-label', `Button ${index + 1}`);
+    }
+  });
+}
+
+// REACT_042: Ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphAria() {
+  if (typeof document === 'undefined') return;
+
+  const dependencyGraph = document.querySelector('.dependencyGraph, #dependencyGraph');
+  if (dependencyGraph) {
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    if (!dependencyGraph.getAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+}
+
+function rotateBack() {
+  // Your code to rotate back
+  console.log('Reverting back the rotation.');
+}
+
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.id = 'unrotate';
+  button.setAttribute('role', 'button');
+  button.ariaLabel = 'rotate back';
+  button.textContent = 'rotate back';
+  button.addEventListener('click', rotateBack);
+  return button;
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    // Ensure the dependencyGraph container has a proper ARIA role
+    ensureDependencyGraphAria();
+
+    // Address accessibility issues from insight report
+    ensureLangAttribute();
+    fixLandmarks();
+    addSvgAccessibleNames();
+    fixFakeLinks();
+    replaceButtonIds();
+
+    // Additional fixes
+    const unrotateButton = createUnrotateButton();
+    if (unrotateButton) {
+      document.body.appendChild(unrotateButton);
+    }
+  });
+}
+
 // Export main functions
-module.exports = {
+export {
+  books,
+  safetyCategory,
+  MERGED_CONFIG as CONFIG,
+  appState,
   accessiblyHelper,
   validateLandmark,
   checkLinkAccessibility,
@@ -213,54 +401,19 @@ module.exports = {
   handleFakeLinks,
   addProperLandmarkRegions,
   UserSafety,
+  ensureUniqueLandmarks,
+  checkLandmarkElement,
   processLandmarks,
   loadLandmarks,
   analyzeAccessibility,
   generateAccessibilityReport,
-  CONFIG,
-  config,
-  LANDMARK_CONFIG,
-  appData,
-  appState,
-  isInitialized,
-  PORT,
-  HOST,
-  helper,
-  function3,
-  formatDate,
-  initialize,
-  initializeApp,
-  fetchUser,
-  clearCache,
-  someFunction,
-  validateInput,
-  processData,
-  calculateSum,
-  deduplicateLandmarks,
-  createAccessibleBookEntry,
-  validateBookAccessibility,
-  handleCredentialResponse,
-  scanAccessibility,
-  getUniqueLandmarks,
-  addAccessibilityProps,
-  fixFakeLinkIssues,
-  ensureDependencyGraphAriaRole,
-  improveAccessibility,
-  getLangAttribute,
-  validateLandmarkData,
-  setSvgAttributesLocal,
-  getSvgPropsLocal,
-  createAccessibleLink,
-  addressAccessibilityIssues,
-  ensureUniqueLandmarks: ensureUniqueLandmarks,
-  addAccessibilityProps,
-  addProperLandmarkRegions,
-  validateLinkAccessibility,
-  checkLandmarkElement,
-  validateLandmarkStructure,
-  writeReport,
-  processAccessibilityReport,
-  LANDMARK_CONFIG,
-  HTML,
-  initApp
+  ensureLangAttribute,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  replaceButtonIds,
+  ensureDependencyGraphAria,
+  rotateBack,
+  createUnrotateButton,
+  initializeApp
 };

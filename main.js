@@ -47,27 +47,12 @@ const initializeApp = () => {
   });
 };
 
-/**
- * Creates an in-page button element with optional click handler.
- * @param {Object|string} options - Options object or button text (for backward compatibility)
- * @param {string} [options.text='Button'] - The label text for the button
- * @param {Function} [options.onClick=null] - Callback function triggered when the button is clicked
- * @param {string} [options.className='in-page-button'] - CSS class for the button
- * @param {string} [options.id=null] - Unique identifier for the button
- * @param {boolean} [options.disabled=false] - Whether the button is disabled
- * @param {string} [options.type='button'] - Button type attribute
- * @param {string} [options.ariaLabel=null] - ARIA label for accessibility
- * @param {string} [options.title=null] - Title attribute for tooltip
- * @param {string} [targetId] - Target element ID (for scroll-to functionality)
- * @returns {HTMLElement} The created button element
- */
 const createInPageButton = (options, targetId) => {
-  // Handle backward compatibility: if first arg is string, treat as targetId/text
   if (typeof options === 'string') {
     const text = targetId || options;
     const button = document.createElement('button');
     button.textContent = text;
-    if (options !== text) { // first arg was targetId
+    if (options !== text) {
       button.addEventListener('click', () => {
         const target = document.getElementById(options);
         if (target) {
@@ -202,16 +187,6 @@ const getBooksList = () => {
 
   return booksList.join("\n");
 };
-
-function ensureElementHasId(element, prefix = 'element') {
-  if (!element) return null;
-
-  if (!element.id) {
-    const id = prefix + Math.random().toString(36).substring(2, 9);
-    element.id = id;
-  }
-  return element.id;
-}
 
 function addAriaLabel(element, label) {
   if (!element || !label) return false;

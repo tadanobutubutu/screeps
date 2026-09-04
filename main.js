@@ -63,12 +63,56 @@ function getFullLangAttribute() {
     return document.documentElement.lang || (typeof navigator !== 'undefined' && navigator.language) || 'en-US';
 }
 
-function validateTableAccessibility(tableElement) {
-    if (!tableElement) {
-        console.warn('Table missing caption');
-        return false;
+/**
+ * Counts the number of dependencies in this module
+ * @returns {number} The number of dependencies
+ */
+function countDependencies() {
+    // Dependencies are external and internal modules required by this file
+    // External packages: express, axe-core
+    // Built-in modules: fs, path
+    // Internal packages: @accessible/react, ./utils
+    const dependencies = [
+        'express',
+        'axe-core',
+        'fs',
+        'path',
+        '@accessible/react',
+        './utils'
+    ];
+    return dependencies.length;
+}
+
+/**
+ * Validates table accessibility compliance
+ * @param {Object} table - The table object to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+
+  // Check for caption
+  if (!table.querySelector || !table.querySelector('caption')) {
+    issues.push('Missing caption element');
+  }
+
+  // Check for headers attribute
+  if (!table.getAttribute('headers')) {
+    issues.push('Missing headers attribute');
+  }
+
+  // Check for scope attribute on header cells
+  const headerCells = table.querySelectorAll('th');
+  headerCells.forEach(cell => {
+    if (!cell.hasAttribute('scope')) {
+      issues.push('Missing scope attribute on header cell');
     }
-    return true;
+  });
+
+  return {
+    success: issues.length === 0,
+    issues: issues
+  };
 }
 
 function validateTableStructure(tableElement) {
@@ -280,6 +324,7 @@ function addSvgAccessibleNames() {
 module.exports = {
     getLangAttribute,
     getFullLangAttribute,
+    countDependencies,
     validateTableAccessibility,
     validateTableStructure,
     validateLandmark,

@@ -1,14 +1,16 @@
 // Configuration
 const CONFIG = {
-  dataPath: './data',
+  outputPath: './data',
   maxResults: 100,
   apiUrl: process.env.API_URL || '',
-  timeout: 5000
+  timeout: 5000,
+  // Add other configuration properties as needed
 };
 
 // Application state
 let isAppInitialized = false;
-const appData = {};
+let isInitialized = false;
+const appData = { resources: [] };
 const appState = {
   initialized: false,
   lastUpdate: null,
@@ -16,18 +18,76 @@ const appState = {
 };
 
 // Import the required module
+const { axe } = require('axe-core');
 const express = require('express');
-const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
 
 // Import other functions
-const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, implementNewFunction, addLangAttribute, main, someFunction, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport, isValidLandmark, loadLandmarks, processLandmarks, sortLandmarks, findLandmarkById, writeReport, createAccessibleLinks } = require('./');
+const {
+  improveAccessibility,
+  addressInsightReportIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  fixLandmarkIssues,
+  addLandmarkRoles,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  implementNewFunction,
+  addLangAttribute,
+  someFunction,
+  addressAccessibilityIssues,
+  renderDependencyGraphContent,
+  createInPageButtons,
+  fixUniqueLandmarks,
+  generateAccessibilityReport,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  findLandmarkById,
+  writeReport,
+  createAccessibleLinks
+} = require('./');
 
 // Import helper functions from utils
-const { validateInput, processData, formatResponse } = require('./utils');
-const { getSvgAccessibleName, setSvgAttributes } = require('./helpers');
+const {
+  validateInput,
+  processData,
+  formatResponse
+} = require('./utils');
+const {
+  getSvgAccessibleName,
+  setSvgAttributes
+} = require('./helpers');
+
+// Import validators from utils/validators
+const {
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  isValidLandmark: isValidLandmarkFromUtils,
+  loadLandmarks: loadLandmarksFromUtils,
+  processLandmarks: processLandmarksFromUtils,
+  sortLandmarks: sortLandmarksFromUtils,
+  findLandmarkById: findLandmarkByIdFromUtils,
+  ensureUniqueLandmarks: ensureUniqueLandmarksFromUtils,
+  writeReport: writeReportFromUtils,
+  generateAccessibilityReport: generateAccessibilityReportFromUtils,
+  validateItem,
+  addLangAttribute: addLangAttributeFromUtils,
+  logCurrentURL,
+  createInPageButtons: createInPageButtonsFromUtils
+} = require('./utils/validators');
 
 // User Safety: unsafe
 // Safety Categories: Other, Unauthorized Advice, Needs Caution
@@ -102,7 +162,7 @@ function isValidLandmark(landmark) {
 
 function loadLandmarks() {
     try {
-        const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
+        const filePath = path.join(CONFIG.outputPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -156,7 +216,7 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-    const reportFile = path.join(CONFIG.dataPath, 'accessibility-report.json');
+    const reportFile = path.join(CONFIG.outputPath, 'accessibility-report.json');
     fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
@@ -181,21 +241,6 @@ function generateAccessibilityReport() {
     const report = scanAccessibility();
     writeReport(report);
     return report;
-}
-
-// Implement validateLandmark functionality
-function validateLandmark(landmark) {
-    const issues = [];
-    if (!landmark) {
-        return { valid: false, issues: ['Landmark is null or undefined'] };
-    }
-    if (typeof landmark.id !== 'string' || landmark.id.trim().length === 0) {
-        return {
-            valid: false,
-            issues: ['Landmark ID is required and non-empty']
-        };
-    }
-    return { valid: true, issues: [] };
 }
 
 /**
@@ -345,10 +390,10 @@ function improveAccessibility() {
     // ...
     ensureUniqueLandmarks();
     addLandmarkRoles();
-    setLanguageAttribute();
+    addLangAttribute();
     fixTableAccessibility();
     // ...
-    addSvgAccessibleNames;
+    addSvgAccessibleNames();
     createAccessibleLinks();
     // Implement additional methods for API requests and other features
     function fetchUser(id) {
@@ -468,6 +513,7 @@ function handleNewAccessibilityIssues() {
 module.exports = {
     CONFIG,
     isAppInitialized,
+    isInitialized,
     appData,
     appState,
     getLangAttribute,
@@ -493,5 +539,26 @@ module.exports = {
     createAccessibleLinks,
     handleNewAccessibilityIssues,
     processHarvestedResources,
-    autoUpgrade
+    autoUpgrade,
+    // Include other functions that are complete and relevant
+    validateInput,
+    processData,
+    formatResponse,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    logCurrentURL,
+    createInPageButtons,
+    addressInsightReportIssues,
+    renderDependencyGraph,
+    renderIndexView,
+    calculateSum,
+    fixLandmarkIssues,
+    addLandmarkRoles,
+    fixFakeLinks,
+    fixTableStructureIssues,
+    fixTableHeaderCellScope,
+    addSvgAccessibleNames,
+    implementNewFunction,
+    someFunction,
+    fixUniqueLandmarks
 };

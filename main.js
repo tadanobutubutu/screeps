@@ -8,11 +8,6 @@ const CONFIG = {};
 let isInitialized = false;
 const appData = {};
 
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
-// TODO: Add back any required exports that might have been removed
-
 // Import the required module
 const { axe } = require('axe-core');
 const fs = require('fs');
@@ -20,15 +15,23 @@ const fastMap = require('fast-map');
 const path = require('path');
 
 // Import other functions
-const { validateInput, processData, formatResponse } = require('./utils');
+const { validateInput, processData, formatResponse, someFunction } = require('./utils');
 const { getSvgAccessibleName, setSvgAttributes } = require('./svg-utils');
-
-// Import helper functions
 const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles,
   ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, implementNewFunction,
-  addLangAttribute, someFunction, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport, isValidLandmark, loadLandmarks,
+  addLangAttribute, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport, isValidLandmark, loadLandmarks,
   processLandmarks, sortLandmarks, findLandmarkById, writeReport, createAccessibleLinks, getSvgAccessibleName: getSvgAccessibleNameUtil,
   setSvgAttributes: setSvgAttributesUtil } = require('./');
+
+// Add new exports
+const { addressAccessibilityIssues, renderDependencyGraphContent } = require('./');
+
+// Import helper functions
+const { logCurrentURL, validateTableAccessibility, validateTableStructure, fixTableStructure, addMainLandmark, validateLandmark, validateLandmarkStructure, validateLandmarkAttributes,
+  getSvgAccessibleName, setSvgAttributes, isValidLandmark, loadLandmarks, processLandmarks, sortLandmarks, findLandmarkById, ensureUniqueLandmarks, writeReport, createAccessibleLinks } = require('./');
+
+// User Safety: unsafe
+// Safety Categories: Other, Unauthorized Advice, Needs Caution
 
 // Address accessibility issues from insight report
 function addressAccessibilityIssues() {
@@ -80,50 +83,4 @@ function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   renderDependencyGraph(data);
 }
-
-// Export all functions for use elsewhere in the repository
-module.exports = {
-  config: CONFIG,
-  isInitialized,
-  appData,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName: getSvgAccessibleNameUtil,
-  setSvgAttributes: setSvgAttributesUtil,
-  isValidLandmark,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  findLandmarkById,
-  ensureUniqueLandmarks,
-  writeReport,
-  createAccessibleLinks,
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
-  fixUniqueLandmarks,
-  generateAccessibilityReport,
-  isValidLandmark,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  findLandmarkById,
-  writeReport,
-  createAccessibleLinks,
-  implementNewFunction,
-  someFunction,
-  addressInsightReportIssues,
-  fixTableAccessibility,
-  validateLinkAccessibility,
-  validateInput,
-  processData,
-  formatResponse,
-  createInPageButtons
-};
 ```

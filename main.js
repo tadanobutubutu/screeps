@@ -33,6 +33,12 @@ const axeConfig = {
 // Dependency analysis
 let dependencyGraph = {};
 
+// Ensure the dependencyGraph container has a proper ARIA role
+if (dependencyGraph) {
+  dependencyGraph.setAttribute('role', 'region');
+  dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+}
+
 function getDependencyGraph() {
   if (Object.keys(dependencyGraph).length === 0) {
     return { message: "No dependency graph found." };
@@ -83,53 +89,74 @@ function spawnProcess(command, args = [], options = {}) {
     });
 }
 
-async function spawnConcurrent(tasks, concurrency = 3) {
-    const results = [];
-    const executing = [];
+// Address accessibility issues - DOM-based
+function addressAccessibilityIssues() {
+  const rootContainer = document.getElementById('root') ? document.getElementById('root').parentElement : null;
+  if (rootContainer) {
+    rootContainer.setAttribute('role', 'main');
+  }
 
-    for (const task of tasks) {
-        const promise = spawnProcess(task.command, task.args, task.options)
-            .then((result) => {
-                results.push({ success: true, ...result });
-                return result;
-            })
-            .catch((error) => {
-                results.push({ success: false, error: error.message });
-                throw error;
-            });
+  // Implement skip link functionality
+  const skipLink = document.querySelector('[href^="#"]');
+  if (skipLink) {
+    skipLink.addEventListener('click', function(e) {
+      const targetId = this.getAttribute('href').slice(1);
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.setAttribute('tabindex', '-1');
+        target.focus();
+      }
+    });
+  }
 
-        executing.push(promise);
+  // Ensure all buttons with role="button" respond to Enter key
+  document.querySelectorAll('[role="button"]').forEach(function(button) {
+    button.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.click();
+      }
+    });
+  });
 
-        if (executing.length >= concurrency) {
-            await Promise.race(executing);
-            executing.splice(executing.findIndex(p => p === promise), 1);
-        }
+  // Add focusVisible polyfill behavior
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      document.body.classList.add('keyboard-nav');
     }
+  });
 
-    return Promise.all(executing).then(() => results);
+  document.addEventListener('mousedown', function() {
+    document.body.classList.remove('keyboard-nav');
+  });
+
+  // Trap focus in modal and announce welcome message
+  const modalElement = document.getElementById('modal');
+  if (modalElement && a11y && a11y.trapFocus) {
+    a11y.trapFocus(modalElement);
+  }
+  if (a11y && a11y.announce) {
+    a11y.announce('Welcome to the bot!', 'assertive');
+  }
+
+  // Adding an alt attribute to an image
+  const imageElement = document.getElementById('example-image');
+  if (imageElement) {
+    imageElement.setAttribute('alt', 'A description of the image');
+  }
+
+  // Correcting the ARIA role for a div
+  const divElement = document.getElementById('example-div');
+  if (divElement) {
+    divElement.setAttribute('role', 'list');
+  }
+
+  // Adding the lang attribute to the HTML element
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', getLangAttribute());
+  }
 }
-
-function analyzeContentSafety(content) {
-    return { safe: true };
-}
-
-const userSafetyCategories = {
-    unsafe: true,
-    categories: [
-        'Illegal Activity',
-        'Fraud/Deception',
-        'Controlled/Regulated Substances',
-        'Unauthorized Advice'
-    ]
-};
-
-function getUserSafetyAdvice() {
-    const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-    return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
-}
-
-// Accessibility scanning
-const pagesDir = path.join(__dirname, 'pages');
 
 async function scanAccessibility() {
     const filePaths = await fs.promises.readdir(pagesDir);
@@ -456,7 +483,7 @@ function countDependencies(code) {
     const functionCallGraph = {};
 
     extractedNames.forEach(funcName => {
-        const callPattern = new RegExp(`\\b${funcName}\\s*\\(`, 'g');
+        const callPattern = new RegExp(`\b${funcName}\s*\(`, 'g');
         const calls = code.match(callPattern) || [];
         const callCount = Math.max(0, calls.length - 1);
         if (callCount > 0) {
@@ -695,6 +722,25 @@ function towerDefense() {
 function initialize() {
   console.log('Initializing application...');
   return true;
+}
+
+function analyzeContentSafety(content) {
+    return { safe: true };
+}
+
+const userSafetyCategories = {
+    unsafe: true,
+    categories: [
+        'Illegal Activity',
+        'Fraud/Deception',
+        'Controlled/Regulated Substances',
+        'Unauthorized Advice'
+    ]
+};
+
+function getUserSafetyAdvice() {
+    const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+    return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
 }
 
 module.exports = {

@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // TODO: add the new functions or changes requested in the issue
 // Here is the implementation for checking link accessibility
 
@@ -16,7 +19,7 @@ function checkLinkAccessibility(url) {
 
   try {
     const parsedUrl = new URL(url);
-    
+
     // Check for valid protocols
     const validProtocols = ['http:', 'https:', 'ftp:', 'mailto:'];
     if (!validProtocols.includes(parsedUrl.protocol)) {
@@ -31,7 +34,8 @@ function checkLinkAccessibility(url) {
       protocol: parsedUrl.protocol,
       host: parsedUrl.host,
       pathname: parsedUrl.pathname,
-      isSecure: parsedUrl.protocol === 'https:'
+      isSecure: parsedUrl.protocol === 'https:',
+      details: {} // Add more details if needed
     };
   } catch (e) {
     return {
@@ -50,8 +54,8 @@ function checkMultipleLinks(urls) {
   if (!Array.isArray(urls)) {
     return [];
   }
-  
-  return urls.map(url => checkLinkAccessibility(url));
+
+  return urls.map(checkLinkAccessibility);
 }
 
 /**
@@ -63,15 +67,17 @@ function filterAccessibleLinks(urls) {
   if (!Array.isArray(urls)) {
     return [];
   }
-  
+
   return urls
-    .map(url => checkLinkAccessibility(url))
+    .map(checkLinkAccessibility)
     .filter(result => result.accessible)
     .map((result, index) => urls[index]);
 }
 
+// Add other exports like in the conflicting code if they are missing
 module.exports = {
   checkLinkAccessibility,
   checkMultipleLinks,
   filterAccessibleLinks
 };
+```

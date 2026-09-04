@@ -168,18 +168,4 @@ module.exports = {
         }
     },
 
-    // Get creep working state
-    updateWorkingState: function (creep) {
-        if (!creep.memory.working && creep.store.getFreeCapacity() === 0) {
-            creep.memory.working = true;
-            return true;
-        }
-
-        if (creep.memory.working && creep.store.getUsedCapacity() === 0) {
-            creep.memory.working = false;
-            return false;
-        }
-
-        return creep.memory.working;
-    },
 };

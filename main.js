@@ -1,26 +1,14 @@
-const express = require('express');
+const utils = require('./utils');
 const axe = require('axe-core');
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const fastMap = require('fast-map');
-const utils = require('./utils');
 const accessibilityUtilities = require('./AccessibilityUtilities');
 const tableAccessibilityUtilities = require('./tableAccessibilityUtils');
 const linkAccessibilityUtilities = require('./linkAccessibilityUtils');
 const landmarkUtilities = require('./landmarkUtils');
 const svgAccessibilityUtilities = require('./svgAccessibilityUtils');
-
-const app = express();
-
-let appState = {
-  initialized: false,
-  data: null,
-  cache: new Map(),
-  lang: 'en'
-};
-
-let isInitialized = false;
-let dependencyGraph = null;
 
 const CONFIG = {
     name: 'MyApp',
@@ -36,6 +24,124 @@ const CONFIG = {
 const config = CONFIG;
 
 const LANDMARK_CONFIG = config;
+
+const app = express();
+
+let appState = {
+  initialized: false,
+  data: null,
+  cache: new Map(),
+  lang: 'en'
+};
+
+let isInitialized = false;
+let dependencyGraph = null;
+
+// Helper function to validate landmark structure
+function isValidLandmark(landmark) {
+    return landmark &&
+           typeof landmark.id !== 'undefined' &&
+           landmark.id !== null;
+}
+
+function loadLandmarks() {
+    try {
+        const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+        return [];
+    }
+}
+
+// Process and filter landmarks
+function processLandmarks(landmarks) {
+    if (!landmarks || !Array.isArray(landmarks)) {
+        return [];
+    }
+
+    const validLandmarks = landmarks.filter(isValidLandmark);
+    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+    return uniqueLandmarks.slice(0, config.maxResults);
+}
+
+function sortLandmarks(landmarks, ascending = true) {
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+
+        if (ascending) {
+            return nameA.localeCompare(nameB);
+        }
+        return nameB.localeCompare(nameA);
+    });
+}
+
+function getLandmarkById(landmarks, id) {
+    return landmarks.find(landmark => landmark.id === id) || null;
+}
+
+// Ensure unique landmarks by ID
+function ensureUniqueLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return { count: 0, issues: [] };
+    }
+    const seenIds = new Set();
+    const seenRoles = new Set();
+    const uniqueLandmarks = [];
+    const issues = [];
+
+    landmarks.forEach((landmark, index) => {
+        const id = landmark.id;
+
+        // Skip if duplicate ID
+        if (seenIds.has(id)) {
+            issues.push(`Duplicate ID: ${id}`);
+            return;
+        }
+        seenIds.add(id);
+
+        // Check for duplicate role if the landmark supports getAttribute
+        const role = landmark.getAttribute ? landmark.getAttribute('role') : undefined;
+        if (role) {
+            if (seenRoles.has(role)) {
+                issues.push(`Duplicate role: ${role}`);
+                return;
+            }
+            seenRoles.add(role);
+        }
+
+        uniqueLandmarks.push(landmark);
+    });
+
+    return { count: issues.length, issues: issues, landmarks: uniqueLandmarks };
+}
+
+// Helper function to check if a link is accessible or needs improvements
+function checkLinkAccessibility(linkUrl) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  return fetch(linkUrl, { method: 'HEAD', signal: controller.signal })
+    .then(response => {
+      clearTimeout(timeout);
+      return response.ok;
+    })
+    .catch(() => {
+      clearTimeout(timeout);
+      return false;
+    });
+}
+
+/**
+ * Gets the lang attribute for the HTML element
+ * @returns {string} The lang attribute value
+ */
+function getLangAttribute() {
+  return document.documentElement.lang || navigator.language || 'en-US';
+}
 
 async function fetchUser(userId) {
   if (!userId) {
@@ -225,12 +331,11 @@ function fixTableStructure(table) {
   tableAccessibilityUtilities.fixTableStructure(table);
 }
 
-// Landmark handling
 /**
  * Adds main landmark to the document
  */
 function addMainLandmark() {
-  addLandmarkRoles();
+  addLandmarkRoles([document.querySelector('main')]);
   ensureUniqueLandmarks([document.querySelector('main')]);
 }
 
@@ -557,102 +662,6 @@ function formatDate(date) {
 
 function validateInput(input) {
   return input !== null && input !== undefined;
-}
-
-function loadLandmarks() {
-  try {
-    const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error loading landmarks:', error.message);
-    return [];
-  }
-}
-
-function processLandmarks(landmarks) {
-  if (!landmarks || !Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const validLandmarks = landmarks.filter(isValidLandmark);
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-  return uniqueLandmarks.slice(0, config.maxResults);
-}
-
-function sortLandmarks(landmarks, ascending = true) {
-  return landmarks.slice().sort((a, b) => {
-    const nameA = (a.name || '').toLowerCase();
-    const nameB = (b.name || '').toLowerCase();
-
-    if (ascending) {
-      return nameA.localeCompare(nameB);
-    }
-    return nameB.localeCompare(nameA);
-  });
-}
-
-function getLandmarkById(landmarks, id) {
-  return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return { count: 0, issues: [] };
-  }
-  const seenIds = new Set();
-  const seenRoles = new Set();
-  const uniqueLandmarks = [];
-  const issues = [];
-
-  landmarks.forEach((landmark, index) => {
-    const id = landmark.id;
-
-    // Skip if duplicate ID
-    if (seenIds.has(id)) {
-      issues.push(`Duplicate ID: ${id}`);
-      return;
-    }
-    seenIds.add(id);
-
-    // Check for duplicate role if the landmark supports getAttribute
-    const role = landmark.getAttribute ? landmark.getAttribute('role') : undefined;
-    if (role) {
-      if (seenRoles.has(role)) {
-        issues.push(`Duplicate role: ${role}`);
-        return;
-      }
-      seenRoles.add(role);
-    }
-
-    uniqueLandmarks.push(landmark);
-  });
-
-  return { count: issues.length, issues: issues, landmarks: uniqueLandmarks };
-}
-
-function checkLinkAccessibility(linkUrl) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000);
-
-  return fetch(linkUrl, { method: 'HEAD', signal: controller.signal })
-    .then(response => {
-      clearTimeout(timeout);
-      return response.ok;
-    })
-    .catch(() => {
-      clearTimeout(timeout);
-      return false;
-    });
-}
-
-/**
- * Gets the lang attribute for the HTML element
- * @returns {string} The lang attribute value
- */
-function getLangAttribute() {
-  return document.documentElement.lang || navigator.language || 'en-US';
 }
 
 function addressAccessibilityIssuesFromModule(html) {

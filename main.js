@@ -1,4 +1,12 @@
 // TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues(); handled by validateTableStructureIssues() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 // main.js - Entry point for the application
 
@@ -10,21 +18,47 @@ const axe = require('axe-core');
 const fs = require('fs');
 const path = require('path');
 const fastMap = require('fast-map');
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  getUniqueLandmarks,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  addSvgAccessibilityProps,
+  setSvgAccessibilityProps,
+  handleAccessibilityIssues,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  createInPageButton
+} = require('./utils');
 
 // Configuration - merged
 const CONFIG = {
   landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
   maxLandmarks: 50,
   allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  maxResults: 100,
-  dataPath: './data'
 };
 
+const books = [];
+
 const config = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: true,
+  dataPath: './data',
+  maxResults: 100,
+  landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  requiredLandmarks: ['banner', 'navigation', 'main'],
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
 };
 
 const appState = {
@@ -67,6 +101,13 @@ function validateLandmark(element) {
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
     issues.push(`Invalid landmark: ${element.tagName}`);
   }
+  if (!element.hasAttribute('id')) {
+    issues.push('Missing id attribute');
+  }
+
+  if (!element.getAttribute('role')) {
+    issues.push('Missing role attribute');
+  }
 
   return {
     success: issues.length === 0,
@@ -74,11 +115,19 @@ function validateLandmark(element) {
   };
 }
 
-/**
- * Validates table accessibility compliance
- * @param {Object} table - The table object to validate
- * @returns {Object} Validation result with success status and any issues found
- */
+function isValidLandmark(landmark) {
+  return landmark && landmark.id && landmark.role;
+}
+
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  return landmarks
+    .filter(isValidLandmark)
+    .slice(0, config.maxResults || 100);
+}
+
 function validateTableAccessibility(table) {
   const issues = [];
 
@@ -279,52 +328,6 @@ function createInPageButton(text, onClick) {
     return button;
 }
 
-/**
- * Handles accessibility issues found during validation
- * @param {Array} issues - Array of accessibility issues (optional)
- * @returns {Object} Summary of handled issues
- */
-function handleAccessibilityIssues(issues = []) {
-  const handled = [];
-  const unhandled = [];
-
-  // Process provided issues (from HEAD)
-  issues.forEach(issue => {
-    if (issue.fixable) {
-      handled.push(issue);
-    } else {
-      unhandled.push(issue);
-    }
-  });
-
-  // Perform DOM validation (from origin/main)
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-
-  const landmarks = document.querySelectorAll('[role]');
-  landmarks.forEach(landmark => {
-    validateLandmark(landmark);
-  });
-
-  validateLandmarkStructure();
-  ensureUniqueLandmarks();
-
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    getSvgAccessibleName(svg);
-  });
-
-  return {
-    total: issues.length,
-    handled: handled.length,
-    unhandled: unhandled.length,
-    unhandledIssues: unhandled
-  };
-}
-
 function createAccessibleLink(href, text) {
     // Implementation to create accessible link (conflict resolved: merged implementation)
     const link = document.createElement('a');
@@ -471,6 +474,52 @@ function addProperLandmarkRegions() {
     });
 }
 
+/**
+ * Handles accessibility issues found during validation
+ * @param {Array} issues - Array of accessibility issues (optional)
+ * @returns {Object} Summary of handled issues
+ */
+function handleAccessibilityIssues(issues = []) {
+  const handled = [];
+  const unhandled = [];
+
+  // Process provided issues (from HEAD)
+  issues.forEach(issue => {
+    if (issue.fixable) {
+      handled.push(issue);
+    } else {
+      unhandled.push(issue);
+    }
+  });
+
+  // Perform DOM validation (from origin/main)
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+
+  const landmarks = document.querySelectorAll('[role]');
+  landmarks.forEach(landmark => {
+    validateLandmark(landmark);
+  });
+
+  validateLandmarkStructure();
+  ensureUniqueLandmarks();
+
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    getSvgAccessibleName(svg);
+  });
+
+  return {
+    total: issues.length,
+    handled: handled.length,
+    unhandled: unhandled.length,
+    unhandledIssues: unhandled
+  };
+}
+
 // Export all existing and new functions
 module.exports = {
     getLangAttribute,
@@ -499,5 +548,8 @@ module.exports = {
     fixLandmarkIssues,
     addSvgAccessibleNames,
     fixFakeLinks,
-    addProperLandmarkRegions
+    addProperLandmarkRegions,
+    personName,
+    isValidLandmark,
+    processLandmarks
 };

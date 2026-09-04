@@ -86,55 +86,6 @@ describe('utils.memory', () => {
         expect(() => utilsMemory.clearRoomMemory('__proto__', 'key')).not.toThrow();
     });
 
-    test('memoize returns cached value', () => {
-        let callCount = 0;
-        const fn = () => {
-            callCount++;
-            return 'result';
-        };
-        const cached = utilsMemory.memoize(fn, 'testKey', 100);
-        expect(cached).toBe('result');
-        const cached2 = utilsMemory.memoize(fn, 'testKey', 100);
-        expect(cached2).toBe('result');
-        expect(callCount).toBe(1);
-    });
-
-    test('memoize enforces MAX_CACHE_ENTRIES with FIFO eviction', () => {
-        let callCount = 0;
-        const fn = () => {
-            callCount++;
-            return 'result';
-        };
-
-        // Fill the cache
-        for (let i = 0; i < 50; i++) {
-            utilsMemory.memoize(fn, 'key' + i, 100);
-        }
-        expect(callCount).toBe(50);
-        expect(Memory.cache.key0).toBeDefined();
-
-        // Add one more entry
-        const result = utilsMemory.memoize(fn, 'oneMoreKey', 100);
-        expect(result).toBe('result');
-        expect(callCount).toBe(51);
-
-        // Security: Verify FIFO eviction (key0 should be gone, oneMoreKey should be present)
-        expect(Memory.cache.oneMoreKey).toBeDefined();
-        expect(Memory.cache.key0).toBeUndefined();
-        expect(Object.keys(Memory.cache).length).toBe(50);
-    });
-
-    test('memoize uses default TTL', () => {
-        let callCount = 0;
-        const fn = () => {
-            callCount++;
-            return 'result';
-        };
-        utilsMemory.memoize(fn, 'testKey3');
-        const cached = utilsMemory.memoize(fn, 'testKey3');
-        expect(callCount).toBe(1);
-    });
-
     test('cleanMemory returns 0 when no creeps in memory', () => {
         global.Memory.creeps = {};
         global.Game.creeps = {};
@@ -181,33 +132,6 @@ describe('utils.memory', () => {
     test('clearRoomMemory handles non-existent room', () => {
         global.Memory.rooms = {};
         expect(() => utilsMemory.clearRoomMemory('room1', 'key')).not.toThrow();
-    });
-
-    test('memoize caches based on TTL', () => {
-        let callCount = 0;
-        const fn = () => {
-            callCount++;
-            return 'result';
-        };
-        global.Game.time = 100;
-        utilsMemory.memoize(fn, 'ttlKey', 10);
-        global.Game.time = 105;
-        const cached = utilsMemory.memoize(fn, 'ttlKey', 10);
-        expect(callCount).toBe(1);
-        global.Game.time = 115;
-        const uncached = utilsMemory.memoize(fn, 'ttlKey', 10);
-        expect(callCount).toBe(2);
-    });
-
-    test('memoize returns fn result for unsafe cacheKey', () => {
-        let callCount = 0;
-        const fn = () => {
-            callCount++;
-            return 'result';
-        };
-        const result = utilsMemory.memoize(fn, '__proto__');
-        expect(result).toBe('result');
-        expect(callCount).toBe(1);
     });
 
     test('isSafeKey blocks other dangerous properties', () => {

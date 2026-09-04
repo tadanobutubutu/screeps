@@ -1,13 +1,13 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
-import path from 'path';
-import fs from 'fs';
-import { spawn } from 'child_process';
-import fastMap from 'fast-map';
-import utils from './utils';
-import axe from 'axe-core';
-import accessiblyHelper from './accessibly-helper';
+const React = require('react');
+const ReactDOM = require('react-dom');
+const PropTypes = require('prop-types');
+const path = require('path');
+const fs = require('fs');
+const { spawn } = require('child_process');
+const fastMap = require('fast-map');
+const utils = require('./utils');
+const axe = require('axe-core');
+const accessiblyHelper = require('./accessibly-helper');
 
 const CONFIG = {
     dataPath: './data',
@@ -38,13 +38,6 @@ let dependencyGraph = {};
 if (dependencyGraph) {
   dependencyGraph.setAttribute('role', 'region');
   dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-}
-
-function getDependencyGraph() {
-  if (Object.keys(dependencyGraph).length === 0) {
-    return { message: "No dependency graph found." };
-  }
-  return dependencyGraph;
 }
 
 function spawnProcess(command, args = [], options = {}) {
@@ -312,6 +305,14 @@ function applyAccessibilityFixes(html) {
 
 function applyAllAccessibilityFixes(html) {
     return applyAccessibilityFixes(html);
+}
+
+function fixLandmarks(html) {
+    return html;
+}
+
+function fixFakeLinks(html) {
+    return html;
 }
 
 function createInPageButton() {

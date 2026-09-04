@@ -1,3 +1,49 @@
+const express = require('express');
+const path = require('path');
+const axe = require('axe-core');
+const { GAME, Memory } = require('screeps');
+const { CONFIG } = require('./utils/constants.js');
+
+const app = express();
+
+app.use(axe.middleware());
+app.use(express.static(path.join(__dirname, './data')));
+
+async function initializeA11y() {
+  const results = await axe.run('./public/index.html');
+  const issues = results.violations.reverse();
+  const output = [];
+
+  issues.forEach((issue) => {
+    const { description, suggestedFixes, nodes, rules } = issue;
+    output.push(`🚨 Accessibility issue found: ${description}\n`);
+    output.push(`  Rule: ${rules.name}\n`);
+    output.push(`  Affected Nodes:\n`);
+
+    nodes.forEach((node) => {
+      output.push(`    ${node.nodeType}\n       ${node.nodeName}\n       ${node.htmlAttributeString}\n       ${node.content}\n\n`);
+    });
+
+    output.push(`  Suggested Fixes:\n`);
+    suggestedFixes.forEach((fix) => {
+      output.push(`    ${fix}\n\n`);
+    });
+
+    output.push('---------------------------------------------------\n');
+  });
+
+  return output.join('');
+}
+
+app.get('/a11y-report', async (req, res) => {
+  const a11yReport = await initializeA11y();
+  res.send(a11yReport);
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 module.exports.loop = function () {
   // Clean up memory of dead creeps
   for (const name in Memory.creeps) {
@@ -85,3 +131,17 @@ function spawnProcess(command) {
     console.log(`child process exited with code ${code}`);
   });
 }
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+
+const config = {
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  timeout: 5000,
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
+};

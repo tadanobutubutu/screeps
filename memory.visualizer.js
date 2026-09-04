@@ -313,19 +313,6 @@ const memoryVisualizer = {
         }
     },
 
-    showMap: function () {
-        this.initMemoryMap();
-
-        for (const roomName in Memory.map.rooms) {
-            if (
-                utilsMemory.isSafeKey(roomName) &&
-                Object.prototype.hasOwnProperty.call(Memory.map.rooms, roomName)
-            ) {
-                const info = Memory.map.rooms[roomName];
-                const owner = info.controller?.owner ?? 'Unclaimed';
-                }
-        }
-    },
 
     /**
      * メモリクリーナー

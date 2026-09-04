@@ -38,7 +38,35 @@ module.exports = {
   improveAccessibility: improveAccessibility,
   addLandmarkRoles: addLandmarkRoles,
   addSvgAccessibleNames: addSvgAccessibleNames,
-  ensureLangAttribute: ensureLangAttribute
+  ensureLangAttribute: ensureLangAttribute,
+  updateUserSettings: updateUserSettings,
+  functionA: functionA,
+  functionB: functionB,
+  harvestResources: harvestResources,
+  upgradeResource: upgradeResource,
+  enhanceAccessibility: enhanceAccessibility,
+  generateAccessibilityReport: generateAccessibilityReport,
+  upgradeUserSettings: upgradeUserSettings,
+  checkLinkAccessibility: checkLinkAccessibility,
+  isValidLandmark: isValidLandmark,
+  loadLandmarks: loadLandmarks,
+  processLandmarks: processLandmarks,
+  sortLandmarks: sortLandmarks,
+  getLandmarkById: getLandmarkById,
+  validateLandmarkAttributes: validateLandmarkAttributes,
+  analyzeAccessibility: analyzeAccessibility,
+  setSvgAccessibleNames: setSvgAccessibleNames,
+  fixFakeLink: fixFakeLink,
+  setLanguageAttribute: setLanguageAttribute,
+  fixFakeLinks: fixFakeLinks,
+  wrapPrimaryContentInMain: wrapPrimaryContentInMain,
+  validateLinkAccessibility: validateLinkAccessibility,
+  handleFakeLinks: handleFakeLinks,
+  scanAccessibility: scanAccessibility,
+  writeReport: writeReport,
+  formatResponse: formatResponse,
+  upgradeSystem: upgradeSystem,
+  enhanceSystemWithHarvestedData: enhanceSystemWithHarvestedData
 };
 
 function extractSvgAccessibleName(svgContent) {
@@ -110,25 +138,32 @@ const checkSafetyCategories = () => {
   return safetyCategoriesMessage;
 };
 
-export const functionA = () => {
+// Function to update user settings
+const updateUserSettings = (newUserSafety, newSafetyCategories) => {
+  userSafety = newUserSafety;
+  safetyCategories = newSafetyCategories;
+};
+
+// Additional exported functions from merged branches
+const functionA = () => {
   // Implementation of functionA
 };
 
-export const functionB = () => {
+const functionB = () => {
   // Implementation of functionB
 };
 
-export const harvestResources = () => {
+const harvestResources = () => {
   // Placeholder logic for harvesting resources
   console.log('Harvesting resources...');
 };
 
-export const upgradeResource = (resource) => {
+const upgradeResource = (resource) => {
   // Placeholder logic for upgrading a resource
   console.log(`Upgrading resource: ${resource}`);
 };
 
-export const enhanceAccessibility = () => {
+const enhanceAccessibility = () => {
   // Implementation for accessibility enhancements
   console.log('Accessibility enhancements applied.');
 };
@@ -137,18 +172,18 @@ const generateAccessibilityReport = () => {
   const issues = [];
 
   // Check for missing alt text for images
-  if (!document.images || document.images.length === 0 || !document.images[0].alt) {
+  if (typeof document !== 'undefined' && document.images && document.images.length > 0 && !document.images[0].alt) {
     issues.push('Image without alt text found.');
   }
 
   // Check for keyboard navigability
-  const isKeyboardNavigable = document.body.classList.contains('keyboard-navigable');
+  const isKeyboardNavigable = typeof document !== 'undefined' && document.body && document.body.classList.contains('keyboard-navigable');
   if (!isKeyboardNavigable) {
     issues.push('The website is not keyboard navigable.');
   }
 
   // Check for high contrast mode support
-  const supportsHighContrast = document.body.classList.contains('high-contrast-supported');
+  const supportsHighContrast = typeof document !== 'undefined' && document.body && document.body.classList.contains('high-contrast-supported');
   if (!supportsHighContrast) {
     issues.push('The website does not support high contrast mode.');
   }
@@ -156,8 +191,6 @@ const generateAccessibilityReport = () => {
   // Return a string with all issues found, or an empty string if none
   return issues.join('\n');
 };
-
-export { generateAccessibilityReport };
 
 const upgradeUserSettings = () => {
   let upgradeMessage = '';
@@ -261,24 +294,27 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Placeholder functions for accessibility utilities
 function getLangAttribute() {
-  return document.documentElement.lang;
+  if (typeof document !== 'undefined') {
+    return document.documentElement.lang;
+  }
+  return null;
 }
 
 function validateTableAccessibility(table) {
   const issues = [];
 
   // Check for caption
-  if (table.querySelector && !table.querySelector('caption')) {
+  if (table && table.querySelector && !table.querySelector('caption')) {
     issues.push('Missing caption element');
   }
 
   // Check for headers attribute
-  if (table.getAttribute && !table.getAttribute('headers')) {
+  if (table && table.getAttribute && !table.getAttribute('headers')) {
     issues.push('Missing headers attribute');
   }
 
   // Check for scope attribute on header cells
-  const headerCells = table.querySelectorAll ? table.querySelectorAll('th') : [];
+  const headerCells = table && table.querySelectorAll ? table.querySelectorAll('th') : [];
   headerCells.forEach(cell => {
     if (!cell.getAttribute('scope')) {
       issues.push('Missing scope attribute on header cell');
@@ -400,11 +436,15 @@ function fixFakeLink() {
 
 // Function to set language attribute on the document
 function setLanguageAttribute() {
-  document.documentElement.lang = 'en';
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = 'en';
+  }
 }
 
 // Function to add landmark roles to main containers
 function addLandmarkRoles() {
+  if (typeof document === 'undefined') return;
+  
   const mainElement = document.querySelector('main');
   if (mainElement && !mainElement.getAttribute('role')) {
     mainElement.setAttribute('role', 'main');
@@ -418,6 +458,8 @@ function addLandmarkRoles() {
 
 // Function to fix fake links (links without href)
 function fixFakeLinks() {
+  if (typeof document === 'undefined') return;
+  
   const fakeLinks = document.querySelectorAll('a:not([href])');
   fakeLinks.forEach(link => {
     if (!link.getAttribute('role')) {
@@ -469,6 +511,8 @@ function validateLinkAccessibility(link) {
 
 // New function to handle fake links
 function handleFakeLinks() {
+  if (typeof document === 'undefined') return;
+  
   const fakeLinks = document.querySelectorAll('a[role="button"], a[href="#"]');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
@@ -481,13 +525,13 @@ const initializeApp = () => {
   console.log('Application initialized');
 
   // Ensure the app is accessible
-  const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
-  if (mainContent) {
-    mainContent.setAttribute('aria-label', 'Main content area');
-  }
-
-  // Set up keyboard navigation
   if (typeof document !== 'undefined') {
+    const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
+    if (mainContent) {
+      mainContent.setAttribute('aria-label', 'Main content area');
+    }
+
+    // Set up keyboard navigation
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Tab') {
         document.body.classList.add('keyboard-nav');
@@ -754,6 +798,6 @@ function enhanceSystemWithHarvestedData(landmarks) {
 }
 
 // Upgrade logic: use harvested data to improve the system
-if (processed.length > 0) {
+if (typeof processed !== 'undefined' && processed.length > 0) {
     enhanceSystemWithHarvestedData(processed);
 }

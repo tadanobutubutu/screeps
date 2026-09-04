@@ -112,7 +112,7 @@ function initialize() {
   const landmarks = loadLandmarks();
   const validLandmarks = processLandmarks(landmarks);
 
-  const processed = processLandmarks(validLandmarks); // Keep both processLandmarks calls for consistency
+  const processed = processLandmarks(validLandmarks);
 
   // Ensure the dependencyGraph container has a proper ARIA role
   let dependencyGraph = document.getElementById('dependencyGraph');
@@ -122,10 +122,10 @@ function initialize() {
     }
 
     if (!dependencyGraph.hasAttribute('role')) {
-      if (config.allowedRoles.includes('region')) {
+      if (CONFIG.allowedRoles.includes('region')) {
         dependencyGraph.setAttribute('role', 'region');
       } else {
-        dependencyGraph.setAttribute('role', 'region'); // Merged CONF and config roles array
+        dependencyGraph.setAttribute('role', 'region');
       }
     }
     if (!dependencyGraph.hasAttribute('aria-label')) {
@@ -241,6 +241,63 @@ function upgradeSystem(harvestedData) {
   return { config, CONFIG };
 }
 
+// Landmark selectors for enhanced accessibility processing
+const landmarkSelectors = [
+  'main',
+  '[role="banner"]',
+  '[role="navigation"]',
+  '[role="main"]',
+  '[role="contentinfo"]',
+  '[role="form"]',
+  '[role="search"]',
+  'nav',
+  '[role="region"]',
+  'aside',
+  'header:not([role])',
+  'nav:not([role])',
+  'main:not([role])',
+  'footer:not([role])',
+  'section:not([role])'
+].map((selector, index) => ({ selector, priority: index }));
+
+// New landmark roles consolidated from CONFIG
+const landmarkRoles = CONFIG.landmarkRoles;
+const allowedRoles = CONFIG.allowedRoles;
+
+// Safety categories for user safety checks
+const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+
+/**
+ * Checks user safety status and returns a report
+ * @returns {Object} Safety message and report object
+ */
+function checkUserSafety() {
+  let userSafetyMessage = '';
+  if (safetyCategory !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
+  }
+
+  const report = {
+    introduction: 'Accessibility report for the application',
+    data: [],
+    conclusions: '',
+  };
+
+  return { message: userSafetyMessage, report };
+}
+
+/**
+ * Checks safety categories for unauthorized advice
+ * @returns {string} Safety categories message
+ */
+function checkSafetyCategories() {
+  let safetyCategoriesMessage = '';
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+  return safetyCategoriesMessage;
+}
+
 // ... Helper functions from the unsafe version (unmodified)
 
 module.exports = {
@@ -249,5 +306,10 @@ module.exports = {
   visualizeModuleRelationships,
   ensureElementHasId,
   addAriaLabel,
-  upgradeSystem
+  upgradeSystem,
+  checkUserSafety,
+  checkSafetyCategories,
+  landmarkSelectors,
+  landmarkRoles,
+  allowedRoles
 };

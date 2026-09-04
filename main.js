@@ -1,35 +1,41 @@
-const books = [];
-const safetyCategory = "User Safety: safe";
-const CONFIG = {
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
-  maxResults: 100,
-  dataPath: './data',
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: 5000,
-  name: 'MyApp',
-  version: '1.0.0',
-  debug: false
-};
-
-const config = CONFIG;
-
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-// - Export new function3()
-
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const fastMap = require('fast-map');
 const accessiblyHelper = require('./accessibly-helper');
+
+const axe = require('axe-core');
+
+const utils = require('./utils');
+const { calculateSum } = utils;
+const { getLangAttribute, getFullLangAttribute } = utils.accessibilityUtils;
+const { validateTableAccessibility, validateTableStructure } = utils.tableAccessibilityUtils;
+const { validateLandmark, validateLandmarkStructure } = utils.landmarkUtils;
+const { getSvgAccessibleName, setSvgAttributes } = utils.svgAccessibilityUtils;
+const { validateLinkAccessibility, handleFakeLinks } = utils.linkAccessibilityUtils;
+const { checkLinkAccessibility: importedCheckLinkAccessibility } = utils.linkAccessibilityUtils;
+
+const CONFIG = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxResults: 100,
+  dataPath: './data',
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  timeout: 5000
+};
+
+const books = [...Object.freeze(JSON.parse(fs.readFileSync(path.join(__dirname, CONFIG.dataPath, 'books.json'), 'utf8'))), {
+  title: 'Book 1',
+  ariaLabel: ''
+}];
+
+const appData_originSide = {};
+
+let isInitialized = false;
 
 function function3() {
   const dependencyGraph = document.getElementById('dependency-graph') || document.querySelector('.dependency-graph');
@@ -38,9 +44,9 @@ function function3() {
     // Ensure the dependencyGraph container has a proper ARIA role
     dependencyGraph.setAttribute('role', 'region');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
-  }
 
-  // TODO: No additional changes requested at this time
+    // TODO: No additional changes requested at this time
+  }
 }
 
 // ... Existing code that needs to be preserved
@@ -48,14 +54,12 @@ function function3() {
 const config = CONFIG;
 
 // Application state
-let isInitialized = false;
-const appData_originSide = {};
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map(),
-  lang: 'en' // Added lang property
-};
+function initializeApp() {
+  initialize();
+  return appState;
+}
+
+// ... New functions for handling accessibility issues
 
 // ... Existing helper functions
 
@@ -69,5 +73,8 @@ module.exports = {
   CONFIG,
   mergedConfig,
   axeConfig,
-  function3
+  function3,
+  books,
+  accessiblyHelper,
+  axe
 };

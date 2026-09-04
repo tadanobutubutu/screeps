@@ -6,7 +6,7 @@ const fastMap = require('fast-map');
 const path = require('path');
 const { spawn } = require('child_process');
 
-const config = {
+const config = CONFIG || {
   name: 'MyApp',
   version: '1.0.0',
   environment: process.env.NODE_ENV || 'development',
@@ -19,7 +19,6 @@ const config = {
 let isInitialized = false;
 const appData = {};
 
-// Utility imports (optional - may need to create these files)
 const { validateInput, processData, formatResponse } = require('./utils');
 const { getSvgAccessibleName, setSvgAttributes } = require('./svgUtils');
 
@@ -35,7 +34,10 @@ function getLangAttribute() {
  * Adds lang attribute to the HTML element
  */
 function addLangAttribute() {
-  // Implementation for adding lang attribute
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', getLangAttribute());
+  }
 }
 
 /**
@@ -230,8 +232,6 @@ function fixTableHeaderCellScope(table) {
     }
   });
 }
-
-// Landmark handling
 
 /**
  * Adds main landmark to the document
@@ -838,6 +838,7 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   fixTableStructure,
+  fixTableAccessibility,
   addMainLandmark,
   validateLandmark,
   validateLandmarkStructure,
@@ -850,6 +851,7 @@ module.exports = {
   sortLandmarks,
   findLandmarkById,
   ensureUniqueLandmarks,
+  fixUniqueLandmarks,
   writeReport,
   createInPageButtons,
   createInPageButton,

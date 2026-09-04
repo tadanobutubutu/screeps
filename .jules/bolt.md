@@ -21,3 +21,5 @@
 ## 2026-08-25 - Short-Circuiting Priority Evaluation in Repair Target Selection
 **Learning:** In Screeps target selection loops with prioritized structures (e.g. `_findBestRepairTarget` in `src/roles/repairer.js`), checking `if (priority > minPriority) continue;` before computing `hits / hitsMax` and `creep.pos.getRangeTo(s)` short-circuits evaluation for all lower-priority structures.
 **Action:** Always short-circuit lower priority candidates immediately after fetching priority in target selection search loops.
+## $(date +%Y-%m-%d) - Replace redundant room source find with cache.getSources in auto.evolution.js
+- Implemented a performance optimization by using a centralized cache (`cache.getSources(room)`) for counting sources in rooms, replacing a redundant inline caching loop over `FIND_SOURCES`.

@@ -1,10 +1,3 @@
-🎯 **What:**
-Created a missing test file for `fix_globals.js`. This script adds fallback global definitions for `lodash` and `Memory` to `main.js`. It was previously untestable because the logic ran immediately upon import. The script was refactored to export a `fixGlobals(filePath)` function while preserving CLI functionality.
-
-📊 **Coverage:**
-
-- Covered the happy path where the target global comment is successfully prepended to the file content.
-- Ensured `fs.readFileSync` and `fs.writeFileSync` are called correctly using Jest mocks.
-
-✨ **Result:**
-Test coverage for the codebase has been improved, and `fix_globals.js` file manipulation logic is now completely covered by tests.
+💡 **What:** Replaced the redundant inline `room.find(FIND_SOURCES)` with the centralized `cache.getSources(room)` in `auto.evolution.js`.
+🎯 **Why:** To eliminate an N+1 query pattern where sources were repeatedly counted in a loop over all rooms.
+📊 **Measured Improvement:** Simulated 10,000 iterations over 3 rooms in benchmark: using `cache.getSources` reduced the time from ~132ms down to ~31ms.

@@ -6,6 +6,7 @@
 
 const utilsMemory = require('./utils.memory');
 const logger = require('./utils.logging');
+const cache = require('./src/utils/cache');
 
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
@@ -227,14 +228,8 @@ const autoEvolution = {
             // ⚡ PERFORMANCE: main.jsのwarmRoomCacheで計算済みのroleCountsを使用。O(1) lookup。
             const harvestersCount = room._roleCounts ? room._roleCounts.harvester : 0;
 
-            // ⚡ PERFORMANCE: ルームのローカルキャッシュを利用し、Memoryアクセスと毎ティックのfindを回避
-            if (room._sourcesCount === undefined) {
-                if (room.memory._sourcesCount === undefined) {
-                    room.memory._sourcesCount = room.find(FIND_SOURCES).length;
-                }
-                room._sourcesCount = room.memory._sourcesCount;
-            }
-            const sourcesCount = room._sourcesCount;
+            // ⚡ PERFORMANCE: 一元化されたキャッシュを利用し、毎ティックのfindとMemoryアクセスを回避
+            const sourcesCount = cache.getSources(room).length;
 
             if (harvestersCount < sourcesCount * 2) {
                 bottlenecks.push({

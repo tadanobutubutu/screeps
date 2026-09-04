@@ -2,6 +2,9 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const PropTypes = require('prop-types');
 const path = require('path');
+
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
 const fs = require('fs');
 const { spawn } = require('child_process');
 const fastMap = require('fast-map');
@@ -847,6 +850,21 @@ if (typeof require !== 'undefined' && require.main === module) {
 
 if (typeof window !== 'undefined' && document) {
     initializeForBrowser();
+}
+
+function setHtmlLangAttribute(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('lang', lang || 'en');
+    }
+}
+
+function detectAndSetLang() {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        const lang = document.documentElement.getAttribute('lang') || document.documentElement.lang || (typeof navigator !== 'undefined' ? navigator.language : null) || 'en';
+        document.documentElement.setAttribute('lang', lang);
+        return lang;
+    }
+    return 'en';
 }
 
 module.exports = {

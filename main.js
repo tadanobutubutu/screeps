@@ -1,13 +1,5 @@
-// main.js - Application entry point
-// TODO: Existing main.js content before the merge conflict...
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+const UserSafety = 'safe';
+const SafetyCategories = 'Descriptions and advice';
 
 // Accessibility improvements:
 // - Added semantic HTML structure
@@ -16,12 +8,10 @@
 const utils = require('./utils');
 const axe = require('axe-core');
 const express = require('express');
-const axe = require('axe-core');
 const fastMap = require('fast-map');
 const { registerSW } = require('effector-sw');
 const React = require('react');
 const { useState, useEffect, useRef } = React;
-const { registerSW } = require('effector-sw');
 const { useSelector, useDispatch } = require('react-redux');
 const App = require('./App').default;
 const newFunctions = require('./newFunctions');
@@ -48,6 +38,9 @@ const {
   createAccessibleLink,
   fixFakeLinkIssue
 } = require('./utils');
+
+const path = require('path');
+const fs = require('fs');
 
 // New accessibility functions added for insight report fixes
 
@@ -105,11 +98,54 @@ const CONFIG = {
 // Application configuration (alias for CONFIG)
 const config = CONFIG;
 
-// Helper function to validate landmark structure
-function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
+// User safety related variables
+const books = [];
+const safetyCategory = "User Safety: safe";
+const userSafety = 'safe';
+const SafetyCategories2 = 'Descriptions and advice';
+let dependencyGraph = {};
+let UserSafety2 = "safe";
+let SafetyCategories3 = "Descriptions and advice";
+
+// Function to handle credential response
+function handleCredentialResponse(response) {
+  // Parse the credential response
+  const credential = JSON.parse(response.credential);
+
+  // Validate the credential structure
+  if (!credential || !credential.credential || !credential.clientId) {
+    throw new Error('Invalid credential response structure');
+  }
+
+  // Store the credential in a secure way (implementation depends on your auth system)
+  // For example, you might store it in a secure cookie or local storage with encryption
+  // This is a placeholder for your actual implementation
+  localStorage.setItem('authCredential', JSON.stringify({
+    token: credential.credential,
+    clientId: credential.clientId,
+    timestamp: Date.now()
+  }));
+
+  // Return the parsed credential for further use
+  return credential;
+}
+
+// Function that complements the existing existing code with the new changes
+function loadUserSafetyInfo() {
+  const categoryData = {
+    'safe': 'This user follows safety guidelines',
+    'unsafe': 'This user may pose a risk to the system'
+  };
+
+  if (userSafety === 'unsafe') {
+    const safetyMessage = checkSafetyCategories();
+    throw new Error(safetyMessage);
+  }
+
+  return {
+    category: userSafety,
+    description: categoryData[userSafety]
+  };
 }
 
 // Load landmarks from file
@@ -224,15 +260,17 @@ function main() {
 
 // Export module
 module.exports = {
-  renderGraph,
-  renderGraphIndex,
-  updateGraphDisplay,
-  main
-};
-
-// Additional utility exports
-module.exports = {
   CONFIG,
+  config,
+  books,
+  safetyCategory,
+  userSafety,
+  SafetyCategories2,
+  dependencyGraph,
+  UserSafety2,
+  SafetyCategories3,
+  handleCredentialResponse,
+  loadUserSafetyInfo,
   loadLandmarks,
   processLandmarks,
   sortLandmarks,
@@ -240,6 +278,13 @@ module.exports = {
   ensureUniqueLandmarks,
   checkLinkAccessibility,
   getLangAttribute,
+  getLangAttributeNew,
+  getSvgAccessibleName,
+  setSvgAttributes,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  renderGraph,
+  renderGraphIndex,
+  updateGraphDisplay,
+  main
 };

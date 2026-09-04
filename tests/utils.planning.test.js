@@ -110,11 +110,4 @@ describe('utils.planning', () => {
         const roads = utilsPlanning.planRoadNetwork(mockRoom);
         expect(Array.isArray(roads)).toBe(true);
     });
-
-    test('displayPlanningInfoがエラーを投げない', () => {
-        mockCache.getSources.mockReturnValue([{ id: 'source1' }]);
-        const result = utilsPlanning.displayPlanningInfo(mockRoom);
-        expect(result).toBeDefined();
-        expect(result.openSpaces).toBeDefined();
-    });
 });

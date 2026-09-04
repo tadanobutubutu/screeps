@@ -16,16 +16,16 @@
 const utils = require('./utils');
 const axe = require('axe-core');
 const express = require('express');
-const axe = require('axe-core');
 const fastMap = require('fast-map');
 const { registerSW } = require('effector-sw');
 const React = require('react');
 const { useState, useEffect, useRef } = React;
-const { registerSW } = require('effector-sw');
 const { useSelector, useDispatch } = require('react-redux');
 const App = require('./App').default;
 const newFunctions = require('./newFunctions');
 const accessiblyHelper = require('./accessibly-helper');
+const path = require('path');
+const fs = require('fs');
 const {
   fixTableStructureIssues,
   fixTableHeaderCellScope,
@@ -39,8 +39,6 @@ const {
   validateTableStructure: validateTableStructureFn,
   validateLandmarkStructure: validateLandmarkStructureFn,
   validateLinkAccessibility: validateLinkAccessibilityFn,
-  validateTableAccessibility: validateTableAccessibilityLocal,
-  validateLandmarkStructure: validateLandmarkStructureLocal,
   getSvgAccessibleName: getSvgAccessibleNameLocal,
   setSvgAttributes: setSvgAttributesLocal,
   ensureUniqueLandmarks: ensureUniqueLandmarksLocal,
@@ -93,6 +91,17 @@ function setSvgAttributes(element, accessibleName) {
   }
 }
 
+// Language attribute helper
+function setLanguageAttribute(element, lang) {
+  if (element) {
+    element.lang = lang;
+  }
+}
+
+function getSvgAccessibleNameNew(element) {
+  return getSvgAccessibleName(element);
+}
+
 // Configuration
 const CONFIG = {
     name: 'MyApp',
@@ -131,7 +140,7 @@ function processLandmarks(landmarks) {
     }
 
     const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    const uniqueLandmarks = ensureUniqueLandmarksFn(validLandmarks);
 
     return uniqueLandmarks.slice(0, config.maxResults);
 }
@@ -224,14 +233,6 @@ function main() {
 
 // Export module
 module.exports = {
-  renderGraph,
-  renderGraphIndex,
-  updateGraphDisplay,
-  main
-};
-
-// Additional utility exports
-module.exports = {
   CONFIG,
   loadLandmarks,
   processLandmarks,
@@ -240,6 +241,13 @@ module.exports = {
   ensureUniqueLandmarks,
   checkLinkAccessibility,
   getLangAttribute,
+  getLangAttributeNew,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  renderGraph,
+  renderGraphIndex,
+  updateGraphDisplay,
+  main
 };

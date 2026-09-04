@@ -921,7 +921,7 @@ function fetchUserSync(userId) {
 }
 
 function clearCacheSync() {
-    appState.cache = {};
+  appState.cache = {};
 }
 
 function initializeSync() {

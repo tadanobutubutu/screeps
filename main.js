@@ -7,7 +7,7 @@ const path = require('path');
 const accessiblyHelper = require('./accessibly-helper');
 const React = require('react');
 const PropTypes = require('prop-types');
-const ReactDOM = require('react-dom/client');
+const ReactDOM = require('react-dom/server');
 const { renderDependencyGraphContent, renderDependencyGraph, addressAccessibilityIssues, createInPageButton, createInPageButtonAlt, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, setSvgAttributes, initialize, greet, add, getDependencies, addDependency, removeDependency, countDependencies, appData, someFunction, functionA, functionB, getLangAttribute, scanAccessibility, writeReport, generateAccessibilityReport, importAndExecute, validateInput, processData, formatResponse } = require('./AccessibilityUtilities');
 const CONFIG = {};
 

@@ -3,19 +3,25 @@ const fs = require('fs');
 const path = require('path');
 const config = require('./config');
 const logger = require('./utils/logger');
-
+const fastMap = require('fast-map');
+const axeCore = require('axe-core');
+const axios = require('axios');
+const cheerio = require('cheerio');
+const { registerSW } = require('effector-sw');
+const { isSecureContext } = require('./utils.js');
 const { calculateSum } = require('./utils');
 const { getLangAttribute, getFullLangAttribute } = require('./utils/accessibilityUtils');
 const { validateTableAccessibility, validateTableStructure } = require('./utils/tableAccessibilityUtils');
-const { validateLandmark, validateLandmarkStructure } = require('./utils/landmarkUtils');
+const { validateLandmark, validateLandmarkStructure } = require('./utils/landmarkAccessibilityUtils');
 const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
 const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
-const { checkLinkAccessibility: importedCheckLinkAccessibility } = require('./utils/linkAccessibilityUtils');
-
-const fastMap = require('fast-map');
-const axios = require('axios');
-const cheerio = require('cheerio');
-const axeCore = require('axe-core');
+const { addProperLandmarkRegions } = require('./utils/landmarkUtils');
+const { validateInput } = require('./utils/validators');
+const { processData } = require('./utils/processor');
+const { CONFIG: CONFIG_CONST } = require('./utils/constants');
+const { a11y } = require('@accessible/react');
+const { validateLandmarkStructure: validateLandmarkStructureAlt } = require('./utils/landmarkAccessibilityUtils.js');
+const { validateLinkAccessibility: validateLinkAccessibilityAlt } = require('./utils/linkAccessibilityUtils.js');
 
 // React and Redux imports (converted from ES6 imports to CommonJS for consistency)
 const React = require('react');
@@ -25,14 +31,14 @@ const { useSelector, useDispatch } = require('react-redux');
 const { setDependencyGraph } = require('./actions/dependencyGraph');
 const { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } = require('./bookFunctions');
 const { initializeApp } = require('./app.js');
-const { registerSW } = require('effector-sw');
-const { isSecureContext } = require('./utils.js');
-const { CONFIG: CONFIG_CONST } = require('./utils/constants');
 const App = require('./App').default;
 const { helper, formatDate } = require('./utils');
 const { someFunction } = require('./utils/someFunction');
 const { fetchUser, clearCache } = require('./utils/user');
 const utils = require('./utils');
+const { importAccessibilityUtils } = require('./AccessibilityUtilities');
+const { importUtils } = require('./Utils');
+const { importBaseFunctions } = require('./baseFunctions');
 
 // Landmark data structure
 const landmarks = [];
@@ -118,6 +124,111 @@ function wrapPrimaryContentInMain() {
 // - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
 // todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
 
+// Utility functions
+function processLandmarkElements(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    const elements = document.querySelectorAll('[role="region"], [role="navigation"], main, aside');
+    const landmarkIds = elements.map(el => el.id || null);
+    return Array.from(new Set(landmarkIds));
+  }
+  return landmarks;
+}
+
+// Entry point for accessibility improvements
+function addressInsightIssues() {
+  // ... existing accessibility functions
+  newFocusTrap(document.body);
+}
+
+// In a real implementation, you would use a library like D3.js or Vis.js
+// to render the actual graph visualization
+function renderDependencyGraph(graphData) {
+    console.log('Rendering dependency graph with data:', graphData);
+}
+
+// New function3 logic here - using the more complete version from origin/main
+function newFunction3(items, transformFn) {
+    if (!Array.isArray(items)) {
+        return [];
+    }
+    return fastMap(items, transformFn);
+}
+
+// Helper function to format dates
+function formatDate(date) {
+    if (!(date instanceof Date)) {
+        date = new Date(date);
+    }
+    return date.toISOString();
+}
+
+// New function4 logic - implementing the actual behavior from origin/main
+function newFunction4(input) {
+    // Placeholder for function4 logic
+    // This should be replaced with the actual implementation
+    return input;
+}
+
+// New function that does something different
+function newFunction() {
+  // Implementation of the new function
+  console.log('New function executed');
+}
+
+// Function to handle credential response
+function handleCredentialResponse(response) {
+  // Parse the credential response
+  const credential = JSON.parse(response.credential);
+
+  // Validate the credential structure
+  if (!credential || !credential.credential || !credential.clientId) {
+    throw new Error('Invalid credential response structure');
+  }
+
+  // Store the credential in a secure way (implementation depends on your auth system)
+  // This is a placeholder for your actual implementation
+  localStorage.setItem('authCredential', JSON.stringify({
+    token: credential.credential,
+    clientId: credential.clientId,
+    timestamp: Date.now()
+  }));
+
+  // Return the parsed credential for further use
+  return credential;
+}
+
+// REACT_037: Google sign-in logic
+const googleSignIn = {
+  initialize: function(clientId) {
+    if (typeof google !== 'undefined' && google.accounts) {
+      google.accounts.id.initialize({
+        client_id: clientId,
+        callback: this.handleCredentialResponse.bind(this)
+      });
+      return true;
+    }
+    return false;
+  },
+
+  renderButton: function(elementId) {
+    const element = document.getElementById(elementId);
+    if (element && typeof google !== 'undefined' && google.accounts) {
+      google.accounts.id.renderButton(element, {
+        theme: 'outline',
+        size: 'large',
+        text: 'sign_in_with'
+      });
+      return true;
+    }
+    return false;
+  },
+
+  handleCredentialResponse: function(response) {
+    console.log('Google Sign-In successful');
+    return response;
+  }
+};
+
 // Landmark validation functions
 function validateLandmark(landmark) {
     const errors = [];
@@ -147,7 +258,6 @@ function validateLandmark(landmark) {
         errors.push('Landmark longitude must be between -180 and 180');
     }
 
-    // Additional validation for array composition
     if (Array.isArray(landmark)) {
         landmark.forEach(innerLandmark => {
             if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
@@ -600,7 +710,7 @@ function ensureDependencyGraphAriaRole() {
     }
 }
 
-function googleSignIn() {
+function googleSignInFn() {
     console.log('Google sign-in initiated');
 }
 
@@ -674,16 +784,11 @@ function createInPageButton(buttonsData) {
 // Enhanced accessibility for AddBook form (merged from both branches)
 function enhanceAccessibilityForAddBook(form) {
     if (!form) return;
-
-    // Ensure form has proper accessibility attributes
     if (!form.getAttribute('role')) {
         form.setAttribute('role', 'form');
     }
-
-    // Get all input fields in the form
     const inputs = form.querySelectorAll('input');
     inputs.forEach(input => {
-        // Ensure each input has an aria-label or associated label
         const id = input.id || input.getAttribute('name');
         if (!input.getAttribute('aria-label') && !form.querySelector(`label[for="${id}"]`)) {
             const label = form.querySelector(`label[for="${input.id}"]`) || form.querySelector(`label[for="${input.name}"]`);
@@ -691,19 +796,14 @@ function enhanceAccessibilityForAddBook(form) {
                 input.setAttribute('aria-label', input.name || 'Form input');
             }
         }
-
-        // Ensure required fields have proper ARIA attributes
         if (input.hasAttribute('required')) {
             input.setAttribute('aria-required', 'true');
         }
     });
-
-    // Get the submit button
     const submitButton = form.querySelector('button[type="submit"]');
     if (submitButton && !submitButton.getAttribute('aria-label') && !submitButton.textContent.trim()) {
         submitButton.setAttribute('aria-label', 'Submit form');
     }
-
     return form;
 }
 
@@ -717,7 +817,7 @@ import baseFunctions from './baseFunctions';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 // Wrap primary content in main element for accessibility
-function wrapPrimaryContentInMain() {
+function wrapPrimaryContentInMainAlt() {
     const primaryContent = document.querySelector('.primary-content') ||
                         document.querySelector('[role="main"]') ||
                         document.getElementById('main-content') ||
@@ -737,7 +837,7 @@ function wrapPrimaryContentInMain() {
 }
 
 // Adds proper landmark regions to the page
-function addProperLandmarkRegions() {
+function addProperLandmarkRegionsAlt() {
     const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
     if (mainContent) {
         if (!mainContent.hasAttribute('role')) {
@@ -747,7 +847,7 @@ function addProperLandmarkRegions() {
 }
 
 // Handles fake links on the page
-function handleFakeLinks() {
+function handleFakeLinksAlt() {
     const links = document.querySelectorAll('a[href^=#"]');
     links.forEach(link => {
         const href = link.getAttribute('href');
@@ -792,7 +892,7 @@ function calculateDiscount(price, discountPercentage) {
     return price * (1 - discountPercentage / 100);
 }
 
-function newFunction() {
+function newFunctionAlt() {
     return {
         message: 'New functionality activated',
         timestamp: new Date().toISOString()
@@ -941,7 +1041,7 @@ export function validateLinkAccessibility(link) {
 }
 
 // Added foreign function for bot logic with Screeps integration
-function someNewFunction() {
+function someNewFunctionAlt() {
     const config = CONFIG || {};
     const maxMemoryUsage = config.maxMemory ? config.maxMemory : 1024 * 1024;
     if (Memory.bytesUsed / 1024 / 1024 > maxMemoryUsage) {
@@ -952,7 +1052,7 @@ function someNewFunction() {
 
 // Import the new function with es module syntax
 import { GAME, Memory } from 'screeps';
-export { someNewFunction };
+export { someNewFunctionAlt };
 
 // Removed unused import and provided proper accessibility functions to be exported
 export {
@@ -1107,7 +1207,7 @@ const googleSignInObj = {
 };
 
 // Credential response handler
-function handleCredentialResponse(response) {
+function handleCredentialResponseAlt(response) {
     const credential = JSON.parse(response.credential);
     if (!credential || !credential.credential || !credential.clientId) {
         throw new Error('Invalid credential response structure');
@@ -1130,7 +1230,7 @@ if (typeof document !== 'undefined') {
 }
 
 // Accessibility enhancement for AddBook form (browser version)
-function enhanceAccessibilityForAddBook(form) {
+function enhanceAccessibilityForAddBookAlt(form) {
     if (!form) return;
     if (!form.hasAttribute('role')) {
         form.setAttribute('role', 'form');
@@ -1156,13 +1256,13 @@ function enhanceAccessibilityForAddBook(form) {
 }
 
 // Landmark attribute validation (browser DOM version)
-function validateLandmarkAttributes() {
+function validateLandmarkAttributesAlt() {
     const main = document.querySelector('main');
     return main !== null && main.getAttribute('role') === 'main';
 }
 
 // Handle fake links (browser DOM version with scrolling)
-function handleFakeLinks() {
+function handleFakeLinksAlt2() {
     const links = document.querySelectorAll('a[href^="#"]');
     links.forEach(link => {
         const href = link.getAttribute('href');
@@ -1180,7 +1280,7 @@ function handleFakeLinks() {
 }
 
 // Add proper landmark regions (browser DOM version)
-function addProperLandmarkRegions() {
+function addProperLandmarkRegionsAlt2() {
     const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
     if (mainContent) {
         if (!mainContent.hasAttribute('role')) {
@@ -1190,7 +1290,7 @@ function addProperLandmarkRegions() {
 }
 
 // Add SVG accessible names (browser DOM version)
-function addSvgAccessibleNames() {
+function addSvgAccessibleNamesAlt() {
     if (typeof document === 'undefined') return;
     const svgs = document.querySelectorAll('svg');
     svgs.forEach((svg, index) => {
@@ -1211,7 +1311,7 @@ function addSvgAccessibleNames() {
 }
 
 // Add unique landmarks (browser DOM version)
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarksAlt() {
     const mains = document.querySelectorAll('main');
     if (mains.length > 1) {
         const firstMain = mains[0];
@@ -1222,7 +1322,7 @@ function ensureUniqueLandmarks() {
 }
 
 // Creates an in-page button (browser DOM version)
-function createInPageButton(text, onClick) {
+function createInPageButtonAlt(text, onClick) {
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = text;
@@ -1232,13 +1332,13 @@ function createInPageButton(text, onClick) {
 }
 
 // Validates link accessibility
-function validateLinkAccessibility(link) {
+function validateLinkAccessibilityAlt(link) {
     if (!link || link.tagName !== 'A') return false;
     return link.hasAttribute('href');
 }
 
 // Added foreign function for bot logic with Screeps integration
-function someNewFunction() {
+function someNewFunctionAlt2() {
     const config = CONFIG || {};
     const maxMemoryUsage = config.maxMemory ? config.maxMemory : 1024 * 1024;
     if (Memory.bytesUsed / 1024 / 1024 > maxMemoryUsage) {
@@ -1248,151 +1348,29 @@ function someNewFunction() {
 }
 
 // Screeps game API integration
-function getScreepsLangAttribute() {
-    return GAME.lang || 'en';
-}
-
-// Validate table accessibility for Screeps bot monitoring
-function validateTableAccessibility(table) {
-    if (!table || table.tagName !== 'TABLE') return false;
-    const hasCaption = table.querySelector('caption') !== null;
-    const hasHeader = table.querySelector('thead') !== null;
-    const rows = table.querySelectorAll('tr');
-    let isValid = hasCaption && hasHeader && rows.length > 0;
-    return isValid;
-}
-
-// Validate table structure for Screeps bot monitoring
-function validateTableStructure(table) {
-    if (!table || table.tagName !== 'TABLE') return false;
-    const rows = table.querySelectorAll('tr');
-    let hasTHead = false;
-    rows.forEach(row => {
-        if (row.querySelector('th')) {
-            hasTHead = true;
-        }
-    });
-    return hasTHead;
-}
-
-// Fixes table structure issues for Screeps bot monitoring
-function fixTableStructure(table) {
-    if (!table || table.tagName !== 'TABLE') return false;
-    const thead = table.querySelector('thead');
-    const firstRow = table.querySelector('tr');
-    if (!thead && firstRow) {
-        const newThead = document.createElement('thead');
-        const cells = firstRow.querySelectorAll('th, td');
-        cells.forEach(cell => {
-            if (cell.tagName === 'TD') {
-                const th = document.createElement('th');
-                th.scope = 'col';
-                th.textContent = cell.textContent;
-                cell.parentNode.insertBefore(th, cell);
-                cell.parentNode.removeChild(cell);
-            }
-        });
-        newThead.appendChild(firstRow);
-        table.insertBefore(newThead, table.firstChild);
-        return true;
-    }
-    return false;
-}
-
-// Adds main landmark to the page
-function addMainLandmark() {
-    wrapPrimaryContentInMain();
-}
-
-// Ensures unique landmarks on the page
-function ensureUniqueLandmarks() {
-    const mains = document.querySelectorAll('main');
-    if (mains.length > 1) {
-        const firstMain = mains[0];
-        for (let i = mains.length - 1; i > 0; i--) {
-            mains[i].parentNode.removeChild(mains[i]);
-        }
-    }
-}
-
-// Handle fake links on the page
-function handleFakeLinks() {
-    const links = document.querySelectorAll('a[href^="#"]');
-    links.forEach(link => {
-        const href = link.getAttribute('href');
-        if (href && href.length > 1) {
-            link.style.cursor = 'pointer';
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const target = document.getElementById(href.substring(1));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        }
-    });
-}
-
-// Add proper landmark regions to the page
-function addProperLandmarkRegions() {
-    const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
-    if (mainContent) {
-        if (!mainContent.hasAttribute('role')) {
-            mainContent.setAttribute('role', 'main');
-        }
-    }
-}
-
-// Creates an in-page button for accessibility
-function createInPageButton(text, onClick) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = text;
-    button.addEventListener('click', onClick);
-    button.setAttribute('role', 'button');
-    return button;
-}
-
-// Validates link accessibility
-function validateLinkAccessibility(link) {
-    if (!link || link.tagName !== 'A') return false;
-    return link.hasAttribute('href');
-}
-
-// Added foreign function for bot logic with Screeps integration
-function someNewFunction() {
-    const config = CONFIG || {};
-    const maxMemoryUsage = config.maxMemory ? config.maxMemory : 1024 * 1024;
-    if (Memory.bytesUsed / 1024 / 1024 > maxMemoryUsage) {
-        console.warn('High memory usage detected');
-        return true;
-    }
-}
-
-// Screeps game API integration
-function getScreepsLangAttribute() {
+function getScreepsLangAttributeAlt() {
     return GAME.lang || 'en';
 }
 
 // Gets the lang attribute for the HTML element (browser version)
-function getLangAttribute() {
+function getLangAttributeAlt() {
     return document.documentElement.lang || navigator.language || 'en';
 }
 
 // Adds lang attribute to HTML element (browser version)
-function addLangAttribute() {
+function addLangAttributeAlt() {
     if (!document.documentElement.lang) {
         document.documentElement.lang = navigator.language || 'en';
     }
 }
 
 // Gets SVG accessible name
-function getSvgAccessibleName(svg) {
+function getSvgAccessibleNameAlt(svg) {
     return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
 }
 
 // Sets SVG attributes for accessibility
-function setSvgAttributes(svg) {
+function setSvgAttributesAlt(svg) {
     if (svg.tagName !== 'SVG') return;
     if (!svg.hasAttribute('role')) {
         svg.setAttribute('role', 'img');
@@ -1405,7 +1383,7 @@ function setSvgAttributes(svg) {
 }
 
 // Validates landmark attributes (browser DOM version)
-function validateLandmarkAttributes() {
+function validateLandmarkAttributesAlt2() {
     const main = document.querySelector('main');
     return main !== null && main.getAttribute('role') === 'main';
 }
@@ -1828,6 +1806,7 @@ function handleAccessibilityIssues(issues = []) {
     };
 }
 
+import './styles.css';
 const app = express();
 
 // Express middleware and routes

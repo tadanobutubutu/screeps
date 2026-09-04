@@ -223,8 +223,26 @@ function _getCurrentCounts(room) {
 // ボディ選択
 // ============================================================
 
+// ⚡ PERFORMANCE OPTIMIZATION: Hoist emergency bodies dictionary to module scope
+// to prevent object allocation per call during emergency body evaluation.
+const EMERGENCY_BODIES = Object.assign(Object.create(null), {
+    [ROLES.HARVESTER]: [WORK, CARRY, MOVE],
+    [ROLES.UPGRADER]: [WORK, CARRY, MOVE],
+    [ROLES.BUILDER]: [WORK, CARRY, MOVE],
+    [ROLES.REPAIRER]: [WORK, CARRY, MOVE],
+    [ROLES.MINER]: [WORK, MOVE],
+    [ROLES.TRANSPORTER]: [CARRY, CARRY, MOVE],
+    [ROLES.DEFENDER]: [ATTACK, MOVE],
+    [ROLES.SCOUT]: [MOVE],
+});
+
 /**
  * ロールと利用可能エネルギーに応じた最適ボディを選択する
+ * ⚡ PERFORMANCE OPTIMIZATION:
+ * 1. Eliminate dead code calculation (bestBody was calculated but never used).
+ * 2. Loop backwards over presets (which are sorted by cost ascending) using indexed for loop
+ *    for O(1) early exit upon finding the highest cost affordable body.
+ * 3. Use hoisted static EMERGENCY_BODIES lookup object.
  * @param {string} role
  * @param {number} available - 現在利用可能なエネルギー
  * @param {number} capacity - スポーン最大エネルギー容量
@@ -234,47 +252,21 @@ function _selectBody(role, available, capacity) {
     const presets = BODY_PRESETS[role];
     if (!presets) return null;
 
-    // 最大容量以下で最もコストが高いボディを選択（最強のボディ）
-    let bestBody = null;
-    for (const preset of presets) {
-        if (preset.cost <= capacity) {
-            bestBody = preset.body;
-        }
-    }
-
-    if (!bestBody) {
-        // 容量内に収まるプリセットがなければ最小構成を選択
-        bestBody = presets[0].body;
-    }
-
-    // 現在のエネルギーでスポーンできる最大のボディを選択
-    let spawnableBody = null;
-    for (const preset of presets) {
+    // Presets are ordered ascending by cost. Iterate backwards for early exit when cost <= available.
+    for (let i = presets.length - 1; i >= 0; i--) {
+        const preset = presets[i];
         if (preset.cost <= available) {
-            spawnableBody = preset.body;
+            return preset.body;
         }
     }
 
     // 緊急時は小さいボディでもスポーン
-    if (!spawnableBody) {
-        const emergencyBodies = {
-            [ROLES.HARVESTER]: [WORK, CARRY, MOVE],
-            [ROLES.UPGRADER]: [WORK, CARRY, MOVE],
-            [ROLES.BUILDER]: [WORK, CARRY, MOVE],
-            [ROLES.REPAIRER]: [WORK, CARRY, MOVE],
-            [ROLES.MINER]: [WORK, MOVE],
-            [ROLES.TRANSPORTER]: [CARRY, CARRY, MOVE],
-            [ROLES.DEFENDER]: [ATTACK, MOVE],
-            [ROLES.SCOUT]: [MOVE],
-        };
-        const emergency = emergencyBodies[role];
-        if (emergency && _calcBodyCost(emergency) <= available) {
-            return emergency;
-        }
-        return null;
+    const emergency = EMERGENCY_BODIES[role];
+    if (emergency && _calcBodyCost(emergency) <= available) {
+        return emergency;
     }
 
-    return spawnableBody;
+    return null;
 }
 
 // ============================================================

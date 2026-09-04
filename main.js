@@ -1,3 +1,6 @@
+const userSafety = require('user-safety');
+const safetyCategories = require('safety-categories');
+
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 // REACT_027: Fix table structure issues

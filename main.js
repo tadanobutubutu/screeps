@@ -4,6 +4,11 @@ const express = require('express');
 const axe = require('axe-core');
 const fastMap = require('fast-map');
 const { spawn } = require('child_process');
+const accessiblyHelper = require('./accessibly-helper');
+
+const { greet, add, getDependencies, addDependency, removeDependency, appData, someFunction, validateInput, processData, formatResponse } = require('./mainAdapted');
+const { validateTableAccessibility, validateTableStructure, addMainLandmark, validateLandmark, validateLandmarkAttributes, validateLandmarkStructure, initialize: initializeAdapted } = require('./mainAccessibility');
+const { calculateSum, UserSafety, getSafetyCategory, getSafetyCategoryDetailed, getUserSafetyInfo, isUserSafetyUnsafe, hasSafetyCategory, loadUserSafetyInfo } = require('./userSafety');
 
 const CONFIG = {
     dataPath: './data',
@@ -11,10 +16,6 @@ const CONFIG = {
 };
 
 const config = CONFIG;
-
-const { greet, add, getDependencies, addDependency, removeDependency, appData, someFunction, validateInput, processData, formatResponse } = require('./mainAdapted');
-const { validateTableAccessibility, validateTableStructure, addMainLandmark, validateLandmark, validateLandmarkAttributes, validateLandmarkStructure, initialize: initializeAdapted } = require('./mainAccessibility');
-const { calculateSum, UserSafety, getSafetyCategory, getSafetyCategoryDetailed, getUserSafetyInfo, isUserSafetyUnsafe, hasSafetyCategory, loadUserSafetyInfo } = require('./userSafety');
 
 // Application state
 let isInitialized = false;
@@ -27,10 +28,6 @@ const appState = {
 };
 
 let dependencyGraph = {};
-const accessiblyHelper = async (...args) => {
-  return args;
-};
-
 let SafetyCategories = "Unauthorized Advice,Dangerous Action,Potential Scam,Privacy Risk";
 
 function getDependencyGraph() {
@@ -40,19 +37,105 @@ function getDependencyGraph() {
   return dependencyGraph;
 }
 
-function generateAccessibilityReport(issuesData) {
+async function generateAccessibilityReport(issuesData) {
   let issues;
-  let report;
 
   if (!issuesData) {
-    issues = axe.analyze('./index.html');
-    report = {
+    issues = [];
+
+    // Manual checks if document is available (browser environment)
+    if (typeof document !== 'undefined') {
+      // Check for images without alt attributes
+      const images = document.querySelectorAll('img');
+      images.forEach((img, index) => {
+        if (!img.hasAttribute('alt')) {
+          issues.push({
+            type: 'missing-alt',
+            element: 'img',
+            index: index,
+            message: `Image at index ${index} is missing an alt attribute`
+          });
+        }
+      });
+
+      // Check for buttons without accessible name
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach((btn, index) => {
+        const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
+        if (!accessibleName) {
+          issues.push({
+            type: 'missing-name',
+            element: 'button',
+            index: index,
+            message: `Button at index ${index} is missing an accessible name`
+          });
+        }
+      });
+
+      // Check for links without accessible names
+      const links = document.querySelectorAll('a');
+      links.forEach((link, index) => {
+        const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
+        if (!accessibleName) {
+          issues.push({
+            type: 'missing-name',
+            element: 'a',
+            index: index,
+            message: `Link at index ${index} is missing an accessible name`
+          });
+        }
+      });
+
+      // Check for form inputs without labels
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach((input, index) => {
+        const inputType = input.getAttribute('type');
+        if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
+          const labelId = input.getAttribute('aria-labelledby');
+          const labelText = document.querySelector(`label[for="${input.id}"]`);
+          const hasLabel = input.getAttribute('aria-label') || labelId || labelText;
+          if (!hasLabel) {
+            issues.push({
+              type: 'missing-label',
+              element: 'input',
+              index: index,
+              message: `Input at index ${index} is missing an associated label`
+            });
+          }
+        }
+      });
+
+      // Check for empty headings
+      const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+      headings.forEach((heading, index) => {
+        if (!heading.textContent.trim()) {
+          issues.push({
+            type: 'empty-heading',
+            element: heading.tagName.toLowerCase(),
+            index: index,
+            message: `Heading at index ${index} has no text content`
+          });
+        }
+      });
+    }
+
+    // Axe analysis if available
+    try {
+      const axeIssues = await axe.analyze('./index.html');
+      if (Array.isArray(axeIssues)) {
+        issues = issues.concat(axeIssues);
+      }
+    } catch (e) {
+      console.error('axe analysis failed', e);
+    }
+
+    const report = {
       introduction: 'Accessibility report for the application',
       data: issues,
       conclusions: '',
     };
 
-    if (issues && Array.isArray(issues)) {
+    if (issues && Array.isArray(issues) && issues.length > 0) {
       const conclusionParts = [];
       const categoryCounts = {};
       SafetyCategories.split(',').forEach(cat => {
@@ -60,7 +143,7 @@ function generateAccessibilityReport(issuesData) {
       });
 
       issues.forEach(issue => {
-        const category = issue.categories ? issue.categories[0].type : '';
+        const category = issue.categories ? issue.categories[0].type : issue.type;
         if (categoryCounts[category] !== undefined) {
           categoryCounts[category]++;
         }
@@ -76,14 +159,13 @@ function generateAccessibilityReport(issuesData) {
       } else {
         conclusionParts.push('No accessibility issues were found.');
       }
-
-      report.conclusions = conclusionParts.join('\n');
+      report.conclusions = conclusionParts.join(' ');
     }
 
     return report;
   } else {
     issues = await accessiblyHelper(issuesData);
-    report = {
+    const report = {
       introduction: 'Accessibility report for the application',
       data: issues,
       conclusions: ''
@@ -105,7 +187,7 @@ const checkSafetyCategories = () => {
   }
 
   return safetyCategoriesMessage;
-};
+}
 
 function visualizeDependencyTree(dependencies) {
   const report = countDependencies(dependencies);
@@ -368,9 +450,20 @@ function addLangAttribute(html) {
   return html.replace('<html', '<html lang="en"');
 }
 
+function fetchUser(userId) {
+  if (!userId) {
+    return null;
+  }
+  return { id: userId, name: `User ${userId}` };
+}
+
+function clearCache() {
+  appState.cache.clear();
+}
+
 module.exports = {
-  accessiblyHelper,
-  generateAccessibilityReport,
+  UserSafety,
+  SafetyCategories,
   getUserSafetyAdvice,
   checkSafetyCategories,
   visualizeDependencyTree,
@@ -395,5 +488,8 @@ module.exports = {
   addLangAttribute,
   config,
   appState,
-  isInitialized
+  isInitialized,
+  generateAccessibilityReport,
+  fetchUser,
+  clearCache
 };

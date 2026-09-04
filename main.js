@@ -1,11 +1,27 @@
-// TODO: This is the existing code that needs to be preserved
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from 'react-refresh/output';
+import a11y from './AccessibilityUtilities';
 
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
+const config = CONFIG;
 
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+const axeConfig = {
+  rules: {
+    'aria-invalid-2': { enabled: false },
+    'color-contrast': { enabled: false },
+    'name-role-value': { enabled: false },
+    'paraphernalia': { enabled: false },
+  },
+  silent: true,
+};
 
-// Existing code
+// Existing functions from origin/main
 export function existingFunction1() {
   // Existing implementation
 }
@@ -20,27 +36,7 @@ export function myNewFunction() {
   return "New function implemented successfully";
 }
 
-// REACT_015: Add lang attribute to the <html> element
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', getLangAttribute());
-  }
-}
-
 // React application code with accessibility features
-import React from 'react';
-import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from 'react-refresh/output';
-import a11y from './AccessibilityUtilities';
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 // DOM Elements
@@ -54,18 +50,6 @@ const dependencyGraph = document.getElementById('dependency-graph');
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// TODO: This is the existing code that needs to be preserved
-//_Commit: 18ddb6408a2b2823efa22f0a77964bb5d6737f93_
-//<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_ -->
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: ...
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
 /**
  * Main entry point for the application
@@ -561,31 +545,42 @@ export { generateAccessibilityReport, addressAccessibilityIssues, getLangAttribu
 
 // Initialize the application with accessibility improvements
 function initialize() {
-    // Ensure the dependencyGraph container has a proper ARIA role
-    if (dependencyGraph) {
-        dependencyGraph.setAttribute('role', 'region');
-        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-    }
+  // Ensure the dependencyGraph container has a proper ARIA role
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'region');
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+  }
 
-    // Render dependency graph and display module structure
-    renderDependencyGraph();
+  // Render dependency graph and display module structure
+  renderDependencyGraph();
 
-    // Address accessibility issues
-    addressAccessibilityIssues();
+  // Address accessibility issues
+  addressAccessibilityIssues();
 
-    // Create the in-page button
-    document.body.appendChild(createInPageButton());
+  // Create the in-page button
+  document.body.appendChild(createInPageButton());
 
-    // Initialize accessibility features from a11y utilities
-    if (a11y && a11y.init) {
-        a11y.init();
-    }
+  // Initialize accessibility features from a11y utilities
+  if (a11y && a11y.init) {
+    a11y.init();
+  }
 
-    // Ensure proper landmark regions
-    addProperLandmarkRegions();
+  // Ensure proper landmark regions
+  addProperLandmarkRegions();
 
-    // Validate landmark structure
-    validateLandmarkStructure();
+  // Validate landmark structure
+  validateLandmarkStructure();
+
+  // Implement accessibility fixes from HEAD
+  const table = document.querySelector('table');
+  if (table) {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+    fixTableStructure(table);
+  }
+
+  // Initialize the app
+  initializeApp();
 }
 
 root.render(

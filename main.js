@@ -88,6 +88,22 @@ function logCurrentURL() {
   console.log(window.location.href);
 }
 
+// Function to add accessible names to SVG elements (new function as per issue)
+function addSvgAccessibleNames(document) {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.querySelector('title')) {
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = 'Accessible SVG';
+      svg.insertBefore(title, svg.firstChild);
+    }
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+  });
+  return document;
+}
+
 // Export all functions
 module.exports = {
   config,

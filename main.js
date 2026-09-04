@@ -5,17 +5,38 @@
 // - Ensured keyboard navigation support
 // - Added focus management
 
-import React from 'react';
-import { registSW } from 'effector-sw';
-import axe from 'axe-core';
-import { express } from 'express';
-import fs from 'fs';
-import path from 'path';
-import utils from './utils';
-import somemodule from './somemodule';
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
 
 const config = require('./config');
 const logger = require('./utils/logger');
+
+// Safety Categories and User Safety Functions
+const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+let userSafety = 'safe';
+
+function getUserSafetyAdvice() {
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+}
+
+function computeSafetyScore(safetyCategories) {
+  const safetyCategory = safetyCategories.reduce((score, category) => {
+    switch (category) {
+      case 'Unauthorized Advice':
+        return score + 1;
+      case 'Dangerous Action':
+        return score + 2;
+      case 'Potential Scam':
+        return score + 3;
+      case 'Privacy Risk':
+        return score + 4;
+      default:
+        return score;
+    }
+  }, 0);
+  return safetyCategory;
+}
 
 // Import required functions and utility functions from the somemodule
 const {
@@ -136,8 +157,6 @@ function processAccessibilityIssues(document) {
 
 // Upgrade logic: use harvested data to improve the system
 function upgradeSystem(harvestedData) {
-  // Use harvested data to improve the system
-  // Example: update configuration based on harvested data
   if (harvestedData) {
     if (harvestedData.maxResults) {
       config.maxResults = harvestedData.maxResults;
@@ -145,26 +164,9 @@ function upgradeSystem(harvestedData) {
     if (harvestedData.debug !== undefined) {
       config.debug = harvestedData.debug;
     }
-    // Additional upgrade logic can be added here
   }
-
   return true;
 }
-
-// Export all functions
-const main = () => {
-  // ... Code for setting up the main application and server...
-
-  // Upgrade the system if necessary
-  const harvestedData = loadHarvestedData();
-  if (harvestedData) {
-    upgradeSystem(harvestedData);
-  }
-
-  app.listen(config.port, () => {
-    logger.info(`App listening at http://localhost:${config.port}`);
-  });
-};
 
 function loadHarvestedData() {
   const filePath = path.join(__dirname, 'harvested_data.json');
@@ -177,13 +179,18 @@ function loadHarvestedData() {
   }
 }
 
-// Safety Categories and User Safety Functions
-const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-let userSafety = 'safe';
+const app = express();
 
-function getUserSafetyAdvice() {
-  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
-}
+const main = () => {
+  // Upgrade the system if necessary
+  const harvestedData = loadHarvestedData();
+  if (harvestedData) {
+    upgradeSystem(harvestedData);
+  }
 
-function computeSafetyScore(safetyCategories) {
-  const safetyCategory
+  app.listen(config.port, () => {
+    logger.info(`App listening at http://localhost:${config.port}`);
+  });
+};
+
+main();

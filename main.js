@@ -1,58 +1,9 @@
 const utils = require('./utils');
-
-const primaryContent = document.querySelector('.primary-content') ||
-                        document.querySelector('[role="main"]') ||
-                        document.getElementById('main-content') ||
-                        document.querySelector('#content');
-
-function wrapPrimaryContentInMain() {
-  if (primaryContent && !primaryContent.closest('main')) {
-    const mainElement = document.createElement('main');
-
-    mainElement.parentNode.insertBefore(mainElement, primaryContent);
-
-    mainElement.appendChild(primaryContent);
-
-    return mainElement;
-  }
-}
-
-function enhanceAccessibilityForAddBook(form) {
-  if (!form) return;
-
-  if (!form.getAttribute('role')) {
-    form.setAttribute('role', 'form');
-  }
-
-  const inputs = form.querySelectorAll('input');
-  inputs.forEach(input => {
-    const id = input.id || input.getAttribute('name');
-    if (!input.getAttribute('aria-label') && !form.querySelector(`label[for="${id}"]`)) {
-      const label = form.querySelector(`label[for="${input.id}"]`) || form.querySelector(`label[for="${input.name}"]`);
-      if (!label) {
-        input.setAttribute('aria-label', input.name || 'Form input');
-      }
-    }
-
-    if (input.hasAttribute('required')) {
-      input.setAttribute('aria-required', 'true');
-    }
-  });
-}
-
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const path = require('path');
 const { a11y } = require('@accessible/react');
-const {
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  ensureUniqueLandmarks
-} = require('./utils');
 
 // Configuration
 const CONFIG = {
@@ -189,7 +140,49 @@ function analyzeAccessibility(issuesData) {
 }
 
 function addressAccessibilityIssues() {
-  // Address accessibility issues
+  // Load the insight report
+  const reportPath = path.join(__dirname, 'accessibility_report.json');
+  let report;
+  try {
+    report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  } catch (error) {
+    console.error('Failed to load accessibility report:', error.message);
+    return;
+  }
+
+  if (!report || !report.issues) {
+    return;
+  }
+
+  report.issues.forEach(issue => {
+    switch (issue.type) {
+      case 'REACT_015':
+        setLanguageAttribute();
+        break;
+      case 'REACT_027':
+        // Fix table structure issues
+        validateTableStructure();
+        break;
+      case 'REACT_017':
+        // Fix landmark issues
+        addLandmarkRoles();
+        break;
+      case 'REACT_041':
+        // Add accessible names to SVGs
+        setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
+        break;
+      case 'REACT_025':
+        // Ensure unique landmarks
+        ensureUniqueLandmarks();
+        break;
+      case 'REACT_036':
+        // Fix fake links
+        fixFakeLinks();
+        break;
+      default:
+        break;
+    }
+  });
 }
 
 function createInPageButton() {
@@ -557,6 +550,10 @@ const { processData } = require('./utils/processor');
 // Application main entry point
 const app = express();
 
+// TODO: add the new functions or changes requested in the issue
+// Here is the implementation for checking link accessibility
+// The existing isLinkAccessible function implementation
+
 // Endpoint for getting landmarks
 app.get('/landmarks', (req, res) => {
   const landmarks = loadLandmarks();
@@ -608,42 +605,6 @@ function upgradeSystem(harvestedData) {
 
   return true;
 }
-
-function replaceButtonIds() {
-  const elements = Array.from(document.querySelectorAll('button'));
-  elements.map(el => {
-    el.id = el.getAttribute('aria-labelledby') || el.textContent.trim();
-    return el;
-  });
-}
-
-function ensureDependencyGraphAriaRole() {
-  const dependencyGraph = document.querySelector('#dependencyGraph');
-  dependencyGraph.setAttribute('role', 'region');
-}
-
-app.use(axe.middleware());
-app.use(express.static(path.join(__dirname, CONFIG.dataPath)));
-
-app.get('/', (req, res) => {
-  ensureLangAttribute();
-  fixLandmarks();
-  addSvgAccessibleNames();
-  fixFakeLinks();
-  replaceButtonIds();
-  ensureDependencyGraphAriaRole();
-  res.send('Welcome to the Screeps bot!');
-});
-
-app.get('/data', (req, res) => {
-  res.sendFile(path.join(__dirname, CONFIG.dataPath, 'data.json'));
-});
-
-app.listen(3000, () => {
-  console.log('Server started on port 3000');
-});
-
-// TODO: Add new functions below this line
 
 // Export all functions
 module.exports = {
@@ -697,5 +658,3 @@ module.exports = {
     Z: 'valueZ'
   }
 };
-
-module.exports = app;

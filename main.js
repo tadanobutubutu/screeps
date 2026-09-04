@@ -1,12 +1,42 @@
-Here's the resolved file content with merged changes:
-
-```javascript
 // main.js - Screeps bot main loop
 
-const books = [];
-const safetyCategory = "User Safety: unsafe";
+const utils = require('./utils');
+const axe = require('axe-core');
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const config = require('./config');
+const logger = require('./utils/logger');
+
+const { calculateSum } = require('./utils');
+const { getLangAttribute, getFullLangAttribute } = require('./utils/accessibilityUtils');
+const { validateTableAccessibility, validateTableStructure } = require('./utils/tableAccessibilityUtils');
+const { validateLandmark, validateLandmarkStructure } = require('./utils/landmarkUtils');
+const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
+const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
+const { checkLinkAccessibility: importedCheckLinkAccessibility } = require('./utils/linkAccessibilityUtils');
+
+const fastMap = require('fast-map');
+
+const accessiblyHelper = async (...args) => {
+  return args;
+}
+
+const appConfig = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+// Screeps CONFIG
 const CONFIG = {
-  // ... Preserved config properties
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
   landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
   maxResults: 100,
   dataPath: './data',
@@ -14,22 +44,25 @@ const CONFIG = {
   allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
 
-// ... Preserved functions for books management
+const appState = {};
 
-// Landmark validation configuration (merged)
-const config = {
-  dataPath: './data',
-  maxResults: 100
+const helper = (input) => input ? input.toUpperCase() : '';
+const formatDate = (date) => (date instanceof Date ? date.toISOString().split('T')[0] : null);
+const validateInput = (input) => {
+  if (typeof input !== 'string') return false;
+  return input.trim().length > 0;
 };
 
-// Helper functions (merged)
-function isValidLandmark(landmark) {
-  return landmark && landmark.id && landmark.role;
+const processData = utils.processors.processData;
+
+function newFunction() {
+  console.log('New function executed');
 }
 
+// Load landmarks from file
 function loadLandmarks() {
   try {
-    const filePath = path.join(config.dataPath, 'landmarks.json');
+    const filePath = path.join(__dirname, 'landmarks.json');
     const data = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(data);
   } catch (error) {
@@ -38,8 +71,9 @@ function loadLandmarks() {
   }
 }
 
+// Process landmarks array
 function processLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
+  if (!landmarks || !Array.isArray(landmarks)) {
     return [];
   }
 
@@ -63,67 +97,177 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-// New functions to write the generated report to a file (merged)
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+function sortLandmarks(landmarks, ascending = true) {
+  return landmarks.slice().sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase();
+    const nameB = (b.name || '').toLowerCase();
+
+    if (ascending) {
+      return nameA.localeCompare(nameB);
+    }
+    return nameB.localeCompare(nameA);
+  });
 }
 
-// Additional helper functions from the safe version (merged)
-function ensureElementHasId(element, id) {
-  if (!element.id) {
-    element.id = id;
+function checkLinkAccessibility(linkUrl) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  return fetch(linkUrl, { method: 'HEAD', signal: controller.signal })
+    .then(response => {
+      clearTimeout(timeout);
+      return response.ok;
+    })
+    .catch(() => {
+      clearTimeout(timeout);
+      return false;
+    });
+}
+
+function getLangAttribute() {
+  if (a11y && a11y.getLanguageAttribute) {
+    return a11y.getLanguageAttribute();
   }
-  return element;
+  return document.documentElement.lang || document.documentElement.getAttribute('lang');
 }
 
-function addAriaLabel(element, label) {
-  if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', label);
+function getSvgAccessibleName() {
+  // ... Your implementation for REACT_041 SVG accessible names
+}
+
+function setSvgAttributes() {
+  // SVG attributes setting implementation
+}
+
+async function validateTableAccessibility() {
+  if (a11y && a11y.run) {
+    const issues = await a11y.run(document.body.innerHTML);
+    const tableIssues = issues.filter((issue) => issue.rules.id === 'empty-table');
+    return tableIssues.map((issue) => ({
+      ...issue,
+      message: `Table at position ${issue.locators[0].postion} is empty or its structure is incorrect`,
+      severity: 'critical'
+    }));
   }
-  return element;
+  return [];
 }
 
-// New function to analyze module dependencies (new)
-function analyzeModuleDependencies(modules) {
-  // Implementation would analyze and return dependency relationships
-  console.log('Analyzing dependencies for modules:', modules);
-  return {
-    totalDependencies: 0,
-    dependencyMap: {}
-  };
+function validateTableStructure() {
+  // ... Your implementation for REACT_027 table structure issues
 }
 
-// New function to visualize module relationships (new)
-function visualizeModuleRelationships(modules) {
-  // Implementation would create a visual representation of module relationships
-  console.log('Visualizing relationships for modules:', modules);
-  return {
-    graph: {},
-    nodes: [],
-    edges: []
-  };
+function validateLinkAccessibility(link) {
+  if (!link || typeof link !== 'object') {
+    return false;
+  }
+
+  // Check if link has href and is not empty
+  if (!link.href || link.href.trim() === '') {
+    return false;
+  }
+
+  // Check if link has accessible name
+  if (!link.textContent || link.textContent.trim() === '') {
+    return false;
+  }
+
+  return true;
 }
 
-// Helper functions from the unsafe version (merged)
-function validateLandmark(landmark) {
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a:not([href]), a:not([role])');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'button');
+    if (!link.getAttribute('href')) {
+      link.setAttribute('href', '#');
+    }
+  });
+}
+
+function isValidLandmark(landmark) {
   return landmark &&
-         typeof landmark.id !== 'undefined' &&
+         landmark.id !== undefined &&
          landmark.id !== null;
 }
 
-// ... Rest of the original main.js code, if any.
+function addProperLandmarkRegions() {
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.getAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  const navElement = document.querySelector('nav');
+  if (navElement && !navElement.getAttribute('role')) {
+    navElement.setAttribute('role', 'navigation');
+  }
+}
+
+function createAccessibleLinks() {
+  // Create accessible links implementation
+}
+
+function getLangAttributeEl(element) {
+  if (!element) return null;
+  return element.getAttribute('lang') || element.getAttribute('xml:lang');
+}
+
+function addLangAttributeEl(element, lang) {
+  if (!element || !lang) return false;
+  element.setAttribute('lang', lang);
+  return true;
+}
+
+function createInPageButtonEl(buttonText, onClickHandler) {
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  if (typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
+  return button;
+}
+
+function validateLandmarkElCheck(landmarkEl) {
+  if (!landmarkEl || typeof landmarkEl !== 'object') {
+    return { valid: false, errors: ['Invalid landmark element'] };
+  }
+  
+  const errors = [];
+  if (!landmarkEl.id) errors.push('Landmark must have an id');
+  if (!landmarkEl.name) errors.push('Landmark should have a name');
+  
+  return { valid: errors.length === 0, errors };
+}
+
+function ensureUniqueLandmarksFn(landmarks) {
+  if (!Array.isArray(landmarks)) return [];
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (seen.has(landmark.id)) return false;
+    seen.add(landmark.id);
+    return true;
+  });
+}
+
+async function processAccessibilityReport(issuesData) {
+  return issuesData || [];
+}
+
+// Additional landmark validation
+function validateLandmarkObject(landmark) {
+  const errors = [];
+  if (!landmark) errors.push('Landmark is null or undefined');
+  else {
+    if (typeof landmark.id === 'undefined' || landmark.id === null) {
+      errors.push('Landmark must have an id');
+    }
+  }
+  return { valid: errors.length === 0, errors };
+}
 
 // Exporting all preserved and new functions:
 module.exports = {
-  books,
-  safetyCategory,
   CONFIG,
-  utilFunctions,
-  axe,
-  express,
-  fs,
-  path,
+  appState,
   accessiblyHelper,
   processAccessibilityReport,
   loadLandmarks,
@@ -147,12 +291,13 @@ module.exports = {
   validateLandmarkElCheck,
   getSvgAccessibleNameEl,
   ensureUniqueLandmarksFn,
+  validateLandmarkObject,
   initialize,
   initializeApp,
-  analyzeModuleDependencies,
-  visualizeModuleRelationships,
-  ensureElementHasId,
-  addAriaLabel
+  checkLinkAccessibility,
+  ensureUniqueLandmarks,
+  sortLandmarks,
+  appConfig
 };
 
 module.exports.loop = function () {
@@ -167,33 +312,4 @@ module.exports.loop = function () {
   const harvesterCount = _.filter(Game.creeps, c => c.memory.role === 'harvester').length;
   if (harvesterCount < 2 && Game.spawns['Spawn1'].spawning === null) {
     const newName = 'Harvester' + Game.time;
-    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
-      memory: { role: 'harvester' }
-    });
-  }
-
-  // Run creep roles
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    if (creep.memory.role === 'harvester') {
-      runHarvester(creep);
-    }
-  }
-};
-
-function runHarvester(creep) {
-  if (creep.carry.energy < creep.carryCapacity) {
-    const source = creep.pos.findClosestByPath(FIND_SOURCES);
-    if (source) {
-      creep.harvest(source);
-    }
-  } else {
-    const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: s => s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_SPAWN
-    });
-    if (target) {
-      creep.transfer(target, RESOURCE_ENERGY);
-    }
-  }
-}
-```
+    Game.spawns['Spawn

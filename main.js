@@ -4,9 +4,10 @@ const utils = require('./utils');
 const axe = require('axe-core');
 const express = require('express');
 const { useDispatch } = require('react');
+const { useState } = require('react');
 
-let books = [];
-let safetyCategory = "User Safety: safe";
+const books = [];
+const safetyCategory = "User Safety: safe";
 
 const CONFIG = {
   name: 'MyApp',
@@ -28,20 +29,9 @@ const LANDMARK_CONFIG = {
 
 const mergedConfig = CONFIG;
 
-function processSafetyData(data) {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-  const processedData = data.map(item => {
-    return {
-      ...item,
-      safetyScore: item.dangerLevel * 2
-    };
-  });
-  return processedData;
-}
-
-function getUserSafetyAdvice() {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+// Book functions
+function generateKey(book) {
+  return book.title + '-' + book.author;
 }
 
 function addBook(title, author) {
@@ -63,6 +53,24 @@ function getBooksList() {
   return booksList.join("\n");
 }
 
+// Safety functions
+function processSafetyData(data) {
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  const processedData = data.map(item => {
+    return {
+      ...item,
+      safetyScore: item.dangerLevel * 2
+    };
+  });
+  return processedData;
+}
+
+function getUserSafetyAdvice() {
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+}
+
+// Landmark validation
 function isValidLandmark(landmark) {
   return landmark && landmark.id && landmark.role;
 }
@@ -133,6 +141,7 @@ function loadLandmarks() {
   }
 }
 
+// Credential handling
 function handleCredentialResponseEx(credentialResponse) {
   if (!credentialResponse) {
     console.error('Credential response is required');
@@ -172,6 +181,11 @@ function storeCredentialDataEx(credentialData) {
     console.warn('Unable to store credential data in session storage:', error);
   }
 }
+
+// Accessibility helpers
+const accessiblyHelper = async (...args) => {
+  return args;
+};
 
 function checkLinkAccessibilityEx(url) {
   return true;
@@ -262,14 +276,7 @@ function wrapPrimaryContentInMainEx() {
   };
 }
 
-function analyzeModuleDependencies(modules) {
-  console.log('Analyzing dependencies for modules:', modules);
-  return {
-    totalDependencies: 0,
-    dependencyMap: {}
-  };
-}
-
+// Module analysis
 function analyzeModuleDependenciesLocal(modules) {
   console.log('Analyzing dependencies for modules:', modules);
   return {
@@ -278,13 +285,8 @@ function analyzeModuleDependenciesLocal(modules) {
   };
 }
 
-function visualizeModuleRelationships(modules) {
-  console.log('Visualizing relationships for modules:', modules);
-  return {
-    graph: {},
-    nodes: [],
-    edges: []
-  };
+function analyzeModuleDependencies(modules) {
+  return analyzeModuleDependenciesLocal(modules);
 }
 
 function visualizeModuleRelationshipsLocal(modules) {
@@ -296,6 +298,11 @@ function visualizeModuleRelationshipsLocal(modules) {
   };
 }
 
+function visualizeModuleRelationships(modules) {
+  return visualizeModuleRelationshipsLocal(modules);
+}
+
+// ARIA helpers
 function ensureElementHasId(element, id) {
   if (!element.id) {
     element.id = id;
@@ -310,6 +317,7 @@ function addAriaLabel(element, label) {
   return element;
 }
 
+// Upgrade system
 function upgradeSystem(harvestedData) {
   if (harvestedData && typeof harvestedData === 'object') {
     if (harvestedData.maxResults) {
@@ -323,6 +331,7 @@ function upgradeSystem(harvestedData) {
   return { config, CONFIG };
 }
 
+// Accessibility fixes
 function applyAccessibilityFixesAndHarvestData(html) {
   let result = html;
   result = addLangAttribute(result);
@@ -354,11 +363,13 @@ function harvestData() {
   return '';
 }
 
+// Initialize
 function initialize() {
   console.log('Initializing application...');
   const landmarks = loadLandmarks();
   const validLandmarks = processLandmarks(landmarks);
   const processed = processLandmarks(validLandmarks);
+
   let dependencyGraph = document.getElementById('dependencyGraph');
   if (dependencyGraph) {
     if (!dependencyGraph.id) {
@@ -382,10 +393,7 @@ const initializeApp = () => {
   // Main initialization function
 };
 
-function accessiblyHelper(...args) {
-  return args;
-}
-
+// Accessibility extras
 function analyzeContentSafety() {
   // Implementation for content safety analysis
 }
@@ -450,13 +458,22 @@ function validateLandmarkStructure() {
   // Implementation for validating landmark structure
 }
 
-function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
-}
+// ARIA helpers from origin/main
+const langAttribute = (element) => {
+  const lang = getLangAttribute(element);
+  if (lang) {
+    element.setAttribute('lang', lang);
+  }
+};
 
-function generateKey(book) {
-  return book.title + '-' + book.author;
-}
+const getFullLangAttribute = (element) => {
+  const fullLang = getLangAttribute(element);
+  if (fullLang) {
+    element.setAttribute('lang', fullLang);
+  }
+};
+
+const checkLinkAccessibility = checkLinkAccessibilityEx;
 
 module.exports = {
   analyzeContentSafety,
@@ -508,6 +525,15 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateLandmarkStructure,
-  ensureUniqueLandmarks: ensureUniqueLandmarks,
-  generateKey
+  ensureUniqueLandmarks,
+  generateKey,
+  langAttribute,
+  getFullLangAttribute,
+  checkLinkAccessibility,
+  isValidLandmark,
+  validateLandmarkEx,
+  addBook,
+  announceBookAdded,
+  getBooksList,
+  getUserSafetyAdvice
 };

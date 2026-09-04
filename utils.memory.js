@@ -227,28 +227,6 @@ module.exports = {
         }
     },
 
-    // Initialize creep memory with role defaults
-    initCreepMemory: function (creep, role, extraData = {}) {
-        if (!creep.memory.role) {
-            creep.memory.role = role;
-        }
-
-        if (!creep.memory.working) {
-            creep.memory.working = false;
-        }
-
-        for (const key in extraData) {
-            // Security: Use isSafeKey and hasOwnProperty when merging extraData
-            if (
-                isSafeKey(key) &&
-                Object.prototype.hasOwnProperty.call(extraData, key) &&
-                creep.memory[key] === undefined
-            ) {
-                creep.memory[key] = extraData[key];
-            }
-        }
-    },
-
     // Get creep working state
     updateWorkingState: function (creep) {
         if (!creep.memory.working && creep.store.getFreeCapacity() === 0) {

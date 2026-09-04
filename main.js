@@ -91,67 +91,96 @@ const {
   processData
 } = require('./utils');
 
-const CONFIG = {
-  name: 'MyApp',
-  version: '1.0.0',
-  debug: false,
-  dataPath: './data',
-  maxResults: 100
+const userSafety = 'unsafe';
+let safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+
+const checkUserSafety = () => {
+  let userSafetyMessage = '';
+  if (userSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
+  }
+  return userSafetyMessage;
 };
 
-const config = {
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
+const checkSafetyCategories = () => {
+  let safetyCategoriesMessage = '';
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+  return safetyCategoriesMessage;
 };
 
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
+// TODO: Implement harvest and upgrade logic (merged from both changes)
+
+// New function to simulate harvest logic
+export const harvestResources = () => {
+  // Placeholder logic for harvesting resources
+  console.log('Harvesting resources...');
 };
 
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
+// New function to simulate upgrade logic
+export const upgradeResource = (resource) => {
+  // Placeholder logic for upgrading a resource
+  console.log(`Upgrading resource: ${resource}`);
 };
 
-function uniqueLandmarks(landmarks) {
-  if (!landmarks || !Array.isArray(landmarks)) return [];
+// Accessibility related functions from origin/main
+// From HEAD branch
+export const enhanceAccessibility = () => {
+  // Implementation for accessibility enhancements
+  console.log('Accessibility enhancements applied.');
+};
 
-  const seen = new Set();
-  const uniqueLandmarks = [];
+// From origin/main branch
+const generateAccessibilityReport = () => {
+  const issues = [];
 
-  for (const landmark of landmarks) {
-    if (!landmark || typeof landmark.id === 'undefined') continue;
-
-    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-    if (!seen.has(landmarkId)) {
-      seen.add(landmarkId);
-      uniqueLandmarks.push(landmark);
-    }
+  // Check for missing alt text for images
+  // This is a simple placeholder; real implementation should check actual images in the app
+  if (!document.images || document.images.length === 0 || !document.images[0].alt) {
+    issues.push('Image without alt text found.');
   }
 
-  return uniqueLandmarks;
-}
+  // Check for keyboard navigability
+  const isKeyboardNavigable = document.body.classList.contains('keyboard-navigable');
+  if (!isKeyboardNavigable) {
+    issues.push('The website is not keyboard navigable.');
+  }
 
-function validateLandmark(landmark) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  // Check for high contrast mode support
+  const supportsHighContrast = document.body.classList.contains('high-contrast-supported');
+  if (!supportsHighContrast) {
+    issues.push('The website does not support high contrast mode.');
+  }
 
-  if (!landmark.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${landmark.tagName}`);
+  // Return a string with all issues found, or an empty string if none
+  return issues.join('\n');
+};
+
+export { generateAccessibilityReport };
+
+const upgradeUserSettings = () => {
+  let upgradeMessage = '';
+  const upgrades = [];
+
+  if (userSafety !== 'safe') {
+    upgrades.push({ field: 'userSafety', from: userSafety, to: 'safe' });
+  }
+
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    upgrades.push({ field: 'safetyCategories', from: safetyCategories, to: 'Authorized Advice' });
+  }
+
+  if (upgrades.length > 0) {
+    upgradeMessage = `Upgrade needed: ${upgrades.length} setting(s) require update.`;
   }
 
   return {
-    success: issues.length === 0,
-    issues
+    message: upgradeMessage,
+    upgrades: upgrades,
+    requiresUpgrade: upgrades.length > 0
   };
-}
+};
 
 // Helper function to check if a link is accessible or needs improvements
 function checkLinkAccessibility(linkUrl) {
@@ -717,3 +746,4 @@ function upgradeSystem(harvestedData) {
 // Enhance system with harvested data
 function enhanceSystemWithHarvestedData(landmarks) {
   //
+};

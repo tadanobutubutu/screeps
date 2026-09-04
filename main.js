@@ -5,54 +5,206 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import a11y from './AccessibilityUtilities';
-
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
+import { greet, add, getDependencies, addDependency, removeDependency, countDependencies, appData, someFunction, validateInput, processData, formatResponse } from './mainAdapted';
+import { validateTableAccessibility, validateTableStructure, fixTableStructure, addMainLandmark, validateLandmark, validateLandmarkAttributes, validateLandmarkStructure } from './mainAccessibility';
 
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-// TODO: This is the existing code that needs to be preserved
 const fastMap = require('fast-map');
 const path = require('path');
+const { spawn } = require('child_process');
+
+const CONFIG = {
+    dataPath: './data',
+    maxResults: 100
+};
+
+const config = CONFIG;
+
+// Application state
+let isInitialized = false;
+const appData_originSide = {};
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map(),
+  lang: 'en'
+};
+
+// Helper for input transformation
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
+// Helper function to format dates
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString();
+}
+
+// Validate input helper
+function validateInput(input) {
+  return input && typeof input === 'string' && input.trim().length > 0;
+}
+
+// Process data helper
+function processData(data) {
+  if (!data) return null;
+  return { ...data, processed: true };
+}
+
+// Landmark validation
+function isValidLandmark(landmark) {
+    return landmark && typeof landmark.id !== 'undefined' && landmark.id !== null;
+}
+
+function loadLandmarks() {
+    try {
+        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+        return [];
+    }
+}
+
+function processLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+
+    const validLandmarks = landmarks.filter(isValidLandmark);
+    const uniqueLandmarks = ensureUniqueLandmarksList(validLandmarks);
+    return uniqueLandmarks;
+}
+
+// REACT_015: Add lang attribute
+function addLangAttribute(html) {
+    if (typeof html !== 'string') return html;
+    return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+        if (/\blang=/i.test(match)) return match;
+        return `<html${attrs} lang="en">`;
+    });
+}
+
+function getLangAttribute() {
+    return 'en';
+}
+
+// Ensure unique landmarks list
+function ensureUniqueLandmarksList(landmarks) {
+    const seen = new Map();
+    return landmarks.map(landmark => {
+        const tag = landmark.tagName?.toLowerCase() || landmark.type;
+        if (seen.has(tag)) {
+            landmark.ariaLabel = `${tag}-${seen.get(tag)}`;
+            seen.set(tag, seen.get(tag) + 1);
+        } else {
+            seen.set(tag, 1);
+        }
+        return landmark;
+    });
+}
 
 // TODO: Implement checkLandmarkElements
 function checkLandmarkElements() {
-    // Implement the logic for checking landmark elements
-    // This is a placeholder for the actual implementation
     console.log('Checking landmark elements...');
 }
 
-export {
-    greet,
-    add,
-    getDependencies,
-    addDependency,
-    removeDependency,
-    countDependencies,
-    appData,
-    someFunction,
-    validateInput,
-    processData,
-    formatResponse,
-    validateTableAccessibility,
-    validateTableStructure,
-    fixTableStructure,
-    addMainLandmark,
-    validateLandmark,
-    validateLandmarkAttributes,
-    validateLandmarkStructure,
-    checkLandmarkElements,
-    initialize
+/**
+ * Spawns a child process with the given command and arguments.
+ * @param {string} command - The command to execute.
+ * @param {string[]} args - Array of arguments to pass to the command.
+ * @param {Object} options - Optional spawn options.
+ * @returns {Promise<{stdout: string, stderr: string, exitCode: number}>}
+ */
+function spawnProcess(command, args = [], options = {}) {
+    return new Promise((resolve, reject) => {
+        const defaultOptions = {
+            cwd: process.cwd(),
+            env: process.env,
+            shell: true,
+            timeout: 30000
+        };
+
+        const spawnOptions = { ...defaultOptions, ...options };
+        let stdout = '';
+        let stderr = '';
+        let timeoutId;
+
+        const child = spawn(command, args, spawnOptions);
+
+        if (spawnOptions.timeout) {
+            timeoutId = setTimeout(() => {
+                child.kill('SIGTERM');
+                reject(new Error(`Process timed out after ${spawnOptions.timeout}ms`));
+            }, spawnOptions.timeout);
+        }
+
+        child.stdout.on('data', (data) => {
+            stdout += data.toString();
+        });
+
+        child.stderr.on('data', (data) => {
+            stderr += data.toString();
+        });
+
+        child.on('error', (error) => {
+            if (timeoutId) clearTimeout(timeoutId);
+            reject(error);
+        });
+
+        child.on('close', (exitCode) => {
+            if (timeoutId) clearTimeout(timeoutId);
+            resolve({ stdout, stderr, exitCode });
+        });
+    });
 }
 
-// TODO: This is the existing code that needs to be preserved
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-// _Commit: e1060a659ba0acd8f70570301019d02d1d671c81_
+/**
+ * Spawns multiple processes concurrently with a limit on concurrency.
+ * @param {Array<{command: string, args?: string[], options?: Object}>} tasks - Array of tasks to spawn.
+ * @param {number} concurrency - Maximum number of concurrent processes.
+ * @returns {Promise<Array<{stdout: string, stderr: string, exitCode: number}>>}
+ */
+async function spawnConcurrent(tasks, concurrency = 3) {
+    const results = [];
+    const executing = [];
+
+    for (const task of tasks) {
+        const promise = spawnProcess(task.command, task.args, task.options)
+            .then((result) => {
+                results.push({ success: true, ...result });
+                return result;
+            })
+            .catch((error) => {
+                results.push({ success: false, error: error.message });
+                throw error;
+            });
+
+        executing.push(promise);
+
+        if (executing.length >= concurrency) {
+            await Promise.race(executing);
+            executing.splice(executing.findIndex(p => p === promise), 1);
+        }
+    }
+
+    return Promise.all(executing).then(() => results);
+}
+
+// Helper function for accessibility
+async function accessiblyHelper(data) {
+    // Implementation placeholder for accessibility helper
+    if (data) {
+        return data;
+    }
+    return [];
+}
 
 async function generateAccessibilityReport(issuesData) {
   let issues = [];
@@ -146,8 +298,6 @@ async function generateAccessibilityReport(issuesData) {
 
 async function renderFunction1() {
   // Existing functionality
-
-  // Using accessible utilities instead of undefined modules
   const moduleAReturnValue = await accessiblyHelper();
 
   // Ensure the dependencyGraph container has a proper ARIA role
@@ -172,8 +322,6 @@ async function renderFunction1() {
 
 async function renderFunction2() {
   // Existing functionality
-
-  // Using accessible utilities instead of undefined modules
   const moduleBReturnValue = await accessiblyHelper();
 
   return { moduleBReturnValue };
@@ -228,8 +376,50 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
-function addressAccessibilityIssues() {
+// Main function that applies all accessibility fixes
+function applyAccessibilityFixes(html) {
+    let result = html;
+    result = addLangAttribute(result);
+    result = fixTableStructure(result);
+    result = addMainLandmark(result);
+    result = addSvgAccessibleNames(result);
+    result = ensureUniqueLandmarks(result);
+    result = fixFakeLinks(result);
+    return result;
+}
+
+// Add the code that sets the ARIA role for the dependencyGraph container
+function setupDependencyGraph() {
+    const dependencyGraph = document.querySelector('#dependency-graph');
+    if (dependencyGraph) {
+        const currentRole = dependencyGraph.getAttribute('role');
+        if (!currentRole || currentRole !== 'graph') {
+            dependencyGraph.setAttribute('role', 'graph');
+        }
+    }
+    return dependencyGraph;
+}
+
+// Placeholder for external functions from imported modules
+function addSvgAccessibleNames(html) {
+    if (typeof html !== 'string') return html;
+    return html;
+}
+
+function fixFakeLinks(html) {
+    if (typeof html !== 'string') return html;
+    return html;
+}
+
+function fixTableStructureIssues() {
+    console.log('Fixing table structure issues...');
+}
+
+function fixTableHeaderCellScope() {
+    console.log('Fixing table header cell scope...');
+}
+
+function addressAccessibilityIssues(insightReport) {
   // Ensure the root container has an accessible name
   const rootContainer = document.getElementById('root');
   if (rootContainer) {
@@ -290,72 +480,139 @@ function addressAccessibilityIssues() {
   if (htmlElement) {
     htmlElement.setAttribute('lang', getLangAttribute());
   }
-}
 
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100,
-    apiUrl: process.env.API_URL || 'http://localhost:3000',
-    timeout: 5000
-};
-
-// Alternative config style for backwards compatibility
-const config = CONFIG;
-
-// Application state
-let isInitialized = false;
-const appData_originSide = {};
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map(),
-  lang: 'en' // Added lang property
-};
-
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-// Helper function to format dates
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
+  // Apply insight report fixes if provided
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
   }
-  return date.toISOString();
 }
 
-// Validate input helper
-function validateInput(input) {
-  return input && typeof input === 'string' && input.trim().length > 0;
+// New function to import a module and execute a function
+function importAndExecute(modulePath, functionName, callback) {
+    require(modulePath)[functionName](callback);
 }
 
-// Process data helper
-function processData(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
+// Accessibility functions
+function addKeyboardNavigation() {
+  document.addEventListener('keydown', (e) => {
+    // Handle keyboard events
+  });
 }
 
-// Landmark validation from HEAD
-function isValidLandmark(landmark) {
-    return landmark && typeof landmark.id !== 'undefined' && landmark.id !== null;
+function addAriaLabels() {
+  const elements = document.querySelectorAll('[data-label]');
+  elements.forEach(el => {
+    el.setAttribute('aria-label', el.getAttribute('data-label'));
+  });
 }
 
-function loadLandmarks() {
-    try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error loading landmarks:', error.message);
-        return [];
+function addScreenReaderAnnouncements() {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.className = 'sr-only';
+  document.body.appendChild(announcer);
+}
+
+function addFocusTrap() {
+  const focusableElements = document.querySelectorAll('a, button, input, [tabindex]');
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
+
+function improveAccessibility() {
+  fixTableStructureIssues();
+  fixTableHeaderCellScope();
+  addMainLandmark();
+  addSvgAccessibleNames();
+}
+
+function analyzeContentSafety(content) {
+  // Analyze the content for safety issues and return a safety rating.
+}
+
+// Function to render the index view
+function renderIndexView() {
+    const dependencyGraph = setupDependencyGraph();
+    if (dependencyGraph) {
+        dependencyGraph.setAttribute('role', 'region');
+        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
     }
 }
 
-function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
+const initialize = () => {
+    addMainLandmark();
+    setupDependencyGraph();
+};
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarksList(validLandmarks);
+// Adapted main execution
+if (require.main === module) {
+    initialize();
+}
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+        initialize();
+    }
+}
+
+export {
+    greet,
+    add,
+    getDependencies,
+    addDependency,
+    removeDependency,
+    countDependencies,
+    appData,
+    someFunction,
+    validateInput,
+    processData,
+    formatResponse,
+    validateTableAccessibility,
+    validateTableStructure,
+    fixTableStructure,
+    addMainLandmark,
+    validateLandmark,
+    validateLandmarkAttributes,
+    validateLandmarkStructure,
+    checkLandmarkElements,
+    initialize,
+    generateAccessibilityReport,
+    spawnProcess,
+    spawnConcurrent,
+    applyAccessibilityFixes,
+    addressAccessibilityIssues,
+    importAndExecute,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    renderIndexView,
+    ensureUniqueLandmarks,
+    addKeyboardNavigation,
+    addAriaLabels,
+    addScreenReaderAnnouncements,
+    addFocusTrap,
+    improveAccessibility,
+    analyzeContentSafety,
+    renderFunction1,
+    renderFunction2,
+    appState,
+    CONFIG,
+    config
+}

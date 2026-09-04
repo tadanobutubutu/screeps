@@ -208,7 +208,7 @@ describe('auto-pr-generator', () => {
             );
             expect(child_process.execFileSync).toHaveBeenCalledWith(
                 'git',
-                ['push', 'origin', 'fix/issue-123-test-issue'],
+                ['push', 'origin', '--', 'fix/issue-123-test-issue'],
                 expect.any(Object)
             );
         });

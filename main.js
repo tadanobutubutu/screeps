@@ -1,15 +1,16 @@
+// main.js - Entry point for the Screeps bot application
 // TODO: Address accessibility issues from insight report:
 
-// main.js - Entry point for the Screeps bot application
-
 // Module imports and configuration
+const externalConfig = require('./config');
+const logger = require('./utils/logger');
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const path = require('path');
 const fastMap = require('fast-map');
 
-// Configuration - merged from both branches
+// Configuration - merged
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -29,14 +30,34 @@ const appState = {
   cache: new Map()
 };
 
-function validateLandmark(landmark) {
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by fixTableStructureIssues() and fixTableHeaderCellScope())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), addLandmarkRolesAndFixIssues() and fixLandmarkIssues())
+// - REACT_041: Add accessible names to 2 SVGs (handled by addSvgAccessibleNames())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+function getLangAttribute() {
+    // Implementation to get language attribute
+    return document.documentElement.lang || 'en';
+}
+
+function getFullLangAttribute() {
+    // Implementation to get full language attribute
+    return document.documentElement.lang || navigator.language || 'en-US';
+}
+
+function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
-  if (!landmark.tagName) {
+  if (!element.tagName) {
     issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${landmark.tagName}`);
+  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${element.tagName}`);
   }
 
   return {
@@ -524,13 +545,3 @@ module.exports = {
     runAxeAudit,
     generateAccessibilityReport
 };
-
-function getLangAttribute() {
-    // Implementation to get language attribute
-    return document.documentElement.lang || 'en';
-}
-
-function getFullLangAttribute() {
-    // Implementation to get full language attribute
-    return document.documentElement.lang || navigator.language || 'en-US';
-}

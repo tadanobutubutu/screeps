@@ -24,7 +24,7 @@ const config = {
 };
 
 const userSafety = 'unsafe';
-const safetyCategories = 'Unauthorized Advice';
+const safetyCategories = 'Unauthorized Advice, Needs Caution';
 
 export const checkUserSafety = () => {
   let userSafetyMessage = '';
@@ -153,8 +153,7 @@ export const main = {
  * @param {string} id - Unique identifier for the input
  * @param {string} labelText - Text for the associated label
  * @param {string} value - Initial value for the input
- * @returns {HTMLElement} The created input element with label
- */
+ * @returns {HTMLElement} The created input element with label */
 function createAccessibleInput(type, id, labelText, value = '') {
   const container = document.createElement('div');
   container.className = 'form-group';
@@ -186,8 +185,7 @@ function createAccessibleInput(type, id, labelText, value = '') {
  * Creates an in-page button element with optional click handler.
  * @param {string} buttonText - The label text for the button
  * @param {Function} onClickHandler - Callback function triggered when the button is clicked
- * @returns {HTMLElement} The created button element
- */
+ * @returns {HTMLElement} The created button element */
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;

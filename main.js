@@ -1,22 +1,221 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import ReactDOM from 'react--dom/root';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
+const { dependencyGraphContent, indexContent } = require('./dependencyContent');
+const {
+  renderGraphIndex,
+  checkAccessibilityForReport,
+  trapFocus,
+  addLandmarkRegions,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark
+} = require('./utilities');
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const axe = require('axe-core');
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+let dependencyGraph = {};
+
+// Improved accessibility report generation using axe-core
+async function generateAccessibilityReport(issuesData) {
+  let issues;
+
+  if (!issuesData) {
+    const report = await generateReport();
+    issues = report.data;
+  } else {
+    issues = await scanAccessibility();
+  }
+
+  issues = issues.concat(await checkAccessibilityForReport());
+
+  return issues;
+}
+
+async function scanAccessibility() {
+  const violations = await axe.run(document);
+  if (violations && violations.violations) {
+    return violations.violations.map(v => ({
+      id: v.id,
+      impact: v.impact,
+      description: v.description,
+      help: v.helpUrl,
+      nodes: v.nodes.map(n => ({
+        html: n.html,
+        target: n.target
+      }))
+    }));
+  }
+  return [];
+}
+
+async function generateReport() {
+  // Generate a basic accessibility report structure
+  return {
+    introduction: 'Accessibility report for the application',
+    data: [],
+    conclusions: ''
+  };
+}
+
+/**
+ * Validates table structure
+ */
+function validateTableStructure() {
+  // Implementation to be added
+}
+
+/**
+ * Fixes table structure issues
+ */
+function fixTableStructure() {
+  // Implementation to be added
+}
+
+/**
+ * Adds main landmark to page
+ */
+function addMainLandmark() {
+  // Implementation to be added
+}
+
+/**
+ * Validates landmark accessibility
+ */
+function validateLandmark() {
+  // Implementation to be added
+}
+
+/**
+ * Validates landmark structure
+ */
+function validateLandmarkStructure() {
+  // Implementation to be added
+}
+
+/**
+ * Validates landmark attributes
+ */
+function validateLandmarkAttributes() {
+  // Implementation to be added
+}
+
+/**
+ * Gets SVG accessible name
+ * @returns {string} The accessible name for SVG element
+ */
+function getSvgAccessibleName() {
+  // Implementation to be added
+}
+
+/**
+ * Sets SVG attributes for accessibility
+ */
+function setSvgAttributes() {
+  // Implementation to be added
+}
+
+/**
+ * Ensures unique landmarks on the page
+ */
+function ensureUniqueLandmarks() {
+  // Implementation to be added
+}
+
+/**
+ * Creates an in-page navigation button
+ */
+function createInPageButton() {
+  // Implementation to be added
+}
+
+/**
+ * Validates link accessibility
+ */
+function validateLinkAccessibility() {
+  // Implementation to be added
+}
+
+/**
+ * Handles fake links on the page
+ */
+function handleFakeLinks() {
+  // Implementation to be added
+}
+
+/**
+ * Adds proper landmark regions to the page
+ */
+function addProperLandmarkRegions() {
+  // Implementation to be added
+}
+
+function getDependencyGraph() {
+  if (Object.keys(dependencyGraph).length === 0) {
+    return { message: "No dependency graph found." };
+  }
+
+  return {
+    graph: dependencyGraph,
+    status: Object.keys(dependencyGraph).length > 0 ? 'active' : 'inactive'
+  };
+}
+
+const appState = {
+  initialized: false,
+  cache: new Map()
+};
+
+const initialise = () => {
+  appState.initialized = true;
+  console.log('App initialized');
+};
+
+// Add the existing accessibility initialisation logic here if needed
+function initializeApp() {
+  initialise();
+  return appState;
+}
+
+// Fetch user function
+async function fetchUser(userId) {
+  if (!userId) {
+    return null;
+  }
+  return { id: userId, name: 'User ' + userId };
+}
+
+// Clear cache function
+function clearCache() {
+  appState.cache.clear();
+}
+
+// Exported functions
+exports.getDependencyGraph = getDependencyGraph;
+exports.initializeApp = initializeApp;
+exports.fetchUser = fetchUser;
+exports.clearCache = clearCache;
+exports.validateTableStructure = validateTableStructure;
+exports.fixTableStructure = fixTableStructure;
+exports.addMainLandmark = addMainLandmark;
+exports.validateLandmark = validateLandmark;
+exports.validateLandmarkStructure = validateLandmarkStructure;
+exports.validateLandmarkAttributes = validateLandmarkAttributes;
+exports.getSvgAccessibleName = getSvgAccessibleName;
+exports.setSvgAttributes = setSvgAttributes;
+exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+exports.createInPageButton = createInPageButton;
+exports.validateLinkAccessibility = validateLinkAccessibility;
+exports.handleFakeLinks = handleFakeLinks;
+exports.addProperLandmarkRegions = addProperLandmarkRegions;
+exports.generateAccessibilityReport = generateAccessibilityReport;
+exports.scanAccessibility = scanAccessibility;
+exports.generateReport = generateReport;
+
+initialise();
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -32,119 +231,3 @@ reportWebVitals();
 // Safety Categories: Unauthorized Advice
 
 // TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
-
-/**
- * Gets the lang attribute for the HTML element
- * @returns {string} The lang attribute value
- */
-export function getLangAttribute() {
-  // Implementation to be added
-}
-
-/**
- * Adds lang attribute to HTML element
- */
-export function addLangAttribute() {
-  // Implementation to be added
-}
-
-/**
- * Validates table accessibility
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} True if table is accessible
- */
-export function validateTableAccessibility(table) {
-  // Implementation to be added
-}
-
-/**
- * Validates table structure
- */
-export function validateTableStructure() {
-  // Implementation to be added
-}
-
-/**
- * Fixes table structure issues
- */
-export function fixTableStructure() {
-  // Implementation to be added
-}
-
-/**
- * Adds main landmark to page
- */
-export function addMainLandmark() {
-  // Implementation to be added
-}
-
-/**
- * Validates landmark accessibility
- */
-export function validateLandmark() {
-  // Implementation to be added
-}
-
-/**
- * Validates landmark structure
- */
-export function validateLandmarkStructure() {
-  // Implementation to be added
-}
-
-/**
- * Validates landmark attributes
- */
-export function validateLandmarkAttributes() {
-  // Implementation to be added
-}
-
-/**
- * Gets SVG accessible name
- * @returns {string} The accessible name for SVG element
- */
-export function getSvgAccessibleName() {
-  // Implementation to be added
-}
-
-/**
- * Sets SVG attributes for accessibility
- */
-export function setSvgAttributes() {
-  // Implementation to be added
-}
-
-/**
- * Ensures unique landmarks on the page
- */
-export function ensureUniqueLandmarks() {
-  // Implementation to be added
-}
-
-/**
- * Creates an in-page navigation button
- */
-export function createInPageButton() {
-  // Implementation to be added
-}
-
-/**
- * Validates link accessibility
- */
-export function validateLinkAccessibility() {
-  // Implementation to be added
-}
-
-/**
- * Handles fake links on the page
- */
-export function handleFakeLinks() {
-  // Implementation to be added
-}
-
-/**
- * Adds proper landmark regions to the page
- */
-export function addProperLandmarkRegions() {
-  // Implementation to be added
-}

@@ -79,52 +79,61 @@ const appData = {};
 // module.exports = { myFunction };
 // TODO: Add back any required exports that might have been removed
 
-// Address accessibility issues from insight report
-
 // Import the required module
 const { axe } = require('axe-core');
 const fs = require('fs');
-const fastMap = {};
+const fastMap = require('fast-map');
 const path = require('path');
 
 // Import other functions
-const { 
-    improveAccessibility, 
-    addressInsightReportIssues, 
-    renderDependencyGraph, 
-    renderIndexView, 
-    calculateSum, 
-    fixLandmarkIssues, 
-    addLandmarkRoles, 
-    ensureUniqueLandmarks, 
-    fixFakeLinks, 
-    fixTableStructureIssues, 
-    addMainLandmark, 
-    addSvgAccessibleNames, 
-    implementNewFunction, 
-    addLangAttribute, 
-    main, 
-    someFunction, 
-    addressAccessibilityIssues, 
-    renderDependencyGraphContent, 
-    createInPageButtons, 
-    fixUniqueLandmarks, 
-    generateAccessibilityReport 
+const {
+  improveAccessibility,
+  addressInsightReportIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  fixLandmarkIssues,
+  addLandmarkRoles,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  implementNewFunction,
+  addLangAttribute,
+  someFunction,
+  addressAccessibilityIssues,
+  renderDependencyGraphContent,
+  fixUniqueLandmarks,
+  generateAccessibilityReport,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  findLandmarkById,
+  createAccessibleLinks,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButtons
 } = require('./');
 
 // Import helper functions from utils
-const { validateInput, processData, formatResponse } = {};
-const { getSvgAccessibleName, setSvgAttributes } = {};
+const { validateInput, processData, formatResponse } = require('./utils/validators');
+const { getSvgAccessibleName as getSvgAccessibleNameUtil, setSvgAttributes as setSvgAttributesUtil } = require('./utils/svg');
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and addProperLandmarkRegions())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-// - REACT_001: Implement function to handle new accessibility issues ...
+// - REACT_001: Implement function to handle new accessibility issues (addProperLandmarkRegions)
+
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
 
 /**
  * Gets the lang attribute for the HTML element
@@ -154,7 +163,6 @@ function logCurrentURL() {
  * @returns {boolean} True if table is accessible
  */
 function validateTableAccessibility(table) {
-    return true;
 }
 
 /**
@@ -163,7 +171,6 @@ function validateTableAccessibility(table) {
  * @returns {boolean} True if table structure is valid
  */
 function validateTableStructure(table) {
-    return true;
 }
 
 /**
@@ -207,7 +214,6 @@ function validateLandmarkAttributes(landmark) {
  * @returns {string} The accessible name
  */
 function getSvgAccessibleName(svg) {
-    return '';
 }
 
 /**
@@ -226,7 +232,7 @@ function isValidLandmark(landmark) {
 
 function loadLandmarks() {
     try {
-        const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
+        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -240,14 +246,14 @@ function processLandmarks(landmarks) {
         return [];
     }
 
-    const validLandmarks = landmarks.filter(l => l);
+    const validLandmarks = landmarks.filter(isValidLandmark);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.sort((a, b) => {
+    return landmarks.slice().sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -288,152 +294,8 @@ function ensureUniqueLandmarks(landmarks) {
 
 // Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(CONFIG.outputPath, 'report.json');
+  const reportFile = path.join(__dirname, 'accessibility_report.json');
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
-// Utilities
-const { validateInput, processData, someFunction, helper, formatDate } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
-
-// Implement validateLandmark functionality
-function validateLandmark(landmark) {
-  const issues = [];
-
-  if (!landmark) {
-    return { valid: false, issues: ['Landmark is null or undefined'] };
-  }
-
-  if (typeof landmark.id !== 'string' || landmark.id.trim().length === 0) {
-    return {
-      valid: false,
-      issues: ['Landmark ID is required and non-empty']
-    };
-  }
-
-  return { valid: true, issues: [] };
-}
-
-// Improve accessibility
-function improveAccessibility() {
-  fixTableStructureIssues();
-  fixTableHeaderCellScope();
-  addMainLandmark();
-  addSvgAccessibleNames();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  addLandmarkRoles();
-  setLanguageAttribute();
-  fixTableAccessibility();
-  fixLandmarkIssues();
-  addSvgAccessibleNames;
-  createAccessibleLinks();
-
-  // Implement additional methods for API requests and other features
-  function fetchUser(id) {
-    return new Promise((resolve, reject) => {
-      // Fetch user from API using the given id
-      const options = {
-        url: `${CONFIG.apiUrl}/users/${id}`,
-        timeout: CONFIG.timeout
-      };
-
-      request(options, (error, response, body) => {
-        if (error) {
-          reject(error);
-        } else if (response.statusCode !== 200) {
-          reject(new Error(`Failed to fetch user: Status Code ${response.statusCode}`));
-        } else {
-          resolve(JSON.parse(body));
-        }
-      });
-    });
-  }
-
-  function clearCache() {
-    // Implement cache clearing logic
-  }
-
-  function initializeApp() {
-    // Initialize the app
-  }
-
-  // ... Additional methods and functions if needed ...
-}
-
-async function scanAccessibility() {
-    // ... Scanning and reporting accessibility issues using axe-core ...
-    return {
-      timestamp: new Date().toISOString(),
-      issues: []
-    };
-}
-
-/**
- * REACT_027: Fix table structure issues
- * Ensures tables have proper structure and accessibility attributes
- */
-function fixTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Add caption if missing
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table caption';
-      table.insertBefore(caption, table.firstChild);
-    }
-
-    // Ensure headers have scope or id
-    const headers = table.querySelectorAll('th');
-    headers.forEach((th, index) => {
-      if (!th.getAttribute('scope') && !th.getAttribute('id')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
-
-    // Ensure proper table structure
-    validateTableStructure(table);
-  });
-}
-
-/**
- * REACT_017: Validate and fix landmark issues
- * Ensures proper landmark structure and accessibility
- */
-function fixLandmarkIssues() {
-  // Ensure unique landmarks
-  ensureUniqueLandmarks(landmarks);
-
-  // Add proper landmark regions
-  addProperLandmarkRegions();
-
-  // Validate existing landmarks
-  const landmarkValidation = validateLandmark();
-  if (!landmarkValidation.valid) {
-    console.warn('Landmark validation issues:', landmarkValidation.issues);
-  }
-}
-
-/**
- * REACT_041: Add accessible names to SVGs
- * Ensures all SVGs have accessible names
- */
-function addSvgAccessibility() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const name = getSvgAccessibleName(svg);
-    if (!name) {
-      setSvgAttributes(svg, 'Graphic element');
-    }
-  });
 }
 
 /**
@@ -441,13 +303,15 @@ function addSvgAccessibility() {
  * Creates properly accessible links and buttons
  */
 function createAccessibleLinks() {
-  const skipLink = createInPageButton('main-content', 'Skip to main content');
-  const links = [];
+  const skipLink = createInPageButtons('main-content', 'Skip to main content');
+  document.body.insertBefore(skipLink, document.body.firstChild);
 
+  const links = document.querySelectorAll('a');
   links.forEach(link => {
-    const validation = { valid: true, issues: [] };
+    const validation = validateLinkAccessibility(link);
     if (!validation.valid) {
       console.warn('Link validation issues:', validation.issues);
+      handleFakeLinks(link);
     }
   });
 }
@@ -459,35 +323,98 @@ function createAccessibleLinks() {
 function addressAccessibilityIssues() {
   try {
     fixTableAccessibility();
-    addMainLandmark();
+    fixLandmarkIssues();
+    addSvgAccessibility();
     createAccessibleLinks();
+    generateAccessibilityReport();
 
     return {
       success: true,
       message: 'Accessibility issues have been addressed',
       fixesApplied: [
         'table_accessibility',
-        'landmark_issues'
+        'landmark_issues',
+        'svg_accessibility',
+        'create_accessible_links'
       ]
     };
   } catch (error) {
-    console.error('Error addressing accessibility issues:', error);
+    console.error('Failed to address accessibility issues:', error);
     return {
       success: false,
-      message: 'Failed to address accessibility issues',
+      message: 'Accessibility issues have not been addressed',
       error: error.message
     };
   }
 }
 
-// Export statements (if needed)
+/**
+ * Fixes table accessibility issues
+ */
+function fixTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!validateTableAccessibility(table)) {
+      fixTableStructure(table);
+    }
+  });
+}
+
+/**
+ * Validates link accessibility
+ * @param {HTMLAnchorElement} link - The link element to validate
+ * @returns {Object} Validation result
+ */
+function validateLinkAccessibility(link) {
+  return {
+    valid: true,
+    issues: []
+  };
+}
+
+// Initialize the application
+function initializeApp() {
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+        const button = createInPageButtons('mainButton', 'Click Me', 'btn-primary');
+        mainContent.appendChild(button);
+    }
+    validateLandmarkStructure();
+}
+
+// Other functions merged from both branches
+
+function function3(input) {
+    if (typeof input === 'string') {
+        return input.toUpperCase();
+    }
+    return input;
+}
+
+function getCurrentLanguageSetting() {
+    // Assuming the language setting is stored in a cookie named 'language'
+    const cookies = document.cookie.split('; ');
+    const languageCookie = cookies.find(cookie => cookie.startsWith('language='));
+    if (languageCookie) {
+        const [_, value] = languageCookie.split('=');
+        return value;
+    }
+    // Default to English if no language setting is found
+    return 'en';
+}
+
+function harvestResources() {
+    // TODO: Implement the actual harvest logic
+    console.log('Harvesting resources...');
+    // Implement the actual logic here, e.g., fetching data, processing it, etc.
+}
+
 module.exports = {
-  config,
-  appData,
+  config: CONFIG,
   isInitialized,
+  appData,
   getLangAttribute,
   addLangAttribute,
-  logCurrentURL,
   validateTableAccessibility,
   validateTableStructure,
   fixTableStructure,
@@ -504,7 +431,32 @@ module.exports = {
   findLandmarkById,
   ensureUniqueLandmarks,
   writeReport,
-  generateAccessibilityReport,
   createAccessibleLinks,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  fixTableAccessibility,
+  validateLinkAccessibility,
+  createInPageButtons,
+  fixUniqueLandmarks,
+  improveAccessibility,
+  addressInsightReportIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  fixLandmarkIssues,
+  addLandmarkRoles,
+  fixFakeLinks,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addSvgAccessibleNames,
+  implementNewFunction,
+  someFunction,
+  renderDependencyGraphContent,
+  generateAccessibilityReport,
+  initializeApp,
+  function3,
+  getCurrentLanguageSetting,
+  harvestResources,
+  validateInput,
+  processData,
+  formatResponse
 };

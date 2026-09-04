@@ -4,6 +4,7 @@ const CONFIG = {
   maxResults: 100,
   apiUrl: process.env.API_URL || '',
   timeout: 5000,
+  dataPath: './data',
   // Add other configuration properties as needed
 };
 
@@ -518,11 +519,14 @@ module.exports = {
     appState,
     getLangAttribute,
     addLangAttribute,
+    logCurrentURL,
     validateTableAccessibility,
     validateTableStructure,
     fixTableStructure,
     addMainLandmark,
     validateLandmark,
+    validateLandmarkStructure,
+    validateLandmarkAttributes,
     isValidLandmark,
     loadLandmarks,
     processLandmarks,
@@ -546,7 +550,6 @@ module.exports = {
     formatResponse,
     getSvgAccessibleName,
     setSvgAttributes,
-    logCurrentURL,
     createInPageButtons,
     addressInsightReportIssues,
     renderDependencyGraph,

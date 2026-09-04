@@ -1,9 +1,9 @@
 name: AI Auto-Coder (Full Lifecycle Agent)
 
 on:
-  issues:
+  # disabled_by_guard: issues:
     types: [opened, labeled, edited]
-  issue_comment:
+  # disabled_by_guard: issue_comment:
     types: [created]
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
@@ -20,7 +20,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  issues: write
+  # disabled_by_guard: issues: write
 
 jobs:
   auto-label:

@@ -39,7 +39,9 @@ const CONFIG = {
   debug: false,
   landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
   maxResults: 100,
-  dataPath: './data'
+  dataPath: './data',
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
 
 const appState = {};
@@ -71,40 +73,40 @@ function loadLandmarks() {
 
 // Process landmarks array
 function processLandmarks(landmarks) {
-    if (!landmarks || !Array.isArray(landmarks)) {
-        return [];
-    }
+  if (!landmarks || !Array.isArray(landmarks)) {
+    return [];
+  }
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
-    return uniqueLandmarks.slice(0, config.maxResults);
+  return uniqueLandmarks.slice(0, config.maxResults);
 }
 
 function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (seen.has(landmark.id)) {
+      return false;
     }
-    const seen = new Set();
-    return landmarks.filter(landmark => {
-        if (seen.has(landmark.id)) {
-            return false;
-        }
-        seen.add(landmark.id);
-        return true;
-    });
+    seen.add(landmark.id);
+    return true;
+  });
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
+  return landmarks.slice().sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase();
+    const nameB = (b.name || '').toLowerCase();
 
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
+    if (ascending) {
+      return nameA.localeCompare(nameB);
+    }
+    return nameB.localeCompare(nameA);
+  });
 }
 
 function checkLinkAccessibility(linkUrl) {
@@ -154,10 +156,6 @@ function validateTableStructure() {
   // ... Your implementation for REACT_027 table structure issues
 }
 
-function validateLandmark() {
-  // ... Your implementation for REACT_017 landmark issues
-}
-
 function validateLinkAccessibility(link) {
   if (!link || typeof link !== 'object') {
     return false;
@@ -187,9 +185,9 @@ function handleFakeLinks() {
 }
 
 function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
+  return landmark &&
+         landmark.id !== undefined &&
+         landmark.id !== null;
 }
 
 function addProperLandmarkRegions() {
@@ -205,7 +203,7 @@ function addProperLandmarkRegions() {
 }
 
 function createAccessibleLinks() {
-    // Create accessible links implementation
+  // Create accessible links implementation
 }
 
 function getLangAttributeEl(element) {
@@ -291,6 +289,7 @@ module.exports = {
   addLangAttributeEl,
   createInPageButtonEl,
   validateLandmarkElCheck,
+  getSvgAccessibleNameEl,
   ensureUniqueLandmarksFn,
   validateLandmarkObject,
   initialize,
@@ -313,26 +312,4 @@ module.exports.loop = function () {
   const harvesterCount = _.filter(Game.creeps, c => c.memory.role === 'harvester').length;
   if (harvesterCount < 2 && Game.spawns['Spawn1'].spawning === null) {
     const newName = 'Harvester' + Game.time;
-    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
-      memory: { role: 'harvester' }
-    });
-  }
-};
-
-function initializeAccessibilityFeatures() {
-  if (a11y && a11y.init) {
-    a11y.init();
-  }
-}
-
-const initializeApp = () => {
-  // Ensure the app is accessible and free of highlighted issues
-  console.log('Initializing application...');
-  return true;
-};
-
-const initialize = () => {
-  console.log('Initializing application...');
-  initializeApp();
-  return true;
-};
+    Game.spawns['Spawn

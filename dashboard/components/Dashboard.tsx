@@ -28,7 +28,9 @@ export default function Dashboard() {
     const [refreshSuccess, setRefreshSuccess] = useState(false);
     const [toastMsg, setToastMsg] = useState<string | null>(null);
     const [errCopyHover, setErrCopyHover] = useState(false);
+    const [errCopyFocused, setErrCopyFocused] = useState(false);
     const [errRetryHover, setErrRetryHover] = useState(false);
+    const [errRetryFocused, setErrRetryFocused] = useState(false);
     const [toastCloseFocused, setToastCloseFocused] = useState(false);
     const [copiedAllRooms, setCopiedAllRooms] = useState(false);
     const [copyAllHover, setCopyAllHover] = useState(false);
@@ -38,6 +40,8 @@ export default function Dashboard() {
     const [summaryDetailsFocused, setSummaryDetailsFocused] = useState(false);
     const [noMatchClearHover, setNoMatchClearHover] = useState(false);
     const [noMatchClearFocused, setNoMatchClearFocused] = useState(false);
+    const [searchClearHover, setSearchClearHover] = useState(false);
+    const [searchClearFocused, setSearchClearFocused] = useState(false);
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -278,8 +282,8 @@ export default function Dashboard() {
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}
                     onMouseLeave={() => setErrCopyHover(false)}
-                    onFocus={() => setErrCopyHover(true)}
-                    onBlur={() => setErrCopyHover(false)}
+                    onFocus={() => setErrCopyFocused(true)}
+                    onBlur={() => setErrCopyFocused(false)}
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
@@ -293,6 +297,8 @@ export default function Dashboard() {
                         transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
                         boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
                         filter: errCopyHover ? 'brightness(1.1)' : 'none',
+                        outline: errCopyFocused ? '2px solid #004b73' : 'none',
+                        outlineOffset: '2px',
                     }}
                 >
                     {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
@@ -302,8 +308,8 @@ export default function Dashboard() {
                     disabled={refreshing}
                     onMouseEnter={() => setErrRetryHover(true)}
                     onMouseLeave={() => setErrRetryHover(false)}
-                    onFocus={() => setErrRetryHover(true)}
-                    onBlur={() => setErrRetryHover(false)}
+                    onFocus={() => setErrRetryFocused(true)}
+                    onBlur={() => setErrRetryFocused(false)}
                     aria-label={refreshing ? '読み込み中...' : 'データを再読み込み'}
                     title={refreshing ? '読み込み中...' : 'データを再読み込み'}
                     style={{
@@ -319,6 +325,8 @@ export default function Dashboard() {
                         boxShadow:
                             errRetryHover && !refreshing ? '0 4px 10px rgba(0,0,0,0.05)' : 'none',
                         filter: errRetryHover && !refreshing ? 'brightness(0.95)' : 'none',
+                        outline: errRetryFocused ? '2px solid #004b73' : 'none',
+                        outlineOffset: '2px',
                     }}
                 >
                     {refreshing ? '読み込み中...' : '🔄 再試行'}
@@ -853,23 +861,15 @@ export default function Dashboard() {
                                     padding: roomQuery
                                         ? '0.15rem 1.4rem 0.15rem 0.4rem'
                                         : '0.15rem 0.4rem',
-                                    border: '1px solid #cbd5e0',
+                                    border: `1px solid ${searchFocused ? '#004b73' : '#cbd5e0'}`,
                                     borderRadius: '4px',
                                     outline: 'none',
+                                    boxShadow: searchFocused ? '0 0 0 2px rgba(0, 75, 115, 0.2)' : 'none',
                                     transition: 'all 0.2s ease-in-out',
                                     width: searchFocused || roomQuery ? '160px' : '100px',
                                 }}
-                                onFocus={(e) => {
-                                    setSearchFocused(true);
-                                    e.currentTarget.style.borderColor = '#004b73';
-                                    e.currentTarget.style.boxShadow =
-                                        '0 0 0 2px rgba(0, 75, 115, 0.2)';
-                                }}
-                                onBlur={(e) => {
-                                    setSearchFocused(false);
-                                    e.currentTarget.style.borderColor = '#cbd5e0';
-                                    e.currentTarget.style.boxShadow = 'none';
-                                }}
+                                onFocus={() => setSearchFocused(true)}
+                                onBlur={() => setSearchFocused(false)}
                             />
                             {roomQuery && (
                                 <button
@@ -877,15 +877,25 @@ export default function Dashboard() {
                                         setRoomQuery('');
                                         searchInputRef.current?.focus();
                                     }}
+                                    onMouseEnter={() => setSearchClearHover(true)}
+                                    onMouseLeave={() => setSearchClearHover(false)}
+                                    onFocus={() => setSearchClearFocused(true)}
+                                    onBlur={() => setSearchClearFocused(false)}
                                     aria-label="検索キーワードをクリア (Escape)"
                                     aria-keyshortcuts="Escape"
                                     title="検索をクリア (Escape)"
                                     style={{
                                         position: 'absolute',
                                         right: '4px',
-                                        background: 'none',
+                                        background:
+                                            searchClearHover || searchClearFocused
+                                                ? '#cbd5e0'
+                                                : 'transparent',
                                         border: 'none',
-                                        color: '#718096',
+                                        color:
+                                            searchClearHover || searchClearFocused
+                                                ? '#2d3748'
+                                                : '#718096',
                                         cursor: 'pointer',
                                         padding: '0.1rem',
                                         display: 'inline-flex',
@@ -897,25 +907,8 @@ export default function Dashboard() {
                                         width: '14px',
                                         height: '14px',
                                         transition: 'background-color 0.1s, color 0.1s',
-                                        outline: 'none',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#cbd5e0';
-                                        e.currentTarget.style.color = '#2d3748';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'transparent';
-                                        e.currentTarget.style.color = '#718096';
-                                    }}
-                                    onFocus={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#cbd5e0';
-                                        e.currentTarget.style.color = '#2d3748';
-                                        e.currentTarget.style.outline = '1px solid #004b73';
-                                    }}
-                                    onBlur={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'transparent';
-                                        e.currentTarget.style.color = '#718096';
-                                        e.currentTarget.style.outline = 'none';
+                                        outline: searchClearFocused ? '2px solid #004b73' : 'none',
+                                        outlineOffset: '1px',
                                     }}
                                 >
                                     ✕

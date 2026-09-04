@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: add the new functions or changes requested in the issue
 // Here is the implementation for checking link accessibility
 
@@ -80,4 +77,3 @@ module.exports = {
   checkMultipleLinks,
   filterAccessibleLinks
 };
-```

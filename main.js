@@ -1,4 +1,4 @@
-The resolved file content is as follows:
+This is the resolved version of the `main.js` file with both changes integrated:
 
 ```javascript
 const { implementTowerDefense, config, CONFIG, isInitialized, appData, initializeApp, processData, fetchUser, clearCache } = require('./');
@@ -9,16 +9,16 @@ const { isUserSafe, isSafetyCategoryUnauthorizedAdvice } = require('./userSafety
 const { validateInput: validateInputHelper, processData, formatResponse } = require('./helpers');
 const { getSvgAccessibleName: getSvgAccessibleNameHelper, setSvgAttributes: setSvgAttributesHelper } = require('./svgHelpers');
 const axe = axeCore.createInstance({
- rules: {
-   'aria-invalid-2': { enabled: false },
-   'color-contrast': { enabled: false },
-   'name-role-value': { enabled: false },
-   'paraphernalia': { enabled: false },
-   'aria-roles': { enabled: false },
-   'aria-properties': { enabled: false },
-   getSvgAccessibleName: getSvgAccessibleNameHelper,
-   setSvgAttributes: setSvgAttributesHelper
- }
+  rules: {
+    'aria-invalid-2': { enabled: false },
+    'color-contrast': { enabled: false },
+    'name-role-value': { enabled: false },
+    'paraphernalia': { enabled: false },
+    'aria-roles': { enabled: false },
+    'aria-properties': { enabled: false },
+    getSvgAccessibleName: getSvgAccessibleNameHelper,
+    setSvgAttributes: setSvgAttributesHelper
+  }
 });
 
 const CONFIG = {
@@ -35,28 +35,27 @@ const CONFIG = {
   }
 };
 
-// Import user safety functions and check if user is safe
-const { isUserSafe, isSafetyCategoryUnauthorizedAdvice } = require('./userSafety');
+const config = CONFIG;
 
 // ... (Previous code from both branches with minor changes)
 
 function getUserSafetyAdvice() {
- if (userSafety === "unsafe") {
-   return SafetyCategories[Math.floor(Math.random() * SafetyCategories.length)];
- }
+  if (userSafety === "unsafe") {
+    return SafetyCategories[Math.floor(Math.random() * SafetyCategories.length)];
+  }
 
- const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
- return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
 }
 
 function calculateMultiplier(factor) {
- const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
- return factor * safetyCategories.length;
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  return factor * safetyCategories.length;
 }
 
 function writeReport(report) {
- const reportFile = path.join(__dirname, 'accessibility_report.json');
- fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
 // Function to scan pages for accessibility issues and generate a report
@@ -89,4 +88,4 @@ async function scanAccessibility() {
 // ... (Rest of the code from origin/main)
 ```
 
-This resolved version of the `main.js` file combines the changes from both branches, ensuring data path, API URL, and title properties in the `CONFIG` object, as well as the scanning and reporting functions for accessibility issues. Additionally, it preserves the user safety advice functions and incorporates the code for user safety check.
+This version combines changes from both branches, ensuring data path, API URL, and title properties in the `CONFIG` object, as well as the scanning and reporting functions for accessibility issues. Additionally, it preserves the user safety advice functions and incorporates the code for user safety check.

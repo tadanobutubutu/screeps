@@ -214,6 +214,177 @@ function createInPageButtons(id, text, className) {
   return button;
 }
 
+// Table accessibility helpers
+/**
+ * Validates table accessibility
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {boolean} True if table is accessible
+ */
+function validateTableAccessibility(table) {
+    if (!table) return false;
+
+    const issues = [];
+    // Validate table attributes
+    if (!table.hasAttribute('summary')) {
+      issues.push('Missing summary attribute');
+    }
+
+    // Validate table header
+    const thead = table.querySelector('thead');
+    if (!thead || !thead.rows.length) {
+      issues.push('Missing table header');
+    }
+
+    // Validate table rows and cells
+    const tbody = table.querySelector('tbody');
+    const trs = tbody.rows;
+    if (!trs.length) {
+      issues.push('Missing table body or no rows');
+    }
+
+    if (issues.length) {
+      console.warn(`Table accessibility issues found: ${issues.join(', ')}`);
+      return false;
+    }
+    return true;
+}
+
+/**
+ * Validates table structure
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {boolean} True if table structure is valid
+ */
+function validateTableStructure(table) {
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+
+  if (!thead || !tbody) {
+    return false;
+  }
+
+  const headerCells = thead.rows[0].children;
+  const tdCount = headerCells.length;
+
+  // Validate table rows structure
+  const trs = tbody.rows;
+  const rowCount = trs.length;
+
+  if (tdCount !== rowCount) {
+    return false;
+  }
+
+  let cells;
+
+  for (let i = 0; i < rowCount; i++) {
+    cells = trs[i].children;
+
+    if (cells.length !== tdCount) {
+      return false;
+    }
+
+    for (let j = 0; j < tdCount; j++) {
+      if (cells[j].tagName.toLowerCase() !== 'td') {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Fixes table structure issues
+ * @param {HTMLElement} table - The table element to fix */
+function fixTableStructure(table) {
+  if (!validateTableStructure(table)) {
+    console.warn("Table doesn't meet the required structure, skipping fixes.");
+    return;
+  }
+
+  // Add missing table attributes
+  if (!table.hasAttribute('summary')) {
+    table.setAttribute('summary', 'Table with missing structure issues');
+  }
+
+  // Add missing table header
+  const theadNode = table.querySelector('thead');
+  if (!theadNode) {
+    const newThead = document.createElement('thead');
+    table.insertBefore(newThead, table.children[0]);
+  }
+
+  // Add missing table rows
+  const tbodyNode = table.querySelector('tbody');
+  if (!tbodyNode) {
+    const newTbody = document.createElement('tbody');
+    table.insertBefore(newTbody, table.children[1]);
+  }
+}
+
+/**
+ * Fixes table accessibility issues
+ * @param {HTMLElement} table - The table element to fix
+ */
+function fixTableAccessibility() {
+    fixTableStructureIssues(table);
+    fixTableHeaderCellScope(table);
+}
+
+// Landmark handling
+/**
+ * Adds main landmark to the document
+ */
+function addMainLandmark() {
+}
+
+/**
+ * Validates landmark
+ * @param {HTMLElement} landmark - The landmark element to validate
+ */
+function validateLandmark(landmark) {
+}
+
+/**
+ * Validates landmark structure
+ * @param {HTMLElement} landmark - The landmark element to validate
+ */
+function validateLandmarkStructure(landmark) {
+}
+
+/**
+ * Validates landmark attributes
+ * @param {HTMLElement} landmark - The landmark element to validate
+ */
+function validateLandmarkAttributes(landmark) {
+}
+
+/**
+ * Gets SVG accessible name
+ * @param {HTMLElement} svg - The SVG element
+ * @returns {string} The accessible name
+ */
+function getSvgAccessibleName(svg) {
+}
+
+/**
+ * Sets SVG attributes
+ * @param {HTMLElement} svg - The SVG element
+ * @param {string} name - The accessible name
+ */
+function setSvgAttributes(svg, name) {
+}
+
+/**
+ * Adds SVG accessible names to all SVGs in the document
+ */
+function addSvgAccessibleNames() {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+        const accessibleName = getSvgAccessibleName(svg);
+        setSvgAttributes(svg, accessibleName);
+    });
+}
+
 function createAccessibleLinks() {
   const skipLink = createInPageButtons('main-content', 'Skip to main content');
   document.body.insertBefore(skipLink, document.body.firstChild);
@@ -229,25 +400,20 @@ function createAccessibleLinks() {
 }
 
 function validateLinkAccessibility(link) {
+  const issues = [];
+  if (!link.href || link.href === '#') {
+      issues.push('Link has no valid href');
+  }
+  if (!link.textContent || link.textContent.trim() === '') {
+      issues.push('Link has no accessible text');
+  }
   return {
-    valid: true,
-    issues: []
+      valid: issues.length === 0,
+      issues: issues
   };
 }
 
 function handleFakeLinks(link) {
-}
-
-function validateTableAccessibility(table) {
-  if (!table) return false;
-  return true;
-}
-
-function validateTableStructure(table) {
-  return true;
-}
-
-function fixTableStructure(table) {
 }
 
 function fixTableAccessibility() {

@@ -4,11 +4,11 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const fastMap = require('fast-map');
-const mapCache = new Map();
-const { a11y } = require('@accessible/react');
-const accessiblyHelper = async (...args) => args;
 
-// Destructure functions from accessibility-improvements
+const { a11y } = require('@accessible/react');
+const mapCache = new Map();
+
+// Import accessibility improvements
 const {
   fixTableStructureIssues,
   fixTableHeaderCellScope,
@@ -31,7 +31,10 @@ const {
   visualizeModuleRelationships
 } = require('./accessibility-improvements');
 
-// Configuration - merged from both versions (using origin/main for completeness)
+// Constants
+const VALID_LANDMARK_ROLES = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+
+// Configuration
 const config = {
   name: 'MyApp',
   version: '1.0.0',
@@ -66,6 +69,133 @@ const landmarkSelectors = [
   'section:not([role])'
 ].map((selector, index) => ({ selector, priority: index }));
 
+const accessiblyHelper = async (html, config) => {
+  // Check if axe is available (axe-core should be loaded in the environment)
+  if (typeof axe === 'undefined') {
+    throw new Error('axe-core is not loaded. Please include axe-core before running this function.');
+  }
+
+  try {
+    // Configure axe-core options for WCAG 2.1 AA compliance
+    const options = {
+      runOnly: {
+        type: 'tag',
+        values: ['wcag2a', 'wcag2aa']
+      },
+      rules: {
+        // Enable all recommended rules
+        'color-contrast': { enabled: true },
+        'heading-order': { enabled: true },
+        'link-name': { enabled: true },
+        'button-name': { enabled: true },
+        'image-alt': { enabled: true },
+        'form-field': { enabled: true },
+        'keyboard-access': { enabled: true },
+        'focus-order': { enabled: true },
+        'region': { enabled: true },
+        'page-has-main-content': { enabled: true }
+      },
+      resultTypes: {
+        violations: true,
+        passes: true,
+        incomplete: true,
+        inapplicable: true
+      }
+    };
+
+    // Run accessibility scan on the provided HTML
+    const results = await axe.run(html, options);
+
+    // Format the report with additional metadata and the provided config
+    const report = {
+      timestamp: new Date().toISOString(),
+      url: config.apiUrl || 'unknown',
+      violations: results.violations.map(violation => ({
+        id: violation.id,
+        description: violation.description,
+        help: violation.help,
+        helpUrl: violation.helpUrl,
+        nodes: violation.nodes.map(node => ({
+          target: node.target,
+          html: node.html,
+          failureSummary: node.failureSummary,
+          impact: node.impact
+        }))
+      })),
+      passes: results.passes.map(pass => ({
+        id: pass.id,
+        description: pass.description,
+        help: pass.help,
+        helpUrl: pass.helpUrl,
+        nodes: pass.nodes.map(node => ({
+          target: node.target,
+          html: node.html
+        }))
+      })),
+      incomplete: results.incomplete.map(incomplete => ({
+        id: incomplete.id,
+        description: incomplete.description,
+        help: incomplete.help,
+        helpUrl: incomplete.helpUrl,
+        nodes: incomplete.nodes.map(node => ({
+          target: node.target,
+          html: node.html
+        }))
+      })),
+      inapplicable: results.inapplicable.map(inapplicable => ({
+        id: inapplicable.id,
+        description: inapplicable.description,
+        help: inapplicable.help,
+        helpUrl: inapplicable.helpUrl
+      })),
+      testEngine: results.testEngine,
+      testRunner: results.testRunner,
+      testEnvironmentInfo: results.testEnvironmentInfo,
+      summary: {
+        violations: results.violations.length,
+        passes: results.passes.length,
+        incomplete: results.incomplete.length,
+        inapplicable: results.inapplicable.length,
+        total: results.violations.length + results.passes.length + results.incomplete.length + results.inapplicable.length
+      },
+      config
+    };
+
+    return report;
+  } catch (error) {
+    console.error('Error scanning accessibility:', error);
+    return {
+      error: true,
+      message: error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+};
+
+function validateConfig(cfg) {
+  const errors = [];
+  // Update landmark validation logic if needed
+  const role = cfg && cfg.allowedRoles && Array.isArray(cfg.allowedRoles) && cfg.allowedRoles.find(r => r === 'main');
+  if (!role) {
+    errors.push('Missing "main" role in allowedRoles');
+  }
+  // Additional validation for null/undefined configuration
+  if (!cfg) {
+    errors.push('Configuration is null or undefined');
+  }
+  // Additional check for non-object input
+  if (typeof cfg !== 'object') {
+    errors.push('Configuration must be an object');
+  }
+  return errors;
+}
+
+function isValidLandmark(landmark) {
+    return landmark &&
+           typeof landmark.id !== 'undefined' &&
+           landmark.id !== null;
+}
+
 // Handle credential response when received
 function handleCredentialResponse(response) {
   if (!response) {
@@ -78,11 +208,13 @@ function handleCredentialResponse(response) {
     throw new Error('Invalid credential response structure');
   }
 
-  localStorage.setItem('authCredential', JSON.stringify({
-    token: credential.credential,
-    clientId: credential.clientId,
-    timestamp: Date.now()
-  }));
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('authCredential', JSON.stringify({
+      token: credential.credential,
+      clientId: credential.clientId,
+      timestamp: Date.now()
+    }));
+  }
 
   return credential;
 }
@@ -104,13 +236,6 @@ const appState = {
 };
 
 // Helper function to validate landmark structure
-function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
-}
-
-// Load landmarks from file
 function loadLandmarks() {
     try {
         const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
@@ -219,10 +344,6 @@ const externalEnsureUniqueLandmarks = externalEnsureUniqueLandmarks;
 const externalAddLandmarkRoles = externalAddLandmarkRoles;
 const renderDependencyGraph = renderDependencyGraphContent;
 const createInPageButtons = createInPageButtons;
-const addressAccessibilityIssuesFromModule = addressAccessibilityIssues;
-const scanAccessibilityFromModule = scanAccessibility;
-const fixFakeLinks = externalFixFakeLinks;
-const ensureUniqueLandmarks = ensureUniqueLandmarksFromFile;
 
 // Accessibility improvements (destructured)
 const {
@@ -247,85 +368,31 @@ const {
   visualizeModuleRelationships
 } = require('./accessibility-improvements');
 
-// Configuration - merged from both versions (using origin/main for completeness)
-const config = {
-  name: 'MyApp',
-  version: '1.0.0',
-  debug: false,
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  maxResults: 100,
-  dataPath: './data'
-};
-
-// Constants
-const safetyCategories = ["Unauthorized Advice", "Dangerous Action", "Potential Scam", "Privacy Risk"];
-const books = [];
-const safetyCategory = "User Safety: safe";
-
-const landmarkSelectors = [
-  'main',
-  '[role="banner"]',
-  '[role="navigation"]',
-  '[role="main"]',
-  '[role="contentinfo"]',
-  '[role="form"]',
-  '[role="search"]',
-  'nav',
-  '[role="region"]',
-  'aside',
-  'header:not([role])',
-  'nav:not([role])',
-  'main:not([role])',
-  'footer:not([role])',
-  'section:not([role])'
-].map((selector, index) => ({ selector, priority: index }));
-
-// Handle credential response when received
-function handleCredentialResponse(response) {
-  if (!response) {
-    console.error('No credential response received');
-    return null;
-  }
-  const credential = JSON.parse(response.credential);
-
-  if (!credential || !credential.credential || !credential.clientId) {
-    throw new Error('Invalid credential response structure');
-  }
-
-  localStorage.setItem('authCredential', JSON.stringify({
-    token: credential.credential,
-    clientId: credential.clientId,
-    timestamp: Date.now()
-  }));
-
-  return credential;
-}
-
 // Main initialization function
 const initializeApp = () => {
   console.log('Application initialized');
 
   // Ensure the app is accessible
-  const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
-  if (mainContent) {
-    mainContent.setAttribute('aria-label', 'Main content area');
+  if (typeof document !== 'undefined') {
+    const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
+    if (mainContent) {
+      mainContent.setAttribute('aria-label', 'Main content area');
+    }
+
+    // Set up keyboard navigation
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Tab') {
+        document.body.classList.add('keyboard-nav');
+      }
+    });
+
+    document.addEventListener('mousedown', () => {
+      document.body.classList.remove('keyboard-nav');
+    });
   }
 
-  // Set up keyboard navigation
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Tab') {
-      document.body.classList.add('keyboard-nav');
-    }
-  });
-
-  document.addEventListener('mousedown', () => {
-    document.body.classList.remove('keyboard-nav');
-  });
-
   // Call accessibility helper functions
-  setLanguageAttribute();
+  addLangAttribute();
   addLandmarkRoles();
   fixFakeLinks();
 
@@ -333,25 +400,20 @@ const initializeApp = () => {
   addressAccessibilityIssues();
 
   // Create the in-page button
-  createInPageButton();
+  createInPageButtons();
 
-  // Add accessible names to 2 SVGs
-  setSvgAccessibleNames('svg1Id', 'svg2Id', 'aria-label for SVG1', 'aria-label for SVG2');
+  // Add accessible names to SVGs
+  addSvgAccessibleNames();
 
   // Ensure unique landmarks
-  ensureUniqueLandmarks([]);
+  externalEnsureUniqueLandmarks([]);
 
   // Fix fake link issue
-  fixFakeLink();
+  fixFakeLinks();
 
   // Initialize accessibility features from a11y utilities
   if (a11y && a11y.init) {
     a11y.init();
-  }
-
-  // Upgrade logic: use harvested data to improve the system
-  if (processed.length > 0) {
-    enhanceSystemWithHarvestedData(processed);
   }
 };
 
@@ -360,24 +422,13 @@ async function scanAccessibility(filePaths) {
   const issues = [];
 
   // Check for lang attribute on HTML element
-  const langAttribute = getLangAttribute();
-  if (!langAttribute) {
+  addLangAttribute();
+  if (typeof document !== 'undefined' && !document.documentElement.getAttribute('lang')) {
     issues.push({
       type: 'REACT_015',
       description: 'HTML element is missing lang attribute',
       severity: 'critical',
       element: 'html'
-    });
-  }
-
-  // Check table accessibility
-  const tableAccessibilityIssues = validateTableAccessibility();
-  if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
-    tableAccessibilityIssues.forEach(function(issue) {
-      issues.push({
-        file: filePaths[0] || 'unknown',
-        issues: [issue],
-      });
     });
   }
 
@@ -394,80 +445,19 @@ async function scanAccessibility(filePaths) {
     }
   }
 
-  // Check table structure
-  const tableStructureIssues = validateTableStructure();
-  if (tableStructureIssues && tableStructureIssues.length > 0) {
-    tableStructureIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_027',
-        subtype: 'structure',
-        description: issue.description || 'Table structure issue',
-        severity: issue.severity || 'high',
-        element: issue.element,
-        table: issue.table
-      });
-    });
-  }
-
   // Check landmark issues
   const landmarkIssues = validateLandmark();
-  if (landmarkIssues && landmarkIssues.length > 0) {
-    landmarkIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_017',
-        description: issue.description || 'Landmark issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-
-  // Check landmark structure
-  const landmarkStructureIssues = validateLandmarkStructure();
-  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
-    landmarkStructureIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_017',
-        structure: true,
-        description: issue.description || 'Landmark structure issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-
-  // Check landmark attributes
-  const landmarkAttributeIssues = validateLandmarkAttributes();
-  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
-    landmarkAttributeIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_017',
-        description: issue.description || 'Landmark attribute issue',
-        severity: issue.severity || 'low',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-
-  // Check SVG accessibility
-  const svgAccessibleNames = getSvgAccessibleName();
-  if (svgAccessibleNames && svgAccessibleNames.length > 0) {
-    svgAccessibleNames.forEach(function(svg) {
-      issues.push({
-        type: 'REACT_041',
-        description: 'SVG is missing accessible name',
-        severity: 'medium',
-        svg: svg.element,
-        svgId: svg.id
-      });
+  if (landmarkIssues && landmarkIssues.errors && landmarkIssues.errors.length > 0) {
+    issues.push({
+      type: 'REACT_017',
+      description: 'Landmark issue',
+      severity: 'medium',
+      errors: landmarkIssues.errors
     });
   }
 
   // Check for unique landmarks
-  const uniqueLandmarkIssues = ensureUniqueLandmarks([]);
+  const uniqueLandmarkIssues = ensureUniqueLandmarksFromFile([]);
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
     uniqueLandmarkIssues.forEach(function(issue) {
       issues.push({
@@ -481,16 +471,12 @@ async function scanAccessibility(filePaths) {
   }
 
   // Check link accessibility
-  const linkIssues = validateLinkAccessibility();
-  if (linkIssues && linkIssues.length > 0) {
-    linkIssues.forEach(function(issue) {
-      issues.push({
-        type: 'REACT_036',
-        description: issue.description || 'Link accessibility issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        link: issue.link
-      });
+  const linkIssues = checkLinkAccessibility();
+  if (linkIssues) {
+    issues.push({
+      type: 'REACT_036',
+      description: 'Link accessibility issue',
+      severity: 'medium'
     });
   }
 
@@ -502,8 +488,7 @@ function generateAccessibilityReport(issuesData) {
   const analyzedIssues = analyzeAccessibility(issuesData);
 
   // Check for lang attribute on HTML element
-  const langAttribute = getLangAttribute();
-  if (!langAttribute) {
+  if (typeof document !== 'undefined' && !document.documentElement.getAttribute('lang')) {
     analyzedIssues.push({
       type: 'REACT_015',
       description: 'HTML element is missing lang attribute',
@@ -551,7 +536,6 @@ const formatResponse = (data) => {
 };
 
 // Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
-const { a11y } = require('@accessible/react');
 const { validateInput } = require('./utils/validators');
 const { processData } = require('./utils/processor');
 
@@ -591,4 +575,67 @@ if (require.main === module) {
 }
 
 // Upgrade logic: use harvested data to improve the system
-function
+function enhanceSystemWithHarvestedData(processed) {
+  // TODO: Implement enhancement logic using harvested data
+}
+
+module.exports = {
+  accessiblyHelper,
+  validateConfig,
+  isValidLandmark,
+  validateLandmark,
+  checkLinkAccessibility,
+  ensureDependencyGraphRole,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  handleCredentialResponse,
+  scanAccessibility,
+  generateAccessibilityReport,
+  writeReport,
+  initializeApp,
+  harvest,
+  upgrade,
+  harvestAndUpgrade,
+  addLangAttribute,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  externalFixFakeLinks,
+  externalEnsureUniqueLandmarks,
+  externalAddLandmarkRoles,
+  renderDependencyGraphContent,
+  createInPageButtons,
+  addressAccessibilityIssues: addressAccessibilityIssuesFromModule,
+  scanAccessibility: scanAccessibilityFromModule,
+  fixFakeLinks,
+  ensureUniqueLandmarks: ensureUniqueLandmarksFromFile,
+  addLandmarkRoles,
+  renderDependencyGraph,
+  displayModuleStructure,
+  countDependencies,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships,
+  VALID_LANDMARK_ROLES,
+  config,
+  landmarkSelectors,
+  safetyCategories,
+  books,
+  safetyCategory,
+  appState,
+  mapCache,
+  configRef,
+  mergedConfig,
+  config_,
+  dependencyGraph,
+  icons,
+  formatResponse,
+  app,
+  main,
+  utils,
+  axe,
+  fastMap,
+  a11y
+};

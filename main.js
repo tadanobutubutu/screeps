@@ -33,8 +33,90 @@ const VALID_LANDMARK_ROLES = ['banner', 'navigation', 'main', 'complementary', '
 
 // Constants
 const safetyCategories = ["Unauthorized Advice", "Dangerous Action", "Potential Scam", "Privacy Risk"];
+
+// Configuration
+const config = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxResults: 100,
+  dataPath: './data'
+};
+
 const books = [];
 const safetyCategory = "User Safety: safe";
+
+export const checkUserSafety = () => {
+  let userSafetyMessage = '';
+  if (userSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
+  }
+  return userSafetyMessage;
+};
+
+export const checkSafetyCategories = () => {
+  let safetyCategoriesMessage = '';
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+  return safetyCategoriesMessage;
+};
+
+export const addBook = function(title, author, isbn) {
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'add-book-form-title');
+
+  const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+  const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+  const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+  const submitButton = document.createElement('button');
+  submitButton.setAttribute('type', 'submit');
+  submitButton.setAttribute('aria-label', 'Add Book');
+  submitButton.textContent = 'Add Book';
+
+  form.appendChild(titleInput);
+  form.appendChild(authorInput);
+  form.appendChild(isbnInput);
+  form.appendChild(submitButton);
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    console.log('Book added:', {
+      title: titleInput.querySelector('input').value,
+      author: authorInput.querySelector('input').value,
+      isbn: isbnInput.querySelector('input').value
+    });
+  });
+
+  return form;
+};
+
+function createAccessibleInput(type, id, labelText, value = '') {
+  const container = document.createElement('div');
+  container.className = 'form-group';
+
+  const label = document.createElement('label');
+  label.setAttribute('for', id);
+  label.textContent = labelText;
+
+  const input = document.createElement('input');
+  input.setAttribute('type', type);
+  input.setAttribute('id', id);
+  input.setAttribute('name', id);
+  input.setAttribute('aria-required', 'true');
+  input.setAttribute('aria-label', labelText);
+  input.value = value;
+
+  container.appendChild(label);
+  container.appendChild(input);
+
+  return container;
+}
 
 const landmarkSelectors = [
   'main',
@@ -53,18 +135,6 @@ const landmarkSelectors = [
   'footer:not([role])',
   'section:not([role])'
 ].map((selector, index) => ({ selector, priority: index }));
-
-// Configuration
-const config = {
-  name: 'MyApp',
-  version: '1.0.0',
-  debug: false,
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  maxResults: 100,
-  dataPath: './data'
-};
 
 const accessiblyHelper = async (html, config) => {
   if (typeof axe === 'undefined') {
@@ -206,6 +276,8 @@ function getSvgAccessibleName() { return []; }
 function validateLinkAccessibility() { return []; }
 function analyzeAccessibility(issuesData) { return issuesData || []; }
 function setLanguageAttribute() { addLangAttribute(); }
+
+const userSafety = 'unsafe';
 
 function loadLandmarks() {
   try {
@@ -425,6 +497,14 @@ const formatResponse = (data) => {
 const { validateInput } = require('./utils/validators');
 const { processData } = require('./utils/processor');
 
+const utilityFunctions = require('./utilityFunctions');
+
+const {
+  addressNewAccessibilityIssues,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships
+} = utilityFunctions;
+
 // Express app
 const app = express();
 
@@ -521,5 +601,9 @@ module.exports = {
   utils,
   axe,
   fastMap,
-  a11y
+  a11y,
+  checkUserSafety,
+  checkSafetyCategories,
+  addBook,
+  addressNewAccessibilityIssues
 };

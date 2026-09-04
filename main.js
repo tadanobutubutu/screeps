@@ -1,14 +1,12 @@
-Here is the resolved file content:
-
-```javascript
 const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
 const axe = require('axe-core');
 const express = require('express');
 const { a11y } = require('@accessible/react');
+const fastMap = require('fast-map');
+const accessiblyHelper = require('./accessibly-helper');
 
-// Configuration
 const CONFIG = {
   name: 'MyApp',
   version: '1.0.0',
@@ -16,13 +14,6 @@ const CONFIG = {
   dataPath: './data',
   maxResults: 100
 };
-
-// Application configuration (alias for CONFIG)
-const config = CONFIG;
-
-// Safety configuration from HEAD
-const userSafety = 'unsafe';
-const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
 
 export const checkUserSafety = () => {
     let userSafetyMessage = '';
@@ -37,38 +28,27 @@ export const checkUserSafety = () => {
 export const checkSafetyCategories = () => {
     let safetyCategoriesMessage = '';
 
-    if (safetyCategories.includes('Authorized Advice')) {
+    if (safetyCategories.includes('Unauthorized Advice')) {
         safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
     }
 
     return safetyCategoriesMessage;
 };
 
-// ... (Your existing code)
-
-// Add functions from origin/main:
-
-function addLangAttribute(html) {
+export const addLangAttribute = (html) => {
     if (typeof html !== 'string') return html;
     return html.replace(/<html([^>]*)>/i, (match, attrs) => {
         if (/\blang=/i.test(match)) return match;
         return `<html${attrs} lang="en">`;
     });
-}
+};
 
-// ... (Your existing code)
+const userSafety = 'unsafe';
+const safetyCategories = 'Unauthorized Advice, Needs Caution';
 
-// TODO: Implement spawning logic
-const { spawn } = require('child_process');
+const spawn = require('child_process').spawn;
 
-/**
- * Spawns a child process with the given command and arguments.
- * @param {string} command - The command to execute.
- * @param {string[]} args - Array of arguments to pass to the command.
- * @param {Object} options - Optional spawn options.
- * @returns {Promise<{stdout: string, stderr: string, exitCode: number}>}
- */
-function spawnProcess(command, args = [], options = {}) {
+async function spawnProcess(command, args = [], options = {}) {
     return new Promise((resolve, reject) => {
         const defaultOptions = {
             cwd: process.cwd(),
@@ -111,12 +91,6 @@ function spawnProcess(command, args = [], options = {}) {
     });
 }
 
-/**
- * Spawns multiple processes concurrently with a limit on concurrency.
- * @param {Array<{command: string, args?: string[], options?: Object}>} tasks - Array of tasks to spawn.
- * @param {number} concurrency - Maximum number of concurrent processes.
- * @returns {Promise<Array<{stdout: string, stderr: string, exitCode: number}>>}
- */
 async function spawnConcurrent(tasks, concurrency = 3) {
     const results = [];
     const executing = [];
@@ -140,17 +114,11 @@ async function spawnConcurrent(tasks, concurrency = 3) {
         }
     }
 
-    return Promise.all(executing).then(() => results);
+    return results;
 }
 
-// ... (Your existing code)
-
-// Save both functions as new exports
 module.exports = {
     ...module.exports, // Include the existing exports
     spawnProcess, // Export the spawning logic function
     spawnConcurrent // Export concurrent spawning function
 };
-```
-
-This resolution keeps both changes in the file, preserving the new `spawnProcess` and `spawnConcurrent` functions from the origin/main branch, and the rest of the file remains the same as the HEAD.

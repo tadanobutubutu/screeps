@@ -1,5 +1,14 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import a11y from './AccessibilityUtilities';
+
 const books = ['Book 1', 'Book 2'];
 const safetyCategory = "User Safety: safe";
+
 const CONFIG = {
   name: 'MyApp',
   version: '1.0.0',
@@ -12,8 +21,6 @@ const CONFIG = {
   apiUrl: process.env.API_URL || 'http://localhost:3020',
   timeout: 5000
 };
-
-const config = CONFIG;
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -42,6 +49,10 @@ const { validateTableAccessibility, validateTableStructure } = require('./utils/
 const { validateLandmark, validateLandmarkStructure } = require('./utils/landmarkUtils');
 const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
 const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
+const { helper, formatDate } = require('./utils');
+const { someFunction } = require('./utils/someFunction');
+const { fetchUser, clearCache } = require('./utils/user');
+const * as newFunctions = require('./utils/newFunctions');
 const { checkLinkAccessibility: importedCheckLinkAccessibility } = require('./utils/linkAccessibilityUtils');
 
 const axe = require('axe-core');
@@ -52,106 +63,9 @@ function function3() {
   const dependencyGraph = document.getElementById('dependency-graph') || document.querySelector('.dependency-graph');
 
   if (dependencyGraph) {
-    // Ensure the dependencyGraph container has a proper ARIA role
     dependencyGraph.setAttribute('role', 'region');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
   }
-
-  // TODO: No additional changes requested at this time
-}
-
-// Function to get the language attribute for HTML element
-function getLangAttribute() {
-  return getLangAttributeLocal;
-}
-
-// Full accessibility report generation
-async function generateAccessibilityReport(issuesData) {
-  let issues = [];
-  if (!issuesData) {
-    // Check for images without alt attributes
-    const images = document.querySelectorAll('img');
-    images.forEach((img, index) => {
-      if (!img.getAttribute('alt')) {
-        issues.push({
-          type: 'missing-alt',
-          element: 'img',
-          index,
-          message: `Image at index ${index} is missing an alt attribute`
-        });
-      }
-    });
-
-    // Check for buttons without accessible names
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach((btn, index) => {
-      const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || '';
-      if (!accessibleName) {
-        issues.push({
-          type: 'missing-name',
-          element: 'button',
-          index,
-          message: `Button at index ${index} is missing an accessible name`
-        });
-      }
-    });
-
-    // Check for links without accessible names
-    const links = document.querySelectorAll('a');
-    links.forEach((link, index) => {
-      const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || '';
-      if (!accessibleName) {
-        issues.push({
-          type: 'missing-name',
-          element: 'a',
-          index,
-          message: `Link at index ${index} is missing an accessible name`
-        });
-      }
-    });
-
-    // Check for form inputs without labels
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach((input, index) => {
-      const inputType = input.getAttribute('type');
-      if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
-        const labelId = input.getAttribute('aria-labelledby');
-        const labelText = input.getAttribute('aria-label');
-        const hasLabel = labelId || labelText;
-        if (!hasLabel) {
-          issues.push({
-            type: 'missing-label',
-            element: 'input',
-            index,
-            message: `Input at index ${index} is missing an associated label`
-          });
-        }
-      }
-    });
-
-    // Check for empty headings
-    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    headings.forEach((heading, index) => {
-      if (!heading.textContent.trim()) {
-        issues.push({
-          type: 'empty-heading',
-          element: heading.tagName.toLowerCase(),
-          index,
-          message: `Heading at index ${index} has no text content`
-        });
-      }
-    });
-  } else {
-    // If data is provided, use the analysis logic
-    issues = issuesData;
-  }
-
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: issues,
-    conclusions: '',
-  };
-  return report;
 }
 
 function calculateSafetyScore(safetyCategories) {
@@ -168,7 +82,6 @@ function initializeApp() {
   return appState;
 }
 
-// Ensure accessibility attributes are set when adding a book
 function ensureBookAccessibility(book) {
   if (book && !book.ariaLabel) {
     book.ariaLabel = book.title || 'Book item';
@@ -176,13 +89,11 @@ function ensureBookAccessibility(book) {
   return book;
 }
 
-// Find the primary content element in the DOM
 let primaryContent = document.querySelector('main') ||
                         document.querySelector('[role="main"]') ||
                         document.querySelector('#main') ||
                         document.querySelector('.main-content');
 
-// Function to wrap primary content in a <main> element
 function wrapPrimaryContentInMain() {
   if (primaryContent && primaryContent.tagName !== 'MAIN') {
       const mainElement = document.createElement('main');
@@ -262,27 +173,20 @@ const appState = {
   lang: 'en'
 };
 
-// Application state
 let isInitialized = false;
 const appData_originSide = {};
 
-// Functionality from imported branch
 accessiblyHelper.init();
 
-// New function to initialize the app
 function initialize() {
   logger.info(`Initializing ${CONFIG.name} v${CONFIG.version}`);
 
-  // Add global accessibility configuration
   customElements.define('screeps-svg-report', require('./screeps-svg-report'));
 
-  // Load landmarks from file
   const landmarks = loadLandmarks();
 
-  // Process landmarks array
   processLandmarks(landmarks);
 
-  // Ensure an element has an ID attribute
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('*').forEach(el => {
       const generateId = () => `element-${Date.now()}`;
@@ -290,7 +194,6 @@ function initialize() {
     });
   });
 
-  // Add aria-label to an element if it doesn't have one
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('*').forEach(el => {
       if (!el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
@@ -309,7 +212,6 @@ function initialize() {
     });
   });
 
-  // Add proper landmark regions for accessibility
   document.addEventListener('DOMContentLoaded', function () {
     const regions = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
 
@@ -331,21 +233,15 @@ function initialize() {
     });
   });
 
-  // Initialize accessibility helpers using axe-core
   const frozenNodes = axe.run(document, {
     rules: { 'custom-landmark': { enabled: false } }
   }).issues['custom-landmark'].nodes;
 
-  // Load landmarks from file
   const loadedLandmarks = loadLandmarks();
 
-  // Process landmarks array
   const uniqueLandmarks = accessiblyHelper.processLandmarks(loadedLandmarks);
 
-  // Handle any accessibility issues found in the DOM
   const accessibilityIssues = accessiblyHelper.handleAccessibilityIssues(document.querySelectorAll('*'));
-
-  // Other initialization logic...
 }
 
 function ensureElementHasId(element, id) {
@@ -388,16 +284,12 @@ function getAxeResults() {
   return axe.run(document);
 }
 
-// ... Rest of the original main.js code, if any.
-
 function analyzeModuleDependencies(modules) {
-  // Implementation would analyze and return dependency relationships
   console.log('Analyzing dependencies for modules:', modules);
   return accessiblyHelper.analyzeModuleDependencies(modules);
 }
 
 function visualizeModuleRelationships(modules) {
-  // Implementation would create a visual representation of module relationships
   console.log('Visualizing relationships for modules:', modules);
   return accessiblyHelper.visualizeModuleRelationships(modules);
 }
@@ -407,12 +299,10 @@ function someFunction() {
   return safetyCategories.length;
 }
 
-// New functions for handling accessibility issues
 function handleAccessibilityIssues2(issuesData) {
   return accessiblyHelper.handleAccessibilityIssues(issuesData);
 }
 
-// Load landmarks from file
 function loadLandmarks() {
   try {
     const filePath = path.join(__dirname, 'landmarks.json');
@@ -480,6 +370,197 @@ function someNewFunction() {
   return false;
 }
 
+async function generateAccessibilityReport(issuesData) {
+  let issues = [];
+  if (!issuesData) {
+    const images = document.querySelectorAll('img');
+    images.forEach((img, index) => {
+      if (!img.getAttribute('alt')) {
+        issues.push({
+          type: 'missing-alt',
+          element: 'img',
+          index,
+          message: `Image at index ${index} is missing an alt attribute`
+        });
+      }
+    });
+
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach((btn, index) => {
+      const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || '';
+      if (!accessibleName) {
+        issues.push({
+          type: 'missing-name',
+          element: 'button',
+          index,
+          message: `Button at index ${index} is missing an accessible name`
+        });
+      }
+    });
+
+    const links = document.querySelectorAll('a');
+    links.forEach((link, index) => {
+      const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || '';
+      if (!accessibleName) {
+        issues.push({
+          type: 'missing-name',
+          element: 'a',
+          index,
+          message: `Link at index ${index} is missing an accessible name`
+        });
+      }
+    });
+
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach((input, index) => {
+      const inputType = input.getAttribute('type');
+      if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
+        const labelId = input.getAttribute('aria-labelledby');
+        const labelText = input.getAttribute('aria-label');
+        const hasLabel = labelId || labelText;
+        if (!hasLabel) {
+          issues.push({
+            type: 'missing-label',
+            element: 'input',
+            index,
+            message: `Input at index ${index} is missing an associated label`
+          });
+        }
+      }
+    });
+
+    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    headings.forEach((heading, index) => {
+      if (!heading.textContent.trim()) {
+        issues.push({
+          type: 'empty-heading',
+          element: heading.tagName.toLowerCase(),
+          index,
+          message: `Heading at index ${index} has no text content`
+        });
+      }
+    });
+  } else {
+    issues = issuesData;
+  }
+
+  const report = {
+    introduction: 'Accessibility report for the application',
+    data: issues,
+    conclusions: '',
+  };
+  return report;
+}
+
+function addLandmarkRoles(container) {
+  if (!container) return;
+
+  const landmarks = [
+    { selector: 'header', role: 'banner' },
+    { selector: 'nav', role: 'navigation' },
+    { selector: 'main', role: 'main' },
+    { selector: 'aside', role: 'complementary' },
+    { selector: 'footer', role: 'contentinfo' }
+  ];
+
+  landmarks.forEach(({ selector, role }) => {
+    const elements = container.querySelectorAll(selector);
+    elements.forEach(el => {
+      if (!el.getAttribute('role')) {
+        el.setAttribute('role', role);
+      }
+    });
+  });
+}
+
+function ensureUniqueLandmarksContainer(container) {
+  if (!container) return;
+
+  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  const landmarkCounts = {};
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    landmarkCounts[role] = (landmarkCounts[role] || 0) + 1;
+
+    if (landmarkCounts[role] > 1) {
+      const id = role + '-' + landmarkCounts[role];
+      if (!landmark.id) {
+        landmark.id = id;
+      }
+    }
+  });
+}
+
+function fixFakeLinkIssue(container) {
+  if (!container) return;
+
+  const fakeLinks = container.querySelectorAll('a:not([href])');
+  fakeLinks.forEach(link => {
+    if (link.getAttribute('href') === '#' || !link.getAttribute('href')) {
+      const href = link.getAttribute('data-href');
+      if (href) {
+        link.setAttribute('href', href);
+      } else {
+        const onclick = link.getAttribute('onclick');
+        if (onclick) {
+          link.setAttribute('role', 'button');
+        }
+      }
+    }
+  });
+}
+
+function addAccessibleNamesToSVGs(container) {
+  if (!container) return;
+
+  const svgs = container.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (title) {
+        const titleId = 'svg-title-' + index;
+        title.id = titleId;
+        svg.setAttribute('aria-labelledby', titleId);
+      } else {
+        svg.setAttribute('aria-label', 'SVG image ' + (index + 1));
+      }
+    }
+  });
+}
+
+function addressAccessibilityIssues() {
+  addDependencyGraphAria();
+  addLandmarkRoles(document.body);
+  createInPageButtons();
+  fixUniqueLandmarks();
+  return { addressed: true };
+}
+
+function addressAccessibilityIssuesWithContext() {
+  const accessibilityIssues = [
+    { action: (context) => addLandmarkRoles(context), context: document.body },
+    { action: (context) => ensureUniqueLandmarksContainer(context), context: document.body },
+    { action: (context) => fixFakeLinkIssue(context), context: document.body },
+    { action: (context) => addAccessibleNamesToSVGs(context), context: document.body },
+    { action: (context) => addDependencyGraphAria(context), context: document.body }
+  ];
+
+  accessibilityIssues.forEach((issue) => {
+    if (issue.context) {
+      issue.action(issue.context);
+    }
+  });
+}
+
+function addDependencyGraphAria(container = document) {
+  const dependencyGraph = container.getElementById('dependency-graph') || container.querySelector('.dependency-graph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'region');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+  }
+}
+
 module.exports = {
   ...require('./exports_origin_main'),
   books,
@@ -524,7 +605,14 @@ module.exports = {
   getSvgAccessibleName,
   getLangAttributeFn,
   getFullLangAttribute,
-  checkLinkAccessibility: importedCheckLinkAccessibility
+  checkLinkAccessibility: importedCheckLinkAccessibility,
+  addLandmarkRoles,
+  ensureUniqueLandmarksContainer,
+  fixFakeLinkIssue,
+  addAccessibleNamesToSVGs,
+  addressAccessibilityIssues,
+  addressAccessibilityIssuesWithContext,
+  addDependencyGraphAria
 };
 
 const logger = {

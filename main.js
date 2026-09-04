@@ -41,8 +41,6 @@ const appData = {
   version: '1.0.0'
 };
 
-const HTML = ({ lang }) => `<html lang={lang}>{/* other children */}</html>`;
-
 /**
  * Validates table accessibility compliance
  * @param {Object} table - The table object to validate
@@ -112,12 +110,6 @@ function validateTableStructure(tables) {
     success: allIssues.length === 0,
     issues: allIssues
   };
-}
-
-// New changes for improved accessibility of the addBook function or form
-// Ensuring that all interactive elements are keyboard accessible
-function addBook() {
-    // Existing code for adding a book
 }
 
 /**
@@ -333,12 +325,12 @@ function processData(data) {
   };
 }
 
-function createInPageButton(text, onClick) {
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.onclick = onClick;
-    button.setAttribute('aria-label', text);
-    return button;
+function createInPageButton(options) {
+  const button = document.createElement('button');
+  button.textContent = options.text;
+  button.onclick = options.onClick;
+  button.setAttribute('aria-label', options.ariaLabel || options.text);
+  return button;
 }
 
 function handleAccessibilityIssues(issues = []) {

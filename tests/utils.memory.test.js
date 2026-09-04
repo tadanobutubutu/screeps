@@ -81,10 +81,6 @@ describe('utils.memory', () => {
         expect(Memory?.rooms?.['__proto__']?.key).toBeUndefined();
     });
 
-    test('clearRoomMemory handles unsafe keys', () => {
-        expect(() => utilsMemory.clearRoomMemory('constructor', 'key')).not.toThrow();
-        expect(() => utilsMemory.clearRoomMemory('__proto__', 'key')).not.toThrow();
-    });
 
     test('cleanMemory returns 0 when no creeps in memory', () => {
         global.Memory.creeps = {};
@@ -123,16 +119,7 @@ describe('utils.memory', () => {
         expect(Memory.rooms.room1.key).toBe('value');
     });
 
-    test('clearRoomMemory removes key from room', () => {
-        global.Memory.rooms = { room1: { key: 'value' } };
-        utilsMemory.clearRoomMemory('room1', 'key');
-        expect(Memory.rooms.room1.key).toBeUndefined();
-    });
 
-    test('clearRoomMemory handles non-existent room', () => {
-        global.Memory.rooms = {};
-        expect(() => utilsMemory.clearRoomMemory('room1', 'key')).not.toThrow();
-    });
 
     test('isSafeKey blocks other dangerous properties', () => {
         expect(utilsMemory.isSafeKey('__lookupGetter__')).toBe(false);

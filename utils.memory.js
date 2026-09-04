@@ -91,20 +91,6 @@ module.exports = {
         Memory.rooms[roomName][key] = value;
     },
 
-    clearRoomMemory: function (roomName, key) {
-        // Security: Validate roomName and key to prevent prototype pollution
-        if (!isSafeKey(roomName) || !isSafeKey(key)) {
-            return;
-        }
-
-        if (!Memory.rooms) {
-            return;
-        }
-
-        if (Memory.rooms[roomName]) {
-            delete Memory.rooms[roomName][key];
-        }
-    },
 
     /**
      * ⚡ PERFORMANCE: Sync local tracking with global.cache reference.

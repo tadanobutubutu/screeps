@@ -1,3 +1,43 @@
+const utils = require('./utils');
+const express = require('express');
+const axe = require('axe-core');
+const fastMap = require('fast-map');
+const path = require('path');
+const { a11y } = require('@accessible/react');
+
+const config = {
+  name: 'MyApp',
+  version: '1.0.0',
+  environment: process.env.NODE_ENV || 'development',
+  debug: true,
+  dataPath: './data',
+  maxResults: 100,
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxLandmarks: 50
+};
+
+const CONFIG = {
+    landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+    maxResults: 100,
+    dataPath: './data',
+    maxLandmarks: 50,
+    allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+    landmarks: ['main', 'nav', 'aside', 'footer', 'header'],
+    requiredAttributes: ['role'],
+    optionalAttributes: ['aria-label', 'aria-labelledby']
+};
+
+const axeConfig = {
+    rules: {
+        'aria-invalid-2': { enabled: false },
+        'color-contrast': { enabled: false },
+        'name-role-value': { enabled: false },
+        'paraphernalia': { enabled: false },
+    },
+    silent: true
+};
+
 // Main JavaScript file
 // This file handles the main application logic
 // TODO: This is the existing code that needs to be preserved
@@ -75,38 +115,6 @@ const upgradeUserSettings = () => {
     //_Commit: 5cb26805d1cf9dc1c3c0bd9f2923ab16e34f825e _
     //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
-    // Configuration objects from both versions
-    const config = {
-        name: 'MyApp',
-        version: '1.0.0',
-        environment: process.env.NODE_ENV || 'development',
-        debug: true,
-        dataPath: './data',
-        maxResults: 100
-    };
-
-    const CONFIG = {
-        landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
-        maxResults: 100,
-        dataPath: './data',
-        maxLandmarks: 50,
-        allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-        landmarks: ['main', 'nav', 'aside', 'footer', 'header'],
-        requiredAttributes: ['role'],
-        optionalAttributes: ['aria-label', 'aria-labelledby']
-    };
-
-    const axeConfig = {
-        rules: {
-            'aria-invalid-2': { enabled: false },
-            'color-contrast': { enabled: false },
-            'name-role-value': { enabled: false },
-            'paraphernalia': { enabled: false },
-        },
-        silent: true
-    };
-
-    // Merged configuration
     const mergedConfig = CONFIG;
 
     const books = [];

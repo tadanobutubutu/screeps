@@ -3,9 +3,13 @@
 
     // Merged configuration initialization
     const config = Object.assign({
+        name: 'MyApp',
+        version: '1.0.0',
+        environment: process.env.NODE_ENV || 'development',
+        debug: false,
         outputPath: __dirname,
         dataPath: __dirname,
-        maxResults: 10
+        maxResults: 100
     }, CONFIG || {});
 
     // Application state
@@ -160,6 +164,20 @@
     function fixTableStructure(table) {
         if (!table) return;
         // Implementation for fixing table structure
+    }
+
+    // Table accessibility fix function
+    function fixTableAccessibility() {
+        if (typeof document === 'undefined') return;
+
+        const tables = document.querySelectorAll('table');
+        tables.forEach(table => {
+            if (!table.querySelector('caption')) {
+                const caption = document.createElement('caption');
+                caption.textContent = 'Table Data';
+                table.insertBefore(caption, table.firstChild);
+            }
+        });
     }
 
     // Landmark handling
@@ -322,6 +340,30 @@
         return uniqueLandmarks;
     }
 
+    function fixUniqueLandmarks(landmarks) {
+        if (!Array.isArray(landmarks)) {
+            return [];
+        }
+
+        const seen = new Set();
+        const uniqueLandmarks = [];
+
+        for (const landmark of landmarks) {
+            if (!landmark || typeof landmark.id === 'undefined') {
+                continue;
+            }
+
+            const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+            if (!seen.has(landmarkId)) {
+                seen.add(landmarkId);
+                uniqueLandmarks.push(landmark);
+            }
+        }
+
+        return uniqueLandmarks;
+    }
+
     // Function to write the generated report to a file
     function writeReport(report) {
         const reportFile = path.join(config.outputPath, 'accessibility-report.json');
@@ -388,6 +430,44 @@
         button.setAttribute('aria-label', text);
         document.body.prepend(button);
         return button;
+    }
+
+    // Create in-page buttons (origin/main version with full implementation)
+    function createInPageButtons(buttonElements, containerSelector) {
+        try {
+            const container = document.querySelector(containerSelector);
+            if (!container) {
+                console.warn(`Container not found for selector: ${containerSelector}`);
+                return;
+            }
+
+            container.innerHTML = '';
+
+            buttonElements.forEach(buttonConfig => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                
+                if (buttonConfig.id) button.id = buttonConfig.id;
+                if (buttonConfig.className) button.className = buttonConfig.className;
+                if (buttonConfig.textContent) button.textContent = buttonConfig.textContent;
+                if (buttonConfig.ariaLabel) button.setAttribute('aria-label', buttonConfig.ariaLabel);
+                if (buttonConfig.title) button.title = buttonConfig.title;
+                
+                if (buttonConfig.onClick && typeof buttonConfig.onClick === 'function') {
+                    button.addEventListener('click', buttonConfig.onClick);
+                }
+                
+                if (buttonConfig.attributes) {
+                    Object.keys(buttonConfig.attributes).forEach(attr => {
+                        button.setAttribute(attr, buttonConfig.attributes[attr]);
+                    });
+                }
+                
+                container.appendChild(button);
+            });
+        } catch (error) {
+            console.error('Error creating in-page buttons:', error);
+        }
     }
 
     // Additional cleanup for skip links and navigation
@@ -553,20 +633,6 @@
         }
     }
 
-    // Table accessibility fix function
-    function fixTableAccessibility() {
-        if (typeof document === 'undefined') return;
-
-        const tables = document.querySelectorAll('table');
-        tables.forEach(table => {
-            if (!table.querySelector('caption')) {
-                const caption = document.createElement('caption');
-                caption.textContent = 'Table Data';
-                table.insertBefore(caption, table.firstChild);
-            }
-        });
-    }
-
     // Landmark issues fix function
     function fixLandmarkIssues() {
         if (typeof document === 'undefined') return;
@@ -583,6 +649,19 @@
             if (name) {
                 setSvgAttributes(svg, name);
             }
+        });
+    }
+
+    /**
+     * Adds SVG accessibility attributes to all SVGs in the document
+     */
+    function addSvgAccessibility() {
+        if (typeof document === 'undefined') return;
+
+        const svgs = document.querySelectorAll('svg');
+        svgs.forEach(svg => {
+            const accessibleName = getSvgAccessibleName(svg);
+            setSvgAttributes(svg, accessibleName);
         });
     }
 
@@ -901,11 +980,13 @@
         writeReport,
         createAccessibleLinks,
         createInPageButton,
+        createInPageButtons,
         addressAccessibilityIssues,
         importAndExecute,
         fixTableAccessibility,
         fixLandmarkIssues,
         addSvgAccessibleNames,
+        addSvgAccessibility,
         addLandmarkRoles,
         fixUniqueLandmarks,
         generateAccessibilityReport: async function () {
@@ -932,7 +1013,6 @@
         main,
         someFunction,
         renderDependencyGraphContent,
-        createInPageButtons,
         fixTableHeaderCellScope,
         functionA,
         functionB,

@@ -235,13 +235,6 @@ Memory.creeps['harvester_1'].diary.maxEntries = 50;
 
 ## 🗺️ Memory Map
 
-### 部屋記録
-
-```javascript
-// role.scout.jsで
-const memVis = require('memory.visualizer');
-memVis.recordRoom(creep.room.name);
-```
 
 ### マップ表示
 

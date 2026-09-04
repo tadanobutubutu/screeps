@@ -7,11 +7,11 @@ const accessiblyHelper = require('./accessibly-helper');
 
 let dependencyGraph = {};
 let UserSafety = "unsafe";
-let SafetyCategories = "Unauthorized Advice";
+let SafetyCategories = "Unauthorized Advice,Dangerous Action,Potential Scam,Privacy Risk";
 
 function getDependencyGraph() {
   if (Object.keys(dependencyGraph).length === 0) {
-    return { message: "No dependency graph found." };
+    return dependencyGraph;
   }
   return dependencyGraph;
 }
@@ -506,9 +506,21 @@ const checkSafetyCategories = () => {
   return safetyCategoriesMessage;
 };
 
-function visualizeDependencyTree(dependencies) {
-  const report = generateDependencyReport(dependencies);
-  console.log(report.graph);
+const initialise = () => {
+  // ... (Existing code for accessibility initialization and feature initialization)
+};
+
+if (require.main === module) {
+  initialise();
+}
+
+function createAccessibleInput(type, id, label, value) {
+  const input = document.createElement('input');
+  input.setAttribute('type', type);
+  input.id = id;
+  input.setAttribute('aria-label', label);
+  if (value) input.value = value;
+  return input;
 }
 
 function generateDependencyReport(dependencies) {
@@ -563,15 +575,6 @@ const main = {
     return form;
   }
 };
-
-function createAccessibleInput(type, id, label, value) {
-  const input = document.createElement('input');
-  input.setAttribute('type', type);
-  input.id = id;
-  input.setAttribute('aria-label', label);
-  if (value) input.value = value;
-  return input;
-}
 
 function fixAccessibilityIssues() {
   // Add your code here to fix the accessibility issues as per the insight report
@@ -854,6 +857,18 @@ function processLandmarks(landmarks) {
   return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
+function addMainLandmark() {
+  // Existing or new code for adding main landmark
+}
+
+function visualizeDependencyTree() {
+  // Implementation for visualizing dependency tree
+}
+
+function checkUserSafety() {
+  return UserSafety;
+}
+
 function sortLandmarks(landmarks, ascending = true) {
   return landmarks.sort((a, b) => {
     const nameA = (a.name || '').toLowerCase();
@@ -905,21 +920,24 @@ module.exports = {
   SafetyCategories,
   getUserSafetyAdvice,
   checkSafetyCategories,
+  checkUserSafety,
   visualizeDependencyTree,
+  fixAccessibilityIssues,
+  addressAccessibilityIssues,
+  addMainLandmark,
+  getDependencyGraph,
+  generateAccessibilityReport,
+  getLangAttribute,
+  initialise,
   main,
   renderDependencyGraphContent,
   renderDependencyGraph,
   ensureElementAccessibility,
   towerDefense,
-  getDependencyGraph,
-  generateAccessibilityReport,
-  addressAccessibilityIssues,
-  getLangAttribute,
   createInPageButton,
   a11y: require('./AccessibilityUtilities'),
   validateTableAccessibility,
   validateTableStructure,
-  addMainLandmark,
   validateLandmark,
   validateLandmarkAttributes,
   validateLandmarkStructure,
@@ -972,6 +990,5 @@ module.exports = {
   calculateLuminance,
   renderFunction1,
   renderFunction2,
-  fixAccessibilityIssues,
   analyzeContentSafety
 };

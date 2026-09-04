@@ -1,285 +1,458 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import a11y from './AccessibilityUtilities';
-
-import { axe } from 'axe-core';
-import fastMap from 'fast-map';
-import path from 'path';
-
-import { greet, add, getDependencies, addDependency, removeDependency, countDependencies, appData, someFunction, validateInput, processData, formatResponse } from './mainAdapted';
-import { validateTableAccessibility, validateTableStructure, fixTableStructure, addMainLandmark, validateLandmark, validateLandmarkAttributes, validateLandmarkStructure } from './mainAccessibility';
-import { ensureUniqueLandmarks } from './main';
-import { createInPageButton } from './mainSafety';
-
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100
+let dependencyGraph = {};
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const fastMap = require('fast-map');
+const axe = require('axe-core');
+const accessiblyHelper = async (...args) => {
+  return args;
 };
 
-// REACT_015: Add lang attribute
-function addLangAttribute(html) {
-    if (typeof html !== 'string') return html;
-    return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-        if (/\blang=/i.test(match)) return match;
-        return `<html${attrs} lang="en">`;
-    });
-}
-
-// REACT_027: Fix table structure issues (add thead, tbody, th scope, caption)
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
-
-/**
- * Spawns a child process with the given command and arguments.
- * @param {string} command - The command to execute.
- * @param {string[]} args - Array of arguments to pass to the command.
- * @param {Object} options - Optional spawn options.
- * @returns {Promise<{stdout: string, stderr: string, exitCode: number}>}
- */
-function spawnProcess(command, args = [], options = {}) {
-    return new Promise((resolve, reject) => {
-        const defaultOptions = {
-            cwd: process.cwd(),
-            env: process.env,
-            shell: true,
-            timeout: 30000
-        };
-
-        const spawnOptions = { ...defaultOptions, ...options };
-        let stdout = '';
-        let stderr = '';
-        let timeoutId;
-
-        const child = spawn(command, args, spawnOptions);
-
-        if (spawnOptions.timeout) {
-            timeoutId = setTimeout(() => {
-                child.kill('SIGTERM');
-                reject(new Error(`Process timed out after ${spawnOptions.timeout}ms`));
-            }, spawnOptions.timeout);
-        }
-
-        child.stdout.on('data', (data) => {
-            stdout += data.toString();
-        });
-
-        child.stderr.on('data', (data) => {
-            stderr += data.toString();
-        });
-
-        child.on('error', (error) => {
-            if (timeoutId) clearTimeout(timeoutId);
-            reject(error);
-        });
-
-        child.on('close', (exitCode) => {
-            if (timeoutId) clearTimeout(timeoutId);
-            resolve({ stdout, stderr, exitCode });
-        });
-    });
-}
-
-/**
- * Spawns multiple processes concurrently with a limit on concurrency.
- * @param {Array<{command: string, args?: string[], options?: Object}>} tasks - Array of tasks to spawn.
- * @param {number} concurrency - Maximum number of concurrent processes.
- * @returns {Promise<Array<{stdout: string, stderr: string, exitCode: number}>>}
- */
-async function spawnConcurrent(tasks, concurrency = 3) {
-    const results = [];
-    const executing = [];
-
-    for (const task of tasks) {
-        const promise = spawnProcess(task.command, task.args, task.options)
-            .then((result) => {
-                results.push({ success: true, ...result });
-                return result;
-            })
-            .catch((error) => {
-                results.push({ success: false, error: error.message });
-                throw error;
-            });
-
-        executing.push(promise);
-
-        if (executing.length >= concurrency) {
-            await Promise.race(executing);
-            executing.splice(executing.findIndex(p => p === promise), 1);
-        }
-    }
-
-    return Promise.all(executing).then(() => results);
-}
-
-function analyzeContentSafety(content) {
-  // Analyze the content for safety issues and return a safety rating.
-  // ... (Your implementation here)
-}
-
-function addressAccessibilityIssues(insightReport) {
-  if (insightReport && insightReport.html) {
-    insightReport.html = applyAccessibilityFixes(insightReport.html);
-=======
-User Safety: unsafe
-Safety Categories: Unauthorized Advice
-let dependencyGraph = {};
+let UserSafety = "unsafe";
+let SafetyCategories = "Unauthorized Advice";
 
 function getDependencyGraph() {
   if (Object.keys(dependencyGraph).length === 0) {
     return { message: "No dependency graph found." };
+  }
+  return dependencyGraph;
 }
 
-// New function to validate landmark
-function validateLandmark(landmarkElement) {
-    if (!landmarkElement) return false;
+function generateAccessibilityReport(issuesData) {
+  let issues;
+  let report;
 
-    // Check if landmark has proper role
-    const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
-    const role = landmarkElement.getAttribute('role');
+  if (!issuesData) {
+    issues = axe.analyze('./index.html');
+    report = {
+      introduction: 'Accessibility report for the application',
+      data: issues,
+      conclusions: '',
+    };
 
-    return validRoles.includes(role);
-}
+    if (issues && Array.isArray(issues)) {
+      const conclusionParts = [];
+      const categoryCounts = {};
+      SafetyCategories.split(',').forEach(cat => {
+        categoryCounts[cat] = 0;
+      });
 
-// New function to validate landmark structure
-function validateLandmarkStructure(landmarkElement) {
-    if (!landmarkElement) return false;
+      issues.forEach(issue => {
+        const category = issue.categories ? issue.categories[0].type : '';
+        if (categoryCounts[category]) {
+          categoryCounts[category]++;
+        }
+      });
 
-    // Check if landmark has proper heading
-    const heading = landmarkElement.querySelector('h1, h2, h3, h4, h5, h6');
-    return heading !== null;
-}
+      if (Object.keys(categoryCounts).length > 0) {
+        conclusionParts.push(
+          `Detected ${categoryCounts['Unauthorized Advice']} instance(s) of Unauthorized Advice.`,
+          `Detected ${categoryCounts['Dangerous Action']} instance(s) of Dangerous Action.`,
+          `Detected ${categoryCounts['Potential Scam']} instance(s) of Potential Scam.`,
+          `Detected ${categoryCounts['Privacy Risk']} instance(s) of Privacy Risk.`
+        );
+      } else {
+        conclusionParts.push('No accessibility issues were found.');
+      }
 
-// New function to get SVG accessible name
-function getSvgAccessibleName(svgElement) {
-    if (!svgElement) return '';
-
-    // Check for title and desc elements
-    const title = svgElement.querySelector('title');
-    const desc = svgElement.querySelector('desc');
-
-    if (title) return title.textContent;
-    if (desc) return desc.textContent;
-
-    // Check for aria-label or aria-labelledby
-    if (svgElement.hasAttribute('aria-label')) {
-        return svgElement.getAttribute('aria-label');
+      report.conclusions = conclusionParts.join('\n');
     }
 
-    if (svgElement.hasAttribute('aria-labelledby')) {
-        const id = svgElement.getAttribute('aria-labelledby');
-        const labelElement = document.getElementById(id);
-        return labelElement ? labelElement.textContent : '';
-    }
-
-    return '';
+    return report;
+  } else {
+    issues = accessiblyHelper(issuesData);
+    report = {
+      introduction: 'Accessibility report for the application',
+      data: issues,
+      conclusions: ''
+    };
+    return report;
+  }
 }
 
-// New function to set SVG attributes
-function setSvgAttributes(svgElement, name) {
-    if (!svgElement || !name) return;
-
-    // Set aria-label if not already set
-    if (!svgElement.hasAttribute('aria-label')) {
-        svgElement.setAttribute('aria-label', name);
-    }
-
-    // Set role if not already set
-    if (!svgElement.hasAttribute('role')) {
-        svgElement.setAttribute('role', 'img');
-    }
+function getUserSafetyAdvice() {
+  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
 }
 
-// Function to render the index view
-function renderIndexView() {
-    // Ensure the dependencyGraph container has a proper ARIA role
-    if (dependencyGraph) {
-        dependencyGraph.setAttribute('role', 'region');
-        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-    }
-}
+const checkSafetyCategories = () => {
+  let safetyCategoriesMessage = '';
 
-// Export the report generation function
-module.exports = {
-    generateAccessibilityReport: async function () {
-        const report = await scanAccessibility();
-        writeReport(report);
-    },
-    addressAccessibilityIssues,
-    getLangAttribute,
-    createInPageButton,
-    a11y,
-    importAndExecute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    renderIndexView,
-    applyAccessibilityFixes,
-    applyAllAccessibilityFixes: applyAccessibilityFixes,
-    spawnProcess,
-    spawnConcurrent,
-    greet,
-    add,
-    getDependencies,
-    addDependency,
-    removeDependency,
-    countDependencies,
-    appData,
-    someFunction,
-    validateInput,
-    processData,
-    formatResponse,
-    initialize
+  if (SafetyCategories.includes('Unauthorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+
+  return safetyCategoriesMessage;
 };
 
-// Initialize the application with accessibility improvements
-function initialize() {
-    // Ensure the dependencyGraph container has a proper ARIA role
-    if (dependencyGraph) {
-        dependencyGraph.setAttribute('role', 'region');
-        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-    }
-
-    // Address accessibility issues from insight report:
-    // Ensure the dependencyGraph container has a proper ARIA role
-    // (This comment remains as-is)
-    //... (additional comments)
-
-    // Address accessibility issues
-    addressAccessibilityIssues();
-
-    // Create the in-page button
-    createInPageButton();
-
-    // Existing initialization logic preserved
-    // Accessibility: Ensure main content is keyboard accessible
-    // Accessibility: Add skip link functionality
-    // Accessibility: Ensure buttons have proper labels
-    // Accessibility: Add landmark roles and fix landmark issues
-    // Accessibility: Add accessible names to 2 SVGs
-    // Accessibility: Ensure unique landmarks (2 issues)
-    // Accessibility: Fix 1 fake link issue
-    // Initialize accessibility features from a11y utilities
-    if (a11y && a11y.init) {
-        a11y.init();
-    }
-
-    // Render index view
-    renderIndexView();
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
 }
 
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize);
-    } else {
-        initialize();
-    }
+const main = {
+  init: function() {
+    console.log('Application initialized');
+  },
+
+  greet: function(name) {
+    return `Hello, ${name}!`;
+  },
+
+  rotateBack: function() {
+    console.log('Reverting back the rotation.');
+  },
+
+  addressAccessibilityIssues: function() {
+    fixAccessibilityIssues();
+  },
+
+  addBook: function(title, author, isbn) {
+    const form = document.createElement('form');
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add Book Form');
+
+    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('type', 'submit');
+    submitButton.setAttribute('aria-label', 'Add Book');
+    submitButton.textContent = 'Add Book';
+
+    form.appendChild(titleInput);
+    form.appendChild(authorInput);
+    form.appendChild(isbnInput);
+    form.appendChild(submitButton);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      console.log('Book added:', {
+        title: titleInput.value,
+        author: authorInput.value,
+        isbn: isbnInput.value
+      });
+    });
+
+    return form;
+  }
+};
+
+function renderDependencyGraphContent() {
+  const container = document.getElementById('dependency-graph-container');
+  if (!container) {
+    return;
+  }
+  console.log('Rendering dependency graph content');
 }
-=======
+
+function renderDependencyGraph(dependencyGraph) {
+  console.log('Rendering dependency graph:', dependencyGraph);
+}
+
+async function renderFunction1() {
+  const moduleAReturnValue = await accessiblyHelper();
+  return { moduleAReturnValue };
+}
+
+async function renderFunction2() {
+  const moduleBReturnValue = await accessiblyHelper();
+  return { moduleBReturnValue };
+}
+
+function ensureElementAccessibility(element) {
+  if (typeof element === 'string') {
+    const el = document.getElementById(element);
+    if (el) {
+      el.id = element;
+      return true;
+    }
+  }
+  if (element instanceof HTMLElement) {
+    const id = element.id;
+    if (!id) {
+      const fallbackId = 'element-' + Math.random().toString(36).substr(2, 9);
+      element.id = fallbackId;
+      return true;
+    }
+  }
+  return false;
+}
+
+function fixAccessibilityIssues() {
+  // Add your code here to fix the accessibility issues as per the insight report
+}
+
+function addressAccessibilityIssues(insightReport) {
+    if (insightReport && insightReport.html) {
+        insightReport.html = applyAccessibilityFixes(insightReport.html);
+    }
+    console.log('Addressing accessibility issues from insight report:', insightReport);
+}
+
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    document.body.appendChild(button);
+}
+
+function checkColorContrast(element) {
+    if (!element || !(element instanceof HTMLElement)) return false;
+
+    const style = window.getComputedStyle(element);
+    const bgColor = style.backgroundColor;
+    const color = style.color;
+
+    const bgRgb = parseColor(bgColor);
+    const fgRgb = parseColor(color);
+
+    if (!bgRgb || !fgRgb) return false;
+
+    const bgLum = calculateLuminance(bgRgb);
+    const fgLum = calculateLuminance(fgRgb);
+
+    const lighter = Math.max(bgLum, fgLum);
+    const darker = Math.min(bgLum, fgLum);
+    const contrastRatio = (lighter + 0.05) / (darker + 0.05);
+
+    return contrastRatio >= 4.5;
+}
+
+function parseColor(colorString) {
+    if (!colorString) return null;
+
+    const rgbMatch = colorString.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (rgbMatch) {
+        return {
+            r: parseInt(rgbMatch[1], 10),
+            g: parseInt(rgbMatch[2], 10),
+            b: parseInt(rgbMatch[3], 10)
+        };
+    }
+
+    const rgbaMatch = colorString.match(/^rgba\((\d+),\s*(\d+),\s*(\d+),\s*[\d.]+\)$/);
+    if (rgbaMatch) {
+        return {
+            r: parseInt(rgbaMatch[1], 10),
+            g: parseInt(rgbaMatch[2], 10),
+            b: parseInt(rgbaMatch[3], 10)
+        };
+    }
+
+    const hexMatch = colorString.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (hexMatch) {
+        const hex = hexMatch[1];
+        if (hex.length === 3) {
+            return {
+                r: parseInt(hex[0] + hex[0], 16),
+                g: parseInt(hex[1] + hex[1], 16),
+                b: parseInt(hex[2] + hex[2], 16)
+            };
+        } else {
+            return {
+                r: parseInt(hex.substring(0, 2), 16),
+                g: parseInt(hex.substring(2, 4), 16),
+                b: parseInt(hex.substring(4, 6), 16)
+            };
+        }
+    }
+
+    const namedColors = {
+        'black': { r: 0, g: 0, b: 0 },
+        'white': { r: 255, g: 255, b: 255 },
+        'red': { r: 255, g: 0, b: 0 },
+        'green': { r: 0, g: 128, b: 0 },
+        'blue': { r: 0, g: 0, b: 255 },
+        'yellow': { r: 255, g: 255, b: 0 },
+        'gray': { r: 128, g: 128, b: 128 },
+        'grey': { r: 128, g: 128, b: 128 }
+    };
+    const lowerColor = colorString.toLowerCase();
+    if (namedColors[lowerColor]) {
+        return namedColors[lowerColor];
+    }
+
+    return null;
+}
+
+function calculateLuminance(rgb) {
+    const rsrgb = rgb.r / 255;
+    const gsrgb = rgb.g / 255;
+    const bsrgb = rgb.b / 255;
+
+    const r = rsrgb <= 0.03928 ? rsrgb / 12.92 : Math.pow((rsrgb + 0.055) / 1.055, 2.4);
+    const g = gsrgb <= 0.03928 ? gsrgb / 12.92 : Math.pow((gsrgb + 0.055) / 1.055, 2.4);
+    const b = bsrgb <= 0.03928 ? bsrgb / 12.92 : Math.pow((bsrgb + 0.055) / 1.055, 2.4);
+
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function towerDefense() {
+    console.log('Tower defense system initialized.');
+}
+
+function countDependencies(code) {
+    if (typeof code !== 'string') {
+        return {
+            totalFunctions: 0,
+            internalDependencies: 0,
+            externalDependencies: 0,
+            functionCallGraph: {}
+        };
+    }
+
+    const functionDeclMatches = code.match(/function\s+\w+\s*\(/g) || [];
+    const arrowFunctionMatches = code.match(/(?:const|let|var)\s+\w+\s*=\s*(?:async\s+)?\([^)]*\)\s*=>/g) || [];
+    const totalFunctions = functionDeclMatches.length + arrowFunctionMatches.length;
+
+    const functionNames = code.match(/function\s+(\w+)\s*\(/g) || [];
+    const extractedNames = functionNames.map(match => match.replace(/function\s+(\w+)\s*\(/, '$1'));
+
+    let internalDependencies = 0;
+    const functionCallGraph = {};
+
+    extractedNames.forEach(funcName => {
+        const callPattern = new RegExp(`\\b${funcName}\\s*\\(`, 'g');
+        const calls = code.match(callPattern) || [];
+        const callCount = Math.max(0, calls.length - 1);
+        if (callCount > 0) {
+            functionCallGraph[funcName] = callCount;
+            internalDependencies += callCount;
+        }
+    });
+
+    const importMatches = code.match(/^import\s+.*\s+from\s+['"][^'"]+['"]/gm) || [];
+    const requireMatches = code.match(/require\(['"][^'"]+['"]\)/g) || [];
+    const externalDependencies = importMatches.length + requireMatches.length;
+
+    return {
+        totalFunctions,
+        internalDependencies,
+        externalDependencies,
+        functionCallGraph
+    };
+}
+
+function countModuleDependencies() {
+    const functions = [
+        'addLangAttribute',
+        'fixTableStructure',
+        'fixLandmarks',
+        'addSvgAccessibleNames',
+        'ensureUniqueLandmarks',
+        'fixFakeLinks',
+        'applyAccessibilityFixes',
+        'addressAccessibilityIssues',
+        'createInPageButton',
+        'checkColorContrast',
+        'parseColor',
+        'calculateLuminance',
+        'countDependencies',
+        'countModuleDependencies'
+    ];
+
+    const callGraph = {
+        'applyAccessibilityFixes': [
+            'addLangAttribute',
+            'fixTableStructure',
+            'fixLandmarks',
+            'addSvgAccessibleNames',
+            'ensureUniqueLandmarks',
+            'fixFakeLinks'
+        ],
+        'checkColorContrast': ['parseColor', 'calculateLuminance'],
+        'addressAccessibilityIssues': ['applyAccessibilityFixes']
+    };
+
+    let internalDeps = 0;
+    Object.values(callGraph).forEach(calls => {
+        internalDeps += calls.length;
+    });
+
+    return {
+        totalFunctions: functions.length,
+        internalDependencies: internalDeps,
+        externalDependencies: 0,
+        functionCallGraph: callGraph,
+        functions: functions
+    };
+}
+
+function getLangAttribute() {
+  if (typeof document !== 'undefined') {
+    return document.documentElement.getAttribute('lang') || 'en';
+  }
+  return 'en';
+}
+
+function fixTableStructure() {
+  // Implementation would process and display the table structure
+  console.log('Fixing table structure');
+}
+
+function fixLandmarks() {
+  // Implementation would fix landmark issues
+  console.log('Fixing landmarks');
+}
+
+function addSvgAccessibleNames() {
+  // Implementation would add accessible names to SVG elements
+  console.log('Adding SVG accessible names');
+}
+
+function ensureUniqueLandmarks() {
+  // Implementation to be added
+}
+
+function fixFakeLinks() {
+  // Implementation would fix fake link issues
+  console.log('Fixing fake links');
+}
+
+function applyAccessibilityFixes(html) {
+  if (!html || typeof html !== 'string') {
+    return html;
+  }
+
+  html = addLangAttribute(html);
+  html = fixTableStructure(html);
+  html = fixLandmarks(html);
+  html = addSvgAccessibleNames(html);
+  html = ensureUniqueLandmarks(html);
+  html = fixFakeLinks(html);
+
+  return html;
+}
+
+module.exports = {
+  accessiblyHelper,
+  generateAccessibilityReport,
+  getUserSafetyAdvice,
+  checkSafetyCategories,
+  visualizeDependencyTree,
+  main,
+  renderDependencyGraphContent,
+  renderDependencyGraph,
+  renderFunction1,
+  renderFunction2,
+  ensureElementAccessibility,
+  towerDefense,
+  getDependencyGraph,
+  addressAccessibilityIssues,
+  createInPageButton,
+  checkColorContrast,
+  parseColor,
+  calculateLuminance,
+  countDependencies,
+  countModuleDependencies,
+  getLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  applyAccessibilityFixes
+};

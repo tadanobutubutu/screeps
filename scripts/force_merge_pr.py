@@ -5,6 +5,8 @@ scripts/force_merge_pr.py
 Robust PR Auto-Merger with Automatic Conflict Resolution.
 Guarantees 100% merge success for Screeps repository PRs.
 Can process a single PR or batch-process open PRs ordered oldest-first.
+All commits belong strictly to github-actions[bot].
+Workflow directory (.github/workflows) is ALWAYS protected against regression.
 """
 
 import json
@@ -20,6 +22,9 @@ try:
 except ImportError:
     HAS_AI = False
 
+BOT_NAME = "github-actions[bot]"
+BOT_EMAIL = "41898282+github-actions[bot]@users.noreply.github.com"
+
 
 def run_cmd(args, check=True, capture=True):
     res = subprocess.run(args, capture_output=capture, text=True)
@@ -33,8 +38,17 @@ def run_cmd(args, check=True, capture=True):
 
 
 def setup_git_config():
-    run_cmd(["git", "config", "user.name", "AI Merge Bot"], check=False)
-    run_cmd(["git", "config", "user.email", "ai-merge-bot@screeps.local"], check=False)
+    run_cmd(["git", "config", "user.name", BOT_NAME], check=False)
+    run_cmd(["git", "config", "user.email", BOT_EMAIL], check=False)
+    os.environ["GIT_AUTHOR_NAME"] = BOT_NAME
+    os.environ["GIT_AUTHOR_EMAIL"] = BOT_EMAIL
+    os.environ["GIT_COMMITTER_NAME"] = BOT_NAME
+    os.environ["GIT_COMMITTER_EMAIL"] = BOT_EMAIL
+
+
+def protect_workflows():
+    """Guarantee that .github/workflows/ is never altered or rolled back by incoming PRs."""
+    run_cmd(["git", "checkout", "HEAD", "--", ".github/workflows/"], check=False)
 
 
 def resolve_file_conflict_with_ai(file_content, filename):
@@ -96,7 +110,6 @@ def force_resolve_remaining_conflict_markers(filepath):
             if not in_conflict:
                 resolved_lines.append(line)
             else:
-                # Inside conflict: prefer theirs (incoming PR changes)
                 if in_theirs:
                     resolved_lines.append(line)
 
@@ -147,6 +160,8 @@ def merge_single_pr(pr_no):
     head_ref = pr.get("headRefName", f"pr-{pr_no}")
     body = pr.get("body", "")
 
+    setup_git_config()
+
     # 2. Mark Ready if Draft
     if is_draft:
         print(f"Converting draft PR #{pr_no} to ready...")
@@ -156,31 +171,25 @@ def merge_single_pr(pr_no):
             run_cmd(["gh", "api", "graphql", "-f", f"query={graphql_query}", "-f", f"id={pr_id}"], check=False)
         time.sleep(1)
 
-    # 3. Attempt standard squash merge via GitHub CLI
-    print(f"Attempting standard gh pr merge for PR #{pr_no}...")
-    m_res = run_cmd(["gh", "pr", "merge", str(pr_no), "--admin", "--squash", "--delete-branch"], check=False)
-    if m_res.returncode == 0:
-        print(f"✅ PR #{pr_no} merged cleanly via standard merge!")
-        close_linked_issues(body)
-        return True
-
-    # 4. Standard merge failed (e.g. conflict, checks pending) -> Force Merge via Git directly on main
-    print(f"⚠️ Standard merge failed. Performing Git Force-Merge for PR #{pr_no}...")
-    setup_git_config()
+    # 3. Force Merge via Git directly on main
+    # We do Git-level force merge directly to guarantee:
+    # a) .github/workflows protection against regression
+    # b) 100% commit author strictly as github-actions[bot]
+    # c) Instant resolution of any conflicts
+    print(f"Performing Git Force-Merge for PR #{pr_no} as {BOT_NAME}...")
 
     # Ensure on main and up to date
     run_cmd(["git", "checkout", "main"], check=True)
     run_cmd(["git", "pull", "--ff-only", "origin", "main"], check=False)
 
-    # Fetch PR head commit/branch
+    # Fetch PR head
     temp_branch = f"temp-pr-{pr_no}"
     run_cmd(["git", "branch", "-D", temp_branch], check=False)
-    fetch_res = run_cmd(["git", "fetch", "origin", f"pull/{pr_no}/head:{temp_branch}"], check=False)
+    fetch_res = run_cmd(["git", "fetch", "--no-tags", "origin", f"pull/{pr_no}/head:{temp_branch}"], check=False)
     if fetch_res.returncode != 0:
-        # Fallback: try fetching by branch name
-        run_cmd(["git", "fetch", "origin", f"{head_ref}:{temp_branch}"], check=False)
+        run_cmd(["git", "fetch", "--no-tags", "origin", f"{head_ref}:{temp_branch}"], check=False)
 
-    # Try merge with theirs strategy option
+    # Merge with theirs strategy option
     merge_cmd = [
         "git", "merge", temp_branch,
         "-m", f"Merge pull request #{pr_no} from {head_ref} [auto-resolve-conflict]",
@@ -214,19 +223,26 @@ def merge_single_pr(pr_no):
                 print(f"  Resolved {cf} with --theirs strategy")
             run_cmd(["git", "add", cf], check=False)
 
-        run_cmd(["git", "commit", "--no-verify", "-m", f"Merge pull request #{pr_no} from {head_ref} [auto-resolved conflicts]"], check=False)
+    # CRUCIAL: Always restore and preserve .github/workflows/ from main HEAD
+    protect_workflows()
+    run_cmd(["git", "add", ".github/workflows/"], check=False)
+
+    run_cmd([
+        "git", "commit", "--no-verify",
+        "-m", f"Merge pull request #{pr_no} from {head_ref} [auto-resolved conflicts]"
+    ], check=False)
 
     # Push updated main to remote
     push_res = run_cmd(["git", "push", "origin", "main"], check=False)
     if push_res.returncode != 0:
         print("Push rejected, pulling rebase and retrying push...")
         run_cmd(["git", "pull", "--rebase", "origin", "main"], check=False)
+        protect_workflows()
         push_res = run_cmd(["git", "push", "origin", "main"], check=False)
 
     if push_res.returncode == 0:
-        print(f"✅ Successfully force-merged PR #{pr_no} and pushed to main!")
-        # Close PR on GitHub and delete branch
-        run_cmd(["gh", "pr", "close", str(pr_no), "-c", "Merged into main with auto-conflict resolution.", "-d"], check=False)
+        print(f"✅ Successfully force-merged PR #{pr_no} as {BOT_NAME}!")
+        run_cmd(["gh", "pr", "close", str(pr_no), "-c", f"Merged into main by {BOT_NAME} with auto-conflict resolution.", "-d"], check=False)
         close_linked_issues(body)
         run_cmd(["git", "branch", "-D", temp_branch], check=False)
         return True
@@ -257,12 +273,10 @@ def get_oldest_open_prs(limit=30):
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1].isdigit():
-        # Single PR mode
         pr_no = int(sys.argv[1])
         success = merge_single_pr(pr_no)
         sys.exit(0 if success else 1)
     
-    # Batch mode
     batch_limit = 20
     if "--batch" in sys.argv:
         idx = sys.argv.index("--batch")

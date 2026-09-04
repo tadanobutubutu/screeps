@@ -1,16 +1,95 @@
-const books = [];
-const safetyCategory = "User Safety: safe";
-const userSafety = 'unsafe';
-const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-let dependencyGraph = {};
-
-const utils = require('./utils');
-const axe = require('axe-core');
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
+const axe = require('axe-core');
+const { GAME, Memory } = require('screeps');
+const { CONFIG } = require('./utils/constants.js');
 
-// Accessibility Functions for Screeps
+const app = express();
+
+app.use(axe.middleware());
+app.use(express.static(path.join(__dirname, './data')));
+
+async function initializeA11y() {
+  const results = await axe.run('./public/index.html');
+  const issues = results.violations.reverse();
+  const output = [];
+
+  issues.forEach((issue) => {
+    const { description, suggestedFixes, nodes, rules } = issue;
+    output.push(`🚨 Accessibility issue found: ${description}\n`);
+    output.push(`  Rule: ${rules.name}\n`);
+    output.push(`  Affected Nodes:\n`);
+
+    nodes.forEach((node) => {
+      output.push(`    ${node.nodeType}\n       ${node.nodeName}\n       ${node.htmlAttributeString}\n       ${node.content}\n\n`);
+    });
+
+    output.push(`  Suggested Fixes:\n`);
+    suggestedFixes.forEach((fix) => {
+      output.push(`    ${fix}\n\n`);
+    });
+
+    output.push('---------------------------------------------------\n');
+  });
+
+  return output.join('');
+}
+
+app.get('/a11y-report', async (req, res) => {
+  const a11yReport = await initializeA11y();
+  res.send(a11yReport);
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+module.exports.loop = function () {
+  // Clean up memory of dead creeps
+  for (const name in Memory.creeps) {
+    if (!Game.creeps[name]) {
+      delete Memory.creeps[name];
+    }
+  }
+
+  const harvesterCount = _.filter(Game.creeps, c => c.memory.role === 'harvester').length;
+  if (harvesterCount < 2 && Game.spawns['Spawn1'].spawning === null) {
+    const newName = 'Harvester' + Game.time;
+    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
+      memory: { role: 'harvester' }
+    });
+  }
+
+  // Run creep roles
+  const gamesCreeps = _.mapValues(Game.creeps, creep => {
+    if (creep.memory.role === 'harvester') {
+      runHarvester(creep);
+      return runHarvester;
+    }
+    return creep;
+  });
+};
+
+function runHarvester(creep) {
+  if (creep.carry.energy < creep.carryCapacity) {
+    const source = creep.pos.findClosestByPath(FIND_SOURCES);
+    if (source) {
+      creep.harvest(source);
+    }
+  } else {
+    const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_SPAWN
+    });
+    if (target) {
+      creep.transfer(target, RESOURCE_ENERGY);
+    }
+  }
+}
+
+// Merge of HEAD and origin/main changes
+const fs = require('fs');
+const utils = require('./utils');
+const { spawn } = require('child_process');
 
 // Landmark data structure
 const landmarks = [];
@@ -21,20 +100,15 @@ const appData = {
     version: '1.0.0'
 };
 
-// Configuration
-const config = {
-    name: 'MyApp',
-    version: '1.0.0',
-    debug: false,
-    dataPath: './data',
-    maxResults: 100
-};
+// Merged configuration
 const CONFIG = {
     landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
     maxResults: 100,
     dataPath: './data',
     maxLandmarks: 50,
-    allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
+    allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+    apiUrl: process.env.API_URL || 'http://localhost:3000',
+    timeout: 5000
 };
 
 // Import ES modules and refactor existing functions
@@ -48,11 +122,9 @@ function analyzeModuleDependenciesExported(modules) {
   return analyzeModuleDependencies(modules);
 }
 
-function visualizeModuleRelationships(modules) {
+function visualizeModuleRelationshipsExported(modules) {
   return visualizeModuleRelationships(modules);
 }
-
-// ... Helper functions from the conflicting file (cleaned, maintained, integrated)
 
 // Load landmarks from file
 function loadLandmarks() {
@@ -88,7 +160,6 @@ const accessiblyHelper = async (...args) => {
 
 // Function to process two parameters and return a result related to accessibility or landmark processing
 function function3(param1, param2) {
-  // Implementation of function3
   if (!param1 || !param2) {
     return null;
   }
@@ -102,18 +173,6 @@ function function3(param1, param2) {
 
   return result;
 }
-
-// Load landmarks from file (new addition)
-function loadLandmarks() {
-  try {
-    const filePath = path.join(__dirname, 'landmarks.json');
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-      console.error('Error loading landmarks:', error.message);
-      return [];
-  }
-};
 
 const validateLandmark = (landmark) => {
   return landmark &&
@@ -167,9 +226,8 @@ const getUniqueLandmarksFromArray = (landmarks) => {
   return uniqueLandmarks;
 };
 
-// New function to analyze module dependencies
-function analyzeModuleDependenciesLocal(modules) {
-  // Implementation would analyze and return dependency relationships
+// New function to analyze module dependencies (local implementation)
+function analyzeModuleDependenciesLocalImpl(modules) {
   return {
     totalDependencies: 0,
     dependencyMap: {}
@@ -183,20 +241,15 @@ async function applyAccessibilityFixesAndHarvestData(html) {
   result = fixTableStructure(result);
   result = fixFakeLinks(result);
 
-  // Load landmarks for accessibility processing
   const loadedLandmarks = loadLandmarks();
   const validLandmarks = processLandmarks(loadedLandmarks);
 
-  // Implementation for ensuring accessibility attributes
   const processedLandmarks = ensureAccessibilityAttributesForAddBook(validLandmarks);
 
   for (const landmark of processedLandmarks) {
     result = addBook(landmark.title, landmark.author);
     result = announceBookAdded(landmark.title, landmark.author);
   }
-
-  // Optionally, collect and insert data from external sources
-  // ...
 
   return result;
 }
@@ -216,6 +269,52 @@ function addAriaLabel(element, label) {
   return element;
 }
 
+// New functions for accessibility and networking from origin/main
+function createAccessibleLink({ href, text }) {
+  const link = document.createElement('a');
+  link.setAttribute('href', href);
+  link.textContent = text;
+  link.setAttribute('aria-label', text);
+  return link;
+}
+
+function checkLinkAccessibility(linkUrl) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  return fetch(linkUrl, { method: 'HEAD', signal: controller.signal })
+    .then(response => {
+      clearTimeout(timeout);
+      return response.ok;
+    })
+    .catch(() => {
+      clearTimeout(timeout);
+      return false;
+    });
+}
+
+// Function for spawning a new process
+function spawnProcess(command) {
+  const proc = spawn(command);
+
+  proc.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
+  proc.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  proc.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
+}
+
+// Start server
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+
 module.exports = {
   applyAccessibilityFixesAndHarvestData,
   analyzeModuleDependencies,
@@ -228,5 +327,8 @@ module.exports = {
   processLandmarks,
   validateLandmark,
   ensureUniqueLandmarksList,
-  getUniqueLandmarksFromArray
+  getUniqueLandmarksFromArray,
+  createAccessibleLink,
+  checkLinkAccessibility,
+  spawnProcess
 };

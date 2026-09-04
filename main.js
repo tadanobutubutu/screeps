@@ -49,7 +49,7 @@ const a11y = {
   }
 };
 
-// ... (existing code)
+const { calculateSum, UserSafety, getSafetyCategory, getSafetyCategoryDetailed, getUserSafetyInfo, isUserSafetyUnsafe, hasSafetyCategory, loadUserSafetyInfo } = require('./userSafety');
 
 // The new getAccessibleAdvice function from the new commit.
 // Machine-readable output with the same functionality as the old one.
@@ -65,6 +65,25 @@ module.exports = {
   UserSafety: 'unsafe',
   getUserSafetyAdvice,
   getAccessibleAdvice,
-  // Include accessibility utilities from the new commit
-  ...a11y
+  a11y,
+  calculateSum,
+  UserSafety,
+  getSafetyCategory,
+  getSafetyCategoryDetailed,
+  getUserSafetyInfo,
+  isUserSafetyUnsafe,
+  hasSafetyCategory,
+  loadUserSafetyInfo
 };
+
+// Add accessibility functions
+function addressAccessibilityIssues() {
+  fixAccessibilityIssues();
+}
+
+function ensureUniqueLandmarksDom() {
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  const landmarkCounts = ensureUniqueLandmarks(landmarks);
+
+  // ... (existing code for handling invalid landmarks)
+}

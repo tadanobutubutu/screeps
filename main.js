@@ -163,6 +163,7 @@ const addressAccessibilityIssues = () => {
   addAccessibleNamesToSVGs();
   addSvgAccessibleNames();
   fixFakeLinkIssue();
+  addMainLandmark();
 };
 
 const addBook = (title, author) => {
@@ -233,3 +234,4 @@ module.exports = {
   addLangAttribute,
   appData,
 };
+```

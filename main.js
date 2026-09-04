@@ -69,7 +69,7 @@ function validateTableAccessibility(table) {
     issues.push('Missing headers attribute');
   }
 
-  if (!table.querySelector) {
+  if (!table.querySelector || !table.querySelector('caption')) {
     issues.push('Missing caption element');
   }
 
@@ -176,7 +176,7 @@ function validateLandmarkStructure(landmarks) {
     let hasNavigation = false;
 
     allLandmarks.forEach(landmark => {
-      const role = landmark.getAttribute('role');
+      const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
       if (role === 'main') hasMain = true;
       if (role === 'navigation') hasNavigation = true;
     });
@@ -212,7 +212,7 @@ function ensureUniqueLandmarks(landmarks) {
   }
 
   // Ensure elementsToCheck is iterable
-  elementsToCheck = Array.isArray(elementsToCheck) ? elementsToCheck : [];
+  elementsToCheck = elementsToCheck || [];
 
   // Check for duplicate accessible names
   elementsToCheck.forEach(landmark => {
@@ -241,7 +241,7 @@ function ensureUniqueLandmarks(landmarks) {
   // Check for duplicate roles
   const landmarksByRole = {};
   elementsToCheck.forEach(landmark => {
-    const role = landmark.getAttribute('role');
+    const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
     if (role) {
       if (landmarksByRole[role]) {
         duplicates.push(`Duplicate landmark role: ${role}`);
@@ -292,35 +292,60 @@ function createInPageButton(text, onClick) {
 }
 
 /**
- * Handles accessibility issues found during validation
- * @param {Array} issues - Array of accessibility issues (optional)
- * @returns {Object} Summary of handled issues
+ * Harvests energy from a source (Screeps game logic)
+ * @param {Object} creep - The creep to perform harvesting
+ * @returns {Object} Result with success status and any errors
  */
-function handleAccessibilityIssues(issues = []) {
-  const handled = [];
-  const unhandled = [];
+function harvest(creep) {
+  const result = {
+    success: false,
+    error: null,
+    energyHarvested: 0
+  };
 
-  issues.forEach(issue => {
-    if (issue.fixable) {
-      handled.push(issue);
+  if (!creep || !creep.room) {
+    result.error = 'Invalid creep or room';
+    return result;
+  }
+
+  // Find the closest energy source
+  const sources = creep.room.find(FIND_SOURCES);
+  if (sources.length === 0) {
+    result.error = 'No energy sources found';
+    return result;
+  }
+
+  const source = creep.pos.findClosestByPath(sources);
+  if (!source) {
+    result.error = 'No reachable energy source found';
+    return result;
+  }
+
+  // Attempt to harvest
+  const harvestResult = creep.harvest(source);
+  
+  if (harvestResult === ERR_NOT_IN_RANGE) {
+    // Move towards the source if not in range
+    const moveResult = creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+    if (moveResult === OK) {
+      result.success = true;
+      result.energyHarvested = 0;
     } else {
-      unhandled.push(issue);
+      result.error = `Movement failed with code: ${moveResult}`;
     }
-  });
+  } else if (harvestResult === OK) {
+    result.success = true;
+    result.energyHarvested = source.energy > 0 ? Math.min(creep.getActiveBodyparts(WORK) * 2, source.energy) : 0;
+  } else {
+    result.error = `Harvest failed with code: ${harvestResult}`;
+  }
 
-  // Perform DOM validation
-  const tables = document.querySelectorAll ? document.querySelectorAll('table') : [];
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
+  return result;
+}
 
-  const landmarks = document.querySelectorAll ? document.querySelectorAll('header, nav, main, aside, footer, section, article') : [];
-  landmarks.forEach(landmark => {
-    validateLandmark(landmark);
-  });
-
-  ensureUniqueLandmarks();
-
-  const svgs = document.querySelectorAll ? document.querySelectorAll('svg') : [];
-  svgs
+/**
+ * Upgrades the room controller (Screeps game logic)
+ * @param {Object} creep - The creep to perform upgrading
+ * @returns {Object} Result with success status and any errors
+ */
+function upgrade

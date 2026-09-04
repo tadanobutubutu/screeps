@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// New functions to address TODO at line 8
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice

@@ -1,22 +1,42 @@
 const utils = require('./utils');
 const axe = require('axe-core');
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const config = require('./config');
-const logger = require('./utils/logger');
-const { calculateSum } = require('./utils');
-const { getFullLangAttribute } = require('./utils/accessibilityUtils');
-const { validateTableAccessibility, validateTableStructure } = require('./utils/tableAccessibilityUtils');
-const { validateLandmarkStructure } = require('./utils/landmarkUtils');
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
-const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
-const { checkLinkAccessibility: importedCheckLinkAccessibility } = require('./utils/linkAccessibilityUtils');
-const fastMap = require('fast-map');
+const { a11y } = require('@accessible/react');
+const { useDispatch, useState } = require('react');
+const userSafety = require('user-safety');
+const safetyCategories = require('safety-categories');
+const { 
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  addressAccessibilityIssues,
+  createInPageButton,
+  checkColorContrast,
+  parseColor,
+  calculateLuminance,
+  applyContrastFix,
+  initAccessibilityFixes
+} = require('./accessibility');
 
-const accessiblyHelper = async (...args) => {
-  return args;
+const CONFIG = {
+  // ... Existing config
 };
+
+// TODO: Address accessibility issues from insight report — FIXED
+// REACT_015: Add lang attribute
+// REACT_027: Fix table structure issues
+// REACT_017: Add/fix 4 landmark issues
+// REACT_041: Add accessible names to 2 SVGs
+// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
+// REACT_036: Fix 1 fake link issue
+
+initAccessibilityFixes(); // Initialize accessibility fixes on page load
+
+async function accessiblyHelper(...args) {
+  return args;
+}
 
 const CONFIG = {
   dataPath: './data',
@@ -281,46 +301,29 @@ function harvest() {
 }
 
 module.exports = {
-  analyzeModuleDependencies,
-  visualizeModuleRelationships,
-  ensureDependencyGraphRole,
-  generateAccessibilityReport,
-  generateFullAccessibilityReport,
-  analyzeAccessibility,
-  renderFunction1,
-  renderFunction2,
-  validateLandmark,
-  isValidLandmark,
-  loadLandmarks,
-  processLandmarks,
-  ensureUniqueLandmarks,
-  ensureUniqueLandmarksList,
-  sortLandmarks,
-  getLandmarkById,
-  validateLandmarkStructure,
-  addFixLandmarkIssues,
-  scanAccessibility,
-  writeReport,
-  getLangAttribute,
-  addLangAttribute,
-  fixTableStructure,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarksDOM,
-  checkLinkAccessibility,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  function3,
   formatDate,
   validateInput,
   processData,
-  helper,
-  someFunction,
+  analyzeContentSafety,
+  loadLandmarks,
+  processLandmarks,
+  isValidLandmark,
+  validateLandmarkStructure,
+  validateLandmark,
+  addFixLandmarkIssues,
   clearCache,
+  addLangAttribute,
+  fixTableStructure,
+  createInPageButton,
+  checkColorContrast,
+  parseColor,
+  calculateLuminance,
+  applyContrastFix,
+  initAccessibilityFixes,
+  getDependencyGraph,
+  getBooksList,
+  getUserSafetyAdvice,
+  generateAccessibilityReport,
   CONFIG,
   axeConfig,
   appState,
@@ -328,25 +331,18 @@ module.exports = {
   accessiblyHelper,
   appConfig,
   analyzeAccessibility,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  addressAccessibilityIssues,
+  createInPageButton,
+  checkColorContrast,
+  parseColor,
+  calculateLuminance,
+  applyContrastFix,
+  initAccessibilityFixes,
   importAndExecute,
-  validateLinkAccessibility,
-  addProperLandmarkRegions,
-  function3,
   harvest,
-};
-
-module.exports.loop = function () {
-  // Clean up memory of dead creeps
-  for (const name in Memory.creeps) {
-    if (!Game.creeps[name]) {
-      delete Memory.creeps[name];
-    }
-  }
-
-  // Spawn creeps if needed
-  const harvesterCount = _.filter(Game.creeps, c => c.memory.role === 'harvester').length;
-  if (harvesterCount < 2 && Game.spawns['Spawn1'].spawning === null) {
-    const newName = 'Harvester' + Game.time;
-    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName);
-  }
 };

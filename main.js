@@ -1,6 +1,5 @@
 const accessibilityUtilsExtra = {
     validateLandmark: validateLandmarkRequired,
-    // ... other existing utility functions or additional functions requested in the issue (if any)
 };
 
 const accessibilityUtils = {
@@ -12,18 +11,6 @@ module.exports = {
     // ... existing exported functions
     accessibilityUtils
 };
-
-// Initialize on DOM ready (added a check to ensure that document is not undefined)
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize);
-    } else {
-        initialize();
-    }
-}
-
-/////////////////////////////////////////
-// TODO: Remove this section after resolution
 
 function validateLandmarkRequired() {
     const requiredLandmarks = ['main', 'nav', 'footer'];
@@ -49,18 +36,11 @@ if (typeof window !== 'undefined') {
     window.validateLandmark = validateLandmarkRequired;
 }
 
-// Add the new function to the accessibilityUtils object
-const accessibilityUtilsExtra = {
-    validateLandmark: validateLandmarkRequired,
-    // ... other existing utility functions or additional functions requested in the issue (if any)
-};
-
-const accessibilityUtils = {
-    // ... existing utility functions
-    ...accessibilityUtilsExtra
-};
-
-module.exports = {
-    // ... existing exported functions
-    accessibilityUtils
-};
+// Initialize on DOM ready (added a check to ensure that document is not undefined)
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+        initialize();
+    }
+}

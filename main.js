@@ -1,6 +1,3 @@
-Here's the resolved file content:
-
-```javascript
 let dependencyGraph = {};
 
 function getDependencyGraph() {
@@ -164,16 +161,6 @@ if (interactiveElements.length > 0) {
       element.setAttribute('aria-required', 'true');
     }
   });
-}
-
-/**
- * Ensure that the dependencyGraph container has a proper ARIA role.
- */
-//_Commit: eef4b6be04a5e2cd61b7543cfe2dff2da0857ca2_
-const dependencyGraphContainer = document.getElementById('dependencyGraph');
-if (dependencyGraphContainer) {
-  dependencyGraphContainer.setAttribute('role', 'region');
-  dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
 }
 
 /**

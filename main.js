@@ -1,11 +1,3 @@
-// TODO: Add any other missing exports that might have been?
-// TODO: Implement tower defense
-// Placeholder for tower defense implementation
-// This function will contain the logic for the tower defense system
-function implementTowerDefense() {
-  // TODO: Implement tower defense
-}
-
 const express = require('express');
 const { spawn } = require('child_process');
 const path = require('path');
@@ -14,6 +6,9 @@ const fastMap = require('fast-map');
 const utils = require('./utils');
 const accessiblyHelper = require('./accessibly-helper');
 const axe = require('axe-core');
+
+// User Safety: unsafe
+// Safety Categories: Other, Unauthorized Advice
 
 const config = {
   name: 'MyApp',
@@ -107,6 +102,13 @@ const { isUserSafe, isSafetyCategoryUnauthorizedAdvice } = require('./userSafety
 // Application state
 let isInitialized = false;
 const appData = { resources: [] };
+
+// TODO: Implement tower defense
+// Placeholder for tower defense implementation
+// This function will contain the logic for the tower defense system
+function implementTowerDefense() {
+  // TODO: Implement tower defense
+}
 
 /**
  * Gets the lang attribute for the HTML element

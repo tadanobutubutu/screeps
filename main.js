@@ -109,9 +109,49 @@ function getDependencyGraph() {
       initialise();
   }
 
-  // ... (keep the remaining code from both branches)
+  return dependencyGraph;
 }
 
+let UserSafety = "unsafe";
+let SafetyCategories = "Unauthorized Advice";
+
+function fixAccessibilityIssues() {
+  // Add your code here to fix the accessibility issues as per the insight report
+  // Example: validateTableAccessibility(/* table to validate */);
+}
+
+export const checkUserSafety = () => {
+  let userSafetyMessage = '';
+
+  if (UserSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and this setting for better security.';
+  }
+
+  return userSafetyMessage;
+};
+
+export const checkSafetyCategories = () => {
+  let safetyCategoriesMessage = '';
+
+  if (SafetyCategories.includes('Unauthorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+
+  return safetyCategoriesMessage;
+};
+
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+}
+
+// ... (All other original functions and code related to the bot, renamed and imported)
+
 module.exports = {
-  // ... (export all the updated functions as before)
+  // ... (All exported functions)
+  accessiblyHelper,
+  checkUserSafety,
+  checkSafetyCategories,
+  visualizeDependencyTree,
+  // ... (Other exports)
 };

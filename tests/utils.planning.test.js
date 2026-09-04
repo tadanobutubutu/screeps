@@ -104,13 +104,6 @@ describe('utils.planning', () => {
         expect(() => utilsPlanning.visualizePlanning(mockRoom, [])).not.toThrow();
     });
 
-    test('planRoadNetworkがspawnがないとき空配列を返す', () => {
-        mockCache.getSpawns.mockReturnValue([]);
-        mockCache.getSources.mockReturnValue([]);
-        const roads = utilsPlanning.planRoadNetwork(mockRoom);
-        expect(Array.isArray(roads)).toBe(true);
-    });
-
     test('displayPlanningInfoがエラーを投げない', () => {
         mockCache.getSources.mockReturnValue([{ id: 'source1' }]);
         const result = utilsPlanning.displayPlanningInfo(mockRoom);

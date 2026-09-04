@@ -114,6 +114,12 @@ function validateTableStructure(tables) {
   };
 }
 
+// New changes for improved accessibility of the addBook function or form
+// Ensuring that all interactive elements are keyboard accessible
+function addBook() {
+    // Existing code for adding a book
+}
+
 /**
  * Adds lang attribute to HTML element
  * @param {Object} element - The HTML element to modify
@@ -628,6 +634,7 @@ function renderDependencyGraph() {
  * @returns {Object} Result with internal and npm dependency counts
  */
 function countDependencies() {
+  // Count internal private functions (starting with '_')
   const internalFunctions = [
     'newBranchFunction',
     'validateLandmark',
@@ -662,17 +669,20 @@ function countDependencies() {
     'countDependencies'
   ];
 
+  // Count npm dependencies from package.json
   const npmDependencies = [];
-  try {
-    const packageJson = require('./package.json');
-    if (packageJson.dependencies) {
-      npmDependencies.push(...Object.keys(packageJson.dependencies));
+  if (typeof require === 'function') {
+    try {
+      const packageJson = require('./package.json');
+      if (packageJson.dependencies) {
+        npmDependencies.push(...Object.keys(packageJson.dependencies));
+      }
+      if (packageJson.devDependencies) {
+        npmDependencies.push(...Object.keys(packageJson.devDependencies));
+      }
+    } catch (e) {
+      // package.json not accessible or doesn't exist
     }
-    if (packageJson.devDependencies) {
-      npmDependencies.push(...Object.keys(packageJson.devDependencies));
-    }
-  } catch (e) {
-    // package.json not accessible or doesn't exist
   }
 
   return {

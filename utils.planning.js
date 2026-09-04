@@ -72,32 +72,6 @@ module.exports = {
         return bestPos;
     },
 
-    // Get tiles at a certain distance from a position (Floodfill concept)
-    getTilesAtDistance: function (room, centerPos, distance) {
-        const tiles = [];
-        const terrain = room.getTerrain();
-
-        for (
-            let x = Math.max(0, centerPos.x - distance);
-            x <= Math.min(49, centerPos.x + distance);
-            x++
-        ) {
-            for (
-                let y = Math.max(0, centerPos.y - distance);
-                y <= Math.min(49, centerPos.y + distance);
-                y++
-            ) {
-                if (Math.abs(x - centerPos.x) + Math.abs(y - centerPos.y) === distance) {
-                    if (terrain.get(x, y) !== TERRAIN_MASK_WALL) {
-                        tiles.push(new RoomPosition(x, y, room.name));
-                    }
-                }
-            }
-        }
-
-        return tiles;
-    },
-
     // Visualize room planning
     visualizePlanning: function (room, positions, color = '#00ff00') {
         if (!positions || positions.length === 0) {

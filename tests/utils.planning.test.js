@@ -94,12 +94,6 @@ describe('utils.planning', () => {
         expect(pos).toBeNull();
     });
 
-    test('getTilesAtDistanceが配列を返す', () => {
-        const centerPos = { x: 25, y: 25 };
-        const tiles = utilsPlanning.getTilesAtDistance(mockRoom, centerPos, 3);
-        expect(Array.isArray(tiles)).toBe(true);
-    });
-
     test('visualizePlanningが空配列のとき何もしない', () => {
         expect(() => utilsPlanning.visualizePlanning(mockRoom, [])).not.toThrow();
     });

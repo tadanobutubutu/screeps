@@ -18,10 +18,21 @@ const config = {
   maxLandmarks: 50
 };
 
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+const appData = {
+  title: 'Screeps',
+  version: '1.0.0'
+};
+
 function validateConfig(cfg) {
   const errors = [];
 
-  if (!cfg.apiUrl || typeof cfg.apiUrl !== 'string') {
+  if (!cfg apiUrl || typeof cfg apiUrl !== 'string') {
     errors.push('apiUrl must be a valid string');
   }
 
@@ -274,6 +285,147 @@ export function upgradeLogic(harvestedData) {
   // ... Implement the rest of the upgrade logic
 
   return results;
+}
+
+/**
+ * Validates the structure of tables for accessibility
+ * @param {Array|Object} tables - Array of table objects or single table element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+export function validateTableStructure(tables) {
+  const allIssues = [];
+
+  // Handle both single table element and array of tables
+  const tableArray = Array.isArray(tables) ? tables : [tables];
+
+  tableArray.forEach((table, index) => {
+    // Check for rows
+    const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
+    if (rows.length === 0) {
+      allIssues.push({
+        tableIndex: index,
+        issues: ['Table has no rows']
+      });
+    }
+
+    // Validate table accessibility
+    const result = validateTableAccessibility(table);
+    if (!result.success) {
+      allIssues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
+    }
+  });
+
+  return {
+    success: allIssues.length === 0,
+    issues: allIssues
+  };
+}
+
+/**
+ * Validates landmark elements for accessibility
+ * @param {Object} element - The element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+export function validateLandmark(element) {
+  const issues = [];
+
+  // Check if element exists
+  if (!element) {
+    issues.push('Landmark element is required');
+    return { success: false, issues };
+  }
+
+  // Get role from attribute
+  const role = element.getAttribute ? element.getAttribute('role') : null;
+
+  // Define valid ARIA landmark roles
+  const validAriaLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
+
+  // Validate role attribute exists
+  if (!role) {
+    issues.push('Landmark must have a role attribute');
+  } else if (validAriaLandmarks.indexOf(role) === -1) {
+    // Check if it's a valid landmark role (including region, application, form)
+    const validRoles = ['application', 'form', 'region'];
+    if (validRoles.indexOf(role) === -1) {
+      issues.push(`Invalid landmark role: ${role}`);
+    }
+  }
+
+  // Additional validation for specific landmarks
+  if (role === 'main') {
+    // There should only be one main landmark per page
+    const existingMain = document.querySelector('[role="main"]');
+    if (existingMain && existingMain !== element) {
+      issues.push('Duplicate main landmark found');
+    }
+  }
+
+  // Check for accessible name on landmarks that require it
+  const landmarksRequiringName = ['search', 'navigation', 'complementary'];
+  if (landmarksRequiringName.indexOf(role) !== -1) {
+    const hasLabel = element.getAttribute ?
+      (element.getAttribute('aria-label') ||
+       element.getAttribute('aria-labelledby') ||
+       element.getAttribute('aria-description')) : false;
+    if (!hasLabel) {
+      issues.push(`Landmark with role "${role}" should have an accessible name`);
+    }
+  }
+
+  // Check tagName for semantic HTML5 landmarks
+  if (element.tagName) {
+    const tagName = element.tagName.toLowerCase();
+    const validTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+    if (!validTags.includes(tagName) && !role) {
+      issues.push(`Invalid landmark tag: ${tagName}`);
+    }
+  } else {
+    issues.push('Missing tagName');
+  }
+
+  // Additional check: if tagName present but not a valid landmark tag
+  if (element.tagName) {
+    const validLandmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+    if (!validLandmarkTags.includes(element.tagName.toLowerCase())) {
+      issues.push(`Invalid landmark: ${element.tagName}`);
+    }
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validates the structure of landmark elements
+ * @param {Array} landmarks - Array of landmark elements to validate (optional)
+ * @returns {Object} Validation result with success status and any issues found
+ */
+export function validateLandmarkStructure(landmarks) {
+  const issues = [];
+
+  // If landmarks array is provided, validate each one
+  if (Array.isArray(landmarks)) {
+    landmarks.forEach((landmark, index) => {
+      const result = validateLandmark(landmark);
+      if (!result.success) {
+        issues.push({
+          landmarkIndex: index,
+          issues: result.issues
+        });
+      }
+    });
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
 }
 
 // New function that does something different

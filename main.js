@@ -17,7 +17,7 @@ const fs = require('fs');
 const utils = require('./utils');
 const fastMap = require('fast-map');
 const { a11y } = require('@accessible/react');
-const { calculateSum, UserSafety, getSafetyCategory, getSafetyCategoryDetailed, getUserSafetyInfo, isUserSafetyUnsafe, hasSafetyCategory, loadUserSafetyInfo } = require('./userSafety');
+const { calculateSum, getSafetyCategory, getSafetyCategoryDetailed, getUserSafetyInfo, isUserSafetyUnsafe, hasSafetyCategory, loadUserSafetyInfo } = require('./userSafety');
 
 const accessiblyHelper = async (...args) => {
   return args;
@@ -95,6 +95,13 @@ async function renderFunction1() {
   function ensureAriaRole(container) {
     if (!container) return;
     if (!container.getAttribute('role')) {
+      container.setAttribute('role', 'img');
+    }
+  }
+
+  function ensureDependencyGraphRole(container) {
+    if (!container) return;
+    if (!container.hasAttribute('role')) {
       container.setAttribute('role', 'img');
     }
     if (!container.getAttribute('aria-label')) {
@@ -331,6 +338,157 @@ async function fetchUser(userId) {
   return { id: userId, name: 'User ' + userId };
 }
 
+// Accessibility enhancement functions
+function addKeyboardNavigation() {
+  document.addEventListener('keydown', (e) => {
+    // Handle keyboard events
+  });
+}
+
+function addAriaLabels() {
+  const elements = document.querySelectorAll('[data-label]');
+  elements.forEach(el => {
+    el.setAttribute('aria-label', el.getAttribute('data-label'));
+  });
+}
+
+function addScreenReaderAnnouncements() {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.className = 'sr-only';
+  document.body.appendChild(announcer);
+}
+
+function addFocusTrap() {
+  const focusableElements = document.querySelectorAll('a, button, input, [tabindex]');
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
+
+function improveAccessibility() {
+  fixTableStructureIssues();
+  fixTableHeaderCellScope();
+  addMainLandmark();
+  addSvgAccessibleNames();
+}
+
+// Helper functions for table accessibility
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const headerRow = document.createElement('tr');
+        firstRow.querySelectorAll('td').forEach(cell => {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          th.setAttribute('scope', 'col');
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.insertBefore(thead, firstRow);
+        firstRow.remove();
+      }
+    }
+  });
+}
+
+function fixTableHeaderCellScope() {
+  const headers = document.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+}
+
+// Module import and execution utility
+function importAndExecute(modulePath, functionName, callback) {
+  require(modulePath)[functionName](callback);
+}
+
+// Table validation functions
+function validateTableAccessibility(tableElement) {
+    if (!tableElement) return false;
+
+    const hasCaption = tableElement.querySelector('caption') !== null;
+    const hasHeaders = tableElement.querySelector('thead') !== null ||
+                      tableElement.querySelector('th') !== null;
+
+    const headers = tableElement.querySelectorAll('th');
+    let hasScope = true;
+    headers.forEach(header => {
+        if (!header.hasAttribute('scope')) {
+            hasScope = false;
+        }
+    });
+
+    return hasCaption && hasHeaders && hasScope;
+}
+
+// Landmark validation functions
+function validateLandmark(landmarkElement) {
+    if (!landmarkElement) return false;
+
+    const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+    const role = landmarkElement.getAttribute('role');
+
+    return validRoles.includes(role);
+}
+
+function validateLandmarkStructure(landmarkElement) {
+    if (!landmarkElement) return false;
+
+    const heading = landmarkElement.querySelector('h1, h2, h3, h4, h5, h6');
+    return heading !== null;
+}
+
+// SVG accessibility functions
+function getSvgAccessibleName(svgElement) {
+    if (!svgElement) return '';
+
+    const title = svgElement.querySelector('title');
+    const desc = svgElement.querySelector('desc');
+
+    if (title) return title.textContent;
+    if (desc) return desc.textContent;
+
+    if (svgElement.hasAttribute('aria-label')) {
+        return svgElement.getAttribute('aria-label');
+    }
+
+    if (svgElement.hasAttribute('aria-labelledby')) {
+        const id = svgElement.getAttribute('aria-labelledby');
+        const labelElement = document.getElementById(id);
+        return labelElement ? labelElement.textContent : '';
+    }
+
+    return '';
+}
+
+// Render index view with accessibility enhancements
+function renderIndexView() {
+  if (dependencyGraphContainer) {
+    dependencyGraphContainer.setAttribute('role', 'region');
+    dependencyGraphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+}
+
 function clearCache() {
   appState.cache.clear();
 }
@@ -365,21 +523,67 @@ function analyzeAccessibility(issuesData) {
   return issues;
 }
 
+// Configuration
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'localhost';
+
+// Application main entry point
+const app = expressApp;
+
+// TODO: Implement harvest and upgrade logic
+function harvest(creep) {
+  if (!creep) return;
+  const sources = creep.room.find(FIND_SOURCES);
+  if (sources.length > 0) {
+    if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(sources[0]);
+    }
+  }
+}
+
+function upgrade(creep) {
+  if (!creep) return;
+  const controller = creep.room.controller;
+  if (controller) {
+    if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(controller);
+    }
+  }
+}
+
+function runHarvestAndUpgrade(creep) {
+  if (!creep) return;
+  if (creep.store.getFreeCapacity() > 0) {
+    harvest(creep);
+  } else {
+    upgrade(creep);
+  }
+}
+
 module.exports = {
-  utils,
-  express,
-  axe,
-  fastMap,
-  path,
-  a11y,
-  calculateSum,
-  UserSafety,
-  getSafetyCategory,
-  getSafetyCategoryDetailed,
-  getUserSafetyInfo,
-  isUserSafetyUnsafe,
-  hasSafetyCategory,
-  loadUserSafetyInfo,
-  // Include accessibility utilities from the new commit
-  ...a11y
+  UserSafety: 'unsafe',
+  getUserSafetyAdvice,
+  harvest,
+  upgrade,
+  runHarvestAndUpgrade
 };
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+        initialize();
+    }
+}
+
+// Main initialization function
+function initialize() {
+    addMainLandmark();
+    // Additional initialization logic can be added here
+}
+
+// Run initialization if this is the main module
+if (require.main === module) {
+    initialize();
+}

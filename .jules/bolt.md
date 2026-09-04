@@ -21,3 +21,4 @@
 ## 2026-08-25 - Short-Circuiting Priority Evaluation in Repair Target Selection
 **Learning:** In Screeps target selection loops with prioritized structures (e.g. `_findBestRepairTarget` in `src/roles/repairer.js`), checking `if (priority > minPriority) continue;` before computing `hits / hitsMax` and `creep.pos.getRangeTo(s)` short-circuits evaluation for all lower-priority structures.
 **Action:** Always short-circuit lower priority candidates immediately after fetching priority in target selection search loops.
+## 2023-10-24 - [Fix N+1 room._myStructures cache query]

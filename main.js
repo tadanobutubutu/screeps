@@ -20,14 +20,20 @@ const CONFIG = {
   dataPath: './data',
   name: 'MyApp',
   version: '1.0.0',
-  debug: false
+  debug: true,
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  timeout: process.env.TIMEOUT || 5000,
+  apiKey: process.env.API_KEY || 'default-key'
 };
 
 // Application state
 const appState = {
     initialized: false,
     data: null,
-    cache: {}
+    cache: {},
+    lang: 'en',
+    credentials: null,
+    error: null
 };
 
 let icons = {};
@@ -210,5 +216,51 @@ module.exports = {
   processLandmarks,
   loadLandmarks,
   analyzeAccessibility,
-  generateAccessibilityReport
+  generateAccessibilityReport,
+  CONFIG,
+  config,
+  LANDMARK_CONFIG,
+  appData,
+  appState,
+  isInitialized,
+  PORT,
+  HOST,
+  helper,
+  function3,
+  formatDate,
+  initialize,
+  initializeApp,
+  fetchUser,
+  clearCache,
+  someFunction,
+  validateInput,
+  processData,
+  calculateSum,
+  deduplicateLandmarks,
+  createAccessibleBookEntry,
+  validateBookAccessibility,
+  handleCredentialResponse,
+  scanAccessibility,
+  getUniqueLandmarks,
+  addAccessibilityProps,
+  fixFakeLinkIssues,
+  ensureDependencyGraphAriaRole,
+  improveAccessibility,
+  getLangAttribute,
+  validateLandmarkData,
+  setSvgAttributesLocal,
+  getSvgPropsLocal,
+  createAccessibleLink,
+  addressAccessibilityIssues,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  addAccessibilityProps,
+  addProperLandmarkRegions,
+  validateLinkAccessibility,
+  checkLandmarkElement,
+  validateLandmarkStructure,
+  writeReport,
+  processAccessibilityReport,
+  LANDMARK_CONFIG,
+  HTML,
+  initApp
 };

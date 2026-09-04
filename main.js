@@ -17,6 +17,13 @@ const checkSafetyCategories = () => {
   return safetyCategoriesMessage;
 };
 
+// From HEAD branch
+export const enhanceAccessibility = () => {
+  // Implementation for accessibility enhancements
+  console.log('Accessibility enhancements applied.');
+};
+
+// From origin/main branch
 const generateAccessibilityReport = () => {
   const issues = [];
 
@@ -66,8 +73,3 @@ const upgradeUserSettings = () => {
     requiresUpgrade: upgrades.length > 0
   };
 };
-
-... (rest of the conflicted file)
-```
-
-In this resolved file, the `generateAccessibilityReport` function and the `upgradeUserSettings` function are included from the Git merge conflict. The rest of the file remains unchanged, including comments and style.

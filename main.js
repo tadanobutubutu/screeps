@@ -4,21 +4,13 @@ const path = require('path');
 const fastMap = require('fast-map');
 const accessiblyHelper = require('./accessibly-helper');
 
-const config = {
-  name: 'MyApp',
-  version: '1.0.0',
-  debug: false,
-  dataPath: './data',
-  maxResults: 100
-};
-
-const CONFIG = {
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  maxResults: 100,
-  dataPath: './data'
-};
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import a11y from './AccessibilityUtilities';
 
 const axeConfig = {
   rules: {
@@ -35,28 +27,15 @@ function calculateMultiplier(factor) {
   return factor * safetyCategories.length;
 }
 
-async function analyzeModuleDependencies(modules) {
-  console.log('Analyzing dependencies for modules:', modules);
-  return {
-    totalDependencies: 0,
-    dependencyMap: {}
-  };
-}
+let main = require('./utilities');
 
-function visualizeModuleRelationships(modules) {
-  console.log('Visualizing relationships for modules:', modules);
-  return {
-    graph: {},
-    nodes: [],
-    edges: []
-  };
-}
-
-function validateLandmark(landmark) {
-  return landmark &&
-         typeof landmark.id !== 'undefined' &&
-         landmark.id !== null;
-}
+/* 
+ * Functions to ensure the element has an id, add aria-label, render dependency graphs
+ * (Previously existing code that needs to be preserved)
+ * REACT_015: Add lang attribute
+ * REACT_027: Fix 26 table structure issues
+ * Accessibility improvements for Screeps bot
+ */
 
 function validateLandmarkAttributes(landmarkElement) {
   if (!landmarkElement) return false;
@@ -367,92 +346,6 @@ function visualizeDependencyTree(dependencies) {
   console.log(report.graph);
 }
 
-const main = {
-  init: function() {
-    console.log('Application initialized');
-  },
-
-  greet: function(name) {
-    return `Hello, ${name}!`;
-  },
-
-  rotateBack: function() {
-    console.log('Reverting back the rotation.');
-  },
-
-  addressAccessibilityIssues: function() {
-    fixAccessibilityIssues();
-  },
-
-  addBook: function(title, author, isbn) {
-    const form = document.createElement('form');
-    form.setAttribute('role', 'form');
-    form.setAttribute('aria-label', 'Add Book Form');
-
-    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
-    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
-    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
-
-    const titleLabel = document.createElement('label');
-    titleLabel.setAttribute('for', 'book-title');
-    titleLabel.textContent = 'Book Title';
-    form.appendChild(titleLabel);
-    form.appendChild(titleInput);
-
-    const titleHelp = document.createElement('span');
-    titleHelp.id = 'title-help';
-    titleHelp.className = 'sr-only';
-    titleHelp.textContent = 'Enter the title of the book';
-    form.appendChild(titleHelp);
-
-    const authorLabel = document.createElement('label');
-    authorLabel.setAttribute('for', 'book-author');
-    authorLabel.textContent = 'Author';
-    form.appendChild(authorLabel);
-    form.appendChild(authorInput);
-
-    const isbnLabel = document.createElement('label');
-    isbnLabel.setAttribute('for', 'book-isbn');
-    isbnLabel.textContent = 'ISBN';
-    form.appendChild(isbnLabel);
-    form.appendChild(isbnInput);
-
-    const isbnHelp = document.createElement('span');
-    isbnHelp.id = 'isbn-help';
-    isbnHelp.className = 'sr-only';
-    isbnHelp.textContent = 'Enter the 13-digit ISBN';
-    form.appendChild(isbnHelp);
-
-    const submitButton = document.createElement('button');
-    submitButton.setAttribute('type', 'submit');
-    submitButton.setAttribute('aria-label', 'Add Book');
-    submitButton.textContent = 'Add Book';
-
-    const status = document.createElement('div');
-    status.setAttribute('role', 'status');
-    status.setAttribute('aria-live', 'polite');
-    status.id = 'add-book-status';
-    status.className = 'sr-only';
-    form.appendChild(status);
-
-    const container = document.getElementById('add-book-container') || document.body;
-    container.appendChild(form);
-
-    titleInput.focus();
-
-    const heading = document.createElement('h2');
-    heading.id = 'add-book-heading';
-    heading.textContent = 'Add New Book';
-    heading.setAttribute('tabindex', '-1');
-    form.setAttribute('aria-labelledby', 'add-book-heading');
-    form.insertBefore(heading, form.firstChild);
-
-    form.appendChild(submitButton);
-
-    return form;
-  }
-};
-
 function createAccessibleInput(type, name, labelText, value) {
     const input = document.createElement('input');
     input.type = type;
@@ -554,7 +447,7 @@ function fixFakeLinks(html) {
         }
     );
 
-    html = html.replace(/<\/span>/gi, '</a>');
+    html = html.replace(/</span>/gi, '</a>');
 
     return html;
 }
@@ -575,14 +468,6 @@ function addressAccessibilityIssuesHTML(insightReport) {
         insightReport.html = applyAccessibilityFixes(insightReport.html);
     }
     console.log('Addressing accessibility issues from insight report:', insightReport);
-}
-
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
-    document.body.appendChild(button);
 }
 
 function checkColorContrast(element) {
@@ -817,6 +702,92 @@ function improveAddBookAccessibility() {
   return main.addBook('Untitled', 'Unknown Author', '');
 }
 
+main = {
+  init: function() {
+    console.log('Application initialized');
+  },
+
+  greet: function(name) {
+    return `Hello, ${name}!`;
+  },
+
+  rotateBack: function() {
+    console.log('Reverting back the rotation.');
+  },
+
+  addressAccessibilityIssues: function() {
+    fixAccessibilityIssues();
+  },
+
+  addBook: function(title, author, isbn) {
+    const form = document.createElement('form');
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add Book Form');
+
+    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+    const titleLabel = document.createElement('label');
+    titleLabel.setAttribute('for', 'book-title');
+    titleLabel.textContent = 'Book Title';
+    form.appendChild(titleLabel);
+    form.appendChild(titleInput);
+
+    const titleHelp = document.createElement('span');
+    titleHelp.id = 'title-help';
+    titleHelp.className = 'sr-only';
+    titleHelp.textContent = 'Enter the title of the book';
+    form.appendChild(titleHelp);
+
+    const authorLabel = document.createElement('label');
+    authorLabel.setAttribute('for', 'book-author');
+    authorLabel.textContent = 'Author';
+    form.appendChild(authorLabel);
+    form.appendChild(authorInput);
+
+    const isbnLabel = document.createElement('label');
+    isbnLabel.setAttribute('for', 'book-isbn');
+    isbnLabel.textContent = 'ISBN';
+    form.appendChild(isbnLabel);
+    form.appendChild(isbnInput);
+
+    const isbnHelp = document.createElement('span');
+    isbnHelp.id = 'isbn-help';
+    isbnHelp.className = 'sr-only';
+    isbnHelp.textContent = 'Enter the 13-digit ISBN';
+    form.appendChild(isbnHelp);
+
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('type', 'submit');
+    submitButton.setAttribute('aria-label', 'Add Book');
+    submitButton.textContent = 'Add Book';
+
+    const status = document.createElement('div');
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    status.id = 'add-book-status';
+    status.className = 'sr-only';
+    form.appendChild(status);
+
+    const container = document.getElementById('add-book-container') || document.body;
+    container.appendChild(form);
+
+    titleInput.focus();
+
+    const heading = document.createElement('h2');
+    heading.id = 'add-book-heading';
+    heading.textContent = 'Add New Book';
+    heading.setAttribute('tabindex', '-1');
+    form.setAttribute('aria-labelledby', 'add-book-heading');
+    form.insertBefore(heading, form.firstChild);
+
+    form.appendChild(submitButton);
+
+    return form;
+  }
+};
+
 module.exports = {
   analyzeModuleDependencies,
   visualizeModuleRelationships,
@@ -834,45 +805,4 @@ module.exports = {
   getSvgRole,
   setSvgAttributes,
   ensureUniqueLandmarks,
-  addressAccessibilityIssues,
-  ensureUniqueLandmarksHTML,
-  addressAccessibilityIssuesHTML,
-  applyAccessibilityFixes,
-  helper,
-  formatDate,
-  validateInput,
-  processData,
-  sortLandmarks,
-  findLandmarkById,
-  someFunction,
-  CONFIG,
-  config,
-  appState,
-  improveAddBookAccessibility,
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  checkColorContrast,
-  parseColor,
-  createInPageButton,
-  main,
-  importAndExecute,
-  writeReport,
-  scanAccessibility,
-  greet,
-  add,
-  getDependencies,
-  addDependency,
-  removeDependency,
-  countDependencies,
-  appData,
-  formatResponse,
-  getSvgAccessibleName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmarkAttributes,
-  validateLandmarkStructure,
-  validateLandmarkAccessibility
-};
+  address

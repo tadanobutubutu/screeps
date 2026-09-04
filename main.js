@@ -1,6 +1,5 @@
 const { axe } = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
 
 const {
@@ -38,88 +37,18 @@ const {
 const { validateInput, processData, formatResponse } = require('./utils/validators');
 const { getSvgAccessibleName as getSvgAccessibleNameUtil, setSvgAttributes as setSvgAttributesUtil } = require('./utils/svg');
 
-// User Safety: unsafe
-// Safety Categories: Other, Unauthorized Advice, Needs Caution
-
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-
-// TODO: Add any other missing exports that might have been?
-const CONFIG = {};
-
-// Application state
-let isInitialized = false;
-const appData = {};
-
-let dependencyGraph = {};
-const modules = [];
-
 // Import helper functions from utils
 const { validateInput: validateInputUtil, processData: processDataUtil, formatResponse: formatResponseUtil } = require('./utils/validators');
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and addProperLandmarkRegions())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-// - REACT_001: Implement function to handle new accessibility issues (addProperLandmarkRegions)
-
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
-
-( (function() {
-    'use strict';
-    const dependencyGraph = document.getElementById('dependencyGraph');
-    const harvestButton = document.createElement('button');
-
-    function initializeFromScript() {
-        function3();
-        addressAccessibilityIssues();
-        createInPageButton();
-
-        harvestButton.textContent = 'Start Harvest';
-        harvestButton.setAttribute('aria-label', 'Start harvest');
-        document.body.appendChild(harvestButton);
-        return true;
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeFromScript);
-    } else {
-        initializeFromScript();
-    }
-})();
-
-function addDependency(name, version) {
-    if (!appData.dependencies) {
-        appData.dependencies = {};
-    }
-    appData.dependencies[name] = version;
-}
-
-function removeDependency(name) {
-    if (appData.dependencies && appData.dependencies[name]) {
-        delete appData.dependencies[name];
-    }
-}
-
-function countDependencies() {
-    return appData.dependencies ? Object.keys(appData.dependencies).length : 0;
-}
-
-function someFunction() {
-    return 'Some result';
-}
-
-function function3(input) {
-    if (typeof input === 'string') {
-        return input.toUpperCase();
-    }
-    return input;
-}
+// - REACT_001: Implement function to handle new accessibility issues ...
 
 /**
  * Gets the lang attribute for the HTML element
@@ -161,7 +90,10 @@ function createInPageButton(id, text) {
     document.body.appendChild(button);
 }
 
-// REACT_036: Create accessible links
+/**
+ * REACT_036: Create accessible links
+ * Creates properly accessible links and buttons
+ */
 function createAccessibleLinks() {
     const skipLink = createInPageButtons('main-content', 'Skip to main content');
     document.body.insertBefore(skipLink, document.body.firstChild);
@@ -264,7 +196,7 @@ function isValidLandmark(landmark) {
 
 function loadLandmarks() {
     try {
-        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const filePath = path.join(CONFIG.dataPath, 'landmarks.json');
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
@@ -278,14 +210,14 @@ function processLandmarks(landmarks) {
         return [];
     }
 
-    const validLandmarks = landmarks.filter(isValidLandmark);
+    const validLandmarks = landmarks.filter(l => l && l.id);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
 function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
+    return [...landmarks].sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -372,12 +304,6 @@ function addSvgAccessibility() {
 function handleFakeLinks(link) {
 }
 
-// Function to write the generated report to a file
-function writeReport(report) {
-    const reportFile = path.join(__dirname, 'accessibility_report.json');
-    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
 /**
  * REACT_001: Implement function to handle new accessibility issues
  * Coordinates various accessibility fixes and improvements
@@ -432,11 +358,124 @@ function getCurrentLanguageSetting() {
     return 'en';
 }
 
-function harvestResources() {
-    console.log('Harvesting resources...');
+// Harvest and upgrade logic implementation
+function performHarvest() {
+    const resources = [];
+
+    if (appData.sources) {
+        for (const source of appData.sources) {
+            if (source.active && source.type === 'harvestable') {
+                const harvested = harvestFromSource(source);
+                resources.push(...harvested);
+            }
+        }
+    }
+
+    return resources;
 }
 
-// Initialize the application
+function harvestFromSource(source) {
+    const harvested = [];
+    const amount = source.capacity || 10;
+
+    for (let i = 0; i < amount; i++) {
+        harvested.push({
+            type: source.resourceType || 'generic',
+            amount: 1,
+            timestamp: Date.now(),
+            source: source.id
+        });
+    }
+
+    return harvested;
+}
+
+function performUpgrade(item, targetLevel) {
+    if (!item || typeof item.level === 'undefined') {
+        throw new Error('Invalid item for upgrade');
+    }
+
+    const upgradeCost = calculateUpgradeCost(item, targetLevel);
+
+    const availableResources = appData.resources || {};
+    const canUpgrade = Object.keys(upgradeCost).every(
+        resource => (availableResources[resource] || 0) >= upgradeCost[resource]
+    );
+
+    if (!canUpgrade) {
+        throw new Error('Insufficient resources for upgrade');
+    }
+
+    Object.keys(upgradeCost).forEach(resource => {
+        availableResources[resource] -= upgradeCost[resource];
+    });
+
+    item.level = targetLevel;
+
+    return {
+        success: true,
+        item: item,
+        newLevel: targetLevel,
+        resourcesSpent: upgradeCost
+    };
+}
+
+function calculateUpgradeCost(item, targetLevel) {
+    const baseCost = 10;
+    const levelMultiplier = 1.5;
+
+    const cost = {};
+    const resourceTypes = ['energy', 'materials', 'credits'];
+
+    resourceTypes.forEach(type => {
+        cost[type] = Math.floor(baseCost * Math.pow(levelMultiplier, targetLevel - 1));
+    });
+
+    return cost;
+}
+
+function processHarvestedResources(resources) {
+    if (!Array.isArray(resources) || resources.length === 0) {
+        return { processed: 0, stored: {} };
+    }
+
+    const stored = {};
+
+    resources.forEach(resource => {
+        const type = resource.type || 'unknown';
+        if (!stored[type]) {
+            stored[type] = 0;
+        }
+        stored[type] += resource.amount || 1;
+    });
+
+    appData.resources = appData.resources || {};
+    Object.keys(stored).forEach(type => {
+        appData.resources[type] = (appData.resources[type] || 0) + stored[type];
+    });
+
+    return {
+        processed: resources.length,
+        stored: stored
+    };
+}
+
+function autoUpgrade() {
+    const upgradeCandidates = appData.upgradeCandidates || [];
+    const results = [];
+
+    upgradeCandidates.forEach(candidate => {
+        try {
+            const result = performUpgrade(candidate.item, candidate.targetLevel);
+            results.push(result);
+        } catch (error) {
+            console.error('Auto upgrade failed:', error.message);
+        }
+    });
+
+    return results;
+}
+
 function initializeApp() {
     const mainContent = document.querySelector('main');
     if (mainContent) {
@@ -445,6 +484,41 @@ function initializeApp() {
     }
     validateLandmarkStructure();
 }
+
+function addDependency(name, version) {
+    if (!appData.dependencies) {
+        appData.dependencies = {};
+    }
+    appData.dependencies[name] = version;
+}
+
+function removeDependency(name) {
+    if (appData.dependencies && appData.dependencies[name]) {
+        delete appData.dependencies[name];
+    }
+}
+
+function countDependencies() {
+    return appData.dependencies ? Object.keys(appData.dependencies).length : 0;
+}
+
+function someFunction() {
+    return 'Some result';
+}
+
+function function3(input) {
+    if (typeof input === 'string') {
+        return input.toUpperCase();
+    }
+    return input;
+}
+
+function harvestResources() {
+    console.log('Harvesting resources...');
+}
+
+let dependencyGraph = {};
+const modules = [];
 
 app.get('/graph', (req, res) => {
     const graph = visualizeModuleRelationships(modules);
@@ -462,14 +536,12 @@ app.post('/analyze', async (req, res) => {
     }
 });
 
-// Server startup
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
     initialise();
 });
 
-// Module analysis functions
 function visualizeModuleRelationships(modules) {
     return { modules: modules || [] };
 }
@@ -486,7 +558,6 @@ function getDependencyGraph() {
     return dependencyGraph;
 }
 
-// Initialization function
 function initialise() {
     isInitialized = true;
 }
@@ -547,5 +618,11 @@ module.exports = {
     analyzeModuleDependencies,
     validateInput,
     processData,
-    formatResponse
+    formatResponse,
+    performHarvest,
+    harvestFromSource,
+    performUpgrade,
+    calculateUpgradeCost,
+    processHarvestedResources,
+    autoUpgrade
 };

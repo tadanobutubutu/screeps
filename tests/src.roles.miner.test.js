@@ -314,6 +314,33 @@ describe('src/roles/miner', () => {
         expect(logger.error).toHaveBeenCalledWith(`[${creep.name}] マイナーエラー`, error);
     });
 
+
+    test('runの内部でエラーが発生した場合にcatchブロックでエラーログを出力する', () => {
+        const error = new Error('Run block error');
+
+        const creep = {
+            name: 'run_error_miner',
+            memory: {},
+            room: roomMock,
+            pos: new RoomPosition(5, 5, 'W0N0'),
+            harvest: jest.fn(),
+            repair: jest.fn(),
+            say: jest.fn(),
+            store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            moveTo: jest.fn(),
+        };
+
+        // _getAssignedSource を呼び出す箇所でエラーをスローさせるために、
+        // 内部で使用されるキャッシュ等をモックしてエラーを発生させる
+        cache.getSources.mockImplementationOnce(() => {
+            throw error;
+        });
+
+        miner.run(creep);
+
+        expect(logger.error).toHaveBeenCalledWith(`[${creep.name}] マイナーエラー`, error);
+    });
+
     describe('getBody', () => {
         test('エネルギー650以上の場合、完全最適化ボディを返す', () => {
             const expected = [

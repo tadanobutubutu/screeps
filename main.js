@@ -1,27 +1,13 @@
-/*
-User Safety: unsafe
-Response Safety: safe
-Safety Categories: Other, Unauthorized Advice
-*/
+// Address accessibility issues from insight report
 
-// Configuration
+// TODO: Add any other missing exports that might have been?
+
 const CONFIG = {
   outputPath: './data',
   maxResults: 100,
   apiUrl: process.env.API_URL || '',
   timeout: 5000,
-  dataPath: './data',
   // Add other configuration properties as needed
-};
-
-// Application state
-let isAppInitialized = false;
-let isInitialized = false;
-const appData = { resources: [] };
-const appState = {
-  initialized: false,
-  lastUpdate: null,
-  cache: {}
 };
 
 // Import the required modules
@@ -31,126 +17,152 @@ const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
 
-// Import helper functions from utils
+// Import helper functions
 const { validateInput, processData, formatResponse } = require('./utils/validators');
 const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
 
-// Import validators and utilities from utils/validators
+// Import other functions
 const {
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  validateLandmark,
-  validateLandmarkAttributes,
-  validateLandmarkStructure,
-  isValidLandmark: isValidLandmarkFromUtils,
-  loadLandmarks: loadLandmarksFromUtils,
-  processLandmarks: processLandmarksFromUtils,
-  sortLandmarks: sortLandmarksFromUtils,
-  findLandmarkById: findLandmarkByIdFromUtils,
-  ensureUniqueLandmarks: ensureUniqueLandmarksFromUtils,
-  writeReport: writeReportFromUtils,
-  generateAccessibilityReport: generateAccessibilityReportFromUtils,
-  validateItem,
-  addLangAttribute: addLangAttributeFromUtils,
-  logCurrentURL,
-  createInPageButtons: createInPageButtonsFromUtils,
+  improveAccessibility,
   addressInsightReportIssues,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
   fixLandmarkIssues,
   addLandmarkRoles,
+  ensureUniqueLandmarks,
   fixFakeLinks,
   fixTableStructureIssues,
   fixTableHeaderCellScope,
+  addMainLandmark,
   addSvgAccessibleNames,
   implementNewFunction,
+  main,
   someFunction,
+  addressAccessibilityIssues,
+  renderDependencyGraphContent,
+  createInPageButtons,
   fixUniqueLandmarks,
-  main
-} = require('./');
+  generateAccessibilityReport,
+  validateInput,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  findLandmarkById,
+  writeReport,
+  validateItem,
+  logCurrentURL
+} = require('./functions');
 
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
-// TODO: Add back any required exports that might have been removed
+// Application state
+let isInitialized = false;
+const appData = { resources: [] };
 
-// Address accessibility issues from insight report
-function addressAccessibilityIssues() {
-  // Ensure the dependencyGraph container has a proper ARIA role
-  // ... (Existing code preserved)
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and fixLandmarkIssues())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// - REACT_001: Implement function to handle new accessibility issues ...
 
-  // New function to add landmark roles and fix issues
-  addLandmarkRoles(insightReport());
+/* TODO: Implement functions/logic that were marked with comments such as:
+   - TODO: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
+*/
 
-  // New function for creating in-page buttons
-  createInPageButtons(buttonElements, containerSelector);
+// Configuration
+const config = CONFIG;
 
-  // Fix unique landmarks based on insight report (REACT_025)
-  fixUniqueLandmarks(insightReport());
+const express = require('express');
+const appState = {
+  initialized: false,
+  lastUpdate: null,
+  cache: {}
+};
 
-  // Utilities
-  const accessibilityScanner = axe.createInstance({
-    rules: {
-      'color-contrast': { enabled: false }, // Disable this rule if not needed
-      'aria-roles': { enabled: false }, // Disable this rule if not needed
-      'aria-properties': { enabled: false }, // Disable this rule if not needed
-      // Add any custom rules you want to use here
-    }
-  });
-
-  async function scanAccessibility() {
-    const rootElement = document.querySelector('html');
-    const results = await accessibilityScanner.analyze(rootElement);
-
-    if (results.violations.length > 0) {
-      console.warn('Accessibility issues found:', results);
-
-      // You can implement custom handling for accessibility issues here
-      // For example, create an accessibility report or perform fixes automatically
-
-      // Generate an accessibility report based on scan results
-      const accessibilityReport = generateAccessibilityReport(results);
-      // Save the report to a file or send it elsewhere
-    }
-
-    return results;
+// Accessibility scanner setup
+const accessibilityScanner = axe.createInstance({
+  rules: {
+    'color-contrast': { enabled: false },
+    'aria-roles': { enabled: false },
+    'aria-properties': { enabled: false },
+    getSvgAccessibleName: getSvgAccessibleNameUtil,
+    setSvgAttributes: setSvgAttributesUtil
+    // Add any custom rules you want to use here
   }
-
-  return scanAccessibility();
-}
-
-// Render dependency graph content
-function renderDependencyGraphContent(data) {
-  // Replace the existing content within the dependencyGraph div using the provided data.
-  renderDependencyGraph(data);
-}
+});
 
 // User Safety: unsafe
-// Response Safety: safe
-// Safety Categories: Other, Unauthorized Advice
+// Safety Categories: Other, Unauthorized Advice, Needs Caution
 
 /**
  * Gets the lang attribute for the HTML element
  * @returns {string} The lang attribute value
  */
 function getLangAttribute() {
-    return navigator.language || navigator.userLanguage;
+  return navigator.language || navigator.userLanguage;
 }
 
-// Adding lang attribute to HTML element
 function addLangAttribute() {
-    const htmlElement = document.documentElement;
-    const lang = getLangAttribute();
-    if (htmlElement && !htmlElement.lang) {
-        htmlElement.setAttribute('lang', lang);
-    }
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.lang) {
+    htmlElement.lang = 'en';
+  }
 }
 
-// Logging the current URL
+async function scanAccessibility() {
+    // Initialize axe-core with a configuration object if needed
+    const axeConfig = {};
+
+    // Start the scanning process
+    const results = await axe.run(axeConfig);
+
+    // Convert the axe results to a format suitable for reporting
+    const report = formatAccessibilityResults(results);
+
+    return report;
+}
+
+function formatAccessibilityResults(results) {
+    // Convert axe-core results to a simplified report format
+    const report = {
+        violations: [],
+        passes: []
+    };
+
+    results.violations.forEach(violation => {
+        report.violations.push({
+            id: violation.id,
+            impact: violation.impact,
+            description: violation.description,
+            help: violation.help
+        });
+    });
+
+    results.passes.forEach(pass => {
+        report.passes.push({
+            id: pass.id,
+            description: pass.description
+        });
+    });
+
+    return report;
+}
+
+/**
+ * Logs the current URL
+ */
 function logCurrentURL() {
-    console.log('Current URL: ' + window.location.href);
+  console.log(window.location.href);
 }
 
 // Table accessibility helpers
@@ -402,166 +414,4 @@ function validateItem(item, type, strict) {
                 details.href = item.href;
             }
             if (!item.textContent && !item['aria-label'] && strict) {
-                errors.push('Link should have text content or aria-label');
-            } else {
-                details.textContent = item.textContent || item['aria-label'];
-            }
-            break;
-        default:
-            if (!item.id) {
-                errors.push('Item must have an id');
-            } else {
-                details.id = item.id;
-            }
-    }
-    return {
-        valid: errors.length === 0,
-        errors,
-        details
-    };
-}
-
-// Improve accessibility
-function improveAccessibility() {
-    // ...
-    // ...
-    addMainLandmark();
-    // ...
-    ensureUniqueLandmarks();
-    addLandmarkRoles();
-    addLangAttribute();
-    fixTableAccessibility();
-    // ...
-    addSvgAccessibleNames();
-    createAccessibleLinks();
-    // Implement additional methods for API requests and other features
-    function fetchUser(id) {
-        return new Promise((resolve, reject) => {
-            // ... implementation
-        });
-    }
-}
-
-function processHarvestedResources(resources) {
-    if (!Array.isArray(resources) || resources.length === 0) {
-        return { processed: 0, stored: {} };
-    }
-    const stored = {};
-    resources.forEach(resource => {
-        const type = resource.type || 'unknown';
-        if (!stored[type]) {
-            stored[type] = 0;
-        }
-        stored[type] += resource.amount || 1;
-    });
-    // Update appData with stored resources
-    appData.resources = appData.resources || {};
-    Object.keys(stored).forEach(type => {
-        appData.resources[type] = (appData.resources[type] || 0) + stored[type];
-    });
-    return {
-        processed: resources.length,
-        stored: stored
-    };
-}
-
-function autoUpgrade() {
-    const upgradeTarget = appData.upgradeTarget || null;
-    if (!upgradeTarget) {
-        return { success: false, message: 'No upgrade target specified' };
-    }
-    try {
-        const result = performUpgrade(upgradeTarget, upgradeTarget.level + 1);
-        return result;
-    } catch (error) {
-        return { success: false, message: error.message };
-    }
-}
-
-// REACT_001: Implement function to handle new accessibility issues
-// Coordinates various accessibility fixes and improvements
-function handleNewAccessibilityIssues() {
-    try {
-        fixTableAccessibility();
-        addMainLandmark();
-        addSvgAccessibleNames();
-        createAccessibleLinks();
-        return {
-            success: true,
-            message: 'Accessibility issues have been addressed',
-            fixesApplied: [
-                'table_accessibility',
-                'landmark_issues',
-                'svg_accessibility',
-                'links',
-                'unique_landmarks',
-                'accessible_links',
-                'link_accessibility'
-            ]
-        };
-    } catch (error) {
-        console.error('Error addressing accessibility issues:', error);
-        return {
-            success: false,
-            message: 'Failed to address accessibility issues',
-            error: error.message
-        };
-    }
-}
-
-// Export all functions for use elsewhere in the repository
-module.exports = {
-    CONFIG,
-    isAppInitialized,
-    isInitialized,
-    appData,
-    appState,
-    getLangAttribute,
-    addLangAttribute,
-    logCurrentURL,
-    validateTableAccessibility,
-    validateTableStructure,
-    fixTableStructure,
-    addMainLandmark,
-    validateLandmark,
-    validateLandmarkStructure,
-    validateLandmarkAttributes,
-    isValidLandmark,
-    loadLandmarks,
-    processLandmarks,
-    sortLandmarks,
-    findLandmarkById,
-    ensureUniqueLandmarks,
-    writeReport,
-    generateAccessibilityReport,
-    function3,
-    validateItem,
-    improveAccessibility,
-    addressAccessibilityIssues,
-    renderDependencyGraphContent,
-    createAccessibleLinks,
-    handleNewAccessibilityIssues,
-    processHarvestedResources,
-    autoUpgrade,
-    // Include other functions that are complete and relevant
-    validateInput,
-    processData,
-    formatResponse,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    createInPageButtons,
-    addressInsightReportIssues,
-    renderDependencyGraph,
-    renderIndexView,
-    calculateSum,
-    fixLandmarkIssues,
-    addLandmarkRoles,
-    fixFakeLinks,
-    fixTableStructureIssues,
-    fixTableHeaderCellScope,
-    addSvgAccessibleNames,
-    implementNewFunction,
-    someFunction,
-    fixUniqueLandmarks,
-    main
-};
+                errors.push('Link should

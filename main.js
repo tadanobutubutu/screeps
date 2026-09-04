@@ -1,3 +1,6 @@
+// Main JavaScript file
+// This file handles the main application logic
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // Addressed accessibility issues from insight report:

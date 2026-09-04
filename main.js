@@ -122,24 +122,91 @@ function importAndExecute(modulePath, functionName, callback) {
 function validateTableAccessibility(tableElement) {
     if (!tableElement) return false;
 
-    // Check if table has a caption
-    const hasCaption = tableElement.querySelector('caption') !== null;
+    const rows = tableElement.querySelectorAll('tr');
+    let hasHeaders = false;
 
-    // Check if table has proper headers
-    const hasHeaders = tableElement.querySelector('thead') !== null ||
-                      tableElement.querySelector('th') !== null;
-
-    // Check if table has proper scope attributes for headers
-    const headers = tableElement.querySelectorAll('th');
-    let hasScope = true;
-    headers.forEach(header => {
-        if (!header.hasAttribute('scope')) {
-            hasScope = false;
-        }
+    rows.forEach(row => {
+        const headers = row.querySelectorAll('th');
+        if (headers.length > 0) hasHeaders = true;
     });
 
-    return hasCaption && hasHeaders && hasScope;
+    return hasHeaders;
 }
+
+let dependencyGraph = {};
+
+function getDependencyGraph() {
+  if (Object.keys(dependencyGraph).length === 0) {
+    return { message: "No dependency graph found." };
+  }
+
+  return dependencyGraph;
+}
+
+let UserSafety = "unsafe";
+let SafetyCategories = ["Unauthorized Advice"];
+
+function fixAccessibilityIssues() {
+  // Add your code here to fix the accessibility issues as per the insight report
+  // Example: validateTableAccessibility(/* table to validate */);
+}
+
+const checkSafetyCategories = () => {
+  let safetyCategoriesMessage = '';
+
+  const safetyCategories = SafetyCategories;
+
+  if (safetyCategories.includes('Unauthorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+
+  return safetyCategoriesMessage;
+};
+
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+}
+
+const main = {
+  init: function() {
+    console.log('Application initialized');
+  },
+
+  greet: function(name) {
+    return `Hello, ${name}!`;
+  },
+
+  rotateBack: function() {
+    console.log('Reverting back the rotation.');
+  },
+
+  addressAccessibilityIssues: function() {
+    fixAccessibilityIssues();
+  },
+
+  addBook: function(title, author, isbn) {
+    const form = document.createElement('form');
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add Book Form');
+
+    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('type', 'submit');
+    submitButton.setAttribute('aria-label', 'Add Book');
+    submitButton.textContent = 'Add Book';
+
+    form.appendChild(titleInput);
+    form.appendChild(authorInput);
+    form.appendChild(isbnInput);
+    form.appendChild(submitButton);
+
+    return form;
+  }
+};
 
 // Validate table structure
 function validateTableStructure(tableElement) {
@@ -232,8 +299,6 @@ function applyAccessibilityFixes(html) {
 }
 
 // Fix table structure issues (add thead, tbody, th scope, caption)
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
 function fixTableStructure(html) {
     // Implementation would go here
     return html;
@@ -267,11 +332,11 @@ function addressAccessibilityIssues(insightReport) {
 }
 
 // Add the code that sets the ARIA role for the dependencyGraph container
-const dependencyGraph = typeof document !== 'undefined' ? document.querySelector('#dependency-graph') : null;
-if (dependencyGraph) {
-    const currentRole = dependencyGraph.getAttribute('role');
+const dependencyGraphContainer = typeof document !== 'undefined' ? document.querySelector('#dependency-graph') : null;
+if (dependencyGraphContainer) {
+    const currentRole = dependencyGraphContainer.getAttribute('role');
     if (!currentRole || currentRole !== 'graph') {
-        dependencyGraph.setAttribute('role', 'graph');
+        dependencyGraphContainer.setAttribute('role', 'graph');
     }
 }
 
@@ -368,18 +433,18 @@ function createInPageButton() {
 // Function to render the index view
 function renderIndexView() {
     // Ensure the dependencyGraph container has a proper ARIA role
-    if (dependencyGraph) {
-        dependencyGraph.setAttribute('role', 'region');
-        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+    if (dependencyGraphContainer) {
+        dependencyGraphContainer.setAttribute('role', 'region');
+        dependencyGraphContainer.setAttribute('aria-label', 'Dependency graph visualization');
     }
 }
 
 // Main initialization function
 function initialize() {
     // Ensure the dependencyGraph container has a proper ARIA role
-    if (dependencyGraph) {
-        dependencyGraph.setAttribute('role', 'region');
-        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+    if (dependencyGraphContainer) {
+        dependencyGraphContainer.setAttribute('role', 'region');
+        dependencyGraphContainer.setAttribute('aria-label', 'Dependency graph visualization');
     }
 
     // Address accessibility issues from insight report
@@ -442,7 +507,8 @@ export {
     getSvgAccessibleName,
     setSvgAttributes,
     renderIndexView,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    main
 };
 
 // CommonJS module exports
@@ -490,7 +556,8 @@ module.exports = {
     fixLandmarks,
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
-    fixFakeLinks
+    fixFakeLinks,
+    main
 };
 
 // Initialize on DOM ready

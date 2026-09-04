@@ -84,13 +84,6 @@ function validateLandmarkStructure() {
     // DOM Elements
     const dependencyGraph = document.getElementById('dependencyGraph');
 
-    // Import required modules
-    const fs = require('fs');
-    const path = require('path');
-
-    // Assuming that pages are in './pages' directory with `.js` or `.jsx` extension
-    const pagesDir = path.join(__dirname, 'pages');
-
     // Try to import axe-core and accessibility utilities (may not be available in all environments)
     let axe = null;
     let a11y = null;
@@ -104,6 +97,9 @@ function validateLandmarkStructure() {
     } catch (e) {
         // AccessibilityUtilities not available
     }
+
+    // Assuming that pages are in './pages' directory with `.js` or `.jsx` extension
+    const pagesDir = path.join(__dirname, 'pages');
 
     // Accessibility utility functions
 
@@ -188,277 +184,122 @@ function validateLandmarkStructure() {
         }
     }
 
-    /**
-     * Gets the lang attribute for the HTML element
-     * @returns {string} The lang attribute value
-     */
-    function getLangAttribute() {
-        return a11y.getLangAttribute();
-    }
-
-    /**
-     * Adds lang attribute to HTML element
-     */
-    function addLangAttribute() {
-        a11y.addLangAttribute();
-    }
-
-    /**
-     * Validates table accessibility
-     * @param {HTMLElement} table - The table element to validate
-     * @returns {boolean} True if table is accessible
-     */
-    function validateTableAccessibility(table) {
-        return a11y.validateTableAccessibility(table);
-    }
-
-    /**
-     * Validates table structure
-     */
-    function validateTableStructure() {
-        a11y.validateTableStructure();
-    }
-
-    /**
-     * Fixes table structure issues
-     */
-    function fixTableStructure() {
-        a11y.fixTableStructure();
-    }
-
-    /**
-     * Adds main landmark to page
-     */
-    function addMainLandmark() {
-        a11y.addMainLandmark();
-    }
-
-    /**
-     * Validates landmark accessibility
-     */
-    function validateLandmark() {
-        a11y.validateLandmark();
-    }
-
-    /**
-     * Validates landmark attributes
-     */
-    function validateLandmarkAttributes() {
-        a11y.validateLandmarkAttributes();
-    }
-
-    /**
-     * Gets SVG accessible name
-     * @returns {string} The accessible name for SVG element
-     */
-    function getSvgAccessibleName() {
-        return a11y.getSvgAccessibleName();
-    }
-
-    /**
-     * Sets SVG attributes for accessibility
-     */
-    function setSvgAttributes() {
-        a11y.setSvgAttributes();
-    }
-
-    /**
-     * Ensures unique landmarks on the page
-     */
-    function ensureUniqueLandmarks() {
-        a11y.ensureUniqueLandmarks();
-    }
-
-    /**
-     * Creates an in-page navigation button
-     */
-    function createInPageButton() {
-        a11y.createInPageButton();
-    }
-
-    /**
-     * Validates link accessibility
-     */
-    function validateLinkAccessibility() {
-        a11y.validateLinkAccessibility();
-    }
-
-    /**
-     * Handles fake links on the page
-     */
-    function handleFakeLinks() {
-        a11y.handleFakeLinks();
-    }
-
-    /**
-     * Adds proper landmark regions to the page
-     */
-    function addProperLandmarkRegions() {
-        a11y.addProperLandmarkRegions();
-    }
-
-    // Function to scan pages for accessibility issues and generate a report
-    async function scanAccessibility() {
-        const issues = [];
-
-        if (!axe || typeof fs === 'undefined') {
-            return issues;
+    // Accessibility utility functions using a11y module when available
+    function getLangAttributeFromA11y() {
+        if (a11y && typeof a11y.getLangAttribute === 'function') {
+            return a11y.getLangAttribute();
         }
-
-        let filePaths = [];
-        try {
-            filePaths = await fs.promises.readdir(pagesDir);
-        } catch (e) {
-            // pages directory not available
-            return issues;
-        }
-
-        for (const filePath of filePaths) {
-            const fileEmitted = path.join(pagesDir, filePath);
-            try {
-                const { violations } = await axe.analyze(fileEmitted);
-                if (violations && violations.length > 0) {
-                    issues.push({
-                        file: filePath,
-                        issues: violations,
-                    });
-                }
-            } catch (e) {
-                // skip files that fail analysis
-            }
-        }
-
-        return issues;
+        return getLangAttribute();
     }
 
-    // Function to write the generated report to a file
-    function writeReport(report) {
-        const reportFile = path.join(__dirname, 'accessibility_report.json');
-        try {
-            fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-        } catch (e) {
-            // unable to write report
-        }
-    }
-
-    // Initialize accessibility improvements
-    function initialize() {
-        if (typeof document === 'undefined') return;
-
-        // Ensure document has a language attribute
-        addLangAttribute();
-
-        // Ensure the dependencyGraph container has a proper ARIA role
-        if (dependencyGraph) {
-            dependencyGraph.setAttribute('role', 'region');
-            dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-        }
-
-        // Add a main landmark if missing
-        addMainLandmark();
-
-        // Fix accessibility issues on existing tables
-        fixAllTables();
-
-        // Enhance existing functions from a11y utilities (if any)
-        if (a11y && typeof a11y.init === 'function') {
-            a11y.init();
-        }
-
-        // Initialize scanning for accessibility issues (from both sides of the conflict)
-        if (axe) {
-            scanAccessibility().then(issues => {
-                if (issues.length > 0) {
-                    console.error('Accessibility issues found:', JSON.stringify(issues, null, 2));
-                    writeReport(issues);
-                }
-            }).catch(err => {
-                console.error('Accessibility scan failed:', err);
-            });
-        }
-    }
-
-    // Initialize on DOM ready
-    if (typeof document !== 'undefined') {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initialize);
+    function addLangAttributeFromA11y() {
+        if (a11y && typeof a11y.addLangAttribute === 'function') {
+            a11y.addLangAttribute();
         } else {
-            initialize();
+            addLangAttribute();
         }
     }
-})();
 
-// TODO: Implement accessibility functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_036, REACT_037)
-// ... Implement the logic for each function ...
-
-// TODO: Implement function for generating a report based on accessibility issues
-function generateAccessibilityReport() {
-    const report = {
-        missingLandmarks: [],
-        tableAccessibilityIssues: [],
-        landmarkIssues: [],
-        fakeLinkIssues: []
-    };
-
-    // Implement logic to find table accessibility issues
-    // Implement logic to find landmark issues
-    // Implement logic to find fake link issues
-
-    console.log('Accessibility report generated:', report);
-    return report;
-}
-
-// Separate function for implementUpgrade
-function implementUpgrade(harvestedData) {
-    if (!harvestedData || typeof harvestedData !== 'object') {
-        return {
-            success: false,
-            message: 'Invalid harvested data provided',
-            improvements: []
-        };
+    function validateTableAccessibilityFromA11y(table) {
+        if (a11y && typeof a11y.validateTableAccessibility === 'function') {
+            return a11y.validateTableAccessibility(table);
+        }
+        return validateTableAccessibility(table);
     }
 
-    const result = {
-        success: true,
-        message: 'Upgrade completed successfully',
-        improvements: []
-    };
-
-    // ... existing implementation ...
-
-    // New function for accessibility improvements
-    function getLangAttribute() {
-        const currentLanguage = getCurrentLanguageSetting();
-        document.documentElement.lang = currentLanguage;
+    function validateTableStructureFromA11y(table) {
+        if (a11y && typeof a11y.validateTableStructure === 'function') {
+            return a11y.validateTableStructure(table);
+        }
+        return validateTableStructure(table);
     }
 
-    // Call getLangAttribute function
-    getLangAttribute();
-
-    // ... existing implementation ...
-}
-
-// Upgrade and version management functions
-const performUpgrade = function() {
-    // ... existing code untouched ...
-};
-
-function compareVersions(v1, v2) {
-    // ... existing code untouched ...
-}
-
-function migrateUserSettings(fromVersion) {
-    // ... existing code untouched ...
-}
-
-function clearDeprecatedCache() {
-    // ... existing code untouched ...
-}
-
-function initUpgradeCheck() {
-    const result = performUpgrade();
-    if (result.upgraded) {
-        console.log(result.message);
+    function fixTableStructureFromA11y(table) {
+        if (a11y && typeof a11y.fixTableStructure === 'function') {
+            a11y.fixTableStructure(table);
+        } else {
+            fixTableStructure(table);
+        }
     }
-    return result;
-}
+
+    function addMainLandmarkFromA11y() {
+        if (a11y && typeof a11y.addMainLandmark === 'function') {
+            a11y.addMainLandmark();
+        } else {
+            addMainLandmark();
+        }
+    }
+
+    function validateLandmarkFromA11y(landmarkElement) {
+        if (a11y && typeof a11y.validateLandmark === 'function') {
+            return a11y.validateLandmark(landmarkElement);
+        }
+        return validateLandmark(landmarkElement);
+    }
+
+    function validateLandmarkAttributesFromA11y(landmarkElement) {
+        if (a11y && typeof a11y.validateLandmarkAttributes === 'function') {
+            return a11y.validateLandmarkAttributes(landmarkElement);
+        }
+        return validateLandmarkAttributes(landmarkElement);
+    }
+
+    function getSvgAccessibleNameFromA11y(svgElement) {
+        if (a11y && typeof a11y.getSvgAccessibleName === 'function') {
+            return a11y.getSvgAccessibleName(svgElement);
+        }
+        return getSvgAccessibleName(svgElement);
+    }
+
+    function setSvgAttributesFromA11y(svgElement, name) {
+        if (a11y && typeof a11y.setSvgAttributes === 'function') {
+            a11y.setSvgAttributes(svgElement, name);
+        } else {
+            setSvgAttributes(svgElement, name);
+        }
+    }
+
+    function ensureUniqueLandmarksFromA11y() {
+        if (a11y && typeof a11y.ensureUniqueLandmarks === 'function') {
+            a11y.ensureUniqueLandmarks();
+        }
+    }
+
+    function createInPageButtonFromA11y() {
+        if (a11y && typeof a11y.createInPageButton === 'function') {
+            a11y.createInPageButton();
+        }
+    }
+
+    function validateLinkAccessibilityFromA11y() {
+        if (a11y && typeof a11y.validateLinkAccessibility === 'function') {
+            return a11y.validateLinkAccessibility();
+        }
+    }
+
+    function handleFakeLinksFromA11y() {
+        if (a11y && typeof a11y.handleFakeLinks === 'function') {
+            a11y.handleFakeLinks();
+        }
+    }
+
+    function addProperLandmarkRegionsFromA11y() {
+        if (a11y && typeof a11y.addProperLandmarkRegions === 'function') {
+            a11y.addProperLandmarkRegions();
+        }
+    }
+
+    // Inline implementation for createInPageButton
+    function createInPageButtonInline(buttonId, buttonText, buttonClass) {
+        const button = document.createElement('button');
+        button.id = buttonId || 'a11y-info-btn';
+        button.textContent = buttonText || 'Accessibility Info';
+        button.className = buttonClass || 'a11y-btn';
+        button.setAttribute('aria-label', 'Show accessibility information');
+        return button;
+    }
+
+    // Inline implementation for addressAccessibilityIssues
+    function addressAccessibilityIssues() {
+        // Ensure the root container has an accessible name
+        const rootContainer = document.getElementById('root')

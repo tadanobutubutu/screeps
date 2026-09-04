@@ -7,6 +7,12 @@
     // DOM Elements
     const dependencyGraph = document.getElementById('dependencyGraph');
 
+    // Ensure the dependencyGraph container has a proper ARIA role
+    if (dependencyGraph) {
+        dependencyGraph.setAttribute('role', 'region');
+        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+    }
+
     // Import required modules and React components
     const axe = require('axe-core');
     const fs = require('fs');
@@ -283,12 +289,6 @@
 
     // Initialize the application with accessibility improvements
     function initialize() {
-        // Ensure the dependencyGraph container has a proper ARIA role
-        if (dependencyGraph) {
-            dependencyGraph.setAttribute('role', 'region');
-            dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-        }
-
         // Address accessibility issues
         addressAccessibilityIssues();
 

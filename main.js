@@ -6,7 +6,8 @@ let isInitialized = false;
 const appData = {};
 
 // Module relationships
-let dependencyGraph = {};
+const dependencyGraph = {};
+const modules = [];
 
 // Import the required module
 const { axe } = require('axe-core');
@@ -48,9 +49,6 @@ const {
 const { validateInput, processData, formatResponse } = require('./utils/validators');
 const { getSvgAccessibleName as getSvgAccessibleNameUtil, setSvgAttributes as setSvgAttributesUtil } = require('./utils/svg');
 
-// Import helper functions from utils
-const { validateInput: validateInputUtil, processData: processDataUtil, formatResponse: formatResponseUtil } = require('./utils/validators');
-
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
@@ -87,7 +85,7 @@ function logCurrentURL() {
  * @param {string} [id] - The id for the element
  * @param {string} [text] - The text content
  */
-function createInPageButton(id, text) {
+function createInPageButtons(id, text) {
     const button = document.createElement('button');
     button.textContent = text || 'Accessibility Info';
     button.setAttribute('aria-label', text || 'Show accessibility information');
@@ -95,6 +93,7 @@ function createInPageButton(id, text) {
         button.id = id;
     }
     document.body.appendChild(button);
+    return button;
 }
 
 /**
@@ -483,9 +482,6 @@ function function3(input) {
 function harvestResources() {
     console.log('Harvesting resources...');
 }
-
-let dependencyGraph = {};
-const modules = [];
 
 app.get('/graph', (req, res) => {
     const graph = visualizeModuleRelationships(modules);

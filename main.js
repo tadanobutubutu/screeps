@@ -1,4 +1,25 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Address accessibility issues from insight report:
+
+// main.js - Entry point for the application
+
+// Module imports and configuration
+const externalConfig = require('./config');
+const logger = require('./utils/logger');
+const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const path = require('path');
+const fastMap = require('fast-map');
+
+// Configuration - merged
+const CONFIG = {
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxResults: 100,
+  dataPath: './data'
+};
+
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: process.env.TIMEOUT || 5000,
@@ -12,28 +33,10 @@ const appState = {
   cache: new Map()
 };
 
-function validateLandmark(landmark) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
-  if (!landmark.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${landmark.tagName}`);
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
 const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
-
-// const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -53,6 +56,22 @@ function getLangAttribute() {
 function getFullLangAttribute() {
     // Implementation to get full language attribute
     return document.documentElement.lang || navigator.language || 'en-US';
+}
+
+function validateLandmark(element) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
+  if (!element.tagName) {
+    issues.push('Missing tagName');
+  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${element.tagName}`);
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
 }
 
 /**
@@ -127,27 +146,6 @@ function validateTableStructure(tables) {
 /**
  * Validates landmark elements for accessibility
  * @param {Object} element - The element to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateLandmark(element) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
-  if (!element.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${element.tagName}`);
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
-/**
- * Validates the structure of landmark elements
- * @param {Array} landmarks - Array of landmark elements to validate (optional)
  * @returns {Object} Validation result with success status and any issues found
  */
 function validateLandmarkStructure(landmarks) {

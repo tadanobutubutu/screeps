@@ -28,7 +28,9 @@ export default function Dashboard() {
     const [refreshSuccess, setRefreshSuccess] = useState(false);
     const [toastMsg, setToastMsg] = useState<string | null>(null);
     const [errCopyHover, setErrCopyHover] = useState(false);
+    const [errCopyFocused, setErrCopyFocused] = useState(false);
     const [errRetryHover, setErrRetryHover] = useState(false);
+    const [errRetryFocused, setErrRetryFocused] = useState(false);
     const [toastCloseFocused, setToastCloseFocused] = useState(false);
     const [copiedAllRooms, setCopiedAllRooms] = useState(false);
     const [copyAllHover, setCopyAllHover] = useState(false);
@@ -280,8 +282,8 @@ export default function Dashboard() {
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}
                     onMouseLeave={() => setErrCopyHover(false)}
-                    onFocus={() => setErrCopyHover(true)}
-                    onBlur={() => setErrCopyHover(false)}
+                    onFocus={() => setErrCopyFocused(true)}
+                    onBlur={() => setErrCopyFocused(false)}
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
@@ -295,6 +297,8 @@ export default function Dashboard() {
                         transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
                         boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
                         filter: errCopyHover ? 'brightness(1.1)' : 'none',
+                        outline: errCopyFocused ? '2px solid #004b73' : 'none',
+                        outlineOffset: '2px',
                     }}
                 >
                     {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
@@ -304,8 +308,8 @@ export default function Dashboard() {
                     disabled={refreshing}
                     onMouseEnter={() => setErrRetryHover(true)}
                     onMouseLeave={() => setErrRetryHover(false)}
-                    onFocus={() => setErrRetryHover(true)}
-                    onBlur={() => setErrRetryHover(false)}
+                    onFocus={() => setErrRetryFocused(true)}
+                    onBlur={() => setErrRetryFocused(false)}
                     aria-label={refreshing ? '読み込み中...' : 'データを再読み込み'}
                     title={refreshing ? '読み込み中...' : 'データを再読み込み'}
                     style={{
@@ -321,6 +325,8 @@ export default function Dashboard() {
                         boxShadow:
                             errRetryHover && !refreshing ? '0 4px 10px rgba(0,0,0,0.05)' : 'none',
                         filter: errRetryHover && !refreshing ? 'brightness(0.95)' : 'none',
+                        outline: errRetryFocused ? '2px solid #004b73' : 'none',
+                        outlineOffset: '2px',
                     }}
                 >
                     {refreshing ? '読み込み中...' : '🔄 再試行'}

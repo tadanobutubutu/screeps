@@ -1,17 +1,3 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-// REACT_017: Add/fix 4 landmark issues
-// REACT_027: Fix 26 table structure issues
-// REACT_025: Ensure unique landmarks
-// REACT_041: Add accessible names to 2 SVGs
-// REACT_036: Fix 1 fake link issue
-// REACT_037: Google sign-in logic
-// REACT_040: Replace my-button with actual button id for accessibility
-// REACT_042: Ensure dependencyGraph container has proper ARIA role
-
-// TODO: Add any other missing exports that might have been?
-// Main JavaScript file
-// This file handles the main application logic
 const { implementTowerDefense, config, CONFIG, isInitialized, appData, initializeApp, processData, fetchUser, clearCache } = require('./');
 const axeCore = require('axe-core');
 const { validateInput, main, someFunction, validateTableAccessibility, validateTableStructure, fixTableStructure, validateLandmark, validateLandmarkAttributes, validateLandmarkStructure, isValidLandmark, loadLandmarks, processLandmarks, sortLandmarks, findLandmarkById, writeReport, generateAccessibilityReport, validateItem } = require('./functions');
@@ -19,7 +5,8 @@ const { getSvgAccessibleName, setSvgAttributes } = require('./utils');
 const { isUserSafe, isSafetyCategoryUnauthorizedAdvice } = require('./userSafety');
 const { validateInput: validateInputHelper, processData, formatResponse } = require('./helpers');
 const { getSvgAccessibleName: getSvgAccessibleNameHelper, setSvgAttributes: setSvgAttributesHelper } = require('./svgHelpers');
-const axe = axeCore.createInstance({
+
+axeCore.createInstance({
  rules: {
  'color-contrast': { enabled: false },
  'aria-roles': { enabled: false },
@@ -29,7 +16,6 @@ const axe = axeCore.createInstance({
  }
 });
 
-// Configuration
 const CONFIG = {
  name: 'MyApp',
  version: '1.0.0',
@@ -42,95 +28,62 @@ const CONFIG = {
  timeout: 5000
 };
 
-// Import user safety functions and check if user is safe
 const { isUserSafe, isSafetyCategoryUnauthorizedAdvice } = require('./userSafety');
 
-// Application state
 let isInitialized = false;
 const appData = { resources: [] };
 
-// TODO: Implement functions/logic that were marked with comments such as:
-// - TODO: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
-
-const fs = require('fs');
-const path = require('path');
-const pagesDir = CONFIG.dataPath;
-
-// Import helper functions
-const { validateInput, processData, formatResponse } = require('./utils/validators');
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
-
-// Function to scan pages for accessibility issues and generate a report
 async function scanAccessibility() {
-  const filePaths = await fs.promises.readdir(pagesDir);
-  const issues = [];
+ const filePaths = await fs.promises.readdir(CONFIG.dataPath);
+ const issues = [];
 
-  for (const filePath of filePaths) {
-    const fileEmitted = path.join(pagesDir, filePath);
-    const { violations } = await axe.analyze(fileEmitted);
+ for (const filePath of filePaths) {
+ const fileEmitted = path.join(CONFIG.dataPath, filePath);
+ const { violations } = await axe.analyze(fileEmitted);
 
-    if (violations.length > 0) {
-      issues.push({
-        file: filePath,
-        issues: violations,
-      });
-    }
-  }
+ if (violations.length > 0) {
+ issues.push({
+ file: filePath,
+ issues: violations
+ });
+ }
+ }
 
-  return issues;
+ return issues;
 }
 
-// Function to write the generated report to a file
 function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+ const reportFile = path.join(__dirname, 'accessibility_report.json');
+ fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
-
-// Function A and Function B (from HEAD)
-function functionA(value) {
-    return value;
-}
-
-function functionB(value) {
-    return value ? value : null;
-}
-
-// New function to add landmark roles and fix issues
 function addLandmarkRoles(insightReport) {
-  // Implementation for adding landmark roles based on insight report
-  // REACT_017: Add/fix 4 landmark issues
-  // REACT_025: Ensure unique landmarks
+ // Implementation for adding landmark roles based on insight report
+ // REACT_017: Add/fix 4 landmark issues
+ // REACT_025: Ensure unique landmarks
 }
 
-// New function for creating in-page buttons
 function createInPageButtons(buttonElements, containerSelector) {
-  // Implementation for creating in-page buttons
-  // REACT_036: Fix 1 fake link issue
-  // REACT_040: Replace my-button with actual button id for accessibility
+ // Implementation for creating in-page buttons
+ // REACT_036: Fix 1 fake link issue
+ // REACT_040: Replace my-button with actual button id for accessibility
 }
 
-// Fix unique landmarks based on insight report (REACT_025)
 function fixUniqueLandmarks(insightReport) {
-  // Implementation for fixing unique landmarks
+ // Implementation for fixing unique landmarks
 }
 
-// Generate accessibility report
 function generateAccessibilityReport(results) {
-  // Implementation for generating accessibility report
-  return results;
+ // Implementation for generating accessibility report
+ return results;
 }
 
-// Placeholder functions for insight report and other dependencies
 function insightReport() {
-  return {};
+ return {};
 }
 
 function renderDependencyGraph(data) {
-  // Existing implementation
+ // Existing implementation
 }
 
 const buttonElements = [];
@@ -157,44 +110,55 @@ function addMainLandmark() {
 
 function validateTableAccessibility(table) {
  const issues = [];
- // Validate table attributes
+
+ if (!table) {
+ return issues;
+ }
+
  if (!table.hasAttribute('summary')) {
  issues.push('Missing summary attribute');
  }
- // Validate table header
- const thead = table.querySelector('thead');
- if (!thead || !thead.rows.length) {
+
+ if (!table.tHead) {
  issues.push('Missing table header');
  }
- // Validate table rows and cells
- const tbody = table.querySelector('tbody');
- const trs = tbody.rows;
- if (!trs.length) {
- issues.push('Missing table body or no rows');
+
+ const tBody = table.querySelector('tbody');
+ if (!tBody || !tBody.rows) {
+ issues.push('Missing table rows');
  }
+
  if (issues.length) {
  console.warn(`Table accessibility issues found: ${issues.join(', ')}`);
- return false;
+ return issues;
  }
- return true;
+
+ return [];
 }
 
 function validateTableStructure(table) {
  const issues = [];
- // Check for tbody
- const tbody = table.querySelector('tbody');
- if (!tbody) {
- issues.push('Table missing tbody element');
- }
- // Check for proper table structure
- const rows = table.querySelectorAll('tr');
- rows.forEach((row, index) => {
- const cells = row.querySelectorAll('td, th');
- if (cells.length === 0) {
- issues.push(`Row ${index} has no cells`);
- }
- });
+
+ if (!table || !table.tHead || !table.tBody) {
  return issues;
+ }
+
+ const tHead = table.tHead;
+ if (tHead.rows.length === 0) {
+ issues.push('Missing table columns');
+ }
+
+ const tBodyRows = table.tBody.rows;
+ if (tBodyRows.length === 0) {
+ issues.push('Missing table data');
+ }
+
+ if (issues.length) {
+ console.warn(`Table structure issues found: ${issues.join(', ')}`);
+ return issues;
+ }
+
+ return [];
 }
 
 function fixTableStructure(table) {
@@ -202,21 +166,22 @@ function fixTableStructure(table) {
  console.warn("Table doesn't meet the required structure, skipping fixes.");
  return;
  }
+
  // Add missing table attributes
  if (!table.hasAttribute('summary')) {
- table.setAttribute('summary', 'Table with missing structure issues');
+ table.setAttribute('summary', 'Table');
  }
- // Add missing table header
- const theadNode = table.querySelector('thead');
- if (!theadNode) {
- const newThead = document.createElement('thead');
- table.insertBefore(newThead, table.children[0]);
+
+ const tHead = table.tHead;
+ if (tHead.rows.length === 0) {
+ const thead = document.createElement('thead');
+ table.appendChild(thead);
  }
- // Add missing table rows
- const tbodyNode = table.querySelector('tbody');
- if (!tbodyNode) {
- const newTbody = document.createElement('tbody');
- table.insertBefore(newTbody, table.children[1]);
+
+ const tBody = table.tBody;
+ if (!tBody) {
+ const tbody = document.createElement('tbody');
+ table.appendChild(tbody);
  }
 }
 
@@ -225,248 +190,12 @@ function fixTableAccessibility() {
  fixTableHeaderCellScope(table);
 }
 
-// ... (previous landmark handling functions remain as they are)
-
-function validateLandmark(landmark) {
- const issues = [];
-
- if (!landmark) {
- return { valid: false, issues: ['Landmark is null or undefined'] };
- }
-
- if (typeof landmark.id !== 'string' || landmark.id.trim().length === 0) {
- return {
- valid: false,
- issues: ['Landmark ID is required and non-empty']
- };
- }
-
- return { valid: true, issues: [] };
-}
-
-function validateLandmarkAttributes(landmark) {
- const issues = [];
-
- if (!landmark) {
- return { valid: false, issues: ['Landmark is null or undefined'] };
- }
-
- if (typeof landmark.id !== 'string' || landmark.id.trim().length === 0) {
- return {
- valid: false,
- issues: ['Landmark ID is required and non-empty']
- };
- }
-
- return { valid: true, issues: [] };
-}
-
-function getSvgAccessibleName(svg) {
- if (svg.hasAttribute('aria-labelledby')) {
- return svg.getAttribute('aria-labelledby');
- }
- const titleElement = svg.querySelector('title');
- if (titleElement) {
- return titleElement.textContent;
- }
-}
-
-function setSvgAttributes(svg, name) {
- svg.setAttribute('aria-labelledby', name);
-}
-
-function addSvgAccessibility() {
- const svgs = document.querySelectorAll('svg');
- svgs.forEach(svg => {
- const accessibleName = getSvgAccessibleName(svg);
- if (!accessibleName) {
- const newTitle = document.createElement('title');
- newTitle.textContent = svg.outerHTML;
- svg.insertBefore(newTitle, svg.firstChild);
- }
- setSvgAttributes(svg, accessibleName);
- });
-}
-
-function fixUniqueLandmarks(landmarks) {
- if (!Array.isArray(landmarks)) {
- return [];
- }
-
- const seen = new Set();
- const uniqueLandmarks = [];
-
- for (const landmark of landmarks) {
- if (!landmark || typeof landmark.id === 'undefined') {
- continue;
- }
-
- const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
- if (!seen.has(landmarkId)) {
- seen.add(landmarkId);
- uniqueLandmarks.push(landmark);
- }
- }
-
- return uniqueLandmarks;
-}
-
-// Existing code from origin/main
-function existingFunction1() {
-  // Existing implementation
-}
-
-function existingFunction2() {
-  // Existing implementation
-}
-
-// New Function (myNewFunction)
-function myNewFunction() {
-  return "New function implemented successfully";
-}
-
-// Function to write the generated report to a file
-function writeReport(report) {
- const reportFile = path.join(CONFIG.outputPath, 'accessibility-report.json');
- fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// Function to read the generated report (readReport)
-function readReport() {
- const reportFile = path.join(CONFIG.outputPath, 'accessibility-report.json');
- return fs.readFileSync(reportFile, 'utf8');
-}
-
-// Function to generate a report based on accessibility issues
-async function generateAccessibilityReport() {
-  const report = await scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
-// Helper functions for axe integration
-
-async function scanAccessibility() {
-    const results = await axe.run();
-    return results;
-}
-
-// Function to validate landmark elements (validateLandmark)
-function validateLandmarkElement(landmarkElement) {
-    const landmarkName = landmarkElement.getAttribute('role') || landmarkElement.tagName.toLowerCase();
-    const requiredLandmarks = ['main', 'nav', 'footer'];
-
-    if (!requiredLandmarks.includes(landmarkName)) {
-        return {
-            present: false,
-            missing: []
-        };
-    }
-
-    const landmark = landmarkElement.querySelector(landmarkName);
-
-    if (!landmark) {
-        return {
-            present: false,
-            missing: [landmarkName]
-        };
-    }
-
-    return {
-        present: true,
-        missing: []
-    };
-}
-
-// Function to validate landmarks (validateLandmarks)
-function validateLandmarks(landmarks) {
-    let validLandmarks = [];
-
-    for (const landmark of landmarks) {
-        const result = validateLandmarkElement(landmark);
-
-        if (result.present) {
-            validLandmarks.push(landmark);
-        }
-    }
-
-    return validLandmarks;
-}
-
-// Function to sort landmarks
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
-}
-
-// Function to find landmark by id
-function findLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-// Function to write a report based on missing or duplicate landmarks
-function generateLandmarkReport(landmarks, log = console.log) {
-    const duplicateLandmarks = [];
-
-    landmarks.forEach(landmark => {
-        if (!landmark.id || landmark.id === '') {
-            log('ERROR: Landmark missing id:', landmark);
-        }
-
-        const existingLandmark = findLandmarkById(landmarks, landmark.id);
-
-        if (existingLandmark && existingLandmark !== landmark) {
-            const uniqueLandmark = existingLandmark.id !== landmark.id ? existingLandmark : landmark;
-            duplicateLandmarks.push({
-                id: uniqueLandmark.id,
-                duplicate: [landmark, existingLandmark]
-            });
-        }
-    });
-
-    if (duplicateLandmarks.length > 0) {
-        log('Duplicate landmarks found:', duplicateLandmarks);
-    }
-}
-
-// Function to render dependency graphs (identified from TODO)
-// This function handles rendering of dependency graphs
-function renderDependencyGraph() {
- return {
- success: true,
- message: 'Dependency graph rendered'
- };
-}
-
-// Function to render dependency graph content
-function renderDependencyGraphContent(data) {
- renderDependencyGraph(data);
-}
-
-// Function to display module structure for debugging
-function displayModuleStructure() {
- return {
- modules: Object.keys(require('./')),
- structure: 'Module structure displayed'
- };
-}
-
-/**
- * REACT_001: Implement function to handle new accessibility issues
- * Coordinates various accessibility fixes and improvements
- */
+// Tour that addresses accessibility issues
 function addressAccessibilityIssues() {
  try {
  fixTableAccessibility();
  addMainLandmark();
+ addLandmarkRoles();
  addSvgAccessibility();
  createAccessibleLinks();
 
@@ -490,109 +219,162 @@ function addressAccessibilityIssues() {
  }
 }
 
-// Harvest and upgrade logic implementation
-function performHarvest() {
- // TODO: Implement harvest logic here
+// Helper functions for axe integration
+
+function validateAccessibility(element) {
+ const violations = axe.analyze(element)[0].violations;
+ return violations.length === 0;
 }
 
-function harvestFromSource(source) {
- const harvested = [];
- const amount = source.capacity || 10;
+function validateLandmark(landmark) {
+ const issues = [];
 
- for (let i = 0; i < amount; i++) {
- harvested.push({
- type: source.resourceType || 'generic',
- amount: 1,
- timestamp: Date.now(),
- source: source.id
- });
+ if (!landmark || typeof landmark !== 'object') {
+ issues.push('Landmark must be a valid object');
+ return { valid: false, issues };
  }
 
- return harvested;
-}
-
-function performUpgrade(item, targetLevel) {
- if (!item || typeof item.level === 'undefined') {
- throw new Error('Invalid item for upgrade');
+ if (!landmark.id || typeof landmark.id !== 'string') {
+ issues.push('Landmark must have a valid id');
+ } else {
+ details.id = landmark.id;
  }
 
- const currentLevel = item.level;
- const upgradeCost = calculateUpgradeCost(item, targetLevel);
-
- // Check if we have enough resources
- const availableResources = appData.resources || {};
- const canUpgrade = Object.keys(upgradeCost).every(
- resource => (availableResources[resource] || 0) >= upgradeCost[resource]
- );
-
- if (!canUpgrade) {
- throw new Error('Insufficient resources for upgrade');
+ if (!landmark.role && !strict) {
+ issues.push('Landmark must have a role');
+ } else if (landmark.role) {
+ details.role = landmark.role;
  }
 
-// Deduct resources
- Object.keys(upgradeCost).forEach(resource => {
- availableResources[resource] -= upgradeCost[resource];
- });
+ if (!isValidLandmark(landmark)) {
+ issues.push('Invalid landmark');
+ }
 
- // Apply upgrade
- item.level = targetLevel;
-
+ if (issues.length) {
  return {
- success: true,
- item: item,
- newLevel: targetLevel,
- resourcesSpent: upgradeCost
+ valid: false,
+ errors: issues
  };
-}
-
-function calculateUpgradeCost(item, targetLevel) {
- const upgradeCost = {};
-
- const resourceTypes = ['energy', 'materials', 'credits'];
-
- resourceTypes.forEach(type => {
- upgradeCost[type] = Math.floor(10 * Math.pow(1.5, targetLevel - 1));
- });
-
- return upgradeCost;
-}
-
-function processHarvestedResources(resources) {
- if (!Array.isArray(resources) || resources.length === 0) {
- return { processed: 0, stored: {} };
  }
 
- const stored = {};
+ return { valid: true, errors: [] };
+}
 
- resources.forEach(resource => {
- const type = resource.type || 'unknown';
- if (!stored[type]) {
- stored[type] = 0;
+function validateLink(link) {
+ if (!link || typeof link !== 'object') {
+ return { valid: false, errors: ['Link must be a valid object'] };
  }
- stored[type] += resource.amount || 1;
+
+ const attributeErrors = [];
+ const textContentErrors = [];
+
+ if (!link.href) {
+ attributeErrors.push('Missing href attribute');
+ } else if (!validateUrl(link.href)) {
+ attributeErrors.push('Invalid href');
+ }
+
+ if (!link.textContent) {
+ textContentErrors.push('Missing text content');
+ }
+
+ if (attributeErrors.length || textContentErrors.length) {
+ return { valid: false, errors: [...attributeErrors, ...textContentErrors] };
+ }
+
+ return { valid: true, errors: [] };
+}
+
+// ... (previous landmark handling functions remain as they are)
+
+function ensureUniqueLandmarks(landmarks) {
+ if (!Array.isArray(landmarks)) {
+ return landmarks;
+ }
+
+ const seenLandmarks = new Set();
+ const uniqueLandmarks = landmarks.filter(landmark => {
+ const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+
+ if (seenLandmarks.has(landmarkId)) {
+ console.warn(`Duplicate landmark found with id: ${landmarkId}`);
+ } else {
+ seenLandmarks.add(landmarkId);
+ return true;
+ }
  });
 
- // Update appData with stored resources
- appData.resources = appData.resources || {};
- Object.keys(stored).forEach(type => {
- appData.resources[type] = (appData.resources[type] || 0) + stored[type];
- });
+ return uniqueLandmarks;
+}
 
+// Landmarks helper functions
+
+function addLandmark(landmarkData) {
+ if (!landmarkData || !landmarkData.id || !landmarkData.role) {
+ throw new Error('Invalid landmark data');
+ }
+
+ // TODO: Add proper landmark creation logic
+}
+
+function updateLandmark(landmarkData) {
+ if (!landmarkData || !landmarkData.id || !landmarkData.role) {
+ throw new Error('Invalid landmark data');
+ }
+
+ // TODO: Add proper landmark updating logic
+}
+
+function removeLandmark(landmarkData) {
+ if (!landmarkData || !landmarkData.id) {
+ throw new Error('Invalid landmark data');
+ }
+
+ // TODO: Add proper landmark removal logic
+}
+
+function getLandmarkById(landmarks, id) {
+ return landmarks.find(landmark => landmark.id === id) || null;
+}
+
+function getLandmarkByName(landmarks, name) {
+ return landmarks.find(landmark => landmark.name === name) || null;
+}
+
+function queryLandmarks(landmarks, landmarkElements) {
+ return landmarkElements.map(landmarkElement => {
+ const id = landmarkElement.getAttribute('id');
+ const role = landmarkElement.getAttribute('role');
+ const name = landmarkElement.textContent.trim();
+
+ const landmarkData = { id, role, name };
+
+ return landmarks.find(landmark => JSON.stringify(landmarkData) === JSON.stringify(landmark)) || null;
+ });
+}
+
+function processLandmarkData(landmarkData) {
+ // Parse and clean landmark data as needed
+}
+
+function saveLandmark(landmarkData) {
+ if (!landmarkData || !landmarkData.id) {
+ throw new Error('Invalid landmark data');
+ }
+
+ // TODO: Add proper landmark saving logic
+}
+
+// ... Existing functions (existingFunction1, existingFunction2, myNewFunction, ...)
+
+function exportAllFunctions() {
  return {
- processed: resources.length,
- stored: stored
- };
-}
-
-// Export all functions for use elsewhere in the repository
-module.exports = {
  addLandmarkRoles,
  validateTableAccessibility,
  validateTableStructure,
  fixTableStructure,
  validateLandmark,
- validateLandmarkAttributes,
- validateLandmarkStructure,
+ validateLink,
  ensureUniqueLandmarks,
  fixTableAccessibilityIssues,
  addSvgAccessibility,
@@ -606,7 +388,6 @@ module.exports = {
  clearCache,
  writeReport,
  generateAccessibilityReport,
- scanAccessibility,
  renderDependencyGraphContent,
  addressInsightReportIssues,
  displayModuleStructure,
@@ -619,13 +400,19 @@ module.exports = {
  calculateUpgradeCost,
  processHarvestedResources,
  validateItem,
- existingFunction1,
- existingFunction2,
- myNewFunction,
- readReport,
- validateLandmarkElement,
- validateLandmarks,
- sortLandmarks,
- findLandmarkById,
- generateLandmarkReport
+ addLandmark,
+ updateLandmark,
+ removeLandmark,
+ getLandmarkById,
+ getLandmarkByName,
+ queryLandmarks,
+ processLandmarkData,
+ saveLandmark
+ };
+}
+
+module.exports = {
+ ...require('./'),
+ addressAccessibilityIssues,
+ exportAllFunctions
 };

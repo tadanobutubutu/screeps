@@ -1,6 +1,3 @@
-Here is the resolved version of the 'main.js' file with both changes merged and syntax errors corrected:
-
-```javascript
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -307,6 +304,3 @@ module.exports = {
   fetchUser,
   clearCache
 };
-```
-
-This resolved version preserves both changes, keeping the new accessibility report functionality based on axe-core, and the module analysis part. A few minor syntax errors were corrected and the code was formatted for better readability.

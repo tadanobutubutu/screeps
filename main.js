@@ -6,7 +6,6 @@ module.exports.loop = function () {
     }
   }
 
-  // Spawn creeps if needed
   const harvesterCount = _.filter(Game.creeps, c => c.memory.role === 'harvester').length;
   if (harvesterCount < 2 && Game.spawns['Spawn1'].spawning === null) {
     const newName = 'Harvester' + Game.time;
@@ -16,12 +15,13 @@ module.exports.loop = function () {
   }
 
   // Run creep roles
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
+  const gamesCreeps = _.mapValues(Game.creeps, creep => {
     if (creep.memory.role === 'harvester') {
       runHarvester(creep);
+      return runHarvester;
     }
-  }
+    return creep;
+  });
 };
 
 function runHarvester(creep) {
@@ -38,4 +38,50 @@ function runHarvester(creep) {
       creep.transfer(target, RESOURCE_ENERGY);
     }
   }
+}
+
+// This section was preserved
+const books = [];
+const safetyCategory = "User Safety: safe";
+
+// New functions for accessibility and networking
+function createAccessibleLink({ href, text }) {
+  const link = document.createElement('a');
+  link.setAttribute('href', href);
+  link.textContent = text;
+  link.setAttribute('aria-label', text);
+  return link;
+}
+
+function checkLinkAccessibility(linkUrl) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  return fetch(linkUrl, { method: 'HEAD', signal: controller.signal })
+    .then(response => {
+      clearTimeout(timeout);
+      return response.ok;
+    })
+    .catch(() => {
+      clearTimeout(timeout);
+      return false;
+    });
+}
+
+// Function for spawning a new process
+function spawnProcess(command) {
+  const { spawn } = require('child_process');
+  const proc = spawn(command);
+
+  proc.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
+  proc.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  proc.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
 }

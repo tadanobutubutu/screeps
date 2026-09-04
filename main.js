@@ -63,6 +63,13 @@ export const checkSafetyCategories = () => {
   return safetyCategoriesMessage;
 };
 
+export const updateAccessibilityFeatures = () => {
+  // New function to update accessibility features
+  // Example code to demonstrate the new functionality
+  // This is a placeholder and should be replaced with actual implementation
+  console.log('Accessibility features updated.');
+};
+
 export const getUserSafetyAdvice = () => {
   return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
 };
@@ -269,19 +276,6 @@ if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
   parent.replaceChild(newButton, fakeLink);
-}
-
-// Load landmarks from file (new addition)
-import {CONFIG} from './utils/constants';
-function loadLandmarks() {
-  try {
-      const filePath = CONFIG.DATA_PATH + 'landmarks.json';
-      const data = fs.readFileSync(filePath, 'utf8');
-      return JSON.parse(data);
-  } catch (error) {
-      console.error('Error loading landmarks:', error.message);
-      return [];
-  }
 }
 
 // Updated function: ensures landmarks uniqueness when there's an array structure

@@ -12,16 +12,6 @@ const logger = require('./utils/logger');
 const { calculateSum } = require('./utils');
 const fastMap = require('fast-map');
 
-const appConfig = {
-  name: 'MyApp',
-  version: '1.0.0',
-  debug: false,
-  dataPath: './data',
-  maxResults: 100,
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: 5000
-};
-
 // Configuration object (merged from both versions)
 const CONFIG = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
@@ -29,14 +19,33 @@ const CONFIG = {
   debug: true,
   version: '1.0.0',
   dataPath: './data',
-  maxResults: 100
+  maxResults: 100,
+  name: 'MyApp',
+  apiKey: process.env.API_KEY || 'default-key'
 };
 
 const appState = {
   initialized: false,
   data: null,
-  cache: new Map()
+  cache: new Map(),
+  lang: 'en',
+  credentials: null,
+  error: null
 };
+
+let isInitialized = false;
+const appData = {
+    title: 'Screeps',
+    version: '1.0.0'
+};
+
+let dependencyGraph = {};
+let UserSafetyClass = "unsafe";
+let SafetyCategories = "Unauthorized Advice";
+let landmarks = [];
+let icons = {};
+
+const safetyCategory = "User Safety: safe";
 
 // Books array
 const books = [];
@@ -58,8 +67,6 @@ const landmarkSelectors = [
 ];
 
 const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
-
-const safetyCategory = "User Safety: safe";
 
 // Accessibility helper function
 const accessiblyHelper = async (...args) => {
@@ -358,7 +365,7 @@ function getConfig() {
   };
 }
 
-// Validate landmark
+// Validate landmark (DOM element)
 function validateLandmark(landmark) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
@@ -439,7 +446,7 @@ function addFixLandmarkIssues(issues) {
   };
 }
 
-// Create in-page button
+// Create in-page button (alternative)
 function createInPageButton(options) {
   const button = document.createElement('button');
   button.textContent = options.text;
@@ -448,7 +455,7 @@ function createInPageButton(options) {
   return button;
 }
 
-// Create accessible link
+// Create accessible link (alternative)
 function createAccessibleLink(href, text) {
   const link = document.createElement('a');
   link.href = href;
@@ -634,12 +641,6 @@ function fixFakeLinks() {
   });
 }
 
-// Add proper landmark regions
-function addProperLandmarkRegions() {
-  addMainLandmark();
-  addLandmarkRolesAndFixIssues();
-}
-
 // Replace my-button with actual button
 function replaceMyButton() {
   const myButton = document.getElementById('my-button');
@@ -680,6 +681,11 @@ function getBooksList() {
   return booksList.join("\n");
 }
 
+// Helper functions
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
 function generateDependencyReport(dependencies) {
   let graph = 'Dependency Tree:\n';
   dependencies.forEach(dep => {
@@ -692,7 +698,7 @@ function fixAccessibilityIssues() {
   fixFakeLinks();
   fixFakeLinkIssues();
   validateTableAccessibility();
-  fixTableStructure();
+  fixTableStructureIssues();
   validateTableStructure();
   validateLandmark();
   validateLandmarkStructure();
@@ -743,7 +749,7 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'REACT_036':
         handleFakeLinks();
-        fixFakeLink();
+        fixFakeLinkIssues();
         break;
       default:
         break;
@@ -890,6 +896,44 @@ function initializeAccessibility() {
   ensureDependencyGraphAriaRole();
 }
 
+// Validate landmark object (for landmark data with coordinates)
+function validateLandmarkObject(landmark) {
+  const errors = [];
+  if (Array.isArray(landmark)) {
+    landmark.forEach(innerLandmark => {
+      if (!innerLandmark || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push('Landmark array must have valid names');
+      }
+      if (innerLandmark && innerLandmark.latitude !== undefined) {
+        if (typeof innerLandmark.latitude !== 'number' || isNaN(innerLandmark.latitude) || innerLandmark.latitude < -90 || innerLandmark.latitude > 90) {
+          errors.push('Landmark latitude must be between -90 and 90');
+        }
+      }
+      if (innerLandmark && innerLandmark.longitude !== undefined) {
+        if (typeof innerLandmark.longitude !== 'number' || isNaN(innerLandmark.longitude) || innerLandmark.longitude > 180) {
+          errors.push('Landmark longitude must be between -180 and 180');
+        }
+      }
+    });
+  }
+  if (!Array.isArray(landmark)) {
+    if (!landmark || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+      errors.push('Landmark must have a valid name');
+    }
+    if (landmark && landmark.latitude !== undefined) {
+      if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude) || landmark.latitude < -90 || landmark.latitude > 90) {
+        errors.push('Landmark latitude must be between -90 and 90');
+      }
+    }
+    if (landmark && landmark.longitude !== undefined) {
+      if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude) || landmark.longitude > 180) {
+        errors.push('Landmark longitude must be between -180 and 180');
+      }
+    }
+  }
+  return { result: landmark, errors, valid: errors.length === 0 };
+}
+
 // Dependency Visualization Tool Functions
 function renderDependencyGraph(graphData) {
   console.log('Rendering dependency graph with data:', graphData);
@@ -899,7 +943,7 @@ function newFunction3(input) {
   return input;
 }
 
-// Screeps bot main loop (from origin/main)
+// Screeps bot main loop
 module.exports.loop = function () {
   // Clean up memory of dead creeps
   for (const name in Memory.creeps) {
@@ -928,6 +972,7 @@ module.exports = {
   processLandmarks,
   isValidLandmark,
   validateLandmark,
+  validateLandmarkObject,
   validateInput,
   processData,
   getLangAttribute,
@@ -952,7 +997,6 @@ module.exports = {
   initializeApp,
   getConfig,
   addFixLandmarkIssues,
-  createInPageButton,
   createAccessibleLink,
   fixFakeLinkIssues,
   handleAccessibilityIssues,
@@ -961,7 +1005,6 @@ module.exports = {
   addSvgAccessibleNames,
   harvestData,
   upgradeSystem,
-  addLangAttribute,
   fixTableStructureIssues,
   fixTableHeaderCellScope,
   addMainLandmark,
@@ -990,7 +1033,8 @@ module.exports = {
   initializeAccessibility,
   renderDependencyGraph,
   newFunction3,
-  calculateSum
+  calculateSum,
+  helper
 };
 
 // Start application if run directly

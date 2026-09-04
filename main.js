@@ -1,29 +1,18 @@
 /**
  * Merge Conflict Resolution: main.js
  * 
- * HEAD side contained an analysis/thinking process about merging a React web app
- * with a Node.js Screeps bot module.
- * 
- * Origin/main contained the actual Screeps bot module with:
- * - Accessibility checking and reporting (axe-core integration)
- * - Dependency graph analysis
- * - Safety category validation
- * - DOM manipulation utilities
- * - HTML string accessibility fixes
- * 
- * Resolution: Preserved the origin/main JavaScript module code and converted
- * the HEAD analysis into a documentation comment. Integrated all features
- * from both sides without discarding functionality.
+ * This file integrates accessibility utilities, dependency graph analysis,
+ * safety category validation, DOM manipulation, and HTML accessibility fixes
+ * for the Screeps bot codebase.
  */
 
-const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const fastMap = require('fast-map');
 const accessiblyHelper = require('./accessibly-helper');
 const axe = require('axe-core');
 
-// HEAD branch imports - integrated where compatible
+// Integrated module imports
 const analyzeContentSafety = require('./analyzeContentSafety');
 const upgrade = require('./upgrade');
 const checkEmptyHeadings = require('./checkEmptyHeadings');
@@ -94,6 +83,26 @@ function validateLandmark(landmark) {
   return landmark &&
          typeof landmark.id !== 'undefined' &&
          landmark.id !== null;
+}
+
+function validateLandmarkRequired() {
+  if (typeof document === 'undefined') return true;
+  const requiredLandmarks = ['main', 'nav', 'footer'];
+  const missingLandmarks = [];
+
+  requiredLandmarks.forEach(landmark => {
+    const element = document.querySelector(`[role="${landmark}"]`) ||
+                   document.querySelector(landmark);
+    if (!element) {
+      missingLandmarks.push(landmark);
+    }
+  });
+
+  if (missingLandmarks.length > 0) {
+    console.warn('Missing required landmarks:', missingLandmarks.join(', '));
+    return false;
+  }
+  return true;
 }
 
 function loadLandmarks() {
@@ -171,14 +180,11 @@ function getAxeResults(issuesData) {
   });
 }
 
-// Integrated from HEAD: accessibility report generation with checkEmptyHeadings and analyzeAccessibilityIssues
+// Integrated accessibility report generation with checkEmptyHeadings and analyzeAccessibilityIssues
 async function generateAccessibilityReport(issuesData) {
   let issues = [];
 
   if (!issuesData) {
-    // In Node.js context, we use the axe-core API differently
-    // This would need a DOM environment like JSDom to run
-    // For now, we'll use the origin/main approach
     issues = getAxeResults(await analyzeAccessibility({})).flatMap(item => item.results);
     issues = issues.concat(await checkEmptyHeadings());
     issues = issues.concat(await analyzeAccessibilityIssues(issuesData));
@@ -193,6 +199,15 @@ async function generateAccessibilityReport(issuesData) {
   };
 
   return report;
+}
+
+async function analyzeAccessibilityIssues(issuesData) {
+  if (!issuesData) return [];
+  return issuesData.map(issue => ({
+    id: issue.id,
+    impact: issue.impact,
+    description: issue.description
+  }));
 }
 
 function fixAccessibilityIssues() {
@@ -318,40 +333,124 @@ function createAccessibleInput(type, name, labelText, value) {
     return input;
 }
 
-function addLangAttribute(html) {
+function getLangAttribute() {
+    if (typeof document !== 'undefined') {
+        return document.documentElement ? (document.documentElement.getAttribute('lang') || '') : '';
+    }
+    return '';
+}
+
+function addLangAttribute() {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        if (!document.documentElement.hasAttribute('lang')) {
+            document.documentElement.setAttribute('lang', 'en');
+        }
+    }
+}
+
+function addLangAttributeHTML(html) {
+    if (typeof html !== 'string') return html;
+    if (!/lang=["'][a-zA-Z-]+["']/i.test(html)) {
+        return html.replace(/<html/i, '<html lang="en"');
+    }
     return html;
 }
 
-function fixTableStructure(html) {
+function validateTableAccessibility(table) {
+    if (!table || !(table instanceof HTMLElement)) {
+        return false;
+    }
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasHeaders = Array.from(table.querySelectorAll('th')).some(th => th.hasAttribute('scope'));
+    const hasStructure = validateTableStructure(table);
+    return hasCaption || hasHeaders || hasStructure;
+}
+
+function validateTableStructure(table) {
+    if (!table || !(table instanceof HTMLElement)) {
+        return false;
+    }
+    const rows = table.querySelectorAll('tr');
+    if (rows.length === 0) {
+        return false;
+    }
+    const firstRowCellCount = rows[0].querySelectorAll('td, th').length;
+    for (let i = 1; i < rows.length; i++) {
+        const rowCells = rows[i].querySelectorAll('td, th');
+        if (rowCells.length !== firstRowCellCount) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function fixTableStructure(table) {
+    if (!table || !(table instanceof HTMLElement)) {
+        return;
+    }
+    const caption = table.querySelector('caption');
+    if (!caption) {
+        const newCaption = document.createElement('caption');
+        newCaption.textContent = 'Data Table';
+        table.insertBefore(newCaption, table.firstChild);
+    }
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+        if (!th.hasAttribute('scope')) {
+            th.setAttribute('scope', 'col');
+        }
+    });
+}
+
+function fixTableStructureHTML(html) {
     return html;
+}
+
+function fixAllTables() {
+    if (typeof document === 'undefined') return;
+    const tables = document.querySelectorAll('table');
+    tables.forEach(fixTableStructure);
 }
 
 function fixLandmarks(html) {
+    if (typeof html !== 'string') return html;
+    if (!/<main[\s>]/i.test(html)) {
+        html = html.replace(/<body([^>]*)>/i, '<body$1><main>').replace(/<\/body>/i, '</main></body>');
+    }
     return html;
+}
+
+function addMainLandmark() {
+    if (typeof document === 'undefined') return;
+    const existingMain = document.querySelector('main');
+    if (!existingMain && document.body) {
+        const mainElement = document.createElement('main');
+        const firstChild = document.body.firstChild;
+        if (firstChild) {
+            document.body.insertBefore(mainElement, firstChild);
+        } else {
+            document.body.appendChild(mainElement);
+        }
+    }
 }
 
 function addSvgAccessibleNames(html) {
     if (typeof html !== 'string') return html;
 
     const svgRegex = /<svg[^>]*>.*?<\/svg>/gi;
-    let offset = 0;
     let index = 0;
 
-    html = html.replace(svgRegex, (fullMatch, ...args) => {
-        const svgStart = args[args.length - 2];
-        const svgEnd = args[args.length - 1];
+    html = html.replace(svgRegex, (fullMatch) => {
         const attrs = fullMatch.substring(0, fullMatch.indexOf('>') + 1);
-
-        const svgContent = html.substring(svgStart, svgEnd + 6);
+        const svgContent = fullMatch;
         const hasTitle = /<title/i.test(svgContent);
         const hasAriaLabel = /\baria-label=/i.test(attrs);
         const hasAriaLabelledBy = /\baria-labelledby=/i.test(attrs);
 
         if (!hasTitle && !hasAriaLabel && !hasAriaLabelledBy) {
             const newSvg = fullMatch.replace(/>/, `><title>SVG ${index + 1}</title>`);
-            const oldSvgLength = svgContent.length;
-            html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength);
-            offset += newSvg.length - oldSvgLength;
+            index++;
+            return newSvg;
         }
         index++;
         return fullMatch;
@@ -388,7 +487,7 @@ function ensureUniqueLandmarksHTML(html) {
             html = html.replace(pattern, (match) => {
                 count++;
                 if (count === 1) return match;
-                return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region"`);
+                return match.replace(`<${tag}`, `<${tag} role="region"`);
             });
         }
     });
@@ -419,8 +518,8 @@ function fixFakeLinks(html) {
 // Main function that applies all accessibility fixes
 function applyAccessibilityFixes(html) {
     let result = html;
-    result = addLangAttribute(result);
-    result = fixTableStructure(result);
+    result = addLangAttributeHTML(result);
+    result = fixTableStructureHTML(result);
     result = fixLandmarks(result);
     result = addSvgAccessibleNames(result);
     result = ensureUniqueLandmarksHTML(result);
@@ -551,15 +650,15 @@ async function renderFunction2() {
 
 function getSvgRole(svgElement) {
   if (!svgElement) return '';
-  return svgElement.getAttribute('role') || 
-         svgElement.getAttribute('aria-label') || 
-         svgElement.getAttribute('aria-labelledby') || 
+  return svgElement.getAttribute('role') ||
+         svgElement.getAttribute('aria-label') ||
+         svgElement.getAttribute('aria-labelledby') ||
          '';
 }
 
 function setSvgAttributes(svgElement, options = {}) {
   if (!svgElement) return;
-  
+
   if (options.label) {
     svgElement.setAttribute('aria-label', options.label);
   }
@@ -569,9 +668,10 @@ function setSvgAttributes(svgElement, options = {}) {
 }
 
 function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') return;
   const landmarks = document.querySelectorAll('nav, main, aside, footer');
   const seen = new Map();
-  
+
   landmarks.forEach(landmark => {
     const tag = landmark.tagName.toLowerCase();
     if (seen.has(tag)) {
@@ -584,6 +684,7 @@ function ensureUniqueLandmarks() {
 }
 
 function addressAccessibilityIssues() {
+  if (typeof document === 'undefined') return;
   const rootContainer = document.querySelector('#root');
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
@@ -688,6 +789,91 @@ function someFunction() {
   return safetyCategories.length;
 }
 
+// Scan pages for accessibility issues and generate a report
+async function scanAccessibility() {
+  const issues = [];
+
+  if (!axe || typeof fs === 'undefined') {
+    return issues;
+  }
+
+  const pagesDir = path.join(__dirname, 'pages');
+  let filePaths = [];
+  try {
+    filePaths = await fs.promises.readdir(pagesDir);
+  } catch (e) {
+    return issues;
+  }
+
+  for (const filePath of filePaths) {
+    const fileEmitted = path.join(pagesDir, filePath);
+    try {
+      const { violations } = await axe.analyze(fileEmitted);
+      if (violations && violations.length > 0) {
+        issues.push({
+          file: filePath,
+          issues: violations,
+        });
+      }
+    } catch (e) {
+      // skip files that fail analysis
+    }
+  }
+
+  return issues;
+}
+
+// Function to write the generated report to a file
+function writeReport(report) {
+  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  try {
+    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+  } catch (e) {
+    // unable to write report
+  }
+}
+
+// Initialize accessibility improvements
+function initialize() {
+  if (typeof document === 'undefined') return;
+
+  // Ensure document has a language attribute
+  addLangAttribute();
+
+  const dependencyGraphEl = document.getElementById('dependencyGraph');
+  if (dependencyGraphEl) {
+    dependencyGraphEl.setAttribute('role', 'region');
+    dependencyGraphEl.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+
+  // Add a main landmark if missing
+  addMainLandmark();
+
+  // Fix accessibility issues on existing tables
+  fixAllTables();
+
+  // Initialize scanning for accessibility issues
+  if (axe) {
+    scanAccessibility().then(issues => {
+      if (issues.length > 0) {
+        console.error('Accessibility issues found:', JSON.stringify(issues, null, 2));
+        writeReport(issues);
+      }
+    }).catch(err => {
+      console.error('Accessibility scan failed:', err);
+    });
+  }
+}
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
+}
+
 // TODO: Implement the required changes to improve accessibility for adding a new book
 function improveAddBookAccessibility() {
   return main.addBook('Untitled', 'Unknown Author', '');
@@ -699,6 +885,7 @@ module.exports = {
   getDependencyGraph,
   generateAccessibilityReport,
   analyzeAccessibility,
+  analyzeAccessibilityIssues,
   renderFunction1,
   renderFunction2,
   calculateMultiplier,
@@ -706,6 +893,7 @@ module.exports = {
   processLandmarks,
   ensureUniqueLandmarksList,
   validateLandmark,
+  validateLandmarkRequired,
   getAxeResults,
   getSvgRole,
   setSvgAttributes,
@@ -726,13 +914,22 @@ module.exports = {
   appState,
   improveAddBookAccessibility,
   addLangAttribute,
+  addLangAttributeHTML,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
   fixTableStructure,
+  fixAllTables,
   fixLandmarks,
+  addMainLandmark,
   addSvgAccessibleNames,
   fixFakeLinks,
   checkColorContrast,
   parseColor,
   createInPageButton,
+  scanAccessibility,
+  writeReport,
+  initialize,
   // HEAD branch exports
   analyzeContentSafety,
   upgrade,

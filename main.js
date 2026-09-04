@@ -1,11 +1,37 @@
-// main.js
+const books = [];
+const safetyCategory = "User Safety: safe";
 
+// Module imports and configuration
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const utils = require('./utils');
+const axios = require('axios');
+const cheerio = require('cheerio');
+const axeCore = require('axe-core');
 
-const config = require('./config');
-const logger = require('./utils/logger');
+// TODO: Address accessibility issues from insight report — CONTINUING in main.js
+const CONFIG = {
+  port: 3000,
+  maxResults: 1000,
+  debug: false,
+};
+
+const appData = {
+  userAction: "Unknown",
+  previousUserActions: [],
+  lastUserActionId: "Unknown",
+  userActionStack: [],
+};
+
+const appState = {
+  lastUserAction: "Unknown",
+  previousUserActions: [],
+  lastUserActionId: "Unknown",
+  userActionStack: [],
+  previousUserSafety: 'safe',
+  previousUserSafetyScore: 0,
+};
 
 // Safety Categories and User Safety Functions
 const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
@@ -37,10 +63,10 @@ function computeSafetyScore(safetyCategories) {
 function upgradeSystem(harvestedData) {
   if (harvestedData) {
     if (harvestedData.maxResults) {
-      config.maxResults = harvestedData.maxResults;
+      CONFIG.maxResults = harvestedData.maxResults;
     }
     if (harvestedData.debug !== undefined) {
-      config.debug = harvestedData.debug;
+      CONFIG.debug = harvestedData.debug;
     }
   }
   return true;
@@ -57,18 +83,221 @@ function loadHarvestedData() {
   }
 }
 
+// Book-related functions
+function addBook(title, author) {
+  const bookObject = {
+    title,
+    author,
+  };
+  books.push(bookObject);
+  // console.log(JSON.stringify(bookObject));
+  return bookObject;
+}
+
+function announceBookAdded(book) {
+  console.log(
+    `New book added: ${book.title} by ${book.author}.`,
+  );
+}
+
+// Harvest data function placeholder
+function harvestData(context) {
+  const dataToReturn = {
+    'harvestCount': 1,
+    'harvestList': [],
+  };
+  const contextType = typeof context;
+  if (contextType === 'object' && context !== null) {
+    for (const key in context) {
+      // console.log(key);
+    }
+  }
+  // console.log('Harvesting data...');
+  return dataToReturn;
+}
+
+// Analyze module dependencies
+function analyzeModuleDependencies(modules) {
+  const dependencyGraph = {};
+  modules.forEach((module) => {
+    dependencyGraph[module.name] = module.requires || [];
+  });
+  return dependencyGraph;
+}
+
 const app = express();
 
+// Express middleware and routes
+app.use(express.json());
+
+// Accessibility improvement functions
+function addLangAttribute(html) {
+  const $ = cheerio.load(html);
+  $('html').attr('lang', 'en');
+  return $.html();
+}
+
+function ensureLangAttribute(html) {
+  const $ = cheerio.load(html);
+  if ($('html').attr('lang') === undefined) {
+    $('html').attr('lang', 'en');
+  }
+  return $.html();
+}
+
+function fixTableStructure(html) {
+  const $ = cheerio.load(html);
+  $('table').each((i, elem) => {
+    const $table = $(elem);
+    const hasHeaderRow = $table.find('tr').first().find('th').length > 0;
+    if (!hasHeaderRow) {
+      $table.find('tr').first().prepend('<th scope="col"></th>');
+      $table.find('td').each((j, cell) => {
+        $(cell).prependTo($table.find('tr').first());
+      });
+    }
+  });
+  return $.html();
+}
+
+function fixLandmarks(html) {
+  const $ = cheerio.load(html);
+  $('header').attr('role', 'banner');
+  $('nav').attr('role', 'navigation');
+  $('main').attr('role', 'main');
+  $('footer').attr('role', 'contentinfo');
+  return $.html();
+}
+
+// New functions to integrate
+function newFunction() {
+  return 'Hello World';
+}
+
+function newFunction2() {
+  return 'Goodbye World';
+}
+
+function calculateDiscount(price, discountPercentage) {
+  const discountAmount = (price * discountPercentage) / 100;
+  const discountedPrice = price - discountAmount;
+  return discountedPrice;
+}
+
+// Accessibility improvement function for SVGs
+function addSvgAccessibleNames(dom) {
+  const svgs = dom.querySelectorAll('svg');
+  svgs.forEach((svg) => {
+    const role = svg.getAttribute('role');
+    if (role === 'img' && !svg.getAttribute('aria-label') && !svg.getAttribute('title')) {
+      svg.setAttribute('aria-label', 'Image with no description.');
+    } else if (role === 'img' && !svg.getAttribute('aria-label') && !svg.getAttribute('title')) {
+      svg.setAttribute('aria-label', 'Image with no description.');
+    } else if (svg.getAttribute('role') === 'none') {
+      // Do nothing
+    } else {
+      svg.setAttribute('aria-label', 'Image with no description.');
+    }
+  });
+}
+
+// Function to fix fake links for web scrapers
+function fixFakeLinks(dom) {
+  const anchorTagsWithClickEvents = dom.querySelectorAll('a[onclick]');
+  anchorTagsWithClickEvents.forEach((tag) => {
+    const onClickAttributeValue = tag.getAttribute('onclick');
+    const matchResult = onClickAttributeValue && onClickAttributeValue.match(/window\.location(?:[^=]+)?\(['"]([^'"]+)['"]/);
+    const hrefValue = matchResult && matchResult[1];
+    tag.setAttribute('href', hrefValue);
+    tag.setAttribute('onclick', '');
+  });
+  return dom;
+}
+
+// DOM-based versions of accessibility functions using cheerio
+function addSvgAccessibleNamesDom(dom) {
+  const $ = cheerio.load(dom);
+  $('svg').each((i, elem) => {
+    const $svg = $(elem);
+    const role = $svg.attr('role');
+    if (role === 'img' && !$svg.attr('aria-label') && !$svg.attr('title')) {
+      $svg.attr('aria-label', 'Image with no description.');
+    } else if (role === 'img' && !$svg.attr('aria-label') && !$svg.attr('title')) {
+      $svg.attr('aria-label', 'Image with no description.');
+    } else if ($svg.attr('role') === 'none') {
+      // Do nothing
+    } else {
+      $svg.attr('aria-label', 'Image with no description.');
+    }
+  });
+}
+
+function fixFakeLinksDom(dom) {
+  const $ = cheerio.load(dom);
+  $('a[onclick]').each((i, elem) => {
+    const $tag = $(elem);
+    const onClickAttributeValue = $tag.attr('onclick');
+    const matchResult = onClickAttributeValue && onClickAttributeValue.match(/window\.location(?:[^=]+)?\(['"]([^'"]+)['"]/);
+    const hrefValue = matchResult && matchResult[1];
+    if (hrefValue) {
+      $tag.attr('href', hrefValue);
+      $tag.attr('onclick', '');
+    }
+  });
+}
+
+// Main entry point
 const main = () => {
-  // Upgrade the system if necessary
   const harvestedData = loadHarvestedData();
   if (harvestedData) {
     upgradeSystem(harvestedData);
   }
 
-  app.listen(config.port, () => {
-    logger.info(`App listening at http://localhost:${config.port}`);
+  app.listen(CONFIG.port, () => {
+    console.log(`App listening at http://localhost:${CONFIG.port}`);
   });
 };
 
 main();
+
+// Export functions for use in other modules
+module.exports = {
+  books,
+  safetyCategory,
+  safetyCategories,
+  userSafety,
+  getUserSafetyAdvice,
+  computeSafetyScore,
+  upgradeSystem,
+  loadHarvestedData,
+  addBook,
+  announceBookAdded,
+  harvestData,
+  analyzeModuleDependencies,
+  addLangAttribute,
+  ensureLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  newFunction,
+  newFunction2,
+  calculateDiscount,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  addSvgAccessibleNamesDom,
+  fixFakeLinksDom,
+};
+const mainObj = {
+  on: function (event, callback) {
+    if (event === 'userAction') {
+      setInterval(() => {
+        if (userAction !== appState.lastUserAction) {
+          callback(userAction);
+          appState.lastUserAction = userAction;
+          appState.previousUserActions.push(userAction);
+        }
+      }, 1000);
+    }
+  },
+};
+
+module.exports = mainObj;

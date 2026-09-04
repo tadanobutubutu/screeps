@@ -1,3 +1,19 @@
+const { dependencyGraphContent, indexContent } = require('./dependencyContent');
+const {
+  renderGraphIndex,
+  checkAccessibilityForReport,
+  trapFocus,
+  addLandmarkRegions,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark
+} = require('./utilities');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -20,6 +36,8 @@ const CONFIG = {
   dataPath: './data'
 };
 
+const axe = require('axe-core');
+
 const axeConfig = {
   rules: {
     'aria-invalid-2': { enabled: false },
@@ -41,6 +59,98 @@ async function analyzeModuleDependencies(modules) {
     totalDependencies: 0,
     dependencyMap: {}
   };
+}
+
+/**
+ * Validates table structure
+ */
+function validateTableStructure() {
+  // Implementation to be added
+}
+
+/**
+ * Fixes table structure issues
+ */
+function fixTableStructure() {
+  // Implementation to be added
+}
+
+/**
+ * Adds main landmark to page
+ */
+function addMainLandmark() {
+  // Implementation to be added
+}
+
+/**
+ * Validates landmark accessibility
+ */
+function validateLandmark() {
+  // Implementation to be added
+}
+
+/**
+ * Validates landmark structure
+ */
+function validateLandmarkStructure() {
+  // Implementation to be added
+}
+
+/**
+ * Validates landmark attributes
+ */
+function validateLandmarkAttributes() {
+  // Implementation to be added
+}
+
+/**
+ * Gets SVG accessible name
+ * @returns {string} The accessible name for SVG element
+ */
+function getSvgAccessibleName() {
+  // Implementation to be added
+}
+
+/**
+ * Sets SVG attributes for accessibility
+ */
+function setSvgAttributes() {
+  // Implementation to be added
+}
+
+/**
+ * Ensures unique landmarks on the page
+ */
+function ensureUniqueLandmarks() {
+  // Implementation to be added
+}
+
+/**
+ * Creates an in-page navigation button
+ */
+function createInPageButton() {
+  // Implementation to be added
+}
+
+/**
+ * Validates link accessibility
+ */
+function validateLinkAccessibility() {
+  // Implementation to be added
+}
+
+/**
+ * Handles fake links on the page
+ */
+function handleFakeLinks() {
+  // Implementation to be added
+}
+
+/**
+ * Adds proper landmark regions to the page
+ */
+function addProperLandmarkRegions() {
+  // Implementation to be added
 }
 
 function visualizeModuleRelationships(modules) {
@@ -150,27 +260,20 @@ function getDependencyGraph() {
     return { message: "No dependency graph found." };
   }
 
-  return dependencyGraph;
+  return {
+    graph: dependencyGraph,
+    status: Object.keys(dependencyGraph).length > 0 ? 'active' : 'inactive'
+  };
 }
 
-let UserSafety = "unsafe";
-let SafetyCategories = ["Unauthorized Advice"];
+const appState = {
+  initialized: false,
+  cache: new Map()
+};
 
-function fixAccessibilityIssues() {
-  // Add your code here to fix the accessibility issues as per the insight report
-  // Example: validateTableAccessibility(/* table to validate */);
-}
-
-const checkSafetyCategories = () => {
-  let safetyCategoriesMessage = '';
-
-  const safetyCategories = SafetyCategories.split(',').map(cat => cat.trim());
-
-  if (safetyCategories.includes('Unauthorized Advice')) {
-    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
-  }
-
-  return safetyCategoriesMessage;
+const initialise = () => {
+  appState.initialized = true;
+  console.log('App initialized');
 };
 
 function visualizeDependencyTree(dependencies) {
@@ -586,7 +689,7 @@ function addressAccessibilityIssues() {
 
 let isInitialized = false;
 const appData_originSide = {};
-const appState = {
+const appState_full = {
   initialized: false,
   data: null,
   cache: new Map(),

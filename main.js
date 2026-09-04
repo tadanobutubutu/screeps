@@ -2,261 +2,172 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const fastMap = require('fast-map');
-const accessiblyHelper = require('./accessibly-helper');
 const axe = require('axe-core');
-const { a11y } = require('@accessible/react');
-const requiredModule1 = require('required-module-1');
-const requiredModule2 = require('required-module-2');
-const { validateInput } = require('./utils/validators');
-const { processData } = require('./utils/processor');
+const accessiblyHelper = require('./accessibly-helper');
+const { spawn } = require('child_process');
+const PropTypes = require('prop-types');
+const React = require('react');
+const ReactDOM = require('react-dom/client');
+const { validateInput, processData } = require('./utils/validators');
 const { fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, fixTableAccessibility, fixFakeLinks, ensureUniqueLandmarks, addLandmarkRoles, generateAccessibilityReport, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks } = require('./accessibility-improvements');
 
-const books = [];
-const safetyCategory = "User Safety: safe";
-const safetyCategories = ["Unauthorized Advice"];
-const utils = require('./utils');
-
-const config = {
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
-  maxResults: 100,
+const CONFIG = {
   dataPath: './data',
+  maxResults: 100,
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
   maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
 
-const CONFIG = Object.assign({}, config, { name: 'ScreepsBot', requiredLandmarks: ['banner', 'navigation', 'main'], safety: { level: 'unsafe', categories: ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'] } });
+const axeConfig = {
+  rules: {
+    'aria-invalid-2': { enabled: false },
+    'color-contrast': { enabled: false },
+    'name-role-value': { enabled: false },
+    'paraphernalia': { enabled: false }
+  },
+  silent: true
+};
 
-const landmarkSelectors = [
-  '[role="banner"]',
-  '[role="navigation"]',
-  '[role="main"]',
-  '[role="complementary"]',
-  '[role="contentinfo"]',
-  '[role="region"]',
-  'header:not([role])',
-  'nav:not([role])',
-  'main:not([role])',
-  'footer:not([role])',
-  'section:not([role])'
-];
+let userSafety = 'unsafe';
+let safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+let books = [];
+let dependencyGraph = {};
 
-let isInitialized = false;
+function initializeApp() {
+  console.log('Initializing application...');
+  addressAccessibilityIssues();
 
-const appState = {
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Tab') {
+      console.log('Tab pressed');
+    }
+  });
+
+  document.addEventListener('click', () => {
+    console.log('Click event');
+  });
+}
+
+const mainState = {
   initialized: false,
   data: null,
   cache: new Map()
 };
 
-const primaryContent = typeof document !== 'undefined'
-  ? (document.querySelector('.primary-content') ||
-     document.querySelector('[role="main"]') ||
-     document.getElementById('main'))
-  : null;
-
-function helper(input) {
-  return input ? input.toUpperCase() : '';
+function systemInfo() {
+  return 'System info not implemented';
 }
 
-function validateLandmark(landmark) {
-  const errors = [];
+const initializeAppActions = {
+  init: function() {
+    console.log('Application initialized');
+  },
 
-  const role = landmark && landmark.getAttribute ? landmark.getAttribute('role') : landmark.role;
-  if (role && !validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role: ' + role);
-  }
-  if (!landmark) {
-    errors.push('Landmark is null or undefined');
-  }
-  if (typeof landmark !== 'object') {
-    errors.push('Landmark must be an object');
-  }
-  return errors;
-}
+  greet: function(name) {
+    return `Hello, ${name}!`;
+  },
 
-function validateLandmarkStructure(landmarks) {
-  const issues = [];
-  let hasMain = false;
-  let hasNavigation = false;
+  addressAccessibilityIssues: function() {
+    fixAccessibilityIssues();
+  },
 
-  if (Array.isArray(landmarks)) {
-    landmarks.forEach((landmark, index) => {
-      const result = validateLandmarkSingle(landmark);
-      if (!result.success) {
-        issues.push({
-          landmarkIndex: index,
-          issues: result.issues
-        });
-      }
-      const role = landmark.getAttribute ? landmark.getAttribute('role') : landmark.tagName;
-      if (role === 'main') hasMain = true;
-      if (role === 'navigation') hasNavigation = true;
+  addBook: function(title, author, isbn) {
+    const form = document.createElement('form');
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add Book Form');
+
+    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('type', 'submit');
+    submitButton.setAttribute('aria-label', 'Add Book');
+    submitButton.textContent = 'Add Book';
+
+    form.appendChild(titleInput);
+    form.appendChild(authorInput);
+    form.appendChild(isbnInput);
+    form.appendChild(submitButton);
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      console.log('Book added:', {
+        title: titleInput.value,
+        author: authorInput.value,
+        isbn: isbnInput.value
+      });
     });
-  } else {
-    const allLandmarks = document.querySelectorAll ? document.querySelectorAll('header, nav, main, aside, footer, section, article') : [];
-    allLandmarks.forEach(landmark => {
-      const role = landmark.getAttribute ? landmark.getAttribute('role') : landmark.tagName;
-      if (role === 'main') hasMain = true;
-      if (role === 'navigation') hasNavigation = true;
-    });
+
+    return form;
   }
+};
 
-  if (!hasMain) console.warn('Missing main landmark');
-  if (!hasNavigation) console.warn('Missing navigation landmark');
+function createAccessibleInput(type, id, labelText, value = '') {
+  const container = document.createElement('div');
+  container.className = 'form-group';
 
-  return {
-    success: hasMain && hasNavigation && issues.length === 0,
-    issues
-  };
+  const label = document.createElement('label');
+  label.setAttribute('for', id);
+  label.textContent = labelText;
+
+  const input = document.createElement('input');
+  input.setAttribute('type', type);
+  input.setAttribute('id', id);
+  input.setAttribute('name', id);
+  input.setAttribute('aria-required', 'true');
+  input.setAttribute('aria-label', labelText);
+  input.value = value;
+
+  container.appendChild(label);
+  container.appendChild(input);
+
+  return container;
 }
 
-function validateLandmarkSingle(element) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
-  if (!element.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-    issues.push('Invalid landmark: ' + element.tagName);
+function createInPageButton(buttonText, onClickHandler) {
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  if (onClickHandler && typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
   }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
+  return button;
 }
 
-const validLandmarks = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'];
+function renderDependencyGraphContent() {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) {
+    return;
+  }
 
-// Re-implement functions and use cases as needed
-const fixTableAccessibility = function (table) {
-  // ...
-};
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Dependency Graph');
 
-const getSvgAccessibleName = function (svgElement) {
-  // ...
-};
+  renderDependencyGraph(container);
+  renderIndexView(container);
+}
 
-const setSvgAttributes = function (svg, accessibleName) {
-  // ...
-};
-
-const ensureUniqueLandmarks = function (landmarksArg) {
-  // ...
-};
-
-const addLandmarkRoles = function () {
-  // ...
-};
-
-const validateLinkAccessibility = function (link) {
-  // ...
-};
-
-const handleFakeLinks = function () {
-  // ...
-};
-
-const fixLinkAccessibility = function (links) {
-  // ...
-};
-
-const createAccessibleLinks = function (links, ancestors) {
-  // ...
-};
-
-const addKeyboardNavigation = function () {
-  // ...
-};
-
-const addAriaLabels = function () {
-  // ...
-};
-
-const addScreenReaderAnnouncements = function () {
-  // ...
-};
-
-const addFocusTrap = function () {
-  // ...
-};
-
-const fixTableStructureIssues = function (table) {
-  // ...
-};
-
-const fixTableHeaderCellScope = function (table) {
-  // ...
-};
-
-const addMainLandmark = function () {
-  // ...
-};
-
-const ensureUniqueLandmarksCombined = function (landmarks) {
-  // ...
-};
-
-const sortLandmarks = function (landmarks, ascending = true) {
-  // ...
-};
-
-const getLandmarkById = function (landmarks, id) {
-  // ...
-};
-
-const isValidLandmark = function (landmark) {
-  // ...
-};
-
-const analyzeContentSafety = function () {
-  // ...
-};
-
-const addressAccessibilityIssues = function () {
-  // ...
-};
-
-const getUserSafety = function () {
-  // ...
-};
-
-const getSafetyCategories = function () {
-  // ...
-};
-
-const calculateDiscount = function (price, percentage) {
-  // ...
-};
+function getUserSafetyAdvice() {
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+}
 
 module.exports = {
-  fixTableAccessibility,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  addLandmarkRoles,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  fixLinkAccessibility,
-  createAccessibleLinks,
-  addKeyboardNavigation,
-  addAriaLabels,
-  addScreenReaderAnnouncements,
-  addFocusTrap,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  ensureUniqueLandmarksCombined,
-  sortLandmarks,
-  getLandmarkById,
-  isValidLandmark,
-  analyzeContentSafety,
-  addressAccessibilityIssues,
-  getUserSafety,
-  getSafetyCategories,
-  calculateDiscount
+  initialize: initializeApp,
+  initializeAppActions,
+  mainState,
+  systemInfo,
+ Config:CONFIG,
+  axeConfig,
+  userSafety,
+  safetyCategories,
+  books,
+  dependencyGraph,
+  createAccessibleInput,
+  createInPageButton,
+  renderDependencyGraphContent,
+  getUserSafetyAdvice,
+  // ... other exports
 };
+
+// Implementation for the other exported functions, e.g., generateAccessibilityReport, fixAccessibilityIssues, etc.

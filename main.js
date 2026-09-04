@@ -1,13 +1,16 @@
-const books = [];
-const safetyCategory = "User Safety: safe";
+import './styles.css';
+import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import App from './App';
+import './styles.css';
+import './styles.less';
+import { registerSW } from 'effector-sw';
 
-const path = require('path');
+const express = require('express');
 const fs = require('fs');
-
-let userSafety = 'unsafe';
-let safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-
-const utils = require('./utils');
+const path = require('path');
 const fastMap = require('fast-map');
 const logger = require('./utils/logger');
 const { a11y } = require('@accessible/react');
@@ -28,43 +31,74 @@ const {
   validateSvgAccessibility
 } = require('./utils/svgAccessibilityUtils');
 const { isSecureContext } = require('./utils/constants');
-const {registerSW} = require('effector-sw');
-import React, { useState, useEffect } from 'react';
-import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from './actions/dependencyGraph';
-import App from './App';
-import './styles.css';
-import './styles.less';
-const express = require('express');
-const app = express();
+
+registerSW();
+import { initializeApp } from './app.js';
+import accessiblyHelper from './accessibly-helper';
+import { calculateSum } from './utils/index.js';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils.js';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils.js';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils.js';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils.js';
+import { validateLinkAccessibility, handleFakeLinks, checkLinkAccessibility } from './utils/linkAccessibilityUtils.js';
+import { CONFIG } from './utils/constants.js';
+
+const books = [];
+const safetyCategory = "User Safety: safe";
+
+const MERGED_CONFIG = {
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search', 'region', 'application'],
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxResults: 100,
+  dataPath: './data',
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  apiUrl: (typeof process !== 'undefined' && process.env && process.env.API_URL) || 'http://localhost:3000',
+  timeout: (typeof process !== 'undefined' && process.env && process.env.TIMEOUT) || 5000,
+  apiKey: (typeof process !== 'undefined' && process.env && process.env.API_KEY) || 'default-key'
+};
+
+const config = CONFIG;
+
+const appData = {
+  title: 'Frontend Application',
+  version: '1.0.0'
+};
+
+const appState = {
+  initialized: false,
+  data: null,
+  cache: {}
+};
 
 let UserSafety = "unsafe";
 let SafetyCategories = "Unauthorized Advice";
+
+let userSafety = 'unsafe';
+let safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
 
 let dependencyGraph = {};
 let landmarks = [];
 let icons = {};
 
-const CONFIG = {
+const CONFIG_LOCAL = {
   name: 'MyApp',
   version: '1.0.0',
   debug: false,
   dataPath: './data',
   maxResults: 100,
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: 5000,
-  landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search', 'form'],
-  requiredLandmarks: ['banner', 'navigation', 'main'],
+  apiUrl: (typeof process !== 'undefined' && process.env && process.env.API_URL) || 'http://localhost:3000',
+  timeout: (typeof process !== 'undefined' && process.env && process.env.TIMEOUT) || 5000,
+  apiKey: (typeof process !== 'undefined' && process.env && process.env.API_KEY) || 'default-key',
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search', 'region', 'application'],
   maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  requiredLandmarks: ['banner', 'navigation', 'main']
 };
-const config = CONFIG;
 
-const appData = {
-    title: 'Frontend Application',
-    version: '1.0.0'
-};
+const app = express();
 
 function loadLandmarks() {
   try {
@@ -72,8 +106,8 @@ function loadLandmarks() {
     const data = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(data);
   } catch (error) {
-      console.error('Error loading landmarks:', error.message);
-      return [];
+    console.error('Error loading landmarks:', error.message);
+    return [];
   }
 }
 
@@ -96,24 +130,31 @@ function fixAccessibilityIssues() {
 function getUniqueLandmarks(landmarks) {
   // ... Rest of the getUniqueLandmarks function implementation
 }
+
 function getSvgAccessibleName(svgElement) {
   // ... Rest of the getSvgAccessibleName function implementation
 }
+
 function validateTableAccessibility(tableElement) {
   // ... Rest of the validateTableAccessibility function implementation
 }
+
 async function scanAccessibility() {
   // ... Rest of the scanAccessibility function implementation
 }
+
 function validateLinkAccessibility() {
   // ... Rest of the validateLinkAccessibility function implementation
 }
+
 function handleFakeLinks() {
   // ... Rest of the handleFakeLinks function implementation
 }
+
 function validateLandmark() {
   // ... Rest of the validateLandmark function implementation
 }
+
 function validateLandmarkStructure() {
   // ... Rest of the validateLandmarkStructure function implementation
 }
@@ -169,8 +210,15 @@ function generateAccessibilityReport(issuesData) {
 }
 
 function getLangAttribute() {
-  const htmlElement = document.documentElement;
-  return htmlElement.getAttribute('lang') || 'en';
+  if (typeof document === 'undefined') return 'en';
+  return document.documentElement.lang || 'en';
+}
+
+function getFullLangAttribute() {
+  if (typeof document === 'undefined') return 'en';
+  const lang = getLangAttribute();
+  const region = document.documentElement.getAttribute('xml:lang');
+  return region ? `${lang}-${region}` : lang;
 }
 
 function createInPageButton(targetId, label) {
@@ -188,14 +236,75 @@ function createInPageButton(targetId, label) {
   return button;
 }
 
-const appState = {
-  initialized: false,
-  data: null,
-  cache: {}
-};
+function validateLandmarkData(landmark) {
+  const errors = [];
 
-function initialize() {
-  // Initialization code...
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  if (Array.isArray(landmark)) {
+    landmark.forEach((innerLandmark, index) => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push(`Landmark at index ${index} must have a valid name`);
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+function createAccessibleLink(href, label) {
+  return {
+    href,
+    'aria-label': label,
+    role: 'link'
+  };
+}
+
+function addLangAttribute() {
+  if (typeof document === 'undefined') return;
+  const lang = getFullLangAttribute();
+  document.documentElement.setAttribute('lang', lang);
+  return lang;
+}
+
+function wrapPrimaryContentInMain() {
+  if (typeof document === 'undefined') return;
+  const primaryContent = document.querySelector('#content') ||
+    document.querySelector('main') ||
+    document.querySelector('[role="main"]') ||
+    document.querySelector('.main-content');
+
+  if (primaryContent && primaryContent.parentElement.tagName !== 'MAIN') {
+    const mainElement = document.createElement('main');
+    mainElement.innerHTML = primaryContent.innerHTML;
+    primaryContent.parentElement.replaceChild(mainElement, primaryContent);
+  }
 }
 
 async function initializeApp() {
@@ -212,7 +321,7 @@ async function initializeApp() {
 
     const localAppData = {
       title: 'Screeps',
-      version: CONFIG.version
+      version: config.version
     };
 
     if (isSecureContext) {
@@ -247,6 +356,116 @@ function countDependencies() {
     'antd': true
   };
   return Object.keys(dependencies).length;
+}
+
+function replaceButtonIds() {
+  const buttons = document.querySelectorAll('button[id^="book-title"]');
+  buttons.forEach((button, index) => {
+    button.id = `book-button-${index}`;
+  });
+}
+
+function ensureDependencyGraphAria() {
+  if (dependencyGraph && typeof dependencyGraph.hasAttribute === 'function') {
+    if (!dependencyGraph.id) {
+      dependencyGraph.id = 'dependencyGraph';
+    }
+    if (!dependencyGraph.hasAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    if (!dependencyGraph.hasAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+    }
+  }
+}
+
+const rotations = [
+  { transform: 'rotate(0deg)' },
+  { transform: 'rotate(90deg)' },
+  { transform: 'rotate(180deg)' },
+  { transform: 'rotate(270deg)' }
+];
+
+let currentRotation = 0;
+
+function rotateBack() {
+  const element = document.getElementById('dependencyGraph');
+  if (element) {
+    currentRotation = (currentRotation - 1 + rotations.length) % rotations.length;
+    element.style.transform = rotations[currentRotation].transform;
+  }
+}
+
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.textContent = 'Unrotate View';
+  button.addEventListener('click', rotateBack);
+  return button;
+}
+
+function performUpgrade(harvestedData) {
+  if (!harvestedData || !harvestedData.length) {
+    return {
+      success: false,
+      message: 'No harvested data available for upgrade'
+    };
+  }
+
+  const improvements = {
+    efficiency: 0,
+    capacity: 0,
+    upgrades: []
+  };
+
+  for (const data of harvestedData) {
+    if (data.type === 'energy') {
+      improvements.efficiency += (data.amount || 0) * 0.1;
+    }
+    if (data.type === 'resource') {
+      improvements.capacity += (data.amount || 0) * 0.05;
+    }
+    if (data.metadata && data.metadata.upgradeable) {
+      improvements.upgrades.push({
+        target: data.id,
+        level: (data.metadata.level || 0) + 1
+      });
+    }
+  }
+
+  return {
+    success: true,
+    improvements: improvements,
+    timestamp: Date.now()
+  };
+}
+
+function applySystemUpgrades(harvestedData) {
+  const upgradeResult = performUpgrade(harvestedData);
+
+  if (upgradeResult.success) {
+    console.log(`System upgraded: Efficiency +${upgradeResult.improvements.efficiency.toFixed(2)}`);
+    console.log(`Capacity increased by ${upgradeResult.improvements.capacity.toFixed(2)}`);
+  }
+
+  return upgradeResult;
+}
+
+function redirectToHome() {
+  if (typeof window !== 'undefined') {
+    window.location.href = '/';
+  }
+}
+
+function fixFakeLinkIssues() {
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      if (typeof window !== 'undefined') {
+        location.href = link.getAttribute('href');
+      }
+    });
+  });
 }
 
 function handleUserInteraction(event) {
@@ -306,19 +525,13 @@ export function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-function addLangAttribute() {
-    const lang = getFullLangAttribute();
-    document.documentElement.setAttribute('lang', lang);
-    return lang;
-}
-
 function addLandmarkRolesAndFixIssues() {
-    const sections = document.querySelectorAll('section');
-    sections.forEach(section => {
-        if (!section.hasAttribute('role')) {
-            section.setAttribute('role', 'region');
-        }
-    });
+  const sections = document.querySelectorAll('section');
+  sections.forEach(section => {
+    if (!section.hasAttribute('role')) {
+      section.setAttribute('role', 'region');
+    }
+  });
 }
 
 function ensureLangAttribute() {
@@ -336,29 +549,6 @@ function fixLandmarks() {
     if (!element.hasAttribute('aria-hidden') && element.tagName === 'A' && element.innerText.trim().length === 0 && !element.hasAttribute('href')) {
       element.setAttribute('aria-hidden', true);
     }
-  });
-}
-
-function redirectToHome() {
-  window.location.href = '/';
-}
-
-function wrapPrimaryContentInMain() {
-  if (document.body.firstChild) {
-    const wrapper = document.createElement('main');
-    wrapper.innerHTML = document.body.innerHTML;
-    document.body.innerHTML = '';
-    document.body.appendChild(wrapper);
-  }
-}
-
-function fixFakeLinkIssues() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    link.addEventListener('click', function (event) {
-      event.preventDefault();
-      location.href = link.getAttribute('href');
-    });
   });
 }
 
@@ -394,12 +584,18 @@ export {
   addBook,
   BookItem,
   fixFakeLinks,
-  isSecureContext,
-  validateSvgAccessibility,
+  replaceButtonIds,
+  ensureDependencyGraphAria,
+  rotateBack,
+  createUnrotateButton,
+  validateLandmarkData,
+  getFullLangAttribute,
   calculateSum,
-  addSvgAccessibleNames,
-  UserSafety,
-  SafetyCategories,
+  createAccessibleLink,
+  addLangAttribute,
+  performUpgrade,
+  applySystemUpgrades,
+  isSecureContext,
   generateDependencyReport,
   fixAccessibilityIssues,
   accessiblyHelper,
@@ -409,12 +605,15 @@ export {
   appState,
   generateDependencyReport as generateDependency,
   main as mainFunction,
-  addLangAttribute,
-  getFullLangAttribute,
-  generateKey,
-  loadLandmarks,
-  processLandmarks,
-  dependencyGraph
+  addLandmarkRolesAndFixIssues,
+  ensureLangAttribute,
+  fixLandmarks,
+  UserSafety,
+  SafetyCategories,
+  books,
+  safetyCategory,
+  dependencyGraph,
+  config
 };
 
 export { initializeApp, accessiblyHelper };
@@ -432,5 +631,24 @@ module.exports = {
   CONFIG,
   config,
   books,
-  safetyCategory
+  safetyCategory,
+  isSecureContext,
+  fixAccessibilityIssues,
+  createAccessibleInput,
+  getUserSafetyAdvice,
+  generateAccessibilityReport,
+  handleUserInteraction,
+  cleanup,
+  initApp,
+  processData,
+  fetchUser,
+  clearCache,
+  validateInput,
+  main,
+  VisualizeDependencyTree,
+  generateKey,
+  countDependencies,
+  addLandmarkRolesAndFixIssues,
+  ensureLangAttribute,
+  fixLandmarks
 };

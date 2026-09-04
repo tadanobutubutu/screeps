@@ -509,6 +509,61 @@ function renderIndexView() {
 // Export the report generation function
 export { generateAccessibilityReport };
 
+// Clear cache function
+function clearCache() {
+  appState.cache.clear();
+}
+
+// Helper function
+function someFunction() {
+  return 'some value';
+}
+
+// Configuration
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'localhost';
+
+// Application main entry point
+const app = expressApp;
+
+// TODO: Implement harvest and upgrade logic
+function harvest(creep) {
+  if (!creep) return;
+  const sources = creep.room.find(FIND_SOURCES);
+  if (sources.length > 0) {
+    if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(sources[0]);
+    }
+  }
+}
+
+function upgrade(creep) {
+  if (!creep) return;
+  const controller = creep.room.controller;
+  if (controller) {
+    if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(controller);
+    }
+  }
+}
+
+function runHarvestAndUpgrade(creep) {
+  if (!creep) return;
+  if (creep.store.getFreeCapacity() > 0) {
+    harvest(creep);
+  } else {
+    upgrade(creep);
+  }
+}
+
+module.exports = {
+  UserSafety: 'unsafe',
+  getUserSafetyAdvice,
+  harvest,
+  upgrade,
+  runHarvestAndUpgrade
+};
+
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {

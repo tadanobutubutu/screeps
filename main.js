@@ -80,11 +80,17 @@ function loadHarvestedData() {
     return JSON.parse(data);
   } catch (error) {
     console.log(`Error loading harvested data: ${error.message}`);
+    return null;
   }
-  return null;
 }
 
-module.exports = { main, loadHarvestedData };
-```
+// Safety Categories and User Safety Functions
+const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+let userSafety = 'safe';
 
-This version of the file merges both changes using a combination of the conflicted sections from both branches. Important accessibility improvements from the other branch were preserved, and the upgrade logic function was added, along with the necessary code to load harvested data and apply upgrades.
+function getUserSafetyAdvice() {
+  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+}
+
+function computeSafetyScore(safetyCategories) {
+  const safetyCategory

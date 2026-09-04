@@ -346,3 +346,6 @@ module.exports = {
     addressAccessibilityIssues,
     function3
 };
+
+// User Safety: unsafe
+// Safety Categories: Other, Unauthorized Advice

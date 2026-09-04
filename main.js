@@ -217,3 +217,28 @@ function addMainLandmark() {
 const utils = require('./utils');
 const axe = require('axe-core');
 const expressApp = express();
+
+// User Safety: unsafe
+// Safety Categories: Illegal Activity, Fraud/Deception, Controlled/Regulated Substances, Unauthorized Advice
+
+const userSafetyCategories = {
+    unsafe: true,
+    categories: [
+        'Illegal Activity',
+        'Fraud/Deception',
+        'Controlled/Regulated Substances',
+        'Unauthorized Advice'
+    ]
+};
+
+function getUserSafetyInfo() {
+    return userSafetyCategories;
+}
+
+function isUserSafetyUnsafe() {
+    return userSafetyCategories.unsafe;
+}
+
+function hasSafetyCategory(category) {
+    return userSafetyCategories.categories.includes(category);
+}

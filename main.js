@@ -656,6 +656,9 @@ function countDependencies() {
     'handleCredentialResponse',
     'validateCredentialToken',
     'upgradeSystem',
+    'ensureElementHasId',
+    'addAriaLabel',
+    'renderDependencyGraph',
     'countDependencies'
   ];
 
@@ -694,7 +697,6 @@ module.exports = {
   createAccessibleLink,
   handleAccessibilityIssues,
   handleCredentialResponse,
-  addSvgAccessibility,
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,

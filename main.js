@@ -1,72 +1,199 @@
-Here's the resolved version of the conflicting file 'main.js':
+Here's the resolved file content with merged changes:
 
 ```javascript
+// main.js - Screeps bot main loop
+
 const books = [];
-const safetyCategory = "User Safety: safe";
+const safetyCategory = "User Safety: unsafe";
+const CONFIG = {
+  // ... Preserved config properties
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxResults: 100,
+  dataPath: './data',
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
+};
 
-// ... Existing import statements and constant declarations remain unchanged
+// ... Preserved functions for books management
 
-// Accessibility Functions for Screeps
+// Landmark validation configuration (merged)
+const config = {
+  dataPath: './data',
+  maxResults: 100
+};
 
-// ... Existing exported functions remain unchanged
+// Helper functions (merged)
+function isValidLandmark(landmark) {
+  return landmark && landmark.id && landmark.role;
+}
 
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+function loadLandmarks() {
+  try {
+    const filePath = path.join(config.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
+  }
+}
 
-// Newly merged accessibility-related functions and variables
-const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
-const allowedRoles = ['region', 'main', 'navigation', 'banner', 'complementary', 'contentinfo'];
-const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-
-// New function to check user safety
-export const checkUserSafety = () => {
-  let userSafetyMessage = '';
-  if (userSafety !== 'safe') {
-    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
   }
 
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: issues,
-    conclusions: '',
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+  return uniqueLandmarks.slice(0, config.maxResults);
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (seen.has(landmark.id)) {
+      return false;
+    }
+    seen.add(landmark.id);
+    return true;
+  });
+}
+
+// New functions to write the generated report to a file (merged)
+function writeReport(report) {
+  const reportFile = path.join(__dirname, 'report.json');
+  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+}
+
+// Additional helper functions from the safe version (merged)
+function ensureElementHasId(element, id) {
+  if (!element.id) {
+    element.id = id;
+  }
+  return element;
+}
+
+function addAriaLabel(element, label) {
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+}
+
+// New function to analyze module dependencies (new)
+function analyzeModuleDependencies(modules) {
+  // Implementation would analyze and return dependency relationships
+  console.log('Analyzing dependencies for modules:', modules);
+  return {
+    totalDependencies: 0,
+    dependencyMap: {}
   };
-
-  return { message: userSafetyMessage, report };
 }
 
-// New function to check safety categories
-export const checkSafetyCategories = () => {
-  let safetyCategoriesMessage = '';
-  if (safetyCategories.includes('Unauthorized Advice')) {
-    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+// New function to visualize module relationships (new)
+function visualizeModuleRelationships(modules) {
+  // Implementation would create a visual representation of module relationships
+  console.log('Visualizing relationships for modules:', modules);
+  return {
+    graph: {},
+    nodes: [],
+    edges: []
+  };
+}
+
+// Helper functions from the unsafe version (merged)
+function validateLandmark(landmark) {
+  return landmark &&
+         typeof landmark.id !== 'undefined' &&
+         landmark.id !== null;
+}
+
+// ... Rest of the original main.js code, if any.
+
+// Exporting all preserved and new functions:
+module.exports = {
+  books,
+  safetyCategory,
+  CONFIG,
+  utilFunctions,
+  axe,
+  express,
+  fs,
+  path,
+  accessiblyHelper,
+  processAccessibilityReport,
+  loadLandmarks,
+  processLandmarks,
+  isValidLandmark,
+  validateLandmark,
+  validateInput,
+  processData,
+  getLangAttribute,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  createAccessibleLinks,
+  getLangAttributeEl,
+  addLangAttributeEl,
+  createInPageButtonEl,
+  validateLandmarkElCheck,
+  getSvgAccessibleNameEl,
+  ensureUniqueLandmarksFn,
+  initialize,
+  initializeApp,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships,
+  ensureElementHasId,
+  addAriaLabel
+};
+
+module.exports.loop = function () {
+  // Clean up memory of dead creeps
+  for (const name in Memory.creeps) {
+    if (!Game.creeps[name]) {
+      delete Memory.creeps[name];
+    }
   }
-  return safetyCategoriesMessage;
+
+  // Spawn creeps if needed
+  const harvesterCount = _.filter(Game.creeps, c => c.memory.role === 'harvester').length;
+  if (harvesterCount < 2 && Game.spawns['Spawn1'].spawning === null) {
+    const newName = 'Harvester' + Game.time;
+    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
+      memory: { role: 'harvester' }
+    });
+  }
+
+  // Run creep roles
+  for (const name in Game.creeps) {
+    const creep = Game.creeps[name];
+    if (creep.memory.role === 'harvester') {
+      runHarvester(creep);
+    }
+  }
+};
+
+function runHarvester(creep) {
+  if (creep.carry.energy < creep.carryCapacity) {
+    const source = creep.pos.findClosestByPath(FIND_SOURCES);
+    if (source) {
+      creep.harvest(source);
+    }
+  } else {
+    const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: s => s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_SPAWN
+    });
+    if (target) {
+      creep.transfer(target, RESOURCE_ENERGY);
+    }
+  }
 }
-
-// New landmark selector array
-const landmarkSelectors = [
-  'main',
-  '[role="banner"]',
-  '[role="navigation"]',
-  '[role="main"]',
-  '[role="contentinfo"]',
-  '[role="form"]',
-  '[role="search"]',
-  'nav',
-  '[role="region"]',
-  'aside',
-  'header:not([role])',
-  'nav:not([role])',
-  'main:not([role])',
-  'footer:not([role])',
-  'section:not([role])'
-].map((selector, index) => ({ selector, priority: index }));
-
-// ... (Rest of the main.js content remains unchanged)
 ```

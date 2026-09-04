@@ -170,8 +170,7 @@ function addSvgAccessibility(svgElement) {
 /**
  * Processes the credential and returns appropriate authentication state
  * @param {Object} credentialResponse - The credential response to process
- * @returns {Object} Authentication state with user info and status
- */
+ * @returns {Object} Authentication state with user info and status */
 function processCredentialAuthentication(credentialResponse) {
   const result = handleCredentialResponse(credentialResponse);
 

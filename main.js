@@ -1,5 +1,21 @@
+const { dependencyGraphContent, indexContent } = require('./dependencyContent');
+const {
+  renderGraphIndex,
+  checkAccessibilityForReport,
+  trapFocus,
+  addLandmarkRegions,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ...utilitiesFunctionsRest
+} = require('./utilities');
 const express = require('express');
-const axe = require('axe-core');
 const fs = require('fs');
 const path = require('path');
 const fastMap = require('fast-map');
@@ -152,15 +168,16 @@ const upgradeUserSettings = () => {
   };
 };
 
-const updateAccessibilityFeatures = () => {
-  // New function to update accessibility features
-  // Example code to demonstrate the new functionality
-  // This is a placeholder and should be replaced with actual implementation
-  console.log('Accessibility features updated.');
-};
-
-const getUserSafetyAdvice = () => {
-  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
+const addressAccessibilityIssues = () => {
+  checkAccessibilityForReport();
+  trapFocus();
+  addLandmarkRegions();
+  prefersReducedMotion();
+  renderSimpleDependencyGraph();
+  addAccessibleName();
+  addAccessibleNamesToSVGs();
+  addSvgAccessibleNames();
+  fixFakeLinkIssue();
 };
 
 const addBook = (title, author) => {
@@ -225,72 +242,19 @@ function addLangAttribute(element, lang) {
 }
 
 // Helper functions
-function validateLandmark(landmark) {
-  return landmark &&
-         typeof landmark.id !== 'undefined' &&
-         landmark.id !== null;
-}
-
-function loadLandmarks() {
-  try {
-    const filePath = CONFIG.dataPath + '/landmarks.json';
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error loading landmarks:', error.message);
-    return [];
-  }
-}
-
-function processLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const validLandmarks = landmarks.filter(validateLandmark);
-  const uniqueLandmarks = ensureUniqueLandmarksList(validLandmarks);
-
-  return uniqueLandmarks.slice(0, CONFIG.maxResults);
-}
-
-function ensureUniqueLandmarksList(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const seenIds = new Set();
-  return landmarks.filter(landmark => {
-    if (seenIds.has(landmark.id)) {
-      return false;
-    }
-    seenIds.add(landmark.id);
-    return true;
-  });
-}
-
-function fixAccessibilityIssues() {
-  // Add your code here to fix the accessibility issues as per the insight report
-  // Example: validateTableAccessibility(/* table to validate */);
-}
+const { CONFIG, config, appState, ...restOfFunctions } = utilitiesFunctionsRest;
 
 module.exports = {
-  UserSafety: 'unsafe',
-  SafetyCategories,
-  getUserSafetyAdvice,
-  checkSafetyCategories,
-  visualizeDependencyTree,
-  main,
-  renderDependencyGraphContent,
-  renderDependencyGraph,
-  ensureElementAccessibility,
-  towerDefense,
-  getDependencyGraph,
-  generateAccessibilityReport,
+  ...restOfFunctions,
   addressAccessibilityIssues,
+  addBook,
+  announceBookAdded,
+  getBooksList,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph,
+  getDependencies,
   getLangAttribute,
-  createInPageButton,
-  renderFunction1,
-  renderFunction2,
-  fixAccessibilityIssues,
-  analyzeContentSafety
+  addLangAttribute,
+  appData,
 };

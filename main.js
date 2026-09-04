@@ -15,9 +15,9 @@ const UserSafety = {
     }
 };
 
-export const getSafetyCategory = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus.category;
+const getSafetyCategory = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus.category;
 
-export const getSafetyCategoryDetailed = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus;
+const getSafetyCategoryDetailed = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus;
 
 const books = [];
 const config = {
@@ -265,16 +265,42 @@ const CONFIG = {
   maxResults: 100
 };
 
-// Additional accessibility-related code changes (to be implemented)
+// User Safety: unsafe
+// Safety Categories: Illegal Activity, Fraud/Deception, Controlled/Regulated Substances, Unauthorized Advice
+
+const userSafetyCategories = {
+    unsafe: true,
+    categories: [
+        'Illegal Activity',
+        'Fraud/Deception',
+        'Controlled/Regulated Substances',
+        'Unauthorized Advice'
+    ]
+};
+
+function getUserSafetyInfo() {
+    return userSafetyCategories;
+}
+
+function isUserSafetyUnsafe() {
+    return userSafetyCategories.unsafe;
+}
+
+function hasSafetyCategory(category) {
+    return userSafetyCategories.categories.includes(category);
+}
 
 module.exports = { 
   calculateSum, 
   countDependencies, 
   countLicenseOptions,
-  performUpgrade,
-  applySystemUpgrades,
   initializeApp,
   ensureLangAttribute,
   CONFIG,
-  appState
+  appState,
+  getSafetyCategory,
+  getSafetyCategoryDetailed,
+  getUserSafetyInfo,
+  isUserSafetyUnsafe,
+  hasSafetyCategory
 };

@@ -1,7 +1,7 @@
-const books = [];
-const safetyCategory = "User Safety: safe";
+// Main.js - Upgrade Logic Implementation
 
 // Module imports and configuration
+const books = [];
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -10,7 +10,6 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const axeCore = require('axe-core');
 
-// TODO: Address accessibility issues from insight report — CONTINUING in main.js
 const CONFIG = {
   port: 3000,
   maxResults: 1000,
@@ -34,6 +33,7 @@ const appState = {
 };
 
 // Safety Categories and User Safety Functions
+const safetyCategory = "User Safety: safe";
 const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
 let userSafety = 'safe';
 
@@ -42,7 +42,7 @@ function getUserSafetyAdvice() {
 }
 
 function computeSafetyScore(safetyCategories) {
-  const safetyCategory = safetyCategories.reduce((score, category) => {
+  const safetyScore = safetyCategories.reduce((score, category) => {
     switch (category) {
       case 'Unauthorized Advice':
         return score + 1;
@@ -56,31 +56,7 @@ function computeSafetyScore(safetyCategories) {
         return score;
     }
   }, 0);
-  return safetyCategory;
-}
-
-// Upgrade logic: use harvested data to improve the system
-function upgradeSystem(harvestedData) {
-  if (harvestedData) {
-    if (harvestedData.maxResults) {
-      CONFIG.maxResults = harvestedData.maxResults;
-    }
-    if (harvestedData.debug !== undefined) {
-      CONFIG.debug = harvestedData.debug;
-    }
-  }
-  return true;
-}
-
-function loadHarvestedData() {
-  const filePath = path.join(__dirname, 'harvested_data.json');
-  try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.log(`Error loading harvested data: ${error.message}`);
-    return null;
-  }
+  return safetyScore;
 }
 
 // Book-related functions
@@ -90,7 +66,6 @@ function addBook(title, author) {
     author,
   };
   books.push(bookObject);
-  // console.log(JSON.stringify(bookObject));
   return bookObject;
 }
 
@@ -109,10 +84,8 @@ function harvestData(context) {
   const contextType = typeof context;
   if (contextType === 'object' && context !== null) {
     for (const key in context) {
-      // console.log(key);
     }
   }
-  // console.log('Harvesting data...');
   return dataToReturn;
 }
 
@@ -125,12 +98,94 @@ function analyzeModuleDependencies(modules) {
   return dependencyGraph;
 }
 
-const app = express();
+// Load harvested data function
+function loadHarvestedData() {
+  const filePath = path.join(__dirname, 'harvested_data.json');
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.log(`Error loading harvested data: ${error.message}`);
+    return null;
+  }
+}
 
-// Express middleware and routes
-app.use(express.json());
+// Screeps upgrade logic
+function performUpgrade(harvestedData) {
+  if (!harvestedData || !harvestedData.length) {
+    return {
+      success: false,
+      message: 'No harvested data available for upgrade'
+    };
+  }
+
+  const improvements = {
+    efficiency: 0,
+    capacity: 0,
+    upgrades: []
+  };
+
+  for (const data of harvestedData) {
+    if (data.type === 'energy') {
+      improvements.efficiency += (data.amount || 0) * 0.1;
+    }
+    if (data.type === 'resource') {
+      improvements.capacity += (data.amount || 0) * 0.05;
+    }
+    if (data.metadata && data.metadata.upgradeable) {
+      improvements.upgrades.push({
+        target: data.id,
+        level: (data.metadata.level || 0) + 1
+      });
+    }
+  }
+
+  return {
+    success: true,
+    improvements: improvements,
+    timestamp: Date.now()
+  };
+}
+
+function applySystemUpgrades(harvestedData) {
+  const upgradeResult = performUpgrade(harvestedData);
+
+  if (upgradeResult.success) {
+    console.log(`System upgraded: Efficiency +${upgradeResult.improvements.efficiency.toFixed(2)}`);
+    console.log(`Capacity increased by ${upgradeResult.improvements.capacity.toFixed(2)}`);
+  }
+
+  return upgradeResult;
+}
+
+// Upgrade system for configuration
+function upgradeSystem(harvestedData) {
+  if (harvestedData) {
+    if (harvestedData.maxResults) {
+      CONFIG.maxResults = harvestedData.maxResults;
+    }
+    if (harvestedData.debug !== undefined) {
+      CONFIG.debug = harvestedData.debug;
+    }
+  }
+  return true;
+}
 
 // Accessibility improvement functions
+function addLandmarkRolesToElements(elements) {
+  if (!Array.isArray(elements)) return [];
+  return elements.map(el => {
+    if (el.tagName) {
+      const tag = el.tagName.toLowerCase();
+      const roleMap = { nav: 'navigation', main: 'main', footer: 'contentinfo', aside: 'complementary' };
+      if (roleMap[tag] && !el.getAttribute('role')) {
+        el.setAttribute('role', roleMap[tag]);
+      }
+    }
+    return el;
+  });
+}
+
 function addLangAttribute(html) {
   const $ = cheerio.load(html);
   $('html').attr('lang', 'en');
@@ -246,11 +301,17 @@ function fixFakeLinksDom(dom) {
   });
 }
 
+const app = express();
+
+// Express middleware and routes
+app.use(express.json());
+
 // Main entry point
 const main = () => {
   const harvestedData = loadHarvestedData();
   if (harvestedData) {
     upgradeSystem(harvestedData);
+    applySystemUpgrades(harvestedData);
   }
 
   app.listen(CONFIG.port, () => {
@@ -260,6 +321,21 @@ const main = () => {
 
 main();
 
+// Event emitter object
+const mainObj = {
+  on: function (event, callback) {
+    if (event === 'userAction') {
+      setInterval(() => {
+        if (userAction !== appState.lastUserAction) {
+          callback(userAction);
+          appState.lastUserAction = userAction;
+          appState.previousUserActions.push(userAction);
+        }
+      }, 1000);
+    }
+  },
+};
+
 // Export functions for use in other modules
 module.exports = {
   books,
@@ -268,6 +344,7 @@ module.exports = {
   userSafety,
   getUserSafetyAdvice,
   computeSafetyScore,
+  performUpgrade,
   upgradeSystem,
   loadHarvestedData,
   addBook,
@@ -285,19 +362,7 @@ module.exports = {
   fixFakeLinks,
   addSvgAccessibleNamesDom,
   fixFakeLinksDom,
+  addLandmarkRolesToElements,
+  applySystemUpgrades,
+  mainObj,
 };
-const mainObj = {
-  on: function (event, callback) {
-    if (event === 'userAction') {
-      setInterval(() => {
-        if (userAction !== appState.lastUserAction) {
-          callback(userAction);
-          appState.lastUserAction = userAction;
-          appState.previousUserActions.push(userAction);
-        }
-      }, 1000);
-    }
-  },
-};
-
-module.exports = mainObj;

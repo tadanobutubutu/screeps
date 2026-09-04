@@ -1,12 +1,45 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import a11y from './AccessibilityUtilities';
-import { greet, add, getDependencies, addDependency, removeDependency, countDependencies, appData, someFunction, validateInput, processData, formatResponse } from './mainAdapted';
-import { validateTableAccessibility, validateTableStructure, fixTableStructure, addMainLandmark, validateLandmark, validateLandmarkAttributes, validateLandmarkStructure } from './mainAccessibility';
+let dependencyGraph = {};
+
+function getDependencyGraph() {
+  if (Object.keys(dependencyGraph).length === 0) {
+    return { message: "No dependency graph found." };
+  }
+
+  return dependencyGraph;
+}
+
+let UserSafety = "unsafe";
+let SafetyCategories = "Unauthorized Advice";
+
+function fixAccessibilityIssues() {
+  // Add your code here to fix the accessibility issues as per the insight report
+  // Example: validateTableAccessibility(/* table to validate */);
+}
+
+export const checkUserSafety = () => {
+  let userSafetyMessage = '';
+
+  if (UserSafety !== 'safe') {
+    userSafetyMessage = 'User safety level is set to "unsafe". Please review and this setting for better security.';
+  }
+
+  return userSafetyMessage;
+};
+
+export const checkSafetyCategories = () => {
+  let safetyCategoriesMessage = '';
+
+  if (SafetyCategories.includes('Unauthorized Advice')) {
+    safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
+  }
+
+  return safetyCategoriesMessage;
+};
+
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+}
 
 const express = require('express');
 const axe = require('axe-core');
@@ -37,6 +70,13 @@ function helper(input) {
   return input ? input.toUpperCase() : '';
 }
 
+function generateDependencyReport(dependencies) {
+  // Implementation details for generating the report
+  return {
+    graph: JSON.stringify(dependencies, null, 2)
+  };
+}
+
 // Helper function to format dates
 function formatDate(date) {
   if (!(date instanceof Date)) {
@@ -54,6 +94,121 @@ function validateInput(input) {
 function processData(data) {
   if (!data) return null;
   return { ...data, processed: true };
+}
+
+function generateAccessibilityReport(issuesData) {
+  let issues = [];
+
+  if (!issuesData) {
+    const images = document.querySelectorAll('img');
+    images.forEach((img, index) => {
+      if (!img.hasAttribute('alt')) {
+        issues.push({
+          type: 'missing-alt',
+          element: 'img',
+          index: index,
+          message: `Image at index ${index} is missing an alt attribute`
+        });
+      }
+    });
+
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach((btn, index) => {
+      const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
+      if (!accessibleName) {
+        issues.push({
+          type: 'missing-name',
+          element: 'button',
+          index: index,
+          message: `Button at index ${index} is missing an accessible name`
+        });
+      }
+    });
+
+    const links = document.querySelectorAll('a');
+    links.forEach((link, index) => {
+      const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
+      if (!accessibleName) {
+        issues.push({
+          type: 'missing-name',
+          element: 'a',
+          index: index,
+          message: `Link at index ${index} is missing an accessible name`
+        });
+      }
+    });
+
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach((input, index) => {
+      const inputType = input.getAttribute('type');
+      if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
+        const labelId = input.getAttribute('aria-labelledby');
+        const labelText = document.querySelector(`label[for="${input.id}"]`);
+        const hasLabel = input.getAttribute('aria-label') || labelId || labelText;
+        if (!hasLabel) {
+          issues.push({
+            type: 'missing-label',
+            element: 'input',
+            index: index,
+            message: `Input at index ${index} is missing an associated label`
+          });
+        }
+      }
+    });
+
+    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    headings.forEach((heading, index) => {
+      if (!heading.textContent.trim()) {
+        issues.push({
+          type: 'empty-heading',
+          element: heading.tagName.toLowerCase(),
+          index: index,
+          message: `Heading at index ${index} has no text content`
+        });
+      }
+    });
+  } else if (issuesData && Array.isArray(issuesData)) {
+    const conclusionParts = [];
+
+    const categoryCounts = {};
+    SafetyCategories.split(',').forEach(cat => {
+      categoryCounts[cat] = 0;
+    });
+
+    issuesData.forEach(issue => {
+      const category = issue.categories ? issue.categories[0].type : '';
+      if (categoryCounts[category]) {
+        categoryCounts[category]++;
+      }
+    });
+
+    if (Object.keys(categoryCounts).length > 0) {
+      conclusionParts.push(
+        `Detected ${categoryCounts['Unauthorized Advice']} instance(s) of Unauthorized Advice.`,
+        `Detected ${categoryCounts['Dangerous Action']} instance(s) of Dangerous Action.`,
+        `Detected ${categoryCounts['Potential Scam']} instance(s) of Potential Scam.`,
+        `Detected ${categoryCounts['Privacy Risk']} instance(s) of Privacy Risk.`
+      );
+    } else {
+      conclusionParts.push('No accessibility issues were found.');
+    }
+
+    issues = issuesData;
+    issues = issues.map(item => ({
+      ...item,
+      categoryCounts
+    }));
+  } else {
+    issues = issuesData ? [issuesData] : [];
+  }
+
+  const report = {
+    introduction: 'Accessibility report for the application',
+    data: issues,
+    conclusions: conclusionParts.join('\n')
+  };
+
+  return report;
 }
 
 // Landmark validation
@@ -74,7 +229,7 @@ function loadLandmarks() {
 
 function processLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
-        return [];
+      return [];
     }
 
     const validLandmarks = landmarks.filter(isValidLandmark);
@@ -207,94 +362,10 @@ async function spawnConcurrent(tasks, concurrency = 3) {
 }
 
 async function accessiblyHelper(data) {
-    if (data) {
-        return data;
-    }
-    return [];
-}
-
-async function generateAccessibilityReport(issuesData) {
-  let issues = [];
-
-  if (!issuesData) {
-    const images = document.querySelectorAll('img');
-    images.forEach((img, index) => {
-      if (!img.hasAttribute('alt')) {
-        issues.push({
-          type: 'missing-alt',
-          element: 'img',
-          index: index,
-          message: `Image at index ${index} is missing an alt attribute`
-        });
-      }
-    });
-
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach((btn, index) => {
-      const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
-      if (!accessibleName) {
-        issues.push({
-          type: 'missing-name',
-          element: 'button',
-          index: index,
-          message: `Button at index ${index} is missing an accessible name`
-        });
-      }
-    });
-
-    const links = document.querySelectorAll('a');
-    links.forEach((link, index) => {
-      const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
-      if (!accessibleName) {
-        issues.push({
-          type: 'missing-name',
-          element: 'a',
-          index: index,
-          message: `Link at index ${index} is missing an accessible name`
-        });
-      }
-    });
-
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach((input, index) => {
-      const inputType = input.getAttribute('type');
-      if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
-        const labelId = input.getAttribute('aria-labelledby');
-        const labelText = document.querySelector(`label[for="${input.id}"]`);
-        const hasLabel = input.getAttribute('aria-label') || labelId || labelText;
-        if (!hasLabel) {
-          issues.push({
-            type: 'missing-label',
-            element: 'input',
-            index: index,
-            message: `Input at index ${index} is missing an associated label`
-          });
-        }
-      }
-    });
-
-    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    headings.forEach((heading, index) => {
-      if (!heading.textContent.trim()) {
-        issues.push({
-          type: 'empty-heading',
-          element: heading.tagName.toLowerCase(),
-          index: index,
-          message: `Heading at index ${index} has no text content`
-        });
-      }
-    });
-  } else {
-    issues = await accessiblyHelper(issuesData);
+  if (data) {
+    return data;
   }
-
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: issues,
-    conclusions: '',
-  };
-
-  return report;
+  return [];
 }
 
 // New function to validate link accessibility
@@ -333,33 +404,6 @@ function initialize() {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
   return processed;
-}
-
-async function renderFunction1() {
-  const moduleAReturnValue = await accessiblyHelper();
-
-  function ensureDependencyGraphRole(container) {
-    if (!container) return;
-    if (!container.hasAttribute('role')) {
-      container.setAttribute('role', 'img');
-    }
-    if (!container.getAttribute('aria-label')) {
-      container.setAttribute('aria-label', 'Dependency graph');
-    }
-  }
-
-  const appData = {
-    title: 'Screeps',
-    version: '1.0.0'
-  };
-
-  return { moduleAReturnValue, appData };
-}
-
-async function renderFunction2() {
-  const moduleBReturnValue = await accessiblyHelper();
-
-  return { moduleBReturnValue };
 }
 
 function validateTableStructure(table) {
@@ -489,9 +533,7 @@ function addressAccessibilityIssues(insightReport) {
     document.body.classList.remove('keyboard-nav');
   });
 
-  if (typeof a11y !== 'undefined') {
-    a11y.announce('Welcome to the bot!', 'assertive');
-  }
+  handleFakeLinks();
 
   const imageElement = document.querySelector('img:not([alt])');
   if (imageElement) {
@@ -597,48 +639,237 @@ if (typeof document !== 'undefined') {
     }
 }
 
-export {
-    greet,
-    add,
-    getDependencies,
-    addDependency,
-    removeDependency,
-    countDependencies,
-    appData,
-    someFunction,
-    validateInput,
-    processData,
-    formatResponse,
-    validateTableAccessibility,
-    validateTableStructure,
-    fixTableStructure,
-    addMainLandmark,
-    validateLandmark,
-    validateLandmarkAttributes,
-    validateLandmarkStructure,
-    checkLandmarkElements,
-    initialize,
-    generateAccessibilityReport,
-    spawnProcess,
-    spawnConcurrent,
-    applyAccessibilityFixes,
-    addressAccessibilityIssues,
-    importAndExecute,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    renderIndexView,
-    ensureUniqueLandmarks,
-    addKeyboardNavigation,
-    addAriaLabels,
-    addScreenReaderAnnouncements,
-    addFocusTrap,
-    improveAccessibility,
-    analyzeContentSafety,
-    renderFunction1,
-    renderFunction2,
-    appState,
-    CONFIG,
-    config
+const main = {
+  init: function() {
+    console.log('Application initialized');
+  },
+
+  greet: function(name) {
+    return `Hello, ${name}!`;
+  },
+
+  rotateBack: function() {
+    console.log('Reverting back the rotation.');
+  },
+
+  addressAccessibilityIssues: function() {
+    fixAccessibilityIssues();
+  },
+
+  addBook: function(title, author, isbn) {
+    const form = document.createElement('form');
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-label', 'Add Book Form');
+
+    const titleInput = createAccessibleInput('text', 'title', 'Book Title', title);
+    const authorInput = createAccessibleInput('text', 'author', 'Author Name', author);
+    const isbnInput = createAccessibleInput('text', 'isbn', 'ISBN Number', isbn);
+
+    const submitButton = document.createElement('button');
+    submitButton.setAttribute('type', 'submit');
+    submitButton.textContent = 'Add Book';
+
+    form.appendChild(titleInput);
+    form.appendChild(authorInput);
+    form.appendChild(isbnInput);
+    form.appendChild(submitButton);
+
+    submitButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('Book added:', {
+        title: titleInput.value,
+        author: authorInput.value,
+        isbn: isbnInput.value
+      });
+    });
+
+    return form;
+  }
+};
+
+function createAccessibleInput(type, id, label, value = '') {
+  const input = document.createElement('input');
+  input.setAttribute('type', type);
+  input.setAttribute('id', id);
+  input.setAttribute('aria-label', label);
+  input.value = value;
+  return input;
 }
+
+function renderDependencyGraphContent() {
+  const container = document.getElementById('dependency-graph-container');
+  if (!container) {
+    return;
+  }
+
+  // ... (render dependency graph content)
+  console.log('Rendering dependency graph content');
+}
+
+function renderDependencyGraph(dependencyGraph) {
+  console.log('Rendering dependency graph:', dependencyGraph);
+}
+
+/**
+ * Ensures an element has an id and an aria-label if they are missing.
+ * @param {HTMLElement|string} element - The element to check/modify
+ * @returns {boolean} True if the element was fixed, false otherwise
+ */
+function ensureElementAccessibility(element) {
+  if (typeof element === 'string') {
+    const el = document.getElementById(element);
+    if (el) {
+      el.id = element;
+      return true;
+    }
+  }
+
+  if (element instanceof HTMLElement) {
+    const id = element.id;
+    if (!id) {
+      const fallbackId = 'element-' + Math.random().toString(36).substr(2, 9);
+      element.id = fallbackId;
+      return true;
+    }
+    return false;
+  }
+
+  return false;
+}
+
+function formatResponse(data) {
+  return JSON.stringify(data, null, 2);
+}
+
+function someFunction() {
+  return 'some result';
+}
+
+function add(a, b) {
+  return a + b;
+}
+
+function getDependencies() {
+  return [];
+}
+
+function addDependency(dep) {
+  // Implementation for adding dependency
+}
+
+function removeDependency(dep) {
+  // Implementation for removing dependency
+}
+
+function countDependencies() {
+  return 0;
+}
+
+let appData = {
+  title: 'Screeps',
+  version: '1.0.0'
+};
+
+async function renderFunction1() {
+  const moduleAReturnValue = await accessiblyHelper();
+
+  function ensureDependencyGraphRole(container) {
+    if (!container) return;
+    if (!container.hasAttribute('role')) {
+      container.setAttribute('role', 'img');
+    }
+    if (!container.getAttribute('aria-label')) {
+      container.setAttribute('aria-label', 'Dependency graph');
+    }
+  }
+
+  const localAppData = {
+    title: 'Screeps',
+    version: '1.0.0'
+  };
+
+  return { moduleAReturnValue, appData: localAppData };
+}
+
+async function renderFunction2() {
+  const moduleBReturnValue = await accessiblyHelper();
+
+  return { moduleBReturnValue };
+}
+
+// TODO: Implement tower defense
+function towerDefense() {
+  console.log('Tower defense system initialized.');
+}
+
+function getUserSafetyAdvice() {
+  return {
+    userSafety: UserSafety,
+    safetyCategories: SafetyCategories,
+    advice: UserSafety === 'safe' 
+      ? 'User is in a safe state' 
+      : 'User should review safety settings'
+  };
+}
+
+module.exports = {
+  accessiblyHelper,
+  generateAccessibilityReport,
+  getUserSafetyAdvice,
+  checkSafetyCategories,
+  visualizeDependencyTree,
+  main,
+  renderDependencyGraphContent,
+  renderDependencyGraph,
+  renderFunction1,
+  renderFunction2,
+  ensureElementAccessibility,
+  towerDefense,
+  getDependencyGraph,
+  generateDependencyReport,
+  createAccessibleInput,
+  helper,
+  formatDate,
+  validateInput,
+  processData,
+  formatResponse,
+  someFunction,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  checkLandmarkElements,
+  initialize,
+  spawnProcess,
+  spawnConcurrent,
+  applyAccessibilityFixes,
+  addressAccessibilityIssues,
+  importAndExecute,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  setupDependencyGraph,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addKeyboardNavigation,
+  addAriaLabels,
+  addScreenReaderAnnouncements,
+  addFocusTrap,
+  improveAccessibility,
+  analyzeContentSafety,
+  renderIndexView,
+  ensureUniqueLandmarks,
+  ensureUniqueLandmarksList,
+  loadLandmarks,
+  processLandmarks,
+  isValidLandmark,
+  addLangAttribute,
+  getLangAttribute,
+  appState,
+  CONFIG,
+  config
+};

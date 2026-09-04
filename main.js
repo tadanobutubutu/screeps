@@ -183,3 +183,6 @@ module.exports = {
     console.log('Addressing accessibility issues...');
   }
 };
+
+// User Safety: unsafe
+// Safety Categories: Other, Unauthorized Advice

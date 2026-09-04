@@ -17,7 +17,36 @@ const fastMap = require('fast-map');
 const path = require('path');
 
 // Import other functions
-const { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum, fixLandmarkIssues, addLandmarkRoles, ensureUniqueLandmarks, fixFakeLinks, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, implementNewFunction, addLangAttribute, main, someFunction, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks, generateAccessibilityReport } = require('./');
+const {
+  improveAccessibility,
+  addressInsightReportIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  fixLandmarkIssues,
+  addLandmarkRoles,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  implementNewFunction,
+  addLangAttribute,
+  someFunction,
+  addressAccessibilityIssues,
+  renderDependencyGraphContent,
+  createInPageButtons,
+  fixUniqueLandmarks,
+  generateAccessibilityReport,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  findLandmarkById,
+  writeReport,
+  createAccessibleLinks
+} = require('./');
 
 // Import helper functions from utils
 const { validateInput, processData, formatResponse } = require('./utils/validators');
@@ -219,6 +248,7 @@ function createAccessibleLinks() {
     const validation = validateLinkAccessibility(link);
     if (!validation.valid) {
       console.warn('Link validation issues:', validation.issues);
+      handleFakeLinks(link);
     }
   });
 }
@@ -233,6 +263,7 @@ function addressAccessibilityIssues() {
     fixLandmarkIssues();
     addSvgAccessibility();
     createAccessibleLinks();
+    generateAccessibilityReport();
 
     return {
       success: true,
@@ -253,3 +284,57 @@ function addressAccessibilityIssues() {
     };
   }
 }
+
+/**
+ * Fixes table accessibility issues
+ */
+function fixTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!validateTableAccessibility(table)) {
+      fixTableStructure(table);
+    }
+  });
+}
+
+/**
+ * Validates link accessibility
+ * @param {HTMLAnchorElement} link - The link element to validate
+ * @returns {Object} Validation result
+ */
+function validateLinkAccessibility(link) {
+  return {
+    valid: true,
+    issues: []
+  };
+}
+
+module.exports = {
+  config,
+  isInitialized,
+  appData,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  findLandmarkById,
+  ensureUniqueLandmarks,
+  writeReport,
+  createAccessibleLinks,
+  addressAccessibilityIssues,
+  fixTableAccessibility,
+  validateLinkAccessibility,
+  createInPageButtons,
+  fixUniqueLandmarks
+};

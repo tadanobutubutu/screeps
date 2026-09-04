@@ -1,84 +1,90 @@
 let dependencyGraph = {};
 
-function getDependencyGraph() {
-  if (Object.keys(dependencyGraph).length === 0) {
-    return { message: "No dependency graph found." };
-  }
-
-  return dependencyGraph;
-}
-
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
-
-const accessiblyHelper = async (...args) => {
-  return args;
-};
-
-let UserSafety = "unsafe";
-let SafetyCategories = "Unauthorized Advice";
-
-function getUserSafetyAdvice() {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
-}
+const accessiblyHelper = require('./accessibly-helper');
+const a11y = require('./AccessibilityUtilities');
 
 const UserSafetyDefault = 'unsafe';
 const SafetyCategoriesDefault = 'Unauthorized Advice';
 
-const initialize = () => {
-  addMainLandmark();
-  setupDependencyGraph();
-  addressAccessibilityIssues();
-  createInPageButton();
+const appData = {
+  title: 'Screeps',
+  version: '1.0.0'
+};
 
-  if (a11y && a11y.init) {
+const config = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  dataPath: './data',
+  maxResults: 100
+};
+
+const CONFIG = {
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxResults: 100,
+  dataPath: './data'
+};
+
+const axeConfig = {
+  rules: {
+    'aria-invalid-2': { enabled: false },
+    'color-contrast': { enabled: false },
+    'name-role-value': { enabled: false },
+    'paraphernalia': { enabled: false },
+  },
+  silent: true
+};
+
+let dependencyGraph = {};
+
+const UserSafety = "unsafe";
+const SafetyCategories = "Unauthorized Advice";
+
+let isInitialized = false;
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map(),
+  lang: 'en'
+};
+
+const initialize = () => {
+  isInitialized = true;
+  getUserSafetyAdvice();
+  addressAccessibilityIssues();
+  if (a11y && a11y.init && isInitialized) {
     a11y.init();
   }
 
-  renderIndexView();
+  const app = express();
+  app.get('/', (req, res) => {
+    res.send(`Welcome to ${appData.title} v${appData.version}`);
+  });
+
+  app.get('/accessibility-report', async (req, res) => {
+    try {
+      const report = await accessiblyHelper(await generateAccessibilityReport());
+      res.json({ success: true, report });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.listen(3000, () => {
+    console.log('Application is running on port 3000');
+  });
 };
 
-const checkLandmarkElements = () => {
-  console.log('Checking landmark elements...');
-};
+function addressAccessibilityIssues() {
+  if (!document) return;
 
-const addMainLandmark = () => {
-  const rootContainer = document.querySelector('#root');
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-    const skipLink = document.createElement('a');
-    skipLink.className = 'skip-link';
-    skipLink.href = `#main`;
-    skipLink.textContent = 'Skip to content';
-    document.body.prepend(skipLink);
-  }
-};
-
-const setupDependencyGraph = () => {
-  // Ensure the dependencyGraph container has a proper ARIA role
-  const dependencyGraphContainer = document.getElementById('dependencyGraph');
-  if (dependencyGraphContainer) {
-    dependencyGraphContainer.setAttribute('role', 'region');
-    dependencyGraphContainer.setAttribute('aria-label', 'Dependency graph visualization');
-  }
-};
-
-const createInPageButton = () => {
-  const button = document.createElement('button');
-  button.id = 'in-page-button';
-  button.textContent = 'Click me';
-  document.body.appendChild(button);
-};
-
-const renderIndexView = () => {
-  console.log('Rendering index view...');
-};
-
-const addressAccessibilityIssues = () => {
   const rootContainer = document.querySelector('#root');
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
@@ -90,23 +96,9 @@ const addressAccessibilityIssues = () => {
   }
 
   // ... Add the rest of the logic for addressAccessibilityIssues function.
-};
+}
 
-const renderFunction1 = async () => {
-  // ... Existing functionality for renderFunction1
-
-  if (await generateAccessibilityReport()) {
-    const report = await accessiblyHelper(await generateAccessibilityReport());
-    const accessibilitySection = document.getElementById('accessibility');
-    accessibilitySection.innerHTML = report;
-  }
-};
-
-const spawnProcess = require('child_process').spawn;
-
-const SCREEP_BOT_REPORT_PATH = './screepsBotAccessibilityReport.html';
-
-async function generateAccessibilityReport(issuesData) {
+async function generateAccessibilityReport() {
   try {
     const { stdout } = await spawnProcess('npx', ['axe', '--source', SCREEP_BOT_REPORT_PATH]);
     return stdout;
@@ -116,72 +108,18 @@ async function generateAccessibilityReport(issuesData) {
   }
 }
 
-function generateAccessibilityReportData(issuesData) {
-  let issues;
+function renderFunction1() {
+  // ... Existing functionality for renderFunction1
 
-  if (!issuesData) {
-    issues = axe.analyze('./index.html');
-
-    const report = {
-      introduction: 'Accessibility report for the application',
-      data: issues,
-      conclusions: '',
-    };
-
-    return report;
-  } else {
-    // Function to scan for accessibility issues using axe-core
-    function scanAccessibility() {
-      const issues = [];
-
-      if (typeof document !== 'undefined') {
-        const results = axe.run(document);
-        if (results && results.violations) {
-          results.violations.forEach(violation => {
-            issues.push({
-              id: violation.id,
-              impact: violation.impact,
-              description: violation.description,
-              help: violation.helpUrl,
-              nodes: violation.nodes.map(node => ({
-                html: node.html,
-                target: node.target
-              }))
-            });
-          });
-        }
-      }
-
-      return issues;
-    }
-
-    // Function to write the generated report to a file
-    function writeReport(report) {
-      const reportFile = path.join(process.cwd(), 'accessibility-report.json');
-      fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-    }
-
-    issues = scanAccessibility();
-    const report = {
-      introduction: 'Accessibility report for the application',
-      data: issues,
-      conclusions: '',
-    };
-
-    writeReport(report);
-
-    return report;
+  if (await generateAccessibilityReport()) {
+    const report = await accessiblyHelper(await generateAccessibilityReport());
+    const accessibilitySection = document.getElementById('accessibility');
+    accessibilitySection.innerHTML = report;
   }
 }
 
-function calculateSafetyScore(data) {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-  return safetyCategories.length * data.priority || 0;
-}
-
-if (require.main === module) {
-  initialize();
-}
+const spawnProcess = require('child_process').spawn;
+const SCREEP_BOT_REPORT_PATH = './screepsBotAccessibilityReport.html';
 
 module.exports = {
   UserSafety,
@@ -192,6 +130,9 @@ module.exports = {
   addressAccessibilityIssues,
   renderFunction1,
   generateAccessibilityReport,
-  generateAccessibilityReportData,
-  initialize
+  initialize,
+  appData,
+  config,
+  CONFIG,
+  axeConfig
 };

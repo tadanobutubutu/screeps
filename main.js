@@ -1,5 +1,6 @@
 // main.js - Application entry point
 // TODO: Existing main.js content before the merge conflict...
+// TODO: This is the existing code that needs to be supported
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
@@ -244,11 +245,10 @@ function addLandmarkRoles() {
 
 // Function to fix fake links (links without href)
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
+  const fakeLinks = document.querySelectorAll('a[role="button"], a[href="#"]');
   fakeLinks.forEach(link => {
-    if (!link.getAttribute('role')) {
-      link.setAttribute('role', 'button');
-    }
+    link.setAttribute('role', 'button');
+    link.removeAttribute('href');
   });
 }
 
@@ -828,33 +828,6 @@ app.get('/data', (req, res) => {
 });
 
 function analyzeAccessibility() {
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
-}
-
-// TODO: Implement upgrade logic
-// This function should use harvested data to improve the system
-function upgradeSystem(harvestedData) {
-  // Use harvested data to improve the system
-  console.log('Applying upgrade logic with harvested data:', harvestedData);
-
-  // Example: update configuration based on harvested data
-  if (harvestedData) {
-    if (harvestedData.maxResults) {
-      config.maxResults = harvestedData.maxResults;
-    }
-    if (harvestedData.debug !== undefined) {
-      config.debug = harvestedData.debug;
-    }
-    // Additional upgrade logic can be added here
-  }
-
-  return true;
 }
 
 function main() {
@@ -883,6 +856,26 @@ if (require.main === module) {
   app.listen(3000, () => {
     console.log('Server started on port 3000');
   });
+}
+
+// TODO: Implement upgrade logic
+// This function should use harvested data to improve the system
+function upgradeSystem(harvestedData) {
+  // Use harvested data to improve the system
+  console.log('Applying upgrade logic with harvested data:', harvestedData);
+
+  // Example: update configuration based on harvested data
+  if (harvestedData) {
+    if (harvestedData.maxResults) {
+      config.maxResults = harvestedData.maxResults;
+    }
+    if (harvestedData.debug !== undefined) {
+      config.debug = harvestedData.debug;
+    }
+    // Additional upgrade logic can be added here
+  }
+
+  return true;
 }
 
 // Export all functions (merged changes)

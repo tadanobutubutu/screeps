@@ -78,9 +78,9 @@ function validateTableAccessibility(table) {
   }
 
   // Check for scope attribute on header cells
-  const headerCells = table.querySelectorAll('th');
+  const headerCells = table.querySelectorAll ? table.querySelectorAll('th') : [];
   headerCells.forEach(cell => {
-    if (!cell.hasAttribute('scope')) {
+    if (!cell.getAttribute('scope')) {
       issues.push('Missing scope attribute on header cell');
     }
   });
@@ -171,12 +171,12 @@ function validateLandmarkStructure(landmarks) {
     });
   } else {
     // Otherwise, check for required landmarks in the DOM
-    const allLandmarks = document.querySelectorAll('[role]');
+    const allLandmarks = document.querySelectorAll ? document.querySelectorAll('header, nav, main, aside, footer, section, article') : [];
     let hasMain = false;
     let hasNavigation = false;
 
     allLandmarks.forEach(landmark => {
-      const role = landmark.getAttribute('role');
+      const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
       if (role === 'main') hasMain = true;
       if (role === 'navigation') hasNavigation = true;
     });
@@ -208,11 +208,11 @@ function ensureUniqueLandmarks(landmarks) {
 
   // If no landmarks array provided, query the DOM
   if (!Array.isArray(landmarks)) {
-    elementsToCheck = document.querySelectorAll('[role]');
+    elementsToCheck = document.querySelectorAll ? document.querySelectorAll('header, nav, main, aside, footer, section, article') : [];
   }
 
   // Ensure elementsToCheck is iterable
-  elementsToCheck = Array.from(elementsToCheck || []);
+  elementsToCheck = elementsToCheck || [];
 
   // Check for duplicate accessible names
   elementsToCheck.forEach(landmark => {
@@ -241,7 +241,7 @@ function ensureUniqueLandmarks(landmarks) {
   // Check for duplicate roles
   const landmarksByRole = {};
   elementsToCheck.forEach(landmark => {
-    const role = landmark.getAttribute('role');
+    const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
     if (role) {
       if (landmarksByRole[role]) {
         duplicates.push(`Duplicate landmark role: ${role}`);
@@ -292,80 +292,107 @@ function createInPageButton(text, onClick) {
 }
 
 /**
- * Handles accessibility issues found during validation
- * @param {Array} issues - Array of accessibility issues (optional)
- * @returns {Object} Summary of handled issues
+ * Harvests energy from a source (Screeps game logic)
+ * @param {Object} creep - The creep to perform harvesting
+ * @returns {Object} Result with success status and any errors
  */
-function handleAccessibilityIssues(issues = []) {
-  const handled = [];
-  const unhandled = [];
-
-  issues.forEach(issue => {
-    if (issue.fixable) {
-      handled.push(issue);
-    } else {
-      unhandled.push(issue);
-    }
-  });
-
-  // Perform DOM validation
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-
-  const landmarks = document.querySelectorAll('[role]');
-  landmarks.forEach(landmark => {
-    validateLandmark(landmark);
-  });
-
-  validateLandmarkStructure();
-  ensureUniqueLandmarks();
-
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    getSvgAccessibleName(svg);
-  });
-
-  return {
-    total: issues.length,
-    handled: handled.length,
-    unhandled: unhandled.length,
-    unhandledIssues: unhandled
+function harvest(creep) {
+  const result = {
+    success: false,
+    error: null,
+    energyHarvested: 0
   };
+
+  if (!creep || !creep.room) {
+    result.error = 'Invalid creep or room';
+    return result;
+  }
+
+  // Find the closest energy source
+  const sources = creep.room.find(FIND_SOURCES);
+  if (sources.length === 0) {
+    result.error = 'No energy sources found';
+    return result;
+  }
+
+  const source = creep.pos.findClosestByPath(sources);
+  if (!source) {
+    result.error = 'No reachable energy source found';
+    return result;
+  }
+
+  // Attempt to harvest
+  const harvestResult = creep.harvest(source);
+  
+  if (harvestResult === ERR_NOT_IN_RANGE) {
+    // Move towards the source if not in range
+    const moveResult = creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+    if (moveResult === OK) {
+      result.success = true;
+      result.energyHarvested = 0;
+    } else {
+      result.error = `Movement failed with code: ${moveResult}`;
+    }
+  } else if (harvestResult === OK) {
+    result.success = true;
+    result.energyHarvested = source.energy > 0 ? Math.min(creep.getActiveBodyparts(WORK) * 2, source.energy) : 0;
+  } else {
+    result.error = `Harvest failed with code: ${harvestResult}`;
+  }
+
+  return result;
 }
 
 /**
- * Adds accessibility properties to an SVG element
- * @param {Object} svg - The SVG element to enhance
- * @param {Object} options - Accessibility options
- * @param {string} options.ariaLabel - ARIA label for the SVG
- * @param {string} options.ariaHidden - ARIA hidden state
- * @param {string} options.role - ARIA role for the SVG
- * @returns {Object} The enhanced SVG element with accessibility properties
+ * Upgrades the room controller (Screeps game logic)
+ * @param {Object} creep - The creep to perform upgrading
+ * @returns {Object} Result with success status and any errors
  */
-function addSvgAccessibilityProps(svg, options = {}) {
-  const enhancedSvg = { ...svg };
+function upgrade(creep) {
+  const result = {
+    success: false,
+    error: null,
+    progressMade: 0
+  };
 
-  if (options.ariaLabel) {
-    enhancedSvg.ariaLabel = options.ariaLabel;
+  if (!creep || !creep.room) {
+    result.error = 'Invalid creep or room';
+    return result;
   }
 
-  if (options.ariaHidden !== undefined) {
-    enhancedSvg.ariaHidden = options.ariaHidden;
+  // Find the room controller
+  const controller = creep.room.controller;
+  if (!controller) {
+    result.error = 'No room controller found';
+    return result;
   }
 
-  if (options.role) {
-    enhancedSvg.role = options.role;
+  // Check if the controller is claimed
+  if (!controller.my) {
+    result.error = 'Controller not owned by this player';
+    return result;
   }
 
-  // Ensure the SVG has an accessible name
-  if (!enhancedSvg.ariaLabel && !enhancedSvg.ariaLabelledby && !enhancedSvg.title) {
-    enhancedSvg.title = 'SVG graphic';
+  // Attempt to upgrade
+  const upgradeResult = creep.upgradeController(controller);
+
+  if (upgradeResult === ERR_NOT_IN_RANGE) {
+    // Move towards the controller if not in range
+    const moveResult = creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+    if (moveResult === OK) {
+      result.success = true;
+      result.progressMade = 0;
+    } else {
+      result.error = `Movement failed with code: ${moveResult}`;
+    }
+  } else if (upgradeResult === OK) {
+    result.success = true;
+    result.progressMade = creep.getActiveBodyparts(WORK) * UPGRADE_CONTROLLER_POWER;
+  } else {
+    result.error = `Upgrade failed with code: ${upgradeResult}`;
   }
 
-  return enhancedSvg;
+  return result;
 }
 
 /**
@@ -569,6 +596,58 @@ function getSvgAccessibleName(svgElement) {
     return 'Accessible SVG Icon';
 }
 
+/**
+ * Adds SVG accessibility properties
+ * @param {Object} svg - The SVG element to enhance
+ * @param {Object} options - Options for accessibility properties
+ * @returns {Object} The enhanced SVG element
+ */
+function addSvgAccessibilityProps(svg, options = {}) {
+  const enhancedSvg = { ...svg };
+
+  if (options.ariaLabel) {
+    enhancedSvg.ariaLabel = options.ariaLabel;
+  }
+
+  if (options.ariaHidden !== undefined) {
+    enhancedSvg.ariaHidden = options.ariaHidden;
+  }
+
+  if (options.role) {
+    enhancedSvg.role = options.role;
+  }
+
+  // Ensure the SVG has an accessible name
+  if (!enhancedSvg.ariaLabel && !enhancedSvg.ariaLabelledby && !enhancedSvg.title) {
+    enhancedSvg.title = 'SVG graphic';
+  }
+
+  return enhancedSvg;
+}
+
+/**
+ * Handles accessibility issues across the document
+ * @param {Object} document - The document object
+ * @returns {Object} Results of accessibility fixes
+ */
+function handleAccessibilityIssues(document) {
+  const results = {
+    fakeLinksFixed: 0,
+    landmarksAdded: 0,
+    tablesFixed: 0,
+    svgEnhanced: 0
+  };
+
+  // Fix fake links
+  results.fakeLinksFixed = fixFakeLinkIssues();
+
+  // Add proper landmark regions
+  addProperLandmarkRegions(document);
+  results.landmarksAdded = document.querySelectorAll('header, nav, main, aside, footer').length;
+
+  return results;
+}
+
 // Export all functions for testing and external use
 module.exports = {
   getLangAttribute,
@@ -597,5 +676,7 @@ module.exports = {
   handleFakeLinks,
   addProperLandmarkRegions,
   fixFakeLinkIssue,
-  fixFakeLinkIssues
+  fixFakeLinkIssues,
+  harvest,
+  upgrade
 };

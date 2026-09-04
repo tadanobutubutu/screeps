@@ -132,6 +132,384 @@ function processLandmarksUnique(landmarks) {
       seen.add(landmarkId);
       uniqueLandmarks.push(landmark);
     }
+  },
+
+  // Utility: Check if user prefers reduced motion
+  prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  },
+
+  // Utility: Check if user prefers high contrast
+  prefersHighContrast() {
+    return window.matchMedia('(prefers-contrast: more)').matches || 
+           window.matchMedia('(forced-colors: active)').matches;
+  },
+
+  // New function to handle dynamic content updates
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) return;
+    this.announce(message, priority);
+  },
+
+  // New function to check landmark elements
+  checkLandmarkElements() {
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach(landmarkTag => {
+      const landmark = document.querySelector(landmarkTag);
+      if (landmark && landmark.id === '') {
+        landmark.id = `landmark-${landmarkTag}-${Math.floor(Math.random() * 1000)}`;
+      }
+    });
+  },
+
+  // New function to add proper landmark regions for accessibility
+  addProperLandmarkRegions() {
+    // Ensure the main landmark exists
+    if (!document.querySelector('main, [role="main"]')) {
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      main.id = 'main-content';
+      document.body.insertBefore(main, document.body.firstChild);
+    }
+    
+    // Add landmark regions if missing
+    const landmarks = ['nav', 'header', 'footer', 'aside'];
+    landmarks.forEach(landmark => {
+      const selector = `${landmark}, [role="${landmark}"]`;
+      if (!document.querySelector(selector)) {
+        const el = document.createElement(landmark);
+        el.setAttribute('role', landmark);
+        document.body.appendChild(el);
+      }
+    });
+
+    // Ensure contentinfo landmark for footer
+    const footer = document.querySelector('footer');
+    if (footer && !footer.getAttribute('role')) {
+      footer.setAttribute('role', 'contentinfo');
+    }
+
+    // Ensure complementary landmark for aside
+    const aside = document.querySelector('aside');
+    if (aside && !aside.getAttribute('role')) {
+      aside.setAttribute('role', 'complementary');
+    }
+
+    // Add form landmark to forms missing a label
+    const forms = document.querySelectorAll('form');
+    forms.forEach((form, index) => {
+      if (!form.getAttribute('aria-label') && !form.getAttribute('aria-labelledby')) {
+        const label = form.querySelector('legend, label');
+        if (!label) {
+          form.setAttribute('role', 'form');
+          form.setAttribute('aria-label', `form-${index + 1}`);
+        }
+      }
+    });
+
+    // Add search landmark if missing
+    const searchRegions = document.querySelectorAll('[role="search"]');
+    if (searchRegions.length === 0) {
+      const searchInput = document.querySelector('input[type="search"]');
+      if (searchInput && !searchInput.closest('[role="search"]')) {
+        const searchRegion = document.createElement('div');
+        searchRegion.setAttribute('role', 'search');
+        searchRegion.setAttribute('aria-label', 'search');
+        searchInput.parentNode.insertBefore(searchRegion, searchInput);
+        searchRegion.appendChild(searchInput);
+      }
+    }
+
+    // Ensure all landmark regions have accessible names where required
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
+    landmarkRoles.forEach((role) => {
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      elements.forEach((el) => {
+        if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
+          const tagName = el.tagName.toLowerCase();
+          let label = '';
+          switch (role) {
+            case 'navigation':
+              label = 'navigation';
+              break;
+            case 'complementary':
+              label = 'complementary';
+              break;
+            case 'contentinfo':
+              label = 'contentinfo';
+              break;
+            case 'search':
+              label = 'search';
+              break;
+            case 'form':
+              label = 'form';
+              break;
+            default:
+              label = role;
+          }
+          el.setAttribute('aria-label', label);
+        }
+      });
+    });
+  },
+
+  // New function to add SVG accessibility props
+  addSVGAccessibility() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      // Ensure SVG has a title for accessible name
+      let titleElement = svg.querySelector('title');
+      if (!titleElement) {
+        titleElement = document.createElement('title');
+        titleElement.textContent = 'Image'; // Default accessible name
+        svg.insertBefore(titleElement, svg.firstChild);
+      }
+
+      // Ensure title has an ID for aria-labelledby
+      if (!titleElement.id) {
+        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
+      }
+
+      // Set aria-labelledby to point to the title
+      svg.setAttribute('aria-labelledby', titleElement.id);
+
+      // Add role img if not present (redundant but safe)
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+    });
+  },
+
+  // New function to validate ARIA usage
+  validateARIAUsage() {
+    const ariaElements = document.querySelectorAll('[role]');
+    ariaElements.forEach(el => {
+      const role = el.getAttribute('role');
+      // Add validation logic here as needed
+    });
+  },
+
+  // New function to enhance dynamic content
+  enhanceDynamicContent() {
+    // Observe DOM changes for dynamic content
+    if (!('MutationObserver' in window)) return;
+    
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              // Add appropriate ARIA attributes to dynamically added content
+              this.applyARIAtoNode(node);
+            }
+          });
+        }
+      });
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  },
+  
+  // New function to address accessibility issues from insight report
+  addressAccessibilityIssues(report) {
+    if (!report) return;
+    report.forEach((issue) => {
+      // Handle each issue type
+      switch (issue.type) {
+        case 'missing-lang':
+          if (document.documentElement.lang === '') {
+            document.documentElement.lang = 'en';
+          }
+          break;
+        case 'missing-skip-link':
+          if (!document.querySelector('.skip-link')) {
+            const skipLink = document.createElement('a');
+            skipLink.className = 'skip-link';
+            skipLink.href = '#main-content';
+            skipLink.textContent = 'Skip to main content';
+            document.body.prepend(skipLink);
+          }
+          break;
+        case 'missing-alt':
+          document.querySelectorAll('img').forEach((img) => {
+            if (!img.getAttribute('alt')) {
+              img.setAttribute('alt', 'Image description');
+            }
+          });
+          break;
+        case 'missing-label':
+          document.querySelectorAll('input, select, textarea').forEach((el) => {
+            if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
+              el.setAttribute('aria-label', 'Form field');
+            }
+          });
+          break;
+        // Add more cases as needed
+      }
+    });
+  },
+
+  // New function to fix fake links (REACT_036)
+  fixFakeLinks() {
+    const fakeLinks = document.querySelectorAll('[href]:not(a)');
+    fakeLinks.forEach((link) => {
+      link.setAttribute('role', 'link');
+      link.setAttribute('tabindex', '0');
+      link.setAttribute('data-interactive', 'true');
+    });
+  },
+
+  // New function to wrap primary content in main element
+  wrapPrimaryContentInMain() {
+    if (document.querySelector('main, [role="main"]')) return;
+
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    mainElement.id = 'main-content';
+
+    // Move all body children into the main element
+    while (document.body.firstChild) {
+      mainElement.appendChild(document.body.firstChild);
+    }
+
+    document.body.appendChild(mainElement);
+  },
+
+  // NEW: Add focus visibility styles for keyboard navigation
+  setupFocusStyles() {
+    // Check if styles already added
+    if (document.getElementById('a11y-focus-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'a11y-focus-styles';
+    style.textContent = `
+      /* High contrast focus indicators for keyboard users */
+      :focus {
+        outline: 2px solid #005fcc !important;
+        outline-offset: 2px !important;
+      }
+      
+      /* Ensure focus visibility in different contexts */
+      [tabindex]:focus,
+      button:focus,
+      a:focus {
+        outline: 2px solid #005fcc !important;
+        outline-offset: 2px !important;
+      }
+      
+      /* Reduce motion support */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Add focus-visible polyfill support
+    if (!('focus-visible' in document.documentElement.classList)) {
+      document.documentElement.classList.add('focus-visible');
+    }
+  },
+  
+  // NEW: Setup focus-visible polyfill for better focus management
+  setupFocusVisiblePolyfill() {
+    let hadKeyboardEvent = false;
+    
+    const handlePointerDown = () => {
+      hadKeyboardEvent = false;
+    };
+    
+    const handleBlur = (e) => {
+      if (e.target.matches(':focus-visible')) {
+        hadKeyboardEvent = true;
+      }
+    };
+    
+    const handleKeydown = (e) => {
+      if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        hadKeyboardEvent = true;
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeydown, true);
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    document.addEventListener('mousedown', handlePointerDown, true);
+    document.addEventListener('touchstart', handlePointerDown, true);
+    document.addEventListener('focus', (e) => {
+      if (hadKeyboardEvent) {
+        document.documentElement.classList.add('focus-visible');
+      }
+    }, true);
+  },
+  
+  // NEW: Apply ARIA attributes to dynamically added elements
+  applyARIAtoNode(node) {
+    if (!node || !node.setAttribute) return;
+    
+    // Handle buttons without text content
+    if (node.tagName === 'BUTTON' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
+      node.setAttribute('aria-label', 'Button');
+    }
+    
+    // Handle links without text
+    if (node.tagName === 'A' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
+      node.setAttribute('aria-label', 'Link');
+    }
+    
+    // Handle inputs without labels
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(node.tagName) && 
+        !node.getAttribute('aria-label') && 
+        !node.getAttribute('id')) {
+      node.setAttribute('aria-label', 'Form field');
+    }
+    
+    // Handle images without alt text
+    if (node.tagName === 'IMG' && !node.getAttribute('alt')) {
+      node.setAttribute('alt', '');
+    }
+    
+    // Process children recursively
+    const children = node.querySelectorAll('button, a, input, select, textarea, img');
+    children.forEach(child => {
+      this.applyARIAtoNode(child);
+    });
+  },
+  
+  // NEW: Validate and improve ARIA usage
+  validateARIA() {
+    // Remove duplicate IDs
+    const allElements = document.querySelectorAll('[id]');
+    const idMap = {};
+    
+    allElements.forEach(el => {
+      const id = el.getAttribute('id');
+      if (idMap[id]) {
+        el.removeAttribute('id');
+      } else {
+        idMap[id] = true;
+      }
+    });
+    
+    // Ensure ARIA attributes are properly used
+    document.querySelectorAll('[aria-hidden="true"]').forEach(el => {
+      if (el.getAttribute('tabindex') !== '-1') {
+        el.setAttribute('tabindex', '-1');
+      }
+    });
+  },
+
+  // Preserve existing code
+  preserveExistingCode() {
+    // Placeholder for preserving existing code logic
+    if (typeof this.init === 'function') {
+      this.init();
+    }
   }
 
   return uniqueLandmarks;

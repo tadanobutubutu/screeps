@@ -452,6 +452,110 @@ const accessibilityUtils = {
     }
 };
 
+/**
+ * Renders the dependency graph visualization
+ */
+function renderDependencyGraph() {
+  if (!dependencyGraph) {
+    console.warn('Dependency graph container not found');
+    return;
+  }
+
+  // Clear existing visualization content if any
+  const existingViz = dependencyGraph.querySelector('.dependency-graph-visualization');
+  if (existingViz) {
+    existingViz.remove();
+  }
+
+  // Create graph visualization container
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph-visualization';
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+  graphContainer.setAttribute('tabindex', '0');
+
+  // Add title for the graph
+  const graphTitle = document.createElement('h3');
+  graphTitle.className = 'graph-title';
+  graphTitle.textContent = 'Dependency Graph';
+  graphContainer.appendChild(graphTitle);
+
+  // Create visualization canvas area
+  const canvas = document.createElement('div');
+  canvas.className = 'graph-canvas';
+  canvas.setAttribute('aria-hidden', 'true');
+  canvas.textContent = 'Graph visualization area';
+  graphContainer.appendChild(canvas);
+
+  // Insert at the beginning of the dependency graph container
+  dependencyGraph.insertBefore(graphContainer, dependencyGraph.firstChild);
+}
+
+/**
+ * Displays module structure for debugging purposes
+ * @param {Array} modules - Array of module objects to display
+ */
+function displayModuleStructure(modules) {
+  if (!dependencyGraph) return;
+
+  // Remove existing module structure display if present
+  const existingStructure = dependencyGraph.querySelector('.module-structure-debug');
+  if (existingStructure) {
+    existingStructure.remove();
+  }
+
+  // Create module structure container
+  const structureContainer = document.createElement('div');
+  structureContainer.className = 'module-structure-debug';
+  structureContainer.setAttribute('role', 'region');
+  structureContainer.setAttribute('aria-label', 'Module structure debugging panel');
+
+  // Add heading
+  const heading = document.createElement('h4');
+  heading.textContent = 'Module Structure';
+  structureContainer.appendChild(heading);
+
+  // Create list of modules
+  const list = document.createElement('ul');
+  if (Array.isArray(modules) && modules.length > 0) {
+    modules.forEach((mod, index) => {
+      const item = document.createElement('li');
+      item.textContent = mod.name || `Module ${index}`;
+      if (mod.dependencies && Array.isArray(mod.dependencies)) {
+        const subList = document.createElement('ul');
+        mod.dependencies.forEach(dep => {
+          const subItem = document.createElement('li');
+          subItem.textContent = ` -> ${dep}`;
+          subList.appendChild(subItem);
+        });
+        item.appendChild(subList);
+      }
+      list.appendChild(item);
+    });
+  } else {
+    const emptyItem = document.createElement('li');
+    emptyItem.textContent = 'No modules to display';
+    list.appendChild(emptyItem);
+  }
+
+  structureContainer.appendChild(list);
+  dependencyGraph.appendChild(structureContainer);
+}
+
+/**
+ * Updates the dependency graph and displays module structure for debugging
+ * @param {Object} graphData - Data containing modules and dependencies
+ */
+function updateDependencyGraph(graphData) {
+  renderDependencyGraph();
+
+  if (graphData && graphData.modules) {
+    displayModuleStructure(graphData.modules);
+  }
+
+  console.log('Dependency graph updated for debugging purposes');
+}
+
 // Export the report generation function
 export { generateAccessibilityReport, addressAccessibilityIssues, getLangAttribute, createInPageButton, a11y, accessibilityUtils, addSvgAccessibilityProps };
 
@@ -462,6 +566,9 @@ function initialize() {
         dependencyGraph.setAttribute('role', 'region');
         dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
     }
+
+    // Render dependency graph and display module structure
+    renderDependencyGraph();
 
     // Address accessibility issues
     addressAccessibilityIssues();

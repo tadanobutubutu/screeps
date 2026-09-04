@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserve
+// TODO: This is the existing code that needs to be preserved
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
@@ -88,6 +88,125 @@ function getSvgAccessibleName(svg) {
 function setSvgAttributes(svg, name) {
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', name);
+}
+
+// TODO: Implement this function for adding SVG accessibility props
+// Function to add SVG accessibility props
+
+/**
+ * Adds SVG accessibility properties to an SVG element
+ * @param {SVGElement|HTMLElement} svg - The SVG element to add accessibility props to
+ * @param {Object} options - Optional configuration options
+ * @param {boolean} options.includeDesc - Whether to include description from desc element
+ * @param {boolean} options.verbose - Whether to log changes to console
+ * @returns {Object} Object containing the SVG element, accessible name, and any issues found
+ */
+export function addSvgAccessibilityProps(svg, options = {}) {
+    const { includeDesc = true, verbose = false } = options;
+    
+    if (!svg) {
+        if (verbose) {
+            console.warn('addSvgAccessibilityProps: No SVG element provided');
+        }
+        return { svg: null, name: null, success: false, issues: ['No SVG element provided'] };
+    }
+
+    const issues = [];
+    
+    // Get the accessible name for the SVG
+    const name = getSvgAccessibleName(svg);
+    
+    // Check if the SVG already has appropriate accessibility attributes
+    const existingRole = svg.getAttribute('role');
+    const existingAriaLabel = svg.getAttribute('aria-label');
+    const existingAriaLabelledBy = svg.getAttribute('aria-labelledby');
+    const existingTitle = svg.getAttribute('title');
+    
+    // Set basic accessibility attributes
+    setSvgAttributes(svg, name);
+    
+    // Validate the accessible name
+    if (!name || name === 'SVG graphic') {
+        issues.push('SVG has no descriptive accessible name');
+        if (verbose) {
+            console.warn('addSvgAccessibilityProps: SVG is missing a descriptive accessible name');
+        }
+    }
+    
+    // Handle description if enabled
+    if (includeDesc) {
+        const descElements = svg.querySelectorAll('desc');
+        if (descElements.length === 0) {
+            issues.push('SVG has no desc element for additional description');
+        }
+    }
+    
+    // Check for aria-hidden on the SVG (which might be intentional)
+    const isAriaHidden = svg.getAttribute('aria-hidden') === 'true';
+    if (isAriaHidden) {
+        issues.push('SVG has aria-hidden="true" - it will not be announced by screen readers');
+    }
+    
+    const success = issues.length === 0;
+    
+    if (verbose && success) {
+        console.log(`addSvgAccessibilityProps: Successfully added accessibility props to SVG with name "${name}"`);
+    }
+    
+    return {
+        svg,
+        name,
+        success,
+        issues,
+        hadRole: !!existingRole,
+        hadAriaLabel: !!existingAriaLabel,
+        hadAriaLabelledBy: !!existingAriaLabelledBy,
+        hadTitle: !!existingTitle,
+        wasAriaHidden: isAriaHidden
+    };
+}
+
+/**
+ * Adds SVG accessibility props to all SVG elements in a document or container
+ * @param {Document|HTMLElement} container - The document or container to scan for SVGs
+ * @param {Object} options - Optional configuration options passed to addSvgAccessibilityProps
+ * @returns {Object} Summary of the results
+ */
+export function addSvgAccessibilityPropsToAll(container, options = {}) {
+    const root = container && container.querySelectorAll ? container : (container || document);
+    const svgs = root.querySelectorAll('svg');
+    
+    if (svgs.length === 0) {
+        return {
+            total: 0,
+            successful: 0,
+            failed: 0,
+            results: []
+        };
+    }
+    
+    const results = [];
+    let successful = 0;
+    let failed = 0;
+    
+    svgs.forEach((svg, index) => {
+        const result = addSvgAccessibilityProps(svg, options);
+        result.index = index;
+        results.push(result);
+        
+        if (result.success) {
+            successful++;
+        } else {
+            failed++;
+        }
+    });
+    
+    return {
+        total: svgs.length,
+        successful,
+        failed,
+        results
+    };
 }
 
 function createInPageButton() {

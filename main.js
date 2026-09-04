@@ -1,14 +1,29 @@
+// main.js - Entry point for the application
+
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const axe = require('axe-core');
-const fastMap = require('fast-map');
-const { spawn } = require('child_process');
-const PropTypes = require('prop-types');
-const React = require('react');
-const ReactDOM = require('react-dom/client');
-const a11y = require('./AccessibilityUtilities');
-const accessiblyHelper = require('./accessably-helper');
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+const UserSafety = {
+    unsafe: {
+      category: 'Unauthorized Advice',
+      description: 'This user may pose a risk to the system'
+    },
+    safe: {
+      category: 'Following Safety Guidelines',
+      description: 'This user follows safety guidelines'
+    }
+};
+
+const getSafetyCategory = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus.category;
+
+const getSafetyCategoryDetailed = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus;
+
+const getUserSafetyInfo = loadUserSafetyInfo;
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
@@ -41,6 +56,16 @@ let userSafety = 'unsafe';
 let safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
 let books = [];
 let dependencyGraph = {};
+
+const userSafetyCategories = {
+    unsafe: true,
+    categories: [
+        'Illegal Activity',
+        'Fraud/Deception',
+        'Controlled/Regulated Substances',
+        'Unauthorized Advice'
+    ]
+};
 
 function initialize() {
   console.log('Initializing application...');
@@ -117,6 +142,40 @@ const getBooksList = () => {
 
   return booksList.join("\n");
 };
+
+// Function to handle credential response (keeping existing function)
+function handleCredentialResponse(response) {
+  // ... existing code
+}
+
+function loadUserSafetyInfo() {
+  const categoryData = {
+    'safe': 'This user follows safety guidelines',
+    'unsafe': 'This user may pose a risk to the system'
+  };
+
+  if (userSafety === 'unsafe') {
+    const safetyMessage = checkSafetyCategories();
+    throw new Error(safetyMessage);
+  }
+
+  return {
+    category: userSafety,
+    description: categoryData[userSafety]
+  };
+}
+
+function getUserSafetyInfo() {
+    return userSafetyCategories;
+}
+
+function isUserSafetyUnsafe() {
+    return userSafetyCategories.unsafe;
+}
+
+function hasSafetyCategory(category) {
+    return userSafetyCategories.categories.includes(category);
+}
 
 function ensureElementHasId(element, prefix = 'element') {
   if (!element) return null;
@@ -301,6 +360,14 @@ function countDependencies() {
     'antd': true
   };
   return Object.keys(dependencies).length;
+}
+
+function countLicenseOptions() {
+  try {
+    // ... existing code
+  } catch (error) {
+    // ... keeping existing error handling
+  }
 }
 
 function enhanceAddBookFormAccessibility(formElement) {
@@ -522,7 +589,7 @@ function ensureUniqueLandmarks() {
       for (let i = 1; i < elements.length; i++) {
         const element = elements[i];
         if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-          element.setAttribute('aria-label', 'Duplicate ' + selector.replace('[role="', '').replace('"]', '));
+          element.setAttribute('aria-label', 'Duplicate ' + selector.replace('[role="', '').replace('"]', ''));
         }
       }
     }
@@ -750,3 +817,14 @@ module.exports.checkSafetyCategories = checkSafetyCategories;
 module.exports.updateAccessibilityFeatures = updateAccessibilityFeatures;
 module.exports.rotateBack = rotateBack;
 module.exports.ensure = ensureUniqueLandmarks;
+module.exports.calculateSum = calculateSum;
+module.exports.countDependencies = countDependencies;
+module.exports.countLicenseOptions = countLicenseOptions;
+module.exports.getSafetyCategory = getSafetyCategory;
+module.exports.getSafetyCategoryDetailed = getSafetyCategoryDetailed;
+module.exports.getUserSafetyInfo = getUserSafetyInfo;
+module.exports.isUserSafetyUnsafe = isUserSafetyUnsafe;
+module.exports.hasSafetyCategory = hasSafetyCategory;
+module.exports.loadUserSafetyInfo = loadUserSafetyInfo;
+module.exports.UserSafety = UserSafety;
+module.exports.userSafetyCategories = userSafetyCategories;

@@ -341,7 +341,7 @@ function functionB(value) {
     if (require.main === module) {
       const landmarks = loadLandmarks();
       const processed = processLandmarks(landmarks);
-      const sorted = sortLandmarks(processed);
+      const sorted = sortLandmarks();
 
       console.log(`Loaded ${landmarks.length} landmarks`);
       console.log(`Processed to ${processed.length} unique landmarks`);

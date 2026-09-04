@@ -10,8 +10,6 @@ const appData = {};
 // module.exports = { myFunction };
 // TODO: Add back any required exports that might have been removed
 
-// Address accessibility issues from insight report
-
 // Import the required module
 const { axe } = require('axe-core');
 const fs = require('fs');
@@ -36,10 +34,15 @@ const { getSvgAccessibleName, setSvgAttributes } = require('./svgUtils');
 
 // Configuration
 const CONFIG = config;
+=======
+const CONFIG = config;
+>>>>>>> origin/main
 
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
+// Landmark handling
+function addMainLandmark() {
+}
 
+// Table accessibility helpers
 /**
  * Gets the lang attribute for the HTML element
  * @returns {string} The lang attribute value
@@ -250,19 +253,22 @@ function addressAccessibilityIssues() {
         createAccessibleLinks();
 
         return {
-            success: true,
-            message: 'Accessibility issues have been addressed',
-            fixesApplied: [
-                'table_accessibility',
-                'landmark_issues'
-            ]
+          success: true,
+          message: 'Accessibility issues have been addressed',
+          fixesApplied: [
+            'table_accessibility',
+            'landmark_issues',
+            'svg_accessibility',
+            'create_accessible_links'
+          ]
         };
     } catch (error) {
-        console.error('Error addressing accessibility issues:', error);
-        return {
-            success: false,
-            message: 'Failed to address accessibility issues'
-        };
+      console.error('Failed to address accessibility issues:', error);
+      return {
+        success: false,
+        message: 'Accessibility issues have not been addressed',
+        error: error.message
+      };
     }
 }
 

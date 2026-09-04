@@ -305,19 +305,98 @@ function analyzeModuleDependenciesLocal(modules) {
   console.log('Analyzing dependencies for modules:', modules);
 }
 
-// Function to handle accessibility improvements (not available in the given code)
+// Function to handle accessibility improvements
 function improveAccessibility() {
   // Implement improvements for accessibility compliance
+  const issues = [];
+  const lang = getLangAttribute();
+  if (!lang || lang === '') {
+    issues.push('Missing or empty lang attribute');
+  }
+  
+  const tables = document.querySelectorAll('table');
+  tables.forEach(function(table, index) {
+    if (!validateTableAccessibility(table)) {
+      issues.push('Table ' + index + ' missing accessibility features');
+    }
+    if (!validateTableStructure(table)) {
+      issues.push('Table ' + index + ' has invalid structure');
+    }
+  });
+  
+  console.log('Accessibility improvements processed:', issues.length, 'issues found');
+  return issues;
 }
 
-// Function to add landmark roles (not available in the given code)
+// Function to add landmark roles
 function addLandmarkRoles() {
   // Add roles to landmarks as needed
+  const landmarks = document.querySelectorAll('header, nav, main, footer, aside');
+  let addedCount = 0;
+  
+  landmarks.forEach(function(element) {
+    const tagName = element.tagName.toLowerCase();
+    const roleMapping = {
+      'header': 'banner',
+      'nav': 'navigation',
+      'main': 'main',
+      'footer': 'contentinfo',
+      'aside': 'complementary'
+    };
+    
+    if (!element.getAttribute('role') && roleMapping[tagName]) {
+      element.setAttribute('role', roleMapping[tagName]);
+      addedCount++;
+    }
+  });
+  
+  console.log('Added landmark roles to', addedCount, 'elements');
+  return addedCount;
 }
 
-// Function to add accessible names to SVGs (not available in the given code)
+// Function to add accessible names to SVGs
 function addSvgAccessibleNames() {
   // Add accessible names to SVGs as needed
+  const svgs = document.querySelectorAll('svg');
+  let namedCount = 0;
+  
+  svgs.forEach(function(svg) {
+    const title = svg.querySelector('title');
+    const ariaLabel = svg.getAttribute('aria-label');
+    
+    if (!title && !ariaLabel) {
+      const id = svg.getAttribute('id') || 'svg_' + Math.random().toString(36).substr(2, 9);
+      const generatedTitle = document.createElement('title');
+      generatedTitle.textContent = 'SVG Icon';
+      generatedTitle.setAttribute('id', id);
+      svg.insertBefore(generatedTitle, svg.firstChild);
+      svg.setAttribute('aria-labelledby', id);
+      namedCount++;
+    }
+    
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+  });
+  
+  console.log('Added accessible names to', namedCount, 'SVGs');
+  return namedCount;
+}
+
+// Function to ensure lang attribute is set
+function ensureLangAttribute() {
+  const htmlElement = document.documentElement;
+  let currentLang = htmlElement.getAttribute('lang');
+  
+  if (!currentLang) {
+    const navigatorLang = typeof navigator !== 'undefined' ? navigator.language : 'en';
+    htmlElement.setAttribute('lang', navigatorLang);
+    console.log('Set lang attribute to:', navigatorLang);
+    return true;
+  }
+  
+  console.log('Lang attribute already set:', currentLang);
+  return false;
 }
 
 // Export all existing and new functions
@@ -340,5 +419,8 @@ module.exports = {
     processData,
     addLandmarkRegions,
     setSvgAttributes,
-    addressAccessibilityIssues // New export
+    improveAccessibility,
+    addLandmarkRoles,
+    addSvgAccessibleNames,
+    ensureLangAttribute
 };

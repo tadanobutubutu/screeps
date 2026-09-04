@@ -31,21 +31,20 @@ const {
   visualizeModuleRelationships
 } = require('./accessibility-improvements');
 
-// Configuration
+// Configuration - merged from both versions (using origin/main for completeness)
 const config = {
-  apiUrl: process.env.API_URL || 'https://api.default.com',
-  timeout: 5000,
-  debug: false,
-  dataPath: './data',
+  name: 'MyApp',
   version: '1.0.0',
-  maxResults: 100,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  debug: false,
   landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
-  maxLandmarks: 50
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxResults: 100,
+  dataPath: './data'
 };
 
 // Constants
-const safetyCategories = ["Unauthorized Advice"];
+const safetyCategories = ["Unauthorized Advice", "Dangerous Action", "Potential Scam", "Privacy Risk"];
 const books = [];
 const safetyCategory = "User Safety: safe";
 
@@ -73,773 +72,523 @@ function handleCredentialResponse(response) {
     console.error('No credential response received');
     return null;
   }
+  const credential = JSON.parse(response.credential);
 
-  try {
-    // Parse the credential response payload
-    const credential = typeof response === 'string' ? JSON.parse(response) : response;
-
-    // Validate the credential structure
-    if (!credential || typeof credential !== 'object') {
-      console.error('Invalid credential response format');
-      return null;
-    }
-
-    // Validate required credential fields
-    if (!credential.id || !credential.token) {
-      console.error('Credential response missing required fields (id, token)');
-      return null;
-    }
-
-    // Store the credentials securely (in a real app, use secure storage)
-    const credentials = {
-      id: credential.id,
-      token: credential.token,
-      issuedAt: credential.issuedAt || Date.now(),
-      expiresAt: credential.expiresAt || null
-    };
-
-    // Use the credentials (e.g., set auth header, store in session, etc.)
-    if (typeof process !== 'undefined' && process.env) {
-      process.env.AUTH_TOKEN = credentials.token;
-    }
-
-    return credentials;
-  } catch (error) {
-    console.error('Error handling credential response:', error.message);
-    return null;
+  if (!credential || !credential.credential || !credential.clientId) {
+    throw new Error('Invalid credential response structure');
   }
+
+  localStorage.setItem('authCredential', JSON.stringify({
+    token: credential.credential,
+    clientId: credential.clientId,
+    timestamp: Date.now()
+  }));
+
+  return credential;
 }
 
-// Merged configuration (landmark + app configs)
-const CONFIG = {
-  landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  requiredLandmarks: ['banner', 'navigation', 'main'],
-  dataPath: './data',
-  maxResults: 100,
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
-};
+// Main configuration reference
+let configRef = config;
+let dependencyGraph = null;
+let icons = {};
+
+// Application configuration (alias for CONFIG)
+const mergedConfig = config;
+const config_ = config;
 
 // Application state
-let isInitialized = false;
-let appData_origin = {};
-let appState = {
-  initialized: false,
-  data: null,
-  cache: new Map(),
-  lang: 'en'
+const appState = {
+    initialized: false,
+    data: null,
+    cache: {}
 };
 
-let configRef = CONFIG;
-let dependencyGraph = null;
-
-// Validate input helper
-function validateInput(input) {
-  return input && typeof input === 'string' && input.trim().length > 0;
+// Helper function to validate landmark structure
+function isValidLandmark(landmark) {
+    return landmark &&
+           typeof landmark.id !== 'undefined' &&
+           landmark.id !== null;
 }
 
-// Process data helper
-function processData(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
-}
-
-// Initialize function
-function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
-}
-
-// Initialize app function
-function initializeApp() {
-  initialize();
-  return appState;
-}
-
-// Fetch user function
-async function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
-}
-
-// Clear cache function
-function clearCache() {
-  appState.cache.clear();
-}
-
-// Helper function
-function someFunction() {
-  return 'some value';
-}
-
-function getUserSafetyAdvice() {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-  return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
-}
-
-function addBook(title, author) {
-  const bookObject = { title, author };
-
-  announceBookAdded(title, author);
-
-  return bookObject;
-}
-
-function announceBookAdded(title, author) {
-  console.log(`A new book has been added: "${title}" by "${author}".`);
-}
-
-function getBooksList() {
-  let booksList = [];
-
-  books.forEach((book, index) => {
-    booksList[index] = `${index + 1}. ${book.title} by ${book.author}`;
-  });
-
-  return booksList.join("\n");
-}
-
-async function generateAccessibilityReport(url, renderFunction = renderFunction1) {
-  try {
-    // Run axe-core scan
-    const results = await axe.run(url);
-
-    // Generate report content
-    const report = {
-      url: url,
-      timestamp: new Date().toISOString(),
-      violations: results.violations,
-      passes: results.passes,
-      incomplete: results.incomplete,
-      summary: {
-        violations: results.violations.length,
-        passes: results.passes.length,
-        incomplete: results.incomplete.length
-      }
-    };
-
-    // Write report to file
-    const reportName = `accessibility-report-${Date.now()}.json`;
-    fs.writeFileSync(reportName, JSON.stringify(report, null, 2));
-
-    return {
-      success: true,
-      reportFile: reportName,
-      reportData: report
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message
-    };
-  }
-}
-
-// Accessibility function for book form
-function makeAddBookFormAccessible() {
-  const form = document.querySelector('#addBookForm');
-  if (!form) return;
-
-  // Add ARIA attributes to the form
-  form.setAttribute('role', 'form');
-  form.setAttribute('aria-labelledby', 'addBookFormTitle');
-
-  // Add labels to form fields
-  const titleInput = form.querySelector('#bookTitle');
-  if (titleInput) {
-    titleInput.setAttribute('aria-label', 'Book Title');
-    titleInput.setAttribute('required', 'true');
-  }
-
-  const authorInput = form.querySelector('#bookAuthor');
-  if (authorInput) {
-    authorInput.setAttribute('aria-label', 'Book Author');
-    authorInput.setAttribute('required', 'true');
-  }
-
-  // Make sure all form fields are focusable
-  const inputs = form.querySelectorAll('input, textarea, select, button');
-  inputs.forEach(input => {
-    if (!input.hasAttribute('tabindex')) {
-      input.setAttribute('tabindex', '0');
+// Load landmarks from file
+function loadLandmarks() {
+    try {
+        const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+        return [];
     }
-  });
 }
 
-async function renderFunction1() {
-  const moduleAReturnValue = await accessiblyHelper();
-
-  function ensureDependencyGraphRole(container) {
-    if (!container) return;
-    if (!container.hasAttribute('role')) {
-      container.setAttribute('role', 'graphics-document');
+// Process and filter landmarks
+function processLandmarks(landmarks) {
+    if (!landmarks || !Array.isArray(landmarks)) {
+        return [];
     }
-    if (!container.hasAttribute('aria-label')) {
-      container.setAttribute('aria-label', 'Dependency graph');
-    }
-  }
 
-  let html = '';
-  html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (/\bscope=/i.test(match)) return match;
-    return `<th${attrs} scope="col">`;
-  });
+    const validLandmarks = landmarks.filter(isValidLandmark);
+    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
 
-  return html;
+    return uniqueLandmarks.slice(0, config.maxResults);
 }
 
-function analyzeAccessibility(issuesData) {
-  return issuesData || [];
+// Sort landmarks alphabetically
+function sortLandmarks(landmarks, ascending = true) {
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+
+        if (ascending) {
+            return nameA.localeCompare(nameB);
+        }
+        return nameB.localeCompare(nameA);
+    });
 }
 
-function analyzeModuleDependenciesFn(modules) {
-  const report = {
-    totalModules: modules.length,
-    dependencyCount: 0,
-    moduleNames: modules.map(m => m.name),
-    dependencies: {}
-  };
-
-  modules.forEach(module => {
-    if (module.dependencies) {
-      report.dependencyCount += module.dependencies.length;
-      report.dependencies[module.name] = module.dependencies;
-    }
-  });
-
-  return report;
+// Get landmark by ID
+function getLandmarkById(landmarks, id) {
+    return landmarks.find(landmark => landmark.id === id) || null;
 }
 
-async function renderFunction2() {
-  const moduleBReturnValue = await accessiblyHelper();
-}
-
-async function addressAccessibilityIssues() {
-  const allResults = await accessiblyHelper();
-  if (!allResults[0]) return;
-  allResults[0].ensuresDependencyGraphRole();
-
-  // ... (add other accessibility improvements as needed)
-}
-
-async function scanAccessibility() {
-  // Implementation to scan pages for accessibility issues and generate a report
-  if (typeof axe === 'undefined') {
-    throw new Error('axe-core is not loaded. Please include axe-core before running this function.');
-  }
-
-  try {
-    // Configure axe-core options for WCAG 2.1 AA compliance
-    const options = {
-      runOnly: {
-        type: 'tag',
-        values: ['wcag2a', 'wcag2aa']
-      },
-      rules: {
-        // Enable all recommended rules
-        'color-contrast': { enabled: true },
-        'heading-order': { enabled: true },
-        'link-name': { enabled: true },
-        'button-name': { enabled: true },
-        'image-alt': { enabled: true },
-        'form-field': { enabled: true },
-        'keyboard-access': { enabled: true },
-        'focus-order': { enabled: true },
-        'region': { enabled: true },
-        'page-has-main-content': { enabled: true }
-      },
-      resultTypes: {
-        violations: true,
-        passes: true,
-        incomplete: true,
-        inapplicable: true
-      }
-    };
-
-    // Run accessibility scan on the document
-    const results = await axe.run(document, options);
-
-    // Format the report with additional metadata
-    const report = {
-      timestamp: new Date().toISOString(),
-      url: typeof window !== 'undefined' && window.location ? window.location.href : 'unknown',
-      violations: results.violations.map(violation => ({
-        id: violation.id,
-        description: violation.description,
-        help: violation.help,
-        helpUrl: violation.helpUrl,
-        nodes: violation.nodes.map(node => ({
-          target: node.target,
-          html: node.html,
-          failureSummary: node.failureSummary,
-          impact: node.impact
-        }))
-      })),
-      passes: results.passes.map(pass => ({
-        id: pass.id,
-        description: pass.description,
-        help: pass.help,
-        helpUrl: pass.helpUrl,
-        nodes: pass.nodes.map(node => ({
-          target: node.target,
-          html: node.html
-        }))
-      })),
-      incomplete: results.incomplete.map(incomplete => ({
-        id: incomplete.id,
-        description: incomplete.description,
-        help: incomplete.help,
-        helpUrl: incomplete.helpUrl,
-        nodes: incomplete.nodes.map(node => ({
-          target: node.target,
-          html: node.html
-        }))
-      })),
-      inapplicable: results.inapplicable.map(inapplicable => ({
-        id: inapplicable.id,
-        description: inapplicable.description,
-        help: inapplicable.help,
-        helpUrl: inapplicable.helpUrl
-      })),
-      testEngine: results.testEngine,
-      testRunner: results.testRunner,
-      testEnvironmentInfo: results.testEnvironmentInfo,
-      summary: {
-        violations: results.violations.length,
-        passes: results.passes.length,
-        incomplete: results.incomplete.length,
-        inapplicable: results.inapplicable.length,
-        total: results.violations.length + results.passes.length + results.incomplete.length + results.inapplicable.length
-      }
-    };
-
-    return report;
-  } catch (error) {
-    console.error('Error scanning accessibility:', error);
-    return {
-      error: true,
-      message: error.message,
-      timestamp: new Date().toISOString()
-    };
-  }
-}
-
-function generateAccessibilityReportFromIssues(issuesData) {
-  // Generate accessibility report
-  return issuesData || [];
-}
-
-function addSvgAccessibilityProps(svgElement) {
-  if (!svgElement.getAttribute('role')) {
-    svgElement.setAttribute('role', 'img');
-  }
-  if (!svgElement.getAttribute('aria-hidden') && !svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-hidden', 'true');
-  }
-}
-
-function checkLinkAccessibility () {
-  const links = document.querySelectorAll('a[href]');
-  const issues = [];
-
-  links.forEach((link) => {
-    const href = link.getAttribute('href');
-    const text = link.textContent.trim();
-
-    if (!text) {
-      issues.push(`Link with href "${href}" has no accessible text`);
-    }
-  });
-
-  return issues;
-}
-
-function ensureUniqueLandmarksDOM() {
-  // ... (existing function implementation)
-}
-
-function extractSvgAccessibleName(svgContent) {
-  // ... (existing function implementation)
-}
-
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-function getFullLangAttribute() {
-  return document.documentElement.lang || (typeof navigator !== 'undefined' && navigator.language) || 'en-US';
-}
-
-function formatDate(date) {
-  return new Date(date).toISOString().split('T')[0];
-}
-
-function validateLandmark(landmark) {
+// Validate a single landmark
+async function validateLandmark(landmark) {
   const errors = [];
-  const validLandmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search', 'form', 'region'];
 
   if (Array.isArray(landmark)) {
-    landmark.forEach(innerLandmark => {
+    for (let innerLandmark of landmark) {
       if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
         errors.push('Landmark array must have valid names');
       }
-    });
+    }
   }
 
-  if (landmark && typeof landmark !== 'object') {
-    errors.push('Landmark must be an object');
-  }
-
-  if (!landmark) {
-    errors.push('Landmark is null or undefined');
-  } else {
-    if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-      errors.push('Landmark must have a valid name');
-    }
-
-    const role = landmark.getAttribute ? landmark.getAttribute('role') : landmark.role;
-    if (role && !validLandmarks.includes(role)) {
-      errors.push('Invalid landmark role: ' + role);
-    }
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
   }
 
   return { result: landmark, errors };
 }
 
-function validateLandmarkStructure(landmarks) {
-  const issues = [];
-  let hasMain = false;
-  let hasNavigation = false;
-
-  if (Array.isArray(landmarks)) {
-    landmarks.forEach((landmark, index) => {
-      const result = validateLandmarkSingle(landmark);
-      if (!result.success) {
-        issues.push({
-          landmarkIndex: index,
-          issues: result.issues
-        });
-      }
-      const role = landmark.getAttribute ? landmark.getAttribute('role') : landmark.tagName;
-      if (role === 'main') hasMain = true;
-      if (role === 'navigation') hasNavigation = true;
-    });
-  } else {
-    const allLandmarks = document.querySelectorAll ? document.querySelectorAll('header, nav, main, aside, footer, section, article') : [];
-    allLandmarks.forEach(landmark => {
-      const role = landmark.getAttribute ? landmark.getAttribute('role') : landmark.tagName;
-      if (role === 'main') hasMain = true;
-      if (role === 'navigation') hasNavigation = true;
-    });
-  }
-
-  if (!hasMain) console.warn('Missing main landmark');
-  if (!hasNavigation) console.warn('Missing navigation landmark');
-
-  return {
-    success: hasMain && hasNavigation && issues.length === 0,
-    issues
-  };
-}
-
-function validateLandmarkSingle(element) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
-  if (!element.tagName) {
-    issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
-    issues.push('Invalid landmark: ' + element.tagName);
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
-function validateTableAccessibility(table) {
-  const issues = [];
-
-  if (!table.querySelector || !table.querySelector('caption')) {
-    issues.push('Missing caption element');
-  }
-
-  if (!table.getAttribute('headers')) {
-    issues.push('Missing headers attribute');
-  }
-
-  const headerCells = table.querySelectorAll ? table.querySelectorAll('th') : [];
-  headerCells.forEach(cell => {
-    if (!cell.getAttribute('scope')) {
-      issues.push('Missing scope attribute on header cell');
-    }
-  });
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
-}
-
-function validateTableStructure(tableElement) {
-  const rows = tableElement && tableElement.rows;
-  if (!rows || rows.length === 0) {
-    console.warn('Table has no rows');
-    return false;
-  }
+// Check link accessibility
+function checkLinkAccessibility(url) {
+  // Implementation logic here...
+  // Placeholder return statement
   return true;
 }
 
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return 'Accessible SVG Icon';
-
-  const title = svgElement.querySelector ? svgElement.querySelector('title') : null;
-  const ariaLabel = svgElement.getAttribute ? svgElement.getAttribute('aria-label') : null;
-  if (title) return title.textContent;
-  if (ariaLabel) return ariaLabel;
-  return 'Accessible SVG Icon';
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  if (svg && accessibleName) {
-    svg.setAttribute('aria-label', accessibleName);
-  }
-}
-
-function personName() {
-  // Person name accessibility handling
-}
-
-function handleFakeLinks() {
-  // ... (updated function implementation, merging both changes)
-}
-
+// Ensure dependency graph has proper ARIA role and labels
 function ensureDependencyGraphRole(container) {
   if (!container) return;
   if (!container.hasAttribute('role')) {
-    container.setAttribute('role', 'graphics-document');
+    container.setAttribute('role', 'region');
   }
-  if (!container.hasAttribute('aria-label')) {
-    container.setAttribute('aria-label', 'Dependency graph');
+  if (!container.getAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Dependency Graph Visualization');
   }
 }
 
-async function harvest() {
+// Harvest data from dependencies
+async function harvest(harvestedData) {
   // TODO: Implement harvest logic
 }
 
+// Upgrade system with harvested data
 async function upgrade(harvestedData) {
   // TODO: Implement upgrade logic
 }
 
+// Combine harvest and upgrade
 async function harvestAndUpgrade() {
   // TODO: Implement harvest and upgrade logic
 }
 
+// Add lang attribute to HTML element
 function addLangAttribute() {
-  // ... (updated function implementation, merging both changes)
-}
-
-const validateLandmarkStructureConst = (landmarks) => {
-  // ... (updated implementation, merging both changes)
-};
-
-const validateLandmarkAttributes = (landmark) => {
-  return landmark && landmark.id && landmark.name;
-};
-
-const addMainLandmarkImpl = () => {
-  // Code for adding main landmark (from one of the changes)
-};
-
-const renderDependencyGraphContentImpl = () => {
-  // ... (updated implementation, merging both changes)
-};
-
-const createInPageButtonsImpl = () => {
-  // ... (updated implementation, merging both changes)
-};
-
-const isValidLandmark = landmark => landmark && typeof landmark.id !== 'undefined' && landmark.id !== null;
-
-const loadLandmarks = () => {
-  try {
-    const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error loading landmarks:', error.message);
-    return [];
-  }
-};
-
-const processLandmarks = (landmarks) => {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const validLandmarks = landmarks.filter(isValidLandmark);
-  const uniqueLandmarks = externalEnsureUniqueLandmarks(validLandmarks);
-
-  return uniqueLandmarks.slice(0, config.maxResults);
-};
-
-const ensureUniqueLandmarks = (landmarks) => {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-  const seen = new Set();
-  return landmarks.filter(landmark => {
-    if (seen.has(landmark.id)) {
-      return false;
-    }
-    seen.add(landmark.id);
-    return true;
-  });
-};
-
-const setLanguageAttribute = () => {
-  document.documentElement.lang = 'en';
-};
-
-const addLandmarkRolesImpl = () => {
-  // ... (implementation)
-};
-
-const landmarkConfig = {
-  main: 'main',
-  banner: 'banner',
-  contentInfo: 'contentinfo',
-  search: 'search',
-  navigation: 'navigation',
-  region: 'region',
-  aside: 'aside',
-  header: 'header',
-  footer: 'footer'
-};
-
-function checkLinkAccessibilityByUrl(url) {
-    // Implementation logic here...
-    return true;
-}
-
-function newExportedFunction() {
-    // New export logic here...
-}
-
-function checkLandmarkElement(elementOrId) {
-    let element = elementOrId;
-    if (typeof elementOrId === 'string') {
-        element = document.getElementById(elementOrId);
-    }
-
-    if (!element) {
-        return false;
-    }
-
-    const hasRole = element.getAttribute && element.getAttribute('role');
-    const hasAriaLabel = element.getAttribute && element.getAttribute('aria-label');
-    const hasAriaLabelledby = element.getAttribute && element.getAttribute('aria-labelledby');
-
-    if (!(hasRole || hasAriaLabel || hasAriaLabelledby)) {
-        if (!element.hasAttribute('aria-labelledby')) {
-            const id = typeof elementOrId === 'string' ? elementOrId : element.id;
-            if (id) {
-                element.setAttribute('aria-labelledby', id);
-            }
-        }
-    }
-
-    return element;
-}
-
-function landmarkStructureCheck(landmarks) {
-  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region', 'banner', 'application'];
-  const results = {
-    valid: true,
-    landmarks: [],
-    errors: []
-  };
-
-  if (!landmarks || !Array.isArray(landmarks)) {
-      return results;
-  }
-
-  landmarks.forEach(landmark => {
-    if (Array.isArray(landmark)) {
-        landmark.forEach(inner => {
-            results.landmarks.push(inner);
-            if (inner.role && !landmarkRoles.includes(inner.role)) {
-                results.errors.push(`Invalid landmark role: ${inner.role}`);
-                results.valid = false;
-            }
-        });
-    } else {
-        results.landmarks.push(landmark);
-        if (landmark.role && !landmarkRoles.includes(landmark.role)) {
-            results.errors.push(`Invalid landmark role: ${landmark.role}`);
-            results.valid = false;
-        }
-    }
-  });
-
-  return results;
-}
-
-function ensureLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement && document.documentElement.getAttribute('lang') === null) {
     document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
   }
 }
 
-function fixLandmarks() {
-  if (typeof document === 'undefined') return;
+// Accessibility improvement helpers
+const addressAccessibilityIssues = addressAccessibilityIssuesFromModule;
+const scanAccessibility = scanAccessibilityFromModule;
+const fixFakeLinks = externalFixFakeLinks;
+const externalEnsureUniqueLandmarks = externalEnsureUniqueLandmarks;
+const externalAddLandmarkRoles = externalAddLandmarkRoles;
+const renderDependencyGraph = renderDependencyGraphContent;
+const createInPageButtons = createInPageButtons;
+const addressAccessibilityIssuesFromModule = addressAccessibilityIssues;
+const scanAccessibilityFromModule = scanAccessibility;
+const fixFakeLinks = externalFixFakeLinks;
+const ensureUniqueLandmarks = ensureUniqueLandmarksFromFile;
 
-  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
-  const landmarkCounts = {};
+// Accessibility improvements (destructured)
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  externalFixFakeLinks,
+  externalEnsureUniqueLandmarks,
+  externalAddLandmarkRoles,
+  renderDependencyGraphContent,
+  createInPageButtons,
+  addressAccessibilityIssues: addressAccessibilityIssuesFromModule,
+  scanAccessibility: scanAccessibilityFromModule,
+  fixFakeLinks,
+  ensureUniqueLandmarks: ensureUniqueLandmarksFromFile,
+  addLandmarkRoles,
+  renderDependencyGraph,
+  displayModuleStructure,
+  countDependencies,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships
+} = require('./accessibility-improvements');
 
-  landmarkSelectors.forEach(selector => {
-    landmarkCounts[selector] = 0;
-  });
+// Configuration - merged from both versions (using origin/main for completeness)
+const config = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
+  maxLandmarks: 50,
+  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  maxResults: 100,
+  dataPath: './data'
+};
 
-  document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
-    const tagName = element.tagName.toLowerCase();
+// Constants
+const safetyCategories = ["Unauthorized Advice", "Dangerous Action", "Potential Scam", "Privacy Risk"];
+const books = [];
+const safetyCategory = "User Safety: safe";
 
-    if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-      landmarkCounts[tagName]++;
-      element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
-    } else if (landmarkCounts[tagName] === 0) {
-      landmarkCounts[tagName]++;
-    }
-  });
+const landmarkSelectors = [
+  'main',
+  '[role="banner"]',
+  '[role="navigation"]',
+  '[role="main"]',
+  '[role="contentinfo"]',
+  '[role="form"]',
+  '[role="search"]',
+  'nav',
+  '[role="region"]',
+  'aside',
+  'header:not([role])',
+  'nav:not([role])',
+  'main:not([role])',
+  'footer:not([role])',
+  'section:not([role])'
+].map((selector, index) => ({ selector, priority: index }));
+
+// Handle credential response when received
+function handleCredentialResponse(response) {
+  if (!response) {
+    console.error('No credential response received');
+    return null;
+  }
+  const credential = JSON.parse(response.credential);
+
+  if (!credential || !credential.credential || !credential.clientId) {
+    throw new Error('Invalid credential response structure');
+  }
+
+  localStorage.setItem('authCredential', JSON.stringify({
+    token: credential.credential,
+    clientId: credential.clientId,
+    timestamp: Date.now()
+  }));
+
+  return credential;
 }
 
-function addSvgAccessibleNamesImpl() {
-  if (typeof document === 'undefined') return;
+// Main initialization function
+const initializeApp = () => {
+  console.log('Application initialized');
 
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
-      const title = document.createElement('title');
-      title.textContent = `SVG icon ${index + 1}`;
-      title.id = `svg-title-${index + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('aria-labelledby', title.id);
+  // Ensure the app is accessible
+  const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
+  if (mainContent) {
+    mainContent.setAttribute('aria-label', 'Main content area');
+  }
+
+  // Set up keyboard navigation
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Tab') {
+      document.body.classList.add('keyboard-nav');
     }
   });
+
+  document.addEventListener('mousedown', () => {
+    document.body.classList.remove('keyboard-nav');
+  });
+
+  // Call accessibility helper functions
+  setLanguageAttribute();
+  addLandmarkRoles();
+  fixFakeLinks();
+
+  // Address accessibility issues
+  addressAccessibilityIssues();
+
+  // Create the in-page button
+  createInPageButton();
+
+  // Add accessible names to 2 SVGs
+  setSvgAccessibleNames('svg1Id', 'svg2Id', 'aria-label for SVG1', 'aria-label for SVG2');
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks([]);
+
+  // Fix fake link issue
+  fixFakeLink();
+
+  // Initialize accessibility features from a11y utilities
+  if (a11y && a11y.init) {
+    a11y.init();
+  }
+
+  // Upgrade logic: use harvested data to improve the system
+  if (processed.length > 0) {
+    enhanceSystemWithHarvestedData(processed);
+  }
+};
+
+// Accessibility scanning function using axe-core library
+async function scanAccessibility(filePaths) {
+  const issues = [];
+
+  // Check for lang attribute on HTML element
+  const langAttribute = getLangAttribute();
+  if (!langAttribute) {
+    issues.push({
+      type: 'REACT_015',
+      description: 'HTML element is missing lang attribute',
+      severity: 'critical',
+      element: 'html'
+    });
+  }
+
+  // Check table accessibility
+  const tableAccessibilityIssues = validateTableAccessibility();
+  if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
+    tableAccessibilityIssues.forEach(function(issue) {
+      issues.push({
+        file: filePaths[0] || 'unknown',
+        issues: [issue],
+      });
+    });
+  }
+
+  // Use axe.analyze for additional scanning
+  for (const filePath of filePaths) {
+    const fileEmitted = path.join(process.cwd(), filePath);
+    const { violations } = await axe.analyze(fileEmitted);
+
+    if (violations.length > 0) {
+      issues.push({
+        file: filePath,
+        issues: violations,
+      });
+    }
+  }
+
+  // Check table structure
+  const tableStructureIssues = validateTableStructure();
+  if (tableStructureIssues && tableStructureIssues.length > 0) {
+    tableStructureIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'structure',
+        description: issue.description || 'Table structure issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+
+  // Check landmark issues
+  const landmarkIssues = validateLandmark();
+  if (landmarkIssues && landmarkIssues.length > 0) {
+    landmarkIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check landmark structure
+  const landmarkStructureIssues = validateLandmarkStructure();
+  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
+    landmarkStructureIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_017',
+        structure: true,
+        description: issue.description || 'Landmark structure issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check landmark attributes
+  const landmarkAttributeIssues = validateLandmarkAttributes();
+  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
+    landmarkAttributeIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark attribute issue',
+        severity: issue.severity || 'low',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check SVG accessibility
+  const svgAccessibleNames = getSvgAccessibleName();
+  if (svgAccessibleNames && svgAccessibleNames.length > 0) {
+    svgAccessibleNames.forEach(function(svg) {
+      issues.push({
+        type: 'REACT_041',
+        description: 'SVG is missing accessible name',
+        severity: 'medium',
+        svg: svg.element,
+        svgId: svg.id
+      });
+    });
+  }
+
+  // Check for unique landmarks
+  const uniqueLandmarkIssues = ensureUniqueLandmarks([]);
+  if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
+    uniqueLandmarkIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_025',
+        description: issue.description || 'Duplicate or missing landmark',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check link accessibility
+  const linkIssues = validateLinkAccessibility();
+  if (linkIssues && linkIssues.length > 0) {
+    linkIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_036',
+        description: issue.description || 'Link accessibility issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        link: issue.link
+      });
+    });
+  }
+
+  return issues;
 }
 
-function fixFakeLinksImpl() {
-  if (typeof document === 'undefined') return;
+// Function to generate a report based on accessibility issues
+function generateAccessibilityReport(issuesData) {
+  const analyzedIssues = analyzeAccessibility(issuesData);
 
-  document.querySelectorAll('a').forEach(link => {
-    const href = link.getAttribute('href');
-    if (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
-      if (link.querySelector('button') || link.getAttribute('role') === 'button') {
-        link.setAttribute('role', 'button');
-        if (!link.id) {
-          link.id = `button-${Date.now()}-${
->>>>>>> origin/main
+  // Check for lang attribute on HTML element
+  const langAttribute = getLangAttribute();
+  if (!langAttribute) {
+    analyzedIssues.push({
+      type: 'REACT_015',
+      description: 'HTML element is missing lang attribute',
+      severity: 'critical',
+      element: 'html'
+    });
+  }
+
+  // Define the structure of the report here with comprehensive summary
+  const report = {
+    introduction: 'Accessibility report for the application',
+    data: analyzedIssues,
+    conclusions: '',
+    issues: analyzedIssues,
+    summary: {
+      totalIssues: analyzedIssues.length,
+      langAttribute: analyzedIssues.filter(function(i) { return i.type === 'REACT_015'; }).length,
+      tableIssues: analyzedIssues.filter(function(i) { return i.type === 'REACT_027'; }).length,
+      landmarkIssues: analyzedIssues.filter(function(i) { return i.type === 'REACT_017'; }).length,
+      svgIssues: analyzedIssues.filter(function(i) { return i.type === 'REACT_041'; }).length,
+      uniqueLandmarkIssues: analyzedIssues.filter(function(i) { return i.type === 'REACT_025'; }).length,
+      linkIssues: analyzedIssues.filter(function(i) { return i.type === 'REACT_036'; }).length,
+      critical: analyzedIssues.filter(function(i) { return i.severity === 'critical'; }).length,
+      high: analyzedIssues.filter(function(i) { return i.severity === 'high'; }).length,
+      medium: analyzedIssues.filter(function(i) { return i.severity === 'medium'; }).length,
+      low: analyzedIssues.filter(function(i) { return i.severity === 'low'; }).length
+    },
+    timestamp: new Date().toISOString(),
+    generatedAt: new Date().toLocaleString()
+  };
+
+  writeReport(report);
+  return report;
+}
+
+// Function to write the generated report to a file
+function writeReport(report) {
+  const reportFile = path.join(__dirname, 'accessibility_report.json');
+  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+}
+
+// Existing utility function
+const formatResponse = (data) => {
+  return JSON.stringify(data, null, 2);
+};
+
+// Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
+const { a11y } = require('@accessible/react');
+const { validateInput } = require('./utils/validators');
+const { processData } = require('./utils/processor');
+
+// Application main entry point
+const app = express();
+
+// Endpoint for getting landmarks
+app.get('/landmarks', (req, res) => {
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+
+  res.json(sorted);
+});
+
+function main() {
+  const initialized = initialize();
+  if (initialized) {
+    console.log('Application started successfully');
+  }
+  return initialized;
+}
+
+// Main execution when run directly
+if (require.main === module) {
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+
+  console.log(`Loaded ${landmarks.length} landmarks`);
+  console.log(`Processed to ${processed.length} unique landmarks`);
+  console.log(`Sorted ${sorted.length} landmarks`);
+
+  if (sorted.length > 0) {
+    console.log('First landmark:', sorted[0]);
+  }
+}
+
+// Upgrade logic: use harvested data to improve the system
+function

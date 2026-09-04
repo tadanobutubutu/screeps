@@ -19,10 +19,10 @@
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
-const { spawn } = require('child_process');
+const fastMap = require('fast-map');
 const accessiblyHelper = require('./accessibly-helper');
+const { spawn } = require('child_process');
 
 const CONFIG = {
     dataPath: './data',
@@ -222,6 +222,7 @@ function initialize() {
 // Process spawning
 function spawnProcess(command, args = [], options = {}) {
     return new Promise((resolve, reject) => {
+        const child = spawn(command, args, options);
         let stdout = '';
         let stderr = '';
         let timeoutId;

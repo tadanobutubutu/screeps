@@ -34,18 +34,6 @@ const HTML = ({ lang }) => {
     return { lang };
 };
 
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// TODO: This is the modified and merged code
-
-// Function to count dependencies in package.json
 function countDependencies() {
   try {
     const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
@@ -137,3 +125,268 @@ function setSvgAttributes(svg, accessibleName) {
     }
   }
 }
+
+function ensureUniqueLandmarks(landmarksArg) {
+  // Merged implementation (conflict resolved)
+  let landmarks = landmarksArg;
+  if (!Array.isArray(landmarks)) {
+    landmarks = [];
+  }
+  const elementsById = {};
+
+  if (Array.isArray(landmarks)) {
+    for (const landmark of landmarks) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          landmark.id += '_duplicate';
+        } else {
+          elementsById[landmark.id] = true;
+        }
+      }
+    }
+  }
+
+  // Additional uniqueness check for landmark roles
+  const landmarksByRole = {};
+  const allLandmarks = document.querySelectorAll('[role]');
+
+  allLandmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (landmarksByRole[role]) {
+      console.warn(`Duplicate landmark role: ${role}`);
+    } else {
+      landmarksByRole[role] = true;
+    }
+  });
+
+  return landmarks;
+}
+
+function fixTableStructure(table) {
+  if (!table.headers) {
+    table.headers = 'auto';
+  }
+
+  if (!table.scope) {
+    table.scope = 'auto';
+  }
+
+  return table;
+}
+
+function addMainLandmark(document) {
+  if (!document.querySelector('main')) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    document.body.appendChild(main);
+  }
+  return document;
+}
+
+function handleCredentialResponse(credentialResponse) {
+  if (!credentialResponse || typeof credentialResponse !== 'object') {
+    throw new Error('Invalid credential response');
+  }
+
+  // Extract and validate required fields
+  const { credential, clientExtensionResults, authenticatorData } = credentialResponse;
+
+  if (!credential || typeof credential !== 'string') {
+    throw new Error('Invalid credential in response');
+  }
+
+  // Process the credential data
+  const processedCredential = {
+    rawId: credential,
+    id: credential,
+    response: {
+      clientDataJSON: credentialResponse.clientDataJSON,
+      authenticatorData: authenticatorData || null,
+      signature: credentialResponse.signature || null,
+      userHandle: credentialResponse.userHandle || null
+    },
+    type: 'public-key',
+    extensions: clientExtensionResults || {}
+  };
+
+  // Validate the processed credential
+  if (!processedCredential.response.clientDataJSON) {
+    throw new Error('Missing clientDataJSON in credential response');
+  }
+
+  return processedCredential;
+}
+
+function addProperLandmarkRegions(document) {
+  const regions = [
+    { selector: 'header', role: 'banner' },
+    { selector: 'nav', role: 'navigation' },
+    { selector: 'main', role: 'main' },
+    { selector: 'aside', role: 'complementary' },
+    { selector: 'footer', role: 'contentinfo' }
+  ];
+
+  regions.forEach(region => {
+    const elements = document.querySelectorAll(region.selector);
+    elements.forEach(element => {
+      if (!element.getAttribute('role')) {
+        element.setAttribute('role', region.role);
+      }
+    });
+  });
+}
+
+function handleAccessibilityIssues() {
+    // Implementation to handle accessibility issues (conflict resolved: merged implementation)
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        validateTableAccessibility(table);
+        validateTableStructure(table);
+    });
+
+    const landmarks = document.querySelectorAll('[role]');
+    landmarks.forEach(landmark => {
+        validateLandmark(landmark);
+    });
+
+    validateLandmarkStructure();
+    ensureUniqueLandmarks();
+
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+        getSvgAccessibleName(svg);
+    });
+}
+
+// Fix fake link issues - handles links that don't work properly
+// Fake links are <a> tags without href or with invalid href values
+
+function fixFakeLinkIssue(linkElement) {
+  if (!linkElement) {
+    return false;
+  }
+
+  const isAnchor = linkElement.tagName && linkElement.tagName.toLowerCase() === 'a';
+  
+  if (!isAnchor) {
+    return false;
+  }
+
+  const href = linkElement.getAttribute('href');
+  const fakeHrefValues = ['#', 'javascript:void(0)', 'javascript:;', 'javascript:void(0);', ''];
+  const isFakeLink = !href || fakeHrefValues.includes(href) || href === window.location.href;
+
+  if (isFakeLink) {
+    // Remove the href attribute to prevent navigation
+    linkElement.removeAttribute('href');
+    
+    // Ensure the element has proper accessibility attributes
+    if (!linkElement.getAttribute('role')) {
+      linkElement.setAttribute('role', 'button');
+    }
+    
+    // Ensure the element has an accessible name
+    const hasText = linkElement.textContent.trim().length > 0;
+    const hasAriaLabel = linkElement.getAttribute('aria-label');
+    
+    if (!hasText && !hasAriaLabel) {
+      linkElement.setAttribute('aria-label', 'Interactive element');
+    }
+    
+    return true;
+  }
+
+  return false;
+}
+
+function fixFakeLinkIssues(container = document) {
+  const issues = [];
+  
+  // Find all <a> tags
+  const anchors = container.querySelectorAll('a');
+  
+  anchors.forEach(anchor => {
+    const href = anchor.getAttribute('href');
+    const fakeHrefValues = ['#', 'javascript:void(0)', 'javascript:;', 'javascript:void(0);', ''];
+    const isFakeLink = !href || fakeHrefValues.includes(href) || href === window.location.href;
+    
+    if (isFakeLink) {
+      const wasFixed = fixFakeLinkIssue(anchor);
+      
+      issues.push({
+        element: anchor,
+        type: 'fake-link',
+        fixed: wasFixed,
+        href: href || '(no href)'
+      });
+    }
+  });
+
+  // Check for non-anchor elements with onclick that look like links
+  const fakeLinkSelectors = [
+    '[role="link"]',
+    'span.clickable',
+    'div.clickable',
+    'button[href]',
+    '[onclick]:not(a):not(button)'
+  ];
+
+  fakeLinkSelectors.forEach(selector => {
+    try {
+      const elements = container.querySelectorAll(selector);
+      elements.forEach(element => {
+        const isAnchor = element.tagName && element.tagName.toLowerCase() === 'a';
+        if (!isAnchor) {
+          // Check if it looks like a link (has cursor: pointer or link styling)
+          const style = window.getComputedStyle(element);
+          const isClickable = style.cursor === 'pointer' || element.classList.contains('link');
+          
+          if (isClickable) {
+            // Add warning about fake link element
+            issues.push({
+              element: element,
+              type: 'fake-link-element',
+              fixed: false,
+              message: 'Non-anchor element styled as link'
+            });
+          }
+        }
+      });
+    } catch (e) {
+      // Invalid selector, skip
+    }
+  });
+
+  return {
+    totalIssues: issues.length,
+    fixed: issues.filter(i => i.fixed).length,
+    issues: issues
+  };
+}
+
+// Export all existing and new functions
+module.exports = {
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    ensureUniqueLandmarks,
+    getSvgAccessibleName,
+    createInPageButton,
+    createAccessibleLink,
+    fixTableStructure,
+    addMainLandmark,
+    setSvgAttributes,
+    countDependencies,
+    handleCredentialResponse,
+    addProperLandmarkRegions,
+    handleAccessibilityIssues,
+    initializeApp,
+    getConfig,
+    validateInput,
+    processData,
+    validateLandmarkRegions,
+    addLandmarkRegions,
+    fixFakeLinkIssue,
+    fixFakeLinkIssues
+};

@@ -1,38 +1,17 @@
 const books = [];
 const safetyCategory = "User Safety: safe";
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const path = require('path');
-const fastMap = require('fast-map');
+
 const utils = require('./utils');
-const accessiblyHelper = function() { return Promise.resolve([]); };
-
-const config = {
-  name: 'MyApp',
-  version: '1.0.0',
-  environment: process.env.NODE_ENV || 'development',
-  debug: true,
-  dataPath: './data',
-  maxResults: 100,
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  maxLandmarks: 50,
-  landmarks: ['main', 'nav', 'aside', 'footer', 'header']
-};
-
-const axeConfig = {
-  rules: {
-    'aria-invalid-2': { enabled: false },
-    'color-contrast': { enabled: false },
-    'name-role-value': { enabled: false },
-    'paraphernalia': { enabled: false },
-  },
-  silent: true
-};
+const { a11y } = require('@accessible/react');
 
 let dependencyGraph = {};
+let UserSafety = "unsafe";
+let SafetyCategories = "Unauthorized Advice";
 
+/**
+ * Gets the dependency graph
+ * @returns {Object} The dependency graph or a message
+ */
 function getDependencyGraph() {
   if (Object.keys(dependencyGraph).length === 0) {
     return { message: "No dependency graph found." };
@@ -40,144 +19,76 @@ function getDependencyGraph() {
   return dependencyGraph;
 }
 
-let UserSafety = "unsafe";
-let SafetyCategories = "Unauthorized Advice";
+/**
+ * Helper function for accessibility tasks
+ * @param {...*} args - Variable arguments
+ * @returns {Array} Array of arguments
+ */
+const accessiblyHelper = async (...args) => {
+  return args;
+};
 
+/**
+ * Gets user safety advice
+ * @returns {string} A random safety category
+ */
 function getUserSafetyAdvice() {
   const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
   return safetyCategories[Math.floor(Math.random() * safetyCategories.length)];
 }
 
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-async function generateAccessibilityReport(issuesData) {
-  let issues = [];
+/**
+ * Generates an accessibility report
+ * @param {Object} issuesData - Optional issues data
+ * @returns {Object} Accessibility report
+ */
+function generateAccessibilityReport(issuesData) {
+  let issues;
 
   if (!issuesData) {
-    issues.push({
-      type: 'no-issues-data',
-      message: 'No issues data provided for accessibility report generation'
+    // Check for images without alt attributes
+    const images = document.querySelectorAll ? document.querySelectorAll('img') : [];
+    images.forEach((img, index) => {
+      if (!img.getAttribute('alt')) {
+        issues.push({
+          type: 'missing-alt',
+          element: 'img',
+          index: index,
+          message: `Image at index ${index} is missing an alt attribute`
+        });
+      }
     });
-  }
 
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: issues,
-    conclusions: '',
-    generatedAt: new Date().toISOString()
-  };
+    // Check for buttons without accessible names
+    const buttons = document.querySelectorAll ? document.querySelectorAll('button') : [];
+    buttons.forEach((btn, index) => {
+      const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || '';
+      if (!accessibleName) {
+        issues.push({
+          type: 'missing-name',
+          element: 'button',
+          index: index,
+          message: `Button at index ${index} is missing an accessible name`
+        });
+      }
+    });
 
-  return report;
-}
+    // Check for links without accessible names
+    const links = document.querySelectorAll ? document.querySelectorAll('a') : [];
+    links.forEach((link, index) => {
+      const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || '';
+      if (!accessibleName) {
+        issues.push({
+          type: 'missing-name',
+          element: 'a',
+          index: index,
+          message: `Link at index ${index} is missing an accessible name`
+        });
+      }
+    });
 
-function createInPageButton(buttonText, onClickHandler) {
-  // Implementation would go here
-}
-
-function getLangAttribute() {
-  // Implementation would go here
-}
-
-function validateTableAccessibility() {
-  // Implementation would go here
-}
-
-function validateTableStructure() {
-  // Implementation would go here
-}
-
-function getSvgAccessibleName() {
-  // Implementation would go here
-}
-
-function setSvgAttributes() {
-  // Implementation would go here
-}
-
-function checkLinkAccessibility(linkUrl) {
-  // Implementation pending
-}
-
-function setDependencyGraphAria() {
-  const dependencyGraphEl = document.getElementById('dependency-graph') || document.querySelector('[data-dependency-graph]');
-
-  if (dependencyGraphEl) {
-    dependencyGraphEl.setAttribute('role', 'region');
-    dependencyGraphEl.setAttribute('aria-label', 'Dependency Graph Visualization');
-  }
-}
-
-let isInitialized = false;
-const appData_originSide = {};
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map(),
-  lang: 'en'
-};
-
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-async function renderFunction1() {
-  // Existing functionality
-  const moduleAReturnValue = await accessiblyHelper();
-
-  // Ensure the dependencyGraph container has a proper ARIA role
-  function ensureDependencyGraphRole(container) {
-    if (!container) return;
-    if (!container.getAttribute('role')) {
-      container.setAttribute('role', 'img');
-    }
-    if (!container.getAttribute('aria-label')) {
-      container.setAttribute('aria-label', 'Dependency graph');
-    }
-  }
-
-  // Application data structure
-  const appData = {
-    title: 'Screeps'
-  };
-}
-
-// Function to address new accessibility issues
-function addressNewAccessibilityIssues(issues) {
-  // Implementation pending - would use accessibilityUtils in original context
-  return issues;
-}
-
-// Function to validate landmark structure for accessibility issues
-function validateLandmarkStructure() {
-  // Implementation pending - would use accessibilityUtils in original context
-  return true;
-}
-
-function checkUserSafety() {
-  return UserSafety === 'safe';
-}
-
-function checkSafetyCategories() {
-  return SafetyCategories;
-}
-
-// Export the report generation function
-module.exports = {
-  generateAccessibilityReport,
-  addressAccessibilityIssues: function(issues) {
-    return issues;
-  },
-  checkLinkAccessibility,
-  addressNewAccessibilityIssues,
-  validateLandmarkStructure,
-  checkUserSafety,
-  checkSafetyCategories,
-  helper,
-  renderFunction1,
-  ensureDependencyGraphRole
-};
-
-// ... (Rest of the main.js content remains unchanged)
+    // Check for form inputs without labels
+    const inputs = document.querySelectorAll ? document.querySelectorAll('input') : [];
+    inputs.forEach((input, index) => {
+      const inputType = input.getAttribute('type');
+      if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !==

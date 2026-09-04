@@ -1,53 +1,42 @@
-const books = [];
-const safetyCategory = "User Safety: safe";
-let userSafety = 'unsafe';
-let safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-let dependencyGraph = {};
-const axeConfig = {
-  rules: {
-    'aria-invalid-2': { enabled: false },
-    'color-contrast': { enabled: false },
-    'name-role-value': { enabled: false },
-    'paraphernalia': { enabled: false },
-  }
-};
-
-// main.js - Application entry point
-// This file includes both the accessibility improvements and the dependency visualization tool features.
-
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// Accessibility improvements:
-// - Added semantic HTML structure
-// - Included ARIA attributes where necessary
-// - Ensured keyboard navigation support
-// - Added focus management
-
-// Module imports and configuration
-const config = require('./config');
-const logger = require('./utils/logger');
-const express = require('express');
+const utils = require('./utils');
 const axe = require('axe-core');
-const fastMap = require('fast-map');
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const utils = require('./utils');
 const { a11y } = require('@accessible/react');
-const { validateInput } = require('./utils/validators');
-const { processData } = require('./utils/processor');
+const fastMap = require('fast-map');
+const mapCache = new Map();
 const requiredModule1 = require('required-module-1');
 const requiredModule2 = require('required-module-2');
-const accessiblyHelperModule = require('./accessibly-helper');
+const { validateInput } = require('./utils/validators');
+const { processData } = require('./utils/processor');
+const accessiblyHelper = async (...args) => args;
 
-// Configuration - merged
-const CONFIG = {
+// Destructure functions from accessibility-improvements
+const {
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  externalFixFakeLinks,
+  externalEnsureUniqueLandmarks,
+  externalAddLandmarkRoles,
+  renderDependencyGraphContent,
+  createInPageButtons,
+  addressAccessibilityIssues: addressAccessibilityIssuesFromModule,
+  scanAccessibility: scanAccessibilityFromModule,
+  fixFakeLinks,
+  ensureUniqueLandmarks: ensureUniqueLandmarksFromFile,
+  addLandmarkRoles,
+  renderDependencyGraph,
+  displayModuleStructure,
+  countDependencies,
+  analyzeModuleDependencies,
+  visualizeModuleRelationships
+} = require('./accessibility-improvements');
+
+// Configuration - merged from both versions (using origin/main for completeness)
+const config = {
   name: 'MyApp',
   version: '1.0.0',
   debug: false,
@@ -58,9 +47,58 @@ const CONFIG = {
   dataPath: './data'
 };
 
+// Constants
+const safetyCategories = ["Unauthorized Advice", "Dangerous Action", "Potential Scam", "Privacy Risk"];
+const books = [];
+const safetyCategory = "User Safety: safe";
+
+const landmarkSelectors = [
+  'main',
+  '[role="banner"]',
+  '[role="navigation"]',
+  '[role="main"]',
+  '[role="contentinfo"]',
+  '[role="form"]',
+  '[role="search"]',
+  'nav',
+  '[role="region"]',
+  'aside',
+  'header:not([role])',
+  'nav:not([role])',
+  'main:not([role])',
+  'footer:not([role])',
+  'section:not([role])'
+].map((selector, index) => ({ selector, priority: index }));
+
+// Handle credential response when received
+function handleCredentialResponse(response) {
+  if (!response) {
+    console.error('No credential response received');
+    return null;
+  }
+  const credential = JSON.parse(response.credential);
+
+  if (!credential || !credential.credential || !credential.clientId) {
+    throw new Error('Invalid credential response structure');
+  }
+
+  localStorage.setItem('authCredential', JSON.stringify({
+    token: credential.credential,
+    clientId: credential.clientId,
+    timestamp: Date.now()
+  }));
+
+  return credential;
+}
+
+// Main configuration reference
+let configRef = config;
+let dependencyGraph = null;
+let icons = {};
+
 // Application configuration (alias for CONFIG)
 const mergedConfig = config;
-const config_ = CONFIG;
+const config_ = config;
 
 // Application state
 const appState = {
@@ -68,12 +106,6 @@ const appState = {
     data: null,
     cache: {}
 };
-
-let icons = {};
-
-function accessiblyHelper(...args) {
-  return args;
-}
 
 // TODO: Implement the new function as per the issue requirements
 // New function that does something different
@@ -85,27 +117,6 @@ function newFunction() {
 // New export logic
 function newExportedFunction() {
   // New export logic here...
-}
-
-// Function to handle credential response
-function handleCredentialResponse(response) {
-  // Parse the credential response
-  const credential = JSON.parse(response.credential);
-
-  // Validate the credential structure
-  if (!credential || !credential.credential || !credential.clientId) {
-    throw new Error('Invalid credential response structure');
-  }
-
-  // Store the credential in a secure way (implementation depends on your auth system)
-  localStorage.setItem('authCredential', JSON.stringify({
-    token: credential.credential,
-    clientId: credential.clientId,
-    timestamp: Date.now()
-  }));
-
-  // Return the parsed credential for further use
-  return credential;
 }
 
 // New function3 implementation
@@ -180,6 +191,7 @@ function isValidLandmark(landmark) {
            landmark.id !== null;
 }
 
+// Load landmarks from file
 function loadLandmarks() {
     try {
         const filePath = path.join(__dirname, config.dataPath, 'landmarks.json');
@@ -203,6 +215,7 @@ function processLandmarks(landmarks) {
     return uniqueLandmarks.slice(0, config.maxResults);
 }
 
+// Sort landmarks alphabetically
 function sortLandmarks(landmarks, ascending = true) {
     return landmarks.slice().sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
@@ -215,10 +228,12 @@ function sortLandmarks(landmarks, ascending = true) {
     });
 }
 
+// Get landmark by ID
 function getLandmarkById(landmarks, id) {
     return landmarks.find(landmark => landmark.id === id) || null;
 }
 
+// Validate a single landmark
 async function validateLandmark(landmark) {
   const errors = [];
 
@@ -237,94 +252,37 @@ async function validateLandmark(landmark) {
   return { result: landmark, errors };
 }
 
+// Check link accessibility
 function checkLinkAccessibility(url) {
   // Implementation logic here...
   // Placeholder return statement
   return true;
 }
 
-function checkLandmarkElement(elementOrId) {
-  let element = elementOrId;
-  if (typeof elementOrId === 'string') {
-      element = document.getElementById(elementOrId);
+// Ensure dependency graph has proper ARIA role and labels
+function ensureDependencyGraphRole(container) {
+  if (!container) return;
+  if (!container.hasAttribute('role')) {
+    container.setAttribute('role', 'region');
   }
-
-  if (!element) {
-      return false;
+  if (!container.getAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Dependency Graph Visualization');
   }
-
-  // Check if element has landmark-related attributes
-  const hasRole = element.getAttribute && element.getAttribute('role');
-  const hasAriaLabel = element.getAttribute && element.getAttribute('aria-label');
-  const hasAriaLabelledby = element.getAttribute && element.getAttribute('aria-labelledby');
-
-  // Must have either a role or accessible name to be a valid landmark element
-  if (!(hasRole || hasAriaLabel || hasAriaLabelledby)) {
-      if (!element.hasAttribute('aria-labelledby')) {
-          const id = typeof elementOrId === 'string' ? elementOrId : element.id;
-          if (id) {
-              element.setAttribute('aria-labelledby', id);
-          }
-      }
-  }
-
-  return element;
 }
 
-function ensureUniqueLandmarks(landmarksArray) {
-  if (!landmarksArray || !Array.isArray(landmarksArray) || landmarksArray.length === 0) {
-      return [];
-  }
-
-  const seen = new Set();
-
-  return landmarksArray.filter(landmark => {
-    const name = landmark.name || '';
-    const role = landmark.role || 'default';
-    const key = name + '_' + role;
-
-    if (seen.has(key)) {
-        return false;
-    }
-    seen.add(key);
-    return true;
-  });
+// Harvest data from dependencies
+async function harvest(harvestedData) {
+  // TODO: Implement harvest logic
 }
 
-function landmarkStructureCheck(landmarks) {
-  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region', 'banner', 'application'];
-  const results = {
-    valid: true,
-    landmarks: [],
-    errors: []
-  };
+// Upgrade system with harvested data
+async function upgrade(harvestedData) {
+  // TODO: Implement upgrade logic
+}
 
-  if (!landmarks || !Array.isArray(landmarks)) {
-      return results;
-  }
-
-  // ... existing code adapted for checking landmark structure ...
-  landmarks.forEach(landmark => {
-    if (Array.isArray(landmark)) {
-        landmark.forEach(inner => {
-            results.landmarks.push(inner);
-            // Check if inner landmark has valid role
-            if (inner.role && !landmarkRoles.includes(inner.role)) {
-                results.errors.push(`Invalid landmark role: ${inner.role}`);
-                results.valid = false;
-            }
-        });
-    } else {
-        results.landmarks.push(landmark);
-        // Check if landmark has valid role
-        if (landmark.role && !landmarkRoles.includes(landmark.role)) {
-            results.errors.push(`Invalid landmark role: ${landmark.role}`);
-            results.valid = false;
-        }
-    }
-  });
-
-  return results;
+// Combine harvest and upgrade
+async function harvestAndUpgrade() {
+  // TODO: Implement harvest and upgrade logic
 }
 
 // Applying new features from the origin/main branch
@@ -337,153 +295,17 @@ function analyzeModule(moduleCode) {
 }
 
 // REACT_015: Add lang attribute to document
-const ensureLangAttribute = () => {
+function addLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement && document.documentElement.getAttribute('lang') === null) {
     document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
   }
-};
-
-// Placeholder functions for accessibility utilities
-function getLangAttribute() {
-  return document.documentElement.lang;
 }
 
-function validateTableAccessibility() {
-  return [];
-}
+const ensureLangAttribute = addLangAttribute;
 
-function validateTableStructure() {
-  return [];
-}
-
-function validateLandmarkStructure() {
-  return [];
-}
-
-function validateLandmarkAttributes() {
-  return [];
-}
-
-function getSvgAccessibleName() {
-  return [];
-}
-
-function analyzeAccessibility(issuesData) {
-  return issuesData || [];
-}
-
-function addressAccessibilityIssues() {
-    // Address accessibility issues
-}
-
-function createInPageButton() {
-    // Create the in-page button
-}
-
-function setSvgAccessibleNames(id1, id2, label1, label2) {
-  // Add accessible names to 2 SVGs
-}
-
-function fixFakeLink() {
-  // Fix 1 fake link issue
-}
-
-// Function to set language attribute on the document
-function setLanguageAttribute() {
-  document.documentElement.lang = 'en';
-}
-
-// Function to add landmark roles to main containers
-function addLandmarkRoles() {
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.getAttribute('role')) {
-    mainElement.setAttribute('role', 'main');
-  }
-
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
-  }
-}
-
-// Function to fix fake links (links without href)
-function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
-  fakeLinks.forEach(link => {
-    if (!link.getAttribute('role')) {
-      link.setAttribute('role', 'button');
-    }
-  });
-}
-
-// New function to wrap primary content in main element for accessibility
-function wrapPrimaryContentInMain(parent) {
-  if (!parent || typeof parent.nodeType !== 'number') {
-    throw new Error('Invalid parent element');
-  }
-
-  // If already a main element, return as-is
-  if (parent.tagName?.toLowerCase() === 'main') {
-    return parent;
-  }
-
-  const mainElement = document.createElement('main');
-  mainElement.appendChild(parent);
-
-  return mainElement;
-}
-
-// New function to validate link accessibility
-function validateLinkAccessibility(link) {
-  if (!link || typeof link !== 'object') {
-    return false;
-  }
-
-  // Check if link has href and is not empty
-  if (!link.href || link.href.trim() === '') {
-    return false;
-  }
-
-  // Check if link has accessible name
-  if (!link.textContent || link.textContent.trim() === '') {
-    return false;
-  }
-
-  return true;
-}
-
-// New function to handle fake links
-function handleFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a[role="button"], a[href="#"]');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.removeAttribute('href');
-  });
-}
-
-// Helper function
-function initialize() {
-  console.log('Initializing application...');
-  
-  // Load landmarks for accessibility processing
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  
-  // Ensure the dependencyGraph container has a proper ARIA role
-  if (dependencyGraph) {
-    if (!dependencyGraph.id) {
-      dependencyGraph.id = 'dependencyGraph';
-    }
-    if (!dependencyGraph.hasAttribute('role')) {
-      dependencyGraph.setAttribute('role', 'region');
-    }
-    if (!dependencyGraph.hasAttribute('aria-label')) {
-      dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
-    }
-  }
-
-  return true;
-}
+// Accessibility improvement helpers
+const addressAccessibilityIssues = addressAccessibilityIssuesFromModule;
+const scanAccessibility = scanAccessibilityFromModule;
 
 // Main initialization function
 const initializeApp = () => {
@@ -518,12 +340,12 @@ const initializeApp = () => {
   createInPageButton();
 
   // Add accessible names to 2 SVGs
-  setSvgAccessibleNames('svg1Id', 'svg2Id', ' aria-label for SVG1', ' aria-label for SVG2');
+  setSvgAccessibleNames('svg1Id', 'svg2Id', 'aria-label for SVG1', 'aria-label for SVG2');
 
-  // Ensure unique landmarks (2 issues)
+  // Ensure unique landmarks
   ensureUniqueLandmarks([]);
 
-  // Fix 1 fake link issue
+  // Fix fake link issue
   fixFakeLink();
 
   // Initialize accessibility features from a11y utilities
@@ -834,35 +656,6 @@ function computeSafetyScore(content) {
   return Math.max(0, score);
 }
 
-// Function to analyze module dependencies
-function analyzeModuleDependencies(code) {
-  if (!code || typeof code !== 'string') {
-    return { dependencies: [], imports: [], exports: [] };
-  }
-  const dependencies = [];
-  const imports = code.match(/require\(['"]([^'"]+)['"]\)/g) || [];
-  const exports = code.match(/module\.exports\s*=/g) ? ['exports'] : [];
-  return { dependencies, imports: imports.map(i => i.replace(/require\(['"]([^'"]+)['"]\)/, '$1').replace(/['"]/g, '')), exports };
-}
-
-// Function to visualize module relationships
-function visualizeModuleRelationships(modules) {
-  if (!Array.isArray(modules)) {
-    return { nodes: [], edges: [] };
-  }
-  const nodes = modules.map(m => ({ id: m, label: m }));
-  const edges = [];
-  modules.forEach(m => {
-    modules.forEach(other => {
-      if (m !== other) {
-        edges.push({ from: m, to: other });
-      }
-    }
-  });
-
-  return { nodes, edges };
-}
-
 // Upgrade logic: use harvested data to improve the system
 function enhanceSystemWithHarvestedData(processed) {
   // Upgrade logic using processed data
@@ -871,7 +664,7 @@ function enhanceSystemWithHarvestedData(processed) {
 module.exports = {
   config_,
   config,
-  CONFIG,
+  CONFIG: config,
   mergedConfig,
   googleSignIn,
   newFunction,
@@ -907,7 +700,7 @@ module.exports = {
   checkLinkAccessibility,
   ensureLangAttribute,
   isValidLandmark,
-  landmarkConfig: CONFIG,
+  landmarkConfig: config,
   validateInput,
   processData,
   upgradeSystem,

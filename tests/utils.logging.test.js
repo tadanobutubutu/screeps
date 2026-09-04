@@ -176,6 +176,7 @@ describe('utils.logging', () => {
 
         test('logs an error and returns undefined when the function throws', () => {
             logging.clear(); // Ensure log history is clean
+            const errorSpy = jest.spyOn(logging, 'error');
             const dummyError = new Error('kaboom');
             const fn = jest.fn(() => {
                 throw dummyError;
@@ -189,6 +190,9 @@ describe('utils.logging', () => {
             expect(errors).toHaveLength(1);
             expect(errors[0].level).toBe('error');
             expect(errors[0].message).toBe('[errorCtx] kaboom');
+
+            expect(errorSpy).toHaveBeenCalledWith('[errorCtx] kaboom', dummyError);
+            errorSpy.mockRestore();
         });
     });
 });

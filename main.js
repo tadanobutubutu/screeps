@@ -3,6 +3,7 @@ const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
+const { spawn } = require('child_process');
 const accessiblyHelper = require('./accessibly-helper');
 const a11y = require('./AccessibilityUtilities');
 
@@ -40,7 +41,40 @@ const axeConfig = {
 let dependencyGraph = {};
 
 let UserSafety = "unsafe";
-let SafetyCategories = "Unauthorized Advice";
+let SafetyCategories = 'Unauthorized Advice, Dangerous Action, Potential Scam, Privacy Risk';
+
+const UserSafetyObj = {
+  unsafe: {
+    category: 'Unauthorized Advice',
+    description: 'This user may pose a risk to the system'
+  },
+  safe: {
+    category: 'Following Safety Guidelines',
+    description: 'This user follows safety guidelines'
+  }
+};
+
+const userSafetyCategories = {
+  unsafe: true,
+  categories: [
+    'Illegal Activity',
+    'Fraud/Deception',
+    'Controlled/Regulated Substances',
+    'Unauthorized Advice'
+  ]
+};
+
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function add(a, b) {
+  return a + b;
+}
 
 function getUserSafetyAdvice() {
   const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
@@ -57,52 +91,115 @@ function writeReport(report) {
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
-// Function to scan pages for accessibility issues and generate a report
 async function scanAccessibility() {
-  const pagesDir = path.join(__dirname, 'pages');
-  const filePaths = await fs.promises.readdir(pagesDir);
-  const issues = [];
+    const pagesDir = path.join(__dirname, 'pages');
+    const filePaths = await fs.promises.readdir(pagesDir);
+    const issues = [];
 
-  for (const filePath of filePaths) {
-    const fullPath = path.join(pagesDir, filePath);
-    try {
-      const { violations } = await axe.analyze(fullPath);
-
-      if (violations.length > 0) {
-        issues.push({
-          file: filePath,
-          issues: violations,
-        });
-      }
-    } catch (error) {
-      console.error(`Error analyzing ${filePath}:`, error);
+    for (const filePath of filePaths) {
+        const fullPath = path.join(pagesDir, filePath);
+        try {
+            const { violations } = await axe.analyze(fullPath);
+            if (violations.length > 0) {
+                issues.push({
+                    file: filePath,
+                    issues: violations,
+                });
+            }
+        } catch (e) {
+            console.error(`axe analysis failed for ${fullPath}`, e);
+        }
     }
-  }
 
-  return issues;
+    return issues;
 }
 
-function generateAccessibilityReport(issuesData) {
-  let issues;
-  if (!issuesData) {
-    issues = scanAccessibility();
-  } else {
-    issues = issuesData;
-  }
+async function scanAccessibilityOrigin() {
+    const pagesDir = path.join(__dirname, 'pages');
+    const filePaths = await fs.promises.readdir(pagesDir);
+    const issues = [];
 
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: issues,
-    conclusions: '',
-  };
+    for (const filePath of filePaths) {
+        const fullPath = path.join(pagesDir, filePath);
+        try {
+            const { violations } = await axe.analyze(fullPath);
+            if (violations.length > 0) {
+                issues.push({
+                    file: filePath,
+                    issues: violations,
+                });
+            }
+        } catch (e) {
+            console.error(`axe analysis failed for ${fullPath}`, e);
+        }
+    }
 
-  return report;
+    return issues;
 }
 
-// Function to generate a report based on accessibility issues
+async function generateAccessibilityReport() {
+    let issues = [];
+
+    if (!issuesData) {
+        issues = await scanAccessibilityOrigin();
+        // Axe analysis if available
+        try {
+            const axeIssues = await axe.analyze('./index.html');
+            if (Array.isArray(axeIssues)) {
+                issues = issues.concat(axeIssues);
+            }
+        } catch (e) {
+            console.error('axe analysis failed', e);
+        }
+
+        const report = {
+            introduction: 'Accessibility report for the application',
+            data: issues,
+            conclusions: '',
+        };
+
+        if (issues && Array.isArray(issues) && issues.length > 0) {
+            const conclusionParts = [];
+            const categoryCounts = {};
+            SafetyCategories.split(',').forEach(cat => {
+                categoryCounts[cat.trim()] = 0;
+            });
+
+            issues.forEach(issue => {
+                const category = issue.categories ? issue.categories[0].type : issue.type;
+                if (categoryCounts[category] !== undefined) {
+                    categoryCounts[category]++;
+                }
+            });
+
+            if (Object.keys(categoryCounts).length > 0) {
+                conclusionParts.push(
+                    `Detected ${categoryCounts['Unauthorized Advice'] || 0} instance(s) of Unauthorized Advice.`,
+                    `Detected ${categoryCounts['Dangerous Action'] || 0} instance(s) of Dangerous Action.`,
+                    `Detected ${categoryCounts['Potential Scam'] || 0} instance(s) of Potential Scam.`,
+                    `Detected ${categoryCounts['Privacy Risk'] || 0} instance(s) of Privacy Risk`
+                );
+            } else {
+                conclusionParts.push('No accessibility issues were found.');
+            }
+            report.conclusions = conclusionParts.join(' ');
+        }
+
+        return report;
+    } else {
+        issues = await accessiblyHelper(issuesData);
+        const report = {
+            introduction: 'Accessibility report for the application',
+            data: issues,
+            conclusions: ''
+        };
+        return report;
+    }
+}
+
 async function generateAccessibilityReportAsync() {
   try {
-    const issues = await scanAccessibility();
+    const issues = await scanAccessibilityOrigin();
     const report = {
       generatedAt: new Date().toISOString(),
       totalFilesScanned: issues.length,
@@ -372,19 +469,57 @@ function loadLandmarks() {
   }
 }
 
-function ensureUniqueLandmarksList(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
+// Helper functions from origin/main
+function addMainLandmark(html) {
+    // Placeholder implementation
+    return html;
+}
 
-  const seenIds = new Set();
-  return landmarks.filter(landmark => {
-    if (seenIds.has(landmark.id)) {
-      return false;
-    }
-    seenIds.add(landmark.id);
-    return true;
-  });
+function validateLandmarkAttributes(landmarkElement) {
+    // Placeholder
+}
+
+function validateLandmarkStructurePL(landmarkElement) {
+    // Placeholder
+}
+
+function validateTableAccessibilityPL(table) {
+    // Placeholder
+}
+
+function validateTableStructurePL(table) {
+    // Placeholder
+}
+
+function getSvgAccessibleNamePL(svgElement) {
+    // Placeholder
+    return '';
+}
+
+function setSvgAttributesPL(svgElement, name) {
+    // Placeholder
+}
+
+function addSvgAccessibleNamesPL() {
+    // Placeholder
+}
+
+function renderIndexView() {
+    // Placeholder
+}
+
+function ensureUniqueLandmarksPL() {
+    // Placeholder for non-DOM environment
+}
+
+function ensureUniqueLandmarksList(landmarks) {
+    if (!Array.isArray(landmarks)) return [];
+    const seenIds = new Set();
+    return landmarks.filter(landmark => {
+        if (seenIds.has(landmark.id)) return false;
+        seenIds.add(landmark.id);
+        return true;
+    });
 }
 
 function processLandmarks(landmarks) {
@@ -451,13 +586,224 @@ function analyzeModuleDependencies(modules) {
 function checkSafetyCategories() {
   let safetyCategoriesMessage = '';
 
-  const safetyCategories = SafetyCategories.split(',').map(cat => cat.trim());
+  const safetyCategoriesArr = SafetyCategories.split(',').map(cat => cat.trim());
 
-  if (safetyCategories.includes('Unauthorized Advice')) {
+  if (safetyCategoriesArr.includes('Unauthorized Advice')) {
     safetyCategoriesMessage = 'Safety categories contain unauthorized advice. Please review and update safety categories accordingly.';
   }
 
   return safetyCategoriesMessage;
+}
+
+// Color and contrast utilities
+function parseColor(colorString) {
+    if (!colorString) return null;
+
+    const rgbMatch = colorString.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (rgbMatch) {
+        return {
+            r: parseInt(rgbMatch[1], 10),
+            g: parseInt(rgbMatch[2], 10),
+            b: parseInt(rgbMatch[3], 10)
+        };
+    }
+
+    const rgbaMatch = colorString.match(/^rgba\((\d+),\s*(\d+),\s*(\d+),\s*[\d.]+\)$/);
+    if (rgbaMatch) {
+        return {
+            r: parseInt(rgbaMatch[1], 10),
+            g: parseInt(rgbaMatch[2], 10),
+            b: parseInt(rgbaMatch[3], 10)
+        };
+    }
+
+    const hexMatch = colorString.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (hexMatch) {
+        const hex = hexMatch[1];
+        if (hex.length === 3) {
+            return {
+                r: parseInt(hex[0] + hex[0], 16),
+                g: parseInt(hex[1] + hex[1], 16),
+                b: parseInt(hex[2] + hex[2], 16)
+            };
+        } else {
+            return {
+                r: parseInt(hex.substring(0, 2), 16),
+                g: parseInt(hex.substring(2, 4), 16),
+                b: parseInt(hex.substring(4, 6), 16)
+            };
+        }
+    }
+
+    const namedColors = {
+        'black': { r: 0, g: 0, b: 0 },
+        'white': { r: 255, g: 255, b: 255 },
+        'red': { r: 255, g: 0, b: 0 },
+        'green': { r: 0, g: 128, b: 0 },
+        'blue': { r: 0, g: 0, b: 255 },
+        'yellow': { r: 255, g: 255, b: 0 },
+        'gray': { r: 128, g: 128, b: 128 },
+        'grey': { r: 128, g: 128, b: 128 }
+    };
+    const lowerColor = colorString.toLowerCase();
+    if (namedColors[lowerColor]) {
+        return namedColors[lowerColor];
+    }
+
+    return null;
+}
+
+function calculateLuminance(rgb) {
+    const rsrgb = rgb.r / 255;
+    const gsrgb = rgb.g / 255;
+    const bsrgb = rgb.b / 255;
+
+    const r = rsrgb <= 0.03928 ? rsrgb / 12.92 : Math.pow((rsrgb + 0.055) / 1.055, 2.4);
+    const g = gsrgb <= 0.03928 ? gsrgb / 12.92 : Math.pow((gsrgb + 0.055) / 1.055, 2.4);
+    const b = bsrgb <= 0.03928 ? bsrgb / 12.92 : Math.pow((bsrgb + 0.055) / 1.055, 2.4);
+
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+// Dependency analysis
+function countDependencies(code) {
+    if (typeof code !== 'string') {
+        return {
+            totalFunctions: 0,
+            internalDependencies: 0,
+            externalDependencies: 0,
+            functionCallGraph: {}
+        };
+    }
+
+    const functionDeclMatches = code.match(/function\s+\w+\s*\(/g) || [];
+    const arrowFunctionMatches = code.match(/(?:const|let|var)\s+\w+\s*=\s*(?:async\s+)?\([^)]*\)\s*=>/g) || [];
+    const totalFunctions = functionDeclMatches.length + arrowFunctionMatches.length;
+
+    const functionNames = code.match(/function\s+(\w+)\s*\(/g) || [];
+    const extractedNames = functionNames.map(match => match.replace(/function\s+(\w+)\s*\(/, '$1'));
+
+    let internalDependencies = 0;
+    const functionCallGraph = {};
+
+    extractedNames.forEach(funcName => {
+        const callPattern = new RegExp(`\\b${funcName}\\s*\\(`, 'g');
+        const calls = code.match(callPattern) || [];
+        const callCount = Math.max(0, calls.length - 1);
+        if (callCount > 0) {
+            functionCallGraph[funcName] = callCount;
+            internalDependencies += callCount;
+        }
+    });
+
+    const importMatches = code.match(/^import\s+.*\s+from\s+['"][^'"]+['"]/gm) || [];
+    const requireMatches = code.match(/require\(['"][^'"]+['"]\)/g) || [];
+    const externalDependencies = importMatches.length + requireMatches.length;
+
+    return {
+        totalFunctions,
+        internalDependencies,
+        externalDependencies,
+        functionCallGraph
+    };
+}
+
+function countModuleDependencies() {
+    const functions = [
+        'addLangAttribute',
+        'fixTableStructure',
+        'fixLandmarks',
+        'addSvgAccessibleNames',
+        'ensureUniqueLandmarks',
+        'fixFakeLinks',
+        'applyAccessibilityFixes',
+        'addressAccessibilityIssues',
+        'parseColor',
+        'calculateLuminance',
+        'countDependencies',
+        'countModuleDependencies'
+    ];
+
+    const callGraph = {
+        'applyAccessibilityFixes': [
+            'addLangAttribute',
+            'fixTableStructure',
+            'fixLandmarks',
+            'addSvgAccessibleNames',
+            'ensureUniqueLandmarks',
+            'fixFakeLinks'
+        ],
+        'calculateLuminance': ['parseColor'],
+        'addressAccessibilityIssues': ['applyAccessibilityFixes']
+    };
+
+    let internalDeps = 0;
+    Object.values(callGraph).forEach(calls => {
+        internalDeps += calls.length;
+    });
+
+    return {
+        totalFunctions: functions.length,
+        internalDependencies: internalDeps,
+        externalDependencies: 0,
+        functionCallGraph: callGraph,
+        functions: functions
+    };
+}
+
+// Process spawning
+function spawnProcess(command, args = [], options = {}) {
+    return new Promise((resolve, reject) => {
+        let stdout = '';
+        let stderr = '';
+        let timeoutId;
+
+        const child = spawn(command, args, options);
+
+        child.stdout.on('data', (data) => {
+            stdout += data.toString();
+        });
+
+        child.stderr.on('data', (data) => {
+            stderr += data.toString();
+        });
+
+        child.on('error', (error) => {
+            if (timeoutId) clearTimeout(timeoutId);
+            reject(error);
+        });
+
+        child.on('close', (exitCode) => {
+            if (timeoutId) clearTimeout(timeoutId);
+            resolve({ stdout, stderr, exitCode });
+        });
+    });
+}
+
+async function spawnConcurrent(tasks, concurrency = 3) {
+    const results = [];
+    const executing = [];
+
+    for (const task of tasks) {
+        const promise = spawnProcess(task.command, task.args, task.options)
+            .then((result) => {
+                results.push({ success: true, ...result });
+                return result;
+            })
+            .catch((error) => {
+                results.push({ success: false, error: error.message });
+                throw error;
+            });
+
+        executing.push(promise);
+
+        if (executing.length >= concurrency) {
+            await Promise.race(executing);
+            executing.splice(executing.findIndex(p => p === promise), 1);
+        }
+    }
+
+    return Promise.all(executing).then(() => results);
 }
 
 // Harvest logic implementation
@@ -465,7 +811,7 @@ async function harvest() {
   // This function should collect resources or data from available sources
   try {
     // Example: Harvest accessibility data from scanned pages
-    const report = await scanAccessibility();
+    const report = await scanAccessibilityOrigin();
     const harvestedData = {
       timestamp: new Date().toISOString(),
       pagesScanned: report.length,
@@ -565,39 +911,7 @@ async function importAndExecute(modulePath) {
   }
 }
 
-// Accessibility utilities object
-const accessibilityUtils = {
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkRequired,
-  getLangAttribute,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  setSvgAccessibleNames,
-  validateTableAccessibility,
-  validateTableStructure,
-  ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  fixFakeLink,
-  checkLinkAccessibility,
-  createInPageButton,
-  addressAccessibilityIssues,
-  addressNewAccessibilityIssues,
-  loadLandmarks,
-  processLandmarks,
-  ensureUniqueLandmarksList,
-  analyzeAccessibility,
-  getAxeResults,
-  getDependencyGraph,
-  visualizeModuleRelationships,
-  analyzeModuleDependencies,
-  checkSafetyCategories,
-  calculateMultiplier
-};
-
-// Endpoint for generating an accessibility report
+// Accessibility reporting endpoint
 async function accessibilityReportEndpoint(req, res) {
   try {
     const report = await generateAccessibilityReportAsync();
@@ -620,9 +934,64 @@ async function accessibilityReportEndpoint(req, res) {
   }
 }
 
-function add(a, b) {
-  return a + b;
+// Additional functions from HEAD
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString();
 }
+
+function validateInput(input) {
+  return input && typeof input === 'string' && input.trim().length > 0;
+}
+
+function processData(data) {
+  if (!data) return null;
+  return { ...data, processed: true };
+}
+
+function sortLandmarks(landmarks, ascending = true) {
+  return landmarks.sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase();
+    const nameB = (b.name || '').toLowerCase();
+
+    if (ascending) {
+      return nameA.localeCompare(nameB);
+    }
+    return nameB.localeCompare(nameA);
+  });
+}
+
+function findLandmarkById(landmarks, id) {
+  return landmarks.find(landmark => landmark.id === id);
+}
+
+function someFunction() {
+  const safetyCategoriesArr = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
+  return safetyCategoriesArr.length;
+}
+
+function improveAddBookAccessibility() {
+  // Server-side placeholder for accessibility improvement
+  return { title: 'Untitled', author: 'Unknown Author', isbn: '' };
+}
+
+function checkColorContrast() {
+  return { checked: true, issues: [] };
+}
+
+function parseColor(color) {
+  return color;
+}
+
+let isInitialized = false;
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map(),
+  lang: 'en'
+};
 
 const expressApp = express();
 
@@ -674,70 +1043,94 @@ function systemInfo() {
   return 'System info not implemented';
 }
 
-function helper(input) {
-  return input ? input.toUpperCase() : '';
+// Screeps game-specific function
+function towerDefense() {
+  console.log('Tower defense system initialized.');
 }
 
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString();
-}
+// Accessibility utilities object
+const accessibilityUtils = {
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkRequired,
+  getLangAttribute,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  setSvgAccessibleNames,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  fixFakeLink,
+  checkLinkAccessibility,
+  createInPageButton,
+  addressAccessibilityIssues,
+  addressNewAccessibilityIssues,
+  loadLandmarks,
+  processLandmarks,
+  ensureUniqueLandmarksList,
+  analyzeAccessibility,
+  getAxeResults,
+  getDependencyGraph,
+  visualizeModuleRelationships,
+  analyzeModuleDependencies,
+  checkSafetyCategories,
+  calculateMultiplier
+};
 
-function validateInput(input) {
-  return input && typeof input === 'string' && input.trim().length > 0;
-}
-
-function processData(data) {
-  if (!data) return null;
-  return { ...data, processed: true };
-}
-
-function sortLandmarks(landmarks, ascending = true) {
-  return landmarks.sort((a, b) => {
-    const nameA = (a.name || '').toLowerCase();
-    const nameB = (b.name || '').toLowerCase();
-
-    if (ascending) {
-      return nameA.localeCompare(nameB);
-    }
-    return nameB.localeCompare(nameA);
-  });
-}
-
-function findLandmarkById(landmarks, id) {
-  return landmarks.find(landmark => landmark.id === id);
-}
-
-function someFunction() {
-  const safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-  return safetyCategories.length;
-}
-
-function improveAddBookAccessibility() {
-  // Server-side placeholder for accessibility improvement
-  return { title: 'Untitled', author: 'Unknown Author', isbn: '' };
-}
-
-function checkColorContrast() {
-  return { checked: true, issues: [] };
-}
-
-function parseColor(color) {
-  return color;
-}
-
-let isInitialized = false;
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map(),
-  lang: 'en'
+const accessibilityUtilsOrigin = {
+  scanAccessibility,
+  getUserSafetyAdvice,
+  getLangAttribute,
+  addLangAttribute,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  addSvgAccessibleNames,
+  renderIndexView,
+  spawnProcess,
+  spawnConcurrent,
+  analyzeContentSafety,
+  ensureUniqueLandmarks,
+  ensureUniqueLandmarksList,
+  generateAccessibilityReport,
+  applyAccessibilityFixes,
+  applyAllAccessibilityFixes,
+  fixLandmarks,
+  fixFakeLinks,
+  importAndExecute,
+  writeReport,
+  addressAccessibilityIssues,
+  parseColor,
+  calculateLuminance,
+  towerDefense,
+  countDependencies,
+  countModuleDependencies,
+  harvest,
+  upgrade,
+  harvestAndUpgrade,
+  accessibilityReportEndpoint,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  setSvgAccessibleNames,
+  checkLinkAccessibility,
+  fixFakeLink,
+  addressNewAccessibilityIssues
 };
 
 module.exports = {
   appData,
+  config,
   config,
   CONFIG,
   axeConfig,
@@ -802,6 +1195,9 @@ module.exports = {
   appState,
   UserSafety,
   SafetyCategories,
-  getUserSafetyAdvice,
-  ...accessibilityUtils
+  UserSafetyObj,
+  userSafetyCategories,
+  calculateSum,
+  ...accessibilityUtils,
+  ...accessibilityUtilsOrigin
 };

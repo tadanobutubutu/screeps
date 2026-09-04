@@ -40,8 +40,6 @@ const {
   validateTableStructure: validateTableStructureFn,
   validateLandmarkStructure: validateLandmarkStructureFn,
   validateLinkAccessibility: validateLinkAccessibilityFn,
-  validateTableAccessibility: validateTableAccessibilityLocal,
-  validateLandmarkStructure: validateLandmarkStructureLocal,
   getSvgAccessibleName: getSvgAccessibleNameLocal,
   setSvgAttributes: setSvgAttributesLocal,
   ensureUniqueLandmarks: ensureUniqueLandmarksLocal,
@@ -94,6 +92,17 @@ function setSvgAttributes(element, accessibleName) {
   }
 }
 
+// Language attribute helper
+function setLanguageAttribute(element, lang) {
+  if (element) {
+    element.lang = lang;
+  }
+}
+
+function getSvgAccessibleNameNew(element) {
+  return getSvgAccessibleName(element);
+}
+
 // Configuration
 const CONFIG = {
     name: 'MyApp',
@@ -141,7 +150,7 @@ function processLandmarks(landmarks) {
     }
 
     const validLandmarks = landmarks.filter(isValidLandmark);
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    const uniqueLandmarks = ensureUniqueLandmarksFn(validLandmarks);
 
     return uniqueLandmarks.slice(0, config.maxResults);
 }
@@ -243,6 +252,13 @@ module.exports = {
   dependencyGraph,
   UserSafety2,
   SafetyCategories3,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  ensureUniqueLandmarks,
+  checkLinkAccessibility,
+  getLangAttribute,
   getLangAttributeNew,
   getSvgAccessibleName,
   setSvgAttributes,
@@ -251,12 +267,5 @@ module.exports = {
   renderGraph,
   renderGraphIndex,
   updateGraphDisplay,
-  main,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  ensureUniqueLandmarks,
-  checkLinkAccessibility,
-  getLangAttribute
+  main
 };

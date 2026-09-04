@@ -3,14 +3,14 @@ name: AI Code Maintenance
 on:
   schedule:
     - cron: '0 */6 * * *'
-  issues:
+  # disabled_by_guard: issues:
     types: [opened, labeled]
   workflow_dispatch:
 
 permissions:
   contents: write
   pull-requests: write
-  issues: write
+  # disabled_by_guard: issues: write
 
 jobs:
   scheduled-maintenance:

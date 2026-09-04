@@ -1,4 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice

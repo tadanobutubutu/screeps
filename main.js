@@ -1,9 +1,9 @@
-Here is the resolved file content:
-
-```javascript
-const fs = require('fs');
-const path = require('path');
 const express = require('express');
+const axe = require('axe-core');
+const fs = require('fs');
+const fastMap = require('fast-map');
+const path = require('path');
+const accessiblyHelper = require('./accessibly-helper');
 
 function calculateSum(a, b) {
   return a + b;
@@ -20,42 +20,11 @@ const UserSafety = {
   }
 };
 
-const getSafetyCategory = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus.category;
-
-const getSafetyCategoryDetailed = (userSafetyStatus = UserSafety.unsafe) => userSafetyStatus;
-
-const getUserSafetyInfo = loadUserSafetyInfo;
-
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(),validateLandmarkStructure(),validateLandmarkAttributes() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName()and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-const CONFIG = {
-  dataPath: './data',
-  maxResults: 100,
-  landmarkRoles: ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'],
-  maxLandmarks: 50,
-  allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
+const appData = {
+  title: 'Screeps',
+  version: '1.0.0'
 };
 
-const axeConfig = {
-  rules: {
-    'aria-invalid-2': { enabled: false },
-    'color-contrast': { enabled: false },
-    'name-role-value': { enabled: false },
-    'paraphernalia': { enabled: false },
-  },
-  silent: true
-};
-
-let userSafety = 'unsafe';
-let safetyCategories = ['Unauthorized Advice', 'Dangerous Action', 'Potential Scam', 'Privacy Risk'];
-let books = [];
 let dependencyGraph = {};
 
 const userSafetyCategories = {
@@ -91,6 +60,9 @@ const initializeApp = () => {
     console.log('Click event');
   });
 };
+
+let userSafety = 'unsafe';
+let safetyCategories = ['Unauthorized Advice'];
 
 const checkUserSafety = () => {
   let userSafetyMessage = '';
@@ -161,5 +133,125 @@ function addAriaLabel(element, label) {
   return false;
 }
 
-// Rest of the code from both versions (omitted for brevity)
-```
+function getDependencyGraph() {
+  if (Object.keys(dependencyGraph).length === 0) {
+    return { message: "No dependency graph found." };
+  }
+
+  return dependencyGraph;
+}
+
+let UserSafety = "unsafe";
+let SafetyCategories = "Unauthorized Advice";
+
+async function generateAccessibilityReport(issuesData) {
+  let issues;
+
+  if (!issuesData) {
+    // Check for images without alt attributes
+    const images = document.querySelectorAll('img');
+    issues = [];
+    images.forEach((img, index) => {
+      if (!img.hasAttribute('alt')) {
+        issues.push({
+          type: 'missing-alt',
+          element: 'img',
+          index: index,
+          message: `Image at index ${index} is missing an alt attribute`
+        });
+      }
+    });
+
+    // Check for buttons without accessible names
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach((btn, index) => {
+      const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
+      if (!accessibleName) {
+        issues.push({
+          type: 'missing-name',
+          element: 'button',
+          index: index,
+          message: `Button at index ${index} is missing an accessible name`
+        });
+      }
+    });
+
+    // Check for links without accessible names
+    const links = document.querySelectorAll('a');
+    links.forEach((link, index) => {
+      const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
+      if (!accessibleName) {
+        issues.push({
+          type: 'missing-name',
+          element: 'a',
+          index: index,
+          message: `Link at index ${index} is missing an accessible name`
+        });
+      }
+    });
+
+    // Check for form inputs without labels
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach((input, index) => {
+      const inputType = input.getAttribute('type');
+      if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
+        const labelId = input.getAttribute('aria-labelledby');
+        const labelText = document.querySelector(`label[for="${input.id}"]`);
+        const hasLabel = input.getAttribute('aria-label') || labelId || labelText;
+        if (!hasLabel) {
+          issues.push({
+            type: 'missing-label',
+            element: 'input',
+            index: index,
+            message: `Input at index ${index} is missing an associated label`
+          });
+        }
+      }
+    });
+
+    // Check for empty headings
+    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    headings.forEach((heading, index) => {
+      if (!heading.textContent.trim()) {
+        issues.push({
+          type: 'empty-heading',
+          element: heading.tagName.toLowerCase(),
+          index: index,
+          message: `Heading at index ${index} has no text content`
+        });
+      }
+    });
+  } else {
+    // If data is provided, use the analysis logic
+    issues = await accessiblyHelper(issuesData);
+  }
+
+  const report = {
+    introduction: 'Accessibility report for the application',
+    data: issues,
+    conclusions: '',
+  };
+
+  return report;
+}
+
+function fetchUser(userId) {
+  if (!userId) {
+    return null;
+  }
+  return { id: userId, name: `User ${userId}` };
+}
+
+function clearCache() {
+  appState.cache.clear();
+}
+
+// Exports
+module.exports = {
+  UserSafety,
+  SafetyCategories,
+  getUserSafetyAdvice,
+  generateAccessibilityReport,
+  fetchUser,
+  clearCache
+};

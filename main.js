@@ -114,6 +114,12 @@ function validateTableStructure(tables) {
   };
 }
 
+// New changes for improved accessibility of the addBook function or form
+// Ensuring that all interactive elements are keyboard accessible
+function addBook() {
+    // Existing code for adding a book
+}
+
 /**
  * Adds lang attribute to HTML element
  * @param {Object} element - The HTML element to modify

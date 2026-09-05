@@ -6,6 +6,7 @@
 
 const utilsMemory = require('./utils.memory');
 const logger = require('./utils.logging');
+const cache = require('./src/utils/cache');
 
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
@@ -193,11 +194,8 @@ const autoEvolution = {
                 structures.terminals++;
             }
 
-            // ⚡ PERFORMANCE: main.jsで準備された部屋ごとのキャッシュを優先使用。
-            if (room._myStructures === undefined) {
-                room._myStructures = room.find(FIND_MY_STRUCTURES);
-            }
-            const roomStructures = room._myStructures;
+            // ⚡ PERFORMANCE: use cache manager instead of manual property caching
+            const roomStructures = cache.getMyStructures(room);
 
             for (let j = 0; j < roomStructures.length; j++) {
                 const type = roomStructures[j].structureType;

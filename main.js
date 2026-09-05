@@ -1,4 +1,5 @@
-// TODO: This is the existing code that needs to be preserve
+// TODO: This is the existing code that needs to be preserved
+// REACT_015: Add lang attribute to the <html> element
 
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
@@ -79,14 +80,15 @@ function addLangAttribute() {
 }
 
 function validateTableAccessibility(table) {
+  // Check for caption or aria-label
   return table.querySelector('caption') ||
-         table.getAttribute('aria-label') ||
-         table.getAttribute('aria-labelledby');
+           table.getAttribute('aria-label') ||
+           table.getAttribute('aria-labelledby');
 }
 
 function validateTableStructure(table) {
-  const hasHeader = table.querySelector('th');
-  const hasBody = table.querySelector('td');
+  const hasHeader = table.querySelector('thead th') || table.querySelector('th');
+  const hasBody = table.querySelector('tbody td') || table.querySelector('td');
   return hasHeader && hasBody;
 }
 
@@ -94,17 +96,15 @@ function fixTableStructure(table) {
   if (!validateTableStructure(table)) {
     // Add missing thead if needed
     const firstRow = table.querySelector('tr');
-    if (firstRow && firstRow.cells[0].tagName === 'TD') {
-      const thead = document.createElement('thead');
-      const headerRow = document.createElement('tr');
-      Array.from(firstRow.cells).forEach(cell => {
-        const th = document.createElement('th');
-        th.textContent = cell.textContent;
-        headerRow.appendChild(th);
-      });
-      thead.appendChild(headerRow);
-      table.insertBefore(thead, table.firstChild);
-    }
+    const headerRow = document.createElement('tr');
+    Array.from(firstRow.cells).forEach(cell => {
+      const th = document.createElement('th');
+      th.textContent = cell.textContent;
+      headerRow.appendChild(th);
+    });
+    const thead = document.createElement('thead');
+    thead.appendChild(headerRow);
+    table.insertBefore(thead, table.firstChild);
   }
 }
 
@@ -142,7 +142,7 @@ function validateLandmarkStructure() {
   });
 
   if (missingLandmarks.length > 0) {
-    console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+    console.warn(`Accessibility Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
     return false;
   }
 
@@ -200,7 +200,7 @@ function validateLinkAccessibility(link) {
  * Handles fake links in the document
  */
 function handleFakeLinks() {
-  const links = document.querySelectorAll('a[role="button"], a.no-link-style');
+  const links = document.querySelectorAll('a[href="#"], a[role="button"], a.no-link-style');
   links.forEach(link => {
     if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
       link.setAttribute('aria-label', 'Link to ' + (link.href || 'unknown destination'));

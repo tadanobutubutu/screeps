@@ -40,6 +40,9 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import a11y from './AccessibilityUtilities';
 
+// Import accessibilityUtils
+import accessibilityUtils from './accessibilityUtils';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 // DOM Elements
@@ -438,7 +441,10 @@ module.exports = {
   getLangAttribute,
   createInPageButton,
   a11y,
-  accessibilityUtils
+  accessibilityUtils,
+  // Export new necessary functions
+  addressNewAccessibilityIssues: accessibilityUtils.addressNewAccessibilityIssues,
+  validateLandmark: accessibilityUtils.validateLandmark
 };
 
 // Initialize the application with accessibility improvements
@@ -469,7 +475,7 @@ root.render(
 
 reportWebVitals();
 
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
+export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport, accessibilityUtils, addressNewAccessibilityIssues, validateLandmark };
 
 // Initialize after React render to ensure DOM is updated
 initialize();

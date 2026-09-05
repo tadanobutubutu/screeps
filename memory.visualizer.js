@@ -268,50 +268,6 @@ const memoryVisualizer = {
         }
     },
 
-    recordRoom: function (roomName) {
-        // Security: Validate roomName to prevent prototype pollution
-        if (!utilsMemory.isSafeKey(roomName)) {
-            return;
-        }
-
-        this.initMemoryMap();
-
-        const room = Game.rooms[roomName];
-        if (room === undefined || room === null) {
-            return;
-        }
-
-        // Security: Cap the number of rooms stored in Memory to prevent DoS
-        const roomKeys = Object.keys(Memory.map.rooms);
-        if (roomKeys.length >= MAX_ROOM_DATA && !Memory.map.rooms[roomName]) {
-            const oldestRoom = roomKeys.sort((a, b) => {
-                return Memory.map.rooms[a].lastVisit - Memory.map.rooms[b].lastVisit;
-            })[0];
-            delete Memory.map.rooms[oldestRoom];
-        }
-
-        Memory.map.rooms[roomName] = {
-            lastVisit: Game.time,
-            controller: room.controller
-                ? {
-                      owner: room.controller.owner?.username ?? null,
-                      level: room.controller.level,
-                  }
-                : null,
-            sources: cache.getSources(room).length,
-            minerals: room.find(FIND_MINERALS).length,
-            hostiles: cache.getEnemies(room).length,
-        };
-
-        if (!Memory.map.explored.includes(roomName)) {
-            Memory.map.explored.push(roomName);
-
-            // Security: Limit history of explored rooms
-            if (Memory.map.explored.length > MAX_EXPLORED_ROOMS) {
-                Memory.map.explored.shift();
-            }
-        }
-    },
 
     showMap: function () {
         this.initMemoryMap();

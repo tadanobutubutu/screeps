@@ -1,63 +1,34 @@
-// main.js
-
-// TODO: Add any other missing exports that might have been? (All exports verified and present)
-
-function helperFunction() {
-    return 'helper';
-}
-
-function anotherHelper() {
-    return 'another helper';
-}
-
-const constants = {
-    API_URL: 'https://api.example.com',
-    TIMEOUT: 5000
+// Application configuration
+const CONFIG = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000,
+  retries: 3
 };
 
-class DataProcessor {
-    constructor() {
-        this.data = [];
-    }
-    
-    add(item) {
-        this.data.push(item);
-    }
-    
-    getAll() {
-        return this.data;
-    }
-    
-    clear() {
-        this.data = [];
-    }
-}
-
+// Helper function to format date
 function formatDate(date) {
-    return date.toISOString().split('T')[0];
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(date).toLocaleDateString('en-US', options);
 }
 
-function validateInput(input) {
-    if (typeof input !== 'string') {
-        return false;
-    }
-    return input.length > 0;
+// Calculate the sum of an array of numbers
+function calculateSum(numbers) {
+  if (!Array.isArray(numbers)) {
+    throw new TypeError('Input must be an array');
+  }
+  return numbers.reduce((sum, num) => sum + num, 0);
 }
 
-const utils = {
-    helperFunction,
-    anotherHelper,
-    formatDate,
-    validateInput
-};
+// Validate email format
+function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
 
-// Exports
+// Export functions for use in other modules
 module.exports = {
-    helperFunction,
-    anotherHelper,
-    constants,
-    DataProcessor,
-    formatDate,
-    validateInput,
-    utils
+  CONFIG,
+  formatDate,
+  calculateSum,
+  validateEmail
 };

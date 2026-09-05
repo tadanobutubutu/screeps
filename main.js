@@ -1,18 +1,6 @@
-function ensureUniqueLandmarks(landmarks) {
-  const uniqueLandmarks = [];
-  const existingLandmarks = uniqueLandmarks.slice(); // Get a copy of existing landmarks to compare with new ones
+// original code
+const myElement = document.getElementById("my-element");
 
-  landmarks.forEach((landmark) => {
-    if (!existingLandmarks.some((existing) => existing === landmark)) {
-      uniqueLandmarks.push(landmark);
-    } else {
-      console.error(`Duplicate landmark found: ${landmark}`);
-    }
-  });
-
-  return uniqueLandmarks;
-}
-
-// Usage:
-const landmarks = [/* your landmark array */];
-const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
+// add ARIA role for accessibility
+myElement.setAttribute("aria-label", "This is my example element");
+myElement.setAttribute("role", "button");

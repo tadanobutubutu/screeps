@@ -29,7 +29,6 @@ function addLangAttribute(html) {
     if (/\blang=/i.test(match)) return match;
     return `<html${attrs} lang="en">`;
   });
-}
 
 // React application code with accessibility features
 import React from 'react';

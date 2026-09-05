@@ -1,25 +1,47 @@
-import { dependencyGraphContent, indexContent } from './content';
+// TODO: Add back any required exports that might have been?
 
-function getLangAttribute() {
-  // Get the language attribute from the document or default to 'en'
-  const lang = document.documentElement.lang;
-  return lang || document.querySelector('html').getAttribute('lang') || 'en';
+// Main module exports
+module.exports = {
+  // Export main functionality
+  main: function() {
+    return 'Main function';
+  },
+  
+  // Export version
+  VERSION: '1.0.0',
+  
+  // Export configuration
+  config: {
+    debug: false,
+    apiUrl: 'https://api.example.com'
+  },
+  
+  // Export helper functions
+  helpers: {
+    formatDate: function(date) {
+      return new Date(date).toISOString();
+    },
+    parseJSON: function(str) {
+      try {
+        return JSON.parse(str);
+      } catch (e) {
+        return null;
+      }
+    }
+  },
+  
+  // Export initialization
+  init: function(options) {
+    if (options && options.debug) {
+      this.config.debug = true;
+    }
+    return this;
+  }
+};
+
+// Also export as ES module if needed
+if (typeof module.exports !== 'undefined') {
+  module.exports = Object.assign(module.exports, {
+    default: module.exports
+  });
 }
-
-function createInPageButton() {
-  const lang = getLangAttribute();
-  
-  // Set the lang attribute on the HTML element
-  document.documentElement.setAttribute('lang', lang);
-  
-  // Create the button element
-  const button = document.createElement('button');
-  button.textContent = 'In Page Button';
-  button.setAttribute('type', 'button');
-  
-  return button;
-}
-
-// TODO: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-
-export { dependencyGraphContent, indexContent, getLangAttribute, createInPageButton };

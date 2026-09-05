@@ -157,6 +157,26 @@ function ensureUniqueLandmarks(landmarks) {
     }
   });
 
+  // New accessibility checks
+  // Check for landmarks with duplicate accessible names
+  const nameCounts = {};
+  result.landmarks.forEach(landmark => {
+    if (landmark.hasAccessibleName) {
+      nameCounts[landmark.accessibleName] = (nameCounts[landmark.accessibleName] || 0) + 1;
+    }
+  });
+  for (const [name, count] of Object.entries(nameCounts)) {
+    if (count > 1) {
+      result.warnings.push(`Duplicate accessible name "${name}" found ${count} times. Consider using unique names.`);
+    }
+  }
+
+  // Check for landmarks without roles
+  const landmarksWithoutRoles = result.landmarks.filter(l => !l.type && !l.tagName);
+  if (landmarksWithoutRoles.length > 0) {
+    result.warnings.push(`Found ${landmarksWithoutRoles.length} landmarks without roles. Consider adding roles for better accessibility.`);
+  }
+
   return result;
 }
 

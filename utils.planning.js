@@ -72,6 +72,21 @@ module.exports = {
         return bestPos;
     },
 
+    // Visualize room planning
+    visualizePlanning: function (room, positions, color = '#00ff00') {
+        if (!positions || positions.length === 0) {
+            return;
+        }
+
+        positions.forEach((pos) => {
+            room.visual.circle(pos.x, pos.y, {
+                radius: 0.4,
+                fill: color,
+                opacity: 0.5,
+            });
+        });
+    },
+
     // Get tiles at a certain distance from a position (Floodfill concept)
     getTilesAtDistance: function (room, centerPos, distance) {
         const tiles = [];

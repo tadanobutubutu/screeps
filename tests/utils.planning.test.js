@@ -79,6 +79,9 @@ describe('utils.planning', () => {
         const pos = utilsPlanning.findBestSpawnPosition(mockRoom);
         expect(pos).toBeNull();
     });
+    test('visualizePlanningが空配列のとき何もしない', () => {
+        expect(() => utilsPlanning.visualizePlanning(mockRoom, [])).not.toThrow();
+    });
     test('getTilesAtDistanceが配列を返す', () => {
         const centerPos = { x: 25, y: 25 };
         const tiles = utilsPlanning.getTilesAtDistance(mockRoom, centerPos, 3);

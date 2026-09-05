@@ -87,6 +87,32 @@ module.exports = {
         });
     },
 
+    // Get tiles at a certain distance from a position (Floodfill concept)
+    getTilesAtDistance: function (room, centerPos, distance) {
+        const tiles = [];
+        const terrain = room.getTerrain();
+
+        for (
+            let x = Math.max(0, centerPos.x - distance);
+            x <= Math.min(49, centerPos.x + distance);
+            x++
+        ) {
+            for (
+                let y = Math.max(0, centerPos.y - distance);
+                y <= Math.min(49, centerPos.y + distance);
+                y++
+            ) {
+                if (Math.abs(x - centerPos.x) + Math.abs(y - centerPos.y) === distance) {
+                    if (terrain.get(x, y) !== TERRAIN_MASK_WALL) {
+                        tiles.push(new RoomPosition(x, y, room.name));
+                    }
+                }
+            }
+        }
+
+        return tiles;
+    },
+
     // Find positions for road network between key structures
     planRoadNetwork: function (room) {
         // ⚡ PERFORMANCE OPTIMIZATION: Use getSpawns cache to avoid redundant room.find calls.
@@ -129,16 +155,5 @@ module.exports = {
             },
             1000
         ); // Cache the road network for 1000 ticks
-    },
-
-    // Display planning info
-    displayPlanningInfo: function (room) {
-        const openSpaces = this.findOpenSpaces(room, 3);
-        const bestSpawnPos = this.findBestSpawnPosition(room);
-
-        if (bestSpawnPos) {
-        }
-
-        return { openSpaces, bestSpawnPos };
     },
 };

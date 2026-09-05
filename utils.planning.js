@@ -98,21 +98,6 @@ module.exports = {
         return tiles;
     },
 
-    // Visualize room planning
-    visualizePlanning: function (room, positions, color = '#00ff00') {
-        if (!positions || positions.length === 0) {
-            return;
-        }
-
-        positions.forEach((pos) => {
-            room.visual.circle(pos.x, pos.y, {
-                radius: 0.4,
-                fill: color,
-                opacity: 0.5,
-            });
-        });
-    },
-
     // Find positions for road network between key structures
     planRoadNetwork: function (room) {
         // ⚡ PERFORMANCE OPTIMIZATION: Use getSpawns cache to avoid redundant room.find calls.

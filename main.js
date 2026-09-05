@@ -166,7 +166,7 @@ function ensureUniqueLandmarks() {
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((landmark, index) => {
       if (index > 0) {
-        landmark.removeAttribute('role');
+        landmark.setAttribute('role', 'region');
       }
     });
   }
@@ -200,9 +200,9 @@ function validateLinkAccessibility(link) {
  * Handles fake links in the document
  */
 function handleFakeLinks() {
-  const links = document.querySelectorAll('a');
+  const links = document.querySelectorAll('a[role="button"], a.no-link-style');
   links.forEach(link => {
-    if (!validateLinkAccessibility(link)) {
+    if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
       link.setAttribute('aria-label', 'Link to ' + (link.href || 'unknown destination'));
     }
   });
@@ -227,6 +227,41 @@ function addProperLandmarkRegions() {
   if (nav && !nav.getAttribute('role')) {
     nav.setAttribute('role', 'navigation');
   }
+}
+
+// TODO: Implement harvest logic
+function harvest() {
+  const harvestTargets = document.querySelectorAll('[data-harvestable="true"]');
+  const harvestResults = [];
+
+  harvestTargets.forEach(target => {
+    const resourceType = target.getAttribute('data-resource-type');
+    const resourceAmount = parseInt(target.getAttribute('data-amount'), 10) || 1;
+
+    if (target && !target.classList.contains('harvested')) {
+      target.classList.add('harvested');
+      target.setAttribute('aria-disabled', 'true');
+
+      harvestResults.push({
+        resourceType: resourceType,
+        amount: resourceAmount,
+        element: target,
+        timestamp: new Date().toISOString(),
+        status: 'harvested'
+      });
+
+      // Announce harvest to screen readers
+      if (a11y && a11y.announce) {
+        a11y.announce(`Harvested ${resourceAmount} ${resourceType}`, 'polite');
+      }
+    }
+  });
+
+  return {
+    totalHarvested: harvestResults.length,
+    totalResources: harvestResults.reduce((sum, result) => sum + result.amount, 0),
+    results: harvestResults
+  };
 }
 
 // TODO: Implement new function
@@ -268,7 +303,7 @@ function generateAccessibilityReport() {
     }
   });
 
-  // Check for buttons without accessible names
+  // Check for buttons without accessible name
   const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('aria-labelledby');
@@ -282,7 +317,7 @@ function generateAccessibilityReport() {
     }
   });
 
-  // Check for links without accessible names
+  // Check for links without accessible name
   const links = document.querySelectorAll('a');
   links.forEach((link, index) => {
     const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
@@ -301,9 +336,9 @@ function generateAccessibilityReport() {
   inputs.forEach((input, index) => {
     const inputType = input.getAttribute('type');
     if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
-      const labelId = input.getAttribute('aria-labelledby');
-      const labelText = input.getAttribute('aria-label');
-      const hasLabel = document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
+      const labelId = input.getAttribute('id');
+      const labelText = labelId ? document.querySelector(`label[for="${labelId}"]`) : null;
+      const hasLabel = labelText || input.closest('label');
       if (!hasLabel) {
         issues.push({
           type: 'missing-label',

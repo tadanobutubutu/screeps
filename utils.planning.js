@@ -72,6 +72,21 @@ module.exports = {
         return bestPos;
     },
 
+    // Visualize room planning
+    visualizePlanning: function (room, positions, color = '#00ff00') {
+        if (!positions || positions.length === 0) {
+            return;
+        }
+
+        positions.forEach((pos) => {
+            room.visual.circle(pos.x, pos.y, {
+                radius: 0.4,
+                fill: color,
+                opacity: 0.5,
+            });
+        });
+    },
+
     // Get tiles at a certain distance from a position (Floodfill concept)
     getTilesAtDistance: function (room, centerPos, distance) {
         const tiles = [];
@@ -96,21 +111,6 @@ module.exports = {
         }
 
         return tiles;
-    },
-
-    // Visualize room planning
-    visualizePlanning: function (room, positions, color = '#00ff00') {
-        if (!positions || positions.length === 0) {
-            return;
-        }
-
-        positions.forEach((pos) => {
-            room.visual.circle(pos.x, pos.y, {
-                radius: 0.4,
-                fill: color,
-                opacity: 0.5,
-            });
-        });
     },
 
     // Find positions for road network between key structures
@@ -155,16 +155,5 @@ module.exports = {
             },
             1000
         ); // Cache the road network for 1000 ticks
-    },
-
-    // Display planning info
-    displayPlanningInfo: function (room) {
-        const openSpaces = this.findOpenSpaces(room, 3);
-        const bestSpawnPos = this.findBestSpawnPosition(room);
-
-        if (bestSpawnPos) {
-        }
-
-        return { openSpaces, bestSpawnPos };
     },
 };

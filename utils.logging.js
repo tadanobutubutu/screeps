@@ -225,7 +225,7 @@ function tryCatch(fn, context, ...args) {
     try {
         return fn(...args);
     } catch (e) {
-        error(`[${context}] ${e.message}`, e);
+        module.exports.error(`[${context}] ${e.message}`, e);
         return undefined;
     }
 }

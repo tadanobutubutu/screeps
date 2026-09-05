@@ -21,47 +21,22 @@ function wrapPrimaryContentInMain() {
     console.error('Primary content element not found');
     return;
   }
-
-  // Wrap the primary content in a main tag if it's not already wrapped
-  const mainTag = primaryContent.closest('main');
-  if (!mainTag) {
-    const mainElement = document.createElement('main');
-    mainElement.appendChild(primaryContent);
-    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
-  }
-}
-
-const dependencyGraphContent = require('./dependencyGraphContent');
-const indexContent = require('./indexContent');
-
-  const dependenciesCount = Object.keys(require.cache)
-    .filter(key => key.endsWith('main.js'))
-    .reduce((count, module) => {
-      const hasDependency = module.includes('dependencyVariableName');
-      return hasDependency ? count + 1 : count;
-    }, 0);
-
-/**
- * Renders the index view
- * @param {Object} data - Data for the index view
- * @returns {string} The rendered HTML/content for the index
- */
-function renderIndex(data = {}) {
-  // Ensure the index view is rendered when the dependency graph view is not requested
-  const content = (data.isDependencyGraphNeeded) ? '' : indexContent.generate(data);
-  // Render the index with the generated content
-  return `<div class="index-view hidden"${(content !== '') ? '' : ' style="display: none;"'}>${content}</div>`;
-}
-
-/**
- * Renders the main application view
- * @param {Object} context - Application context
- * @returns {string} The rendered application view
- */
-function renderApp(context) {
-  // Update: Conditionally render the index or the dependency graph based on context
-  const viewFunction = (context.isDependencyGraphNeeded) ? renderDependencyGraph : renderIndex;
-  return `<div id="app">${viewFunction(context)}</div>`;
+  
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (!landmark || typeof landmark !== 'object') {
+      return false;
+    }
+    
+    // Create a unique identifier based on landmark name and coordinates (if available)
+    const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
+    
+    if (seen.has(identifier)) {
+      return false;
+    }
+    seen.add(identifier);
+    return true;
+  });
 }
 
 module.exports = {

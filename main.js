@@ -7,6 +7,13 @@
   const role = 'button';
   const inputRole = 'checkbox';
 
+  // Ensure the dependencyGraph container has a proper ARIA role
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'img');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph visualization');
+  }
+
   return (
     <div>
       {/* Existing component JSX */}

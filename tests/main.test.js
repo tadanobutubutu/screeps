@@ -119,7 +119,6 @@ jest.mock(
         showHistory: jest.fn(),
         showLeaderboard: jest.fn(),
         readDiary: jest.fn(),
-        showMap: jest.fn(),
     }),
     { virtual: true }
 );

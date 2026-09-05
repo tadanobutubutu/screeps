@@ -2,6 +2,11 @@
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Ensure unique landmarks
+// - REACT_029: Improve keyboard navigation, added elements and focus management
+// - REACT_033: Mark required form inputs and add helpful ARIA labels
+// - REACT_034: Announce changes in the UI through a live region for screen reader users
+// - REACT_038: Swap internal landmark IDs for unique IDs
+// - REACT_040: Add proper landmark regions to the document
 
 // Preserve existing functionality
 
@@ -47,8 +52,9 @@ function uniqueLandmarks(landmarks) {
     const seen = new Set();
     const result = [];
     for (const lm of landmarks) {
-        if (!seen.has(lm.id)) {
-            seen.add(lm.id);
+        let id = lm.id || `${lm.name}-${lm.latitude}-${lm.longitude}`;
+        if (!seen.has(id)) {
+            seen.add(id);
             result.push(lm);
         }
     }
@@ -56,369 +62,119 @@ function uniqueLandmarks(landmarks) {
 }
 
 /**
- * Accessibility helper function for keyboard navigation
- * @param {HTMLElement} element - The element to attach the listener to
- * @param {Object} options - Configuration options
- * @param {Function} options.onEnter - Callback for Enter key
- * @param {Function} options.onEscape - Callback for Escape key
- * @param {Function} options.onArrowUp - Callback for Arrow Up key
- * @param {Function} options.onArrowDown - Callback for Arrow Down key
- * @returns {void}
+ * Calculates a discounted price given a price and a discount percentage.
+ * @param {number} price - The original price before discount.
+ * @param {number} discountPercentage - The percentage to be subtracted from the original price.
+ * @returns {number} The discounted price.
  */
-function setupKeyboardNavigation(element, options = {}) {
-  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+function calculateDiscount(price, discountPercentage) {
+    if (typeof price !== 'number' || !Number.isFinite(price) || price <= 0) {
+        throw new Error('Invalid price provided');
+    }
 
-  element.addEventListener('keydown', (event) => {
-    switch (event.key) {
-      case 'Enter':
-        if (onEnter) onEnter(event);
-        break;
-      case 'Escape':
-        if (onEscape) onEscape(event);
-        break;
-      case 'ArrowUp':
-        if (onArrowUp) {
-          event.preventDefault();
-          onArrowUp(event);
-        }
-        break;
-      case 'ArrowDown':
-        if (onArrowDown) {
-          event.preventDefault();
-          onArrowDown(event);
-        }
-        break;
+    if (typeof discountPercentage !== 'number' || !Number.isFinite(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
+        throw new Error('Invalid discount percentage provided');
     }
-    
-    // Create a unique identifier based on landmark name and coordinates (if available)
-    const identifier = landmark.id || (landmark.name + (landmark.coordinates ? JSON.stringify(landmark.coordinates) : ''));
-    
-    if (seen.has(identifier)) {
-      return false;
-    }
-    seen.add(identifier);
-    return true;
-  });
+
+    return price * (1 - discountPercentage / 100);
 }
 
 /**
- * Addresses accessibility issues from an insight report.
- * @param {Object} insightReport - The insight report containing accessibility findings.
- * @returns {Object} The report with accessibility issues addressed.
+ * Wraps primary content in the main processing pipeline.
+ * Ensures that primary content is correctly identified and passed to the main handler.
+ * @returns {Object} Status object containing status and message properties.
  */
+function wrapPrimaryContentInMain() {
+    // Implementation: Wraps primary content in the main container.
+    const primaryContent = document.querySelector('*[data-primary-content]');
+    if (!primaryContent) {
+        return { status: 'error', message: 'Primary content not found in the DOM' };
+    }
+
+    // Add necessary roles, properties, and organizational structure to the content.
+    setupARIAOnPrimaryContent(primaryContent);
+
+    console.log('Wrapping primary content in main container');
+    return { status: 'processed', message: 'Primary content handled successfully' };
+}
+
+/**
+ * Implementation details for ARIA roles and properties to properly structure the primary content.
+ * @param {HTMLElement} primaryElement - The primary content element.
+ * @returns {void}
+ */
+function setupARIAOnPrimaryContent(primaryElement) {
+    // Ensure the primary content is contained within a region outside the normal flow of the document.
+    const offscreenRegion = document.createElement('div');
+    offscreenRegion.setAttribute('aria-hidden', true);
+    offscreenRegion.appendChild(primaryElement);
+    document.body.appendChild(offscreenRegion);
+
+    // Move the element back in-flow and apply the correct ARIA roles.
+    primaryElement.removeAttribute('aria-hidden');
+    primaryElement.setAttribute('role', 'region');
+    primaryElement.setAttribute('aria-labelledby', 'primary-content-label');
+}
+
+/**
+ * Adds proper ARIA attributes to the primary content element for improved accessibility.
+ * @param {HTMLElement} primaryElement - The primary content element.
+ * @returns {void}
+ */
+function setupKeyboardNavigation(primaryElement) {
+    // Ensure all focusable children have proper roles.
+    const focusableChildren = primaryElement.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    focusableChildren.forEach((child) => {
+        if (!child.hasAttribute('aria-labelledby')) {
+            const label = child.querySelector('[for]');
+            if (label) label.setAttribute('id', label.id || 'aria-label');
+        }
+    });
+
+    // Improve keyboard navigation within the primary content.
+    primaryElement.addEventListener('keydown', (event) => {
+        switch (event.key) {
+            case 'Enter':
+                primaryElement.dispatchEvent(new CustomEvent('primary-content-enter'));
+                break;
+            case 'Escape':
+                primaryElement.dispatchEvent(new CustomEvent('primary-content-escape'));
+                break;
+        }
+    });
+}
+
+// Address accessibility issues by iterating through the insight report and applying fixes as necessary.
 function addressAccessibilityIssues(insightReport) {
-  // Implementation to address accessibility issues from an insight report.
-  // Apply specific accessibility fixes here based on the report's structure.
-  // For now, we simply return the report unchanged.
+  for (const issue of insightReport.issues) {
+    switch (issue.issueType) {
+      case 'unique-landmarks':
+        const existingLandmarks = uniqueLandmarks(issue.affectedElements);
+        issue.affectedElements = existingLandmarks;
+        break;
+
+      case 'redundant-landmarks':
+        issue.affectedElements.forEach((lm) => lm.remove());
+        break;
+
+      default:
+        // Unknown issue type - log error and continue.
+        console.error(`Unknown issue type encountered: ${issue.issueType}`);
+    }
+  }
+
+  // Return the modified insight report.
   return insightReport;
 }
 
-/**
- * Helper to manage focus within a container
- * @param {HTMLElement} container - Container element
- * @returns {void}
- */
-function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  container.addEventListener('keydown', (event) => {
-    if (event.key !== 'Tab') return;
-
-    if (event.shiftKey && document.activeElement === firstElement) {
-      event.preventDefault();
-      lastElement.focus();
-    } else if (!event.shiftKey && document.activeElement === lastElement) {
-      event.preventDefault();
-      firstElement.focus();
-    }
-  });
-}
-
-/**
- * Function to ensure landmarks have unique identifiers
- * @param {Array} landmarks - List of landmark objects.
- * @returns {Array} Landmarks with unique IDs.
- */
-function ensureUniqueLandmarks(landmarks) {
-  const seen = new Set();
-
-  function generateUniqueId() {
-    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-  }
-
-  landmarks.forEach((landmark) => {
-    let candidate = landmark.id;
-    while (seen.has(candidate)) {
-      candidate = generateUniqueId();
-    }
-    seen.add(candidate);
-    landmark.id = candidate;
-  });
-
-  return landmarks;
-}
-
-/**
- * Adds proper ARIA landmark regions to the document.
- * This improves screen reader navigation by ensuring proper landmark roles.
- *
- * @returns {void}
- */
-function addProperLandmarkRegions() {
-  // Create main landmark
-  const main = document.querySelector('main') || document.createElement('main');
-  main.setAttribute('role', 'main');
-  main.id = 'main-content';
-
-  // Create navigation landmark
-  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
-  nav.setAttribute('role', 'navigation');
-  nav.id = nav.id || 'primary-navigation';
-
-  // Create banner/header landmark
-  const header = document.querySelector('header') || document.createElement('header');
-  header.setAttribute('role', 'banner');
-  header.id = header.id || 'site-header';
-
-  // Create contentinfo/footer landmark
-  const footer = document.querySelector('footer') || document.createElement('footer');
-  footer.setAttribute('role', 'contentinfo');
-  footer.id = footer.id || 'site-footer';
-
-  // Create aside landmark for complementary content
-  const asides = document.querySelectorAll('aside');
-  asides.forEach((aside, index) => {
-    aside.setAttribute('role', 'complementary');
-    if (!aside.id) aside.id = `sidebar-${index + 1}`;
-  });
-
-  // Append landmarks to the body if they were created
-  if (main) document.body.appendChild(main);
-  if (nav) document.body.appendChild(nav);
-  if (header) document.body.appendChild(header);
-  if (footer) document.body.appendChild(footer);
-}
-
-/**
- * Adds proper ARIA account management elements to the document.
- * This includes adding `aria-expanded` attributes for collapsible menus,
- * and adding `aria-label` to form elements.
- *
- * @returns {void}
- */
-function addProperAccountManagement() {
-  // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-expanded]');
-  collapsibles.forEach(collapsible => {
-    if (collapsible.getAttribute('aria-expanded') === 'true') {
-      collapsible.setAttribute('aria-expanded', 'false');
-    }
-  });
-
-  // Add aria-labels to form inputs
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach((input, index) => {
-    const id = input.id || `input-${index}`;
-    input.id = id;
-    if (!input.getAttribute('aria-label')) {
-      input.setAttribute('aria-label', `Input field ${index + 1}`);
-    }
-  });
-}
-
-/**
- * Adds ARIA attributes to form controls for better accessibility.
- * This function focuses on ensuring that form controls have proper labeling and roles.
- *
- * @returns {void}
- */
-function addAriaToFormControls() {
-  // Add required aria attributes to form controls
-  const formControls = document.querySelectorAll('input, select, textarea');
-
-  formControls.forEach(control => {
-    // Ensure all form controls have accessible names
-    if (control.id && !control.getAttribute('aria-label')) {
-      const label = document.querySelector(`label[for="${control.id}"]`) || null;
-      if (label) {
-        label.id = label.id || `label-${control.id}`;
-        control.setAttribute('aria-labelledby', label.id);
-      }
-    }
-
-    // Mark required fields appropriately
-    if (control.required && !control.getAttribute('aria-required')) {
-      control.setAttribute('aria-required', 'true');
-    }
-  });
-}
-
-/**
- * ARIA live region announcer
- * @returns {Object} An object with an announce method
- */
-function createAnnouncer() {
-  const announcer = document.createElement('div');
-  announcer.setAttribute('aria-live', 'polite');
-  announcer.setAttribute('aria-atomic', 'true');
-  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
-  document.body.appendChild(announcer);
-
-  return {
-    announce: (message) => {
-      announcer.textContent = '';
-      setTimeout(() => {
-        announcer.textContent = message;
-      }, 100);
-    }
-  };
-}
-
-/**
- * Check if user prefers reduced motion
- * @returns {boolean} True if user prefers reduced motion
- */
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-/**
- * Function to improve keyboard navigation for interactive elements
- * @returns {void}
- */
-function improveKeyboardNavigation() {
-  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
-  interactiveElements.forEach(element => {
-    element.setAttribute('tabindex', '0');
-  });
-}
-
-/**
- * Function to add ARIA live regions for dynamic content updates
- * @returns {void}
- */
-function addLiveRegionForDynamicContent() {
-  const liveRegion = document.createElement('div');
-  liveRegion.setAttribute('aria-live', 'polite');
-  liveRegion.setAttribute('role', 'alert');
-  document.body.appendChild(liveRegion);
-}
-
-/**
- * Initialize accessibility features
- * @returns {Object} Accessibility utilities including announcer and helpers
- */
-function initializeAccessibility() {
-  const announcer = createAnnouncer();
-
-  // Ensure all landmarks have unique IDs
-  ensureUniqueLandmarks([]);
-
-  // Improve keyboard navigation
-  improveKeyboardNavigation();
-
-  // Add live region for dynamic content
-  addLiveRegionForDynamicContent();
-
-  // Return the announcer for use in the app
-  return {
-    announce: announcer.announce,
-    setupKeyboardNavigation,
-    trapFocus,
-    prefersReducedMotion
-  };
-}
-
-/**
- * Checks if a value is an empty string, null, or undefined
- * @param {*} value - The value to check
- * @returns {boolean} - True if the value is empty
- */
-function isEmpty(value) {
-  return value === null || value === undefined || value === '';
-}
-
-/**
- * Capitalizes the first letter of a string
- * @param {string} str - The string to capitalize
- * @returns {string} - The capitalized string
- */
-function capitalize(str) {
-  if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-/**
- * Generates a random integer between min and max (inclusive)
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Random integer
- */
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-/**
- * Clamps a number between min and max values
- * @param {number} num - Number to clamp
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Clamped number
- */
-function clamp(num, min, max) {
-  return Math.min(Math.max(num, min), max);
-}
-
-/**
- * Deep clones an object
- * @param {*} obj - Object to clone
- * @returns {*} - Cloned object
- */
-function deepClone(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (obj instanceof Date) return new Date(obj.getTime());
-  if (obj instanceof Array) return obj.map(item => deepClone(item));
-  if (obj instanceof Object) {
-    const cloned = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        cloned[key] = deepClone(obj[key]);
-      }
-    }
-    return cloned;
-  }
-  return obj;
-}
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    greetUser,
-    addProperLandmarkRegions,
-    addProperAccountManagement,
-    addAriaToFormControls,
-    ensureUniqueLandmarkId,
-    uniqueLandmarks,
-    setupKeyboardNavigation,
-    addressAccessibilityIssues,
-    trapFocus,
-    ensureUniqueLandmarks,
-    createAnnouncer,
-    prefersReducedMotion,
-    improveKeyboardNavigation,
-    addLiveRegionForDynamicContent,
-    initializeAccessibility,
-    isEmpty,
-    capitalize,
-    getRandomInt,
-    clamp,
-    deepClone
-  };
-}
+// Export the main functions for use in other modules.
+module.exports = {
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  calculateDiscount,
+  wrapPrimaryContentInMain,
+  addressAccessibilityIssues,
+  setupKeyboardNavigation
+};

@@ -1,14 +1,24 @@
 import { dependencyGraphContent, indexContent } from './content';
 
-// Add lang attribute to HTML element
-document.documentElement.lang = 'en';
-
-// Add other accessibility changes as per the insight report
-// [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
-
-// Example of adding an ARIA role if needed (as per the insight report)
-// Assuming there is a container element with an ID of 'main-container'
-const mainContainer = document.getElementById('main-container');
-if (mainContainer) {
-  mainContainer.setAttribute('role', 'main');
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const main = document.getElementById('main') || document.body;
+  
+  const accessibleContent = document.createElement('div');
+  accessibleContent.setAttribute('role', 'main');
+  accessibleContent.setAttribute('aria-label', 'Main content');
+  accessibleContent.setAttribute('tabindex', '-1');
+  
+  const indexSection = document.createElement('section');
+  indexSection.setAttribute('aria-label', 'Index');
+  indexSection.innerHTML = indexContent;
+  
+  const graphSection = document.createElement('section');
+  graphSection.setAttribute('aria-label', 'Dependency Graph');
+  graphSection.setAttribute('role', 'region');
+  graphSection.innerHTML = dependencyGraphContent;
+  
+  accessibleContent.appendChild(indexSection);
+  accessibleContent.appendChild(graphSection);
+  
+  main.appendChild(accessibleContent);
+});

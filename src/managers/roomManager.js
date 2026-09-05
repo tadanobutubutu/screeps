@@ -143,6 +143,7 @@ function _planConstruction(room) {
 function _planSourceContainers(room) {
     const sources = cache.getSources(room);
     const existingContainers = cache.getContainers(room);
+    const existingConstructionSites = cache.getConstructionSites(room);
 
     for (const source of sources) {
         // すでに近くにコンテナがあれば skip
@@ -152,11 +153,11 @@ function _planSourceContainers(room) {
         if (nearby.length > 0) continue;
 
         // コンテナの建設サイトがすでにあれば skip
-        const existingSites = room.find(FIND_CONSTRUCTION_SITES, {
-            filter: (s) =>
+        const existingSites = existingConstructionSites.filter(
+            (s) =>
                 s.structureType === STRUCTURE_CONTAINER &&
-                source.pos.getRangeTo(s) <= 2,
-        });
+                source.pos.getRangeTo(s) <= 2
+        );
         if (existingSites.length > 0) continue;
 
         // ソースの隣の空きタイルにコンテナを配置

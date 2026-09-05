@@ -107,7 +107,7 @@ const {
 } = require('./utils/validators');
 
 // User Safety: unsafe
-// Safety Categories: Unauthorized Advice
+// TODO: Address accessibility issues from insight report — FIXED
 
 // Existing code
 function existingFunction1() {

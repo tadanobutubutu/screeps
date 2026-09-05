@@ -1,47 +1,20 @@
-// TODO: Add back any required exports that might have been?
+// TODO: add the new functions or changes requested in the issue
+// Here is the implementation for checking link accessibility
+// The existing isLinkAccessible function implementation
 
-// Main module exports
-module.exports = {
-  // Export main functionality
-  main: function() {
-    return 'Main function';
-  },
-  
-  // Export version
-  VERSION: '1.0.0',
-  
-  // Export configuration
-  config: {
-    debug: false,
-    apiUrl: 'https://api.example.com'
-  },
-  
-  // Export helper functions
-  helpers: {
-    formatDate: function(date) {
-      return new Date(date).toISOString();
-    },
-    parseJSON: function(str) {
-      try {
-        return JSON.parse(str);
-      } catch (e) {
-        return null;
-      }
-    }
-  },
-  
-  // Export initialization
-  init: function(options) {
-    if (options && options.debug) {
-      this.config.debug = true;
-    }
-    return this;
+/**
+ * Checks if a given URL is accessible by making an HTTP HEAD request.
+ * @param {string} url - The URL to check accessibility for.
+ * @returns {Promise<boolean>} - Returns true if the link is accessible, false otherwise.
+ */
+async function isLinkAccessible(url) {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.ok;
+  } catch (error) {
+    return false;
   }
-};
-
-// Also export as ES module if needed
-if (typeof module.exports !== 'undefined') {
-  module.exports = Object.assign(module.exports, {
-    default: module.exports
-  });
 }
+
+// Export the function for use in tests and other modules
+module.exports = { isLinkAccessible };

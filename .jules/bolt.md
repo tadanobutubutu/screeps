@@ -23,3 +23,7 @@
 **Action:** Always short-circuit lower priority candidates immediately after fetching priority in target selection search loops.
 ## 2024-09-04 - Fix N+1 room sources query in auto evolution
 Replaced redundant loop source counting in auto.evolution.js with centralized O(1) cache.getSources(room) lookups.
+
+## 2026-08-25 - Localized Creep Iteration in Room Management
+**Learning:** Iterating global `Game.creeps` via `for...in` or `Object.values(Game.creeps)` in room manager routines scans creeps globally across all rooms and allocates global arrays on every tick. Replacing with `cache.getMyCreeps(room)` reduces loop complexity to O(RoomCreeps) and eliminates array allocation overhead.
+**Action:** Always use localized `cache.getMyCreeps(room)` instead of scanning global `Game.creeps` in room-specific manager functions.

@@ -195,8 +195,10 @@ function _planRoads(room) {
             // 既存の構造物や建設サイトがない場所にのみ道路を計画
             const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
             const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
+            const cachedStructures = cache.getStructures(room).filter((s) => s.pos && s.pos.x === pos.x && s.pos.y === pos.y);
+            const cachedSites = cache.getConstructionSites(room).filter((s) => s.pos && s.pos.x === pos.x && s.pos.y === pos.y);
 
-            if (structures.length === 0 && sites.length === 0) {
+            if (structures.length === 0 && sites.length === 0 && cachedStructures.length === 0 && cachedSites.length === 0) {
                 const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
                 if (r === OK) {
                     planned++;
@@ -213,30 +215,43 @@ function _planRoads(room) {
 }
 
 /**
+ * 建設が必要なエクステンション数を計算する
+ * @param {Room} room
+ * @returns {number}
+ */
+function _getNeededExtensionCount(room) {
+    const rcl = room.controller ? room.controller.level : 0;
+    const maxExtensions =
+        (typeof CONTROLLER_STRUCTURES !== 'undefined' &&
+            CONTROLLER_STRUCTURES.extension &&
+            CONTROLLER_STRUCTURES.extension[rcl]) ||
+        0;
+
+    if (maxExtensions === 0) return 0;
+
+    const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
+    const sites = cache.getConstructionSites(room).filter(
+        (s) => s.structureType === STRUCTURE_EXTENSION
+    );
+
+    const currentCount = existing.length + sites.length;
+    if (currentCount >= maxExtensions) return 0;
+
+    return Math.min(5, maxExtensions - currentCount);
+}
+
+/**
  * スポーン周囲にエクステンションを配置する計画を立てる
  * @param {Room} room
  */
 function _planExtensions(room) {
-    const rcl = room.controller.level;
-    const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][rcl] || 0;
-
-    if (maxExtensions === 0) return;
-
-    const existing = room.find(FIND_MY_STRUCTURES, {
-        filter: { structureType: STRUCTURE_EXTENSION },
-    });
-    const sites = room.find(FIND_CONSTRUCTION_SITES, {
-        filter: { structureType: STRUCTURE_EXTENSION },
-    });
-
-    const currentCount = existing.length + sites.length;
-    if (currentCount >= maxExtensions) return;
+    const needed = _getNeededExtensionCount(room);
+    if (needed === 0) return;
 
     const spawns = cache.getSpawns(room);
     if (spawns.length === 0) return;
 
     const spawn = spawns[0];
-    const needed = Math.min(5, maxExtensions - currentCount);
     let placed = 0;
 
     // スポーン周囲のスパイラルパターンでエクステンションを配置
@@ -295,15 +310,22 @@ function _checkSafeMode(room) {
     );
 
     if (dangerousEnemies.length >= SAFE_MODE_TRIGGER_HOSTILES) {
-        // 自室のディフェンダー数
-        const defenders = Object.values(Game.creeps).filter(
-            (c) =>
+        // ⚡ PERFORMANCE OPTIMIZATION: Use local cache.getMyCreeps(room) instead of Object.values(Game.creeps)
+        let defenderCount = 0;
+        const roomCreeps = cache.getMyCreeps(room) || [];
+        for (let i = 0; i < roomCreeps.length; i++) {
+            const c = roomCreeps[i];
+            if (
+                c &&
+                c.room &&
                 c.room.name === room.name &&
-                (c.getActiveBodyparts(ATTACK) > 0 ||
-                    c.getActiveBodyparts(RANGED_ATTACK) > 0)
-        );
+                (c.getActiveBodyparts(ATTACK) > 0 || c.getActiveBodyparts(RANGED_ATTACK) > 0)
+            ) {
+                defenderCount++;
+            }
+        }
 
-        if (defenders.length < dangerousEnemies.length) {
+        if (defenderCount < dangerousEnemies.length) {
             const result = controller.activateSafeMode();
             if (result === OK) {
                 logger.warn(`[RoomManager] セーフモード発動: ${room.name} 敵 ${dangerousEnemies.length} 体`);
@@ -367,15 +389,19 @@ function _manageLinkNetwork(room) {
 
 /**
  * ルームの詳細統計を返す
+ * ⚡ PERFORMANCE OPTIMIZATION: Use cache.getMyCreeps(room) to iterate room creeps instead of global Game.creeps.
  * @param {Room} room
  * @returns {Object}
  */
 function getStats(room) {
-    const creepCounts = {};
-    for (const name in Game.creeps) {
-        const creep = Game.creeps[name];
-        if (creep.room.name !== room.name) continue;
-        const role = creep.memory.role || 'unknown';
+    const creepCounts = Object.create(null);
+    const roomCreeps = cache.getMyCreeps(room) || [];
+    let totalCreeps = 0;
+    for (let i = 0; i < roomCreeps.length; i++) {
+        const creep = roomCreeps[i];
+        if (!creep || !creep.room || creep.room.name !== room.name) continue;
+        totalCreeps++;
+        const role = (creep.memory && creep.memory.role) || 'unknown';
         creepCounts[role] = (creepCounts[role] || 0) + 1;
     }
 
@@ -393,7 +419,7 @@ function getStats(room) {
         energyCapacity: room.energyCapacityAvailable,
         storageEnergy: storage ? storage.store[RESOURCE_ENERGY] : 0,
         creepCounts,
-        totalCreeps: Object.keys(Game.creeps).filter((n) => Game.creeps[n].room.name === room.name).length,
+        totalCreeps,
         constructionSites: cache.getConstructionSites(room).length,
         towers: towers.length,
         enemies: enemies.length,
@@ -463,4 +489,5 @@ module.exports = {
     getStats,
     showStats,
     showVisuals,
+    _getNeededExtensionCount,
 };

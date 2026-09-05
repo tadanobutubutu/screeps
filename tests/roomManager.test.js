@@ -452,12 +452,19 @@ describe('roomManager', () => {
 
     describe('_planRoads', () => {
         beforeEach(() => {
-            global.Game.time = 50; // trigger _planConstruction
-            mockRoom.controller.level = 1; // triggers _planSourceContainers and _planRoads
+            global.Game.time = 500; // trigger _planConstruction
+            mockRoom.controller.level = 2; // triggers _planSourceContainers and _planRoads
             mockRoom.lookAtArea = jest.fn().mockReturnValue([]);
             mockRoom.getTerrain = jest.fn().mockReturnValue({ get: () => 0 });
             cache.getContainers.mockReturnValue([]);
             cache.getStructures.mockReturnValue([]);
+            cache.getMyStructures.mockReturnValue([
+                { structureType: 'extension' },
+                { structureType: 'extension' },
+                { structureType: 'extension' },
+                { structureType: 'extension' },
+                { structureType: 'extension' },
+            ]);
             cache.getConstructionSites.mockReturnValue([]);
             pathfinder.findNearestOpenTile.mockReturnValue(null); // prevent _planSourceContainers from creating sites for isolation
         });

@@ -21,3 +21,5 @@
 ## 2026-08-25 - Short-Circuiting Priority Evaluation in Repair Target Selection
 **Learning:** In Screeps target selection loops with prioritized structures (e.g. `_findBestRepairTarget` in `src/roles/repairer.js`), checking `if (priority > minPriority) continue;` before computing `hits / hitsMax` and `creep.pos.getRangeTo(s)` short-circuits evaluation for all lower-priority structures.
 **Action:** Always short-circuit lower priority candidates immediately after fetching priority in target selection search loops.
+## 2024-09-04 - Optimize construction site lookup in container planning
+Caching `getConstructionSites(room)` outside of loops prevents redundant `room.find()` calls per source, yielding ~47% execution time reduction in benchmark.

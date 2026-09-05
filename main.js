@@ -75,6 +75,11 @@ function personName() {
     console.log('Adding proper landmark regions...');
   };
 
+  // New changes or functions
+  const myNewFunction = (param1, param2) => {
+    // Implement your new function logic here
+  };
+
   return (
     <div>
       {/* Table with proper structure */}
@@ -101,15 +106,11 @@ function personName() {
       {/* Add role='checkbox' attribute for checkboxes */}
       <input type="checkbox" role={inputRole} />
 
-      {/* Call the new function here if needed */}
-      {/* Example usage of addProperLandmarkRegions */}
-      {/* <div>{addProperLandmarkRegions()}</div> */}
+      {/* Example of a new function or change */}
+      <p>{myNewFunction(param1, param2)} Example of new functionality or change</p>
 
-      {/* New changes or functions */}
-      <div>
-        {/* Example of a new function or change */}
-        <p>Example of new functionality or change</p>
-      </div>
+      {/* New function call example */}
+      <p>{myNewFunction('First param', 'Second param')}</p>
     </div>
   );
 };

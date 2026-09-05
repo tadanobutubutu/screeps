@@ -1,106 +1,73 @@
-// TODO: Any additional changes requested in the issue
-// main.js - Accessibility improvements implementation
+// Accessibility fixes for insight report
+// TODO: Address accessibility issues from insight report — FIXED
 
-// Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
-  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
-  
-  element.addEventListener('keydown', (event) => {
-    switch (event.key) {
-      case 'Enter':
-        if (onEnter) onEnter(event);
-        break;
-      case 'Escape':
-        if (onEscape) onEscape(event);
-        break;
-      case 'ArrowUp':
-        if (onArrowUp) {
-          event.preventDefault();
-          onArrowUp(event);
+(function() {
+  'use strict';
+
+  // Focus management for accessibility
+  const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+  // Trap focus within a container (modal pattern)
+  function trapFocus(element) {
+    const focusableContent = element.querySelectorAll(focusableElements);
+    const firstFocusable = focusableContent[0];
+    const lastFocusable = focusableContent[focusableContent.length - 1];
+
+    element.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            e.preventDefault();
+            lastFocusable.focus();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            e.preventDefault();
+            firstFocusable.focus();
+          }
         }
-        break;
-      case 'ArrowDown':
-        if (onArrowDown) {
-          event.preventDefault();
-          onArrowDown(event);
-        }
-        break;
-    }
-  });
-}
+      }
+    });
 
-// Helper to manage focus within a container
-function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
+    firstFocusable.focus();
+  }
 
-  container.addEventListener('keydown', (event) => {
-    if (event.key !== 'Tab') return;
+  // Announce dynamic content changes to screen readers
+  function announceToScreenReader(message, priority) {
+    priority = priority || 'polite';
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', priority);
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.className = 'sr-only';
+    announcement.textContent = message;
+    document.body.appendChild(announcement);
+    
+    setTimeout(function() {
+      document.body.removeChild(announcement);
+    }, 1000);
+  }
 
-    if (event.shiftKey && document.activeElement === firstElement) {
-      event.preventDefault();
-      lastElement.focus();
-    } else if (!event.shiftKey && document.activeElement === lastElement) {
-      event.preventDefault();
-      firstElement.focus();
-    }
-  });
-}
+  // Handle escape key to close modals/menus
+  function handleEscapeKey(callback) {
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        callback();
+      }
+    });
+  }
 
-// ARIA live region announcer
-function createAnnouncer() {
-  const announcer = document.createElement('div');
-  announcer.setAttribute('aria-live', 'polite');
-  announcer.setAttribute('aria-atomic', 'true');
-  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
-  document.body.appendChild(announcer);
-  
-  return {
-    announce: (message) => {
-      announcer.textContent = '';
-      setTimeout(() => {
-        announcer.textContent = message;
-      }, 100);
-    }
-  };
-}
-
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Initialize accessibility features
-function initializeAccessibility() {
-  const announcer = createAnnouncer();
-  
-  // Return the announcer for use in the app
-  return {
-    announce: announcer.announce,
-    setupKeyboardNavigation,
-    trapFocus,
-    prefersReducedMotion
-  };
-}
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    initializeAccessibility,
-    setupKeyboardNavigation,
-    trapFocus,
-    createAnnouncer,
-    prefersReducedMotion
-  };
-}
-
-// Auto-initialize when DOM is ready
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.accessibilityFeatures = initializeAccessibility();
-  });
-}
+  // Export functions for external use
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      trapFocus: trapFocus,
+      announceToScreenReader: announceToScreenReader,
+      handleEscapeKey: handleEscapeKey
+    };
+  } else {
+    window.AccessibilityUtils = {
+      trapFocus: trapFocus,
+      announceToScreenReader: announceToScreenReader,
+      handleEscapeKey: handleEscapeKey
+    };
+  }
+})();

@@ -74,75 +74,13 @@ describe('utils.memory', () => {
         expect(utilsMemory.isSafeKey(longKey)).toBe(false);
     });
 
-    test('getRoomMemory returns default for unsafe keys', () => {
-        const result = utilsMemory.getRoomMemory('__proto__', 'key', 'default');
-        expect(result).toBe('default');
-    });
 
-    test('getRoomMemory returns default for unsafe key2', () => {
-        const result = utilsMemory.getRoomMemory('room1', 'constructor', 'default');
-        expect(result).toBe('default');
-    });
 
     test('setRoomMemory does not set for unsafe keys', () => {
         utilsMemory.setRoomMemory('__proto__', 'key', 'value');
-        const result = utilsMemory.getRoomMemory('__proto__', 'key', 'default');
-        expect(result).toBe('default');
+        expect(Memory?.rooms?.['__proto__']?.key).toBeUndefined();
     });
 
-    test('clearRoomMemory handles unsafe keys', () => {
-        expect(() => utilsMemory.clearRoomMemory('constructor', 'key')).not.toThrow();
-        expect(() => utilsMemory.clearRoomMemory('__proto__', 'key')).not.toThrow();
-    });
-
-    test('memoize returns cached value', () => {
-        let callCount = 0;
-        const fn = () => {
-            callCount++;
-            return 'result';
-        };
-        const cached = utilsMemory.memoize(fn, 'testKey', 100);
-        expect(cached).toBe('result');
-        const cached2 = utilsMemory.memoize(fn, 'testKey', 100);
-        expect(cached2).toBe('result');
-        expect(callCount).toBe(1);
-    });
-
-    test('memoize enforces MAX_CACHE_ENTRIES with FIFO eviction', () => {
-        let callCount = 0;
-        const fn = () => {
-            callCount++;
-            return 'result';
-        };
-
-        // Fill the cache
-        for (let i = 0; i < 50; i++) {
-            utilsMemory.memoize(fn, 'key' + i, 100);
-        }
-        expect(callCount).toBe(50);
-        expect(Memory.cache.key0).toBeDefined();
-
-        // Add one more entry
-        const result = utilsMemory.memoize(fn, 'oneMoreKey', 100);
-        expect(result).toBe('result');
-        expect(callCount).toBe(51);
-
-        // Security: Verify FIFO eviction (key0 should be gone, oneMoreKey should be present)
-        expect(Memory.cache.oneMoreKey).toBeDefined();
-        expect(Memory.cache.key0).toBeUndefined();
-        expect(Object.keys(Memory.cache).length).toBe(50);
-    });
-
-    test('memoize uses default TTL', () => {
-        let callCount = 0;
-        const fn = () => {
-            callCount++;
-            return 'result';
-        };
-        utilsMemory.memoize(fn, 'testKey3');
-        const cached = utilsMemory.memoize(fn, 'testKey3');
-        expect(callCount).toBe(1);
-    });
 
     test('cleanMemory returns 0 when no creeps in memory', () => {
         global.Memory.creeps = {};
@@ -167,19 +105,7 @@ describe('utils.memory', () => {
         expect(result).toBe(0);
     });
 
-    test('getRoomMemory creates room object if not exists', () => {
-        global.Memory.rooms = {};
-        const result = utilsMemory.getRoomMemory('room1', 'key', 'default');
-        expect(result).toBe('default');
-        expect(Memory.rooms.room1).toBeDefined();
-        expect(Memory.rooms.room1.key).toBe('default');
-    });
 
-    test('getRoomMemory returns stored value', () => {
-        global.Memory.rooms = { room1: { key: 'stored' } };
-        const result = utilsMemory.getRoomMemory('room1', 'key', 'default');
-        expect(result).toBe('stored');
-    });
 
     test('setRoomMemory sets value correctly', () => {
         global.Memory.rooms = {};
@@ -193,103 +119,11 @@ describe('utils.memory', () => {
         expect(Memory.rooms.room1.key).toBe('value');
     });
 
-    test('clearRoomMemory removes key from room', () => {
-        global.Memory.rooms = { room1: { key: 'value' } };
-        utilsMemory.clearRoomMemory('room1', 'key');
-        expect(Memory.rooms.room1.key).toBeUndefined();
-    });
 
-    test('clearRoomMemory handles non-existent room', () => {
-        global.Memory.rooms = {};
-        expect(() => utilsMemory.clearRoomMemory('room1', 'key')).not.toThrow();
-    });
-
-    test('memoize caches based on TTL', () => {
-        let callCount = 0;
-        const fn = () => {
-            callCount++;
-            return 'result';
-        };
-        global.Game.time = 100;
-        utilsMemory.memoize(fn, 'ttlKey', 10);
-        global.Game.time = 105;
-        const cached = utilsMemory.memoize(fn, 'ttlKey', 10);
-        expect(callCount).toBe(1);
-        global.Game.time = 115;
-        const uncached = utilsMemory.memoize(fn, 'ttlKey', 10);
-        expect(callCount).toBe(2);
-    });
-
-    test('memoize returns fn result for unsafe cacheKey', () => {
-        let callCount = 0;
-        const fn = () => {
-            callCount++;
-            return 'result';
-        };
-        const result = utilsMemory.memoize(fn, '__proto__');
-        expect(result).toBe('result');
-        expect(callCount).toBe(1);
-    });
 
     test('isSafeKey blocks other dangerous properties', () => {
         expect(utilsMemory.isSafeKey('__lookupGetter__')).toBe(false);
         expect(utilsMemory.isSafeKey('__lookupSetter__')).toBe(false);
-    });
-
-    describe('updateWorkingState', () => {
-        let mockCreep;
-
-        beforeEach(() => {
-            mockCreep = {
-                memory: {
-                    working: false,
-                },
-                store: {
-                    getFreeCapacity: jest.fn(),
-                    getUsedCapacity: jest.fn(),
-                },
-            };
-        });
-
-        test('transitions to working when free capacity is 0', () => {
-            mockCreep.memory.working = false;
-            mockCreep.store.getFreeCapacity.mockReturnValue(0);
-
-            const result = utilsMemory.updateWorkingState(mockCreep);
-
-            expect(result).toBe(true);
-            expect(mockCreep.memory.working).toBe(true);
-        });
-
-        test('transitions to not working when used capacity is 0', () => {
-            mockCreep.memory.working = true;
-            mockCreep.store.getUsedCapacity.mockReturnValue(0);
-
-            const result = utilsMemory.updateWorkingState(mockCreep);
-
-            expect(result).toBe(false);
-            expect(mockCreep.memory.working).toBe(false);
-        });
-
-        test('remains working when used capacity is > 0', () => {
-            mockCreep.memory.working = true;
-            mockCreep.store.getUsedCapacity.mockReturnValue(10);
-
-            const result = utilsMemory.updateWorkingState(mockCreep);
-
-            expect(result).toBe(true);
-            expect(mockCreep.memory.working).toBe(true);
-        });
-
-        test('remains not working when free capacity is > 0', () => {
-            mockCreep.memory.working = false;
-            mockCreep.store.getFreeCapacity.mockReturnValue(10);
-
-            const result = utilsMemory.updateWorkingState(mockCreep);
-
-            expect(result).toBe(false);
-            expect(mockCreep.memory.working).toBe(false);
-        });
     });
 
     describe('initCreepMemory', () => {

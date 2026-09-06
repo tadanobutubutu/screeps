@@ -156,4 +156,15 @@ module.exports = {
             1000
         ); // Cache the road network for 1000 ticks
     },
+
+    // Display planning info
+    displayPlanningInfo: function (room) {
+        const openSpaces = this.findOpenSpaces(room, 3);
+        const bestSpawnPos = this.findBestSpawnPosition(room);
+
+        if (bestSpawnPos) {
+        }
+
+        return { openSpaces, bestSpawnPos };
+    },
 };

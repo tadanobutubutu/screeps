@@ -350,27 +350,33 @@ function _manageLinkNetwork(room) {
     const controller = room.controller;
     if (!controller) return;
 
-    // ソースリンク: ソース付近のリンク（エネルギーが溜まる）
-    const sourceLinks = links.filter(
-        (l) =>
-            l.store[RESOURCE_ENERGY] >= l.store.getCapacity(RESOURCE_ENERGY) * LINK_TRANSFER_THRESHOLD &&
-            l.cooldown === 0
-    );
-
-    // シンクリンク: コントローラー付近またはスポーン付近
     const spawns = cache.getSpawns(room);
     const spawnPos = spawns.length > 0 ? spawns[0].pos : null;
 
-    const sinkLinks = links.filter(
-        (l) =>
-            l.store[RESOURCE_ENERGY] < l.store.getCapacity(RESOURCE_ENERGY) * 0.5 &&
-            (controller.pos.getRangeTo(l) <= 5 ||
-                (spawnPos && spawnPos.getRangeTo(l) <= 5))
-    );
+    // ⚡ PERFORMANCE OPTIMIZATION: Single-pass indexed for loop categorizes links
+    // without closure allocations or for...of iterator overhead per tick.
+    const sourceLinks = [];
+    const sinkLinks = [];
+    for (let i = 0; i < links.length; i++) {
+        const l = links[i];
+        const cap = l.store.getCapacity(RESOURCE_ENERGY);
+        const energy = l.store[RESOURCE_ENERGY];
+        if (energy >= cap * LINK_TRANSFER_THRESHOLD && l.cooldown === 0) {
+            sourceLinks.push(l);
+        } else if (energy < cap * 0.5) {
+            if (
+                controller.pos.getRangeTo(l) <= 5 ||
+                (spawnPos && spawnPos.getRangeTo(l) <= 5)
+            ) {
+                sinkLinks.push(l);
+            }
+        }
+    }
 
     if (sourceLinks.length === 0 || sinkLinks.length === 0) return;
 
-    for (const sourceLink of sourceLinks) {
+    for (let i = 0; i < sourceLinks.length; i++) {
+        const sourceLink = sourceLinks[i];
         const sink = pathfinder.closest(sourceLink.pos, sinkLinks);
         if (!sink) continue;
 

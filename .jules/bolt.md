@@ -27,3 +27,7 @@ Replaced redundant loop source counting in auto.evolution.js with centralized O(
 ## 2026-08-25 - Localized Creep Iteration in Room Management
 **Learning:** Iterating global `Game.creeps` via `for...in` or `Object.values(Game.creeps)` in room manager routines scans creeps globally across all rooms and allocates global arrays on every tick. Replacing with `cache.getMyCreeps(room)` reduces loop complexity to O(RoomCreeps) and eliminates array allocation overhead.
 **Action:** Always use localized `cache.getMyCreeps(room)` instead of scanning global `Game.creeps` in room-specific manager functions.
+
+## 2026-08-25 - Single-Pass Link Network Categorization in Room Manager
+**Learning:** In high-frequency room management routines (like `_manageLinkNetwork`), calling `Array.prototype.filter` multiple times over links creates redundant closure and array allocations every tick. Combining link categorization into a single indexed `for` loop eliminates callback overhead and array passes.
+**Action:** Always categorize room structures in a single indexed `for` loop pass instead of chaining multiple `filter()` operations in tick-level management routines.

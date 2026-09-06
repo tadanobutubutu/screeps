@@ -1,5 +1,5 @@
-// TODO: Add any new functions or changes requested in the issue here
-// For example:
+// TODO: Address accessibility issues from insight report — CONTINUING
+// Add new functions (no existing functions should be removed or renamed)
 
 // Importing the necessary functions (for illustration purposes)
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';

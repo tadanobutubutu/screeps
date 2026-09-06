@@ -1,11 +1,12 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Create or update the affected functions to be accessible
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
-// main.js entry point
-function initialize() {
-  // Existing initialization logic
-  console.log('Application initialized');
+function processData(data) {
+  return data.map(item => item * 2);
 }
 
-module.exports = {
-  initialize
-};
+function calculateTotal(items) {
+  return items.reduce((sum, item) => sum + item, 0);
+}
+
+module.exports = { processData, calculateTotal };

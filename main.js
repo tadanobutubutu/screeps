@@ -263,6 +263,22 @@ function addAriaToFormControls(doc) {
   });
 }
 
+// Ensure element has an ID
+function ensureElementHasId(element) {
+  if (element && !element.id) {
+    element.id = `element-${Date.now()}`;
+  }
+  return element;
+}
+
+// Add ARIA label to element
+function addAriaLabel(element, label) {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+}
+
 /**
  * Address accessibility issues from the insight report
  * Applies all relevant accessibility fixes to the document
@@ -374,11 +390,6 @@ function fixFakeLinkIssues(doc) {
     }
   });
 }
-
-/**
- * Wrap primary content in main div
- * @param { Document } doc - The document object to operate on */
-// Note: wrapPrimaryContentInMain is defined above - this is a duplicate reference
 
 /**
  * Add proper landmark regions to the document
@@ -618,51 +629,32 @@ function getFullLangAttribute(doc) {
   return getFullLangAttributeImpl(doc);
 }
 
-// Missing function definitions that were referenced in exports
-function ensureElementHasId(element) {
-  if (element && !element.id) {
-    element.id = `element-${Date.now()}`;
-  }
-  return element;
+// Landmark helper functions
+function filterLandmarks(doc) {
+  const landmarks = doc.querySelectorAll('main, nav, aside, header, footer, [role]');
+  return Array.from(landmarks).filter(el => el.getAttribute('role') || ['main', 'nav', 'aside', 'header', 'footer'].includes(el.tagName.toLowerCase()));
 }
 
-function addAriaLabel(element, label) {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
-}
-
-function originalFilterLandmarks(landmarks) {
-  const validRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  return landmarks.filter(landmark => {
-    const role = landmark.getAttribute('role');
-    return role && validRoles.includes(role);
-  });
-}
-
-function originalSortLandmarksByName(landmarks) {
-  return landmarks.slice().sort((a, b) => {
-    const nameA = a.getAttribute('aria-label') || a.tagName.toLowerCase();
-    const nameB = b.getAttribute('aria-label') || b.tagName.toLowerCase();
+function sortLandmarksByName(landmarks) {
+  return Array.from(landmarks).sort((a, b) => {
+    const nameA = a.getAttribute('aria-label') || a.id || a.tagName;
+    const nameB = b.getAttribute('aria-label') || b.id || b.tagName;
     return nameA.localeCompare(nameB);
   });
 }
 
-function originalAddRequiredLandmarks(doc) {
-  const requiredLandmarks = ['header', 'nav', 'main', 'footer'];
-  const existingLandmarks = doc.querySelectorAll('header, nav, main, footer');
-  const existingTags = Array.from(existingLandmarks).map(el => el.tagName.toLowerCase());
-  
-  requiredLandmarks.forEach(landmark => {
-    if (!existingTags.includes(landmark)) {
-      const element = doc.createElement(landmark);
-      doc.body.appendChild(element);
+function addRequiredLandmarks(doc) {
+  const required = ['main', 'nav'];
+  required.forEach(role => {
+    if (!doc.querySelector(`[role="${role}"], ${role}`)) {
+      const el = doc.createElement(role === 'main' ? 'main' : 'nav');
+      if (role === 'nav') el.setAttribute('role', 'navigation');
+      doc.body.appendChild(el);
     }
   });
-  
-  return doc;
 }
+
+// ... (The rest of the existing functions and exports remain unchanged)
 
 // ADD THE NEW FUNCTION TO THE EXPORTS
 const { addMissingExportFunction } = require('./utils');
@@ -692,9 +684,9 @@ module.exports = {
   fixFakeLinkIssues,
   // Exports from the right side
   findIndex,
-  filterLandmarks: originalFilterLandmarks,
-  sortLandmarksByName: originalSortLandmarksByName,
-  addRequiredLandmarks: originalAddRequiredLandmarks,
+  filterLandmarks,
+  sortLandmarksByName,
+  addRequiredLandmarks,
   addressAccessibilityIssues,
   ensureElementHasId,
   addAriaLabel,

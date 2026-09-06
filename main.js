@@ -1,12 +1,16 @@
-// main.js
+// TODO: Add back any required exports that might have been?
 
-// TODO: Add any new functions or changes requested in the issue here
-// For example:
+// SYNCHRONOUS FUNCTION EXAMPLE
+const exampleSynchronousFunction = (input) => input * 2;
 
-function hello() {
-  return "Hello from main.js!";
-}
+// ASYNCHRONOUS FUNCTION EXAMPLE
+const exampleAsyncFunction = async (input) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  return input * 2;
+};
 
+// EXPORTS
 module.exports = {
-  hello
+  exampleSynchronousFunction,
+  exampleAsyncFunction,
 };

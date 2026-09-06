@@ -198,6 +198,8 @@ function addARIAAttributesToFormControls() {
   });
 }
 
+// TODO: Add back any required exports that might have been removed
+// Assuming that 'greeting' was previously exported and needs to be added back
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,

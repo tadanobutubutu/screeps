@@ -1,12 +1,11 @@
 // TODO: This is the existing code that needs to be preserved
 
-// Your new function here
-function newFunction() {
-  // Code for your new function goes here
+// main.js entry point
+function initialize() {
+  // Existing initialization logic
+  console.log('Application initialized');
 }
 
-// Exports
 module.exports = {
-  // ... all existing exports
-  // If you need to add new exports, place them here
+  initialize
 };

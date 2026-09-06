@@ -51,31 +51,62 @@ function createInPageButton() {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // Your new code to fix other accessibility issues goes here
+  // Implement all accessibility fixes here
+  
+  // Add lang attribute to HTML element
+  document.documentElement.setAttribute('lang', getLangAttribute());
+  
+  // Create in-page button with accessibility considerations
+  createInPageButton();
+  
+  // Validate table structure and accessibility
+  // Assuming you have a table element with an id of 'myTable'
+  const table = document.getElementById('myTable');
+  if (table) {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  }
+  
+  // Add/fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
+  
+  // Add accessible names to SVGs
+  // Assuming you have an SVG element with an id of 'mySvg'
+  const svg = document.getElementById('mySvg');
+  if (svg) {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  }
+  
+  // Ensure unique landmarks
+  // This would be handled by the appropriate function call
+  validateLinkAccessibility();
+  handleFakeLinks();
 }
 
 // DOM-based accessibility code
 document.documentElement.lang = getLangAttribute();
 createInPageButton();
 
-const tables = document.querySelectorAll('table');
-tables.forEach(table => {
-    if (table) {
-        validateTableAccessibility(table);
-        validateTableStructure(table);
-    }
-});
+// Validate table structure and accessibility
+// Assuming you have a table element with an id of 'myTable'
+const table = document.getElementById('myTable');
+if (table) {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+}
 
 validateLandmark();
 validateLandmarkStructure();
 
-const svgs = document.querySelectorAll('svg');
-svgs.forEach(svg => {
-    if (svg) {
-        const accessibleName = getSvgAccessibleName(svg);
-        setSvgAttributes(svg, accessibleName);
-    }
-});
+// Add accessible names to SVGs
+// Assuming you have an SVG element with an id of 'mySvg'
+const svg = document.getElementById('mySvg');
+if (svg) {
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
+}
 
 // Handle fake links accessibility issues
 handleFakeLinks();

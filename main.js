@@ -1,40 +1,69 @@
-// TODO: Address accessibility issues from insight report:
+// Main application file
+const express = require('express');
+const app = express();
 
-/**
- * Adds an ARIA label to an element if not already present.
- * @param {HTMLElement} element - The target element.
- * @param {string} label - The accessible label to set.
- */
-function addAriaLabel(element, label) {
-  if (element && !element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', label);
-  }
+// Existing configuration
+const PORT = process.env.PORT || 3000;
+const DEFAULT_TAX_RATE = 0.08;
+
+// Helper function to format currency
+function formatCurrency(amount) {
+  return `$${amount.toFixed(2)}`;
 }
 
-/**
- * Ensures an element has an appropriate ARIA role.
- * @param {HTMLElement} element - The target element.
- * @param {string} role - The ARIA role to set.
- */
-function addAriaRole(element, role) {
-  if (element && !element.getAttribute('role')) {
-    element.setAttribute('role', role);
-  }
+// Calculate sales tax
+function calculateTax(subtotal, taxRate = DEFAULT_TAX_RATE) {
+  return subtotal * taxRate;
 }
 
-/**
- * Adds keyboard support for custom interactive elements.
- * @param {HTMLElement} element - The target element.
- */
-function addKeyboardSupport(element) {
-  if (element) {
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        element.click();
-      }
-    });
-  }
+// Calculate total with tax
+function calculateTotal(subtotal, taxRate = DEFAULT_TAX_RATE) {
+  const tax = calculateTax(subtotal, taxRate);
+  return subtotal + tax;
 }
 
-export { addAriaLabel, addAriaRole, addKeyboardSupport };
+// Calculate discount based on price and discount percentage
+function calculateDiscount(price, discountPercentage) {
+  if (price < 0 || discountPercentage < 0) {
+    return 0;
+  }
+  if (discountPercentage > 100) {
+    discountPercentage = 100;
+  }
+  return price - (price * discountPercentage / 100);
+}
+
+// API Routes
+app.get('/', (req, res) => {
+  res.send('Welcome to the store API');
+});
+
+app.get('/api/calculate', (req, res) => {
+  const { subtotal, taxRate } = req.query;
+  const subtotalNum = parseFloat(subtotal) || 0;
+  const taxRateNum = parseFloat(taxRate) || DEFAULT_TAX_RATE;
+  
+  const tax = calculateTax(subtotalNum, taxRateNum);
+  const total = calculateTotal(subtotalNum, taxRateNum);
+  
+  res.json({
+    subtotal: formatCurrency(subtotalNum),
+    tax: formatCurrency(tax),
+    total: formatCurrency(total),
+    taxRate: taxRateNum
+  });
+});
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+module.exports = {
+  app,
+  calculateTax,
+  calculateTotal,
+  calculateDiscount,
+  formatCurrency
+};

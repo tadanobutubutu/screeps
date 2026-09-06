@@ -652,29 +652,14 @@ function getFullLangAttribute(doc) {
   return getFullLangAttributeImpl(doc);
 }
 
-// Landmark helper functions
-function filterLandmarks(doc) {
-  const landmarks = doc.querySelectorAll('main, nav, aside, header, footer, [role]');
-  return Array.from(landmarks).filter(el => el.getAttribute('role') || ['main', 'nav', 'aside', 'header', 'footer'].includes(el.tagName.toLowerCase()));
-}
-
-function sortLandmarksByName(landmarks) {
-  return Array.from(landmarks).sort((a, b) => {
-    const nameA = a.getAttribute('aria-label') || a.id || a.tagName;
-    const nameB = b.getAttribute('aria-label') || b.id || b.tagName;
-    return nameA.localeCompare(nameB);
-  });
-}
-
-function addRequiredLandmarks(doc) {
-  const required = ['main', 'nav'];
-  required.forEach(role => {
-    if (!doc.querySelector(`[role="${role}"], ${role}`)) {
-      const el = doc.createElement(role === 'main' ? 'main' : 'nav');
-      if (role === 'nav') el.setAttribute('role', 'navigation');
-      doc.body.appendChild(el);
-    }
-  });
+/**
+ * Initializes accessibility fixes based on the insight report
+ * This function wraps the core implementation and can be extended
+ * @param {Document} doc - The document object to operate on
+ * @returns {Object} Summary of fixes applied
+ */
+function initializeAccessibilityFixes(doc) {
+  return addressAccessibilityIssuesFromInsightReport(doc);
 }
 
 // ... (The rest of the existing functions and exports remain unchanged)
@@ -711,5 +696,6 @@ module.exports = {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraph,
-  resolveConflicts
+  resolveConflicts,
+  initializeAccessibilityFixes
 };

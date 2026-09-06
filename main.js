@@ -398,15 +398,6 @@ function fixFakeLinkIssues(doc) {
 // Note: wrapPrimaryContentInMain is defined above - this is a duplicate reference
 
 /**
- * Add proper landmark regions to the document
- * @param { Document } doc - The document object to operate on
- */
-function addProperLandmarkRegions(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
-  return Array.from(landmarks);
-}
-
-/**
  * Add ARIA attributes to form controls
  * @param { Document } doc - The document object to operate on
  */

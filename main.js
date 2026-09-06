@@ -264,6 +264,7 @@ function renderIndexView(container) {
   handleAccessibilityIssues(indexContent(getDocument(), container));
 }
 
+// Exporting the updated newFeature function
 module.exports = {
   main,
   placeholderFunction,

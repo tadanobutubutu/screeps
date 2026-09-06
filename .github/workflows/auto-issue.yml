@@ -45,7 +45,7 @@ jobs:
 
       - name: 検証結果をアーティファクト保存
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: repo-health-report
           path: repo-health-report.json

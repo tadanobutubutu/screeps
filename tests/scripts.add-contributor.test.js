@@ -236,7 +236,7 @@ describe('add-contributor', () => {
 
             expect(require('child_process').execFileSync).toHaveBeenCalledWith('git', ['add', '.all-contributorsrc', 'README.md'], { stdio: 'inherit' });
             expect(require('child_process').execFileSync).toHaveBeenCalledWith('git', ['commit', '-m', 'docs: add testuser as a contributor'], { stdio: 'inherit' });
-            expect(require('child_process').execFileSync).toHaveBeenCalledWith('git', ['push', 'origin', 'HEAD'], { stdio: 'inherit' });
+            expect(require('child_process').execFileSync).toHaveBeenCalledWith('git', ['push', 'origin', '--', 'HEAD'], { stdio: 'inherit' });
             expect(console.log).toHaveBeenCalledWith('✅ Changes pushed');
         });
 

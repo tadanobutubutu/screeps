@@ -10,11 +10,11 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
+    const candidate = baseName
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
-        candidate = `${candidate}-${suffix}`;
+        candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -56,73 +56,16 @@ function addLangAttribute() {
 }
 
 /**
- * Returns the language attribute (without region) from the html element.
- * @returns {string} - the language code (e.g., 'en')
+ * This function gets the language attribute
+ * @returns {string} - the language attribute
  */
 function getLangAttribute() {
-  const full = document.documentElement.lang || '';
-  // Split on hyphen or underscore and take first part
-  return full.split(/[-_]/)[0];
+  return document.documentElement.lang || '';
 }
 
 /**
- * Addresses accessibility issues from an insight report.
- * @param {Object} insightReport - The insight report containing accessibility findings.
- * @returns {Object} The report with accessibility issues addressed.
- */
-function addressAccessibilityIssues(insightReport) {
-  // Implementation to address accessibility issues from an insight report.
-  // Apply specific accessibility fixes here based on the report's structure.
-  // For now, we simply return the report unchanged.
-  return insightReport;
-}
-
-/**
- * Function to replace `my-button` with actual button id
- */
-function replaceMyButtonId() {
-  const button = document.getElementById('my-button');
-  if (button) {
-    button.id = 'actual-button-id';
-  }
-}
-
-// Helper to manage focus within a container
-function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  container.addEventListener('keydown', (event) => {
-    if (event.key !== 'Tab') return;
-
-    if (event.shiftKey && document.activeElement === firstElement) {
-      event.preventDefault();
-      lastElement.focus();
-    } else if (!event.shiftKey && document.activeElement === lastElement) {
-      event.preventDefault();
-      firstElement.focus();
-    }
-  });
-}
-
-/**
- * Adds an aria-label attribute to an element if it doesn't already have one.
- * @param {HTMLElement} element - The element to add the aria-label to.
- * @param {string} label - The label text to be added.
- */
-function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
-        element.setAttribute('aria-label', label);
-    }
-}
-
-/**
- * Gets the language attribute from the HTML element.
- * @returns {string} - the language attribute value
+ * This function gets the full language attribute with region (if provided)
+ * @returns {string} - the full language attribute with region (if provided)
  */
 function getFullLangAttribute() {
   return document.documentElement.lang || '';
@@ -182,19 +125,19 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-controls]');
-  collapsibles.forEach(element => {
-    if (!element.hasAttribute('aria-expanded')) {
-      element.setAttribute('aria-expanded', 'false');
+  const collapsibles = document.querySelectorAll('[aria-expanded]');
+  collapsibles.forEach(el => {
+    if (!el.getAttribute('aria-expanded')) {
+      el.setAttribute('aria-expanded', 'false');
     }
   });
   
   // Add aria-labels to form inputs that don't have labels
-  const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
+  const inputs = document.querySelectorAll('input');
   inputs.forEach((input, index) => {
     const id = input.id || `input-${index}`;
     input.id = id;
-    if (!document.querySelector(`label[for="${id}"]`)) {
+    if (!input.getAttribute('aria-label')) {
       input.setAttribute('aria-label', `Input field ${index + 1}`);
     }
   });
@@ -208,12 +151,12 @@ function addProperAccountManagement() {
  */
 function addAriaToFormControls() {
   // Add required aria attributes to form controls
-  const formControls = document.querySelectorAll('button, input, select, textarea');
+  const formControls = document.querySelectorAll('input, select, textarea');
   
   formControls.forEach(control => {
     // Ensure all form controls have accessible names
-    if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
-      const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
+    if (!control.getAttribute('aria-label') && control.id) {
+      const label = document.querySelector(`label[for="${control.id}"]`);
       if (label) {
         label.id = label.id || `label-${control.id}`;
         control.setAttribute('aria-labelledby', label.id);
@@ -221,7 +164,7 @@ function addAriaToFormControls() {
     }
     
     // Mark required fields appropriately
-    if (control.hasAttribute('required') && !control.getAttribute('aria-required')) {
+    if (control.required && !control.getAttribute('aria-required')) {
       control.setAttribute('aria-required', 'true');
     }
   });
@@ -230,164 +173,6 @@ function addAriaToFormControls() {
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
-
-// [NEW] Example of a new function to address a hypothetical accessibility issue
-function improveTableAccessibility() {
-  // Example: Adding ARIA roles to table headers for better screen reader support
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      console.error('Table without headers found:', table);
-    } else {
-      headers.forEach(header => {
-        // Check for proper scope attribute
-        const scope = header.getAttribute('scope');
-        if (!scope) {
-          console.error('Table header without scope attribute:', header);
-        } else if (scope !== 'col' && scope !== 'row' && scope !== 'colgroup' && scope !== 'rowgroup') {
-          console.error('Table header with invalid scope value:', header);
-        }
-
-        // Check for proper role attribute
-        if (!header.hasAttribute('role') || (header.getAttribute('role') !== 'columnheader' && header.getAttribute('role') !== 'rowheader')) {
-          console.error('Table header without proper role attribute:', header);
-        }
-      });
-    }
-  });
-}
-
-/**
- * Implement validateTableStructure() function to check for proper table structure.
- * This function should check for tables with proper nesting and other structural issues.
- *
- * @returns {void}
- */
-function validateTableStructure() {
-  // Check for tables with incorrect nesting or other structural issues
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    const rows = table.querySelectorAll('tr');
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
-      if (cells.length === 0) {
-        console.error('Table row without cells found:', row);
-      }
-    });
-
-    // Check for tables without proper structure (missing thead, tbody, tfoot)
-    const thead = table.querySelector('thead');
-    const tbody = table.querySelector('tbody');
-
-    // If table has rows directly under table (not in tbody), that's a structural issue
-    const directRows = table.querySelectorAll(':scope > tr');
-    if (directRows.length > 0) {
-      console.error('Table with rows directly under table element (should be in tbody):', table);
-    }
-  });
-}
-
-// ARIA live region announcer
-function createAnnouncer() {
-  const announcer = document.createElement('div');
-  announcer.setAttribute('aria-live', 'polite');
-  announcer.setAttribute('aria-atomic', 'true');
-  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
-  document.body.appendChild(announcer);
-
-  return {
-    announce: (message) => {
-      announcer.textContent = '';
-      setTimeout(() => {
-        announcer.textContent = message;
-      }, 100);
-    }
-  };
-}
-
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Function to improve keyboard navigation for interactive elements
-function improveKeyboardNavigation() {
-  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
-  interactiveElements.forEach(element => {
-    element.setAttribute('tabindex', '0');
-  });
-}
-
-// Function to add ARIA live regions for dynamic content updates
-function addLiveRegionForDynamicContent() {
-  const liveRegion = document.createElement('div');
-  liveRegion.setAttribute('aria-live', 'polite');
-  liveRegion.setAttribute('role', 'alert');
-  document.body.appendChild(liveRegion);
-}
-
-// Initialize accessibility features
-function initializeAccessibility() {
-  const announcer = createAnnouncer();
-
-  // Ensure all landmarks have unique IDs
-  uniqueLandmarks();
-
-  // Improve keyboard navigation
-  improveKeyboardNavigation();
-
-  // Add live region for dynamic content
-  addLiveRegionForDynamicContent();
-
-  // Return the announcer for use in the app
-  return {
-    announce: announcer.announce,
-    prefersReducedMotion
-  };
-}
-
-/**
- * Checks whether a link is accessible.
- * A link is considered accessible if it has a non-empty text content
- * or an accessible name (via aria-label, aria-labelledby, or title attribute).
- * @param {HTMLAnchorElement} link - The link element to check.
- * @returns {boolean} True if the link is accessible, false otherwise.
- */
-function isLinkAccessible(link) {
-  if (!(link instanceof HTMLAnchorElement)) {
-    return false;
-  }
-
-  // Check for non-empty text content
-  const textContent = link.textContent.trim();
-  if (textContent.length > 0) {
-    return true;
-  }
-
-  // Check for aria-label with non-empty value
-  const ariaLabel = link.getAttribute('aria-label');
-  if (ariaLabel && ariaLabel.trim().length > 0) {
-    return true;
-  }
-
-  // Check for aria-labelledby referencing existing element with text
-  const ariaLabelledby = link.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labelledByElement = document.getElementById(ariaLabelledby);
-    if (labelledByElement && labelledByElement.textContent.trim().length > 0) {
-      return true;
-    }
-  }
-
-  // Check for title attribute with non-empty value
-  const title = link.getAttribute('title');
-  if (title && title.trim().length > 0) {
-    return true;
-  }
-
-  return false;
-}
 
 addProperLandmarkRegions();
 addProperAccountManagement();

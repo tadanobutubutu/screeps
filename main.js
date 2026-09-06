@@ -1,6 +1,19 @@
 // main.js
 // Implementation of unique landmark functions
 
+// Preserve existing functionality
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
+// Internal set to track used landmark IDs
 // Global set to track used landmark IDs
 const _usedLandmarkIds = new Set();
 
@@ -170,37 +183,102 @@ function addAriaToFormControls() {
   });
 }
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_025: Add other accessibility changes as per the insight report
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// Added functions for REACT_017 and new REACT_025
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_025: Ensure unique landmarks (2 issues)
 
-addProperLandmarkRegions();
-addProperAccountManagement();
-addAriaToFormControls();
-improveTableAccessibility();
+/**
+ * Adds accessible names to SVGs.
+ * @param {Array} svgs - Array of SVG elements.
+ * @returns {void}
+ */
+function addAccessibleNamesToSVGs(svgs) {
+  svgs.forEach(svg => {
+    const id = `svg-${Date.now()}`;
+    svg.setAttribute('id', id);
+    const label = document.createElement('label');
+    label.setAttribute('for', id);
+    label.textContent = 'SVG description';
+    svg.parentNode.insertBefore(label, svg);
+  });
+}
 
-module.exports = {
-  addProperLandmarkRegions,
-  addProperAccountManagement,
-  addAriaToFormControls,
-  replaceMyButtonId,
-  replaceMyButtonIdClass,
-  getFullLangAttribute,
-  getLangAttribute,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  validateTableAccessibility,
-  validateTableStructure,
-  addAccessibleNamesToSVGs,
-  removeFakeLinks,
-  initializeAccessibility,
-  createAnnouncer,
-  prefersReducedMotion,
-  improveKeyboardNavigation,
-  addLiveRegionForDynamicContent,
-  isLinkAccessible,
-  addAriaLabel,
-  addLangAttribute,
-  addressAccessibilityIssues,
-  trapFocus
-};
+/**
+ * Removes fake links from the document.
+ * @returns {void}
+ */
+function removeFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    link.style.display = 'none';
+  });
+}
+
+/**
+ * Implement validateTableAccessibility() function to check for accessibility issues in tables.
+ * This function should check for proper table headers, roles, and other relevant ARIA attributes.
+ *
+ * @returns {void}
+ */
+function validateTableAccessibility() {
+  // Check for tables with no headers or headers that are not properly labeled
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      console.error('Table without headers found:', table);
+    } else {
+      headers.forEach(header => {
+        // Check for proper scope attribute
+        const scope = header.getAttribute('scope');
+        if (!scope) {
+          console.error('Table header without scope attribute:', header);
+        } else if (scope !== 'col' && scope !== 'row' && scope !== 'colgroup' && scope !== 'rowgroup') {
+          console.error('Table header with invalid scope value:', header);
+        }
+        
+        // Check for proper role attribute
+        if (!header.hasAttribute('role') || (header.getAttribute('role') !== 'columnheader' && header.getAttribute('role') !== 'rowheader')) {
+          console.error('Table header without proper role attribute:', header);
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Implement validateTableStructure() function to check for proper table structure.
+ * This function should check for tables with proper nesting and other structural issues.
+ *
+ * @returns {void}
+ */
+function validateTableStructure() {
+  // Check for tables with incorrect nesting or other structural issues
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0) {
+        console.error('Table row without cells found:', row);
+      }
+    });
+    
+    // Check for tables without proper structure (missing thead, tbody, tfoot)
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    
+    // If table has rows directly under table (not in tbody), that's a structural issue
+    const directRows = table.querySelectorAll(':scope > tr');
+    if (directRows.length > 0) {
+      console.error('Table with rows directly under table element (should be in tbody):', table);
+    }
+  });
+}
+
+// ARIA live region announcer
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0,

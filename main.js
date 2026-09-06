@@ -7,7 +7,7 @@ import { dependencyGraphContent, indexContent } from './content';
 // REACT_015: Add lang attribute — address accessibility in HTML
 
 // New Function
-function newFunction() {
+function wrapPrimaryContentInMain() {
   // implementation details
 }
 
@@ -15,7 +15,7 @@ function newFunction() {
 // ...
 
 // Create a new named export for the new function
-export { newFunction as newExport };
+export { wrapPrimaryContentInMain };
 
 // Re-export the existing default export
 export * from ...

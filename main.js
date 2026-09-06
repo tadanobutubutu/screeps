@@ -77,6 +77,14 @@ function getLangAttribute() {
 }
 
 /**
+ * Gets the language attribute of the HTML document.
+ * @returns {string} - the language attribute value
+ */
+function getLangAttribute() {
+  return document.documentElement.lang || '';
+}
+
+/**
  * This function gets the full language attribute with region (if provided)
  * @returns {string} - the full language attribute with region (if provided)
  */

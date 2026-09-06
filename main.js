@@ -1,72 +1,89 @@
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// TODO: Address accessibility issues from insight report:
-// - REACT_025: Add other accessibility changes as per the insight report
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// main.js
 
 /**
- * Renders a dependency graph to the document for debugging purposes.
- * Creates a simple HTML visualization of module dependencies.
- * @returns {string} The generated HTML snippet.
+ * Validate table accessibility
+ * @param {HTMLTableElement} table
+ * @returns {boolean}
  */
-function renderDependencyGraph() {
-  const container = document.createElement('div');
-  container.id = 'dependency-graph';
-  container.innerHTML = `
-    <h2>Dependency Graph</h2>
-    <ul>
-      <li>Main Module → Core</li>
-      <li>Core → Utils</li>
-      <li>Utils → Helpers</li>
-    </ul>
-  `;
-  document.body.appendChild(container);
-  return container.innerHTML;
+function validateTableAccessibility(table) {
+  if (!(table instanceof HTMLTableElement)) {
+    throw new Error('Expected an HTMLTableElement');
+  }
+
+  // Check for a caption
+  if (!table.caption) {
+    console.warn('Table is missing a caption');
+  }
+
+  // Check for header cells
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    console.warn('Table has no th elements');
+  } else {
+    // Ensure each th has a scope attribute
+    headers.forEach(th => {
+      if (!th.scope) {
+        console.warn('th element should have a scope attribute');
+      }
+    });
+  }
+
+  // Check for proper role
+  const role = table.getAttribute('role');
+  if (role && role !== 'table') {
+    console.warn('Table should have role="table"');
+  }
+
+  return true;
 }
 
 /**
- * Displays the module structure of the application for debugging.
- * Shows top-level modules and their sub-modules.
- * @returns {string} HTML snippet representing module hierarchy.
+ * Validate table structure
+ * @param {HTMLTableElement} table
+ * @returns {boolean}
  */
-function displayModuleStructure() {
-  const container = document.createElement('div');
-  container.id = 'module-structure';
-  container.innerHTML = `
-    <h2>Module Structure</h2>
-    <ul>
-      <li><strong>App</strong> → <span>Core</span></li>
-      <li><strong>Core</strong> → <span>Utils</span>, <span>Helpers</span></li>
-      <li><strong>Utils</strong> → <span>Math</span>, <span>Validation</span></li>
-      <li><strong>Helpers</strong> → <span>IO</span></li>
-    </ul>
-  `;
-  document.body.appendChild(container);
-  return container.innerHTML;
+function validateTableStructure(table) {
+  if (!(table instanceof HTMLTableElement)) {
+    throw new Error('Expected an HTMLTableElement');
+  }
+
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) {
+    console.warn('Table has no rows');
+    return false;
+  }
+
+  // Determine expected column count from first row
+  const firstRowCells = rows[0].querySelectorAll('td, th');
+  const expectedColCount = firstRowCells.length;
+
+  // Check each row has same number of cells
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length !== expectedColCount) {
+      console.warn(`Row ${index} has ${cells.length} cells, expected ${expectedColCount}`);
+    }
+  });
+
+  // Check for thead, tbody, tfoot
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  const tfoot = table.querySelector('tfoot');
+
+  if (thead) {
+    const theadRows = thead.querySelectorAll('tr');
+    if (theadRows.length === 0) {
+      console.warn('thead should contain at least one row');
+    }
+  }
+  if (tfoot) {
+    const tfootRows = tfoot.querySelectorAll('tr');
+    if (tfootRows.length === 0) {
+      console.warn('tfoot should contain at least one row');
+    }
+  }
+
+  return true;
 }
 
-/**
- * Adds proper ARIA landmark regions to the document.
- * This improves screen reader navigation by ensuring proper landmark roles.
- *
- * @returns {void}
- */
-function addProperLandmarkRegions() {
-  // Check if main landmark exists
-  const main = document.querySelector('main') || document.querySelector('[role="main"]');
-  if (!main) {
-    const newMain = document.createElement('main');
-    newMain.setAttribute('role', 'main');
-    document.body.insertBefore(newMain, document.body.firstChild);
-  }
-
-  // Check if navigation landmark exists
-  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
-  if (!nav) {
-    const newNav = document.createElement('nav');
-    newNav.setAttribute('role', 'navigation');
-    newNav.setAttribute('aria-label', 'Main navigation');
-    document.body.insertBefore(newNav, document.body.firstChild);
-  }
-
-  // Create banner/header landmark
-  const header = document.querySelector('header')
+module.exports = { validateTableAccessibility, validateTableStructure };

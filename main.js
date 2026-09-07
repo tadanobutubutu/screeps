@@ -32,51 +32,8 @@ function makeFocusable(elements) {
   }
 }
 
-function personName() {
-  return document.querySelector('[data-person-name]')?.textContent || document.querySelector('.person-name')?.textContent || 'Unknown';
-}
-
-// Make sure to call the function on page load
-... () => {
-  ...
-});
-
-const functionB = {
-  X: 'valueX',
-  Y: 'valueY',
-  Z: 'valueZ'
-};
-
-// Placeholder for the affected SVGs
-const icons = {
-  icon: ... ... viewBox="0 0 100 100" aria-label="Screps ... Dashboard</title><text y=".9em" ...
-};
-
-/**
- * Function to check if the specified landmark element is in the document.
- * @param {string} id - The ID of the landmark element.
- * @returns {boolean} Returns true if the element exists; otherwise, false.
- */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
-}
-
-function personName() {
-  return 'Unknown';
-}
-
-// Ensure unique landmarks by filtering duplicates
-function ensureUniqueLandmarks(landmarks) {
-    const seen = new Set();
-    return landmarks.filter(landmark => {
-        const key = JSON.stringify(landmark);
-        if (seen.has(key)) {
-            return false;
-        }
-        seen.add(key);
-        return true;
-    });
+function personName(person) {
+  return (person && person.name) || 'Unknown';
 }
 
 function validateTableAccessibility(table) {
@@ -220,7 +177,7 @@ function validateLandmark(element) {
 }
 
 function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('[role="main"], main, [role="navigation"], nav, [role="banner"], header, [role="contentinfo"], footer');
+  const landmarks = document.querySelectorAll('main, [role="main"], [role="navigation"], nav, [role="banner"], header, [role="contentinfo"], footer');
   let issues = 0;
   const mains = document.querySelectorAll('main, [role="main"]');
   if (mains.length > 1) issues += mains.length - 1;
@@ -240,7 +197,7 @@ function getSvgAccessibleName(svg) {
 function createDomInPageButton(text, onClick) {
   const button = document.createElement('button');
   button.textContent = text;
-  button.addEventListener('click', onClick);
+  if (onClick) button.addEventListener('click', onClick);
   return button;
 }
 

@@ -1,19 +1,9 @@
 // Assuming the file is located at ...
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface DashboardProps {
   // Define any props the Dashboard component might receive
-}
-
-// functionA
-export function functionA() {
-  // Implementation for functionA
-}
-
-// functionB
-export function functionB() {
-  // Implementation for functionB
 }
 
 const Dashboard: ... = (props) => {
@@ -22,6 +12,42 @@ const Dashboard: ... = (props) => {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [errCopyHover, setErrCopyHover] = useState<boolean>(false);
   const [errRetryHover, setErrRetryHover] = useState<boolean>(false);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  // Function for addressing accessibility issues
+  const handleAccessibilityIssue = (issueType: string, message: string, targetElement?: HTMLElement | null) => {
+    // Create or update aria-live region for screen reader announcements
+    let liveRegion = document.getElementById('a11y-announcer');
+    
+    if (!liveRegion) {
+      liveRegion = document.createElement('div');
+      liveRegion.id = 'a11y-announcer';
+      liveRegion.setAttribute('aria-live', 'polite');
+      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion.setAttribute('role', 'status');
+      liveRegion.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
+      document.body.appendChild(liveRegion);
+    }
+
+    // Announce the accessibility issue to screen readers
+    if (liveRegion) {
+      liveRegion.textContent = '';
+      setTimeout(() => {
+        if (liveRegion) {
+          liveRegion.textContent = message;
+        }
+      }, 100);
+    }
+
+    // Manage focus if a target element is provided
+    if (targetElement) {
+      setTimeout(() => {
+        if (targetElement && typeof targetElement.focus === 'function') {
+          targetElement.focus();
+        }
+      }, 200);
+    }
+  };
 
   const copyErr = () => {
     // Implement the copy error logic
@@ -37,12 +63,24 @@ const Dashboard: ... = (props) => {
     setTimeout(() => setRefreshing(false), 2000);
   };
 
+  // Effect to handle accessibility when error changes
+  useEffect(() => {
+    if (error && errorRef.current) {
+      handleAccessibilityIssue(
+        'error_occurred',
+        `エラーが発生しました: ${error}`,
+        errorRef.current
+      );
+    }
+  }, [error]);
+
   return (
     <main role="main" ...
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
           <section
+            ref={errorRef}
             role="alert"
             aria-label="エラーメッセージ詳細"
             aria-live="polite"
@@ -90,7 +128,7 @@ const Dashboard: ... = (props) => {
           aria-disabled={refreshing}
           aria-busy={refreshing}
           aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
-          title={refreshing ? '再試行中...' : 'エラーを再試行'}
+          title={refreshing ? '再試行中...' : 'エラーの再試行'}
           onMouseEnter={() => setErrRetryHover(true)}
           onMouseLeave={() => setErrRetryHover(false)}
           onFocus={() => setErrRetryHover(true)}
@@ -111,7 +149,7 @@ const Dashboard: ... = (props) => {
           }}
         >
           <span aria-hidden="true">{refreshing ? '🔄' : '🔁'}</span>
-          <span> {refreshing ? '再試行中...' : '再試行'}</span>
+          <span> {refreshing ? '再試行中...' : 'エラーの再試行'}</span>
         </button>
       </div>
     </main>

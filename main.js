@@ -1,3 +1,15 @@
+// TODO: Any additional changes requested in the issue
+// main.js - Accessibility improvements implementation
+
+// Existing code starts here
+
+// This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
+// More existing code that should be preserved
+
+// Existing code ends here
+
 // TODO: This is the existing code that needs to be preserved
 // ...
 // Address accessibility issues from insight report:
@@ -18,6 +30,7 @@
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
+  button.type = 'button'; // Accessibility: explicit button type
   if (onClickHandler && typeof onClickHandler === 'function') {
     button.addEventListener('click', onClickHandler);
   }

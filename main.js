@@ -1,11 +1,7 @@
-Here is the resolved file content, preserving both changes and addressing all issues:
-
-```javascript
-import './styles.css';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-
-// TODO: Address accessibility issues from insight report:
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+<!-- todo-hash: 2bf8d45850331f2e53411f6d150fab343664fb61 -->
+// main.js
 
 // Configuration
 const config = {

@@ -98,38 +98,49 @@ if (rootElement) {
 
 ensureUniqueLandmarks();
 
-function addLangAttribute(element, lang) {
-  if (!element) {
-    return;
-  }
-  element.setAttribute('lang', lang);
-}
+// Function to check link and button accessibility
+function checkLinkButtonAccessibility(rootElement = document) {
+  const issues = [];
+  const nodes = rootElement.querySelectorAll('a, button');
 
-function fixTableStructure(table) {
-  if (!table || table.tagName !== 'TABLE') {
-    return table;
-  }
-
-  const rows = table.querySelectorAll('tr');
-  if (rows.length > 0) {
-    const thead = table.querySelector('thead');
-    const tbody = table.querySelector('tbody');
-    if (!thead && !tbody) {
-      const newThead = document.createElement('thead');
-      const newTbody = document.createElement('tbody');
-      rows.forEach((row, index) => {
-        if (index === 0) {
-          newThead.appendChild(row);
-        } else {
-          newTbody.appendChild(row);
+  nodes.forEach(node => {
+    const tag = node.tagName.toLowerCase();
+    if (tag === 'a') {
+      // Check for fake links
+      if (node.href === '#' || node.href === '' || !node.href) {
+        if (!node.hasAttribute('role') || node.getAttribute('role') !== 'button') {
+          issues.push(`${node.id || 'Unnamed'} <a> with href="${node.href}" should be a button`);
         }
-      });
-      table.appendChild(newThead);
-      table.appendChild(newTbody);
+        const name = (node.innerText || node.textContent).trim();
+        if (!name) {
+          issues.push(`${node.id || 'Unnamed'} <a> missing accessible name`);
+        }
+      } else {
+        const name = (node.innerText || node.textContent).trim();
+        if (!name) {
+          issues.push(`${node.id || 'Unnamed'} <a> missing accessible name`);
+        }
+      }
+    } else if (tag === 'button') {
+      // Ensure proper role
+      if (!node.hasAttribute('role') || node.getAttribute('role') !== 'button') {
+        node.setAttribute('role', 'button');
+      }
+      // Ensure focusability
+      const tabindex = node.getAttribute('tabindex');
+      const isFocusable = tabindex !== null && (tabindex !== '-1' && !isNaN(parseInt(tabindex, 10)));
+      if (!isFocusable) {
+        issues.push(`${node.id || 'Unnamed'} <button> is not focusable`);
+      }
+      // Ensure accessible name
+      const name = (node.innerText || node.textContent).trim();
+      if (!name) {
+        issues.push(`${node.id || 'Unnamed'} <button> missing accessible name`);
+      }
     }
-  }
+  });
 
-  return table;
+  return issues;
 }
 
 module.exports = {
@@ -143,7 +154,5 @@ module.exports = {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addLangAttribute,
-  fixTableStructure,
-  renderDependencyGraph,
-  displayModuleStructure
+  checkLinkButtonAccessibility
 };

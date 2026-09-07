@@ -17,8 +17,15 @@ const getLangAttribute = () => {
   return document.documentElement.lang || 'en';
 };
 
-// Optional function to validate Table structure
-const validateTableStructure = (tableElement) => {
+function validateInput(input) {
+  if (typeof input !== 'string') {
+    return false;
+  }
+  return input.length > 0;
+}
+
+// Accessibility check on tables
+function checkTableAccessibility(tableElement) {
   if (!tableElement || tableElement.tagName !== 'TABLE') {
     return { valid: false, issues: [{ type: 'error', message: 'Provided element is not a table' }] };
   }
@@ -31,8 +38,21 @@ const validateTableStructure = (tableElement) => {
     issues.push({ type: 'warning', message: 'Table is missing a <tbody> element' });
   }
 
-  return { valid: issues.length === 0, issues };
-};
+  // Check for header cells
+  const headers = tableElement.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push({ type: 'error', message: 'Table has no header cells (<th>)' });
+  } else {
+    // Check for scope attributes on headers
+    headers.forEach((header, index) => {
+      if (!header.hasAttribute('scope')) {
+        issues.push({
+          type: 'warning',
+          message: `Header cell at index ${index} is missing a scope attribute`
+        });
+      }
+    });
+  }
 
 // Optional function to create InPageButton
 const createInPageButton = (text) => {
@@ -46,46 +66,15 @@ const createInPageButton = (text) => {
   return button;
 };
 
-// Restored function to initialize the dependency graph with accessibility support
-function initDependencyGraph(containerId) {
-  const container = document.getElementById(containerId);
-  if (container) {
-    container.setAttribute('role', 'img');
-    container.setAttribute('aria-label', 'Dependency graph visualization');
-  }
-  return container;
-}
-
-// Restored function to render the dependency graph
-function renderDependencyGraph(containerId) {
-  const container = document.getElementById(containerId);
-  if (container) {
-    // Add the logic to render the dependency graph inside the container
-    // This is a placeholder for the actual rendering logic
-    container.innerHTML = 'Dependency Graph Data';
-  }
-}
-
-// Helper function to get element by ID
-function getElementById(id) {
-  return document.getElementById(id);
-}
-
-// Helper function to query elements
-function queryElements(selector) {
-  return document.querySelectorAll(selector);
-}
-
-// Function to check landmark elements in the DOM
-function checkLandmarkElements() {
-  const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
-  const results = {};
-
-  landmarkSelectors.forEach((landmark) => {
-    results[landmark] = {
-      count: queryElements(landmark).length,
-      exists: queryElements(landmark).length > 0
-    };
+  // Check for data cells without associated headers
+  const dataCells = tableElement.querySelectorAll('td');
+  dataCells.forEach((cell, index) => {
+    if (!cell.headers && headers.length > 0) {
+      issues.push({
+        type: 'info',
+        message: `Data cell at index ${index} has no explicit headers association`
+      });
+    }
   });
 
   return results;

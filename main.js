@@ -1,9 +1,12 @@
-// Accessibility helper functions for landmarks (REACT_025)
-const hasAccessibleName = (landmark) => {
-    // Ensure landmark has a meaningful, non-empty accessible name
-    return landmark &&
-           typeof landmark.name === 'string' &&
-           landmark.name.trim().length > 0;
+// Address accessibility issues from insight report
+
+const landmarkStructureCheck = (landmark) => {
+  // Implement your logic for checking the landmark structure
+  // For example, let's check if the landmark has required properties: name and coordinates
+  if (!landmark.name || !landmark.coordinates) {
+    return false;
+  }
+  return true;
 };
 
 const hasLandmarkRole = (landmark) => {
@@ -231,26 +234,40 @@ function createInPageButton(text, href) {
   return btn;
 }
 
+function checkLandmarkAccessibility(landmark) {
+    const issues = [];
+    
+    if (!landmark.name || landmark.name.trim() === '') {
+        issues.push('Landmark must have a descriptive name for screen readers');
+    }
+    
+    if (!landmark.role) {
+        issues.push('Landmark should have a semantic role for accessibility');
+    }
+    
+    return {
+        accessible: issues.length === 0,
+        issues: issues
+    };
+}
+
+function ensureAccessibleLandmarks(landmarks) {
+    const accessibleLandmarks = [];
+    
+    for (const landmark of landmarks) {
+        const accessibilityCheck = checkLandmarkAccessibility(landmark);
+        
+        if (accessibilityCheck.accessible) {
+            accessibleLandmarks.push(landmark);
+        }
+    }
+    
+    return accessibleLandmarks;
+}
+
 module.exports = {
     landmarkStructureCheck,
-    helloWorld,
-    initDependencyGraph,
-    renderDependencyGraph,
-    getElementById,
-    queryElements,
-    checkLandmarkElement,
-    checkLandmarkElements,
-    validateLandmarkAccessibility,
-    validateLandmarkStructure,
-    initApp,
-    icons,
-    isSecureContext,
-    setLanguageAttribute,
-    addLandmarkRoles,
-    ensureUniqueLandmarkElements,
-    addSVGAccessibleName,
-    fixFakeLinks,
-    landmarks,
-    functionA,
-    functionB
+    ensureUniqueLandmarks,
+    checkLandmarkAccessibility,
+    ensureAccessibleLandmarks
 };

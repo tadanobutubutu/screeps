@@ -1,4 +1,4 @@
-// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
 
 // ... (other code in main.js)
 

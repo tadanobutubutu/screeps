@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from ...
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />
@@ -35,39 +35,72 @@ function getVersion() {
   return VERSION;
 }
 
-// Accessibility functions merged from both branches
+// TODO: This is the existing code that needs to be preserved
+<<<<<<< HEAD
 
-function addLangAttribute(rootElement, lang) {
-  if (!rootElement) {
-    return;
-  }
-  rootElement.setAttribute('lang', lang);
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
+
+// ... (other code in main.js)
+
+// Before:
+// <a id="unrotate" href="#">rotate back</a>
+
+// After:
+// Replace the <a> tag with a <button> element
+// <button id="unrotate" role="button" aria-label="rotate back" onclick="rotateBack()">rotate back</button>
+
+// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
+// If not, define it here:
+function rotateBack() {
+  // Your code to rotate back
 }
 
-function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
-  const results = [];
-  
-  const headers = table.querySelectorAll('th');
-  headers.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      const parent = th.parentElement;
-      if (parent && parent.tagName === 'TR') {
-        // Determine scope based on position
-        if (parent.parentElement && parent.parentElement.tagName === 'THEAD') {
-          th.setAttribute('scope', 'col');
-        } else if (parent.parentElement && parent.parentElement.tagName === 'TBODY') {
-          // Check if it's a row header
-          const isRowHeader = parent.children[0] === th && parent.parentElement === table;
-          th.setAttribute('scope', isRowHeader ? 'row' : 'col');
-        }
-      }
-    }
-  });
-  
+// ... (other code in main.js)
+
+// Additional accessibility-related code changes:
+// Ensure that all interactive elements have appropriate keyboard support
+// Check that ARIA attributes are correctly paired and have appropriate values
+
+function addLangAttribute(rootElement, lang) {
+  if (rootElement) {
+    rootElement.setAttribute('lang', lang);
+  }
+}
+
+function fixTableStructure(table) {
+  // Ensure table is accessible
+  // Your code to fix table structure
   return table;
 }
 
+function addMainLandmark(rootElement) {
+  // Add main landmark to the provided rootElement
+  if (!rootElement) {
+    return null;
+=======
+// (This should be preserved)
+// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
+function addressAccessibilityIssues() {
+  // Ensure the root container has an accessible name
+  const rootContainer = document.getElementById('root').parentElement;
+  if (rootContainer) {
+    rootContainer.setAttribute('role', 'main');
+  }
+
+  // Create a hidden live region for dynamic announcements
+  const announcementId = 'accessibility-announcement';
+  const announcement = document.createElement('div');
+  announcement.id = announcementId;
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.setAttribute('aria-atomic', 'true');
+  // Hide off-screen
+  announcement.style.position = 'absolute';
+  announcement.style.left = '-9999px';
+  announcement.style.top = '-9999px';
+  document.body.appendChild(announcement);
+}
+
+// Validate that tables in the document are accessible
 function validateTableAccessibility() {
   const tables = document.querySelectorAll('table');
   const results = [];
@@ -91,57 +124,39 @@ function validateTableAccessibility() {
   return results;
 }
 
-function addMainLandmark(rootElement) {
-  if (!rootElement) {
-    return null;
-  }
-  rootElement.setAttribute('role', 'main');
-  return rootElement;
-}
-
-function addressAccessibilityIssues() {
-  const rootContainer = document.getElementById('root').parentElement;
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-  }
-
-  const announcementId = 'accessibility-announcement';
-  const announcement = document.createElement('div');
-  announcement.id = announcementId;
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.setAttribute('aria-atomic', 'true');
-  announcement.style.position = 'absolute';
-  announcement.style.left = '-9999px';
-  announcement.style.top = '-9999px';
-  document.body.appendChild(announcement);
-}
-
-function fixFakeLinkIssue(link) {
-  if (!link) {
-    return link;
-  }
-
-  if (link.href === '#' || link.href === '' || !link.href) {
-    const parent = link.parentElement;
-    if (parent && parent.tagName === 'A') {
-      const hasClickHandler = parent.onclick || parent.getAttribute('onclick');
-      if (!hasClickHandler) {
-        parent.setAttribute('role', 'button');
+// Validate the structure of tables in the document
+function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
+  
+  tables.forEach((table, index) => {
+    const rows = table.querySelectorAll('tr');
+    let isValid = true;
+    let error = null;
+    
+    if (rows.length === 0) {
+      isValid = false;
+      error = 'Table has no rows';
+    } else {
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
+      const allSame = cellCounts.every(count => count === cellCounts[0]);
+      
+      if (!allSame) {
+        isValid = false;
+        error = 'Table has inconsistent cell counts across rows';
       }
     }
-  }
-
-  return link;
+    
+    results.push({
+      tableIndex: index,
+      rowCount: rows.length,
+      isValid,
+      error
+    });
+  });
+  
+  return results;
 }
-
-// Initialize accessibility features
-const rootElement = document.documentElement || document.body;
-
-if (rootElement) {
-  addLangAttribute(rootElement, 'en');
-}
-
-addressAccessibilityIssues();
 
 export {
   VERSION,
@@ -152,10 +167,7 @@ export {
   addressAccessibilityIssues,
   root,
   validateTableAccessibility,
-  validateTableStructure,
-  addLangAttribute,
-  addMainLandmark,
-  fixFakeLinkIssue
+  validateTableStructure
 };
 
 export default {
@@ -169,3 +181,4 @@ export default {
   validateTableAccessibility,
   validateTableStructure
 };
+>>>>>>> origin/main

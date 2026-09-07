@@ -302,6 +302,10 @@ if (rootElement) {
 
 ensureUniqueLandmarks();
 
+function calculateSum(a, b) {
+  return a + b;
+}
+
 module.exports = {
   rotateBack,
   createUnrotateButton,
@@ -314,5 +318,5 @@ module.exports = {
   fixFakeLinkIssue,
   addLangAttribute,
   fixTableStructure,
-  wrapPrimaryContentInMain
+  calculateSum
 };

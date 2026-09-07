@@ -1,38 +1,3 @@
-// Main game loop for Screeps
-// This file has been corrupted - please provide the original content
-
-module.exports = {
-  loop: function() {
-    // Clean up memory of dead creeps
-    for (var name in Memory.creeps) {
-      if (!Game.creeps[name]) {
-        delete Memory.creeps[name];
-      }
-    }
-    
-    // Your game logic here
-    
-    // Implement the new function as described in the issue
-    function processGameEvents() {
-      // Process any queued game events
-      if (global.gameEvents && global.gameEvents.length > 0) {
-        global.gameEvents.forEach(event => {
-          if (event.type === 'spawn') {
-            // Handle spawn events
-          } else if (event.type === 'attack') {
-            // Handle attack events
-          }
-        });
-        global.gameEvents = [];
-      }
-    }
-    
-    processGameEvents();
-  }
-};
-
-// Assuming the file is located at ...
-
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 

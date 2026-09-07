@@ -31,3 +31,7 @@ Replaced redundant loop source counting in auto.evolution.js with centralized O(
 ## 2026-08-25 - Single-Pass Link Network Categorization in Room Manager
 **Learning:** In high-frequency room management routines (like `_manageLinkNetwork`), calling `Array.prototype.filter` multiple times over links creates redundant closure and array allocations every tick. Combining link categorization into a single indexed `for` loop eliminates callback overhead and array passes.
 **Action:** Always categorize room structures in a single indexed `for` loop pass instead of chaining multiple `filter()` operations in tick-level management routines.
+
+## 2026-08-25 - Hoisting Cache Lookups and Short-Circuiting Tile Searches in Road Planning
+**Learning:** In room construction planning, executing `.filter()` queries over room structure caches for every tile on every path creates O(PathLength * Structures) closure allocations. Hoisting structure cache lookups outside path loops and replacing `.filter()` with indexed short-circuit loops eliminates closure allocations and quadratic scan overhead.
+**Action:** Always hoist room-level structure cache fetches outside position iteration loops and use indexed `for` loops that break early on the first matching structure.

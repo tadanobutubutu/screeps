@@ -145,20 +145,29 @@ function _planSourceContainers(room) {
     const existingContainers = cache.getContainers(room);
     const existingConstructionSites = cache.getConstructionSites(room);
 
-    for (const source of sources) {
+    for (let i = 0; i < sources.length; i++) {
+        const source = sources[i];
+
         // すでに近くにコンテナがあれば skip
-        const nearby = existingContainers.filter(
-            (c) => source.pos.getRangeTo(c) <= 2
-        );
-        if (nearby.length > 0) continue;
+        let hasNearbyContainer = false;
+        for (let j = 0; j < existingContainers.length; j++) {
+            if (source.pos.getRangeTo(existingContainers[j]) <= 2) {
+                hasNearbyContainer = true;
+                break;
+            }
+        }
+        if (hasNearbyContainer) continue;
 
         // コンテナの建設サイトがすでにあれば skip
-        const existingSites = existingConstructionSites.filter(
-            (s) =>
-                s.structureType === STRUCTURE_CONTAINER &&
-                source.pos.getRangeTo(s) <= 2
-        );
-        if (existingSites.length > 0) continue;
+        let hasNearbySite = false;
+        for (let j = 0; j < existingConstructionSites.length; j++) {
+            const s = existingConstructionSites[j];
+            if (s.structureType === STRUCTURE_CONTAINER && source.pos.getRangeTo(s) <= 2) {
+                hasNearbySite = true;
+                break;
+            }
+        }
+        if (hasNearbySite) continue;
 
         // ソースの隣の空きタイルにコンテナを配置
         const pos = pathfinder.findNearestOpenTile(source.pos, 2);
@@ -186,19 +195,43 @@ function _planRoads(room) {
         room.controller,
     ].filter(Boolean);
 
-    for (const target of targets) {
+    const cachedStructures = cache.getStructures(room);
+    const cachedSites = cache.getConstructionSites(room);
+
+    for (let i = 0; i < targets.length; i++) {
+        const target = targets[i];
         const result = pathfinder.findPath(spawn.pos, target);
         if (result.incomplete) continue;
 
         let planned = 0;
-        for (const pos of result.path) {
+        for (let j = 0; j < result.path.length; j++) {
+            const pos = result.path[j];
             // 既存の構造物や建設サイトがない場所にのみ道路を計画
             const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
             const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
-            const cachedStructures = cache.getStructures(room).filter((s) => s.pos && s.pos.x === pos.x && s.pos.y === pos.y);
-            const cachedSites = cache.getConstructionSites(room).filter((s) => s.pos && s.pos.x === pos.x && s.pos.y === pos.y);
 
-            if (structures.length === 0 && sites.length === 0 && cachedStructures.length === 0 && cachedSites.length === 0) {
+            let hasCachedStruct = false;
+            for (let k = 0; k < cachedStructures.length; k++) {
+                const s = cachedStructures[k];
+                if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) {
+                    hasCachedStruct = true;
+                    break;
+                }
+            }
+
+            let hasCachedSite = false;
+            for (let k = 0; k < cachedSites.length; k++) {
+                const s = cachedSites[k];
+                if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) {
+                    hasCachedSite = true;
+                    break;
+                }
+            }
+
+            if ((!structures || structures.length === 0) &&
+                (!sites || sites.length === 0) &&
+                !hasCachedStruct &&
+                !hasCachedSite) {
                 const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
                 if (r === OK) {
                     planned++;
@@ -230,11 +263,15 @@ function _getNeededExtensionCount(room) {
     if (maxExtensions === 0) return 0;
 
     const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
-    const sites = cache.getConstructionSites(room).filter(
-        (s) => s.structureType === STRUCTURE_EXTENSION
-    );
+    const sites = cache.getConstructionSites(room);
+    let extensionSites = 0;
+    for (let i = 0; i < sites.length; i++) {
+        if (sites[i].structureType === STRUCTURE_EXTENSION) {
+            extensionSites++;
+        }
+    }
 
-    const currentCount = existing.length + sites.length;
+    const currentCount = existing.length + extensionSites;
     if (currentCount >= maxExtensions) return 0;
 
     return Math.min(5, maxExtensions - currentCount);

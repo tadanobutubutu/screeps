@@ -121,3 +121,12 @@ if (typeof module !== 'undefined' && module.exports) {
     updateDependencyGraphFunctions
   };
 }
+
+// TODO: Add these imported modules to the relevant rendering functions
+function renderDependencyGraph() {
+  validateTableAccessibility(document.querySelector('table'));
+  validateTableStructure(document.querySelector('table'));
+  setSvgAccessibilityProps(document.querySelector('svg'));
+  validateLinkAccessibility();
+  handleFakeLinks();
+}

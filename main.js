@@ -16,14 +16,40 @@ function checkLandmarkElement(id) {
 }
 
 /**
- * Function to render a dependency graph
- * @param {Array} landmarks - Array of landmark objects
+ * Function to check the landmark structure.
+ * @param {object} landmark - The landmark object to validate.
+ * @returns {boolean} Returns true if the landmark has required properties: name and coordinates; otherwise, false.
  */
-function renderDependencyGraph(landmarks) {
-  // Implement the logic to render a dependency graph for the landmarks
-  // This is a placeholder for the actual implementation
-  console.log('Rendering dependency graph for landmarks:', landmarks);
+const landmarkStructureCheck = (landmark) => {
+  if (!landmark.name || !landmark.coordinates) {
+    return false;
+  }
+  return true;
+};
+
+/**
+ * Function to ensure unique landmarks in an array.
+ * @param {Array<object>} landmarks - The array of landmark objects.
+ * @returns {Array<object>} Returns an array of unique landmarks.
+ */
+function ensureUniqueLandmarks(landmarks) {
+    const uniqueLandmarks = [];
+    const seen = new Set();
+
+    for (const landmark of landmarks) {
+        // Use id if available, otherwise fall back to name
+        const key = landmark.id || landmark.name;
+
+        if (key && !seen.has(key)) {
+            seen.add(key);
+            uniqueLandmarks.push(landmark);
+        }
+    }
+
+    return uniqueLandmarks;
 }
+
+// existing exports, if any
 
 /**
  * Function to render an index view
@@ -55,42 +81,9 @@ function addLangAttribute(htmlElement) {
   }
 }
 
-const landmarkStructureCheck = (landmark) => {
-  // Implement your logic for checking the landmark structure
-  // For example, let's check if the landmark has required properties: name and coordinates
-  if (!landmark.name || !landmark.coordinates) {
-    return false;
-  }
-  return true;
-};
-
-const ensureUniqueLandmarks = (landmarks) => {
-  // Add your own unique landmark logic here
-  // For now, we'll use a simple filter to remove duplicates based on name
-  const seen = new Set();
-  return landmarks.filter(landmark => {
-    const duplicate = seen.has(landmark.name);
-    seen.add(landmark.name);
-    return !duplicate;
-  });
-};
-
-function processLandmarks(landmarks) {
-  const validLandmarks = landmarks.filter(landmarkStructureCheck);
-  return ensureUniqueLandmarks(validLandmarks);
-}
-
-// Re-adding the required exports for functionA and functionB
-// Assuming functionA and functionB are defined somewhere in the code and not shown here
-function functionA() {
-  // ... implementation of functionA
-}
-
-function functionB() {
-  // ... implementation of functionB
-}
-
+// Add new exports for landmarkStructureCheck and ensureUniqueLandmarks
 module.exports = {
+    Landmark, // assuming Landmark is a component
     checkLandmarkElement,
     landmarkStructureCheck,
     ensureUniqueLandmarks,

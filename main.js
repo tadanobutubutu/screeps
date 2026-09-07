@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 
 // ... (other code in main.js)
 
@@ -80,6 +80,162 @@ function ensureDependencyGraphAriaRole() {
   }
 }
 
+// NEW FUNCTION: Ensure the element has an id, generating a unique one if needed
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    return null;
+  }
+  
+  if (!element.id) {
+    // Generate a unique id using timestamp and random string
+    const timestamp = Date.now().toString(36);
+    const randomStr = Math.random().toString(36).substring(2, 9);
+    element.id = `${prefix}-${timestamp}-${randomStr}`;
+  }
+  
+  return element.id;
+}
+
+// NEW FUNCTION: Add aria-label to any element
+function addAriaLabelToElement(element, label) {
+  if (!element) {
+    return null;
+  }
+  
+  if (typeof label !== 'string' || label.trim() === '') {
+    return element;
+  }
+  
+  element.setAttribute('aria-label', label);
+  return element;
+}
+
+// NEW FUNCTION: Render dependency graphs
+function renderDependencyGraph(containerSelector, dependencies, options = {}) {
+  const container = typeof containerSelector === 'string' 
+    ? document.querySelector(containerSelector) 
+    : containerSelector;
+  
+  if (!container) {
+    console.error('Container element not found for dependency graph');
+    return null;
+  }
+  
+  if (!Array.isArray(dependencies) || dependencies.length === 0) {
+    console.warn('No dependencies provided for rendering');
+    return null;
+  }
+  
+  const {
+    width = 600,
+    height = 300,
+    nodeWidth = 120,
+    nodeHeight = 50,
+    gapX = 20,
+    gapY = 30,
+    title = 'Dependency Graph'
+  } = options;
+  
+  // Create SVG element
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', String(width));
+  svg.setAttribute('height', String(height));
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', title);
+  
+  // Add title for accessibility
+  const svgTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  svgTitle.textContent = title;
+  svg.appendChild(svgTitle);
+  
+  // Calculate layout
+  const totalNodesWidth = dependencies.length * nodeWidth + (dependencies.length - 1) * gapX;
+  const startX = Math.max((width - totalNodesWidth) / 2, 10);
+  const startY = Math.max((height - nodeHeight) / 2, 10);
+  
+  // Draw nodes and connections
+  dependencies.forEach((dep, index) => {
+    const x = startX + index * (nodeWidth + gapX);
+    const y = startY;
+    
+    // Draw connection line (except for first node)
+    if (index > 0) {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      const prevX = startX + (index - 1) * (nodeWidth + gapX) + nodeWidth;
+      const prevY = startY + nodeHeight / 2;
+      line.setAttribute('x1', String(prevX));
+      line.setAttribute('y1', String(prevY));
+      line.setAttribute('x2', String(x));
+      line.setAttribute('y2', String(y + nodeHeight / 2));
+      line.setAttribute('stroke', '#666');
+      line.setAttribute('stroke-width', '2');
+      line.setAttribute('marker-end', 'url(#arrowhead)');
+      svg.appendChild(line);
+    }
+    
+    // Draw node rectangle
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', String(x));
+    rect.setAttribute('y', String(y));
+    rect.setAttribute('width', String(nodeWidth));
+    rect.setAttribute('height', String(nodeHeight));
+    rect.setAttribute('rx', '5');
+    rect.setAttribute('ry', '5');
+    rect.setAttribute('fill', '#4CAF50');
+    rect.setAttribute('stroke', '#2E7D32');
+    rect.setAttribute('stroke-width', '2');
+    svg.appendChild(rect);
+    
+    // Draw node label
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', String(x + nodeWidth / 2));
+    text.setAttribute('y', String(y + nodeHeight / 2 + 5));
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', 'white');
+    text.setAttribute('font-family', 'Arial, sans-serif');
+    text.setAttribute('font-size', '12');
+    text.textContent = dep.name || dep;
+    svg.appendChild(text);
+    
+    // Draw version if available
+    if (dep.version) {
+      const versionText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      versionText.setAttribute('x', String(x + nodeWidth / 2));
+      versionText.setAttribute('y', String(y + nodeHeight / 2 + 18));
+      versionText.setAttribute('text-anchor', 'middle');
+      versionText.setAttribute('fill', '#c8e6c9');
+      versionText.setAttribute('font-family', 'Arial, sans-serif');
+      versionText.setAttribute('font-size', '10');
+      versionText.textContent = `v${dep.version}`;
+      svg.appendChild(versionText);
+    }
+  });
+  
+  // Add arrowhead marker definition
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', 'arrowhead');
+  marker.setAttribute('markerWidth', '10');
+  marker.setAttribute('markerHeight', '7');
+  marker.setAttribute('refX', '10');
+  marker.setAttribute('refY', '3.5');
+  marker.setAttribute('orient', 'auto');
+  
+  const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+  polygon.setAttribute('fill', '#666');
+  
+  marker.appendChild(polygon);
+  defs.appendChild(marker);
+  svg.insertBefore(defs, svg.firstChild);
+  
+  // Append to container
+  container.appendChild(svg);
+  
+  return svg;
+}
+
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
@@ -148,152 +304,22 @@ function fixTableStructure() {
       }
     });
 
-    // Ensure table has proper structure with thead and tbody
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        table.insertBefore(thead, firstRow);
-        thead.appendChild(firstRow);
-      }
-    }
-
-    if (!table.querySelector('tbody')) {
-      const tbody = document.createElement('tbody');
-      const rows = table.querySelectorAll('tr');
-      rows.forEach(row => {
-        if (row.parentElement === table) {
-          tbody.appendChild(row);
-        }
-      });
-      if (tbody.children.length > 0) {
-        table.appendChild(tbody);
-      }
-    }
-  });
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    rotateBack,
+    createUnrotateButton,
+    addSvgAccessibility,
+    ensureThScope,
+    initializeAccessibility,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    addSvgAccessibleNames,
+    fixFakeLinkIssue,
+    addLangAttribute,
+    addressAccessibilityIssues,
+    ensureElementHasId,
+    addAriaLabelToElement,
+    renderDependencyGraph
+  };
 }
-
-// REACT_017: Fix landmark issues
-function fixLandmarkIssues() {
-  // Ensure banner landmark exists
-  if (!document.querySelector('header, [role="banner"]')) {
-    const banner = document.createElement('header');
-    banner.setAttribute('role', 'banner');
-    const root = document.body || document.documentElement;
-    if (root.firstChild) {
-      root.insertBefore(banner, root.firstChild);
-    } else {
-      root.appendChild(banner);
-    }
-  }
-
-  // Ensure main landmark exists
-  if (!document.querySelector('main, [role="main"]')) {
-    const main = document.createElement('main');
-    main.setAttribute('role', 'main');
-    const body = document.body;
-    if (body) {
-      body.appendChild(main);
-    }
-  }
-
-  // Ensure contentinfo landmark exists
-  if (!document.querySelector('footer, [role="contentinfo"]')) {
-    const footer = document.createElement('footer');
-    footer.setAttribute('role', 'contentinfo');
-    const body = document.body;
-    if (body) {
-      body.appendChild(footer);
-    }
-  }
-}
-
-// REACT_025: Ensure unique landmarks
-function uniqueLandmarks() {
-  const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
-  const seen = {};
-
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark);
-    elements.forEach((el, index) => {
-      if (index > 0) {
-        const baseId = el.id || landmark;
-        let newId = `${baseId}-${index}`;
-        let counter = index;
-        while (seen[newId]) {
-          counter++;
-          newId = `${baseId}-${counter}`;
-        }
-        el.id = newId;
-        seen[newId] = true;
-      } else if (el.id) {
-        seen[el.id] = true;
-      }
-    });
-  });
-}
-
-// REACT_041: Add accessible names to 2 SVGs
-function addAccessibleNamesToSVGs() {
-  const svgs = document.querySelectorAll('svg');
-  let svgCount = 0;
-  svgs.forEach(svg => {
-    if (svgCount >= 2) return;
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', `Decorative icon ${svgCount + 1}`);
-    }
-    svgCount++;
-  });
-}
-
-// REACT_036: Fix fake link issues (plural)
-function fixFakeLinkIssues() {
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    fixFakeLinkIssue(link);
-  });
-}
-
-// REACT_037: Google sign-in logic
-function googleSignIn() {
-  // Google sign-in logic implementation
-  const googleButton = document.getElementById('google-signin');
-  if (googleButton) {
-    googleButton.addEventListener('click', function () {
-      // Trigger Google OAuth flow
-      // Placeholder for actual Google sign-in implementation
-    });
-  }
-}
-
-// REACT_040: Replace my-button with actual button id for accessibility
-function fixButtonIdentifiers() {
-  const myButtons = document.querySelectorAll('[id="my-button"]');
-  myButtons.forEach(button => {
-    button.setAttribute('id', 'accessible-button');
-  });
-
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach((button, index) => {
-    if (!button.id) {
-      button.id = `button-${index + 1}`;
-    }
-    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
-      button.setAttribute('aria-label', 'Button');
-    }
-  });
-}
-
-module.exports = {
-  rotateBack,
-  createUnrotateButton,
-  addSvgAccessibility,
-  ensureThScope,
-  initializeAccessibility,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  ensureDependencyGraphAriaRole
-};

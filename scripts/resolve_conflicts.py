@@ -7,6 +7,7 @@ from ai_providers import clean_plain_response, generate_with_fallback, normalize
 
 
 def run_cmd(args, check=True):
+    """Run a command as a subprocess and handle errors."""
     print(f"Executing: {' '.join(args)}")
     res = subprocess.run(args, capture_output=True, text=True)
     if check and res.returncode != 0:
@@ -20,6 +21,7 @@ def run_cmd(args, check=True):
 
 
 def call_conflict_resolver_ai(file_content, filename):
+    """Invoke AI provider to resolve git merge conflicts in a file."""
     token = normalize_token(os.environ.get("OPENROUTER_TOKEN"))
     gemini_key = normalize_token(os.environ.get("GEMINI_API_KEY"))
 
@@ -49,6 +51,7 @@ Here is the conflicting file:
 
 
 def main():
+    """Main entry point to resolve PR merge conflicts using AI."""
     if len(sys.argv) < 2:
         print("Usage: python resolve_conflicts.py <PR_NUMBER>")
         sys.exit(1)
@@ -94,7 +97,7 @@ def main():
     )
 
     # Fetch main/base branch
-    run_cmd(["git", "fetch", "origin", base_branch])
+    run_cmd(["git", "fetch", "origin", "--", base_branch])
 
     # Try to merge base branch into the head branch
     merge_res = subprocess.run(
@@ -102,7 +105,7 @@ def main():
     )
     if merge_res.returncode == 0:
         print("Merge completed cleanly without conflicts. Pushing updates...")
-        run_cmd(["git", "push", "origin", f"HEAD:{head_branch}"])
+        run_cmd(["git", "push", "origin", "--", f"HEAD:{head_branch}"])
         print("Push completed successfully.")
         return
 

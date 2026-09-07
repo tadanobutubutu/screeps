@@ -42,7 +42,11 @@ function renderUnrotateButton() {
 // If not, define it here:
 function rotateBack() {
   // Your code to rotate back
-  console.log('Rotating back to original position');
+  const element = document.getElementById('unrotate');
+  if (element) {
+    element.classList.remove('rotated');
+    element.style.transform = 'rotate(0deg)';
+  }
 }
 
 // Main render function that uses imported modules

@@ -77,11 +77,80 @@ export function rotateBack() {
   console.log('Reverting back the rotation.');
 }
 
-// New function to add lang attribute to HTML element
-function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (!htmlElement.lang) {
-    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
+// Newly added function
+function focusFirstInputInModal(modal) {
+  const inputs = modal.querySelectorAll('input, textarea, button[type="submit"]');
+
+  if (inputs.length) {
+    inputs[0].focus();
+  }
+}
+
+// Address accessibility issues from insight report
+// - Added keyboard navigation support
+// - Added ARIA labels for interactive elements
+// - Added screen reader announcements
+// - Added focus trapping for modals
+// Imported from conflicting changes (FIXME: review and merge correctly)
+import { ensureUniqueLandmarks, landmarkStructureCheck, helloWorld, initDependencyGraph, renderDependencyGraph, getElementById, queryElements, checkLandmarkElement, checkLandmarkElements, validateLandmarkStructure, icons, isSecureContext, setLanguageAttribute, addLandmarkRoles, ensureUniqueLandmarkElements, addSVGAccessibleName, fixFakeLinks, landmarks } from './temp-import.js';
+
+class AccessibleModal {
+  constructor(modalElement) {
+    this.modal = modalElement;
+    this.isOpen = false;
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    const closeButtons = this.modal.querySelectorAll('[data-close-modal]');
+    closeButtons.forEach(button => {
+      if (!button.getAttribute('aria-label')) {
+        button.setAttribute('aria-label', 'Close dialog');
+      }
+      if (!button.getAttribute('aria-describedby')) {
+        const modalTitle = this.modal.querySelector('[id*="title"], h1, h2, h3');
+        if (modalTitle && modalTitle.id) {
+          button.setAttribute('aria-describedby', modalTitle.id);
+        }
+      }
+    });
+
+    this.modal.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isOpen) {
+        this.close();
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        focusFirstInputInModal(this.modal);
+      }
+    });
+  }
+
+  open() {
+    this.modal.removeAttribute('hidden');
+    this.modal.setAttribute('aria-modal', 'true');
+    this.modal.setAttribute('role', 'dialog');
+
+    if (!this.modal.getAttribute('aria-labelledby')) {
+      const title = this.modal.querySelector('h1, h2, h3');
+      if (title) {
+        if (!title.id) {
+          title.id = 'modal-title-' + Date.now();
+        }
+        this.modal.setAttribute('aria-labelledby', title.id);
+      }
+    }
+
+    this.isOpen = true;
+    trapFocus(this.modal);
+    announceToScreenReader('Dialog opened');
+    focusFirstInputInModal(this.modal);
+  }
+
+  close() {
+    this.modal.setAttribute('hidden', '');
+    this.modal.setAttribute('aria-modal', 'false');
+    this.isOpen = false;
+    announceToScreenReader('Dialog closed');
   }
 }
 

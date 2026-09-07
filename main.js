@@ -43,14 +43,8 @@ function makeFocusable(elements) {
   }
 }
 
-// Add the function for focusing on the first focusable element in the container
-function focusFirstFocusable(container) {
-  let elements = ...
-  makeFocusable(elements);
-  let firstFocusableElement = elements.find(element => element.tabIndex >= 0);
-  if ... {
-    ...
-  }
+function personName() {
+  return document.querySelector('[data-person-name]')?.textContent || document.querySelector('.person-name')?.textContent || 'Unknown';
 }
 
 // Make sure to call the function on page load
@@ -86,86 +80,13 @@ export function initialize() {
   return true;
 }
 
-// ... (other code in main.js)
-
-// Export the rotateBack function
-export function rotateBack() {
-  // Assuming implementation elsewhere
-}
-
-export function getConfig() {
-  return {
-    apiUrl: process.env.API_URL || ...
-    timeout: 5000
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-disabled={disabled}
-      aria-label={ariaLabel || label}
-      aria-pressed={isActive}
-      title={title || label}
-      onMouseEnter={() => setHoverState(true)}
-      onMouseLeave={() => setHoverState(false)}
-      onFocus={() => setHoverState(true)}
-      onBlur={() => setHoverState(false)}
-      style={{
-        backgroundColor: getBackgroundColor(),
-        color: 'white',
-        padding: '0.5rem 1rem',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.6 : 1,
-        transition: 'all 0.2s ease-in-out',
-        transform: hoverState ? 'scale(1.05)' : 'scale(1)',
-        boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-        filter: hoverState ? 'brightness(1.1)' : 'none',
-      }}
-    >
-      <span aria-hidden="true">{icon}</span>
-      <span> {label}</span>
-    </button>
-  );
-};
-
-// Placeholder for the affected SVGs
-const icons = {};
-
-function processLandmarks(landmarks) {
-  // Ensure all landmarks have valid structure
-  const landmarkStructureCheck = (landmark) => {
-    // Check landmark properties here
-    // ...
-    return true; // Add your own check logic
-  };
-
-  const validLandmarks = landmarks.filter(landmarkStructureCheck);
-
-  // Ensure the landmarks are unique
-  const ensureUniqueLandmarks = (landmarks) => {
-    // Add your own unique landmark logic here
-    // ...
-    return landmarks;
-  };
-
-  return ensureUniqueLandmarks(validLandmarks);
-}
-
-// Ensure unique landmarks
-export function ensureUniqueLandmarks() {
-  const landmarks = ... [role="banner"], [role="contentinfo"]');
-  const seen = new Set();
-  landmarks.forEach(landmark => {
-    const role = ...
-    if (seen.has(role)) {
-      ...
-    } else {
-      seen.add(role);
-    }
+function validateTableStructure(table) {
+  if (!table) return false;
+  const rows = table.querySelectorAll('tr');
+  let hasIssue = false;
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('th, td');
+    if (cells.length === 0) hasIssue = true;
   });
 }
 
@@ -181,19 +102,12 @@ export function fixFakeLinks() {
   });
 }
 
-function addLangAttribute(htmlElement) {
-  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
-    console.error('addLangAttribute: Invalid HTML element provided');
-    return;
-  }
-
-  // Accessibility: Add skip link functionality
-  setupSkipLinks();
-
-function implementNewFunction() {
-  addLangAttribute(document.documentElement);
-  fixFakeLinks();
-  ensureUniqueLandmarks();
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('main, [role="main"], nav, [role="navigation"], [role="banner"], header, [role="contentinfo"], footer, [role="search"], [role="form"]');
+  let issues = 0;
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) issues += mains.length - 1;
+  return { issues, valid: issues === 0 };
 }
 
 // Add scope attribute to th elements for accessibility
@@ -491,51 +405,25 @@ function validateTableStructure(table) {
  * @returns {string} Accessible name for the SVG
  */
 function getSvgAccessibleName(svg) {
-    if (!svg) {
-        return '';
-    }
-
-    // Check for aria-label first
-    const ariaLabel = svg.getAttribute('aria-label');
-    if (ariaLabel) {
-        return ariaLabel;
-    }
-
-    // Check for aria-labelledby reference
-    const ariaLabelledby = svg.getAttribute('aria-labelledby');
-    if (ariaLabelledby) {
-        const referencedElement = document.getElementById(ariaLabelledby);
-        if (referencedElement) {
-            return referencedElement.textContent || '';
-        }
-    }
-
-    // Check for title element inside SVG
-    const title = svg.querySelector('title');
-    if (title) {
-        return title.textContent || '';
-    }
-
-    return '';
+  if (!svg) return '';
+  const title = svg.querySelector('title');
+  if (title) return title.textContent;
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const titleElement = document.getElementById(ariaLabelledby);
+    if (titleElement) return titleElement.textContent;
+  }
+  return '';
 }
 
-/**
- * REACT_036: Create an accessible in-page button (not a fake link)
- * @param {Object} props - Button properties
- * @param {string} props.text - Button text content
- * @param {Function} props.onClick - Click handler
- * @param {string} props.id - Button ID (optional)
- * @param {string} props.className - Button class name (optional)
- * @returns {React.Element} Accessible button element
- */
-function createInPageButton({ text, onClick, id, className }) {
-    return React.createElement('button', {
-        type: 'button',
-        onClick: onClick,
-        id: id,
-        className: className,
-        'aria-label': text
-    }, text);
+function createInPageButton(text, onClick) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  if (onClick) button.addEventListener('click', onClick);
+  button.setAttribute('type', 'button');
+  return button;
 }
 
 /**

@@ -1,15 +1,3 @@
-// Existing code that needs to be preserved
-// ...
+// Paste your updated main.js content here
 
-// <<<<<<< HEAD
-// This is the code that caused the conflict
-// It needs to be preserved
-// =======
-// This is the conflicting code
-// >>======= (Your changes here)
-// <<======= (Your changes here)
-// >>>>>>> branch-name
-// ...
-
-// Existing code that needs to be preserved
-// ...
+// The existing code that needs to be preserved, including the commit comments, goes here

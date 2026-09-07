@@ -6,6 +6,10 @@ const landmarkStructureCheck = (landmark) => {
   if (!landmark.name || !landmark.coordinates) {
     return false;
   }
+  // Add a check for accessibility-related properties
+  if (!landmark.accessible || !landmark.accessible.description || !landmark.accessible.type) {
+    return false;
+  }
   return true;
 };
 
@@ -265,9 +269,23 @@ function ensureAccessibleLandmarks(landmarks) {
     return accessibleLandmarks;
 }
 
+// New function to check the accessibility of landmarks based on the insight report
+const checkLandmarkAccessibility = (landmarks) => {
+  const invalidLandmarks = landmarks.filter(landmark => {
+    // Check for the existence of required accessibility properties
+    return !landmark.accessible || !landmark.accessible.description || !landmark.accessible.type;
+  });
+
+  if (invalidLandmarks.length > 0) {
+    console.error('Accessibility issues found:', invalidLandmarks);
+    return false;
+  }
+
+  return true;
+};
+
 module.exports = {
     landmarkStructureCheck,
     ensureUniqueLandmarks,
-    checkLandmarkAccessibility,
-    ensureAccessibleLandmarks
+    checkLandmarkAccessibility
 };

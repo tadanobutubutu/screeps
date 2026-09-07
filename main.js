@@ -1,43 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from ...
-
-const root = ...
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-document.documentElement.lang = 'en';
-
-reportWebVitals();
-
-const VERSION = '1.0.0';
-
-const CONFIG = {
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  env: process.env.NODE_ENV || 'development'
-};
-
-function initialize() {
-  console.log('Application initialized');
-  return true;
-}
-
-function getConfig() {
-  return CONFIG;
-}
-
-function getVersion() {
-  return VERSION;
-}
-
-// TODO: This is the existing code that needs to be preserved
-<<<<<<< HEAD
-
 // Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
 
 // ... (other code in main.js)
@@ -52,7 +12,11 @@ function getVersion() {
 // If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:
 function rotateBack() {
-  // Your code to rotate back
+  // Code to rotate back
+  const graphContainer = document.getElementById('graph-container');
+  if (graphContainer) {
+    graphContainer.style.transform = 'rotate(0deg)';
+  }
 }
 
 // ... (other code in main.js)
@@ -61,15 +25,87 @@ function rotateBack() {
 // Ensure that all interactive elements have appropriate keyboard support
 // Check that ARIA attributes are correctly paired and have appropriate values
 
-function addLangAttribute(rootElement, lang) {
-  if (rootElement) {
-    rootElement.setAttribute('lang', lang);
+function renderGraphOrIndex(container, data) {
+  // Existing function for rendering graph/index
+  // This function now uses the new accessibility functions
+  
+  if (!container) {
+    return null;
   }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Create main content structure
+  const main = document.createElement('main');
+  main.setAttribute('id', 'main-content');
+
+  // Render based on data type
+  if (data && data.graph) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('id', 'graph-svg');
+    svg.setAttribute('role', 'img');
+    
+    // Add accessible names to SVG
+    addSvgAccessibleNames(svg);
+    
+    // Build graph content...
+    main.appendChild(svg);
+  } else {
+    // Render index content
+    const table = document.createElement('table');
+    table.setAttribute('role', 'table');
+    // Continue building table...
+    main.appendChild(table);
+  }
+
+  // Fix any fake links in the container
+  const links = main.querySelectorAll('a');
+  links.forEach(link => fixFakeLinkIssue(link));
+
+  container.appendChild(main);
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+
+  // Add main landmark
+  addMainLandmark(container);
+
+  return container;
 }
 
 function fixTableStructure(table) {
-  // Ensure table is accessible
-  // Your code to fix table structure
+  if (!table || table.tagName !== 'TABLE') {
+    return table;
+  }
+
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    const newCaption = table.createCaption();
+    newCaption.textContent = 'Data Table';
+    table.insertBefore(newCaption, table.firstChild);
+  }
+
+  const headers = table.querySelectorAll('th');
+  headers.forEach((th, index) => {
+    if (!th.id) {
+      th.id = `header-${index}`;
+    }
+    if (!th.getAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+
+  const cells = table.querySelectorAll('td');
+  cells.forEach(cell => {
+    const row = cell.parentElement;
+    const cellIndex = Array.from(row.cells).indexOf(cell);
+    const headerCell = table.querySelector(`th:nth-child(${cellIndex + 1})`);
+    if (headerCell) {
+      cell.setAttribute('headers', headerCell.id);
+    }
+  });
+
   return table;
 }
 
@@ -87,17 +123,20 @@ function addressAccessibilityIssues() {
     rootContainer.setAttribute('role', 'main');
   }
 
-  // Create a hidden live region for dynamic announcements
-  const announcementId = 'accessibility-announcement';
-  const announcement = document.createElement('div');
-  announcement.id = announcementId;
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.setAttribute('aria-atomic', 'true');
-  // Hide off-screen
-  announcement.style.position = 'absolute';
-  announcement.style.left = '-9999px';
-  announcement.style.top = '-9999px';
-  document.body.appendChild(announcement);
+  const existingMain = rootElement.querySelector('main');
+  if (!existingMain) {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main-content');
+    
+    const firstSection = rootElement.querySelector('section, div, article');
+    if (firstSection) {
+      rootElement.insertBefore(mainElement, firstSection);
+    } else {
+      rootElement.insertBefore(mainElement, rootElement.firstChild);
+    }
+  }
+
+  return rootElement;
 }
 
 // Validate that tables in the document are accessible
@@ -120,6 +159,32 @@ function validateTableAccessibility() {
       isAccessible: hasCaption && hasHeaders && hasScope
     });
   });
+}
+
+function addSvgAccessibleNames(svgElement) {
+  // Add accessible names to the provided svgElement
+  if (!svgElement || svgElement.tagName !== 'svg') {
+    return svgElement;
+  }
+
+  const title = svgElement.querySelector('title');
+  if (!title) {
+    const newTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    newTitle.textContent = 'Decorative graphic';
+    svgElement.insertBefore(newTitle, svgElement.firstChild);
+  }
+
+  const desc = svgElement.querySelector('desc');
+  if (!desc) {
+    const newDesc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    newDesc.textContent = '';
+    const titleElement = svgElement.querySelector('title');
+    if (titleElement && titleElement.nextSibling) {
+      svgElement.insertBefore(newDesc, titleElement.nextSibling);
+    } else {
+      svgElement.appendChild(newDesc);
+    }
+  }
   
   return results;
 }
@@ -158,27 +223,33 @@ function validateTableStructure() {
   return results;
 }
 
-export {
-  VERSION,
-  CONFIG,
-  initialize,
-  getConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure
-};
+function addLangAttribute(rootElement, lang) {
+  // Add language attribute to root element
+  if (!rootElement) {
+    return;
+  }
+  
+  if (!rootElement.hasAttribute('lang')) {
+    rootElement.setAttribute('lang', lang || 'en');
+  }
+}
 
-export default {
-  VERSION,
-  CONFIG,
-  initialize,
-  getConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure
+// ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
+const rootElement = document.documentElement || document.body;
+
+if (rootElement) {
+  addLangAttribute(rootElement, 'en');
+}
+
+ensureUniqueLandmarks();
+
+export {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  renderGraphOrIndex,
+  rotateBack,
 };
->>>>>>> origin/main

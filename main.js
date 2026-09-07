@@ -146,10 +146,17 @@ function calculateSum(numbers) {
   return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
+// Function to validate the structure of landmarks
+function validateLandmarkStructure(landmarks) {
+    const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
+
+    // Additional logic to validate structure of landmarks can be added here
+    // For now, just return the unique landmarks
+    return uniqueLandmarks;
+}
+
+// Example usage and export
 module.exports = {
-  processLandmarks,
-  addLangAttribute,
-  checkLandmarkElement,
-  validateLandmarkStructure,
-  calculateSum
+    ensureUniqueLandmarks,
+    validateLandmarkStructure
 };

@@ -34,17 +34,31 @@ const functionA = {
   // If there's an accessibility or structure issue, return early
   if (hasAccessibilityIssue || hasStructureIssue) return;
 
-// TODO: Removed the checkLandmarkElement function as it was moved to the app.js
-
-// Testing the landmarkStructureCheck function:
-//
-// To test this function, we could create a test file with the following content:
-// (Testing is kept here as integration reference for the merged module.)
-
-// Placeholder for the affected SVGs
-const icons = {
-  icon: ... ... viewBox="0 0 100 100" aria-label="Screps ... Dashboard</title><text y=".9em" ...
-};
+/**
+ * Generates a DOT representation for Graphviz
+ * @param {Object} graph - Graph data structure
+ * @returns {string} - DOT format string
+ */
+function renderDependencyGraphDOT(graph) {
+    let dot = 'digraph dependencies {\n';
+    dot += '  rankdir=LR;\n';
+    dot += '  node [shape=box];\n\n';
+    
+    graph.nodes.forEach(node => {
+        const label = node.id.replace(/\\/g, '/');
+        dot += `  "${node.id}" [label="${label}"];\n`;
+    });
+    
+    dot += '\n';
+    
+    graph.edges.forEach(edge => {
+        dot += `  "${edge.source}" -> "${edge.target}" [label="${edge.type}"];\n`;
+    });
+    
+    dot += '}\n';
+    
+    return dot;
+}
 
 // Function to removeFromCart
 export function removeFromCart(productId) {

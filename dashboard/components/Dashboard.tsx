@@ -133,15 +133,21 @@ export default function Dashboard() {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            const isEditing =
+                e.target instanceof HTMLInputElement ||
+                e.target instanceof HTMLTextAreaElement ||
+                (e.target as HTMLElement).isContentEditable;
+
+            if (isEditing) return;
+
+            if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
+                e.preventDefault();
+                showToast('⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)');
+                return;
+            }
+
             // Using Alt key combinations to comply with WCAG 2.1.4 (avoiding single-key shortcuts)
-            if (
-                e.altKey &&
-                !(
-                    e.target instanceof HTMLInputElement ||
-                    e.target instanceof HTMLTextAreaElement ||
-                    (e.target as HTMLElement).isContentEditable
-                )
-            ) {
+            if (e.altKey) {
                 if (e.key.toLowerCase() === 'r' && !refreshing) {
                     e.preventDefault();
                     fetchStats(true);

@@ -66,61 +66,90 @@ function validateLandmarkStructure() {
     return validation;
 }
 
-// Sets an accessible name on the given SVG element so that assistive
-// technologies (screen readers, etc.) can announce it meaningfully.
-// The accessible name is provided via the `aria-label` attribute. The
-// SVG is also given an explicit `role="img"` to ensure it is exposed
-// as a single image to the accessibility API rather than as a group
-// of graphic elements, which is the recommended pattern from the W3C
-// SVG Accessibility API Mappings specification.
-function setSvgAccessibleName(svg, name) {
-    if (!svg || typeof name !== 'string') {
-        return;
-    }
-
-    svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', name);
-    // Reflect the accessible name on the SVG element so it is also
-    // visible to user agents that surface the native HTML title.
-    svg.setAttribute('aria-labelledby', '');
-    svg.removeAttribute('aria-labelledby');
-}
-
-// Convenience helper that applies `setSvgAccessibleName` to every SVG
-// element matching the given CSS selector (defaults to all <svg>
-// elements in the document).
-function setAccessibleNamesToSvgs(name, selector) {
-    if (typeof name !== 'string') {
-        return [];
-    }
-
-    const targetSelector = selector || 'svg';
-    const svgs = document.querySelectorAll(targetSelector);
-    const updated = [];
-
-    svgs.forEach(svg => {
-        setSvgAccessibleName(svg, name);
-        updated.push(svg);
-    });
-
-    return updated;
-}
-
-// Initialize application
-function init() {
-    console.log('Initializing ' + appData.title + ' v' + appData.version);
-    return validateLandmarkStructure();
-}
-
-// Export functions for testing
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        checkLandmarkElements,
-        validateLandmarkStructure,
-        getElementById,
-        queryElements,
-        setSvgAccessibleName,
-        setAccessibleNamesToSvgs,
-        init
+// Function to validate landmark structure
+function validateLandmarkStructure() {
+    const results = checkLandmarkElements();
+    const validation = {
+        isValid: true,
+        errors: [],
+        warnings: []
     };
+    
+    if (!results.main.exists) {
+        validation.isValid = false;
+        validation.errors.push('Missing required <main> landmark element');
+    }
+    
+    if (!results.header.exists) {
+        validation.warnings.push('No <header> landmark element found');
+    }
+    
+    if (!results.nav.exists) {
+        validation.warnings.push('No <nav> landmark element found');
+    }
+    
+    if (!results.footer.exists) {
+        validation.warnings.push('No <footer> landmark element found');
+    }
+    
+    // New accessibility features
+    if (results.main.exists) {
+        const mainElement = getElementById('main');
+        mainElement.setAttribute('role', 'main');
+    }
+    
+    // Ensure that all interactive elements have ARIA labels
+    queryElements('button, a, input').forEach(element => {
+        if (!element.hasAttribute('aria-label')) {
+            element.setAttribute('aria-label', 'Accessible label');
+        }
+    });
+    
+    // Ensure that all modals have focus trapping
+    queryElements('.modal').forEach(modal => {
+        modal.setAttribute('tabindex', '-1');
+        modal.setAttribute('aria-hidden', 'true');
+        
+        modal.addEventListener('keydown', function(event) {
+            let focusableElements = modal.querySelectorAll('a, area, input, select, textarea, button, iframe, object, embed, [tabindex="0"], [contenteditable]');
+            let firstElement = focusableElements[0];
+            let lastElement = focusableElements[focusableElements.length - 1];
+            
+            if (event.key === 'Tab') {
+                if (event.shiftKey) /* shift + tab */ {
+                    if (document.activeElement === firstElement) {
+                        event.preventDefault();
+                        lastElement.focus();
+                    }
+                } else /* tab */ {
+                    if (document.activeElement === lastElement) {
+                        event.preventDefault();
+                        firstElement.focus();
+                    }
+                }
+            }
+        });
+    });
+    
+    return validation;
 }
+
+/**
+ * Calculates the sum of an array of numbers.
+ * @param {number[]} numbers - The array of numbers to sum.
+ * @returns {number} The total sum of the numbers.
+ */
+function calculateSum(numbers) {
+  if (!Array.isArray(numbers)) {
+    throw new Error('Input must be an array');
+  }
+  return numbers.reduce((acc, curr) => acc + curr, 0);
+}
+
+module.exports = {
+  processLandmarks,
+  addLangAttribute,
+  checkLandmarkElement,
+  validateLandmarkStructure,
+  calculateSum
+};

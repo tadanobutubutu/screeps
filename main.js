@@ -49,18 +49,7 @@ function rotateBack() {
   // Implementation for rotating back goes here
 }
 
-// ... (other code in main.js)
-
-// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-
-// New function to render a dependency graph
-function renderDependencyGraph() {
-  // Implementation for rendering the dependency graph
-}
-
-// New function to display module structure
-function displayModuleStructure() {
-  // Implementation for displaying the module structure
-}
+// Ensure that all interactive elements have appropriate keyboard support
+// Check that ARIA attributes are correctly paired and have appropriate values
 
 // ... (other code in main.js)

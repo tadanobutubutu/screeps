@@ -1,4 +1,4 @@
-// main.js
-// TODO: Add necessary exports for new functions
-
-module.exports = {};
+const button = document.createElement('button');
+button.textContent = 'Example Button';
+button.setAttribute('aria-label', 'Example Button');
+button.setAttribute('aria- role', 'button');

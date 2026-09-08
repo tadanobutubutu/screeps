@@ -60,75 +60,13 @@ const main = {
     }
   },
 
-  // Divide function with proper error handling
-  divide: function(numerator, denominator) {
-    if (denominator === 0) {
-      return "Error: Division by zero";
-    }
-    return numerator / denominator;
-  },
-
-  // Add the new function or change here:
-  getLangAttribute: function() {
-    // Implementation of getLangAttribute goes here
-  },
-  
-  getFullLangAttribute: function() {
-    // Implementation of getFullLangAttribute goes here
-  },
-  
-  validateTableAccessibility: function() {
-    // Implementation of validateTableAccessibility goes here
-  },
-  
-  validateTableStructure: function() {
-    // Implementation of validateTableStructure goes here
-  },
-  
-  validateLandmark: function() {
-    // Implementation of validateLandmark goes here
-  },
-  
-  validateLandmarkStructure: function() {
-    // Implementation of validateLandmarkStructure goes here
-  },
-  
-  ensureUniqueLandmarks: function() {
-    // Implementation of ensureUniqueLandmarks goes here
-  },
-  
-  getSvgAccessibleName: function() {
-    // Implementation of getSvgAccessibleName goes here
-  },
-  
-  createInPageButton: function() {
-    // Implementation of createInPageButton goes here
-  },
-  
-  ensureUniqueLandmarks: function() {
-    // Implementation of ensureUniqueLandmarks goes here
-  },
-  
-  validateLandmarkStructure: function() {
-    // Implementation of validateLandmarkStructure goes here
-  },
-  
-  fixFakeLink: function() {
-    // Implementation of fixFakeLink goes here
-  },
-  
-  createAccessibleLink: function() {
-    // Implementation of createAccessibleLink goes here
-  },
-  
-  handleAccessibilityIssues: function() {
-    // Implementation of handleAccessibilityIssues goes here
-  },
-
+  // Add the new function requested in the issue:
   myNewFunction: function() {
     // your new function logic goes here
-    console.log("myNewFunction executed");
-  }
+  },
+
+  // Add the required export as per the issue:
+  calculateSum: function(a, b) { return a + b; }
 };
 
 // TODO: This is the existing code that needs to be preserved (This comment remains as-is)

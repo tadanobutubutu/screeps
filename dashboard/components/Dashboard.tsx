@@ -21,6 +21,8 @@ export default function Dashboard() {
     const [searchFocused, setSearchFocused] = useState(false);
     const [refreshHover, setRefreshHover] = useState(false);
     const [refreshFocused, setRefreshFocused] = useState(false);
+    const [helpHover, setHelpHover] = useState(false);
+    const [helpFocused, setHelpFocused] = useState(false);
     const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
     const [focusedRoom, setFocusedRoom] = useState<string | null>(null);
     const [jsonHover, setJsonHover] = useState(false);
@@ -353,6 +355,53 @@ export default function Dashboard() {
                     <h1 style={{ color: '#004b73', margin: 0 }}>🐛 Screeps ダッシュボード</h1>
                     {stats && (
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <kbd
+                                aria-label="キーボードショートカット一覧を表示するには ? キーを押します"
+                                title="? キーでショートカット一覧を表示"
+                                style={{
+                                    backgroundColor: '#f7fafc',
+                                    border: '1px solid #cbd5e0',
+                                    borderRadius: '4px',
+                                    padding: '0.1rem 0.4rem',
+                                    fontSize: '0.7rem',
+                                    color: '#4a5568',
+                                    boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                                }}
+                            >
+                                ?
+                            </kbd>
+                            <button
+                                onClick={() =>
+                                    showToast(
+                                        '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
+                                    )
+                                }
+                                onMouseEnter={() => setHelpHover(true)}
+                                onMouseLeave={() => setHelpHover(false)}
+                                onFocus={() => setHelpFocused(true)}
+                                onBlur={() => setHelpFocused(false)}
+                                aria-keyshortcuts="?"
+                                aria-label="キーボードショートカット一覧を表示 (?)"
+                                title="キーボードショートカット一覧を表示 (?)"
+                                style={{
+                                    fontSize: '0.75rem',
+                                    padding: '0.2rem 0.5rem',
+                                    backgroundColor: helpHover || helpFocused ? '#edf2f7' : 'transparent',
+                                    border: '1px solid #cbd5e0',
+                                    borderRadius: '4px',
+                                    color: '#4a5568',
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem',
+                                    transition: 'all 0.2s ease-in-out',
+                                    transform: helpHover ? 'scale(1.05)' : 'scale(1)',
+                                    outline: helpFocused ? '2px solid #004b73' : 'none',
+                                    outlineOffset: '2px',
+                                }}
+                            >
+                                ❓ ヘルプ
+                            </button>
                             <kbd
                                 aria-label="キーボードショートカット Alt + C キーでステータスのサマリーをコピーできます"
                                 title="Alt + C キーでサマリーをコピーできます"

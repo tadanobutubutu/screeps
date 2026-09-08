@@ -17,37 +17,37 @@ const main = {
         this.manageRoom(room);
       }
     }
-    
+
     // TODO: Implement harvest and upgrade logic
-    
+
     // TODO: Implement tower defense
-    
+
     // TODO: Implement spawning logic
-    
-    // New function logic goes here
-    this.myNewFunction();
+
+    // Add the new function to render dependency graphs:
+    this.renderDependencyGraph();
   },
-  
+
   manageRoom: function(room) {
     // Room management
     const sources = room.find(FIND_SOURCES);
     const hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
-    
-    if (hostileCreeps && hostileCreeps.length > 0) {
+
+    if (hostileCreeps.length > 0) {
       this.defendRoom(room, hostileCreeps);
     }
   },
-  
+
   defendRoom: function(room, hostiles) {
     const towers = room.find(FIND_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
     });
-    
+
     towers.forEach(tower => {
       // Tower attack logic
     });
   },
-  
+
   harvest: function(creep) {
     const target = creep.pos.findClosestByPath(FIND_SOURCES);
     if (target) {
@@ -56,13 +56,18 @@ const main = {
       }
     }
   },
-  
+
   upgrade: function(creep) {
     if (creep.room.controller) {
       if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.controller);
       }
     }
+  },
+
+  // Placeholder for the new function to render dependency graphs:
+  renderDependencyGraph: function() {
+    // Your implementation here
   },
 
   // Add the new function or change here:

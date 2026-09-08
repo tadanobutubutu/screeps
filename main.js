@@ -96,13 +96,25 @@ function fixFakeLinks() {
     }
   },
 
-// Add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    // Try to detect language from page content or data attributes
-    const langCode = document.body ? document.body.getAttribute('lang') || 'en' : 'en';
-    htmlElement.setAttribute('lang', langCode);
+  // Add the new function or change here:
+  renderDependencyGraph: function() {
+    // This function would render a dependency graph for debugging purposes.
+    // The actual implementation would depend on the specific requirements and
+    // available libraries or tools to generate the graph.
+    console.log('Rendering dependency graph...');
+    // Example placeholder code:
+    // const graph = generateDependencyGraph();
+    // console.log(graph);
+  },
+  
+  displayModuleStructure: function() {
+    // This function would display the module structure for debugging purposes.
+    // The actual implementation would depend on the specific requirements and
+    // available tools or libraries to visualize the module structure.
+    console.log('Displaying module structure...');
+    // Example placeholder code:
+    // const structure = getModuleStructure();
+    // console.log(structure);
   }
 }
 

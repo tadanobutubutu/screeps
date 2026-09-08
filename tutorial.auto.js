@@ -1,1 +1,82 @@
-{"error":"402 Payment Required","status":402,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected.","details":{"success":false,"error":{"message":"API key budget too low. This request costs ~0.0005 pollen, but this key has 0.0000.","code":"PAYMENT_REQUIRED","timestamp":"2026-08-03T11:29:51.219Z"},"status":402}}
+/**
+ * Auto Tutorial System
+ */
+
+const logger = require('./utils.logging');
+
+const autoTutorial = {
+    isTutorial: function () {
+        return !!(global.Game && global.Game.tutorial && global.Game.tutorial.currentStep);
+    },
+
+    run: function () {
+        if (!this.isTutorial()) {
+            return false;
+        }
+        this.autoStep();
+        return true;
+    },
+
+    showProgress: function () {
+        if (!this.isTutorial()) return;
+        const step = global.Game.tutorial.currentStep;
+        logger.info(`Tutorial Step: ${step}`);
+    },
+
+    skipIfPossible: function () {
+        if (global.Game && global.Game.tutorial && typeof global.Game.tutorial.skip === 'function') {
+            global.Game.tutorial.skip();
+            return true;
+        }
+        return false;
+    },
+
+    step1_createHarvester: function () {
+        const spawn = Object.values(global.Game.spawns || {})[0];
+        if (spawn && typeof spawn.spawnCreep === 'function') {
+            spawn.spawnCreep(['work', 'carry', 'move'], 'Harvester1', { memory: { role: 'harvester' } });
+        }
+    },
+
+    step2_harvestEnergy: function () {
+        // Step 2 logic
+    },
+
+    step3_upgradeController: function () {
+        // Step 3 logic
+    },
+
+    step4_buildExtension: function () {
+        // Step 4 logic
+    },
+
+    step5_defendRoom: function () {
+        // Step 5 logic
+    },
+
+    autoStep: function () {
+        if (!this.isTutorial()) return;
+        const step = global.Game.tutorial.currentStep || 0;
+        switch (step) {
+            case 1:
+                this.step1_createHarvester();
+                break;
+            case 2:
+                this.step2_harvestEnergy();
+                break;
+            case 3:
+                this.step3_upgradeController();
+                break;
+            case 4:
+                this.step4_buildExtension();
+                break;
+            case 5:
+                this.step5_defendRoom();
+                break;
+            default:
+                break;
+        }
+    },
+};
+
+module.exports = autoTutorial;

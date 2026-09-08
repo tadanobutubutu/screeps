@@ -22,8 +22,8 @@ const main = {
     
     // TODO: Implement spawning logic
     
-    // New function logic
-    this.myNewFunction();
+    // New accessibility-related function
+    this.checkAccessibility();
   },
   
   manageRoom: function(room) {
@@ -78,7 +78,18 @@ const main = {
       }
     }
   },
-  
+
+  // New function to check accessibility issues
+  checkAccessibility: function() {
+    // Example accessibility check: Ensure that all rooms have a controller
+    for (const name in Game.rooms) {
+      const room = Game.rooms[name];
+      if (!room.controller) {
+        console.error(`Accessibility issue: Room ${name} does not have a controller.`);
+      }
+    }
+  },
+
   // Add the new function or change here:
   wrapPrimaryContentInMain: function(content) {
     return `<main>${content}</main>`;

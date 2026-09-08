@@ -35,88 +35,112 @@ export const renderDependencyGraph = (dependencies = {}, options = {}) => {
     format = 'text'
   } = options;
 
-  const visited = new Set();
-  const lines = [];
-
-  const formatNode = (name, version) => {
-    const versionStr = showVersions && version ? `@${version}` : '';
-    return `${name}${versionStr}`;
-  };
-
-  const traverse = (moduleName, depth = 0, parentPath = []) => {
-    if (depth > maxDepth) return;
-    if (visited.has(moduleName)) {
-      lines.push(`${'  '.repeat(depth)}└── ${formatNode(moduleName, dependencies[moduleName]?.version)} (circular)`);
-      return;
-    }
-    if (parentPath.includes(moduleName)) {
-      lines.push(`${'  '.repeat(depth)}└── ${formatNode(moduleName, dependencies[moduleName]?.version)} (duplicate)`);
-      return;
-    }
-
-    visited.add(moduleName);
-    const prefix = '  '.repeat(depth);
-    const nodeInfo = formatNode(moduleName, dependencies[moduleName]?.version);
-    
-    if (depth === 0) {
-      lines.push(nodeInfo);
-    } else {
-      lines.push(`${prefix}└── ${nodeInfo}`);
-    }
-
-    const deps = dependencies[moduleName]?.dependencies || [];
-    deps.forEach((dep, index) => {
-      const isLast = index === deps.length - 1;
-      const connector = isLast ? '    ' : '│   ';
-      const depVersion = dependencies[dep]?.version;
-      
-      if (depth === 0) {
-        lines.push(`${connector}└── ${formatNode(dep, depVersion)}`);
-      } else {
-        lines.push(`${prefix}${connector}└── ${formatNode(dep, depVersion)}`);
-      }
-      
-      if (dependencies[dep] && depth < maxDepth) {
-        const newVisited = new Set(visited);
-        const newPath = [...parentPath, moduleName];
-        traverse(dep, depth + 1, newPath);
-        visited.delete(dep);
-      }
-    });
-  };
-
-  const rootModules = Object.keys(dependencies);
-  rootModules.forEach((moduleName, index) => {
-    if (index > 0) {
-      lines.push('');
-    }
-    traverse(moduleName);
-  });
-
-  if (format === 'json') {
-    return JSON.stringify(dependencies, null, 2);
+/**
+ * Validates table accessibility
+ * @param {Element|null} element - The DOM element to validate
+ * @returns {{ isValid: boolean, errors: string[] }} Validation result
+ */
+export const validateTableAccessibility = (element) => {
+  const errors = [];
+  
+  if (!element) {
+    return { isValid: false, errors: ['No element provided'] };
   }
-
-  return lines.join('\n');
+  
+  if (element.tagName !== 'TABLE') {
+    return { isValid: false, errors: ['Element is not a table'] };
+  }
+  
+  // Check for caption
+  const caption = element.querySelector('caption');
+  if (!caption) {
+    errors.push('Table should have a caption for accessibility');
+  }
+  
+  // Check for th elements
+  const thElements = element.querySelectorAll('th');
+  if (thElements.length === 0) {
+    errors.push('Table should have th elements for headers');
+  }
+  
+  // Check for scope attribute on th elements
+  thElements.forEach((th, index) => {
+    const scope = th.getAttribute('scope');
+    if (!scope) {
+      errors.push(`th element at index ${index} should have a scope attribute`);
+    }
+  });
+  
+  // Check for aria-describedby or aria-label on table
+  const ariaLabel = element.getAttribute('aria-label');
+  const ariaDescribedby = element.getAttribute('aria-describedby');
+  if (!ariaLabel && !ariaDescribedby && !caption) {
+    errors.push('Table should have an accessible name (aria-label, aria-describedby, or caption)');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
 };
 
 /**
- * Displays module structure for debugging purposes
- * @param {Object} structure - Object containing module structure
- * @param {Object} options - Configuration options for display
- * @returns {string} String representation of the module structure
+ * Validates table structure
+ * @param {Element|null} element - The DOM element to validate
+ * @returns {{ isValid: boolean, errors: string[] }} Validation result
  */
-export const displayModuleStructure = (structure, options = {}) => {
-  const {
-    maxDepth = 5,
-    showHidden = false,
-    showSizes = false,
-    indentType = 'ascii'
-  } = options;
+export const validateTableStructure = (element) => {
+  const errors = [];
+  
+  if (!element) {
+    return { isValid: false, errors: ['No element provided'] };
+  }
+  
+  if (element.tagName !== 'TABLE') {
+    return { isValid: false, errors: ['Element is not a table'] };
+  }
+  
+  // Check for thead
+  const thead = element.querySelector('thead');
+  if (!thead) {
+    errors.push('Table should have a thead element');
+  }
+  
+  // Check for tbody
+  const tbody = element.querySelector('tbody');
+  if (!tbody) {
+    errors.push('Table should have a tbody element');
+  }
+  
+  // Check proper nesting of tr within thead/tbody/tfoot
+  const rows = element.querySelectorAll('tr');
+  rows.forEach((row, index) => {
+    const parent = row.parentElement;
+    if (parent && parent.tagName !== 'THEAD' && parent.tagName !== 'TBODY' && parent.tagName !== 'TFOOT') {
+      errors.push(`tr element at index ${index} should be nested within thead, tbody, or tfoot`);
+    }
+  });
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
 
-  const indent = indentType === 'unicode' ? '  ' : '  ';
-  const visited = new Set();
-  const lines = [];
+// Add accessible names to SVGs
+export const fixAccessibleSVGs = () => {
+  // ...
+};
+
+// Fix fake link issue
+export const fixFakeLinks = () => {
+  // ...
+};
+
+// Implement Google sign-in logic
+export const googleSignIn = () => {
+  // ...
+};
 
   const formatSize = (bytes) => {
     if (bytes < 1024) return `${bytes}B`;

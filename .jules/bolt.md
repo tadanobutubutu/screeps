@@ -35,3 +35,7 @@ Replaced redundant loop source counting in auto.evolution.js with centralized O(
 ## 2026-08-25 - Hoisting Cache Lookups and Short-Circuiting Tile Searches in Road Planning
 **Learning:** In room construction planning, executing `.filter()` queries over room structure caches for every tile on every path creates O(PathLength * Structures) closure allocations. Hoisting structure cache lookups outside path loops and replacing `.filter()` with indexed short-circuit loops eliminates closure allocations and quadratic scan overhead.
 **Action:** Always hoist room-level structure cache fetches outside position iteration loops and use indexed `for` loops that break early on the first matching structure.
+
+## 2026-09-08 - Deferring Distance Evaluation in Harvester Primary Target Search
+**Learning:** In target evaluation loops (such as `_findPrimaryTarget` in `src/roles/harvester.js`), calculating `creep.pos.getRangeTo(s)` before checking structure types or capacity thresholds executes unnecessary distance calculations on irrelevant candidates. Deferring distance calls inside matching branch blocks eliminates CPU waste on non-qualifying structures.
+**Action:** Always place `getRangeTo` calls inside conditional blocks after confirming the target structure type and capacity requirements.

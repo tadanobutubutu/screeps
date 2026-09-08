@@ -36,7 +36,7 @@ const main = {
   },
 
   defendRoom: function(room, hostiles) {
-    const towers = room.find({
+    const towers = room.find(FIND_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
     });
 

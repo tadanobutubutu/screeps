@@ -2,17 +2,15 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const Landmark = require('./Landmark');
 
-// Main game logic for Screeps
-const main = {
-  loop: function() {
-    // Game loop
-    for (const name in Game.rooms) {
-      const room = Game.rooms[name];
-      const controller = room.controller;
-      if (controller && controller.my) {
-        this.manageRoom(room);
-      }
-    }
+// TODO: Add any updates related to new functions
+// New functions added as per issue
+function newFunction() {
+  console.log('This is a new function');
+}
+
+function anotherNewFunction() {
+  console.log('Another new function');
+}
 
     // TODO: Implement harvest and upgrade logic
 
@@ -457,5 +455,6 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   addProperLandmarkRegions,
-  renderGraphIndex
+  newFunction,
+  anotherNewFunction
 };

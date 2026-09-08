@@ -60,22 +60,7 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
-  },
-  
-  spawnCreeps: function() {
-    const spawns = Object.values(Game.spawns);
-    
-    spawns.forEach(spawn => {
-      if (!spawn.spawning) {
-        const body = [WORK, CARRY, MOVE];
-        const name = `Creep${Game.time}`;
-        const result = spawn.spawnCreep(body, name);
-        
-        if (result === OK) {
-          console.log(`Spawned new creep: ${name}`);
-        }
-      }
-    });
+    return 'myNewFunction executed';
   }
 };
 

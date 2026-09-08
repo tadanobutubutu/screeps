@@ -17,11 +17,8 @@ const main = {
     this.automateCreeps();
     
     // TODO: Implement tower defense
-
     // TODO: Implement spawning logic
-    
-    // New accessibility-related function to address the issue:
-    this.checkAccessibilityIssues();
+    this.spawnCreeps();
   },
 
   manageRoom: function(room) {
@@ -35,7 +32,7 @@ const main = {
   },
 
   defendRoom: function(room, hostiles) {
-    const towers = room.find({
+    const towers = room.find(FIND_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
     });
 
@@ -48,7 +45,7 @@ const main = {
   },
 
   harvest: function(creep) {
-    const target = creep.pos.findClosestByRange(FIND_SOURCES);
+    const target = creep.pos.findClosestByPath(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);
@@ -64,13 +61,25 @@ const main = {
     }
   },
 
-  // New function to check accessibility issues:
-  checkAccessibilityIssues: function() {
-    // This function will contain the logic to check for accessibility issues.
-    // The actual implementation will depend on the specific issues identified in the insight report.
-    // For now, we'll just log a message indicating that the function is called.
-    console.log('Checking for accessibility issues...');
-    // Insert the logic to address the accessibility issues here.
+  // Add the new function or change here:
+  myNewFunction: function() {
+    // your new function logic goes here
+  },
+  
+  spawnCreeps: function() {
+    const spawns = Object.values(Game.spawns);
+    
+    spawns.forEach(spawn => {
+      if (!spawn.spawning) {
+        const body = [WORK, CARRY, MOVE];
+        const name = `Creep${Game.time}`;
+        const result = spawn.spawnCreep(body, name);
+        
+        if (result === OK) {
+          console.log(`Spawned new creep: ${name}`);
+        }
+      }
+    });
   }
 };
 

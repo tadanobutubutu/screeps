@@ -9,6 +9,7 @@
 
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
+// REACT_025: Add other accessibility changes as per the insight report
 
 // Main game logic for Screeps
 const main = {
@@ -40,40 +41,40 @@ const main = {
   },
   
   defendRoom: function(room, hostiles) {
-    if (!hostiles || hostiles.length === 0) return;
+    if (!room || !hostiles || hostiles.length === 0) return;
     
     const towers = room.find(FIND_MY_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
     });
     
     towers.forEach(tower => {
-      if (tower && tower.attack) {
-        tower.attack(hostiles[0]);
+      if (tower && tower.attack && hostiles[0]) {
+        const target = tower.pos.findClosestByRange(hostiles);
+        if (target) {
+          tower.attack(target);
+        }
       }
     });
   },
   
   harvest: function(creep) {
-    if (!creep) return;
-    const targets = creep.room.find(FIND_SOURCES);
-    if (targets.length > 0) {
-      const target = targets[0];
-      if (creep.harvest) {
-        if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(target);
-        }
+    if (!creep || !creep.room) return;
+    
+    const target = creep.room.find(FIND_SOURCES_ACTIVE)[0];
+    if (target) {
+      if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(target);
       }
     }
   },
   
   upgrade: function(creep) {
-    if (!creep || !creep.room || !creep.room.controller) return;
+    if (!creep || !creep.room) return;
+    
     const controller = creep.room.controller;
-    if (creep.upgradeController) {
+    if (controller) {
       if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-        if (creep.moveTo) {
-          creep.moveTo(controller);
-        }
+        creep.moveTo(controller);
       }
     }
   },

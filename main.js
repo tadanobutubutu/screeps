@@ -34,7 +34,7 @@ const main = {
   },
 
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_STRUCTURES, {
+    const towers = room.find({
       filter: { structureType: STRUCTURE_TOWER }
     });
 
@@ -72,8 +72,7 @@ const main = {
   }
 };
 
-// Add "aria-label" to the exported function
-main.myNewFunction.ariaLabel = 'New function added to address accessibility issues';
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 
 // Export the new function if needed:
 module.exports = main;

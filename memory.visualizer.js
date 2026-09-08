@@ -28,7 +28,7 @@ const memoryVisualizer = {
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        .toFixed(2)} KB`);
+        console.log(`Memory size: ${(stats.totalSize / 1024).toFixed(2)} KB`);
         return stats;
     },
 
@@ -67,8 +67,7 @@ const memoryVisualizer = {
         sizes.sort((a, b) => b.size - a.size);
 
         sizes.slice(0, limit).forEach((item, index) => {
-            .toFixed(2)} KB)`
-            );
+            console.log(`${index + 1}. ${item.name} (${item.type}): ${(item.size / 1024).toFixed(2)} KB`);
         });
 
         return sizes;
@@ -117,9 +116,9 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        :`);
+        console.log('History:');
         snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`);
+            console.log(`[Tick ${snap.time}] CPU=${snap.cpu}, Energy=${snap.energy}`);
         });
 
         return snapshots;
@@ -193,7 +192,8 @@ const memoryVisualizer = {
 
         sorted.forEach((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            });
+            console.log(`${medal} ${entry[0]}: ${entry[1]}`);
+        });
 
         return sorted;
     },
@@ -251,7 +251,8 @@ const memoryVisualizer = {
 
         const diary = Memory.creeps[creepName].diary;
         diary.entries.forEach((entry) => {
-            });
+            console.log(`[${entry.time}] ${entry.message}`);
+        });
 
         return diary.entries;
     },
@@ -267,8 +268,6 @@ const memoryVisualizer = {
             };
         }
     },
-
-
 
     /**
      * メモリクリーナー
@@ -331,7 +330,8 @@ const memoryVisualizer = {
             Memory.backups.shift();
         }
 
-        },
+        console.log(`Backup created at tick ${Game.time}`);
+    },
 
     restore: function (index = 0) {
         if (!Memory.backups || Memory.backups.length === 0) {

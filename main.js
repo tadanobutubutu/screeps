@@ -25,8 +25,9 @@ const main = {
   },
 
   // Add the new function or change here:
-  checkAccessibility: function() {
-    // Accessibility check logic goes here
+  myNewFunction: function() {
+    // your new function logic goes here
+    // Example accessibility-related logic could be setting appropriate ARIA roles or attributes if Screeps had a UI
   }
 };
 

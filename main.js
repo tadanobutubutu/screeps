@@ -82,22 +82,24 @@ function validateTableAccessibility(tableElement) {
   // ... both versions of the code for `validateTableAccessibility`
 }
 
-// ... Integrate the code from both versions for the other accessibility functions
-
-/**
- * Initialize skip link functionality
- */
-function initSkipLink() {
-  const skipLink = document.querySelector('[href="#main-content"]');
-  if (skipLink) {
-    const target = document.querySelector(skipLink.getAttribute('href'));
-    if (target) {
-      skipLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        target.setAttribute('tabindex', '-1');
-        target.focus();
-        target.removeAttribute('tabindex');
-      });
+// Add main landmark
+function addMainLandmark() {
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  mainElements.forEach(main => {
+    if (!main.getAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
+  });
+  // If no main element exists, create one for the main content
+  if (mainElements.length === 0) {
+    const content = document.querySelector('#content, .content, [role="main"]');
+    if (content) {
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      while (content.firstChild) {
+        main.appendChild(content.firstChild);
+      }
+      content.parentNode.insertBefore(main, content);
     }
   }
 }

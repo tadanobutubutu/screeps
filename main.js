@@ -49,7 +49,7 @@ const main = {
   },
   
   harvest: function(creep) {
-    const target = creep.room.find(FIND_SOURCES)[0];
+    const target = creep.pos.findClosestByPath(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);

@@ -34,7 +34,7 @@ const main = {
   },
   
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_STRUCTURES, {
+    const towers = room.find({
       filter: { structureType: STRUCTURE_TOWER }
     });
     
@@ -44,7 +44,7 @@ const main = {
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES);
+    const target = creep.room.find(FIND_SOURCES)[0];
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);

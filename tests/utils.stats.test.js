@@ -126,5 +126,17 @@ describe('utils.stats', () => {
 
             expect(global.Memory.stats.roomStats['W1N1']).toBeUndefined();
         });
+
+        test('initMemory protects against prototype pollution on defaults', () => {
+            Object.prototype.pollutedKey = 'polluted';
+            try {
+                StatsManager.initMemory();
+                expect(
+                    Object.prototype.hasOwnProperty.call(global.Memory.stats, 'pollutedKey')
+                ).toBe(false);
+            } finally {
+                delete Object.prototype.pollutedKey;
+            }
+        });
     });
 });

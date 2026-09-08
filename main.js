@@ -1,5 +1,9 @@
 // TODO: Identify and update specific functions that render dependency graphs or
 
+// TODO: Add back any required exports that might have been removed
+// Example of how to export a required function from another file
+// const { myFunction } = require('./otherFile');
+
 // Main game logic for Screeps
 const main = {
   loop: function() {

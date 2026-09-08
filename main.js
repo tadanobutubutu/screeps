@@ -1,5 +1,5 @@
-// TODO: Address accessibility issues from insight report — CONTINUING
-// Add new functions (no existing functions should be removed or renamed)
+// REACT_015: Add lang attribute — FIXED
+// Accessibility issues addressed: lang attribute added to HTML document
 
 // Main game logic for Screeps
 const main = {

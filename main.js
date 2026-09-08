@@ -1,8 +1,13 @@
-Here is the resolved `main.js` file:
+// TODO: Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// REACT_015: Add lang attribute
 
-```javascript
-const { ERR_NOT_IN_RANGE, STRUCTURE_TOWER, RESOURCE_ENERGY } = require('game/constants');
+// Ensure dependencyGraph container has a proper ARIA role
+if (typeof document !== 'undefined' && document.getElementById('dependencyGraph')) {
+  document.getElementById('dependencyGraph').setAttribute('aria-roles', 'graph');
+}
 
+// Main game logic for Screeps
 const main = {
   loop: function() {
     for (const name in Game.rooms) {

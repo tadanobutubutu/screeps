@@ -22,21 +22,6 @@ const main = {
   // ... existing code ...
 
   myNewFunction: function() {
-    // Use the imported _ (lodash) function for utility tasks
-    const sortedSources = _.orderBy(Game.rooms[Game.spawn.room.name].find(FIND_SOURCES), ['energy'], ['desc']);
-
-    // Use the imported HomeLink and WelcomeDiv components
-    const roomName = Game.spawn.room.name;
-    const roomLink = HomeLink(roomName);
-    const welcomeMessage = `Welcome to Room: ${roomName}`;
-
-    // Display a welcome message with a link to the home room
-    const welcomeDiv = WelcomeDiv(roomLink, welcomeMessage);
-    console.log(welcomeDiv);
-  },
-
-  // Add the new function or change here:
-  myNewFunction: function() {
     // your new function logic goes here
   },
 

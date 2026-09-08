@@ -80,22 +80,17 @@ const main = {
   },
 
   defendRoom: function(room, hostiles) {
-    const towers = room.find({
+    const towers = room.find(FIND_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
     });
 
     towers.forEach(tower => {
-      if (tower.energy >= 10) {
-        const closestHostile = tower.pos.findClosestByRange(hostiles);
-        if (closestHostile) {
-          tower.attack(closestHostile);
-        }
-      }
+      // tower.attack(hostiles[0]);
     });
   },
 
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const target = creep.pos.findClosestByPath(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
@@ -121,11 +116,21 @@ const main = {
     }
   },
 
-  // Add the new function or change here:
-  addressAccessibilityIssues: function() {
-    // Example function logic for addressing new accessibility issues
-    // This is a placeholder and should be replaced with actual logic as required
-    console.log('Addressing new accessibility issues...');
+  // TODO: Implement this function for accessibility checks on tables
+  checkTableAccessibility: function() {
+    const table = document.querySelector('table');
+    if (!table) {
+      return { accessible: false, message: 'No table found' };
+    }
+    
+    const rows = table.rows;
+    const tbody = table.t.getElementsByTagName('tbody')[0];
+    
+    return {
+      accessible: true,
+      rowCount: rows.length,
+      hasTbody: !!tbody
+    };
   }
 }
 

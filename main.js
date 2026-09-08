@@ -14,11 +14,15 @@ const main = {
     }
 
     // TODO: Implement harvest and upgrade logic
-    this.automateCreeps();
-    
+
     // TODO: Implement tower defense
+
     // TODO: Implement spawning logic
-    this.spawnCreeps();
+
+    // Add the new function or change here:
+    this.myNewFunction = function() {
+      // your new function logic goes here
+    };
   },
 
   manageRoom: function(room) {

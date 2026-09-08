@@ -24,7 +24,11 @@ const StatsManager = {
         };
 
         for (const key in defaults) {
-            if (Memory.stats[key] === undefined) {
+            if (
+                Object.prototype.hasOwnProperty.call(defaults, key) &&
+                utilsMemory.isSafeKey(key) &&
+                Memory.stats[key] === undefined
+            ) {
                 Memory.stats[key] = defaults[key];
             }
         }

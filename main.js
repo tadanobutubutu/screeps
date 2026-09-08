@@ -20,8 +20,10 @@ const main = {
 
     // TODO: Implement spawning logic
 
-    // NEW FUNCTION: Your new function
-    this.myNewFunction();
+    // Add the new function or change here:
+    this.myNewFunction = function() {
+      // your new function logic goes here
+    };
   },
 
   manageRoom: function(room) {

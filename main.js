@@ -13,9 +13,18 @@ const main = {
         this.manageRoom(room);
       }
     }
-
-    // TODO: Implement harvest and upgrade logic
-
+    
+    // Implement harvest and upgrade logic
+    const creeps = Game.creeps;
+    for (const name in creeps) {
+      const creep = creeps[name];
+      if (creep.store.getUsedCapacity() < creep.store.getCapacity()) {
+        this.harvest(creep);
+      } else {
+        this.upgrade(creep);
+      }
+    }
+    
     // TODO: Implement tower defense
 
     // TODO: Implement spawning logic

@@ -21,6 +21,9 @@ const main = {
     // TODO: Implement tower defense
     
     // TODO: Implement spawning logic
+    
+    // New function logic
+    this.myNewFunction();
   },
   
   manageRoom: function(room) {
@@ -75,15 +78,8 @@ const main = {
   // Export the new function if needed:
   myNewFunction: function() {
     // your new function logic goes here
-  },
-
-  calculateSum: function(...args) {
-    // Calculate sum of all numeric arguments
-    // Can accept multiple numbers or an array of numbers
-    const numbers = args.length === 1 && Array.isArray(args[0]) ? args[0] : args;
-    return numbers.reduce((sum, num) => {
-      return sum + (typeof num === 'number' ? num : 0);
-    }, 0);
+    // For example, you could perform a simple operation or call other methods.
+    console.log("Executing myNewFunction in Screeps game loop");
   }
 };
 

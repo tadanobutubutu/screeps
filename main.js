@@ -24,8 +24,8 @@ const main = {
     
     // TODO: Implement spawning logic
     
-    // New accessibility-related function
-    this.checkAccessibility();
+    // New function logic goes here
+    this.myNewFunction();
   },
   
   manageRoom: function(room) {

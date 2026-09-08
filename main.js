@@ -128,18 +128,40 @@ export const validateTableStructure = (element) => {
 };
 
 // Add accessible names to SVGs
-export const fixAccessibleSVGs = () => {
-  document.querySelectorAll('svg').forEach(svg => {
-    const ariaLabel = svg.getAttribute('aria-label');
-    if (!ariaLabel) {
-      svg.setAttribute('aria-label', 'Unnamed SVG');
+export const fixAccessibleSVGs = (svgElements) => {
+  return Array.from(svgElements).map(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (title) {
+        const id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+        title.setAttribute('id', id);
+        svg.setAttribute('aria-labelledby', id);
+      }
     }
+    return svg;
   });
 };
 
 // Fix fake link issue
-export const fixFakeLinks = () => {
-  // ...
+export const fixFakeLinks = (links) => {
+  return Array.from(links).map(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#') {
+      link.setAttribute('role', 'button');
+      if (!link.getAttribute('tabindex')) {
+        link.setAttribute('tabindex', '0');
+      }
+    }
+    return link;
+  });
+};
+
+// REACT_015: Add lang attribute
+export const addLangAttribute = (element, lang) => {
+  if (element) {
+    element.setAttribute('lang', lang);
+  }
+  return element;
 };
 
 // Implement Google sign-in logic
@@ -147,29 +169,4 @@ export const googleSignIn = () => {
   // ...
 };
 
-  const formatSize = (bytes) => {
-    if (bytes < 1024) return `${bytes}B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
-  };
-
-  const displayNode = (name, node, depth, path = []) => {
-    if (depth > maxDepth) return;
-    if (path.includes(name)) return;
-    if (!showHidden && name.startsWith('.')) return;
-
-    const currentPath = [...path, name];
-    const prefix = indent.repeat(depth);
-    
-    let displayName = name;
-    if (showSizes && node.size) {
-      displayName = `${name} (${formatSize(node.size)})`;
-    }
-    if (node.type) {
-      displayName = `${name} [${node.type}]`;
-    }
-
-    if (depth === 0) {
-      lines.push(displayName);
-    } else {
-      lines.push(`${
+const Dashboard = (props) => {

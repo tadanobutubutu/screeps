@@ -47,8 +47,25 @@ export const validateTableAccessibility = (element) => {
     return { isValid: false, errors: ['No element provided'] };
   }
   
-  if (element.tagName !== 'TABLE') {
-    return { isValid: false, errors: ['Element is not a table'] };
+  const validLandmarks = [
+    'main',
+    'navigation',
+    'banner',
+    'contentinfo',
+    'complementary',
+    'search',
+    'form',
+    'application'
+  ];
+  
+  const role = element.getAttribute('role');
+  const ariaLabel = element.getAttribute('aria-label');
+  const ariaLabelledby = element.getAttribute('aria-labelledby');
+  
+  if (!role) {
+    errors.push('Landmark element must have a role attribute');
+  } else if (!validLandmarks.includes(role)) {
+    errors.push(`Invalid landmark role: ${role}. Must be one of: ${validLandmarks.join(', ')}`);
   }
   
   // Check for caption
@@ -128,32 +145,60 @@ export const validateTableStructure = (element) => {
 };
 
 // Add accessible names to SVGs
-export const fixAccessibleSVGs = (svgElements) => {
-  return Array.from(svgElements).map(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+export const fixAccessibleSVGs = (container = document) => {
+  const svgs = container.querySelectorAll('svg:not([aria-hidden="true"])');
+  
+  svgs.forEach((svg) => {
+    const parent = svg.parentElement;
+    const existingLabel = parent?.querySelector('span.sr-only, [class*="visually-hidden"]');
+    
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !existingLabel) {
       const title = svg.querySelector('title');
       if (title) {
-        const id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
-        title.setAttribute('id', id);
-        svg.setAttribute('aria-labelledby', id);
+        const titleId = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+        title.id = titleId;
+        svg.setAttribute('aria-labelledby', titleId);
+      } else {
+        // Generate a descriptive label based on context
+        const contextText = parent?.textContent?.trim() || 'Decorative graphic';
+        svg.setAttribute('aria-label', contextText);
       }
     }
-    return svg;
   });
+  
+  return svgs.length;
 };
 
-// Fix fake link issue
-export const fixFakeLinks = (links) => {
-  return Array.from(links).map(link => {
-    const href = link.getAttribute('href');
-    if (!href || href === '#') {
-      link.setAttribute('role', 'button');
-      if (!link.getAttribute('tabindex')) {
-        link.setAttribute('tabindex', '0');
-      }
+// Fix fake link issue - ensure elements that look like links are properly accessible
+export const fixFakeLinks = (container = document) => {
+  const fakeLinks = container.querySelectorAll('[role="button"], [onclick], a:not([href])');
+  
+  fakeLinks.forEach((element) => {
+    const tagName = element.tagName.toLowerCase();
+    const isAnchor = tagName === 'a';
+    
+    // Ensure proper role for non-anchor elements
+    if (!isAnchor && element.getAttribute('role') !== 'button') {
+      element.setAttribute('role', 'button');
     }
-    return link;
+    
+    // Add tabindex if not already present and not naturally focusable
+    if (!element.hasAttribute('tabindex') && !['a', 'button', 'input', 'select', 'textarea'].includes(tagName)) {
+      element.setAttribute('tabindex', '0');
+    }
+    
+    // Add keyboard event handlers if missing
+    if (!element.hasAttribute('onKeyDown')) {
+      element.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          element.click();
+        }
+      });
+    }
   });
+  
+  return fakeLinks.length;
 };
 
 // REACT_015: Add lang attribute
@@ -166,7 +211,35 @@ export const addLangAttribute = (element, lang) => {
 
 // Implement Google sign-in logic
 export const googleSignIn = () => {
-  // ...
+  return new Promise((resolve, reject) => {
+    // Check if Google API is available
+    if (typeof google === 'undefined' || !google.accounts) {
+      reject(new Error('Google API not loaded'));
+      return;
+    }
+    
+    const client = google.accounts.oauth2.initTokenClient({
+      client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+      scope: 'profile email',
+      callback: (tokenResponse) => {
+        if (tokenResponse.error) {
+          reject(new Error(tokenResponse.error));
+        } else {
+          // Fetch user profile with the access token
+          fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: {
+              'Authorization': `Bearer ${tokenResponse.access_token}`
+            }
+          })
+            .then((res) => res.json())
+            .then((user) => resolve(user))
+            .catch(reject);
+        }
+      }
+    });
+    
+    client.requestAccessToken();
+  });
 };
 
 const Dashboard = (props) => {

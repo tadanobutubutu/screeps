@@ -244,68 +244,70 @@ function handleCredentialResponse(response) {
 
 function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
-  // Processes the insight report and addresses detected accessibility problems
+  // Based on the insight report structure
 
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach((issue) => {
-      console.log(`Accessibility issue detected: ${issue.message}`);
-      
-      // Address different types of accessibility issues
-      switch (issue.type) {
-        case 'missing_lang':
+  if (!insightReport) {
+    return;
+  }
+
+  const { issues = [] } = insightReport;
+
+  issues.forEach(issue => {
+    if (!issue || !issue.type) {
+      return;
+    }
+
+    switch (issue.type) {
+      case 'table':
+        if (issue.subtype === 'missing-header') {
+          fixTableStructure();
+        }
+        validateTableAccessibility();
+        break;
+
+      case 'landmark':
+        if (issue.subtype === 'missing-main') {
+          addMainLandmark();
+        }
+        validateLandmarkStructure();
+        validateLandmarkAttributes();
+        ensureUniqueLandmarks();
+        addProperLandmarkRegions();
+        break;
+
+      case 'svg':
+        if (issue.subtype === 'missing-name') {
+          const accessibleName = getSvgAccessibleName();
+          if (issue.element && accessibleName) {
+            setSvgAttributes(issue.element, accessibleName);
+          }
+        }
+        break;
+
+      case 'link':
+        validateLinkAccessibility();
+        if (issue.subtype === 'fake-link') {
+          handleFakeLinks();
+        }
+        break;
+
+      case 'language':
+        if (issue.subtype === 'missing-lang') {
+          const lang = getLangAttribute();
           if (issue.element) {
             addLangAttribute(issue.element);
           }
-          break;
-        case 'table_structure':
-          if (issue.element) {
-            fixTableStructure(issue.element);
-          }
-          break;
-        case 'missing_landmark':
-          if (issue.element) {
-            addMainLandmark(issue.element);
-          }
-          break;
-        case 'invalid_landmark':
-          if (issue.element) {
-            validateLandmark(issue.element);
-          }
-          break;
-        default:
-          // Log for unhandled issue types
-          console.log(`Unhandled issue type: ${issue.type}`);
-      }
-    });
-  }
+        }
+        break;
 
-// Configuration and state
-const config = {
-  // Configuration settings
-};
+      default:
+        console.log(`Unhandled accessibility issue type: ${issue.type}`);
+    }
 
-const appState = {
-  // Application state
-};
-
-// App initialization
-function initializeApp() {
-  // Initialize the application
-}
-
-// Data processing
-function processData(data) {
-  // Process data
-}
-
-// User fetching
-function fetchUser(userId) {
-  // Fetch user data
-}
-
-// Cache management
-function clearCache() {
-  // Clear cache
+    if (issue.message) {
+      console.log(`Accessibility issue detected: ${issue.message}`);
+    }
+  });
 }
 
 // Main execution
@@ -324,10 +326,14 @@ if (require.main === module) {
 }
 
 // Address missing export that might have been removed — ADD CODE HERE
-function getInsightReport() {
-  // Function to get the insight report
-  // Returns accessibility issues found during analysis
-}
+function config() {}
+function appState() {}
+function initializeApp() {}
+function processData() {}
+function fetchUser() {}
+function clearCache() {}
+function initialize() {}
+function validateInput() {}
 
 // Example usage of the new function (if applicable)
 // const report = getInsightReport(); // Hypothetical function to get the insight report
@@ -343,5 +349,21 @@ module.exports = {
   initialize,
   validateInput,
   addressAccessibilityIssues,
-  getInsightReport,
+  calculateSum,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions
 };

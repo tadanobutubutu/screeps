@@ -77,24 +77,12 @@ const main = {
       }
     }
   },
-
+  
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
-  },
-
-  divide: function(a, b) {
-    // Check if both arguments are numbers
-    if (typeof a !== 'number' || typeof b !== 'number') {
-      throw new Error('Both arguments must be numbers');
-    }
-    
-    // Check for division by zero
-    if (b === 0) {
-      throw new Error('Division by zero is not allowed');
-    }
-    
-    return a / b;
+    console.log('myNewFunction executed');
+    return true;
   }
 };
 

@@ -3,61 +3,31 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import addLangAttribute from './addLangAttribute';
+import fixTableStructure from './fixTableStructure';
+import addMainLandmark from './addMainLandmark';
+import fixLandmarkIssues from './fixLandmarkIssues';
+import ensureUniqueLandmarks from './ensureUniqueLandmarks';
+import uniqueLandmarks from './uniqueLandmarks';
+import addSvgAccessibleNames from './addSvgAccessibleNames';
+import addAccessibleNamesToSVGs from './addAccessibleNamesToSVGs';
+import fixFakeLinkIssue from './fixFakeLinkIssue';
+import fixFakeLinkIssues from './fixFakeLinkIssues';
+import googleSignIn from './googleSignIn';
+import fixButtonIdentifiers from './fixButtonIdentifiers';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+// Add any other necessary functions here
+
+const container = document.getElementById('root');
+const root = ReactDOM.createRoot(container);
+
 root.render(
   <React.StrictMode>
     <App />
+    {/* Include Dashboard component if it's part of the same app and used inside App */}
+    {/* <Dashboard /> */}
   </React.StrictMode>
 );
 
+// Call the reportWebVitals function to report the page's performance
 reportWebVitals();
-
-// Add the necessary new functions (without strict mode)
-function addLangAttribute() {
-  document.documentElement.lang = 'pt-BR';
-}
-
-function fixTableStructure() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table) => {
-    if (!table.tHead) {
-      const head = document.createElement('thead');
-      const firstRow = table.rows[0];
-      if (firstRow) {
-        head.appendChild(firstRow);
-        table.appendChild(head);
-      }
-    }
-    if (!table.tBodies.length) {
-      const body = document.createElement('tbody');
-      while (table.rows.length > 0) {
-        body.appendChild(table.rows[0]);
-      }
-      table.appendChild(body);
-    }
-  });
-}
-
-function addMainLandmark() {
-  if (!document.querySelector('main')) {
-    const main = document.createElement('main');
-    main.setAttribute('role', 'main');
-    while (document.body.firstChild) {
-      main.appendChild(document.body.firstChild);
-    }
-    document.body.appendChild(main);
-  }
-}
-
-function fixAccessibility() {
-  addLangAttribute();
-  fixTableStructure();
-  addMainLandmark();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  fixAccessibility();
-});
-
-export { addLangAttribute, fixTableStructure, addMainLandmark, fixAccessibility };

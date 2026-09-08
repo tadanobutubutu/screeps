@@ -236,10 +236,10 @@ function _findPrimaryTarget(creep) {
     for (let i = 0; i < needingEnergy.length; i++) {
         const s = needingEnergy[i];
         const type = s.structureType;
-        const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0;
 
         // 1. スポーン・エクステンションの優先探索
         if (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION) {
+            const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0;
             if (dist < minSpawnExtDist) {
                 minSpawnExtDist = dist;
                 closestSpawnExt = s;
@@ -247,6 +247,7 @@ function _findPrimaryTarget(creep) {
         }
         // 2. タワーの探索 (200以上の空き容量があるものを優先)
         else if (type === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200) {
+            const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0;
             if (dist < minTowerDist) {
                 minTowerDist = dist;
                 closestTower = s;

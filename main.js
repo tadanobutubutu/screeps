@@ -1,5 +1,4 @@
-// TODO: Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
+// Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 
 // Ensure dependencyGraph container has a proper ARIA role

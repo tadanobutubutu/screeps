@@ -129,7 +129,12 @@ export const validateTableStructure = (element) => {
 
 // Add accessible names to SVGs
 export const fixAccessibleSVGs = () => {
-  // ...
+  document.querySelectorAll('svg').forEach(svg => {
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (!ariaLabel) {
+      svg.setAttribute('aria-label', 'Unnamed SVG');
+    }
+  });
 };
 
 // Fix fake link issue

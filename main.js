@@ -33,14 +33,7 @@ function getFullLangAttribute(element) {
   return lang;
 }
 
-function createInPageButton() {
-  // Creates an in‑page button element
-  const btn = document.createElement('button');
-  btn.textContent = 'Click me';
-  return btn;
-}
-
-// Implement this function for ensuring unique landmarks
+// TODO: This is the existing code that needs to be preserved
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];

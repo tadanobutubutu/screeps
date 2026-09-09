@@ -198,14 +198,13 @@ function fixTableStructureIssues(tables) {
   });
 }
 
+// TODO: Re-add the required exports for functionA and functionB
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
   ensureUniqueLandmarks,
-  addLangAttribute,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  fixTableStructureIssues,
+  functionA,
+  functionB
 };

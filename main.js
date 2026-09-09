@@ -51,7 +51,7 @@ function createAccessibleButton(text, onClick) {
 
   button.addEventListener('click', () => {
     const targetId = href.replace('#', '');
-    const target = document.getElementById(targetId) || document.querySelector(href);
+    const target = document.getElementById(targetId) || document.querySelector(targetId);
     if (target) {
       target.setAttribute('tabindex', '-1');
       target.focus();
@@ -123,7 +123,7 @@ export function validateTableStructure(table) {
   // Check for headers without scope attribute
   const headers = table.querySelectorAll('th');
   headers.forEach((th, index) => {
-    if (!th.hasAttribute('scope')) {
+    if (!th.getAttribute('scope')) {
       issues.push(`Header at index ${index} missing scope attribute`);
     }
   });
@@ -132,7 +132,7 @@ export function validateTableStructure(table) {
   const rows = table.querySelectorAll('tr');
   let columnCount = 0;
   rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = row.querySelectorAll('th, td');
     if (columnCount === 0) {
       columnCount = cells.length;
     } else if (cells.length !== columnCount) {
@@ -159,75 +159,113 @@ export function getSvgAccessibleName(svg) {
   if (ariaLabel && ariaLabel.trim()) {
     return ariaLabel.trim();
   }
-
-  // Find fallback name
-  const fallbackName = findFallbackName(svg);
-  if (fallbackName) {
-    return fallbackName;
+  
+  // Check aria-labelledby for external reference
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const refElement = document.getElementById(ariaLabelledby);
+    if (refElement && refElement.textContent) {
+      return refElement.textContent.trim();
+    }
   }
-
-  // No name found, return empty string
+  
+  // Check for title element inside SVG (fallback)
+  const titleElement = svg.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+  
   return '';
 }
 
 /**
- * Finds the fallback name for an SVG element
- * @param {SVGElement} svg - The SVG element
- * @returns {string} The fallback name or null if not found
+ * Sets accessibility attributes on an SVG element
+ * @param {SVGElement} svg - The SVG element to modify
+ * @param {string} accessibleName - The accessible name to set
  */
-function findFallbackName(svg) {
-  // Check for title attribute
-  const title = svg.getAttribute('title');
-  if (title && title.trim()) {
-    return title.trim();
+export function setSvgAttributes(svg, accessibleName) {
+  if (!svg) return;
+  
+  // Set role="img" for screen readers
+  svg.setAttribute('role', 'img');
+  
+  // Set aria-label with the accessible name
+  if (accessibleName) {
+    svg.setAttribute('aria-label', accessibleName);
   }
-
-  // Check for ID attribute
-  const id = svg.id;
-  if (id) {
-    const element = document.getElementById(id);
-    if (element && element.tagName === 'SVG') {
-      // If nested SVG, recurse to find a fallback name
-      return findFallbackName(element);
-    } else {
-      // ID corresponds to a DOM element with a text content fallback name
-      const textContent = document.getElementById(id).textContent.trim();
-      if (textContent) {
-        return textContent;
-      }
-    }
-  }
-
-  return null;
 }
-
-// ============================================================================
-// New Function: Ensuring Unique Landmarks
-// ============================================================================
 
 /**
- * Ensures all landmark regions (aria-labeledby) are unique by assigning a
- * unique identifier to them based on their parent node and type
- * @param {Document} document - The entire HTML document
+ * Ensures all landmarks have unique labels to avoid accessibility violations
+ * @returns {Array} List of landmarks that were fixed
  */
-export function ensureUniqueLandmarks(document) {
-  const landmarkRegions = document.querySelectorAll('[aria-labeledby]');
-  const uniqueIds = new Map();
-
-  for (const landmarkRegion of landmarkRegions) {
-    const currentId = landmarkRegion.getAttribute('id');
-    if (!currentId) {
-      const parent = landmarkRegion.parentNode;
-      let id = `${parent.tagName.toLowerCase()}${uniqueIds.size}`;
-
-      // Ensure unique IDs within the same parent node and for the same landmark type
-      while (uniqueIds.has(id)) {
-        uniqueIds.set(id, true);
-        id = `${parent.tagName.toLowerCase()}${uniqueIds.size}`;
-      }
-
-      uniqueIds.set(id, landmarkRegion);
-      landmarkRegion.id = id;
+export function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('header, main, nav, aside, footer, section[role="banner"], section[role="main"], section[role="navigation"], section[role="complementary"], section[role="contentinfo"]');
+  const labeledLandmarks = [];
+  const duplicates = [];
+  
+  landmarks.forEach(landmark => {
+    const label = landmark.getAttribute('aria-label') || 
+                  landmark.getAttribute('aria-labelledby') ||
+                  landmark.id ||
+                  landmark.tagName.toLowerCase();
+    
+    if (labeledLandmarks.includes(label)) {
+      duplicates.push({ element: landmark, label });
+    } else {
+      labeledLandmarks.push(label);
     }
-  }
+  });
+  
+  // Add unique labels to duplicate landmarks
+  duplicates.forEach((dup, index) => {
+    const uniqueLabel = `${dup.label}-${index + 1}`;
+    dup.element.setAttribute('aria-label', uniqueLabel);
+  });
+  
+  return duplicates;
 }
+
+/**
+ * Validates link accessibility
+ * @param {HTMLAnchorElement} link - The link element to validate
+ * @returns {Object} Validation result with issues found
+ */
+export function validateLinkAccessibility(link) {
+  const issues = [];
+  
+  if (!link || link.tagName !== 'A') {
+    return { valid: false, issues: ['Invalid link element'] };
+  }
+  
+  // Check for accessible text
+  const hasText = link.textContent && link.textContent.trim().length > 0;
+  const hasAriaLabel = link.getAttribute('aria-label');
+  
+  if (!hasText && !hasAriaLabel) {
+    issues.push('Link has no accessible text');
+  }
+  
+  // Check for proper href
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href === '') {
+    issues.push('Link has no valid href destination');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Handles fake links (elements with onclick that should be buttons or proper links)
+ * @param {HTMLElement} element - The element to check
+ * @returns {Object} Result with conversion recommendation
+ */
+export function handleFakeLinks(element) {
+  const result = { isFakeLink: false, needsConversion: false, issues: [] };
+  
+  if (!element) return result;
+  
+  const hasClickHandler = element.hasAttribute('onclick') ||

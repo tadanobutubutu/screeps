@@ -15,8 +15,8 @@ const CONFIG = {
   version: '1.0.0'
 };
 
-// TODO: Address accessibility issues from insight report:
-// Placeholder for new code or changes to address accessibility issues
+// Add required exports
+const { ensureUniqueLandmarks, addProperLandmarkRegions } = require('./uniqueLandmarks');
 
 /**
  * Initializes the application with accessibility features

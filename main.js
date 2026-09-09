@@ -135,15 +135,23 @@ function renderGraphIndex(data, options = {}) {
   }
 }
 
-// Main Screeps bot object (merged with origin/main functionality)
-const main = {
-  loop: function() {
-    for (const name in Game.rooms) {
-      const room = Game.rooms[name];
-      const controller = room.controller;
-      if (controller && controller.my) {
-        this.manageRoom(room);
-      }
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = `element-${new Date().getTime()}`;
+  }
+}
+
+function addAriaLabel(element, ariaLabel) {
+  if (!element['aria-label']) {
+    element['aria-label'] = ariaLabel;
+  }
+}
+
+function addressInsightIssues(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_025') {
+      ensureUniqueLandmarks();
     }
   },
 
@@ -199,8 +207,6 @@ module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   addLandmarkRolesAndFixIssues,
-  addLangAttribute,
-  validateTableStructure,
-  fixTableStructure,
-  personName
+  ensureElementHasId,
+  addAriaLabel
 };

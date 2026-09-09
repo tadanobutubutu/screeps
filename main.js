@@ -18,6 +18,13 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
+// Function to get a random integer between min and max inclusive
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 // Function to calculate distance between two points
 function calculateDistance(point1, point2) {
   const R = 6371; // Earth's radius in km
@@ -36,176 +43,32 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// REACT_041: Add accessible names to SVGs
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement || typeof svgElement !== 'object') {
-    return '';
-  }
-  
-  // Check for aria-label
-  if (svgElement['aria-label']) {
-    return svgElement['aria-label'];
-  }
-  
-  // Check for aria-labelledby reference
-  if (svgElement['aria-labelledby']) {
-    return svgElement['aria-labelledby'];
-  }
-  
-  // Check for title element
-  if (svgElement.title) {
-    return svgElement.title;
-  }
-  
-  // Check for desc element
-  if (svgElement.desc) {
-    return svgElement.desc;
-  }
-  
-  return '';
-}
-
-// REACT_036: Fix fake link issue
-function personName(name, options = {}) {
-  if (!name || typeof name !== 'string') {
-    return '';
-  }
-  
-  // Ensure person names are not treated as fake links
-  // Return properly formatted name with accessibility support
-  return name.trim();
-}
-
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute(htmlString, lang = 'en') {
-  if (typeof htmlString !== 'string') {
-    return htmlString;
-  }
-  
-  // Check if html tag already has lang attribute
-  if (/<html[^>]*lang=/i.test(htmlString)) {
-    // Update existing lang attribute
-    return htmlString.replace(/lang="[^"]*"/i, `lang="${lang}"`);
-  }
-  
-  // Add lang attribute to html tag
-  return htmlString.replace(/<html([^>]*)>/i, `<html$1 lang="${lang}">`);
-}
-
-// REACT_027: Validate table structure
-function validateTableStructure(table) {
-  if (!table || typeof table !== 'object') {
-    return { valid: false, errors: ['Invalid table object'] };
-  }
-  
-  const errors = [];
-  
-  // Check for thead
-  if (!table.thead) {
-    errors.push('Missing thead element');
-  }
-  
-  // Check for tbody
-  if (!table.tbody) {
-    errors.push('Missing tbody element');
-  }
-  
-  // Check th elements have scope attribute
-  if (table.thead && table.thead.rows) {
-    table.thead.rows.forEach(row => {
-      row.cells.forEach(cell => {
-        if (cell.tagName === 'TH' && !cell.scope) {
-          errors.push('TH element missing scope attribute');
-        }
-      });
-    });
-  }
-  
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-// REACT_027: Fix table structure
-function fixTableStructure(table) {
-  if (!table || typeof table !== 'object') {
-    return table;
-  }
-  
-  const fixedTable = { ...table };
-  
-  // Ensure tbody exists
-  if (!fixedTable.tbody && fixedTable.rows) {
-    fixedTable.tbody = { rows: fixedTable.rows };
-    delete fixedTable.rows;
-  }
-  
-  // Ensure th elements have scope attribute
-  if (fixedTable.thead && fixedTable.thead.rows) {
-    fixedTable.thead.rows.forEach(row => {
-      row.cells.forEach(cell => {
-        if (cell.tagName === 'TH' && !cell.scope) {
-          cell.scope = 'col';
-        }
-      });
-    });
-  }
-  
-  return fixedTable;
-}
-
-// REACT_017: Add main landmark
-function addMainLandmark(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return landmarks;
-  }
-  
-  const hasMain = landmarks.some(l => l && l.role === 'main');
-  
-  if (!hasMain) {
-    landmarks.push({ role: 'main', label: 'Main content' });
-  }
-  
-  return landmarks;
-}
-
-// REACT_025: Ensure unique landmarks
+// Function to ensure unique landmarks using random ids
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
 
   const seen = new Set();
-  return landmarks.filter(landmark => {
-    if (!landmark) return false;
-    
-    const identifier = landmark.id || landmark.name || landmark.role || JSON.stringify(landmark);
-    
+  const ids = new Set();
+
+  return landmarks.map(landmark => {
+    if (!landmark) return null;
+
+    // Generate random id if no id or name provided
+    let identifier = landmark.id || landmark.name || JSON.stringify(landmark);
+
+    // Generate a new id if the provided identifier is already used
     if (seen.has(identifier)) {
-      return false;
+      identifier = `landmark_${getRandomInt(1, 99999)}`;
     }
-  },
 
-  /**
-   * Ensures that the specified accessible name (`aria-label`) is set for any element with a `tabindex` attribute.
-   */
-  ensureAccessibleNameOnTabbable() {
-    // New function requested to enforce accessible names for tabbable elements
-    // Initial implementation focuses on buttons and form elements, but can be extended to additional tabbable elements as needed.
-    const tabbableElements = document.querySelectorAll('button[tabindex]:not([aria-label]), input[tabindex]:not([aria-label]), select[tabindex]:not([aria-label]), textarea[tabindex]:not([aria-label])');
+    // Allow the new id to be assigned as landmark's id in further usage
+    seen.add(identifier);
+    ids.add(identifier);
 
-    tabbableElements.forEach((element) => {
-      if (!element.hasAttribute('aria-label')) {
-        element.setAttribute('aria-label', element.textContent || element.tagName);
-      }
-    });
-  }
-};
-
-// Export for module usage
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { AccessibilityUtils };
+    return { ...landmark, id: identifier };
+  }).filter(landmark => landmark);
 }
 
 // Add lang attribute to HTML element for accessibility

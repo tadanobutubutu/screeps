@@ -1,6 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
 // Main application file
 
+// TODO: This is the existing code that needs to be preserved // (This comment remains as-is)
 // Function to calculate distance between two points
 function calculateDistance(point1, point2) {
   const R = 6.371; // Earth's radius in km

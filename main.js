@@ -1,14 +1,21 @@
 // Address accessibility issues from insight report
 // Import the required functions from both branches
 const { someFunction } = { someFunction: () => 'someFunction result' };
+const { renderDependencyGraphContent } = require('./conflict-branch');
+const { addProperLandmarkRegions } = require('./properLandmarkRegions');
 
-function renderDependencyGraphContent(data) {
-  // Replace the existing content within the dependencyGraph div using the provided data.
-  // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependencyGraph') || document.querySelector('[data-dependency-graph]');
-  if (container) {
-    container.innerHTML = data;
-  }
+// Remove the duplicate import of ensureUniqueLandmarks since we're defining it here
+
+// Generalized accessibility functions
+
+function improveAccessibility() {
+  renderDependencyGraphContent(document.querySelector('.dependency-graph-content, [data-dependency-graph-content]'));
+
+  // Ensure all clickable elements are focusable
+  const focusable = document.querySelectorAll('[role="link"]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
+  });
 }
 
 // Function to ensure unique landmarks

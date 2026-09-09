@@ -26,21 +26,24 @@ const AccessibilityUtils = {
     element.setAttribute('aria-label', ariaLabel);
   },
 
-  /**
-   * Render dependency graphs in the given container element
-   * @param {HTMLElement} container - The container element to render the graph in
-   * @param {object[]} dependencies - An array of dependency objects
-   * @param {string} [dependencyIdProperty] - The property in dependency objects that specifies the dependency ID, default is 'id'
-   * @param {string} [nodeIdProperty] - The property in dependency objects that specifies the node ID, default is 'node'
-   */
-  renderDependencyGraph(container, dependencies, dependencyIdProperty = 'id', nodeIdProperty = 'node') {
-    // Implement rendering of dependency graphs using the given container and dependencies
+// Function for ensuring unique landmarks
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
   }
-};
-
-// Export for module usage
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { AccessibilityUtils, Spawner };
+  
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (!landmark) return false;
+    
+    const identifier = landmark.id || landmark.name || landmark.location || JSON.stringify(landmark);
+    
+    if (seen.has(identifier)) {
+      return false;
+    }
+    seen.add(identifier);
+    return true;
+  });
 }
 
 // Initialize accessibility features on DOM ready

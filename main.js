@@ -9,11 +9,60 @@ function newFunction() {
   console.log('New function has been called.');
 }
 
-// Existing exports (do not remove or rename)
-export function existingFunction() {
-  // Implementation of the existing function
-  // Example:
-  console.log('Existing function is working.');
+/**
+ * Calculates the sum of an array of numbers
+ * @param {Array<number>} numbers - Array of numbers to sum
+ * @returns {number} - The sum of all numbers
+ */
+function calculateSum(numbers) {
+    if (!Array.isArray(numbers)) {
+        throw new TypeError('Input must be an array');
+    }
+    return numbers.reduce((sum, num) => {
+        if (typeof num !== 'number' || isNaN(num)) {
+            throw new TypeError('All elements must be valid numbers');
+        }
+        return sum + num;
+    }, 0);
+}
+
+// Implement validateLandmark functionality
+function validateLandmark(landmark) {
+  const errors = [];
+  
+  // Check if landmark exists
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+  
+  // Validate name
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+  
+  // Validate latitude
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+  
+  // Validate longitude
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
 }
 
 function initialize(options = {}) {
@@ -245,6 +294,10 @@ function validateLandmark(landmark) {
 }
 
 module.exports = {
+  loop,
+  validateLandmark,
+  checkTableData,
+  calculateSum,
   initialize,
   getAppState,
   setData,

@@ -347,10 +347,8 @@ function renderDependencyGraph(graphData, containerId) {
 
 // Export functions for testing
 module.exports = {
-  loop,
-  validateLandmark,
   checkTableData,
-  calculateSum,
+  validateLandmark,
   initialize,
   getAppState,
   setData,

@@ -123,38 +123,6 @@ function _getSavedRepairTarget(creep) {
 }
 
 /**
- * より優先すべき修復対象かを判定する
- * @param {number} priority
- * @param {number} hitsRatio
- * @param {number} distance
- * @param {number} minPriority
- * @param {number} minHitsRatio
- * @param {number} minDistance
- * @returns {boolean}
- */
-function _isBetterRepairTarget(
-    priority,
-    hitsRatio,
-    distance,
-    minPriority,
-    minHitsRatio,
-    minDistance
-) {
-    if (priority < minPriority) {
-        return true;
-    } else if (priority === minPriority) {
-        if (Math.abs(hitsRatio - minHitsRatio) > 0.1) {
-            if (hitsRatio < minHitsRatio) {
-                return true;
-            }
-        } else if (distance < minDistance) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
  * 全構造物から最優先の修復対象を検索する
  * @param {Creep} creep
  * @param {Room} room
@@ -172,9 +140,19 @@ function _findBestRepairTarget(creep, room, wallTarget) {
 
     for (let i = 0; i < structures.length; i++) {
         const s = structures[i];
-        if (!_needsRepair(s, room, wallTarget)) continue;
+        const type = s.structureType;
 
-        const priority = REPAIR_PRIORITY[s.structureType] || 9;
+        // ⚡ PERFORMANCE OPTIMIZATION: Inline damage threshold check to avoid nested function call overhead per structure
+        if (type === STRUCTURE_WALL || type === STRUCTURE_RAMPART) {
+            const rcl = room.controller ? room.controller.level : 1;
+            const target = wallTarget || WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
+            if (s.hits >= target) continue;
+        } else {
+            const threshold = REPAIR_THRESHOLD[type] || REPAIR_THRESHOLD.OTHER;
+            if (s.hits >= s.hitsMax * threshold) continue;
+        }
+
+        const priority = REPAIR_PRIORITY[type] || 9;
         // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit evaluation for lower-priority structures
         if (priority > minPriority) continue;
 
@@ -184,15 +162,16 @@ function _findBestRepairTarget(creep, room, wallTarget) {
         let isBetter = false;
         if (!bestTarget) {
             isBetter = true;
-        } else {
-            isBetter = _isBetterRepairTarget(
-                priority,
-                hitsRatio,
-                distance,
-                minPriority,
-                minHitsRatio,
-                minDistance
-            );
+        } else if (priority < minPriority) {
+            isBetter = true;
+        } else if (priority === minPriority) {
+            if (Math.abs(hitsRatio - minHitsRatio) > 0.1) {
+                if (hitsRatio < minHitsRatio) {
+                    isBetter = true;
+                }
+            } else if (distance < minDistance) {
+                isBetter = true;
+            }
         }
 
         if (isBetter) {
@@ -203,6 +182,24 @@ function _findBestRepairTarget(creep, room, wallTarget) {
         }
     }
     return bestTarget;
+}
+
+/**
+ * 構造物が修復を必要とするか判断する
+ * @param {Structure} structure
+ * @param {Room} room
+ * @param {number} [wallTarget]
+ * @returns {boolean}
+ */
+function _needsRepair(structure, room, wallTarget) {
+    const type = structure.structureType;
+    if (type === STRUCTURE_WALL || type === STRUCTURE_RAMPART) {
+        const rcl = room.controller ? room.controller.level : 1;
+        const target = wallTarget || WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
+        return structure.hits < target;
+    }
+    const threshold = REPAIR_THRESHOLD[type] || REPAIR_THRESHOLD.OTHER;
+    return structure.hits < structure.hitsMax * threshold;
 }
 
 /**
@@ -225,60 +222,6 @@ function _getRepairTarget(creep) {
 
     creep.memory[MEMORY_KEYS.TARGET_ID] = bestTarget.id;
     return bestTarget;
-}
-/**
- * 壁の修復が必要か判断する
- * @param {Structure} structure
- * @param {number} targetHP
- * @returns {boolean}
- */
-function _needsWallRepair(structure, targetHP) {
-    return structure.hits < targetHP;
-}
-
-/**
- * ランパートの修復が必要か判断する
- * @param {Structure} structure
- * @param {number} targetHP
- * @returns {boolean}
- */
-function _needsRampartRepair(structure, targetHP) {
-    return structure.hits < targetHP;
-}
-
-/**
- * 一般構造物の修復が必要か判断する
- * @param {Structure} structure
- * @returns {boolean}
- */
-function _needsStandardRepair(structure) {
-    const threshold = REPAIR_THRESHOLD[structure.structureType] || REPAIR_THRESHOLD.OTHER;
-    return structure.hits < structure.hitsMax * threshold;
-}
-
-/**
- * 構造物が修復を必要とするか判断する
- * @param {Structure} structure
- * @param {Room} room
- * @param {number} [wallTarget]
- * @returns {boolean}
- */
-function _needsRepair(structure, room, wallTarget) {
-    const type = structure.structureType;
-
-    if (type === STRUCTURE_WALL) {
-        const rcl = room.controller ? room.controller.level : 1;
-        const target = wallTarget || WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
-        return _needsWallRepair(structure, target);
-    }
-
-    if (type === STRUCTURE_RAMPART) {
-        const rcl = room.controller ? room.controller.level : 1;
-        const target = wallTarget || WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
-        return _needsRampartRepair(structure, target);
-    }
-
-    return _needsStandardRepair(structure);
 }
 
 /**

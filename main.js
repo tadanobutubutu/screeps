@@ -5,43 +5,7 @@ Looking at the current main.js content, I need to fix several syntax issues:
 
 Let me fix these issues while preserving all existing code, exports, and functions:
 
-```javascript
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// ============================================================================
-// Accessibility Functions
-// ============================================================================
-
-/**
- * Ensures unique landmarks on the page by removing duplicate landmark roles
- * Keeps only the first occurrence of each landmark type
- */
-function ensureUniqueLandmarks() {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
-    let isFirst = true;
-    
-    elements.forEach(el => {
-      if (!isFirst) {
-        el.removeAttribute('role');
-      }
-      isFirst = false;
-    });
-  });
-}
-
-// Import the required module
-const { someFunction } = { someFunction: () => 'someFunction result' };
-
-// Address accessibility issues from insight report
+// New function to address accessibility issues from insight report
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility

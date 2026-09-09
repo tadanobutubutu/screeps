@@ -2,12 +2,9 @@
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
 
-// New function or changes requested in the issue
-function newFunction() {
-  // Implementation of the new function
-  // Example:
-  console.log('New function has been called.');
-}
+// Application state
+let isInitialized = false;
+const appData = {};
 
 /**
  * Calculates the sum of an array of numbers
@@ -128,7 +125,44 @@ function newFunctionRequested() {
   console.log('This is the new function requested.');
 }
 
-// Preserve the existing "newFunction" and "modifiedFunction" for the issue context
+function modifiedFunction() {
+  // Modified implementation of the function
+  console.log('This function has been modified.');
+}
+
+// Utility functions from HEAD
+function processData(data) {
+  if (!Array.isArray(data)) {
+    return null;
+  }
+  return data.map(item => ({
+    ...item,
+    processed: true
+  }));
+}
+
+function validateInput(input) {
+  return typeof input === 'string' && input.length > 0;
+}
+
+function formatOutput(data) {
+  return JSON.stringify(data, null, 2);
+}
+
+// Polyfill for Array.prototype.flat (if not available)
+if (!Array.prototype.flat) {
+  Object.defineProperty(Array.prototype, 'flat', {
+    configurable: true,
+    writable: true,
+    value: function depthFlat(depth = 1) {
+      return depth > 0
+        ? this.reduce(function (acc, val) {
+            return acc.concat(Array.isArray(val) ? val.flat(depth - 1) : val);
+          }, [])
+        : this.slice();
+    }
+  });
+}
 
 // Accessibility features for DOM environment
 let insightButton, insightPanel, toggleButton, modal, modalClose;
@@ -140,13 +174,12 @@ function initializeAccessibility() {
   // DOM Elements with proper ARIA attributes
   insightButton = document.getElementById('insight-button');
   insightPanel = document.getElementById('insight-panel');
-  toggleButton = document.querySelector('[aria-expanded]');
-  modal = document.getElementById('accessible-modal');
+  toggleButton = document.getElementById('toggle-button');
+  modal = document.getElementById('modal');
   modalClose = document.getElementById('modal-close');
 
   // Ensure all interactive elements are keyboard accessible
-  // Only set tabindex if not already present - preserve natural tab order
-  const interactiveElements = document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const interactiveElements = document.querySelectorAll('a[href], input, select, textarea, button, [tabindex]');
   
   interactiveElements.forEach((element) => {
     // Only set tabindex="0" if not already set, preserving natural order
@@ -177,14 +210,60 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-function createInPageButton() {
-  const button = document.createElement('button');
-  button.setAttribute('aria-label', 'More information');
-  return button;
+// Modal handling with focus management (accessibility requirement)
+function openModal() {
+  if (!modal) return;
+
+  modal.hidden = false;
+  modal.setAttribute('aria-hidden', 'false');
+  
+  // Focus trap management
+  const focusableElements = modal.querySelectorAll('a[href], input, select, textarea, button, [tabindex]');
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  if (firstElement) {
+    firstElement.tabIndex = 0;
+    
+    firstElement.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        lastElement.focus();
+      }
+    });
+
+    lastElement.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab' && e.shiftKey) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    });
+
+    // Focus first element
+    firstElement.focus();
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', handleEscapeKey);
+  
+  // Store trigger element to return focus
+  const trigger = document.activeElement;
+  modal.dataset.triggerId = trigger && trigger.id ? trigger.id : 'modal-trigger';
 }
 
-function addAccessibleNamesToSVGs() {
-  // Implementation to add accessible names to SVGs
+function closeModal() {
+  if (!modal) return;
+
+  modal.hidden = true;
+  modal.setAttribute('aria-hidden', 'true');
+  
+  // Return focus to trigger element
+  const triggerId = modal.dataset.triggerId;
+  const trigger = document.getElementById(triggerId);
+  if (trigger) trigger.focus();
+  
+  // Remove escape key listener
+  document.removeEventListener('keydown', handleEscapeKey);
 }
 
 function ensureUniqueLandmarks() {

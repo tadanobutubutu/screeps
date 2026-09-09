@@ -20,7 +20,7 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// Function for ensuring unique landmarks
+// Function for ensuring unique landmarks (REACT_025)
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -29,9 +29,9 @@ function ensureUniqueLandmarks(landmarks) {
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-
-    const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
-
+    
+    const identifier = landmark.id || landmark.name || landmark.role || '';
+    
     if (seen.has(identifier)) {
       identifier = `landmark_${getRandomInt(1, 99999)}`;
     }
@@ -129,20 +129,162 @@ function addSvgAccessibleNames(svgElements) {
   });
 }
 
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and addAriaToFormControls())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
-// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute(htmlContent, lang = 'en') {
+  const langAttrPattern = /\s*lang=["'][^"']*["']/i;
+  
+  if (langAttrPattern.test(htmlContent)) {
+    return htmlContent.replace(langAttrPattern, `lang="${lang}"`);
+  }
+  
+  const htmlTagMatch = htmlContent.match(/<html([^>]*)?>/i);
+  if (htmlTagMatch) {
+    const attrs = htmlTagMatch[1] || '';
+    if (!attrs.includes('lang=')) {
+      return htmlContent.replace(
+        /<html([^>]*)?>/i,
+        `<html${attrs} lang="${lang}">`
+      );
+    }
+  }
+  
+  return htmlContent;
+}
+
+// REACT_017: Add main landmark to ensure proper landmark structure
+function addMainLandmark(htmlContent) {
+  const hasMainElement = /<main[\s>]/i.test(htmlContent);
+  
+  if (!hasMainElement) {
+    const bodyMatch = htmlContent.match(/<body([^>]*)?>/i);
+    if (bodyMatch) {
+      const bodyTag = bodyMatch[0];
+      const bodyAttrs = bodyMatch[1] || '';
+      const mainElement = '<main>';
+      const closingMainElement = '</main>';
+      
+      let updatedContent = htmlContent.replace(
+        bodyTag,
+        `${bodyTag}\n${mainElement}`
+      );
+      
+      if (!updatedContent.includes(closingMainElement)) {
+        const bodyCloseMatch = updatedContent.match(/<\/body>/i);
+        if (bodyCloseMatch) {
+          updatedContent = updatedContent.replace(
+            /<\/body>/i,
+            `${closingMainElement}\n</body>`
+          );
+        }
+      }
+      
+      return updatedContent;
+    }
+  }
+  
+  return htmlContent;
+}
+
+// REACT_041: Add accessible names to SVGs
+function addSvgAccessibleNames(svgElements) {
+  if (!Array.isArray(svgElements)) {
+    svgElements = [svgElements];
+  }
+  
+  return svgElements.map(svg => {
+    if (!svg || typeof svg !== 'object') {
+      return svg;
+    }
+    
+    if (!svg.attributes) {
+      svg.attributes = {};
+    }
+    
+    if (!svg.attributes['aria-label'] && !svg.attributes.role) {
+      svg.attributes.role = 'img';
+      svg.attributes['aria-label'] = svg.attributes.title || 'SVG Icon';
+    }
+    
+    return svg;
+  });
+}
+
+// REACT_036: Fix fake link issues by ensuring proper anchor tags or button elements
+function fixFakeLinkIssue(elements) {
+  if (!Array.isArray(elements)) {
+    elements = [elements];
+  }
+  
+  return elements.map(element => {
+    if (!element || typeof element !== 'object') {
+      return element;
+    }
+    
+    if (element.isFakeLink) {
+      element.tagName = 'button';
+      element.attributes = element.attributes || {};
+      
+      if (!element.attributes.type) {
+        element.attributes.type = 'button';
+      }
+      
+      delete element.isFakeLink;
+    }
+    
+    return element;
+  });
+}
+
+// REACT_027: Fix table structure issues
+function fixTableStructureIssues(tables) {
+  if (!Array.isArray(tables)) {
+    tables = [tables];
+  }
+  
+  return tables.map(table => {
+    if (!table || typeof table !== 'object') {
+      return table;
+    }
+    
+    if (!table.rows || !Array.isArray(table.rows)) {
+      return table;
+    }
+    
+    const correctedRows = table.rows.map((row, rowIndex) => {
+      const cellCount = row.cells ? row.cells.length : 0;
+      
+      if (row.type === 'header' && rowIndex === 0) {
+        row.attributes = row.attributes || {};
+        if (!row.attributes.scope) {
+          row.attributes.scope = 'col';
+        }
+      }
+      
+      return row;
+    });
+    
+    table.rows = correctedRows;
+    
+    if (!table.attributes) {
+      table.attributes = {};
+    }
+    
+    if (!table.caption && !table.attributes.summary) {
+      table.needsCaption = true;
+    }
+    
+    return table;
+  });
+}
 
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
   ensureUniqueLandmarks,
-  functionA,
-  functionB
+  addLangAttribute,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  fixTableStructureIssues,
 };

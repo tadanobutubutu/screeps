@@ -43,7 +43,7 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// Function for ensuring unique landmarks (REACT_025)
+// TODO: This is the existing code that needs to be preserved
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];

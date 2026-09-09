@@ -2,12 +2,12 @@
 
 // Import the required functions from both branches
 const { someFunction } = { someFunction: () => 'someFunction result' };
+const { renderDependencyGraphContent } = { renderDependencyGraphContent: () => {} };
+const { addProperLandmarkRegions } = { addProperLandmarkRegions: () => {} };
 
 // Generalized accessibility functions
 
 function improveAccessibility() {
-  // ...
-
   // Ensure all clickable elements are focusable
   const focusable = [];
   focusable.forEach(el => {
@@ -84,7 +84,7 @@ function addressREACT017(insightReport) {
 }
 
 // New function to add landmark roles and fix issues (Screeps-oriented)
-function addProperLandmarkRegions() {
+function addScreepsLandmarkRoles() {
   // This function adds appropriate landmark roles to Screeps structures
   const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
   const Game = { structures: [] };
@@ -93,7 +93,7 @@ function addProperLandmarkRegions() {
   landmarkTypes.forEach(type => {
     const structures = [];
     structures.forEach(structure => {
-      if (structure) {
+      if (structure.structureType === type) {
         structure.landmarkType = 'region';
       }
     });
@@ -834,5 +834,6 @@ module.exports = {
   addLandmarkRoles,
   ensureUniqueLandmarks,
   addProperLandmarkRegions,
-  exampleLandmarkLogic
+  ensureLandmarkUniqueness,
+  addScreepsLandmarkRoles,
 };

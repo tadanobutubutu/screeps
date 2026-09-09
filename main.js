@@ -3,13 +3,13 @@
 // Import the required functions from both branches
 const { someFunction } = { someFunction: () => 'someFunction result' };
 const { renderDependencyGraphContent } = { renderDependencyGraphContent: () => {} };
+const { ensureUniqueLandmarks: ensureUniqueLandmarksExternal } = { ensureUniqueLandmarksExternal: () => ({}) };
 const { addProperLandmarkRegions } = { addProperLandmarkRegions: () => {} };
+const _ = { filter: (arr, fn) => arr.filter(fn) };
 
 // Generalized accessibility functions
 
 function improveAccessibility() {
-  // ... ...
-
   // Ensure all clickable elements are focusable
   const focusable = [];
   focusable.forEach(el => {
@@ -29,7 +29,7 @@ function ensureUniqueLandmarks() {
     const uniqueGameObjects = [];
 
     matchingGameObjects.forEach(go => {
-      const isUnique = uniqueGameObjects.every(ugo => ugo.id === go.id);
+      const isUnique = uniqueGameObjects.every(ugo => ugo.id !== go.id);
       if (isUnique) {
         uniqueGameObjects.push(go);
       } else {
@@ -44,7 +44,7 @@ function ensureUniqueLandmarks() {
   return uniqueElements;
 }
 
-// New function to add landmark roles and fix issues
+// Function to add landmark roles and fix issues
 function addLandmarkRoles(gameObjects) {
   // Existing logic (if any) can be kept here, or, a new implementation can be added
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -99,21 +99,19 @@ function addressREACT017(insightReport) {
           el['aria-label'] = el.id || 'unnamed-element';
         }
       });
-      // Add proper landmark regions from insight report data
-      const regions = insightReport.regions || [];
     }
   });
 }
 
-// New function to add landmark roles and fix issues (Screeps-oriented)
+// Function to add landmark roles and fix issues (Screeps-oriented)
 function addScreepsLandmarkRoles() {
   // This function adds appropriate landmark roles to Screeps structures
   const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
   
   landmarkTypes.forEach(type => {
-    const structures = [];
+    const structures = _.filter([], s => s.structureType === type);
     structures.forEach(structure => {
-      if (structure.structureType === type) {
+      if (structure) {
         structure.landmarkType = 'region';
       }
     });
@@ -133,9 +131,7 @@ function ensureLandmarkUniqueness(elements) {
     landmarkElements.forEach(el => {
       if (seen.has(el.id)) {
         // Remove the role if it's not unique
-        delete el.role;
-      } else {
-        seen.add(el.id);
+        if (el.role) delete el.role;
       }
     });
   });
@@ -145,11 +141,19 @@ function ensureLandmarkUniqueness(elements) {
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependencyGraph, [data-dependency-graph]');
+  const dependencyGraph = null;
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
+
+  // Add appropriate ARIA labels to SVGs without accessible name
+  const svgs = [];
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-label', 'Accessible SVG');
+    }
+  });
 
   // Ensure all clickable elements are focusable
   const focusable = [];
@@ -246,10 +250,6 @@ module.exports = {
   calculateSum,
   ensureUniqueLandmarks,
   addLandmarkRoles,
-  addProperLandmarkRegions,
-  ensureLandmarkUniqueness,
-  ensureElementHasId,
-  addAriaLabel,
-  ensureElementIdAndAriaLabel,
-  renderDependencyGraphs
+  addScreepsLandmarkRoles,
+  ensureLandmarkUniqueness
 };

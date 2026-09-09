@@ -19,7 +19,8 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// TODO: This is the existing code that needs to be preserved
+// TODO: Implement this function for ensuring unique landmarks
+// Add the following function
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -28,9 +29,9 @@ function ensureUniqueLandmarks(landmarks) {
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-    
-    const identifier = landmark.id || landmark.name || landmark.role || '';
-    
+
+    const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
+
     if (seen.has(identifier)) {
       identifier = `landmark_${getRandomInt(1, 99999)}`;
     }

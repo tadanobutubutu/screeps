@@ -1,15 +1,33 @@
 // Address accessibility issues from insight report
 // Import the required functions from both branches
-const { someFunction } = { someFunction: () => 'someFunction result' };
-const { addProperLandmarkRegions } = require('./properLandmarkRegions');
+const someFunction = { someFunction: () => 'someFunction result' };
+const { validateTableAccessibility, validateTableStructure } = require('./tableAccessibility');
+const { getLangAttribute, wrapPrimaryContentInMain } = require('./langAttribute');
+const { validateLandmark, validateLandmarkStructure, addFixLandmarkIssues } = require('./landmark');
+const { getSvgAccessibleName, addAriaToFormControls } = require('./svgAccessibleName');
 
-function renderDependencyGraphContent(data) {
-  // Replace the existing content within the dependencyGraph div using the provided data.
-  // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]');
-  if (container) {
-    container.innerHTML = data;
-  }
+// Rename existing ensureUniqueLandmarks function
+function uniqueLandmarks() {
+  // Example implementation from origin/main - adapted for Screeps environment
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  landmarks.forEach(landmark => {
+    const matchingGameObjects = Game.getObjectsByIdTag(landmark);
+    const uniqueGameObjects = [];
+    matchingGameObjects.forEach(go => {
+      const isUnique = !uniqueGameObjects.some(ugo => ugo === go);
+      if (isUnique) {
+        uniqueGameObjects.push(go);
+      } else {
+        // Remove the landmark tag if it's not unique
+        go.remove(landmark);
+      }
+    });
+  });
+}
+
+// Function to ensure unique landmarks - new implementation
+function ensureUniqueLandmarks() {
+  // Previous implementation moved to uniqueLandmarks() function
 }
 
 // New function to address accessibility issues from insight report
@@ -29,29 +47,23 @@ function addressAccessibilityIssues() {
   });
 
   // New function to ensure unique landmarks
-  function ensureUniqueLandmarks() {
-    // Example implementation from origin/main - adapted for Screeps environment
-    const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-    landmarks.forEach(landmark => {
-      const matchingGameObjects = Game.getObjectsByIdTag(landmark);
-      const uniqueGameObjects = [];
-      matchingGameObjects.forEach(go => {
-        const isUnique = !uniqueGameObjects.some(ugo => ugo === go);
-        if (isUnique) {
-          uniqueGameObjects.push(go);
-        } else {
-          // Remove the landmark tag if it's not unique
-          go.remove(landmark);
-        }
-      });
-    });
-  }
-
-  // Call the updated ensureUniqueLandmarks function
-  ensureUniqueLandmarks();
+  uniqueLandmarks();
 
   // New function to add proper landmarkRegions
   addProperLandmarkRegions();
+
+  // New functions to validate table accessibility and structure
+  validateTableAccessibility();
+  validateTableStructure();
+
+  // New functions to validate landmark, landmark structure and add fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
+  addFixLandmarkIssues();
+
+  // New functions to get SVG accessible name and add ARIA to form controls
+  getSvgAccessibleName();
+  addAriaToFormControls();
 }
 
 // Import the required functions from both branches

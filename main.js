@@ -47,7 +47,36 @@ function modifiedConflictMarkerFunction() {
   console.log('This function has been modified with conflict markers.');
 }
 
-// Conflict markers functions (add them to the existing exports)
+// Functions to render dependency graphs and display module structure for debugging purposes.
+function renderDependencyGraph() {
+  const moduleStructure = displayModuleStructure();
+  const graph = {
+    nodes: [],
+    edges: []
+  };
+
+  for (const moduleName in moduleStructure) {
+    graph.nodes.push({ id: moduleName, label: moduleName });
+    moduleStructure[moduleName].forEach(dependency => {
+      graph.edges.push({ from: moduleName, to: dependency });
+    });
+  }
+
+  logger.info('Dependency graph rendered', graph);
+  return graph;
+}
+
+function displayModuleStructure() {
+  const moduleStructure = {
+    'main.js': ['./config', './utils/logger'],
+    './config': [],
+    './utils/logger': []
+  };
+
+  logger.info('Module structure', moduleStructure);
+  return moduleStructure;
+}
+
 module.exports = {
   initialize,
   getAppState,
@@ -56,8 +85,8 @@ module.exports = {
   shutdown,
   config,
   logger,
-  newFunction, // Keep the existing function for backward compatibility
-  modifiedFunction, // Keep the existing function for backward compatibility
-  newConflictMarkerFunction, // Add the new function for conflict markers
-  modifiedConflictMarkerFunction // Add the modified function for conflict markers
+  newFunction,
+  modifiedFunction,
+  renderDependencyGraph,
+  displayModuleStructure
 };

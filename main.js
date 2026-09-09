@@ -2,8 +2,9 @@
 
 // Import the required functions from both branches
 const { someFunction } = { someFunction: () => 'someFunction result' };
-const { renderDependencyGraphContent } = { renderDependencyGraphContent: () => {} };
-const { addProperLandmarkRegions } = { addProperLandmarkRegions: () => {} };
+const { renderDependencyGraphContent } = require('./conflict-branch');
+const { ensureUniqueLandmarks: originalEnsureUniqueLandmarks } = require('./uniqueLandmarks');
+const { addProperLandmarkRegions } = require('./properLandmarkRegions');
 
 // Generalized accessibility functions
 
@@ -62,7 +63,7 @@ function addressInsightIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
-      ensureUniqueLandmarks();
+      originalEnsureUniqueLandmarks();
     }
   });
 }

@@ -292,6 +292,7 @@ export default function Dashboard() {
                     onMouseLeave={() => setErrCopyHover(false)}
                     onFocus={() => setErrCopyFocused(true)}
                     onBlur={() => setErrCopyFocused(false)}
+                    aria-live="polite"
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{

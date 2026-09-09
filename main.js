@@ -2,7 +2,87 @@ const loop = require('./loop');
 const config = require('./config');
 const logger = require('./utils/logger');
 
-// New function or changes requested in the issue
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
+// Application state
+let isInitialized = false;
+const appData = {};
+
+// TODO: Add back any required exports that might have been?
+
+// Example of how to export a required function from another file
+// const { myFunction } = require('./otherFile');
+// module.exports = { myFunction };
+// TODO: Add back any required exports that might have been removed
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+function ensureElementHasId(element) {
+  if (!element) return null;
+  if (!element.id) {
+    element.id = 'el-' + Math.random().toString(36).slice(2);
+  }
+  return element.id;
+}
+
+function addAriaLabel(element, label) {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+function renderDependencyGraph(graphData, container) {
+  if (!graphData || !container) return;
+  if (typeof document === 'undefined') {
+    // Fallback for non-browser environments
+    return JSON.stringify(graphData, null, 2);
+  }
+  // Clear container
+  container.innerHTML = '';
+  const ul = document.createElement('ul');
+  graphData.nodes.forEach(node => {
+    const li = document.createElement('li');
+    li.textContent = node.label || node.id;
+    ul.appendChild(li);
+  });
+  container.appendChild(ul);
+}
+
+function initialize(options = {}) {
+  if (isInitialized) {
+    logger.warn('App already initialized');
+    return false;
+  }
+  
+  config.set(options);
+  isInitialized = true;
+  logger.info('Application initialized');
+  return true;
+}
+
+function getAppState() {
+  return {
+    isInitialized,
+    ...appData
+  };
+}
+
+function setData(key, value) {
+  appData[key] = value;
+  return appData;
+}
+
+function getData(key) {
+  return appData[key];
+}
+
+function shutdown() {
+  isInitialized = false;
+  logger.info('Application shutdown complete');
+}
+
+// Additional functions from origin
 function newFunction() {
   // Implementation of the new function
   // Placeholder implementation, replace with actual logic
@@ -45,7 +125,106 @@ export function ensureUniqueLandmarks() {
   // Logic to ensure that there is only one nav element with unique labels
 }
 
-// Example of fixing fake link issues
-export function fixFakeLinkIssues() {
-  // Logic to change buttons to proper anchor elements
+function closeModal() {
+  if (!modal) return;
+
+  modal.hidden = true;
+  modal.removeAttribute('aria-modal');
+  
+  // Return focus to trigger element
+  const triggerId = modal.dataset.triggerId;
+  const trigger = document.getElementById(triggerId);
+  trigger?.focus();
+  
+  // Remove escape key listener
+  document.removeEventListener('keydown', handleEscapeKey);
+}
+
+function handleEscapeKey(e) {
+  if (e.key === 'Escape') {
+    closeModal();
+  }
+}
+
+// Initialize accessibility DOM references
+function initializeAccessibility() {
+  if (typeof document === 'undefined') return;
+
+  insightButton = document.getElementById('insight-button');
+  insightPanel = document.getElementById('insight-panel');
+  toggleButton = document.getElementById('toggle-button');
+  modal = document.getElementById('modal');
+  modalClose = document.getElementById('modal-close');
+
+  // Ensure modal starts hidden
+  if (modal) {
+    modal.hidden = true;
+  }
+}
+
+// Setup event listeners
+function setupAccessibilityEventListeners() {
+  if (typeof document === 'undefined') return;
+
+  if (modalClose) {
+    modalClose.addEventListener('click', closeModal);
+  }
+
+  if (insightButton) {
+    insightButton.addEventListener('click', toggleInsightPanel);
+    // Ensure keyboard accessibility
+    insightButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleInsightPanel();
+      }
+    });
+  }
+
+  if (toggleButton) {
+    toggleButton.addEventListener('click', toggleInsightPanel);
+    toggleButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleInsightPanel();
+      }
+    });
+  }
+}
+
+module.exports = {
+  initialize,
+  getAppState,
+  setData,
+  getData,
+  shutdown,
+  config,
+  logger,
+  newFunction,
+  modifiedFunction,
+  newFeature,
+  processData,
+  validateInput,
+  formatOutput,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph,
+  initializeAccessibility,
+  toggleInsightPanel,
+  openModal,
+  closeModal,
+  setupAccessibilityEventListeners
+};
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeAccessibility();
+      setupAccessibilityEventListeners();
+    });
+  } else {
+    initializeAccessibility();
+    setupAccessibilityEventListeners();
+  }
 }

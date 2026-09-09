@@ -62,4 +62,46 @@ function validateLandmark(landmark) {
   };
 }
 
-// ... Existing code (functions and exports) remain the same
+function setData(key, value) {
+  appData[key] = value;
+  return appData;
+}
+
+function getData(key) {
+  return appData[key];
+}
+
+function shutdown() {
+  isInitialized = false;
+  logger.info('Application shutdown complete');
+}
+
+// Additional functions from origin
+function newFunction() {
+  // Implementation of the new function
+  console.log('This is the new function.');
+}
+
+function modifiedFunction() {
+  // Modified implementation of the function
+  console.log('This function has been modified.');
+}
+
+// Export the new function if needed
+// export { newFunction };
+
+// <!--- END ADDITIONAL FUNCTION --->
+// <!--- START MODIFIED FUNCTION --->
+// <!--- Any other modifications or additions go here --->
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+module.exports = {
+  initialize,
+  getAppState,
+  setData,
+  getData,
+  shutdown,
+  config,
+  logger,
+  newFunction,
+  modifiedFunction
+};

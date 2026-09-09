@@ -39,3 +39,7 @@ Replaced redundant loop source counting in auto.evolution.js with centralized O(
 ## 2026-09-08 - Deferring Distance Evaluation in Harvester Primary Target Search
 **Learning:** In target evaluation loops (such as `_findPrimaryTarget` in `src/roles/harvester.js`), calculating `creep.pos.getRangeTo(s)` before checking structure types or capacity thresholds executes unnecessary distance calculations on irrelevant candidates. Deferring distance calls inside matching branch blocks eliminates CPU waste on non-qualifying structures.
 **Action:** Always place `getRangeTo` calls inside conditional blocks after confirming the target structure type and capacity requirements.
+
+## 2026-09-08 - Inlining Threshold Checks and Target Comparison in Repair Loop
+**Learning:** In target search loops that scan all room structures on every tick (such as `_findBestRepairTarget` in `src/roles/repairer.js`), delegating condition checks to helper functions creates call stack frame overhead per candidate structure. Inlining threshold checks directly into the loop eliminates call stack overhead across hundreds of structure checks per tick.
+**Action:** Inline damage threshold and priority comparisons directly inside structure iteration loops in high-frequency target search routines.

@@ -46,11 +46,30 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-// Render dependency graph as a visual structure for debugging
-function renderDependencyGraph(modules, options = {}) {
-  const indent = options.indent || '  ';
-  const visited = new Set();
-  const result = [];
+// Accessibility features for DOM environment
+let insightButton, insightPanel, toggleButton, modal, modalClose;
+
+// Add lang attribute to HTML element for accessibility (REACT_015)
+function addLangAttribute() {
+  if (typeof document === 'undefined') return;
+  document.documentElement.lang = 'en';
+}
+
+// Initialize accessibility features
+function initializeAccessibility() {
+  if (typeof document === 'undefined') return;
+
+  addLangAttribute();
+
+  // DOM Elements with proper ARIA attributes
+  insightButton = document.getElementById('insight-button');
+  insightPanel = document.getElementById('insight-panel');
+  toggleButton = document.querySelector('[aria-expanded]');
+  modal = document.getElementById('accessible-modal');
+  modalClose = document.getElementById('modal-close');
+
+  // Ensure all interactive elements are keyboard accessible
+  const interactiveElements = document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
   
   function traverse(module, depth = 0) {
     const prefix = indent.repeat(depth);
@@ -104,9 +123,38 @@ const functionA = () => {};
 const functionB = () => {};
 
 module.exports = {
-  calculateDistance,
-  toRad,
-  ensureUniqueLandmarks,
-  renderDependencyGraph,
-  displayModuleStructure
+  loop,
+  validateLandmark,
+  checkTableData,
+  initialize,
+  getAppState,
+  setData,
+  getData,
+  shutdown,
+  config,
+  logger,
+  newFunction,
+  modifiedFunction,
+  processData,
+  validateInput,
+  formatOutput,
+  initializeAccessibility,
+  toggleInsightPanel,
+  openModal,
+  closeModal,
+  setupAccessibilityEventListeners,
+  addLangAttribute
 };
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeAccessibility();
+      setupAccessibilityEventListeners();
+    });
+  } else {
+    initializeAccessibility();
+    setupAccessibilityEventListeners();
+  }
+}

@@ -466,6 +466,9 @@ function createInPageButton(labelText, action) {
     action?.call(button, e);
   });
 
+  // Accessibility improvements
+  button.setAttribute('aria-label', text); // Add aria-label for screen readers
+
   return button;
 }
 

@@ -206,10 +206,31 @@ function getSvgAccessibleName(svg) {
   return text.trim() ? text : 'SVG';
 }
 
+// Accessibility: Ensure the dependencyGraph container has a proper ARIA role
+function applyDependencyGraphAccessibility(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.warn(`Container with id "${containerId}" not found`);
+    return false;
+  }
+  
+  // Ensure the container has an ARIA role for accessibility
+  if (!container.getAttribute('role')) {
+    container.setAttribute('role', 'region');
+  }
+  
+  // Ensure it has an accessible label
+  if (!container.getAttribute('aria-label') && !container.getAttribute('aria-labelledby')) {
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+  
+  return true;
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
   ensureUniqueLandmarks,
-  getSvgAccessibleName
+  applyDependencyGraphAccessibility
 };

@@ -64,6 +64,11 @@ function validateLandmark(landmark) {
     errors.push('Landmark longitude must be between -180 and 180');
   }
 
+  // New function: Validate if a landmark has an accessible name
+  if (!landmark.accessibleName || typeof landmark.accessibleName !== 'string' || landmark.accessibleName.trim() === '') {
+    errors.push('A landmark must have an accessibleName');
+  }
+
   return {
     valid: errors.length === 0,
     errors

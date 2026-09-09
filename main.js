@@ -1,191 +1,226 @@
-// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+// main.js
 
-// Import the required functions from both branches
+// Utility function used elsewhere (kept for compatibility)
 const { someFunction } = { someFunction: () => 'someFunction result' };
-const { renderDependencyGraphContent } = { renderDependencyGraphContent: () => {} };
-const { ensureUniqueLandmarks: ensureUniqueLandmarksExternal } = { ensureUniqueLandmarksExternal: () => ({}) };
-const { addProperLandmarkRegions } = { addProperLandmarkRegions: () => {} };
-const _ = { filter: (arr, fn) => arr.filter(fn) };
 
-// Generalized accessibility functions
+/**
+ * Accessibility improvements based on insight report.
+ * Each function addresses a specific REACT_* issue.
+ */
 
-function improveAccessibility() {
-  // Ensure all clickable elements are focusable
-  const focusable = [];
-  focusable.forEach(el => {
-    if (el.tabIndex < 0) el.tabIndex = 0;
-  });
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
 }
 
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // This function ensures unique landmark roles and removes duplicates
-  // Adapted for Screeps environment
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const uniqueElements = {};
-
-  landmarks.forEach(landmark => {
-    const matchingGameObjects = [];
-    const uniqueGameObjects = [];
-
-    matchingGameObjects.forEach(go => {
-      const isUnique = uniqueGameObjects.every(ugo => ugo.id !== go.id);
-      if (isUnique) {
-        uniqueGameObjects.push(go);
-      } else {
-        // Remove the landmark tag if it's not unique
-        if (go.remove) go.remove(landmark);
+// REACT_027: Fix table structure issues
+function fixTableStructure() {
+  // Implement fixes: add proper thead, th, scope attributes, etc.
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table) => {
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      // Example: convert first row cells to th if missing
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const cells = firstRow.querySelectorAll('td');
+        cells.forEach((cell) => {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          th.scope = 'col';
+          cell.replaceWith(th);
+        });
       }
-    });
-
-    uniqueElements[landmark] = uniqueGameObjects;
-  });
-
-  return uniqueElements;
-}
-
-// Function to add landmark roles and fix issues
-function addLandmarkRoles(gameObjects) {
-  // Existing logic (if any) can be kept here, or, a new implementation can be added
-  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  
-  return gameObjects.map((obj, index) => {
-    // Add appropriate landmark role based on object type
-    if (obj.type === 'spawn') {
-      obj.landmarkRole = 'main';
-    } else if (obj.type === 'extension') {
-      obj.landmarkRole = 'navigation';
-    } else if (obj.type === 'tower') {
-      obj.landmarkRole = 'search';
-    }
-    return obj;
-  });
-}
-
-// New function to add landmark roles and fix issues (Screeps-oriented)
-function addProperLandmarkRegions() {
-  // This function adds appropriate landmark roles to Screeps structures
-  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
-  
-  landmarkTypes.forEach(type => {
-    const structures = _.filter(Game.structures, s => s.structureType === type);
-    structures.forEach(structure => {
-      if (!structure.landmarkType) {
-        structure.landmarkType = 'region';
-      }
-    });
-  });
-}
-
-// Function to address insight report issues
-function addressInsightIssues(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_025') {
-      ensureUniqueLandmarks();
     }
   });
 }
 
-// Function to address REACT_017 specific insight report issues
-function addressREACT017(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_017') {
-      // Handle REACT_017 issue - ensuring proper ARIA labels and descriptions
-      const affectedElements = issue.elements || [];
-      affectedElements.forEach(el => {
-        if (!el['aria-label'] && !el.label) {
-          el['aria-label'] = el.id || 'unnamed-element';
+// REACT_017: Add/fix landmark issues
+function addMainLandmark() {
+  if (typeof document !== 'undefined') {
+    let main = document.querySelector('main');
+    if (!main) {
+      main = document.createElement('main');
+      document.body.appendChild(main);
+    }
+    main.setAttribute('role', 'main');
+  }
+}
+
+function fixLandmarkIssues() {
+  // Fix orphaned or misused landmarks
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo'];
+  landmarks.forEach((role) => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    // Ensure each landmark is unique; if duplicates, remove extra ones or add labels
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          el.removeAttribute('role');
         }
       });
     }
   });
 }
 
-// Function to add landmark roles and fix issues (Screeps-oriented)
-function addScreepsLandmarkRoles() {
-  // This function adds appropriate landmark roles to Screeps structures
-  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
-  
-  landmarkTypes.forEach(type => {
-    const structures = _.filter([], s => s.structureType === type);
-    structures.forEach(structure => {
-      if (structure) {
-        structure.landmarkType = 'region';
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Combined implementation: remove duplicate landmark roles from the DOM
+  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const seen = new Set();
+  landmarkRoles.forEach((role) => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((el) => {
+      if (seen.has(role)) {
+        el.removeAttribute('role');
+      } else {
+        seen.add(role);
       }
     });
   });
 }
 
-// Example logic to ensure unique landmarks
-function ensureLandmarkUniqueness(elements) {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  
-  // Check for duplicate landmark roles
-  landmarks.forEach(landmark => {
-    const landmarkElements = elements.filter(el => el.role === landmark);
-    
-    // Keep only the first occurrence of each landmark role
-    const seen = new Set();
-    landmarkElements.forEach(el => {
-      if (seen.has(el.id)) {
-        // Remove the role if it's not unique
-        if (el.role) delete el.role;
-      }
-    });
-  });
+// Alias for compatibility
+function uniqueLandmarks() {
+  ensureUniqueLandmarks();
 }
 
-// New function to address accessibility issues
-function addressAccessibilityIssues() {
-  // Ensure the dependencyGraph container has a proper ARIA role
-  // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = null;
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'tree');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-  }
-
-  // Add appropriate ARIA labels to SVGs without accessible name
-  const svgs = [];
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', 'Accessible SVG');
+// REACT_041: Add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg) => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('role')) {
+      svg.setAttribute('role', 'img');
+      const title = svg.querySelector('title');
+      const label = title ? title.textContent : 'SVG icon';
+      svg.setAttribute('aria-label', label);
     }
   });
+}
 
-  // Ensure all clickable elements are focusable
-  const focusable = [];
-  focusable.forEach(el => {
-    if (el.tabIndex < 0) el.tabIndex = 0;
+// Alias for compatibility
+function addAccessibleNamesToSVGs() {
+  addSvgAccessibleNames();
+}
+
+// REACT_036: Fix fake link issue
+function fixFakeLinkIssue() {
+  const fakeLinks = document.querySelectorAll('[onclick], [data-fake-link]');
+  fakeLinks.forEach((el) => {
+    // Replace with real <a> if appropriate, otherwise make it keyboard accessible
+    if (!el.hasAttribute('tabindex')) {
+      el.setAttribute('tabindex', '0');
+    }
+    if (el.tagName !== 'A') {
+      el.setAttribute('role', 'link');
+    }
   });
 }
 
-// New function to ensure an element has an id
-function ensureElementHasId(element, prefix = 'element') {
-  if (!element.id) {
-    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+// Alias for compatibility
+function fixFakeLinkIssues() {
+  fixFakeLinkIssue();
+}
+
+// REACT_037: Google sign-in logic
+function googleSignIn() {
+  // Placeholder for Google OAuth integration
+  // In a real implementation, this would handle the authentication flow
+  console.log('Google sign-in initiated');
+}
+
+// REACT_040: Replace my-button with actual button id
+function fixButtonIdentifiers() {
+  const buttons = document.querySelectorAll('.my-button');
+  buttons.forEach((btn, index) => {
+    btn.id = btn.id || `button-${index + 1}`;
+  });
+}
+
+// Generalized accessibility improvement function
+function improveAccessibility() {
+  // Make clickable elements focusable
+  const clickable = document.querySelectorAll('[onclick], [role="link"], button, a');
+  clickable.forEach((el) => {
+    if (!el.hasAttribute('tabindex') && el.tagName !== 'BUTTON' && el.tagName !== 'A') {
+      el.setAttribute('tabindex', '0');
+    }
+  });
+  // Additional general improvements can be added here
+}
+
+// Address insight report issues (generic dispatch)
+function addressInsightIssues(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach((issue) => {
+    switch (issue.code) {
+      case 'REACT_015': addLangAttribute(); break;
+      case 'REACT_027': fixTableStructure(); break;
+      case 'REACT_017': fixLandmarkIssues(); break;
+      case 'REACT_025': ensureUniqueLandmarks(); break;
+      case 'REACT_041': addSvgAccessibleNames(); break;
+      case 'REACT_036': fixFakeLinkIssue(); break;
+      case 'REACT_037': googleSignIn(); break;
+      case 'REACT_040': fixButtonIdentifiers(); break;
+      default: break;
+    }
+  });
+}
+
+// Specific handler for REACT_017
+function addressREACT017(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach((issue) => {
+    if (issue.code === 'REACT_017') {
+      // Ensure proper ARIA labels
+      const elements = issue.elements || [];
+      elements.forEach((el) => {
+        if (!el.getAttribute('aria-label') && !el.getAttribute('label')) {
+          el.setAttribute('aria-label', el.id || 'unnamed-element');
+        }
+      });
+      addMainLandmark();
+      fixLandmarkIssues();
+    }
+  });
+}
+
+// New function: add landmark roles based on Screeps structures (optional)
+function addLandmarkRoles() {
+  // Implementation for Screeps structures (if applicable)
+  // Example: assign roles to spawn, extension, etc.
+}
+
+// Function to ensure landmark uniqueness using a generic elements array
+function ensureLandmarkUniqueness(elements) {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  landmarks.forEach((landmark) => {
+    const grouped = elements.filter((el) => el.getAttribute && el.getAttribute('role') === landmark);
+    grouped.forEach((el, index) => {
+      if (index > 0) {
+        el.removeAttribute('role');
+      }
+    });
+  });
+}
+
+// New function to address accessibility issues comprehensively
+function addressAccessibilityIssues() {
+  // ARIA role for dependency graph container
+  const graphContainer = document.querySelector('.dependency-graph') || document.querySelector('[data-graph-container]');
+  if (graphContainer) {
+    graphContainer.setAttribute('role', 'tree');
+    graphContainer.setAttribute('aria-label', 'Dependency Graph');
   }
-  return element.id;
+  // Add SVG labels
+  addSvgAccessibleNames();
+  // Make clickable elements focusable
+  improveAccessibility();
 }
 
-// New function to add aria-label to an element
-function addAriaLabel(element, label) {
-  if (element && label) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
-}
-
-// New function to ensure element has id and add aria-label
-function ensureElementIdAndAriaLabel(element, label, prefix = 'element') {
-  ensureElementHasId(element, prefix);
-  addAriaLabel(element, label);
-  return element;
-}
-
-// Placeholder implementation for rendering a dependency graph
+// Placeholder implementations (unchanged)
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
   
@@ -208,48 +243,36 @@ function renderDependencyGraphs(containerSelector = '.dependencyGraph, [data-dep
   return containers;
 }
 
-// Placeholder function for index view rendering (to be replaced with actual implementation)
 function renderIndexView(indexData) {
   console.log('Rendering index view with data:', indexData);
 }
 
-// Function to calculate sum (unchanged)
 function calculateSum(a, b) {
   return a + b;
 }
 
-// Example logic to ensure unique landmarks (from origin/main)
-// Note: This function uses DOM APIs and may need adaptation for Screeps environment
-function ensureUniqueLandmarksFromDOM() {
-  // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
-  // Keeping it as provided in origin/main for reference
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  landmarks.forEach(landmark => {
-    const elements = []; // DOM elements would be selected here
-    const uniqueElements = [];
-    elements.forEach(el => {
-      const isUnique = !uniqueElements.some(uEl => uEl === el);
-      if (isUnique) {
-        uniqueElements.push(el);
-      } else {
-        // Remove the role if it's not unique
-        el.removeAttribute('role');
-      }
-    });
-  });
-}
-
-// Export all functions for use elsewhere in the repository
+// Module exports
 module.exports = {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  fixLandmarkIssues,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  fixButtonIdentifiers,
   improveAccessibility,
   addressInsightIssues,
   addressREACT017,
   addressAccessibilityIssues,
+  addLandmarkRoles,
+  ensureLandmarkUniqueness,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarks,
-  addLandmarkRoles,
-  addScreepsLandmarkRoles,
-  ensureLandmarkUniqueness
+  someFunction
 };

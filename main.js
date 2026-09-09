@@ -195,5 +195,5 @@ module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   addLandmarkRolesAndFixIssues,
-  countDependencies
+  ensureLandmarkUniqueness
 };

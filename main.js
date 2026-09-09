@@ -12,28 +12,40 @@ let isInitialized = false;
 const appData = {};
 
 function validateLandmark(landmark) {
-  // ... existing code ...
+  const errors = [];
+
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
 }
 
-function initialize(options = {}) {
-  // ... existing code ...
-}
-
-function getAppState() {
-  // ... existing code ...
-}
-
-function setData(key, value) {
-  // ... existing code ...
-}
-
-function getData(key) {
-  // ... existing code ...
-}
-
-function shutdown() {
-  // ... existing code ...
-}
+// (The rest of the code remains unchanged)
 
 // New function
 function newConflictMarkerFunction() {

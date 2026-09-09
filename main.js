@@ -189,6 +189,310 @@ function enhanceAccessibility() {
   console.log('Accessibility enhancements applied.');
 }
 
+// Modal handling with focus management (accessibility requirement)
+function openModal() {
+  if (!modal) return;
+
+  modal.hidden = false;
+  modal.setAttribute('aria-modal', 'true');
+  
+  // Focus trap management
+  const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  if (firstElement) {
+    firstElement.tabIndex = 0;
+    
+    lastElement.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    });
+
+    firstElement.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab' && e.shiftKey) {
+        e.preventDefault();
+        lastElement.focus();
+      }
+    });
+
+    // Focus first element
+    firstElement?.focus();
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', handleEscapeKey);
+  
+  // Store trigger element to return focus
+  const trigger = document.activeElement;
+  modal.dataset.triggerId = trigger?.id || 'modal-trigger';
+}
+
+function closeModal() {
+  if (!modal) return;
+
+  modal.hidden = true;
+  modal.removeAttribute('aria-modal');
+  
+  // Return focus to trigger element
+  const triggerId = modal.dataset.triggerId;
+  const trigger = document.getElementById(triggerId);
+  trigger?.focus();
+  
+  // Remove escape key listener
+  document.removeEventListener('keydown', handleEscapeKey);
+}
+
+function handleEscapeKey(e) {
+  if (e.key === 'Escape') {
+    closeModal();
+  }
+}
+
+// Setup event listeners
+function setupAccessibilityEventListeners() {
+  if (typeof document === 'undefined') return;
+
+  if (modalClose) {
+    modalClose.addEventListener('click', closeModal);
+  }
+
+  if (insightButton) {
+    insightButton.addEventListener('click', toggleInsightPanel);
+    // Ensure keyboard accessibility
+    insightButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleInsightPanel();
+      }
+    });
+  }
+
+  if (toggleButton) {
+    toggleButton.addEventListener('click', toggleInsightPanel);
+    toggleButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleInsightPanel();
+      }
+    });
+  }
+}
+
+// ----- DEPENDENCY GRAPH RENDERING FUNCTIONS -----
+
+/**
+ * Builds a dependency graph from a list of modules and their dependencies
+ * @param {Array<{name: string, dependencies: string[]}>} modules - List of modules with their dependencies
+ * @returns {Object} - Graph representation with nodes and edges
+ */
+function buildDependencyGraph(modules) {
+  if (!Array.isArray(modules)) {
+    logger.error('buildDependencyGraph expects an array of modules');
+    return { nodes: [], edges: [] };
+  }
+
+  const nodes = modules.map(m => ({ id: m.name, label: m.name }));
+  const edges = [];
+
+  modules.forEach(module => {
+    if (Array.isArray(module.dependencies)) {
+      module.dependencies.forEach(dep => {
+        edges.push({ from: module.name, to: dep });
+      });
+    }
+  });
+
+  return { nodes, edges };
+}
+
+/**
+ * Detects circular dependencies within a graph structure
+ * @param {Object} graph - Graph object with nodes and edges
+ * @returns {Array<string[]>} - List of cycles found, each as an array of node ids
+ */
+function detectCircularDependencies(graph) {
+  const cycles = [];
+  if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
+    return cycles;
+  }
+
+  const adjacency = {};
+  graph.nodes.forEach(node => { adjacency[node.id] = []; });
+  graph.edges.forEach(edge => {
+    if (adjacency[edge.from]) {
+      adjacency[edge.from].push(edge.to);
+    }
+  });
+
+  const visited = new Set();
+  const stack = new Set();
+
+  function dfs(node, path) {
+    if (stack.has(node)) {
+      const cycleStart = path.indexOf(node);
+      if (cycleStart !== -1) {
+        cycles.push(path.slice(cycleStart).concat(node));
+      }
+      return;
+    }
+    if (visited.has(node)) return;
+
+    visited.add(node);
+    stack.add(node);
+    path.push(node);
+
+    (adjacency[node] || []).forEach(neighbor => {
+      dfs(neighbor, path);
+    });
+
+    path.pop();
+    stack.delete(node);
+  }
+
+  graph.nodes.forEach(node => {
+    dfs(node.id, []);
+  });
+
+  return cycles;
+}
+
+/**
+ * Renders a dependency graph into an SVG element
+ * @param {Object} graph - Graph object with nodes and edges
+ * @param {string} containerId - DOM element id to render into
+ * @returns {boolean} - True if rendered successfully
+ */
+function renderDependencyGraph(graph, containerId) {
+  if (typeof document === 'undefined') {
+    logger.warn('renderDependencyGraph requires a DOM environment');
+    return false;
+  }
+  if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
+    logger.error('Invalid graph provided to renderDependencyGraph');
+    return false;
+  }
+
+  const container = document.getElementById(containerId);
+  if (!container) {
+    logger.error(`Container element with id "${containerId}" not found`);
+    return false;
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '400');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Dependency graph visualization');
+
+  const nodeRadius = 25;
+  const positions = {};
+
+  // Simple positioning: arrange nodes in a circle
+  graph.nodes.forEach((node, i) => {
+    const angle = (2 * Math.PI * i) / Math.max(graph.nodes.length, 1);
+    positions[node.id] = {
+      x: 200 + 150 * Math.cos(angle),
+      y: 200 + 150 * Math.sin(angle)
+    };
+  });
+
+  // Draw edges
+  graph.edges.forEach(edge => {
+    const from = positions[edge.from];
+    const to = positions[edge.to];
+    if (!from || !to) return;
+
+    const line = document.createElementNS(svgNS, 'line');
+    line.setAttribute('x1', from.x);
+    line.setAttribute('y1', from.y);
+    line.setAttribute('x2', to.x);
+    line.setAttribute('y2', to.y);
+    line.setAttribute('stroke', '#666');
+    line.setAttribute('stroke-width', '2');
+    svg.appendChild(line);
+  });
+
+  // Draw nodes
+  graph.nodes.forEach(node => {
+    const pos = positions[node.id];
+    if (!pos) return;
+
+    const circle = document.createElementNS(svgNS, 'circle');
+    circle.setAttribute('cx', pos.x);
+    circle.setAttribute('cy', pos.y);
+    circle.setAttribute('r', nodeRadius);
+    circle.setAttribute('fill', '#4a90e2');
+    circle.setAttribute('stroke', '#2c5d8f');
+    circle.setAttribute('stroke-width', '2');
+    svg.appendChild(circle);
+
+    const text = document.createElementNS(svgNS, 'text');
+    text.setAttribute('x', pos.x);
+    text.setAttribute('y', pos.y);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'central');
+    text.setAttribute('fill', '#fff');
+    text.setAttribute('font-size', '12');
+    text.textContent = node.label || node.id;
+    svg.appendChild(text);
+  });
+
+  container.appendChild(svg);
+  logger.info(`Dependency graph rendered into "${containerId}"`);
+  return true;
+}
+
+/**
+ * Updates an existing dependency graph in the DOM
+ * @param {Object} graph - Graph object with nodes and edges
+ * @param {string} containerId - DOM element id to update
+ * @returns {boolean} - True if updated successfully
+ */
+function updateDependencyGraph(graph, containerId) {
+  if (typeof document === 'undefined') {
+    logger.warn('updateDependencyGraph requires a DOM environment');
+    return false;
+  }
+
+  const container = document.getElementById(containerId);
+  if (!container) {
+    logger.error(`Container element with id "${containerId}" not found`);
+    return false;
+  }
+
+  return renderDependencyGraph(graph, containerId);
+}
+
+/**
+ * Generates an HTML/text representation of a dependency graph
+ * @param {Object} graph - Graph object with nodes and edges
+ * @returns {string} - Text representation of the graph
+ */
+function graphToText(graph) {
+  if (!graph || !Array.isArray(graph.nodes)) return '';
+
+  const lines = ['Dependency Graph:'];
+  lines.push(`  Nodes: ${graph.nodes.length}`);
+  lines.push(`  Edges: ${Array.isArray(graph.edges) ? graph.edges.length : 0}`);
+
+  if (Array.isArray(graph.edges) && graph.edges.length > 0) {
+    lines.push('  Dependencies:');
+    graph.edges.forEach(edge => {
+      lines.push(`    ${edge.from} -> ${edge.to}`);
+    });
+  }
+
+  return lines.join('\n');
+}
+
+// Export functions for testing
 module.exports = {
   initialize,
   getAppState,
@@ -199,5 +503,27 @@ module.exports = {
   logger,
   newFunction,
   modifiedFunction,
-  enhanceAccessibility
+  initializeAccessibility,
+  toggleInsightPanel,
+  openModal,
+  closeModal,
+  setupAccessibilityEventListeners,
+  buildDependencyGraph,
+  detectCircularDependencies,
+  renderDependencyGraph,
+  updateDependencyGraph,
+  graphToText
 };
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeAccessibility();
+      setupAccessibilityEventListeners();
+    });
+  } else {
+    initializeAccessibility();
+    setupAccessibilityEventListeners();
+  }
+}

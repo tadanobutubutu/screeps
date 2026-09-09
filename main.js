@@ -1,136 +1,235 @@
-// Main application file
+// Accessibility-focused JavaScript module
 
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// TODO: Address accessibility issues from insight report:
 
-// Accessibility utilities
-function getLangAttribute(element) {
-  // Placeholder implementation – returns appropriate language attribute
-  if (element && element.lang) {
-    return element.lang;
-  }
-  return 'en';
+/**
+ * Initialize accessibility features for the application
+ */
+function initializeAccessibility() {
+    // Set up keyboard navigation
+    document.addEventListener('keydown', handleKeyboardNavigation);
+    
+    // Set up focus management
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('focusout', handleFocusOut);
+    
+    // Set up click handler for accessibility
+    document.addEventListener('click', handleClickAccessibility);
+    
+    // Initialize ARIA live regions
+    initializeAriaLiveRegions();
 }
 
-// TODO: Implement this function for calculating the bearing between two points
-function calculateBearing(point1, point2) {
-  const R = 6371; // Earth's radius in km
-  const lat1 = toRad(point1.lat);
-  const lat2 = toRad(point2.lat);
-  const dLon = toRad(point2.lon - point1.lon);
-  
-  const x = Math.sin(dLon) * Math.cos(lat2);
-  const y = Math.cos(lat1) * Math.sin(lat2) -
-            Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-  const initialBearing = Math.atan2(x, y);
-  
-  const initialBearingDegree = initialBearing * (180 / Math.PI);
-  const initialBearingDegreeRounded = ((initialBearingDegree + 360) % 360);
-  
-  return initialBearingDegreeRounded;
-}
-
-// TODO: Add lang attribute to HTML element
-function getLangAttribute() {
-  // Implementation to set the lang attribute based on the content of the page
-}
-
-// TODO: Fix 26 table structure issues
-function validateTableAccessibility() {
-  // Implementation to validate table accessibility
-}
-
-function validateTableStructure() {
-  // Implementation to validate table structure
-}
-
-// TODO: Add/fix 4 landmark issues
-function validateLandmark() {
-  // Implementation to validate landmarks
-}
-
-function validateLandmarkStructure() {
-  // Implementation to validate landmark structure
-}
-
-// TODO: Add accessible names to 2 SVGs
-function getSvgAccessibleName() {
-  // Implementation to get accessible name for SVGs
-}
-
-// TODO: Ensure unique landmarks
-// (This function already exists and is implemented as `ensureUniqueLandmarks`)
-
-// TODO: Fix 1 fake link issue
-function createInPageButton() {
-  // Implementation to create in-page button
-}
-
-function personName() {
-  // Implementation to handle person name
-}
-
-// New functions for rendering dependency graphs and index views
-function renderDependencyGraph(nodes, edges) {
-  // Placeholder: in a real implementation this would build the DOM
-  console.log('Rendering dependency graph');
-  return 'Dependency graph rendered';
-}
-
-function renderIndexView(viewName) {
-  // Placeholder: in a real implementation this would display an index view
-  console.log(`Rendering index view: ${viewName}`);
-  return null;
-}
-
-function addProperLandmarkRegions(landmarks) {
-  // Adds proper region definitions to landmarks
-  return true;
-}
-
-// New function or changes requested in the issue
-function validateLinkAccessibility(link) {
-  // Check that the link has an href attribute and is accessible
-  return link && link.href !== undefined;
-}
-
-function ensureUniqueLandmarks(landmarks) {
-  // Ensure all landmarks have unique IDs
-  const ids = new Set();
-  for (const landmark of landmarks) {
-    if (landmark.id && ids.has(landmark.id)) {
-      throw new Error(`Duplicate landmark ID: ${landmark.id}`);
+/**
+ * Handle keyboard navigation
+ * @param {KeyboardEvent} event - The keyboard event
+ */
+function handleKeyboardNavigation(event) {
+    const target = event.target;
+    
+    // Support space and enter for button-like elements
+    if ((event.key === ' ' || event.key === 'Enter') && 
+        (target.tagName === 'BUTTON' || target.getAttribute('role') === 'button')) {
+        event.preventDefault();
+        target.click();
     }
-    ids.add(landmark.id || '');
-  }
-  return true;
+    
+    // Escape key handling for modals/dialogs
+    if (event.key === 'Escape' && target.getAttribute('aria-expanded') === 'true') {
+        target.setAttribute('aria-expanded', 'false');
+    }
+    
+    // Arrow key navigation for menu items
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+        handleArrowKeyNavigation(event, target);
+    }
 }
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-// Re-export everything from the original source
-export * from './source';
-
-// Re-export specific named exports
-export { someFunction, someVariable } from './source';
-
-// Ensure common patterns are preserved
-export const version = '1.0.0';
-
-// New function or changes requested in the issue
-function newFunction() {
-  // Implementation of the new function
+/**
+ * Handle arrow key navigation
+ * @param {KeyboardEvent} event - The keyboard event
+ * @param {HTMLElement} target - The current target element
+ */
+function handleArrowKeyNavigation(event, target) {
+    const menuItems = document.querySelectorAll('[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]');
+    const currentIndex = Array.from(menuItems).indexOf(target);
+    
+    if (currentIndex === -1) return;
+    
+    let nextIndex;
+    const isVertical = event.key === 'ArrowUp' || event.key === 'ArrowDown';
+    
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+        nextIndex = (currentIndex + 1) % menuItems.length;
+    } else {
+        nextIndex = (currentIndex - 1 + menuItems.length) % menuItems.length;
+    }
+    
+    menuItems[nextIndex].focus();
 }
 
-// Existing exports (do not remove or rename)
-export function existingFunction() {
-  // Implementation of the existing function
+/**
+ * Handle focus in events
+ * @param {FocusEvent} event - The focus event
+ */
+function handleFocusIn(event) {
+    const target = event.target;
+    
+    // Add visual focus indicator
+    if (target.matches(':focus-visible')) {
+        target.classList.add('focus-visible');
+    }
+    
+    // Announce focused elements to screen readers
+    if (target.hasAttribute('aria-label')) {
+        announceToScreenReader(`Focused: ${target.getAttribute('aria-label')}`);
+    }
 }
+
+/**
+ * Handle focus out events
+ * @param {FocusEvent} event - The focus event
+ */
+function handleFocusOut(event) {
+    const target = event.target;
+    
+    // Remove visual focus indicator
+    target.classList.remove('focus-visible');
+    
+    // Announce when leaving elements
+    if (target.hasAttribute('aria-label')) {
+        announceToScreenReader(`Left: ${target.getAttribute('aria-label')}`);
+    }
+}
+
+/**
+ * Handle click accessibility
+ * @param {MouseEvent} event - The mouse event
+ */
+function handleClickAccessibility(event) {
+    const target = event.target;
+    
+    // Update aria-pressed for toggle buttons
+    if (target.hasAttribute('aria-pressed')) {
+        const isPressed = target.getAttribute('aria-pressed') === 'true';
+        target.setAttribute('aria-pressed', !isPressed);
+    }
+    
+    // Update aria-expanded for expandable elements
+    if (target.hasAttribute('aria-expanded')) {
+        target.setAttribute('aria-expanded', 'true');
+    }
+}
+
+/**
+ * Initialize ARIA live regions
+ */
+function initializeAriaLiveRegions() {
+    // Create polite live region for announcements
+    let liveRegion = document.getElementById('aria-live-region');
+    
+    if (!liveRegion) {
+        liveRegion = document.createElement('div');
+        liveRegion.id = 'aria-live-region';
+        liveRegion.setAttribute('aria-live', 'polite');
+        liveRegion.setAttribute('aria-atomic', 'true');
+        liveRegion.className = 'sr-only';
+        liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+        document.body.appendChild(liveRegion);
+    }
+    
+    return liveRegion;
+}
+
+/**
+ * Announce message to screen readers
+ * @param {string} message - The message to announce
+ */
+function announceToScreenReader(message) {
+    const liveRegion = document.getElementById('aria-live-region') || initializeAriaLiveRegions();
+    
+    // Clear and set message to ensure announcement
+    liveRegion.textContent = '';
+    setTimeout(() => {
+        liveRegion.textContent = message;
+    }, 100);
+}
+
+/**
+ * Manage focus for modal dialogs
+ * @param {HTMLElement} modalElement - The modal element
+ */
+function trapFocusInModal(modalElement) {
+    const focusableElements = modalElement.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    modalElement.addEventListener('keydown', function(event) {
+        if (event.key !== 'Tab') return;
+        
+        if (event.shiftKey && document.activeElement === firstElement) {
+            event.preventDefault();
+            lastElement.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+            event.preventDefault();
+            firstElement.focus();
+        }
+    });
+    
+    firstElement.focus();
+}
+
+/**
+ * Update dynamic content for screen readers
+ * @param {string} regionId - The ID of the content region
+ * @param {string} content - The new content
+ */
+function updateAccessibleContent(regionId, content) {
+    const region = document.getElementById(regionId);
+    
+    if (region) {
+        region.textContent = '';
+        setTimeout(() => {
+            region.textContent = content;
+        }, 100);
+    }
+}
+
+/**
+ * Check color contrast compliance
+ * @param {string} foregroundColor - Foreground color hex
+ * @param {string} backgroundColor - Background color hex
+ * @returns {boolean} Whether contrast ratio meets WCAG AA standards
+ */
+function checkColorContrast(foregroundColor, backgroundColor) {
+    const getLuminance = (color) => {
+        const rgb = color.match(/[A-Fa-f0-9]{2}/g).map(x => parseInt(x, 16) / 255);
+        const [r, g, b] = rgb.map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    
+    const l1 = getLuminance(foregroundColor);
+    const l2 = getLuminance(backgroundColor);
+    const lighter = Math.max(l1, l2);
+    const darker = Math.min(l1, l2);
+    const contrast = (lighter + 0.05) / (darker + 0.05);
+    
+    return contrast >= 4.5;
+}
+
+// Export functions for use in other modules
+export {
+    initializeAccessibility,
+    handleKeyboardNavigation,
+    handleArrowKeyNavigation,
+    handleFocusIn,
+    handleFocusOut,
+    handleClickAccessibility,
+    announceToScreenReader,
+    trapFocusInModal,
+    updateAccessibleContent,
+    checkColorContrast
+};

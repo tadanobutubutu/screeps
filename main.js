@@ -305,10 +305,7 @@ module.exports = {
   openModal,
   closeModal,
   setupAccessibilityEventListeners,
-  // NEW EXPORTS
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph
+  handleEscapeKey
 };
 
 // Initialize on DOM ready

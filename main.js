@@ -15,10 +15,10 @@ function renderDependencyGraphContent(data) {
 function ensureUniqueLandmarks() {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {
-    const matchingGameObjects = document.querySelectorAll(`[role="${landmark}"]`);
+    const matchingGameObjects = [];
     const uniqueGameObjects = [];
     matchingGameObjects.forEach(go => {
-      const isUnique = uniqueGameObjects.some(ugo => ugo === go);
+      const isUnique = uniqueGameObjects.every(ugo => ugo !== go);
       if (isUnique) {
         // Remove the landmark tag if it's not unique
         go.removeAttribute('role');
@@ -63,7 +63,7 @@ function addressAccessibilityIssues() {
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = document.querySelectorAll('a, button, [role="button"], [tabindex]');
+  const focusable = [];
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });

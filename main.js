@@ -2,6 +2,8 @@
 
 // Import the required functions from both branches
 const { someFunction } = { someFunction: () => 'someFunction result' };
+const { renderDependencyGraphContent } = require('./conflict-branch');
+const { addProperLandmarkRegions } = require('./properLandmarkRegions');
 
 // Generalized accessibility functions
 

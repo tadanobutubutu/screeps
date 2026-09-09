@@ -1,7 +1,10 @@
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 // TODO: Implement divide function that handles division with proper error handling
 
-// Remove the duplicate import of ensureUniqueLandmarks since we're defining it here
+// Import the required functions from both branches
+const { someFunction } = { someFunction: () => 'someFunction result' };
+const { renderDependencyGraphContent } = require('./conflict-branch');
+const { addProperLandmarkRegions } = require('./properLandmarkRegions');
 
 // Generalized accessibility functions
 

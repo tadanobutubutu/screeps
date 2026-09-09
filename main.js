@@ -3,125 +3,38 @@
 /**
  * Spawning utilities for managing entity creation and lifecycle
  */
-const Spawner = {
+const AccessibilityUtils = {
+  // (Your existing functions)
+
   /**
-   * Configuration for spawning behavior
+   * Ensure the element has an id and an aria-label
+   * @param {HTMLElement} element - The HTML element to check
+   * @returns {boolean} True if the element has both an id and an aria-label, false otherwise
    */
-  config: {
-    maxEntities: 100,
-    defaultSpawnRate: 1000,
-    activeSpawners: new Map(),
+  hasIdAndAriaLabel(element) {
+    return Boolean(element.id && element.getAttribute('aria-label'));
   },
 
   /**
-   * Spawns an entity at the specified position
-   * @param {string} entityType - The type of entity to spawn
-   * @param {Object} position - The position {x, y} where to spawn
-   * @param {Object} options - Additional spawn options (id, data, etc.)
-   * @returns {Object|null} - The spawned entity or null if max entities reached
+   * Add an id and aria-label to an element
+   * @param {HTMLElement} element - The HTML element to update
+   * @param {string} id - The new ID for the element
+   * @param {string} ariaLabel - The new aria-label for the element
    */
-  spawn(entityType, position = { x: 0, y: 0 }, options = {}) {
-    const entityId = options.id || `spawned-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
-    const entity = {
-      id: entityId,
-      type: entityType,
-      position: { ...position },
-      spawnedAt: Date.now(),
-      active: true,
-      metadata: options.metadata || {},
-      ...options
-    };
-
-    return entity;
+  addIdAndAriaLabel(element, id, ariaLabel) {
+    element.id = id;
+    element.setAttribute('aria-label', ariaLabel);
   },
 
   /**
-   * Spawns multiple entities at once
-   * @param {string} entityType - The type of entity to spawn
-   * @param {number} count - Number of entities to spawn
-   * @param {Function} positionGenerator - Function to generate positions for each entity
-   * @param {Object} options - Additional spawn options
-   * @returns {Array} - Array of spawned entities
+   * Render dependency graphs in the given container element
+   * @param {HTMLElement} container - The container element to render the graph in
+   * @param {object[]} dependencies - An array of dependency objects
+   * @param {string} [dependencyIdProperty] - The property in dependency objects that specifies the dependency ID, default is 'id'
+   * @param {string} [nodeIdProperty] - The property in dependency objects that specifies the node ID, default is 'node'
    */
-  spawnMultiple(entityType, count, positionGenerator, options = {}) {
-    const entities = [];
-    const maxSpawn = Math.min(count, this.config.maxEntities);
-
-    for (let i = 0; i < maxSpawn; i++) {
-      const position = typeof positionGenerator === 'function' 
-        ? positionGenerator(i) 
-        : { x: 0, y: 0 };
-      entities.push(this.spawn(entityType, position, options));
-    }
-
-    return entities;
-  },
-
-  /**
-   * Creates an automatic spawning interval
-   * @param {string} spawnerId - Unique identifier for this spawner
-   * @param {string} entityType - The type of entity to spawn
-   * @param {Object} position - Base position or position generator function
-   * @param {number} intervalMs - Milliseconds between spawns
-   * @param {Object} options - Additional spawn options
-   * @returns {Object} - Spawner control object with start, stop, and isActive methods
-   */
-  createAutoSpawner(spawnerId, entityType, position, intervalMs = 1000, options = {}) {
-    let intervalId = null;
-    let spawnedCount = 0;
-
-    const start = () => {
-      if (this.config.activeSpawners.has(spawnerId)) {
-        return; // Already active
-      }
-
-      intervalId = setInterval(() => {
-        const pos = typeof position === 'function' ? position(spawnedCount) : position;
-        this.spawn(entityType, pos, options);
-        spawnedCount++;
-      }, intervalMs);
-
-      this.config.activeSpawners.set(spawnerId, { intervalId, spawnedCount });
-    };
-
-    const stop = () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-      }
-      this.config.activeSpawners.delete(spawnerId);
-    };
-
-    const isActive = () => {
-      return this.config.activeSpawners.has(spawnerId);
-    };
-
-    return { start, stop, isActive, getSpawnedCount: () => spawnedCount };
-  },
-
-  /**
-   * Despawns an entity (marks it as inactive)
-   * @param {Object} entity - The entity to despawn
-   */
-  despawn(entity) {
-    if (entity && typeof entity === 'object') {
-      entity.active = false;
-      entity.despawnedAt = Date.now();
-    }
-  },
-
-  /**
-   * Stops all active spawners
-   */
-  stopAllSpawners() {
-    this.config.activeSpawners.forEach((_, spawnerId) => {
-      const spawner = this.config.activeSpawners.get(spawnerId);
-      if (spawner && spawner.intervalId) {
-        clearInterval(spawner.intervalId);
-      }
-    });
-    this.config.activeSpawners.clear();
+  renderDependencyGraph(container, dependencies, dependencyIdProperty = 'id', nodeIdProperty = 'node') {
+    // Implement rendering of dependency graphs using the given container and dependencies
   }
 };
 

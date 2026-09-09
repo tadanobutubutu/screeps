@@ -3,7 +3,14 @@
 const { someFunction } = { someFunction: () => 'someFunction result' };
 const { addProperLandmarkRegions } = require('./properLandmarkRegions');
 
-Let me fix these issues while preserving all existing code, exports, and functions:
+function renderDependencyGraphContent(data) {
+  // Replace the existing content within the dependencyGraph div using the provided data.
+  // Support both class and data attribute selectors for compatibility
+  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]');
+  if (container) {
+    container.innerHTML = data;
+  }
+}
 
 // New function to address accessibility issues from insight report
 function addressAccessibilityIssues() {

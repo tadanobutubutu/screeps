@@ -59,8 +59,11 @@ function addLangAttribute() {
 function initializeAccessibility() {
   if (typeof document === 'undefined') return;
 
-  addLangAttribute();
-
+  logger.info('Initializing accessibility features');
+  
+  // Check config for accessibility settings
+  const a11yConfig = config.get('accessibility') || {};
+  
   // DOM Elements with proper ARIA attributes
   insightButton = document.getElementById('insight-button');
   insightPanel = document.getElementById('insight-panel');
@@ -77,7 +80,51 @@ function initializeAccessibility() {
       result.push(`${prefix}└── ${module} (circular)`);
       return;
     }
-    visited.add(module);
+    :focus:not(:focus-visible) {
+      outline: none;
+    }
+    :focus-visible {
+      outline: 2px solid #005fcc;
+      outline-offset: 2px;
+    }
+  `;
+  document.head.appendChild(focusStyles);
+  
+  logger.debug('Accessibility initialization complete', { elementsFound: interactiveElements.length });
+}
+
+// Toggle insight panel with proper ARIA attributes
+function toggleInsightPanel() {
+  if (!toggleButton || !insightPanel) return;
+
+  const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+  toggleButton.setAttribute('aria-expanded', !isExpanded);
+  insightPanel.hidden = isExpanded;
+  
+  logger.info('Insight panel toggled', { expanded: !isExpanded });
+  
+  if (!isExpanded) {
+    // Move focus to panel when opened for screen readers
+    insightPanel.focus();
+  }
+}
+
+// Modal handling with focus management (accessibility requirement)
+function openModal() {
+  if (!modal) return;
+
+  logger.info('Opening accessible modal');
+  
+  modal.hidden = false;
+  modal.setAttribute('aria-modal', 'true');
+  
+  // Focus trap management
+  const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  if (firstElement) {
+    firstElement.tabIndex = 0;
     
     result.push(`${prefix}└── ${module}`);
     
@@ -89,11 +136,20 @@ function initializeAccessibility() {
     }
   }
   
-  Object.keys(modules).forEach(module => {
-    if (!visited.has(module)) {
-      traverse(module);
-    }
-  });
+  // Store trigger element to return focus
+  const trigger = document.activeElement;
+  modal.dataset.triggerId = trigger?.id || 'modal-trigger';
+  
+  logger.debug('Modal opened', { focusableElements: focusableElements.length });
+}
+
+function closeModal() {
+  if (!modal) return;
+
+  logger.info('Closing accessible modal');
+  
+  modal.hidden = true;
+  modal.removeAttribute('aria-modal');
   
   return result.join('\n');
 }
@@ -103,18 +159,52 @@ function displayModuleStructure(modules, options = {}) {
   const output = [];
   const format = options.format || 'table';
   
-  if (format === 'table') {
-    output.push('Module Structure:');
-    output.push('================');
-    Object.entries(modules).forEach(([name, info]) => {
-      const deps = info.dependencies ? info.dependencies.join(', ') : 'none';
-      output.push(`${name.padEnd(20)} | Dependencies: ${deps}`);
+  // Remove escape key listener
+  document.removeEventListener('keydown', handleEscapeKey);
+  
+  logger.debug('Modal closed');
+}
+
+function handleEscapeKey(e) {
+  if (e.key === 'Escape') {
+    closeModal();
+  }
+}
+
+// Setup event listeners
+function setupAccessibilityEventListeners() {
+  if (typeof document === 'undefined') return;
+
+  logger.info('Setting up accessibility event listeners');
+  
+  if (modalClose) {
+    modalClose.addEventListener('click', closeModal);
+  }
+
+  if (insightButton) {
+    insightButton.addEventListener('click', toggleInsightPanel);
+    // Ensure keyboard accessibility
+    insightButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleInsightPanel();
+      }
+    });
+  }
+
+  if (toggleButton) {
+    toggleButton.addEventListener('click', toggleInsightPanel);
+    toggleButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleInsightPanel();
+      }
     });
   } else if (format === 'json') {
     output.push(JSON.stringify(modules, null, 2));
   }
   
-  return output.join('\n');
+  logger.debug('Accessibility event listeners configured');
 }
 
 // Export functions for testing

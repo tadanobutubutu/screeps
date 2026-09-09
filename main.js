@@ -469,6 +469,18 @@ function createInPageButton(labelText, action) {
   return button;
 }
 
+// New function to be added according to the issue
+function applyAccessibilityFixes() {
+  getLangAttribute();
+  fixTableStructure();
+  fixLandmarks();
+  addSvgAccessibleNames();
+  ensureUniqueLandmarks();
+  fixFakeLinks();
+  validateLinkAccessibility();
+  addProperLandmarkRegions();
+}
+
 module.exports = {
     loop,
     validateLandmark,

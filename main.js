@@ -222,74 +222,70 @@ function setupAccessibilityEventListeners() {
   }
 }
 
-// NEW FUNCTIONS ADDED PER ISSUE REQUIREMENTS
-
-/**
- * Ensures the element has an ID, generating one if missing
- * @param {Element} element - DOM element to check
- * @returns {string} The element's ID
- */
-function ensureElementHasId(element) {
-  if (typeof document === 'undefined') return '';
-  if (!element) return '';
-  
-  if (!element.id) {
-    // Generate a unique ID using timestamp and random number
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 10000);
-    element.id = `auto-id-${timestamp}-${random}`;
-  }
-  return element.id;
-}
-
-/**
- * Adds aria-label to an element if not present
- * @param {Element} element - DOM element to modify
- * @param {string} label - The aria-label value to set
- */
-function addAriaLabel(element, label) {
-  if (typeof document === 'undefined') return;
-  if (!element || typeof label !== 'string') return;
-  
-  if (!element.hasAttribute('aria-label')) {
-    element.setAttribute('aria-label', label);
+// Credential response handling
+function decodeJwtPayload(credential) {
+  try {
+    const parts = credential.split('.');
+    if (parts.length !== 3) {
+      return null;
+    }
+    const payload = parts[1];
+    // Base64URL decode
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+    const decoded = Buffer.from(padded, 'base64').toString('utf-8');
+    return JSON.parse(decoded);
+  } catch (e) {
+    logger.error('Failed to decode credential payload:', e);
+    return null;
   }
 }
 
-/**
- * Renders a simple dependency graph visualization
- * @param {Object} data - Dependency data { nodes: Array, edges: Array }
- * @param {Element} container - DOM element to render the graph in
- */
-function renderDependencyGraph(data, container) {
-  if (typeof document === 'undefined') return;
-  if (!container || !data) return;
-  
-  // Clear container
-  container.innerHTML = '';
-  
-  // Create SVG container
-  const svgNS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(svgNS, "svg");
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '100%');
-  svg.setAttribute('style', 'border: 1px solid #ccc;');
-  container.appendChild(svg);
-  
-  // Simple placeholder implementation - in reality would use a graphing library
-  const text = document.createElementNS(svgNS, "text");
-  text.setAttribute('x', '50%');
-  text.setAttribute('y', '50%');
-  text.setAttribute('dominant-baseline', 'middle');
-  text.setAttribute('text-anchor', 'middle');
-  text.setAttribute('fill', '#666');
-  text.textContent = 'Dependency Graph Visualization\n(Data: ' + 
-    (data.nodes ? data.nodes.length : 0) + ' nodes, ' + 
-    (data.edges ? data.edges.length : 0) + ' edges)';
-  svg.appendChild(text);
+function handleCredentialResponse(response) {
+  if (!response || typeof response !== 'object') {
+    logger.error('Invalid credential response received');
+    return { success: false, error: 'Invalid response' };
+  }
+
+  if (!response.credential) {
+    logger.error('Credential response missing credential field');
+    return { success: false, error: 'Missing credential' };
+  }
+
+  try {
+    const payload = decodeJwtPayload(response.credential);
+    
+    if (!payload) {
+      logger.error('Failed to decode credential');
+      return { success: false, error: 'Failed to decode credential' };
+    }
+
+    // Store user credential information
+    const userInfo = {
+      credential: response.credential,
+      sub: payload.sub,
+      email: payload.email,
+      email_verified: payload.email_verified,
+      name: payload.name,
+      picture: payload.picture,
+      issuedAt: new Date().toISOString()
+    };
+
+    setData('user', userInfo);
+    setData('isAuthenticated', true);
+    
+    logger.info('User authenticated successfully:', payload.email);
+    
+    return {
+      success: true,
+      user: userInfo
+    };
+  } catch (error) {
+    logger.error('Error processing credential response:', error);
+    return { success: false, error: error.message };
+  }
 }
 
-// Export functions for testing
 module.exports = {
   initialize,
   getAppState,
@@ -305,7 +301,7 @@ module.exports = {
   openModal,
   closeModal,
   setupAccessibilityEventListeners,
-  handleEscapeKey
+  handleCredentialResponse
 };
 
 // Initialize on DOM ready

@@ -2,15 +2,20 @@
 
 // Import the required functions from both branches
 const { someFunction } = { someFunction: () => 'someFunction result' };
-const { renderDependencyGraphContent } = require('./conflict-branch');
-const { ensureUniqueLandmarks: originalEnsureUniqueLandmarks } = require('./uniqueLandmarks');
-const { addProperLandmarkRegions } = require('./properLandmarkRegions');
 
 // Generalized accessibility functions
 
 function improveAccessibility() {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  // Support both class and data attribute selectors for compatibility
+  const dependencyGraph = document.querySelector('.dependency-graph') || document.querySelector('[data-dependency-graph]');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'tree');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  }
+
   // Ensure all clickable elements are focusable
-  const focusable = [];
+  const focusable = document.querySelectorAll('a[href], button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -20,7 +25,7 @@ function improveAccessibility() {
 // Note: ensureUniqueLandmarks is now imported from ./uniqueLandmarks instead of being defined here
 
   landmarks.forEach(landmark => {
-    const matchingGameObjects = [];
+    const matchingGameObjects = Game.objects ? Game.objects.filter(obj => obj.landmarkRole === landmark) : [];
     const uniqueGameObjects = [];
 
     matchingGameObjects.forEach(go => {
@@ -58,6 +63,21 @@ function addLandmarkRoles() {
   });
 }
 
+// New function to add landmark roles and fix issues (Screeps-oriented)
+function addProperLandmarkRegions() {
+  // This function adds appropriate landmark roles to Screeps structures
+  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
+  
+  landmarkTypes.forEach(type => {
+    const structures = _.filter(Game.structures, s => s.structureType === type);
+    structures.forEach(structure => {
+      if (!structure.landmarkType) {
+        structure.landmarkType = 'region';
+      }
+    });
+  });
+}
+
 // Function to address insight report issues
 function addressInsightIssues(insightReport) {
   const issues = insightReport.issues || [];
@@ -80,36 +100,10 @@ function addressREACT017(insightReport) {
           el['aria-label'] = el.id || 'unnamed-element';
         }
       });
+      // Add proper landmark regions from insight report data
+      const regions = issue.regions || [];
+      addProperLandmarkRegions(regions);
     }
-  });
-}
-
-// New function to add landmark roles and fix issues (Screeps-oriented)
-function addScreepsLandmarkRoles() {
-  // This function adds appropriate landmark roles to Screeps structures
-  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
-  const Game = { structures: [] };
-  const _ = { filter: (arr, fn) => arr.filter(fn) };
-  
-  landmarkTypes.forEach(type => {
-    const structures = [];
-    structures.forEach(structure => {
-      if (structure.structureType === type) {
-        structure.landmarkType = 'region';
-      }
-    });
-  });
-}
-
-const main = {
-  loop: function() {
-    for (const name in Game.rooms) {
-      const room = Game.rooms[name];
-      const controller = room.controller;
-      if (controller && controller.my) {
-        this.manageRoom(room);
-      }
-    });
   });
 }
 
@@ -166,14 +160,14 @@ function addressREACT017(insightReport) {
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = null;
+  const dependencyGraph = document.querySelector('.dependency-graph') || document.querySelector('[data-dependency-graph]');
   if (dependencyGraph) {
     // dependencyGraph.setAttribute('role', 'tree');
     // dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = [];
+  const focusable = document.querySelectorAll('a[href], button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -201,7 +195,7 @@ function calculateSum(a, b) {
 
 // Example logic to ensure unique landmarks (from origin/main)
 // Note: This function uses DOM APIs and may need adaptation for Screeps environment
-function exampleLandmarkLogic() {
+function ensureUniqueLandmarksFromDOM() {
   // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
   // Keeping it as provided in origin/main for reference
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -832,8 +826,8 @@ module.exports = {
   renderIndexView,
   renderDependencyGraphContent,
   calculateSum,
-  addLandmarkRoles,
   ensureUniqueLandmarks,
+  addLandmarkRoles,
   addProperLandmarkRegions,
   ensureLandmarkUniqueness,
   addScreepsLandmarkRoles,

@@ -96,15 +96,15 @@ describe('scripts/supabase-keepalive.js', () => {
         expect(mockConsoleLog).toHaveBeenCalledWith('データ:', 'null');
     });
 
-    it('pingに失敗した場合、エラーを出力して終了すること', async () => {
-        mockUpsert.mockResolvedValue({ data: null, error: { message: 'DB connection error' } });
+    it('pingに失敗した場合、エラーメッセージから機密情報を除外して終了すること', async () => {
+        mockUpsert.mockResolvedValue({ data: null, error: { message: 'DB connection error with token: secret12345' } });
 
         const { keepAlive } = require('../scripts/supabase-keepalive.js');
         await keepAlive();
 
         expect(mockConsoleError).toHaveBeenCalledWith(
             'ERROR: Supabase への ping に失敗しました:',
-            'DB connection error'
+            'DB connection error with token: [REDACTED]'
         );
         expect(mockExit).toHaveBeenCalledWith(1);
     });

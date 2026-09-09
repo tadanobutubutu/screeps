@@ -20,6 +20,22 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+function sanitizeErrorMessage(msg) {
+    if (typeof msg !== 'string') return msg;
+    const keys = ['key', 'token', 'secret', 'pass', 'auth', 'credential', 'bearer'].join('|');
+    const pattern = new RegExp(
+        '\\b([a-zA-Z0-9_-]*(' + keys + ')[a-zA-Z0-9_-]*)\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|((?:Bearer\\s+)?[^ \\n\\t"\' ]+))',
+        'gi'
+    );
+    return msg.replace(pattern, (match, p1, p2, p3, p4, p5, p6) => {
+        const quote = p4 || p5;
+        if (quote) {
+            return p1 + p3 + quote[0] + '[REDACTED]' + quote[quote.length - 1];
+        }
+        return p1 + p3 + '[REDACTED]';
+    });
+}
+
 async function keepAlive() {
     console.log(`[${new Date().toISOString()}] Supabase KeepAlive ping 開始...`);
 
@@ -30,7 +46,8 @@ async function keepAlive() {
     });
 
     if (error) {
-        console.error('ERROR: Supabase への ping に失敗しました:', error.message);
+        const safeMsg = sanitizeErrorMessage(error.message);
+        console.error('ERROR: Supabase への ping に失敗しました:', safeMsg);
         process.exit(1);
     }
 
@@ -57,4 +74,4 @@ if (require.main === module) {
     keepAlive();
 }
 
-module.exports = { keepAlive };
+module.exports = { keepAlive, sanitizeErrorMessage };

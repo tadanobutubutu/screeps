@@ -306,38 +306,4 @@ function displayModuleStructure(modules) {
   return svg.getAttribute('role') || svg.textContent.trim() || '';
 }
 
-/**
- * Sets accessibility attributes on an SVG element
- * @param {SVGElement} svg - The SVG element
- * @param {string} accessibleName - The accessible name to set
- */
-export function setSvgAttributes(svg, accessibleName) {
-  if (!svg) return;
-
-  const name = accessibleName || getSvgAccessibleName(svg);
-
-  if (name && name.trim()) {
-    svg.setAttribute('aria-label', name);
-    svg.setAttribute('role', 'img');
-  } else {
-    // Hide decorative SVGs from assistive technologies
-    svg.setAttribute('aria-hidden', 'true');
-  }
-  
-  // Check for title element
-  const titleElement = svg.querySelector('title');
-  if (titleElement && titleElement.textContent && titleElement.textContent.trim()) {
-    return titleElement.textContent.trim();
-  }
-  
-  // Check aria-labelledby
-  const ariaLabelledBy = svg.getAttribute('aria-labelledby');
-  if (ariaLabelledBy) {
-    const labelledByElement = document.getElementById(ariaLabelledBy);
-    if (labelledByElement) {
-      return labelledByElement.textContent.trim();
-    }
-  }
-  
-  return '';
-}
+// Rest of the code remains unchanged

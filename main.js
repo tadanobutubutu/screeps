@@ -192,39 +192,24 @@ function setupAccessibilityEventListeners() {
   }
 }
 
-module.exports = {
-  initialize,
-  getAppState,
-  setData,
-  getData,
-  shutdown,
-  config,
-  logger,
-  newFunction,
-  modifiedFunction,
-  newFeature,
-  processData,
-  validateInput,
-  formatOutput,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  initializeAccessibility,
-  toggleInsightPanel,
-  openModal,
-  closeModal,
-  setupAccessibilityEventListeners
-};
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      initializeAccessibility();
-      setupAccessibilityEventListeners();
-    });
-  } else {
-    initializeAccessibility();
-    setupAccessibilityEventListeners();
+/**
+ * Returns an accessible name for an SVG element.
+ * Uses the alt attribute if present, otherwise falls back to the text content.
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const alt = svg.alt;
+  if (typeof alt === 'string') {
+    return alt.trim();
   }
+  const text = svg.textContent || '';
+  return text.trim() ? text : 'SVG';
 }
+
+// Export functions for testing
+module.exports = {
+  calculateDistance,
+  toRad,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName
+};

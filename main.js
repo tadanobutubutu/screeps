@@ -40,7 +40,7 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// Function to ensure unique landmarks
+// Ensure unique landmarks by filtering duplicates
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -60,17 +60,34 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-// TODO: Implement functions to render dependency graphs and display module structure for debugging purposes.
-function renderDependencyGraph() {
-  // This function should implement logic to render a dependency graph
-  // This is a placeholder for the actual implementation
-  console.log("Dependency graph rendering logic will go here");
-}
-
-function displayModuleStructure() {
-  // This function should implement logic to display the module structure
-  // This is a placeholder for the actual implementation
-  console.log("Module structure display logic will go here");
+// Render index data for graph display
+function renderGraphIndex(landmarks, connections) {
+  const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
+  
+  const nodes = uniqueLandmarks.map(landmark => ({
+    id: landmark.id || landmark.name,
+    label: landmark.name || landmark.id,
+    lat: landmark.lat,
+    lon: landmark.lon
+  }));
+  
+  const edges = connections.map(conn => ({
+    source: conn.from,
+    target: conn.to,
+    weight: calculateDistance(
+      { lat: conn.fromLat, lon: conn.fromLon },
+      { lat: conn.toLat, lon: conn.toLon }
+    )
+  }));
+  
+  return {
+    nodes,
+    edges,
+    metadata: {
+      totalNodes: nodes.length,
+      totalEdges: edges.length
+    }
+  };
 }
 
 // Export functions for testing
@@ -78,6 +95,5 @@ module.exports = {
   calculateDistance,
   toRad,
   ensureUniqueLandmarks,
-  renderDependencyGraph,
-  displayModuleStructure
+  renderGraphIndex
 };

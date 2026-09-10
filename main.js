@@ -68,7 +68,8 @@ export function capitalizeWords(str) {
 
 // Additional utility functions
 export function formatDate(date) {
-  return new Date(date).toISOString();
+  const d = new Date(date);
+  return d.toISOString().split('T')[0];
 }
 
 export function calculateTotal(items) {
@@ -272,7 +273,7 @@ export function fixTableStructure(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)(?<!scope)=/gi, (match, attrs) => {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -280,8 +281,8 @@ export function fixTableStructure(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('<caption')) {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && (attrs.includes('caption') || attrs.includes('summary'))) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -334,7 +335,4 @@ export function addSvgAccessibleNames(html) {
   return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
-    const existingLabel = attributes.includes('aria-label') || attributes.includes('aria-labelledby');
-    
-    if (existingLabel) {
-      return
+    const existingLabel = attributes.includes('aria-labelledby') || attributes.includes

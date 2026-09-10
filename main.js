@@ -1,7 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - New functions have been added below to address accessibility issues
+// - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
 
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -253,7 +252,7 @@ export function checkLandmarkElements(html) {
 export function addLangAttributeToHtml(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html(\s[^>]*)?>/i, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -273,16 +272,16 @@ export function fixTableStructure(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th(\s[^>]*)?>(?!.*scope=)/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes(' scope=')) {
       return match;
     }
     return `<th${attrs || ''} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && (attrs.includes('summary=') || attrs.includes('aria-describedby='))) {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes(' summary=') || attrs && attrs.includes(' caption=')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -306,17 +305,17 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (html.includes('<main') || html.includes('<main ')) {
+  if (/<main\b/i.test(html)) {
     return html;
   }
   
   // Try to match body content
-  const bodyMatch = html.match(/(<body\b[^>]*>)([\s\S]*?)(<\/body>)/i);
+  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
     const wrappedContent = `<main>${bodyContent}</main>`;
-    return html.replace(bodyMatch[0], `<body${bodyAttrs || ''}>${wrappedContent}</body>`);
+    return html.replace(/<body([^>]*)>[\s\S]*<\/body>/i, `<body${bodyAttrs || ''}>${wrappedContent}</body>`);
   }
   
   return html;
@@ -332,27 +331,27 @@ export function addSvgAccessibleNames(html) {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg(\s[^>]*)?>/gi, (match, attrs) => {
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
-    const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
+    const existingLabel = attributes.includes('aria-label') || attributes.includes('aria-labelledby');
     
     if (existingLabel) {
       return match;
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const titleMatch = attributes.match(/<title>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/id=["']([^"']+)["']/);
+    const idMatch = attributes.match(/\bid=["']([^"']+)["']/);
     if (idMatch) {
-      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
+      return `<svg${attributes} role="img" aria-label="${label}">`;
     }
     
     // Add inline title for accessibility
-    const titleId = `svg-title-${++svgCounter}`;
+    const titleId = `svg-title-${svgCounter}`;
     return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
   });
 }
@@ -382,7 +381,7 @@ export function ensureUniqueLandmarks(html) {
   // First, ensure only one <main> landmark exists.
   // Convert subsequent <main> elements to <section> with aria-label.
   let mainSeen = false;
-  html = html.replace(/<main(\s[^>]*)?>/gi, (match, attrs) => {
+  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
     if (!mainSeen) {
       mainSeen = true;
       return match;
@@ -414,154 +413,4 @@ export function ensureUniqueLandmarks(html) {
     });
   }
   
-  // Recompute counters after main -> section conversion
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    counters[lm] = matches ? matches.length : 0;
-  });
-  
-  // Assign unique IDs to remaining landmarks
-  landmarks.forEach(lm => {
-    const count = counters[lm] || 0;
-    if (count === 0) return;
-    const seen = {};
-    const openRegex = new RegExp(`<${lm}(\\s[^>]*)?>`, 'gi');
-    html = html.replace(openRegex, (match, inner) => {
-      // Skip if an id attribute is already present
-      if (inner && inner.includes('id=')) {
-        return match;
-      }
-      seen[lm] = (seen[lm] || 0) + 1;
-      const id = `${lm}-${seen[lm]}`;
-      return `<${lm} id="${id}"${inner || ''}>`;
-    });
-  });
-  
-  return html;
-}
-
-/**
- * Fixes 1 fake link issue
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with fixed fake link issues
- */
-export function fixFakeLinkIssue(html) {
-  if (typeof html !== 'string') return html;
-  
-  // Fix any fake links that do not have a valid href attribute
-  return html.replace(/<a(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('href=')) {
-      return match;
-    }
-    return match.replace(/<a/, '<a href="#"');
-  });
-}
-
-/**
- * Checks table structure for accessibility issues
- * @param {string} html - The HTML string to check
- * @returns {string[]} Array of error messages
- */
-export function checkTableStructure(html) {
-  if (typeof html !== 'string') return [];
-  
-  const issues = [];
-  const tableRegex = /<table\b[^>]*>([\s\S]*?)<\/table>/gi;
-  let tableMatch;
-  
-  while ((tableMatch = tableRegex.exec(html)) !== null) {
-    const tableHtml = tableMatch[0];
-    
-    // Check for caption
-    if (!/<caption\b/i.test(tableHtml)) {
-      issues.push('Table missing <caption> element');
-    }
-    
-    // Check for summary attribute
-    if (!/\bsummary=/i.test(tableHtml)) {
-      issues.push('Table missing summary attribute');
-    }
-    
-    // Check for th with scope
-    const thRegex = /<th\b([^>]*)>/gi;
-    let thMatch;
-    let thMissingScope = false;
-    while ((thMatch = thRegex.exec(tableHtml)) !== null) {
-      const attrs = thMatch[1];
-      if (!/\bscope=/i.test(attrs)) {
-        thMissingScope = true;
-        break;
-      }
-    }
-    if (thMissingScope) {
-      issues.push('<th> missing scope attribute');
-    }
-    
-    // Check for thead/tbody
-    if (!/<thead\b/i.test(tableHtml) || !/<tbody\b/i.test(tableHtml)) {
-      issues.push('Table missing <thead> or <tbody> structure');
-    }
-  }
-  
-  return issues;
-}
-
-/**
- * Returns the person's name
- * @param {string} name - The name to return
- * @returns {string} The person's name
- */
-export function personName(name) {
-  return name;
-}
-
-/**
- * Validates table accessibility
- * @param {string} html - The HTML string to check
- * @returns {string[]} Array of error messages
- */
-export function validateTableAccessibility(html) {
-  // Placeholder implementation
-  return [];
-}
-
-/**
- * Validates table structure
- * @param {string} html - The HTML string to check
- * @returns {string[]} Array of error messages
- */
-export function validateTableStructure(html) {
-  // Placeholder implementation
-  return [];
-}
-
-/**
- * Validates landmark usage
- * @param {string} html - The HTML string to check
- * @returns {string[]} Array of error messages
- */
-export function validateLandmark(html) {
-  // Placeholder implementation
-  return [];
-}
-
-/**
- * Validates landmark structure
- * @param {string} html - The HTML string to check
- * @returns {string[]} Array of error messages
- */
-export function validateLandmarkStructure(html) {
-  // Placeholder implementation
-  return [];
-}
-
-/**
- * Gets accessible name for SVG
- * @param {string} svg - The SVG element or HTML
- * @returns {string} Accessible name
- */
-export function getSvgAccessibleName(svg) {
-  // Placeholder implementation
-  return 'SVG image';
-}
+  // Recompute counters after

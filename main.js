@@ -16,29 +16,49 @@ function checkLandmarkElements(landmarks) {
     return false;
   }
 
-// Here's where you add new functions
-function addProperLandmarkRegions(html) {
+/**
+ * Adds proper landmark regions to improve accessibility
+ * Wraps content in appropriate ARIA landmarks and roles
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with proper landmark regions
+ */
+export function addProperLandmarkRegions(html) {
   if (typeof html !== 'string') return html;
   
-  // Regex to find all landmark elements and add role/aria-label if needed
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
   let result = html;
   
-  landmarks.forEach(landmark => {
-    const regex = new RegExp(`<${landmark}\\b([^>]*)>`, 'gi');
-    result = result.replace(regex, (match, attrs) => {
-      // If it already has role or aria-label, skip
-      if (/\b(role|aria-label)\s*=/i.test(attrs)) {
-        return match;
-      }
-      // Add role and aria-label based on landmark type
-      const label = landmark === 'nav' ? 'Navigation' : 
-                    landmark === 'main' ? 'Main content' :
-                    landmark === 'header' ? 'Header' :
-                    landmark === 'footer' ? 'Footer' : 'Aside';
-      return `<${landmark}${attrs} role="region" aria-label="${label}">`;
-    });
-  });
+  // Identify main content areas and add appropriate landmarks
+  // Find the main content div or section without a landmark
+  const mainContentSelection = result.match(/<div[^>]*>(?:(?!<main|\<nav|\<header|\<footer|\<aside).)*<\/div>/i);
+  
+  if (mainContentSelection) {
+    const mainContent = mainContentSelection[0];
+    // Check if it's not already wrapped in a main landmark
+    if (!/<main[^>]*>/i.test(mainContent)) {
+      result = result.replace(mainContent, `<main>${mainContent}</main>`);
+    }
+  }
+  
+  // Add lang attribute to html element if not present for accessibility
+  if (!/<html[^>]*lang=/i.test(result)) {
+    result = result.replace(/<html([^>]*)>/i, '<html$1 lang="en">');
+  }
+  
+  // Ensure skip to content link exists for keyboard accessibility
+  if (!/role="skip-link"/i.test(result)) {
+    const bodyMatch = result.match(/<body([^>]*)>([\s\S]*?<\/body>)/i);
+    if (bodyMatch) {
+      const bodyAttrs = bodyMatch[1];
+      const bodyContent = bodyMatch[2];
+      const skipLink = '<a href="#main-content" class="skip-link" role="skip-link">Skip to main content</a>';
+      result = result.replace(bodyMatch[0], `<body${bodyAttrs}>${skipLink}${bodyContent}`);
+    }
+  }
+  
+  // Ensure main landmark has an id for skip link to work
+  if (/<main/i.test(result) && !/<main[^>]*id=/i.test(result)) {
+    result = result.replace(/<main([^>]*)>/i, '<main$1 id="main-content">');
+  }
   
   return result;
 }
@@ -147,7 +167,7 @@ export function addAccessibleSvgNames(html) {
     let label = titleMatch ? titleMatch[1].trim() : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attrs.match(/\bid=["']([^"']+)["']/i);
+    const idMatch = attrs.match(/id=["\']([^\'"]+)["\']/);
     if (idMatch) {
       return `<svg${attrs} role="img" aria-label="${label}">`;
     }

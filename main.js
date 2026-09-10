@@ -49,9 +49,9 @@ function ensureUniqueLandmarks(landmarks) {
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-
-    const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
-
+    
+    const identifier = landmark.id || landmark.name;
+    
     if (seen.has(identifier)) {
       return false;
     }
@@ -60,34 +60,39 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-// Render index data for graph display
-function renderGraphIndex(landmarks, connections) {
-  const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
-  
-  const nodes = uniqueLandmarks.map(landmark => ({
-    id: landmark.id || landmark.name,
-    label: landmark.name || landmark.id,
-    lat: landmark.lat,
-    lon: landmark.lon
-  }));
-  
-  const edges = connections.map(conn => ({
-    source: conn.from,
-    target: conn.to,
-    weight: calculateDistance(
-      { lat: conn.fromLat, lon: conn.fromLon },
-      { lat: conn.toLat, lon: conn.toLon }
-    )
-  }));
-  
-  return {
-    nodes,
-    edges,
-    metadata: {
-      totalNodes: nodes.length,
-      totalEdges: edges.length
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute(lang = 'en') {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = lang;
+  }
+  return lang;
+}
+
+// REACT_025: Add other accessibility changes as per the insight report
+function setFocusToMainContent() {
+  if (typeof document !== 'undefined') {
+    const main = document.querySelector('main') || document.querySelector('#main') || document.querySelector('[role="main"]');
+    if (main) {
+      main.setAttribute('tabindex', '-1');
+      main.focus();
     }
-  };
+  }
+}
+
+function announceToScreenReader(message, priority = 'polite') {
+  if (typeof document !== 'undefined') {
+    const announcement = document.createElement('div');
+    announcement.setAttribute('role', 'status');
+    announcement.setAttribute('aria-live', priority);
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.className = 'sr-only';
+    announcement.textContent = message;
+    document.body.appendChild(announcement);
+    
+    setTimeout(() => {
+      document.body.removeChild(announcement);
+    }, 1000);
+  }
 }
 
 // Export functions for testing
@@ -95,5 +100,7 @@ module.exports = {
   calculateDistance,
   toRad,
   ensureUniqueLandmarks,
-  renderGraphIndex
+  addLangAttribute,
+  setFocusToMainContent,
+  announceToScreenReader
 };

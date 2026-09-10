@@ -272,8 +272,8 @@ export function fixTableStructure(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes(' scope=')) {
+  result = result.replace(/<th\b([^>]*)(?<!scope)=/gi, (match, attrs) => {
+    if (attrs && attrs.includes('scope=')) {
       return match;
     }
     return `<th${attrs || ''} scope="col">`;
@@ -281,7 +281,7 @@ export function fixTableStructure(html) {
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes(' summary=') || attrs && attrs.includes(' caption=')) {
+    if (attrs && attrs.includes('caption') || attrs && attrs.includes('summary')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -305,7 +305,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main\b/i.test(html)) {
+  if (html.includes('<main') || html.includes('<main>')) {
     return html;
   }
   
@@ -345,7 +345,7 @@ export function addSvgAccessibleNames(html) {
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/\bid=["']([^"']+)["']/);
+    const idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
       return `<svg${attributes} role="img" aria-label="${label}">`;
     }
@@ -413,4 +413,13 @@ export function ensureUniqueLandmarks(html) {
     });
   }
   
-  // Recompute counters after
+  // Recompute counters after main -> section conversion
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    counters[lm] = matches ? matches.length : 0;
+  });
+  
+  // Assign unique IDs to remaining landmarks
+  landmarks.forEach(lm => {
+    const count = counters[lm

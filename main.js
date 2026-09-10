@@ -119,8 +119,40 @@ function improveAccessibility() {
   });
 }
 
-function ensureLandmarkUniqueness(elements) {
-  // New implementation for ensuring unique landmarks
+function addressInsightReportIssues(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach(issue => {
+    const element = document.querySelector(issue.selector);
+    if (element) {
+      // Add lang attribute to HTML element
+      if (issue.code === 'REACT_015') {
+        addLangAttribute();
+      }
+      // Add landmark roles and fix landmark issues
+      if (issue.code === 'REACT_017') {
+        if (issue.ariaRole) {
+          element.setAttribute('role', issue.ariaRole);
+        }
+        addLandmarkRolesAndFixIssues();
+      }
+      // Add accessible names to 2 SVGs
+      if (issue.code === 'REACT_041') {
+        addSvgAccessibleNames();
+      }
+      // Ensure unique landmarks (2 issues)
+      if (issue.code === 'REACT_025') {
+        ensureUniqueLandmarks();
+      }
+      // Fix 1 fake link issue
+      if (issue.code === 'REACT_036') {
+        fixFakeLinks();
+      }
+      // Add scope="col" or scope="row" to <th> elements (already implemented)
+      if (issue.code === 'REACT_027') {
+        fixTableHeaderCellScope();
+      }
+    }
+  });
 }
 
 function ensureUniqueLandmarks() {
@@ -153,10 +185,10 @@ function addLandmarkRolesAndFixIssues(insightReport) {
   });
 }
 
-function fixLandmarkIssues(insightReport) {
-  // Implementation for adding landmark roles and fixing landmark issues
-  // This is a placeholder that would need to be implemented based on specific requirements
-  addLandmarkRolesAndFixIssues(insightReport);
+function addLandmarkRolesAndFixIssues() {
+  // Add main landmark if missing
+  addMainLandmark();
+  // Additional landmark fixes can be added here
 }
 
 function renderDependencyGraph(dependencyData) {

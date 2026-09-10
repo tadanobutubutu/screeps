@@ -10,23 +10,34 @@
 //<!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
 
 // Here's where you add new functions
-function checkLandmarkElements(elements) {
-  // Implement function to check landmark elements
-  // Return an array of elements that are landmarks
-  const landmarkElements = [];
+function addProperLandmarkRegions(landmarks) {
+  // Validate input
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
   
-  elements.forEach(element => {
-    // Check if the element is a landmark
-    // Based on the context, landmarks have a 'role' or 'type' property
-    // For simplicity, we'll check if the element has a role that matches common landmark roles
-    const commonLandmarkRoles = ['main', 'nav', 'banner', 'aside', 'footer', 'header'];
-    
-    if (element.role && commonLandmarkRoles.includes(element.role)) {
-      landmarkElements.push(element);
+  const processedLandmarks = [];
+  
+  landmarks.forEach(landmark => {
+    // Check if landmark has required properties
+    if (landmark && landmark.name) {
+      // Create proper landmark region
+      const processedLandmark = {
+        name: landmark.name,
+        coordinates: landmark.coordinates || null,
+        region: {
+          type: 'landmark',
+          verified: true,
+          id: landmark.id || null
+        }
+      };
+      
+      processedLandmarks.push(processedLandmark);
+      console.log(`Adding landmark region for: ${landmark.name} at coordinates: ${landmark.coordinates}`);
     }
   });
   
-  return landmarkElements;
+  return processedLandmarks;
 }
 
 // Don't forget to export new functions if necessary

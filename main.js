@@ -46,60 +46,6 @@ function renderDependencyGraphContent(data) {
   }
 }
 
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-function improveAccessibility() {
-  // Add ARIA labels to buttons without them
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.getAttribute('aria-label')) {
-      button.setAttribute('aria-label', button.textContent || 'Button');
-    }
-  });
-
-  // Ensure all clickable elements are focusable
-  const focusable = document.querySelectorAll('[role="button"], a[href]');
-  focusable.forEach(el => {
-    if (el.tabIndex < 0) el.tabIndex = 0;
-  });
-}
-
-function addressInsightReportIssues(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    const element = document.querySelector(issue.selector);
-    if (element) {
-      // Add lang attribute to HTML element
-      if (issue.code === 'REACT_015') {
-        document.documentElement.lang = 'en';
-      }
-      // Add landmark roles and fix landmark issues
-      if (issue.code === 'REACT_017') {
-        if (issue.ariaRole) {
-          element.setAttribute('role', issue.ariaRole);
-        }
-      }
-      // Add accessible names to 2 SVGs
-      if (issue.code === 'REACT_041') {
-        if (issue.ariaLabel) {
-          element.setAttribute('aria-label', issue.ariaLabel);
-        }
-      }
-      // Ensure unique landmarks (2 issues)
-      if (issue.code === 'REACT_025') {
-        // Implement logic to ensure unique landmarks if needed
-      }
-      // Fix 1 fake link issue
-      if (issue.code === 'REACT_036') {
-        // Implement logic to fix fake link issues if needed
-      }
-      // Add scope="col" or scope="row" to <th> elements (already implemented)
-      if (issue.code === 'REACT_027') {
-        // This issue is already implemented, so no action is needed here
-      }
-    }
-  });
-}
-
 // New function to address accessibility issues from insight report
 function ensureUniqueLandmarks() {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -118,20 +64,7 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// New function to add landmark roles and fix issues
-function addLandmarkRolesAndFixIssues(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_017') {
-      const element = document.querySelector(issue.selector);
-      if (element && issue.ariaRole) {
-        element.setAttribute('role', issue.ariaRole);
-      }
-    }
-  });
-}
-
-function fixAccessibilityIssues(insightReport) {
+function addLandmarkRolesAndFixIssues() {
   // Implementation for adding landmark roles and fixing landmark issues
   // This is a placeholder that would need to be implemented based on specific requirements
   addressInsightReportIssues(insightReport);
@@ -157,9 +90,9 @@ function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
   // Handle both anchor tags with href="#" and div elements with role="link"
   const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('[role="link"]:not(a)');
-  
-  [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
+  const fakeLinkDivs = document.querySelectorAll('div[role="link"]');
+
+  [...fakeLinkAnchors, ...Array.from(fakeLinkDivs)].forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
     if (!link.getAttribute('aria-label')) {
@@ -203,14 +136,14 @@ function fixTableHeaderCellScope() {
         const rows = table.querySelectorAll('tr');
         const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
         let isHeaderRow = true;
-        
+
         rows.forEach(row => {
           const rowCells = row.querySelectorAll('th, td');
           if (rowCells[cellIndex] !== cell) {
             isHeaderRow = false;
           }
         });
-        
+
         cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
       }
     });

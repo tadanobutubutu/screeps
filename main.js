@@ -34,7 +34,7 @@ function ensureUniqueLandmarks(landmarks) {
   return landmarks.filter(landmark => {
     if (!landmark) return false;
     
-    const identifier = landmark.id || landmark.name || null;
+    const identifier = landmark.id || landmark.name;
     
     if (seen.has(identifier)) {
       identifier = `landmark_${getRandomInt(1, 99999)}`;

@@ -1,7 +1,13 @@
 // TODO: This is the existing code that needs to be preserved
 // Main application file
 
-// ... Existing functions: calculateDistance, toRad, ensureUniqueLandmarks ...
+// Function to calculate distance between two points
+function calculateDistance(point1, point2) {
+  const R = 6.371; // Earth's radius in km
+  const dLat = toRad(point2.lat - point1.lat);
+  const dLon = toRad(point2.lon - point1.lon);
+  const lat1 = toRad(point1.lat);
+  const lat2 = toRad(point2.lat);
 
 // Function to create a minimal dependency graph for debugging purposes
 function renderDependencyGraph() {
@@ -16,7 +22,24 @@ function renderDependencyGraph() {
   const graph = Object.keys((Object.assign({}, ...modules)).reverse()) // Reverse the ordering of the keys
     .map(key => ({ name: key, dependencies: modules[key] }));
 
-  return graph.map(module => `${module.name}: ${module.dependencies.join(', ')}`);
+// Function to ensure unique landmarks by filtering out duplicates
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (!landmark) return false;
+    
+    const identifier = landmark.id || landmark.name || null;
+    
+    if (seen.has(identifier)) {
+      return false;
+    }
+    seen.add(identifier);
+    return true;
+  });
 }
 
 // Export functions for testing

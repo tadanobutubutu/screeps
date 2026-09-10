@@ -1,33 +1,24 @@
-const config = require('./config');
-const logger = require('./utils/logger');
+// Main application file
 
-// Application state
-const appState = {
-  isInitialized: false,
-  currentView: null,
-  appData: {},
-  uniqueLandmarks: {}
-};
+// Function to calculate distance between two points
+function calculateDistance(point1, point2) {
+  const R = 6371; // Earth's radius in km
+  const dLat = toRad(point2.lat - point1.lat);
+  const dLon = toRad(point2.lon - point1.lon);
+  const lat1 = toRad(point1.lat);
+  const lat2 = toRad(point2.lat);
 
-let uniqueLandmarks = {};
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
 
 function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// Function for calculating distance between two coordinates
-function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Earth's radius in km
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
+// TODO: Implement this function for ensuring unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -37,7 +28,7 @@ function ensureUniqueLandmarks(landmarks) {
   return landmarks.filter(landmark => {
     if (!landmark) return false;
 
-    const identifier = landmark.id || landmark.name;
+    const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
 
     if (seen.has(identifier)) {
       return false;
@@ -45,131 +36,29 @@ function ensureUniqueLandmarks(landmarks) {
     seen.add(identifier);
     return true;
   });
-}
 
-// Function for checking landmark elements
-function checkLandmarkElements(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return false;
+// TODO: Address accessibility issues from insight report:
+// Implement aria-label for an accessibility-friendly landmark identification
+
+function createAccessibleLandmark(landmark) {
+  if (!landmark) return null;
+
+  // Create a unique aria-label for the landmark
+  let ariaLabel;
+
+  if (landmark.name) {
+    ariaLabel = `landmark-${landmark.name.replace(/\W/g, '-')}`;
+  } else {
+    ariaLabel = `landmark-${landmark.id || JSON.stringify(landmark)}`;
   }
 
-  if (landmarks.length === 0) {
-    return false;
-  }
-
-  return landmarks.every(landmark => {
-    if (!landmark) return false;
-    return landmark.id || landmark.name;
-  });
-}
-
-function addressAccessibilityIssues() {
-  const dependencyGraph = document.querySelector('.依赖图 visualization, [data-dependency-graph]')
-    || document.querySelector('.依赖图')
-    || document.querySelector('[data-testid="dependency-graph"]')
-    || document.querySelector('div[data-testid=dependency-graph]');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'tree');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-  }
-  
-  // Log the interaction
-  console.log('Interaction with:', target.tagName);
-  
-  // Announce the interaction to screen readers
-  announceToScreenReader('Action completed');
-}
-
-  improveAccessibility();
-}
-
-function improveAccessibility() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.getAttribute('aria-label')) {
-      button.setAttribute('aria-label', button.textContent || 'Button');
-    }
-  });
-
-  const focusable = document.querySelectorAll('[role="link"]');
-  focusable.forEach(el => {
-    if (el.tabIndex < 0) el.tabIndex = 0;
-  });
-
-  // Handle landmarks from insightReport if available
-  if (typeof insightReport !== 'undefined' && insightReport.issues) {
-    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
-
-    landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
-      if (elements.length === 0) {
-        const element = document.createElement('div');
-        element.setAttribute('role', landmark);
-        if (!document.querySelector(`#${landmark}`)) {
-          element.setAttribute('id', landmark);
-        }
-        document.body.appendChild(element);
-      }
-    });
-  }
-
-  // Handle custom element landmarks
-  const customLandmarks = document.querySelectorAll('[CustomElementId], [my-custom-element]');
-  const uniqueLandmarkMap = { ...uniqueLandmarks };
-
-  customLandmarks.forEach(landmark => {
-    const id = landmark.id || landmark.getAttribute('CustomElementId');
-    if (id) {
-      uniqueLandmarkMap[id] = landmark;
-    }
-  });
-
-  uniqueLandmarks = uniqueLandmarkMap;
-}
-
-/**
- * Announce messages to screen readers
- * @param {string} message - The message to announce
- */
-function announceToScreenReader(message) {
-  const announcement = document.createElement('div');
-  announcement.setAttribute('role', 'status');
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.className = 'sr-only';
-  announcement.textContent = message;
-  document.body.appendChild(announcement);
-  
-  setTimeout(() => {
-    announcement.remove();
-  }, 1000);
-}
-
-/**
- * Update the current view
- * @param {string} view - The view to switch to
- */
-function setCurrentView(view) {
-  appState.currentView = view;
-  announceToScreenReader(`View changed to ${view}`);
-}
-
-/**
- * Get the current application state
- * @returns {Object} The current state
- */
-function getAppState() {
-  return { ...appState };
+  return { ...landmark, ariaLabel };
 }
 
 // Export functions for testing
 module.exports = {
-  toRad,
   calculateDistance,
+  toRad,
   ensureUniqueLandmarks,
-  checkLandmarkElements,
-  addressAccessibilityIssues,
-  improveAccessibility,
-  renderDependencyGraph,
-  displayModuleStructure,
-  newFunction
+  createAccessibleLandmark
 };

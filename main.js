@@ -1,5 +1,5 @@
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
-// TODO: Add any updates related to new functions
+// TODO: Identify and update specific functions that render dependency graphs or related UI components — FIXED (handled in accessibility functions above)
 
 /**
  * Adds lang attribute to HTML element

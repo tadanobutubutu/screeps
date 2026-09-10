@@ -128,26 +128,27 @@ function _getTargetSite(creep) {
         return null;
     }
 
-    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to find the best site.
-    // Estimated impact: Reduces complexity from O(N log N) to O(N) and avoids array allocation.
+    // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit priority check and hoist position check outside loop
+    // Estimated impact: Skips creep.pos.getRangeTo calls for lower priority construction sites on every tick.
     let bestSite = null;
     let minPriority = Infinity;
     let minDistance = Infinity;
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
 
     for (let i = 0; i < sites.length; i++) {
         const site = sites[i];
         const priority = BUILD_PRIORITY[site.structureType] || 10;
-        const distance = creep.pos.getRangeTo(site);
+        if (priority > minPriority) continue;
+
+        const distance = hasGetRangeTo ? creep.pos.getRangeTo(site) : 0;
 
         if (priority < minPriority) {
             minPriority = priority;
             minDistance = distance;
             bestSite = site;
-        } else if (priority === minPriority) {
-            if (distance < minDistance) {
-                minDistance = distance;
-                bestSite = site;
-            }
+        } else if (distance < minDistance) {
+            minDistance = distance;
+            bestSite = site;
         }
     }
 

@@ -7,7 +7,7 @@
 // Addressed accessibility issues from insight report
 
 // Assuming the following functions have been implemented in a separate file or in the same file
-import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, fixButtonIdentifiers } from './accessibilityUtils';
+import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, fixButtonIdentifiers, ensureDependencyGraphARIARole } from './accessibilityUtils';
 
 function addressAccessibilityIssues() {
     // Function implementation goes here
@@ -69,12 +69,8 @@ const App = () => {
   // Example of replacing 'my-button' with an actual button id for accessibility
   fixButtonIdentifiers();
 
-  // Ensure the dependencyGraph container has a proper ARIA role
-  const dependencyGraph = document.getElementById('dependencyGraph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'img');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph visualization');
-  }
+  // New function call to ensure the dependencyGraph container has a proper ARIA role
+  ensureDependencyGraphARIARole();
 
   return (
     <div className="app-container">

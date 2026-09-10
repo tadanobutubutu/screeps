@@ -209,6 +209,14 @@ export default function Dashboard() {
             room.toLowerCase().includes(roomQuery.toLowerCase())
         ) || [];
 
+    const clearSearchQuery = () => {
+        if (roomQuery) {
+            setRoomQuery('');
+            showToast('検索フィルターをクリアしました');
+        }
+        searchInputRef.current?.focus();
+    };
+
     const copyAllRooms = () => {
         if (filteredRooms.length === 0) return;
         const roomsStr = filteredRooms.join(', ');
@@ -396,7 +404,7 @@ export default function Dashboard() {
                                     alignItems: 'center',
                                     gap: '0.25rem',
                                     transition: 'all 0.2s ease-in-out',
-                                    transform: helpHover ? 'scale(1.05)' : 'scale(1)',
+                                    transform: helpHover || helpFocused ? 'scale(1.05)' : 'scale(1)',
                                     outline: helpFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '2px',
                                 }}
@@ -451,7 +459,7 @@ export default function Dashboard() {
                                     alignItems: 'center',
                                     gap: '0.25rem',
                                     transition: 'all 0.2s ease-in-out',
-                                    transform: summaryHover ? 'scale(1.05)' : 'scale(1)',
+                                    transform: summaryHover || summaryFocused ? 'scale(1.05)' : 'scale(1)',
                                     outline: summaryFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '2px',
                                 }}
@@ -620,7 +628,7 @@ export default function Dashboard() {
                                 transition: 'all 0.2s ease-in-out',
                                 transform: refreshing
                                     ? 'none'
-                                    : refreshHover
+                                    : refreshHover || refreshFocused
                                       ? 'scale(1.15)'
                                       : 'scale(1)',
                                 boxShadow:
@@ -859,7 +867,7 @@ export default function Dashboard() {
                                 alignItems: 'center',
                                 gap: '0.2rem',
                                 transition: 'all 0.2s ease-in-out',
-                                transform: copyAllHover && filteredRooms.length > 0 ? 'scale(1.05)' : 'scale(1)',
+                                transform: (copyAllHover || copyAllFocused) && filteredRooms.length > 0 ? 'scale(1.05)' : 'scale(1)',
                                 outline: copyAllFocused ? '2px solid #004b73' : 'none',
                                 outlineOffset: '2px',
                             }}
@@ -903,7 +911,7 @@ export default function Dashboard() {
                                 onKeyDown={(e) => {
                                     if (e.key === 'Escape') {
                                         if (roomQuery) {
-                                            setRoomQuery('');
+                                            clearSearchQuery();
                                         } else {
                                             searchInputRef.current?.blur();
                                         }
@@ -929,10 +937,7 @@ export default function Dashboard() {
                             />
                             {roomQuery && (
                                 <button
-                                    onClick={() => {
-                                        setRoomQuery('');
-                                        searchInputRef.current?.focus();
-                                    }}
+                                    onClick={clearSearchQuery}
                                     onMouseEnter={() => setSearchClearHover(true)}
                                     onMouseLeave={() => setSearchClearHover(false)}
                                     onFocus={() => setSearchClearFocused(true)}
@@ -985,10 +990,7 @@ export default function Dashboard() {
                         >
                             一致なし
                             <button
-                                onClick={() => {
-                                    setRoomQuery('');
-                                    searchInputRef.current?.focus();
-                                }}
+                                onClick={clearSearchQuery}
                                 onMouseEnter={() => setNoMatchClearHover(true)}
                                 onMouseLeave={() => setNoMatchClearHover(false)}
                                 onFocus={() => setNoMatchClearFocused(true)}
@@ -1044,7 +1046,7 @@ export default function Dashboard() {
                                       color: copiedRoom === room ? '#22543d' : '#2d3748',
                                       cursor: 'pointer',
                                       transition: 'all 0.2s ease-in-out',
-                                      transform: hoveredRoom === room ? 'scale(1.06)' : 'scale(1)',
+                                      transform: hoveredRoom === room || focusedRoom === room ? 'scale(1.06)' : 'scale(1)',
                                       boxShadow:
                                           hoveredRoom === room
                                               ? '0 2px 4px rgba(0,0,0,0.1)'
@@ -1180,7 +1182,7 @@ export default function Dashboard() {
                                     color: copiedJson ? 'white' : '#4a5568',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s ease-in-out',
-                                    transform: jsonHover ? 'scale(1.05)' : 'scale(1)',
+                                    transform: jsonHover || jsonFocused ? 'scale(1.05)' : 'scale(1)',
                                     boxShadow: jsonHover ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
                                     outline: jsonFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '2px',

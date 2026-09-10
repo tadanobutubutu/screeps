@@ -338,4 +338,65 @@ function checkTableStructure(table) {
     ... has no thead element');
   } else {
     const headerCells = ... td');
-    result.columnCount = header
+    result.columnCount = headerCells.length;
+  }
+
+  // Validate row consistency
+  const targetRow = tbody || allRows[0];
+  const firstRowCells = ... th');
+  const expectedCellCount = firstRowCells.length || result.columnCount;
+
+  allRows.forEach((row, index) => {
+    const cells = ... th');
+    if (cells.length !== expectedCellCount) {
+      result.isValid = false;
+      result.errors.push(`Row ${index} has ${cells.length} cells, expected ...
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Sanitize user input
+ * @param {string} input - Raw user input
+ * @returns {string} - Sanitized output
+ */
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return '';
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Create a data table from array data
+ * @param {Array} data - Array of objects to display
+ * @param {Array} columns - Column definitions
+ * @returns {HTMLTableElement} - Created table element
+ */
+function createDataTable(data, columns) {
+  const table = document.createElement('table');
+  table.className = 'data-table';
+
+  // Create header
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  columns.forEach(col => {
+    const th = ...
+    th.textContent = col.label || col.key;
+    th.style.width = col.width || 'auto';
+    ...
+  });
+  ...
+  table.appendChild(thead);
+
+  // Create body
+  const tbody = ...
+  data.forEach(item => {
+    const tr = document.createElement('tr');
+    columns.forEach(col => {
+      const td = document.createElement('td');

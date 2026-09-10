@@ -396,17 +396,17 @@ function checkTableStructure(table) {
   if (!result.hasHeader) {
     ... has no thead element');
   } else {
-    const headerCells = ... td');
+    const headerCells = thead.querySelectorAll('td');
     result.columnCount = headerCells.length;
   }
 
   // Validate row consistency
   const targetRow = tbody || allRows[0];
-  const firstRowCells = ... th');
+  const firstRowCells = targetRow ? targetRow.querySelectorAll('th') : [];
   const expectedCellCount = firstRowCells.length || result.columnCount;
 
   allRows.forEach((row, index) => {
-    const cells = ... th');
+    const cells = row.querySelectorAll('th, td');
     if (cells.length !== expectedCellCount) {
       result.isValid = false;
       result.errors.push(`Row ${index} has ${cells.length} cells, expected ...
@@ -545,7 +545,7 @@ const {
   fixFakeLinkIssues,
   googleSignIn,
   fixButtonIdentifiers
-} = ...
+} = require('./accessibility-utils');
 
 function addressAccessibilityIssues() {
     // Function implementation goes here
@@ -584,12 +584,11 @@ const App = () => {
 
   addressAccessibilityIssues();
 
-  return (
-    // ... JSX code ...
-  );
+  return null;
+  // ... JSX code ...
 };
 
-ReactDOM.render(<App />, ...
+ReactDOM.render(React.createElement(App), document.getElementById('root'));
 
 /**
  * Validates landmark structure
@@ -600,12 +599,3 @@ module.exports = {
   VERSION,
   config,
   formatDate,
-  DataProcessor,
-  validateInput,
-  checkTableStructure,
-  sanitizeInput,
-  createDataTable,
-  createInPageButton,
-  ...
-  ...
-};

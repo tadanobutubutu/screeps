@@ -14,11 +14,8 @@ function getPkgManager() {
 
 function runCommand(file, args) {
     try {
-        if (Array.isArray(args)) {
-            execFileSync(file, args, { stdio: 'pipe', encoding: 'utf8' });
-        } else {
-            execSync(file, { stdio: 'pipe', encoding: 'utf8' });
-        }
+        const execArgs = Array.isArray(args) ? args : (args ? [args] : []);
+        execFileSync(file, execArgs, { stdio: 'pipe', encoding: 'utf8' });
         return { ok: true };
     } catch (error) {
         return {

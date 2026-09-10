@@ -36,7 +36,11 @@ function ensureAccessibleLabel(landmark) {
   };
 }
 
-// Ensure unique landmarks by filtering duplicates
+function toRad(deg) {
+  return deg * (Math.PI / 180);
+}
+
+// Function for ensuring unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];

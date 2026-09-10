@@ -72,10 +72,7 @@ export function capitalizeWords(str) {
 
 // Additional utility functions
 export function formatDate(date) {
-  if (date instanceof Date) {
-    return date.toISOString().split('T')[0];
-  }
-  return new Date(date).toISOString().split('T')[0];
+  return new Date(date).toLocaleDateString();
 }
 
 export function calculateTotal(items) {
@@ -279,16 +276,16 @@ export function fixTableStructure(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+  result = result.replace(/<th(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes(' scope=')) {
       return match;
     }
     return `<th${attrs || ''} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
+  result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes(' summary=') || attrs && attrs.includes(' caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -312,7 +309,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (html.includes('<main') || html.includes('<main ')) {
+  if (/<main\b/gi.test(html)) {
     return html;
   }
   
@@ -372,11 +369,11 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const titleMatch = attributes.match(/<title>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]*)"/);
+    const idMatch = attributes.match(/\bid=["']([^"']+)["']/);
     if (idMatch) {
       return `<svg${attributes} role="img" aria-label="${label}">`;
     }
@@ -420,7 +417,7 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('role=')) {
+    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
       return `<section${safeAttrs}>`;
     }
     return `<section${safeAttrs} aria-label="Content section">`;
@@ -456,4 +453,22 @@ export function ensureUniqueLandmarks(html) {
     const count = counters[lm] || 0;
     if (count === 0) return;
     const seen = {};
-    const openRegex = new RegExp
+    const openRegex = new RegExp(`<${lm}(\\s[^>]*)?>`, 'gi');
+    html = html.replace(openRegex, (match, inner) => {
+      // Skip if an id attribute is already present
+      if (inner && inner.includes('id=')) {
+        return match;
+      }
+      seen[lm] = (seen[lm] || 0) + 1;
+      const id = `${lm}-${seen[lm]}`;
+      return `<${lm} id="${id}"${inner || ''}>`;
+    });
+  });
+  
+  return html;
+}
+
+/**
+ * Fixes 1 fake link issue
+ * @param {string} html - The HTML string to process
+ * @returns

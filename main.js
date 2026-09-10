@@ -1,61 +1,29 @@
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
-// TODO: Identify and update specific functions that render dependency graphs or related UI components — FIXED (handled in accessibility functions above)
+// main.js
+
+/**
+ * Checks landmark structure of an HTML document
+ * @param {string} html - The HTML string to check
+ * @returns {object} Object containing landmark information
+ */
+function checkLandmarkStructure(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  
+  const mainLandmark = doc.querySelector('main, [role="main"]');
+  const landmarks = doc.querySelectorAll('[role], nav, header, footer, aside, main');
+  
+  return {
+    hasMainLandmark: !!mainLandmark,
+    landmarkCount: landmarks.length,
+    landmarks: Array.from(landmarks).map(el => el.tagName.toLowerCase() + (el.getAttribute('role') ? `[role="${el.getAttribute('role')}"]` : ''))
+  };
+}
 
 /**
  * Checks landmark elements for accessibility issues
  * @param {string} html - The HTML string to process
  * @returns {object} Object containing landmark validation results with errors and landmark counts
  */
-export function checkLandmarkElements(html) {
-  if (typeof html !== 'string') return { valid: false, errors: ['Invalid HTML input'], counts: {} };
-  
-  const errors = [];
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const counts = {};
-  
-  // Initialize counters for each landmark type
-  landmarks.forEach(lm => {
-    counts[lm] = 0;
-  });
-  
-  // Check for main landmark (should have exactly one)
-  const mainMatches = html.match(/<main\b/gi) || [];
-  counts['main'] = mainMatches.length;
-  if (mainMatches.length === 0) {
-    errors.push('Missing main landmark - add a main element for primary content');
-  } else if (mainMatches.length > 1) {
-    errors.push(`Multiple main landmarks found (${mainMatches.length}). Only one main landmark should exist per page.`);
-  }
-  
-  // Check other landmarks for accessible names
-  landmarks.forEach(lm => {
-    if (lm === 'main') return; // Already checked
-    
-    const regex = new RegExp(`<${lm}\\b([^>]*)>`, 'gi');
-    let match;
-    const seen = {};
-    
-    while ((match = regex.exec(html)) !== null) {
-      counts[lm]++;
-      const attrs = match[1] || '';
-      
-      // Check if landmark has accessible name (aria-label, aria-labelledby, or id for reference)
-      const hasAriaLabel = /aria-label\s*=/i.test(attrs);
-      const hasAriaLabelledby = /aria-labelledby\s*=/i.test(attrs);
-      const hasId = /id\s*=/i.test(attrs);
-      
-      if (!hasAriaLabel && !hasAriaLabelledby && !hasId) {
-        errors.push(`${lm} landmark lacks accessible name - consider adding aria-label, aria-labelledby, or id attribute`);
-      }
-    }
-  });
-  
-  return {
-    valid: errors.length === 0,
-    errors,
-    counts
-  };
-}
 
 /**
  * Adds lang attribute to HTML element

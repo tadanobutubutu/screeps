@@ -129,160 +129,13 @@ function addSvgAccessibleNames(svgElements) {
   });
 }
 
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute(htmlContent, lang = 'en') {
-  const langAttrPattern = /\s*lang=["'][^"']*["']/i;
-  
-  if (langAttrPattern.test(htmlContent)) {
-    return htmlContent.replace(langAttrPattern, `lang="${lang}"`);
-  }
-  
-  const htmlTagMatch = htmlContent.match(/<html([^>]*)?>/i);
-  if (htmlTagMatch) {
-    const attrs = htmlTagMatch[1] || '';
-    if (!attrs.includes('lang=')) {
-      return htmlContent.replace(
-        /<html([^>]*)?>/i,
-        `<html${attrs} lang="${lang}">`
-      );
-    }
-  }
-  
-  return htmlContent;
-}
-
-// REACT_017: Add main landmark to ensure proper landmark structure
-function addMainLandmark(htmlContent) {
-  const hasMainElement = /<main[\s>]/i.test(htmlContent);
-  
-  if (!hasMainElement) {
-    const bodyMatch = htmlContent.match(/<body([^>]*)?>/i);
-    if (bodyMatch) {
-      const bodyTag = bodyMatch[0];
-      const bodyAttrs = bodyMatch[1] || '';
-      const mainElement = '<main>';
-      const closingMainElement = '</main>';
-      
-      let updatedContent = htmlContent.replace(
-        bodyTag,
-        `${bodyTag}\n${mainElement}`
-      );
-      
-      if (!updatedContent.includes(closingMainElement)) {
-        const bodyCloseMatch = updatedContent.match(/<\/body>/i);
-        if (bodyCloseMatch) {
-          updatedContent = updatedContent.replace(
-            /<\/body>/i,
-            `${closingMainElement}\n</body>`
-          );
-        }
-      }
-      
-      return updatedContent;
-    }
-  }
-  
-  return htmlContent;
-}
-
-// REACT_041: Add accessible names to SVGs
-function addSvgAccessibleNames(svgElements) {
-  if (!Array.isArray(svgElements)) {
-    svgElements = [svgElements];
-  }
-  
-  return svgElements.map(svg => {
-    if (!svg || typeof svg !== 'object') {
-      return svg;
-    }
-    
-    if (!svg.attributes) {
-      svg.attributes = {};
-    }
-    
-    if (!svg.attributes['aria-label'] && !svg.attributes.role) {
-      svg.attributes.role = 'img';
-      svg.attributes['aria-label'] = svg.attributes.title || 'SVG Icon';
-    }
-    
-    return svg;
-  });
-}
-
-// REACT_036: Fix fake link issues by ensuring proper anchor tags or button elements
-function fixFakeLinkIssue(elements) {
-  if (!Array.isArray(elements)) {
-    elements = [elements];
-  }
-  
-  return elements.map(element => {
-    if (!element || typeof element !== 'object') {
-      return element;
-    }
-    
-    if (element.isFakeLink) {
-      element.tagName = 'button';
-      element.attributes = element.attributes || {};
-      
-      if (!element.attributes.type) {
-        element.attributes.type = 'button';
-      }
-      
-      delete element.isFakeLink;
-    }
-    
-    return element;
-  });
-}
-
-// REACT_027: Fix table structure issues
-function fixTableStructureIssues(tables) {
-  if (!Array.isArray(tables)) {
-    tables = [tables];
-  }
-  
-  return tables.map(table => {
-    if (!table || typeof table !== 'object') {
-      return table;
-    }
-    
-    if (!table.rows || !Array.isArray(table.rows)) {
-      return table;
-    }
-    
-    const correctedRows = table.rows.map((row, rowIndex) => {
-      const cellCount = row.cells ? row.cells.length : 0;
-      
-      if (row.type === 'header' && rowIndex === 0) {
-        row.attributes = row.attributes || {};
-        if (!row.attributes.scope) {
-          row.attributes.scope = 'col';
-        }
-      }
-      
-      return row;
-    });
-    
-    table.rows = correctedRows;
-    
-    if (!table.attributes) {
-      table.attributes = {};
-    }
-    
-    if (!table.caption && !table.attributes.summary) {
-      table.needsCaption = true;
-    }
-    
-    return table;
-  });
-}
-
-// Function to add ARIA role to dependencyGraph container
-function addARIAroleToDependencyGraph() {
-  const dependencyGraph = document.getElementById('dependencyGraph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'graph');
-  }
+// TODO: Implement this function for creating in-page buttons
+function createInPageButton(buttonId, buttonText, buttonAction) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.addEventListener('click', buttonAction);
+  document.body.appendChild(button);
 }
 
 // Export functions for testing
@@ -290,5 +143,5 @@ module.exports = {
   calculateDistance,
   toRad,
   ensureUniqueLandmarks,
-  addARIAroleToDependencyGraph
+  createInPageButton
 };

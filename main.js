@@ -9,31 +9,42 @@
 //_Commit: 669117b94c3d1a635653f730f030599efacbb752_
 //<!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
 
-// Here's where you add new functions
-function addProperLandmarkRegions(landmarks) {
-  // Validate input
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-  
-  const processedLandmarks = [];
-  
-  landmarks.forEach(landmark => {
-    // Check if landmark has required properties
-    if (landmark && landmark.name) {
-      // Create proper landmark region
-      const processedLandmark = {
-        name: landmark.name,
-        coordinates: landmark.coordinates || null,
-        region: {
-          type: 'landmark',
-          verified: true,
-          id: landmark.id || null
-        }
-      };
-      
-      processedLandmarks.push(processedLandmark);
-      console.log(`Adding landmark region for: ${landmark.name} at coordinates: ${landmark.coordinates}`);
+/**
+ * Main entry point for the Web Accessibility Checker.
+ * This file exports the core functionality used by the CLI and other modules.
+ */
+
+import { inspectElement } from './src/inspector.js';
+import { generateReport } from './src/reporter.js';
+import { readFileSync } from 'fs';
+
+/**
+ * Checks a given DOM element for common accessibility violations.
+ * @param {Element} element - The DOM element to evaluate.
+ * @returns {Promise<Array>} A promise that resolves to an array of violation objects.
+ */
+export async function checkAccessibility(element) {
+  const violations = [];
+  const target = element || document;
+
+  // Check links and buttons within the target element
+  const links = target.querySelectorAll('a');
+  const buttons = target.querySelectorAll('button');
+
+  links.forEach(link => {
+    if (link.getAttribute('aria-label') === null) {
+      violations.push({
+        type: 'missing-aria-label',
+        element: link,
+        message: 'Link lacks aria-label attribute.'
+      });
+    }
+    if (!link.hasAttribute('role')) {
+      violations.push({
+        type: 'missing-role',
+        element: link,
+        message: 'Link lacks role attribute.'
+      });
     }
   });
   
@@ -67,8 +78,279 @@ function ensureUniqueLandmarks() {
  * @param {HTMLElement} element - The element to check.
  * @returns {boolean} True if valid.
  */
-function uniqueLandmarks() {
-  ensureUniqueLandmarks();
+export async function checkTables(html) {
+  // TODO: Implement this function for accessibility checks on tables
+  return [];
+}
+
+/**
+ * Generates a human‑readable report based on the violations array.
+ * @param {Array} violations - An array of violation objects.
+ * @returns {string} The formatted report.
+ */
+export function generateReport(violations) {
+  // This is a placeholder implementation that always returns an empty report.
+  // TODO: Replace with actual report generation logic.
+  return '';
+}
+
+/**
+ * Entry point for the Node.js CLI.
+ * Reads the input file, runs accessibility checks, and prints the report.
+ */
+export function run() {
+  // TODO: Implement spawning logic
+  // Spawn a child process to read the input file, run accessibility checks,
+  // and print the formatted report to stdout.
+  const { spawn } = require('child_process');
+  const args = process.argv.slice(2);
+
+  if (args.length === 0) {
+    console.error('Usage: node main.js <input-file>');
+    process.exit(1);
+  }
+
+  const inputFile = args[0];
+  let fileContent = '';
+
+  try {
+    fileContent = readFileSync(inputFile, 'utf8');
+  } catch (err) {
+    console.error(`Error reading file: ${err.message}`);
+    process.exit(1);
+  }
+
+  // Spawn a child process to perform the accessibility analysis
+  const child = spawn(process.execPath, ['-e', `
+    const { checkTables, generateReport } = require('./main.js');
+    (async () => {
+      const violations = await checkTables(${JSON.stringify(fileContent)});
+      const report = generateReport(violations);
+      console.log(report);
+    })();
+  `], { stdio: 'inherit' });
+
+  child.on('error', (err) => {
+    console.error(`Spawn failed: ${err.message}`);
+    process.exit(1);
+  });
+
+  child.on('exit', (code) => {
+    process.exit(code || 0);
+  });
+}
+
+/**
+ * Main application entry point
+ *
+ * Combines legacy table utilities with React-based accessibility enhancements.
+ * - Legacy utilities (checkTableStructure, formatDate, sanitizeInput, createDataTable)
+ *   remain available for non-React usage and for tests.
+ * - Accessibility utilities are pulled in via the React app entry point.
+ */
+
+/**
+ * Creates an in-page button element
+ * @param {string} text - The text content of the button
+ * @param {Object} options - Configuration options for the button
+ * @param {Function} options.onClick - Click event handler function
+ * @param {string} options.className - CSS class names for styling
+ * @param {string} options.id - ID attribute for the button
+ * @param {string} options.title - Tooltip text for the button
+ * @param {boolean} options.disabled - Whether the button is disabled
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, options = {}) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    
+    if (options.className) {
+        button.className = options.className;
+    }
+    
+    if (options.id) {
+        button.id = options.id;
+    }
+    
+    if (options.title) {
+        button.title = options.title;
+    }
+    
+    if (typeof options.onClick === 'function') {
+        button.addEventListener('click', options.onClick);
+    }
+    
+    if (options.disabled) {
+        button.disabled = true;
+    }
+    
+    return button;
+}
+
+const VERSION = '1.0.0';
+
+// Configuration
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  debug: false,
+  timeout: 5000,
+  retries: 3
+};
+
+/**
+ * Format date for display
+ * @param {Date|string} date - Date to format
+ * @returns {string} - Formatted date string
+ */
+function formatDate(date) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Example class
+ */
+class DataProcessor {
+  constructor(options = {}) {
+    this.options = options;
+  }
+
+  process(data) {
+    return data.map(item => ({
+      ...item,
+      processed: true
+    }));
+  }
+}
+
+/**
+ * Checks the structure of a table element
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} - Validation result object
+ */
+function checkTableStructure(table) {
+  const result = {
+    isValid: true,
+    errors: [],
+    warnings: [],
+    rowCount: 0,
+    columnCount: 0,
+    hasHeader: false,
+    hasBody: false,
+    hasFooter: false
+  };
+
+  // Check if table element exists
+  if (!table) {
+    result.isValid = false;
+    result.errors.push('Table element is null or undefined');
+    return result;
+  }
+
+  // Check for table sections
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  const tfoot = table.querySelector('tfoot');
+
+  result.hasHeader = !!thead;
+  result.hasBody = !!tbody;
+  result.hasFooter = !!tfoot;
+
+  // Get all rows
+  const allRows = table.querySelectorAll('tr');
+  result.rowCount = allRows.length;
+
+  if (result.rowCount === 0) {
+    result.isValid = false;
+    result.errors.push('Table has no rows');
+    return result;
+  }
+
+  // Check header structure
+  if (!result.hasHeader) {
+    result.warnings.push('Table has no thead element');
+  } else {
+    const headerCells = thead.querySelectorAll('th, td');
+    result.columnCount = headerCells.length;
+  }
+
+  // Validate row consistency
+  const targetRow = tbody || allRows[0];
+  const firstRowCells = targetRow.querySelectorAll('td, th');
+  const expectedCellCount = firstRowCells.length || result.columnCount;
+
+  allRows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length !== expectedCellCount) {
+      result.isValid = false;
+      result.errors.push(`Row ${index} has ${cells.length} cells, expected ${expectedCellCount}`);
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Sanitize user input
+ * @param {string} input - Raw user input
+ * @returns {string} - Sanitized output
+ */
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return '';
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Create a data table from array data
+ * @param {Array} data - Array of objects to display
+ * @param {Array} columns - Column definitions
+ * @returns {HTMLTableElement} - Created table element
+ */
+function createDataTable(data, columns) {
+  const table = document.createElement('table');
+  table.className = 'data-table';
+
+  // Create header
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  columns.forEach(col => {
+    const th = document.createElement('th');
+    th.textContent = col.label || col.key;
+    th.style.width = col.width || 'auto';
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  // Create body
+  const tbody = document.createElement('tbody');
+  data.forEach(item => {
+    const tr = document.createElement('tr');
+    columns.forEach(col => {
+      const td = document.createElement('td');
+      td.textContent = item[col.key] !== undefined ? item[col.key] : '';
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+
+  return table;
+}
+
+// Validate input
+function validateInput(input) {
+  if (!input || typeof input !== 'object') {
+    throw new Error('Invalid input provided');
+  }
   return true;
 }
 

@@ -262,7 +262,7 @@ export function checkLandmarkElements(html) {
 export function addLangAttributeToHtml(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -283,7 +283,7 @@ export function fixTableStructure(html) {
   
   // Fix tables that need proper scope attributes on headers
   result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+    if (attrs && attrs.includes(' scope=')) {
       return match;
     }
     return `<th${attrs || ''} scope="col">`;
@@ -291,7 +291,7 @@ export function fixTableStructure(html) {
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
+    if (attrs && attrs.includes(' summary=') || attrs && attrs.includes(' caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -315,7 +315,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main\b/i.test(html)) {
+  if (html.includes('<main') || html.includes('<main ')) {
     return html;
   }
   
@@ -375,7 +375,7 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Extract title if present
-    const titleMatch = attributes.match(/<title>([^<]*)<\/title>/i);
+    const titleMatch = attributes.match(/<title[^>]*>([^<]*)<\/title>/);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
@@ -423,4 +423,11 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (
+    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('role=')) {
+      return `<section${safeAttrs}>`;
+    }
+    return `<section${safeAttrs} aria-label="Content section">`;
+  });
+  
+  // Also update closing tags for converted <main> elements
+  // Count occurrences of <

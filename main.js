@@ -22,18 +22,18 @@ function renderDependencyGraph() {
   const graph = Object.keys((Object.assign({}, ...modules)).reverse()) // Reverse the ordering of the keys
     .map(key => ({ name: key, dependencies: modules[key] }));
 
-// Function to ensure unique landmarks by filtering out duplicates
+// function to ensure unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
-  
+
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-    
-    const identifier = landmark.id || landmark.name || null;
-    
+
+    const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
+
     if (seen.has(identifier)) {
       return false;
     }

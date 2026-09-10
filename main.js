@@ -965,6 +965,10 @@ ReactDOM.render(React.createElement(App), document.getElementById('root'));
  * @returns {Object} - Validation result
  */
 module.exports = {
+  checkAccessibility,
+  checkTables,
+  generateReport,
+  run,
   VERSION,
   config,
   formatDate,

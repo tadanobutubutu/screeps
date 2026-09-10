@@ -9,79 +9,28 @@
 //_Commit: 669117b94c3d1a635653f730f030599efacbb752_
 //<!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
 
-/**
- * Main entry point for the Web Accessibility Checker.
- * This file exports the core functionality used by the CLI and other modules.
- */
-
-import { inspectElement } from './src/inspector.js';
-import { generateReport } from './src/reporter.js';
-import { readFileSync } from 'fs';
-
-/**
- * Checks a given DOM element for common accessibility violations.
- * @param {Element} element - The DOM element to evaluate.
- * @returns {Promise<Array>} A promise that resolves to an array of violation objects.
- */
-export async function checkAccessibility(element) {
-  const violations = [];
-  const target = element || document;
-
-  // Check links and buttons within the target element
-  const links = target.querySelectorAll('a');
-  const buttons = target.querySelectorAll('button');
-
-  links.forEach(link => {
-    if (link.getAttribute('aria-label') === null) {
-      violations.push({
-        type: 'missing-aria-label',
-        element: link,
-        message: 'Link lacks aria-label attribute.'
-      });
-    }
-    if (!link.hasAttribute('role')) {
-      violations.push({
-        type: 'missing-role',
-        element: link,
-        message: 'Link lacks role attribute.'
-      });
+// Here's where you add new functions
+function checkLandmarkElements(elements) {
+  // Implement function to check landmark elements
+  // Return an array of elements that are landmarks
+  const landmarkElements = [];
+  
+  elements.forEach(element => {
+    // Check if the element is a landmark
+    // Based on the context, landmarks have a 'role' or 'type' property
+    // For simplicity, we'll check if the element has a role that matches common landmark roles
+    const commonLandmarkRoles = ['main', 'nav', 'banner', 'aside', 'footer', 'header'];
+    
+    if (element.role && commonLandmarkRoles.includes(element.role)) {
+      landmarkElements.push(element);
     }
   });
   
-  return processedLandmarks;
+  return landmarkElements;
 }
 
-/**
- * Alias for addSvgAccessibleNames.
- */
-function addAccessibleNamesToSVGs() {
-  addSvgAccessibleNames();
-}
-
-/**
- * Ensure unique landmark IDs.
- */
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="form"]');
-  const usedIds = new Set();
-  landmarks.forEach(landmark => {
-    if (landmark.id && usedIds.has(landmark.id)) {
-      landmark.id = `${landmark.id}-${Date.now()}`;
-    } else if (landmark.id) {
-      usedIds.add(landmark.id);
-    }
-  });
-}
-
-/**
- * Function to check if a landmark is valid.
- * @param {HTMLElement} element - The element to check.
- * @returns {boolean} True if valid.
- */
-export async function checkTables(html) {
-  // TODO: Implement this function for accessibility checks on tables
-  return [];
-}
+// Don't forget to export new functions if necessary
+export { addProperLandmarkRegions, checkLandmarkElements };
 
 /**
  * Generates a human‑readable report based on the violations array.

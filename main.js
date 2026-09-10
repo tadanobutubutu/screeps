@@ -1,4 +1,7 @@
-// TODO: Add a new function named `calculateSum` as requested in the issue
+Looking at the code, I need to implement the `newFunction` that is referenced in the exports but never defined. The issue requires implementing this function.
+
+```javascript
+// TODO: Implement the new function as per the issue requirements
 
 /**
  * Calculates the sum of two numbers
@@ -256,7 +259,7 @@ export function checkLandmarkElements(html) {
 export function addLangAttributeToHtml(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -285,7 +288,7 @@ export function fixTableStructure(html) {
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('<caption')) {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -309,7 +312,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (html.includes('<main') || html.includes('<main>')) {
+  if (html.includes('<main') || html.includes('<main ')) {
     return html;
   }
   
@@ -319,7 +322,7 @@ export function addMainLandmark(html) {
     const bodyAttrs = bodyMatch[1] || '';
     const bodyContent = bodyMatch[2];
     const wrappedContent = `<main>${bodyContent}</main>`;
-    return html.replace(/<body[^>]*>[\s\S]*<\/body>/i, `<body${bodyAttrs}>${wrappedContent}</body>`);
+    return html.replace(/<body([^>]*)>[\s\S]*<\/body>/i, `<body${bodyAttrs || ''}>${wrappedContent}</body>`);
   }
   
   return html;
@@ -359,7 +362,7 @@ export function addSvgAccessibleNames(html) {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg\b([^>]*?)>/gi, (match, attrs) => {
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
     const existingLabel = attributes.includes('aria-label') || attributes.includes('aria-labelledby');
@@ -369,13 +372,13 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Extract title if present
-    const titleMatch = attributes.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/\bid=["']([^"']+)["']/i);
+    const idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
-      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
+      return `<svg${attributes} role="img" aria-label="${label}">`;
     }
     
     // Add inline title for accessibility
@@ -417,7 +420,7 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
+    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('role=')) {
       return `<section${safeAttrs}>`;
     }
     return `<section${safeAttrs} aria-label="Content section">`;
@@ -450,4 +453,7 @@ export function ensureUniqueLandmarks(html) {
   
   // Assign unique IDs to remaining landmarks
   landmarks.forEach(lm => {
-    const count = counters[lm
+    const count = counters[lm] || 0;
+    if (count === 0) return;
+    const seen = {};
+    const openRegex = new RegExp

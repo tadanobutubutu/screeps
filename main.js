@@ -40,7 +40,7 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// Ensure unique landmarks by filtering duplicates
+// TODO: Implement this function for ensuring unique landmarks (from issue)
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -49,9 +49,9 @@ function ensureUniqueLandmarks(landmarks) {
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-    
-    const identifier = landmark.id || landmark.name;
-    
+
+    const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
+
     if (seen.has(identifier)) {
       return false;
     }
@@ -60,40 +60,7 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute(lang = 'en') {
-  if (typeof document !== 'undefined') {
-    document.documentElement.lang = lang;
-  }
-  return lang;
-}
-
-// REACT_025: Add other accessibility changes as per the insight report
-function setFocusToMainContent() {
-  if (typeof document !== 'undefined') {
-    const main = document.querySelector('main') || document.querySelector('#main') || document.querySelector('[role="main"]');
-    if (main) {
-      main.setAttribute('tabindex', '-1');
-      main.focus();
-    }
-  }
-}
-
-function announceToScreenReader(message, priority = 'polite') {
-  if (typeof document !== 'undefined') {
-    const announcement = document.createElement('div');
-    announcement.setAttribute('role', 'status');
-    announcement.setAttribute('aria-live', priority);
-    announcement.setAttribute('aria-atomic', 'true');
-    announcement.className = 'sr-only';
-    announcement.textContent = message;
-    document.body.appendChild(announcement);
-    
-    setTimeout(() => {
-      document.body.removeChild(announcement);
-    }, 1000);
-  }
-}
+// TODO: Implement getLangAttribute(), getFullLangAttribute(), validateTableAccessibility(), validateTableStructure(), validateLandmark(), validateLandmarkStructure(), getSvgAccessibleName(), createInPageButton(), createAccessibleLink() and handleAccessibilityIssues() functions (from issue)
 
 // Export functions for testing
 module.exports = {

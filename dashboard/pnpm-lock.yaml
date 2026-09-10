@@ -15,7 +15,7 @@ importers:
         specifier: ^2.47.0
         version: 2.105.4
       next:
-        specifier: ^16.3.3
+        specifier: ^16.2.11
         version: 16.3.3(@types/node@24.12.4)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react:
         specifier: ^19.0.0
@@ -31,7 +31,7 @@ importers:
         specifier: ^19.0.0
         version: 19.2.14
       postcss:
-        specifier: '>=8.5.14'
+        specifier: ^8.5.23
         version: 8.5.23
       typescript:
         specifier: ^7.0.0
@@ -442,11 +442,6 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@3.3.19:
-    resolution: {integrity: sha512-Y2tUNy4ouw6tq5oDSKeQYGOyhkUBhNOcGV/02KC+6kd9eDGqdZd++mjMiIDilrBYvjEnCYvVtsuHCuP+okSfug==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
-
   next@16.3.3:
     resolution: {integrity: sha512-tuRTx1nQ/yVw83cwJBo9F+njGUgMn3UHQycreWHB8XsStvvAh1AthbI8/4IpKnFaF58F+iSiHejYOlMQ/eq83g==}
     engines: {node: '>=20.9.0'}
@@ -792,15 +787,13 @@ snapshots:
 
   nanoid@3.3.17: {}
 
-  nanoid@3.3.19: {}
-
   next@16.3.3(@types/node@24.12.4)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:
       '@next/env': 16.3.3
       '@swc/helpers': 0.5.23
-      baseline-browser-mapping: 2.11.22
-      caniuse-lite: 1.0.30001810
-      postcss: 8.5.28
+      baseline-browser-mapping: 2.11.1
+      caniuse-lite: 1.0.30001806
+      postcss: 8.5.23
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
       styled-jsx: 5.1.6(react@19.2.6)

@@ -25,7 +25,18 @@ function renderDependencyGraph() {
   const graph = Object.keys((Object.assign({}, ...modules)).reverse()) // Reverse the ordering of the keys
     .map(key => ({ name: key, dependencies: modules[key] }));
 
-// Function for ensuring unique landmarks
+// Function to ensure landmarks have accessible labels for screen readers
+function ensureAccessibleLabel(landmark) {
+  if (!landmark) return null;
+  
+  return {
+    ...landmark,
+    accessibleName: landmark.name || landmark.description || `Landmark ${landmark.id || ''}`,
+    accessibleDescription: landmark.description || landmark.name || ''
+  };
+}
+
+// Ensure unique landmarks by filtering duplicates
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -130,7 +141,5 @@ module.exports = {
   calculateDistance,
   toRad,
   ensureUniqueLandmarks,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph
+  ensureAccessibleLabel
 };

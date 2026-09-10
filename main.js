@@ -148,10 +148,6 @@ function capitalizeFirstLetter(text) {
   return null;
 }
 
-// TODO: Add back any required exports that might have been removed
-// Assuming that 'greeting' was previously exported and needs to be added back
-module.exports = {
-  greeting,
-  newFunction,
-  getSvgAccessibleName
-};
+// ... existing code and exports ...
+
+export { getSvgAccessibleName };

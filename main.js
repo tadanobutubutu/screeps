@@ -24,20 +24,61 @@ function addressAccessibilityIssues() {
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
 
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.getAttribute('aria-label')) {
-      button.setAttribute('aria-label', button.textContent || 'Button');
-    }
-    seen.add(identifier);
-    return true;
-  });
+  return null;
+}
 
-// TODO: Address accessibility issues from insight report:
-// Implement aria-label for an accessibility-friendly landmark identification
+// Sets an aria attribute on an element, with validation
+function setAriaAttribute(element, attribute, value) {
+  if (!element || !attribute) {
+    return;
+  }
+  // Ensure the attribute name is prefixed with 'aria-'
+  const attrName = attribute.startsWith('aria-') ? attribute : `aria-${attribute}`;
+  element.setAttribute(attrName, String(value));
+}
 
-function improveAccessibility() {
-  addressAccessibilityIssues();
+// Removes an aria attribute from an element
+function removeAriaAttribute(element, attribute) {
+  if (!element || !attribute) {
+    return;
+  }
+  const attrName = attribute.startsWith('aria-') ? attribute : `aria-${attribute}`;
+  element.removeAttribute(attrName);
+}
+
+// Sets multiple aria attributes on an element from an object
+function setAriaAttributes(element, attributes) {
+  if (!element || !attributes || typeof attributes !== 'object') {
+    return;
+  }
+  for (const [key, value] of Object.entries(attributes)) {
+    setAriaAttribute(element, key, value);
+  }
+}
+
+// Makes an element focusable by adding tabindex and aria attributes
+function makeAccessible(element, options = {}) {
+  if (!element) {
+    return;
+  }
+  if (options.focusable) {
+    element.setAttribute('tabindex', options.tabindex || '0');
+  }
+  if (options.label) {
+    element.setAttribute('aria-label', options.label);
+  }
+  if (options.labelledBy) {
+    element.setAttribute('aria-labelledby', options.labelledBy);
+  }
+  if (options.describedBy) {
+    element.setAttribute('aria-describedby', options.describedBy);
+  }
+  if (options.role) {
+    element.setAttribute('role', options.role);
+  }
+  if (options.hidden !== undefined) {
+    element.setAttribute('aria-hidden', String(options.hidden));
+  }
 }
 
 function addressInsightReportIssues(insightReport) {
@@ -74,7 +115,87 @@ function addressInsightReportIssues(insightReport) {
 function fixFakeLinks(linkSelector) {
   const links = document.querySelectorAll(linkSelector);
 
-  links.forEach(link => {
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    elements.forEach(el => {
+      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
+      if (isUnique) {
+        uniqueLandmarkMap[landmark].push(el);
+      } else {
+        el.removeAttribute('role');
+      }
+    });
+  });
+}
+
+// New function to add landmark roles and fix issues
+function addLandmarkRoles(insightReport) {
+  const issues = insightReport.issues || [];
+
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_017') {
+      const element = document.querySelector(issue.selector);
+      if (element && issue.ariaRole) {
+        element.setAttribute('role', issue.ariaRole);
+      }
+    }
+  });
+}
+
+// Address other insight report issues
+function fixLandmarkIssues(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_017') {
+      const element = document.querySelector(issue.selector);
+      if (element && issue.ariaRole) {
+        element.setAttribute('role', issue.ariaRole);
+      }
+    }
+  });
+}
+
+function renderDependencyGraphContent(data) {
+  // Replace the existing content within the dependencyGraph div using the provided data.
+  // Support both class and data attribute selectors for compatibility
+  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  if (container) {
+    container.innerHTML = data;
+  }
+}
+
+// Address accessibility issues from insight report
+function improveAccessibility() {
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(button => {
+    if (!button.getAttribute('aria-label')) {
+      button.setAttribute('aria-label', button.textContent || 'Button');
+    }
+  });
+
+  const focusable = document.querySelectorAll('[role="link"]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
+  });
+}
+
+function renderDependencyGraph(dependencyData) {
+  console.log('Rendering dependency graph with data:', dependencyData);
+}
+
+function renderIndexView(indexData) {
+  console.log('Rendering index view with data:', indexData);
+}
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function fixFakeLinks() {
+  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
+  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
+
+  [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
     if (!link.getAttribute('aria-label')) {
@@ -178,21 +299,10 @@ function fixUniqueLandmarks(insightReport) {
   ensureUniqueLandmarks();
 }
 
-function ensureUniqueLandmarks() {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const uniqueLandmarkMap = {};
-
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
-    elements.forEach(el => {
-      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
-      if (isUnique) {
-        uniqueLandmarkMap[landmark].push(el);
-      } else {
-        el.removeAttribute('role');
-      }
-    });
-  });
+function addLangAttribute() {
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
 }
 
 function implementNewFunction() {
@@ -228,7 +338,13 @@ module.exports = {
   addLangAttribute,
 >>>>>>> origin/main
   main,
-  capitalizeFirstLetter
+  addressAccessibilityIssues,
+  renderDependencyGraphContent,
+  fixUniqueLandmarks,
+  setAriaAttribute,
+  removeAriaAttribute,
+  setAriaAttributes,
+  makeAccessible
 };
 
 main();

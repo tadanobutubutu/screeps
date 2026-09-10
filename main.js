@@ -53,6 +53,16 @@ const App = () => {
   // Google sign-in logic
   googleSignIn();
 
+  // Example of replacing 'my-button' with an actual button id for accessibility
+  fixButtonIdentifiers();
+
+  // Ensure the dependencyGraph container has a proper ARIA role
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'img');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph visualization');
+  }
+
   return (
     <div className="app-container">
       <header>

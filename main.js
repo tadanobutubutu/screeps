@@ -202,9 +202,14 @@ function addressAccessibilityIssues() {
   }
 }
 
-// New function 2
-function newFunctionTwo() {
-  // Implementation of newFunctionTwo
+// Render dependency graph content
+function renderDependencyGraphContent(data) {
+  // Replace the existing content within the dependencyGraph div using the provided data.
+  // Support both class and data attribute selectors for compatibility
+  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  if (container) {
+    container.innerHTML = data;
+  }
 }
 
 // Address accessibility issues from insight report
@@ -262,7 +267,7 @@ function ensureUniqueLandmarksDOM() {
     const elements = document.querySelectorAll(`[role="${landmark}"]`);
     uniqueLandmarkMap[landmark] = [];
     elements.forEach(el => {
-      const isUnique = uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
+      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
       if (isUnique) {
         uniqueLandmarkMap[landmark].push(el);
       } else {
@@ -425,6 +430,12 @@ function fixUniqueLandmarks(insightReport) {
 
   // Check if all landmarks are unique and re-add if necessary
   ensureUniqueLandmarksDOM();
+}
+
+function addLangAttribute() {
+  if (!document.documentElement.hasAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
 }
 
 function implementNewFunction() {

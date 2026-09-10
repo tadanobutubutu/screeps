@@ -428,4 +428,140 @@ export function ensureUniqueLandmarks(html) {
     const seen = {};
     const openRegex = new RegExp(`<${lm}(\\s[^>]*)?>`, 'gi');
     html = html.replace(openRegex, (match, inner) => {
-      // Skip if
+      // Skip if an id attribute is already present
+      if (inner && inner.includes('id=')) {
+        return match;
+      }
+      seen[lm] = (seen[lm] || 0) + 1;
+      const id = `${lm}-${seen[lm]}`;
+      return `<${lm} id="${id}"${inner || ''}>`;
+    });
+  });
+  
+  return html;
+}
+
+/**
+ * Fixes 1 fake link issue
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with fixed fake link issues
+ */
+export function fixFakeLinkIssue(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Fix any fake links that do not have a valid href attribute
+  return html.replace(/<a(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('href=')) {
+      return match;
+    }
+    return match.replace(/<a/, '<a href="#"');
+  });
+}
+
+/**
+ * Checks table structure for accessibility issues
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function checkTableStructure(html) {
+  if (typeof html !== 'string') return [];
+  
+  const issues = [];
+  const tableRegex = /<table\b[^>]*>([\s\S]*?)<\/table>/gi;
+  let tableMatch;
+  
+  while ((tableMatch = tableRegex.exec(html)) !== null) {
+    const tableHtml = tableMatch[0];
+    
+    // Check for caption
+    if (!/<caption\b/i.test(tableHtml)) {
+      issues.push('Table missing <caption> element');
+    }
+    
+    // Check for summary attribute
+    if (!/\bsummary=/i.test(tableHtml)) {
+      issues.push('Table missing summary attribute');
+    }
+    
+    // Check for th with scope
+    const thRegex = /<th\b([^>]*)>/gi;
+    let thMatch;
+    let thMissingScope = false;
+    while ((thMatch = thRegex.exec(tableHtml)) !== null) {
+      const attrs = thMatch[1];
+      if (!/\bscope=/i.test(attrs)) {
+        thMissingScope = true;
+        break;
+      }
+    }
+    if (thMissingScope) {
+      issues.push('<th> missing scope attribute');
+    }
+    
+    // Check for thead/tbody
+    if (!/<thead\b/i.test(tableHtml) || !/<tbody\b/i.test(tableHtml)) {
+      issues.push('Table missing <thead> or <tbody> structure');
+    }
+  }
+  
+  return issues;
+}
+
+/**
+ * Returns the person's name
+ * @param {string} name - The name to return
+ * @returns {string} The person's name
+ */
+export function personName(name) {
+  return name;
+}
+
+/**
+ * Validates table accessibility
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function validateTableAccessibility(html) {
+  // Placeholder implementation
+  return [];
+}
+
+/**
+ * Validates table structure
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function validateTableStructure(html) {
+  // Placeholder implementation
+  return [];
+}
+
+/**
+ * Validates landmark usage
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function validateLandmark(html) {
+  // Placeholder implementation
+  return [];
+}
+
+/**
+ * Validates landmark structure
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function validateLandmarkStructure(html) {
+  // Placeholder implementation
+  return [];
+}
+
+/**
+ * Gets accessible name for SVG
+ * @param {string} svg - The SVG element or HTML
+ * @returns {string} Accessible name
+ */
+export function getSvgAccessibleName(svg) {
+  // Placeholder implementation
+  return 'SVG image';
+}

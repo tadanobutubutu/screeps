@@ -174,8 +174,21 @@ export function ... {
  */
 export function ... {
   if (typeof html !== 'string') return html;
-
-  // Convert duplicate <main> elements to <section> with aria-label
+  
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  const counters = {};
+  
+  // Initialize counters for each landmark type
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
+    }
+  });
+  
+  // First, ensure only one <main> landmark exists.
+  // Convert subsequent <main> elements to <section> while preserving any attributes
   let mainSeen = false;
   html = ... (match, attrs) => {
     if (!mainSeen) {
@@ -189,9 +202,12 @@ export function ... {
     }
     return `<section${safeAttrs} aria-label="Content section">`;
   });
-
-  // Update corresponding closing </main> tags to </section> for the extras
-  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
+  
+  // Also update closing tags for converted <main> elements
+  // Count occurrences of <main> opening tags in the original-like state and
+  // match closing tags. Since we replaced extra <main> with <section>, we must
+  // replace the corresponding extra </main> closing tags with </section>.
+  const mainOpenCount = (html.match(/<main\\b/gi) || []).length;
   const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
   if (mainCloseCount > mainOpenCount) {
     const extras = mainCloseCount - mainOpenCount;

@@ -6,7 +6,7 @@
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with lang attribute added
  */
-function addLangAttribute(html) {
+export function addHtmlLang(html) {
   if (typeof html !== 'string') return html;
   
   return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
@@ -24,7 +24,7 @@ function addLangAttribute(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with fixed table structures
  */
-function fixTableStructure(html) {
+export function fixTableStructure(html) {
   if (typeof html !== 'string') return html;
   
   let result = html;
@@ -39,7 +39,7 @@ function fixTableStructure(html) {
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && (attrs.includes(' summary=') || attrs.includes('caption'))) {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption=')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -51,7 +51,7 @@ function fixTableStructure(html) {
     // Check if tbody already exists before this tr
     const trIndex = result.indexOf(match);
     const beforeTr = result.substring(0, trIndex);
-    if (beforeTr && !beforeTr.includes('<tbody') && beforeTr.includes('<table')) {
+    if (beforeTr && !beforeTr.includes('<tbody') && !beforeTr.includes('</tbody')) {
       return `<tbody>${match}`;
     }
     return match;
@@ -66,8 +66,8 @@ function fixTableStructure(html) {
     
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
-        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
+      if (hasTbody && !table.includes('</tbody>')) {
+        result = result.replace(table, table.replace(/(<tbody>)([\s\S]*)(<table)/i, '$1$2</tbody>$3'));
       }
     }
   });
@@ -93,8 +93,8 @@ function addMainLandmark(html) {
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main>${bodyContent}</main>`;
-    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
+    const wrappedContent = `<main${bodyAttrs}>${bodyContent}</main>`;
+    return html.replace(bodyMatch[0], wrappedContent);
   }
   
   return html;
@@ -128,7 +128,7 @@ function addSvgAccessibleNames(html) {
     }
     
     // Add inline title for accessibility
-    const titleId = `svg-title-${++svgCounter}`;
+    const titleId = `svg-title-${svgCounter}`;
     return `<svg${attrs} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
   });
 }
@@ -174,50 +174,61 @@ function ensureUniqueLandmarks(html) {
   
   // Also update closing tags for converted <main> elements
   // Count occurrences of <main> opening tags in the original-like state and
-  // match closing tags. Since we replaced extra <main
-  let mainOpenCount = 0;
-  html = html.replace(/<\/main>/gi, (match) => {
-    mainOpenCount++;
-    if (mainOpenCount > 1) {
-      return '</section>';
-    }
-    return match;
+  // match closing tags. Since we replaced extra <main> with <section>, we must
+  // replace the corresponding extra </main> closing tags with </section>.
+  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
+  const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
+  if (mainCloseCount > mainOpenCount) {
+    const extras = mainCloseCount - mainOpenCount;
+    let replaced = 0;
+    html = html.replace(/<\/main>/gi, (match) => {
+      if (replaced < extras) {
+        replaced += 1;
+        return '</section>';
+      }
+      return match;
+    });
+  }
+  
+  // Recompute counters after main -> section conversion
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    counters[lm] = matches ? matches.length : 0;
+  });
+  
+  // Assign unique IDs to remaining landmarks
+  landmarks.forEach(lm => {
+    const count = counters[lm] || 0;
+    if (count === 0) return;
+    const seen = {};
+    const openRegex = new RegExp(`<${lm}([^>]*)\\s*>`, 'gi');
+    html = html.replace(openRegex, (match, inner) => {
+      // Skip if an id attribute is already present
+      if (inner && inner.includes('id=')) {
+        return match;
+      }
+      seen[lm] = (seen[lm] || 0) + 1;
+      const id = `${lm}-${seen[lm]}`;
+      return `<${lm} id="${id}"${inner || ''}>`;
+    });
   });
   
   return html;
 }
 
-// Application state
-let isInitialized = false;
-const appData = {};
-
-// Address accessibility issues from insight report:
-function addressAccessibilityIssues() {
-  // Ensure the dependencyGraph container has a proper ARIA role
-  // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'tree');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-  }
-}
-
-// Render dependency graph content
-function renderDependencyGraphContent(data) {
-  // Replace the existing content within the dependencyGraph div using the provided data.
-  // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
-  if (container) {
-    container.innerHTML = data;
-  }
-}
-
-// Address accessibility issues from insight report
-function improveAccessibility() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.getAttribute('aria-label')) {
-      button.setAttribute('aria-label', button.textContent || 'Button');
+/**
+ * Fixes 1 fake link issue
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with fixed fake link issues
+ */
+export function fixFakeLinks(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Fix any fake links that do not have a valid href attribute
+  return html.replace(/<a([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('href=')) {
+      return match;
     }
   });
 

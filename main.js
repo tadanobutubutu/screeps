@@ -133,36 +133,74 @@ function addSvgAccessibleNames(svgElements) {
   });
 }
 
-// Function for addressing accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
-  // Handle case where insightReport is not provided or invalid
-  if (!insightReport || typeof insightReport !== 'object') {
-    return [];
+// Added keyboard navigation support
+function addKeyboardNavigation(element, callback) {
+  if (!element || typeof callback !== 'function') {
+    return;
   }
-  
-  const accessibilityIssues = insightReport.accessibilityIssues || [];
-  
-  if (!Array.isArray(accessibilityIssues)) {
-    return [];
-  }
-  
-  // Log each accessibility issue for review
-  accessibilityIssues.forEach(issue => {
-    if (issue && typeof issue === 'object') {
-      const location = issue.location || 'unknown location';
-      const description = issue.description || 'No description';
-      const severity = issue.severity || 'unknown severity';
-      const guidance = issue.guidance || 'No guidance available';
-      
-      console.log(`Accessibility Issue at ${location}:`);
-      console.log(`  Description: ${description}`);
-      console.log(`  Severity: ${severity}`);
-      console.log(`  Guidance: ${guidance}`);
-      console.log('---');
+  element.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      callback(event);
     }
   });
+}
+
+// Added ARIA labels for interactive elements
+function setAriaLabel(element, label) {
+  if (!element) {
+    return;
+  }
+  element.setAttribute('aria-label', label);
+}
+
+// Added screen reader announcements
+function announceToScreenReader(message) {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+
+  document.body.appendChild(announcement);
+
+  setTimeout(() => {
+    if (announcement.parentNode) {
+      announcement.parentNode.removeChild(announcement);
+    }
+  }, 1000);
+}
+
+// Added focus trapping for modals
+function trapFocus(modalElement) {
+  if (!modalElement) {
+    return;
+  }
+
+  const focusableElements = modalElement.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
   
-  return accessibilityIssues;
+  if (focusableElements.length === 0) {
+    return;
+  }
+
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  modalElement.addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    if (event.shiftKey && document.activeElement === firstFocusable) {
+      event.preventDefault();
+      lastFocusable.focus();
+    } else if (!event.shiftKey && document.activeElement === lastFocusable) {
+      event.preventDefault();
+      firstFocusable.focus();
+    }
+  });
 }
 
 // Export functions for testing
@@ -170,5 +208,8 @@ module.exports = {
   calculateDistance,
   toRad,
   ensureUniqueLandmarks,
-  addressAccessibilityIssues
+  addKeyboardNavigation,
+  setAriaLabel,
+  announceToScreenReader,
+  trapFocus
 };

@@ -14,8 +14,14 @@ function getPkgManager() {
 
 function runCommand(file, args) {
     try {
-        const execArgs = Array.isArray(args) ? args : (args ? [args] : []);
-        execFileSync(file, execArgs, { stdio: 'pipe', encoding: 'utf8' });
+        if (Array.isArray(args)) {
+            execFileSync(file, args, { stdio: 'pipe', encoding: 'utf8' });
+        } else {
+            const parts = String(file).trim().split(/\s+/);
+            const cmd = parts[0];
+            const cmdArgs = parts.slice(1);
+            execFileSync(cmd, cmdArgs, { stdio: 'pipe', encoding: 'utf8' });
+        }
         return { ok: true };
     } catch (error) {
         return {

@@ -1,6 +1,8 @@
 // TODO: Add any other missing exports that might have been?
 
-const config = {};
+const config = {
+  debug: false
+};
 const logger = require('./utils/logger');
 
 // Example of how to export a required function from another file
@@ -113,7 +115,7 @@ function improveAccessibility() {
   });
 
   // Ensure all clickable elements are focusable
-  const focusable = document.querySelectorAll('[role="button"], [role="link"]');
+  const focusable = document.querySelectorAll('[onclick], [role="button"]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -158,7 +160,7 @@ function addressInsightReportIssues(insightReport) {
 function ensureUniqueLandmarks() {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+    const elements = document.querySelectorAll('[role="' + landmark + '"], ' + landmark);
     const uniqueElements = [];
     elements.forEach(el => {
       const isUnique = !uniqueElements.some(uEl => uEl === el);
@@ -173,7 +175,7 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to add landmark roles and fix issues
-function addLandmarkRolesAndFixIssues(insightReport) {
+function addLandmarkRoles(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
@@ -185,10 +187,11 @@ function addLandmarkRolesAndFixIssues(insightReport) {
   });
 }
 
-function addLandmarkRolesAndFixIssues() {
-  // Add main landmark if missing
-  addMainLandmark();
-  // Additional landmark fixes can be added here
+function fixLandmarkIssues(insightReport) {
+  // Implementation for adding landmark roles and fixing landmark issues
+  // This is a placeholder that would need to be implemented based on specific requirements
+  addLandmarkRoles(insightReport);
+  ensureUniqueLandmarks();
 }
 
 function renderDependencyGraph(dependencyData) {
@@ -213,7 +216,7 @@ function fixFakeLinks() {
   
   [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
-    link.tabIndex = 0;
+    link.tabIndex = '0';
     if (!link.getAttribute('aria-label')) {
       link.setAttribute('aria-label', 'Button');
     }
@@ -248,18 +251,20 @@ function fixTableHeaderCellScope() {
   tables.forEach(table => {
     const headerCells = table.querySelectorAll('th:not([scope])');
     headerCells.forEach(cell => {
-      const rows = table.querySelectorAll('tr');
-      const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
-      let isHeaderRow = true;
-      
-      rows.forEach(row => {
-        const rowCells = Array.from(row.querySelectorAll('th, td'));
-        if (rowCells[cellIndex] !== cell) {
-          isHeaderRow = false;
-        }
-      });
-      
-      cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
+      if (!cell.hasAttribute('scope')) {
+        const rows = Array.from(table.querySelectorAll('tr'));
+        const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+        let isHeaderRow = true;
+        
+        rows.forEach(row => {
+          const rowCells = Array.from(row.querySelectorAll('th, td'));
+          if (rowCells[cellIndex] !== cell) {
+            isHeaderRow = false;
+          }
+        });
+        
+        cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
+      }
     });
   });
 }
@@ -290,19 +295,19 @@ function addSvgAccessibleNames() {
   svgs.forEach((svg, index) => {
     const title = svg.querySelector('title');
     if (title) {
-      const titleId = `svg-title-${index + 1}`;
+      const titleId = 'svg-title-' + index;
       title.setAttribute('id', titleId);
       svg.setAttribute('aria-labelledby', titleId);
     } else {
       const title = document.createElement('title');
-      title.textContent = `SVG graphic ${index + 1}`;
+      title.textContent = 'SVG graphic ' + (index + 1);
       svg.insertBefore(title, svg.firstChild);
     }
   });
 }
 
 // Updated function for REACT_025 (ensuring unique landmarks)
-function processUniqueLandmarkIssues(insightReport) {
+function handleUniqueLandmarksIssue(insightReport) {
   const issues = insightReport.issues || [];
   let uniqueLandmarks = {};
 
@@ -326,61 +331,4 @@ function processUniqueLandmarkIssues(insightReport) {
   ensureUniqueLandmarks();
 }
 
-// New function to implement accessibility fixes
-function implementNewFunction() {
-  addressAccessibilityIssues();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  addLangAttribute();
-  fixTableStructureIssues();
-  addMainLandmark();
-  fixTableHeaderCellScope();
-  addSvgAccessibleNames();
-}
-
-// Existing code preserved below
-function main() {
-  console.log('Running main application');
-  return someFunction();
-}
-
-// Export all functions for use elsewhere in the repository
-module.exports = {
-  validateLandmark,
-  config,
-  isLandmark,
-  validateLandmarks,
-  getLandmarkElements,
-  SomeModule,
-  setSvgAccessibleName,
-  improveAccessibility,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  ensureUniqueLandmarks,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  ensureUniqueLandmarks,
-  fixFakeLinks,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  implementNewFunction,
-  addLangAttribute,
-  main,
-  someFunction,
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
-  addLandmarkRolesAndFixIssues,
-  fixLandmarkIssues,
-  processUniqueLandmarkIssues
-};
-
-// Execute main function
-main();
+// New

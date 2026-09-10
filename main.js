@@ -449,6 +449,9 @@ function renderIndexView(indexData) {
   renderIndexContentWithOptions(indexData, { container: document.querySelector('.index-content, [data-index-content]') });
 }
 
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 function calculateSum(a, b) {
   return a + b;
 }

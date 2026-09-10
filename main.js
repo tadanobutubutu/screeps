@@ -25,7 +25,7 @@ function renderDependencyGraph() {
   const graph = Object.keys((Object.assign({}, ...modules)).reverse()) // Reverse the ordering of the keys
     .map(key => ({ name: key, dependencies: modules[key] }));
 
-// function to ensure unique landmarks
+// Function for ensuring unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];

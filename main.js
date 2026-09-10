@@ -6,8 +6,8 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute())
 
-```javascript
-// TODO: Implement the new function as per the issue requirements
+
+// ... (existing code continues here, including imports, exports, and functions)
 
 /**
  * Calculates the sum of two numbers
@@ -262,7 +262,7 @@ export function checkLandmarkElements(html) {
 export function addLangAttributeToHtml(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -283,7 +283,7 @@ export function fixTableStructure(html) {
   
   // Fix tables that need proper scope attributes on headers
   result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes(' scope=')) {
+    if (attrs && attrs.includes('scope=')) {
       return match;
     }
     return `<th${attrs || ''} scope="col">`;
@@ -291,7 +291,7 @@ export function fixTableStructure(html) {
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes(' summary=') || attrs && attrs.includes(' caption=')) {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -379,9 +379,9 @@ export function addSvgAccessibleNames(html) {
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/\bid=["']([^"']+)["']/);
+    const idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
-      return `<svg${attributes} role="img" aria-label="${label}">`;
+      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}">`;
     }
     
     // Add inline title for accessibility
@@ -416,35 +416,4 @@ export function ensureUniqueLandmarks(html) {
   // Convert subsequent <main> elements to <section> with aria-label.
   let mainSeen = false;
   html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
-    if (!mainSeen) {
-      mainSeen = true;
-      return match;
-    }
-    // Replace additional <main> tags with <section> while preserving any attributes
-    const safeAttrs = attrs || '';
-    // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
-      return `<section${safeAttrs}>`;
-    }
-    return `<section${safeAttrs} aria-label="Content section">`;
-  });
-  
-  // Also update closing tags for converted <main> elements
-  // Count occurrences of <main> opening tags in the original-like state and
-  // match closing tags. Since we replaced extra <main> with <section>, we must
-  // replace the corresponding extra </main> closing tags with </section>.
-  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
-  const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
-  if (mainCloseCount > mainOpenCount) {
-    const extras = mainCloseCount - mainOpenCount;
-    let replaced = 0;
-    html = html.replace(/<\/main>/gi, (match) => {
-      if (replaced < extras) {
-        replaced += 1;
-        return '</section>';
-      }
-      return match;
-    });
-  }
-  
-  // Recompute counters after
+    if (!main

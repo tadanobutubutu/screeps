@@ -1,21 +1,12 @@
-// TODO: Add any other missing exports that might have been?
-
 const config = require('./config');
 const logger = require('./utils/logger');
 
 // Application state
 let isInitialized = false;
 const appData = {};
+let uniqueLandmarks = {};
 
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
-
-// Import the required module - fixed syntax
-const someFunction = () => 'someFunction result';
-
-// Address accessibility issues from insight report
-function addressAccessibilityIsses() {
+function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
   const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
@@ -26,207 +17,131 @@ function addressAccessibilityIsses() {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
-}
 
-function validateLandmark(landmark) {
-  const errors = [];
-
-  if (!landmark) {
-    errors.push('Landmark is required');
-    return { valid: false, errors };
-  }
-
-  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-    errors.push('Landmark must have a valid name');
-  }
-
-  if (landmark.latitude === undefined || landmark.latitude === null) {
-    errors.push('Landmark must have a latitude');
-  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-    errors.push('Landmark latitude must be a number');
-  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
-    errors.push('Landmark latitude must be between -90 and 90');
-  }
-
-  if (landmark.longitude === undefined || landmark.longitude === null) {
-    errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
-    errors.push('Landmark longitude must be a number');
-  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-    errors.push('Landmark longitude must be between -180 and 180');
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-/**
- * Gets all landmark elements from a container
- * @param {HTMLElement} container - The container element
- * @returns {HTMLElement[]} - Array of landmark elements
- */
-function getLandmarkElements(container) {
-  if (!container) return [];
-
-  const landmarkElements = [];
-  const selector = 'header, main, nav, aside, section, article, footer';
-  const elements = container.querySelectorAll(selector);
-
-  elements.forEach(el => {
-    if (isLandmark(el)) {
-      landmarkElements.push(el);
-    }
-  });
-
-  return landmarkElements;
-}
-
-// Example module pattern (common in Screeps)
-const SomeModule = {
-  // Some functionality
-};
-
-// Export the module
-module.exports.SomeModule = SomeModule;
-
-// Generalized accessibility functions
-
-function setSvgAccessibleName(svg, name) {
-  if (!svg) {
-    throw new Error('SVG element is required');
-    return;
-  }
-  svg.setAttribute('aria-label', name);
-}
-
-function improveAccessibility(container) {
-  if (!container) {
-    container = document.body;
-  }
-  if (container) {
-    renderDependencyGraphContent(container);
-    ensureLandmarkUniqueness(getLandmarkElements(container));
-  }
-
-  // Ensure all clickable elements are focusable
-  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
-  focusable.forEach(el => {
-    if (el.tabIndex < 0) el.tabIndex = 0;
-  });
-}
-
-function renderDependencyGraphContent(container) {
-  if (!container) return;
-  // Process the container for dependency graph content
-  const elements = container.querySelectorAll('[data-dependency]');
-  elements.forEach(el => {
-    if (el.dataset) {
-      // Process dependency data
-    }
-  });
-}
-
-function ensureLandmarkUniqueness(elements) {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const elementsById = {};
-
-  if (!elements) return [];
-
-  elements.forEach(el => {
-    if (el.id) {
-      elementsById[el.id] = elementsById[el.id] || [];
-      elementsById[el.id].push(el);
-    }
-  });
-
-  const uniqueElements = [];
-  Object.keys(elementsById).forEach(id => {
-    const els = elementsById[id];
-    if (els.length === 1) {
-      uniqueElements.push(els[0]);
-    }
-  });
-
-  return uniqueElements;
-}
-
-function validateSvgAccessibility() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      const title = svg.querySelector('title');
-      if (title) {
-        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
-        title.id = titleId;
-        svg.setAttribute('aria-labelledby', titleId);
+  function improveAccessibility() {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      if (!button.getAttribute('aria-label')) {
+        button.setAttribute('aria-label', button.textContent || 'Button');
       }
+    });
+
+    const focusable = document.querySelectorAll('[role="link"]');
+    focusable.forEach(el => {
+      if (el.tabIndex < 0) el.tabIndex = 0;
+    });
+  }
+
+  return improveAccessibility;
+}
+
+function ensureUniqueLandmarks(insightReport) {
+  const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+  const uniqueLandmarkMap = {};
+
+  landmarks.forEach(landmark => {
+    const existingElements = document.querySelectorAll(`[role="${landmark}"]`);
+    let element = null;
+
+    if (existingElements.length > 0) {
+      element = existingElements[0];
+    } else {
+      element = document.createElement('div');
+      element.setAttribute('role', landmark);
+      const id = landmark; // Use role name as ID
+      if (!document.getElementById(id)) {
+        element.setAttribute('id', id);
+      }
+      document.body.appendChild(element);
     }
+
+    if (!element.id) {
+      element.setAttribute('id', landmark);
+    }
+
+    uniqueLandmarkMap[landmark] = element;
   });
+
+  return uniqueLandmarkMap;
 }
 
-// TODO: This is the new function request
-function newFunction() {
-  // Implement the new function here
-  console.log("New Function has been called!");
-}
-
-function addressInsightIssues(insightReport) {
-  const issues = insightReport && insightReport.issues ? insightReport.issues : [];
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_025') {
-      ensureUniqueLandmarks();
-    }
-    if (issue.code === 'REACT_017') {
-      const affectedElements = issue.elements || [];
-      affectedElements.forEach(el => {
-        if (!el['aria-label'] && !el.label) {
-          el['aria-label'] = el.id || 'unnamed-element';
-        }
-      });
-      const react017Elements = issue.elements || [];
-    }
+function checkLandmarkElements() {
+  const results = {
+    hasMain: false,
+    hasNav: false,
+    hasHeader: false,
+    hasFooter: false,
+    hasAside: false,
+    landmarkCount: 0,
+    landmarks: [],
+    errors: []
+  };
+  
+  // Check for main landmark
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  results.hasMain = mainElements.length > 0;
+  if (mainElements.length === 0) {
+    results.errors.push('Missing main landmark');
+  } else if (mainElements.length > 1) {
+    results.errors.push('Multiple main landmarks found');
+  }
+  
+  // Check for nav landmark
+  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  results.hasNav = navElements.length > 0;
+  if (navElements.length === 0) {
+    results.errors.push('Missing nav landmark');
+  } else if (navElements.length > 1) {
+    // Multiple navs are allowed if they have accessible names
+    navElements.forEach((nav, index) => {
+      if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+        results.errors.push(`Nav landmark ${index + 1} should have an aria-label or aria-labelledby attribute`);
+      }
+    });
+  }
+  
+  // Check for header landmark
+  const headerElements = document.querySelectorAll('header, [role="banner"]');
+  results.hasHeader = headerElements.length > 0;
+  if (headerElements.length > 1) {
+    results.errors.push('Multiple header landmarks found');
+  }
+  
+  // Check for footer landmark
+  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+  results.hasFooter = footerElements.length > 0;
+  if (footerElements.length > 1) {
+    results.errors.push('Multiple footer landmarks found');
+  }
+  
+  // Check for aside landmark
+  const asideElements = document.querySelectorAll('aside, [role="complementary"]');
+  results.hasAside = asideElements.length > 0;
+  
+  // Collect all landmarks
+  const allLandmarks = document.querySelectorAll(
+    'header, nav, main, aside, footer, section, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="region"]'
+  );
+  
+  allLandmarks.forEach(element => {
+    const landmark = {
+      tag: element.tagName.toLowerCase(),
+      role: element.getAttribute('role') || null,
+      id: element.id || null,
+      hasLabel: element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby'),
+      label: element.getAttribute('aria-label') || null
+    };
+    results.landmarks.push(landmark);
   });
+  
+  results.landmarkCount = results.landmarks.length;
+  
+  return results;
 }
 
-function renderDependencyGraph(dependencyData) {
-  console.log('Rendering dependency graph with data:', dependencyData);
-}
-
-function renderIndexView(indexData) {
-  console.log('Rendering index view with data:', indexData);
-}
-
-function calculateSum(a, b) {
-  return a + b;
-}
-
-function addProperLandmarkRegions(affectedElements) {
-  if (!affectedElements || !Array.isArray(affectedElements)) return;
-
-  affectedElements.forEach(el => {
-    if (el && el.tagName && !el.hasAttribute('role')) {
-      el.setAttribute('role', 'region');
-    }
-  });
-}
-
+// Export the functions
 module.exports = {
-  validateLandmark,
-  config,
-  isLandmark,
-  validateLandmarks,
-  getLandmarkElements,
-  setSvgAccessibleName,
-  improveAccessibility,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions
+  checkLandmarkElements,
+  addressAccessibilityIssues,
+  ensureUniqueLandmarks
 };

@@ -133,35 +133,36 @@ function addSvgAccessibleNames(svgElements) {
   });
 }
 
-// Function to improve accessibility by ensuring landmark names are screen-reader friendly
-function improveAccessibility(landmark) {
-  if (!landmark || typeof landmark !== 'object') {
-    return landmark;
-  }
-
-  // Ensure each landmark has an accessible name and description for screen readers
-  if (landmark.name && !landmark.ariaLabel) {
-    landmark.ariaLabel = landmark.name;
-  }
-
-  if (landmark.description && !landmark.ariaDescription) {
-    landmark.ariaDescription = landmark.description;
-  }
-
-  // Provide a default accessible role if missing
-  if (!landmark.role) {
-    landmark.role = 'region';
-  }
-
-  return landmark;
-}
-
-// Function to enhance accessibility across a collection of landmarks
-function enhanceLandmarksAccessibility(landmarks) {
-  if (!Array.isArray(landmarks)) {
+// Function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(insightReport) {
+  // Handle case where insightReport is not provided or invalid
+  if (!insightReport || typeof insightReport !== 'object') {
     return [];
   }
-  return landmarks.map(improveAccessibility);
+  
+  const accessibilityIssues = insightReport.accessibilityIssues || [];
+  
+  if (!Array.isArray(accessibilityIssues)) {
+    return [];
+  }
+  
+  // Log each accessibility issue for review
+  accessibilityIssues.forEach(issue => {
+    if (issue && typeof issue === 'object') {
+      const location = issue.location || 'unknown location';
+      const description = issue.description || 'No description';
+      const severity = issue.severity || 'unknown severity';
+      const guidance = issue.guidance || 'No guidance available';
+      
+      console.log(`Accessibility Issue at ${location}:`);
+      console.log(`  Description: ${description}`);
+      console.log(`  Severity: ${severity}`);
+      console.log(`  Guidance: ${guidance}`);
+      console.log('---');
+    }
+  });
+  
+  return accessibilityIssues;
 }
 
 // Export functions for testing
@@ -169,6 +170,5 @@ module.exports = {
   calculateDistance,
   toRad,
   ensureUniqueLandmarks,
-  improveAccessibility,
-  enhanceLandmarksAccessibility
+  addressAccessibilityIssues
 };

@@ -115,7 +115,7 @@ export async function checkAccessibility(element) {
         message: 'Link lacks aria-label attribute.'
       });
     }
-    if ... {
+    if (link.getAttribute('role') === null) {
       violations.push({
         type: 'missing-role',
         element: link,
@@ -132,7 +132,7 @@ export async function checkAccessibility(element) {
         message: 'Button lacks aria-label attribute.'
       });
     }
-    if ... {
+    if (button.getAttribute('role') === null) {
       violations.push({
         type: 'missing-role',
         element: button,
@@ -152,7 +152,7 @@ export { addProperLandmarkRegions, checkLandmarkElements };
  * @param {Array} violations - An array of violation objects.
  * @returns {string} The formatted report.
  */
-export function generateReport(violations) {
+export function createReport(violations) {
   // This is a placeholder implementation that always returns an empty report.
   // TODO: Replace with actual report generation logic.
   return '';
@@ -342,12 +342,12 @@ function checkTableStructure(table) {
   }
 
   // Validate row consistency
-  const targetRow = tbody || allRows[0];
-  const firstRowCells = ... th');
+  const targetRow = tbody ? tbody.querySelector('tr') : allRows[0];
+  const firstRowCells = targetRow ? targetRow.querySelectorAll('th, td') : [];
   const expectedCellCount = firstRowCells.length || result.columnCount;
 
   allRows.forEach((row, index) => {
-    const cells = ... th');
+    const cells = row.querySelectorAll('th, td');
     if (cells.length !== expectedCellCount) {
       result.isValid = false;
       result.errors.push(`Row ${index} has ${cells.length} cells, expected ...
@@ -400,3 +400,25 @@ function createDataTable(data, columns) {
     const tr = document.createElement('tr');
     columns.forEach(col => {
       const td = document.createElement('td');
+      td.textContent = item[col.key] !== undefined ? item[col.key] : '';
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+
+  return table;
+}
+
+// Validate input
+function validateInput(input) {
+  if (!input || typeof input !== 'object') {
+    throw new Error('Invalid input provided');
+  }
+  return true;
+}
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled

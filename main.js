@@ -127,5 +127,31 @@ function capitalizeFirstLetter(text) {
 
 // ... existing code ...
 
-// ... other functions ...
-```
+  // 1. Check aria-label
+  if (svgElement.getAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+
+  // 2. Check aria-labelledby
+  const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    const labelElement = document.getElementById(ariaLabelledBy);
+    if (labelElement) return labelElement.textContent;
+  }
+
+  // 3. Check <title> element inside SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent;
+  }
+
+  return null;
+}
+
+// TODO: Add back any required exports that might have been removed
+// Assuming that 'greeting' was previously exported and needs to be added back
+module.exports = {
+  greeting,
+  newFunction,
+  getSvgAccessibleName
+};

@@ -206,7 +206,7 @@ export function ensureUniqueLandmarkIds(html) {
   // Count occurrences of <main> opening tags in the original-like state and
   // match closing tags. Since we replaced extra <main> with <section>, we must
   // replace the corresponding extra </main> closing tags with </section>.
-  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
+  const mainOpenCount = (html.match(/<main\\b/gi) || []).length;
   const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
   if (mainCloseCount > mainOpenCount) {
     const extras = mainCloseCount - mainOpenCount;
@@ -284,4 +284,4 @@ export function wrapPrimaryContentInMain(html) {
 // Don't forget to export new functions if necessary
 export { addProperLandmarkRegions };
 
-// existing code... (use the conflict markers to identify and preserve it)
+// existing code...

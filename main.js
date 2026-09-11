@@ -9,7 +9,9 @@
  */
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `generated-id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2, 9);
+    element.id = `elem-${timestamp}-${random}`;
   }
   return element.id;
 }
@@ -43,8 +45,9 @@ function renderDependencyGraphs(dependencies, container) {
     node.textContent = `${key}: ${dependencies[key]}`;
     graphElement.appendChild(node);
   });
-  
-  return dependencyGraphFunctions;
+
+  container.appendChild(graphElement);
+  return graphElement;
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -211,7 +214,10 @@ export function capitalizeWords(str) {
 
 // Additional utility functions
 export function formatDate(date) {
-  return new Date(date).toLocaleDateString();
+  if (date instanceof Date) {
+    return date.toISOString().split('T')[0];
+  }
+  return String(date);
 }
 
 export function calculateTotal(items) {
@@ -558,16 +564,16 @@ export function ... {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes(' scope=')) {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('scope=')) {
       return match;
     }
     return `<th${attrs} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes(' summary=') || attrs && attrs.includes(' caption=')) {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('<caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -591,7 +597,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (html.includes('<main')) {
+  if (html.includes('<main') || html.includes('<main>')) {
     return html;
   }
 
@@ -611,53 +617,7 @@ export function ... {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
-    const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
-    
-    if (existingLabel) {
-      return match;
-    }
-    
-    // Extract title if present
-    const titleMatch = attributes.match(/title=["']([^"']+)["']/);
-    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
-    
-    // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]*)"/);
-    if (idMatch) {
-      return `<svg${attributes} role="img" aria-label="${label}">`;
-    }
-    
-    // Add inline title for accessibility
-    const titleId = `svg-title-${svgCounter}`;
-    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
-  });
-}
-
-/**
- * Ensures unique landmark identifiers for screen readers
- * Converts additional <main> landmarks to <section> so only one <main> exists per page.
- * Also assigns unique IDs to other landmark types.
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with unique landmarks
- */
-export function ensureUniqueLandmarks(html) {
-  if (typeof html !== 'string') return html;
-  
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const counters = {};
-  
-  // Initialize counters for each landmark type
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    if (matches) {
-      counters[lm] = matches.length;
-    }
-  });
-  
-  // First, ensure only one <main> landmark exists.
-  // Convert subsequent <main> elements to <section> with aria-label.
-  let
+    const existingLabel =

@@ -13,7 +13,9 @@
  */
 export function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 9);
+    element.id = `element-${timestamp}-${random}`;
   }
   return element.id;
 }
@@ -35,38 +37,20 @@ export function addAriaLabel(element, label) {
  * @param {HTMLElement} container - The container element
  */
 function renderDependencyGraphs(dependencies, container) {
-  // Create graph visualization container
+  if (!container) return;
+  
   const graphElement = document.createElement('div');
   graphElement.className = 'dependency-graph';
   
-  // Create heading for the graph
-  const heading = document.createElement('h3');
-  heading.textContent = 'Dependency Graph';
-  heading.id = 'dependency-graph-title';
-  graphElement.appendChild(heading);
+  const title = document.createElement('h3');
+  title.textContent = 'Dependency Graph';
+  graphElement.appendChild(title);
 
-  // Render nodes for each dependency
-  if (dependencies && typeof dependencies === 'object') {
-    Object.keys(dependencies).forEach((key) => {
-      const node = document.createElement('div');
-      node.className = 'graph-node';
-      node.setAttribute('data-dependency', key);
-      node.textContent = `${key}: ${dependencies[key]}`;
-      node.setAttribute('role', 'listitem');
-      node.setAttribute('aria-label', `${key} version ${dependencies[key]}`);
-      graphElement.appendChild(node);
-    });
-  }
-
-  // Add accessible list container for screen readers
-  const listContainer = document.createElement('div');
-  listContainer.setAttribute('role', 'list');
-  listContainer.setAttribute('aria-labelledby', 'dependency-graph-title');
-  
-  // Move all graph nodes into the accessible list
-  const graphNodes = graphElement.querySelectorAll('.graph-node');
-  graphNodes.forEach((node) => {
-    listContainer.appendChild(node);
+  Object.keys(dependencies).forEach(key => {
+    const node = document.createElement('div');
+    node.className = 'graph-node';
+    node.textContent = `${key}: ${dependencies[key]}`;
+    graphElement.appendChild(node);
   });
   graphElement.appendChild(listContainer);
 
@@ -176,7 +160,7 @@ export function capitalizeWords(str) {
 
 // Additional utility functions
 export function formatDate(date) {
-  return date instanceof Date ? date.toISOString().split('T')[0] : '';
+  return new Date(date).toISOString();
 }
 
 export function calculateTotal(items) {
@@ -315,7 +299,7 @@ export function fixTableStructureIssues(html) {
   var result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -323,7 +307,7 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
@@ -348,7 +332,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (html.includes('<main') || html.includes('<main>')) {
+  if (html.includes('<main')) {
     return html;
   }
 
@@ -369,7 +353,7 @@ export function addSvgAccessibleNames(html) {
   var svgCounter = 0;
   var svgIdCounter = 0;
   
-  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
     const existingLabel = attributes.match(/aria-labelledby/) || attributes.match(/aria-label/);
@@ -379,23 +363,4 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Extract title if present
-    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
-    
-    // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]*)"/);
-    if (idMatch) {
-      return `<svg${attributes} role="img" aria-label="${label}">`;
-    }
-    
-    // Add inline title for accessibility
-    const titleId = `svg-title-${svgCounter}`;
-    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
-  });
-}
-
-/**
- * Ensures unique landmark identifiers for screen readers
- * Converts additional <main> landmarks to <section> so only one <main> exists per page.
- * Also assigns unique IDs to other landmark types.
- * @param {string} html - The HTML string to process
+    const titleMatch = match.match(/<title

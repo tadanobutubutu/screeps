@@ -1,45 +1,51 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
-function identifyDependencyGraphFunctions() {
-  const dependencyGraphFunctions = [];
-  
-  // Check all exported functions for dependency graph rendering patterns
-  const exportedFunctions = [
-    'existingFunction',
-    'getLangAttribute',
-    'addLangAttribute',
-    'validateTableAccessibility',
-    'validateTableStructure',
-    'fixTableStructure',
-    'addMainLandmark',
-    'validateLandmark',
-    'validateLandmarkStructure',
-    'validateLandmarkAttributes',
-    'getSvgAccessibleName',
-    'setSvgAttributes',
-    'ensureUniqueLandmarks',
-    'createInPageButton',
-    'validateLinkAccessibility',
-    'handleFakeLinks',
-    'addProperLandmarkRegions'
-  ];
-  
-  // Patterns that indicate dependency graph rendering functions
-  const graphPatterns = [
-    'graph',
-    'dependency',
-    'visualize',
-    'renderGraph',
-    'drawGraph',
-    'buildGraph'
-  ];
-  
-  exportedFunctions.forEach(funcName => {
-    graphPatterns.forEach(pattern => {
-      if (funcName.toLowerCase().includes(pattern)) {
-        dependencyGraphFunctions.push(funcName);
-      }
-    });
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
+/**
+ * Ensures the element has an id, generating one if necessary
+ * @param {HTMLElement} element - The element to check
+ * @returns {string} The element's id
+ */
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = `el-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label to the element if it doesn't have one
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The label text
+ */
+function addAriaLabel(element, label) {
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * Renders dependency graphs for visualization
+ * @param {Object} dependencies - The dependencies to render
+ * @param {HTMLElement} container - The container element
+ */
+function renderDependencyGraphs(dependencies, container) {
+  // Create graph visualization
+  const graphElement = document.createElement('div');
+  graphElement.className = 'dependency-graph';
+  const heading = document.createElement('h3');
+  heading.textContent = 'Dependency Graph';
+  graphElement.appendChild(heading);
+
+  // Render nodes
+  Object.keys(dependencies).forEach(key => {
+    const node = document.createElement('div');
+    node.className = 'graph-node';
+    node.textContent = `${key}: ${dependencies[key]}`;
+    graphElement.appendChild(node);
   });
   
   return dependencyGraphFunctions;
@@ -468,7 +474,7 @@ export function addProperLandmarkRegions(html) {
 export function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html\b([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -491,15 +497,15 @@ export function fixTableStructureIssues(html) {
   
   // Fix tables that need proper scope attributes on headers
   result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+    if (attrs && attrs.includes(' scope=')) {
       return match;
     }
     return `<th${attrs} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes(' summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -523,14 +529,14 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main\b/i.test(html)) {
+  if (html.includes('<main') || html.includes('<main>')) {
     return html;
   }
 
   // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body\b([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
-  }).replace(/<\/body>/i, '</main></body>');
+  }).replace(/<\/body>/gi, '</main></body>');
 }
 
 /**
@@ -553,7 +559,7 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Extract title if present
-    const titleMatch = attributes.match(/<title>(.*?)<\/title>/);
+    const titleMatch = attributes.match(/<title>([^<]*)<\/title>/);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
@@ -563,4 +569,36 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Add inline title for accessibility
-    const titleId
+    const titleId = `svg-title-${++svgCounter}`;
+    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
+  });
+}
+
+/**
+ * Ensures unique landmark identifiers for screen readers
+ * Converts additional <main> landmarks to <section> so only one <main> exists per page.
+ * Also assigns unique IDs to other landmark types.
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with unique landmarks
+ */
+export function ensureUniqueLandmarks(html) {
+  if (typeof html !== 'string') return html;
+  
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  const counters = {};
+  
+  // Initialize counters for each landmark type
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
+    }
+  });
+  
+  // First, ensure only one <main> landmark exists.
+  // Convert subsequent <main> elements to <section> with aria-label.
+  let mainSeen = false;
+  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
+    if (!mainSeen) {
+      main

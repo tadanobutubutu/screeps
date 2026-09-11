@@ -11,7 +11,7 @@
  */
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `el-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element.id;
 }
@@ -61,7 +61,26 @@ function renderDependencyGraphs(dependencies, container) {
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
-export function getLangAttribute() {
+import React from 'react';
+
+// TODO: Re-add the required exports for functionA and functionB
+// Assuming that they are objects with properties X, Y, and Z
+const functionA = {
+  X: 'valueX',
+  Y: 'valueY',
+  Z: 'valueZ'
+};
+
+const functionB = {
+  X: 'valueX',
+  Y: 'valueY',
+  Z: 'valueZ'
+};
+
+// Example of how to export a required function from another file
+// const { myFunction } = require('./otherFile');
+
+function getLangAttribute() {
   // Implementation of the getLangAttribute function
   // This returns the language attribute for the document
   return 'en'; // Assuming English for the example
@@ -496,7 +515,7 @@ export function fixTableStructureIssues(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th\b([^>]*)scope="[^"]*"([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -504,7 +523,7 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<table\b([^>]*)summary="[^"]*"([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
@@ -529,14 +548,14 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (html.includes('<main')) {
+  if (html.includes('<main') || html.includes('</main>')) {
     return html;
   }
 
   // If no main landmark, try to add one after the opening body tag
   return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
-  }).replace(/<\/body>/gi, '</main></body>');
+  }).replace('</body>', '</main></body>');
 }
 
 /**
@@ -549,7 +568,7 @@ export function addSvgAccessibleNames(html) {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
     const existingLabel = attributes.includes('aria-label') || attributes.includes('aria-labelledby');
@@ -563,13 +582,13 @@ export function addSvgAccessibleNames(html) {
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]+)"/);
+    const idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
       return `<svg${attributes} role="img" aria-label="${label}">`;
     }
     
     // Add inline title for accessibility
-    const titleId = `svg-title-${++svgCounter}`;
+    const titleId = `svg-title-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
   });
 }
@@ -599,8 +618,9 @@ export function ensureUniqueLandmarks(html) {
   // First, ensure only one <main> landmark exists.
   // Convert subsequent <main> elements to <section> with aria-label.
   let mainSeen = false;
-  html = html.replace(/<main([^>]*)>/gi, (match, attrs) => {
+  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
     if (!mainSeen) {
       mainSeen = true;
       return match;
     }
+    // Replace additional <main> tags

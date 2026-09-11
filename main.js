@@ -825,4 +825,256 @@ export function ensureUniqueLandmarks(html) {
       if (inner && inner.includes('id=')) {
         return match;
       }
-      seen[lm] = (seen
+      seen[lm] = (seen[lm] || 0) + 1;
+      const id = `${lm}-${seen[lm]}`;
+      return `<${lm} id="${id}"${inner || ''}>`;
+    });
+  });
+  
+  return html;
+}
+
+/**
+ * Fixes 1 fake link issue
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with fixed fake link issues
+ */
+export function fixFakeLinkIssue(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Fix any fake links that do not have a valid href attribute
+  return html.replace(/<a(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('href=')) {
+      return match;
+    }
+    return match.replace(/<a/, '<a href="#"');
+  });
+}
+
+/**
+ * Checks table structure for accessibility issues
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function checkTableStructure(html) {
+  if (typeof html !== 'string') return [];
+  
+  const issues = [];
+  const tableRegex = /<table\b[^>]*>([\s\S]*?)<\/table>/gi;
+  let tableMatch;
+  
+  while ((tableMatch = tableRegex.exec(html)) !== null) {
+    const tableHtml = tableMatch[0];
+    
+    // Check for caption
+    if (!/<caption\b/i.test(tableHtml)) {
+      issues.push('Table missing <caption> element');
+    }
+    
+    // Check for summary attribute
+    if (!/\bsummary=/i.test(tableHtml)) {
+      issues.push('Table missing summary attribute');
+    }
+    
+    // Check for th with scope
+    const thRegex = /<th\b([^>]*)>/gi;
+    let thMatch;
+    let thMissingScope = false;
+    while ((thMatch = thRegex.exec(tableHtml)) !== null) {
+      const attrs = thMatch[1];
+      if (!/\bscope=/i.test(attrs)) {
+        thMissingScope = true;
+        break;
+      }
+    }
+    if (thMissingScope) {
+      issues.push('<th> missing scope attribute');
+    }
+    
+    // Check for thead/tbody
+    if (!/<thead\b/i.test(tableHtml) || !/<tbody\b/i.test(tableHtml)) {
+      issues.push('Table missing <thead> or <tbody> structure');
+    }
+  }
+  
+  return issues;
+}
+
+//------ END OF ORIGINAL CODE ------
+
+/**
+ * Wraps primary content in a main landmark element
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with main landmark added
+ */
+export function wrapPrimaryContentInMain(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Check if main landmark already exists
+  if (/<main[\s>]/i.test(html)) {
+    return html;
+  }
+  
+  // Try to match body content
+  const bodyMatch = html.match(/<body(\s[^>]*)?>([\s\S]*)<\/body>/i);
+  if (bodyMatch) {
+    const bodyAttrs = bodyMatch[1];
+    const bodyContent = bodyMatch[2];
+    const wrappedContent = `<main>${bodyContent}</main>`;
+    return html.replace(bodyMatch[0], `<body${bodyAttrs || ''}>${wrappedContent}</body>`);
+  }
+  
+  return html;
+}
+
+/**
+ * Adds skip link to HTML for improved accessibility
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with skip link added
+ */
+export function addSkipLink(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Check if skip link already exists
+  if (html.includes('id="skip"') || html.includes('id="skip-nav"')) {
+    return html;
+  }
+  
+  const skipLink = `<a href="#main" id="skip">Skip to main content</a>`;
+  
+  // Add skip link after opening body tag
+  return html.replace(/<body(\s[^>]*)?>/i, `<body$1>${skipLink}`);
+}
+
+/**
+ * Gets an accessible name for an element
+ * @param {HTMLElement} element - The element to get accessible name for
+ * @returns {string} The accessible name
+ */
+export function getAccessibleName(element) {
+  if (!element) return '';
+  
+  // Check for aria-label
+  if (element.hasAttribute('aria-label')) {
+    return element.getAttribute('aria-label');
+  }
+  
+  // Check for aria-labelledby
+  if (element.hasAttribute('aria-labelledby')) {
+    const labelId = element.getAttribute('aria-labelledby');
+    const labelElement = document.getElementById(labelId);
+    if (labelElement) {
+      return labelElement.textContent || '';
+    }
+  }
+  
+  // Check for alt attribute on images
+  if (element.tagName === 'IMG') {
+    return element.getAttribute('alt') || '';
+  }
+  
+  // Check for title attribute
+  if (element.hasAttribute('title')) {
+    return element.getAttribute('title');
+  }
+  
+  // Check for text content
+  return element.textContent || '';
+}
+
+/**
+ * Sets an accessible name for an element
+ * @param {HTMLElement} element - The element to set accessible name for
+ * @param {string} name - The accessible name to set
+ */
+export function setAccessibleName(element, name) {
+  if (!element || typeof name !== 'string') return;
+  
+  element.setAttribute('aria-label', name);
+}
+
+/**
+ * Adds proper landmark regions to HTML for accessibility
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with proper landmarks
+ */
+export function addProperLandmarkRegions(html) {
+  if (typeof html !== 'string') return html;
+  
+  let result = html;
+  
+  // Add banner landmark to header
+  result = result.replace(/<header(\s[^>]*)?>/gi, (match, attrs) => {
+    const safeAttrs = attrs || '';
+    if (safeAttrs.includes('role=')) {
+      return match;
+    }
+    return `<header${safeAttrs} role="banner">`;
+  });
+  
+  // Add navigation landmark to nav
+  result = result.replace(/<nav(\s[^>]*)?>/gi, (match, attrs) => {
+    const safeAttrs = attrs || '';
+    if (safeAttrs.includes('role=')) {
+      return match;
+    }
+    return `<nav${safeAttrs} role="navigation">`;
+  });
+  
+  // Add main landmark
+  result = addMainLandmark(result);
+  
+  // Add complementary landmark to aside
+  result = result.replace(/<aside(\s[^>]*)?>/gi, (match, attrs) => {
+    const safeAttrs = attrs || '';
+    if (safeAttrs.includes('role=')) {
+      return match;
+    }
+    return `<aside${safeAttrs} role="complementary">`;
+  });
+  
+  // Add contentinfo landmark to footer
+  result = result.replace(/<footer(\s[^>]*)?>/gi, (match, attrs) => {
+    const safeAttrs = attrs || '';
+    if (safeAttrs.includes('role=')) {
+      return match;
+    }
+    return `<footer${safeAttrs} role="contentinfo">`;
+  });
+  
+  return result;
+}
+
+/**
+ * Addresses all accessibility issues from insight report
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with all accessibility issues addressed
+ */
+export function addressAccessibilityIssues(html) {
+  if (typeof html !== 'string') return html;
+  
+  let result = html;
+  
+  // Apply all accessibility fixes
+  result = addLangAttribute(result);
+  result = addSkipLink(result);
+  result = addProperLandmarkRegions(result);
+  result = fixTableStructureIssues(result);
+  result = addSvgAccessibleNames(result);
+  result = ensureUniqueLandmarks(result);
+  result = fixFakeLinkIssue(result);
+  result = wrapPrimaryContentInMain(result);
+  
+  return result;
+}
+
+// Export all functions for use in tests and other parts of the application
+export {
+  newFunction,
+  wrapPrimaryContentInMain,
+  addSkipLink,
+  getAccessibleName,
+  setAccessibleName,
+  addProperLandmarkRegions,
+  addressAccessibilityIssues,
+};

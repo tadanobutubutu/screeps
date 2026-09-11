@@ -586,7 +586,7 @@ export function ... {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -594,7 +594,7 @@ export function ... {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
@@ -639,7 +639,7 @@ export function ... {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
     const existingLabel = attributes.match(/aria-labelledby=/) || attributes.match(/aria-label=/);
@@ -649,13 +649,13 @@ export function ... {
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title>([^<]+)<\/title>/i);
+    const titleMatch = attributes.match(/<title>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
     const idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
-      return `<svg${attributes} role="img" aria-labelledby="title-${idMatch[1]}">`;
+      return `<svg${attributes} role="img" aria-label="${label}">`;
     }
     
     // Add inline title for accessibility
@@ -676,3 +676,25 @@ export function ensureUniqueLandmarks(html) {
   
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
   const counters = {};
+  
+  // Initialize counters for each landmark type
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
+    }
+  });
+  
+  // First, ensure only one <main> landmark exists.
+  // Convert subsequent <main> elements to <section> with aria-label.
+  let mainSeen = false;
+  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
+    if (!mainSeen) {
+      mainSeen = true;
+      return match;
+    }
+    // Replace additional <main> tags with <section> while preserving any attributes
+    const safeAttrs = attrs || '';
+    // Avoid duplicating an aria-label if one already exists
+    if (safeAttrs.includes('aria-label=')

@@ -256,7 +256,7 @@ export function capitalizeString(str) {
 
 export function debounce(func, wait) {
   let timeout;
-  return function(...args) {
+  return function debounced(...args) {
     const later = () => {
       clearTimeout(timeout);
       func.apply(null, args);
@@ -590,16 +590,16 @@ export function ... {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
-    return '<th' + attrs + ' scope="col">';
+    return `<th${attrs || ''} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
     if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
-    return '<table' + attrs + ' summary="Data table">';
+    return `<table${attrs || ''} summary="Data table">`;
   });
   
   // Note: The following complex tbody/thead wrapping logic has been removed
@@ -624,7 +624,7 @@ export function addMainLandmark(html) {
   }
 
   // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<body(\s[^>]*)?>/gi, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
   }).replace(/<\/body>/gi, '</main></body>');
 }
@@ -697,4 +697,15 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=')
+    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
+      return `<section${safeAttrs}>`;
+    }
+    return `<section${safeAttrs} aria-label="Content section">`;
+  });
+  
+  // Also update closing tags for converted <main> elements
+  // Count occurrences of <main> opening tags in the original-like state and
+  // match closing tags. Since we replaced extra <main> with <section>, we must
+  // replace the corresponding extra </main> closing tags with </section>.
+  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
+  const mainCloseCount = (html.match(/

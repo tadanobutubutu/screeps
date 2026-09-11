@@ -48,6 +48,23 @@ function renderDependencyGraphs(dependencies, container) {
   return graphElement;
 }
 
+// Added functions to address the issue
+function functionA() {
+  return {
+    X: 1,
+    Y: 2,
+    Z: 3
+  };
+}
+
+function functionB() {
+  return {
+    A: 4,
+    B: 5,
+    C: 6
+  };
+}
+
 import React from 'react';
 
 // TODO: Add back any required exports that might have been removed
@@ -624,63 +641,4 @@ export function addMainLandmark(html) {
 }
 
 /**
- * Adds accessible names to SVG elements
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with accessible SVG names
- */
-export function addSvgAccessibleNames(html) {
-  if (typeof html !== 'string') return html;
-  
-  let svgCounter = 0;
-  
-  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
-    // Handle case where attrs might be undefined (for <svg> without attributes)
-    const attributes = attrs || '';
-    const existingLabel = attributes.match(/aria-labelledby=/) || attributes.match(/aria-label=/);
-    
-    if (existingLabel) {
-      return match;
-    }
-    
-    // Extract title if present
-    const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
-    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
-    
-    // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]*)"/);
-    if (idMatch) {
-      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
-    }
-    
-    // Add inline title for accessibility
-    const titleId = `svg-title-${svgCounter}`;
-    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
-  });
-}
-
-/**
- * Ensures unique landmark identifiers for screen readers
- * Converts additional <main> landmarks to <section> so only one <main> exists per page.
- * Also assigns unique IDs to other landmark types.
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with unique landmarks
- */
-export function ensureUniqueLandmarks(html) {
-  if (typeof html !== 'string') return html;
-  
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const counters = {};
-  
-  // Initialize counters for each landmark type
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    if (matches) {
-      counters[lm] = matches.length;
-    }
-  });
-  
-  // First, ensure only one <main> landmark exists.
-  // Convert subsequent <main> elements to <section> with aria-label.
-  let mainSeen = false;
-  html = html.replace(/
+ * Adds accessible

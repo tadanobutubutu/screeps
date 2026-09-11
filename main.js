@@ -34,12 +34,52 @@
     }
   });
 
-  // Check for common accessibility issues
-  const mainLandmarks = result.landmarks.filter(l => l.type === 'main' || l.tagName === 'main');
-  if (mainLandmarks.length === 0) {
-    result.warnings.push('No main landmark found. Pages should have exactly one main landmark for accessibility.');
-  } else if (mainLandmarks.length > 1) {
-    result.warnings.push('Multiple main landmarks. Consider having only one main landmark.');
+// Implement function for addressing accessibility issues from insight report
+function addressAccessibilityIssuesFromInsightReport() {
+  // Address accessibility issues identified in the insight report
+  // Ensure lang attribute is properly set for accessibility
+  getLangAttribute();
+  
+  // Wrap primary content in main element for proper landmark identification
+  wrapPrimaryContentInMain();
+  
+  // Validate and fix table accessibility issues
+  validateTableAccessibility();
+  validateTableStructure();
+  
+  // Validate and fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
+  addFixLandmarkIssues();
+  ensureUniqueLandmarks();
+  
+  // Ensure SVG elements have accessible names
+  getSvgAccessibleName();
+  
+  // Create accessible links where needed
+  createAccessibleLink();
+  
+  // Add proper landmark regions for better screen reader navigation
+  addProperLandmarkRegions();
+  
+  // Add ARIA attributes to SVGs for better accessibility
+  addAriaLabelledbyToSVGs();
+  addAriaLabelToSVGs();
+}
+
+// Call the new function to handle accessibility issues
+handleAccessibilityIssues();
+
+// Call the insight report accessibility function
+addressAccessibilityIssuesFromInsightReport();
+
+// Keep the existing exports
+// ...
+
+function addProperLandmarkRegions() {
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('role', 'banner');
   }
 
   const ensureSvgAccessibleNames = () => {

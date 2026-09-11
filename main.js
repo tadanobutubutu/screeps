@@ -482,7 +482,7 @@ export function capitalizeWords(str) {
 
 // Additional utility functions
 export function formatDate(date) {
-  return new Date(date).toISOString().split('T')[0];
+  return new Date(date).toLocaleDateString();
 }
 
 export function calculateTotal(items) {
@@ -496,7 +496,7 @@ export function validateEmail(email) {
 
 export function capitalizeString(str) {
   if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export function debounce(func, wait) {
@@ -519,7 +519,7 @@ export function debounce(func, wait) {
 export function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html(\s[^>]*)?>/gi, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -541,7 +541,7 @@ export function fixTableStructureIssues(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th(\s[^>]*)?>/gi, (match, attrs) => {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -549,8 +549,8 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('caption') || attrs && attrs.includes('summary')) {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('<caption>')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -574,12 +574,12 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[\s>]/i.test(html)) {
+  if (html.includes('<main') || html.includes('<main>')) {
     return html;
   }
 
   // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body(\s[^>]*)?>/i, (match, attrs) => {
+  return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
   }).replace(/<\/body>/i, '</main></body>');
 }
@@ -594,28 +594,21 @@ export function addSvgAccessibleNames(html) {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg(\s[^>]*)?>/gi, (match, attrs) => {
-    // Handle case where attrs might be empty string (for <svg> without attributes)
-    // attrs is captured as an empty string when there are no attributes, not "undefined"
-    if (!attrs || attrs === '') {
-      // No attributes present, add accessibility attributes directly
-      const label = `SVG image ${++svgCounter}`;
-      return `<svg role="img" aria-label="${label}">`;
-    }
-    
-    // Check for existing accessible name attributes
-    const existingLabel = attrs.match(/aria-label=/) || attrs.match(/aria-labelledby=/);
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
+    // Handle case where attrs might be undefined (for <svg> without attributes)
+    const attributes = attrs || '';
+    const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
     
     if (existingLabel) {
       return match;
     }
     
     // Extract title if present
-    const titleMatch = html.match(/<title>([^<]*)<\/title>/i);
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attrs.match(/id=["']([^"']+)["']/);
+    const idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
       return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}-title">`;
     }
@@ -651,42 +644,11 @@ export function ensureUniqueLandmarks(html) {
   // First, ensure only one <main> landmark exists.
   // Convert subsequent <main> elements to <section> with aria-label.
   let mainSeen = false;
-  html = html.replace(/<main(\s[^>]*)?>/gi, (match, attrs) => {
+  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
     if (!mainSeen) {
       mainSeen = true;
       return match;
     }
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
-    // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes("aria-label=")) {
-      return `<section${safeAttrs}>`;
-    }
-    return `<section${safeAttrs} aria-label="Content section">`;
-  });
-  
-  // Also update closing tags for converted <main> elements
-  // Count occurrences of <main> opening tags in the original-like state and
-  // match closing tags. Since we replaced extra <main> with <section>, we must
-  // replace the corresponding extra </main> closing tags with </section>.
-  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
-  const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
-  if (mainCloseCount > mainOpenCount) {
-    const extras = mainCloseCount - mainOpenCount;
-    let replaced = 0;
-    html = html.replace(/<\/main>/gi, (match) => {
-      if (replaced < extras) {
-        replaced += 1;
-        return '</section>';
-      }
-    });
-  }
-}
-
-// Call the function to add keyboard navigation support
-addKeyboardNavigationSupport();
-
-// Export any new functions or constants if necessary
-// export { addKeyboardNavigationSupport };
-
-// Existing exports preserved below...
+    // Avoid duplicating

@@ -123,7 +123,7 @@ function updateAllContributorsConfig(config) {
 function updateReadme() {
     try {
         console.log('📝 Updating README with all-contributors...');
-        execSync('npx all-contributors-cli generate', { stdio: 'inherit' });
+        execFileSync('npx', ['all-contributors-cli', 'generate'], { stdio: 'inherit' });
         console.log('✅ README updated');
     } catch (error) {
         console.warn('⚠️  Failed to update README:', error.message);

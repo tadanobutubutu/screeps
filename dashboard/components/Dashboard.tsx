@@ -641,6 +641,7 @@ export default function Dashboard() {
                             }}
                         >
                             <span
+                                aria-hidden="true"
                                 style={{
                                     display: 'inline-block',
                                     animation: refreshing ? 'spin 1s linear infinite' : 'none',
@@ -905,7 +906,7 @@ export default function Dashboard() {
                             </kbd>
                             <input
                                 ref={searchInputRef}
-                                type="text"
+                                type="search"
                                 value={roomQuery}
                                 onChange={(e) => setRoomQuery(e.target.value)}
                                 onKeyDown={(e) => {
@@ -1135,6 +1136,7 @@ export default function Dashboard() {
                         }}
                     >
                         <span
+                            aria-hidden="true"
                             style={{
                                 display: 'inline-block',
                                 transition: 'transform 0.2s ease-in-out',
@@ -1231,7 +1233,7 @@ export default function Dashboard() {
                         overflow: 'hidden',
                     }}
                 >
-                    <span>✨</span>
+                    <span aria-hidden="true">✨</span>
                     <span style={{ flex: 1 }}>{toastMsg}</span>
                     <button
                         onClick={() => {

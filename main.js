@@ -13,9 +13,7 @@
  */
 export function ensureElementHasId(element) {
   if (!element.id) {
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 9000) + 1000;
-    element.id = `element-${timestamp}-${random}`;
+    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
   }
   return element.id;
 }
@@ -36,23 +34,47 @@ export function addAriaLabel(element, label) {
  * @param {Object} dependencies - The dependencies to render
  * @param {HTMLElement} container - The container element
  */
-export function renderDependencyGraphs(dependencies, container) {
-  // Create graph visualization
+function renderDependencyGraphs(dependencies, container) {
+  // Create graph visualization container
   const graphElement = document.createElement('div');
   graphElement.className = 'dependency-graph';
-  const title = '<h3>Dependency Graph</h3>';
-  graphElement.innerHTML = title;
+  
+  // Create heading for the graph
+  const heading = document.createElement('h3');
+  heading.textContent = 'Dependency Graph';
+  heading.id = 'dependency-graph-title';
+  graphElement.appendChild(heading);
 
-  // Render nodes
-  Object.keys(dependencies).forEach(function(key) {
-    const node = document.createElement('div');
-    node.className = 'graph-node';
-    node.textContent = key + ': ' + dependencies[key];
-    graphElement.appendChild(node);
+  // Render nodes for each dependency
+  if (dependencies && typeof dependencies === 'object') {
+    Object.keys(dependencies).forEach((key) => {
+      const node = document.createElement('div');
+      node.className = 'graph-node';
+      node.setAttribute('data-dependency', key);
+      node.textContent = `${key}: ${dependencies[key]}`;
+      node.setAttribute('role', 'listitem');
+      node.setAttribute('aria-label', `${key} version ${dependencies[key]}`);
+      graphElement.appendChild(node);
+    });
+  }
+
+  // Add accessible list container for screen readers
+  const listContainer = document.createElement('div');
+  listContainer.setAttribute('role', 'list');
+  listContainer.setAttribute('aria-labelledby', 'dependency-graph-title');
+  
+  // Move all graph nodes into the accessible list
+  const graphNodes = graphElement.querySelectorAll('.graph-node');
+  graphNodes.forEach((node) => {
+    listContainer.appendChild(node);
   });
+  graphElement.appendChild(listContainer);
 
-  // Append to container
-  container.appendChild(graphElement);
+  // Append the graph to the container
+  if (container && container.appendChild) {
+    container.appendChild(graphElement);
+  }
+
   return graphElement;
 }
 
@@ -154,7 +176,7 @@ export function capitalizeWords(str) {
 
 // Additional utility functions
 export function formatDate(date) {
-  return new Date(date).toLocaleDateString();
+  return date instanceof Date ? date.toISOString().split('T')[0] : '';
 }
 
 export function calculateTotal(items) {
@@ -293,7 +315,7 @@ export function fixTableStructureIssues(html) {
   var result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -301,7 +323,7 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
@@ -326,7 +348,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (html.includes('<main') || html.includes('<MAIN')) {
+  if (html.includes('<main') || html.includes('<main>')) {
     return html;
   }
 
@@ -347,10 +369,10 @@ export function addSvgAccessibleNames(html) {
   var svgCounter = 0;
   var svgIdCounter = 0;
   
-  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
-    var attributes = attrs || '';
-    var existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
+    const attributes = attrs || '';
+    const existingLabel = attributes.match(/aria-labelledby/) || attributes.match(/aria-label/);
     
     if (existingLabel) {
       return match;
@@ -363,7 +385,7 @@ export function addSvgAccessibleNames(html) {
     // Check for id to reference
     const idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
-      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
+      return `<svg${attributes} role="img" aria-label="${label}">`;
     }
     
     // Add inline title for accessibility
@@ -377,31 +399,3 @@ export function addSvgAccessibleNames(html) {
  * Converts additional <main> landmarks to <section> so only one <main> exists per page.
  * Also assigns unique IDs to other landmark types.
  * @param {string} html - The HTML string to process
- * @returns {string} HTML with unique landmarks
- */
-export function ensureUniqueLandmarks(html) {
-  if (typeof html !== 'string') return html;
-  
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const counters = {};
-  
-  // Initialize counters for each landmark type
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    if (matches) {
-      counters[lm] = matches.length;
-    }
-  });
-  
-  // First, ensure only one <main> landmark exists.
-  // Convert subsequent <main> elements to <section> with aria-label.
-  let mainSeen = false;
-  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
-    if (!mainSeen) {
-      mainSeen = true;
-      return match;
-    }
-    // Replace additional <main> tags with <section> while preserving any attributes
-    const safeAttrs = attrs || '';
-    // Avoid duplicating an aria

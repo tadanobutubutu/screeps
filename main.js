@@ -1,60 +1,37 @@
-// TODO: Address accessibility issues from insight report — FIXED
+/**
+ * Checks landmark elements on the page for accessibility
+ * @returns {Object} An object containing landmark analysis results
+ */
+function checkLandmarkElements() {
+  // ... (existing code)
 
-// Add new functions to ensure the element has an id and add aria-label
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = 'unique-id';
-  }
-  if (!element.ariaLabel) {
-    element.ariaLabel = 'Element Description';
-  }
+  // FADE IN - Add new function to check for a specific class
+  function checkSpecificClass(className) {
+    const elementsWithClass = document.getElementsByClassName(className);
 
-  // Check for sections without accessible names
-  const sections = result.landmarks.filter(l => l.tagName === 'section' && !l.hasAccessibleName);
-  if (sections.length > 3) {
-    result.warnings.push(`${sections.length} sections without accessible names found. Consider adding aria-label or aria-labelledby.`);
-  }
+    const result = {
+      // Set the appropriate property values
+      elementFound: elementsWithClass.length > 0,
+      totalElements: elementsWithClass.length
+    };
 
-  // New accessibility checks
-  // Check for landmarks with duplicate accessible names
-  const nameCounts = {};
-  result.landmarks.forEach(landmark => {
-    if (landmark.hasAccessibleName) {
-      nameCounts[landmark.accessibleName] = (nameCounts[landmark.accessibleName] || 0) + 1;
-    }
-  });
-  for (const [name, count] of Object.entries(nameCounts)) {
-    if (count > 1) {
-      result.warnings.push(`Duplicate accessible name "${name}" found ${count} times. Consider using unique names.`);
-    }
+    return result;
   }
 
-  // Check for landmarks without roles
-  const landmarksWithoutRoles = result.landmarks.filter(l => !l.type && !l.tagName);
-  if (landmarksWithoutRoles.length > 0) {
-    result.warnings.push(`Found ${landmarksWithoutRoles.length} landmarks without roles. Consider adding roles for better accessibility.`);
+  // Usage example:
+  const specificClassResult = checkSpecificClass('my-custom-class');
+
+  if (specificClassResult.elementFound) {
+    // Do something if the element with the given class is found
+    console.log("Element with class 'my-custom-class' found.", specificClassResult);
+  } else {
+    result.warnings.push("Element with class 'my-custom-class' not found on the page.");
   }
 
-  return result;
+  // ... (remaining existing code)
 }
 
-// Function to render dependency graphs
-function renderDependencyGraphs(depGraph) {
-  // Implementation details for rendering dependency graphs.
-  // In this example, I'm using plain strings for brevity.
-  // In a real-world scenario, you'd want to use a library or custom components.
-  const graphHTML = depGraph.nodes.map(node => `<div data-id="${node.id}">${node.name}</div>`).join('');
-  const edgesHTML = depGraph.edges.map(edge => `<div><div data-source="${edge.source}"></div><div data-target="${edge.target}"></div></div>`).join('');
-
-  const graphContainer = document.getElementById('dependency-graph');
-  graphContainer.innerHTML = `
-    <div id="nodes">${graphHTML}</div>
-    <div id="edges">${edgesHTML}</div>
-  `;
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { checkLandmarkElements, checkSpecificClass }; // Update export to include the new function
 }
-
-// Export the new functions
-module.exports = {
-  ensureElementHasId,
-  renderDependencyGraphs,
-};

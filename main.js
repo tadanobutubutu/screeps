@@ -132,38 +132,30 @@ function newFunction(insightReport) {
 }
 
 // REACT_017: Add landmark roles to fix landmark issues
-export function generateUniqueName(baseName, existingNames) {
-  if (!existingNames || existingNames.length === 0) {
-    return baseName;
-  }
-  if (!existingNames.includes(baseName)) {
+export function ... existingNames) {
+  if ... {
     return baseName;
   }
   let counter = 2;
-  let newName = `${baseName} ${counter}`;
-  while (existingNames.includes(newName)) {
+  let newName = ...
+  while ... {
     counter++;
-    newName = `${baseName} ${counter}`;
+    newName = ...
   }
   return newName;
 }
 
 // REACT_025: Ensure unique landmarks function
-export function checkUniqueLandmarks(container = document) {
-  const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], header, nav, main, footer');
+export function ... {
+  const landmarks = ... [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
   if (!tableElement) return issues;
 
-  // Check for caption
-  const caption = tableElement.querySelector('caption');
-  if (!caption) {
-    issues.push({
-      element: tableElement,
-      message: 'Table is missing a <caption> element for accessibility.',
-      severity: 'warning'
-    });
-  }
+  landmarks.forEach((landmark) => {
+    const ariaLabel = ...
+    const ariaLabelledby = ...
+    const tagName = ...
 
   // Check for proper th elements
   const headers = tableElement.querySelectorAll('th');
@@ -189,21 +181,20 @@ export function checkUniqueLandmarks(container = document) {
   return issues;
 }
 
-// REACT_041: Add accessible names to SVG
-export function addAccessibleNameToSVG(svgElement, accessibleName) {
+// REACT_041: Add accessible names to SVGs
+export function ... accessibleName) {
   if (!svgElement) return;
 
   // Add title element as first child
   const title = document.createElement('title');
-  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+  title.id = ...
   title.textContent = accessibleName;
 
-  rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
-    const currentRowCells = cells.length;
+  // Insert title as first child
+  svgElement.insertBefore(title, ...
 
   // Add aria-labelledby attribute
-  svgElement.setAttribute('aria-labelledby', title.id);
+  ... title.id);
 }
 
 // REACT_036: Fix fake link issues - convert to proper semantic elements
@@ -212,7 +203,7 @@ export function isValidLink(element) {
 
   const tagName = element.tagName.toLowerCase();
   const href = element.getAttribute('href');
-  const onClick = element.getAttribute('onclick') || element.onclick;
+  const onClick = ...
 
   // Check if it's a fake link (div/span with onClick but no href, or an anchor without href)
   const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
@@ -228,16 +219,16 @@ export function isValidLink(element) {
 }
 
 // REACT_027: Add scope to table headers
-export function addScopeToTableHeaders(tableElement) {
+export function ... {
   if (!tableElement) return [];
 
-  const headers = tableElement.querySelectorAll('th');
+  const headers = ...
   const updates = [];
 
   headers.forEach((th) => {
     const row = th.closest('tr');
-    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
-    const cellIndex = Array.from(row.cells).indexOf(th);
+    const rowIndex = ...
+    const cellIndex = ...
 
     // Determine if scope should be 'col' or 'row'
     let scope = 'col';
@@ -247,31 +238,12 @@ export function addScopeToTableHeaders(tableElement) {
       scope = 'row';
     }
 
-    previousRowCells = currentRowCells;
-  });
-
-  return issues;
-}
-
-// REACT_017: Validate landmark presence
-export function validateLandmark(container) {
-  const issues = [];
-  if (!container) container = document.body;
-
-  const requiredLandmarks = {
-    'banner': 'header, [role="banner"]',
-    'navigation': 'nav, [role="navigation"]',
-    'main': 'main, [role="main"]',
-    'contentinfo': 'footer, [role="contentinfo"]'
-  };
-
-  Object.entries(requiredLandmarks).forEach(([landmarkType, selector]) => {
-    const landmark = container.querySelector(selector);
-    if (!landmark) {
-      issues.push({
-        element: container,
-        message: `Missing ${landmarkType} landmark. Add a <${landmarkType === 'banner' ? 'header' : landmarkType === 'contentinfo' ? 'footer' : landmarkType}> element or element with role="${landmarkType}".`,
-        severity: 'warning'
+    if ... {
+      th.setAttribute('scope', scope);
+      updates.push({
+        element: th,
+        scope: scope,
+        position: { row: rowIndex, col: cellIndex }
       });
     }
   });
@@ -429,6 +401,8 @@ export function personName(data) {
   return '';
 }
 
-const container = document.getElementById('root');
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
+const container = ...
 const root = createRoot(container);
 root.render(<App />);

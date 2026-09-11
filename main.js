@@ -32,9 +32,11 @@ function renderDependencyGraphs(dependencies, container) {
   // Create graph visualization
   const graphElement = document.createElement('div');
   graphElement.className = 'dependency-graph';
-  const title = document.createElement('h3');
-  title.textContent = 'Dependency Graph';
-  graphElement.appendChild(title);
+  
+  // Create header
+  const header = document.createElement('h3');
+  header.textContent = 'Dependency Graph';
+  graphElement.appendChild(header);
 
   // Render nodes
   Object.entries(dependencies).forEach(([key, value]) => {
@@ -44,10 +46,12 @@ function renderDependencyGraphs(dependencies, container) {
     graphElement.appendChild(node);
   });
 
+  // Add to container
   if (container) {
-    container.innerHTML = header;
     container.appendChild(graphElement);
   }
+
+  return graphElement;
 }
 
 import React from 'react';
@@ -542,7 +546,7 @@ export function addProperLandmarkRegions(html) {
 export function ... {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
     // Check if lang attribute already exists
     if (attrs && attrs.includes(' lang=')) {
       return match;
@@ -565,7 +569,7 @@ export function ... {
   
   // Fix tables that need proper scope attributes on headers
   result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope')) {
+    if (attrs && attrs.includes('scope=')) {
       return match;
     }
     return `<th${attrs || ''} scope="col">`;
@@ -573,7 +577,7 @@ export function ... {
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary') || attrs && attrs.includes('caption')) {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -597,14 +601,14 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main\b/i.test(html)) {
+  if (html.includes('<main')) {
     return html;
   }
 
   // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body([^>]*)>/i, (match, attrs) => {
+  return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
-  }).replace('</body>', '</main></body>');
+  }).replace(/<\/body>/, '</main></body>');
 }
 
 /**
@@ -627,11 +631,11 @@ export function ... {
     }
     
     // Extract title if present
-    const titleMatch = attributes.match(/<title>([^<]+)<\/title>/);
+    const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]+)"/);
+    const idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
       return `<svg${attributes} role="img" aria-label="${label}">`;
     }
@@ -643,7 +647,4 @@ export function ... {
 }
 
 /**
- * Ensures unique landmark identifiers for screen readers
- * Converts additional <main> landmarks to <section> so only one <main> exists per page.
- * Also assigns unique IDs to other landmark types.
  *

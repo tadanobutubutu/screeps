@@ -34,9 +34,7 @@ function renderDependencyGraphs(dependencies, container) {
   // Create graph visualization
   const graphElement = document.createElement('div');
   graphElement.className = 'dependency-graph';
-  const heading = document.createElement('h3');
-  heading.textContent = 'Dependency Graph';
-  graphElement.appendChild(heading);
+  container.innerHTML = '<h3>Dependency Graph</h3>';
 
   // Render nodes
   Object.keys(dependencies).forEach(key => {
@@ -560,16 +558,16 @@ export function ... {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes(' scope=')) {
       return match;
     }
     return `<th${attrs} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
+  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes(' summary=') || attrs && attrs.includes(' caption=')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -600,7 +598,7 @@ export function addMainLandmark(html) {
   // If no main landmark, try to add one after the opening body tag
   return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
-  ... '</main></body>');
+  }).replace('</body>', '</main></body>');
 }
 
 /**
@@ -613,7 +611,7 @@ export function ... {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
     const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
@@ -623,7 +621,7 @@ export function ... {
     }
     
     // Extract title if present
-    const titleMatch = attributes.match(/<title>([^<]*)<\/title>/);
+    const titleMatch = attributes.match(/title=["']([^"']+)["']/);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
@@ -646,3 +644,20 @@ export function ... {
  * @returns {string} HTML with unique landmarks
  */
 export function ensureUniqueLandmarks(html) {
+  if (typeof html !== 'string') return html;
+  
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  const counters = {};
+  
+  // Initialize counters for each landmark type
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
+    }
+  });
+  
+  // First, ensure only one <main> landmark exists.
+  // Convert subsequent <main> elements to <section> with aria-label.
+  let

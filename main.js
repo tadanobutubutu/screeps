@@ -162,7 +162,7 @@ export function capitalizeString(str) {
 
 export function debounce(func, wait) {
   let timeout;
-  return function(...args) {
+  return function debounced(...args) {
     const later = () => {
       clearTimeout(timeout);
       func(...args);
@@ -490,7 +490,7 @@ export function fixTableStructureIssues(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*?)>/gi, (match, attrs) => {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -498,8 +498,8 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('<caption')) {
+  result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -523,7 +523,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (html.includes('<main')) {
+  if (/<main\b/i.test(html)) {
     return html;
   }
 
@@ -563,36 +563,4 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Add inline title for accessibility
-    const titleId = `svg-title-${svgCounter}`;
-    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
-  });
-}
-
-/**
- * Ensures unique landmark identifiers for screen readers
- * Converts additional <main> landmarks to <section> so only one <main> exists per page.
- * Also assigns unique IDs to other landmark types.
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with unique landmarks
- */
-export function ensureUniqueLandmarks(html) {
-  if (typeof html !== 'string') return html;
-  
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const counters = {};
-  
-  // Initialize counters for each landmark type
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    if (matches) {
-      counters[lm] = matches.length;
-    }
-  });
-  
-  // First, ensure only one <main> landmark exists.
-  // Convert subsequent <main> elements to <section> with aria-label.
-  let mainSeen = false;
-  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
-    if (!mainSeen) {
-      mainSeen = true;
+    const titleId

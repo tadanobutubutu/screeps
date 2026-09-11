@@ -9,7 +9,7 @@
  */
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(9).substr(2, 9)}`;
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element.id;
 }
@@ -34,7 +34,9 @@ function renderDependencyGraphs(dependencies, container) {
   // Create graph visualization
   const graphElement = document.createElement('div');
   graphElement.className = 'dependency-graph';
-  const header = '<h3>Dependency Graph</h3>';
+  const header = document.createElement('h3');
+  header.textContent = 'Dependency Graph';
+  graphElement.appendChild(header);
 
   // Render nodes
   Object.keys(dependencies).forEach(key => {
@@ -233,7 +235,7 @@ export function capitalizeString(str) {
 
 export function debounce(func, wait) {
   let timeout;
-  return function debounced(...args) {
+  return function(...args) {
     const later = () => {
       clearTimeout(timeout);
       func(...args);
@@ -561,7 +563,7 @@ export function ... {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th\b([^>]*)(?<!scope="[^"]*")>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -569,7 +571,7 @@ export function ... {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<table\b([^>]*)(?<!summary="[^"]*")>/gi, (match, attrs) => {
     if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
@@ -594,12 +596,12 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main\b/gi.test(html)) {
+  if (/<main\b/i.test(html)) {
     return html;
   }
 
   // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<body([^>]*)>/i, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
   }).replace(/<\/body>/gi, '</main></body>');
 }
@@ -648,3 +650,25 @@ export function ... {
  */
 export function ensureUniqueLandmarks(html) {
   if (typeof html !== 'string') return html;
+  
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  const counters = {};
+  
+  // Initialize counters for each landmark type
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
+    }
+  });
+  
+  // First, ensure only one <main> landmark exists.
+  // Convert subsequent <main> elements to <section> with aria-label.
+  let mainSeen = false;
+  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
+    if (!mainSeen) {
+      mainSeen = true;
+      return match;
+    }
+    // Replace additional <main> tags with

@@ -6,25 +6,55 @@
 
 // Existing code preserved below...
 
-// Example: Adding keyboard event listeners to ensure focusable elements can be navigated using the keyboard
-function addKeyboardNavigationSupport() {
-  const focusableElements = 'button, [href], [tabindex]:not([tabindex="-1"])'.split(', ');
-  const container = document.querySelector('.keyboard-focus-container'); // Assuming this is the container for focusable elements
+/**
+ * Ensures the element has an id, generating one if necessary
+ * @param {HTMLElement} element - The element to check
+ * @returns {string} The element's id
+ */
+function ensureElementHasId(element) {
+  if (!element.id) {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 9000) + 1000;
+    element.id = `element-${timestamp}-${random}`;
+  }
+  return element.id;
+}
 
-  if (container) {
-    container.addEventListener('keydown', function(event) {
-      let focusedElement = document.activeElement;
-      let nextElement = null;
+/**
+ * Adds an aria-label to the element if it doesn't have one
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The label text
+ */
+function addAriaLabel(element, label) {
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * Renders dependency graphs for visualization
+ * @param {Object} dependencies - The dependencies to render
+ * @param {HTMLElement} container - The container element
+ */
+function renderDependencyGraphs(dependencies, container) {
+  // Create graph visualization
+  const graphElement = document.createElement('div');
+  graphElement.className = 'dependency-graph';
+  const heading = document.createElement('h3');
+  heading.textContent = 'Dependency Graph';
+  graphElement.appendChild(heading);
 
   // Render nodes
-  Object.keys(dependencies).forEach(key => {
+  Object.keys(dependencies).forEach(function(key) {
     const node = document.createElement('div');
     node.className = 'graph-node';
-    node.textContent = `${key}: ${dependencies[key]}`;
+    node.textContent = key + ': ' + dependencies[key];
     graphElement.appendChild(node);
   });
 
+  // Append to container
   container.appendChild(graphElement);
+  return graphElement;
 }
 
 // ----- END ORIGINAL CODE -----
@@ -419,7 +449,7 @@ module.exports = {
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     if (row.cells.length !== rows[0].cells.length) {
-      throw new Error(`Row ${i + 1} does not have the same number of cells as the first row`);
+      throw new Error('Row ' + (i + 1) + ' does not have the same number of cells as the first row');
     }
   }
 
@@ -437,7 +467,7 @@ function MyComponent() {
 }
 
 export function greet(name) {
-  return `Hello, ${name}!`;
+  return 'Hello, ' + name + '!';
 }
 
 export function isEven(num) {
@@ -450,7 +480,7 @@ export function isOdd(num) {
 
 // Array utility functions
 export function sumArray(arr) {
-  return arr.reduce((acc, val) => acc + val, 0);
+  return arr.reduce(function(acc, val) { return acc + val; }, 0);
 }
 
 export function averageArray(arr) {
@@ -459,11 +489,11 @@ export function averageArray(arr) {
 }
 
 export function findMax(arr) {
-  return Math.max(...arr);
+  return Math.max.apply(Math, arr);
 }
 
 export function findMin(arr) {
-  return Math.min(...arr);
+  return Math.min.apply(Math, arr);
 }
 
 // String utility functions
@@ -486,11 +516,11 @@ export function formatDate(date) {
 }
 
 export function calculateTotal(items) {
-  return items.reduce((sum, item) => sum + (item.price || 0), 0);
+  return items.reduce(function(sum, item) { return sum + (item.price || 0); }, 0);
 }
 
 export function validateEmail(email) {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 }
 
@@ -500,11 +530,12 @@ export function capitalizeString(str) {
 }
 
 export function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
+  var timeout;
+  return function() {
+    var args = arguments;
+    var later = function() {
       clearTimeout(timeout);
-      func(...args);
+      func.apply(null, args);
     };
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
@@ -519,13 +550,13 @@ export function debounce(func, wait) {
 export function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/gi, function(match, attrs) {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
     }
     // Add lang attribute with 'en' as default
-    return `<html${attrs} lang="en">`;
+    return '<html' + attrs + ' lang="en">';
   });
 }
 
@@ -538,23 +569,23 @@ export function addLangAttribute(html) {
 export function fixTableStructureIssues(html) {
   if (typeof html !== 'string') return html;
   
-  let result = html;
+  var result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th\b([^>]*)>/gi, function(match, attrs) {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
-    return `<th${attrs} scope="col">`;
+    return '<th' + attrs + ' scope="col">';
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('<caption>')) {
+  result = result.replace(/<table\b([^>]*)>/gi, function(match, attrs) {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
-    return `<table${attrs} summary="Data table">`;
+    return '<table' + attrs + ' summary="Data table">';
   });
   
   // Note: The following complex tbody/thead wrapping logic has been removed
@@ -579,8 +610,8 @@ export function addMainLandmark(html) {
   }
 
   // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
-    return `<body${attrs || ''}><main>`;
+  return html.replace(/<body([^>]*)>/gi, function(match, attrs) {
+    return '<body' + (attrs || '') + '><main>';
   }).replace(/<\/body>/i, '</main></body>');
 }
 
@@ -592,30 +623,31 @@ export function addMainLandmark(html) {
 export function addSvgAccessibleNames(html) {
   if (typeof html !== 'string') return html;
   
-  let svgCounter = 0;
+  var svgCounter = 0;
+  var svgIdCounter = 0;
   
-  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<svg\b([^>]*)>/gi, function(match, attrs) {
     // Handle case where attrs might be undefined (for <svg> without attributes)
-    const attributes = attrs || '';
-    const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
+    var attributes = attrs || '';
+    var existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
     
     if (existingLabel) {
       return match;
     }
     
     // Extract title if present
-    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/);
-    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
+    var titleMatch = match.match(/<title>([^<]*)<\/title>/i);
+    var label = titleMatch ? titleMatch[1] : 'SVG image ' + (++svgCounter);
     
     // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]*)"/);
+    var idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
-      return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}-title">`;
+      return '<svg' + attributes + ' role="img" aria-labelledby="' + idMatch[1] + '-title">';
     }
     
     // Add inline title for accessibility
-    const titleId = `svg-title-${++svgCounter}`;
-    return `<svg${attrs} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
+    var titleId = 'svg-title-' + (++svgIdCounter);
+    return '<svg' + attributes + ' role="img" aria-labelledby="' + titleId + '"><title id="' + titleId + '">' + label + '</title>';
   });
 }
 
@@ -623,32 +655,4 @@ export function addSvgAccessibleNames(html) {
  * Ensures unique landmark identifiers for screen readers
  * Converts additional <main> landmarks to <section> so only one <main> exists per page.
  * Also assigns unique IDs to other landmark types.
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with unique landmarks
- */
-export function ensureUniqueLandmarks(html) {
-  if (typeof html !== 'string') return html;
-  
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const counters = {};
-  
-  // Initialize counters for each landmark type
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    if (matches) {
-      counters[lm] = matches.length;
-    }
-  });
-  
-  // First, ensure only one <main> landmark exists.
-  // Convert subsequent <main> elements to <section> with aria-label.
-  let mainSeen = false;
-  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
-    if (!mainSeen) {
-      mainSeen = true;
-      return match;
-    }
-    // Replace additional <main> tags with <section> while preserving any attributes
-    const safeAttrs = attrs || '';
-    // Avoid duplicating
+ * @param

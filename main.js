@@ -220,52 +220,8 @@ export function debounce(func, wait) {
  */
 function createButton(text, onClick, options = {}) {
   const button = document.createElement('button');
-  button.type = 'button';
-  button.textContent = text || '';
-  
-  if (onClick) {
-    button.addEventListener('click', onClick);
-  }
-  
-  // Add id if provided or generate one
-  if (options.id) {
-    button.id = options.id;
-  } else {
-    ensureElementHasId(button);
-  }
-  
-  // Add aria-label if provided and text is empty for accessibility
-  if (options['aria-label']) {
-    button.setAttribute('aria-label', options['aria-label']);
-  }
-  
-  // Add aria-pressed for toggle buttons
-  if (options['aria-pressed'] !== undefined) {
-    button.setAttribute('aria-pressed', options['aria-pressed']);
-  }
-  
-  // Add class if provided
-  if (options.className) {
-    button.className = options.className;
-  }
-  
-  // Add disabled state
-  if (options.disabled) {
-    button.disabled = true;
-  }
-  
-  // Add title attribute for tooltip
-  if (options.title) {
-    button.title = options.title;
-  }
-  
-  // Add custom data attributes if provided
-  if (options.dataAttributes) {
-    Object.keys(options.dataAttributes).forEach(key => {
-      button.setAttribute(`data-${key}`, options.dataAttributes[key]);
-    });
-  }
-  
+  button.id = buttonId;
+  button.textContent = buttonText;
   return button;
 }
 
@@ -287,40 +243,32 @@ export function addLangAttribute(html) {
   });
 }
 
-/**
- * Fixes table structure issues for accessibility
- * Ensures tables have proper headers, captions, and structure
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with fixed table structures
- */
-export function fixTableStructureIssues(html) {
-  if (typeof html !== 'string') return html;
-  
-  var result = html;
-  
-  // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
-      return match;
-    }
-    return '<th' + attrs + ' scope="col">';
-  });
-  
-  // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
-      return match;
-    }
-    // Add summary attribute for screen readers
-    return '<table' + attrs + ' summary="Data table">';
-  });
-  
-  // Note: The following complex tbody/thead wrapping logic has been removed
-  // due to implementation complexity and potential for breaking HTML structure.
-  // The function now focuses on adding missing scope and summary attributes,
-  // which are critical for accessibility and can be safely applied with regex.
-  
-  return result;
+// TODO: Implement function for generating a report based on accessibility issues
+function generateAccessibilityReport(accessibilityReport) {
+  if (!accessibilityReport) {
+    return {
+      totalIssues: 0,
+      resolvedIssues: 0,
+      unresolvedIssues: 0,
+      reportDate: new Date().toISOString(),
+      summary: 'No accessibility data available.',
+      issues: []
+    };
+  }
+
+  const issues = accessibilityReport.issues || [];
+  const resolvedIssues = issues.filter(issue => issue.status === 'resolved');
+  const unresolvedIssues = issues.filter(issue => issue.status !== 'resolved');
+
+  return {
+    totalIssues: issues.length,
+    resolvedIssues: resolvedIssues.length,
+    unresolvedIssues: unresolvedIssues.length,
+    reportDate: new Date().toISOString(),
+    summary: `Accessibility report: ${resolvedIssues.length} of ${issues.length} issues resolved.`,
+    issues: issues,
+    score: calculateAccessibilityScore(resolvedIssues)
+  };
 }
 
 /**

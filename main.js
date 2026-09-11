@@ -70,20 +70,27 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  ...
+  button.setAttribute('type', 'button');
   return button;
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
+// Get lang attribute value for HTML element
+function getLangAttribute(document) {
+  return document.documentElement?.lang || 'en';
+}
 
 // Function to add aria-labelledby to SVGs with title elements
-function ... {
-  const svgs = ...
+function setSvgAriaLabelledby() {
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const title = ...
     if (title) {
-      const titleId = title.getAttribute('id');
-      ... titleId);
+      let titleId = title.getAttribute('id');
+      if (!titleId) {
+        titleId = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+        title.setAttribute('id', titleId);
+      }
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
 }
@@ -95,18 +102,121 @@ function ... {
     const title = ...
     if (!title) {
       const svgText = svg.textContent || svg.innerText || 'Image';
-      ... svgText);
+      svg.setAttribute('aria-label', svgText.trim());
+    }
+  });
+}
+
+// Get SVG accessible name
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const title = svg.querySelector('title');
+  if (title) {
+    return title.textContent || '';
+  }
+  return svg.getAttribute('aria-label') || svg.textContent || 'Image';
+}
+
+// Set SVG accessibility attributes
+function setSvgAttributes(svg, label) {
+  if (!svg) return;
+  if (label) {
+    svg.setAttribute('aria-label', label);
+  }
+}
+
+// Function to validate landmark accessibility
+function validateLandmark(element) {
+  const landmarks = element?.querySelectorAll('[role]');
+  return landmarks ? Array.from(landmarks) : [];
+}
+
+// Function to validate landmark structure
+function validateLandmarkStructure(element) {
+  const validLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+  const landmarks = element?.querySelectorAll('[role]');
+  if (!landmarks) return true;
+  
+  return Array.from(landmarks).every(lm => {
+    const role = lm.getAttribute('role');
+    return validLandmarks.includes(role);
+  });
+}
+
+// Ensure unique landmarks
+function ensureUniqueLandmarks(document) {
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
+  const seen = {};
+  landmarks.forEach(lm => {
+    const role = lm.getAttribute('role');
+    if (seen[role]) {
+      lm.removeAttribute('role');
+    }
+    seen[role] = true;
+  });
+}
+
+// Add proper landmark regions
+function addProperLandmarkRegions(document) {
+  const main = document.querySelector('main');
+  if (main && !main.getAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+}
+
+// Function to validate table accessibility
+function validateTableAccessibility(table) {
+  if (!table) return { valid: true, issues: [] };
+  const issues = [];
+  if (!table.querySelector('caption') && !table.getAttribute('aria-label')) {
+    issues.push('Table missing caption or aria-label');
+  }
+  return { valid: issues.length === 0, issues };
+}
+
+// Function to validate table structure
+function validateTableStructure(table) {
+  if (!table) return { valid: true, issues: [] };
+  const issues = [];
+  const headers = table.querySelectorAll('th');
+  const cells = table.querySelectorAll('td, th');
+  if (headers.length === 0 && cells.length > 0) {
+    issues.push('Table should have header cells');
+  }
+  return { valid: issues.length === 0, issues };
+}
+
+// Function to validate link accessibility
+function validateLinkAccessibility(link) {
+  if (!link) return { valid: true, issues: [] };
+  const issues = [];
+  const text = link.textContent?.trim();
+  const ariaLabel = link.getAttribute('aria-label');
+  if (!text && !ariaLabel) {
+    issues.push('Link missing accessible name');
+  }
+  return { valid: issues.length === 0, issues };
+}
+
+// Handle fake links (links that are actually buttons)
+function handleFakeLinks(document) {
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'button');
+    const href = link.getAttribute('href');
+    if (href === '#' || href === '') {
+      link.setAttribute('href', 'javascript:void(0)');
     }
   });
 }
 
 // Function to address accessibility issues from insight report
-function ... {
-  if (!insightReport || !insightReport.issues) {
+function addressAccessibilityIssues(insightReport) {
+  if (!insightReport || !Array.isArray(insightReport)) {
     return [];
   }
 
-  return insightReport.issues.map(issue => {
+  return insightReport.map(issue => {
     let fixedIssue = { ...issue, status: 'resolved' };
     
     // Apply fixes based on issue type
@@ -149,23 +259,19 @@ function ... {
 
 // Implement function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
-  // Implementation goes here
-  if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
-    return { totalIssues: 0, byType: {} };
+  // Your implementation here
+  if (!accessibilityReport || !Array.isArray(accessibilityReport)) {
+    return { summary: 'No issues found', issues: [] };
   }
-
-  const byType = {};
-  let total = 0;
-
-  for (const issue of accessibilityReport.issues) {
-    total++;
-    const type = issue.type;
-    byType[type] = (byType[type] || 0) + 1;
-  }
-
+  
+  const resolved = accessibilityReport.filter(i => i.status === 'resolved');
+  const pending = accessibilityReport.filter(i => i.status !== 'resolved');
+  
   return {
-    totalIssues: total,
-    byType: byType
+    summary: `Total: ${accessibilityReport.length}, Resolved: ${resolved.length}, Pending: ${pending.length}`,
+    issues: accessibilityReport,
+    resolvedCount: resolved.length,
+    pendingCount: pending.length
   };
 }
 
@@ -200,148 +306,4 @@ function renderIndexView(accessibilityReport, options = {}) {
     includeNav = true
   } = options;
 
-  // Create main container with proper landmarks and lang attribute
-  const container = document.createElement('div');
-  container.id = containerId;
-  container.lang = 'en';
-  container.setAttribute('role', 'application');
-
-  // Add header landmark
-  const header = document.createElement('header');
-  header.setAttribute('role', 'banner');
-  header.setAttribute('aria-labelledby', 'index-title');
-
-  const heading = document.createElement('h1');
-  heading.id = 'index-title';
-  heading.textContent = title;
-  header.appendChild(heading);
-  container.appendChild(header);
-
-  // Calculate accessibility score if report exists
-  const score = calculateAccessibilityScore(accessibilityReport || []);
-
-  // Add navigation landmark if enabled
-  if (includeNav) {
-    const nav = document.createElement('nav');
-    nav.setAttribute('aria-label', 'Main navigation');
-    nav.setAttribute('role', 'navigation');
-
-    const navList = document.createElement('ul');
-    const navItems = [
-      { text: 'Summary', href: '#summary-section' },
-      { text: 'Details', href: '#details-section' },
-      { text: 'Report', href: '#report-section' }
-    ];
-
-    navItems.forEach(item => {
-      const listItem = document.createElement('li');
-      const link = document.createElement('a');
-      link.href = item.href;
-      link.textContent = item.text;
-      listItem.appendChild(link);
-      navList.appendChild(listItem);
-    });
-
-    nav.appendChild(navList);
-    container.appendChild(nav);
-  }
-
-  // Add main landmark
-  const main = document.createElement('main');
-  main.setAttribute('role', 'main');
-
-  // Add summary section
-  if (showSummary) {
-    const summarySection = document.createElement('section');
-    summarySection.id = 'summary-section';
-    summarySection.setAttribute('aria-labelledby', 'summary-heading');
-
-    const summaryHeading = document.createElement('h2');
-    summaryHeading.id = 'summary-heading';
-    summaryHeading.textContent = 'Accessibility Summary';
-    summarySection.appendChild(summaryHeading);
-
-    // Calculate summary statistics
-    const totalIssues = (accessibilityReport || []).length;
-    const resolvedIssues = (accessibilityReport || [])
-      .filter(issue => issue.status === 'resolved')
-      .length;
-
-    const summaryList = document.createElement('ul');
-    summaryList.setAttribute('role', 'list');
-
-    const summaryItems = [
-      `Total issues: ${totalIssues}`,
-      `Resolved: ${resolvedIssues}`,
-      `Unresolved: ${totalIssues - resolvedIssues}`,
-      `Accessibility score: ${score}/100`
-    ];
-
-    summaryItems.forEach(itemText => {
-      const item = document.createElement('li');
-      item.setAttribute('role', 'listitem');
-      item.textContent = itemText;
-      summaryList.appendChild(item);
-    });
-
-    summarySection.appendChild(summaryList);
-    main.appendChild(summarySection);
-  }
-
-  // Add details section
-  if (showDetails && accessibilityReport && accessibilityReport.length > 0) {
-    const detailsSection = document.createElement('section');
-    detailsSection.id = 'details-section';
-    detailsSection.setAttribute('aria-labelledby', 'details-heading');
-
-    const detailsHeading = document.createElement('h2');
-    detailsHeading.id = 'details-heading';
-    detailsHeading.textContent = 'Accessibility Issues Details';
-    detailsSection.appendChild(detailsHeading);
-
-    // Create accessible table for issues
-    const table = document.createElement('table');
-    table.setAttribute('role', 'table');
-    table.setAttribute('aria-describedby', 'table-description');
-
-    const tableDescription = document.createElement('caption');
-    tableDescription.id = 'table-description';
-    tableDescription.textContent = 'List of accessibility issues and their current status';
-    table.appendChild(tableDescription);
-
-    // Table header
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-    headerRow.setAttribute('role', 'row');
-
-    const headers = ['Issue Type', 'Description', 'Status', 'Fix Applied'];
-    headers.forEach((headerText, index) => {
-      const th = document.createElement('th');
-      th.setAttribute('role', 'columnheader');
-      th.setAttribute('scope', 'col');
-      th.textContent = headerText;
-      headerRow.appendChild(th);
-    });
-
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    // Table body
-    const tbody = document.createElement('tbody');
-    tbody.setAttribute('role', 'rowgroup');
-
-    accessibilityReport.forEach(issue => {
-      const row = document.createElement('tr');
-      row.setAttribute('role', 'row');
-
-      const issueType = document.createElement('td');
-      issueType.setAttribute('role', 'cell');
-      issueType.textContent = issue.type || 'Unknown';
-
-      const issueDesc = document.createElement('td');
-      issueDesc.setAttribute('role', 'cell');
-      issueDesc.textContent = issue.description || issue.issue || 'No description';
-
-      const issueStatus = document.createElement('td');
-      issueStatus.setAttribute('role', 'cell');
-      issueStatus.textContent = issue
+// Call the functions to add aria-labels and aria-labelledby to SVGs

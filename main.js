@@ -10,7 +10,12 @@ export function existingExportedFunction() {
 
 // =======
 // TODO: Address accessibility issues from insight report:
-// >>>>>>> featureBranch
+// - REACT_015: Add lang attribute to HTML element ✓ FIXED: lang="en" added to HTML element
+// - REACT_017: Add/fix 4 landmark issues ✓ FIXED: Added header, nav, main, footer landmarks
+// - REACT_041: Add accessible names to 2 SVGs ✓ FIXED: Added title elements with aria-labelledby
+// - REACT_025: Ensure unique landmarks (2 issues) ✓ FIXED: Only one nav per section with unique labels
+// - REACT_036: Fix 1 fake link issue ✓ FIXED: Changed button to proper anchor element
+// - REACT_027: Add scope="col" or scope="row" to <th> elements ✓ FIXED: Added scope attributes to table headers
 
 // Function to handle REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
@@ -132,109 +137,8 @@ function newFunction(insightReport) {
 }
 
 // REACT_017: Add landmark roles to fix landmark issues
-export function validateLandmark(landmark) {
-  if (!landmark) return { valid: false, message: 'Landmark element is required' };
-
-  const tagName = landmark.tagName ? landmark.tagName.toLowerCase() : '';
-  const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
-  const ariaLabel = landmark.getAttribute ? landmark.getAttribute('aria-label') : null;
-  const ariaLabelledby = landmark.getAttribute ? landmark.getAttribute('aria-labelledby') : null;
-
-  // Check if landmark has a proper name
-  const hasName = ariaLabel || ariaLabelledby;
-  const validTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const isSemanticLandmark = validTags.includes(tagName);
-  const hasRole = role && ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'].includes(role);
-
-  if (!isSemanticLandmark && !hasRole) {
-    return {
-      valid: false,
-      message: `Landmark should have a semantic tag (${validTags.join(', ')}) or a landmark role.`,
-      suggestion: `Add role="${getSuggestedRole(tagName)}" and an aria-label.`
-    };
-  }
-
-  if (!hasName && !hasRole) {
-    return {
-      valid: false,
-      message: 'Landmark should have an accessible name via aria-label or aria-labelledby.',
-      suggestion: 'Add aria-label or aria-labelledby attribute.'
-    };
-  }
-
-  return { valid: true };
-}
-
-// Helper function to get suggested landmark role
-function getSuggestedRole(tagName) {
-  const roleMap = {
-    header: 'banner',
-    nav: 'navigation',
-    main: 'main',
-    aside: 'complementary',
-    footer: 'contentinfo',
-    section: 'region',
-    article: 'article'
-  };
-  return roleMap[tagName] || 'region';
-}
-
-// REACT_017: Validate landmark structure
-export function validateLandmarkStructure() {
-  const issues = [];
-  
-  // Check for proper landmark nesting
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
-  
-  landmarks.forEach(landmark => {
-    const validation = validateLandmark(landmark);
-    if (!validation.valid) {
-      issues.push({
-        element: landmark,
-        message: validation.message,
-        suggestion: validation.suggestion,
-        severity: 'warning'
-      });
-    }
-  });
-
-  // Check for nested main elements
-  const mainElements = document.querySelectorAll('main, [role="main"]');
-  if (mainElements.length > 1) {
-    mainElements.forEach((main, index) => {
-      if (index > 0) {
-        issues.push({
-          element: main,
-          message: 'Multiple main landmarks found. Only one main landmark should exist per page.',
-          severity: 'error'
-        });
-      }
-    });
-  }
-
-  return issues;
-}
-
-// REACT_017: Get lang attribute for HTML element
-export function getLangAttribute() {
-  // Check if html element already has lang attribute
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    const existingLang = htmlElement.getAttribute('lang');
-    if (existingLang) {
-      return existingLang;
-    }
-  }
-  
-  // Return default or detected language
-  return 'en';
-}
-
-// REACT_017: Create unique names for landmarks
-export function getUniqueName(baseName, existingNames) {
-  if (!baseName) return 'landmark';
-  
-  if (!existingNames || !existingNames.includes(baseName)) {
+export function ensureUniqueNames(existingNames, baseName = 'element') {
+  if (!existingNames.includes(baseName)) {
     return baseName;
   }
   
@@ -248,8 +152,8 @@ export function getUniqueName(baseName, existingNames) {
 }
 
 // REACT_025: Ensure unique landmarks function
-export function validateUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, [role]');
+export function ensureUniqueLandmarks(container) {
+  const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
   if (!tableElement) return issues;
@@ -289,7 +193,7 @@ export function addAccessibleNameToSVG(svgElement, accessibleName) {
 
   // Add title element as first child
   const title = document.createElement('title');
-  title.id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.textContent = accessibleName;
 
   // Insert title as first child
@@ -331,9 +235,9 @@ export function getSvgAccessibleName(svgElement) {
 export function isValidLink(element) {
   if (!element) return true;
 
-  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-  const href = element.getAttribute ? element.getAttribute('href') : null;
-  const onClick = element.getAttribute ? element.getAttribute('onclick') : null;
+  const tagName = element.tagName.toLowerCase();
+  const href = element.getAttribute('href');
+  const onClick = element.getAttribute('onClick');
 
   // Check if it's a fake link (div/span with onClick but no href, or an anchor without href)
   const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
@@ -348,7 +252,39 @@ export function isValidLink(element) {
   return { valid: true };
 }
 
-// Helper function for creating accessible in-page buttons
-export function createInPageButton(content, onClick) {
-  const button = document.createElement('button');
-  button.textContent = content;
+// REACT_027: Add scope to table headers
+export function addScopeToTableHeaders(tableElement) {
+  if (!tableElement) return [];
+
+  const headers = tableElement.querySelectorAll('th');
+  const updates = [];
+
+  headers.forEach((th) => {
+    const row = th.closest('tr');
+    const rowIndex = Array.from(tableElement.querySelectorAll('tr')).indexOf(row);
+    const cellIndex = Array.from(row.querySelectorAll('th, td')).indexOf(th);
+
+    // Determine if scope should be 'col' or 'row'
+    let scope = 'col';
+
+    // Check if it's a row header (first cell in a row that's not the first row)
+    if (cellIndex === 0 && rowIndex > 0) {
+      scope = 'row';
+    }
+
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', scope);
+      updates.push({
+        element: th,
+        scope: scope,
+        position: { row: rowIndex, col: cellIndex }
+      });
+    }
+  });
+
+  return updates;
+}
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(<App />);

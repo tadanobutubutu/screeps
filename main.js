@@ -1,4 +1,9 @@
-// TODO: Address accessibility issues from insight report — CONTINUING
+// <<<<<<< HEAD
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 /**
  * Ensures the element has an id, generating one if necessary
@@ -45,25 +50,10 @@ function renderDependencyGraphs(dependencies, container) {
   return graphElement;
 }
 
-  return graphElement;
-}
-
-// Added functions to address the issue
-function functionA() {
-  return {
-    X: 1,
-    Y: 2,
-    Z: 3
-  };
-}
-
-function functionB() {
-  return {
-    A: 4,
-    B: 5,
-    C: 6
-  };
-}
+// ----- END ORIGINAL CODE -----
+// =======
+// [incoming changes from origin/main]
+// >>>>>>> origin/main
 
 import React from 'react';
 

@@ -1078,3 +1078,81 @@ export {
   addProperLandmarkRegions,
   addressAccessibilityIssues,
 };
+
+// New functions to be added (properly defined without conflicts)
+function newFunction() {
+  return 'new function';
+}
+
+function wrapPrimaryContentInMain(html) {
+  if (typeof html !== 'string') return html;
+  return html.replace(/<main(\s[^>]*)?>/gi, (match, attrs) => {
+    return `<main${attrs || ''} role="main">`;
+  });
+}
+
+function addSkipLink(html) {
+  if (typeof html !== 'string') return html;
+  const skipLink = '<a href="#main-content" class="skip-link">Skip to main content</a>';
+  return html.replace(/<body(\s[^>]*)?>/i, (match, attrs) => {
+    return `<body${attrs || ''}>${skipLink}`;
+  });
+}
+
+function getAccessibleName(element) {
+  if (typeof element === 'string') {
+    return element;
+  }
+  if (element && element.getAttribute) {
+    return element.getAttribute('aria-label') || 
+           element.getAttribute('alt') || 
+           element.textContent || 
+           '';
+  }
+  return '';
+}
+
+function setAccessibleName(element, name) {
+  if (element && element.setAttribute) {
+    element.setAttribute('aria-label', name);
+  }
+  return element;
+}
+
+function addProperLandmarkRegions(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Add role="banner" to header if not present
+  html = html.replace(/<header(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('role=')) {
+      return match;
+    }
+    return `<header${attrs || ''} role="banner">`;
+  });
+  
+  // Add role="navigation" to nav if not present
+  html = html.replace(/<nav(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('role=')) {
+      return match;
+    }
+    return `<nav${attrs || ''} role="navigation">`;
+  });
+  
+  // Add role="main" to main if not present
+  html = html.replace(/<main(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('role=')) {
+      return match;
+    }
+    return `<main${attrs || ''} role="main">`;
+  });
+  
+  // Add role="contentinfo" to footer if not present
+  html = html.replace(/<footer(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('role=')) {
+      return match;
+    }
+    return `<footer${attrs || ''} role="contentinfo">`;
+  });
+  
+  return html;
+}

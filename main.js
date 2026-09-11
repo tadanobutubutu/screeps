@@ -32,24 +32,18 @@ function renderDependencyGraphs(dependencies, container) {
   // Create graph visualization
   const graphElement = document.createElement('div');
   graphElement.className = 'dependency-graph';
-  
-  // Create header
-  const header = document.createElement('h3');
-  header.textContent = 'Dependency Graph';
-  graphElement.appendChild(header);
+  container.innerHTML = '<h3>Dependency Graph</h3>';
 
   // Render nodes
   Object.entries(dependencies).forEach(([key, value]) => {
     const node = document.createElement('div');
     node.className = 'graph-node';
-    node.textContent = `${key}: ${value}`;
-    graphElement.appendChild(node);
+    node.textContent = `${key}: ${dependencies[key]}`;
+    container.appendChild(node);
   });
 
-  // Add to container
-  if (container) {
-    container.appendChild(graphElement);
-  }
+  return graphElement;
+}
 
   return graphElement;
 }
@@ -546,7 +540,7 @@ export function addProperLandmarkRegions(html) {
 export function ... {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
     // Check if lang attribute already exists
     if (attrs && attrs.includes(' lang=')) {
       return match;
@@ -568,7 +562,7 @@ export function ... {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -576,7 +570,7 @@ export function ... {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
@@ -601,50 +595,4 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (html.includes('<main')) {
-    return html;
-  }
-
-  // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
-    return `<body${attrs || ''}><main>`;
-  }).replace(/<\/body>/, '</main></body>');
-}
-
-/**
- * Adds accessible names to SVG elements
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with accessible SVG names
- */
-export function ... {
-  if (typeof html !== 'string') return html;
-  
-  let svgCounter = 0;
-  
-  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
-    // Handle case where attrs might be undefined (for <svg> without attributes)
-    const attributes = attrs || '';
-    const existingLabel = attributes.match(/aria-labelledby/i) || attributes.match(/aria-label/i);
-    
-    if (existingLabel) {
-      return match;
-    }
-    
-    // Extract title if present
-    const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
-    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
-    
-    // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]*)"/);
-    if (idMatch) {
-      return `<svg${attributes} role="img" aria-label="${label}">`;
-    }
-    
-    // Add inline title for accessibility
-    const titleId = `svg-title-${svgCounter}`;
-    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
-  });
-}
-
-/**
- *
+  if (html.includes('<main') || html.includes

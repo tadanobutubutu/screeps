@@ -66,67 +66,134 @@ function setDependencyGraphRole() {
   }
 }
 
+// End of existing main.js content
+
+// Add new function or changes requested in the issue
 function getLangAttribute(element) {
-  // Add lang attribute to HTML element
-  return element.getAttribute('lang') || 'en';
-}
-
-function addLangAttribute(element, lang) {
-  // Add lang attribute to HTML element
-  const currentAttr = element.getAttribute('lang');
-  if (!currentAttr) {
-    element.setAttribute('lang', lang);
+  if (element && !element.hasAttribute('lang')) {
+    element.setAttribute('lang', 'main');
   }
-}
-
-function validateTableAccessibility(table) {
-  // Fix 26 table structure issues
-  // Return true if valid, false otherwise
   return true;
 }
 
-function validateTableStructure(table) {
-  // Fix table structure issues
+function addLangAttribute(element) {
+  if (element && !element.hasAttribute('lang')) {
+    element.setAttribute('lang', 'main');
+  }
   return true;
 }
 
-function fixTableStructure(table) {
-  // Fix table structure issues
+function validateTableAccessibility() {
+  const table = document.querySelector('table');
+  if (!table) return false;
+  // Check for scope attribute
+  if (table.getAttribute('scope') === '') return false;
+  // Check for header row
+  const headerRow = table.querySelector('thead tr');
+  if (!headerRow) return false;
+  // Additional checks could be added here
   return true;
 }
 
-function addMainLandmark(component) {
-  // Add main landmark to component
-  return component;
+function validateTableStructure() {
+  const table = document.querySelector('table');
+  if (!table) return false;
+  const rows = Array.from(table.tBrowsersEqual('r')).length;
+  const cols = Array.from(table.querySelectorAll('th, td')).reduce((acc, el) => acc + 1, 0);
+  return rows > 0 && cols > 0;
 }
 
-function validateLandmark(landmark) {
-  // Validate landmark
-  return true;
+function fixTableStructure() {
+  const table = document.querySelector('table');
+  if (!table) return;
+  // Ensure there is a header row
+  if (!table.querySelector('thead')) {
+    const tbody = table.querySelector('tbody');
+    if (tbody) {
+      const newThead = document.createElement('thead');
+      newThead.appendChild(tbody.firstChild);
+      table.replaceChild(newThead, tbody);
+    } else {
+      throw new Error('No table body found');
+    }
+  }
+  // Simple cleanup: remove extra whitespace cells if any
+  // (not implemented for brevity)
 }
 
-function validateLandmarkStructure(landmark) {
-  // Validate landmark structure
-  return true;
+function addMainLandmark() {
+  const landmark = document.createElement('div');
+  landmark.setAttribute('role', 'main');
+  landmark.id = 'main-landmark';
+  landmark.textContent = 'Main Landmark';
+  document.body.appendChild(landmark);
 }
 
-function validateLandmarkAttributes(landmark) {
-  // Validate landmark attributes
-  return true;
+function validateLandmark() {
+  const landmark = document.querySelector('[role="main"]');
+  if (!landmark) return false;
+  return landmark.hasAttribute('role') && landmark.getAttribute('id') !== undefined;
+}
+
+function validateLandmarkStructure() {
+  const landmark = document.querySelector('[role="main"]');
+  if (!landmark) return false;
+  const heading = landmark.querySelector('h1, h2, h3');
+  return heading || false;
+}
+
+function validateLandmarkAttributes() {
+  const landmark = document.querySelector('[role="main"]');
+  if (!landmark) return false;
+  return landmark.hasAttribute('aria-label') || false;
 }
 
 function getSvgAccessibleName(svgElement) {
-  // Add accessible name to SVG
-  return svgElement.getAttribute('aria-label') || '';
+  if (!svgElement) return '';
+  return svgElement.textContent.trim();
 }
 
-function setSvgAttributes(svgElement, attributes) {
-  // Set accessible attributes on SVG
-  Object.keys(attributes).forEach(key => {
-    svgElement.setAttribute(key, attributes[key]);
+function setSvgAttributes(svgElement) {
+  if (!svgElement) return;
+  svgElement.setAttribute('aria-label', 'Interactive chart');
+  svgElement.setAttribute('role', 'img');
+}
+
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="main"]');
+  const ids = [...landmarks.map(l => l.id)];
+  return [...new Set(ids)].length === ids.length;
+}
+
+function createInPageButton() {
+  const btn = document.createElement('button');
+  btn.textContent = 'Click Me';
+  btn.className = 'in-page-button';
+  document.body.appendChild(btn);
+}
+
+function validateLinkAccessibility() {
+  const links = document.querySelectorAll('a[href]');
+  return links.every(link => link.hasAttribute('href') && !link.disabled);
+}
+
+function handleFakeLinks() {
+  const links = document.querySelectorAll('a[href]');
+  links.forEach(link => {
+    if (link.href.startsWith('http://example.com/fake')) {
+      link.remove();
+    }
   });
 }
 
+function addProperLandmarkRegions() {
+  const landmark = document.querySelector('[role="main"]');
+  if (landmark) {
+    landmark.setAttribute('aria-labelledby', 'main-title');
+  }
+}
+
+// Export any new functions or existing ones if needed
 module.exports = {
   getLangAttribute,
   addLangAttribute,

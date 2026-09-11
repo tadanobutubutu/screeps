@@ -1,4 +1,4 @@
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// TODO: Identify and update specific functions that render dependency graphs or
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
@@ -9,7 +9,7 @@
  */
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
   }
   return element.id;
 }
@@ -39,10 +39,10 @@ function renderDependencyGraphs(dependencies, container) {
   graphElement.appendChild(header);
 
   // Render nodes
-  Object.keys(dependencies).forEach(key => {
+  Object.keys(dependencies).forEach((key) => {
     const node = document.createElement('div');
     node.className = 'graph-node';
-    node.textContent = `${key}: ${dependencies[key]}`;
+    node.textContent = key + ': ' + dependencies[key];
     graphElement.appendChild(node);
   });
 
@@ -73,11 +73,27 @@ function getLangAttribute() {
   return 'en'; // Assuming English for the example
 }
 
-export function createInPageButton() {
-  // Implementation of the createInPageButton function
-  // Creates an in-page navigation button for accessibility
-  // Returns a string of HTML for the button
-  return '<button type="button">Navigate</button>';
+// New function to check table structure
+function checkTableStructure(table) {
+  if (!(table instanceof HTMLTableElement)) {
+    throw new Error('Provided value is not a valid HTMLTableElement');
+  }
+
+  const rows = table.rows;
+  if (rows.length === 0) {
+    throw new Error('Table has no rows');
+  }
+
+  // Additional checks can be added here to validate the structure of the table
+  // For example, check if all rows have the same number of cells
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    if (row.cells.length !== rows[0].cells.length) {
+      throw new Error('Row ' + (i + 1) + ' does not have the same number of cells as the first row');
+    }
+  }
+
+  return true; // Table structure is valid
 }
 
 // ... (rest of the main.js code, including other functions and exports)
@@ -171,7 +187,7 @@ export function validateLandmark(html) {
 }
 
 export function greet(name) {
-  return `Hello, ${name}!`;
+  return 'Hello, ' + name + '!';
 }
 
 export function isEven(num) {
@@ -193,11 +209,11 @@ export function averageArray(arr) {
 }
 
 export function findMax(arr) {
-  return Math.max(...arr);
+  return Math.max.apply(null, arr);
 }
 
 export function findMin(arr) {
-  return Math.min(...arr);
+  return Math.min.apply(null, arr);
 }
 
 // String utility functions
@@ -235,10 +251,11 @@ export function capitalizeString(str) {
 
 export function debounce(func, wait) {
   let timeout;
-  return function(...args) {
-    const later = () => {
+  return function debounced() {
+    const args = arguments;
+    const later = function() {
       clearTimeout(timeout);
-      func(...args);
+      func.apply(null, args);
     };
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
@@ -541,13 +558,13 @@ export function addProperLandmarkRegions(html) {
 export function ... {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/gi, function(match, attrs) {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
     }
     // Add lang attribute with 'en' as default
-    return `<html${attrs} lang="en">`;
+    return '<html' + attrs + ' lang="en">';
   });
 }
 
@@ -563,20 +580,20 @@ export function ... {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)(?<!scope="[^"]*")>/gi, (match, attrs) => {
+  result = result.replace(/<th\b([^>]*)>/gi, function(match, attrs) {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
-    return `<th${attrs} scope="col">`;
+    return '<th' + attrs + ' scope="col">';
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)(?<!summary="[^"]*")>/gi, (match, attrs) => {
+  result = result.replace(/<table\b([^>]*)>/gi, function(match, attrs) {
     if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
-    return `<table${attrs} summary="Data table">`;
+    return '<table' + attrs + ' summary="Data table">';
   });
   
   // Note: The following complex tbody/thead wrapping logic has been removed
@@ -596,14 +613,14 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main\b/i.test(html)) {
+  if (html.includes('<main')) {
     return html;
   }
 
   // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body([^>]*)>/i, (match, attrs) => {
-    return `<body${attrs || ''}><main>`;
-  }).replace(/<\/body>/gi, '</main></body>');
+  return html.replace(/<body([^>]*)>/gi, function(match, attrs) {
+    return '<body' + (attrs || '') + '><main>';
+  }).replace(/<\/body>/i, '</main></body>');
 }
 
 /**
@@ -616,7 +633,7 @@ export function ... {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<svg\b([^>]*)>/gi, function(match, attrs) {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
     const existingLabel = attributes.includes('aria-label') || attributes.includes('aria-labelledby');
@@ -626,18 +643,18 @@ export function ... {
     }
     
     // Extract title if present
-    const titleMatch = attributes.match(/<title>([^<]*)<\/title>/i);
-    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
+    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
+    let label = titleMatch ? titleMatch[1] : 'SVG image ' + (++svgCounter);
     
     // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]*)"/);
+    const idMatch = attributes.match(/id=["']([^"']*)["']/);
     if (idMatch) {
-      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
+      return '<svg' + attributes + ' role="img" aria-labelledby="' + idMatch[1] + '-title">';
     }
     
     // Add inline title for accessibility
-    const titleId = `svg-title-${++svgCounter}`;
-    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
+    const titleId = 'svg-title-' + svgCounter;
+    return '<svg' + attributes + ' role="img" aria-labelledby="' + titleId + '"><title id="' + titleId + '">' + label + '</title>';
   });
 }
 
@@ -651,24 +668,4 @@ export function ... {
 export function ensureUniqueLandmarks(html) {
   if (typeof html !== 'string') return html;
   
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const counters = {};
-  
-  // Initialize counters for each landmark type
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    if (matches) {
-      counters[lm] = matches.length;
-    }
-  });
-  
-  // First, ensure only one <main> landmark exists.
-  // Convert subsequent <main> elements to <section> with aria-label.
-  let mainSeen = false;
-  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
-    if (!mainSeen) {
-      mainSeen = true;
-      return match;
-    }
-    // Replace additional <main> tags with
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section

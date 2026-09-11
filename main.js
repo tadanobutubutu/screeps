@@ -9,7 +9,7 @@
  */
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
+    element.id = `element-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element.id;
 }
@@ -34,9 +34,12 @@ function renderDependencyGraphs(dependencies, container) {
   // Create graph visualization
   const graphElement = document.createElement('div');
   graphElement.className = 'dependency-graph';
-  const header = document.createElement('h3');
-  header.textContent = 'Dependency Graph';
-  graphElement.appendChild(header);
+  graphElement.setAttribute('role', 'img');
+  graphElement.setAttribute('aria-label', 'Dependency Graph showing module relationships');
+  
+  const title = document.createElement('h3');
+  title.textContent = 'Dependency Graph';
+  graphElement.appendChild(title);
 
   // Render nodes
   Object.keys(dependencies).forEach((key) => {
@@ -251,9 +254,8 @@ export function capitalizeString(str) {
 
 export function debounce(func, wait) {
   let timeout;
-  return function debounced() {
-    const args = arguments;
-    const later = function() {
+  return function(...args) {
+    const later = () => {
       clearTimeout(timeout);
       func.apply(null, args);
     };
@@ -265,12 +267,14 @@ export function debounce(func, wait) {
 /**
  * Accessibility improvements for main.js
  * Addresses issues from insight report:
- * - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
- * - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
- * - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
- * - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
- * - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
- * - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+ * - REACT_015: Add lang attribute to HTML element
+ * - REACT_027: Fix 26 table structure issues
+ * - REACT_017: Add/fix 2 landmark issues
+ * - REACT_041: Add accessible names to 2 SVGs
+ * - REACT_025: Ensure unique landmarks
+ * - REACT_036: Fix 1 fake link issue
+ * - REACT_037: Add proper landmark regions
+ * - DEPGRAPH_001: Ensure the dependencyGraph container has a proper ARIA role
  */
 
 /**
@@ -548,7 +552,7 @@ export function addProperLandmarkRegions(html) {
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
- */
+// - DEPGRAPH_001: Ensure the dependencyGraph container has a proper ARIA role (DONE in renderDependencyGraphs)
 
 /**
  * Adds lang attribute to HTML element
@@ -558,7 +562,7 @@ export function addProperLandmarkRegions(html) {
 export function ... {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/gi, function(match, attrs) {
+  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -580,7 +584,7 @@ export function ... {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, function(match, attrs) {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -588,7 +592,7 @@ export function ... {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, function(match, attrs) {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
@@ -613,14 +617,14 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (html.includes('<main')) {
+  if (/<main\b/gi.test(html)) {
     return html;
   }
 
   // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body([^>]*)>/gi, function(match, attrs) {
-    return '<body' + (attrs || '') + '><main>';
-  }).replace(/<\/body>/i, '</main></body>');
+  return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
+    return `<body${attrs || ''}><main>`;
+  }).replace(/<\/body>/gi, '</main></body>');
 }
 
 /**
@@ -633,7 +637,7 @@ export function ... {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg\b([^>]*)>/gi, function(match, attrs) {
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
     const existingLabel = attributes.includes('aria-label') || attributes.includes('aria-labelledby');
@@ -643,18 +647,18 @@ export function ... {
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
-    let label = titleMatch ? titleMatch[1] : 'SVG image ' + (++svgCounter);
+    const titleMatch = attributes.match(/<title>([^<]*)<\/title>/);
+    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/id=["']([^"']*)["']/);
+    const idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
-      return '<svg' + attributes + ' role="img" aria-labelledby="' + idMatch[1] + '-title">';
+      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}">`;
     }
     
     // Add inline title for accessibility
-    const titleId = 'svg-title-' + svgCounter;
-    return '<svg' + attributes + ' role="img" aria-labelledby="' + titleId + '"><title id="' + titleId + '">' + label + '</title>';
+    const titleId = `svg-title-${svgCounter}`;
+    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
   });
 }
 
@@ -668,4 +672,17 @@ export function ... {
 export function ensureUniqueLandmarks(html) {
   if (typeof html !== 'string') return html;
   
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  const counters = {};
+  
+  // Initialize counters for each landmark type
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
+    }
+  });
+  
+  // First, ensure only one <main> landmark exists.
+  // Convert subsequent <main> elements to <section> with aria-label.

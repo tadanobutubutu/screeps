@@ -219,12 +219,12 @@ describe('add-contributor', () => {
     describe('updateReadme', () => {
         it('should run all-contributors-cli', () => {
             script.updateReadme();
-            expect(require('child_process').execSync).toHaveBeenCalledWith('npx all-contributors-cli generate', { stdio: 'inherit' });
+            expect(require('child_process').execFileSync).toHaveBeenCalledWith('npx', ['all-contributors-cli', 'generate'], { stdio: 'inherit' });
             expect(console.log).toHaveBeenCalledWith('✅ README updated');
         });
 
         it('should log warning on failure', () => {
-            require('child_process').execSync.mockImplementation(() => { throw new Error('CLI failed'); });
+            require('child_process').execFileSync.mockImplementation(() => { throw new Error('CLI failed'); });
             script.updateReadme();
             expect(console.warn).toHaveBeenCalledWith('⚠️  Failed to update README:', 'CLI failed');
         });
@@ -297,8 +297,8 @@ describe('add-contributor', () => {
 
             expect(require('https').request).toHaveBeenCalled();
             expect(require('fs').writeFileSync).toHaveBeenCalled();
-            expect(require('child_process').execSync).toHaveBeenCalled();
-            expect(require('child_process').execFileSync).toHaveBeenCalledTimes(3);
+            expect(require('child_process').execFileSync).toHaveBeenCalled();
+            expect(require('child_process').execFileSync).toHaveBeenCalledTimes(4);
             expect(console.log).toHaveBeenCalledWith('✅ testuser added as a contributor!');
         });
 

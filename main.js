@@ -40,9 +40,9 @@ function renderDependencyGraphs(dependencies, container) {
   // Create graph visualization
   const graphElement = document.createElement('div');
   graphElement.className = 'dependency-graph';
-  graphElement.setAttribute('role', 'img');
-  graphElement.setAttribute('aria-label', 'Dependency graph showing package dependencies');
-  graphElement.innerHTML = '<h3>Dependency Graph</h3>';
+  const title = document.createElement('h3');
+  title.textContent = 'Dependency Graph';
+  graphElement.appendChild(title);
 
   // Render nodes
   Object.keys(dependencies).forEach(function(key) {
@@ -564,6 +564,64 @@ export function debounce(func, wait) {
 // - DEPENDENCY_GRAPH: Ensure dependencyGraph container has proper ARIA role (DONE: added role="img" and aria-label)
 
 /**
+ * Creates an in-page button with proper accessibility attributes
+ * @param {string} text - The button text
+ * @param {Function} onClick - The click handler function
+ * @param {Object} options - Additional options for the button
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createButton(text, onClick, options = {}) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text || '';
+  
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  // Add id if provided or generate one
+  if (options.id) {
+    button.id = options.id;
+  } else {
+    ensureElementHasId(button);
+  }
+  
+  // Add aria-label if provided and text is empty for accessibility
+  if (options['aria-label']) {
+    button.setAttribute('aria-label', options['aria-label']);
+  }
+  
+  // Add aria-pressed for toggle buttons
+  if (options['aria-pressed'] !== undefined) {
+    button.setAttribute('aria-pressed', options['aria-pressed']);
+  }
+  
+  // Add class if provided
+  if (options.className) {
+    button.className = options.className;
+  }
+  
+  // Add disabled state
+  if (options.disabled) {
+    button.disabled = true;
+  }
+  
+  // Add title attribute for tooltip
+  if (options.title) {
+    button.title = options.title;
+  }
+  
+  // Add custom data attributes if provided
+  if (options.dataAttributes) {
+    Object.keys(options.dataAttributes).forEach(key => {
+      button.setAttribute(`data-${key}`, options.dataAttributes[key]);
+    });
+  }
+  
+  return button;
+}
+
+/**
  * Adds lang attribute to HTML element
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with lang attribute added
@@ -571,7 +629,7 @@ export function debounce(func, wait) {
 export function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -593,7 +651,7 @@ export function fixTableStructureIssues(html) {
   var result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -601,8 +659,8 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('caption') || attrs && attrs.includes('summary')) {
+  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -631,7 +689,7 @@ export function addMainLandmark(html) {
   }
 
   // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<body([^>]*)>/i, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
   }).replace(/<\/body>/gi, '</main></body>');
 }
@@ -647,7 +705,7 @@ export function addSvgAccessibleNames(html) {
   var svgCounter = 0;
   var svgIdCounter = 0;
   
-  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     var attributes = attrs || '';
     var existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
@@ -661,25 +719,4 @@ export function addSvgAccessibleNames(html) {
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]*)"/);
-    if (idMatch) {
-      return '<svg' + attributes + ' role="img" aria-labelledby="' + idMatch[1] + '-title">';
-    }
-    
-    // Add inline title for accessibility
-    const titleId = `svg-title-${svgCounter}`;
-    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
-  });
-}
-
-/**
- * Ensures unique landmark identifiers for screen readers
- * Converts additional <main> landmarks to <section> so only one <main> exists per page.
- * Also assigns unique IDs to other landmark types.
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with unique landmarks
- */
-export function ensureUniqueLandmarks(html) {
-  if (typeof html !== 'string') return html;
-  
-  const landmarks = ['header', 'nav', 'main', 'aside
+    const idMatch = attributes.match(/id="([^

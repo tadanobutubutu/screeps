@@ -5,114 +5,9 @@ Looking at the code, I need to implement the new function at line 120 where the 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 
-```javascript
-// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-
-// Accessibility functions for addressing insight report issues:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_027: Fix 26 table structure issues
-// - REACT_017: Add/fix 2 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks
-// - REACT_036: Fix 1 fake link issue
-
-// Module structure tracking for debugging
-const moduleStructure = new Map();
-const dependencyGraph = new Map();
-
-/**
- * Renders a dependency graph visualization for debugging purposes
- * @param {Object} modules - Object containing module definitions
- * @param {Object} options - Rendering options
- * @returns {string} Text representation of dependency graph
- */
-export function renderDependencyGraph(modules, options = {}) {
-  const { format = 'text', showInternal = false } = options;
-  const graphLines = [];
-  
-  if (format === 'text') {
-    graphLines.push('=== Dependency Graph ===');
-    for (const [name, module] of Object.entries(modules)) {
-      const deps = module.dependencies || [];
-      if (deps.length === 0 && !showInternal) continue;
-      graphLines.push(`${name} -> [${deps.join(', ')}]`);
-    }
-    graphLines.push('========================');
-  }
-  
-  return graphLines.join('\n');
-}
-
-/**
- * Displays module structure for debugging purposes
- * @param {Object} module - Module object to analyze
- * @param {number} indent - Indentation level for pretty printing
- * @returns {string} Text representation of module structure
- */
-export function displayModuleStructure(module, indent = 0) {
-  const prefix = '  '.repeat(indent);
-  const lines = [];
-  
-  if (module.name) {
-    lines.push(`${prefix}Module: ${module.name}`);
-  }
-  
-  if (module.dependencies && module.dependencies.length > 0) {
-    lines.push(`${prefix}Dependencies:`);
-    module.dependencies.forEach(dep => {
-      lines.push(`${prefix}  - ${dep}`);
-    });
-  }
-  
-  if (module.exports && typeof module.exports === 'object') {
-    lines.push(`${prefix}Exports:`);
-    Object.keys(module.exports).forEach(key => {
-      lines.push(`${prefix}  - ${key}`);
-    });
-  }
-  
-  return lines.join('\n');
-}
-
-/**
- * Logs dependency tree to console for debugging
- * @param {Object} modules - Object containing all modules
- * @param {string} rootModule - Starting module for tree
- */
-export function logDependencyTree(modules, rootModule = 'main') {
-  const visited = new Set();
-  
-  function traverse(moduleName, depth = 0) {
-    if (visited.has(moduleName)) {
-      console.log('  '.repeat(depth) + `${moduleName} (circular)`);
-      return;
-    }
-    visited.add(moduleName);
-    
-    const module = modules[moduleName];
-    const prefix = '  '.repeat(depth);
-    console.log(`${prefix}└─ ${moduleName}`);
-    
-    if (module && module.dependencies) {
-      module.dependencies.forEach(dep => {
-        traverse(dep, depth + 1);
-      });
-    }
-  }
-  
-  console.log('Dependency Tree:');
-  traverse(rootModule);
-}
-
-/**
- * Gets module dependencies recursively
- * @param {Object} modules - Object containing all modules
- * @param {string} moduleName - Name of module to get dependencies for
- * @returns {string[]} Array of all dependencies
- */
-export function getModuleDependencies(modules, moduleName) {
-  const module = modules[moduleName];
-  if (!module || !module.dependencies) {
+// Function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(insightReport) {
+  if (!insightReport || !insightReport.issues) {
     return [];
   }
   
@@ -288,28 +183,24 @@ export function addLangAttribute(html) {
   });
 }
 
-function fixTableStructureIssues(html) {
-  if (typeof html !== 'string') return html;
-  
-  let result = html;
-  
-  // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
-      return match;
-    }
-    return `<th${attrs} scope="col">`;
-  });
-  
-  // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
-      return match;
-    }
-    return `<table${attrs} summary="Data table">`;
-  });
-  
-  return result;
+// Function for calculating accessibility score from fixed issues
+function calculateAccessibilityScore(fixedIssues) {
+  if (!Array.isArray(fixedIssues)) {
+    return 0;
+  }
+
+  const scorePoints = {
+    'color-contrast': 5,
+    'missing-alt-text': 3,
+    'missing-aria-label': 5,
+    'heading-order': 2,
+    'other': 1
+  };
+
+  return fixedIssues.reduce((score, issue) => {
+    const points = scorePoints[issue.type] || scorePoints['other'];
+    return score + points;
+  }, 0);
 }
 
 function addMainLandmark(html) {

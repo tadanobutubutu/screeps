@@ -438,10 +438,7 @@ export function capitalizeWords(str) {
 
 // Additional utility functions
 export function formatDate(date) {
-  if (date instanceof Date) {
-    return date.toISOString().split('T')[0];
-  }
-  return new Date(date).toISOString().split('T')[0];
+  return new Date(date).toLocaleDateString();
 }
 
 export function calculateTotal(items) {
@@ -460,7 +457,7 @@ export function capitalizeString(str) {
 
 export function debounce(func, wait) {
   let timeout;
-  return function(...args) {
+  return function debounced(...args) {
     const later = () => {
       clearTimeout(timeout);
       func(...args);
@@ -678,7 +675,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main\b/i.test(html)) {
+  if (html.includes('<main')) {
     return html;
   }
   
@@ -723,7 +720,7 @@ export function wrapPrimaryContentInMain(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with accessible SVG names
  */
-export function addSvgAccessibleNames(html) {
+export function addSvgAccessibleNamesToHtml(html) {
   if (typeof html !== 'string') return html;
   
   let svgCounter = 0;
@@ -825,4 +822,7 @@ export function ensureUniqueLandmarks(html) {
     const openRegex = new RegExp(`<${lm}\\b([^>]*)>`, 'gi');
     html = html.replace(openRegex, (match, inner) => {
       // Skip if an id attribute is already present
-      if (inner && inner.includes
+      if (inner && inner.includes('id=')) {
+        return match;
+      }
+      seen[lm] = (seen

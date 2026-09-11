@@ -490,7 +490,7 @@ export function fixTableStructureIssues(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -498,8 +498,8 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('caption') || attrs && attrs.includes('summary')) {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -523,7 +523,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main\b[^>]*>/i.test(html)) {
+  if (/<main\b/i.test(html)) {
     return html;
   }
   
@@ -532,8 +532,8 @@ export function addMainLandmark(html) {
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main>${bodyContent}</main>`;
-    return `<body${bodyAttrs || ''}>${wrappedContent}</body>`;
+    const wrappedContent = `<main${bodyAttrs || ' id="main-content"'}>${bodyContent}</main>`;
+    return html.replace(bodyMatch[0], wrappedContent);
   }
   
   return html;
@@ -549,17 +549,17 @@ export function addSvgAccessibleNames(html) {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
-    const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
+    const existingLabel = attributes.includes('aria-label') || attributes.includes('aria-labelledby');
     
     if (existingLabel) {
       return match;
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
+    const titleMatch = attributes.match(/<title>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
@@ -607,3 +607,7 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
+    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
+      return `<section${safeAttrs}>`;
+    }
+    return `<section${safeAttrs}

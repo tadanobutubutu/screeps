@@ -7,7 +7,7 @@
  */
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `el-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `element-${Date.now()}-${Math.random().toString(9).substr(2, 9)}`;
   }
   return element.id;
 }
@@ -38,8 +38,8 @@ function renderDependencyGraphs(dependencies, container) {
   Object.entries(dependencies).forEach(([key, value]) => {
     const node = document.createElement('div');
     node.className = 'graph-node';
-    node.textContent = `${key}: ${dependencies[key]}`;
-    container.appendChild(node);
+    node.textContent = `${key}: ${value}`;
+    graphElement.appendChild(node);
   });
 
   return graphElement;
@@ -580,16 +580,16 @@ export function ... {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes(' scope=')) {
       return match;
     }
     return `<th${attrs || ''} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('<caption>')) {
+  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes(' summary=') || attrs && attrs.includes(' caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -613,14 +613,14 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main\b/gi.test(html)) {
+  if (html.includes('<main') || html.includes('<main>')) {
     return html;
   }
 
   // If no main landmark, try to add one after the opening body tag
   return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
-  }).replace(/<\/body>/gi, '</main></body>');
+  }).replace('</body>', '</main></body>');
 }
 
 /**
@@ -643,7 +643,44 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title>([^<]+)<\/title>/i);
+    const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
-    // Check for id to
+    // Check for id to reference
+    const idMatch = attributes.match(/id="([^"]*)"/);
+    if (idMatch) {
+      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
+    }
+    
+    // Add inline title for accessibility
+    const titleId = `svg-title-${svgCounter}`;
+    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
+  });
+}
+
+/**
+ * Ensures unique landmark identifiers for screen readers
+ * Converts additional <main> landmarks to <section> so only one <main> exists per page.
+ * Also assigns unique IDs to other landmark types.
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with unique landmarks
+ */
+export function ensureUniqueLandmarks(html) {
+  if (typeof html !== 'string') return html;
+  
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  const counters = {};
+  
+  // Initialize counters for each landmark type
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
+    }
+  });
+  
+  // First, ensure only one <main> landmark exists.
+  // Convert subsequent <main> elements to <section> with aria-label.
+  let mainSeen = false;
+  html = html.replace(/

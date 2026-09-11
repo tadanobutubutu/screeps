@@ -143,11 +143,7 @@ export function capitalizeWords(str) {
 
 // Additional utility functions
 export function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  return date.toLocaleDateString('en-US', options);
+  return new Date(date).toLocaleDateString();
 }
 
 export function calculateTotal(items) {
@@ -166,7 +162,7 @@ export function capitalizeString(str) {
 
 export function debounce(func, wait) {
   let timeout;
-  return function executedFunction(...args) {
+  return function(...args) {
     const later = () => {
       clearTimeout(timeout);
       func(...args);
@@ -472,7 +468,7 @@ export function addProperLandmarkRegions(html) {
 export function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -494,16 +490,16 @@ export function fixTableStructureIssues(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes(' scope=')) {
+  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('scope=')) {
       return match;
     }
     return `<th${attrs} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes(' summary=') || attrs && attrs.includes(' caption')) {
+  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('caption') || attrs && attrs.includes('summary')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -532,12 +528,12 @@ export function addMainLandmark(html) {
   }
   
   // Try to match body content
-  const bodyMatch = html.match(/<body\b([^>]*)>([\s\S]*)<\/body>/i);
+  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
     const wrappedContent = `<main>${bodyContent}</main>`;
-    return html.replace(/<body\b([^>]*)>[\s\S]*<\/body>/i, `<body${bodyAttrs || ''}>${wrappedContent}</body>`);
+    return `<body${bodyAttrs || ''}>${wrappedContent}</body>`;
   }
   
   return html;
@@ -553,7 +549,7 @@ export function addSvgAccessibleNames(html) {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg\b([^>]*?)>/gi, (match, attrs) => {
+  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
     const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
@@ -611,11 +607,3 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
-      return `<section${safeAttrs}>`;
-    }
-    return `<section${safeAttrs} aria-label="Content section">`;
-  });
-  
-  // Also update closing tags for converted <main> elements
-  // Count occurrences of <main> opening

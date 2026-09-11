@@ -278,7 +278,47 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// Generate Accessibility Report
+// New function for the issue
+function validateLandmark() {
+  const issues = [];
+  const requiredLandmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+
+  // Count occurrences of each landmark role
+  const roleCount = new Map();
+
+  document.querySelectorAll('[role]').forEach(el => {
+    const role = el.getAttribute('role');
+    if (requiredLandmarkRoles.includes(role)) {
+      roleCount.set(role, (roleCount.get(role) || 0) + 1);
+    }
+  });
+
+  // Check for missing required landmarks
+  requiredLandmarkRoles.forEach(role => {
+    if (!roleCount.has(role)) {
+      issues.push({
+        type: 'missing-landmark',
+        message: `Landmark role "${role}" is missing.`,
+        fixApplied: `Add role="${role}" to the appropriate section of the page.`
+      });
+    }
+  });
+
+  // Check for duplicate landmarks
+  roleCount.forEach((count, role) => {
+    if (count > 1) {
+      issues.push({
+        type: 'duplicate-landmark',
+        message: `Landmark role "${role}" appears ${count} times, which is not unique.`,
+        fixApplied: `Ensure only one element has role="${role}".`
+      });
+    }
+  });
+
+  return issues;
+}
+
+// Function to generate a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
   // Your implementation here
   if (!accessibilityReport || !Array.isArray(accessibilityReport)) {
@@ -296,7 +336,7 @@ function generateAccessibilityReport(accessibilityReport) {
   };
 }
 
-// Function to calculate Accessibility Score
+// Calculate accessibility score from fixed issues
 function calculateAccessibilityScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;
@@ -353,7 +393,9 @@ export {
   addressAccessibilityIssues, 
   generateAccessibilityReport, 
   calculateAccessibilityScore,
-  spawnProcess
+  addAriaLabelledbyToSVGs,
+  addAriaLabelToSVGs,
+  validateLandmark
 };
 
 if (typeof module !== 'undefined' && module.exports) {

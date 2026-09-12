@@ -169,4 +169,4 @@ function addressInsightReportIssues(insightReport) {
 }
 
 // Export functions if needed
-// export { rotateBack, addressAccessibilityIssues, addressInsightReportIssues };
+export { rotateBack, addressAccessibilityIssues };

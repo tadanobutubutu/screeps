@@ -3,9 +3,22 @@
 // Import necessary modules (if not already imported)
 import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, createAccessibleLink, ensureUniqueLandmarks } from './accessibilityUtils';
 
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
+// Export the imported functions so they can be used by other modules
+export {
+  getLangAttribute,
+  wrapPrimaryContentInMain,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  addFixLandmarkIssues,
+  getSvgAccessibleName,
+  createAccessibleLink,
+  ensureUniqueLandmarks
+};
+
+// Keep the existing exports
+// ...
 
 /**
  * Sets accessibility properties on SVG elements.
@@ -211,4 +224,30 @@ function renderIndexView() {
   addAriaLabelToSVGs();
 }
 
+// Implement function to add aria-label to SVGs without title elements
+function addAriaLabelToSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const title = svg.querySelector('title');
+    if (!title) {
+      const svgText = svg.textContent || svg.innerText || 'Image';
+      svg.setAttribute('aria-label', svgText);
+    }
+  });
+}
+
+// Remove duplicate non-decorative SVGs accessibility fix as it's already handled in ensureSvgAccessibleNames
+// - REACT_041: Add accessible names to 2 SVGs
+// These are decorative favicon SVGs, so marking them as hidden from assistive tech
+// const svg1 = document.querySelector('#svg1');
+// const svg2 = document.querySelector('#svg2');
+// if (svg1) svg1.setAttribute('aria-hidden', 'true');
+// if (svg2) svg2.setAttribute('aria-hidden', 'true');
+
+// Export the local functions as well
+export { addProperLandmarkRegions, addAriaLabelledbyToSVGs, addAriaLabelToSVGs, handleAccessibilityIssues };
+
+// Call the new landmark and SVG accessibility functions
 addProperLandmarkRegions();
+addAriaLabelledbyToSVGs();
+addAriaLabelToSVGs();

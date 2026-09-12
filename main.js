@@ -9,6 +9,7 @@
 // - Add aria-label to SVGs without title elements (DONE: addAriaLabelToSVGs)
 // - Add aria-labelledby to SVGs with title elements (DONE: ...
 // - Add Proper Landmark Regions (DONE: addProperLandmarkRegions)
+// - Wrap Primary Content in Main (DONE: wrapPrimaryContentInMain)
 
 import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, createAccessibleLink, ensureUniqueLandmarks } from './accessibilityUtils';
 
@@ -32,12 +33,11 @@ function checkLandmarkElements() {
     'main, [role="main"]',
     'aside, ...',
     'footer[role="contentinfo"], [role="contentinfo"]',
-    'section[aria-label], ... [role="region"]',
+    'section[aria-label], [aria-labelledby], [role="region"]',
     'article, [role="article"]',
     'form[aria-label], form[aria-labelledby], [role="form"]',
     'search, [role="search"]',
-    '...',
-    '[role="banner"]',
+    'div, span, [role="banner"]',
     '[role="contentinfo"]'
   ];
 
@@ -84,9 +84,9 @@ function handleAccessibilityIssues() {
   ...
   createAccessibleLink();
   ensureUniqueLandmarks();
-  ... // Added functionality
-  ...   // Added functionality
-  ...        // Added functionality
+  addProperLandmarkRegions(); // Added functionality
+  addAriaLabelToSVGs();   // Added functionality
+  addAriaLabelledbyToSVGs(); // Added functionality
 }
 
 // Call the new function to handle accessibility issues
@@ -187,6 +187,10 @@ if (typeof MutationObserver !== 'undefined') {
   }
 }
 
+/**
+ * Wraps the primary content of the page in a <main> element
+ * This ensures there is a proper main landmark for accessibility
+ */
 function addProperLandmarkRegions() {
   const header = ...
   if (header) {
@@ -219,8 +223,8 @@ function addAriaLabelledbyToSVGs() {
     const svgs = ...
     svgs.forEach((svg) => {
       // Check if SVG is hidden
-      const isHidden = ... === 'true' ||
-                        ... !== null ||
+      const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
+                        svg.closest('[hidden]') !== null ||
                         svg.style.display === 'none' ||
                         svg.style.visibility === 'hidden';
 
@@ -241,14 +245,14 @@ function addAriaLabelledbyToSVGs() {
       // Determine if decorative - SVGs used for favicons/decorative purposes
       const isFavicon = svg.closest('link') !== null ||
                         (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        ... === 'true';
+                        svg.getAttribute('aria-hidden') === 'true';
 
       if (isFavicon) {
-        ... 'true');
-        ... 'false');
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('role', 'presentation');
       } else {
         // Add a generic title for non-decorative SVGs
-        const title = ... 'title');
+        const title = document.createElement('title');
         title.textContent = 'Icon';
         svg.insertBefore(title, svg.firstChild);
         svg.setAttribute('role', 'img');
@@ -264,12 +268,13 @@ function addAriaLabelledbyToSVGs() {
     }, 0);
   };
 
-  ...
+  // Initial run
+  ensureSvgAccessibleNames();
 
   // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(() => {
-      ...
+      ensureSvgAccessibleNames();
     });
 
     if (document.body) {
@@ -283,11 +288,83 @@ function addAriaLabelledbyToSVGs() {
   }
 
   // - REACT_017: Add/fix 4 landmark issues
-  const landmarks = ...
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
   landmarks.forEach((landmark) => {
     // Assuming you know which ARIA roles are correct for your landmarks
     ... 'landmark');
   });
+}
+
+/**
+ * Wraps primary content in a <main> element if one doesn't exist
+ * This ensures the page has a proper main landmark for screen readers
+ */
+function wrapPrimaryContentInMain() {
+  if (typeof document === 'undefined' || !document.body) {
+    return;
+  }
+
+  // Check if there's already a main element
+  const existingMain = document.querySelector('main, [role="main"]');
+  if (existingMain) {
+    return;
+  }
+
+  // Find elements that typically contain primary content
+  const contentSelectors = [
+    '#content', '#main', '#primary', '.content', '.main', '.primary',
+    'article', '.article', 'section:not([aria-label]):not([aria-labelledby])',
+    '.container', '.wrapper'
+  ];
+
+  let primaryContent = null;
+
+  for (const selector of contentSelectors) {
+    primaryContent = document.querySelector(selector);
+    if (primaryContent) {
+      break;
+    }
+  }
+
+  // If no identified content area, try to find the largest content block
+  if (!primaryContent) {
+    const skipTags = ['header', 'nav', 'aside', 'footer', 'script', 'style', 'link', 'meta'];
+    const allElements = document.body.querySelectorAll('div, section, article');
+
+    allElements.forEach((el) => {
+      if (primaryContent) return;
+
+      const parent = el.parentElement;
+      if (parent && skipTags.includes(parent.tagName.toLowerCase())) {
+        return;
+      }
+
+      if (el.textContent && el.textContent.trim().length > 100) {
+        primaryContent = el;
+      }
+    });
+  }
+
+  // If we found primary content, wrap it in a main element
+  if (primaryContent) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+
+    // Get the parent of the primary content
+    const parent = primaryContent.parentNode;
+    if (parent) {
+      // Move all children of primary content into the main element
+      while (primaryContent.firstChild) {
+        main.appendChild(primaryContent.firstChild);
+      }
+
+      // Insert the main element in place of the original content
+      parent.insertBefore(main, primaryContent);
+
+      // Remove the now-empty original container
+      parent.removeChild(primaryContent);
+    }
+  }
 }
 
 // Implement function to add aria-labelledby to SVGs with title elements
@@ -325,8 +402,7 @@ module.exports = {
   validateLandmarkStructure,
   validateLandmarkAttributes,
   addProperLandmarkRegions,
-  getSvgAccessibleName,
-  createAccessibleLink,
-  ensureUniqueLandmarks,
+  wrapPrimaryContentInMain,
+  addAriaLabelledbyToSVGs,
   addAriaLabelToSVGs
 };

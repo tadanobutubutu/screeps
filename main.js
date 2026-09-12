@@ -243,10 +243,43 @@ function ... {
 // if (svg1) ... 'true');
 // if (svg2) ... 'true');
 
-// Export the local functions as well
-export { addProperLandmarkRegions, addAriaLabelledbyToSVGs, addAriaLabelToSVGs, handleAccessibilityIssues };
-
 // Call the new landmark and SVG accessibility functions
 ...
 ...
 ...
+
+// Implement function for ensuring unique landmarks
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined' || !document.body) {
+    return;
+  }
+
+  // Map of ARIA landmark roles to their corresponding selectors
+  const landmarkRoles = {
+    'banner': 'header:not([role="presentation"])',
+    'navigation': 'nav',
+    'main': 'main',
+    'contentinfo': 'footer:not([role="presentation"])',
+    'complementary': 'aside',
+    'region': 'section[aria-label], section[aria-labelledby]',
+    'search': '[role="search"]',
+    'form': 'form[aria-label], form[aria-labelledby]'
+  };
+
+  Object.entries(landmarkRoles).forEach(([role, selector]) => {
+    const landmarks = document.querySelectorAll(selector);
+    
+    // If multiple landmarks of the same type exist, ensure they have unique accessible names
+    if (landmarks.length > 1) {
+      landmarks.forEach((landmark, index) => {
+        const hasAriaLabel = landmark.getAttribute('aria-label');
+        const hasAriaLabelledBy = landmark.getAttribute('aria-labelledby');
+        
+        if (!hasAriaLabel && !hasAriaLabelledBy) {
+          // Add a descriptive label based on the landmark type and its position
+          landmark.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
+}

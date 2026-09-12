@@ -27,12 +27,12 @@ export function myNewFunction(arr) {
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
-const dependencyGraphContent = ...;
+const dependencyGraphContent = {};
 
 // Function to ensure an element has an id
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
   }
   return element.id;
 }
@@ -368,7 +368,7 @@ function setSvgAccessibilityProps(svgElement) {
   // Ensure the SVG has an id for accessibility
   ensureElementHasId(svgElement);
   // Add a default aria-label if none exists
-  if (!svgElement.getAttribute('aria-label')) {
+  if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
     svgElement.setAttribute('aria-label', 'SVG graphic');
   }
 }
@@ -423,7 +423,11 @@ function isButtonAccessible(button) {
  * @param {HTMLElement} element - The element to check
  */
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+  // Check if landmark has appropriate labeling
+  const hasLabel = element.getAttribute('aria-label') || 
+                   element.getAttribute('aria-labelledby') || 
+                   element.getAttribute('aria-label') !== null;
+  return { role, element, hasLabel };
 }
 
 /**
@@ -445,9 +449,7 @@ function wrapPrimaryContentInMain() {
   // Identify landmark elements that should remain outside of <main>
   const elementsToExclude = [];
   const landmarks = document.querySelectorAll('nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  landmarks.forEach(landmark => {
-    elementsToExclude.push(landmark);
-  });
+  landmarks.forEach(landmark => elementsToExclude.push(landmark));
 
   // Create a new <main> element
   mainElement = document.createElement('main');
@@ -472,8 +474,33 @@ function wrapPrimaryContentInMain() {
  * @returns {Object} An object containing landmark accessibility check results
  */
 function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
-  return { landmarks: [], issues: [] };
+  const results = {
+    landmarks: [],
+    inaccessible: []
+  };
+  
+  const landmarkSelectors = [
+    'header', 'footer', 'main', 'nav', 'aside', 'section', 'article',
+    '[role="banner"]', '[role="navigation"]', '[role="main"]', 
+    '[role="complementary"]', '[role="contentinfo"]', '[role="form"]',
+    '[role="search"]', '[role="region"]'
+  ];
+  
+  landmarkSelectors.forEach(selector => {
+    const elements = container.querySelectorAll(selector);
+    elements.forEach(element => {
+      const role = element.getAttribute('role') || element.tagName.toLowerCase();
+      const hasLabel = element.getAttribute('aria-label') || 
+                       element.getAttribute('aria-labelledby') ||
+                       element.id;
+      results.landmarks.push({ role, element, hasLabel: !!hasLabel });
+      if (!hasLabel) {
+        results.inaccessible.push(element);
+      }
+    });
+  });
+  
+  return results;
 }
 
 /**
@@ -503,4 +530,106 @@ function addLangAttribute() {
 }
 
 /**
- * Fixes table structure issues
+ * Fixes table structure issues in the document or specific container.
+ * @param {HTMLElement} [container=document] - The container to fix table issues in
+ * @returns {NodeList} NodeList of fixed tables
+ */
+function fixTableStructureIssues(container = document) {
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has proper structure
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+  });
+  return tables;
+}
+
+/**
+ * Adds or fixes main landmark element.
+ * @returns {HTMLElement|null} The main element
+ */
+function addMainLandmark() {
+  let mainElement = document.querySelector('main');
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    const bodyChildren = Array.from(document.body.children);
+    bodyChildren.forEach(child => {
+      if (child.tagName !== 'HEADER' && child.tagName !== 'FOOTER' && 
+          child.getAttribute('role') !== 'banner' && 
+          child.getAttribute('role') !== 'navigation') {
+        mainElement.appendChild(child);
+      }
+    });
+    document.body.appendChild(mainElement);
+  }
+  return mainElement;
+}
+
+/**
+ * Adds accessible names to all SVG elements in the document.
+ * @returns {NodeList} NodeList of processed SVG elements
+ */
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => setSvgAccessibilityProps(svg));
+  return svgs;
+}
+
+/**
+ * Ensures landmark elements are unique in the document.
+ * Keeps only a single <main> element and ensures other landmarks have unique labels.
+ * @returns {Object} An object containing uniqueness information
+ */
+function ensureUniqueLandmarks() {
+  // Ensure only one main landmark
+  const mains = document.querySelectorAll('main, [role="main"]');
+  const removedMains = [];
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      removedMains.push(mains[i]);
+      mains[i].remove();
+    }
+  }
+
+  // Ensure only one banner landmark
+  const banners = document.querySelectorAll('header, [role="banner"]');
+  const removedBanners = [];
+  if (banners.length > 1) {
+    for (let i = 1; i < banners.length; i++) {
+      removedBanners.push(banners[i]);
+      banners[i].remove();
+    }
+  }
+
+  // Ensure only one contentinfo/footer landmark
+  const footers = document.querySelectorAll('footer, [role="contentinfo"]');
+  const removedFooters = [];
+  if (footers.length > 1) {
+    for (let i = 1; i < footers.length; i++) {
+      removedFooters.push(footers[i]);
+      footers[i].remove();
+    }
+  }
+
+  // Ensure landmark labels are unique
+  const landmarks = document.querySelectorAll(
+    '[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], ' +
+    '[role="main"], [role="navigation"], [role="search"], [role="region"], ' +
+    '[role="article"], [role="aside"], [role="figure"], [role="footer"], ' +
+    '[role="header"], [role="landmark"], main, header, footer, aside, nav, ' +
+    'section[aria-label], form[aria-label]'
+  );
+
+  const labelSet = new Set();
+  const updatedLabels = [];
+
+  landmarks.forEach(landmark => {
+    const label = landmark.getAttribute('aria-label') || landmark.id || '';
+    if (label) {
+      if (

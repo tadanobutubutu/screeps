@@ -121,6 +121,18 @@ function functionB() {
   };
 }
 
+// New function to implement harvest logic
+function harvest() {
+  // TODO: Implement the harvest logic here
+  console.log('Harvesting resources...');
+}
+
+// New function to implement upgrade logic
+function upgrade() {
+  // TODO: Implement the upgrade logic here
+  console.log('Upgrading resources...');
+}
+
 // Export all functions
 module.exports = {
   ensureElementHasId,
@@ -130,5 +142,7 @@ module.exports = {
   isButtonAccessible,
   checkLinkAndButtonAccessibility,
   renderDependencyGraph,
-  calculateSum // New export added here
+  getLandmarkData,
+  harvest,
+  upgrade
 };

@@ -77,7 +77,7 @@ function addressAccessibilityIssues() {
     link.setAttribute('role', 'presentation');
   });
 
-  function checkLinkButtonAccessibility() {
+  function checkLinkAndButtonAccessibility() {
     const links = document.querySelectorAll('a');
     const buttons = document.querySelectorAll('button');
 

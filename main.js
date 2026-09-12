@@ -45,7 +45,7 @@ function formatDate(date) {
   return new Date(date).toLocaleDateString();
 }
 
-function updateLandmarks() {
+export function addProperLandmarkRegions() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -253,7 +253,7 @@ module.exports = {
 }
 
 // Implement function to add aria-labelledby to SVGs with title elements
-function addAriaLabelledbyToSvgsWithTitle() {
+export function addAriaLabelledbyToSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const title = ...
@@ -269,7 +269,7 @@ function addAriaLabelledbyToSvgsWithTitle() {
 }
 
 // Implement function to add aria-label to SVGs without title elements
-function addAriaLabelToSvgsWithoutTitle() {
+export function addAriaLabelToSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const title = ...

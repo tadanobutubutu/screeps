@@ -202,6 +202,9 @@ if (typeof document !== 'undefined') {
   ensureUniqueLandmarks();
 }
 
+// TODO: Update the existing function using the new functions for rendering graph/index
+// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+
 // Preserve the existing exports and add new functions
 module.exports = {
   main,

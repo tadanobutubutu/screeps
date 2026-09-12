@@ -177,6 +177,21 @@ function addressAccessibilityIssues(insightReport) {
   return addressedIssues;
 }
 
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+  }
+}
+
+function detectAndSetLang() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const lang = navigator.language || navigator.userLanguage || 'en';
+    document.documentElement.lang = lang;
+    return lang;
+  }
+  return 'en';
+}
+
 module.exports = {
   helloWorld,
   rotateBack,

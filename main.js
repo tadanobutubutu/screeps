@@ -369,5 +369,6 @@ module.exports = {
   checkLinkAndButtonAccessibility,
   renderDependencyGraph,
   getLandmarkData,
-  validateLandmarkUniqueness
+  functionA,
+  functionB
 };

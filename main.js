@@ -79,7 +79,6 @@ function addAriaLabel(element, label) {
       parent = parent.parentElement;
     }
   });
-}
 
 // Check for duplicate banners
 const banners = document.querySelectorAll('[role="banner"], header');

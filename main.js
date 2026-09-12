@@ -14,14 +14,12 @@ function validateLanguageCode(code) {
 
 /**
  * Adds lang attribute to the HTML element for accessibility
- * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
+ * @param {string} lang - The language code (e. g., 'en', 'es', 'fr')
  */
 function addLangAttribute(lang = 'en') {
-  if (lang && validateLanguageCode(lang)) {
-    const htmlElement = document.documentElement;
-    if (htmlElement && !htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', lang);
-    }
+  const htmlElement = document.documentElement;
+  if (htmlElement && htmlElement.setAttribute) {
+    htmlElement.setAttribute('lang', lang);
   }
 }
 
@@ -63,10 +61,12 @@ function trapFocus(container, event) {
  */
 function announceToScreenReader(message, priority = 'polite') {
   const announcementElement = document.createElement('div');
+  announcementElement.setAttribute('aria-live', priority);
+  announcementElement.setAttribute('role', 'alert');
+  announcementElement.className = 'sr-only';
+  document.body.appendChild(announcementElement);
+  
   if (announcementElement) {
-    announcementElement.setAttribute('aria-live', priority);
-    announcementElement.setAttribute('aria-atomic', 'true');
-    announcementElement.className = 'sr-only';
     announcementElement.textContent = '';
     // Force screen reader to announce by removing and re-adding content
     setTimeout(() => {
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Determine if decorative - SVGs used for favicons/decorative purposes
       const isFavicon = svg.closest('link') !== null ||
                         (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        svg.parentElement === null;
+                        svg.closest('head') !== null;
 
       if (isFavicon) {
         svg.setAttribute('aria-hidden', 'true');
@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
   newFeature();
 });
 
-// Assuming the button click is handled by JavaScript, here's how it might look:
+// Assuming the button click is handled by JavaScript, here 's how it might look:
 document.addEventListener('click', (e) => {
   if (e.target.id === 'back-button') {
     rotateBack();
@@ -302,7 +302,31 @@ module.exports = {
   loop: function() {
     console.log('Running screeps loop');
   },
-  newFeature: newFeature, // Export the updated newFeature function
-  renderDependencyGraph: renderDependencyGraph, // Export the new renderDependencyGraph function
-  renderIndexView: renderIndexView // Export the new renderIndexView function
+  newFeature: newFeature,
+  // Spawning logic
+  spawnCreep,
+  canSpawn,
+  getSpawnQueue,
+  clearSpawnQueue,
+  getCreepsByRole,
+  // Additional exports
+  helloWorld,
+  rotateBack,
+  checkTableStructure,
+  validateTableSchema,
+  existingFunction,
+  newFunction,
+  myFunction1,
+  myFunction2,
+  addressAccessibilityIssues,
+  loop: function() {
+    console.log('Running screeps loop');
+  },
+  newFeature: newFeature,
+  // Spawning logic
+  spawnCreep,
+  canSpawn,
+  getSpawnQueue,
+  clearSpawnQueue,
+  getCreepsByRole
 };

@@ -307,11 +307,41 @@ function isButtonAccessible(button) {
  * @returns {boolean} True if the landmark is accessible, false otherwise
  */
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
-  if (!element) return false;
-  
-  const elementRole = element.getAttribute('role');
-  return elementRole === role;
+  if (!element) {
+    return { valid: false, reason: 'Element is null or undefined' };
+  }
+
+  const validRoles = {
+    banner: ['header', '[role="banner"]'],
+    main: ['main', '[role="main"]'],
+    navigation: ['nav', '[role="navigation"]'],
+    complementary: ['aside', '[role="complementary"]'],
+    contentinfo: ['footer', '[role="contentinfo"]'],
+    region: ['section', '[role="region"]'],
+    form: ['form', '[role="form"]'],
+    search: ['[role="search"]']
+  };
+
+  if (!validRoles[role]) {
+    return { valid: false, reason: `Unknown role: ${role}` };
+  }
+
+  // Verify element matches the role
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+  const elementRole = element.getAttribute && element.getAttribute('role');
+  const isValidTag = validRoles[role].some(selector => {
+    if (selector.startsWith('[role=')) {
+      const expectedRole = selector.match(/\[role="(\w+)"\]/)[1];
+      return elementRole === expectedRole;
+    }
+    return tagName === selector;
+  });
+
+  return {
+    valid: isValidTag,
+    reason: isValidTag ? null : `Element does not match role: ${role}`,
+    element
+  };
 }
 
 /**
@@ -354,16 +384,100 @@ function wrapPrimaryContentInMain() {
   return mainElement;
 }
 
-/**
- * Checks landmark elements and sets appropriate aria-labels, also reporting any inaccessible elements.
- * @param {HTMLElement} [container=document] - The container to check for accessibility
- * @returns {Object} An object containing landmark accessibility check results
- */
-function checkLandmarks(container) {
-  container = container || document;
+function checkLandmarks(container = document) {
   const results = {
-    landmarks: [],
-    inaccessible: []
+    main: [],
+    banner: [],
+    navigation: [],
+    complementary: [],
+    contentinfo: [],
+    form: [],
+    region: [],
+    search: []
   };
-  
-  const landmarks = container.querySelectorAll('[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="main"], [role="navigation
+
+  if (!container || typeof container.querySelectorAll !== 'function') {
+    return results;
+  }
+
+  // Check main landmarks
+  container.querySelectorAll('main, [role="main"]').forEach(el => {
+    results.main.push(checkLandmarkElement('main', el));
+  });
+
+  // Check banner landmarks
+  container.querySelectorAll('header, [role="banner"]').forEach(el => {
+    results.banner.push(checkLandmarkElement('banner', el));
+  });
+
+  // Check navigation landmarks
+  container.querySelectorAll('nav, [role="navigation"]').forEach(el => {
+    results.navigation.push(checkLandmarkElement('navigation', el));
+  });
+
+  // Check complementary landmarks
+  container.querySelectorAll('aside, [role="complementary"]').forEach(el => {
+    results.complementary.push(checkLandmarkElement('complementary', el));
+  });
+
+  // Check contentinfo landmarks
+  container.querySelectorAll('footer, [role="contentinfo"]').forEach(el => {
+    results.contentinfo.push(checkLandmarkElement('contentinfo', el));
+  });
+
+  return results;
+}
+
+function ensureUniqueLandmarks() {
+  // Ensure only one main landmark
+  const mains = document.querySelectorAll('main, [role="main"]');
+  const removedMains = [];
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      removedMains.push(mains[i]);
+      mains[i].remove();
+    }
+  }
+
+  // Ensure only one banner landmark
+  const banners = document.querySelectorAll('[role="banner"], header');
+  const removedBanners = [];
+  if (banners.length > 1) {
+    for (let i = 1; i < banners.length; i++) {
+      removedBanners.push(banners[i]);
+      banners[i].remove();
+    }
+  }
+
+  // Ensure only one contentinfo/footer landmark
+  const footers = document.querySelectorAll('[role="contentinfo"], footer');
+  const removedFooters = [];
+  if (footers.length > 1) {
+    for (let i = 1; i < footers.length; i++) {
+      removedFooters.push(footers[i]);
+      footers[i].remove();
+    }
+  }
+
+  return {
+    removedMains,
+    removedBanners,
+    removedFooters
+  };
+}
+
+// Preserve the existing exports and add new functions
+module.exports = {
+  main,
+  myNewFunction,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureElementHasId,
+  addAriaLabel,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  // Include functions from dependencyGraphContent if available
+  ...(dependencyGraphContent && typeof dependencyGraphContent === 'object' ? dependencyGraphContent : {})
+};

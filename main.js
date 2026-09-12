@@ -170,69 +170,45 @@ function renderIndexView() {
     // Assuming you know which ARIA roles are correct for your landmarks
     landmark.setAttribute('aria-label', landmark.tagName.toLowerCase() + ' landmark');
   });
-  
-  return {
-    issues,
-    passed: issues.length === 0,
-    summary: {
-      total: issues.length,
-      fakeLinks: fakeLinks.length
+
+  // New function to add a proper ARIA role to the dependencyGraph container
+  const ensureDependencyGraphARIA = () => {
+    const dependencyGraph = document.querySelector('#dependencyGraph');
+    if (dependencyGraph) {
+      dependencyGraph.setAttribute('role', 'application');
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
     }
   };
-}
 
-// Implement function to add aria-labelledby to SVGs with title elements
-function addAriaLabelledbyToSvgWithTitle() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const title = ...
-    if (title) {
-      const titleId = title.getAttribute('id') || `svg-title-${Math.random().toString(36).substr(2, 9)}`;
-      if (!title.getAttribute('id')) {
-        title.setAttribute('id', titleId);
+  ensureDependencyGraphARIA();
+
+  // Implement function to add aria-labelledby to SVGs with title elements
+  function addAriaLabelledbyToSVGs() {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      const title = svg.querySelector('title');
+      if (title) {
+        const titleId = title.getAttribute('id');
+        svg.setAttribute('aria-labelledby', titleId);
       }
-      svg.setAttribute('aria-labelledby', titleId);
-    }
-  });
+    });
+  }
+
+  // Implement function to add aria-label to SVGs without title elements
+  function addAriaLabelToSVGs() {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      const title = svg.querySelector('title');
+      if (!title) {
+        const svgText = svg.textContent || svg.innerText || 'Image';
+        svg.setAttribute('aria-label', svgText);
+      }
+    });
+  }
+
+  // Run the new functions
+  addAriaLabelledbyToSVGs();
+  addAriaLabelToSVGs();
 }
 
-// Exports for all functions
-module.exports = {
-  setSvgAccessibilityProps,
-  isLinkAccessible,
-  isButtonAccessible,
-  checkAccessibility,
-  checkLandmarkElement,
-  checkLandmarks,
-  checkLandmarkElements,
-  wrapPrimaryContentInMain,
-  renderIndexView,
-  setDependencyGraphAccessibility,
-  formatDate,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  // TODO: Add back any required exports that might have been removed
-  // Example of how to export a required function from another file
-  // const { myFunction } = require('./otherFile');
-  // module.exports = { myFunction };
-  implementMissingExport: function () {
-    // Implementation of the missing export function
-    // Performs a final accessibility compliance check and returns status
-    const status = {
-      compliant: true,
-      checks: {
-        langAttributes: true,
-        tableStructures: true,
-        landmarks: true,
-        links: true,
-        buttons: true
-      },
-      message: 'All accessibility features are properly configured and validated.'
-    };
-    return status;
-  }
-};
+addProperLandmarkRegions();

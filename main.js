@@ -4,13 +4,24 @@
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 /**
+ * Validates a language code (should be 2-letter ISO 639-1 code)
+ * @param {string} code - Language code to validate
+ * @returns {boolean} True if valid
+ */
+function validateLanguageCode(code) {
+  return typeof code === 'string' && code.length >= 2;
+}
+
+/**
  * Adds lang attribute to the HTML element for accessibility
  * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
  */
 function addLangAttribute(lang = 'en') {
-  const htmlElement = document.documentElement;
-  if (htmlElement && typeof lang === 'string') {
-    htmlElement.setAttribute('lang', lang);
+  if (lang && validateLanguageCode(lang)) {
+    const htmlElement = document.documentElement;
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', lang);
+    }
   }
 }
 
@@ -257,6 +268,24 @@ document.addEventListener('click', (e) => {
 
 // Exporting the updated newFeature function
 module.exports = {
+  // Accessibility functions (from HEAD)
+  addLangAttribute,
+  manageFocus,
+  trapFocus,
+  announceToScreenReader,
+  handleKeyboardNavigation,
+  // New function added
+  validateLanguageCode,
+  // Node utilities and other functions (from origin/main)
+  helloWorld,
+  rotateBack,
+  checkTableStructure,
+  validateTableSchema,
+  existingFunction,
+  newFunction,
+  myFunction1,
+  myFunction2,
+  addressAccessibilityIssues,
   loop: function() {
     console.log('Running screeps loop');
   },

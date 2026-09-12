@@ -1,17 +1,11 @@
 // TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-//_Commit: 669117b94c3d1a635653f730f030599efacbb752_
-//<!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
-
-//_Commit: 4f09e1b6608c5d0785040bb35b3aac1919d7aea5_
-
-//<!-- todo-hash: 88c1c6cc67ee5e0dd4df31d91becf962321836d1 -->
+//<!-- todo-hash: b498b47abee4b3f29c69a97b2237d968a50cc419 -->
 
 import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, createAccessibleLink, ensureUniqueLandmarks } from './accessibilityUtils';
 
@@ -47,10 +41,26 @@ function checkLandmarkElements() {
     'article, [role="article"]',
     'form[aria-label], form[aria-labelledby], [role="form"]',
     'search, [role="search"]',
-    'header:not([role="banner"]):not(nav *)',
     '[role="banner"]',
     '[role="contentinfo"]'
   ];
+  
+  const results = {
+    landmarks: [],
+    missing: [],
+    issues: []
+  };
+  
+  landmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(element => {
+      const role = element.getAttribute('role') || element.tagName.toLowerCase();
+      results.landmarks.push({ element, role, selector });
+    });
+  });
+  
+  return results;
+}
 
   const results = {
     landmarks: [],
@@ -106,7 +116,7 @@ export function handleAccessibilityIssues() {
 // Keep the existing exports
 // ...
 
-function ensureSvgAccessibility() {
+function setupHeaderBanner() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -170,7 +180,7 @@ function ensureSvgAccessibility() {
     }, 0);
   };
 
-  // Initial call to ensure SVG accessibility
+  // Initialize SVG accessibility
   ensureSvgAccessibleNames();
 
   // Run again after DOM mutations
@@ -190,7 +200,7 @@ function ensureSvgAccessibility() {
   }
 
   // - REACT_017: Add/fix 4 landmark issues
-  const landmarks = document.querySelectorAll('header, nav, main, footer');
+  const landmarks = document.querySelectorAll('[role="landmark"]');
   landmarks.forEach((landmark) => {
     // Assuming you know which ARIA roles are correct for your landmarks
     landmark.setAttribute('role', landmark.tagName.toLowerCase() === 'header' ? 'banner' : 
@@ -199,38 +209,10 @@ function ensureSvgAccessibility() {
                                     landmark.tagName.toLowerCase() === 'footer' ? 'contentinfo' : 'landmark');
   });
   
-  return results;
+  return { ensureSvgAccessibleNames, updateAccessibleSvgNames };
 }
 
 // Implement function to add aria-labelledby to SVGs with title elements
-function addAriaLabelledbyToSvgs() {
+function addAriaLabelledbyToSvgsWithTitle() {
   const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const title = ...
-    if (title) {
-      const titleId = title.getAttribute('id');
-      if (titleId) {
-        ... titleId);
-      }
-    }
-  });
-}
-
-// Implement function to add aria-label to SVGs without title elements
-function addAriaLabelToSvgs() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const title = ...
-    if (!title) {
-      const svgText = svg.textContent || svg.innerText || 'Image';
-      ... svgText);
-    }
-  });
-}
-
-// Call the new landmark and SVG accessibility functions
-ensureSvgAccessibility();
-addAriaLabelledbyToSvgs();
-addAriaLabelToSvgs();
-
-export { checkLandmarkElements, handleAccessibilityIssues };
+  svgs.forEach

@@ -125,12 +125,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// New function to address accessibility issues as per the issue report
-function addressAccessibilityIssues() {
-  // Implement accessibility improvements here
-  // This is a placeholder for the actual implementation
-}
-
+// Exporting the updated newFeature function
 module.exports = {
   loop: function() {
     console.log('Running screeps loop');

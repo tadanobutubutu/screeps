@@ -440,11 +440,23 @@ function isButtonAccessible(button) {
  * @param {HTMLElement} element - The element to check
  */
 function checkLandmarkElement(role, element) {
-  // Check if landmark has appropriate labeling
-  const hasLabel = element.getAttribute('aria-label') || 
-                   element.getAttribute('aria-labelledby') || 
-                   element.getAttribute('aria-label') !== null;
-  return { role, element, hasLabel };
+  // Validate landmark element has appropriate accessibility attributes
+  if (!element || !role) {
+    return false;
+  }
+  
+  // Check if element has the expected role
+  const elementRole = element.getAttribute('role');
+  if (elementRole !== role && !element.nodeName.toLowerCase().match(new RegExp(role, 'i'))) {
+    return false;
+  }
+  
+  // Check if landmark has an accessible name (aria-label or aria-labelledby or text content)
+  const hasLabel = element.getAttribute('aria-label');
+  const hasLabelledBy = element.getAttribute('aria-labelledby');
+  const hasText = element.textContent.trim().length > 0;
+  
+  return hasLabel || hasLabelledBy || hasText;
 }
 
 /**
@@ -454,4 +466,367 @@ function checkLandmarkElement(role, element) {
  */
 function wrapPrimaryContentInMain() {
   if (typeof document === 'undefined' || !document.body) {
-    return null
+    return null;
+  }
+
+  // Check if a <main> element already exists
+  let mainElement = document.querySelector('main');
+  if (mainElement) {
+    return mainElement;
+  }
+
+  // Identify landmark elements that should remain outside of <main>
+  const elementsToExclude = [];
+  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+  landmarks.forEach(landmark => elementsToExclude.push(landmark));
+
+  // Create a new <main> element
+  mainElement = document.createElement('main');
+
+  // Move all body children that are not in the exclude list into <main>
+  const bodyChildren = Array.from(document.body.children);
+  bodyChildren.forEach(child => {
+    if (!elementsToExclude.includes(child)) {
+      mainElement.appendChild(child);
+    }
+  });
+
+  // Append the <main> element to the body
+  document.body.appendChild(mainElement);
+
+  return mainElement;
+}
+
+/**
+ * Checks landmark elements and sets appropriate aria-labels, also reporting any inaccessible elements.
+ * @param {HTMLElement} [container=document] - The container to check for accessibility
+ * @returns {Object} An object containing landmark accessibility check results
+ */
+function checkLandmarks(container = document) {
+  const results = {
+    landmarks: { accessible: [], inaccessible: [] },
+    isFullyAccessible: true
+  };
+  
+  const landmarkSelectors = [
+    'main', 'header', 'footer', 'nav', 'aside',
+    '[role="banner"]', '[role="navigation"]', '[role="main"]',
+    '[role="contentinfo"]', '[role="complementary"]', '[role="search"]',
+    '[role="form"]', '[role="region"]'
+  ];
+  
+  const allLandmarks = container.querySelectorAll(landmarkSelectors.join(', '));
+  
+  allLandmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.nodeName.toLowerCase();
+    if (checkLandmarkElement(role, landmark)) {
+      results.landmarks.accessible.push(landmark);
+    } else {
+      results.landmarks.inaccessible.push(landmark);
+      results.isFullyAccessible = false;
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * Renders the index view of the application.
+ */
+function renderIndexView() {
+  // Implement your code here.
+  // Example of creating a button in-page:
+  const button = document.createElement('button');
+  button.textContent = 'Click Me';
+  // Append the button to the body or another element as needed
+  document.body.appendChild(button);
+}
+
+/**
+ * Adds lang attribute to the HTML element if missing.
+ * @returns {HTMLElement|null} The HTML element or null if document is not available
+ */
+function addLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
+    }
+    return document.documentElement;
+  }
+  return null;
+}
+
+/**
+ * Fixes table structure issues in the document or specific container.
+ * @param {HTMLElement} [container=document] - The container to fix table issues in
+ * @returns {NodeList} NodeList of fixed tables
+ */
+function fixTableStructureIssues(container = document) {
+  const tables = container.querySelectorAll('table');
+  const fixedTables = [];
+  
+  tables.forEach(table => {
+    // Check if table has proper structure
+    const hasCaption = table.querySelector('caption');
+    const hasHeaderCells = table.querySelectorAll('th').length > 0;
+    const hasDataCells = table.querySelectorAll('td').length > 0;
+    
+    // Add caption if missing and table has headers
+    if (!hasCaption && hasHeaderCells) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table';
+      table.insertBefore(caption, table.firstChild);
+      fixedTables.push(table);
+    }
+    
+    // Ensure proper th/td usage
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('th, td');
+      cells.forEach(cell => {
+        const isHeaderCell = cell.nodeName.toLowerCase() === 'th';
+        const hasScope = cell.getAttribute('scope');
+        
+        if (isHeaderCell && !hasScope) {
+          // Determine scope based on position
+          const rowIndex = row.rowIndex;
+          const cellIndex = Array.from(row.cells).indexOf(cell);
+          
+          if (rowIndex === 0 && cellIndex >= 0) {
+            cell.setAttribute('scope', 'col');
+          } else if (cellIndex === 0 && rowIndex > 0) {
+            cell.setAttribute('scope', 'row');
+          }
+          fixedTables.push(table);
+        }
+      });
+    });
+  });
+  
+  return fixedTables;
+}
+
+/**
+ * Adds or fixes main landmark element.
+ * @returns {HTMLElement|null} The main element
+ */
+function addMainLandmark() {
+  return wrapPrimaryContentInMain();
+}
+
+/**
+ * Adds accessible names to all SVG elements in the document.
+ * @returns {NodeList} NodeList of processed SVG elements
+ */
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => setSvgAccessibilityProps(svg));
+  return svgs;
+}
+
+/**
+ * Ensures landmark elements are unique in the document.
+ * Keeps only a single <main> element and ensures other landmarks have unique labels.
+ * @returns {Object} An object containing uniqueness information
+ */
+function ensureUniqueLandmarks() {
+  // Ensure only one main landmark
+  const mains = document.querySelectorAll('main, [role="main"]');
+  const removedMains = [];
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      removedMains.push(mains[i]);
+      mains[i].remove();
+    }
+  }
+
+  // Ensure only one banner landmark
+  const banners = document.querySelectorAll('[role="banner"], header');
+  const removedBanners = [];
+  if (banners.length > 1) {
+    for (let i = 1; i < banners.length; i++) {
+      removedBanners.push(banners[i]);
+      banners[i].remove();
+    }
+  }
+
+  // Ensure only one contentinfo/footer landmark
+  const footers = document.querySelectorAll('[role="contentinfo"], footer');
+  const removedFooters = [];
+  if (footers.length > 1) {
+    for (let i = 1; i < footers.length; i++) {
+      removedFooters.push(footers[i]);
+      footers[i].remove();
+    }
+  }
+
+  // Ensure landmark labels are unique
+  const landmarks = document.querySelectorAll(
+    '[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], ' +
+    '[role="main"], [role="navigation"], [role="search"], [role="region"], ' +
+    '[role="article"], [role="aside"], [role="figure"], [role="footer"], ' +
+    '[role="header"], [role="landmark"], main, header, footer, aside, nav, ' +
+    'section[aria-label], form[aria-label]'
+  );
+
+  const labelSet = new Set();
+  const updatedLabels = [];
+
+  landmarks.forEach(landmark => {
+    const label = landmark.getAttribute('aria-label');
+    if (label) {
+      if (labelSet.has(label)) {
+        // Generate a unique label
+        let newLabel = label;
+        let counter = 1;
+        while (labelSet.has(newLabel)) {
+          newLabel = `${label} ${counter}`;
+          counter++;
+        }
+        landmark.setAttribute('aria-label', newLabel);
+        updatedLabels.push({ element: landmark, oldLabel: label, newLabel });
+        labelSet.add(newLabel);
+      } else {
+        labelSet.add(label);
+      }
+    }
+  });
+
+  return {
+    removedMains,
+    removedBanners,
+    removedFooters,
+    updatedLabels,
+    mainCount: mains.length,
+    bannerCount: banners.length,
+    footerCount: footers.length
+  };
+}
+
+/**
+ * Checks link and button accessibility in a container.
+ * @param {HTMLElement} [container=document] - The container to check for accessibility
+ * @returns {Object} An object containing link and button accessibility check results
+ */
+function checkLinkAndButtonAccessibility(container = document) {
+  const results = {
+    links: { accessible: [], inaccessible: [] },
+    buttons: { accessible: [], inaccessible: [] },
+    isFullyAccessible: true
+  };
+
+  // Check all links in the container
+  const links = container.querySelectorAll ? container.querySelectorAll('a') : [];
+  links.forEach(link => {
+    if (isLinkAccessible(link)) {
+      results.links.accessible.push(link);
+    } else {
+      results.links.inaccessible.push(link);
+      results.isFullyAccessible = false;
+    }
+  });
+
+  // Check all buttons in the container
+  const buttons = container.querySelectorAll ? container.querySelectorAll('button') : [];
+  buttons.forEach(button => {
+    if (isButtonAccessible(button)) {
+      results.buttons.accessible.push(button);
+    } else {
+      results.buttons.inaccessible.push(button);
+      results.isFullyAccessible = false;
+    }
+  });
+
+  return results;
+}
+
+/**
+ * Fixes fake link issues by converting links without href to buttons.
+ * @returns {Array} Array of fixed link elements
+ */
+function fixFakeLinkIssue() {
+  const links = document.querySelectorAll('a');
+  const fixedLinks = [];
+
+  links.forEach(link => {
+    // Check if it's a fake link (no href or empty href)
+    const href = link.getAttribute('href');
+    const hasText = link.textContent.trim().length > 0;
+    const hasAriaLabel = link.getAttribute('aria-label');
+
+    if (!href || href === '#' || href === '') {
+      // Convert to button
+      const button = document.createElement('button');
+      button.textContent = link.textContent;
+      button.setAttribute('aria-label', link.getAttribute('aria-label') || '');
+      
+      // Copy inline styles if any
+      if (link.style) {
+        button.style.cssText = link.style.cssText;
+      }
+      
+      // Copy class names
+      if (link.className) {
+        button.className = link.className;
+      }
+      
+      // Copy click handler
+      if (link.onclick) {
+        button.onclick = link.onclick;
+      }
+      
+      // Replace the link with the button
+      if (link.parentNode) {
+        link.parentNode.replaceChild(button, link);
+        fixedLinks.push(button);
+      }
+    } else if (!hasText && !hasAriaLabel) {
+      // Link has href but no accessible name - add aria-label
+      addAriaLabel(link, 'Link');
+      fixedLinks.push(link);
+    }
+  });
+
+  return fixedLinks;
+}
+
+// Function to render dependency graphs
+function renderDependencyGraph(dependencies) {
+  const graph = {};
+  dependencies.forEach(dep => {
+    graph[dep.name] = dep.dependencies || [];
+  });
+  return graph;
+}
+
+function getLandmarkData(id) {
+  // ... implement your own logic to fetch landmark data here.
+  return {
+    id,
+    name: "Not defined",
+    structure: [],
+    // ... other landmark data properties
+  };
+}
+
+// Export all functions
+module.exports = {
+  ensureElementHasId,
+  addAriaLabel,
+  setSvgAccessibilityProps,
+  isLinkAccessible,
+  isButtonAccessible,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  renderIndexView,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  checkLinkAndButtonAccessibility,
+  fixFakeLinkIssue,
+  renderDependencyGraph,
+  getLandmarkData
+};

@@ -697,7 +697,15 @@ export default function Dashboard() {
                         aria-valuenow={stats?.gcl?.progress || 0}
                         aria-valuemin={0}
                         aria-valuemax={stats?.gcl?.progressTotal || 100}
-                        aria-valuetext={`${stats?.gcl?.progress || 0} / ${stats?.gcl?.progressTotal || 0} (${
+                        aria-valuetext={`${
+                            stats?.gcl?.progress !== undefined
+                                ? formatNumber(stats.gcl.progress)
+                                : '0'
+                        } / ${
+                            stats?.gcl?.progressTotal !== undefined
+                                ? formatNumber(stats.gcl.progressTotal)
+                                : '0'
+                        } (${
                             stats?.gcl?.progressTotal
                                 ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
                                 : '0.00'

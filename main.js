@@ -1,4 +1,6 @@
 const _ = require('lodash');
+// TODO: This is the existing code that needs to be preserved
+// ----- END ORIGINAL CODE (unchanged) -----
 const dependencyGraphContent = require('./dependencyGraphContent');
 
 // Main module entry point

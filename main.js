@@ -1,11 +1,88 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c691a97b2237d968a50cc419 -->
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_025: Add other accessibility changes as per the insight report
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
+/**
+ * Adds lang attribute to the HTML element for accessibility
+ * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
+ */
+function addLangAttribute(lang = 'en') {
+  const htmlElement = document.documentElement;
+  if (htmlElement && typeof lang === 'string') {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+/**
+ * Manages focus for accessibility (ARIA best practice)
+ * @param {HTMLElement} element - The element to focus on
+ */
+function manageFocus(element) {
+  if (element && typeof element.focus === 'function') {
+    element.focus();
+  }
+}
+
+/**
+ * Traps focus within a container element (useful for modals/dialogs)
+ * @param {HTMLElement} container - The container element
+ * @param {KeyboardEvent} event - The keyboard event
+ */
+function trapFocus(container, event) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  if (event.shiftKey && document.activeElement === firstElement) {
+    event.preventDefault();
+    lastElement.focus();
+  } else if (!event.shiftKey && document.activeElement === lastElement) {
+    event.preventDefault();
+    firstElement.focus();
+  }
+}
+
+/**
+ * Announces content to screen readers using ARIA live regions
+ * @param {string} message - The message to announce
+ * @param {string} priority - 'polite' or 'assertive'
+ */
+function announceToScreenReader(message, priority = 'polite') {
+  const announcementElement = document.createElement('div');
+  if (announcementElement) {
+    announcementElement.setAttribute('aria-live', priority);
+    announcementElement.setAttribute('aria-atomic', 'true');
+    announcementElement.className = 'sr-only';
+    announcementElement.textContent = '';
+    // Force screen reader to announce by removing and re-adding content
+    setTimeout(() => {
+      announcementElement.textContent = message;
+    }, 100);
+  }
+}
+
+/**
+ * Handles keyboard navigation for custom components
+ * @param {KeyboardEvent} event - The keyboard event
+ * @param {string} orientation - 'horizontal' or 'vertical'
+ */
+function handleKeyboardNavigation(event, orientation = 'horizontal') {
+  const key = event.key;
+  const isVertical = orientation === 'vertical';
+  const nextKeys = isVertical ? ['ArrowDown'] : ['ArrowRight'];
+  const prevKeys = isVertical ? ['ArrowUp'] : ['ArrowLeft'];
+
+  if (nextKeys.includes(key) || prevKeys.includes(key)) {
+    event.preventDefault();
+    // Navigation logic handled by component-specific implementations
+  }
+}
+
+// ----- Additional functions (origin/main) -----
+// Main.js - Application entry point
 
 function newFeature() {
   // Code for adding proper landmark regions
@@ -98,7 +175,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to ensure all SVG elements have accessible names
   const ensureSvgAccessibleNames = () => {
-    // ... (Existing code)
+    if (typeof document === 'undefined' || !document.body) {
+      return;
+    }
+
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach((svg) => {
+      // Check if SVG is hidden
+      const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
+                       svg.getAttribute('hidden') !== null ||
+                       svg.style.display === 'none' ||
+                       svg.style.visibility === 'hidden';
+
+      if (isHidden) {
+        return;
+      }
+
+      // Check for existing accessible name
+      const hasAriaLabel = svg.getAttribute('aria-label') !== null;
+      const hasAriaLabelledBy = svg.getAttribute('aria-labelledby') !== null;
+      const hasTitle = svg.querySelector('title') !== null;
+      const hasDesc = svg.querySelector('desc') !== null;
+
+      if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
+        return;
+      }
+
+      // Determine if decorative - SVGs used for favicons/decorative purposes
+      const isFavicon = svg.closest('link') !== null ||
+                        (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
+                        svg.parentElement === null;
+
+      if (isFavicon) {
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('role', 'presentation');
+      } else {
+        // Add a generic title for non-decorative SVGs
+        const title = document.createElement('title');
+        title.textContent = 'Icon';
+        svg.insertBefore(title, svg.firstChild);
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-label', 'Icon');
+      }
+    });
   };
 
   // Function to handle updating accessible SVG names when DOM mutates

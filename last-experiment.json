@@ -1,6 +1,6 @@
 {
-  "experiment": "add-tower-optimization",
-  "description": "タワーのターゲット選択を最適化",
-  "timestamp": "2026-09-05T20:56:42.360Z",
+  "experiment": "add-performance-monitor",
+  "description": "パフォーマンスモニタリングを追加",
+  "timestamp": "2026-09-12T21:15:07.165Z",
   "status": "applied"
 }

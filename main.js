@@ -101,16 +101,15 @@ function renderIndexView(options = {}) {
 function checkLandmarkElements() {
   // Landmark elements and their corresponding roles
   const landmarkSelectors = [
-    'header[role="banner"]', '[role="banner"]',
-    'nav', '[role="navigation"]',
-    'main', '[role="main"]',
-    'aside', '[role="complementary"]',
-    'footer[role="contentinfo"]', '[role="contentinfo"]',
-    'section[aria-label]', '[role="region"]',
-    'article', '[role="article"]',
-    'form[aria-label]', 'form[aria-labelledby]', '[role="form"]',
-    'search', '[role="search"]',
-    'div[role="banner"]',
+    'header[role="banner"], [role="banner"]',
+    'nav, [role="navigation"]',
+    'main, [role="main"]',
+    'aside, [role="complementary"]',
+    'footer[role="contentinfo"], [role="contentinfo"]',
+    'section[aria-label], [role="region"]',
+    'article, [role="article"]',
+    'form[aria-label], form[aria-labelledby], [role="form"]',
+    'search, [role="search"]',
     '[role="banner"]',
     '[role="contentinfo"]'
   ];
@@ -124,13 +123,14 @@ function handleAccessibilityIssues() {
   validateTableAccessibility();
   validateTableStructure();
   validateLandmark();
-  ...
-  ...
-  ...
+  validateLandmarkStructure();
+  validateLandmarkAttributes();
+  addFixLandmarkIssues();
+  getSvgAccessibleName();
   createAccessibleLink();
   ensureUniqueLandmarks();
   addProperLandmarkRegions();
-  addAriaLabelledbyToSVGsWithTitle();
+  addAriaLabelledbyToSVGs();
   addAriaLabelToSVGs();
 }
 
@@ -147,8 +147,8 @@ function validateLandmarkStructure() {
 }
 
 function validateLandmarkAttributes() {
-  const header = document.querySelector('header:not([role="banner"])');
-  if (header) {
+  const header = document.querySelector('header') || document.querySelector('[role="banner"]');
+  if (header && !header.getAttribute('role')) {
     header.setAttribute('role', 'banner');
   }
   
@@ -167,8 +167,8 @@ function validateLandmarkAttributes() {
     const svgs = ...
     svgs.forEach((svg) => {
       // Check if SVG is hidden
-      const isHidden = ... === 'true' ||
-                        ... !== null ||
+      const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
+                        svg.closest('[hidden]') !== null ||
                         svg.style.display === 'none' ||
                         svg.style.visibility === 'hidden';
 
@@ -211,7 +211,8 @@ function validateLandmarkAttributes() {
     }, 0);
   };
 
-  updateAccessibleSvgNames();
+  // Initial check for accessible SVG names
+  ensureSvgAccessibleNames();
 
   // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
@@ -307,6 +308,8 @@ module.exports = {
   validateLandmarkStructure,
   addFixLandmarkIssues,
   addProperLandmarkRegions,
-  addAriaLabelledbyToSVGsWithTitle,
-  addAriaLabelToSVGs
+  addAriaLabelledbyToSVGs,
+  addAriaLabelToSVGs,
+  ensureSvgAccessibleNames,
+  updateAccessibleSvgNames
 };

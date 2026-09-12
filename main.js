@@ -217,127 +217,38 @@ function checkDuplicateBanners() {
 }
 
 function checkLandmarkElement(role, element) {
-  // Validate landmark element has proper structure
-  if (!element) {
-    return { valid: false, error: 'Element is required' };
-  }
+  if (!element) return false;
   
-  // Check if element has required ARIA role
-  const elementRole = element.getAttribute('role');
-  if (role && elementRole !== role) {
-    return { valid: false, error: `Expected role "${role}", got "${elementRole}"` };
-  }
-  
-  // Check for accessible name (aria-label, aria-labelledby, or inner text)
-  const hasLabel = element.hasAttribute('aria-label') || 
-                   element.hasAttribute('aria-labelledby') || 
-                   element.textContent.trim().length > 0;
-  
-  if (!hasLabel) {
-    return { valid: false, error: 'Landmark element lacks accessible name' };
-  }
-  
-  return { valid: true };
-}
-
-// - REACT_017: Validate landmark accessibility
-function validateLandmark(element) {
-  const issues = [];
-  
-  if (!element) {
-    issues.push({ code: 'REACT_017', message: 'Landmark element is required' });
-    return issues;
-  }
-  
-  // Check for proper role attribute
-  const role = element.getAttribute('role');
+  // Check if element has the correct role (explicit or implicit)
+  const explicitRole = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
-  
-  // Map of valid landmark roles per HTML5 element
-  const validLandmarks = {
-    'header': ['banner', 'contentinfo'],
-    'nav': ['navigation'],
-    'main': ['main'],
-    'aside': ['complementary'],
-    'footer': ['contentinfo'],
-    'section': ['region'],
-    'article': ['article'],
-    'form': ['form'],
-    'search': ['search']
+  const implicitRoles = {
+    'header': 'banner',
+    'nav': 'navigation',
+    'main': 'main',
+    'aside': 'complementary',
+    'footer': 'contentinfo',
+    'section': 'region',
+    'form': 'search'
   };
   
-  // Check if element has a valid landmark role
-  if (role) {
-    const validRoles = validLandmarks[tagName] || [];
-    if (validRoles.length > 0 && !validRoles.includes(role)) {
-      issues.push({
-        code: 'REACT_017',
-        message: `Invalid role "${role}" for <${tagName}> element`
-      });
-    }
+  const expectedRole = implicitRoles[tagName] || explicitRole;
+  if (expectedRole !== role) {
+    console.warn(`REACT_017: Landmark element has role "${expectedRole}" but expected "${role}"`);
+    return false;
   }
   
   // Check for accessible name
-  const hasAccessibleName = element.hasAttribute('aria-label') || 
-                             element.hasAttribute('aria-labelledby') ||
-                             element.querySelector('h1, h2, h3, h4, h5, h6') !== null;
+  const accessibleName = element.getAttribute('aria-label') || 
+                         element.getAttribute('aria-labelledby') || 
+                         (element.querySelector('title') && element.querySelector('title').textContent.trim());
   
-  if (!hasAccessibleName) {
-    issues.push({
-      code: 'REACT_017',
-      message: 'Landmark element lacks accessible name'
-    });
+  if (!accessibleName) {
+    console.warn(`REACT_017: Landmark element with role "${role}" lacks accessible name`);
+    return false;
   }
   
-  return issues;
-}
-
-// - REACT_017: Validate landmark structure
-function validateLandmarkStructure() {
-  const issues = [];
-  
-  // Check for unique main landmark
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    issues.push({
-      code: 'REACT_017',
-      message: `Found ${mains.length} main landmarks, should have exactly 1`
-    });
-  }
-  
-  // Check for unique banner landmark
-  const banners = document.querySelectorAll('[role="banner"], header');
-  if (banners.length > 1) {
-    issues.push({
-      code: 'REACT_017',
-      message: `Found ${banners.length} banner landmarks, should have at most 1`
-    });
-  }
-  
-  // Check for unique contentinfo/footer landmark
-  const footers = document.querySelectorAll('[role="contentinfo"], footer');
-  if (footers.length > 1) {
-    issues.push({
-      code: 'REACT_017',
-      message: `Found ${footers.length} contentinfo landmarks, should have at most 1`
-    });
-  }
-  
-  // Check for navigation landmarks have labels
-  const navigations = document.querySelectorAll('nav, [role="navigation"]');
-  navigations.forEach((nav, index) => {
-    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
-      const siblingNavs = Array.from(navigations).filter(n => n !== nav);
-      if (siblingNavs.length > 0) {
-        issues.push({
-          code: 'REACT_017',
-          message: `Navigation landmark at index ${index} needs aria-label when multiple nav elements exist`
-        });
-      }
-    }
-  });
-  
-  return issues;
+  return true;
 }
 
 function wrapPrimaryContentInMain() {
@@ -374,19 +285,25 @@ function wrapPrimaryContentInMain() {
 }
 
 function checkLandmarks(container = document) {
+  const landmarkSelectors = 'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="region"]';
+  const landmarks = container.querySelectorAll(landmarkSelectors);
   const issues = [];
   
-  // Check for required landmarks
-  const hasMain = container.querySelector('main, [role="main"]');
-  if (!hasMain) {
-    issues.push({ code: 'REACT_017', message: 'Page should have a main landmark' });
-  }
-  
-  // Check for proper landmark nesting
-  const landmarks = container.querySelectorAll('[role], header, nav, main, aside, footer');
-  landmarks.forEach(landmark => {
-    const result = validateLandmark(landmark);
-    issues.push(...result);
+  landmarks.forEach((landmark, index) => {
+    const tagName = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role') || 
+                 (tagName === 'header' ? 'banner' :
+                  tagName === 'nav' ? 'navigation' :
+                  tagName === 'main' ? 'main' :
+                  tagName === 'aside' ? 'complementary' :
+                  tagName === 'footer' ? 'contentinfo' : null);
+    
+    if (role) {
+      const isValid = checkLandmarkElement(role, landmark);
+      if (!isValid) {
+        issues.push({ element: landmark, role, index });
+      }
+    }
   });
   
   return issues;
@@ -423,10 +340,32 @@ function ensureUniqueLandmarks() {
     }
   }
 
+  // Ensure only one navigation landmark
+  const navigations = document.querySelectorAll('[role="navigation"], nav');
+  const removedNavs = [];
+  if (navigations.length > 1) {
+    for (let i = 1; i < navigations.length; i++) {
+      removedNavs.push(navigations[i]);
+      navigations[i].remove();
+    }
+  }
+
+  // Ensure only one search landmark
+  const searches = document.querySelectorAll('[role="search"]');
+  const removedSearches = [];
+  if (searches.length > 1) {
+    for (let i = 1; i < searches.length; i++) {
+      removedSearches.push(searches[i]);
+      searches[i].remove();
+    }
+  }
+
   return {
     removedMains,
     removedBanners,
-    removedFooters
+    removedFooters,
+    removedNavs,
+    removedSearches
   };
 }
 

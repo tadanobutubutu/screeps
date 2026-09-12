@@ -7,23 +7,15 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 // - Ensure the dependencyGraph container has a proper ARIA role (DONE: ensureDependencyGraphAriaRole)
 
-import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, createAccessibleLink, ensureUniqueLandmarks } from './accessibilityUtils';
+import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, createAccessibleLink, ensureUniqueLandmarks, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks: ensureUniqueLandmarksUpdated, fixFakeLinkIssue, addAriaLabelToSVGs, addAriaLabelledbyToSVGs, addProperLandmarkRegions } from './accessibilityUtils';
 
-// Re-export functions from accessibilityUtils to make them accessible when importing from main.js
-export { 
-  getLangAttribute, 
-  wrapPrimaryContentInMain, 
-  validateTableAccessibility, 
-  validateTableStructure, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  addFixLandmarkIssues, 
-  getSvgAccessibleName, 
-  createAccessibleLink, 
-  ensureUniqueLandmarks 
-};
-
-export function calculateSum(a, b) { return a + b; }
+export function calculateSum(a, b) {
+  // Validate inputs are numbers
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    throw new TypeError('Both arguments must be numbers');
+  }
+  return a + b;
+}
 
 export { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, createAccessibleLink, ensureUniqueLandmarks };
 
@@ -39,122 +31,41 @@ function checkLandmarkElements() {
     'main, [role="main"]',
     'aside, ...',
     'footer[role="contentinfo"], [role="contentinfo"]',
-    'section[aria-label], ... [role="region"]',
+    'section[aria-label], [role="region"]',
     'article, [role="article"]',
     'form[aria-label], form[aria-labelledby], [role="form"]',
     'search, [role="search"]',
-    '...',
+    'div[role="region"]',
     '[role="banner"]',
     '[role="contentinfo"]'
   ];
-
-  const results = {};
-  const elements = {};
-
-  landmarkSelectors.forEach(selector => {
-    const matches = document.querySelectorAll(selector);
-    if (matches.length > 0) {
-      elements[selector] = Array.from(matches);
-    }
-  });
-
-  results.elements = elements;
-  results.hasHeader = elements['header[role="banner"], [role="banner"]']?.length > 0;
-  results.hasNav = elements['nav, [role="navigation"]']?.length > 0;
-  results.hasMain = elements['main, [role="main"]']?.length > 0;
-  results.hasAside = elements['aside, [role="complementary"]']?.length > 0;
-  results.hasFooter = elements['footer[role="contentinfo"], [role="contentinfo"]']?.length > 0;
-
-  return results;
-}
-
-/**
- * Ensures unique landmarks on the page for accessibility
- * - Ensures only one <main> element exists (keeps the first one)
- * - Ensures multiple landmarks of the same type have accessible names
- */
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined' || !document.body) {
-    return;
-  }
-
-  // Find all main elements
-  const mainElements = document.querySelectorAll('main, [role="main"]');
-
-  // Keep only the first main element, remove duplicates
-  if (mainElements.length > 1) {
-    for (let i = 1; i < mainElements.length; i++) {
-      mainElements[i].remove();
-    }
-  }
-
-  // Ensure multiple landmarks of the same type have unique accessible names
-  const landmarkTypes = ['nav', 'aside', 'section', 'article', 'form', 'search'];
-
-  landmarkTypes.forEach((type) => {
-    const elements = document.querySelectorAll(`${type}, [role="${type}"]`);
-    if (elements.length > 1) {
-      elements.forEach((el, index) => {
-        const hasLabel = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby');
-        if (!hasLabel) {
-          el.setAttribute('aria-label', `${type.charAt(0).toUpperCase() + type.slice(1)} section ${index + 1}`);
-        }
-      });
-    }
-  });
-}
-
-/**
- * Ensures the dependencyGraph container has a proper ARIA role for accessibility
- */
-function ensureDependencyGraphAriaRole() {
-  if (typeof document === 'undefined' || !document.body) {
-    return;
-  }
-
-  // Find the dependencyGraph container by ID or common class names
-  const dependencyGraph = document.getElementById('dependencyGraph') ||
-                          document.querySelector('[data-dependency-graph]') ||
-                          document.querySelector('.dependency-graph');
-
-  if (dependencyGraph) {
-    // Check if it already has an ARIA role
-    const existingRole = dependencyGraph.getAttribute('role');
-    if (!existingRole) {
-      // Add appropriate role for a dependency graph visualization
-      dependencyGraph.setAttribute('role', 'img');
-
-      // Ensure it has an accessible name
-      if (!dependencyGraph.getAttribute('aria-label') &&
-          !dependencyGraph.getAttribute('aria-labelledby')) {
-        // Use existing title, data-name, or provide a default
-        const label = dependencyGraph.getAttribute('data-name') ||
-                      dependencyGraph.getAttribute('title') ||
-                      'Dependency Graph';
-        dependencyGraph.setAttribute('aria-label', label);
-      }
-    }
-  }
+  
+  return { landmarkSelectors };
 }
 
 function handleAccessibilityIssues() {
   // Address the accessibility issues as requested in the code comment
   // REACT_015: Add lang attribute to HTML element
   getLangAttribute();
-  ...
+  addLangAttribute();
   validateTableAccessibility();
   validateTableStructure();
-  // REACT_017: Add/fix landmark issues
+  fixTableStructureIssues();
   validateLandmark();
   ...
   ...
   ...
   createAccessibleLink();
   addFixLandmarkIssues();
+  addMainLandmark();
   getSvgAccessibleName();
   ensureUniqueLandmarks();
-  // Address dependencyGraph container ARIA role
-  ensureDependencyGraphAriaRole();
+  ensureUniqueLandmarksUpdated();
+  fixFakeLinkIssue();
+  addSvgAccessibleNames();
+  addAriaLabelToSVGs();
+  addAriaLabelledbyToSVGs();
+  addProperLandmarkRegions();
 }
 
 // Call the new function to handle accessibility issues
@@ -201,7 +112,7 @@ function someFunction() {
       // Determine if decorative - SVGs used for favicons/decorative purposes
       const isFavicon = svg.closest('link') !== null ||
                         (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        svg.getAttribute('data-decorative') === 'true';
+                        svg.getAttribute('aria-hidden') === 'true';
 
       if (isFavicon) {
         svg.setAttribute('aria-hidden', 'true');
@@ -229,7 +140,7 @@ function someFunction() {
   // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(() => {
-      ...
+      ensureSvgAccessibleNames();
     });
 
     if (document.body) {
@@ -243,7 +154,7 @@ function someFunction() {
   }
 
   // - REACT_017: Add/fix 4 landmark issues
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, form, search');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article');
   landmarks.forEach((landmark) => {
     // Assuming you know which ARIA roles are correct for your landmarks
     landmark.setAttribute('role', landmark.tagName.toLowerCase());

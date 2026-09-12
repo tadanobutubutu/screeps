@@ -43,3 +43,7 @@ Replaced redundant loop source counting in auto.evolution.js with centralized O(
 ## 2026-09-08 - Inlining Threshold Checks and Target Comparison in Repair Loop
 **Learning:** In target search loops that scan all room structures on every tick (such as `_findBestRepairTarget` in `src/roles/repairer.js`), delegating condition checks to helper functions creates call stack frame overhead per candidate structure. Inlining threshold checks directly into the loop eliminates call stack overhead across hundreds of structure checks per tick.
 **Action:** Inline damage threshold and priority comparisons directly inside structure iteration loops in high-frequency target search routines.
+
+## 2026-09-08 - Typed Cache Querying in Rampart Search
+**Learning:** Fetching all my structures via `cache.getMyStructures(room)` and manually checking `s.structureType === STRUCTURE_RAMPART` in JavaScript loops creates unnecessary iteration overhead when `cache.getMyStructures(room, STRUCTURE_RAMPART)` already provides direct, typed cache lookups.
+**Action:** Always pass the specific `structureType` argument to `cache.getMyStructures` when filtering structures by type.

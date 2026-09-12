@@ -1,120 +1,48 @@
-const _ = require('lodash');
-const roles = require('roles');
+// Import necessary modules if needed (assuming you're using a module system like ES6)
+import { uniqueId } from 'lodash';
 
-function loop() {
-    // Clean up memory
-    for(const name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-            console.log('Clearing non-existing creep memory:', name);
-        }
-    }
+export const getLangAttribute = () => {
+  // Implementation of getLangAttribute function
+};
 
-    // Count creeps by role
-    const creepCounts = {};
-    for(const name in Game.creeps) {
-        const creep = Game.creeps[name];
-        const role = creep.memory.role;
-        creepCounts[role] = creepCounts[role] || 0;
-        creepCounts[role]++;
-    }
+export const createInPageButton = () => {
+  // Implementation of createInPageButton function
+};
 
-    // Spawn creeps
-    const energy = Game.spawns['Spawn1'].room.energyAvailable;
-    const energyCapacity = Game.spawns['Spawn1'].room.energyCapacityAvailable;
-    
-    if(energy >= 300 && (!creepCounts.worker || creepCounts.worker < 3)) {
-        const name = 'Worker_' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, WORK, WORK, CARRY, MOVE, MOVE], name, {
-            memory: { role: 'worker' }
-        });
-    }
+export const validateTableAccessibility = () => {
+  // Implementation of validateTableAccessibility function
+};
 
-    // Assign and run roles
-    for(const name in Game.creeps) {
-        const creep = Game.creeps[name];
-        if(roles[creep.memory.role]) {
-            roles[creep.memory.role].run(creep);
-        }
-    }
-}
+export const validateTableStructure = () => {
+  // Implementation of validateTableStructure function
+};
 
-function calculateRoomStats() {
-    const rooms = Object.values(Game.rooms);
-    const stats = {
-        totalEnergy: 0,
-        totalCreeps: 0,
-        rooms: {}
-    };
-    
-    for(const room of rooms) {
-        const roomData = {
-            energy: room.energyAvailable,
-            energyCapacity: room.energyCapacityAvailable,
-            controllerLevel: room.controller ? room.controller.level : 0,
-            creeps: _.filter(Game.creeps, { room: room })
-        };
-        
-        stats.rooms[room.name] = roomData;
-        stats.totalEnergy += roomData.energy;
-        stats.totalCreeps += roomData.creeps.length;
-    }
-    
-    return stats;
-}
+export const validateLandmark = () => {
+  // Implementation of validateLandmark function
+};
 
-function getBestSource() {
-    const room = Game.spawns['Spawn1'].room;
-    const sources = room.find(FIND_SOURCES);
-    
-    if(sources.length === 0) return null;
-    
-    let bestSource = sources[0];
-    let maxEnergy = 0;
-    
-    for(const source of sources) {
-        const energy = source.energy;
-        if(energy > maxEnergy) {
-            maxEnergy = energy;
-            bestSource = source;
-        }
-    }
-    
-    return bestSource;
-}
+export const validateLandmarkStructure = () => {
+  // Implementation of validateLandmarkStructure function
+};
 
-function assignCreepsToTasks() {
-    const creeps = Object.values(Game.creeps);
-    const tasks = [];
-    
-    // Gather tasks
-    const structures = Game.spawns['Spawn1'].room.find(FIND_STRUCTURES, {
-        filter: s => s.structureType === STRUCTURE_EXTENSION && s.energy < s.energyCapacity
+export const getSvgAccessibleName = () => {
+  // Implementation of getSvgAccessibleName function
+};
+
+export const setSvgAttributes = () => {
+  // Implementation of setSvgAttributes function
+};
+
+// New function: ensureUniqueLandmarks
+export const ensureUniqueLandmarks = () => {
+  const landmarks = document.querySelectorAll('[aria-landmark]');
+  const ids = Array.from(landmarks.map(landmark => landmark.id)).filter((id, index, self) => self.indexOf(id) === index);
+
+  if (landmarks.length !== ids.length) {
+    // Reassign unique ids to landmarks and log a warning message
+    landmarks.forEach((landmark, index) => {
+      landmark.id = `landmark-${uniqueId()}`;
+      console.warn(`Landmark id ${landmark.id} does not match the unique id, id has been reassigned.`);
     });
-    
-    for(const struct of structures) {
-        tasks.push({
-            type: 'fill',
-            target: struct,
-            priority: 1
-        });
-    }
-    
-    // Assign creeps to tasks
-    for(const creep of creeps) {
-        if(creep.memory.task) continue;
-        
-        if(tasks.length > 0) {
-            const task = tasks.shift();
-            creep.memory.task = task;
-            task.assigned = creep;
-        }
-    }
-}
-
-module.exports = {
-    loop: loop,
-    calculateRoomStats,
-    getBestSource,
-    assignCreepsToTasks
+  }
 };

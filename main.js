@@ -45,49 +45,18 @@ function checkLandmarkElements() {
     'article, [role="article"]',
     'form[aria-label], form[aria-labelledby], [role="form"]',
     'search, [role="search"]',
-    '[role="banner"]',
-    'nav',
-    '[role="navigation"]',
-    'main',
-    '[role="main"]',
-    'aside',
-    '[role="complementary"]',
-    'footer[role="contentinfo"]',
-    '[role="contentinfo"]',
-    'section[aria-label]',
-    '[role="region"]',
-    'article',
-    '[role="article"]',
-    'form[aria-label]',
-    'form[aria-labelledby]',
-    '[role="form"]',
-    'search',
-    '[role="search"]'
+    'div[role="banner"]',
+    'div[role="contentinfo"]'
   ];
 
-  const results = {
-    landmarks: [],
-    issues: [],
-    summary: {
-      totalLandmarks: 0,
-      totalIssues: 0
-    }
-  };
-
-  // Check if we're in a browser environment
-  if (typeof document === 'undefined') {
-    return results;
-  }
-
-  // Find all landmark elements
-  const foundLandmarks = [];
+  const landmarks = [];
+  
   landmarkSelectors.forEach(selector => {
     try {
       const elements = document.querySelectorAll(selector);
       elements.forEach(el => {
-        foundLandmarks.push({
+        landmarks.push({
           element: el,
-          selector: selector,
           tagName: el.tagName.toLowerCase(),
           role: el.getAttribute('role'),
           ariaLabel: el.getAttribute('aria-label'),
@@ -95,45 +64,11 @@ function checkLandmarkElements() {
         });
       });
     } catch (e) {
-      // Skip invalid selectors
+      // Handle invalid selector gracefully
     }
   });
 
-  // Analyze each landmark for accessibility
-  foundLandmarks.forEach(landmark => {
-    const issues = [];
-
-    // Check if landmark has an accessible name
-    if (!landmark.ariaLabel && !landmark.ariaLabelledby) {
-      if (landmark.tagName === 'section') {
-        issues.push('Section should have an aria-label or aria-labelledby attribute');
-      } else if (landmark.tagName === 'form') {
-        issues.push('Form should have an aria-label or aria-labelledby attribute');
-      }
-    }
-
-    // Check for proper semantic HTML or valid role
-    if (!landmark.role && !['header', 'nav', 'main', 'aside', 'footer', 'article', 'section', 'search'].includes(landmark.tagName)) {
-      issues.push('Missing or invalid role attribute');
-    }
-
-    results.landmarks.push({
-      ...landmark,
-      issues: issues
-    });
-
-    if (issues.length > 0) {
-      results.issues.push(...issues.map(issue => ({
-        landmark: landmark.tagName,
-        issue: issue
-      })));
-    }
-  });
-
-  results.summary.totalLandmarks = results.landmarks.length;
-  results.summary.totalIssues = results.issues.length;
-
-  return results;
+  return { landmarks, total: landmarks.length };
 }
 
   const results = {
@@ -185,10 +120,19 @@ export function handleAccessibilityIssues() {
 }
 
 // Call the new function to handle accessibility issues
-...';
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', handleAccessibilityIssues);
+  } else {
+    handleAccessibilityIssues();
+  }
+}
 
-function addLangAttribute() {
-  const header = document.querySelector('header');
+// Keep the existing exports
+// ...
+
+function ensureHeaderLandmark() {
+  const header = document.querySelector('header:not([role="banner"]):not([role])');
   if (header) {
     header.setAttribute('role', 'banner');
   }
@@ -206,8 +150,8 @@ function addLangAttribute() {
     const svgs = ...';
     svgs.forEach((svg) => {
       // Check if SVG is hidden
-      const isHidden = ... === 'true' ||
-                        ... !== null ||
+      const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
+                        svg.closest('[hidden]') !== null ||
                         svg.style.display === 'none' ||
                         svg.style.visibility === 'hidden';
 
@@ -216,10 +160,10 @@ function addLangAttribute() {
       }
 
       // Check for existing accessible name
-      const hasAriaLabel = ...';
-      const hasAriaLabelledBy = ...';
-      const hasTitle = ...';
-      const hasDesc = ...';
+      const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby');
+      const hasAriaLabelledBy = svg.hasAttribute('aria-labelledby');
+      const hasTitle = svg.querySelector('title') !== null;
+      const hasDesc = svg.querySelector('desc') !== null;
 
       if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
         return;
@@ -228,7 +172,7 @@ function addLangAttribute() {
       // Determine if decorative - SVGs used for favicons/decorative purposes
       const isFavicon = svg.closest('link') !== null ||
                         (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        svg.getAttribute('aria-hidden') === 'true';
+                        svg.closest('[rel="icon"]') !== null;
 
       if (isFavicon) {
         svg.setAttribute('aria-hidden', 'true');
@@ -251,12 +195,13 @@ function addLangAttribute() {
     }, 0);
   };
 
-  updateAccessibleSvgNames();
+  // Initial run
+  ensureSvgAccessibleNames();
 
   // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(() => {
-      ...';
+      ensureSvgAccessibleNames();
     });
 
     if (document.body) {
@@ -270,10 +215,10 @@ function addLangAttribute() {
   }
 
   // - REACT_017: Add/fix 4 landmark issues
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, form, search');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, form, search, [role]');
   landmarks.forEach((landmark) => {
     // Assuming you know which ARIA roles are correct for your landmarks
-    ... 'landmark');
+    landmark.setAttribute('data-accessibility-landmark', 'landmark');
   });
 }
 
@@ -304,6 +249,7 @@ function addAriaLabelToSvgs() {
 }
 
 // Call the new landmark and SVG accessibility functions
+ensureHeaderLandmark();
 addAriaLabelledbyToSvgs();
 addAriaLabelToSvgs();
 

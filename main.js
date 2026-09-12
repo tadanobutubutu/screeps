@@ -1,11 +1,5 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: validateTableStructure, fixTableStructure)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: getSvgAccessibleName)
-// - REACT_036: Fix 1 fake link issue (DONE: personName)
-
+// Ensure the dependencyGraph container has a proper ARIA role
 import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, createAccessibleLink, ensureUniqueLandmarks } from './accessibilityUtils';
 
 // Re-export functions from accessibilityUtils to make them accessible when importing from main.js
@@ -158,7 +152,13 @@ export function handleAccessibilityIssues() {
 // Call the new function to handle accessibility issues
 ...
 
-function initializeAccessibility() {
+// Ensure the dependencyGraph container has a proper ARIA role
+const dependencyGraph = document.getElementById('dependencyGraph');
+if (dependencyGraph) {
+  dependencyGraph.setAttribute('role', 'region');
+}
+
+function addProperLandmarkRegions() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');

@@ -3,6 +3,102 @@ const _ = require('lodash');
 // ----- END ORIGINAL CODE (unchanged) -----
 const dependencyGraphContent = require('./dependencyGraphContent');
 
+// - REACT_015: Add lang attribute to HTML element
+document.documentElement.lang = 'en';
+
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return '';
+
+  // Check for aria-label first (from origin/main)
+  if (svgElement.hasAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+
+  // Check for aria-labelledby (from origin/main)
+  if (svgElement.hasAttribute('aria-labelledby')) {
+    const ids = svgElement.getAttribute('aria-labelledby').split(' ');
+    let labels = [];
+    ids.forEach(id => {
+      const labelElement = document.getElementById(id);
+      if (labelElement) {
+        labels.push(labelElement.textContent.trim());
+      }
+    });
+    if (labels.length > 0) {
+      return labels.join(' ');
+    }
+  }
+
+  // Check for title element (from HEAD)
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent) return title.textContent.trim();
+
+  // Check for desc element (from origin/main)
+  const desc = svgElement.querySelector('desc');
+  if (desc) {
+    return desc.textContent.trim();
+  }
+
+  // Fallback to text content (from origin/main)
+  return svgElement.textContent.trim() || '';
+}
+
+function setSvgAttributes(svgElement) {
+  if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
+    return;
+  }
+
+  // Ensure the SVG has an id for accessibility (from origin/main)
+  ensureElementHasId(svgElement);
+
+  // Add a default aria-label if none exists (from origin/main)
+  if (!svgElement.getAttribute('aria-label')) {
+    addAriaLabel(svgElement, 'SVG graphic');
+  }
+}
+
+function setSvgAttributesArray(svgElements) {
+  if (!svgElements || !Array.isArray(svgElements)) return;
+
+  svgElements.forEach((svg, index) => {
+    if (!svg) return;
+
+    // Get or create a title element for accessibility (from HEAD)
+    let title = svg.querySelector('title');
+    if (!title) {
+      title = document.createElement('title');
+      svg.insertBefore(title, svg.firstChild);
+    }
+
+    // Set a default accessible name if none exists (from HEAD)
+    const accessibleName = getSvgAccessibleName(svg);
+    if (!accessibleName) {
+      title.textContent = `SVG ${index + 1}`;
+    }
+
+    // Ensure the SVG has proper ARIA attributes (from HEAD)
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+      svg.setAttribute('aria-label', `SVG ${index + 1}`);
+    }
+  });
+}
+
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
+
+function validateLandmark(landmark) {
+  if (!landmark) return false;
+  if (!landmark.name || typeof landmark.name !== 'string') return false;
+  if (typeof landmark.lat !== 'number' || typeof landmark.lng !== 'number') return false;
+  if (landmark.lat < -90 || landmark.lat > 90) return false;
+  if (landmark.lng < -180 || landmark.lng > 180) return false;
+  return true;
+}
+
 // Main module entry point
 // This file serves as the main entry for the application
 const main = {

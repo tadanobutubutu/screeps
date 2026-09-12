@@ -317,9 +317,81 @@ function handleFakeLinks(container = document.body) {
   return converted;
 }
 
-/**
- * Creates an accessible in-page button
- * @param {string} text - Button text
- * @param {Function} onClick - Click handler
- * @param {Object} options - Button options
- * @
+function updateAccessibleSvgNames() {
+  if (typeof document === 'undefined' || !document.body) {
+    return;
+  }
+
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg) => {
+    const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
+                     svg.getAttribute('hidden') !== null ||
+                     svg.style.display === 'none' ||
+                     svg.style.visibility === 'hidden';
+
+    if (isHidden) {
+      return;
+    }
+
+    const hasAriaLabel = svg.hasAttribute('aria-label');
+    const hasAriaLabelledBy = svg.hasAttribute('aria-labelledby');
+    const hasTitle = svg.querySelector('title') !== null;
+    const hasDesc = svg.querySelector('desc') !== null;
+
+    if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
+      return;
+    }
+
+    const isFavicon = svg.closest('link') !== null ||
+                      (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
+                      svg.getAttribute('aria-hidden') === 'true';
+
+    if (isFavicon) {
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('role', 'presentation');
+    } else {
+      const title = document.createElement('title');
+      title.textContent = 'Icon';
+      svg.insertBefore(title, svg.firstChild);
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', 'Icon');
+    }
+  });
+}
+
+export {
+  function3,
+  App,
+  getUniqueLandmarkName,
+  validateUniqueLandmarks,
+  addSvgAccessibleName,
+  isValidLink,
+  addressAccessibilityIssues,
+  newFunction,
+  existingFunction,
+  existingExport,
+  myFunction1,
+  myFunction2,
+  rotateBack,
+  checkTableStructure,
+  validateTableSchema,
+};
+
+// Export functions for accessibility
+module.exports = {
+  rotateBack,
+  initializeAccessibility,
+  ensureSvgAccessibleNames,
+  updateAccessibleSvgNames,
+  checkTableStructure,
+  validateTableSchema,
+  getUniqueLandmarkName,
+  validateUniqueLandmarks,
+  addSvgAccessibleName,
+  addressAccessibilityIssues,
+};
+
+// Auto-initialize if in browser environment
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  initializeAccessibility();
+}

@@ -54,18 +54,24 @@ export function handleAccessibilityIssues() {
   addFixLandmarkIssues();
   createAccessibleLink();
   ensureUniqueLandmarks();
-  
-  // REACT_036: Fix 1 fake link issue
-  createAccessibleLink();
+  ensureSvgAccessibleNames();
+  addAriaLabelledByToSvgsWithTitles();
+  addAriaLabelToSvgsWithoutTitles();
 }
 
 // Call the new function to handle accessibility issues
-...
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', handleAccessibilityIssues);
+  } else {
+    handleAccessibilityIssues();
+  }
+}
 
 // Keep the existing exports
 // ...
 
-function initializeAccessibility() {
+function setupAccessibility() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -106,7 +112,7 @@ function initializeAccessibility() {
       // Determine if decorative - SVGs used for favicons/decorative purposes
       const isFavicon = svg.closest('link') !== null ||
                         (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        svg.getAttribute('data-decorative') === 'true';
+                        svg.closest('[role="img"]') !== null;
 
       if (isFavicon) {
         svg.setAttribute('aria-hidden', 'true');
@@ -126,124 +132,3 @@ function initializeAccessibility() {
 }
 
   // Function to handle updating accessible SVG names when DOM mutates
-  const updateAccessibleSvgNames = () => {
-    setTimeout(() => {
-      ...
-    }, 0);
-  };
-
-  // Initial call to ensure all SVGs have accessible names
-  ensureSvgAccessibleNames();
-
-  // Run again after DOM mutations
-  if (typeof MutationObserver !== 'undefined') {
-    const observer = new MutationObserver(() => {
-      ...
-    });
-  });
-  
-  // Check for links without accessible names
-  const allAnchors = context.querySelectorAll ? context.querySelectorAll('a') : [];
-  
-  allAnchors.forEach((anchor) => {
-    const hasText = anchor.textContent && anchor.textContent.trim().length > 0;
-    const hasAriaLabel = anchor.getAttribute('aria-label');
-    const hasAriaLabelledby = anchor.getAttribute('aria-labelledby');
-    const hasTitle = anchor.getAttribute('title');
-    
-    if (!hasText && !hasAriaLabel && !hasAriaLabelledby && !hasTitle) {
-      issues.push({
-        type: 'link-without-accessible-name',
-        ruleId: 'REACT_036',
-        severity: 'warning',
-        element: anchor,
-        id: anchor.id || null,
-        message: 'Link has no accessible name',
-        suggestion: 'Add text content, aria-label, aria-labelledby, or title to the link'
-      });
-    }
-  }
-
-  // - REACT_017: Add/fix 4 landmark issues
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article');
-  landmarks.forEach((landmark) => {
-    // Assuming you know which ARIA roles are correct for your landmarks
-    ... 'landmark');
-  });
-}
-
-// Implement function to add aria-labelledby to SVGs with title elements
-function addAriaLabelledbyToSvgs() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const title = ...
-    if (title) {
-      const titleId = title.getAttribute('id');
-      ... titleId);
-    }
-  });
-
-  // New function to add a proper ARIA role to the dependencyGraph container
-  const ensureDependencyGraphARIA = () => {
-    const dependencyGraph = document.querySelector('#dependencyGraph');
-    if (dependencyGraph) {
-      dependencyGraph.setAttribute('role', 'application');
-      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-    }
-  };
-
-  ensureDependencyGraphARIA();
-
-  // Implement function to add aria-labelledby to SVGs with title elements
-  function addAriaLabelledbyToSVGs() {
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
-      const title = svg.querySelector('title');
-      if (title) {
-        const titleId = title.getAttribute('id');
-        svg.setAttribute('aria-labelledby', titleId);
-      }
-    });
-  }
-
-  // Implement function to add aria-label to SVGs without title elements
-  function addAriaLabelToSVGs() {
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
-      const title = svg.querySelector('title');
-      if (!title) {
-        const svgText = svg.textContent || svg.innerText || 'Image';
-        svg.setAttribute('aria-label', svgText);
-      }
-    });
-  }
-
-  // Run the new functions
-  addAriaLabelledbyToSVGs();
-  addAriaLabelToSVGs();
-}
-
-// Implement function to add aria-label to SVGs without title elements
-function addAriaLabelToSvgsWithoutTitle() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const title = ...
-    if (!title) {
-      const svgText = svg.textContent || svg.innerText || 'Image';
-      ... svgText);
-    }
-  });
-}
-
-// Remove duplicate non-decorative SVGs accessibility fix as it's already handled in ensureSvgAccessibleNames
-// - REACT_041: Add accessible names to 2 SVGs
-// These are decorative favicon SVGs, so marking them as hidden from assistive tech
-// const svg1 = ...
-// const svg2 = ...
-// if (svg1) ... 'true');
-// if (svg2) ... 'true');
-
-// Call the new landmark and SVG accessibility functions
-initializeAccessibility();
-addAriaLabelledbyToSvgs();
-addAriaLabelToSvgsWithoutTitle();

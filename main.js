@@ -22,6 +22,8 @@ const anotherFunction = (input) => {
 const fs = require('fs');
 const path = require('path');
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+
 /**
  * Checks if a table has the expected structure
  * @param {string} tableName - The name of the table to check

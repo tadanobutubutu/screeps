@@ -45,8 +45,8 @@ function formatDate(date) {
   return new Date(date).toLocaleDateString();
 }
 
-function ... {
-  const header = ...
+function updateLandmarks() {
+  const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
   }
@@ -120,8 +120,8 @@ function fixTableStructureIssues(container = document) {
     const svgs = ...
     svgs.forEach((svg) => {
       // Check if SVG is hidden
-      const isHidden = ... === 'true' ||
-                        ... !== null ||
+      const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
+                        svg.closest('[hidden]') !== null ||
                         svg.style.display === 'none' ||
                         svg.style.visibility === 'hidden';
 
@@ -135,10 +135,10 @@ function fixTableStructureIssues(container = document) {
 }
 
       // Check for existing accessible name
-      const hasAriaLabel = ...
-      const hasAriaLabelledBy = ...
-      const hasTitle = ...
-      const hasDesc = ...
+      const hasAriaLabel = svg.hasAttribute('aria-label');
+      const hasAriaLabelledBy = svg.hasAttribute('aria-labelledby');
+      const hasTitle = svg.querySelector('title') !== null;
+      const hasDesc = svg.querySelector('desc') !== null;
 
 /**
  * Adds accessible names to all SVG elements in the document.
@@ -158,14 +158,14 @@ function addSvgAccessibleNames() {
       // Determine if decorative - SVGs used for favicons/decorative purposes
       const isFavicon = svg.closest('link') !== null ||
                         (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        ... === 'true';
+                        svg.getAttribute('data-decorative') === 'true';
 
       if (isFavicon) {
-        ... 'true');
-        ... 'false');
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('role', 'presentation');
       } else {
         // Add a generic title for non-decorative SVGs
-        const title = ... 'title');
+        const title = document.createElement('title');
         title.textContent = 'Icon';
         svg.insertBefore(title, svg.firstChild);
         svg.setAttribute('role', 'img');
@@ -184,12 +184,13 @@ function addSvgAccessibleNames() {
     }, 0);
   };
 
-  ...
+  // Run initial check
+  ensureSvgAccessibleNames();
 
   // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(() => {
-      ...
+      ensureSvgAccessibleNames();
     });
 
     if (document.body) {
@@ -244,29 +245,32 @@ module.exports = {
   }
 
   // - REACT_017: Add/fix 4 landmark issues
-  const landmarks = ...
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="contentinfo"], [role="banner"]');
   landmarks.forEach((landmark) => {
     // Assuming you know which ARIA roles are correct for your landmarks
-    ... 'landmark');
+    landmark.setAttribute('data-landmark-processed', 'true');
   });
 }
 
 // Implement function to add aria-labelledby to SVGs with title elements
-export function addAriaLabelledbyToSvgsWithTitle() {
-  const svgs = ...
+function addAriaLabelledbyToSvgsWithTitle() {
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const title = ...
     if (title) {
-      const titleId = title.getAttribute('id');
-      ... titleId);
+      const titleId = title.getAttribute('id') || `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+      if (!title.hasAttribute('id')) {
+        title.setAttribute('id', titleId);
+      }
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
   return svgs;
 }
 
 // Implement function to add aria-label to SVGs without title elements
-export function addAriaLabelToSvgsWithoutTitle() {
-  const svgs = ...
+function addAriaLabelToSvgsWithoutTitle() {
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const title = ...
     if (!title) {
@@ -282,12 +286,14 @@ export function addAriaLabelToSvgsWithoutTitle() {
 // Remove duplicate non-decorative SVGs accessibility fix as it's already handled in ensureSvgAccessibleNames
 // - REACT_041: Add accessible names to 2 SVGs
 // These are decorative favicon SVGs, so marking them as hidden from assistive tech
-// const svg1 = ...
-// const svg2 = ...
-// if (svg1) ... 'true');
-// if (svg2) ... 'true');
+// const svg1 = document.querySelector('.favicon svg');
+// const svg2 = document.querySelector('.footer-favicon svg');
+// if (svg1) svg1.setAttribute('aria-hidden', 'true');
+// if (svg2) svg2.setAttribute('aria-hidden', 'true');
 
 // Call the new landmark and SVG accessibility functions
-...
-...
-...
+updateLandmarks();
+addAriaLabelledbyToSvgsWithTitle();
+addAriaLabelToSvgsWithoutTitle();
+
+export { handleAccessibilityIssues, updateLandmarks, addAriaLabelledbyToSvgsWithTitle, addAriaLabelToSvgsWithoutTitle };

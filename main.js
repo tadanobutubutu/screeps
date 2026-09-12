@@ -32,9 +32,10 @@ function towerDefense(roomName) {
   }
 }
 
-// main.js
-
 document.addEventListener('DOMContentLoaded', () => {
+  // Add lang attribute to HTML element
+  document.documentElement.lang = 'en';
+
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -54,6 +55,35 @@ document.addEventListener('DOMContentLoaded', () => {
   if (footer) {
     footer.setAttribute('role', 'contentinfo');
   }
+
+  // Add scope="col" to <th> elements
+  const ths = document.querySelectorAll('th');
+  ths.forEach(th => {
+    if (!th.getAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+
+  // Ensure unique landmarks
+  const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      elements.forEach((el, idx) => {
+        if (!el.hasAttribute('aria-label')) {
+          el.setAttribute('aria-label', `${role} ${idx + 1}`);
+        }
+      });
+    }
+  });
+
+  // Fix fake link issue
+  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
+  fakeLinks.forEach(el => {
+    if (!el.hasAttribute('aria-label')) {
+      el.setAttribute('aria-label', 'Link');
+    }
+  });
 
   // Function to ensure all SVG elements have accessible names
   const ensureSvgAccessibleNames = () => {

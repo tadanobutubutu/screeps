@@ -144,7 +144,8 @@ export function handleAccessibilityIssues() {
   getSvgAccessibleName();
   // REACT_036: Fix fake link issue
   createAccessibleLink();
-  // REACT_025: Ensure unique landmarks
+  addFixLandmarkIssues();
+  getSvgAccessibleName();
   ensureUniqueLandmarks();
   ensureSvgAccessibleNames();
   addAriaLabelledByToSvgsWithTitles();

@@ -75,4 +75,4 @@ function functionB() {
 }
 
 // Export functions if needed
-export { rotateBack, addressAccessibilityIssues, functionA, functionB };
+export { rotateBack, addressAccessibilityIssues };

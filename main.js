@@ -35,7 +35,6 @@ function checkLandmarkElements() {
     'article, [role="article"]',
     'form[aria-label], form[aria-labelledby], [role="form"]',
     'search, [role="search"]',
-    'div[role="region"]',
     '[role="banner"]',
     '[role="contentinfo"]'
   ];
@@ -60,12 +59,9 @@ function handleAccessibilityIssues() {
   addMainLandmark();
   getSvgAccessibleName();
   ensureUniqueLandmarks();
-  ensureUniqueLandmarksUpdated();
-  fixFakeLinkIssue();
-  addSvgAccessibleNames();
+  addProperLandmarkRegions();
   addAriaLabelToSVGs();
   addAriaLabelledbyToSVGs();
-  addProperLandmarkRegions();
 }
 
 // Call the new function to handle accessibility issues
@@ -116,7 +112,7 @@ function someFunction() {
 
       if (isFavicon) {
         svg.setAttribute('aria-hidden', 'true');
-        svg.setAttribute('role', 'presentation');
+        svg.setAttribute('role', 'img');
       } else {
         // Add a generic title for non-decorative SVGs
         const title = document.createElement('title');
@@ -135,6 +131,7 @@ function someFunction() {
     }, 0);
   };
 
+  // Run initially
   updateAccessibleSvgNames();
 
   // Run again after DOM mutations
@@ -154,7 +151,7 @@ function someFunction() {
   }
 
   // - REACT_017: Add/fix 4 landmark issues
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
   landmarks.forEach((landmark) => {
     // Assuming you know which ARIA roles are correct for your landmarks
     landmark.setAttribute('role', landmark.tagName.toLowerCase());
@@ -193,6 +190,8 @@ module.exports = {
   handleAccessibilityIssues,
   checkLandmarkElements,
   addProperLandmarkRegions,
+  addAriaLabelToSVGs,
   addAriaLabelledbyToSVGs,
-  addAriaLabelToSVGs
+  functionA: { X: null, Y: null, Z: null },
+  functionB: { X: null, Y: null, Z: null }
 };

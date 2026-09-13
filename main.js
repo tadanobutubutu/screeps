@@ -322,9 +322,7 @@ module.exports = {
   createAccessibleLink,
   a11yStore,
   mainElement,
-  addLandmarkRegions,
-  manageFocus,
-  validateHeadingStructure,
-  checkColorContrast,
-  ensureAltText
+  addLandmarkRegions
 };
+
+// TODO: This is the existing code that needs to be preserved

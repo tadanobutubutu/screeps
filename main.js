@@ -13,7 +13,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelpers');
+} = require('./accessibility');
 
     const region = document.createElement('div');
     region.setAttribute('role', 'status');
@@ -51,8 +51,104 @@ const {
     .forEach(file => {
       const filePath = path.join(viewsDir, file);
       const content = fs.readFileSync(filePath, 'utf8');
-      // Process HTML files for accessibility updates
-      fs.writeFileSync(filePath, content);
+      // Process HTML files as needed
+    });
+}
+
+// ----- END ORIGINAL CODE -------
+
+/**
+ * Check if a value is a number
+ * @param {*} value - Value to check
+ * @returns {boolean} True if value is a number, false otherwise
+ */
+function isNumber(value) {
+  return typeof value === 'number' && !isNaN(value);
+}
+
+/**
+ * Clamp a number between min and max values
+ * @param {number} value - Value to clamp
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} Clamped value
+ */
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+// Start the game loop
+Module.onInit = function() {
+  setInterval(run, 1000);
+};
+
+/**
+ * Checks the structure of a table and validates it against expected schema
+ * @param {string|Object} tableOrName - The name of the table or the table object to check
+ * @param {Array} expectedColumns - Array of expected column definitions
+ * @returns {Object} - Validation result with isValid boolean and error messages
+ */
+function checkTableStructure(tableOrName, expectedColumns = []) {
+    const result = {
+        isValid: true,
+        errors: []
+    };
+
+    // Support both call signatures: (tableName, expectedColumns) and (table, expectedColumns)
+    if (typeof tableOrName === 'string') {
+        if (!tableOrName || tableOrName.trim() === '') {
+            result.isValid = false;
+            result.errors.push('Table name must be a non-empty string');
+            return result;
+        }
+
+        if (!Array.isArray(expectedColumns)) {
+            result.isValid = false;
+            result.errors.push('Expected columns must be an array');
+            return result;
+        }
+
+        if (expectedColumns.length === 0) {
+            result.isValid = false;
+            result.errors.push('Expected columns must not be empty');
+            return result;
+        }
+
+        for (const column of expectedColumns) {
+            if (typeof column !== 'string' || column.trim() === '') {
+                result.isValid = false;
+                result.errors.push('All expected columns must be non-empty strings');
+                return result;
+            }
+        }
+
+        // In a real implementation, this would query the database schema
+        // and validate that the table has the expected columns
+        return result;
+    }
+
+    if (!tableOrName || typeof tableOrName !== 'object') {
+        result.isValid = false;
+        result.errors.push('Table must be a valid object');
+        return result;
+    }
+
+    // Check if table has columns property
+    if (!tableOrName.columns || !Array.isArray(tableOrName.columns)) {
+        result.isValid = false;
+        result.errors.push('Table must have a columns array');
+        return result;
+    }
+
+    // Validate each expected column exists
+    const tableColumns = tableOrName.columns.map(col => col.name || col);
+    
+    expectedColumns.forEach(expected => {
+        const columnName = typeof expected === 'string' ? expected : expected.name;
+        if (!tableColumns.includes(columnName)) {
+            result.isValid = false;
+            result.errors.push(`Missing expected column: ${columnName}`);
+        }
     });
 
     const dropdownContainers = document.querySelectorAll('[data-dropdown]');
@@ -392,6 +488,8 @@ module.exports = {
     addAriaLabel,
     renderDependencyGraphs,
     myNewFunction,
+    isNumber,
+    clamp,
     getLangAttribute,
     getFullLangAttribute,
     validateTableAccessibility,

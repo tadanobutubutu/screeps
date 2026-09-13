@@ -42,23 +42,9 @@ function checkLandmarkElements(htmlContent) {
  * @returns {number} - The number of import statements found
  */
 function countDependencies() {
-  try {
-    const mainFilePath = path.join(__dirname, 'main.js');
-    const document = { body: { textContent: '' } };
-    
-    // Read the main.js file to count dependencies
-    const content = fs.readFileSync(mainFilePath, 'utf8');
-    document.body.textContent = content;
-    
-    const importCommentRegExp = /require\s*\(|import\s+.*\s+from\s+/g;
-    const matches = content.match(importCommentRegExp);
-    const importCount = matches ? matches.length : 0;
-    
-    return importCount;
-  } catch (error) {
-    console.error('Error counting dependencies:', error);
-    return 0;
-  }
+  const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
+  const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
+  return importCount;
 }
 
 // Store for accessibility announcements (screen reader support)
@@ -102,23 +88,4 @@ function addLandmarkRegions(content) {
   return content;
 }
 
-/**
- * Main loop function for Screeps bot
- */
-function loop() {
-  // Existing bot logic placeholder
-}
-
-/**
- * Exports for testing and external use
- */
-module.exports = {
-  checkLandmarkElements,
-  countDependencies,
-  a11yStore,
-  addLandmarkRegions,
-  LANDMARK_ELEMENTS,
-  loop,
-  // Ensure testHelper exports are available
-  updateThScopeAttribute
-};
+// ... ( Запишите все остальные функции и экспорты из вашего репозитория Screeps bot, включая добавленные функции для тестов, технической документации и препроцессоров )

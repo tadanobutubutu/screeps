@@ -13,11 +13,11 @@ const LEVELS = {
 };
 
 const LOG_LEVEL = {
-    ERROR: 0,
-    WARN: 1,
-    INFO: 2,
-    DEBUG: 3,
-    TRACE: 4,
+    DEBUG: 0,
+    INFO: 1,
+    WARN: 2,
+    ERROR: 3,
+    NONE: 4,
 };
 
 // Security: Use a safe emoji lookup map to prevent prototype pollution
@@ -34,15 +34,21 @@ const DEFAULT_EMOJI = '\ud83d\udcac'; // 💬
 let currentLevel = LEVELS.trace;
 
 function setLevel(level) {
-    if (typeof level === 'number' && level >= 0 && level <= 4) {
-        currentLevel = level;
+    if (typeof level === 'number') {
+        if (level === 0) currentLevel = LEVELS.trace;
+        else if (level === 1) currentLevel = LEVELS.info;
+        else if (level === 2) currentLevel = LEVELS.warn;
+        else if (level === 3) currentLevel = LEVELS.error;
+        else if (level === 4) currentLevel = -1;
+        else currentLevel = LEVELS.info;
     } else if (typeof level === 'string') {
-        if (LEVELS[level] !== undefined) {
-            currentLevel = LEVELS[level];
+        const lower = level.toLowerCase();
+        if (LEVELS[lower] !== undefined) {
+            currentLevel = LEVELS[lower];
         } else {
             const parsed = parseInt(level, 10);
             if (!isNaN(parsed) && parsed >= 0 && parsed <= 4) {
-                currentLevel = parsed;
+                setLevel(parsed);
             } else {
                 currentLevel = LEVELS.info;
             }
@@ -53,7 +59,11 @@ function setLevel(level) {
 }
 
 function getLevel() {
-    return currentLevel;
+    if (currentLevel >= 3) return LOG_LEVEL.DEBUG;
+    if (currentLevel === 2) return LOG_LEVEL.INFO;
+    if (currentLevel === 1) return LOG_LEVEL.WARN;
+    if (currentLevel === 0) return LOG_LEVEL.ERROR;
+    return LOG_LEVEL.NONE;
 }
 
 /**
@@ -116,9 +126,10 @@ function _redactPaths(str) {
     });
 }
 
-function log(arg1, arg2) {
+function log(arg1, arg2, data) {
     let level = 'info';
     let message = '';
+    let extraData = data;
     if (LEVELS[arg1] !== undefined) {
         level = arg1;
         message = arg2;
@@ -127,6 +138,7 @@ function log(arg1, arg2) {
         message = arg1;
     } else {
         message = arg1;
+        extraData = arg2;
     }
 
     if (LEVELS[level] !== undefined && LEVELS[level] > currentLevel) return;
@@ -136,6 +148,13 @@ function log(arg1, arg2) {
             message = typeof message === 'function' ? '[Function]' : String(message || '');
         } catch (e) {
             message = '[Unserializable Object]';
+        }
+    }
+    if (extraData !== undefined && extraData !== null) {
+        try {
+            message += (message ? ' ' : '') + JSON.stringify(extraData);
+        } catch (e) {
+            message += ' [Unserializable Object]';
         }
     }
     const truncated = message.substring(0, MAX_LOG_MESSAGE_LENGTH);
@@ -162,20 +181,23 @@ function log(arg1, arg2) {
     console.log(`${emoji} [${level}] ${escaped}`);
 }
 
-function error(msg) {
-    log(msg, 'error');
+function error(msg, data) {
+    log(msg, 'error', data);
 }
-function warn(msg) {
-    log(msg, 'warn');
+function warn(msg, data) {
+    log(msg, 'warn', data);
 }
-function info(msg) {
-    log(msg, 'info');
+function info(msg, data) {
+    log(msg, 'info', data);
 }
-function debug(msg) {
-    log(msg, 'debug');
+function debug(msg, data) {
+    log(msg, 'debug', data);
 }
-function trace(msg) {
-    log(msg, 'trace');
+function trace(msg, data) {
+    log(msg, 'trace', data);
+}
+function success(msg, data) {
+    log(msg, 'info', data);
 }
 
 function getSafeStack(stack, maxLines = 5) {
@@ -254,6 +276,7 @@ function init() {
 module.exports = {
     tryCatch,
     getRecentLogs,
+    getHistory: getRecentLogs,
     getErrors,
     clear,
     init,
@@ -267,6 +290,7 @@ module.exports = {
     info,
     debug,
     trace,
+    success,
     getSafeStack,
     getStats,
     _redactPaths,

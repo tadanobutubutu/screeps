@@ -42,7 +42,7 @@ const srcLogger = require('../src/utils/logger');
 describe('Sentinel: Comprehensive Secrets Redaction Hardening', () => {
     beforeEach(() => {
         global.Memory = { logs: [] };
-        srcLogger.setLevel(0); // DEBUG
+        srcLogger.setLevel(srcLogger.LOG_LEVEL.DEBUG);
         srcLogger.clear();
         console.log.mockClear();
     });

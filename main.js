@@ -55,6 +55,9 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   button.textContent = buttonText;
   button.className = buttonClass;
 
+  // Accessibility improvements
+  button.setAttribute('aria-label', text); // Add aria-label for screen readers
+
   return button;
 }
 

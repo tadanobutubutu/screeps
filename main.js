@@ -10,7 +10,9 @@
 const fs = require('fs');
 const path = require('path');
 
-// Game loop function
+// TODO: Add any new functions or changes requested in the issue here
+
+// Main game loop for Screeps
 function run() {
   // Your game logic here...
 
@@ -19,7 +21,9 @@ function run() {
   fs.readdirSync(viewsDir)
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
-      updateThScopeAttribute(filePath);
+      const filePath = path.join(viewsDir, file);
+      const content = fs.readFileSync(filePath, 'utf8');
+      fs.writeFileSync(filePath, content);
     });
 }
 
@@ -38,19 +42,15 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  // Add the new function for REACT_017 and the new REACT_025
-  addLandmarkRoles,
-  fixLandmarkIssues,
-  fixFakeLink,
-  updateTableThScope
-} = require('./accessibilityHelperFunctions');
+  countDependencies,
+} = require('a11y-utils');
 
 const fs = require('fs');
 const path = require('path');
 
 // Wrap the entire document content inside a <main> element and set its lang attribute
 const mainElement = document.createElement('main');
-document.documentElement.setAttribute('lang', 'en');
+mainElement.setAttribute('lang', 'en');
 document.body.appendChild(mainElement);
 
 // Add the requested function here

@@ -41,7 +41,7 @@ const srcLogger = require('../src/utils/logger');
 describe('Sentinel: Comprehensive Log Redaction Hardening', () => {
     beforeEach(() => {
         global.Memory = { logs: [] };
-        srcLogger.setLevel(0); // DEBUG
+        srcLogger.setLevel(srcLogger.LOG_LEVEL.DEBUG);
         console.log.mockClear();
     });
 

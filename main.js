@@ -85,7 +85,52 @@ const a11yStore = {
     this.liveRegion = region;
   },
 
-  // Announce message to screen readers
+  // Apply ARIA attributes to SVG elements (dependency graph renderers)
+  addSVGAccessibility() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      // Ensure SVG has a title for accessible name
+      let titleElement = svg.querySelector('title');
+      if (!titleElement) {
+        titleElement = document.createElement('title');
+        titleElement.textContent = 'Image'; // Default accessible name
+        svg.insertBefore(titleElement, svg.firstChild);
+      }
+
+      // Ensure title has an ID for aria-labelledby
+      if (!titleElement.id) {
+        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
+      }
+
+      // Set aria-labelledby to point to the title
+      svg.setAttribute('aria-labelledby', titleElement.id);
+
+      // Add role img if not present (redundant but safe)
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+    });
+  },
+
+  // Apply ARIA attributes to dynamically added elements
+  enhanceSVG() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      svg.setAttribute('role', 'img');
+      if (!svg.getAttribute('aria-labelledby')) {
+        const titleText = svg.getAttribute('title') || 'Image description';
+        const descriptionId = `svg-desc-${Math.floor(Math.random() * 1000)}`;
+        svg.setAttribute('aria-labelledby', descriptionId);
+
+        const descriptionElement = document.createElement('desc');
+        descriptionElement.id = descriptionId;
+        descriptionElement.textContent = titleText;
+        svg.appendChild(descriptionElement);
+      }
+    });
+  },
+
+  // Announce message to screen reader via live region
   announce(message, priority = 'polite') {
     if (!this.liveRegion) return;
 
@@ -332,33 +377,6 @@ const a11yStore = {
     });
   },
 
-  // New function to add SVG accessibility props
-  addSVGAccessibility() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      // Ensure SVG has a title for accessible name
-      let titleElement = svg.querySelector('title');
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image'; // Default accessible name
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
-
-      // Ensure title has an ID for aria-labelledby
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
-      }
-
-      // Set aria-labelledby to point to the title
-      svg.setAttribute('aria-labelledby', titleElement.id);
-
-      // Add role img if not present (redundant but safe)
-      if (!svg.hasAttribute('role')) {
-        svg.setAttribute('role', 'img');
-      }
-    });
-  },
-
   // New function to validate ARIA usage
   validateARIAUsage() {
     const ariaElements = document.querySelectorAll('[role]');
@@ -368,7 +386,7 @@ const a11yStore = {
     });
   },
 
-  // New function to enhance dynamic content
+  // Function to enhance dynamic content and observe DOM changes
   enhanceDynamicContent() {
     // Observe DOM changes for dynamic content
     if (!('MutationObserver' in window)) return;
@@ -389,6 +407,39 @@ const a11yStore = {
     observer.observe(document.body, {
       childList: true,
       subtree: true
+    });
+  },
+  
+  // Apply ARIA attributes to dynamically added elements
+  applyARIAtoNode(node) {
+    if (!node || !node.setAttribute) return;
+    
+    // Handle buttons without text content
+    if (node.tagName === 'BUTTON' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
+      node.setAttribute('aria-label', 'Button');
+    }
+    
+    // Handle links without text
+    if (node.tagName === 'A' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
+      node.setAttribute('aria-label', 'Link');
+    }
+    
+    // Handle inputs without labels
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(node.tagName) && 
+        !node.getAttribute('aria-label') && 
+        !node.getAttribute('id')) {
+      node.setAttribute('aria-label', 'Form field');
+    }
+    
+    // Handle images without alt text
+    if (node.tagName === 'IMG' && !node.getAttribute('alt')) {
+      node.setAttribute('alt', '');
+    }
+    
+    // Process children recursively
+    const children = node.querySelectorAll('button, a, input, select, textarea, img');
+    children.forEach(child => {
+      this.applyARIAtoNode(child);
     });
   },
   
@@ -500,15 +551,10 @@ const a11yStore = {
   setupFocusVisiblePolyfill() {
     let hadKeyboardEvent = false;
     
-    const showRemaining = () => {
+    const handlePointerDown = () => {
+      hadKeyboardEvent = false;
       document.documentElement.classList.remove('focus-visible');
       document.documentElement.classList.add('focus-hidden');
-    };
-    
-    const handleBlur = (e) => {
-      if (e.target.matches(':focus-visible')) {
-        hadKeyboardEvent = true;
-      }
     };
     
     const handleKeydown = (e) => {
@@ -528,64 +574,7 @@ const a11yStore = {
     }, true);
   },
   
-  // NEW: Enhance dynamic content updates for better screen reader support
-  enhanceDynamicContent() {
-    // Observe DOM changes for dynamic content
-    if (!('MutationObserver' in window)) return;
-    
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach(node => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              // Add appropriate ARIA attributes to dynamically added content
-              this.applyARIAtoNode(node);
-            }
-          });
-        }
-      });
-    });
-    
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  },
-  
-  // NEW: Apply ARIA attributes to dynamically added elements
-  applyARIAtoNode(node) {
-    if (!node || !node.setAttribute) return;
-    
-    // Handle buttons without text content
-    if (node.tagName === 'BUTTON' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
-      node.setAttribute('aria-label', 'Button');
-    }
-    
-    // Handle links without text
-    if (node.tagName === 'A' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
-      node.setAttribute('aria-label', 'Link');
-    }
-    
-    // Handle inputs without labels
-    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(node.tagName) && 
-        !node.getAttribute('aria-label') && 
-        !node.getAttribute('id')) {
-      node.setAttribute('aria-label', 'Form field');
-    }
-    
-    // Handle images without alt text
-    if (node.tagName === 'IMG' && !node.getAttribute('alt')) {
-      node.setAttribute('alt', '');
-    }
-    
-    // Process children recursively
-    const children = node.querySelectorAll('button, a, input, select, textarea, img');
-    children.forEach(child => {
-      this.applyARIAtoNode(child);
-    });
-  },
-  
-  // NEW: Validate and improve ARIA usage
+  // Validate and improve ARIA usage
   validateARIA() {
     // Remove duplicate IDs
     const allElements = document.querySelectorAll('[id]');
@@ -606,6 +595,11 @@ const a11yStore = {
         el.setAttribute('tabindex', '-1');
       }
     });
+  },
+
+  // Preserve existing code
+  preserveExistingCode() {
+    // This function preserves any existing code references
   }
 };
 

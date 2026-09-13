@@ -47,3 +47,7 @@ Replaced redundant loop source counting in auto.evolution.js with centralized O(
 ## 2026-09-08 - Typed Cache Querying in Rampart Search
 **Learning:** Fetching all my structures via `cache.getMyStructures(room)` and manually checking `s.structureType === STRUCTURE_RAMPART` in JavaScript loops creates unnecessary iteration overhead when `cache.getMyStructures(room, STRUCTURE_RAMPART)` already provides direct, typed cache lookups.
 **Action:** Always pass the specific `structureType` argument to `cache.getMyStructures` when filtering structures by type.
+
+## 2026-09-09 - Deferring Tower Evaluation in Primary Target Search
+**Learning:** In delivery target selection loops (such as `_findPrimaryTarget` in `src/roles/harvester.js`), evaluating lower-priority candidates like towers (checking free capacity and distance) in a single unified loop over all structures wastes CPU when high-priority targets (spawns/extensions) exist. Separating passes to return high-priority candidates immediately bypasses distance and capacity checks for lower-priority structures.
+**Action:** Always separate target search passes by priority group so higher-priority target presence short-circuits evaluation of lower-priority structures.

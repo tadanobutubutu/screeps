@@ -223,15 +223,13 @@ function _deliver(creep) {
  * @returns {Structure|null}
  */
 function _findPrimaryTarget(creep) {
-    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to identify candidates for all priorities.
-    // Hoist getRangeTo method check outside target search loop.
+    // ⚡ PERFORMANCE OPTIMIZATION: Defer tower distance/capacity calculation until after verifying
+    // no spawn or extension needs energy, short-circuiting calculation overhead on high-priority targets.
     const needingEnergy = cache.getStructuresNeedingEnergy(creep.room);
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
 
     let closestSpawnExt = null;
     let minSpawnExtDist = Infinity;
-    let closestTower = null;
-    let minTowerDist = Infinity;
-    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
 
     for (let i = 0; i < needingEnergy.length; i++) {
         const s = needingEnergy[i];
@@ -245,8 +243,17 @@ function _findPrimaryTarget(creep) {
                 closestSpawnExt = s;
             }
         }
-        // 2. タワーの探索 (200以上の空き容量があるものを優先)
-        else if (type === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200) {
+    }
+
+    if (closestSpawnExt) return closestSpawnExt;
+
+    // 2. タワーの探索（スポーン/エクステンションの納品先がない場合のみ評価）
+    let closestTower = null;
+    let minTowerDist = Infinity;
+
+    for (let i = 0; i < needingEnergy.length; i++) {
+        const s = needingEnergy[i];
+        if (s.structureType === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200) {
             const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0;
             if (dist < minTowerDist) {
                 minTowerDist = dist;
@@ -255,10 +262,7 @@ function _findPrimaryTarget(creep) {
         }
     }
 
-    if (closestSpawnExt) return closestSpawnExt;
-    if (closestTower) return closestTower;
-
-    return null;
+    return closestTower;
 }
 
 /**

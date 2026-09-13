@@ -17,21 +17,35 @@ function checkHeadingHierarchy() {
 }
 
 function rotateBack() {
-  // JavaScript code to rotate back
   console.log('Rotating back...');
 }
 
 function addressAccessibilityIssues() {
-  // ... Existing code ...
+  // existing code
 
-  // TODO: This is the new function for the accessibility issue
-  // Clear the existing dependency graph container (assuming it's an element with id 'dependencyGraph')
-  const dependencyGraph = document.querySelector('#dependencyGraph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'tree');
-    if (!dependencyGraph.hasAttribute('aria-label')) {
-      dependencyGraph.setAttribute('aria-label', 'Dependency graph for the application');
-    }
+  // ADD the new function to check link and button accessibility
+  function checkLinkAndButtonAccessibility() {
+    const links = document.querySelectorAll('a');
+    const buttons = document.querySelectorAll('button');
+
+    links.forEach(link => {
+      if (!link.hasAttribute('role')) {
+        link.setAttribute('role', 'link');
+      }
+      if (!link.hasAttribute('href')) {
+        console.error('Accessibility Error: Link without href attribute', link);
+      }
+    });
+
+    buttons.forEach(button => {
+      if (!button.hasAttribute('role')) {
+        button.setAttribute('role', 'button');
+      }
+      // Check for accessible name for buttons
+      if (!button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
+        console.error('Accessibility Error: Button without accessible name', button);
+      }
+    });
   }
 
   // Call the function to check accessibility

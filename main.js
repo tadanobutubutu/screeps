@@ -1,4 +1,12 @@
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// - REACT_038: Address new accessibility issues (TO DO: implement new accessibility fixes)
 
 /**
  * Gets the accessible name for an SVG element.
@@ -36,46 +44,13 @@ function getSvgAccessibleName(svgElement) {
 
 function makeAccessible(element) {
   // Implement the function logic to address accessibility issues
-  if (!element) return;
-  
-  // Check if element needs accessible name
-  if (element.tagName === 'svg' && !element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-    const title = element.querySelector('title');
-    if (title) {
-      const id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
-      title.id = id;
-      element.setAttribute('aria-labelledby', id);
-    }
-  }
-  
-  // Ensure buttons have proper accessible names
-  if (element.tagName === 'BUTTON' && !element.textContent.trim()) {
-    const ariaLabel = element.getAttribute('aria-label');
-    const ariaLabelledBy = element.getAttribute('aria-labelledby');
-    if (!ariaLabel && !ariaLabelledBy) {
-      console.warn('Button missing accessible name:', element.id || element.className);
-    }
-  }
-}
-
-function rotateBack() {
-  // Logic to rotate back
-  // For example, if you're manipulating the DOM or a state:
-  const element = document.getElementById('rotateTarget');
+  // Example: Add ARIA roles and properties if necessary
   if (element) {
-    element.style.transform = 'rotate(0deg)';
-    element.setAttribute('aria-label', 'Rotated back to original position');
+    if (!element.hasAttribute('role')) {
+      element.setAttribute('role', 'presentation'); // or another appropriate role
+    }
+    // Add other accessibility features as needed
   }
-}
-
-function addressAccessibilityIssue038() {
-  // Address accessibility issue 038
-  // Add accessible names where missing
-  return true;
-}
-
-function addressAccessibilityIssue038(element) {
-  // Implementation for accessibility issue 038
 }
 
 exports.someFunction = function() {
@@ -90,8 +65,9 @@ var renderDependencyGraph = addressAccessibilityIssue038;
 exports.renderDependencyGraph = renderDependencyGraph;
 
 // Add the new function here
-function makeAccessible(element) {
-  // Implement the function logic to address accessibility issues
+function addressAccessibilityIssue038() {
+  // Logic to address new accessibility issues
+  // Example: Implementing a function to check for and fix missing alt text for images
   // ...
 }
 
@@ -115,8 +91,8 @@ exports.renderDependencyGraph = renderDependencyGraph;
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addMainLandmark())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ensureSvgAccessibility())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)

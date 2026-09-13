@@ -134,4 +134,4 @@ function addressAccessibilityIssues() {
 }
 
 // Export functions if needed
-export { rotateBack, addressAccessibilityIssues, createInPageButtons };
+export { rotateBack, addressAccessibilityIssues };

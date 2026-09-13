@@ -128,4 +128,4 @@ function addressAccessibilityIssues() {
 // TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
 
 // Export functions if needed
-export { rotateBack, addressAccessibilityIssues, calculateSum };
+export { rotateBack, addressAccessibilityIssues };

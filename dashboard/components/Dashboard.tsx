@@ -44,20 +44,35 @@ export default function Dashboard() {
     const [noMatchClearFocused, setNoMatchClearFocused] = useState(false);
     const [searchClearHover, setSearchClearHover] = useState(false);
     const [searchClearFocused, setSearchClearFocused] = useState(false);
+    const [toastHovered, setToastHovered] = useState(false);
+    const [toastFocused, setToastFocused] = useState(false);
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
 
-    const showToast = (msg: string) => {
+    const startToastTimer = useCallback(() => {
         if (toastTimeoutRef.current) {
             clearTimeout(toastTimeoutRef.current);
         }
-        setToastMsg(msg);
         toastTimeoutRef.current = setTimeout(() => {
             setToastMsg(null);
             toastTimeoutRef.current = null;
         }, 2500);
-    };
+    }, []);
+
+    const showToast = useCallback((msg: string) => {
+        setToastMsg(msg);
+        startToastTimer();
+    }, [startToastTimer]);
+
+    useEffect(() => {
+        if (toastMsg && !toastHovered && !toastFocused) {
+            startToastTimer();
+        } else if (toastTimeoutRef.current && (toastHovered || toastFocused)) {
+            clearTimeout(toastTimeoutRef.current);
+            toastTimeoutRef.current = null;
+        }
+    }, [toastMsg, toastHovered, toastFocused, startToastTimer]);
 
     // Clean up timeout on unmount
     useEffect(() => {
@@ -1222,6 +1237,14 @@ export default function Dashboard() {
                     key={toastMsg}
                     role="status"
                     aria-live="polite"
+                    onMouseEnter={() => setToastHovered(true)}
+                    onMouseLeave={() => setToastHovered(false)}
+                    onFocus={() => setToastFocused(true)}
+                    onBlur={(e) => {
+                        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                            setToastFocused(false);
+                        }
+                    }}
                     style={{
                         position: 'fixed',
                         bottom: '2rem',
@@ -1277,6 +1300,7 @@ export default function Dashboard() {
                         ✕
                     </button>
                     <div
+                        key={`${toastMsg}-${toastHovered || toastFocused}`}
                         style={{
                             position: 'absolute',
                             bottom: 0,
@@ -1284,6 +1308,7 @@ export default function Dashboard() {
                             height: '3px',
                             backgroundColor: '#319795',
                             animation: 'shrinkWidth 2.5s linear forwards',
+                            animationPlayState: toastHovered || toastFocused ? 'paused' : 'running',
                         }}
                     />
                 </div>

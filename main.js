@@ -72,17 +72,20 @@ function loop() {
 }
 
 /**
- * Adds lang attribute to document root for accessibility
- * @param {Document} doc - The document
- * @param {string} lang - Language code
+ * Count dependencies and return the number
  */
-function addLangAttribute(doc, lang = 'en') {
-  const html = doc.documentElement;
-  if (html && !html.hasAttribute('lang')) {
-    html.setAttribute('lang', lang);
-    return true;
+function countDependencies() {
+  let count = 0;
+
+  for (const key in require.cache) {
+    const file = require.cache[key];
+    if (file.parent && file.parent.filename === __filename) {
+      continue;
+    }
+    count++;
   }
-  return false;
+
+  return count;
 }
 
 /**
@@ -651,15 +654,33 @@ function checkLandmarks(container = document) {
   };
 }
 
-// Get accessible name for SVG
-function getSvgAccessibleName(svg) {
-  return a11yStore.getSvgAccessibleName(svg);
-}
+// Export the validation and accessibility functions
+module.exports = {
+  // Node utilities
+  readFile,
+  writeFile,
+  log,
+  escapeHtml,
+  countDependencies, // New function for counting dependencies
+  // Table validation
+  validateTableAccessibility,
+  validateTableStructure,
+  // Accessibility functions
+  manageFocus,
+  trapFocus,
+  announceToScreenReader,
+  handleKeyboardNavigation,
+  // Main loop
+  loop
+};
 
-// Ensure unique landmark IDs
-function ensureUniqueLandmarks() {
-  a11yStore.ensureUniqueLandmarks();
-}
+// Export the countDependencies function separately as well
+module.exports.countDependencies = countDependencies;
+
+// Main execution
+if (require.main === module) {
+  const inputFile = process.argv[2] || 'index.html';
+  const outputFile = process.argv[3] || 'output.html';
 
 // New function to handle dynamic content updates
 function updateLiveRegion(message, priority = 'polite') {

@@ -5,6 +5,8 @@ const { checkLandmarkElements: checkLandmarkElementsFromA11y } = require('./a11y
 
 const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+
 /**
  * Checks landmark elements in HTML content for accessibility compliance.
  * @param {string} htmlContent - The HTML content to check

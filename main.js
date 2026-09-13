@@ -49,14 +49,16 @@ function addressAccessibilityIssues() {
     link.setAttribute('role', 'presentation');
   });
 
-  // Implement this function for checking link and button accessibility (REACT_025)
-  function checkLinksAndButtons() {
-    const links = document.querySelectorAll('a');
-    const buttons = document.querySelectorAll('button');
+  // Function to validate link and button accessibility
+  function validateLinkAndButtonAccessibility() {
+    const links = document.querySelectorAll('a, button');
+
+    // Aquire button elements for accessibility check only
+    const buttons = Array.from(links).filter((element) => element.tagName === 'BUTTON');
 
     links.forEach(link => {
-      if (link.hasAttribute('href')) {
-        link.setAttribute('role', 'link');
+      if (!link.hasAttribute('role') && (link.tagName !== 'BUTTON')) {
+        link.setAttribute('role', link.tagName === 'IMG' ? 'img' : 'link');
       }
       if (!link.getAttribute('href')) {
         console.error('Accessibility Error: Link without href attribute', link);
@@ -67,12 +69,12 @@ function addressAccessibilityIssues() {
       if (button.hasAttribute('type')) {
         button.setAttribute('role', 'button');
       }
-      // Check for accessible name for buttons
-      const hasTextContent = button.textContent.trim().length > 0;
-      const hasAriaLabel = button.hasAttribute('aria-label');
-      const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
-      if (!hasTextContent && !hasAriaLabel && !hasAriaLabelledby) {
-        console.error('Accessibility Error: Button without accessible name', button);
+      const accessibleName = button.textContent || '';
+      if (!accessibleName) {
+        // Check for 'aria-label' or 'aria-labelledby'
+        if (!button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
+          console.error('Accessibility Error: Button without accessible name', button);
+        }
       }
     });
   }
@@ -122,7 +124,7 @@ function addressAccessibilityIssues() {
   }
 
   // Call the function to check accessibility
-  checkLinksAndButtons();
+  validateLinkAndButtonAccessibility();
 }
 
 // TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.

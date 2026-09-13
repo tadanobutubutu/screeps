@@ -262,16 +262,81 @@ const a11yStore = {
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
+      const landmarks = document.querySelectorAll(`${element}, [role="${element}"]`);
       landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
-        
+
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
             landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
+        }
+      });
+    });
+  },
+
+  // New function to add SVG accessibility props
+  addSVGAccessibilityProps() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      svg.setAttribute('role', 'img');
+      if (!svg.getAttribute('aria-labelledby')) {
+        const titleText = svg.getAttribute('title') || 'Image description';
+        const descriptionId = `svg-desc-${Math.floor(Math.random() * 1000)}`;
+        svg.setAttribute('aria-labelledby', descriptionId);
+
+        const descriptionElement = document.createElement('desc');
+        descriptionElement.id = descriptionId;
+        descriptionElement.textContent = titleText;
+        svg.appendChild(descriptionElement);
+      }
+    });
+  },
+
+  fixFakeLinks() {
+    const fakeLinks = document.querySelectorAll('[href]:not(a):not([role="link"])');
+    fakeLinks.forEach((link) => {
+      link.setAttribute('role', 'link');
+      link.setAttribute('tabindex', '0');
+      link.setAttribute('data-interactive', 'true');
+    });
+  },
+
+  // Address accessibility issues from insight report
+  addressAccessibilityIssues(report) {
+    if (!report) return;
+
+    // Validate and fix table accessibility
+    if (report.tables) {
+      this.validateTableAccessibility();
+      this.validateTableStructure();
+    }
+
+    // Validate and fix landmark elements
+    if (report.landmarks) {
+      this.checkLandmarkElements();
+      this.validateLandmark();
+      this.validateLandmarkStructure();
+      this.ensureUniqueLandmarks();
+    }
+
+    // Apply SVG accessibility
+    if (report.svg) {
+      this.addSVGAccessibilityProps();
+    }
+  },
+
+  // Validate and fix table accessibility
+  validateTableAccessibility() {
+    if (typeof window === 'undefined') return;
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      const headers = table.querySelectorAll('th');
+      headers.forEach(th => {
+        if (!th.getAttribute('scope')) {
+          th.setAttribute('scope', 'col');
         }
       });
     });
@@ -324,7 +389,91 @@ function add(a, b) {
   return a + b;
 }
 
-function createInPageButton(buttonId, buttonText, buttonClass) {
+// Standalone function to address accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+  if (!report) return;
+  a11yStore.addressAccessibilityIssues(report);
+}
+
+// Get person name for accessible labeling
+function personName() {
+  return a11yStore.personName();
+}
+
+// Validate and fix table accessibility
+function validateTableAccessibility() {
+  a11yStore.validateTableAccessibility();
+}
+
+// Validate and fix table structure
+function validateTableStructure() {
+  a11yStore.validateTableStructure();
+}
+
+// Validate landmark elements
+function validateLandmark() {
+  a11yStore.validateLandmark();
+}
+
+// Validate landmark structure
+function validateLandmarkStructure() {
+  a11yStore.validateLandmarkStructure();
+}
+
+function checkLandmarkElement(role, element) {
+  // (code for checkLandmarkElement remains the same)
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+  if (role && !validRoles.includes(role)) {
+    return false;
+  }
+  return true;
+}
+
+function checkLandmarks(container = document) {
+  // (code for checkLandmarks remains the same)
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+  const landmarks = container.querySelectorAll(landmarkRoles.map(r => `[role="${r}"]`).join(', '));
+  const nativeLandmarks = container.querySelectorAll('header, nav, main, aside, footer');
+
+  return {
+    explicitLandmarks: landmarks.length,
+    nativeLandmarks: nativeLandmarks.length,
+    totalLandmarks: landmarks.length + nativeLandmarks.length
+  };
+}
+
+// Get accessible name for SVG
+function getSvgAccessibleName(svg) {
+  return a11yStore.getSvgAccessibleName(svg);
+}
+
+// Ensure unique landmark IDs
+function ensureUniqueLandmarks() {
+  a11yStore.ensureUniqueLandmarks();
+}
+
+// New function to handle dynamic content updates
+function updateLiveRegion(message, priority = 'polite') {
+  a11yStore.updateLiveRegion(message, priority);
+}
+
+// New function to check landmark elements
+function checkLandmarkElementsInDom() {
+  a11yStore.checkLandmarkElements();
+}
+
+// New function to add SVG accessibility props
+function addSVGAccessibilityProps() {
+  a11yStore.addSVGAccessibilityProps();
+}
+
+function preserveExistingCode() {
+  a11yStore.preserveExistingCode();
+}
+
+// TODO: Implement this function for creating in-page buttons
+function createInPageButtonElement(buttonId, buttonText, buttonClass) {
+  // Create a new button element
   const button = document.createElement('button');
 
   button.id = buttonId;
@@ -537,8 +686,8 @@ module.exports = {
   checkLandmarkElement,
   checkLandmarks,
   ensureUniqueLandmarks,
-  addLangAttribute,
-  addOtherAccessibilityChanges
+  checkLandmarkElementsInDom,
+  makeAPICall
 };
 export default a11yStore;
 export { addressAccessibilityIssues };

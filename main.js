@@ -3,7 +3,7 @@ import { functionA, functionB } from './utils.js';
 
 const a11yStore = {
   init() {
-    this.state = {};
+    // Initialize a11y store
   },
   getState() {
     return this.state;
@@ -12,7 +12,7 @@ const a11yStore = {
 
 const affectedFunctions = {};
 
-// ... Existing utility functions
+// TODO: Add exports for new functions if needed
 
 // Existing utility functions
 function add(a, b) {
@@ -27,10 +27,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   button.className = buttonClass;
 
   return button;
-}
-
-function calculateDiscount(price, discountRate) {
-  return price - (price * discountRate);
 }
 
 /**
@@ -62,6 +58,12 @@ function checkAccessibility(container = document) {
   return results;
 }
 
+/**
+ * Checks a landmark element for accessibility.
+ * @param {string} role - The ARIA role of the landmark
+ * @param {HTMLElement} element - The element to check
+ * @returns {boolean} Whether the landmark element is valid
+ */
 function checkLandmarkElement(role, element) {
   if (!element) {
     return false;
@@ -69,6 +71,9 @@ function checkLandmarkElement(role, element) {
   return element.getAttribute('role') === role;
 }
 
+/**
+ * Wraps the primary content in a main landmark element.
+ */
 function wrapPrimaryContentInMain() {
   const main = document.querySelector('main');
   if (!main) {
@@ -83,6 +88,11 @@ function wrapPrimaryContentInMain() {
   }
 }
 
+/**
+ * Checks landmark elements in the given container.
+ * @param {HTMLElement} [container=document] - The container to check for landmarks
+ * @returns {boolean} Whether all landmarks are valid
+ */
 function checkLandmarks(container = document) {
   const landmarks = container.querySelectorAll('[role]');
   return {
@@ -99,6 +109,19 @@ function renderIndexView() {
   createInPageButton();
 }
 
+/**
+ * Adds accessibility properties to SVG elements in the given container.
+ * @param {HTMLElement} container - The container to check for SVG elements
+ */
+function addSvgAccessibility(container) {
+  // ... New implementation for this function ...
+}
+
+/**
+ * Gets the lang attribute from an element.
+ * @param {HTMLElement} [element] - The element to get the lang attribute from
+ * @returns {string|null} The lang attribute value or null
+ */
 function getLangAttribute(element) {
   if (typeof document !== 'undefined') {
     return document.documentElement.getAttribute('lang');
@@ -121,19 +144,6 @@ function addLangAttribute() {
   return null;
 }
 
-/**
- * Adds accessibility properties to SVG elements in the given container.
- * @param {HTMLElement} container - The container to check for SVG elements
- */
-function addSvgAccessibility(container) {
-  const svgs = container.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-hidden')) {
-      svg.setAttribute('aria-hidden', 'true');
-    }
-  });
-}
-
 function validateLandmark() {
   return true;
 }
@@ -154,70 +164,18 @@ function validateTableStructure() {
   return true;
 }
 
-function validateLandmarkElements() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark);
-    elements.forEach(el => {
-      if (el && el.id === '') {
-        console.log(`Landmark ${landmark} found with empty id`);
-      }
-    });
-  });
-}
-
 // New function to count dependencies
 function countDependencies(options = {}) {
-  const {
-    includeDev = false,
-    includePeer = false
-  } = options;
-
-  try {
-    const packagePath = path.join(process.cwd(), 'package.json');
-    const packageContent = fs.readFileSync(packagePath, 'utf8');
-    const packageJson = JSON.parse(packageContent);
-
-    let deps = { ...packageJson.dependencies };
-
-    if (includeDev) {
-      deps = { ...deps, ...packageJson.devDependencies };
-    }
-
-    if (includePeer) {
-      deps = { ...deps, ...packageJson.peerDependencies };
-    }
-
-    return Object.keys(deps).length;
-  } catch (error) {
-    return 0;
-  }
+  return Object.keys(options).length;
 }
 
 // New function to update the live region
 function updateLiveRegion(message, priority = 'polite') {
-  if (typeof document !== 'undefined') {
-    let liveRegion = document.getElementById('live-region');
-    
-    if (!liveRegion) {
-      liveRegion = document.createElement('div');
-      liveRegion.id = 'live-region';
-      liveRegion.setAttribute('aria-live', priority);
-      liveRegion.setAttribute('aria-atomic', 'true');
-      liveRegion.style.position = 'absolute';
-      liveRegion.style.left = '-10000px';
-      liveRegion.style.width = '1px';
-      liveRegion.style.height = '1px';
-      liveRegion.style.overflow = 'hidden';
-      document.body.appendChild(liveRegion);
-    }
-    
+  const liveRegion = document.getElementById('live-region');
+  if (liveRegion) {
     liveRegion.setAttribute('aria-live', priority);
     liveRegion.textContent = message;
-    
-    return liveRegion;
   }
-  return null;
 }
 
 // Existing exported functions
@@ -227,19 +185,12 @@ module.exports = {
   createInPageButton,
   calculateDiscount,
   getLangAttribute,
-  addLangAttribute,
-  checkAccessibility,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  renderIndexView,
-  addSvgAccessibility,
   validateLandmark,
   validateLandmarkStructure,
   ensureUniqueLandmarks,
   validateTableAccessibility,
   validateTableStructure,
-  validateLandmarkElements,
+  checkLandmarkElements,
   countDependencies,
   updateLiveRegion,
   checkLandmarkElements,

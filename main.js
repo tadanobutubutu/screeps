@@ -4,9 +4,34 @@ const path = require('path');
 // Import test helper function
 const { updateThScopeAttribute } = require('./testHelper');
 
-// Landmark elements that should be checked for proper usage
-const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
+// Import your custom functions if they exist
+// const { customFunction1, customFunction2 } = require('./customFunctions'); // replace with actual import statement
 
+const viewsDir = path.join(__dirname, 'views');
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
+// TODO: Address accessibility issues from insight report:
+const dependencyGraphContent = require('./dependencyGraph');
+
+// Address the issue: REACT_038
+const addressAccessibilityIssues = (element, accessibilityInfo) => {
+  // Code to address the specific accessibility issue on the element
+  // This is a placeholder function and should be replaced with the actual implementation
+  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
+};
+
+<<<<<<< HEAD
+// Function to handle REACT_015: Add lang attribute to HTML element
+function getFullLangAttribute() {
+  // Code to get the language and return it
+  // Placeholder example:
+  return 'en-US';
+}
+
+=======
+>>>>>>> origin/main
 /**
  * Checks landmark elements in HTML content for accessibility compliance.
  * @param {string} htmlContent - The HTML content to check
@@ -29,63 +54,665 @@ function checkLandmarkElements(htmlContent) {
   if (mainMatches && mainMatches.length > 1) {
     warnings.push('Warning: Multiple <main> elements found. Only one <main> element should be present per page for accessibility.');
   }
-  
-  return {
-    foundElements,
-    warnings,
-    hasProperLandmarks: foundElements.some(e => e.element === 'main')
+
+  const report = accessibilityReport.issues.map(issue => ({
+    issueType: issue.type,
+    status: issue.status || 'pending',
+    fixApplied: issue.fixApplied || ''
+  }));
+
+  return report;
+}
+
+// TODO: Implement a function to count dependencies
+function countDependencies(obj) {
+  let count = 0;
+  const funcNames = [];
+  for (const key in obj) {
+    if (typeof obj[key] === 'object' && obj[key] !== null) {
+      count += countDependencies(obj[key]);
+    } else if (typeof obj[key] === 'function') {
+      let funcName = obj[key].name || '<anonymous>';
+      if (!funcNames.includes(funcName)) {
+        funcNames.push(funcName);
+        count++;
+      }
+    }
+  }
+  return count;
+}
+
+// Game loop function
+function run() {
+  // Your game logic here...
+
+  // Update scope attributes in all .html files in the views directory
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      const filePath = path.join(viewsDir, file);
+      let content = fs.readFileSync(filePath, 'utf8');
+      // Your file processing logic here...
+      fs.writeFileSync(filePath, content);
+    });
+}
+
+// Game-related functions and exports
+function gameCountDependencies() {
+  return 0;
+}
+
+function main() {
+  return 'Hello World';
+}
+
+function SomeClass() {}
+
+// New function or changes requested in the issue
+function newFunction() {
+  // Implement the new function here
+}
+
+// New function to handle REACT_015: Add lang attribute to HTML element
+function addLangAttribute(htmlElement) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.lang = 'en'; // Default language
+  }
+}
+
+// TODO: Implement this function for checking landmark elements
+function checkLandmarkElements() {
+  const landmarkElements = {
+    nav: document.querySelectorAll('nav'),
+    main: document.querySelectorAll('main'),
+    article: document.querySelectorAll('article'),
+    section: document.querySelectorAll('section'),
+    footer: document.querySelectorAll('footer')
   };
 }
 
-/**
- * Counts the number of dependencies by analyzing import statements
- * @returns {number} - The number of import statements found
- */
-function countDependencies() {
-  const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
-  const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
-  return importCount;
+<<<<<<< HEAD
+=======
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+function addLangAttribute(htmlElement) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.lang = 'en'; // Default language
+  }
 }
 
-// Store for accessibility announcements (screen reader support)
+// Wrap the entire document content inside a <main> element and set its lang attribute
+const mainElement = document.createElement('main');
+mainElement.id = 'main-content';
+
+// Set lang attribute on <html> if missing (REACT_015)
+const htmlElement = document.documentElement;
+if (!htmlElement.getAttribute('lang')) {
+  htmlElement.setAttribute('lang', 'en');
+}
+
+// Move all existing body content into main element while preserving the document structure
+document.addEventListener('DOMContentLoaded', () => {
+  const body = document.body;
+  while (body.firstChild) {
+    mainElement.appendChild(body.firstChild);
+  }
+  body.appendChild(mainElement);
+});
+
+>>>>>>> origin/main
+// Initialize accessibility features
 const a11yStore = {
   announcements: [],
   
   announce(message, priority = 'polite') {
-    this.announcements.push({ message, priority, timestamp: Date.now() });
-    return this.announcements.length;
-  },
-  
-  clear() {
-    this.announcements = [];
-  },
-  
-  getRecent(count = 10) {
-    return this.announcements.slice(-count);
-  },
-  
-  // Property to count dependencies
-  countDependencies
-};
+    if (!this.liveRegion) return;
 
-/**
- * Handles adding landmark regions to content for accessibility
- * @param {string} content - The content to process
- * @returns {string} - Content with landmark regions added
- */
-function addLandmarkRegions(content) {
-  // Ensure at least one main landmark exists
-  if (!content.includes('<main') && !content.includes('<main ')) {
-    // Insert a basic main landmark if none exists
-    content = `<main role="main">\n${content}\n</main>`;
-  }
-  
-  // Update th scope attributes using the test helper
-  if (typeof updateThScopeAttribute === 'function') {
-    content = updateThScopeAttribute(content);
-  }
-  
-  return content;
-}
+    this.liveRegion.textContent = '';
 
-// ... ( Запишите все остальные функции и экспорты из вашего репозитория Screeps bot, включая добавленные функции для тестов, технической документации и препроцессоров )
+    // Use setTimeout to ensure the change is detected by screen readers
+    setTimeout(() => {
+      this.liveRegion.textContent = message;
+    }, 100);
+  },
+
+  // Setup keyboard navigation for interactive elements
+  setupKeyboardNavigation() {
+    document.addEventListener('keydown', (e) => {
+      // Handle Enter and Space for custom interactive elements
+      if (e.key === 'Enter' || e.key === ' ') {
+        const target = e.target.closest('[role="button"], [role="link"], [tabindex]:not([tabindex="-1"])');
+        if (target) {
+          e.preventDefault();
+          target.click();
+        }
+      }
+
+      // Escape key to close modals/dropdowns
+      if (e.key === 'Escape') {
+        const openModal = document.querySelector('[aria-modal="true"][aria-hidden="false"]') || 
+                          document.querySelector('[data-modal="open"]');
+        if (openModal) {
+          openModal.setAttribute('aria-hidden', 'true');
+          openModal.classList.remove('is-open');
+        }
+        document.body.style.overflow = '';
+      }
+
+      // Fix Safari focus trapping in dropdowns
+      const dropdownContainers = document.querySelectorAll('[data-dropdown]');
+      dropdownContainers.forEach(container => {
+        container.addEventListener('keydown', (e) => {
+          if (e.key !== 'Tab') return;
+
+          const currentFocusedElement = document.activeElement;
+          let focusIsInsideContainer = false;
+
+          if (
+            currentFocusedElement &&
+            (currentFocusedElement === container ||
+              currentFocusedElement.closest(container))
+          ) {
+            focusIsInsideContainer = true;
+          }
+
+          // Ensure focus trapping only within the dropdown container
+          if (focusIsInsideContainer && e.shiftKey && e.key === 'Tab') {
+            // Find the first focusable element within the container
+            const firstFocusableElement = container.querySelector(
+              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+
+            if (firstFocusableElement) {
+              e.preventDefault();
+              firstFocusableElement.focus();
+            }
+          }
+        });
+      });
+    });
+  },
+
+  // Manage focus for accessibility
+  setupFocusManagement() {
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+
+      const modal = document.querySelector('[aria-modal="true"][aria-hidden="false"]');
+      if (!modal) return;
+
+      const focusableElements = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+
+      if (focusableElements.length === 0) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    });
+  },
+
+  // Manage focus for accessibility
+  setupSkipLinks() {
+    const skipLink = document.querySelector('a[href^="skip"]');
+    if (!skipLink) return;
+
+    const targetId = skipLink.getAttribute('href');
+    if (!targetId) return;
+
+    const target = targetId ? document.getElementById(targetId) : null;
+
+    if (target) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        target.setAttribute('tabindex', '-1');
+        target.focus();
+        this.announce('Jumped to main content');
+      });
+
+      // Focus the skip link when the document is loaded in Safari
+      if (navigator.userAgent.indexOf('Safari') !== -1) {
+        skipLink.focus();
+      }
+
+      const mainContent = document.getElementById('main-content');
+      if (mainContent) {
+        mainContent.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        document.body.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  },
+
+  // Utility: Check if user prefers reduced motion
+  prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  },
+
+  // Utility: Check if user prefers high contrast
+  prefersHighContrast() {
+    return window.matchMedia('(prefers-contrast: more)').matches || 
+           window.matchMedia('(forced-colors: active)').matches;
+  },
+
+  // New function to handle dynamic content updates
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) return;
+    this.announce(message, priority);
+  },
+
+  // New function to check landmark elements
+  checkLandmarkElements() {
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach(landmarkTag => {
+      const landmark = document.querySelector(landmarkTag);
+      if (landmark && landmark.id === '') {
+        landmark.id = `landmark-${landmarkTag}-${Math.floor(Math.random() * 1000)}`;
+      }
+    });
+  },
+
+  // New function to add proper landmark regions for accessibility
+  addProperLandmarkRegions() {
+    // Ensure the main landmark exists
+    if (!document.querySelector('main, [role="main"]')) {
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      main.id = 'main-content';
+      document.body.insertBefore(main, document.body.firstChild);
+    }
+    
+    // Add landmark regions if missing
+    const landmarks = ['nav', 'header', 'footer', 'aside'];
+    landmarks.forEach(landmark => {
+      const selector = `${landmark}, [role="${landmark}"]`;
+      if (!document.querySelector(selector)) {
+        const el = document.createElement(landmark);
+        el.setAttribute('role', landmark);
+        document.body.appendChild(el);
+      }
+    });
+
+    // Ensure contentinfo landmark for footer
+    const footer = document.querySelector('footer');
+    if (footer && !footer.getAttribute('role')) {
+      footer.setAttribute('role', 'contentinfo');
+    }
+
+    // Ensure complementary landmark for aside
+    const aside = document.querySelector('aside');
+    if (aside && !aside.getAttribute('role')) {
+      aside.setAttribute('role', 'complementary');
+    }
+
+    // Ensure forms landmark to forms missing a label
+    const forms = document.querySelectorAll('form');
+    forms.forEach((form, index) => {
+      if (!form.getAttribute('aria-label') && !form.getAttribute('aria-labelledby')) {
+        const label = form.querySelector('legend, label');
+        if (!label) {
+          form.setAttribute('role', 'form');
+          form.setAttribute('aria-label', `form-${index + 1}`);
+        }
+      }
+    });
+
+    // Add search landmark if missing
+    const searchRegions = document.querySelectorAll('[role="search"]');
+    if (searchRegions.length === 0) {
+      const searchInput = document.querySelector('input[type="search"]');
+      if (searchInput && !searchInput.closest('[role="search"]')) {
+        const searchRegion = document.createElement('div');
+        searchRegion.setAttribute('role', 'search');
+        searchRegion.setAttribute('aria-label', 'search');
+        searchInput.parentNode.insertBefore(searchRegion, searchInput);
+        searchRegion.appendChild(searchInput);
+      }
+    }
+
+    // Ensure all landmark regions have accessible names where required
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
+    landmarkRoles.forEach((role) => {
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      elements.forEach((el) => {
+        if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
+          const tagName = el.tagName.toLowerCase();
+          let label = '';
+          switch (role) {
+            case 'navigation':
+              label = 'navigation';
+              break;
+            case 'complementary':
+              label = 'complementary';
+              break;
+            case 'contentinfo':
+              label = 'contentinfo';
+              break;
+            case 'search':
+              label = 'search';
+              break;
+            case 'form':
+              label = 'form';
+              break;
+            default:
+              label = role;
+          }
+          el.setAttribute('aria-label', label);
+        }
+      });
+    });
+  },
+
+  // New function to add SVG accessibility props (REACT_041)
+  addSVGAccessibility() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      // Ensure SVG has a title for accessible name
+      let titleElement = svg.querySelector('title');
+      if (!titleElement) {
+        titleElement = document.createElement('title');
+        titleElement.textContent = 'Image'; // Default accessible name
+        svg.insertBefore(titleElement, svg.firstChild);
+      }
+
+      // Ensure title has an ID for aria-labelledby
+      if (!titleElement.id) {
+        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
+      }
+
+      // Set aria-labelledby to point to the title
+      svg.setAttribute('aria-labelledby', titleElement.id);
+
+      // Add role img if not present (redundant but safe)
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+    });
+  },
+
+  // New function to ensure unique landmarks (REACT_025)
+  ensureUniqueLandmarks() {
+    const landmarkRoles = ['main', 'banner', 'navigation', 'complementary', 'contentinfo', 'form', 'search'];
+    
+    landmarkRoles.forEach(role => {
+      const elements = document.querySelectorAll(`[role="${role}"], [role="${role}"]`);
+      
+      // For roles that should only appear once (main, banner, contentinfo)
+      const uniqueRoles = ['main', 'banner', 'contentinfo'];
+      
+      if (uniqueRoles.includes(role)) {
+        if (elements.length > 1) {
+          // Keep the first one, change others to complementary or region
+          elements.forEach((el, index) => {
+            if (index > 0) {
+              if (role === 'main') {
+                el.setAttribute('role', 'region');
+                if (!el.getAttribute('aria-label')) {
+                  el.setAttribute('aria-label', 'section');
+                }
+              } else {
+                el.setAttribute('role', 'region');
+                if (!el.getAttribute('aria-label')) {
+                  el.setAttribute('aria-label', `${role}-section`);
+                }
+              }
+            }
+          });
+        }
+      }
+      
+      // Ensure unique IDs for all landmarks
+      elements.forEach((el, index) => {
+        if (!el.id) {
+          el.id = `landmark-${role}-${index + 1}`;
+        }
+      });
+    });
+    
+    // Ensure navigation has unique labels if multiple exist
+    const navElements = document.querySelectorAll('nav, [role="navigation"]');
+    navElements.forEach((nav, index) => {
+      if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
+        if (navElements.length > 1) {
+          nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+        } else {
+          nav.setAttribute('aria-label', 'Main navigation');
+        }
+      }
+    });
+  },
+
+  // New function to add scope attributes to table headers (REACT_027)
+  addTableScopeAttributes() {
+    const tables = document.querySelectorAll('table');
+    
+    tables.forEach(table => {
+      const headerCells = table.querySelectorAll('th');
+      
+      headerCells.forEach(th => {
+        // Skip if already has scope attribute
+        if (th.hasAttribute('scope')) return;
+        
+        // Determine if this is a column header or row header
+        const parent = th.parentElement;
+        const parentRow = th.closest('tr');
+        
+        if (!parentRow) return;
+        
+        // Check if this TH is in the first column (potential row header)
+        const isFirstCell = parentRow.firstElementChild === th;
+        
+        // Check if all sibling THs are in the first column (multiple row headers)
+        const siblingThs = Array.from(parentRow.querySelectorAll('th'));
+        const allThsInFirstColumn = siblingThs.every(siblingTh => {
+          const siblingRow = siblingTh.parentElement;
+          return siblingRow && siblingRow.firstElementChild === siblingTh;
+        });
+        
+        // If all THs are in the first column, they are row headers
+        if (allThsInFirstColumn && siblingThs.length > 1) {
+          th.setAttribute('scope', 'row');
+        }
+        // If this TH is the only one in its row and not in first column, it's a column header
+        else if (siblingThs.length === 1 && !isFirstCell) {
+          th.setAttribute('scope', 'col');
+        }
+        // If this is a first column cell, check if it's a row header
+        else if (isFirstCell) {
+          // Check if there are other cells in the same column that are not TH
+          const columnIndex = Array.from(parentRow.children).indexOf(th);
+          const cellsInColumn = table.querySelectorAll(`tr > *:nth-child(${columnIndex + 1})`);
+          const hasNonThCells = Array.from(cellsInColumn).some(cell => cell.tagName !== 'TH');
+          
+          if (hasNonThCells) {
+            th.setAttribute('scope', 'row');
+          } else {
+            th.setAttribute('scope', 'col');
+          }
+        }
+        // Default to column header
+        else {
+          th.setAttribute('scope', 'col');
+        }
+      });
+      
+      // Handle cells with role="columnheader" or role="rowheader"
+      const columnHeaders = table.querySelectorAll('[role="columnheader"]');
+      columnHeaders.forEach(cell => {
+        if (!cell.hasAttribute('scope')) {
+          cell.setAttribute('scope', 'col');
+        }
+      });
+      
+      const rowHeaders = table.querySelectorAll('[role="rowheader"]');
+      rowHeaders.forEach(cell => {
+        if (!cell.hasAttribute('scope')) {
+          cell.setAttribute('scope', 'row');
+        }
+      });
+    });
+  },
+
+  // New function to validate ARIA usage
+  validateARIAUsage() {
+    const ariaElements = document.querySelectorAll('[role]');
+    ariaElements.forEach(el => {
+      const role = el.getAttribute('role');
+      // Add validation logic here as needed
+    });
+  },
+
+  // New function to enhance dynamic content
+  enhanceDynamicContent() {
+    // Observe DOM changes for dynamic content
+    if (!('MutationObserver' in window)) return;
+    
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              // Add appropriate ARIA attributes to dynamically added content
+              this.applyARIAtoNode(node);
+            }
+          });
+        }
+      });
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  },
+  
+  // New function to address accessibility issues from insight report
+  addressAccessibilityIssues(insightReport) {
+    if (!insightReport || !insightReport.issues) {
+      return [];
+    }
+
+    return insightReport.issues.map(issue => {
+      let fixedIssue = { ...issue, status: 'resolved' };
+
+      // Determine the type of accessibility issue and apply the fix
+      switch (issue.type) {
+        case 'missing-lang':
+          if (document.documentElement.lang === '') {
+            document.documentElement.lang = 'en';
+          }
+          break;
+        case 'missing-skip-link':
+          if (!document.querySelector('.skip-link')) {
+            const skipLink = document.createElement('a');
+            skipLink.className = 'skip-link';
+            skipLink.href = '#main-content';
+            skipLink.textContent = 'Skip to main content';
+            document.body.prepend(skipLink);
+          }
+          break;
+        case 'missing-alt':
+          document.querySelectorAll('img').forEach((img) => {
+            if (!img.getAttribute('alt')) {
+              img.setAttribute('alt', 'Image description');
+            }
+          });
+          break;
+        case 'missing-label':
+          document.querySelectorAll('input, select, textarea').forEach((el) => {
+            if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
+              el.setAttribute('aria-label', 'Form field');
+            }
+          });
+          break;
+        // Add more cases as needed
+      }
+    });
+
+    return fixedIssue;
+  },
+
+  // New function to fix fake links (REACT_036)
+  fixFakeLinks() {
+    const fakeLinks = document.querySelectorAll('[href]:not(a)');
+    fakeLinks.forEach((link) => {
+      link.setAttribute('role', 'link');
+      link.setAttribute('tabindex', '0');
+      link.setAttribute('data-interactive', 'true');
+    });
+  },
+
+  // New function to wrap primary content in main element
+  wrapPrimaryContentInMain() {
+    if (document.querySelector('main, [role="main"]')) return;
+
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    mainElement.id = 'main-content';
+
+    // Move all body children into the main element
+    while (document.body.firstChild) {
+      mainElement.appendChild(document.body.firstChild);
+    }
+
+    document.body.appendChild(mainElement);
+  },
+
+  // NEW: Add focus visibility styles for keyboard navigation
+  setupFocusStyles() {
+    // Check if styles already added
+    if (document.getElementById('a11y-focus-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'a11y-focus-styles';
+    style.textContent = `
+      /* High contrast focus indicators for keyboard users */
+      :focus {
+        outline: 2px solid #005fcc !important;
+        outline-offset: 2px !important;
+      }
+      
+      /* Ensure focus visibility in different contexts */
+      [tabindex]:focus,
+      button:focus,
+      a:focus {
+        outline: 2px solid #005fcc !important;
+        outline-offset: 2px !important;
+      }
+      
+      /* Reduce motion support */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Add focus-visible polyfill support
+    if (!('focus-visible' in document.documentElement.classList)) {
+      document.documentElement.classList.add('focus-visible');
+    }
+  },
+  
+  // NEW: Setup focus-visible polyfill for better focus management
+  setupFocusVisiblePolyfill() {
+    let hadKeyboardEvent = false;
+    
+    const handlePointerDown = () => {
+      hadKeyboardEvent = false;
+    };
+    
+    const handleKeydown = (e) => {
+      if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ' || e.key === 'Arrow

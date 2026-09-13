@@ -12,15 +12,6 @@ function rotateBack() {
   console.log('Rotating back...');
 }
 
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
-
-// Add lang attribute to html element
-document.documentElement.setAttribute('lang', 'en');
-
-// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
 function addressAccessibilityIssues() {
   // Set up landmarks
   const landmarks = document.querySelectorAll('section, article, nav, aside');

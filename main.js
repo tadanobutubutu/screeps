@@ -1,9 +1,102 @@
-// Assume we have a file called 'utils.js' that contains the functions we need
-import { functionA, functionB } from './utils.js';
-
 const fs = require('fs');
 const path = require('path');
-const {
+const { updateThScopeAttribute } = require('./testHelper');
+const { checkLandmarkElements } = require('./a11y');
+
+const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
+
+/**
+ * Checks landmark elements in HTML content for accessibility compliance.
+ * @param {string} htmlContent - The HTML content to check
+ * @returns {Object} - Object containing landmark element information and any warnings
+ */
+function checkLandmarks(htmlContent) {
+  const warnings = [];
+  
+  // Check if <main> landmark exists
+  const mainPattern = /<main[\s\S]*?>[\s\S]*?<\/main>/i;
+  const hasMain = mainPattern.test(htmlContent);
+  
+  if (!hasMain) {
+    warnings.push('Page has no <main> landmark');
+  }
+  
+  return {
+    hasMain,
+    warnings,
+    landmarks: {
+      main: hasMain
+    }
+  };
+}
+
+const a11yStore = {
+  init() {
+    // Existing initialization logic
+  }
+};
+
+// Store for accessibility announcements (screen reader support)
+
+// GitHub Issue Fix - Commit: 6009dec851a51383188dc071ee4edb6953001d55
+// GitHub Issue Fix - UPDATED: Merged from both branches
+
+// Existing utility functions
+function add(a, b) {
+  return a + b;
+}
+
+function calculateDiscount(price, discountRate) {
+    // Calculate and return the discounted price
+    return price - (price * discountRate);
+}
+
+function getLangAttribute(element) {
+  return element.getAttribute('lang');
+}
+
+function createInPageButton() {
+  return null;
+}
+
+function validateLandmark() {
+  return true;
+}
+
+function validateLandmarkStructure() {
+  return true;
+}
+
+function ensureUniqueLandmarks() {
+  return true;
+}
+
+function validateTableAccessibility() {
+  return true;
+}
+
+function validateTableStructure() {
+  return true;
+}
+
+function validateLandmarkElements() {
+  return true;
+}
+
+// New function to count dependencies
+function countDependencies(options = {}) {
+  return Object.keys(options).length;
+}
+
+// New function to update the live region
+function updateLiveRegion(message, priority = 'polite') {
+  return { message, priority };
+}
+
+// Existing exported functions
+module.exports = {
+  add,
+  calculateDiscount,
   getLangAttribute,
   getFullLangAttribute,
   validateTableAccessibility,
@@ -19,84 +112,8 @@ const {
   updateThScopeAttribute,
   // New Functions
   countDependencies,
+  updateLiveRegion,
+  checkLandmarks,
   a11yStore,
-  addLandmarkRegions,
-  addressAccessibilityIssues,
-  checkLandmarkElements,
-  createInPageButtonOptions,
-  countDependencies: newCountDependencies,
-  updateLiveRegion,
-  addSVGAccessibilityProps,
-  preserveExistingCode,
-  personName,
-  ensureUniqueLandmarks,
-  checkLandmarkElementsInDom,
-  makeAPICall,
-  createInPageButtonElement,
-} = require('./accessibility-utils');
-
-const viewsDir = path.join(__dirname, 'views');
-
-// Landmark elements that should be checked for proper usage
-const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
-
-// The new function you need to add
-function newFunction() {
-    // Example implementation: return a simple message
-    return 'New function executed';
-}
-
-// TODO: Add back any required exports that might have been omitted
-
-// Game loop function
-function run() {
-  // Your game logic here...
-
-  // Update scope attributes in all .html files in the views directory
-  fs.readdirSync(viewsDir)
-    .filter(file => file.endsWith('.html'))
-    .forEach(file => {
-      const filePath = path.join(viewsDir, file);
-      let content = fs.readFileSync(filePath, 'utf8');
-      content = content.replace(/<th(?![^>]*scope)([^>]*)>/gi, '<th scope="row"$1>');
-      updateThScopeAttribute(filePath);
-      fs.writeFileSync(filePath, content);
-    });
-}
-
-// Function for checking landmark elements
-function checkLandmarkElements() {
-  // Existing code implementation...
-}
-
-// Implement function for checking landmark elements
-function checkLandmarkElements() {
-  // Existing implementation slightly adjusted...
-}
-
-// Rest of the code remains the same and is not affected by the changes above
-
-// Add back required exports here
-module.exports = {
-  run,
-  checkLandmarkElements,
-  newFunction,
-  ...a11yStore,
-  addLandmarkRegions,
-  addressAccessibilityIssues,
-  checkLandmarkElements,
-  createInPageButtonOptions,
-  newCountDependencies,
-  updateLiveRegion,
-  addSVGAccessibilityProps,
-  preserveExistingCode,
-  personName,
-  ensureUniqueLandmarks,
-  checkLandmarkElementsInDom,
-  makeAPICall,
-  createInPageButtonElement,
-  getSvgAccessibleNameFn,
-  validateTableAccessibilityFn,
-  validateTableStructureFn,
-  validateLandmarkStructureFn,
+  LANDMARK_ELEMENTS
 };

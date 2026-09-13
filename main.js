@@ -63,6 +63,14 @@ function calculateDiscount(price, discountRate) {
 }
 
 /**
+ * Adds accessibility properties to SVG elements in the given container.
+ * @param {HTMLElement} container - The container to check for SVG elements
+ */
+function addSVGAccessibilityProps(container) {
+  // ... New implementation for this function ...
+}
+
+/**
  * Checks link and button accessibility in the document or specific container.
  * @param {HTMLElement} [container=document] - The container to check for accessibility
  * @returns {Object} An object containing accessibility check results
@@ -94,25 +102,6 @@ function getLangAttribute(element) {
 function addLangAttribute() {
   // ... Existing implementation ...
   return null;
-}
-
-/**
- * Adds accessibility properties to SVG elements in the given container.
- * @param {HTMLElement} container - The container to check for SVG elements
- */
-function addSvgAccessibility(container) {
-  // ... New implementation for this function ...
-}
-
-/**
- * Checks landmark element accessibility.
- * @param {string} role - The landmark role to check
- * @param {HTMLElement} element - The element to check
- * @returns {boolean} Whether the landmark element is valid
- */
-function checkLandmarkElement(role, element) {
-  // ... Existing implementation ...
-  return true;
 }
 
 function validateLandmark() {
@@ -166,7 +155,12 @@ function countDependencies(options = {}) {
 
 // New function to update the live region
 function updateLiveRegion(message, priority = 'polite') {
-  return message + ' ' + priority;
+  return a11yStore.updateLiveRegion(message, priority);
+}
+
+// New function to check landmark elements
+function checkLandmarkElementsWrapper() {
+  return a11yStore.checkLandmarkElements();
 }
 
 // Existing exported functions
@@ -198,5 +192,5 @@ module.exports = {
   // New Functions
   countDependencies,
   updateLiveRegion,
-  checkLandmarkElements: checkLandmarkElementsFromA11y
+  checkLandmarkElementsWrapper
 };

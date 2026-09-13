@@ -156,3 +156,8 @@
 
 **Learning:** Reusing hover state handlers for keyboard focus events (`onFocus={() => setHover(true)}`) causes confusing hover scaling transforms during tab navigation while omitting true visual focus outlines. Tracking keyboard focus using dedicated focus state variables (`summaryFocused`, `refreshFocused`, `copyAllFocused`, `focusedRoom`, `jsonFocused`) and applying high-contrast focus outlines (`outline: 2px solid #004b73`, `outlineOffset: 2px`) ensures seamless visual feedback and keyboard navigation tracking (WCAG 2.4.7 Focus Visible).
 **Action:** Always maintain dedicated focus state tracking or CSS `:focus-visible` styling for action buttons, avoiding using hover state setters inside `onFocus` handlers.
+
+## 2026-08-30 - [Toast Timer Pause on Hover & Focus with Reconciliation Key Reset]
+
+**Learning:** Pausing transient toast notification auto-dismiss timers when users hover or focus inside the toast element prevents status messages from vanishing prematurely while being read (WCAG 2.2.1 / 2.2.4). To keep visual timer bar animations synchronized when interaction ends, keying the progress bar element to the dynamic hover/focus state (`key={\`${toastMsg}-${toastHovered || toastFocused}\`}`) deterministically resets the CSS animation lifecycle to match the restarted timeout.
+**Action:** Always pause auto-dismiss timers on hover and focus inside toast elements, and force animation key resets upon state transition to maintain visual synchronization.

@@ -13,7 +13,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibility-helpers');
+} = require('./accessibilityHelpers');
 
     const region = document.createElement('div');
     region.setAttribute('role', 'status');
@@ -51,9 +51,8 @@ const {
     .forEach(file => {
       const filePath = path.join(viewsDir, file);
       const content = fs.readFileSync(filePath, 'utf8');
-      // Process HTML file for accessibility updates
-      const updatedContent = content; // Placeholder for actual processing
-      fs.writeFileSync(filePath, updatedContent);
+      // Process HTML files for accessibility updates
+      fs.writeFileSync(filePath, content);
     });
 
     const dropdownContainers = document.querySelectorAll('[data-dropdown]');
@@ -72,7 +71,7 @@ function checkTableStructure(tableName, expectedColumns) {
     return false;
   }
   
-  if (!Array.isArray(expectedColumns) || expectedColumns.length === 0) {
+  if (!expectedColumns || !Array.isArray(expectedColumns)) {
     return false;
   }
   

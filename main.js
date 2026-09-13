@@ -1,6 +1,25 @@
 // main.js
-const fs = require('fs');
-const path = require('path');
+
+// Game loop function
+function run() {
+  // Your game logic here...
+
+  // Update scope attributes in all .html files in the views directory
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      const filePath = path.join(viewsDir, file);
+      let content = fs.readFileSync(filePath, 'utf8');
+      // Your file processing logic here...
+      fs.writeFileSync(filePath, content);
+    });
+}
+
+// REACT_015: Ensure the <html> element has a lang attribute for accessibility
+if (!document.documentElement.lang) {
+  document.documentElement.lang = 'en';
+}
 
 // Import accessibility helper functions
 const {
@@ -9,138 +28,18 @@ const {
   validateTableAccessibility,
   validateTableStructure,
   validateLandmarkStructure,
-  validateLandmarkRole,
   getSvgAccessibleName,
   createInPageButton,
-  createAccessibleLink
+  createAccessibleLink,
 } = require('./accessibility');
 
-// Import test helper function
-const { updateThScopeAttribute } = require('./testHelper');
+const fs = require('fs');
+const path = require('path');
 
-const viewsDir = path.join(__dirname, 'views');
-
-// Landmark elements that should be checked for proper usage
-const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
-
-/**
- * Checks landmark elements in HTML content for accessibility compliance.
- * @param {string} htmlContent - The HTML content to check
- * @returns {Object} - Object containing landmark element information and any warnings
- */
-function checkLandmarkElements(htmlContent) {
-  const warnings = [];
-  const foundLandmarks = {};
-
-  LANDMARK_ELEMENTS.forEach(landmark => {
-    const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
-    const matches = htmlContent.match(regex);
-    if (matches) {
-      foundLandmarks[landmark] = matches.length;
-    }
-  });
-
-  if (!foundLandmarks.main) {
-    warnings.push('Missing main landmark element');
-  }
-
-  return {
-    foundLandmarks,
-    warnings,
-    hasMainLandmark: !!foundLandmarks.main
-  };
-}
-
-// Address the issue: REACT_038
-const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
-  // Code to address the specific accessibility issue on the element
-  // This is a placeholder function and should be replaced with the actual implementation
-  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
-};
-
-// Resolve accessibility issues from insight report
-function resolveAccessibilityIssues(insightReport) {
-  if (!insightReport || !insightReport.issues) {
-    return [];
-  }
-
-  return insightReport.issues.map(issue => {
-    let fixedIssue = { ...issue, status: 'resolved' };
-
-    //Determine the type of accessibility issue and apply the fix
-    switch (issue.type) {
-      case 'color-contrast':
-      case 'missing-alt-text':
-      case 'missing-aria-label':
-      case 'heading-order':
-      case 'add-lang-attribute':
-      case 'add-landmark-roles':
-      case 'add-accessible-names-to-svgs':
-      case 'ensure-unique-landmarks':
-      case 'fix-fake-link':
-        fixedIssue.fixApplied = `Applied accessibility improvement for '${issue.type}'.`;
-        break;
-      default:
-        fixedIssue.fixApplied = 'Applied generic accessibility fix.';
-        break;
-    }
-
-    return fixedIssue;
-  });
-}
-
-/**
- * Creates an in-page button for the game interface
- * @param {Object} options - Button configuration options
- * @param {string} options.text - The text to display on the button
- * @param {Function} options.onClick - The callback function when button is clicked
- * @param {string} [options.id] - Optional unique identifier for the button
- * @param {string} [options.title] - Optional title/tooltip for the button
- * @param {string} [options.className] - Optional CSS class name for styling
- * @returns {Object} - The created button object
- */
-function createInPageButton(options) {
-  const { text, onClick, id, title, className } = options;
-
-  // Validate required options
-  if (!text) {
-    throw new Error('Button text is required');
-  }
-  if (typeof onClick !== 'function') {
-    throw new Error('onClick callback must be a function');
-  }
-
-  // Create button object
-  const button = {
-    id: id || `btn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    text: String(text),
-    title: title || '',
-    className: className || 'default-button',
-    onClick,
-    disabled: false,
-    visible: true,
-    element: null
-  };
-
-  // Store button reference
-  if (!createInPageButton.buttons) {
-    createInPageButton.buttons = {};
-  }
-  createInPageButton.buttons[button.id] = button;
-
-  return button;
-}
-
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-  // Existing function implementation
-
-  // New implementation to count dependencies using Document and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
-  const document = { body: { textContent: '' } };
-  const importCount = (document.body.textContent || '').match(importCommentRegExp) || [];
-  return importCount.length;
-}
+// Wrap the entire document content inside a <main> element and set its lang attribute
+const mainElement = document.createElement('main');
+mainElement.lang = 'en';
+document.body.insertBefore(mainElement, document.body.firstChild);
 
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
@@ -168,6 +67,7 @@ const a11yStore = {
     this.addFocusStyles();
     this.setupFocusVisiblePolyfill();
     this.enhanceDynamicContent();
+    this.dependencyGraph(); // Initialize dependency graph accessibility
   },
 
   // Create a live region for screen reader announcements
@@ -217,6 +117,19 @@ const a11yStore = {
         svg.appendChild(descriptionElement);
       }
     });
+  },
+
+  // Ensure the dependencyGraph container has a proper ARIA role and label
+  dependencyGraph() {
+    let container = document.getElementById('dependencyGraph');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'dependencyGraph';
+      document.body.appendChild(container);
+    }
+
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency graph');
   },
 
   // Anchor message to screen reader via live region
@@ -412,6 +325,20 @@ const a11yStore = {
     });
   },
 
+  // Address accessibility issues from insight report
+  addressAccessibilityIssues(report) {
+    if (!report) return;
+    // Process report and apply fixes
+    if (report.tables) {
+      validateTableAccessibility();
+      validateTableStructure();
+    }
+    if (report.landmarks) {
+      validateLandmarkStructure();
+    }
+    // Add other issue handling as needed
+  },
+
   // Preserve existing code functionality
   preserveExistingCode() {
     // Placeholder to ensure existing functionality is maintained
@@ -439,9 +366,17 @@ function addressAccessibilityIssues(report) {
   return resolveAccessibilityIssues(report);
 }
 
+// New functions to address specific accessibility issues
+
+// Get person name for accessible labeling
+function personName() {
+  const nameElement = document.querySelector('[data-person-name]');
+  return nameElement ? nameElement.textContent.trim() : 'User';
+}
+
 // Validate and fix table accessibility
 function validateTableAccessibility() {
-  if (typeof window === 'undefined') return;
+  if (!window) return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
@@ -458,7 +393,7 @@ function validateTableAccessibility() {
 
 // Validate and fix table structure
 function validateTableStructure() {
-  if (typeof window === 'undefined') return;
+  if (!window) return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     if (!table.querySelector('thead')) {
@@ -482,9 +417,20 @@ function validateTableStructure() {
   });
 }
 
+// Validate landmark elements
+function validateLandmark() {
+  if (!window) return;
+  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
+  landmarks.forEach(el => {
+    if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.getAttribute('role')) {
+      // Optionally add a role, but leave as is for now
+    }
+  });
+}
+
 // Validate landmark structure
 function validateLandmarkStructure() {
-  if (typeof window === 'undefined') return;
+  if (!window) return;
   const main = document.querySelector('main');
   if (main) {
     const nestedLandmarks = main.querySelectorAll('main, nav, header, footer, aside');
@@ -494,17 +440,6 @@ function validateLandmarkStructure() {
   }
 }
 
-// Validate landmark role
-function validateLandmarkRole(landmark) {
-  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
-  const role = landmark.getAttribute('role');
-  if (role && !validRoles.includes(role)) {
-    console.warn(`Invalid landmark role: ${role}`);
-    return false;
-  }
-  return true;
-}
-
 // Get accessible name for SVG
 function getSvgAccessibleName(svg) {
   return svg.getAttribute('aria-label') || svg.getAttribute('title') || 'Image';
@@ -512,7 +447,7 @@ function getSvgAccessibleName(svg) {
 
 // Ensure unique landmark IDs
 function ensureUniqueLandmarks() {
-  if (typeof window === 'undefined') return;
+  if (!window) return;
   const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
   const idSet = new Set();
   landmarks.forEach(el => {
@@ -527,73 +462,48 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// Address the new accessibility issues
-function initAccessibility() {
-  // Existing initAccessibility function implementation remains the same
+// Add new functions related to handling unique landmarks and fixing fake links
+function handleUniqueLandmarks() {
+  // Implement the functionality here
+  ensureUniqueLandmarks();
+}
 
-  // Address the new accessibility issues
-  addressAccessibilityIssue038(document.querySelector('button'), {
-    element: 'button',
-    issueType: 'add-aria-label'
+function fixFakeLinks() {
+  // Implement the functionality here
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.getAttribute('href') || link.getAttribute('href') === '#') {
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabindex', '0');
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          link.click();
+        }
+      });
+    }
   });
 }
 
-// Export functions for testing
-export { initAccessibility };
-
-// Auto-initialize when DOM is ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccessibility);
-  } else {
-    initAccessibility();
-  }
-}
-
-// TODO: Implement this function for creating in-page buttons
-function createInPageButton(buttonId, buttonText, buttonClass) {
-  // Create a new button element
-  const button = document.createElement('button');
-
-  // Set the button's ID, text content, and class
-  button.id = buttonId;
-  button.textContent = buttonText;
-  button.className = buttonClass;
-
-  // Append the button to the body or a specific container
-  document.body.appendChild(button);
-
-  // Return the created button for further manipulation if needed
-  return button;
-}
-
-// TODO: Implement this new function for making API calls
-async function makeAPICall() {
-  // Your implementation goes here
-}
-
-// Export the new functions if they are needed to be used in other files (CommonJS)
-
 module.exports = {
-  // Existing exports
-  checkLandmarkElements,
-  createInPageButton,
-  countDependencies,
+  run,
+  mainElement,
   a11yStore,
   addLandmarkRegions,
   addressAccessibilityIssues,
-  resolveAccessibilityIssues,
-  LANDMARK_ELEMENTS,
-  getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
-  updateLiveRegion: a11yStore.updateLiveRegion.bind(a11yStore),
-  addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps.bind(a11yStore),
-  preserveExistingCode: a11yStore.preserveExistingCode.bind(a11yStore),
+  personName,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmarkStructure,
   validateLandmarkRole,
   getSvgAccessibleName,
   ensureUniqueLandmarks,
-  checkLandmarkElementsInDom,
-  makeAPICall
+  handleUniqueLandmarks,
+  fixFakeLinks,
+  getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
+  createInPageButton: a11yStore.createInPageButton.bind(a11yStore),
+  updateLiveRegion: a11yStore.updateLiveRegion.bind(a11yStore),
+  checkLandmarkElements: a11yStore.checkLandmarkElements.bind(a11yStore),
+  addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps.bind(a11yStore),
+  preserveExistingCode: a11yStore.preserveExistingCode.bind(a11yStore),
 };

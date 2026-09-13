@@ -13,83 +13,15 @@ function rotateBack() {
 }
 
 function addressAccessibilityIssues() {
-  const languageElement = document.querySelector('html');
-  const language = languageElement ? languageElement.getAttribute('lang') : 'en';
-
-  // REACT_017: Check for landmark elements
-  const landmarks = document.querySelectorAll('header, nav, main, footer, aside, section, article, div');
-  landmarks.forEach((landmark, index) => {
-    if (!landmark.hasAttribute('role')) {
-      landmark.setAttribute('role', 'landmark');
-    }
-  });
-
-  // REACT_015: Ensure SVG has accessible name
-  const svg1 = document.querySelector('.svg1');
-  const svg2 = document.querySelector('.svg2');
-  
-  if (svg1) {
-    const existingTitle = svg1.querySelector('title');
-    if (!existingTitle) {
-      const title = document.createElement('title');
-      title.id = 'svg1-title';
-      title.textContent = 'SVG 1 Description';
-      svg1.insertBefore(title, svg1.firstChild);
-    }
-    if (!svg1.getAttribute('aria-labelledby') && !svg1.getAttribute('aria-label')) {
-      svg1.setAttribute('aria-labelledby', 'svg1-title');
-    }
-    if (!svg1.getAttribute('role')) {
-      svg1.setAttribute('role', 'img');
-    }
-  }
-  
-  if (svg2) {
-    const existingTitle = svg2.querySelector('title');
-    if (!existingTitle) {
-      const title = document.createElement('title');
-      title.id = 'svg2-title';
-      title.textContent = 'SVG 2 Description';
-      svg2.insertBefore(title, svg2.firstChild);
-    }
-    if (!svg2.getAttribute('aria-labelledby') && !svg2.getAttribute('aria-label')) {
-      svg2.setAttribute('aria-labelledby', 'svg2-title');
-    }
-    if (!svg2.getAttribute('role')) {
-      svg2.setAttribute('role', 'img');
-    }
-  }
-
-  // REACT_041: Check for multiple main landmarks
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    console.warn('Multiple <main> landmarks detected. Consider using <section role="region"> for additional regions.');
-    // The static fix should be applied in the source files
-    // - REACT_041: Replace one <main> with <section role="region" ...
-    // - REACT_041: Same fix
-  }
-
-  // REACT_025: Handle fake links (role="presentation")
-  const fakeLinks = document.querySelectorAll('[role="presentation"]');
-  fakeLinks.forEach(link => {
-    if (link.tagName === 'A') {
-      link.setAttribute('role', 'link');
-    }
-  });
-
-  // REACT_036: Implement this function for checking link and button accessibility
-  function checkLinkAndButtonAccessibility() {
+  // Helper function to check links and button accessibility
+  function checkLinksAndButtons() {
     const links = document.querySelectorAll('a');
     const buttons = document.querySelectorAll('button');
 
     links.forEach(link => {
-      // REACT_015: Check for accessible name
-      const hasAccessibleName = link.textContent.trim().length > 0 || 
-                                 link.getAttribute('aria-label') ||
-                                 link.getAttribute('aria-labelledby');
-      
-      if (!hasAccessibleName) {
-        console.warn('Accessibility Warning: Link without accessible name', link);
+      // Ensure links have proper href attributes
+      if (!link.hasAttribute('href') && !link.hasAttribute('role')) {
+        link.setAttribute('role', 'link');
       }
       
       // Check for href attribute
@@ -99,12 +31,14 @@ function addressAccessibilityIssues() {
     });
 
     buttons.forEach(button => {
-      // REACT_017: Check for accessible name for buttons
+      // Ensure buttons have proper role
+      if (!button.hasAttribute('role')) {
+        button.setAttribute('role', 'button');
+      }
+      // Check for accessible name for buttons
       const hasAccessibleName = button.textContent.trim().length > 0 || 
-                                  button.getAttribute('aria-label') ||
-                                  button.getAttribute('aria-labelledby') ||
-                                  button.getAttribute('aria-describedby');
-      
+                                button.getAttribute('aria-label') || 
+                                button.getAttribute('aria-labelledby');
       if (!hasAccessibleName) {
         console.error('Accessibility Error: Button without accessible name', button);
       }
@@ -113,19 +47,41 @@ function addressAccessibilityIssues() {
 }
 
   // Call the function to check accessibility
-  checkLinkAndButtonAccessibility();
+  checkLinksAndButtons();
 
-  // TODO: Implement functions to render dependency graphs and display module structure for debugging purposes.
-  function renderDependencyGraph() {
-    // Placeholder for rendering dependency graph logic
-    console.log('Rendering dependency graph...');
+  // Check for landmark regions (REACT_015, REACT_025)
+  const landmarks = document.querySelectorAll('[role="main"], main, [role="navigation"], nav, [role="banner"], [role="contentinfo"], [role="complementary"], aside');
+  landmarks.forEach((landmark, index) => {
+    const landmarkName = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || 'Unnamed landmark';
+    console.log(`Landmark ${index + 1}: ${landmarkName}`);
+  });
+
+  // Check for multiple main landmarks (REACT_025)
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    console.warn('Accessibility Warning: Multiple <main> landmarks detected. Consider using <section role="region"> for additional regions.');
   }
 
-  function displayModuleStructure() {
-    // Placeholder for displaying module structure logic
-    console.log('Displaying module structure...');
-  }
+  // Check SVG accessibility (REACT_017)
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const title = svg.querySelector('title');
+    const ariaLabel = svg.getAttribute('aria-label');
+    const ariaLabelledby = svg.getAttribute('aria-labelledby');
+    
+    if (!title && !ariaLabel && !ariaLabelledby) {
+      console.warn(`Accessibility Warning: SVG ${index + 1} missing accessible name (title, aria-label, or aria-labelledby)`);
+    }
+  });
+
+  // Fix fake links (links that don't navigate)
+  const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"], a[href=""], a[href*="javascript:"]');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('role')) {
+      link.setAttribute('role', 'presentation');
+    }
+  });
 }
 
 // Export functions if needed
-export { rotateBack, addressAccessibilityIssues, renderDependencyGraph, displayModuleStructure };
+export { rotateBack, addressAccessibilityIssues };

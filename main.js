@@ -87,20 +87,26 @@ function renderDependencyGraph(modules) {
   }
 }
 
-/**
- * Displays the structure of a module for debugging purposes.
- * @param {Object} module - The module to inspect.
- */
-function displayModuleStructure(module) {
-  console.log('Displaying module structure...');
-  console.log('Module structure:', module);
-  // Logs all enumerable properties of the module
-  if (module && typeof module === 'object') {
-    for (const key in module) {
-      console.log(`Property: ${key}`, module[key]);
+  // Call the function to check accessibility
+  checkLinkAndButtonAccessibility();
+
+  // TODO: Implement this function for creating in-page buttons
+  function createInPageButtons(buttonsData) {
+    const container = document.querySelector('#button-container');
+    if (!container) {
+      console.error('Button container not found');
+      return;
     }
+
+    buttonsData.forEach(buttonData => {
+      const button = document.createElement('button');
+      button.textContent = buttonData.text;
+      button.id = buttonData.id;
+      button.className = buttonData.className;
+      container.appendChild(button);
+    });
   }
 }
 
 // Export functions if needed
-export { rotateBack, addressAccessibilityIssues };
+export { rotateBack, addressAccessibilityIssues, createInPageButtons };

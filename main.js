@@ -1,16 +1,29 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_017: Add landmark roles and fix landmark issues (handled by validateLandmarkStructure() and createInPageButton())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName())
-// - REACT_025: Ensure unique landmarks (handled by validateLandmarkStructure() and createInPageButton())
-// - REACT_036: Fix 1 fake link issue (handled by createAccessibleLink())
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-
 const fs = require('fs');
 const path = require('path');
 
-// TODO: Add any new functions or changes requested in the issue here
+// Store for accessibility announcements (screen reader support)
+const a11yStore = {
+  liveRegion: null,
+
+  init() {
+    this.createLiveRegion();
+    this.setupKeyboardNavigation();
+    this.setupFocusManagement();
+    this.setupSkipLinks();
+    this.checkLandmarkElements();
+    this.addProperLandmarkRegions();
+    this.addSVGAccessibilityProps();
+    this.fixFakeLinks(); // Added for REACT_036
+    this.countDependencies(); // Merged change from both branches
+  },
+
+  // New function to count dependencies
+  countDependencies() {
+    const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
+    const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
+    return importCount;
+  },
+};
 
 // Main game loop for Screeps
 function run() {
@@ -21,9 +34,7 @@ function run() {
   fs.readdirSync(viewsDir)
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
-      const filePath = path.join(viewsDir, file);
-      const content = fs.readFileSync(filePath, 'utf8');
-      fs.writeFileSync(filePath, content);
+      updateThScopeAttribute(path.join(viewsDir, file));
     });
 }
 
@@ -42,40 +53,13 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  countDependencies,
-} = require('a11y-utils');
-
-const fs = require('fs');
-const path = require('path');
+  ensureUniqueLandmarks, // New export for REACT_025
+} = require('./accessibilityHelperFunctions');
 
 // Wrap the entire document content inside a <main> element and set its lang attribute
 const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', 'en');
+document.documentElement.setAttribute('lang', 'en');
 document.body.appendChild(mainElement);
-
-// Add the requested function here
-function updateThScopeAttribute(filePath) {
-  // Open the HTML file
-  const fileContent = fs.readFileSync(filePath, 'utf8');
-
-  // Find all the <th> elements
-  const thElements = fileContent.match(/<th.*?>/g);
-
-  if (thElements) {
-    for (const th of thElements) {
-      // Generate a unique id for each TH element
-      const id = `th-${Date.now()}-${Math.floor(Math.random() * 1e5)}`;
-      // Add 'scope="col"' attribute to the TH element using the id
-      const updatedTh = th.replace(/<\/th>/, ` id="${id}" scope="col" />`);
-
-      // Replace the originally found TH element with the updated one in the HTML content
-      fileContent = fileContent.replace(th, updatedTh);
-    }
-
-    // Save the updated HTML file
-    fs.writeFileSync(filePath, fileContent, 'utf8');
-  }
-}
 
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
@@ -98,19 +82,7 @@ const config = {
   enabled: true
 };
 
-// New function added as per the issue
-function preserveExistingCode() {
-  // TODO: This is the existing code that needs to be preserved
-  // (This comment remains as-is)
-  // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-  // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-  // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-  // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-  // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-  // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-}
-
-const exports = {
+module.exports = {
   run,
   main,
   SomeClass,
@@ -125,8 +97,11 @@ const exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
+  ensureUniqueLandmarks, // Exporting the new function
   a11yStore,
   mainElement,
-  // Add the new export here
-  updateThScopeAttribute
+  prefersReducedMotion,
+  prefersHighContrast,
+  wrapPrimaryContentInMain,
+  addressAccessibilityIssues,
 };

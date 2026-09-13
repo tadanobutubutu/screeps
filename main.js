@@ -183,4 +183,4 @@ function displayModuleStructure(componentTree) {
 }
 
 // Export functions if needed
-// export { rotateBack, addressAccessibilityIssues, getLangAttribute };
+export { rotateBack, addressAccessibilityIssues };

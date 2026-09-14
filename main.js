@@ -73,12 +73,15 @@ const a11yStore = {
     // Existing code for rendering dependency graph
   },
 
-  createInPageButton(id, label, onClick) {
-    const button = document.createElement('button');
-    button.id = id;
-    button.textContent = label;
-    button.addEventListener('click', onClick);
-    return button;
+  checkLandmarkElements() {
+    // New function to check landmark elements
+    const landmarks = ['main', 'article', 'section', 'nav', 'aside', 'footer'];
+    landmarks.forEach(landmark => {
+      const element = document.querySelector(landmark);
+      if (element) {
+        element.setAttribute('role', landmark);
+      }
+    });
   }
 };
 
@@ -152,5 +155,5 @@ module.exports = {
   addSVGAccessibilityProps,
   addressAccessibilityIssue038,
   renderDependencyGraph,
-  default: a11yStore,
 };
+export default a11yStore;

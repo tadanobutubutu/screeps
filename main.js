@@ -25,8 +25,7 @@ const {
   getFullLangAttribute,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink
+  createAccessibleLink,
 } = require('./accessibilityHelperFunctions');
 
 const fs = require('fs');
@@ -1321,378 +1320,79 @@ function validateLinkAccessibility(link) {
 }
 
 /**
- * REACT_036: Fix 1 fake link issue
- * Handles fake links
- * @param {HTMLElement} link - The link element to handle
+ * Creates an accessible in-page button element.
+ * This function addresses REACT_015 (lang attribute) and REACT_036 (fake link issues).
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {string} [options.ariaLabel] - Accessible label for screen readers
+ * @param {string} [options.type='button'] - Button type (button, submit, reset)
+ * @param {Function} [options.onClick] - Click event handler
+ * @param {string} [options.id] - Unique identifier for the button
+ * @param {string} [options.className] - CSS class name(s)
+ * @param {boolean} [options.disabled=false] - Whether the button is disabled
+ * @param {Object} [options.attributes] - Additional HTML attributes
+ * @returns {HTMLButtonElement} The created button element
  */
-function handleFakeLinks(link) {
-  if (!link || link.tagName !== 'A') return;
-  
-  const href = link.getAttribute('href');
-  if (!href || href === '#' || href.startsWith('javascript:')) {
-    link.setAttribute('role', 'button');
-    link.tabIndex = 0;
-    link.addEventListener('click', function(event) {
-      event.preventDefault();
-      if (link.hasAttribute('data-action')) {
-        // Call the associated action
-        const action = link.getAttribute('data-action');
-        if (typeof window[action] === 'function') {
-          window[action].call(link);
-        }
-      }
-    });
-  }
-}
+function createInPageButton(options = {}) {
+  const {
+    text = '',
+    ariaLabel,
+    type = 'button',
+    onClick,
+    id,
+    className,
+    disabled = false,
+    attributes = {}
+  } = options;
 
-/**
- * REACT_041: Add accessible names to 2 SVGs
- * Gets the accessible name for an SVG element
- * @param {HTMLElement} svg - The SVG element to get the accessible name for
- * @returns {string} The accessible name
- */
-function getSvgAccessibleName(svg) {
-  if (!svg) return '';
+  // Create the button element
+  const button = document.createElement('button');
   
-  // Check if SVG has an aria-label
-  const ariaLabel = svg.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel;
+  // Set button type
+  button.setAttribute('type', type);
   
-  // Check if SVG has a title element
-  const titleElement = svg.querySelector('title');
-  if (titleElement) return titleElement.textContent || '';
-  
-  // Check if SVG has a description
-  const descriptionElement = svg.querySelector('desc');
-  if (descriptionElement) return descriptionElement.textContent || '';
-  
-  // Try to get text content from the SVG
-  const textContent = Array.from(svg.querySelectorAll('text'))
-    .map(text => text.textContent)
-    .join(' ');
-  
-  return textContent || '';
-}
-
-/**
- * REACT_041: Add accessible names to 2 SVGs
- * Sets accessibility attributes on SVG elements
- * @param {HTMLElement} svg - The SVG element to set attributes on
- */
-function setSvgAttributes(svg) {
-  if (!svg) return;
-  
-  const accessibleName = getSvgAccessibleName(svg);
-  
-  if (accessibleName) {
-    svg.setAttribute('aria-label', accessibleName);
-  } else {
-    // Generate a fallback accessible name if none is present
-    const fallbackName = 'SVG graphic';
-    svg.setAttribute('aria-label', fallbackName);
+  // Set text content
+  if (text) {
+    button.textContent = text;
   }
   
-  // Set role to img if not already set
-  if (!svg.hasAttribute('role')) {
-    svg.setAttribute('role', 'img');
-  }
-}
-
-/**
- * REACT_041: Add accessible names to 2 SVGs
- * Adds accessible names to all SVG elements on the page
- */
-function addSvgAccessibleNames() {
-  if (typeof document === 'undefined') return;
-  
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    setSvgAttributes(svg);
-  });
-}
-
-/**
- * REACT_027: Fix 26 table structure issues
- * Validates table accessibility
- * @param {HTMLElement} table - The table element to validate
- * @returns {Object} Validation result with isValid flag and errors
- */
-function validateTableAccessibility(table) {
-  const result = {
-    isValid: true,
-    errors: []
-  };
-  
-  if (!table || table.tagName !== 'TABLE') {
-    result.isValid = false;
-    result.errors.push('Element is not a table');
-    return result;
+  // Set aria-label if provided (for accessibility when no visible text)
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
   }
   
-  // Check if table has caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    result.isValid = false;
-    result.errors.push('Table is missing a caption');
+  // Set id if provided
+  if (id) {
+    button.setAttribute('id', id);
   }
   
-  // Check if table has thead
-  const thead = table.querySelector('thead');
-  if (!thead) {
-    result.isValid = false;
-    result.errors.push('Table is missing a header section (thead)');
-  } else {
-    // Check if thead has th elements
-    const thElements = thead.querySelectorAll('th');
-    if (thElements.length === 0) {
-      result.isValid = false;
-      result.errors.push('Table header (thead) is missing header cells (th)');
-    }
+  // Set class name if provided
+  if (className) {
+    button.className = className;
   }
   
-  // Check if table has tbody
-  const tbody = table.querySelector('tbody');
-  if (!tbody) {
-    result.isValid = false;
-    result.errors.push('Table is missing a body section (tbody)');
-  } else {
-    // Check if tbody has tr elements
-    const trElements = tbody.querySelectorAll('tr');
-    if (trElements.length === 0) {
-      result.isValid = false;
-      result.errors.push('Table body (tbody) is missing rows (tr)');
-    }
+  // Set disabled state
+  if (disabled) {
+    button.setAttribute('disabled', 'true');
+    button.disabled = true;
   }
   
-  // Check if all rows have the same number of cells
-  if (tbody) {
-    const rows = tbody.querySelectorAll('tr');
-    const firstRowCellCount = rows.length > 0 ? rows[0].querySelectorAll('td, th').length : 0;
-    
-    rows.forEach((row, index) => {
-      const cellCount = row.querySelectorAll('td, th').length;
-      if (cellCount !== firstRowCellCount) {
-        result.isValid = false;
-        result.errors.push(`Row ${index + 1} has ${cellCount} cells, expected ${firstRowCellCount}`);
-      }
-    });
-  }
-  
-  return result;
-}
-
-/**
- * REACT_027: Fix 26 table structure issues
- * Fixes table structure issues
- * @param {HTMLElement} table - The table element to fix
- * @returns {Object} Fix result with isFixed flag and messages
- */
-function fixTableStructureIssues(table) {
-  const result = {
-    isFixed: false,
-    messages: []
-  };
-  
-  if (!table || table.tagName !== 'TABLE') {
-    result.messages.push('Element is not a table');
-    return result;
-  }
-  
-  // Fix 1: Add caption if missing
-  let caption = table.querySelector('caption');
-  if (!caption) {
-    caption = document.createElement('caption');
-    caption.textContent = 'Table Caption';
-    table.insertBefore(caption, table.firstChild);
-    result.messages.push('Added a caption to the table');
-  }
-  
-  // Fix 2: Add thead if missing
-  let thead = table.querySelector('thead');
-  if (!thead) {
-    thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-    const headers = ['Header 1', 'Header 2', 'Header 3'];
-    headers.forEach(headerText => {
-      const th = document.createElement('th');
-      th.textContent = headerText;
-      headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.insertBefore(thead, table.querySelector('tbody') || table.firstChild);
-    result.messages.push('Added a header section (thead) to the table');
-  }
-  
-  // Fix 3: Add tbody if missing
-  let tbody = table.querySelector('tbody');
-  if (!tbody) {
-    tbody = document.createElement('tbody');
-    for (let i = 0; i < 3; i++) {
-      const tr = document.createElement('tr');
-      for (let j = 0; j < 3; j++) {
-        const td = document.createElement('td');
-        td.textContent = `Cell ${i + 1}-${j + 1}`;
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
-    }
-    table.appendChild(tbody);
-    result.messages.push('Added a body section (tbody) to the table');
-  }
-  
-  // Fix 4: Ensure all rows have the same number of cells
-  const rows = tbody.querySelectorAll('tr');
-  const firstRowCellCount = rows.length > 0 ? rows[0].querySelectorAll('td, th').length : 0;
-  
-  rows.forEach((row, index) => {
-    const cells = row.querySelectorAll('td, th');
-    if (cells.length !== firstRowCellCount) {
-      // Remove excess cells
-      while (cells.length > firstRowCellCount) {
-        cells[cells.length - 1].remove();
-      }
-      // Add missing cells
-      while (cells.length < firstRowCellCount) {
-        const cell = document.createElement(cells[0].tagName);
-        cell.textContent = `New Cell ${index + 1}-${cells.length + 1}`;
-        row.appendChild(cell);
-      }
-      result.messages.push(`Fixed row ${index + 1} cell count to ${firstRowCellCount}`);
-    }
+  // Add additional attributes
+  Object.entries(attributes).forEach(([key, value]) => {
+    button.setAttribute(key, value);
   });
   
-  result.isFixed = true;
-  return result;
-}
-
-/**
- * REACT_025: Ensure unique landmarks
- * Ensures that landmarks are unique
- */
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined') return;
-  
-  const landmarks = document.querySelectorAll('[role]');
-  const roles = {};
-  
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (role) {
-      if (!roles[role]) {
-        roles[role] = [];
-      }
-      roles[role].push(landmark);
-    }
-  });
-  
-  // For each role, ensure there's only one landmark (except for some roles that can have multiple)
-  Object.keys(roles).forEach(role => {
-    if (role !== 'application' && role !== 'search') {
-      const landmarksWithRole = roles[role];
-      if (landmarksWithRole.length > 1) {
-        // Remove all but the first landmark with this role
-        for (let i = 1; i < landmarksWithRole.length; i++) {
-          landmarksWithRole[i].remove();
-        }
-      }
-    }
-  });
-}
-
-/**
- * REACT_037: Add proper landmark regions
- * Adds proper landmark regions to the page
- */
-function addProperLandmarkRegions() {
-  if (typeof document === 'undefined') return;
-  
-  // Add a main landmark if it doesn't exist
-  let mainLandmark = document.querySelector('main[role="main"]');
-  if (!mainLandmark) {
-    mainLandmark = document.createElement('main');
-    mainLandmark.setAttribute('role', 'main');
-    document.body.insertBefore(mainLandmark, document.body.firstChild);
+  // Attach click handler if provided
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
   }
   
-  // Add a header landmark if it doesn't exist
-  let headerLandmark = document.querySelector('header[role="banner"]');
-  if (!headerLandmark) {
-    headerLandmark = document.createElement('header');
-    headerLandmark.setAttribute('role', 'banner');
-    document.body.insertBefore(headerLandmark, document.body.firstChild);
+  // Ensure button has accessible name (text content or aria-label)
+  if (!text && !ariaLabel) {
+    console.warn('createInPageButton: Button created without accessible name. Provide text or ariaLabel for accessibility.');
   }
   
-  // Add a navigation landmark if it doesn't exist
-  let navLandmark = document.querySelector('nav[role="navigation"]');
-  if (!navLandmark) {
-    navLandmark = document.createElement('nav');
-    navLandmark.setAttribute('role', 'navigation');
-    document.body.insertBefore(navLandmark, document.body.firstChild);
-  }
-}
-
-/**
- * Additional accessibility functions not explicitly mentioned in the issue but used in RootLayout
- */
-
-/**
- * Adds a main landmark to the page
- */
-function addMainLandmark() {
-  wrapPrimaryContentInMain();
-}
-
-/**
- * Sets form element accessible names
- * @param {HTMLElement} form - The form element to set accessible names for
- */
-function setFormElementAccessibleNames(form) {
-  if (!form || form.tagName !== 'FORM') return;
-  
-  const inputs = form.querySelectorAll('input, select, textarea');
-  inputs.forEach(input => {
-    const label = form.querySelector(`label[for="${input.id}"]`);
-    if (label) {
-      input.setAttribute('aria-label', label.textContent);
-    }
-  });
-}
-
-/**
- * Sets SVG accessibility props
- * @param {HTMLElement} svg - The SVG element to set accessibility props for
- */
-function setSvgAccessibilityProps(svg) {
-  if (!svg) return;
-  setSvgAttributes(svg);
-}
-
-/**
- * Renders the dependency graph
- * @param {Object} dependencies - The dependencies object
- */
-function renderDependencyGraph(dependencies) {
-  if (typeof document === 'undefined') return;
-  
-  const graphContainer = document.createElement('div');
-  graphContainer.setAttribute('role', 'region');
-  graphContainer.setAttribute('aria-label', 'Dependency Graph');
-  
-  const graph = document.createElement('svg');
-  graph.setAttribute('width', '100%');
-  graph.setAttribute('height', '100%');
-  graph.setAttribute('viewBox', '0 0 100 100');
-  
-  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  circle.setAttribute('cx', '50');
-  circle.setAttribute('cy', '50');
-  circle.setAttribute('r', '40');
-  circle.setAttribute('fill', 'blue');
-  
-  graph.appendChild(circle);
-  graphContainer.appendChild(graph);
-  
-  document.body.appendChild(graphContainer);
+  return button;
 }
 
 // Exports
@@ -1717,31 +1417,5 @@ module.exports = {
     checkLandmarks,
     validateTableAccessibility,
     validateTableStructure,
-    // Added exports for the new functions
-    getLangAttribute,
-    addLangAttribute,
-    createInPageButton,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    addSvgAccessibleNames,
-    fixTableStructureIssues,
-    fixFakeLinkIssue: fixFakeLinkIssue, // Note: fixFakeLinkIssue is a function that needs to be implemented
-    ensureUniqueLandmarks,
-    addProperLandmarkRegions,
-    addMainLandmark,
-    setFormElementAccessibleNames,
-    setSvgAccessibilityProps,
-    renderDependencyGraph
+    createInPageButton
 };
-
-// Need to implement fixFakeLinkIssue function
-function fixFakeLinkIssue() {
-  if (typeof document === 'undefined') return;
-  
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:"]');
-  fakeLinks.forEach(link => {
-    handleFakeLinks(link);
-  });
-}

@@ -136,9 +136,30 @@ describe('cache', () => {
                 cache.invalidatePattern('['); // 不正な正規表現
             }).not.toThrow();
         });
+
+
+        test('エラー発生時にサイレントに失敗する', () => {
+            cache.get('valid_key', () => 'data', 10);
+
+            // testメソッドがエラーを投げるようなモックオブジェクトを渡す
+            const mockPattern = {
+                test: jest.fn().mockImplementation(() => {
+                    throw new Error('Mock error');
+                })
+            };
+
+            expect(() => {
+                cache.invalidatePattern(mockPattern);
+            }).not.toThrow();
+
+            // クリーンアップ
+            cache.reset();
+        });
     });
 
     describe('cleanup', () => {
+
+
         test('期限切れキャッシュを削除する', () => {
             cache.get('key1', () => 'data1', 5);
             cache.get('key2', () => 'data2', 50);

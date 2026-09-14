@@ -48,6 +48,72 @@ describe('memory.visualizer', () => {
         expect(typeof stats.totalSize).toBe('number');
     });
 
+
+    describe('showTopMemoryUsers', () => {
+        test('should return top memory users sorted by size and handle limits', () => {
+            global.Memory = {
+                creeps: {
+                    creep1: { data: 'a'.repeat(50) },
+                    creep2: { data: 'a'.repeat(10) },
+                },
+                rooms: {
+                    room1: { data: 'a'.repeat(100) },
+                    room2: { data: 'a'.repeat(20) },
+                }
+            };
+
+            // Using mock to prevent actual console.log output during test
+            const originalLog = console.log;
+            console.log = jest.fn();
+
+            const result = memoryVisualizer.showTopMemoryUsers(3);
+
+            console.log = originalLog;
+
+            expect(result).toBeDefined();
+            expect(result.length).toBe(3);
+            expect(result[0].name).toBe('room1');
+            expect(result[1].name).toBe('creep1');
+            expect(result[2].name).toBe('room2');
+
+            expect(result[0].type).toBe('room');
+            expect(result[1].type).toBe('creep');
+        });
+
+        test('should return default limit of 10 users if not specified', () => {
+            global.Memory = {
+                creeps: {},
+                rooms: {}
+            };
+            for (let i = 0; i < 15; i++) {
+                global.Memory.creeps[`creep${i}`] = { data: 'a' };
+            }
+
+            const originalLog = console.log;
+            console.log = jest.fn();
+
+            const result = memoryVisualizer.showTopMemoryUsers();
+
+            console.log = originalLog;
+
+            expect(result.length).toBe(10);
+        });
+
+        test('should handle empty Memory properties safely', () => {
+            global.Memory = {};
+
+            const originalLog = console.log;
+            console.log = jest.fn();
+
+            const result = memoryVisualizer.showTopMemoryUsers();
+
+            console.log = originalLog;
+
+            expect(result).toBeDefined();
+            expect(result.length).toBe(0);
+        });
+    });
+
     test('initTimeMachineが初期化', () => {
         memoryVisualizer.initTimeMachine();
         expect(Memory.timeMachine).toBeDefined();

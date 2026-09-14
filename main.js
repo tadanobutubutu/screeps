@@ -20,14 +20,7 @@ const affectedFunctions = {
   getFullLangAttribute,
   createInPageButton,
   createAccessibleLink,
-} from './util.js';
-
-const affectedFunctions = {
-  getLangAttribute,
-  getFullLangAttribute,
-  createInPageButton,
-  createAccessibleLink,
-};
+} = ...
 
 // Export affected functions and Main component to make them accessible
 module.exports = {
@@ -210,34 +203,107 @@ const a11yStore = {
     });
   },
 
-  renderDependencyGraph() {
+  renderDependencyGraph(container, dependencies, options = {}) {
+    // Render dependency graph with accessibility improvements
+    const {
+      title = 'Dependency Graph',
+      description = 'Visual representation of project dependencies and their relationships',
+      nodeLabel = (node) => node.name || node.id,
+      onNodeClick = null,
+    } = options;
+
+    // Create accessible container
     const graphContainer = document.createElement('div');
-    graphContainer.id = 'a11y-dependency-graph';
     graphContainer.setAttribute('role', 'img');
-    graphContainer.setAttribute('aria-label', 'Accessibility dependency graph');
+    graphContainer.setAttribute('aria-label', `${title}: ${description}`);
+    graphContainer.setAttribute('tabindex', '0');
 
-    const dependencies = {
-      'a11yStore': ['createLiveRegion', 'initAccessibility', 'makeAccessible'],
-      'createAccessibleButton': ['a11yStore'],
-      'createAccessibleDialog': ['createAccessibleButton', 'a11yStore'],
-      'handleAccessibilityIssues': ['a11yStore', 'makeAccessible'],
-      'updateLiveRegion': ['createLiveRegion'],
-    };
+    // Create description for screen readers
+    const descriptionEl = document.createElement('div');
+    descriptionEl.id = 'dependency-graph-description';
+    descriptionEl.className = 'sr-only';
+    descriptionEl.textContent = `${title}. ${description}. Contains ${dependencies.length} dependencies.`;
 
-    const graphData = JSON.stringify(dependencies, null, 2);
-    graphContainer.setAttribute('data-graph', graphData);
+    graphContainer.appendChild(descriptionEl);
 
-    const title = document.createElement('h2');
-    title.textContent = 'Accessibility Dependency Graph';
-    graphContainer.appendChild(title);
+    // Create keyboard navigation instructions
+    const instructionsEl = document.createElement('div');
+    instructionsEl.className = 'sr-only';
+    instructionsEl.id = 'dependency-graph-instructions';
+    instructionsEl.textContent = 'Use arrow keys to navigate between dependency nodes. Press Enter to select a node.';
+    graphContainer.appendChild(instructionsEl);
 
-    const graphList = document.createElement('ul');
-    Object.keys(dependencies).forEach(key => {
-      const listItem = document.createElement('li');
-      listItem.textContent = key;
-      graphList.appendChild(listItem);
+    // Focus management for keyboard navigation
+    let currentFocusIndex = 0;
+    const focusableNodes = [];
+
+    // Create graph nodes
+    const nodes = [];
+    dependencies.forEach((dep, index) => {
+      const node = document.createElement('div');
+      node.setAttribute('role', 'button');
+      node.setAttribute('tabindex', index === 0 ? '0' : '-1');
+      node.setAttribute('aria-describedby', 'dependency-graph-instructions');
+      node.id = `dep-node-${dep.id || index}`;
+      node.className = 'dependency-node';
+      node.textContent = nodeLabel(dep);
+
+      // Add accessibility attributes
+      if (dep.version) {
+        node.setAttribute('aria-label', `${nodeLabel(dep)}, version ${dep.version}`);
+      } else {
+        node.setAttribute('aria-label', nodeLabel(dep));
+      }
+
+      if (onNodeClick) {
+        node.addEventListener('click', () => {
+          node.setAttribute('aria-pressed', 'true');
+          onNodeClick(dep);
+        });
+
+        node.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            node.setAttribute('aria-pressed', 'true');
+            onNodeClick(dep);
+          }
+        });
+      }
+
+      nodes.push(node);
+      focusableNodes.push(node);
+      graphContainer.appendChild(node);
     });
-    graphContainer.appendChild(graphList);
+
+    // Keyboard navigation
+    graphContainer.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        currentFocusIndex = Math.min(currentFocusIndex + 1, focusableNodes.length - 1);
+        focusableNodes[currentFocusIndex].focus();
+        focusableNodes[currentFocusIndex].setAttribute('tabindex', '0');
+        focusableNodes.forEach((node, i) => {
+          if (i !== currentFocusIndex) node.setAttribute('tabindex', '-1');
+        });
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        currentFocusIndex = Math.max(currentFocusIndex - 1, 0);
+        focusableNodes[currentFocusIndex].focus();
+        focusableNodes[currentFocusIndex].setAttribute('tabindex', '0');
+        focusableNodes.forEach((node, i) => {
+          if (i !== currentFocusIndex) node.setAttribute('tabindex', '-1');
+        });
+      }
+    });
+
+    // Initial focus announcement
+    graphContainer.addEventListener('focus', () => {
+      this.announce(`Dependency graph focused. ${focusableNodes.length} dependencies available.`);
+    });
+
+    if (container) {
+      container.appendChild(graphContainer);
+    }
 
     return graphContainer;
   },
@@ -450,16 +516,4 @@ export {
   handleAccessibilityIssues,
   getSvgAccessibleName,
   newNecessaryFunction,
-  createAccessibleButton,
-  createAccessibleDialog,
-  announceToScreenReader,
-  trapFocus,
-  initAccessibility,
-  updateLiveRegion,
-  checkLandmarkElements,
-  ...
-  addressAccessibilityIssue038,
-  renderDependencyGraph,
-  createAccessibleLink,
-};
-export default a11yStore;
+  create

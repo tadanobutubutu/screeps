@@ -411,7 +411,7 @@ const config = {
   enabled: true
 };
 
-// Functions from the HEAD section that are relevant to Screeps bot
+// Accessibility functions
 
 /**
  * Checks if a button has appropriate accessibility attributes.
@@ -428,6 +428,22 @@ function isButtonAccessible(button) {
   const hasIcon = button.querySelector('svg, img, icon');
   
   return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle || hasIcon;
+}
+
+/**
+ * Checks if a link has appropriate accessibility attributes.
+ * @param {HTMLElement} link - The link element to check
+ * @returns {boolean} True if the link is accessible, false otherwise
+ */
+function isLinkAccessible(link) {
+  if (!link) return false;
+  
+  const hasText = link.textContent && link.textContent.trim().length > 0;
+  const hasAriaLabel = link.hasAttribute('aria-label');
+  const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
+  const hasTitle = link.hasAttribute('title');
+  
+  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
 }
 
 /**
@@ -548,40 +564,6 @@ function checkLandmarks(container = document) {
 }
 
 /**
- * Checks link and button accessibility in the document or specific container.
- * @param {HTMLElement} [container=document] - The container to check for accessibility
- * @returns {Object} An object containing accessibility check results
- */
-function checkAccessibility(container = document) {
-  const results = {
-    links: { accessible: [], inaccessible: [] },
-    buttons: { accessible: [], inaccessible: [] }
-  };
-  
-  if (!container) return results;
-  
-  const links = container.querySelectorAll('a[href]');
-  links.forEach(link => {
-    if (isLinkAccessible(link)) {
-      results.links.accessible.push(link);
-    } else {
-      results.links.inaccessible.push(link);
-    }
-  });
-  
-  const buttons = container.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (isButtonAccessible(button)) {
-      results.buttons.accessible.push(button);
-    } else {
-      results.buttons.inaccessible.push(button);
-    }
-  });
-  
-  return results;
-}
-
-/**
  * Validates table accessibility by checking for proper headers, captions, and ARIA attributes.
  * @param {HTMLElement} table - The table element to validate
  * @returns {Object} An object containing validation results
@@ -689,17 +671,17 @@ function validateTableStructure(table) {
 
 // Exports
 module.exports = {
-    main,
-    SomeClass,
-    someUtility,
-    config,
-    countDependencies,
     run,
     checkTableStructure,
+    countDependencies,
     ensureElementHasId,
     addAriaLabel,
     renderDependencyGraphs,
     myNewFunction,
+    main,
+    SomeClass,
+    someUtility,
+    config,
     newFunction,
     isLinkAccessible,
     isButtonAccessible,

@@ -1,10 +1,10 @@
-const {
+import {
   getLangAttribute,
   getFullLangAttribute,
   validateLandmarkStructure,
   getSvgAccessibleName,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} from './accessibilityHelperFunctions';
 
 const a11yStore = {
   init() {

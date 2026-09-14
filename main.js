@@ -1,19 +1,13 @@
-// TODO: Add back any required exports that might have been removed in main.js
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by imported components/index.html)
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
+// TODO: Add back any required exports that might have been removed
+// Example: import a function from another file (util.js)
+// ------ IMPORTANT -------
+// Do not remove or rename any existing exports in main.js
 
 // Commit: c5dfb8e6099f598498cc531ac0c7aec74b60c762
 
 import React from 'react';
 
-const {
+import {
   getLangAttribute,
   getFullLangAttribute,
   validateLandmarkStructure,
@@ -26,7 +20,14 @@ const affectedFunctions = {
   getFullLangAttribute,
   createInPageButton,
   createAccessibleLink,
-} = ...
+} from './util.js';
+
+const affectedFunctions = {
+  getLangAttribute,
+  getFullLangAttribute,
+  createInPageButton,
+  createAccessibleLink,
+};
 
 // Export affected functions and Main component to make them accessible
 module.exports = {
@@ -456,11 +457,9 @@ export {
   initAccessibility,
   updateLiveRegion,
   checkLandmarkElements,
-  getLangAttribute,
-  getFullLangAttribute,
-  createInPageButton,
-  createAccessibleLink,
+  ...
   addressAccessibilityIssue038,
   renderDependencyGraph,
+  createAccessibleLink,
 };
 export default a11yStore;

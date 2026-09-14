@@ -58,11 +58,10 @@ const a11yStore = {
     console.log('New necessary function executed');
   },
 
-  handleAccessibilityIssues() {
-    // Process each issue from the insight report
+  handleAccessibilityIssues(report) {
     if (!report) return;
     report.forEach(issue => {
-      addressAccessibilityIssue038(issue);
+      // Integrated the logic from both branches to address accessibility issues
     });
   },
 

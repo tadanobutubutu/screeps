@@ -1701,6 +1701,7 @@ module.exports = {
     SomeClass,
     someUtility,
     config,
+    greeting,
     countDependencies,
     run,
     checkTableStructure,

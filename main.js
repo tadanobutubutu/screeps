@@ -239,8 +239,6 @@ function rotateBack() {
 const {
   getLangAttribute,
   getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
   validateLandmarkStructure,
   getSvgAccessibleName,
   createInPageButton,
@@ -662,7 +660,7 @@ function validateTableStructure(table) {
   });
 
   return results;
-};
+}
 
 // Exports
 module.exports = {
@@ -677,6 +675,7 @@ module.exports = {
   SomeClass,
   someUtility,
   config,
+  newFunction,
   isLinkAccessible,
   isButtonAccessible,
   checkAccessibility,

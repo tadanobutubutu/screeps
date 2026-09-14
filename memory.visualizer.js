@@ -28,7 +28,7 @@ const memoryVisualizer = {
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        .toFixed(2)} KB`);
+        console.log(`Total Size: ${(stats.totalSize / 1024).toFixed(2)} KB`);
         return stats;
     },
 
@@ -66,12 +66,13 @@ const memoryVisualizer = {
 
         sizes.sort((a, b) => b.size - a.size);
 
-        sizes.slice(0, limit).forEach((item, index) => {
-            .toFixed(2)} KB)`
-            );
+        const slicedSizes = sizes.slice(0, limit);
+        slicedSizes.forEach((item, index) => {
+            console.log(`- ${item.type} ${item.name}: ${(item.size / 1024).toFixed(2)} KB`);
+
         });
 
-        return sizes;
+        return slicedSizes;
     },
 
     /**
@@ -117,9 +118,9 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        :`);
+        console.log(`History (last ${snapshots.length} ticks):`);
         snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`);
+            console.log(`[${snap.time}] CPU=${snap.cpu.toFixed(2)}, Bucket=${snap.bucket}, Creeps=${snap.creeps}, Energy=${snap.energy}`);
         });
 
         return snapshots;
@@ -193,7 +194,8 @@ const memoryVisualizer = {
 
         sorted.forEach((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            });
+            console.log(`${medal} ${entry[0]}: ${entry[1]}`);
+        });
 
         return sorted;
     },
@@ -251,7 +253,8 @@ const memoryVisualizer = {
 
         const diary = Memory.creeps[creepName].diary;
         diary.entries.forEach((entry) => {
-            });
+            console.log(`[${entry.time}] ${entry.message}`);
+        });
 
         return diary.entries;
     },
@@ -331,7 +334,8 @@ const memoryVisualizer = {
             Memory.backups.shift();
         }
 
-        },
+        // log backup saved
+    },
 
     restore: function (index = 0) {
         if (!Memory.backups || Memory.backups.length === 0) {

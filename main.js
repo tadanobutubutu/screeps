@@ -1,10 +1,46 @@
-import {
+// TODO: Add back any required exports that might have been removed in main.js
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+
+// Commit: a3c5cf541ab167e23402b298c1007dab267aff41
+
+import React from 'react';
+
+const {
   getLangAttribute,
   getFullLangAttribute,
   validateLandmarkStructure,
   getSvgAccessibleName,
   createAccessibleLink,
-} from './accessibilityHelperFunctions';
+} = require('./accessibilityHelperFunctions');
+
+// Define affected functions that need to be exported
+const affectedFunctions = {
+  handleAccessibilityIssues,
+  getSvgAccessibleName,
+  newNecessaryFunction,
+  createAccessibleButton,
+  createAccessibleDialog,
+  announceToScreenReader,
+  trapFocus,
+  initAccessibility,
+  updateLiveRegion,
+  checkLandmarkElements,
+  addSVGAccessibilityProps,
+  addressAccessibilityIssue038,
+  renderDependencyGraph,
+};
+
+// Export affected functions and Main component to make them accessible
+module.exports = {
+  ...affectedFunctions,
+  Main: Main,
+};
 
 const a11yStore = {
   init() {

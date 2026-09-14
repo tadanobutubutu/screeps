@@ -182,6 +182,34 @@ function _planSourceContainers(room) {
 }
 
 /**
+ * 指定した位置に構造物や建設サイトが既に存在するか確認する
+ * @param {Room} room
+ * @param {Object} pos
+ * @param {Array} cachedStructures
+ * @param {Array} cachedSites
+ * @returns {boolean}
+ */
+function _hasStructureOrSite(room, pos, cachedStructures, cachedSites) {
+    const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
+    if (structures && structures.length > 0) return true;
+
+    const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
+    if (sites && sites.length > 0) return true;
+
+    for (let k = 0; k < cachedStructures.length; k++) {
+        const s = cachedStructures[k];
+        if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) return true;
+    }
+
+    for (let k = 0; k < cachedSites.length; k++) {
+        const s = cachedSites[k];
+        if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) return true;
+    }
+
+    return false;
+}
+
+/**
  * スポーンからソース・コントローラーへの道路を計画する
  * @param {Room} room
  */
@@ -206,32 +234,8 @@ function _planRoads(room) {
         let planned = 0;
         for (let j = 0; j < result.path.length; j++) {
             const pos = result.path[j];
-            // 既存の構造物や建設サイトがない場所にのみ道路を計画
-            const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
-            const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
 
-            let hasCachedStruct = false;
-            for (let k = 0; k < cachedStructures.length; k++) {
-                const s = cachedStructures[k];
-                if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) {
-                    hasCachedStruct = true;
-                    break;
-                }
-            }
-
-            let hasCachedSite = false;
-            for (let k = 0; k < cachedSites.length; k++) {
-                const s = cachedSites[k];
-                if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) {
-                    hasCachedSite = true;
-                    break;
-                }
-            }
-
-            if ((!structures || structures.length === 0) &&
-                (!sites || sites.length === 0) &&
-                !hasCachedStruct &&
-                !hasCachedSite) {
+            if (!_hasStructureOrSite(room, pos, cachedStructures, cachedSites)) {
                 const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
                 if (r === OK) {
                     planned++;

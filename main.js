@@ -1,4 +1,6 @@
-// Address accessibility issues from insight report:
+// TODO: Add any other missing exports that might have been?
+
+// TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
@@ -383,9 +385,7 @@ exports.rotateBack = rotateBack;
  * ... (existing code remains the same)
  */
 
-// Import required module(s) and export the new necessary function(s) here
-const accessibilityModule = require('./accessibility');
-
+// Additional exports for missing functions
 exports.getSvgAccessibleName = getSvgAccessibleName;
 exports.setSvgAccessibilityProps = setSvgAccessibilityProps;
 exports.isLinkAccessible = isLinkAccessible;
@@ -396,12 +396,3 @@ exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 exports.checkLandmarks = checkLandmarks;
 exports.makeAccessible = makeAccessible;
 exports.rotateBack = rotateBack;
-
-// Re-export any additional necessary functions from imported modules
-if (accessibilityModule && typeof accessibilityModule === 'object') {
-  Object.keys(accessibilityModule).forEach(key => {
-    if (!exports[key]) {
-      exports[key] = accessibilityModule[key];
-    }
-  });
-}

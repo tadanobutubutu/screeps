@@ -51,3 +51,7 @@ Replaced redundant loop source counting in auto.evolution.js with centralized O(
 ## 2026-09-09 - Deferring Tower Evaluation in Primary Target Search
 **Learning:** In delivery target selection loops (such as `_findPrimaryTarget` in `src/roles/harvester.js`), evaluating lower-priority candidates like towers (checking free capacity and distance) in a single unified loop over all structures wastes CPU when high-priority targets (spawns/extensions) exist. Separating passes to return high-priority candidates immediately bypasses distance and capacity checks for lower-priority structures.
 **Action:** Always separate target search passes by priority group so higher-priority target presence short-circuits evaluation of lower-priority structures.
+
+## 2026-09-09 - Room-Level Per-Tick Target Caching in Tower Management
+**Learning:** In multi-structure manager routines (such as `_runTower` in `towerManager.js`), evaluating attack and heal targets independently per structure scans candidate arrays (`enemies`, `injuredCreeps`) repeatedly every tick. Caching selected attack and heal targets on a room-level per-tick basis enables all towers in a room to reuse calculated targets in O(1) time while coordinating focus firing.
+**Action:** Always cache room-level target selection per tick across multiple structures when room state and action resolutions remain constant within the tick.

@@ -16,6 +16,8 @@ Let me analyze the code and fix all syntax errors while preserving the existing 
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
 
 /**
  * Gets the accessible name for an SVG element.

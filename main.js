@@ -25,7 +25,24 @@ const renderDependencyGraph = (dependencyGraph, container) => {
 
 module.exports.renderDependencyGraph = renderDependencyGraph;
 
-import { Metadata } from "next";
+const spawn = (entityType, options = {}) => {
+  const entity = {
+    type: entityType,
+    position: options.position || { x: 0, y: 0 },
+    health: options.health || 100,
+    spawnedAt: Date.now(),
+  };
+
+  if (options.onSpawn) {
+    options.onSpawn(entity);
+  }
+
+  return entity;
+};
+
+exports.spawn = spawn;
+
+import { type Metadata } from "next";
 import "./globals.css";
 import {
   addLangAttribute,

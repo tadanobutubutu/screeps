@@ -1,10 +1,6 @@
 const fs = require('fs');
 
-function runPatch() {
-    const file = 'main.js';
-    let content = fs.readFileSync(file, 'utf8') || '';
-
-    const oldCategorizeRoomStructures = `function categorizeRoomStructures(room, allStructures) {
+const oldCategorizeRoomStructures = `function categorizeRoomStructures(room, allStructures) {
         // 3. 構造物の分類（1パスで実行）
         const myStructures = [];
         const deliveryTargets = [];
@@ -115,7 +111,7 @@ function runPatch() {
         room._freeSpawnsTick = Game.time;
     }`;
 
-    const newCategorizeRoomStructures = `function _categorizeMyStructure(s, type, state) {
+const newCategorizeRoomStructures = `function _categorizeMyStructure(s, type, state) {
         state.myStructures.push(s);
 
         if (
@@ -239,9 +235,29 @@ function runPatch() {
         room._freeSpawnsTick = Game.time;
     }`;
 
+function readFileContent(filePath) {
+    try {
+        return fs.readFileSync(filePath, 'utf8') || '';
+    } catch (e) {
+        return '';
+    }
+}
+
+function writeFileContent(filePath, content) {
+    fs.writeFileSync(filePath, content, 'utf8');
+}
+
+function applyPatch(content, oldStr, newStr) {
+    return content.replace(oldStr, newStr);
+}
+
+function runPatch() {
+    const file = 'main.js';
+    let content = readFileContent(file);
+
     if (content) {
-        content = content.replace(oldCategorizeRoomStructures, newCategorizeRoomStructures);
-        fs.writeFileSync(file, content, 'utf8');
+        content = applyPatch(content, oldCategorizeRoomStructures, newCategorizeRoomStructures);
+        writeFileContent(file, content);
     }
 }
 

@@ -182,8 +182,7 @@ function trace(msg) {
 function getSafeStack(stack, maxLines = 5) {
     if (stack === undefined || stack === null) return '';
     const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);
-    const sanitizedStack = truncatedStack.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*\//g, '');
-    const redacted = _redactPaths(sanitizedStack);
+    const redacted = _redactPaths(truncatedStack);
     const lines = redacted.split('\n');
     return lines
         .slice(0, maxLines)

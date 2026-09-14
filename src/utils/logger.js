@@ -136,6 +136,7 @@ function log(arg1, arg2, data) {
     } else if (LEVELS[arg2] !== undefined) {
         level = arg2;
         message = arg1;
+        extraData = data;
     } else {
         message = arg1;
         extraData = arg2;
@@ -152,7 +153,11 @@ function log(arg1, arg2, data) {
     }
     if (extraData !== undefined && extraData !== null) {
         try {
-            message += (message ? ' ' : '') + JSON.stringify(extraData);
+            if (extraData instanceof Error) {
+                message += (message ? ' ' : '') + (extraData.message || String(extraData));
+            } else {
+                message += (message ? ' ' : '') + JSON.stringify(extraData);
+            }
         } catch (e) {
             message += ' [Unserializable Object]';
         }
@@ -203,8 +208,7 @@ function success(msg, data) {
 function getSafeStack(stack, maxLines = 5) {
     if (stack === undefined || stack === null) return '';
     const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);
-    const sanitizedStack = truncatedStack.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*\//g, '');
-    const redacted = _redactPaths(sanitizedStack);
+    const redacted = _redactPaths(truncatedStack);
     const lines = redacted.split('\n');
     return lines
         .slice(0, maxLines)

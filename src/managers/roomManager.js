@@ -198,6 +198,21 @@ function _planRoads(room) {
     const cachedStructures = cache.getStructures(room);
     const cachedSites = cache.getConstructionSites(room);
 
+    // ⚡ PERFORMANCE OPTIMIZATION: O(1) grid lookup instead of lookForAt / nested loops
+    const occupiedGrid = new Array(50);
+    for (let i = 0; i < 50; i++) {
+        occupiedGrid[i] = new Array(50).fill(false);
+    }
+
+    for (let i = 0; i < cachedStructures.length; i++) {
+        const s = cachedStructures[i];
+        if (s.pos) occupiedGrid[s.pos.x][s.pos.y] = true;
+    }
+    for (let i = 0; i < cachedSites.length; i++) {
+        const s = cachedSites[i];
+        if (s.pos) occupiedGrid[s.pos.x][s.pos.y] = true;
+    }
+
     for (let i = 0; i < targets.length; i++) {
         const target = targets[i];
         const result = pathfinder.findPath(spawn.pos, target);
@@ -206,34 +221,11 @@ function _planRoads(room) {
         let planned = 0;
         for (let j = 0; j < result.path.length; j++) {
             const pos = result.path[j];
-            // 既存の構造物や建設サイトがない場所にのみ道路を計画
-            const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
-            const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
 
-            let hasCachedStruct = false;
-            for (let k = 0; k < cachedStructures.length; k++) {
-                const s = cachedStructures[k];
-                if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) {
-                    hasCachedStruct = true;
-                    break;
-                }
-            }
-
-            let hasCachedSite = false;
-            for (let k = 0; k < cachedSites.length; k++) {
-                const s = cachedSites[k];
-                if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) {
-                    hasCachedSite = true;
-                    break;
-                }
-            }
-
-            if ((!structures || structures.length === 0) &&
-                (!sites || sites.length === 0) &&
-                !hasCachedStruct &&
-                !hasCachedSite) {
+            if (!occupiedGrid[pos.x][pos.y]) {
                 const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
                 if (r === OK) {
+                    occupiedGrid[pos.x][pos.y] = true;
                     planned++;
                     if (planned >= MAX_ROADS_PER_CYCLE) break; // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
                 }

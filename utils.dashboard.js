@@ -4,14 +4,20 @@ const adaptiveSystem = require('system.adaptive');
  * Formats a number for better readability (e.g., 1000 -> 1.0K, 1000000 -> 1.0M)
  */
 function formatNumber(num) {
-    if (num >= 1000000000) {
-        return (num / 1000000000).toFixed(1) + 'B';
+    if (typeof num !== 'number' || isNaN(num)) {
+        return '0';
     }
-    if (num >= 1000000) {
-        return (num / 1000000).toFixed(1) + 'M';
+    const absNum = Math.abs(num);
+    const sign = num < 0 ? '-' : '';
+
+    if (absNum >= 1000000000) {
+        return sign + (absNum / 1000000000).toFixed(1) + 'B';
     }
-    if (num >= 1000) {
-        return (num / 1000).toFixed(1) + 'K';
+    if (absNum >= 1000000) {
+        return sign + (absNum / 1000000).toFixed(1) + 'M';
+    }
+    if (absNum >= 1000) {
+        return sign + (absNum / 1000).toFixed(1) + 'K';
     }
     return num.toString();
 }

@@ -194,5 +194,19 @@ describe('DashboardRenderer', () => {
             expect(DashboardRenderer.formatNumber(1500000)).toBe('1.5M');
             expect(DashboardRenderer.formatNumber(10000000)).toBe('10.0M');
         });
+
+        test('handles negative numbers', () => {
+            expect(DashboardRenderer.formatNumber(-500)).toBe('-500');
+            expect(DashboardRenderer.formatNumber(-1500)).toBe('-1.5K');
+            expect(DashboardRenderer.formatNumber(-1500000)).toBe('-1.5M');
+            expect(DashboardRenderer.formatNumber(-1500000000)).toBe('-1.5B');
+        });
+
+        test('handles falsy numbers gracefully', () => {
+            expect(DashboardRenderer.formatNumber(null)).toBe('0');
+            expect(DashboardRenderer.formatNumber(undefined)).toBe('0');
+            expect(DashboardRenderer.formatNumber(NaN)).toBe('0');
+            expect(DashboardRenderer.formatNumber(0)).toBe('0');
+        });
     });
 });

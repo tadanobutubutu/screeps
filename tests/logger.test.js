@@ -207,6 +207,30 @@ describe('logger', () => {
         });
     });
 
+
+    describe('tryCatch', () => {
+        test('returns the result when the function succeeds', () => {
+            const fn = jest.fn((a, b) => a + b);
+            const result = logger.tryCatch(fn, 'successCtx', 10, 20);
+            expect(result).toBe(30);
+            expect(fn).toHaveBeenCalledWith(10, 20);
+        });
+
+        test('logs an error and returns undefined when the function throws', () => {
+            const dummyError = new Error('test error');
+            const fn = jest.fn(() => {
+                throw dummyError;
+            });
+            const result = logger.tryCatch(fn, 'errorCtx');
+            expect(result).toBeUndefined();
+
+            const errors = logger.getErrors();
+            expect(errors.length).toBeGreaterThan(0);
+            expect(errors[errors.length - 1].message).toContain('[errorCtx] test error');
+            expect(errors[errors.length - 1].level).toBe('error');
+        });
+    });
+
     describe('_redactPaths', () => {
         test('文字列以外の入力はそのまま返す', () => {
             expect(logger._redactPaths(null)).toBeNull();

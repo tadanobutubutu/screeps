@@ -16,8 +16,6 @@ const pathfinder = require('../utils/pathfinder');
 const logger = require('../utils/logger');
 const {
     TOWER_ATTACK_PRIORITY_HP,
-    TOWER_REPAIR_THRESHOLD,
-    TOWER_REPAIR_STOP_THRESHOLD,
     TOWER_HEAL_THRESHOLD,
     TOWER_ENERGY_PRIORITY,
     REPAIR_THRESHOLD,

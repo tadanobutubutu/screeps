@@ -25,14 +25,7 @@ import {
 // Replace the existing renderDependencyGraph import with the updated one
 import { renderDependencyGraph as updateRenderDependencyGraph } from "./dependencyGraph";
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
+// Identify and update specific functions that render dependency graphs
 
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
@@ -186,11 +179,6 @@ const a11yStore = {
 
   handleAccessibilityIssues() {
     // Implement the function logic to handle accessibility issues
-  },
-
-  renderDependencyGraph(...args) {
-    // Use the imported renderDependencyGraph function
-    return renderDependencyGraph(...args);
   },
 
   ... {

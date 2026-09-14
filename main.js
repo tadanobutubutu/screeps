@@ -1,38 +1,14 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_017: Add landmark roles and fix landmark issues
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
 
-// Commit: a3c5cf541ab167e23402b298c1007dab267aff41
-
-import React from 'react';
-import PropTypes from 'prop-types';
-
-const {
-  getLangAttribute,
-  getFullLangAttribute,
-  createInPageButton,
-  createAccessibleLink,
-} = require('./accessibility-utils');
-
-// Export affected functions and Main component to make them accessible
-const affectedFunctions = {
-  getLangAttribute,
-  getFullLangAttribute,
-  createInPageButton,
-  createAccessibleLink,
-};
-
-const a11yStore = {
-  liveRegion: null,
-  
-  init() {
-    this.setupSkipLinks();
-    this.fixFakeLinks();
-    this.initAccessibility();
-  },
+// Import dependencyGraphContent
+const dependencyGraphContent = require('./dependencyGraph');
 
 // Update the renderDependencyGraph function
 const renderDependencyGraph = (dependencyGraph, container) => {

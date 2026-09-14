@@ -35,6 +35,16 @@ function fixTableStructureIssues(document) {
     const existingTbody = table.querySelector('tbody');
     const rows = table.querySelectorAll('tr');
 
+function fixTableStructureIssues(document) {
+  // Function to fix table structure issues for accessibility
+  let fixedCount = 0;
+  const tables = document.querySelectorAll('table');
+  
+  tables.forEach(table => {
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+    
     if (!existingTbody) {
       let remainingRows = Array.from(rows);
       if (existingThead) {
@@ -1100,6 +1110,39 @@ function addMainLandmarkToIndex() {
   // Add main landmark to index
 }
 
+// Function to implement spawning logic
+function spawn(config = {}) {
+  // TODO: Implement spawning logic
+  const {
+    container = document.body,
+    type = 'generic',
+    attributes = {},
+    textContent = '',
+    parent = null
+  } = config;
+
+  // Create the element based on type
+  const element = document.createElement(type);
+
+  // Apply attributes
+  Object.keys(attributes).forEach(key => {
+    element.setAttribute(key, attributes[key]);
+  });
+
+  // Set text content if provided
+  if (textContent) {
+    element.textContent = textContent;
+  }
+
+  // Append to target container
+  const target = parent || container;
+  if (target) {
+    target.appendChild(element);
+  }
+
+  return element;
+}
+
 // Export all functions and utilities
 exports.addLangAttribute = addLangAttribute;
 exports.addMainLandmark = addMainLandmark;
@@ -1116,21 +1159,4 @@ exports.uniqueLandmarks = uniqueLandmarks;
 exports.fixImageAltTexts = fixImageAltTexts;
 exports.googleSignIn = googleSignIn;
 exports.handleCredentialResponse = handleCredentialResponse;
-exports.rotateBack = rotateBack;
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
-exports.renderDependencyGraph = renderDependencyGraph;
-exports.fixTableStructureIssues = fixTableStructureIssues;
-exports.ensureElementHasId = ensureElementHasId;
-exports.addAriaLabel = addAriaLabel;
-exports.renderDependencyGraphs = renderDependencyGraphs;
-exports.a11yStore = a11yStore;
-exports.addressAccessibilityIssues = addressAccessibilityIssues;
-exports.renderIndexView = renderIndexView;
-exports.setFormElementAccessibleNames = setFormElementAccessibleNames;
-exports.setSvgAccessibilityProps = setSvgAccessibilityProps;
-exports.isLinkAccessible = isLinkAccessible;
-exports.isButtonAccessible = isButtonAccessible;
-exports.getSvgAccessibleName = getSvgAccessibleName;
-exports.decodeJwtResponse = decodeJwtResponse;
-exports.fixButtonIdentifiers = fixButtonIdentifiers;
-exports.addMainLandmarkToIndex = addMainLandmarkToIndex;
+exports.spawn = spawn;

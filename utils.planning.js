@@ -134,21 +134,24 @@ module.exports = {
                 const roadPositions = [];
 
                 // Roads to sources
-                sources.forEach((source) => {
-                    if (spawn && spawn.pos) {
+                if (spawn && spawn.pos) {
+                    for (let i = 0; i < sources.length; i++) {
+                        const source = sources[i];
                         const path = spawn.pos.findPathTo(source, { ignoreCreeps: true });
-                        path.forEach((step) => {
+                        for (let j = 0; j < path.length; j++) {
+                            const step = path[j];
                             roadPositions.push(new RoomPosition(step.x, step.y, room.name));
-                        });
+                        }
                     }
-                });
+                }
 
                 // Road to controller
                 if (controller && spawn && spawn.pos) {
                     const path = spawn.pos.findPathTo(controller, { ignoreCreeps: true });
-                    path.forEach((step) => {
+                    for (let i = 0; i < path.length; i++) {
+                        const step = path[i];
                         roadPositions.push(new RoomPosition(step.x, step.y, room.name));
-                    });
+                    }
                 }
 
                 return roadPositions;

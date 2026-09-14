@@ -58,6 +58,14 @@ const a11yStore = {
   renderDependencyGraph() {
     // Existing code for rendering dependency graph
   },
+
+  createInPageButton(id, label, onClick) {
+    const button = document.createElement('button');
+    button.id = id;
+    button.textContent = label;
+    button.addEventListener('click', onClick);
+    return button;
+  }
 };
 
 function getSvgAccessibleName(svgElement) {

@@ -508,7 +508,6 @@ export default function Dashboard() {
                         <span
                             className="interactive-hint"
                             tabIndex={0}
-                            role="status"
                             aria-live="polite"
                             title={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}`}
                             aria-label={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}`}
@@ -821,7 +820,6 @@ export default function Dashboard() {
                     <span
                         className="interactive-hint"
                         tabIndex={0}
-                        role="status"
                         aria-live="polite"
                         title={
                             roomQuery

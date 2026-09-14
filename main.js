@@ -50,14 +50,16 @@ function getSvgAccessibleName(svgElement) {
  * Sets accessibility properties on SVG elements.
  * @param {SVGElement} svgElement - The SVG element to modify
  */
-function setSvgAccessibilityProps(svgElement) {
+function setSvgAttributes(svgElement) {
   if (!svgElement) return;
   
   if (!svgElement.getAttribute('role')) {
     svgElement.setAttribute('role', 'img');
   }
-  if (!svgElement.getAttribute('focusable')) {
-    svgElement.setAttribute('focusable', 'false');
+  
+  if (!svgElement.hasAttribute('aria-hidden') || svgElement.getAttribute('aria-hidden') !== 'false') {
+    const generatedLabel = 'SVG Image';
+    svgElement.setAttribute('aria-label', generatedLabel);
   }
 }
 
@@ -84,9 +86,11 @@ function isLinkAccessible(link) {
 function isButtonAccessible(button) {
   if (!button) return false;
   
-  const text = button.textContent.trim();
-  const ariaLabel = button.getAttribute('aria-label');
-  const ariaLabelledBy = button.getAttribute('aria-labelledby');
+  const hasText = button.textContent && button.textContent.trim().length > 0;
+  const hasAriaLabel = button.hasAttribute('aria-label');
+  const hasAriaLabelledBy = button.hasAttribute('aria-labelledby');
+  const hasTitle = button.hasAttribute('title');
+  const hasIcon = button.querySelector('img, icon');
   
   return !!(text || ariaLabel || ariaLabelledBy);
 }
@@ -99,14 +103,14 @@ function isButtonAccessible(button) {
 function checkAccessibility(container = document) {
   const issues = [];
   
+  if (!container) return results;
+  
   const links = container.querySelectorAll('a');
-  links.forEach((link, index) => {
-    if (!isLinkAccessible(link)) {
-      issues.push({
-        type: 'link',
-        element: link,
-        message: `Link at index ${index} lacks accessible name`
-      });
+  links.forEach(link => {
+    if (isLinkAccessible(link)) {
+      results.links.accessible.push(link);
+    } else {
+      results.links.inaccessible.push(link);
     }
   });
   
@@ -171,6 +175,15 @@ function wrapPrimaryContentInMain() {
   }
   body.appendChild(main);
   
+  const bodyChildren = Array.from(document.body.children);
+  bodyChildren.forEach(child => {
+    if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
+        child.getAttribute('data-a11y-ignore') !== 'true') {
+      main.appendChild(child);
+    }
+  });
+  
+  document.body.appendChild(main);
   return main;
 }
 
@@ -196,7 +209,10 @@ exports.anotherFunction = function() {
   // Existing code
 };
 
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
+function addressAccessibilityIssue038() {
+  // Function implementation
+}
+
 exports.renderDependencyGraph = renderDependencyGraph;
 
 // The function rotateBack() should be defined somewhere in your code to handle the action of rotating back.
@@ -213,8 +229,8 @@ function rotateBack() {
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
@@ -228,268 +244,8 @@ function getLangAttribute() {
 }
 
 function createInPageButton() {
-  const button = document.createElement('button');
-  button.setAttribute('aria-label', 'Skip to main content');
-  button.textContent = 'Skip to main content';
-  return button;
-}
-
-function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!table.querySelector('caption, th, [scope]')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table caption';
-      table.insertBefore(caption, table.firstChild);
-    }
-  });
-  return tables.length;
-}
-
-function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
-  let issues = 0;
-  tables.forEach(table => {
-    const rows = table.querySelectorAll('tr');
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
-      if (cells.length === 0) issues++;
-    });
-  });
-  return issues;
-}
-
-function validateLandmark() {
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside, section[role]');
-  return landmarks.length;
-}
-
-function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
-  let issues = 0;
-  landmarks.forEach(landmark => {
-    if (!landmark.getAttribute('role') && !landmark.tagName.match(/^(MAIN|NAV|HEADER|FOOTER|ASIDE)$/)) {
-      issues++;
-    }
-  });
-  return issues;
-}
-
-function validateLandmarkAttributes() {
-  const landmarks = document.querySelectorAll('[role]');
-  let issues = 0;
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (!['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'region'].includes(role)) {
-      issues++;
-    }
-  });
-  return issues;
-}
-
-function getSvgAccessibleName(svgElement) {
-  const svg = svgElement || document.querySelector('svg');
-  if (!svg) return '';
-  let name = svg.getAttribute('aria-label') || svg.getAttribute('title') || svg.querySelector('title')?.textContent || '';
-  if (!name) {
-    const desc = svg.querySelector('desc');
-    name = desc ? desc.textContent : 'SVG image';
-    svg.setAttribute('aria-label', name);
-  }
-  return name;
-}
-
-function setSvgAttributes(svgElement) {
-  const svg = svgElement || document.querySelector('svg');
-  if (!svg) return;
-  if (!svg.getAttribute('role')) svg.setAttribute('role', 'img');
-  if (!svg.getAttribute('focusable')) svg.setAttribute('focusable', 'false');
-  return svg;
-}
-
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
-  landmarks.forEach((landmark, index) => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    if (!checkLandmarkElement(role, landmark)) {
-      issues.push({
-        type: 'landmark',
-        element: landmark,
-        message: `Landmark at index ${index} has potential accessibility issue`
-      });
-    }
-  });
-  
-  return { issues, landmarkCount: landmarks.length };
-}
-
-/**
- * Adds lang attribute to HTML element if missing.
- */
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    return htmlElement.getAttribute('lang') || 'en';
-  }
-  return 'en';
-}
-
-/**
- * Adds main landmark to the page if missing.
- */
-function addMainLandmark() {
-  if (!document.querySelector('main')) {
-    wrapPrimaryContentInMain();
-  }
-}
-
-/**
- * Adds accessible names to SVG elements.
- */
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const name = getSvgAccessibleName(svg);
-    if (!name) {
-      const title = document.createElement('title');
-      title.textContent = 'SVG image';
-      title.id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('aria-labelledby', title.id);
-    }
-    setSvgAccessibilityProps(svg);
-  });
-}
-
-/**
- * Fixes fake link issues by adding proper roles.
- */
-function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
-  fakeLinks.forEach(link => {
-    if (!link.getAttribute('role')) {
-      link.setAttribute('role', 'button');
-    }
-    if (!link.getAttribute('tabindex')) {
-      link.setAttribute('tabindex', '0');
-    }
-  });
-  return fakeLinks.length;
-}
-
-/**
- * Ensures unique landmarks by adding IDs where needed.
- */
-function ensureUniqueLandmarks() {
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    mainElements.forEach((main, index) => {
-      if (index > 0 && !main.id) {
-        main.id = `main-${index}`;
-        main.setAttribute('aria-label', `Main content section ${index + 1}`);
-      }
-    });
-  }
-  return document.querySelectorAll('main, nav, header, footer, aside').length;
-}
-
-/**
- * Fixes table structure issues.
- */
-function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
-  let fixedCount = 0;
-  
-  tables.forEach(table => {
-    const hasCaption = table.querySelector('caption');
-    const hasHeaders = table.querySelector('th');
-    const hasScope = table.querySelector('[scope]');
-    
-    if (!hasCaption && !hasHeaders && !hasScope) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table';
-      table.insertBefore(caption, table.firstChild);
-      fixedCount++;
-    }
-    
-    const rows = table.querySelectorAll('tr');
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
-      if (cells.length === 0) {
-        const emptyCell = document.createElement('td');
-        emptyCell.textContent = '';
-        row.appendChild(emptyCell);
-      }
-    });
-  });
-  
-  return fixedCount;
-}
-
-/**
- * Address accessibility issue 038.
- * @param {HTMLElement} element - The element to address
- * @param {Object} accessibilityInfo - Accessibility information
- */
-function addressAccessibilityIssue038(element, accessibilityInfo) {
-  if (!element) return;
-  
-  if (accessibilityInfo.ariaLabel) {
-    element.setAttribute('aria-label', accessibilityInfo.ariaLabel);
-  }
-  if (accessibilityInfo.role) {
-    element.setAttribute('role', accessibilityInfo.role);
-  }
-  if (accessibilityInfo.tabIndex !== undefined) {
-    element.setAttribute('tabindex', accessibilityInfo.tabIndex);
-  }
-}
-
-/**
- * Renders the index view (placeholder).
- */
-function renderIndexView() {
-  // Placeholder for index view rendering
-}
-
-/**
- * Sets form element accessible names.
- */
-function setFormElementAccessibleNames() {
-  const inputs = document.querySelectorAll('input:not([type="hidden"]):not([aria-label]):not([aria-labelledby])');
-  inputs.forEach(input => {
-    const label = document.querySelector(`label[for="${input.id}"]`);
-    if (!label && !input.getAttribute('placeholder')) {
-      input.setAttribute('aria-label', 'Form input');
-    }
-  });
-}
-
-/**
- * Count dependencies in the page.
- */
-function countDependencies() {
-  const scripts = document.querySelectorAll('script[src]');
-  const styles = document.querySelectorAll('link[rel="stylesheet"]');
-  const images = document.querySelectorAll('img[src]');
-  const svgElements = document.querySelectorAll('svg[src]');
-  const fonts = document.querySelectorAll('link[rel="preload"][as="font"], link[rel="stylesheet"][href*="font"]');
-  
-  return {
-    scripts: scripts.length,
-    styles: styles.length,
-    images: images.length,
-    svgs: svgElements.length,
-    fonts: fonts.length,
-    total: scripts.length + styles.length + images.length + svgElements.length + fonts.length
-  };
-}
-
-// TODO: Add these imported modules to the relevant rendering functions
-function renderDependencyGraph() {
-  validateTableAccessibility(document.querySelector('table'));
-  validateTableStructure(document.querySelector('table'));
-  setSvgAccessibilityProps(document.querySelector('svg'));
-  validateLinkAccessibility();
-  handleFakeLinks();
-}
+  if (typeof document !== 'undefined' && document.body) {
+    const button = document.createElement('button');
+    button.textContent = 'Toggle Language';
+    button.setAttribute('aria-label', 'Toggle Language');
+    button.add

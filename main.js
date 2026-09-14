@@ -258,6 +258,12 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
+  addLangAttribute,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  fixTableStructureIssues,
+  renderDependencyGraph,
 } = require('./accessibilityHelperFunctions');
 
 const fs = require('fs');
@@ -1253,20 +1259,10 @@ module.exports = {
     checkLandmarks,
     validateTableAccessibility,
     validateTableStructure,
-    // Functions created to match the exported names (as per TODO line 164)
-    getLangAttribute,
-    getFullLangAttribute,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
     addLangAttribute,
     addMainLandmark,
-    addSvgAccessibleNames,
     ensureUniqueLandmarks,
     fixFakeLinkIssue,
     fixTableStructureIssues,
-    setFormElementAccessibleNames,
-    setSvgAccessibilityProps,
     renderDependencyGraph
 };

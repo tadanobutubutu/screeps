@@ -16,10 +16,7 @@ const cache = require('../utils/cache');
 const pathfinder = require('../utils/pathfinder');
 const logger = require('../utils/logger');
 const {
-    ROLES,
-    CACHE_TTL,
     MEMORY_CLEANUP_INTERVAL,
-    STATS_DISPLAY_INTERVAL,
     SAFE_MODE_TRIGGER_HOSTILES,
 } = require('../constants');
 

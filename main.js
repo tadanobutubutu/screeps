@@ -1,3 +1,4 @@
+// TODO: Add any updates related to new functions
 // main.js
 // TODO: This is the existing code that needs to be preserved
 // TODO: Address accessibility issues from insight report:

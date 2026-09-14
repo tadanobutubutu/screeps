@@ -195,20 +195,8 @@ function _planRoads(room) {
         room.controller,
     ].filter(Boolean);
 
-    const cachedStructures = cache.getStructures(room) || [];
-    const cachedSites = cache.getConstructionSites(room) || [];
-
-    // ⚡ PERFORMANCE OPTIMIZATION: Hoist cache to sets for O(1) tile checking
-    const structSet = new Set();
-    for (let k = 0; k < cachedStructures.length; k++) {
-        const s = cachedStructures[k];
-        if (s && s.pos) structSet.add(s.pos.x + ',' + s.pos.y);
-    }
-    const siteSet = new Set();
-    for (let k = 0; k < cachedSites.length; k++) {
-        const s = cachedSites[k];
-        if (s && s.pos) siteSet.add(s.pos.x + ',' + s.pos.y);
-    }
+    const cachedStructures = cache.getStructures(room);
+    const cachedSites = cache.getConstructionSites(room);
 
     for (let i = 0; i < targets.length; i++) {
         const target = targets[i];
@@ -218,21 +206,37 @@ function _planRoads(room) {
         let planned = 0;
         for (let j = 0; j < result.path.length; j++) {
             const pos = result.path[j];
-            const posKey = pos.x + ',' + pos.y;
-
-            if (structSet.has(posKey) || siteSet.has(posKey)) continue;
-
             // 既存の構造物や建設サイトがない場所にのみ道路を計画
             const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
-            if (structures && structures.length > 0) continue;
-
             const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
-            if (sites && sites.length > 0) continue;
 
-            const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
-            if (r === OK) {
-                planned++;
-                if (planned >= MAX_ROADS_PER_CYCLE) break; // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
+            let hasCachedStruct = false;
+            for (let k = 0; k < cachedStructures.length; k++) {
+                const s = cachedStructures[k];
+                if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) {
+                    hasCachedStruct = true;
+                    break;
+                }
+            }
+
+            let hasCachedSite = false;
+            for (let k = 0; k < cachedSites.length; k++) {
+                const s = cachedSites[k];
+                if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) {
+                    hasCachedSite = true;
+                    break;
+                }
+            }
+
+            if ((!structures || structures.length === 0) &&
+                (!sites || sites.length === 0) &&
+                !hasCachedStruct &&
+                !hasCachedSite) {
+                const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
+                if (r === OK) {
+                    planned++;
+                    if (planned >= MAX_ROADS_PER_CYCLE) break; // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
+                }
             }
         }
 

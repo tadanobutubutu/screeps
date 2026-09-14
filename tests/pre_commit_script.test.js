@@ -26,8 +26,8 @@ describe('pre_commit_script.js', () => {
     it('should successfully execute lint and test commands', () => {
         require('../pre_commit_script.js');
 
-        expect(execFileSyncMock).toHaveBeenCalledWith('npm', ['run', 'lint'], { stdio: 'inherit' });
-        expect(execFileSyncMock).toHaveBeenCalledWith('npm', ['test'], { stdio: 'inherit' });
+        expect(execFileSyncMock).toHaveBeenCalledWith('npx', ['eslint', '.'], { stdio: 'inherit' });
+        expect(execFileSyncMock).toHaveBeenCalledWith('npx', ['jest', '--reporters=default'], { stdio: 'inherit' });
         expect(console.error).not.toHaveBeenCalled();
         expect(process.exit).not.toHaveBeenCalled();
     });

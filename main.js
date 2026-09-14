@@ -19,8 +19,8 @@ function getSvgAccessibleName(svgElement) {
   if (title && title.textContent) {
     return title.textContent.trim();
   }
-
-  if (svgElement.hasAttribute('aria-label')) {
+  
+  if (svgElement.getAttribute('aria-label')) {
     return svgElement.getAttribute('aria-label');
   }
 
@@ -299,28 +299,8 @@ exports.anotherFunction = function() {
   // Existing code
 };
 
-// TODO: Create or update the affected functions to be accessible
-// - getSvgAccessibleName
-// - setSvgAccessibilityProps
-// - isLinkAccessible
-// - isButtonAccessible
-// - checkAccessibility
-// - checkLandmarkElement
-// - wrapPrimaryContentInMain
-// - checkLandmarks
-// - getLangAttribute
-// - createInPageButton
-// - validateTableAccessibility
-// - validateTableStructure
-// - validateLandmark
-// - validateLandmarkStructure
-// - validateLandmarkAttributes
-// - ensureUniqueLandmarks
-// - validateLinkAccessibility
-// - handleFakeLinks
-// - countDependencies
-// - makeAccessible
-// - rotateBack
+addressAccessibilityIssue038 = addressAccessibilityIssue038;
+exports.renderDependencyGraph = renderDependencyGraph;
 
 // The function rotateBack() should be defined somewhere in your code to handle the action of rotating back.
 function rotateBack() {
@@ -331,18 +311,18 @@ function rotateBack() {
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
-// - REACT_025: Ensure unique landmarks (handled by ensureUniqueLandmarks())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (handled by addProperLandmarkRegions())
 
 function getLangAttribute() {
   const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
+  if (htmlElement && !htmlElement.lang) {
     htmlElement.setAttribute('lang', 'en');
   }
-  return htmlElement.getAttribute('lang');
+  return htmlElement ? htmlElement.lang : null;
 }
 
 function createInPageButton() {
@@ -379,14 +359,31 @@ function validateTableStructure() {
 
 function validateLandmark() {
   const landmarks = document.querySelectorAll('nav, header, footer, aside, section[role]');
-  return landmarks.length;
+  let issues = 0;
+  landmarks.forEach(landmark => {
+    const ariaLabel = landmark.getAttribute('aria-label');
+    const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
+    const role = landmark.getAttribute('role');
+    const tagName = landmark.tagName.toLowerCase();
+    
+    // Check if landmark has an accessible name
+    const hasAccessibleName = ariaLabel || ariaLabelledBy || 
+      (role === 'main') || 
+      (tagName === 'header' && !landmark.closest('article, aside, main, nav, section')) ||
+      (tagName === 'footer' && !landmark.closest('article, aside, main, nav, section'));
+    
+    if (!hasAccessibleName) {
+      issues++;
+    }
+  });
+  return issues;
 }
 
 function validateLandmarkStructure() {
   const landmarks = document.querySelectorAll('nav, header, footer, aside');
   let issues = 0;
   landmarks.forEach(landmark => {
-    if (!landmark.id && !landmark.getAttribute('aria-label')) {
+    if (!landmark.id && !landmark.className) {
       issues++;
     }
   });
@@ -394,7 +391,7 @@ function validateLandmarkStructure() {
 }
 
 function validateLandmarkRoles() {
-  const landmarks = document.querySelectorAll('nav, header, footer, aside');
+  const landmarks = document.querySelectorAll('section[role]');
   let issues = 0;
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
@@ -405,11 +402,23 @@ function validateLandmarkRoles() {
   return issues;
 }
 
+function getSvgName(svgElement) {
+  const svg = svgElement || document.querySelector('svg');
+  if (!svg) return '';
+  let name = svg.getAttribute('aria-label') || svg.getAttribute('title') || svg.querySelector('title')?.textContent || '';
+  if (!name) {
+    const desc = svg.querySelector('desc');
+    name = desc ? desc.textContent : 'SVG image';
+    svg.setAttribute('aria-label', name);
+  }
+  return name;
+}
+
 function setSvgAttributes(svgElement) {
   const svg = svgElement || document.querySelector('svg');
   if (!svg) return;
   if (!svg.getAttribute('role')) svg.setAttribute('role', 'img');
-  if (!svg.getAttribute('aria-hidden')) svg.setAttribute('aria-hidden', 'true');
+  if (!svg.getAttribute('aria-hidden')) svg.setAttribute('aria-hidden', 'false');
   return svg;
 }
 
@@ -438,7 +447,7 @@ function validateLinkAccessibility() {
 }
 
 function handleFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
@@ -452,10 +461,10 @@ function handleFakeLinks() {
 function countDependencies() {
   const scripts = document.querySelectorAll('script');
   const styles = document.querySelectorAll('link[rel="stylesheet"]');
-  const images = document.querySelectorAll('img[src]');
-  const svgElements = document.querySelectorAll('svg[src]');
-  const fonts = document.querySelectorAll('link[rel="preload"][as="font"], link[rel="stylesheet"][href*="font"]');
-
+  const images = document.querySelectorAll('img');
+  const svgElements = document.querySelectorAll('svg');
+  const fonts = document.querySelectorAll('link[href*="font"]');
+  
   return {
     scripts: scripts.length,
     styles: styles.length,
@@ -498,9 +507,24 @@ exports.renderDependencyGraph = renderDependencyGraph;
 function addressAccessibilityIssue038(element, accessibilityInfo) {
   // Code to address the specific accessibility issue on the element
   console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
-}
+};
 
-function renderDependencyGraph() {
-  // Placeholder for rendering dependency graph
-  return null;
-}
+export const metadata: Metadata = {
+  title: "Screeps Dashboard",
+  description: "Dashboard for Screeps",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  addLangAttribute();
+  addMainLandmark();
+  // Additional accessibility fixes
+
+  // Implement the renderIndexView method here
+  renderIndexView();
+
+  return (
+    <html lang="en

@@ -225,5 +225,52 @@ describe('towerManager', () => {
             towerManager.run(mockRoom);
             expect(cache.getStructures).toHaveBeenCalledTimes(2);
         });
+
+        test('複数タワーで攻撃・回復ターゲットを同一ティックに検索する際、キャッシュが機能し重複計算を回避する', () => {
+            global.Game.time = 200;
+            const mockEnemy = {
+                id: 'enemy1',
+                hits: 100,
+                hitsMax: 100,
+                pos: { x: 10, y: 10 },
+                getActiveBodyparts: jest.fn().mockReturnValue(0),
+            };
+            const mockCreep = {
+                hits: 50,
+                hitsMax: 100,
+                pos: { x: 12, y: 12 },
+            };
+
+            const tower2 = {
+                structureType: global.STRUCTURE_TOWER,
+                pos: { getRangeTo: () => 6 },
+                store: {
+                    energy: 100,
+                    [global.RESOURCE_ENERGY]: 100,
+                    getCapacity: () => 1000,
+                    getFreeCapacity: () => 900,
+                },
+                attack: jest.fn(),
+                heal: jest.fn(),
+                repair: jest.fn(),
+                room: mockRoom,
+            };
+
+            cache.getMyStructures.mockReturnValue([mockTower, tower2]);
+
+            // Test attack target caching
+            cache.getEnemies.mockReturnValue([mockEnemy]);
+            towerManager.run(mockRoom);
+            expect(mockTower.attack).toHaveBeenCalledWith(mockEnemy);
+            expect(tower2.attack).toHaveBeenCalledWith(mockEnemy);
+
+            // Test heal target caching
+            global.Game.time = 201;
+            cache.getEnemies.mockReturnValue([]);
+            cache.getMyCreeps.mockReturnValue([mockCreep]);
+            towerManager.run(mockRoom);
+            expect(mockTower.heal).toHaveBeenCalledWith(mockCreep);
+            expect(tower2.heal).toHaveBeenCalledWith(mockCreep);
+        });
     });
 });

@@ -149,6 +149,12 @@ function _tryRepair(tower, room) {
 // 攻撃対象選択
 // ============================================================
 
+// ⚡ PERFORMANCE OPTIMIZATION: Cache selected attack target on a room-level per tick basis.
+// Multiple towers calling this on the same tick can reuse the target to avoid redundant search loops.
+let _attackTargetCache = null;
+let _attackTargetTick = -1;
+let _attackTargetRoom = null;
+
 /**
  * 攻撃対象を選択する
  * 優先度: HPが低い敵 → コントローラーに近い敵 → タワーに近い敵
@@ -161,12 +167,20 @@ function _selectAttackTarget(tower, enemies) {
         return null;
     }
 
-    return (
+    if (_attackTargetTick === Game.time && _attackTargetRoom === tower.room.name) {
+        return _attackTargetCache;
+    }
+
+    const target =
         _findCriticalTarget(tower, enemies, TOWER_ATTACK_PRIORITY_HP) ||
         _findClaimerTarget(tower, enemies) ||
         _findAttackerTarget(tower, enemies) ||
-        _findWeakestTarget(tower, enemies)
-    );
+        _findWeakestTarget(tower, enemies);
+
+    _attackTargetCache = target;
+    _attackTargetTick = Game.time;
+    _attackTargetRoom = tower.room.name;
+    return target;
 }
 
 /**
@@ -256,6 +270,12 @@ function _findWeakestTarget(tower, enemies) {
 // 回復対象選択
 // ============================================================
 
+// ⚡ PERFORMANCE OPTIMIZATION: Cache selected heal target on a room-level per tick basis.
+// Multiple towers calling this on the same tick can reuse the target to avoid redundant search loops.
+let _healTargetCache = null;
+let _healTargetTick = -1;
+let _healTargetRoom = null;
+
 /**
  * 回復対象を選択する
  * HPが最も低いクリープを優先
@@ -267,6 +287,11 @@ function _selectHealTarget(tower, injured) {
     if (injured.length === 0) {
         return null;
     }
+
+    if (_healTargetTick === Game.time && _healTargetRoom === tower.room.name) {
+        return _healTargetCache;
+    }
+
     // ⚡ PERFORMANCE: Use standard for loop instead of reduce for better performance in Screeps/V8.
     let bestTarget = null;
     let minRatio = Infinity;
@@ -278,6 +303,10 @@ function _selectHealTarget(tower, injured) {
             bestTarget = creep;
         }
     }
+
+    _healTargetCache = bestTarget;
+    _healTargetTick = Game.time;
+    _healTargetRoom = tower.room.name;
     return bestTarget;
 }
 

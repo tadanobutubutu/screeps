@@ -313,6 +313,11 @@ const mainElement = document.querySelector('main') || document.body;
 // Set lang attribute on document element
 if (mainElement) document.documentElement.lang = getLangAttribute() || 'en';
 
+// TODO: Add back any required exports that might have been removed
+// Example of how to export a required function from another file
+// const { myFunction } = require('./otherFile');
+// module.exports = { myFunction };
+
 export default function Main() {
   return (
     <>

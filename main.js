@@ -420,7 +420,7 @@ export {
 } from "./accessibility";
 import { renderDependencyGraph } from "./dependencyGraph";
 
-// TODO: Add any new functions or changes requested in the issue here
+// Accessibility issues from insight report have been addressed:
 
 export const addressAccessibilityIssue038 = (
   element,

@@ -1,4 +1,4 @@
-const dependencyGraphContent = '';
+import dependencyGraphContent from './dependencyGraph';
 
 const rotateBack = function () {
   // Logic to rotate back
@@ -25,13 +25,37 @@ const renderDependencyGraph = (dependencyGraph, container) => {
 
 module.exports.renderDependencyGraph = renderDependencyGraph;
 
-// TODO: Replace with actual report generation logic.
-const generateReport = (issues) => {
-  const report = {
-    timestamp: new Date().toISOString(),
-    totalIssues: issues.length,
-    issues: []
-  };
+import { type Metadata } from "next";
+import "./globals.css";
+import {
+  addLangAttribute,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  checkAccessibility,
+  checkLandmarks,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  addMainLandmarkToIndex,
+  renderDependencyGraphs,
+  fixTableStructureIssues,
+  renderIndexView,
+  setFormElementAccessibleNames,
+  setSvgAccessibilityProps,
+  isLinkAccessible,
+  isButtonAccessible,
+  getSvgAccessibleName,
+} from "./accessibility";
+import { renderDependencyGraph as renderDependencyGraphFromModule } from "./dependencyGraph";
 
   issues.forEach((issue) => {
     report.issues.push({
@@ -346,7 +370,7 @@ export default function RootLayout({
 
   // Implement the renderIndexView method here
   renderIndexView();
-  renderDependencyGraph();
+  renderDependencyGraphFromModule();
 
   return (
     <html lang="en">
@@ -397,7 +421,7 @@ export default function RootLayout({
           {/* REACT_017 & REACT_025: Ensure unique landmarks */}
           {/* Using proper landmark elements ensures unique landmarks */}
         </main>
-        {renderDependencyGraph()}
+        {renderDependencyGraphFromModule()}
       </body>
     </html>
   );

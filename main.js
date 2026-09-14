@@ -998,5 +998,6 @@ module.exports = {
   checkAccessibility,
   checkLandmarks,
   checkLandmarkElement,
-  decodeJwtResponse
+  decodeJwtResponse,
+  fixTableStructureIssues
 };

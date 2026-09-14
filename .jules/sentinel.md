@@ -15,3 +15,9 @@
 **Vulnerability:** Automation scripts passed user-controlled or AI-generated branch parameters directly to `git push origin [branch]` without option delimiters.
 **Learning:** Branch names starting with hyphens (e.g. `--force` or `--delete`) are parsed as Git options rather than positional branch refspecs, leading to option hijacking.
 **Prevention:** Always insert the `--` option separator before passing dynamic refspecs or branch names to Git CLI invocations.
+
+## 2026-09-14 - [Error Object Serialization and Path Redaction in Loggers]
+
+**Vulnerability:** `logger.error()` dropped extra error metadata when level was passed as second argument and serialized `Error` instances to `{}` via `JSON.stringify()`, while `getSafeStack()` stripped directory paths before calling `_redactPaths()`, bypassing path redaction.
+**Learning:** Passing `Error` instances directly to `JSON.stringify()` returns `{}` because Error properties (`message`, `stack`) are non-enumerable, causing silent error metadata loss.
+**Prevention:** Explicitly extract `extraData.message` when handling `Error` objects in logging functions, and pass untransformed stack strings directly to `_redactPaths()` so absolute paths are cleanly sanitized as `[REDACTED]`.

@@ -405,8 +405,6 @@ const config = {
   enabled: true
 };
 
-// Functions from the HEAD section that are relevant to Screeps bot
-
 /**
  * Checks if a button has appropriate accessibility attributes.
  * @param {HTMLElement} button - The button element to check
@@ -560,140 +558,111 @@ function checkLandmarks(container = document) {
 }
 
 /**
- * Checks if a link has appropriate accessibility attributes.
- * @param {HTMLElement} link - The link element to check
- * @returns {boolean} True if the link is accessible, false otherwise
+ * Validates table accessibility by checking for proper headers, captions, and ARIA attributes.
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {Object} An object containing validation results
  */
-function isLinkAccessible(link) {
-  if (!link) return false;
-  
-  const hasText = link.textContent && link.textContent.trim().length > 0;
-  const hasAriaLabel = link.hasAttribute('aria-label');
-  const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
-  const hasTitle = link.hasAttribute('title');
-  
-  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
-}
-
-/**
- * Checks landmark element has appropriate accessibility attributes.
- * @param {string} role - The landmark role to check
- * @param {HTMLElement} element - The element to check
- */
-function checkLandmarkElement(role, element) {
-  if (!element || !role) return { valid: false, issues: [] };
-  
-  const issues = [];
-  const hasLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
-  
-  if (!hasLabel && role !== 'main') {
-    issues.push(`Landmark with role "${role}" is missing accessible label`);
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Wraps the primary content of the page in a <main> element.
- * This improves accessibility by ensuring a proper main landmark exists.
- * @returns {HTMLElement|null} The main element created or existing, or null if body is not available
- */
-function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined' || !document.body) return null;
-  
-  const existingMain = document.querySelector('main');
-  if (existingMain) return existingMain;
-  
-  const main = document.createElement('main');
-  main.setAttribute('role', 'main');
-  
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
-        !child.hasAttribute('aria-hidden') || child.getAttribute('aria-hidden') !== 'true') {
-      main.appendChild(child);
-    }
-  });
-  
-  document.body.insertBefore(main, document.body.firstChild);
-  return main;
-}
-
-/**
- * Checks landmark elements and sets appropriate aria-labels, also reporting any inaccessible elements.
- * @param {HTMLElement} [container=document] - The container to check for accessibility
- * @returns {Object} An object containing landmark accessibility check results
- */
-function checkLandmarks(container = document) {
+function validateTableAccessibility(table) {
   const results = {
-    landmarks: [],
-    issues: []
+    isAccessible: true,
+    issues: [],
+    table: table
   };
-  
-  if (!container) return results;
-  
-  const roles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
-  
-  roles.forEach(role => {
-    const elements = container.querySelectorAll(`[role="${role}"]`);
-    elements.forEach(element => {
-      const checkResult = checkLandmarkElement(role, element);
-      results.landmarks.push({
-        role,
-        element,
-        valid: checkResult.valid
-      });
-      
-      if (!checkResult.valid) {
-        results.issues.push({
-          role,
-          element,
-          issues: checkResult.issues
-        });
+
+  if (!table) {
+    results.isAccessible = false;
+    results.issues.push('Table is null or undefined');
+    return results;
+  }
+
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    results.isAccessible = false;
+    results.issues.push('Table is missing a caption element');
+  }
+
+  // Check for headers (th elements)
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    results.isAccessible = false;
+    results.issues.push('Table is missing header cells (th elements)');
+  } else {
+    // Check that headers have scope attribute or are associated with cells via id/headers
+    let hasScopedHeaders = false;
+    headers.forEach(th => {
+      if (th.hasAttribute('scope') || th.hasAttribute('id')) {
+        hasScopedHeaders = true;
       }
     });
-  });
-  
+    if (!hasScopedHeaders) {
+      results.isAccessible = false;
+      results.issues.push('Table headers are missing scope attributes or IDs');
+    }
+  }
+
+  // Check for proper table structure (tbody, thead, or tfoot)
+  const structuralElements = table.querySelectorAll('thead, tbody, tfoot');
+  if (structuralElements.length === 0) {
+    results.isAccessible = false;
+    results.issues.push('Table is missing proper structural elements (thead, tbody, or tfoot)');
+  }
+
   return results;
 }
 
 /**
- * Checks if a button has appropriate accessibility attributes.
- * @param {HTMLElement} button - The button element to check
- * @returns {boolean} True if the button is accessible, false otherwise
+ * Validates table structure by checking for proper nesting and element types.
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {Object} An object containing validation results
  */
-function isButtonAccessible(button) {
-  if (!button) return false;
+function validateTableStructure(table) {
+  const results = {
+    isValid: true,
+    issues: [],
+    table: table
+  };
+
+  if (!table) {
+    results.isValid = false;
+    results.issues.push('Table is null or undefined');
+    return results;
+  }
+
+  // Check that table doesn't contain non-table elements directly
+  const allowedChildren = ['CAPTION', 'COLGROUP', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'COL'];
+  const directChildren = Array.from(table.children);
   
-  const hasText = button.textContent && button.textContent.trim().length > 0;
-  const hasAriaLabel = button.hasAttribute('aria-label');
-  const hasAriaLabelledBy = button.hasAttribute('aria-labelledby');
-  const hasTitle = button.hasAttribute('title');
-  const hasIcon = button.querySelector('svg, img, icon');
-  
-  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle || hasIcon;
+  directChildren.forEach(child => {
+    if (allowedChildren.indexOf(child.tagName) === -1) {
+      results.isValid = false;
+      results.issues.push('Table contains invalid child element: ' + child.tagName);
+    }
+  });
+
+  // Check that tr elements are inside thead, tbody, or tfoot
+  const trElements = table.querySelectorAll('tr');
+  trElements.forEach(tr => {
+    const parent = tr.parentElement;
+    if (parent && parent.tagName !== 'THEAD' && parent.tagName !== 'TBODY' && parent.tagName !== 'TFOOT' && parent.tagName !== 'TABLE') {
+      results.isValid = false;
+      results.issues.push('tr element is not properly nested in a structural element');
+    }
+  });
+
+  // Check that td/th elements are inside tr
+  const cells = table.querySelectorAll('td, th');
+  cells.forEach(cell => {
+    const parent = cell.parentElement;
+    if (!parent || parent.tagName !== 'TR') {
+      results.isValid = false;
+      results.issues.push('Cell element is not inside a tr element');
+    }
+  });
+
+  return results;
 }
 
-/**
- * Checks if a link has appropriate accessibility attributes.
- * @param {HTMLElement} link - The link element to check
- * @returns {boolean} True if the link is accessible, false otherwise
- */
-function isLinkAccessible(link) {
-  if (!link) return false;
-  
-  const hasText = link.textContent && link.textContent.trim().length > 0;
-  const hasAriaLabel = link.hasAttribute('aria-label');
-  const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
-  const hasTitle = link.hasAttribute('title');
-  
-  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
-}
-
-// Exports
 module.exports = {
   run,
   checkTableStructure,
@@ -707,6 +676,7 @@ module.exports = {
   SomeClass,
   someUtility,
   config,
+  newFunction,
   isLinkAccessible,
   isButtonAccessible,
   checkAccessibility,

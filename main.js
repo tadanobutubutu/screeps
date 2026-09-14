@@ -45,6 +45,16 @@ function fixTableStructureIssues(document) {
     const existingTbody = table.querySelector('tbody');
     const rows = table.querySelectorAll('tr');
 
+function fixTableStructureIssues(document) {
+  // Function to fix table structure issues for accessibility
+  let fixedCount = 0;
+  const tables = document.querySelectorAll('table');
+  
+  tables.forEach(table => {
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+    
     if (!existingTbody) {
       let remainingRows = Array.from(rows);
       if (existingThead) {
@@ -1111,38 +1121,14 @@ function addMainLandmarkToIndex() {
   // Add main landmark to index
 }
 
-// Function to implement spawning logic
-function spawn(config = {}) {
-  // TODO: Implement spawning logic
-  const {
-    container = document.body,
-    type = 'generic',
-    attributes = {},
-    textContent = '',
-    parent = null
-  } = config;
-
-  // Create the element based on type
-  const element = document.createElement(type);
-
-  // Apply attributes
-  Object.keys(attributes).forEach(key => {
-    element.setAttribute(key, attributes[key]);
-  });
-
-  // Set text content if provided
-  if (textContent) {
-    element.textContent = textContent;
-  }
-
-  // Append to target container
-  const target = parent || container;
-  if (target) {
-    target.appendChild(element);
-  }
-
-  return element;
-}
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by imported components/index.html)
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
 
 // Export all functions and utilities
 exports.addLangAttribute = addLangAttribute;

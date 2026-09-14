@@ -1415,5 +1415,11 @@ module.exports = {
     checkLandmarks,
     validateTableAccessibility,
     validateTableStructure,
-    createInPageButton
+    getLangAttribute,
+    getFullLangAttribute,
+    validateLandmarkStructure,
+    createInPageButton,
+    createAccessibleLink
 };
+
+export { addressAccessibilityIssue038, getSvgAccessibleName, utilityFunction };

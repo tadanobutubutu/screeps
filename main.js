@@ -1,3 +1,25 @@
+import { type Metadata } from "next";
+import "./globals.css";
+import {
+  addLangAttribute,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  checkAccessibility,
+  checkLandmarks,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  fixTableStructureIssues,
+  renderIndexView,
+  setFormElementAccessibleNames,
+  setSvgAccessibilityProps,
+  isLinkAccessible,
+  isButtonAccessible,
+  getSvgAccessibleName,
+} from "./accessibility";
+// Replace the existing renderDependencyGraph import with the updated one
+import { renderDependencyGraph as updateRenderDependencyGraph } from "./dependencyGraph";
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_017: Add landmark roles and fix landmark issues
@@ -18,154 +40,16 @@ const renderDependencyGraph = (dependencyGraph, container) => {
   container.innerHTML = graphContent;
 };
 
-  createAccessibleDialog(id, title, content, closeLabel = 'Close') {
-    const dialog = document.createElement('div');
-    dialog.id = id;
-    dialog.setAttribute('role', 'dialog');
-    dialog.setAttribute('aria-labelledby', `${id}-title`);
-    dialog.setAttribute('aria-hidden', 'true');
-
-export const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
-  if (!element || !accessibilityInfo) {
-    return false;
-  }
-
-  const { issueType, severity, elementType } = accessibilityInfo;
-
-  if (elementType === "button" || elementType === "link") {
-    if (element.setAttribute) {
-      const currentTabIndex = element.getAttribute("tabindex");
-      if (currentTabIndex === null || currentTabIndex === undefined) {
-        element.setAttribute("tabindex", "0");
-      }
-    });
-  },
-
-  initAccessibility() {
-    const skipLink = document.querySelector('.skip-link');
-    if (skipLink) {
-      skipLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = document.getElementById(skipLink.getAttribute('href').slice(1));
-        if (target) {
-          target.tabIndex = -1;
-          target.focus();
-          this.announceToScreenReader('Skip to main content');
-        }
-      });
-    }
-  }
-
-    const imagesWithoutAlt = document.querySelectorAll('img:not([alt])');
-    imagesWithoutAlt.forEach((img) => {
-      if (!img.alt) {
-        img.setAttribute('alt', '');
-        img.setAttribute('role', 'presentation');
-      }
-    });
-
-    const inputs = document.querySelectorAll('input, select, textarea');
-    inputs.forEach((input) => {
-      if (!input.id && input.name) {
-        input.id = input.name;
-      }
-      const label = document.querySelector(`label[for="${input.id}"]`);
-      if (!label && input.type !== 'hidden') {
-        input.setAttribute('aria-label', input.name || 'Form input');
-      }
-    });
-  },
-
-  createLiveRegion() {
-    if (this.liveRegion) return;
-
-    // Update scope attributes in all .html files in the views directory
-    const viewsDir = path.join(__dirname, 'views');
-    fs.readdirSync(viewsDir)
-      .filter(file => file.endsWith('.html'))
-      .forEach(file => {
-        const filePath = path.join(viewsDir, file);
-        updateThScopeAttribute(filePath);
-      });
-
-    // Fix Safari focus trapping in dropdowns
-    const dropdownContainers = document.querySelectorAll('[data-dropdown]');
-    dropdownContainers.forEach((container) => {
-      container.addEventListener('keydown', (e) => {
-        if (e.key !== 'Tab') return;
-
-        const currentFocusedElement = document.activeElement;
-        let focusIsInsideContainer = false;
-
-        if (
-          currentFocusedElement &&
-          (currentFocusedElement === container ||
-            currentFocusedElement.closest(container))
-        ) {
-          focusIsInsideContainer = true;
-        }
-
-  makeAccessible(element) {
-    // Implement the function logic to address accessibility issues
-    // Ensure the element is properly accessible to screen readers
-    if (element.tagName === 'A') {
-      element.setAttribute('aria-disabled', 'false');
-    }
-  },
-
-  newNecessaryFunction() {
-    // Implement the new function logic here
-    // This could include additional accessibility improvements
-    return null;
-  },
-
-  handleAccessibilityIssues() {
-    // Implement the function logic to handle accessibility issues
-    // Centralize handling of various accessibility problems
-    return null;
-  },
+const a11yStore = {
+  // ... existing code
 
   renderDependencyGraph() {
     // Existing code for rendering dependency graph
-    return null;
+    // Replace this with the updated renderDependencyGraph function
+    updateRenderDependencyGraph();
   },
 
-  setupKeyboardNavigation() {
-    // Setup keyboard navigation logic
-    return null;
-  },
-
-  setupFocusManagement() {
-    // Setup focus management logic
-    return null;
-  },
-
-  setupSkipLinks() {
-    // Setup skip links logic
-    return null;
-  },
-
-  checkLandmarkElements() {
-    // Check and ensure proper landmark elements
-    return null;
-  },
-
-  addSVGAccessibilityProps() {
-    // Add accessibility properties to SVG elements
-    // Ensure SVGs have proper roles and labels
-    return null;
-  },
-
-  fixFakeLinks() {
-    // Fix fake links to use proper anchor elements
-    // Replace any non-anchor links with proper <a> elements
-    return null;
-  },
-
-  updateLiveRegion() {
-    // Update live region for screen readers
-    return null;
-  },
+  // ... existing functions
 };
 
 // Metadata from HEAD
@@ -572,10 +456,43 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-const mainElement = document.querySelector('main') || document.body;
-if (mainElement && !document.documentElement.lang) {
-  // Set default language if not already set
-}
+export const metadata: Metadata = {
+  title: "Screeps Dashboard",
+  description: "Dashboard for Screeps",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  addLangAttribute();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  checkAccessibility();
+  checkLandmarks();
+  ensureUniqueLandmarks();
+  fixFakeLinkIssue();
+  fixTableStructureIssues();
+  setFormElementAccessibleNames();
+  setSvgAccessibilityProps();
+  checkLandmarkElement();
+  isLinkAccessible();
+  isButtonAccessible();
+
+  // Check and address accessibility issues
+  const elements = document.querySelectorAll('[data-accessibility-issue]');
+  elements.forEach(element => {
+    const issueId = element.getAttribute('data-accessibility-issue');
+    if (issueId === '038') {
+      addressAccessibilityIssue038(element, { issue: '038', severity: 'high' });
+    }
+  });
+
+  // Implement the renderIndexView method here
+  renderIndexView();
+  // Call the updated renderDependencyGraph function
+  updateRenderDependencyGraph();
 
 export default function Main() {
   return (
@@ -606,26 +523,12 @@ export default function Main() {
           <circle cx="12" cy="12" r="3" />
         </svg>
 
-        {/* REACT_041: Add accessible names to second SVG */}
-        <svg
-          role="img"
-          aria-label="User profile icon"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
-        </svg>
-
-        {/* REACT_036: Fix fake link issue - use proper anchor element */}
-        <a href="/dashboard" className="button">
-          Go to Dashboard
-        </a>
-
-        {/* REACT_017 & REACT_025: Ensure unique landmarks */}
-        {/* Using proper landmark elements ensures unique landmarks */}
-      </main>
-    </>
+          {/* REACT_017 & REACT_025: Ensure unique landmarks */}
+          {/* Using proper landmark elements ensures unique landmarks */}
+        </main>
+        {updateRenderDependencyGraph()}
+      </body>
+    </html>
   );
 }
 
@@ -699,55 +602,6 @@ module.exports = {
   checkLandmarkElements,
   setupKeyboardNavigation,
   addressAccessibilityIssue038,
-  renderDependencyGraph,
-};
-
-module.exports = {
-  ...affectedFunctions,
-  Main: Main,
-};
-
-// Default export
-export default {
-  setSvgAccessibilityProps,
-  isLinkAccessible,
-  isButtonAccessible,
-  checkAccessibility,
-  checkLandmarkElement,
-  checkLandmarks,
-  wrapPrimaryContentInMain,
-  renderIndexView,
-  getLangAttribute,
-  createInPageButton,
-  addLangAttribute,
-  fixTableStructureIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  addSvgAccessibleNamesFromOrigin,
-  ensureUniqueLandmarks,
-  ensureUniqueLandmarksFromOrigin,
-  fixFakeLinkIssue,
-  fixFakeLinkIssueFromOrigin,
-  setFormElementAccessibleNames,
-  addA11yAttributesToInteractiveElements,
-  hasMissingAriaProperties,
-  getSvgAccessibleName,
   addressAccessibilityIssues,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getTagNameForElement,
-  getLandmarkAccessibleName,
-  addLandmarkRegions,
-  checkLandmarkElements,
-  a11yStore,
-  addressAccessibilityIssue038,
-  metadata,
-  LANDMARK_ELEMENTS,
-  loop
+  updateRenderDependencyGraph,
 };
-
-// TODO: Address missing export that might have been removed — ADD CODE HERE
-export { renderDependencyGraph as dependencyGraphRenderer };

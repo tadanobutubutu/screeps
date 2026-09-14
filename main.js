@@ -301,6 +301,7 @@ exports.anotherFunction = function() {
 
 addressAccessibilityIssue038 = addressAccessibilityIssue038;
 exports.renderDependencyGraph = renderDependencyGraph;
+exports.countDependencies = countDependencies;
 
 // The function rotateBack() should be defined somewhere in your code to handle the action of rotating back.
 function rotateBack() {
@@ -527,4 +528,17 @@ export default function RootLayout({
   renderIndexView();
 
   return (
-    <html lang="en
+    <html lang="en">
+      <head>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='32'>⚡</text></svg>" />
+        {checkAccessibility().issues.map((issue, index) => (
+          <div key={index}>{issue.message}</div>
+        ))}
+        {checkLandmarks().issues.map((issue, index) => (
+          <div key={index}>{issue.message}</div>
+        ))}
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}

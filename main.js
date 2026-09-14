@@ -161,6 +161,20 @@ function checkTableAccessibility(document) {
           severity: 'info',
           message: 'Table has multiple headers but no cells with headers attribute - consider adding headers for complex tables'
         });
+      } else if (issue.type === 'svg') {
+        // Extract the accessible name for an SVG from its content
+        const svgContent = issue.element.innerHTML;
+        const svgName = /<title>(.*?)<\/title>/gi.exec(svgContent);
+        if (svgName && svgName.length > 1) {
+          issue.element.setAttribute('aria-label', svgName[1]);
+        } else {
+          issue.element.setAttribute('aria-label', defaultText);
+        }
+        summary.fixes.push({
+          type: 'svg',
+          index: issue.index,
+          action: 'Extracted accessible name'
+        });
       }
     }
     

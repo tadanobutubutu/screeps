@@ -26,7 +26,7 @@ const affectedFunctions = {
   getFullLangAttribute,
   createInPageButton,
   createAccessibleLink,
-};
+} = ...
 
 // Export affected functions and Main component to make them accessible
 module.exports = {
@@ -36,8 +36,13 @@ module.exports = {
 
 const a11yStore = {
   init() {
-    this.createLiveRegion();
+    ...
+    ...
+    ...
     this.setupSkipLinks();
+    ...
+    ...
+    this.fixFakeLinks();
     this.initAccessibility();
     this.fixFakeLinks();
     this.checkLandmarkElements();
@@ -71,9 +76,7 @@ const a11yStore = {
     titleEl.id = `${id}-title`;
     titleEl.textContent = title;
 
-    const closeButton = document.createElement('button');
-    closeButton.textContent = closeLabel;
-    closeButton.addEventListener('click', () => {
+    const closeButton = ... closeLabel, () => {
       dialog.hidden = true;
       ... 'true');
     });
@@ -125,13 +128,13 @@ const a11yStore = {
         if (target) {
           target.tabIndex = -1;
           target.focus();
-          this.announce('Skip to main content');
+          ... to main content');
         }
       }
     }
 
-    document.querySelectorAll('img').forEach((img) => {
-      if (!img.alt) {
+    ... => {
+      if ... {
         img.setAttribute('alt', '');
         img.setAttribute('role', 'presentation');
       }
@@ -238,68 +241,6 @@ const a11yStore = {
     return graphContainer;
   },
 
-  renderIndexView() {
-    const lang = getLangAttribute();
-    const fullLang = getFullLangAttribute();
-    
-    const container = document.createElement('div');
-    container.setAttribute('lang', lang);
-    container.setAttribute('role', 'main');
-    container.setAttribute('aria-label', 'Index view');
-    container.className = 'index-view-container';
-
-    const heading = document.createElement('h1');
-    heading.setAttribute('id', 'index-heading');
-    heading.textContent = 'Welcome to our site';
-    heading.tabIndex = -1;
-    container.appendChild(heading);
-
-    const description = document.createElement('p');
-    description.setAttribute('id', 'index-description');
-    description.setAttribute('aria-describedby', 'index-heading');
-    description.className = 'index-description';
-    description.textContent = 'This is the main index view of the application.';
-    container.appendChild(description);
-
-    const list = document.createElement('ul');
-    list.setAttribute('role', 'list');
-    list.setAttribute('aria-label', 'Navigation options');
-
-    const navItems = [
-      { href: '/home', label: 'Go to Home' },
-      { href: '/dashboard', label: 'Go to Dashboard' },
-      { href: '/settings', label: 'Go to Settings' },
-      { href: '/profile', label: 'Go to Profile' },
-    ];
-
-    navItems.forEach((item, index) => {
-      const listItem = document.createElement('li');
-      const link = document.createElement('a');
-      link.href = item.href;
-      link.setAttribute('aria-describedby', 'index-description');
-      
-      const linkLabel = createAccessibleLink(item.label, item.href, {
-        id: `nav-link-${index}`,
-        className: 'nav-link',
-      });
-      
-      listItem.appendChild(link);
-      list.appendChild(listItem);
-    });
-
-    container.appendChild(list);
-
-    const statusRegion = document.createElement('div');
-    statusRegion.setAttribute('role', 'status');
-    statusRegion.setAttribute('aria-live', 'polite');
-    statusRegion.setAttribute('aria-atomic', 'true');
-    statusRegion.className = 'sr-only';
-    statusRegion.id = 'index-status';
-    container.appendChild(statusRegion);
-
-    return container;
-  },
-
   ... {
     // Setup keyboard navigation logic
   },
@@ -355,7 +296,7 @@ const a11yStore = {
     });
   },
 
-  ensureUniqueLandmarks() {
+  ... {
     // Add accessibility properties to SVG elements
     const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
     landmarks.forEach((role) => {
@@ -394,9 +335,9 @@ const a11yStore = {
   },
 };
 
-function getSvgAccessibleName(svg) {
-  const title = svg.querySelector('title');
-  const desc = svg.querySelector('desc');
+function ... {
+  const title = ...
+  const desc = ...
 
   if (title && title.textContent) {
     return title.textContent.trim();
@@ -406,12 +347,12 @@ function getSvgAccessibleName(svg) {
     return desc.textContent.trim();
   }
 
-  const ariaLabel = svg.getAttribute('aria-label');
+  const ariaLabel = ...
   if (ariaLabel) {
     return ariaLabel.trim();
   }
 
-  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  const ariaLabelledby = ...
   if (ariaLabelledby) {
     const labeledElement = ...
     if (labeledElement && labeledElement.textContent) {
@@ -448,5 +389,78 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-const mainElement = document.querySelector('main') || document.body;
-mainElement.setAttribute('lang', getLangAttribute() || 'en');
+const mainElement = ...
+... document.documentElement.lang);
+
+export default function Main() {
+  return (
+    <>
+      {/* REACT_015: Lang attribute should be set at HTML document level */}
+      {/* This is typically set in index.html or via document.documentElement.lang */}
+
+      <header role="banner">
+        <nav role="navigation" aria-label="Main navigation">
+          <ul>
+            <li><a href="/home">Home</a></li>
+            <li><a ...
+          </ul>
+        </nav>
+      </header>
+
+      <main role="main">
+        <h1>Welcome to our site</h1>
+
+        {/* REACT_041: Add accessible names to SVGs */}
+        <svg
+          role="img"
+          aria-label="Settings icon"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+
+        {/* REACT_041: Add accessible names to second SVG */}
+        <svg
+          role="img"
+          aria-label="User profile icon"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
+        </svg>
+
+        {/* REACT_036: Fix fake link issue - use proper anchor element */}
+        <a href="/dashboard" ...
+          Go to Dashboard
+        </a>
+
+        {/* REACT_017 & REACT_025: Ensure unique landmarks */}
+        {/* Using proper landmark elements ensures unique landmarks */}
+      </main>
+    </>
+  );
+}
+
+export {
+  a11yStore,
+  handleAccessibilityIssues,
+  getSvgAccessibleName,
+  newNecessaryFunction,
+  createAccessibleButton,
+  createAccessibleDialog,
+  announceToScreenReader,
+  trapFocus,
+  initAccessibility,
+  updateLiveRegion,
+  checkLandmarkElements,
+  getLangAttribute,
+  getFullLangAttribute,
+  createInPageButton,
+  createAccessibleLink,
+  addressAccessibilityIssue038,
+  renderDependencyGraph,
+};
+export default a11yStore;

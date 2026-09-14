@@ -405,21 +405,6 @@ const config = {
   enabled: true
 };
 
-module.exports = {
-    main,
-    SomeClass,
-    someUtility,
-    config,
-    countDependencies,
-    run,
-    checkTableStructure,
-    ensureElementHasId,
-    addAriaLabel,
-    renderDependencyGraphs,
-    myNewFunction,
-    newFunction
-};
-
 // Functions from the HEAD section that are relevant to Screeps bot
 
 /**
@@ -717,6 +702,7 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   myNewFunction,
+  newFunction,
   main,
   SomeClass,
   someUtility,

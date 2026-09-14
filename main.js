@@ -73,7 +73,7 @@ import {
   isButtonAccessible,
   getSvgAccessibleName,
 } from "./accessibility";
-import { renderDependencyGraph as renderDependencyGraphFromModule } from "./dependencyGraph";
+import { renderDependencyGraph as importedRenderDependencyGraph } from "./dependencyGraph";
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -318,8 +318,7 @@ export default function RootLayout({
 
   // Implement the renderIndexView method here
   renderIndexView();
-  // Call the updated renderDependencyGraph function
-  updateRenderDependencyGraph();
+  importedRenderDependencyGraph();
 
 export default function Main() {
   return (
@@ -369,7 +368,7 @@ export default function Main() {
           {/* REACT_017 & REACT_025: Ensure unique landmarks */}
           {/* Using proper landmark elements ensures unique landmarks */}
         </main>
-        {renderDependencyGraphFromModule()}
+        {importedRenderDependencyGraph()}
       </body>
     </html>
   );
@@ -391,4 +390,30 @@ export {
   addressAccessibilityIssue038,
   addressAccessibilityIssues,
   renderDependencyGraph,
+  // Re-export imported functions from accessibility module
+  addLangAttribute,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  checkAccessibility,
+  checkLandmarks,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  addMainLandmarkToIndex,
+  renderDependencyGraphs,
+  fixTableStructureIssues,
+  renderIndexView,
+  setFormElementAccessibleNames,
+  setSvgAccessibilityProps,
+  isLinkAccessible,
+  isButtonAccessible,
 };

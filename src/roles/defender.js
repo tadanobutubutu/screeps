@@ -13,7 +13,7 @@
 const cache = require('../utils/cache');
 const pathfinder = require('../utils/pathfinder');
 const logger = require('../utils/logger');
-const { MEMORY_KEYS, ROOM_BOUNDS } = require('../constants');
+const { ROOM_BOUNDS } = require('../constants');
 
 // ============================================================
 // 定数

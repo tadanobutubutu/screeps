@@ -405,6 +405,8 @@ const config = {
   enabled: true
 };
 
+// Functions from the HEAD section that are relevant to Screeps bot
+
 /**
  * Checks if a button has appropriate accessibility attributes.
  * @param {HTMLElement} button - The button element to check
@@ -661,28 +663,27 @@ function validateTableStructure(table) {
   });
 
   return results;
-}
+};
 
 module.exports = {
-  run,
-  checkTableStructure,
-  countDependencies,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  myNewFunction,
-  newFunction,
-  main,
-  SomeClass,
-  someUtility,
-  config,
-  newFunction,
-  isLinkAccessible,
-  isButtonAccessible,
-  checkAccessibility,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  validateTableAccessibility,
-  validateTableStructure
+    main,
+    SomeClass,
+    someUtility,
+    config,
+    countDependencies,
+    run,
+    checkTableStructure,
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraphs,
+    myNewFunction,
+    newFunction,
+    isButtonAccessible,
+    checkAccessibility,
+    checkLandmarkElement,
+    wrapPrimaryContentInMain,
+    checkLandmarks,
+    isLinkAccessible,
+    validateTableAccessibility,
+    validateTableStructure
 };

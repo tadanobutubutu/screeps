@@ -229,7 +229,7 @@ function rotateBack() {
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and related functions)
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -410,6 +410,8 @@ function someUtility() {
 const config = {
   enabled: true
 };
+
+// Functions from the HEAD section that are relevant to Screeps bot
 
 /**
  * Checks if a button has appropriate accessibility attributes.
@@ -687,26 +689,24 @@ function validateTableStructure(table) {
 
 // Exports
 module.exports = {
-  run,
-  checkTableStructure,
-  countDependencies,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  myNewFunction,
-  main,
-  SomeClass,
-  someUtility,
-  config,
-  newFunction,
-  isLinkAccessible,
-  isButtonAccessible,
-  checkAccessibility,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  validateTableAccessibility,
-  validateTableStructure,
-  updateThScopeAttribute,
-  newFunction
+    main,
+    SomeClass,
+    someUtility,
+    config,
+    countDependencies,
+    run,
+    checkTableStructure,
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraphs,
+    myNewFunction,
+    newFunction,
+    isLinkAccessible,
+    isButtonAccessible,
+    checkAccessibility,
+    checkLandmarkElement,
+    wrapPrimaryContentInMain,
+    checkLandmarks,
+    validateTableAccessibility,
+    validateTableStructure
 };

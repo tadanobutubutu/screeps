@@ -538,14 +538,20 @@ function rotateBack() {
  * ... (existing code remains the same)
  */
 
-// Additional exports for missing functions
-exports.getSvgAccessibleName = getSvgAccessibleName;
-exports.setSvgAccessibilityProps = setSvgAccessibilityProps;
-exports.isLinkAccessible = isLinkAccessible;
-exports.isButtonAccessible = isButtonAccessible;
-exports.checkAccessibility = checkAccessibility;
-exports.checkLandmarkElement = checkLandmarkElement;
-exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
-exports.checkLandmarks = checkLandmarks;
-exports.makeAccessible = makeAccessible;
-exports.rotateBack = rotateBack;
+/**
+ * Counts the number of dependencies in a dependency graph.
+ * @param {Object} graph - The dependency graph object where keys are module names and values are arrays of dependencies.
+ * @returns {number} The total number of dependencies.
+ */
+function countDependencies(graph) {
+  if (!graph) return 0;
+  let total = 0;
+  for (const key in graph) {
+    if (graph.hasOwnProperty(key)) {
+      total += graph[key].length;
+    }
+  }
+  return total;
+}
+
+exports.countDependencies = countDependencies;

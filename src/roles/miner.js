@@ -278,6 +278,7 @@ function _mineDirectly(creep, source) {
  * @param {Source} source
  */
 function showMiningVisual(creep, source) {
+    if (typeof Memory !== 'undefined' && Memory.settings && Memory.settings.disableVisuals) return;
     const energyPct = source.energy / source.energyCapacity;
     const color = energyPct > 0.5 ? '#00ff88' : energyPct > 0.2 ? '#ffaa00' : '#ff4444';
     creep.room.visual.circle(source.pos, {

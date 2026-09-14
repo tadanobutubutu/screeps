@@ -576,10 +576,26 @@ describe('src/roles/miner', () => {
         const creep = { room: roomMock };
 
         miner.showMiningVisual(creep, sourceHigh);
-        miner.showMiningVisual(creep, sourceMid);
-        miner.showMiningVisual(creep, sourceLow);
+        expect(roomMock.visual.circle).toHaveBeenCalledWith(sourceHigh.pos, expect.objectContaining({ fill: '#00ff88' }));
+        roomMock.visual.circle.mockClear();
 
-        expect(roomMock.visual.circle).toHaveBeenCalledTimes(3); // or check specific call arguments for colors
+        miner.showMiningVisual(creep, sourceMid);
+        expect(roomMock.visual.circle).toHaveBeenCalledWith(sourceMid.pos, expect.objectContaining({ fill: '#ffaa00' }));
+        roomMock.visual.circle.mockClear();
+
+        miner.showMiningVisual(creep, sourceLow);
+        expect(roomMock.visual.circle).toHaveBeenCalledWith(sourceLow.pos, expect.objectContaining({ fill: '#ff4444' }));
+    });
+
+test('ビジュアル表示が無効になっている場合は早期リターンする', () => {
+        global.Memory.settings = { disableVisuals: true };
+        const source = { energy: 50, energyCapacity: 100, pos: new RoomPosition(1, 1, 'W0N0') };
+        const creep = { room: roomMock };
+
+        miner.showMiningVisual(creep, source);
+
+        expect(roomMock.visual.circle).not.toHaveBeenCalled();
+        delete global.Memory.settings;
     });
 
     describe('getMinerAssignments', () => {

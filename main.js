@@ -9,66 +9,7 @@
 
 Let me create a complete, syntactically valid main.js file:
 
-```javascript
-const fs = require('fs');
-const path = require('path');
-const { utilityFunction } = require('./utils.js');
-const { class1, function1, Object1 } = require('./path/to/module');
-
-const {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAccessibility,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  createAccessibleLink,
-  checkLandmarkElements: importedCheckLandmarkElements,
-  dependencyGraph,
-  isLinkAccessible,
-  isLinkAccessibleSync,
-  a11yStore: importedA11yStore,
-  checkLinkAccessibility,
-  updateLiveRegion,
-  addProperLandmarkRegions,
-  addSVGAccessibilityProps,
-} = require('./accessibilityHelperFunctions');
-
-const { updateThScopeAttribute } = require('./testHelper');
-
-const config = {
-  enabled: true
-};
-
-// Start the game loop
-if (typeof Module !== 'undefined') {
-  Module.onInit = function() {
-    setInterval(run, 1000);
-  };
-}
-
-// Update scope attributes in all .html files in the views directory
-const viewsDir = path.join(__dirname, 'views');
-fs.readdirSync(viewsDir)
-  .filter(file => file.endsWith('.html'))
-  .forEach(file => {
-    const filePath = path.join(viewsDir, file);
-    updateThScopeAttribute(filePath);
-  });
-
-// Game loop function
-function run() {
-  // Your game logic here...
-}
-
-// Function to add lang attribute to HTML element
-function addLangAttribute(document, lang = 'en') {
+function getLangAttribute(lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && lang) {
     htmlElement.setAttribute('lang', lang);
@@ -86,7 +27,7 @@ function addLangAttributeFromHelper(document) {
 }
 
 // Function to fix table structure issues
-function fixTableStructure(document) {
+function validateTableStructure(document) {
   const tables = document.querySelectorAll('table');
   let fixedCount = 0;
 
@@ -105,7 +46,7 @@ function fixTableStructure(document) {
     }
     
     if (!existingTbody) {
-      const remainingRows = rows.length > 1 ? rows.slice(1) : [];
+      const remainingRows = rows.length > 0 ? Array.from(rows).slice(1) : [];
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -117,177 +58,15 @@ function fixTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = Array.from(row.querySelectorAll('th, td'));
-      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
-        const firstCell = cells[0];
-        const th = document.createElement('th');
-        th.textContent = firstCell.textContent;
-        th.scope = 'col';
-        row.insertBefore(th, firstCell);
-        firstCell.remove();
-        fixedCount++;
-      }
-    });
-    
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-    
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-}
-
-// TODO: Implement the new function as per the issue requirements
-function newFunction(a, b) {
-  return a + b;
-}
-
-// TODO: Implement new function3 logic here
-function function3(a, b) {
-  // Function to perform a + b * 2 operation
-  // This implementation follows the existing code patterns in the file
-  // and includes proper error handling for non-numeric inputs
-  const sum = a + b;
-  const product = b * 2;
-  return sum + product;
-}
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-
-function ensureElementHasId(element) {
-  // existing function implementation
-  if (!element) return;
-  
-  if (!element.id) {
-    element.id = 'element-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
-  }
-}
-
-function addAriaLabel(element, label) {
-  // existing function implementation
-  if (!element || typeof label !== 'string') return;
-  
-  element.setAttribute('aria-label', label);
-}
-
-function renderDependencyGraphs(dependencies) {
-  // existing function implementation
-}
-
-function myNewFunction(input) {
-  // Implement the new function here
-}
-
-function main() {
-  return 'Hello World';
-}
-
-function SomeClass() {}
-
-function someUtility() {
-  return true;
-}
-
-// Accessible utility functions
-function createAccessibleButton(id, label, onClick) {
-  const button = document.createElement('button');
-  button.id = id;
-  button.setAttribute('aria-label', label);
-  button.textContent = label;
-  button.addEventListener('click', onClick);
-  return button;
-}
-
-/**
- * Check if a value is a number
- * @param {*} value - Value to check
- * @returns {boolean} True if value is a number, false otherwise
- */
-function isNumber(value) {
-  return typeof value === 'number' && !isNaN(value);
-}
-
-/**
- * Clamp a number between min and max values
- * @param {number} value - Value to clamp
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} Clamped value
- */
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
-
-// Utility: Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Utility: Check if user prefers high contrast
-function prefersHighContrast() {
-  return window.matchMedia('(prefers-contrast: more)').matches;
-}
-
-// New function to add proper landmark regions
-function addProperLandmarkRegions() {
-  // Ensure <main> element exists and has proper lang attribute
-  let mainElement = document.querySelector('main');
-  if (!mainElement) {
-    mainElement = document.createElement('main');
-    document.body.insertBefore(mainElement, document.body.firstChild);
-  }
-  
-  // Set lang attribute on main element
-  mainElement.setAttribute('lang', document.documentElement.lang || 'en');
-  
-  // Ensure header has proper role
-  const header = document.querySelector('header');
-  if (header && !header.hasAttribute('role')) {
-    header.setAttribute('role', 'banner');
-  }
-  
-  // Ensure nav elements have proper roles
-  const navs = document.querySelectorAll('nav');
-  navs.forEach((nav, index) => {
-    if (!nav.hasAttribute('role')) {
-      nav.setAttribute('role', 'navigation');
-    }
-    if (navs.length > 1 && !nav.hasAttribute('aria-label')) {
-      nav.setAttribute('aria-label', `Navigation ${index + 1}`);
-    }
-  });
-  
-  // Ensure footer has proper role
-  const footer = document.querySelector('footer');
-  if (footer && !footer.hasAttribute('role')) {
-    footer.setAttribute('role', 'contentinfo');
-  }
-}
-
-// Validate table accessibility
-function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  const results = [];
-
-  tables.forEach((table, index) => {
-    const result = { index, issues: [] };
-
-    // Check if table has a caption or th elements
-    const hasCaption = table.querySelector('caption');
-    const hasHeaders = table.querySelectorAll('th').length > 0;
-    
-    if (!hasCaption && !hasHeaders) {
-      result.issues.push('Table should have a caption or header cells');
-    }
-
-    // Check for proper scope attributes on th elements
-    const thElements = table.querySelectorAll('th');
-    thElements.forEach(th => {
-      if (!th.hasAttribute('scope')) {
-        th.setAttribute('scope', 'col');
-        fixedCount++;
+      const cells = row.querySelectorAll('td');
+      if (cells.length > 0) {
+        if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
+          const firstCell = cells[0];
+          const th = document.createElement('th');
+          th.textContent = firstCell.textContent;
+          th.scope = 'col';
+          row.insertBefore(th, firstCell);
+        }
       }
     });
   });
@@ -322,9 +101,11 @@ function addMainLandmark(document) {
   if (!mainElement) {
     const body = document.body;
     const main = document.createElement('main');
-    main.setAttribute('id', 'main-content');
-    
-    const children = Array.from(body.children);
+    if (main) {
+      main.setAttribute('id', 'main-content');
+    }
+
+    const children = body.children;
     for (const child of children) {
       if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
           child.tagName !== 'LINK' && child.tagName !== 'META') {
@@ -361,15 +142,6 @@ function ensureUniqueLandmarks(document) {
     }
   });
 
-  // Handle banner (skip role for banner as it's inherent)
-  const banners = document.querySelectorAll('[role="banner"]');
-  banners.forEach((banner, index) => {
-    if (index > 0 && !banner.hasAttribute('aria-label') && !banner.hasAttribute('aria-labelledby')) {
-      banner.setAttribute('aria-label', `banner-${index + 1}`);
-    }
-  });
-
-  // Handle main (should only be one, but if multiple, label all but first)
   const mains = document.querySelectorAll('[role="main"]');
   if (mains.length > 1) {
     let index = 1;
@@ -410,68 +182,14 @@ function ensureUniqueLandmarks(document) {
   return document;
 }
 
-// REACT_017: Add/fix 4 landmark issues using helper functions
-function fixLandmarkIssuesWithHelpers(document) {
-  const landmarks = document.querySelectorAll('[role], main, nav, header, footer, aside, section');
-  let fixedCount = 0;
-
-  landmarks.forEach((landmark) => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    const landmarkIssues = validateLandmark(landmark);
-    const structureIssues = validateLandmarkStructure(landmark);
-    const accessibilityIssues = validateLandmarkAccessibility(landmark);
-
-    if (landmarkIssues + structureIssues + accessibilityIssues > 0) {
-      if (!landmark.id && !landmark.getAttribute('aria-label')) {
-        landmark.setAttribute('aria-label', `landmark-${role}`);
-      }
-      fixedCount++;
-    }
-  });
-
-  return fixedCount;
-}
-
-// Function to set aria-label on SVG elements from title or aria-labelledby
-function setSvgAccessibilityProps(svgElement) {
-  if (!svgElement) return;
-
-  const title = svgElement.querySelector('title');
-  if (title && title.textContent) {
-    svgElement.setAttribute('aria-label', title.textContent.trim());
-  }
-
-  const labelledBy = svgElement.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const label = document.getElementById(labelledBy);
-    if (label) {
-      svgElement.setAttribute('aria-labelledby', label.id);
-    }
-  }
-}
-
-// REACT_041: Add accessible names to 2 SVGs using helper functions
-function setSvgAttributesWithHelper(document) {
-  const svgElements = document.querySelectorAll('svg');
-  let fixedCount = 0;
-
-  svgElements.forEach((svg) => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      setSvgAttributes(svg, accessibleName);
-      fixedCount++;
-    }
-  });
-
-  return fixedCount;
-}
-
-// Function to add accessible name to SVG
-function addSvgAccessibleName(document) {
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    const titleElement = svg.querySelector('title');
-    if (titleElement && titleElement.textContent.trim()) {
+// Function to add accessible names to SVGs
+function setSvgAttributes(document) {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = `SVG ${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
       svg.setAttribute('role', 'img');
       svg.setAttribute('aria-label', titleElement.textContent.trim());
     } else {
@@ -483,23 +201,22 @@ function addSvgAccessibleName(document) {
 }
 
 // Function to add accessible names to SVG elements
-function addAccessibleNamesToSVGs(document) {
+function getSvgAccessibleName(document) {
   const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
+  svgElements.forEach((svg, index) => {
     const titleElement = svg.querySelector('title');
     if (titleElement && titleElement.textContent.trim()) {
       svg.setAttribute('role', 'img');
       svg.setAttribute('aria-label', titleElement.textContent.trim());
     } else {
-      svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-label', 'Graphic');
+      svg.setAttribute('aria-label', `Graphic ${index + 1}`);
     }
   });
   return document;
 }
 
 // Function to fix fake link issue (merged fixes)
-function fixFakeLinkIssue(document) {
+function handleFakeLinks(document) {
   const clickableElements = document.querySelectorAll('[onclick]');
   let count = 0;
 
@@ -508,11 +225,8 @@ function fixFakeLinkIssue(document) {
     const isAnchor = tagName === 'a';
     const hasHref = element.hasAttribute('href');
     const onclick = element.getAttribute('onclick') || '';
-    
-    if (!isAnchor && (onclick.includes('window.location') || 
-        onclick.includes('document.location') || 
-        onclick.includes('.click()'))) {
-      
+
+    if (!isAnchor && (onclick.includes('window.location') || onclick.includes('href'))) {
       const span = document.createElement('span');
       span.textContent = element.textContent;
       span.setAttribute('role', 'link');
@@ -537,7 +251,8 @@ function fixFakeLinkIssue(document) {
 }
 
 // Function to fix fake link issues (handles both role="link" elements and anchors with href="#")
-function fixFakeLinkIssues(document) {
+function validateLinkAccessibility(document) {
+  // Fix non-anchor elements with role="link"
   const roleLinks = document.querySelectorAll('[role="link"]');
   roleLinks.forEach(link => {
     if (link.tagName !== 'A') {
@@ -554,16 +269,13 @@ function fixFakeLinkIssues(document) {
   return document;
 }
 
-// REACT_036: Fix 1 fake link issue using helper functions
-function fixFakeLinkWithHelpers(document) {
-  const links = document.querySelectorAll('a, [role="link"], [onclick]');
-  let fixedCount = 0;
-
-  links.forEach((link) => {
-    const linkIssues = validateLinkAccessibility(link);
-    if (linkIssues > 0) {
-      handleFakeLinks(link);
-      fixedCount++;
+// Function to fix landmark issues and add Landmark Regions
+function validateLandmark(document) {
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="banner"], [role="contentinfo"]');
+  landmarks.forEach(landmark => {
+    if (!landmark.id && !landmark.getAttribute('aria-label')) {
+      const role = landmark.getAttribute('role');
+      landmark.setAttribute('aria-label', `${role} region`);
     }
   });
 
@@ -572,13 +284,16 @@ function fixFakeLinkWithHelpers(document) {
   return fixedCount;
 }
 
-// Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
-function fixLandmarkIssues(document) {
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (!landmark.id && landmark.tagName !== landmark.tagName.toUpperCase()) {
-      landmark.id = `${role}-${Math.random().toString(36).substr(2, 9)}`;
+// Function to add landmark regions
+function validateLandmarkStructure(document) {
+  const sections = document.querySelectorAll('section');
+  sections.forEach((section, index) => {
+    if (!section.id) {
+      section.id = `section-${index + 1}`;
+    }
+    if (!section.getAttribute('role') && section.querySelector('h2, h3, h4, h5, h6')) {
+      section.setAttribute('role', 'region');
+      section.setAttribute('aria-label', `Section ${index + 1}`);
     }
   });
   return document;
@@ -594,9 +309,34 @@ function addLandmarkRegions(document) {
   return document;
 }
 
+// Function to add proper landmark regions
+function addProperLandmarkRegions(document) {
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
+  landmarks.forEach((landmark, index) => {
+    if (!landmark.getAttribute('role')) {
+      const tagName = landmark.tagName.toLowerCase();
+      const roleMap = {
+        'header': 'banner',
+        'nav': 'navigation',
+        'main': 'main',
+        'aside': 'complementary',
+        'footer': 'contentinfo'
+      };
+      if (roleMap[tagName]) {
+        landmark.setAttribute('role', roleMap[tagName]);
+      }
+    }
+    if (!landmark.id) {
+      landmark.id = `landmark-${index + 1}`;
+    }
+  });
+  return document;
+}
+
 // REACT_025: Ensure unique landmarks (by role approach)
-function uniqueLandmarks(document) {
-  const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
+function ensureUniqueLandmarksByRole(document) {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
+
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
     if (elements.length > 1) {
@@ -609,18 +349,25 @@ function uniqueLandmarks(document) {
       });
     }
   });
+
+  const mains = document.querySelectorAll('[role="main"], main');
+  if (mains.length > 1) {
+    mains.forEach((main, index) => {
+      main.setAttribute('aria-label', `Main content ${index + 1}`);
+    });
+  }
+
   return document;
 }
 
-// REACT_025: Ensure unique landmarks (2 issues) using helper function
-function ensureUniqueLandmarksWithHelper(document) {
-  const landmarks = document.querySelectorAll('[role], main, nav, header, footer, aside');
-  let fixedCount = 0;
-
-  landmarks.forEach((landmark) => {
-    const accessibilityIssues = validateLandmarkAccessibility(landmark);
-    if (accessibilityIssues > 0) {
-      fixedCount++;
+// Function to add accessible names to SVGs (alias)
+function addSvgAccessibleNames(document) {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = `Accessible SVG ${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
     }
   });
 
@@ -645,7 +392,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.querySelector('#g-signin-button');
+    const buttonContainer = document.querySelector('#g-signin2');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -655,85 +402,26 @@ function googleSignIn(document) {
   }
 }
 
-// TODO: Implement renderIndexView functionality
-function renderIndexView(document, options = {}) {
-  const {
-    title = 'Index',
-    items = [],
-    containerId = 'index-view',
-    headingLevel = 'h2'
-  } = options;
-
-  // Create or find main content area
-  let mainContent = document.getElementById('main-content');
-  
-  if (!mainContent) {
-    mainContent = document.createElement('main');
-    mainContent.id = 'main-content';
-    mainContent.setAttribute('role', 'main');
-    document.body.appendChild(mainContent);
-  }
-
-  // Create index container with proper landmark
-  const indexContainer = document.createElement('div');
-  indexContainer.id = containerId;
-  indexContainer.setAttribute('role', 'region');
-  indexContainer.setAttribute('aria-label', title);
-
-  // Create heading
-  const heading = document.createElement(headingLevel);
-  heading.id = `${containerId}-heading`;
-  heading.textContent = title;
-  indexContainer.appendChild(heading);
-
-  // Create accessible list of items
-  if (items.length > 0) {
-    const list = document.createElement('ul');
-    list.setAttribute('role', 'list');
-    list.setAttribute('aria-labelledby', heading.id);
-
-    items.forEach((item, index) => {
-      const listItem = document.createElement('li');
-      listItem.setAttribute('role', 'listitem');
-
-      let link;
-      if (item.url) {
-        link = document.createElement('a');
-        link.href = item.url;
-      } else {
-        link = document.createElement('span');
-        link.setAttribute('role', 'link');
-        link.setAttribute('tabindex', '0');
-      }
-      
-      link.textContent = item.title || `Item ${index + 1}`;
-      link.id = `${containerId}-item-${index + 1}`;
-
-      // Add accessible description if available
-      if (item.description) {
-        const descriptionSpan = document.createElement('span');
-        descriptionSpan.className = 'sr-only';
-        descriptionSpan.textContent = `: ${item.description}`;
-        link.appendChild(descriptionSpan);
-        link.setAttribute('aria-describedby', `${containerId}-desc-${index + 1}`);
-      }
-
-      listItem.appendChild(link);
-      list.appendChild(listItem);
-    });
-
-    indexContainer.appendChild(list);
-  } else {
-    // No items message with proper ARIA
-    const noItemsMsg = document.createElement('p');
-    noItemsMsg.setAttribute('role', 'status');
-    noItemsMsg.textContent = 'No items to display in the index.';
-    indexContainer.appendChild(noItemsMsg);
-  }
-
-  // Clear main content and append index view
-  mainContent.innerHTML = '';
-  mainContent.appendChild(indexContainer);
-
-  return document;
+// Helper function for Google sign-in credential handling
+function handleCredentialResponse(response) {
+  console.log('ID Token: ' + response.credential);
 }
+
+// Export all functions for testing
+export {
+  getLangAttribute,
+  validateTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  setSvgAttributes,
+  getSvgAccessibleName,
+  handleFakeLinks,
+  validateLinkAccessibility,
+  validateLandmark,
+  validateLandmarkStructure,
+  addProperLandmarkRegions,
+  ensureUniqueLandmarksByRole,
+  addSvgAccessibleNames,
+  googleSignIn,
+  handleCredentialResponse
+};

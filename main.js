@@ -448,5 +448,129 @@ function renderDependencyGraphs(document) {
     title.textContent = 'Dependency Graph';
     ...
 
-    const desc = ... 'desc');
-    desc.textContent = 'Visual representation of
+    const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    desc.textContent = 'Visual representation of project dependencies';
+    svg.appendChild(desc);
+
+    // Render the graph content
+    const graphContent = graphContainer.querySelector('[data-graph-data]');
+    if (graphContent) {
+      // Parse and render dependency data
+      // Implementation would parse the data and create nodes/edges
+    }
+
+    graphContainer.appendChild(svg);
+  }
+  return document;
+}
+
+// Function to add accessible names to SVGs (alias)
+function addAccessibleNamesToSVGs(document) {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.querySelector('title')) {
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = 'Accessible SVG';
+      svg.insertBefore(title, svg.firstChild);
+    }
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+  });
+  return document;
+}
+
+// REACT_040: Replace my-button with actual button id for accessibility
+function fixButtonIdentifiers(document) {
+  const buttons = document.querySelectorAll('[id^="my-button"]');
+  buttons.forEach(button => {
+    const newId = button.id.replace('my-button', 'btn-' + button.textContent.trim().toLowerCase().replace(/\s+/g, '-'));
+    button.id = newId;
+  });
+  return document;
+}
+
+// REACT_042: Ensure dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphAriaRole(document) {
+  const dependencyGraph = document.querySelector('[data-testid="dependencyGraph"]') || 
+                          document.querySelector('#dependencyGraph') || 
+                          document.querySelector('.dependency-graph') ||
+                          document.querySelector('[class*="dependency-graph"]');
+  
+  if (dependencyGraph) {
+    // Check if element already has a role
+    const existingRole = dependencyGraph.getAttribute('role');
+    if (!existingRole) {
+      // Add appropriate role based on context
+      dependencyGraph.setAttribute('role', 'region');
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+  
+  return document;
+}
+
+// Function to add the main landmark to docs/index.html
+function addMainLandmarkToIndex(document) {
+  // ... existing implementation
+}
+
+// Implement function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(document) {
+  document = addLangAttribute(document);
+  document = fixTableStructure(document);
+  document = fixLandmarkIssues(document);
+  document = addMainLandmark(document);
+  document = addLandmarkRegions(document);
+  document = ensureUniqueLandmarks(document);
+  document = uniqueLandmarks(document);
+  document = addSvgAccessibleNames(document);
+  document = addAccessibleNamesToSVGs(document);
+  document = fixFakeLinkIssue(document);
+  document = fixFakeLinkIssues(document);
+  document = fixImageAltTexts(document);
+  document = googleSignIn(document);
+  document = fixButtonIdentifiers(document);
+  document = addMainLandmarkToIndex(document);
+  document = ensureElementHasId(document);
+  document = renderDependencyGraphs(document);
+  document = ensureDependencyGraphAriaRole(document);
+  document = renderIndexView(document);
+  return document;
+}
+
+// Function to render the index view
+function renderIndexView(document) {
+  // TODO: Implement renderIndexView functionality
+  // Placeholder for now, replace with actual implementation
+}
+
+// Export all functions
+export {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  fixButtonIdentifiers,
+  addMainLandmarkToIndex,
+  renderDependencyGraphs,
+  ensureDependencyGraphAriaRole,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderIndexView,
+  class1,
+  function1,
+  Object1
+};

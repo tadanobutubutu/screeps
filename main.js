@@ -1,17 +1,20 @@
-const { add } = require('./math/add');
-const { subtract } = require('./math/subtract');
-const { multiply } = require('./math/multiply');
-const { divide } = require('./math/divide');
-const { power } = require('./math/power');
-const { squareRoot } = require('./math/squareRoot');
-const { factorial } = require('./math/factorial');
-const { fibonacci } = require('./math/fibonacci');
-const { sum } = require('./math/sum');
-const { average } = require('./math/average');
-const { max } = require('./math/max');
-const { min } = require('./math/min');
-const { mode } = require('./math/mode');
-const { median } = require('./math/median');
+const renderGraph = (graph) => {
+  // New function to render the graph data
+  const graphContent = graph;
+  return graphContent;
+};
+
+const renderIndex = (index) => {
+  // New function to render the index data
+  const indexContent = index;
+  return indexContent;
+};
+
+const renderDependencyGraph = (dependencyGraph, container) => {
+  const graphContent = renderGraph(dependencyGraph);
+  const indexContent = renderIndex(dependencyGraph);
+  container.innerHTML = graphContent + indexContent;
+};
 
 const buttonElement = document.querySelector('button');
 

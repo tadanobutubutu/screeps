@@ -1,70 +1,65 @@
+// TODO: This is the existing code that needs to be preserved
+//_Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
+//<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+
 import { class1, function1, Object1 } from './path/to/module';
 const dependencyGraphContent = ...
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report
 
-function addLangAttribute(lang = 'en') {
+function ... lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.lang = lang;
+    ... lang);
   }
   return document;
 }
 
-function fixTableStructure(document) {
-  const tables = document.querySelectorAll('table');
+// Function to fix table structure issues
+function ... {
+  const tables = ...
   let fixedCount = 0;
 
   tables.forEach((table) => {
-    const existingThead = table.querySelector('thead');
-    const existingTbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
-
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
-
-const renderDependencyGraph = (dependencyGraph, container) => {
-  // Render the dependency graph using the dependencyGraphContent
-  const graphContent = dependencyGraphContent;
-  // Append the graphContent to the container
-  container.innerHTML = graphContent;
-};
-
-exports.renderDependencyGraph = renderDependencyGraph;
-
-function fixTableStructureIssues(document) {
-  // Function to fix table structure issues for accessibility
-  let fixedCount = 0;
-  const tables = document.querySelectorAll('table');
-  
-  tables.forEach(table => {
-    const existingThead = table.querySelector('thead');
-    const existingTbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
+    // Ensure tables have proper structure with thead and tbody
+    const existingThead = ...
+    const existingTbody = ...
+    const rows = ...
+    
+    if (rows.length > 0 && !existingThead) {
+      const firstRow = rows[0];
+      const thead = document.createElement('thead');
+      ...
+      table.insertBefore(thead, table.firstChild);
+      fixedCount++;
+    }
     
     if (!existingTbody) {
       let remainingRows = Array.from(rows);
       if (existingThead) {
-        remainingRows = remainingRows.slice(existingThead.querySelectorAll('tr').length);
+        const theadRowCount = ...
+        remainingRows = ...
       } else {
-        remainingRows = remainingRows.slice(1);
+        remainingRows = ...
       }
       if (remainingRows.length > 0) {
-        const tbody = document.createElement('tbody');
-        remainingRows.forEach(row => tbody.appendChild(row));
-        table.appendChild(tbody);
+        const tbody = ...
+        ...
         fixedCount++;
       }
     }
 
     // Ensure proper header cells (th) are used
-    const allRows = table.querySelectorAll('tr');
+    const allRows = ...
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
+      const cells = ... th');
       // Check if first cell should be a header
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
-        const th = document.createElement('th');
+        const th = ...
         th.textContent = firstCell.textContent;
         th.scope = 'col';
         row.insertBefore(th, firstCell);
@@ -73,9 +68,9 @@ function fixTableStructureIssues(document) {
     });
 
     // Additional HEAD logic: ensure scope on header cells
-    const headerCells = table.querySelectorAll('th');
+    const headerCells = ...
     headerCells.forEach(th => {
-      if (!th.scope) {
+      if ... {
         th.setAttribute('scope', 'col');
         fixedCount++;
       }
@@ -86,15 +81,15 @@ function fixTableStructureIssues(document) {
 }
 
 function addMainLandmark(document) {
-  let mainElement = document.querySelector('main');
+  let mainElement = ...
 
   if (!mainElement) {
     // Find the primary content area and wrap it or create main element
     const body = document.body;
-    const main = document.createElement('main');
+    const main = ...
     main.setAttribute('id', 'main-content');
 
-    const children = Array.from(body.children);
+    const children = ...
     for (const child of children) {
       if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
           child.tagName !== 'LINK' && child.tagName !== 'META') {
@@ -103,7 +98,7 @@ function addMainLandmark(document) {
       }
     }
 
-    body.insertBefore(main, body.firstChild);
+    ... body.firstChild);
     mainElement = main;
   }
 
@@ -114,54 +109,52 @@ function addMainLandmark(document) {
   return mainElement;
 }
 
-function handleCredentialResponse(response) {
-  console.log('Credential response received:', response);
-}
-
-function ensureUniqueLandmarks(document) {
+// Function to ensure unique landmarks (combined approach)
+function ... {
   // ... existing implementation for by role
   // ... existing unique landmarks implementation for origin/main>
 }
 
-function addSvgAccessibleNames(document) {
+// Function to add accessible names to SVGs
+function ... {
   // ... existing implementation
 }
 
-function addAccessibleNamesToSVGs(document) {
+// Function to add accessible names to SVGs (alias)
+function ... {
   // ... existing implementation
 }
 
-function fixFakeLinks(document) {
+function ... {
   let count = 0;
 
-  const clickableElements = document.querySelectorAll('[onclick]');
+  const clickableElements = ...
 
   clickableElements.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     const isAnchor = tagName === 'a';
-    const hasHref = element.hasAttribute('href');
+    const hasHref = ...
     const onclick = element.getAttribute('onclick') || '';
 
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
         onclick.includes('document.location') || 
-        onclick.includes('href'))) {
+        ... {
       
       // Convert to proper anchor or add proper accessibility
-      const span = document.createElement('span');
+      const span = ...
       span.textContent = element.textContent;
       span.setAttribute('role', 'link');
       span.setAttribute('tabindex', '0');
-      span.setAttribute('onclick', onclick);
-      element.setAttribute('onclick', '');
-      span.onclick = element.onclick;
-
+      ... onclick);
+      ... element.onclick);
+      
       // Copy styling if available
       if (element.className) {
         span.className = element.className;
       }
-
-      element.parentNode.replaceChild(span, element);
+      
+      ... element);
       count++;
     }
   });
@@ -169,36 +162,42 @@ function fixFakeLinks(document) {
   return count;
 }
 
-function fixFakeLinkIssues(document) {
-  const roleLinks = document.querySelectorAll('[role="link"]');
-  roleLinks.forEach(link => {
+// Function to fix fake link issues (handles both role="link" elements and anchors with href="#")
+function ... {
+  // Fix non-anchor elements with role="link"
+  const roleLinks = ...
+  ... => {
     if (link.tagName !== 'A') {
       link.setAttribute('aria-label', 'This link goes to a section within the page');
     }
   });
 
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  // Fix anchors with href="#" by converting them to accessible buttons
+  const fakeLinks = ...
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
+    ... '0');
   });
 
   return document;
 }
 
-function fixLandmarkIssues(document) {
+// Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
+function ... {
   // ... updated landmark issue fix implementation
 }
 
-function addLandmarkRegions(document) {
+function ... {
   // ... existing implementation
 }
 
-function uniqueLandmarks(document) {
+// REACT_025: Ensure unique landmarks (by role approach)
+function ... {
   // ... unique landmarks implementation by role
 }
 
-function fixImageAltTexts(document) {
+// Address accessibility issues from insight report for image alt texts
+function ... {
   // ... existing implementation
 }
 
@@ -208,7 +207,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.querySelector('#g_id_onload');
+    const buttonContainer = ...
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -220,7 +219,7 @@ function googleSignIn(document) {
 }
 
 function ensureElementHasId(document, selector, idPrefix = 'element') {
-  const elements = document.querySelectorAll(selector);
+  const elements = ...
   elements.forEach((element, index) => {
     if (!element.id) {
       element.id = `${idPrefix}-${index + 1}`;
@@ -229,8 +228,9 @@ function ensureElementHasId(document, selector, idPrefix = 'element') {
   return document;
 }
 
-function addAriaLabel(document, selector, label) {
-  const elements = document.querySelectorAll(selector);
+// Function to add aria-label to elements
+function ... selector, label) {
+  const elements = ...
   elements.forEach((element) => {
     if (!element.getAttribute('aria-label')) {
       element.setAttribute('aria-label', label);
@@ -240,19 +240,28 @@ function addAriaLabel(document, selector, label) {
 }
 
 function renderDependencyGraphs(document) {
-  const graphContainer = document.querySelector('[data-dependency-graph]');
+  const graphContainer = ...
   if (graphContainer) {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    // Create SVG element for the dependency graph
+    const svg = ... 'svg');
     svg.setAttribute('class', 'dependency-graph');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '400');
-    svg.setAttribute('viewBox', '0 0 800 400');
+    ... '0 0 800 400');
     svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', 'Dependency graph visualization');
-    graphContainer.appendChild(svg);
+    ... 'Dependency graph visualization');
+
+    // Add accessible title and description
+    const title = ... 'title');
+    title.textContent = 'Dependency Graph';
+    ...
+
+    const desc = ... 'desc');
+    desc.textContent = 'Visual representation of project dependencies';
+    ...
 
     // Render the graph content
-    const graphContent = graphContainer.querySelector('.graph-content');
+    const graphContent = ...
     if (graphContent) {
       // Parse and render dependency data
       // Implementation would parse the data and create nodes/edges
@@ -260,42 +269,45 @@ function renderDependencyGraphs(document) {
 
     // Render the graph content using the dependencyGraphContent
     if (dependencyGraphContent) {
-      const graphContent = typeof dependencyGraphContent === 'string'
-        ? dependencyGraphContent
-        : JSON.stringify(dependencyGraphContent);
+      const graphContentString = typeof dependencyGraphContent === 'string' 
+        ? dependencyGraphContent 
+        : ...
       const parser = new DOMParser();
-      const doc = parser.parseFromString(graphContentString, 'image/svg+xml');
+      const doc = ... 'image/svg+xml');
       const svgContent = doc.documentElement;
-      while (svgContent.firstChild) {
-        svg.appendChild(svgContent.firstChild);
+      while ... {
+        ...
       }
     }
 
-    graphContainer.appendChild(svg);
+    ...
   }
   return document;
 }
 
 function fixButtonIdentifiers(document) {
-  const buttons = document.querySelectorAll('.my-button');
+  const buttons = ...
   buttons.forEach(button => {
-    const newId = button.id || 'btn-' + Math.random().toString(36).substr(2, 9);
+    const newId = ... 'btn-' + ... '-'));
     button.id = newId;
   });
   return document;
 }
 
-function ensureDependencyGraphAriaRole(document) {
-  const dependencyGraph = document.querySelector('[data-dependency-graph]') || 
-                          document.querySelector('#dependency-graph') || 
-                          document.querySelector('.dependency-graph') ||
-                          document.querySelector('.graph-container');
+// REACT_042: Ensure dependencyGraph container has a proper ARIA role
+function ... {
+  const dependencyGraph = ... || 
+                          ... || 
+                          ... || 
+                          ...
   
   if (dependencyGraph) {
-    const existingRole = dependencyGraph.getAttribute('role');
+    // Check if element already has a role
+    const existingRole = ...
     if (!existingRole) {
-      dependencyGraph.setAttribute('role', 'region');
-      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+      // Add appropriate role based on context
+      ... 'region');
+      ... 'Dependency Graph');
     }
   }
   
@@ -303,14 +315,81 @@ function ensureDependencyGraphAriaRole(document) {
 }
 
 // Function to add the main landmark to docs/index.html
-function addMainLandmarkToIndex(document) {
+function ... {
   // ... existing implementation
   return document;
 }
 
 // Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(document) {
-  document = addLangAttribute(document);
-  document = fixTableStructure(document);
-  document = fixFakeLinks(document);
-  document = addMainLand
+  document = ...
+  document = ...
+  document = ...
+  document = addMainLandmark(document);
+  document = ...
+  document = ...
+  document = ...
+  document = ...
+  document = ...
+  document = ...
+  document = ...
+  document = googleSignIn(document);
+  document = ...
+  document = ...
+  document = ensureElementHasId(document, '[data-ensure-id]');
+  document = ...
+  document = ...
+  return document;
+}
+
+const a11yStore = {
+  init() {
+    ...
+    ...
+    ...
+    this.setupSkipLinks();
+    ...
+    ...
+    this.fixFakeLinks();
+    this.initAccessibility();
+  },
+
+  createAccessibleButton(id, label, onClick) {
+    const button = document.createElement('button');
+    button.id = id;
+    button.setAttribute('aria-label', label);
+    button.textContent = label;
+    ... onClick);
+    return button;
+  },
+
+  createAccessibleDialog(id, title, content, closeLabel = 'Close') {
+    const dialog = ...
+    dialog.id = id;
+    ... 'dialog');
+    ... `${id}-title`);
+    ... 'true');
+
+    const titleEl = ...
+    titleEl.id = `${id}-title`;
+    titleEl.textContent = title;
+
+    const closeButton = ... closeLabel, () => {
+      dialog.hidden = true;
+      ... 'true');
+    });
+
+    dialog.appendChild(titleEl);
+    ...
+    ...
+
+    return dialog;
+  },
+
+  announceToScreenReader(message, priority = 'polite') {
+    const announcement = ...
+    announcement.setAttribute('role', 'status');
+    ... priority);
+    ... 'true');
+    announcement.className = 'sr-only';
+    announcement

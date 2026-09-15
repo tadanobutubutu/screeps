@@ -8,8 +8,8 @@ Let me create a complete, syntactically valid main.js file:
 
 function setHtmlLang(lang = 'en') {
   const htmlElement = document.documentElement;
-  if (htmlElement && lang) {
-    htmlElement.setAttribute('lang', lang);
+  if (htmlElement && !htmlElement.lang) {
+    htmlElement.lang = lang;
   }
   return document;
 }
@@ -62,7 +62,7 @@ function validateTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('th, td');
+      const cells = Array.from(row.querySelectorAll('td, th'));
       if (cells.length > 0) {
         if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
           const firstCell = cells[0];
@@ -146,6 +146,11 @@ function uniqueLandmarks(document) {
     }
   });
 
+  return document;
+}
+
+// Address accessibility issues from insight report for image alt texts
+function fixImageAltTexts(document) {
   const mains = document.querySelectorAll('[role="main"]');
   if (mains.length > 1) {
     let index = 1;
@@ -204,14 +209,116 @@ function addAccessibleSvgNames(document) {
 function addSvgAccessibleNames(document) {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.querySelector('title') && !svg.getAttribute('role')) {
+    if (!svg.querySelector('title') && svg.getAttribute('id')) {
       const title = document.createElement('title');
       title.textContent = 'Accessible SVG';
       svg.insertBefore(title, svg.firstChild);
       svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-label', titleElement.textContent.trim());
-    } else {
-      svg.setAttribute('aria-label', `Graphic ${index + 1}`);
+    }
+  });
+  return document;
+}
+
+// Function to fix fake link issue (merged fixes)
+function fixFakeLinkIssue(document) {
+  const clickableElements = document.querySelectorAll('[onclick]');
+  let count = 0;
+
+  clickableElements.forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+    const isAnchor = tagName === 'a';
+    const hasHref = element.hasAttribute('href');
+    const onclick = element.getAttribute('onclick') || '';
+
+    if (!isAnchor && (onclick.includes('window.location') || onclick.includes('href'))) {
+      const span = document.createElement('span');
+      span.textContent = element.textContent;
+      span.setAttribute('role', 'link');
+      span.setAttribute('tabindex', '0');
+      span.setAttribute('onclick', onclick);
+      span.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          element.click();
+        }
+      });
+
+      if (element.className) {
+        span.className = element.className;
+      }
+
+      element.parentNode.replaceChild(span, element);
+      count++;
+    }
+  });
+
+  return document;
+}
+
+// Function to fix landmark issues and add Landmark Regions
+function fixLandmarkIssues(document) {
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="banner"], [role="contentinfo"]');
+  landmarks.forEach(landmark => {
+    if (!landmark.id && !landmark.getAttribute('aria-label')) {
+      const role = landmark.getAttribute('role');
+      landmark.setAttribute('aria-label', `${role} region`);
+    }
+  });
+}
+
+// Function to add landmark regions
+function addLandmarkRegions(document) {
+  const sections = document.querySelectorAll('section');
+  sections.forEach((section, index) => {
+    if (!section.id) {
+      section.id = `section-${index + 1}`;
+    }
+    if (!section.getAttribute('role') && section.querySelector('h2, h3, h4, h5, h6')) {
+      section.setAttribute('role', 'region');
+      section.setAttribute('aria-label', `Section ${index + 1}`);
+    }
+  });
+}
+
+function uniqueLandmarks(document) {
+  return ensureUniqueLandmarks(document);
+}
+
+// Address accessibility issues from insight report for image alt texts
+function fixImageAltTextsDuplicate(document) {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
+
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (!el.getAttribute('aria-label')) {
+          el.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
+
+  const mains = document.querySelectorAll('[role="main"]');
+  if (mains.length > 1) {
+    mains.forEach((main, index) => {
+      main.setAttribute('aria-label', `Main content ${index + 1}`);
+    });
+  }
+
+  return document;
+}
+
+// Function to add accessible names to SVGs (alias)
+function addAccessibleNamesToSVGs(document) {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = 'Accessible SVG';
+      svg.insertBefore(title, svg.firstChild);
+    }
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
     }
   });
   return document;
@@ -228,7 +335,7 @@ function fixFakeLinkIssues(document) {
     const hasHref = element.hasAttribute('href');
     const onclick = element.getAttribute('onclick') || '';
 
-    if (!isAnchor && (onclick.includes('window.location') || onclick.includes('navigate'))) {
+    if (!isAnchor && (onclick.includes('window.location') || onclick.includes('href'))) {
       const span = document.createElement('span');
       span.textContent = element.textContent;
       span.setAttribute('role', 'link');
@@ -271,102 +378,6 @@ function fixFakeLinks(document) {
   return document;
 }
 
-// Function to fix landmark issues and add Landmark Regions
-function fixLandmarkIssues(document) {
-  const landmarks = document.querySelectorAll('[role="navigation"], [role="banner"], [role="contentinfo"]');
-  landmarks.forEach(landmark => {
-    if (!landmark.getAttribute('aria-label') && !landmark.id) {
-      const role = landmark.getAttribute('role');
-      landmark.setAttribute('aria-label', `${role} region`);
-    }
-  });
-
-  createInPageButton(document);
-
-  return fixedCount;
-}
-
-// Function to add landmark regions
-function addLandmarkRegions(document) {
-  const sections = document.querySelectorAll('section');
-  sections.forEach((section, index) => {
-    if (!section.id) {
-      section.id = `section-${index + 1}`;
-    }
-    if (!section.getAttribute('role') && section.querySelector('h2, h3, h4, h5, h6')) {
-      section.setAttribute('role', 'region');
-      section.setAttribute('aria-label', `Section ${index + 1}`);
-    }
-  });
-  return document;
-}
-
-function fixButtonIdentifiers(document) {
-  const buttons = document.querySelectorAll('.my-button, [class*="my-button"]');
-  buttons.forEach((button, index) => {
-    if (!button.id) {
-      button.id = `accessible-button-${index + 1}`;
-    }
-    button.removeAttribute('aria-hidden');
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-      button.setAttribute('aria-label', `Button ${index + 1}`);
-    }
-  });
-  return document;
-}
-
-// Address accessibility issues from insight report for image alt texts
-function ensureUniqueLandmarks(document) {
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
-
-  landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
-    if (elements.length > 1) {
-      let index = 1;
-      elements.forEach((el) => {
-        if (!el.getAttribute('aria-label')) {
-          el.setAttribute('aria-label', `${role}-${index}`);
-        }
-        index++;
-      });
-    }
-  });
-
-  const mains = document.querySelectorAll('[role="main"]');
-  if (mains.length > 1) {
-    mains.forEach((main, index) => {
-      main.setAttribute('aria-label', `Main content ${index + 1}`);
-    });
-  }
-
-  return document;
-}
-
-// Function to add accessible names to SVGs (alias)
-function addAccessibleSvgNamesAlias(document) {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    if (!svg.querySelector('title')) {
-      const title = document.createElement('title');
-      title.textContent = 'Accessible SVG';
-      svg.insertBefore(title, svg.firstChild);
-    }
-  });
-
-  return fixedCount;
-}
-
-// Address accessibility issues from insight report for image alt texts
-function fixImageAltTexts(document) {
-  const images = document.querySelectorAll('img:not([alt])');
-  images.forEach(img => {
-    if (!img.hasAttribute('alt')) {
-      img.setAttribute('alt', '');
-    }
-  });
-  return document;
-}
-
 // REACT_037: Google sign-in logic
 function googleSignIn(document) {
   if (typeof google !== 'undefined' && google.accounts) {
@@ -383,7 +394,7 @@ function googleSignIn(document) {
     }
   }
 
-  const buttonContainer = document.querySelector('#google-sign-in-button, [data-google-signin]');
+  const buttonContainer = document.getElementById('g_id_onbutton');
   if (buttonContainer) {
     google.accounts.id.renderButton(
       buttonContainer,
@@ -411,7 +422,7 @@ function ensureElementHasId(document, selector, idPrefix = 'element') {
 }
 
 // Function to ensure an element has an id with origin/main optimization
-function ensureElementIdWithOrigin(document, selector, idPrefix = 'element') {
+function ensureElementHasIdOrigin(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
   elements.forEach((element) => {
     if (!element.id) {
@@ -434,9 +445,6 @@ function addAriaLabel(document, selector, label) {
 
 // Function to render dependency graphs
 function renderDependencyGraphs(document) {
-  const graphContainer = document.querySelector('.dependency-graph, #dependency-graph');
+  const graphContainer = document.querySelector('.dependency-graph');
   if (graphContainer) {
-    // Create SVG element for the dependency graph
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'dependency-graph');
-    svg.setAttribute('width
+    // Create SVG element for

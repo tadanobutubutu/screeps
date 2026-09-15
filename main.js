@@ -230,16 +230,26 @@ function ... {
 
 // Address accessibility issues from insight report for image alt texts
 function fixImageAltTexts(document) {
-  const images = document.querySelectorAll('img');
-  images.forEach((img, index) => {
-    if (!img.hasAttribute('alt')) {
-      if (img.getAttribute('role') === 'presentation' || img.getAttribute('aria-hidden') === 'true') {
-        img.setAttribute('alt', '');
-      } else {
-        img.setAttribute('alt', `Image ${index + 1}`);
-      }
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
+
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (!el.getAttribute('aria-label')) {
+          el.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
     }
   });
+
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) {
+    mains.forEach((main, index) => {
+      main.setAttribute('aria-label', `Main content ${index + 1}`);
+    });
+  }
+
   return document;
 }
 
@@ -330,10 +340,11 @@ function renderDependencyGraphs(document) {
     ...
 
     const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
-    desc.textContent = 'Visual representation of dependency relationships between modules';
+    desc.textContent = 'Visual representation of dependencies in the application';
     svg.appendChild(desc);
 
     graphContainer.appendChild(svg);
   }
+
   return document;
 }

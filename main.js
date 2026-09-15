@@ -30,7 +30,14 @@ function addLangAttribute(document, lang = 'en') {
   return document;
 }
 
-const buttonElement = document.querySelector('button');
+// Update scope attributes in all .html files in the views directory
+const viewsDir = path.join(__dirname, 'views');
+fs.readdirSync(viewsDir)
+  .filter(file => file.endsWith('.html'))
+  .forEach(file => {
+    const filePath = path.join(viewsDir, file);
+    updateThScopeAttribute(filePath);
+  });
 
   tables.forEach((table) => {
     // Ensure tables have proper structure with thead and tbody

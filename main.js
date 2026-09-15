@@ -105,12 +105,10 @@ function fixFakeLinkIssue(links) {
   // ... existing fixFakeLinkIssue implementation
 }
 
-function fixLandmarkIssues(document) {
-  // ... existing fixLandmarkIssues implementation
-}
-
-function addLandmarkRegions(document) {
-  // ... existing addLandmarkRegions implementation
+// Placeholder functions for missing exports
+function totalDependencies() {
+  // Placeholder implementation
+  return 0;
 }
 
 function uniqueLandmarks(landmarks) {

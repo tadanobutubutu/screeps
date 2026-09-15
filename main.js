@@ -47,189 +47,6 @@ function fixTableStructure(document) {
     const existingTbody = table.querySelector('tbody');
     const rows = table.querySelectorAll('tr');
 
-    if (!existingTbody) {
-      let remainingRows = Array.from(rows);
-      if (existingThead) {
-        const theadRowCount = existingThead.querySelectorAll('tr').length;
-        remainingRows = remainingRows.slice(theadRowCount);
-      } else {
-        remainingRows = remainingRows.slice(1);
-      }
-      if (remainingRows.length > 0) {
-        const tbody = document.createElement('tbody');
-        remainingRows.forEach(row => tbody.appendChild(row));
-        table.appendChild(tbody);
-        fixedCount++;
-      }
-    }
-
-    const allRows = table.querySelectorAll('tr');
-    allRows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
-      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
-        const firstCell = cells[0];
-        const th = document.createElement('th');
-        th.textContent = firstCell.textContent;
-        th.scope = 'col';
-        row.insertBefore(th, firstCell);
-        fixedCount++;
-      }
-    });
-
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(th => {
-      if (!th.scope) {
-        th.setAttribute('scope', 'col');
-        fixedCount++;
-      }
-    });
-  });
-
-  return fixedCount;
-}
-
-function checkTableAccessibility(document) {
-  const tables = document.querySelectorAll('table');
-  const issues = [];
-  let tableIndex = 0;
-
-  tables.forEach((table) => {
-    tableIndex++;
-    const tableId = table.id || `table-${tableIndex}`;
-    
-    const thead = table.querySelector('thead');
-    const tbody = table.querySelector('tbody');
-    const tfoot = table.querySelector('tfoot');
-    const headers = table.querySelectorAll('th');
-    const rows = table.querySelectorAll('tr');
-    
-    // Check if table has proper structure (thead, tbody)
-    if (!thead) {
-      issues.push({
-        tableId,
-        type: 'missing-thead',
-        severity: 'warning',
-        message: 'Table is missing a thead element for proper accessibility structure'
-      });
-    }
-    
-    if (!tbody) {
-      issues.push({
-        tableId,
-        type: 'missing-tbody',
-        severity: 'warning',
-        message: 'Table is missing a tbody element - all rows should be wrapped in tbody'
-      });
-    }
-    
-    // Check for proper scope attributes on header cells
-    let headerScopeIssues = 0;
-    headers.forEach((th, index) => {
-      const scope = th.getAttribute('scope');
-      if (!scope) {
-        headerScopeIssues++;
-      }
-    });
-    
-    if (headerScopeIssues > 0) {
-      issues.push({
-        tableId,
-        type: 'missing-header-scope',
-        severity: 'error',
-        message: `Table has ${headerScopeIssues} header cell(s) without scope attribute`,
-        count: headerScopeIssues
-      });
-    }
-    
-    // Check if data tables have headers
-    const dataCells = table.querySelectorAll('td');
-    if (dataCells.length > 0 && headers.length === 0) {
-      issues.push({
-        tableId,
-        type: 'missing-headers',
-        severity: 'error',
-        message: 'Data table has no header cells (th elements)'
-      });
-    }
-    
-    // Check for caption
-    const caption = table.querySelector('caption');
-    if (!caption) {
-      issues.push({
-        tableId,
-        type: 'missing-caption',
-        severity: 'info',
-        message: 'Table is missing a caption for describing the table purpose'
-      });
-    }
-    
-    // Check for proper header/content relationship
-    if (headers.length > 0) {
-      const firstRowHeaders = rows[0] ? rows[0].querySelectorAll('th') : [];
-      if (firstRowHeaders.length === 0 && thead) {
-        const theadRows = thead.querySelectorAll('tr');
-        if (theadRows.length === 0 || theadRows[0].querySelectorAll('th').length === 0) {
-          issues.push({
-            tableId,
-            type: 'empty-header-row',
-            severity: 'warning',
-            message: 'Table has a thead but no header cells in the first row'
-          });
-        }
-      }
-    }
-    
-    // Check for complex tables needing id headers association
-    const complexTableHeaders = table.querySelectorAll('th[scope]');
-    if (complexTableHeaders.length > 0) {
-      const cellsWithHeaders = table.querySelectorAll('td[headers]');
-      if (cellsWithHeaders.length === 0 && complexTableHeaders.length > 1) {
-        // This might be a complex table that needs header associations
-        issues.push({
-          tableId,
-          type: 'potential-complex-table',
-          severity: 'info',
-          message: 'Table has multiple headers but no cells with headers attribute - consider adding headers for complex tables'
-        });
-      }
-    }
-    
-    // Check for empty tables
-    if (rows.length === 0) {
-      issues.push({
-        tableId,
-        type: 'empty-table',
-        severity: 'warning',
-        message: 'Table has no rows'
-      });
-    }
-    
-    // Check table dimensions
-    if (rows.length > 0) {
-      const firstRowCells = rows[0].querySelectorAll('th, td');
-      const inconsistentColumns = Array.from(rows).some(row => {
-        const cells = row.querySelectorAll('th, td');
-        return cells.length !== firstRowCells.length;
-      });
-      
-      if (inconsistentColumns) {
-        issues.push({
-          tableId,
-          type: 'inconsistent-columns',
-          severity: 'error',
-          message: 'Table has rows with inconsistent number of columns'
-        });
-      }
-    }
-  });
-
-  return {
-    totalTables: tables.length,
-    issuesFound: issues.length,
-    issues
-  };
-}
-
 function addMainLandmark(document) {
   let mainElement = document.querySelector('main');
 
@@ -992,43 +809,27 @@ function decodeJwtResponse() {
   // Decode JWT response
 }
 
-module.exports = {
-  makeAccessible,
-  addLangAttribute,
-  fixTableStructure,
-  checkTableAccessibility,
-  addMainLandmark,
-  ensureElementHasId,
-  addAriaLabel,
-  handleCredentialResponse,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  fixLandmarkIssues,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixImageAltTexts,
-  googleSignIn,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  ensureDependencyGraphAriaRole,
-  addMainLandmarkToIndex,
-  addressAccessibilityIssuesForDocument,
-  addressAccessibilityIssues,
-  rotateBack,
-  addressAccessibilityIssue038,
-  renderDependencyGraph,
-  renderIndexView,
-  setFormElementAccessibleNames,
-  setSvgAccessibilityProps,
-  isLinkAccessible,
-  isButtonAccessible,
-  getSvgAccessibleName,
-  checkAccessibility,
-  checkLandmarks,
-  checkLandmarkElement,
-  decodeJwtResponse,
-  fixTableStructureIssues
-};
+function fixButtonIdentifiers() {
+  // Fix button identifiers
+}
+
+function addMainLandmarkToIndex() {
+  // Add main landmark to index
+}
+
+// Export all functions and utilities
+exports.addLangAttribute = addLangAttribute;
+exports.addMainLandmark = addMainLandmark;
+exports.addSvgAccessibleNames = addSvgAccessibleNames;
+exports.checkAccessibility = checkAccessibility;
+exports.checkLandmarks = checkLandmarks;
+exports.checkLandmarkElement = checkLandmarkElement;
+exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+exports.fixFakeLinkIssue = fixFakeLinkIssue;
+exports.fixFakeLinkIssues = fixFakeLinkIssues;
+exports.fixLandmarkIssues = fixLandmarkIssues;
+exports.addLandmarkRegions = addLandmarkRegions;
+exports.uniqueLandmarks = uniqueLandmarks;
+exports.fixImageAltTexts = fixImageAltTexts;
+exports.googleSignIn = googleSignIn;
+exports.handleCredentialResponse = handleCredentialResponse;

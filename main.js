@@ -45,7 +45,51 @@ function ... {
   // ... existing addAccessibleNamesToSVGs implementation
 }
 
-function ... {
+// Added to address accessibility: adds ARIA attributes to elements
+function addSvgAccessibleNames(document) {
+  // Add aria-label and role attributes to SVG elements
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg) => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (title) {
+        svg.setAttribute('aria-label', title.textContent);
+      }
+    }
+    if (!svg.hasAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+  });
+
+  // Add aria-hidden to decorative SVGs
+  svgElements.forEach((svg) => {
+    const isDecorative = !svg.querySelector('title') && !svg.getAttribute('aria-label');
+    if (isDecorative) {
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
+
+  // Add aria attributes to buttons
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button) => {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+      button.setAttribute('aria-label', 'Button');
+    }
+  });
+
+  // Add aria attributes to links without text
+  const links = document.querySelectorAll('a');
+  links.forEach((link) => {
+    if (!link.hasAttribute('aria-label') && !link.textContent.trim() && link.querySelector('img')) {
+      const img = link.querySelector('img');
+      link.setAttribute('aria-label', img.alt || 'Link');
+    }
+  });
+
+  return document;
+}
+
+function fixFakeLinkIssue(document) {
   // ... existing fixFakeLinkIssue implementation
 }
 
@@ -80,6 +124,7 @@ export {
   ensureUniqueLandmarks,
   fixImageAltTexts,
   addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
   fixFakeLinkIssue,
   fixLandmarkIssues,
   addLandmarkRegions,

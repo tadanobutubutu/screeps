@@ -14,7 +14,7 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
 // - REACT_037: Google sign-in logic (DONE: googleSignIn)
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphRole)
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ...)
 
 import { class1, function1, Object1 } from './path/to/module';
 const dependencyGraphContent = ...
@@ -50,7 +50,7 @@ function fixTableStructure(document) {
     }
     
     if (!existingTbody) {
-      const remainingRows = Array.from(rows).slice(existingThead ? 0 : 1);
+      const remainingRows = Array.from(rows).slice(rows.length > 0 && !existingThead ? 1 : 0);
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -122,16 +122,19 @@ function addMainLandmark(document) {
 function ensureUniqueLandmarks(document) {
   // ... existing implementation for by role
   // ... existing unique landmarks implementation for origin/main
+  return document;
 }
 
 // Function to add accessible names to SVGs
 function addSvgAccessibleNames(document) {
   // ... existing implementation
+  return document;
 }
 
 // Function to add accessible names to SVGs (alias)
 function addAccessibleNamesToSVGs(document) {
   // ... existing implementation
+  return document;
 }
 
 // Function to fix fake link issue (merged fixes)
@@ -148,7 +151,7 @@ function fixFakeLinkIssue(document) {
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && !hasHref && (onclick.includes('window.location') || 
         onclick.includes('document.location') || 
-        onclick.includes('location.href'))) {
+        onclick.includes('navigate'))) {
       
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
@@ -156,7 +159,7 @@ function fixFakeLinkIssue(document) {
       span.setAttribute('role', 'link');
       span.setAttribute('tabindex', '0');
       span.setAttribute('onclick', onclick);
-      span.onclick = element.onclick;
+      span.addEventListener('click', element.onclick);
       
       if (element.className) {
         span.className = element.className;
@@ -196,20 +199,24 @@ function fixFakeLinkIssues(document) {
 // Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
 function fixLandmarkIssues(document) {
   // ... updated landmark issue fix implementation
+  return document;
 }
 
 function addLandmarkRegions(document) {
   // ... existing implementation
+  return document;
 }
 
 // REACT_025: Ensure unique landmarks (by role approach)
 function uniqueLandmarks(document) {
   // ... unique landmarks implementation by role
+  return document;
 }
 
 // Address accessibility issues from insight report for image alt texts
 function fixImageAltTexts(document) {
   // ... existing implementation
+  return document;
 }
 
 function googleSignIn(document) {
@@ -218,7 +225,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.getElementById('g_id_onload');
+    const buttonContainer = document.querySelector('#buttonContainer');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -232,8 +239,7 @@ function googleSignIn(document) {
 // Function to count dependencies
 function countDependencies() {
   // Find the dependency graph container
-  const graphContainer = document.querySelector('#dependency-graph') || 
-                         document.querySelector('.dependency-graph');
+  const graphContainer = document.querySelector('#dependency-graph, [data-dependency-graph]');
   
   if (!graphContainer) {
     return 0;
@@ -266,3 +272,7 @@ function countDependencies() {
   });
   
   return dependencies.size;
+}
+
+// Function to ensure the element has an id
+function ensureElementHasId(document, selector,

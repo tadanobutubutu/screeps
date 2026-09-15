@@ -687,6 +687,14 @@ function updateThScopeAttribute(filePath) {
   // Placeholder for updating th scope attributes in HTML files
 }
 
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+function someFunction() {
+  return null;
+}
+
 module.exports = {
   loop: function() {
     // Clean up memory of dead creeps

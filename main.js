@@ -418,4 +418,181 @@ function fixImageAltTextsFinal(document) {
 
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
-    if (elements
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (!el.getAttribute('aria-label')) {
+          el.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
+
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) {
+    mains.forEach((main, index) => {
+      main.setAttribute('aria-label', `Main content ${index + 1}`);
+    });
+  }
+
+  return document;
+}
+
+// Function to add accessible names to SVGs (alias)
+function addAccessibleNamesToSVGsAlias(document) {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.querySelector('title')) {
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = 'Accessible SVG';
+      svg.insertBefore(title, svg.firstChild);
+    }
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+  });
+  return document;
+}
+
+// REACT_037: Google sign-in logic
+function googleSignIn(document) {
+  // Check if Google Identity Services is available
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.initialize({
+      client_id: 'YOUR_CLIENT_ID',
+      callback: handleCredentialResponse
+    });
+  }
+
+  const buttonContainer = document.getElementById('g_id_onload');
+  if (buttonContainer) {
+    google.accounts.id.renderButton(
+      buttonContainer,
+      { theme: 'outline', size: 'large' }
+    );
+  }
+
+  return document;
+}
+
+// Callback for Google sign-in
+function handleCredentialResponse(response) {
+  console.log('Google credential response:', response);
+}
+
+// Function to ensure the element has an id
+function ensureElementHasId(document, selector, idPrefix = 'element') {
+  const elements = document.querySelectorAll(selector);
+  elements.forEach((element, index) => {
+    if (!element.id) {
+      element.id = `${idPrefix}-${index + 1}`;
+    }
+  });
+  return document;
+}
+
+// Function to ensure an element has an id with origin/main optimization
+function ensureElementHasIdOrigin(document, selector, idPrefix = 'element') {
+  const elements = document.querySelectorAll(selector);
+  elements.forEach((element) => {
+    if (!element.id) {
+      element.id = element.dataset && element.dataset.id > 0 ? element.dataset.id : `${idPrefix}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+  });
+  return document;
+}
+
+// Function to add aria-label to elements
+function addAriaLabel(document, selector, label) {
+  const elements = document.querySelectorAll(selector);
+  elements.forEach((element) => {
+    if (!element.getAttribute('aria-label')) {
+      element.setAttribute('aria-label', label);
+    }
+  });
+  return document;
+}
+
+// Function to render dependency graphs
+function renderDependencyGraphs(document) {
+  const graphContainer = document.querySelector('#dependencyGraph');
+  if (graphContainer) {
+    // Ensure proper ARIA role for accessibility
+    if (!graphContainer.getAttribute('role')) {
+      graphContainer.setAttribute('role', 'img');
+    }
+    
+    // Add accessible name
+    if (!graphContainer.getAttribute('aria-label')) {
+      graphContainer.setAttribute('aria-label', 'Dependency Graph');
+    }
+    
+    // Create SVG element for the dependency graph
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'dependency-graph');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '400');
+    svg.setAttribute('viewBox', '0 0 800 400');
+    svg.setAttribute('role', 'img');
+
+    // Add accessible title and description
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = 'Dependency Graph';
+    svg.appendChild(title);
+
+    const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    desc.textContent = 'Visual representation of dependencies';
+
+    svg.appendChild(desc);
+    graphContainer.appendChild(svg);
+  }
+  
+  return document;
+}
+
+// REACT_040: Replace my-button with actual button id for accessibility
+function fixButtonIdentifiers(document) {
+  const buttons = document.querySelectorAll('my-button');
+  buttons.forEach((button, index) => {
+    const actualButton = document.createElement('button');
+    actualButton.id = button.id || `button-${index + 1}`;
+    actualButton.setAttribute('type', 'button');
+    
+    // Copy attributes
+    Array.from(button.attributes).forEach(attr => {
+      if (attr.name !== 'id') {
+        actualButton.setAttribute(attr.name, attr.value);
+      }
+    });
+    
+    // Copy children
+    while (button.firstChild) {
+      actualButton.appendChild(button.firstChild);
+    }
+    
+    // Replace the custom element with the actual button
+    button.parentNode.replaceChild(actualButton, button);
+  });
+  
+  return document;
+}
+
+export {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addAccessibleNamesToSVGs,
+  addAccessibleNamesToSVGsAlias,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers
+};

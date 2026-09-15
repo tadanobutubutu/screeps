@@ -1,3 +1,5 @@
+// TODO: Add back any required exports that might have been removed
+
 import { class1, function1, Object1 } from './path/to/module';
 
 // Helper function to get accessibility-related elements
@@ -20,10 +22,7 @@ function getAccessibleElements(document, selector) {
 // REACT_025: Add other accessibility changes as per the insight report
 // [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-import { class1, function1, Object1 } from './path/to/module';
-
-// Function to add lang attribute
-function addLangAttribute(document, lang = 'en') {
+export function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.lang) {
     htmlElement.lang = lang;
@@ -40,8 +39,8 @@ export function fixTableStructure(document) {
     // Ensure tables have proper structure with thead and tbody
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
-
+    const rows = Array.from(table.querySelectorAll('tr'));
+    
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
       const thead = document.createElement('thead');
@@ -63,7 +62,7 @@ export function fixTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
+      const cells = Array.from(row.querySelectorAll('td'));
       if (cells.length > 0) {
         // If first cell should be a header
         if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
@@ -129,7 +128,7 @@ export function addLandmarkRegions(document) {
 }
 
 // Function to ensure unique landmarks (combined approach)
-function uniqueLandmarkRegions(document) {
+export function ensureUniqueLandmarks(document) {
   // Combined approach using both role-based and element-based selection
   const landmarkSelectors = [
     { selector: '[role="navigation"]', name: 'navigation' },
@@ -145,18 +144,28 @@ function uniqueLandmarkRegions(document) {
     { selector: 'aside', name: 'complementary' }
   ];
 
+  let modifiedCount = 0;
+
   landmarkSelectors.forEach(({ selector, name }) => {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
-      elements.forEach((element, index) => {
-        element.setAttribute('aria-label', `${name}-${index + 1}`);
+      let index = 1;
+      elements.forEach((element) => {
+        if (index > 1) {
+          const ariaLabel = element.getAttribute('aria-label') || 
+                           element.getAttribute('aria-labelledby');
+          if (!ariaLabel) {
+            element.setAttribute('aria-label', `${name}-${index}`);
+            modifiedCount++;
+          }
+        }
+        index++;
       });
     }
   });
+
+  return modifiedCount;
 }
 
-// Add unique landmark regions after ensuring unique landmarks
-addMainLandmark(document);
-uniqueLandmarkRegions(document);
-
+// Export re-export for imported items to ensure they are available
 export { class1, function1, Object1 };

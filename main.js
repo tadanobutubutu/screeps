@@ -75,8 +75,21 @@ function addMainLandmark(document) {
   // Implementation for adding main landmark
 }
 
-function ... {
-  // Implementation for ensuring unique landmarks
+function enforceSvgAccessibility(svgElement) {
+  // New implementation of enforceSvgAccessibility()
+  if (!svgElement.hasAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+  if (!svgElement.hasAttribute('aria-labelledby')) {
+    const title = svgElement.querySelector('title');
+    const description = title ? title.textContent : 'Image description';
+    svgElement.setAttribute('aria-labelledby', `svg-${svgElement.id}-description`);
+    const descriptionElement = document.createElement('div');
+    descriptionElement.setAttribute('id', `svg-${svgElement.id}-description`);
+    descriptionElement.setAttribute('role', 'presentation');
+    descriptionElement.textContent = description;
+    svgElement.parentNode.insertBefore(descriptionElement, svgElement.nextSibling);
+  }
 }
 
 function ... {

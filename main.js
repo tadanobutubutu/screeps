@@ -145,7 +145,7 @@ function uniqueLandmarks(document) {
       let index = 1;
       elements.forEach((element, i) => {
         if (i > 0) {
-          element.setAttribute('id', `${name}-${index}`);
+          element.setAttribute('aria-labelledby', `${name}-${index}`);
           index++;
         }
       });

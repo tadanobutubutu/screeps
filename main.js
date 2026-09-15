@@ -16,22 +16,14 @@ function getAccessibleElements(document, selector) {
 }
 
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
-// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: fixDependencyGraphAriaRole)
-
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
+// - REACT_015: Add lang attribute
 // REACT_025: Add other accessibility changes as per the insight report
 // [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-export function addLangAttribute(document, lang = 'en') {
+import { class1, function1, Object1 } from './path/to/module';
+
+// Function to add lang attribute
+function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.lang) {
     htmlElement.lang = lang;
@@ -48,8 +40,8 @@ export function fixTableStructure(document) {
     // Ensure tables have proper structure with thead and tbody
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
-    
+    const rows = table.querySelectorAll('tr');
+
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
       const thead = document.createElement('thead');
@@ -57,7 +49,7 @@ export function fixTableStructure(document) {
       table.insertBefore(thead, table.firstChild);
       fixedCount++;
     }
-    
+
     if (!existingTbody) {
       const remainingRows = rows.length > 0 ? rows.slice(1) : [];
       if (remainingRows.length > 0) {
@@ -67,7 +59,7 @@ export function fixTableStructure(document) {
         fixedCount++;
       }
     }
-    
+
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
@@ -94,7 +86,7 @@ function fixTableStructure(document) {
 // Function to add/main landmark
 export function addMainLandmark(document) {
   let mainElement = null;
-  
+
   if (!mainElement) {
     // Find the main content area and wrap it or create main element
     const body = document.body;
@@ -102,26 +94,25 @@ export function addMainLandmark(document) {
     if (main) {
       main.setAttribute('id', 'main-content');
     }
-    
+
     // Move first significant content child to main
     const children = Array.from(body.children);
     for (const child of children) {
-      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
+      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
           child.tagName !== 'LINK' && child.tagName !== 'META') {
         main.appendChild(child);
         break;
       }
     }
-    
-    body.insertBefore(main, body.firstChild);
+
+    // Ensure main has proper role if not using native element
+    if (mainElement && mainElement.tagName !== 'MAIN') {
+      mainElement.setAttribute('role', 'main');
+    }
+
     mainElement = main;
   }
-  
-  // Ensure main has proper role if not using native element
-  if (mainElement.tagName !== 'MAIN') {
-    mainElement.setAttribute('role', 'main');
-  }
-  
+
   return mainElement;
 }
 
@@ -138,7 +129,7 @@ export function addLandmarkRegions(document) {
 }
 
 // Function to ensure unique landmarks (combined approach)
-function ensureUniqueLandmarks(document) {
+function uniqueLandmarkRegions(document) {
   // Combined approach using both role-based and element-based selection
   const landmarkSelectors = [
     { selector: '[role="navigation"]', name: 'navigation' },
@@ -157,27 +148,15 @@ function ensureUniqueLandmarks(document) {
   landmarkSelectors.forEach(({ selector, name }) => {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
-      let index = 1;
-      elements.forEach(element => {
-        if (index > 1) {
-          const existingLabel = element.getAttribute('aria-label');
-          if (!existingLabel) {
-            element.setAttribute('aria-label', `${name}-${index}`);
-          }
-        }
-        index++;
+      elements.forEach((element, index) => {
+        element.setAttribute('aria-label', `${name}-${index + 1}`);
       });
     }
   });
-
-  return document;
 }
 
-// Export all functions
-export { 
-  addLangAttribute, 
-  fixTableStructure, 
-  addMainLandmark, 
-  ensureUniqueLandmarks,
-  getAccessibleElements 
-};
+// Add unique landmark regions after ensuring unique landmarks
+addMainLandmark(document);
+uniqueLandmarkRegions(document);
+
+export { class1, function1, Object1 };

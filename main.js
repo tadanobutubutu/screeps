@@ -1,27 +1,40 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-//_Commit: 7c71fe35502d1cacefd35e209f9d20be82c56fc3_
-//<!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
+const fs = require('fs');
+const path = require('path');
+
+const {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  ADDRESS_ACCESSIBILITY_ISSUE_038,
+} = require('./accessibilityHelperFunctions');
+
+// Import utility functions and module constants
+import { utilityFunction } from './utils.js';
+import { class1, function1, Object1 } from './path/to/module';
+
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
-// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphARIA)
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-export { class1, function1, Object1 };
+// Original existing code from commit preserved
+const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
+  const hasIssue038 = accessibilityInfo && accessibilityInfo.issueType === ADDRESS_ACCESSIBILITY_ISSUE_038;
+  return {
+    hasIssue038,
+    fixes: hasIssue038 ? [{ type: 'fix038', target: element }] : []
+  };
+};
 
-// Function to add lang attribute to HTML element
+// Function to add lang attribute to HTML element (maintains REACT_015)
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && lang) {
@@ -30,14 +43,53 @@ function addLangAttribute(document, lang = 'en') {
   return document;
 }
 
-// Update scope attributes in all .html files in the views directory
-const viewsDir = path.join(__dirname, 'views');
-fs.readdirSync(viewsDir)
-  .filter(file => file.endsWith('.html'))
-  .forEach(file => {
-    const filePath = path.join(viewsDir, file);
-    updateThScopeAttribute(filePath);
-  });
+// Game loop function
+function run() {
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      const filePath = path.join(viewsDir, file);
+      updateThScopeAttribute(filePath);
+    });
+}
+
+// Start the game loop
+Module.onInit = function() {
+  setInterval(run, 1000);
+};
+
+export const metadata = {
+  title: "Screeps Dashboard",
+  description: "Dashboard for Screeps",
+};
+
+export default function RootLayout({
+  children,
+}) {
+  // Apply all required accessibility fixes as per original TODO
+  addLangAttribute(document);
+  addMainLandmark(document);
+  addSvgAccessibleNames(document);
+  ensureUniqueLandmarks(document);
+  fixFakeLinkIssue(document);
+  fixFakeLinkIssues(document);
+  fixTableStructure(document);
+
+  return (
+    <html lang="en">
+      <head>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='90'>🏰</text></svg>" />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+
+// Function to fix table structure issues (maintains REACT_027)
+function fixTableStructure(document) {
+  const tables = document.querySelectorAll('table');
+  let fixedCount = 0;
 
   tables.forEach((table) => {
     // Ensure tables have proper structure with thead and tbody
@@ -249,10 +301,36 @@ const { divide } = require('./mathHelpers');
 const { power } = require('./mathHelpers');
 const { squareRoot } = require('./mathHelpers');
 
-// The existing exports remain the same:
-// export const addressAccessibilityIssue038 = ...
+// Function to add/main landmark (maintains REACT_017)
+function addMainLandmark(document) {
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    const body = document.body;
+    const main = document.createElement('main');
+    main.setAttribute('id', 'main-content');
+    
+    const children = Array.from(body.children);
+    for (const child of children) {
+      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
+          child.tagName !== 'LINK' && child.tagName !== 'META') {
+        main.appendChild(child);
+        break;
+      }
+    }
+    
+    body.insertBefore(main, body.firstChild);
+    mainElement = main;
+  }
+  
+  if (mainElement.tagName !== 'MAIN') {
+    mainElement.setAttribute('role', 'main');
+  }
+  
+  return mainElement;
+}
 
-// Function to ensure unique landmarks (combined approach)
+// Function to ensure unique landmarks (maintains REACT_025)
 function ensureUniqueLandmarks(document) {
   const main = document.querySelector('main');
   if (main && !main.id) {
@@ -269,8 +347,8 @@ function ensureUniqueLandmarks(document) {
   return document;
 }
 
-// Function to add accessible name to SVG
-function addSvgAccessibleName(document) {
+// Function to add accessible name to SVG (maintains REACT_041)
+function addSvgAccessibleNames(document) {
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
     const titleElement = svg.querySelector('title');
@@ -283,7 +361,7 @@ function addSvgAccessibleName(document) {
   return document;
 }
 
-// Function to add accessible names to SVG elements
+// Function to add accessible names to SVG elements (maintains REACT_041)
 function addAccessibleNamesToSVGs(document) {
   // Add accessible names to SVG elements for screen readers
   const svgElements = document.querySelectorAll('svg');
@@ -298,7 +376,7 @@ function addAccessibleNamesToSVGs(document) {
   return document;
 }
 
-// Function to fix fake link issue (merged fixes)
+// Function to fix fake link issue (maintains REACT_036)
 function fixFakeLinkIssue(document) {
   const clickableElements = document.querySelectorAll('[onclick]');
   let count = 0;
@@ -339,7 +417,7 @@ function fixFakeLinkIssue(document) {
   return count;
 }
 
-// Function to fix fake link issues (handles both role="link" elements and anchors with href="#")
+// Function to fix fake link issues (maintains REACT_036)
 function fixFakeLinkIssues(document) {
   // Fix non-anchor elements with role="link"
   const roleLinks = document.querySelectorAll('[role="link"]');

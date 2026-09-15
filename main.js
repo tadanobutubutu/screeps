@@ -47,10 +47,76 @@ function fixTableStructure(document) {
     const existingTbody = table.querySelector('tbody');
     const rows = table.querySelectorAll('tr');
 
-function addMainLandmark(document) {
+exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
+
+const renderDependencyGraph = (dependencyGraph, container) => {
+  // Render the dependency graph using the dependencyGraphContent
+  const graphContent = dependencyGraphContent;
+  // Append the graphContent to the container
+  container.innerHTML = graphContent;
+};
+
+exports.renderDependencyGraph = renderDependencyGraph;
+
+function fixTableStructureIssues(document) {
+  // Function to fix table structure issues for accessibility
+  let fixedCount = 0;
+  const tables = document.querySelectorAll('table');
+
+  tables.forEach(table => {
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+
+    if (!existingTbody) {
+      let remainingRows = Array.from(rows);
+      if (existingThead) {
+        remainingRows = remainingRows.slice(existingThead.querySelectorAll('tr').length);
+      } else {
+        remainingRows = remainingRows.slice(1);
+      }
+      if (remainingRows.length > 0) {
+        const tbody = document.createElement('tbody');
+        remainingRows.forEach(row => tbody.appendChild(row));
+        table.appendChild(tbody);
+        fixedCount++;
+      }
+    }
+
+    // Ensure proper header cells (th) are used
+    const allRows = table.querySelectorAll('tr');
+    allRows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      // Check if first cell should be a header
+      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
+        const firstCell = cells[0];
+        const th = document.createElement('th');
+        th.textContent = firstCell.textContent;
+        th.scope = 'col';
+        row.insertBefore(th, firstCell);
+        fixedCount++;
+      }
+    });
+
+    // Additional HEAD logic: ensure scope on header cells
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(th => {
+      if (!th.scope) {
+        th.setAttribute('scope', 'col');
+        fixedCount++;
+      }
+    });
+  });
+
+  return fixedCount;
+}
+
+// Function to wrap the primary content in a <main> element
+function wrapPrimaryContentInMain(document) {
   let mainElement = document.querySelector('main');
 
   if (!mainElement) {
+    // Find the primary content area and wrap it or create main element
     const body = document.body;
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
@@ -102,11 +168,13 @@ function fixFakeLinkIssue(document) {
     const isAnchor = tagName === 'a';
     const hasHref = element.hasAttribute('href');
     const onclick = element.getAttribute('onclick') || '';
-    
-    if (!isAnchor && (onclick.includes('window.location') || 
-        onclick.includes('document.location') || 
+
+    // Check if it's a fake link (clickable but not a real anchor)
+    if (!isAnchor && (onclick.includes('window.location') ||
+        onclick.includes('document.location') ||
         onclick.includes('href'))) {
-      
+
+      // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
       span.textContent = element.textContent;
       span.setAttribute('role', 'link');
@@ -114,11 +182,12 @@ function fixFakeLinkIssue(document) {
       span.setAttribute('onclick', onclick);
       element.setAttribute('onclick', '');
       span.onclick = element.onclick;
-      
+
+      // Copy styling if available
       if (element.className) {
         span.className = element.className;
       }
-      
+
       element.parentNode.replaceChild(span, element);
       count++;
     }
@@ -207,25 +276,12 @@ function renderDependencyGraphs(document) {
     svg.setAttribute('viewBox', '0 0 800 400');
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', 'Dependency graph visualization');
+    graphContainer.appendChild(svg);
 
-    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-    title.textContent = 'Dependency Graph';
-    svg.appendChild(title);
-
-    const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
-    desc.textContent = 'Visual representation of project dependencies';
-    svg.appendChild(desc);
-
-    const graphContent = graphContainer.querySelector('[data-graph-data]');
-    if (graphContent) {
-      // Parse and render dependency data
-      // Implementation would parse the data and create nodes/edges
-    }
-
-    // Render the graph content using the dependencyGraphContent
+    // Render the graph content
     if (dependencyGraphContent) {
-      const graphContentString = typeof dependencyGraphContent === 'string' 
-        ? dependencyGraphContent 
+      const graphContent = typeof dependencyGraphContent === 'string'
+        ? dependencyGraphContent
         : JSON.stringify(dependencyGraphContent);
       const parser = new DOMParser();
       const doc = parser.parseFromString(graphContentString, 'image/svg+xml');
@@ -443,232 +499,6 @@ const a11yStore = {
 
 const exportedAddressAccessibilityIssue038 = addressAccessibilityIssue038;
 
-const renderDependencyGraph = (dependencyGraph, container) => {
-  // Render the dependency graph using the dependencyGraphContent
-  const graphContent = dependencyGraphContent;
-  // Append the graphContent to the container
-  container.innerHTML = graphContent || '';
-};
-
-module.exports.renderDependencyGraph = renderDependencyGraph;
-
-// Function to fix table structure issues for accessibility
-function fixTableStructureIssues(document) {
-  // Function to fix table structure issues for accessibility
-  let fixedCount = 0;
-  const tables = document.querySelectorAll('table');
-  
-  tables.forEach(table => {
-    const existingThead = table.querySelector('thead');
-    const existingTbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
-    
-    if (!existingTbody) {
-      let remainingRows = Array.from(rows);
-      if (existingThead) {
-        const theadRowCount = existingThead.querySelectorAll('tr').length;
-        remainingRows = Array.from(rows).slice(theadRowCount);
-      } else {
-        remainingRows = [];
-      }
-      if (remainingRows.length > 0) {
-        const tbody = document.createElement('tbody');
-        remainingRows.forEach(row => {
-          tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
-        fixedCount++;
-      }
-    }
-
-    // Ensure proper header cells (th) are used
-    const allRows = table.querySelectorAll('tr');
-    allRows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
-      // Check if first cell should be a header
-      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
-        const firstCell = cells[0];
-        const th = document.createElement('th');
-        th.textContent = firstCell.textContent;
-        th.scope = 'col';
-        row.insertBefore(th, firstCell);
-        fixedCount++;
-      }
-    });
-
-    // Additional HEAD logic: ensure scope on header cells
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(th => {
-      if (!th.scope) {
-        th.setAttribute('scope', 'col');
-        fixedCount++;
-      }
-    });
-  });
-
-  return fixedCount;
-};
-
-// Function to addMainLandmark(document) {
-function addMainLandmark(document) {
-  let mainElement = document.querySelector('main');
-
-  if (!mainElement) {
-    // Find the main content area and wrap it or create main element
-    const body = document.body;
-    const main = document.createElement('main');
-    main.setAttribute('id', 'main-content');
-
-    // Move first significant content child to main
-    const children = Array.from(body.children);
-    for (const child of children) {
-      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
-          child.tagName !== 'LINK' && child.tagName !== 'META') {
-        main.appendChild(child);
-        break;
-      }
-    }
-
-    body.insertBefore(main, body.firstChild);
-    mainElement = main;
-  }
-
-  // Ensure main has proper role if not using native element
-  if (mainElement.tagName !== 'MAIN') {
-    mainElement.setAttribute('role', 'main');
-  }
-
-  return mainElement;
-}
-
-// Function to handle credential response from Google Sign-In
-function handleCredentialResponse(response) {
-  // TODO: Implement credential response handling
-  console.log('Credential response received:', response);
-}
-
-// Function to ensure unique landmarks (combined approach)
-function ensureUniqueLandmarks(document) {
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
-  const seen = new Map();
-  let count = 0;
-  
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    const existing = seen.get(role);
-    
-    if (existing) {
-      // Keep the first one, mark others
-      if (!landmark.hasAttribute('aria-label')) {
-        landmark.setAttribute('aria-label', `${role} section ${count + 1}`);
-        count++;
-      }
-    } else {
-      seen.set(role, landmark);
-    }
-  });
-  
-  return count;
-}
-
-// Function to add accessible names to SVGs
-function addSvgAccessibleNames(document) {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', `SVG graphic ${index + 1}`);
-    }
-    if (!svg.getAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-  });
-  return document;
-}
-
-// Function to add accessible names to SVGs (alias)
-function addSvgAccessibleNamesToDocument(document) {
-  return addSvgAccessibleNames(document);
-}
-
-// Function to fix fake link issue (merged fixes)
-function fixFakeLinkIssue(document) {
-  let count = 0;
-
-  const clickableElements = document.querySelectorAll('[onclick], [role="link"]');
-
-  clickableElements.forEach(element => {
-    const tagName = element.tagName.toLowerCase();
-    const isAnchor = tagName === 'a';
-    const hasHref = element.hasAttribute('href');
-    const onclick = element.getAttribute('onclick') || '';
-
-    // Check if it's a fake link (clickable but not a real anchor)
-    if (!isAnchor && (onclick.includes('window.location') ||
-        onclick.includes('document.location') ||
-        onclick.includes('href'))) {
-
-      // Convert to proper anchor or add proper accessibility
-      const span = document.createElement('span');
-      span.textContent = element.textContent;
-      span.setAttribute('role', 'link');
-      span.setAttribute('tabindex', '0');
-      span.setAttribute('onclick', onclick);
-      element.setAttribute('onclick', '');
-      span.onclick = element.onclick;
-
-      // Copy styling if available
-      if (element.className) {
-        span.className = element.className;
-      }
-
-      element.parentNode.replaceChild(span, element);
-      count++;
-    }
-  });
-
-  return count;
-}
-
-// Function to fix fake link issues (handles both role="link" elements and anchors with href="#")
-function fixFakeLinkIssues(document) {
-  // Fix non-anchor elements with role="link"
-  const roleLinks = document.querySelectorAll('[role="link"]');
-  roleLinks.forEach(link => {
-    if (link.tagName !== 'A') {
-      link.setAttribute('aria-label', 'This link goes to a section within the page');
-    }
-  });
-
-  // Fix anchors with href="#" by converting them to accessible buttons
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
-  });
-
-  return document;
-}
-
-const rotateBack = function () {
-  // Logic to rotate back
-  // For example, if you're manipulating the DOM or a state:
-  // document.getElementById('someElement').classList.remove('rotate-forward');
-  // document.getElementById('someElement').classList.add('rotate-backward');
-};
-
-const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
-  // Code to address the specific accessibility issue on the element
-  // This is a placeholder function and should be replaced with the actual implementation
-  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
-};
-
-const renderDependencyGraph = (dependencyGraph, container) => {
-  // Render the dependency graph using the dependencyGraphContent
-  const graphContent = dependencyGraphContent;
-  // Append the graphContent to the container
-  container.innerHTML = graphContent;
-};
-
 function renderIndexView() {
   // Function to render the index view
   const document = global.document || (typeof document !== 'undefined' ? document : null);
@@ -819,7 +649,7 @@ function addMainLandmarkToIndex() {
 
 // Export all functions and utilities
 exports.addLangAttribute = addLangAttribute;
-exports.addMainLandmark = addMainLandmark;
+exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 exports.addSvgAccessibleNames = addSvgAccessibleNames;
 exports.checkAccessibility = checkAccessibility;
 exports.checkLandmarks = checkLandmarks;

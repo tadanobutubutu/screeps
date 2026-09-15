@@ -95,13 +95,34 @@ function fixTableAccessibilityIssues(document) {
   return totalIssues;
 }
 
-// REACT_017: Add/main landmark
-function addMainLandmark(document) {
-  let main = document.getElementById('main-content');
-  
-  if (!main) {
-    // Check for existing main element
-    main = document.querySelector('main');
+/**
+ * Gets recommendation for specific accessibility issue type
+ * @param {string} issueType - Type of accessibility issue
+ * @returns {string} - Recommendation for fixing the issue
+ */
+function getRecommendation(issueType) {
+  const recommendations = {
+    'missing-alt-text': 'Add descriptive alt text to images for screen readers',
+    'missing-aria-label': 'Add ARIA labels to interactive elements',
+    'low-contrast': 'Increase color contrast ratio to at least 4.5:1',
+    'missing-heading': 'Add proper heading hierarchy for screen reader navigation',
+    'missing-form-label': 'Add label elements to form inputs',
+    'missing-link-text': 'Use descriptive link text instead of "click here"',
+    'missing-lang-attribute': 'Add lang attribute to HTML element',
+    'missing-title': 'Add a descriptive title element'
+  };
+  return recommendations[issueType] || 'Review and fix accessibility issue manually';
+}
+
+/**
+ * New function to fix the React SVG Accessible Name issue
+ * @param {string} svgString - The SVG string to fix
+ * @returns {string} - SVG string with accessible name added
+ */
+function fixSVGAccessibleName(svgString) {
+  // Check if the SVG string already contains an accessible name
+  if (svgString.includes('aria-label') || svgString.includes('aria-labelledby') || svgString.includes('title>')) {
+    return svgString;
   }
   
   if (!main) {
@@ -550,14 +571,10 @@ function ensureDependencyGraphAriaRole(document) {
                           document.querySelector('.dependency-graph') ||
                           document.querySelector('[class*="dependency-graph"]');
   
-  if (dependencyGraph) {
-    // Check if element already has a role
-    const existingRole = dependencyGraph.getAttribute('role');
-    if (!existingRole) {
-      // Add appropriate role based on context
-      dependencyGraph.setAttribute('role', 'region');
-      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-    }
+  // Check if the SVG is decorative and does not need an accessible name
+  const isDecorative = svgRoot.closest('button, input, textarea, select, audio[controls], video[controls]');
+  if (isDecorative) {
+    return svgString.replace('<svg', '<svg aria-hidden="true"');
   }
   
   return document;

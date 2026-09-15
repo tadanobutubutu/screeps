@@ -4,11 +4,7 @@ const renderGraph = (graph) => {
   return graphContent;
 };
 
-const renderIndex = (index) => {
-  // New function to render the index data
-  const indexContent = index;
-  return indexContent;
-};
+export { class1, function1, Object1 };
 
 const renderDependencyGraph = (dependencyGraph, container) => {
   const graphContent = renderGraph(dependencyGraph);

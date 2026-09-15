@@ -137,112 +137,27 @@ function uniqueLandmarks(document) {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       let index = 1;
-      elements.forEach((element) => {
-        if (index > 1) {
-          const currentLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
-          if (!currentLabel) {
-            element.setAttribute('aria-label', `${name}-${index}`);
-          }
+      elements.forEach((element, idx) => {
+        if (idx > 0) {
+          element.setAttribute('aria-labelledby', `${name}-${index}`);
+          index++;
         }
-        index++;
       });
     }
   });
 }
 
-// Function to render graph/index using newFunction1 and newFunction2
-// TODO: Update the existing function using the new functions for rendering graph/index
-function renderGraphIndex(container, options = {}) {
-  const {
-    type = 'default',
-    data = [],
-    width = 600,
-    height = 400,
-    useNewFunctions = true
-  } = options;
-
-  // Use newFunction1 and newFunction2 for rendering
-  if (useNewFunctions) {
-    const preparedData = newFunction1(data);
-    const formattedOutput = newFunction2(preparedData);
-    
-    // Create container element
-    const graphContainer = document.createElement('div');
-    graphContainer.className = 'graph-index-container';
-    graphContainer.style.width = `${width}px`;
-    graphContainer.style.height = `${height}px`;
-    
-    // Add formatted output to container
-    if (formattedOutput) {
-      const outputElement = document.createElement('div');
-      outputElement.className = 'graph-output';
-      outputElement.innerHTML = formattedOutput;
-      graphContainer.appendChild(outputElement);
-    }
-    
-    // Append to provided container
-    if (container) {
-      container.appendChild(graphContainer);
-    }
-    
-    return graphContainer;
-  }
-  
-  // Fallback to basic rendering if new functions not enabled
-  const basicContainer = document.createElement('div');
-  basicContainer.className = 'basic-graph-container';
-  basicContainer.innerHTML = '<p>Basic graph rendering</p>';
-  
-  if (container) {
-    container.appendChild(basicContainer);
-  }
-  
-  return basicContainer;
-}
-
-// Function to render index page
-function renderIndex(container, options = {}) {
-  const {
-    title = 'Index',
-    items = [],
-    useNewFunctions = true
-  } = options;
-
-  if (useNewFunctions) {
-    // Use newFunction1 for preparing index data
-    const preparedItems = newFunction1(items);
-    // Use newFunction2 for formatting index output
-    const formattedItems = newFunction2(preparedItems);
-    
-    const indexContainer = document.createElement('div');
-    indexContainer.className = 'index-container';
-    indexContainer.innerHTML = `
-      <h1>${title}</h1>
-      <div class="index-items">${formattedItems || ''}</div>
-    `;
-    
-    if (container) {
-      container.appendChild(indexContainer);
-    }
-    
-    return indexContainer;
-  }
-  
-  // Fallback
-  const basicIndex = document.createElement('div');
-  basicIndex.innerHTML = `<h1>${title}</h1>`;
-  
-  if (container) {
-    container.appendChild(basicIndex);
-  }
-  
-  return basicIndex;
+// New function to wrap primary content in main
+function wrapPrimaryContentInMain(document) {
+  const mainElement = document.querySelector('main') || document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  document.body.insertBefore(mainElement, document.body.firstChild);
 }
 
 module.exports = {
     add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median,
     class1, function1, Object1,
     newFunction1, newFunction2,
-    class1, function1, Object1,
-    addLangAttribute, fixTableStructure, addMainLandmark, uniqueLandmarks
+    addLangAttribute, fixTableStructure, addMainLandmark, uniqueLandmarks,
+    wrapPrimaryContentInMain // Added new export
 };

@@ -13,6 +13,81 @@ import { class1, function1, Object1 } from './path/to/module';
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 // - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ...)
 
+// Function to create in-page buttons
+function createInPageButtons(document) {
+  let count = 0;
+  
+  // Find all anchor elements that link to in-page sections (starting with #)
+  const anchorLinks = document.querySelectorAll('a[href^="#"]');
+  
+  anchorLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    // Skip if it's just "#" (empty anchor)
+    if (href === '#') {
+      return;
+    }
+    
+    // Check if the target element exists
+    const targetId = href.substring(1);
+    const targetElement = document.getElementById(targetId);
+    
+    if (targetElement) {
+      // Check if this link should be converted to a button
+      const isButtonLike = link.classList.contains('btn') || 
+                           link.classList.contains('button') ||
+                           link.getAttribute('role') === 'button';
+      
+      if (isButtonLike && link.tagName !== 'BUTTON') {
+        // Convert anchor to button for better accessibility
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = link.textContent;
+        
+        // Copy over classes and attributes
+        button.className = link.className;
+        button.id = link.id;
+        
+        // Copy data attributes
+        Array.from(link.attributes).forEach(attr => {
+          if (attr.name.startsWith('data-')) {
+            button.setAttribute(attr.name, attr.value);
+          }
+        });
+        
+        // Add click handler to scroll to target
+        button.addEventListener('click', () => {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Replace link with button
+        link.parentNode.replaceChild(button, link);
+        count++;
+      } else {
+        // Ensure the link has proper accessibility
+        if (!link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby')) {
+          const targetLabel = targetElement.getAttribute('aria-label') || 
+                              targetElement.id || 
+                              targetElement.textContent || 
+                              'Section';
+          link.setAttribute('aria-label', `Go to ${targetLabel}`);
+        }
+        
+        // Add click handler for smooth scrolling if not already handled
+        if (!link.hasAttribute('data-scroll-handler')) {
+          link.setAttribute('data-scroll-handler', 'true');
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+          });
+        }
+        count++;
+      }
+    }
+  });
+  
+  return count;
+}
+
 function ... lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.lang) {
@@ -341,12 +416,3 @@ function renderDependencyGraphs(document) {
     ... '0 0 800 400');
 
     // Add accessible title and description
-    const title = ... 'title');
-    title.textContent = 'Dependency Graph';
-    ...
-
-    const desc = ... 'desc');
-    desc.textContent = 'Visual representation of project dependencies';
-    ...
-
-    //

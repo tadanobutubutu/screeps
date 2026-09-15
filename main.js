@@ -1,5 +1,9 @@
+// TODO: Add back any required exports that might have been removed.
+
 const fs = require('fs');
 const path = require('path');
+const { utilityFunction } = require('./utils.js');
+const { class1, function1, Object1 } = require('./path/to/module');
 
 const {
   getLangAttribute,
@@ -11,11 +15,7 @@ const {
   createInPageButton,
   createAccessibleLink,
   ADDRESS_ACCESSIBILITY_ISSUE_038,
-} = require('./accessibility.js');
-
-// Import utility functions and module constants
-import { utilityFunction } from './utils.js';
-import { class1, function1, Object1 } from './path/to/module';
+} = require('./accessibility-utils.js');
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
@@ -45,29 +45,20 @@ function addLangAttribute(document, lang = 'en') {
 
 // Game loop function
 function run() {
-  const viewsDir = path.join(process.cwd(), 'views');
-  if (fs.existsSync(viewsDir)) {
-    const files = fs.readdirSync(viewsDir);
-    files
+  const viewsDir = path.join(__dirname, 'views');
+  const files = fs.readdirSync(viewsDir);
+  files
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
       const filePath = path.join(viewsDir, file);
-      const content = fs.readFileSync(filePath, 'utf8');
-      // Process HTML files for accessibility
-      const { JSDOM } = require('jsdom');
-      const dom = new JSDOM(content);
-      const doc = dom.window.document;
-      
-      // Apply all accessibility fixes
-      addressAccessibilityIssues(doc);
-      
-      // Write back the processed content
-      fs.writeFileSync(filePath, dom.serialize());
+      const content = fs.readFileSync(filePath, 'utf-8');
+      // Process each HTML file
     });
   }
 }
 
 // Start the game loop
+const Module = {};
 Module.onInit = function() {
   setInterval(run, 1000);
 };
@@ -80,14 +71,14 @@ export const metadata = {
 export default function RootLayout({
   children,
 }) {
-  if (typeof document !== 'undefined') {
-    addMainLandmark(document);
-    fixTableStructure(document);
-    ensureUniqueLandmarks(document);
-    addSvgAccessibleNames(document);
-    fixFakeLinkIssue(document);
-    addLandmarkRegions(document);
-  }
+  addMainLandmark(document);
+  ensureUniqueLandmarks(document);
+  addLandmarkRegions(document);
+  fixTableStructure(document);
+  addAccessibleNamesToSVGs(document);
+  fixFakeLinkIssues(document);
+  ensureDependencyGraphARIA(document);
+  addressAccessibilityIssues(document);
 
   return (
     <html lang="en">
@@ -368,4 +359,114 @@ function addSvgAccessibleName(document) {
   svgElements.forEach(svg => {
     const titleElement = svg.querySelector('title');
     if (titleElement && titleElement.textContent.trim()) {
-      svg.setAttribute('
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', titleElement.textContent.trim());
+    } else {
+      svg.setAttribute('aria-label', 'Graphic');
+    }
+  });
+  return document;
+}
+
+// Function to add accessible names to SVG elements
+function addAccessibleNamesToSVGs(document) {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const titleElement = svg.querySelector('title');
+    if (titleElement && titleElement.textContent.trim()) {
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', titleElement.textContent.trim());
+    } else {
+      svg.setAttribute('aria-label', 'Graphic');
+    }
+  });
+  return document;
+}
+
+// Function to fix fake link issue (merged fixes)
+function fixFakeLinkIssue(document) {
+  const clickableElements = document.querySelectorAll('[onclick]');
+  let count = 0;
+
+  clickableElements.forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+    const isAnchor = tagName === 'a';
+    const hasHref = element.hasAttribute('href');
+    const onclick = element.getAttribute('onclick') || '';
+    
+    if (!isAnchor && (onclick.includes('window.location') || 
+        onclick.includes('document.location') || 
+        onclick.includes('href'))) {
+      
+      const span = document.createElement('span');
+      span.textContent = element.textContent;
+      span.setAttribute('role', 'link');
+      span.setAttribute('tabindex', '0');
+      span.setAttribute('onclick', onclick);
+      span.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          element.click();
+        }
+      });
+      
+      if (element.className) {
+        span.className = element.className;
+      }
+      
+      element.parentNode.replaceChild(span, element);
+      count++;
+    }
+  });
+
+  return count;
+}
+
+// Function to fix fake link issues (handles both role="link" elements and anchors with href="#")
+function fixFakeLinkIssues(document) {
+  const roleLinks = document.querySelectorAll('[role="link"]');
+  roleLinks.forEach(link => {
+    if (link.tagName !== 'A') {
+      link.setAttribute('aria-label', 'This link goes to a section within the page');
+    }
+  });
+
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
+  });
+
+  return document;
+}
+
+// Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
+function fixLandmarkIssues(document) {
+  const landmarks = document.querySelectorAll('[role]');
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (!landmark.id && !landmark.getAttribute('aria-label')) {
+      landmark.setAttribute('aria-label', role);
+    }
+  });
+  return document;
+}
+
+function addLandmarkRegions(document) {
+  const regions = document.querySelectorAll('[role="region"]');
+  regions.forEach((region, index) => {
+    if (!region.id) {
+      region.id = `region-${index + 1}`;
+    }
+  });
+  return document;
+}
+
+// REACT_025: Ensure unique landmarks (by role approach)
+function uniqueLandmarks(document) {
+  const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      let index = 1;
+      elements.forEach((el) => {
+        if (!el.getAttribute('aria-label')) {

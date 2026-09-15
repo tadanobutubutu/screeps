@@ -60,7 +60,6 @@ function addressAccessibilityIssues(document) {
   document = addLandmarkRegions(document);
   document = ensureUniqueLandmarks(document);
   document = uniqueLandmarks(document);
-  document = addSvgAccessibleNames(document); // Assuming this is the function to add SVG accessible names
   document = addAccessibleNamesToSVGs(document);
   document = fixFakeLinkIssue(document);
   return document;

@@ -1,18 +1,18 @@
-const { add } = require('./mathUtils');
-const { subtract } = require('./mathUtils');
-const { multiply } = require('./mathUtils');
-const { divide } = require('./mathUtils');
-const { power } = require('./mathUtils');
-const { squareRoot } = require('./mathUtils');
-const { factorial } = require('./mathUtils');
-const { fibonacci } = require('./mathUtils');
-const { sum } = require('./mathUtils');
-const { average } = require('./mathUtils');
-const { max } = require('./mathUtils');
-const { min } = require('./mathUtils');
-const { mode } = require('./mathUtils');
-const { median } = require('./mathUtils');
-const { class1, function1, Object1 } = require('./utils');
+const { add } = require('./math/add');
+const { subtract } = require('./math/subtract');
+const { multiply } = require('./math/multiply');
+const { divide } = require('./math/divide');
+const { power } = require('./math/power');
+const { squareRoot } = require('./math/squareRoot');
+const { factorial } = require('./math/factorial');
+const { fibonacci } = require('./math/fibonacci');
+const { sum } = require('./statistics/sum');
+const { average } = require('./statistics/average');
+const { max } = require('./statistics/max');
+const { min } = require('./statistics/min');
+const { mode } = require('./statistics/mode');
+const { median } = require('./statistics/median');
+const { class1, function1, Object1 } = require('./other/class1');
 
 // REACT_027: Fix 26 table structure issues using helper functions
 function fixTableAccessibilityIssues(document) {
@@ -97,7 +97,7 @@ function getRecommendation(issueType) {
  */
 function fixSVGAccessibleName(svgString) {
   // Check if the SVG string already contains an accessible name
-  if (!svgString || svgString.includes('aria-label') || svgString.includes('aria-labelledby') || svgString.includes('role="img"')) {
+  if (svgString.includes('aria-label') || svgString.includes('aria-labelledby') || svgString.includes('role="img"')) {
     return svgString;
   }
   

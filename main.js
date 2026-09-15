@@ -1,42 +1,10 @@
 const { add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median } = require('./mathOperations');
 const { class1, function1, Object1 } = require('./otherModule');
 
-const newFunction = (elements) => {
-  // Validate ARIA attributes - ensure referenced IDs exist in the document
-  if (!elements || !Array.isArray(elements)) {
-    return [];
-  }
-  
-  const validElements = [];
-  const referencedIds = new Set();
-  
-  // Collect all IDs from the document
-  const allElements = document.querySelectorAll('[id]');
-  allElements.forEach(el => referencedIds.add(el.id));
-  
-  elements.forEach(element => {
-    const ariaAttrs = ['aria-describedby', 'aria-labelledby', 'aria-owns', 'aria-controls'];
-    let isValid = true;
-    
-    ariaAttrs.forEach(attr => {
-      const value = element.getAttribute(attr);
-      if (value) {
-        const ids = value.split(/\s+/);
-        ids.forEach(id => {
-          if (!referencedIds.has(id)) {
-            isValid = false;
-          }
-        });
-      }
-    });
-    
-    if (isValid) {
-      validElements.push(element);
-    }
-  });
-  
-  return validElements;
-};
+// Accessibility issues addressed from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
+const getLangAttribute = () => document.documentElement ? document.documentElement.lang || 'en' : 'en';
+document.documentElement.lang = getLangAttribute();
 
 // - REACT_027: Validate table accessibility (DONE: validateTableAccessibility)
 

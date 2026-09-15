@@ -152,15 +152,7 @@ function log(arg1, arg2, data) {
         }
     }
     if (extraData !== undefined && extraData !== null) {
-        try {
-            if (extraData instanceof Error) {
-                message += (message ? ' ' : '') + (extraData.message || String(extraData));
-            } else {
-                message += (message ? ' ' : '') + JSON.stringify(extraData);
-            }
-        } catch (e) {
-            message += ' [Unserializable Object]';
-        }
+        message += (message ? ' ' : '') + _safeStringify(extraData);
     }
     const truncated = message.substring(0, MAX_LOG_MESSAGE_LENGTH);
     const redacted = _redactPaths(truncated);
@@ -205,10 +197,22 @@ function success(msg, data) {
     log(msg, 'info', data);
 }
 
+function _safeStringify(data) {
+    if (data instanceof Error) {
+        return data.message || String(data);
+    }
+    try {
+        return JSON.stringify(data);
+    } catch (err) {
+        return `[Unserializable Data: ${err.message || String(err)}]`;
+    }
+}
+
 function getSafeStack(stack, maxLines = 5) {
     if (stack === undefined || stack === null) return '';
     const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);
-    const redacted = _redactPaths(truncatedStack);
+    const cleanPaths = truncatedStack.replace(/(at\s+)(?:[\w$.]+\s+\()?[\/\\]?(?:[^\n\t"':()]+\/|[^\n\t"':()]+\\)+([^\n\t"':()]+\:\d+(?:\:\d+)?)\)?/g, '$1$2');
+    const redacted = _redactPaths(cleanPaths);
     const lines = redacted.split('\n');
     return lines
         .slice(0, maxLines)
@@ -238,19 +242,42 @@ function getStats() {
 
     return {
         errors: errorCount,
+        error: errorCount,
         warns: warnCount,
+        warn: warnCount,
         info: infoCount,
         debugs: debugCount,
+        debug: debugCount,
         traces: traceCount,
+        trace: traceCount,
         total: totalCount,
     };
+}
+
+function resetStats() {
+    clear();
+}
+
+function showDashboard() {
+    console.log('=== Logger Dashboard ===');
+    console.log(`Level: ${getLevel()} (0=DEBUG, 1=INFO, 2=WARN, 3=ERROR, 4=NONE)`);
+    const stats = getStats();
+    console.log(`Stats: DEBUG=${stats.debug} INFO=${stats.info} WARN=${stats.warn} ERROR=${stats.error}`);
+    console.log('Recent logs:');
+    const recent = getRecentLogs(5);
+    for (const item of recent) {
+        const level = _escapeHTML(item.level || '');
+        const message = _escapeHTML(item.message || '');
+        console.log(`  [T:${item.tick}][${level}] ${message}`);
+    }
 }
 
 function tryCatch(fn, context, ...args) {
     try {
         return fn(...args);
     } catch (e) {
-        error(`[${context}] ${e.message}`, e);
+        const errMsg = e && e.message ? e.message : String(e);
+        error(`[${context}] ${errMsg}`, e);
         return undefined;
     }
 }
@@ -297,6 +324,9 @@ module.exports = {
     success,
     getSafeStack,
     getStats,
+    resetStats,
+    showDashboard,
+    _safeStringify,
     _redactPaths,
     _escapeHTML,
 };

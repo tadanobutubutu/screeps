@@ -17,24 +17,34 @@ const {
   ADDRESS_ACCESSIBILITY_ISSUE_038,
 } = require('./accessibility-utils.js');
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// Function to address accessibility issue 038 from insight report
+function addressAccessibilityIssue038(document) {
+  if (typeof ADDRESS_ACCESSIBILITY_ISSUE_038 === 'function') {
+    return ADDRESS_ACCESSIBILITY_ISSUE_038(document);
+  }
 
-// Address accessibility issue 038
-const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
-  const hasIssue038 = accessibilityInfo && accessibilityInfo.issueType === ADDRESS_ACCESSIBILITY_ISSUE_038;
-  return {
-    hasIssue038,
-    fixes: hasIssue038 ? [{ type: 'fix038', target: element }] : []
-  };
-};
+  // Fallback implementation: ensure all interactive elements have accessible names
+  const interactiveSelectors = ['button', 'a', 'input', 'select', 'textarea', '[role="button"]', '[role="link"]'];
+  interactiveSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(element => {
+      const hasAccessibleName =
+        element.hasAttribute('aria-label') ||
+        element.hasAttribute('aria-labelledby') ||
+        (element.textContent && element.textContent.trim().length > 0) ||
+        (element.value && element.value.trim().length > 0) ||
+        (element.placeholder && element.placeholder.trim().length > 0);
 
-// Function to add lang attribute to HTML element (maintains REACT_015)
+      if (!hasAccessibleName) {
+        element.setAttribute('aria-label', 'Interactive element');
+      }
+    });
+  });
+
+  return document;
+}
+
+// Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && lang) {
@@ -470,3 +480,166 @@ function uniqueLandmarks(document) {
       let index = 1;
       elements.forEach((el) => {
         if (!el.getAttribute('aria-label')) {
+          el.setAttribute('aria-label', `${role}-${index}`);
+        }
+        index++;
+      });
+    }
+  });
+}
+
+// Address accessibility issues from insight report for image alt texts
+function fixImageAltTexts(document) {
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    if (!img.hasAttribute('alt')) {
+      img.setAttribute('alt', '');
+    }
+  });
+  return document;
+}
+
+// REACT_037: Google sign-in logic
+function googleSignIn(document) {
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.initialize({
+      client_id: 'YOUR_CLIENT_ID',
+      callback: handleCredentialResponse
+    });
+    const buttonContainer = document.querySelector('#g-signin-button');
+    if (buttonContainer) {
+      google.accounts.id.renderButton(
+        buttonContainer,
+        { theme: 'outline', size: 'large' }
+      );
+    }
+  }
+}
+
+// Function to handle credential response from Google Sign-In
+function handleCredentialResponse(response) {
+  console.log('Credential response received:', response);
+}
+
+// Function to ensure the element has an id
+function ensureElementHasId(document, selector, idPrefix = 'element') {
+  const elements = document.querySelectorAll(selector);
+  elements.forEach((element, index) => {
+    if (!element.id) {
+      element.id = `${idPrefix}-${index + 1}`;
+    }
+  });
+  return document;
+}
+
+// Function to ensure an element has an id with origin/main optimization
+function ensureElementHasIdOrigin(document, selector, idPrefix = 'element') {
+  const elements = document.querySelectorAll(selector);
+  elements.forEach((element) => {
+    element.id = element.dataset.id && element.dataset.id.length > 0 ? element.dataset.id : `${idPrefix}-${Math.random().toString(36).substr(2, 9)}`;
+  });
+  return document;
+}
+
+// Function to add aria-label to elements
+function addAriaLabel(document, selector, label) {
+  const elements = document.querySelectorAll(selector);
+  elements.forEach((element) => {
+    if (!element.getAttribute('aria-label')) {
+      element.setAttribute('aria-label', label);
+    }
+  });
+  return document;
+}
+
+// Function to render dependency graphs
+function renderDependencyGraphs(document) {
+  const graphContainer = document.querySelector('#dependencyGraph') || 
+                         document.querySelector('.dependency-graph') || 
+                         document.querySelector('[data-graph="dependencies"]') ||
+                         document.querySelector('[id*="dependency"]');
+  if (graphContainer) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('');
+  }
+}
+
+// Integrated REACT_036 changes and merged accessibility fixes
+function addressAccessibilityIssues(document) {
+  document = addLangAttribute(document);
+  document = fixTableStructure(document);
+  document = fixLandmarkIssues(document);
+  document = addMainLandmark(document);
+  document = addLandmarkRegions(document);
+  document = ensureUniqueLandmarks(document);
+  document = uniqueLandmarks(document);
+  document = addSvgAccessibleNames(document);
+  document = addAccessibleNamesToSVGs(document);
+  document = fixFakeLinkIssue(document);
+  document = fixFakeLinkIssues(document);
+  document = fixImageAltTexts(document);
+  document = googleSignIn(document);
+  document = ensureElementHasId(document);
+  document = ensureElementHasIdOrigin(document);
+  document = renderDependencyGraphs(document);
+  document = addressAccessibilityIssue038(document);
+  return document;
+}
+
+// Main game loop for Screeps
+function run() {
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      updateThScopeAttribute(path.join(viewsDir, file));
+    });
+}
+
+function updateThScopeAttribute(filePath) {
+  // Placeholder for updating th scope attributes in HTML files
+}
+
+module.exports = {
+  loop: function() {
+    // Clean up memory of dead creeps
+    for (var name in Memory.creeps) {
+      if (!Game.creeps[name]) {
+        delete Memory.creeps[name];
+      }
+    }
+
+    // Your game logic here
+  },
+
+  run,
+
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  addressAccessibilityIssues,
+  addressAccessibilityIssue038,
+
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+};

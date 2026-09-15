@@ -655,56 +655,85 @@ function googleSignIn(document) {
   }
 }
 
-// Function to render the index view
-function renderIndexView(document, data = {}) {
-  const mainElement = document.querySelector('main') || document.getElementById('main-content') || document.body;
+// TODO: Implement renderIndexView functionality
+function renderIndexView(document, options = {}) {
+  const {
+    title = 'Index',
+    items = [],
+    containerId = 'index-view',
+    headingLevel = 'h2'
+  } = options;
 
-  // Clear existing content in the main element
-  while (mainElement.firstChild) {
-    mainElement.removeChild(mainElement.firstChild);
+  // Create or find main content area
+  let mainContent = document.getElementById('main-content');
+  
+  if (!mainContent) {
+    mainContent = document.createElement('main');
+    mainContent.id = 'main-content';
+    mainContent.setAttribute('role', 'main');
+    document.body.appendChild(mainContent);
   }
 
-  // Create the index view container
-  const indexView = document.createElement('div');
-  indexView.className = 'index-view';
-  indexView.setAttribute('role', 'region');
-  indexView.setAttribute('aria-label', 'Index View');
+  // Create index container with proper landmark
+  const indexContainer = document.createElement('div');
+  indexContainer.id = containerId;
+  indexContainer.setAttribute('role', 'region');
+  indexContainer.setAttribute('aria-label', title);
 
-  // Add a heading
-  const heading = document.createElement('h1');
-  heading.textContent = data.title || 'Index';
-  heading.id = 'index-view-heading';
-  indexView.appendChild(heading);
+  // Create heading
+  const heading = document.createElement(headingLevel);
+  heading.id = `${containerId}-heading`;
+  heading.textContent = title;
+  indexContainer.appendChild(heading);
 
-  // Create a list to hold index items
-  const list = document.createElement('ul');
-  list.setAttribute('aria-labelledby', 'index-view-heading');
-  list.className = 'index-list';
+  // Create accessible list of items
+  if (items.length > 0) {
+    const list = document.createElement('ul');
+    list.setAttribute('role', 'list');
+    list.setAttribute('aria-labelledby', heading.id);
 
-  const items = Array.isArray(data.items) ? data.items : [];
-  items.forEach((item) => {
-    const listItem = document.createElement('li');
-    listItem.className = 'index-item';
+    items.forEach((item, index) => {
+      const listItem = document.createElement('li');
+      listItem.setAttribute('role', 'listitem');
 
-    if (item && item.url) {
-      const link = document.createElement('a');
-      link.href = item.url;
-      link.textContent = item.label || item.url;
-      if (item.description) {
-        link.setAttribute('aria-label', item.description);
+      let link;
+      if (item.url) {
+        link = document.createElement('a');
+        link.href = item.url;
+      } else {
+        link = document.createElement('span');
+        link.setAttribute('role', 'link');
+        link.setAttribute('tabindex', '0');
       }
+      
+      link.textContent = item.title || `Item ${index + 1}`;
+      link.id = `${containerId}-item-${index + 1}`;
+
+      // Add accessible description if available
+      if (item.description) {
+        const descriptionSpan = document.createElement('span');
+        descriptionSpan.className = 'sr-only';
+        descriptionSpan.textContent = `: ${item.description}`;
+        link.appendChild(descriptionSpan);
+        link.setAttribute('aria-describedby', `${containerId}-desc-${index + 1}`);
+      }
+
       listItem.appendChild(link);
-    } else if (item && item.label) {
-      const text = document.createElement('span');
-      text.textContent = item.label;
-      listItem.appendChild(text);
-    }
+      list.appendChild(listItem);
+    });
 
-    list.appendChild(listItem);
-  });
+    indexContainer.appendChild(list);
+  } else {
+    // No items message with proper ARIA
+    const noItemsMsg = document.createElement('p');
+    noItemsMsg.setAttribute('role', 'status');
+    noItemsMsg.textContent = 'No items to display in the index.';
+    indexContainer.appendChild(noItemsMsg);
+  }
 
-  indexView.appendChild(list);
-  mainElement.appendChild(indexView);
+  // Clear main content and append index view
+  mainContent.innerHTML = '';
+  mainContent.appendChild(indexContainer);
 
-  return indexView;
+  return document;
 }

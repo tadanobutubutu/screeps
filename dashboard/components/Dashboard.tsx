@@ -1001,8 +1001,6 @@ export default function Dashboard() {
                     )}
                     {roomQuery && filteredRooms.length === 0 && (
                         <span
-                            role="status"
-                            aria-live="polite"
                             style={{
                                 fontSize: '0.75rem',
                                 color: '#e53e3e',
@@ -1010,7 +1008,7 @@ export default function Dashboard() {
                                 alignItems: 'center',
                             }}
                         >
-                            一致なし
+                            <span aria-live="polite">一致なし</span>
                             <button
                                 onClick={clearSearchQuery}
                                 onMouseEnter={() => setNoMatchClearHover(true)}
@@ -1233,7 +1231,6 @@ export default function Dashboard() {
             {toastMsg && (
                 <div
                     key={toastMsg}
-                    role="status"
                     aria-live="polite"
                     onMouseEnter={() => setToastHovered(true)}
                     onMouseLeave={() => setToastHovered(false)}

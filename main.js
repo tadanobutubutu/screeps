@@ -13,11 +13,11 @@ const { min } = require('./math/min');
 const { mode } = require('./math/mode');
 const { median } = require('./math/median');
 
-// New function added as per the issue
-const calculateAverage = (numbers) => {
-  const sum = numbers.reduce((acc, curr) => acc + curr, 0);
-  return sum / numbers.length;
-};
+function calculateSum(numbers) {
+  return numbers.reduce((acc, num) => acc + num, 0);
+}
+
+import { class1, function1, Object1 } from './path/to/module';
 
 // New functions for rendering graph/index
 const newFunction1 = () => { /* ... */ };
@@ -244,5 +244,5 @@ module.exports = {
     class1, function1, Object1,
     newFunction1, newFunction2,
     addLangAttribute, fixTableStructure, addMainLandmark, uniqueLandmarks,
-    renderGraphIndex, renderIndex
+    calculateSum
 };

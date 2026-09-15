@@ -12,12 +12,9 @@
 import { class1, function1, Object1 } from './path/to/module';
 const dependencyGraphContent = ...
 
-// TODO: Address accessibility issues from insight report:
-
 // REACT_015: Add lang attribute
 
-// Function to add lang attribute to HTML element
-function addLangAttribute(document, lang = 'en') {
+function addLangAttribute(lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', lang);
@@ -39,14 +36,7 @@ function fixTableStructure(document) {
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
       const thead = document.createElement('thead');
-      const newRow = document.createElement('tr');
-      const cells = firstRow.querySelectorAll('td, th');
-      cells.forEach(cell => {
-        const th = document.createElement('th');
-        th.textContent = cell.textContent;
-        newRow.appendChild(th);
-      });
-      thead.appendChild(newRow);
+      thead.appendChild(firstRow.cloneNode(true));
       table.insertBefore(thead, table.firstChild);
       fixedCount++;
     }
@@ -56,9 +46,7 @@ function fixTableStructure(document) {
       const rowsToWrap = remainingRows.length > 0 ? Array.from(remainingRows).slice(existingThead ? 0 : 1) : [];
       if (rowsToWrap.length > 0) {
         const tbody = document.createElement('tbody');
-        rowsToWrap.forEach(row => {
-          tbody.appendChild(row);
-        });
+        remainingRows.forEach(row => tbody.appendChild(row.cloneNode(true)));
         table.appendChild(tbody);
         fixedCount++;
       }
@@ -144,10 +132,10 @@ function addAccessibleNamesToSVGs(document) {
   return document;
 }
 
-// Function to fix fake link issue (merged fixes)
-function fixFakeLinkIssue(document) {
-  const clickableElements = document.querySelectorAll('[onclick], [role="link"]');
+function fixFakeLinks(document) {
   let count = 0;
+
+  const clickableElements = document.querySelectorAll('[onclick], [role="link"]');
 
   clickableElements.forEach(element => {
     const tagName = element.tagName.toLowerCase();
@@ -158,7 +146,7 @@ function fixFakeLinkIssue(document) {
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
         onclick.includes('document.location') || 
-        element.getAttribute('role') === 'link')) {
+        onclick.includes('href'))) {
       
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('a');
@@ -167,6 +155,7 @@ function fixFakeLinkIssue(document) {
       span.setAttribute('tabindex', '0');
       span.setAttribute('href', element.getAttribute('href') || '#');
       span.setAttribute('onclick', onclick);
+      span.onclick = element.onclick;
       
       // Copy styling if available
       if (element.className) {
@@ -231,7 +220,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.querySelector('#google-signin-button');
+    const buttonContainer = document.querySelector('#g_id_onload');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -339,20 +328,20 @@ function renderDependencyGraphs(document) {
 }
 
 function fixButtonIdentifiers(document) {
-  const buttons = document.querySelectorAll('button[id*="my-button"], button.my-button');
+  const buttons = document.querySelectorAll('.my-button');
   buttons.forEach(button => {
-    const newId = 'btn-' + (button.textContent.trim().toLowerCase().replace(/\s+/g, '-') || 'action');
+    const newId = button.id || 'btn-' + Math.random().toString(36).substr(2, 9);
     button.id = newId;
   });
   return document;
 }
 
 // REACT_042: Ensure dependencyGraph container has a proper ARIA role
-function ensureDependencyGraphRole(document) {
-  const dependencyGraph = document.querySelector('.dependency-graph') || 
-                          document.querySelector('#dependency-graph') || 
-                          document.querySelector('[data-graph-type="dependency"]') ||
-                          document.querySelector('[role="region"][aria-label*="dependency" i]');
+function ensureDependencyGraphAriaRole(document) {
+  const dependencyGraph = document.querySelector('[data-dependency-graph]') || 
+                          document.querySelector('.dependency-graph') || 
+                          document.querySelector('#dependency-graph') ||
+                          document.querySelector('.graph-container');
   
   if (dependencyGraph) {
     // Check if element already has a role
@@ -364,5 +353,33 @@ function ensureDependencyGraphRole(document) {
     }
   }
   
+  return document;
+}
+
+// Function to add the main landmark to docs/index.html
+function addMainLandmarkToIndex(document) {
+  // ... existing implementation
+  return document;
+}
+
+// Implement function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(document) {
+  document = addLangAttribute(document);
+  document = fixTableStructure(document);
+  document = ensureUniqueLandmarks(document);
+  document = addMainLandmark(document);
+  document = addSvgAccessibleNames(document);
+  document = addAccessibleNamesToSVGs(document);
+  document = fixFakeLinks(document);
+  document = fixFakeLinkIssues(document);
+  document = fixLandmarkIssues(document);
+  document = addLandmarkRegions(document);
+  document = uniqueLandmarks(document);
+  document = fixImageAltTexts(document);
+  document = googleSignIn(document);
+  document = renderDependencyGraphs(document);
+  document = fixButtonIdentifiers(document);
+  document = ensureElementHasId(document, '[data-ensure-id]');
+  document = ensureDependencyGraphAriaRole(document);
   return document;
 }

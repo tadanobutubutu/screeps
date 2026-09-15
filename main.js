@@ -241,6 +241,7 @@ function renderIndex(container, options = {}) {
 
 module.exports = {
     add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median,
+    class1, function1, Object1,
     newFunction1, newFunction2,
     addLangAttribute, fixTableStructure, addMainLandmark, uniqueLandmarks,
     renderGraphIndex, renderIndex

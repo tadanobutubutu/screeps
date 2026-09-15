@@ -182,7 +182,8 @@ function trace(msg) {
 function getSafeStack(stack, maxLines = 5) {
     if (stack === undefined || stack === null) return '';
     const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);
-    const redacted = _redactPaths(truncatedStack);
+    const cleanPaths = truncatedStack.replace(/(?:\/[^\n\t"':()]+\/|[a-zA-Z]:\\[^\n\t"':()]+\\)+([^\n\t"':()]+\:\d+(?:\:\d+)?)/g, '$1');
+    const redacted = _redactPaths(cleanPaths);
     const lines = redacted.split('\n');
     return lines
         .slice(0, maxLines)
@@ -220,11 +221,16 @@ function getStats() {
     };
 }
 
+function resetStats() {
+    clear();
+}
+
 function tryCatch(fn, context, ...args) {
     try {
         return fn(...args);
     } catch (e) {
-        module.exports.error(`[${context}] ${e.message}`, e);
+        const errMsg = e && e.message ? e.message : String(e);
+        module.exports.error(`[${context}] ${errMsg}`, e);
         return undefined;
     }
 }
@@ -269,6 +275,7 @@ module.exports = {
     trace,
     getSafeStack,
     getStats,
+    resetStats,
     _redactPaths,
     _escapeHTML,
 };

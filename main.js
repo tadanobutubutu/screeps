@@ -141,11 +141,6 @@ function ... {
     }
   });
 
-  return document;
-}
-
-// Address accessibility issues from insight report for image alt texts
-function ... {
   const mains = ... [role="main"]');
   if (mains.length > 1) {
     mains.forEach((main, index) => {
@@ -278,111 +273,6 @@ function ... {
   return document;
 }
 
-// Function to fix fake link issue (merged fixes)
-function ... {
-  const clickableElements = ...
-  let count = 0;
-
-  clickableElements.forEach(element => {
-    const tagName = element.tagName.toLowerCase();
-    const isAnchor = tagName === 'a';
-    const hasHref = ...
-    const onclick = element.getAttribute('onclick') || '';
-
-    if (!isAnchor && (onclick.includes('window.location') || ... {
-      const span = ...
-      span.textContent = element.textContent;
-      span.setAttribute('role', 'link');
-      span.setAttribute('tabindex', '0');
-      ... onclick);
-      ... (e) => {
-        if (e.key === 'Enter') {
-          element.click();
-        }
-      });
-
-      if (element.className) {
-        span.className = element.className;
-      }
-
-      ... element);
-      count++;
-    }
-  });
-
-  return document;
-}
-
-// Function to fix landmark issues and add Landmark Regions
-function ... {
-  const landmarks = ... [role="navigation"], [role="banner"], [role="contentinfo"]');
-  landmarks.forEach(landmark => {
-    if ... && ... {
-      const role = ...
-      ... `${role} region`);
-    }
-  });
-}
-
-// Function to add landmark regions
-function ... {
-  const sections = ...
-  sections.forEach((section, index) => {
-    if (!section.id) {
-      section.id = `section-${index + 1}`;
-    }
-    if ... && ... h2, h3, h4, h5, h6')) {
-      section.setAttribute('role', 'region');
-      ... `Section ${index + 1}`);
-    }
-  });
-}
-
-function ... {
-  return ...
-}
-
-// Address accessibility issues from insight report for image alt texts
-function ... {
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
-
-  landmarkRoles.forEach(role => {
-    const elements = ...
-    if (elements.length > 1) {
-      elements.forEach((el, index) => {
-        if (!el.getAttribute('aria-label')) {
-          el.setAttribute('aria-label', `${role} ${index + 1}`);
-        }
-      });
-    }
-  });
-
-  const mains = ... [role="main"]');
-  if (mains.length > 1) {
-    mains.forEach((main, index) => {
-      main.setAttribute('aria-label', `Main content ${index + 1}`);
-    });
-  }
-
-  return document;
-}
-
-// Function to add accessible names to SVGs (alias)
-function ... {
-  const svgs = ...
-  svgs.forEach(svg => {
-    if ... {
-      const title = ... 'title');
-      title.textContent = 'Accessible SVG';
-      svg.insertBefore(title, svg.firstChild);
-    }
-    if ... {
-      svg.setAttribute('role', 'img');
-    }
-  });
-  return document;
-}
-
 // REACT_037: Google sign-in logic
 function googleSignIn(document) {
   // Check if Google Identity Services is available
@@ -410,9 +300,9 @@ function handleCredentialResponse(response) {
 }
 
 // Function to ensure the element has an id
-function ... selector, idPrefix = 'element') {
+function ensureElementHasId(document, selector, idPrefix = 'element') {
   const elements = ...
-  elements.forEach((element) => {
+  elements.forEach((element, index) => {
     if (!element.id) {
       element.id = element.dataset && element.dataset.id > 0 ? element.dataset.id : ... 9)}`;
     }
@@ -421,7 +311,7 @@ function ... selector, idPrefix = 'element') {
 }
 
 // Function to ensure an element has an id with origin/main optimization
-function ensureElementHasId(document, selector, idPrefix = 'element') {
+function ... selector, idPrefix = 'element') {
   const elements = ...
   elements.forEach((element) => {
     if (!element.id) {
@@ -446,24 +336,28 @@ function ... selector, label) {
 function renderDependencyGraphs(document) {
   const graphContainer = ...
   if (graphContainer) {
+    // Use imported modules for enhanced rendering
+    const graphConfig = new class1({
+      width: 800,
+      height: 400,
+      class: 'dependency-graph'
+    });
+
     // Create SVG element for the dependency graph
-    const svg = ... 'svg');
+    const svg = function1(graphContainer, 'svg', graphConfig);
     svg.setAttribute('class', 'dependency-graph');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '400');
     ... '0 0 800 400');
 
-    // Add accessible title and description
+    // Add accessible title and description using Object1 utilities
+    const titleConfig = Object1.createAccessibleElement('title', {
+      text: 'Dependency Graph',
+      parent: svg
+    });
     const title = ... 'title');
     title.textContent = 'Dependency Graph';
     ...
 
     const desc = ... 'desc');
-    desc.textContent = 'Visual representation of project dependencies';
-    ...
-
-    // Render the graph content
-    const graphContent = ...
-    if (graphContent) {
-      // Parse and render dependency data
-      // Implementation would parse
+    desc.textContent = 'Visual representation of

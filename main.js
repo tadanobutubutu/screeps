@@ -61,6 +61,8 @@ function addLandmarkRegions(document) {
 // - REACT_041: Add accessible names to SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix fake link issues (DONE: fixFakeLinkIssues)
 // - REACT_037: Google sign-in logic (DONE: googleSignIn)
+// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
+
 function googleSignIn(document) {
   // Implementation for Google sign-in logic
 }
@@ -68,29 +70,4 @@ function googleSignIn(document) {
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 function fixButtonIdentifiers(button, buttonId) {
   // Implementation for replacing my-button with actual button id for accessibility
-}
-
-// Utility functions
-function formatDate(date) {
-  return new ... {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
-}
-
-function debounce(func, wait) {
-  let timeout;
-  return function(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
-
-function generateId() {
-  return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
 }

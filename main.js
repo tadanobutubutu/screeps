@@ -70,6 +70,146 @@ const accessibilityUtils = {
     }
   },
 
+  // Get lang attribute for HTML element
+  getLangAttribute: () => {
+    const htmlElement = document.querySelector('html');
+    return htmlElement ? htmlElement.getAttribute('lang') : null;
+  },
+
+  // Validate table accessibility
+  validateTableAccessibility: (table) => {
+    const issues = [];
+    if (!table) return issues;
+    
+    const headers = table.querySelectorAll('th');
+    const hasHeaders = headers.length > 0;
+    if (!hasHeaders) {
+      issues.push({ type: 'REACT_027', message: 'Table missing header cells' });
+    }
+    
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      issues.push({ type: 'REACT_027', message: 'Table missing caption' });
+    }
+    
+    return issues;
+  },
+
+  // Validate table structure
+  validateTableStructure: (table) => {
+    const issues = [];
+    if (!table) return issues;
+    
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0) {
+        issues.push({ type: 'REACT_027', message: `Row ${index} has no cells` });
+      }
+    });
+    
+    return issues;
+  },
+
+  // Validate landmark
+  validateLandmark: (element) => {
+    const issues = [];
+    if (!element) return issues;
+    
+    const role = element.getAttribute('role');
+    const tagName = element.tagName.toLowerCase();
+    const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'form', 'search', 'section', 'article'];
+    
+    if (!role && !validLandmarks.includes(tagName)) {
+      issues.push({ type: 'REACT_017', message: 'Element missing landmark role' });
+    }
+    
+    return issues;
+  },
+
+  // Validate landmark structure
+  validateLandmarkStructure: () => {
+    const issues = [];
+    const landmarks = document.querySelectorAll('[role="main"], main');
+    if (landmarks.length === 0) {
+      issues.push({ type: 'REACT_017', message: 'Page missing main landmark' });
+    } else if (landmarks.length > 1) {
+      issues.push({ type: 'REACT_025', message: 'Multiple main landmarks found' });
+    }
+    
+    const navLandmarks = document.querySelectorAll('[role="navigation"], nav');
+    if (navLandmarks.length > 1) {
+      issues.push({ type: 'REACT_025', message: 'Multiple navigation landmarks found' });
+    }
+    
+    return issues;
+  },
+
+  // Get SVG accessible name
+  getSvgAccessibleName: (svg) => {
+    if (!svg) return null;
+    
+    const title = svg.querySelector('title');
+    if (title) {
+      return title.textContent;
+    }
+    
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel) {
+      return ariaLabel;
+    }
+    
+    const ariaLabelledby = svg.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+      const labelledElement = document.getElementById(ariaLabelledby);
+      return labelledElement ? labelledElement.textContent : null;
+    }
+    
+    return null;
+  },
+
+  // Create accessible in-page button
+  createInPageButton: (text, onClick, options = {}) => {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.type = 'button';
+    
+    if (options.id) {
+      button.id = options.id;
+    }
+    
+    if (options.ariaLabel) {
+      button.setAttribute('aria-label', options.ariaLabel);
+    }
+    
+    if (onClick) {
+      button.addEventListener('click', onClick);
+    }
+    
+    button.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (onClick) onClick(e);
+      }
+    });
+    
+    return button;
+  },
+
+  // Person name accessibility handler
+  personName: (element) => {
+    if (!element) return null;
+    
+    const name = element.textContent.trim();
+    if (!name) {
+      element.setAttribute('aria-label', 'Unnamed person');
+      return 'Unnamed person';
+    }
+    
+    return name;
+  }
+};
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 const ensureElementId = (element) => {
   if (element && !element.id) {
@@ -110,244 +250,344 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-const getLangAttribute = () => {
-  return document.documentElement.getAttribute('lang') || 'en';
-};
+function newFocusTrap(container, options = {}) {
+  const {
+    trapOnEscape = true,
+    initialFocus = 'first',
+    returnFocusOnDeactivate = true,
+    setFocusGuard = true
+  } = options;
 
-const personName = () => {
-  return 'Anonymous';
-};
+  let previouslyFocusedElement = null;
+  let isActive = false;
 
-const validateTableAccessibility = () => {
-  return true;
-};
-
-const validateTableStructure = () => {
-  return true;
-};
-
-const validateLandmark = () => {
-  return true;
-};
-
-const validateLandmarkStructure = () => {
-  return true;
-};
-
-const getSvgAccessibleName = (svgElement) => {
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  return ariaLabelledby || 'SVG';
-};
-
-const createInPageButton = () => {
-  return document.createElement('button');
-};
-
-function newFocusTrap() {
-  // New function implementation
-  const focusTrap = (container) => {
-    const focusableElements = container.querySelectorAll(
+  const getFocusableElements = () => {
+    if (!container) return [];
+    return Array.from(container.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    const firstFocusable = focusableElements[0];
-    const lastFocusable = focusableElements[focusableElements.length - 1];
-
-    const handleKeyDown = (e) => {
-      if (e.key !== 'Tab') return;
-
-      if (e.shiftKey) {
-        if (document.activeElement === firstFocusable) {
-          e.preventDefault();
-          lastFocusable.focus();
-        }
-      } else {
-        if (document.activeElement === lastFocusable) {
-          e.preventDefault();
-          firstFocusable.focus();
-        }
-      }
-    };
-
-    container.addEventListener('keydown', handleKeyDown);
-    return () => container.removeEventListener('keydown', handleKeyDown);
+    )).filter(el => el.offsetParent !== null);
   };
 
-  return focusTrap;
-}
+  const handleKeyDown = (e) => {
+    if (!isActive) return;
 
-function getLangAttribute() {
-  return document.documentElement.lang || document.querySelector('html')?.getAttribute('lang') || 'en';
-}
-
-function setLangAttribute(lang) {
-  document.documentElement.lang = lang;
-  document.querySelector('html')?.setAttribute('lang', lang);
-}
-
-function personName(element) {
-  if (!element) return null;
-  
-  const name = element.getAttribute('aria-label') ||
-               element.getAttribute('alt') ||
-               element.textContent?.trim() ||
-               element.getAttribute('title') ||
-               `Person ${Math.random().toString(36).substr(2, 5)}`;
-  
-  element.setAttribute('aria-label', name);
-  return name;
-}
-
-function validateTableAccessibility(table) {
-  const issues = [];
-  
-  if (!table) return issues;
-  
-  const hasCaption = table.querySelector('caption');
-  const hasHeaders = table.querySelectorAll('th').length > 0;
-  const hasScope = table.querySelectorAll('th[scope]').length > 0;
-  
-  if (!hasCaption) {
-    issues.push({ type: 'REACT_027', message: 'Table is missing a caption element' });
-  }
-  
-  if (!hasHeaders) {
-    issues.push({ type: 'REACT_027', message: 'Table is missing header cells (th)' });
-  }
-  
-  if (hasHeaders && !hasScope) {
-    issues.push({ type: 'REACT_027', message: 'Table headers are missing scope attributes' });
-  }
-  
-  return issues;
-}
-
-function validateTableStructure(table) {
-  const issues = [];
-  
-  if (!table) return issues;
-  
-  const rows = table.querySelectorAll('tr');
-  const firstRowCells = rows[0]?.querySelectorAll('th, td') || [];
-  const dataRows = Array.from(rows).slice(1);
-  
-  dataRows.forEach((row, index) => {
-    const cells = row.querySelectorAll('th, td');
-    if (cells.length !== firstRowCells.length) {
-      issues.push({
-        type: 'REACT_027',
-        message: `Row ${index + 2} has mismatched cell count (expected ${firstRowCells.length}, got ${cells.length})`
-      });
+    if (trapOnEscape && e.key === 'Escape') {
+      deactivate();
+      return;
     }
-  });
-  
-  return issues;
-}
 
-function validateLandmark(element) {
-  const issues = [];
-  
-  if (!element) return issues;
-  
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const hasLandmarkRole = element.getAttribute('role');
-  
-  if (hasLandmarkRole && !validLandmarks.includes(hasLandmarkRole)) {
-    issues.push({
-      type: 'REACT_017',
-      message: `Invalid landmark role: ${hasLandmarkRole}`
-    });
-  }
-  
-  return issues;
-}
+    if (e.key === 'Tab') {
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length === 0) return;
 
-function validateLandmarkStructure() {
-  const issues = [];
-  
-  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], main, nav, header, footer, aside');
-  const landmarkCounts = {};
-  
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    landmarkCounts[role] = (landmarkCounts[role] || 0) + 1;
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  };
+
+  const activate = () => {
+    if (isActive) return;
+    isActive = true;
+    previouslyFocusedElement = document.activeElement;
+
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length > 0) {
+      if (initialFocus === 'first') {
+        focusableElements[0].focus();
+      } else if (initialFocus === 'last') {
+        focusableElements[focusableElements.length - 1].focus();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+  };
+
+  const deactivate = () => {
+    if (!isActive) return;
+    isActive = false;
+    document.removeEventListener('keydown', handleKeyDown);
+
+    if (returnFocusOnDeactivate && previouslyFocusedElement) {
+      previouslyFocusedElement.focus();
+    }
+  };
+
+  if (setFocusGuard) {
+    const createFocusGuard = (position) => {
+      const guard = document.createElement('div');
+      guard.setAttribute('tabindex', '0');
+      guard.setAttribute('aria-hidden', 'true');
+      guard.style.position = 'absolute';
+      guard.style.width = '1px';
+      guard.style.height = '1px';
+      guard.style.padding = '0';
+      guard.style.margin = '-1px';
+      guard.style.overflow = 'hidden';
+      guard.style.clip = 'rect(0, 0, 0, 0)';
+      guard.style.whiteSpace = 'nowrap';
+      guard.style.border = '0';
+      
+      guard.addEventListener('focus', () => {
+        const focusableElements = getFocusableElements();
+        if (position === 'start') {
+          focusableElements[focusableElements.length - 1]?.focus();
+        } else {
+          focusableElements[0]?.focus();
+        }
+      });
+      
+      return guard;
+    };
+
+    const startGuard = createFocusGuard('start');
+    const endGuard = createFocusGuard('end');
     
-    if (landmarkCounts[role] > 1 && !['navigation', 'complementary'].includes(role)) {
-      issues.push({
-        type: 'REACT_025',
-        message: `Duplicate landmark found: ${role}`
-      });
+    if (container.firstChild) {
+      container.insertBefore(startGuard, container.firstChild);
+    } else {
+      container.appendChild(startGuard);
     }
-  });
-  
-  const mainElements = document.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push({
-      type: 'REACT_017',
-      message: 'Document is missing a main landmark'
-    });
+    container.appendChild(endGuard);
   }
-  
-  return issues;
-}
 
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return null;
-  
-  const title = svgElement.querySelector('title');
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
-  
-  let accessibleName = ariaLabel;
-  
-  if (!accessibleName && ariaLabelledBy) {
-    const titleElement = document.getElementById(ariaLabelledBy);
-    accessibleName = titleElement?.textContent;
-  }
-  
-  if (!accessibleName && title) {
-    accessibleName = title.textContent;
-  }
-  
-  return accessibleName;
-}
-
-function setSvgAccessibleName(svgElement, name) {
-  if (!svgElement) return;
-  
-  const existingTitle = svgElement.querySelector('title');
-  if (existingTitle) {
-    existingTitle.textContent = name;
-  } else {
-    const title = document.createElement('title');
-    title.textContent = name;
-    svgElement.insertBefore(title, svgElement.firstChild);
-  }
-  
-  svgElement.setAttribute('role', 'img');
-  svgElement.removeAttribute('aria-label');
-}
-
-function createInPageButton(text, onClick, options = {}) {
-  const button = document.createElement('button');
-  button.textContent = text;
-  button.setAttribute('type', 'button');
-  button.setAttribute('aria-label', options.ariaLabel || text);
-  
-  if (options.id) {
-    button.id = options.id;
-  }
-  
-  if (options.className) {
-    button.className = options.className;
-  }
-  
-  if (onClick && typeof onClick === 'function') {
-    button.addEventListener('click', onClick);
-  }
-  
-  return button;
+  return {
+    activate,
+    deactivate,
+    isActive: () => isActive,
+    getFocusableElements
+  };
 }
 
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
-export function calculate
+export function calculateSum(a, b) { return a + b; }
+
+// Credential response handling
+async function handleCredentialResponse(response) {
+  if (!response) {
+    throw new Error('No response received');
+  }
+  
+  if (response.error) {
+    throw new Error(response.error);
+  }
+  
+  if (response.token) {
+    return {
+      success: true,
+      token: response.token,
+      expiresIn: response.expiresIn || 3600
+    };
+  }
+  
+  throw new Error('Invalid credential response');
+}
+
+// Existing utility functions
+function log(message, level = 'info') {
+  const timestamp = new Date().toISOString();
+  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
+}
+
+// Export functionality with accessibility support
+const exportUtils = {
+  exportData: (data, filename, mimeType) => {
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.setAttribute('aria-label', `Download ${filename}`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    // Announce download completion to screen readers
+    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+  },
+
+  exportToJSON: (data, filename) => {
+    const jsonString = JSON.stringify(data, null, 2);
+    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+  },
+
+  exportToCSV: (data, filename) => {
+    if (!data || data.length === 0) return;
+    
+    const headers = Object.keys(data[0]);
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+    
+    for (const row of data) {
+      const values = headers.map(header => {
+        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(','));
+    }
+    
+    const csvString = csvRows.join('\n');
+    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+  }
+};
+
+function sanitizeFilename(filename) {
+  return filename.replace(/[^a-z0-9_.-]/gi, '_');
+}
+
+function readFileSafe(filePath) {
+  try {
+    return fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    log(`Error reading file ${filePath}: ${error.message}`, 'error');
+    return null;
+  }
+}
+
+// Existing data processing functions
+function processData(items) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items.map(item => ({
+    ...item,
+    processed: true,
+    timestamp: Date.now()
+  }));
+}
+
+function filterValidItems(items, validator) {
+  return items.filter(item => {
+    try {
+      return validator(item);
+    } catch {
+      return false;
+    }
+  });
+}
+
+// Initialize accessibility features
+const initAccessibility = () => {
+  accessibilityUtils.initSkipLink();
+  
+  // Add keyboard support for all interactive elements
+  document.querySelectorAll('[data-accessible]').forEach(element => {
+    element.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, {
+        Enter: () => element.click(),
+        ' ': () => element.click()
+      });
+    });
+  });
+};
+
+function groupByCategory(items, getCategory) {
+  return items.reduce((groups, item) => {
+    const category = getCategory(item);
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(item);
+    return groups;
+  }, {});
+}
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+
+_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
+
+<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+
+// TODO: Implement the new function as per the issue requirements
+function transformInputData(inputData, options = {}) {
+  const {
+    preserveKeys = true,
+    uppercase = false,
+    trimWhitespace = true,
+    maxLength = null
+  } = options;
+
+  if (!inputData) {
+    return null;
+  }
+
+  if (typeof inputData === 'string') {
+    let result = inputData;
+    if (trimWhitespace) {
+      result = result.trim();
+    }
+    if (uppercase) {
+      result = result.toUpperCase();
+    }
+    if (maxLength && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    return result;
+  }
+
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => transformInputData(item, options));
+  }
+
+  if (typeof inputData === 'object' && inputData !== null) {
+    const result = {};
+    for (const [key, value] of Object.entries(inputData)) {
+      let processedKey = preserveKeys ? key : String(value).toLowerCase().replace(/\s+/g, '_');
+      let processedValue = transformInputData(value, options);
+      
+      if (trimWhitespace && typeof processedValue === 'string') {
+        processedValue = processedValue.trim();
+      }
+      if (uppercase && typeof processedValue === 'string') {
+        processedValue = processedValue.toUpperCase();
+      }
+      if (maxLength && typeof processedValue === 'string' && processedValue.length > maxLength) {
+        processedValue = processedValue.substring(0, maxLength);
+      }
+      
+      result[processedKey] = processedValue;
+    }
+    return result;
+  }
+
+  return inputData;
+}
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAccessibility);
+  } else {
+    initAccessibility();
+  }
+}
+
+// Export all utilities
+module.exports = {
+  accessibilityUtils,
+  exportUtils,
+  initAccessibility,
+  handleCredentialResponse,
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraph,
+  calculateSum,
+  newFocusTrap,
+  transformInputData
+};

@@ -162,4 +162,4 @@ function createInPageButton() {
 }
 
 // Export for use in other modules
-module.exports = { countDependencies, dependencyGraphContent, convertAnchorsToButtons, getLangAttribute, createInPageButton };
+module.exports = { countDependencies };

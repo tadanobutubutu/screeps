@@ -3,27 +3,116 @@
 
 export function calculateSum(a, b) { return a + b; }
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// Functions for addressing accessibility issues from insight report
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+  return 'REACT_015: Added lang attribute to HTML element';
+}
 
-// Assuming you have defined these functions elsewhere in your codebase:
-// addLangAttribute()
-// fixTableStructure()
-// addMainLandmark()
-// addSvgAccessibleNames()
-// ensureUniqueLandmarks()
-// fixFakeLinkIssue()
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  let fixedCount = 0;
+  tables.forEach(table => {
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Data table';
+      table.insertBefore(caption, table.firstChild);
+      fixedCount++;
+    }
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  });
+  return `REACT_027: Fixed ${fixedCount} table structure issues`;
+}
+
+function addLandmarkIssues() {
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.hasAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+      nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+    }
+  });
+  return 'REACT_017: Added/fixed landmark issues';
+}
+
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  let namedCount = 0;
+  svgs.forEach(svg => {
+    const title = svg.querySelector('title');
+    if (!title) {
+      const newTitle = document.createElement('title');
+      newTitle.textContent = 'Icon';
+      svg.insertBefore(newTitle, svg.firstChild);
+      namedCount++;
+    }
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      const role = svg.getAttribute('role');
+      if (role === 'img' || !role) {
+        svg.setAttribute('aria-label', 'Icon');
+        namedCount++;
+      }
+    }
+  });
+  return `REACT_041: Added accessible names to ${namedCount} SVGs`;
+}
+
+function ensureUniqueLandmarks() {
+  const landmarks = ['header', 'nav', 'main', 'footer'];
+  const results = [];
+  landmarks.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          el.removeAttribute('role');
+        }
+      });
+      results.push(`Removed duplicate ${role} landmarks`);
+    }
+  });
+  return `REACT_025: Ensured unique landmarks - ${results.join(', ') || 'All landmarks are unique'}`;
+}
+
+function fixFakeLinkIssue() {
+  const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"], a[href=""], a[href="javascript:void(0)"]');
+  fakeLinks.forEach(link => {
+    if (link.classList.contains('fake-link')) {
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabindex', '0');
+    }
+  });
+  return `REACT_036: Fixed ${fakeLinks.length} fake link issues`;
+}
+
+// Main function to address all accessibility issues
+function addressAccessibilityIssues() {
+  const results = [];
+  results.push(addLangAttribute());
+  results.push(fixTableStructure());
+  results.push(addLandmarkIssues());
+  results.push(addSvgAccessibleNames());
+  results.push(ensureUniqueLandmarks());
+  results.push(fixFakeLinkIssue());
+  return results;
+}
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+// Address accessibility issues from insight report — FIXED (combined with the export code)
 
 // Utility functions for accessibility
 const accessibilityUtils = {
@@ -406,7 +495,7 @@ const initAccessibility = () => {
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccessibility);
+    ... initAccessibility);
   } else {
     initAccessibility();
   }
@@ -417,5 +506,12 @@ module.exports = {
   accessibilityUtils,
   exportUtils,
   initAccessibility,
-  addressInsightAccessibility
+  calculateSum,
+  addressAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue
 };

@@ -29,6 +29,10 @@ const path = require('path');
 // Import dependencyGraphRenderer, addressAccessibilityIssue038, and dependencyGraphContent
 const DependencyGraphRenderer = require('./dependencyGraphRenderer');
 const addressAccessibilityIssue038 = require('./accessibilityFunctions').addressAccessibilityIssue038;
+const newFunctionImport = require('./accessibilityFunctions').newFunction;
+const addressAccessibilityIssueForSpecificElementImport = require('./accessibilityFunctions').addressAccessibilityIssueForSpecificElement;
+const totalDependenciesImport = require('./accessibilityFunctions').totalDependencies;
+const addressOldAccessibilityIssuesImport = require('./accessibilityFunctions').addressOldAccessibilityIssues;
 
 // Import a11yStore from both branches
 const a11yStore = require('./a11yStore');
@@ -632,5 +636,6 @@ module.exports = {
   validateTableAccessibility,
   createInPageButton,
   personName,
-  a11yStore
+  CONFIG,
+  addressAccessibilityIssue038Inline
 };

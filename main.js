@@ -119,23 +119,68 @@ function fixButtonIdentifiers(button, buttonId) {
   // Implementation for replacing my-button with actual button id for accessibility
 }
 
-export {
-  getLangAttribute,
-  formatDate,
-  debounce,
-  generateId,
-  generateAccessibilityReport,
-  validateTableAccessibility,
-  checkLandmarkElements,
-  validateLandmarkStructure,
-  validateLandmark,
-  fixTableStructure,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinkIssues,
-  fixLandmarkIssues,
-  addLandmarkRegions,
-  googleSignIn,
-  fixButtonIdentifiers
-};
+/**
+ * Address accessibility issues from insight report
+ * Implements functions for addressing accessibility issues from insight report
+ */
+function addressAccessibilityIssues() {
+  try {
+    validateTableAccessibility(document);
+  } catch (error) {
+    console.error('Error validating table accessibility:', error);
+  }
+
+  try {
+    checkLandmarkElements(document);
+  } catch (error) {
+    console.error('Error checking landmark elements:', error);
+  }
+
+  try {
+    addMainLandmark(document);
+  } catch (error) {
+    console.error('Error adding main landmark:', error);
+  }
+
+  try {
+    ensureUniqueLandmarks(document);
+  } catch (error) {
+    console.error('Error ensuring unique landmarks:', error);
+  }
+
+  try {
+    addLandmarkRegions(document);
+  } catch (error) {
+    console.error('Error adding landmark regions:', error);
+  }
+
+  try {
+    addSvgAccessibleNames(document);
+  } catch (error) {
+    console.error('Error adding SVG accessible names:', error);
+  }
+
+  try {
+    fixFakeLinkIssues(document);
+  } catch (error) {
+    console.error('Error fixing fake link issues:', error);
+  }
+
+  try {
+    fixLandmarkIssues(document);
+  } catch (error) {
+    console.error('Error fixing landmark issues:', error);
+  }
+
+  try {
+    fixButtonIdentifiers();
+  } catch (error) {
+    console.error('Error fixing button identifiers:', error);
+  }
+
+  try {
+    googleSignIn(document);
+  } catch (error) {
+    console.error('Error with Google sign-in:', error);
+  }
+}

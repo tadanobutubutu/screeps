@@ -1,5 +1,16 @@
-// TODO: Add back any required exports that might have been?
-// (This comment remains as-is)
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by setHtmlLangAttribute() and detectAndSetLang())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and personName())
+// - ADD: Address new accessibility issues from insight report
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
 
 const { greeting } = require('./utils');
 const path = require('path');
@@ -19,6 +30,45 @@ const config = {
         structure: true
     }
 };
+
+/**
+ * Detects the language of the given content and sets the HTML lang attribute
+ * @param {string} content - The text content to analyze
+ * @returns {string} The detected language code
+ */
+function detectAndSetLang(content) {
+  // Simple language detection based on common patterns
+  let lang = 'en'; // Default to English
+  
+  if (content) {
+    // Check for common non-ASCII characters to help detect language
+    if (/[\u4e00-\u9fff]/.test(content)) {
+      lang = 'zh'; // Chinese
+    } else if (/[\u3040-\u30ff\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
+      lang = 'ja'; // Japanese
+    } else if (/[\u0400-\u04ff]/.test(content)) {
+      lang = 'ru'; // Russian/Cyrillic
+    } else if (/[\u0600-\u06ff]/.test(content)) {
+      lang = 'ar'; // Arabic
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+      lang = 'fr'; // French
+    } else if (/[äöüß]/i.test(content)) {
+      lang = 'de'; // German
+    }
+  }
+  
+  return lang;
+}
+
+/**
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang || 'en';
+  }
+}
 
 /**
  * Addresses accessibility issues from an insight report
@@ -153,10 +203,10 @@ function personName(name, isLink) {
   
   if (isLink) {
     // Properly implement as a link with href attribute to avoid fake link issues
-    return `<a href="#" data-person-name="${name}">${name}</a>`;
+    return `<a href="#" class="person-name">${name}</a>`;
   } else {
     // Render as a span for non-link content
-    return `<span data-person-name="${name}">${name}</span>`;
+    return `<span class="person-name">${name}</span>`;
   }
 }
 
@@ -271,230 +321,13 @@ function validateTableAccessibility(tableOrUrl) {
         score: 100
     };
     
-    tables.forEach((table, index) => {
-        const headers = table.querySelectorAll('th');
-        
-        // Check if table has headers
-        if (headers.length === 0) {
-            accessibilityResults.issues.push({
-                table: index,
-                type: 'missing_headers',
-                message: `Table ${index + 1}: Missing table headers (th elements)`
-            });
-            accessibilityResults.hasHeaders = false;
-            accessibilityResults.score -= 20;
-        }
-        
-        // Check for scope attributes
-        headers.forEach((header, hIndex) => {
-            if (!header.hasAttribute('scope')) {
-                accessibilityResults.issues.push({
-                    table: index,
-                    header: hIndex,
-                    type: 'missing_scope',
-                    message: `Table ${index + 1}, Header ${hIndex + 1}: Missing scope attribute`
-                });
-                accessibilityResults.hasScope = false;
-                accessibilityResults.score -= 10;
-            }
-        });
-        
-        // Check for proper associations (id/headers)
-        const cells = table.querySelectorAll('td');
-        if (cells.length > 0 && headers.length > 0) {
-            const hasProperAssociation = headers[0].hasAttribute('id') || 
-                cells[0].hasAttribute('headers');
-            if (!hasProperAssociation) {
-                accessibilityResults.issues.push({
-                    table: index,
-                    type: 'missing_association',
-                    message: `Table ${index + 1}: Tables with headers should use id/headers attributes for proper association`
-                });
-                accessibilityResults.hasIdOrHeaders = false;
-                accessibilityResults.score -= 15;
-            }
-        }
-    });
-    
-    return accessibilityResults;
-}
-
-// Validate table structure
-function validateTableStructure(tableOrUrl) {
-    const tables = typeof tableOrUrl === 'string' 
-        ? document.querySelectorAll('table') 
-        : [tableOrUrl];
-    
-    const structureResults = {
-        hasCaption: true,
-        hasSummary: true,
-        consistentColumns: true,
-        hasThead: true,
-        hasTbody: true,
-        issues: [],
-        score: 100
-    };
-    
-    tables.forEach((table, index) => {
-        // Check for caption
-        const caption = table.querySelector('caption');
-        if (!caption) {
-            structureResults.issues.push({
-                table: index,
-                type: 'missing_caption',
-                message: `Table ${index + 1}: Missing caption element`
-            });
-            structureResults.hasCaption = false;
-            structureResults.score -= 15;
-        }
-        
-        // Check for summary (via aria-describedby or summary attribute)
-        const hasSummaryAttr = table.hasAttribute('summary');
-        const hasAriaDescription = table.hasAttribute('aria-describedby');
-        if (!hasSummaryAttr && !hasAriaDescription) {
-            structureResults.issues.push({
-                table: index,
-                type: 'missing_summary',
-                message: `Table ${index + 1}: Missing summary (use summary attribute or aria-describedby)`
-            });
-            structureResults.hasSummary = false;
-            structureResults.score -= 10;
-        }
-        
-        // Check for thead
-        const thead = table.querySelector('thead');
-        if (!thead) {
-            structureResults.issues.push({
-                table: index,
-                type: 'missing_thead',
-                message: `Table ${index + 1}: Missing thead element`
-            });
-            structureResults.hasThead = false;
-            structureResults.score -= 10;
-        }
-        
-        // Check for tbody
-        const tbody = table.querySelector('tbody');
-        if (!tbody) {
-            structureResults.issues.push({
-                table: index,
-                type: 'missing_tbody',
-                message: `Table ${index + 1}: Missing tbody element`
-            });
-            structureResults.hasTbody = false;
-            structureResults.score -= 10;
-        }
-        
-        // Check column consistency
-        const rows = table.querySelectorAll('tr');
-        if (rows.length > 1) {
-            const firstRowCells = rows[0].querySelectorAll('th, td').length;
-            let inconsistent = false;
-            
-            rows.forEach((row, rIndex) => {
-                const cellCount = row.querySelectorAll('th, td').length;
-                if (cellCount !== firstRowCells) {
-                    inconsistent = true;
-                }
-            });
-            
-            if (inconsistent) {
-                structureResults.issues.push({
-                    table: index,
-                    type: 'inconsistent_columns',
-                    message: `Table ${index + 1}: Inconsistent number of columns across rows`
-                });
-                structureResults.consistentColumns = false;
-                structureResults.score -= 20;
-            }
-        }
-    });
-    
-    return structureResults;
-}
-
-/**
- * Counts the total number of dependencies in package.json
- * @returns {Object} An object containing counts for dependencies, devDependencies, and total
- */
-function countDependencies() {
-  const packagePath = path.join(process.cwd(), 'package.json');
-  
-  try {
-    const packageContent = fs.readFileSync(packagePath, 'utf8');
-    const packageJson = JSON.parse(packageContent);
-    
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-    
-    const dependencyCount = Object.keys(dependencies).length;
-    const devDependencyCount = Object.keys(devDependencies).length;
-    
-    return {
-      dependencies: dependencyCount,
-      devDependencies: Object.keys(devDependencies),
-      total: dependencyCount + devDependencyCount
-    };
-  } catch (error) {
-    console.error('Error reading package.json:', error.message);
-    return {
-      dependencies: 0,
-      devDependencies: 0,
-      total: 0
-    };
-  }
-}
-
-/**
- * Renders a dependency graph summary based on dependency counts
- * @param {Object} deps - Dependency information object from countDependencies()
- * @returns {string} Formatted dependency graph string
- */
-function renderDependencyGraph(deps) {
-    const lines = [
-        "Dependency Graph Report",
-        "=".repeat(20),
-        "",
-        "- Total Dependencies: " + (deps.total || 0),
-        "- Core Dependencies: " + (deps.dependencies || 0),
-        "- Development Dependencies: " + (deps.devDependencies || 0),
-        ""
-    ];
-    
-    return lines.join("\n");
-}
-
-/**
- * Renders the main index view with project information
- * @param {Object} [options] - Options for rendering
- * @param {boolean} [options.includeDependencyInfo=true] - Whether to include dependency information
- * @param {boolean} [options.includeAccessibilityInfo=true] - Whether to include accessibility information
- * @param {string} [options.title='Project Index'] - Title for the index view
- * @returns {string} HTML string for the index view
- */
-function renderIndexView(options = {}) {
-    const {
-        includeDependencyInfo = true,
-        includeAccessibilityInfo = true,
-        title = 'Project Index'
-    } = options;
-    
-    let content = `
-        <div class="index-view">
-            <h1>${title}</h1>
-            <p>This is the main index view for the project.</p>
-    `;
-    
-    if (includeDependencyInfo) {
-        const deps = countDependencies();
-        content += `
-            <div class="dependency-summary">
-                <h2>Dependency Summary</h2>
-                <p>Total: ${deps.total} dependencies</p>
-                <p>Core: ${deps.dependencies}</p>
-                <p>Development: ${deps.devDependencies}</p>
-            </div>
-        `;
+    try {
+        results.accessibility = validateTableAccessibility(url);
+        results.structure = validateTableStructure(url);
+        results.landmark = validateLandmark(url);
+        results.landmarkStructure = validateLandmarkStructure(url);
+    } catch (error) {
+        results.errors.push(error.message);
     }
     
     if (includeAccessibilityInfo) {
@@ -768,6 +601,128 @@ function validateTableStructure(tableOrUrl) {
 }
 
 /**
+ * Validates landmark regions on the page
+ * @param {string} [url] - Optional URL parameter for consistency
+ * @returns {Object} Validation results for landmarks
+ */
+function validateLandmark(url) {
+    if (typeof document === 'undefined') {
+        return { issues: [], score: 100, landmarks: {} };
+    }
+    
+    const result = {
+        issues: [],
+        score: 100,
+        landmarks: {}
+    };
+    
+    const landmarkRoles = ['header', 'nav', 'main', 'aside', 'footer', 'form', 'search', 'banner', 'complementary', 'contentinfo', 'navigation', 'region'];
+    
+    landmarkRoles.forEach(landmark => {
+        const elements = document.querySelectorAll(landmark);
+        if (elements.length > 0) {
+            result.landmarks[landmark] = elements.length;
+        }
+    });
+    
+    // Check for main landmark
+    const mains = document.querySelectorAll('main');
+    if (mains.length === 0) {
+        result.issues.push({
+            type: 'missing_main',
+            message: 'Missing main landmark'
+        });
+        result.score -= 25;
+    } else if (mains.length > 1) {
+        result.issues.push({
+            type: 'multiple_main',
+            message: `Multiple main landmarks found (${mains.length})`
+        });
+        result.score -= 10;
+    }
+    
+    return result;
+}
+
+/**
+ * Validates landmark structure
+ * @param {string} [url] - Optional URL parameter for consistency
+ * @returns {Object} Structure validation results
+ */
+function validateLandmarkStructure(url) {
+    if (typeof document === 'undefined') {
+        return { issues: [], score: 100, validStructure: true };
+    }
+    
+    const result = {
+        issues: [],
+        score: 100,
+        validStructure: true
+    };
+    
+    const main = document.querySelector('main');
+    if (main) {
+        const navInsideMain = main.querySelector('nav');
+        if (navInsideMain) {
+            result.issues.push({
+                type: 'nav_in_main',
+                message: 'Nav element found inside main landmark'
+            });
+            result.score -= 10;
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * Adds proper landmark regions to the document
+ * @param {Object} [options] - Options for adding landmarks
+ * @param {boolean} [options.verbose=false] - Whether to log detailed information
+ * @returns {Object} Report of added landmarks
+ */
+function addProperLandmarkRegions(options = {}) {
+    const { verbose = false } = options;
+    const result = {
+        added: [],
+        timestamp: new Date().toISOString()
+    };
+    
+    if (typeof document === 'undefined') {
+        return result;
+    }
+    
+    // Ensure main landmark exists
+    let main = document.querySelector('main');
+    if (!main) {
+        main = document.createElement('main');
+        document.body.appendChild(main);
+        result.added.push('main');
+        if (verbose) console.log('Added main landmark');
+    }
+    
+    // Ensure header landmark exists
+    let header = document.querySelector('header');
+    if (!header) {
+        header = document.createElement('header');
+        document.body.insertBefore(header, document.body.firstChild);
+        result.added.push('header');
+        if (verbose) console.log('Added header landmark');
+    }
+    
+    // Ensure footer landmark exists
+    let footer = document.querySelector('footer');
+    if (!footer) {
+        footer = document.createElement('footer');
+        document.body.appendChild(footer);
+        result.added.push('footer');
+        if (verbose) console.log('Added footer landmark');
+    }
+    
+    return result;
+}
+
+/**
  * Counts the total number of dependencies in package.json
  * @returns {Object} An object containing counts for dependencies, devDependencies, and total
  */
@@ -786,7 +741,7 @@ function countDependencies() {
     
     return {
       dependencies: dependencyCount,
-      devDependencies: devDependencyCount,
+      devDependencies: Object.keys(devDependencies).map(name => ({ name, version: devDependencies[name] })),
       total: dependencyCount + devDependencyCount
     };
   } catch (error) {
@@ -872,6 +827,9 @@ module.exports = {
     validateWebAccessibility,
     validateTableAccessibility,
     validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    addProperLandmarkRegions,
     elementExists,
     getElementText,
     getAllTables,

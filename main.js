@@ -439,40 +439,70 @@ function renderDependencyGraph(deps) {
 }
 
 /**
- * Renders an index view based on provided data
- * @param {Object} data - The data to render in the index view
- * @returns {string} Formatted index view string
+ * Renders the main index view with project information
+ * @param {Object} [options] - Options for rendering
+ * @param {boolean} [options.includeDependencyInfo=true] - Whether to include dependency information
+ * @param {boolean} [options.includeAccessibilityInfo=true] - Whether to include accessibility information
+ * @param {string} [options.title='Project Index'] - Title for the index view
+ * @returns {string} HTML string for the index view
  */
-function renderIndexView(data) {
-    if (!data || typeof data !== 'object') {
-        return '';
+function renderIndexView(options = {}) {
+    const {
+        includeDependencyInfo = true,
+        includeAccessibilityInfo = true,
+        title = 'Project Index'
+    } = options;
+    
+    let content = `
+        <div class="index-view">
+            <h1>${title}</h1>
+            <p>This is the main index view for the project.</p>
+    `;
+    
+    if (includeDependencyInfo) {
+        const deps = countDependencies();
+        content += `
+            <div class="dependency-summary">
+                <h2>Dependency Summary</h2>
+                <p>Total: ${deps.total} dependencies</p>
+                <p>Core: ${deps.dependencies}</p>
+                <p>Development: ${deps.devDependencies}</p>
+            </div>
+        `;
     }
-
-    const lines = [
-        "Index View",
-        "=".repeat(20),
-        ""
-    ];
-
-    Object.keys(data).forEach(key => {
-        const value = data[key];
-        if (Array.isArray(value)) {
-            lines.push(`${key}:`);
-            value.forEach(item => {
-                if (typeof item === 'object' && item !== null) {
-                    lines.push(`  • ${JSON.stringify(item)}`);
-                } else {
-                    lines.push(`  • ${item}`);
-                }
-            });
-        } else if (typeof value === 'object' && value !== null) {
-            lines.push(`${key}: ${JSON.stringify(value)}`);
-        } else {
-            lines.push(`${key}: ${value}`);
-        }
-    });
-
-    return lines.join("\n");
+    
+    if (includeAccessibilityInfo) {
+        content += `
+            <div class="accessibility-info">
+                <h2>Accessibility Status</h2>
+                <p>The project includes several accessibility validation functions:</p>
+                <ul>
+                    <li>validateWebAccessibility - Validates web accessibility</li>
+                    <li>validateTableAccessibility - Validates table accessibility</li>
+                    <li>validateTableStructure - Validates table structure</li>
+                    <li>addressAccessibilityIssuesFromInsight - Handles accessibility issues</li>
+                </ul>
+            </div>
+        `;
+    }
+    
+    content += `
+            <div class="project-info">
+                <h2>Quick Links</h2>
+                <p>Available functions and modules for use:</p>
+                <ul>
+                    <li>validateWebAccessibility</li>
+                    <li>addressAccessibilityIssuesFromInsight</li>
+                    <li>getLangAttribute</li>
+                    <li>personName</li>
+                    <li>countDependencies</li>
+                    <li>renderDependencyGraph</li>
+                </ul>
+            </div>
+        </div>
+    `;
+    
+    return content;
 }
 
 function elementExists(selector) {

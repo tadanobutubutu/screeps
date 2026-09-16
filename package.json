@@ -19,7 +19,7 @@
     "jest": "^30.5.1",
     "jest-junit": "^17.0.0",
     "testdriverai": "^7.11.139",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.1"
   },
   "author": "Your Name",
   "license": "MIT"

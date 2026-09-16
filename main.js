@@ -35,7 +35,7 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
     };
 
     if (!insightReport) {
-        [PERSON_NAME]({
+        console.error({
             type: 'error',
             message: 'No insight report provided'
         });
@@ -148,10 +148,10 @@ function personName(name, isLink) {
   
   if (isLink) {
     // Properly implement as a link with href attribute to avoid fake link issues
-    return `<a href="#" [PERSON_NAME]: ${name}">${name}</a>`;
+    return `<a href="#" data-person-name="${name}">${name}</a>`;
   } else {
     // Render as a span for non-link content
-    return `<span [PERSON_NAME]: ${name}">${name}</span>`;
+    return `<span data-person-name="${name}">${name}</span>`;
   }
 }
 
@@ -427,7 +427,7 @@ function countDependencies() {
     
     return {
       dependencies: dependencyCount,
-      devDependencies: [ADDRESS],
+      devDependencies: Object.keys(devDependencies),
       total: dependencyCount + devDependencyCount
     };
   } catch (error) {
@@ -545,50 +545,18 @@ function getFullLangAttribute(el) {
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
 }
 
-/**
- * Sets the lang attribute on the document's <html> element
- * @param {string} lang - The language code to set (e.g., 'en', 'fr', 'es')
- * @returns {boolean} True if the lang attribute was set successfully
- */
 function setHtmlLangAttribute(lang) {
-  if (typeof document === 'undefined' || !document.documentElement) {
-    return false;
-  }
-  if (typeof lang !== 'string' || lang.length === 0) {
-    return false;
-  }
-  document.documentElement.lang = lang;
-  return true;
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.lang = lang;
+    }
 }
 
-/**
- * Detects the language of the provided text and sets it as the document lang attribute
- * @param {string} text - The text to analyze for language detection
- * @returns {string|null} The detected language code that was set, or null if no text provided
- */
-function detectAndSetLang(text) {
-  if (!text || typeof text !== 'string') {
-    return null;
-  }
-  // Simple language detection based on common stopwords/character patterns
-  const langPatterns = {
-    'en': /\b(the|and|is|are|was|were|hello|goodbye)\b/i,
-    'fr': /\b(le|la|les|et|est|sont|bonjour|au revoir)\b/i,
-    'es': /\b(el|la|los|y|es|son|hola|adios)\b/i,
-    'de': /\b(der|die|das|und|ist|sind|hallo|tschuess)\b/i,
-    'it': /\b(il|la|gli|ed|e|sono|ciao|arrivederci)\b/i
-  };
-  
-  let detectedLang = 'en';
-  for (const [lang, pattern] of Object.entries(langPatterns)) {
-    if (pattern.test(text)) {
-      detectedLang = lang;
-      break;
+function detectAndSetLang() {
+    if (typeof navigator !== 'undefined' && navigator.language) {
+        setHtmlLangAttribute(navigator.language);
+        return navigator.language;
     }
-  }
-  
-  setHtmlLangAttribute(detectedLang);
-  return detectedLang;
+    return 'en';
 }
 
 module.exports = {

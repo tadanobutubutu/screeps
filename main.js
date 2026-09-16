@@ -156,38 +156,22 @@ function getLangAttribute() {
 }
 
 /**
- * Sets the lang attribute on the document's <html> element
- * @param {string} langCode - The language code to set (e.g., 'en', 'es', 'fr')
- * @returns {boolean} Whether the lang attribute was successfully set
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set (e.g., 'en')
  */
-function setHtmlLangAttribute(langCode) {
+function setHtmlLangAttribute(lang) {
   if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = langCode;
-    return true;
+    document.documentElement.lang = lang || 'en';
   }
-  return false;
 }
 
 /**
- * Detects the user's preferred language and sets the document's lang attribute
- * @param {string[]} [supportedLanguages] - Array of supported language codes
- * @returns {string} The detected or default language code
+ * Detects the language and sets it on the HTML element
  */
-function detectAndSetLang(supportedLanguages = ['en']) {
-  const browserLang = typeof navigator !== 'undefined' ? navigator.language || navigator.userLanguage : null;
-  let detectedLang = 'en';
-  
-  if (browserLang) {
-    const shortLang = browserLang.split('-')[0];
-    if (supportedLanguages.includes(shortLang)) {
-      detectedLang = shortLang;
-    } else if (supportedLanguages.includes(browserLang)) {
-      detectedLang = browserLang;
-    }
-  }
-  
-  setHtmlLangAttribute(detectedLang);
-  return detectedLang;
+function detectAndSetLang() {
+  const lang = getLangAttribute();
+  setHtmlLangAttribute(lang);
+  return lang;
 }
 
 /**
@@ -203,10 +187,10 @@ function personName(name, isLink) {
   
   if (isLink) {
     // Properly implement as a link with href attribute to avoid fake link issues
-    return `<a href="#" class="person-name">${name}</a>`;
+    return `<a href="#" data-person-name="${name}">${name}</a>`;
   } else {
     // Render as a span for non-link content
-    return `<span class="person-name">${name}</span>`;
+    return `<span data-person-name="${name}">${name}</span>`;
   }
 }
 
@@ -741,7 +725,7 @@ function countDependencies() {
     
     return {
       dependencies: dependencyCount,
-      devDependencies: Object.keys(devDependencies).map(name => ({ name, version: devDependencies[name] })),
+      devDependencies: Object.keys(devDependencies),
       total: dependencyCount + devDependencyCount
     };
   } catch (error) {

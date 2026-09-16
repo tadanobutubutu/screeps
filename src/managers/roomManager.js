@@ -341,11 +341,15 @@ function _planExtensions(room) {
                 if (terrain === TERRAIN_MASK_WALL) continue;
 
                 const at = room.lookAt(x, y);
-                const blocked = at.some(
-                    (item) =>
-                        item.type === LOOK_STRUCTURES ||
-                        item.type === LOOK_CONSTRUCTION_SITES
-                );
+                // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop instead of at.some() to avoid closure allocations
+                let blocked = false;
+                for (let k = 0; k < at.length; k++) {
+                    const itemType = at[k].type;
+                    if (itemType === LOOK_STRUCTURES || itemType === LOOK_CONSTRUCTION_SITES) {
+                        blocked = true;
+                        break;
+                    }
+                }
                 if (blocked) continue;
 
                 const r = room.createConstructionSite(x, y, STRUCTURE_EXTENSION);

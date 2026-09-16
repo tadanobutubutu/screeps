@@ -111,7 +111,7 @@ function ... {
   return document;
 }
 
-// - REACT_027: Validate table accessibility (DONE: validateTableAccessibility)
+// - REACT_027: Validate table accessibility (DONE: validateTableAccessibility, fixTableScopeAttributes)
 
 // - REACT_017: Add/fix landmark issues (DONE: checkLandmarkElements, addMainLandmark, ensureUniqueLandmarks, addLandmarkRegions)
 
@@ -499,30 +499,29 @@ function addMainLandmarkToIndex() {
   // Add main landmark to index
 }
 
-function addressAccessibilityIssues(document) {
-  document = ...
-  document = ...
-  document = addMainLandmark(document);
-  document = ...
-  document = ...
-  document = ...
-  document = ...
-  document = ...
-  document = ...
-  document = ...
-  document = ...
-  document = googleSignIn(document);
-  document = ensureElementHasId(document, 'button, a, input');
-  document = ... 'nav', 'Main navigation');
-  document = ...
-  document = ...
-  document = ...
-  return document;
-}
-
-// a11yStore object with accessibility methods
-const a11yStore = {
-  createAccessibleDialog(options) {
-    const dialog = ...
-    ... 'dialog');
-    ... 'true');
+// REACT_027: Fix table scope attributes for accessibility
+function fixTableScopeAttributes(document) {
+  let fixedCount = 0;
+  
+  // Find all tables in the document
+  const tables = document.querySelectorAll('table');
+  
+  tables.forEach(table => {
+    // Find all <th> elements in the table
+    const headerCells = table.querySelectorAll('th');
+    
+    headerCells.forEach(th => {
+      // Check if the <th> already has a scope attribute
+      if (!th.hasAttribute('scope')) {
+        // Determine the appropriate scope value
+        const parentRow = th.parentElement;
+        const parentTableSection = parentRow ? parentRow.parentElement : null;
+        
+        if (parentTableSection) {
+          const sectionTagName = parentTableSection.tagName.toUpperCase();
+          
+          if (sectionTagName === 'THEAD') {
+            // Header cells in THEAD should have scope="col"
+            th.setAttribute('scope', 'col');
+            fixedCount++;
+          } else if (sectionTag

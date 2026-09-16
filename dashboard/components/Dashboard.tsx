@@ -689,7 +689,7 @@ export default function Dashboard() {
                             marginBottom: '0.25rem',
                         }}
                     >
-                        <span>🌐 GCL: {stats?.gcl?.level}</span>
+                        <span id="gcl-progress-label">🌐 GCL: {stats?.gcl?.level}</span>
                         <span style={{ fontSize: '0.85rem' }}>
                             {stats?.gcl?.progress !== undefined &&
                             stats?.gcl?.progressTotal !== undefined
@@ -707,6 +707,7 @@ export default function Dashboard() {
                     </div>
                     <div
                         role="progressbar"
+                        aria-labelledby="gcl-progress-label"
                         aria-label="GCLの進捗"
                         aria-valuenow={stats?.gcl?.progress || 0}
                         aria-valuemin={0}
@@ -759,7 +760,7 @@ export default function Dashboard() {
                             marginBottom: '0.25rem',
                         }}
                     >
-                        <span>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2) || '0.00'}</span>
+                        <span id="cpu-progress-label">📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2) || '0.00'}</span>
                         <span style={{ fontSize: '0.85rem' }}>
                             {stats?.cpuUsed !== undefined
                                 ? `${Math.min(100, stats.cpuUsed).toFixed(1)}%`
@@ -768,6 +769,7 @@ export default function Dashboard() {
                     </div>
                     <div
                         role="progressbar"
+                        aria-labelledby="cpu-progress-label"
                         aria-label="CPU使用率"
                         aria-valuenow={stats?.cpuUsed || 0}
                         aria-valuemin={0}

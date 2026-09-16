@@ -784,126 +784,118 @@ function getFullLangAttribute(el) {
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
 }
 
-function setHtmlLangAttribute(content) {
-    const lang = detectAndSetLang(content || '');
-    if (typeof document !== 'undefined' && document.documentElement) {
-        document.documentElement.setAttribute('lang', lang);
-    }
-    return lang;
+/**
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+  }
 }
 
-function validateLandmark(landmarkOrUrl) {
-    const landmarks = typeof landmarkOrUrl === 'string' 
-        ? (typeof document !== 'undefined' ? document.querySelectorAll('main, header, nav, footer, aside, [role="main"], [role="banner"], [role="navigation"], [role="contentinfo"], [role="complementary"]') : [])
-        : [landmarkOrUrl];
-    
-    const landmarkResults = {
-        hasLandmark: true,
-        hasRole: true,
-        issues: [],
-        score: 100
-    };
-    
-    if (landmarks.length === 0) {
-        landmarkResults.hasLandmark = false;
-        landmarkResults.hasRole = false;
-        landmarkResults.issues.push({
-            type: 'missing_landmark',
-            message: 'No landmark elements found'
-        });
-        landmarkResults.score -= 25;
+/**
+ * Validates landmark accessibility issues
+ * @param {string} [url] - Optional URL (not used)
+ * @returns {Array} Array of issue objects
+ */
+function validateLandmark(url) {
+  const issues = [];
+  if (typeof document === 'undefined') return issues;
+  const landmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'];
+  const counts = {};
+  const selectors = landmarkRoles.map(role => `[role="${role}"]`).join(',');
+  const landmarks = document.querySelectorAll(selectors);
+  landmarks.forEach(el => {
+    const role = el.getAttribute('role');
+    counts[role] = (counts[role] || 0) + 1;
+    const hasLabel = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.textContent.trim();
+    if (!hasLabel) {
+      issues.push({ type: 'missing_name', message: `Landmark missing accessible name: ${role}` });
     }
-    
-    landmarks.forEach((landmark, index) => {
-        if (!landmark || typeof landmark.tagName === 'undefined') return;
-        const tag = landmark.tagName.toLowerCase();
-        const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
-        const validTags = ['main', 'header', 'nav', 'footer', 'aside'];
-        if (!role && !validTags.includes(tag)) {
-            landmarkResults.hasRole = false;
-            landmarkResults.issues.push({
-                type: 'missing_role',
-                message: `Landmark ${index + 1}: Missing valid semantic role or tag`
-            });
-            landmarkResults.score -= 10;
-        }
-    });
-    
-    return landmarkResults;
+  });
+  landmarkRoles.forEach(role => {
+    if (counts[role] > 1) {
+      issues.push({ type: 'duplicate_landmark', message: `Duplicate landmark role: ${role} (${counts[role]} occurrences)` });
+    }
+  });
+  return issues;
 }
 
-function validateLandmarkStructure(landmarkOrUrl) {
-    const landmarks = typeof landmarkOrUrl === 'string' 
-        ? (typeof document !== 'undefined' ? document.querySelectorAll('main, header, nav, footer, aside, [role="main"], [role="banner"], [role="navigation"], [role="contentinfo"], [role="complementary"]') : [])
-        : [landmarkOrUrl];
-    
-    const structureResults = {
-        hasStructure: true,
-        hasUniqueLandmarks: true,
-        issues: [],
-        score: 100
-    };
-    
-    const seen = {};
-    let validCount = 0;
-    
-    landmarks.forEach((landmark, index) => {
-        if (!landmark || typeof landmark.tagName === 'undefined') return;
-        validCount++;
-        const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
-        const tag = landmark.tagName.toLowerCase();
-        const label = landmark.getAttribute ? (landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || '') : '';
-        const key = (role || tag) + ':' + label;
-        
-        if (seen[key]) {
-            structureResults.hasUniqueLandmarks = false;
-            structureResults.issues.push({
-                type: 'duplicate_landmark',
-                message: `Landmark ${index + 1}: Duplicate landmark (${key})`
-            });
-            structureResults.score -= 15;
-        } else {
-            seen[key] = true;
-        }
-    });
-    
-    if (validCount === 0) {
-        structureResults.hasStructure = false;
-        structureResults.issues.push({
-            type: 'missing_structure',
-            message: 'Landmark structure is missing or invalid'
-        });
-        structureResults.score -= 20;
-    }
-    
-    return structureResults;
+/**
+ * Validates landmark structure (e.g., nesting)
+ * @returns {Array} Array of issue objects
+ */
+function validateLandmarkStructure() {
+  const issues = [];
+  if (typeof document === 'undefined') return issues;
+  const main = document.querySelectorAll('[role="main"], main');
+  if (main.length === 0) {
+    issues.push({ type: 'missing_main', message: 'Missing main landmark' });
+  } else if (main.length > 1) {
+    issues.push({ type: 'duplicate_main', message: 'Multiple main landmarks' });
+  }
+  return issues;
 }
 
-function getSvgAccessibleName(svgOrSelector) {
-    let svg = null;
-    if (typeof svgOrSelector === 'string') {
-        svg = typeof document !== 'undefined' ? document.querySelector(svgOrSelector) : null;
-    } else {
-        svg = svgOrSelector || null;
-    }
-    if (!svg) return '';
-    if (typeof svg.getAttribute === 'function') {
-        const ariaLabel = svg.getAttribute('aria-label');
-        if (ariaLabel) return ariaLabel;
-        const titleAttr = svg.getAttribute('title');
-        if (titleAttr) return titleAttr;
-    }
-    if (typeof svg.querySelector === 'function') {
-        const titleEl = svg.querySelector('title');
-        if (titleEl && titleEl.textContent) return titleEl.textContent.trim();
-    }
-    return '';
+/**
+ * Gets an accessible name for an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @returns {string} Accessible name
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const title = svg.querySelector('title');
+  if (title && title.textContent) return title.textContent.trim();
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const labelledBy = svg.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelEl = document.getElementById(labelledBy);
+    if (labelEl) return labelEl.textContent.trim();
+  }
+  const id = svg.getAttribute('id');
+  if (id) return id;
+  return '';
 }
 
-function createInPageButton(text, clickAction) {
-    const safeText = (text !== undefined && text !== null) ? text : 'Button';
-    const actionAttr = clickAction ? `onclick="${clickAction}"` : '';
-    return `<button type="button" ${actionAttr}>${safeText}</button>`;
+/**
+ * Creates an accessible in-page button (anchor with role button)
+ * @param {string} label - The button label
+ * @param {string} href - The URL to navigate to
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(label, href) {
+  if (typeof document === 'undefined') return null;
+  const button = document.createElement('a');
+  button.href = href || '#';
+  button.setAttribute('role', 'button');
+  button.setAttribute('tabindex', '0');
+  button.textContent = label;
+  button.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      button.click();
+    }
+  });
+  return button;
+}
+
+/**
+ * Ensures landmark roles are unique
+ * @returns {Array} Array of duplicate landmark issues
+ */
+function ensureUniqueLandmarks() {
+  const issues = [];
+  if (typeof document === 'undefined') return issues;
+  const roles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'search'];
+  roles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      issues.push({ type: 'duplicate_landmark', message: `Duplicate landmark role: ${role} (${elements.length} occurrences)` });
+    }
+  });
+  return issues;
 }
 
 module.exports = {

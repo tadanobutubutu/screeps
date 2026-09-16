@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
+// TODO: This is the existing code that needs to be preserved
+// ...
+
+// REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
 const getLangAttribute = () => document.documentElement ? document.documentElement.lang || 'en' : 'en';
 document.documentElement.lang = getLangAttribute();
 
@@ -22,7 +24,7 @@ document.documentElement.lang = getLangAttribute();
 
 // ... (Functions that were unique in each branch)
 
-function ... {
+function validateTableAccessibility(tables) {
   // Implementation for table accessibility validation
 }
 
@@ -84,9 +86,52 @@ function ... {
   return fixedCount;
 }
 
-// Added from first branch
-function addAccessibilityChanges() {
-  // Placeholder function for adding other accessibility changes
+// Function to add/fix main landmark
+function addMainLandmark(document) {
+  // Implementation for adding main landmark
+  let fixedCount = 0;
+  
+  // Check if main element already exists
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    // Find the most appropriate content area to wrap with main
+    const contentAreas = document.querySelectorAll('#content, .content, [role="main"], article, section');
+    
+    if (contentAreas.length > 0) {
+      mainElement = contentAreas[0];
+      
+      // If the main content area isn't already a <main> element, wrap its content
+      if (mainElement.tagName !== 'MAIN') {
+        const main = document.createElement('main');
+        while (mainElement.firstChild) {
+          main.appendChild(mainElement.firstChild);
+        }
+        mainElement.appendChild(main);
+        mainElement = main;
+        fixedCount++;
+      }
+    } else {
+      // Create a new main element and try to insert it appropriately
+      mainElement = document.createElement('main');
+      const body = document.body;
+      
+      if (body.firstChild) {
+        body.insertBefore(mainElement, body.firstChild);
+      } else {
+        body.appendChild(mainElement);
+      }
+      fixedCount++;
+    }
+  }
+  
+  // Add id if missing for navigation
+  if (mainElement && !mainElement.id) {
+    mainElement.id = 'main-content';
+    fixedCount++;
+  }
+  
+  return fixedCount > 0 ? document : document;
 }
 
 function ensureUniqueLandmarks(document) {
@@ -105,7 +150,7 @@ function addAccessibleNamesToSVGs(document) {
     const ariaLabel = svg.getAttribute('aria-label');
     if (titleElement && titleElement.textContent.trim()) {
       svg.setAttribute('aria-label', titleElement.textContent.trim());
-    } else if (!ariaLabel) {
+    } else if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', 'Graphic');
     }
   });
@@ -142,6 +187,7 @@ function ... {
     if (!isAnchor && (onclick.includes('window.location') ||
         onclick.includes('document.location') ||
         onclick.includes('href'))) {
+
       const span = document.createElement('span');
       span.textContent = element.textContent;
       span.setAttribute('role', 'link');
@@ -170,6 +216,47 @@ function ... {
 // Function to fix fake link issues (handles both role="link" elements and anchors with href="#")
 function ... {
   // Implementation for fixing fake link issues
+  let count = 0;
+  
+  // Fix elements with role="link" that aren't anchors
+  const roleLinkElements = document.querySelectorAll('[role="link"]:not(a)');
+  roleLinkElements.forEach(element => {
+    const onclick = element.getAttribute('onclick') || '';
+    if (onclick.includes('window.location') || onclick.includes('document.location')) {
+      const anchor = document.createElement('a');
+      anchor.href = '#';
+      anchor.setAttribute('role', 'link');
+      anchor.textContent = element.textContent;
+      anchor.onclick = element.onclick;
+      
+      if (element.className) {
+        anchor.className = element.className;
+      }
+      
+      element.parentNode.replaceChild(anchor, element);
+      count++;
+    }
+  });
+  
+  // Fix anchors with href="#" that should be buttons
+  const fakeAnchors = document.querySelectorAll('a[href="#"]');
+  fakeAnchors.forEach(anchor => {
+    const onclick = anchor.getAttribute('onclick') || '';
+    if (onclick && !onclick.includes('javascript:void')) {
+      const button = document.createElement('button');
+      button.textContent = anchor.textContent;
+      button.onclick = anchor.onclick;
+      
+      if (anchor.className) {
+        button.className = anchor.className;
+      }
+      
+      anchor.parentNode.replaceChild(button, anchor);
+      count++;
+    }
+  });
+  
+  return count;
 }
 
 function ... {
@@ -227,7 +314,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.getElementById('g_id_onbutton') || document.querySelector('.g_id_signin');
+    const buttonContainer = document.getElementById('g-signin-button') || document.querySelector('.g-signin-button');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -236,6 +323,11 @@ function googleSignIn(document) {
     }
   }
   return document;
+}
+
+function handleCredentialResponse(response) {
+  // Handle the Google sign-in credential response
+  console.log('Credential response:', response);
 }
 
 function fixButtonIdentifiers(button, buttonId) {
@@ -277,8 +369,8 @@ function ... selector, label) {
 function renderDependencyGraphs(document) {
   const graphContainer = document.querySelector('#dependency-graph') ||
                          document.querySelector('.dependency-graph') ||
-                         document.querySelector('[data-graph="dependency"]') ||
-                         document.getElementById('dependency-graph');
+                         document.querySelector('[data-graph="dependencies"]') ||
+                         document.getElementById('dependencyGraphContainer');
   if (graphContainer) {
     const svg = ... 'svg');
     svg.setAttribute('class', 'dependency-graph');
@@ -300,4 +392,4 @@ function renderDependencyGraphs(document) {
 
     // Render the graph content
     if (typeof dependencyGraphContent !== 'undefined') {
-      const graphContent = typeof dependency
+      const graphContent = typeof dependencyGraphContent === 'string

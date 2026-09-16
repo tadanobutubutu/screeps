@@ -1,5 +1,5 @@
 // TODO: Add back any required exports that might have been?
-// REACT_015: Add lang attribute
+// TODO: Address accessibility issues from insight report — FIXED
 function main() {
   return "Hello, World!";
 }

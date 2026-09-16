@@ -1,12 +1,5 @@
-const { add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median } = require('./mathOperations');
-const { class1, function1, Object1 } = require('./otherModule');
-
-// Function to count dependencies
-function countDependencies() {
-  // Count the dependencies imported from the module
-  const dependencies = { class1, function1, Object1 };
-  return Object.keys(dependencies).length;
-}
+export { class1, function1, Object1 } from './path/to/module';
+import { class1, function1, Object1 } from './path/to/module';
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)

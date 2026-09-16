@@ -250,119 +250,99 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-function newFocusTrap(container, options = {}) {
-  const {
-    trapOnEscape = true,
-    initialFocus = 'first',
-    returnFocusOnDeactivate = true,
-    setFocusGuard = true
-  } = options;
+function newFocusTrap() {
+  // New function implementation - returns a focus trap controller
+  let activeElement = null;
+  let firstFocusableElement = null;
+  let lastFocusableElement = null;
+  let cleanupCallback = null;
 
-  let previouslyFocusedElement = null;
-  let isActive = false;
+  const focusableSelector = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-  const getFocusableElements = () => {
-    if (!container) return [];
-    return Array.from(container.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    )).filter(el => el.offsetParent !== null);
+  const getFocusableElements = (container) => {
+    return container.querySelectorAll(focusableSelector);
   };
 
-  const handleKeyDown = (e) => {
-    if (!isActive) return;
-
-    if (trapOnEscape && e.key === 'Escape') {
-      deactivate();
-      return;
+  const setupFocusTrap = (container) => {
+    const focusableElements = getFocusableElements(container);
+    if (focusableElements.length === 0) {
+      // Make the container focusable if no focusable elements inside
+      container.setAttribute('tabindex', '-1');
+      activeElement = container;
+    } else {
+      activeElement = document.activeElement;
+      firstFocusableElement = focusableElements[0];
+      lastFocusableElement = focusableElements[focusableElements.length - 1];
     }
 
-    if (e.key === 'Tab') {
-      const focusableElements = getFocusableElements();
-      if (focusableElements.length === 0) return;
-
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-
-      if (e.shiftKey && document.activeElement === firstElement) {
-        e.preventDefault();
-        lastElement.focus();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        e.preventDefault();
-        firstElement.focus();
+    const handleKeyDown = (e) => {
+      if (e.key === 'Tab') {
+        if (focusableElements.length === 0) {
+          if (!e.shiftKey) {
+            firstFocusableElement?.focus();
+            e.preventDefault();
+          } else {
+            lastFocusableElement?.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (e.shiftKey && document.activeElement === firstFocusableElement) {
+            lastFocusableElement.focus();
+            e.preventDefault();
+          } else if (!e.shiftKey && document.activeElement === lastFocusableElement) {
+            firstFocusableElement.focus();
+            e.preventDefault();
+          }
+        }
       }
-    }
-  };
 
-  const activate = () => {
-    if (isActive) return;
-    isActive = true;
-    previouslyFocusedElement = document.activeElement;
+      if (e.key === 'Escape') {
+        deactivate();
+      }
+    };
 
-    const focusableElements = getFocusableElements();
+    const handleFocusOut = (e) => {
+      if (!container.contains(e.relatedTarget) && e.relatedTarget !== container) {
+        if (cleanupCallback) {
+          cleanupCallback();
+        }
+      }
+    };
+
+    container.addEventListener('keydown', handleKeyDown);
+    container.addEventListener('focusout', handleFocusOut);
+
+    // Focus the first element or container
     if (focusableElements.length > 0) {
-      if (initialFocus === 'first') {
-        focusableElements[0].focus();
-      } else if (initialFocus === 'last') {
-        focusableElements[focusableElements.length - 1].focus();
-      }
+      firstFocusableElement.focus();
+    } else {
+      container.focus();
     }
 
-    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      container.removeEventListener('keydown', handleKeyDown);
+      container.removeEventListener('focusout', handleFocusOut);
+    };
+  };
+
+  const activate = (container, onDeactivate = null) => {
+    cleanupCallback = onDeactivate;
+    return setupFocusTrap(container);
   };
 
   const deactivate = () => {
-    if (!isActive) return;
-    isActive = false;
-    document.removeEventListener('keydown', handleKeyDown);
-
-    if (returnFocusOnDeactivate && previouslyFocusedElement) {
-      previouslyFocusedElement.focus();
+    if (cleanupCallback) {
+      cleanupCallback();
+      cleanupCallback = null;
+    }
+    if (activeElement && document.activeElement) {
+      activeElement.focus();
     }
   };
 
-  if (setFocusGuard) {
-    const createFocusGuard = (position) => {
-      const guard = document.createElement('div');
-      guard.setAttribute('tabindex', '0');
-      guard.setAttribute('aria-hidden', 'true');
-      guard.style.position = 'absolute';
-      guard.style.width = '1px';
-      guard.style.height = '1px';
-      guard.style.padding = '0';
-      guard.style.margin = '-1px';
-      guard.style.overflow = 'hidden';
-      guard.style.clip = 'rect(0, 0, 0, 0)';
-      guard.style.whiteSpace = 'nowrap';
-      guard.style.border = '0';
-      
-      guard.addEventListener('focus', () => {
-        const focusableElements = getFocusableElements();
-        if (position === 'start') {
-          focusableElements[focusableElements.length - 1]?.focus();
-        } else {
-          focusableElements[0]?.focus();
-        }
-      });
-      
-      return guard;
-    };
-
-    const startGuard = createFocusGuard('start');
-    const endGuard = createFocusGuard('end');
-    
-    if (container.firstChild) {
-      container.insertBefore(startGuard, container.firstChild);
-    } else {
-      container.appendChild(startGuard);
-    }
-    container.appendChild(endGuard);
-  }
-
   return {
     activate,
-    deactivate,
-    isActive: () => isActive,
-    getFocusableElements
+    deactivate
   };
 }
 
@@ -527,46 +507,44 @@ function transformInputData(inputData, options = {}) {
     return null;
   }
 
-  if (typeof inputData === 'string') {
-    let result = inputData;
+  const transformValue = (value) => {
+    if (typeof value !== 'string') return value;
+    
+    let result = value;
+    
     if (trimWhitespace) {
       result = result.trim();
     }
+    
     if (uppercase) {
       result = result.toUpperCase();
     }
+    
     if (maxLength && result.length > maxLength) {
       result = result.substring(0, maxLength);
     }
+    
     return result;
-  }
+  };
 
   if (Array.isArray(inputData)) {
-    return inputData.map(item => transformInputData(item, options));
+    return inputData.map(transformValue);
   }
-
-  if (typeof inputData === 'object' && inputData !== null) {
+  
+  if (typeof inputData === 'object') {
     const result = {};
-    for (const [key, value] of Object.entries(inputData)) {
-      let processedKey = preserveKeys ? key : String(value).toLowerCase().replace(/\s+/g, '_');
-      let processedValue = transformInputData(value, options);
-      
-      if (trimWhitespace && typeof processedValue === 'string') {
-        processedValue = processedValue.trim();
+    if (preserveKeys) {
+      for (const [key, value] of Object.entries(inputData)) {
+        result[key] = transformValue(value);
       }
-      if (uppercase && typeof processedValue === 'string') {
-        processedValue = processedValue.toUpperCase();
-      }
-      if (maxLength && typeof processedValue === 'string' && processedValue.length > maxLength) {
-        processedValue = processedValue.substring(0, maxLength);
-      }
-      
-      result[processedKey] = processedValue;
+    } else {
+      const values = Object.values(inputData).map(transformValue);
+      return values;
     }
     return result;
   }
-
-  return inputData;
+  
+  return transformValue(inputData);
 }
 
 // Initialize on DOM ready

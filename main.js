@@ -46,8 +46,7 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content) ||
-               /\b(le|la|les|de|du|des|et|est|une|un|que|qui|pour|avec|ce|sur)\b/i.test(content)) {
+    } else if (/[àâçéèêëîïôùûüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/\b(der|die|das|ein|eine|und|ist|von|mit|für|auf|im|zu|den)\b/i.test(content)) {
       lang = 'de'; // German

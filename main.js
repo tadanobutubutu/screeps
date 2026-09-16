@@ -1,4 +1,9 @@
-// main.js - Resolved merge conflict
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
+
+const { greeting } = require('./utils');
+const path = require('path');
+const fs = require('fs');
 
 // Import and re-export someFunction from './utils'
 const _utils = require('./utils');
@@ -846,54 +851,21 @@ function getFullLangAttribute(el) {
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
 }
 
-/**
- * Sets the lang attribute on the HTML element
- * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr')
- * @returns {boolean} True if successful, false otherwise
- */
 function setHtmlLangAttribute(lang) {
-  if (typeof document === 'undefined' || !document.documentElement) {
-    return false;
-  }
-  
-  if (!lang || typeof lang !== 'string') {
-    return false;
-  }
-  
-  document.documentElement.lang = lang;
-  return true;
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.lang = lang || 'en';
+    }
+    return lang || 'en';
 }
 
-/**
- * Detects language settings from the document and sets the lang attribute if needed
- * @param {string} [lang] - Optional language code to set. If not provided, tries to detect from document
- * @returns {boolean} True if lang attribute was set, false otherwise
- */
-function detectAndSetLang(lang) {
-  if (lang) {
+function detectAndSetLang() {
+    let lang = 'en';
+    if (typeof navigator !== 'undefined' && navigator.language) {
+        lang = navigator.language;
+    } else if (typeof document !== 'undefined' && document.documentElement && document.documentElement.lang) {
+        lang = document.documentElement.lang;
+    }
     return setHtmlLangAttribute(lang);
-  }
-  
-  // Try to detect language from existing elements
-  if (typeof document === 'undefined' || !document.documentElement) {
-    return false;
-  }
-  
-  const currentLang = document.documentElement.lang;
-  if (currentLang) {
-    return true;
-  }
-  
-  // Try to detect from html tag attribute
-  const htmlElement = document.documentElement;
-  const detectedLang = htmlElement.getAttribute('lang') || htmlElement.getAttribute('xml:lang');
-  if (detectedLang) {
-    htmlElement.lang = detectedLang;
-    return true;
-  }
-  
-  // Default to 'en' if no language detected
-  return setHtmlLangAttribute('en');
 }
 
 module.exports = {

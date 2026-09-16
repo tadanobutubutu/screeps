@@ -26,15 +26,9 @@ function addAriaLabel(element, label) {
 const fs = require('fs');
 const path = require('path');
 
-const dependencyGraphContent = require('./dependencyGraph');
-
-// Import dependencyGraphRenderer, addressAccessibilityIssue038, [PERSON_NAME], addressAccessibilityIssueForSpecificElement, totalDependencies, addressOldAccessibilityIssues, and dependencyGraphContent
+// Import dependencyGraphRenderer, addressAccessibilityIssue038, and dependencyGraphContent
 const DependencyGraphRenderer = require('./dependencyGraphRenderer');
 const addressAccessibilityIssue038 = require('./accessibilityFunctions').addressAccessibilityIssue038;
-const newFunction = require('./accessibilityFunctions').newFunction;
-const addressAccessibilityIssueForSpecificElement = require('./accessibilityFunctions').addressAccessibilityIssueForSpecificElement;
-const totalDependencies = require('./accessibilityFunctions').totalDependencies;
-const addressOldAccessibilityIssues = require('./accessibilityFunctions').addressOldAccessibilityIssues;
 
 // Import a11yStore from both branches
 const a11yStore = require('./a11yStore');
@@ -634,5 +628,9 @@ module.exports = {
   setHtmlLangAttribute,
   detectAndSetLang,
   convertAnchorsToButtons,
+  handleNewAccessibilityIssue,
+  validateTableAccessibility,
+  createInPageButton,
+  personName,
   a11yStore
 };

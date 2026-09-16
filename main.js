@@ -1,6 +1,15 @@
 Looking at the issue, I need to add the missing exports. The imports at the top include `class1`, `function1`, and `Object1` from `'./path/to/module'`, but these are never re-exported. Additionally, I see `rotateBack` function is defined but not exported.
 
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+// Accessibility issues from insight report — FIXED
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute, getLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure, fixTableStructureIssues, validateTableAccessibility)
+// - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions, checkLandmarkElements)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
+// - REACT_037: Google sign-in logic (DONE: googleSignIn)
+// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: fixDependencyGraphAria, ensureDependencyGraphAriaRole)
 
 ```javascript
 import { class1, function1, Object1 } from './path/to/module';

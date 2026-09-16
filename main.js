@@ -1,12 +1,16 @@
 const { add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median } = require('./mathOperations');
 const { class1, function1, Object1 } = require('./otherModule');
 
-// TODO: Address accessibility issues from insight report:
-// ... (Existing functions)
+const getLangAttribute = () => document.documentElement ? document.documentElement.lang || 'en' : 'en';
+document.documentElement.lang = getLangAttribute();
 
-// New functions for the issue
-function addLandmarkRegions(document) {
-  // Implementation for adding landmark regions
+// Utility functions
+function formatDate(date) {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
 }
 
 //_Commit: 122c675321c441e0cdd31ca53eb7bd09e8c6bf76_

@@ -146,15 +146,17 @@ function log(arg1, arg2, data) {
 
     if (typeof message !== 'string') {
         try {
-            message = typeof message === 'function' ? '[Function]' : String(message || '');
+            message = typeof message === 'function' ? '[Function]' : String(message ?? '');
         } catch (e) {
             message = '[Unserializable Object]';
         }
     }
+    message = message.substring(0, MAX_LOG_MESSAGE_LENGTH);
     if (extraData !== undefined && extraData !== null) {
-        message += (message ? ' ' : '') + _safeStringify(extraData);
+        const extraStr = _safeStringify(extraData);
+        message += (message ? ' | ' : '') + extraStr;
     }
-    const truncated = message.substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const truncated = message;
     const redacted = _redactPaths(truncated);
 
     if (typeof Memory !== 'undefined') {
@@ -198,14 +200,17 @@ function success(msg, data) {
 }
 
 function _safeStringify(data) {
+    let str;
     if (data instanceof Error) {
-        return data.message || String(data);
+        str = data.message || String(data);
+    } else {
+        try {
+            str = JSON.stringify(data);
+        } catch (err) {
+            str = `[Unserializable Data: ${err && err.message ? err.message : String(err)}]`;
+        }
     }
-    try {
-        return JSON.stringify(data);
-    } catch (err) {
-        return `[Unserializable Data: ${err.message || String(err)}]`;
-    }
+    return str.substring(0, MAX_LOG_MESSAGE_LENGTH);
 }
 
 function getSafeStack(stack, maxLines = 5) {

@@ -28,48 +28,16 @@ function setHtmlLangAttribute(lang) {
 }
 
 /**
- * Detects the language of the given content and sets the HTML lang attribute
- * @param {string} content - The text content to analyze
- * @returns {string} The detected language code
+ * Validates a landmark name
+ * @param {string} landmarkName - The name of the landmark to validate
+ * @returns {boolean} True if the landmark is valid, false otherwise
  */
-function detectAndSetLang(content) {
-  // Simple language detection based on common patterns
-  let lang = 'en'; // Default to English
-  
-  if (content) {
-    // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
-      lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
-      lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
-      lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
-      lang = 'ar'; // Arabic
-    } else if (/[àâçéèêëîïôùûüÿœæ]/i.test(content)) {
-      lang = 'fr'; // French
-    } else if (/\b(der|die|das|ein|eine|und|ist|von|mit|für|auf|im|zu|den)\b/i.test(content)) {
-      lang = 'de'; // German
-    }
+function validateLandmark(landmarkName) {
+  if (typeof landmarkName !== 'string' || landmarkName.trim() === '') {
+    return false;
   }
-  
-  return setHtmlLangAttribute(lang);
+  return true;
 }
 
-/**
- * Creates an accessible in-page button and appends it to the given parent element.
- * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(parent = document.body) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', 'Open modal');
-  parent.appendChild(btn);
-  return btn;
-}
-
-// TODO: Add any updates related to new functions
-
-module.exports = { setHtmlLangAttribute, detectAndSetLang, createInPageButton };
+// Export for use in other modules
+module.exports = { countDependencies, validateLandmark };

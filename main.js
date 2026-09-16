@@ -574,5 +574,13 @@ function uniqueLandmarks(document) {
 
 function ensureUniqueLandmarks() {
   const mains = document.querySelectorAll('main, [role="main"]');
-  // (implementation continues)
+  if (mains.length > 1) {
+    const uniqueMains = Array.from(mains).filter((el, index, self) => {
+      return self.indexOf(el) === index;
+    });
+    uniqueMains.forEach((main, index) => {
+      main.setAttribute('id', `main-${index}`);
+    });
+  }
+  return true;
 }

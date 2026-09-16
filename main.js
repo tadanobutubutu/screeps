@@ -82,6 +82,168 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e);
     }
+  },
+
+  // REACT_015: Add lang attribute to HTML element
+  addLangAttribute: () => {
+    const htmlElement = document.documentElement;
+    if (!htmlElement.getAttribute('lang')) {
+      const lang = htmlElement.getAttribute('data-lang') || 'en';
+      htmlElement.setAttribute('lang', lang);
+    }
+    return htmlElement.getAttribute('lang');
+  },
+
+  // REACT_027: Fix table structure issues
+  fixTableStructure: () => {
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table) => {
+      const hasThead = table.querySelector('thead');
+      const hasTbody = table.querySelector('tbody');
+      
+      if (!hasThead && table.rows.length > 0) {
+        const thead = document.createElement('thead');
+        const firstRow = table.rows[0];
+        const thCells = firstRow.querySelectorAll('th');
+        
+        if (thCells.length > 0) {
+          thead.appendChild(firstRow.cloneNode(true));
+          table.insertBefore(thead, table.firstChild);
+          firstRow.remove();
+        }
+      }
+      
+      if (!hasTbody) {
+        const tbody = document.createElement('tbody');
+        const rows = Array.from(table.querySelectorAll('tr'));
+        rows.forEach((row) => {
+          if (row.parentNode !== thead) {
+            tbody.appendChild(row);
+          }
+        });
+        table.appendChild(tbody);
+      }
+    });
+  },
+
+  // REACT_017: Add/fix landmark issues
+  addLandmarkIssues: () => {
+    const main = document.querySelector('main');
+    if (main && !main.getAttribute('role') && !main.id) {
+      main.setAttribute('role', 'main');
+    }
+    
+    const headers = document.querySelectorAll('header');
+    headers.forEach((header) => {
+      if (!header.getAttribute('role')) {
+        const isMainHeader = header.closest('body') !== null && 
+                            !header.closest('article') && 
+                            !header.closest('aside') && 
+                            !header.closest('nav');
+        if (isMainHeader) {
+          header.setAttribute('role', 'banner');
+        }
+      }
+    });
+    
+    const footers = document.querySelectorAll('footer');
+    footers.forEach((footer) => {
+      if (!footer.getAttribute('role')) {
+        footer.setAttribute('role', 'contentinfo');
+      }
+    });
+    
+    const navs = document.querySelectorAll('nav');
+    navs.forEach((nav, index) => {
+      if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
+        nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+      }
+    });
+  },
+
+  // REACT_041: Add accessible names to SVGs
+  addSvgAccessibleNames: () => {
+    const svgs = document.querySelectorAll('svg');
+    let count = 0;
+    svgs.forEach((svg) => {
+      const hasLabel = svg.getAttribute('aria-label') || 
+                      svg.getAttribute('aria-labelledby') || 
+                      svg.querySelector('title');
+      
+      if (!hasLabel) {
+        const title = document.createElement('title');
+        title.textContent = `SVG graphic ${count + 1}`;
+        title.id = `svg-title-${count + 1}`;
+        svg.insertBefore(title, svg.firstChild);
+        svg.setAttribute('aria-labelledby', title.id);
+        count++;
+      }
+    });
+    return count;
+  },
+
+  // REACT_025: Ensure unique landmarks
+  ensureUniqueLandmarks: () => {
+    const landmarkSelectors = [
+      '[role="banner"]',
+      '[role="navigation"]',
+      '[role="main"]',
+      '[role="contentinfo"]',
+      '[role="complementary"]',
+      '[role="search"]',
+      'header:not([role])',
+      'nav:not([role])',
+      'main:not([role])',
+      'footer:not([role])',
+      'aside:not([role])'
+    ];
+    
+    const landmarks = {};
+    landmarkSelectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => {
+        const role = el.getAttribute('role') || el.tagName.toLowerCase();
+        if (!landmarks[role]) {
+          landmarks[role] = [];
+        }
+        landmarks[role].push(el);
+      });
+    });
+    
+    Object.keys(landmarks).forEach((role) => {
+      const elements = landmarks[role];
+      if (elements.length > 1) {
+        elements.forEach((el, index) => {
+          const existingLabel = el.getAttribute('aria-label');
+          if (!existingLabel) {
+            el.setAttribute('aria-label', `${role} section ${index + 1}`);
+          }
+        });
+      }
+    });
+  },
+
+  // REACT_036: Fix fake link issue
+  fixFakeLinkIssue: () => {
+    const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
+    fakeLinks.forEach((link) => {
+      if (!link.getAttribute('tabindex')) {
+        link.setAttribute('tabindex', '0');
+      }
+      
+      if (!link.getAttribute('href') && !link.getAttribute('onclick')) {
+        link.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            link.click();
+          }
+        });
+      }
+      
+      if (!link.textContent.trim() && !link.querySelector('img')) {
+        const label = link.getAttribute('aria-label') || 'Link';
+        link.setAttribute('aria-label', label);
+      }
+    });
   }
 };
 
@@ -140,21 +302,3 @@ const initAccessibility = () => {
         ' ': () => element.click()
       });
     });
-  });
-};
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    ... initAccessibility);
-  } else {
-    initAccessibility();
-  }
-}
-
-// Export all utilities
-module.exports = {
-  accessibilityUtils,
-  exportUtils,
-  initAccessibility
-};

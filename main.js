@@ -662,6 +662,5 @@ module.exports = {
   handleNewAccessibilityIssue,
   validateTableAccessibility,
   createInPageButton,
-  personName,
-  a11yStore
+  personName
 };

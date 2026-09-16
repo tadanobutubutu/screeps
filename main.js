@@ -1,543 +1,74 @@
-// main.js
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
+const dependencyGraphContent = require('./dependencyGraphContent');
+
+// TODO: Address accessibility issues from insight report:
+
+// Function to ensure HTML element has a lang attribute
+function ensureHtmlLangAttribute(lang = 'en') {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+  }
+  return htmlElement.getAttribute('lang');
+}
+
+// Update getLangAttribute to use ensureHtmlLangAttribute
+function getLangAttribute() {
+  return ensureHtmlLangAttribute('en');
+}
+
+// Update getFullLangAttribute to use ensureHtmlLangAttribute
+function getFullLangAttribute() {
+  return ensureHtmlLangAttribute('en-US');
+}
+
+// Function to check if HTML element has a properly formatted lang attribute
+function checkHtmlLangAttribute() {
+  const htmlElement = document.documentElement;
+  const lang = htmlElement.getAttribute('lang');
+  
+  if (!lang) {
+    throw new Error('HTML element should have a lang attribute');
+  }
+  
+  // Basic validation for language tag format (BCP 47)
+  const langRegex = /^[a-z]{2,3}(?:-[A-Z]{2,3})?$/i;
+  if (!langRegex.test(lang)) {
+    throw new Error('HTML lang attribute should follow BCP 47 language tag format (e.g., "en", "en-US")');
+  }
+}
+
+// Function to handle REACT_015: Add lang attribute to HTML element
+function handleReact015() {
+  ensureHtmlLangAttribute('en');
+}
 
 function main() {
   return "Hello, World!";
 }
 
-function calculateSum(a, b) {
-  return a + b;
-}
+const version = "1.0.0";
 
-/**
- * Addresses accessibility issues from an insight report by applying fixes
- * @param {Array} issues - Array of accessibility issues to address
- * @param {Object} options - Options for how to address the issues
- * @param {string} options.defaultText - Default text to add when no other text is available
- * @param {boolean} options.useAriaLabel - Prefer aria-label over visible text
- * @returns {Object} - Summary of fixes applied
- */
-function addressAccessibilityIssues(issues, options = {}) {
-  const defaultText = options.defaultText || 'Action';
-  const useAriaLabel = options.useAriaLabel || false;
+const config = {
+  port: 3000,
+  debug: false
+};
 
-  /*
-    Integrating both changes:
-    - Adding checkLinkAndButtonAccessibility from the other branch
-    - Moving the function to be a part of addressAccessibilityIssues
-  */
-  function checkLinkAndButtonAccessibility(doc) {
-    const links = doc.getElementsByTagName('a');
-    const buttons = doc.getElementsByTagName('button');
-    Array.prototype.push.apply(links, Array.prototype.slice.call(buttons));
-    Array.prototype.forEach.call(links, (link) => {
-      if (!link.hasAttribute('aria-label')) {
-        link.setAttribute('aria-label', defaultText);
-      }
-    });
+const app = {
+  // Main application entry point
+  start() {
+    console.log('Application started');
   }
+};
 
-  const summary = {
-    totalIssues: issues.length,
-    linkIssuesFixed: 0,
-    buttonIssuesFixed: 0,
-    skipped: 0,
-    fixes: []
-  };
-
-  issues.forEach((issue) => {
-    if (!issue.element || !issue.element.parentNode) {
-      summary.skipped++;
-      return;
-    }
-
-    try {
-      checkLinkAndButtonAccessibility(issue.element.ownerDocument);
-      if (issue.type === 'link') {
-        /*
-          Integrating both logic:
-          - Keep the existing code using 'document.createTextNode' if useAriaLabel is false
-          - Move the aria-label code to the try block to overwrite in case both conditions are met
-        */
-        if (useAriaLabel) {
-          issue.element.setAttribute('aria-label', defaultText);
-        } else {
-          // Add visible text content
-          const textNode = document.createTextNode(defaultText);
-          issue.element.appendChild(textNode);
-        }
-      } else if (issue.type === 'button') {
-        /*
-          Merging both implementations
-          - Keep existing solution for setting aria-label if useAriaLabel is true
-          - Preserve addition of visible text content for when useAriaLabel is false
-        */
-        if (useAriaLabel) {
-          issue.element.setAttribute('aria-label', defaultText);
-        } else {
-          const textNode = document.createTextNode(defaultText);
-          issue.element.appendChild(textNode);
-        }
-      }
-      summary.linkIssuesFixed += (issue.type === 'link') ? 1 : 0;
-      summary.buttonIssuesFixed += (issue.type === 'button') ? 1 : 0;
-      summary.fixes.push({
-        type: issue.type,
-        index: issue.index,
-        action: 'Fixed accessibility issue'
-      });
-    } catch (error) {
-      summary.skipped++;
-      summary.fixes.push({
-        type: issue.type,
-        index: issue.index,
-        action: 'Failed to fix',
-        error: error.message
-      });
-    }
-  });
-
-  return summary;
-}
-
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute(doc, lang = 'en') {
-  if (doc && doc.documentElement) {
-    doc.documentElement.setAttribute('lang', lang);
+const logger = {
+  info(message) {
+    console.log(`[INFO] ${message}`);
+  },
+  error(message) {
+    console.error(`[ERROR] ${message}`);
   }
-}
+};
 
-// REACT_027: Fix 26 table structure issues
-function fixTableStructureIssues(doc) {
-  const tables = doc.querySelectorAll('table');
-  tables.forEach(table => {
-    const hasThead = table.querySelector('thead');
-    const hasTbody = table.querySelector('tbody');
-    if (!hasThead) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = doc.createElement('thead');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, table.firstChild);
-      }
-    }
-    if (!hasTbody) {
-      const rows = table.querySelectorAll('tr');
-      const tbody = doc.createElement('tbody');
-      rows.forEach(row => tbody.appendChild(row));
-      table.appendChild(tbody);
-    }
-  });
-}
-
-// REACT_017: Add/fix 2 landmark issues
-function addMainLandmark(doc) {
-  const mains = doc.querySelectorAll('main');
-  if (mains.length === 0) {
-    const main = doc.createElement('main');
-    while (doc.body.firstChild) {
-      main.appendChild(doc.body.firstChild);
-    }
-    doc.body.appendChild(main);
-  }
-}
-
-// REACT_041: Add accessible names to 2 SVGs
-function addSvgAccessibleName(doc) {
-  const svgs = doc.querySelectorAll('svg');
-  let counter = 0;
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
-      const title = doc.createElement('title');
-      counter++;
-      title.textContent = `SVG ${counter}`;
-      title.id = `svg-title-${counter}`;
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('aria-labelledby', title.id);
-    }
-  });
-}
-
-// REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks(doc) {
-  const mains = doc.querySelectorAll('main');
-  if (mains.length > 1) {
-    for (let i = 1; i < mains.length; i++) {
-      mains[i].remove();
-    }
-  }
-}
-
-// REACT_036: Fix 1 fake link issue
-function fixFakeLinkIssue(doc) {
-  const clickableDivs = doc.querySelectorAll('div[onclick], div[role="link"]');
-  clickableDivs.forEach(div => {
-    const anchor = doc.createElement('a');
-    anchor.setAttribute('href', '#');
-    while (div.firstChild) {
-      anchor.appendChild(div.firstChild);
-    }
-    ['onclick', 'role', 'tabindex'].forEach(attr => {
-      if (div.hasAttribute(attr)) {
-        anchor.setAttribute(attr, div.getAttribute(attr));
-      }
-    });
-    div.parentNode.replaceChild(anchor, div);
-  });
-}
-
-function calculateProduct(a, b) {
-  return a * b;
-}
-
-function getFullLangAttribute() {
-  // Code to get full localized language and return it
-  // Placeholder example:
-  return 'en-US';
-}
-
-/**
- * Renders a dependency graph from dependency graph content.
- * @param {Object} content - The dependency graph content object
- * @param {HTMLElement} container - The container element to render the graph in
- * @param {Object} options - Rendering options
- * @returns {HTMLElement} The root element of the rendered graph
- */
-function renderDependencyGraph(content, container, options = {}) {
-  if (!content) {
-    content = dependencyGraphContent;
-  }
-  
-  if (!container) {
-    container = document.createElement('div');
-    container.className = 'dependency-graph-container';
-  }
-  
-  // Clear container
-  container.innerHTML = '';
-  
-  // Create graph wrapper
-  const graphWrapper = document.createElement('div');
-  graphWrapper.className = 'dependency-graph';
-  
-  // Add title if provided
-  if (options.title) {
-    const title = document.createElement('h3');
-    title.textContent = options.title;
-    title.className = 'dependency-graph-title';
-    graphWrapper.appendChild(title);
-  }
-  
-  // Render nodes
-  const nodes = content.nodes || [];
-  const edges = content.edges || [];
-  
-  const graphContainer = document.createElement('div');
-  graphContainer.className = 'graph-visualization';
-  
-  // Create nodes representation
-  const nodesContainer = document.createElement('div');
-  nodesContainer.className = 'graph-nodes';
-  
-  nodes.forEach(node => {
-    const nodeElement = document.createElement('div');
-    nodeElement.className = 'graph-node';
-    if (node.id) {
-      nodeElement.id = `node-${node.id}`;
-    }
-    
-    // Add node label
-    if (node.label) {
-      const label = document.createElement('span');
-      label.className = 'node-label';
-      label.textContent = node.label;
-      nodeElement.appendChild(label);
-    }
-    
-    // Add node type indicator
-    if (node.type) {
-      const typeIndicator = document.createElement('span');
-      typeIndicator.className = 'node-type';
-      typeIndicator.textContent = node.type;
-      typeIndicator.setAttribute('aria-label', `Type: ${node.type}`);
-      nodeElement.appendChild(typeIndicator);
-    }
-    
-    // Add accessibility attributes
-    nodeElement.setAttribute('role', 'listitem');
-    nodeElement.setAttribute('aria-label', `Dependency node: ${node.label || node.id}`);
-    
-    nodesContainer.appendChild(nodeElement);
-  });
-  
-  // Create edges representation
-  const edgesContainer = document.createElement('div');
-  edgesContainer.className = 'graph-edges';
-  
-  edges.forEach((edge, index) => {
-    const edgeElement = document.createElement('div');
-    edgeElement.className = 'graph-edge';
-    edgeElement.setAttribute('role', 'presentation');
-    
-    // Add visual representation of edge
-    const line = document.createElement('span');
-    line.className = 'edge-line';
-    line.setAttribute('aria-hidden', 'true');
-    
-    // Add edge label if exists
-    if (edge.label) {
-      const edgeLabel = document.createElement('span');
-      edgeLabel.className = 'edge-label';
-      edgeLabel.textContent = edge.label;
-      edgeLabel.setAttribute('aria-label', `Edge: ${edge.from} to ${edge.to}, ${edge.label}`);
-      edgeElement.appendChild(edgeLabel);
-    }
-    
-    edgeElement.appendChild(line);
-    edgesContainer.appendChild(edgeElement);
-  });
-  
-  graphContainer.appendChild(nodesContainer);
-  graphContainer.appendChild(edgesContainer);
-  graphWrapper.appendChild(graphContainer);
-  container.appendChild(graphWrapper);
-  
-  return container;
-}
-
-/**
- * Renders an index view in the specified container.
- * @param {Object} indexData - The index data to render
- * @param {HTMLElement} container - The container element to render the index in
- * @param {Object} options - Rendering options
- * @returns {HTMLElement} The root element of the rendered index
- */
-function renderIndexView(indexData, container, options = {}) {
-  if (!indexData) {
-    indexData = {
-      title: 'Index',
-      items: [],
-      sections: []
-    };
-  }
-  
-  if (!container) {
-    container = document.createElement('div');
-    container.className = 'index-view-container';
-  }
-  
-  // Clear container
-  container.innerHTML = '';
-  
-  // Create wrapper
-  const wrapper = document.createElement('div');
-  wrapper.className = 'index-view';
-  
-  // Add main heading
-  if (indexData.title) {
-    const heading = document.createElement('h1');
-    heading.textContent = indexData.title;
-    heading.className = 'index-title';
-    heading.setAttribute('role', 'heading');
-    heading.setAttribute('aria-level', '1');
-    wrapper.appendChild(heading);
-  }
-  
-  // Add description if exists
-  if (indexData.description) {
-    const desc = document.createElement('p');
-    desc.className = 'index-description';
-    desc.textContent = indexData.description;
-    wrapper.appendChild(desc);
-  }
-  
-  // Render sections
-  if (indexData.sections && indexData.sections.length > 0) {
-    const sectionsContainer = document.createElement('div');
-    sectionsContainer.className = 'index-sections';
-    
-    indexData.sections.forEach((section, index) => {
-      const sectionElement = document.createElement('section');
-      sectionElement.className = 'index-section';
-      sectionElement.id = `index-section-${index}`;
-      
-      // Add section heading
-      if (section.title) {
-        const sectionHeading = document.createElement('h2');
-        sectionHeading.className = 'index-section-title';
-        sectionHeading.textContent = section.title;
-        sectionHeading.setAttribute('role', 'heading');
-        sectionHeading.setAttribute('aria-level', '2');
-        sectionElement.appendChild(sectionHeading);
-      }
-      
-      // Add section content
-      if (section.content) {
-        const content = document.createElement('div');
-        content.className = 'index-section-content';
-        content.innerHTML = section.content;
-        sectionElement.appendChild(content);
-      }
-      
-      // Add items list if exists
-      if (section.items && section.items.length > 0) {
-        const list = document.createElement('ul');
-        list.className = 'index-items-list';
-        
-        section.items.forEach(item => {
-          const listItem = document.createElement('li');
-          listItem.className = 'index-item';
-          
-          if (item.href) {
-            const link = document.createElement('a');
-            link.href = item.href;
-            link.textContent = item.text || item.title || '';
-            link.className = 'index-item-link';
-            if (item.target) {
-              link.target = item.target;
-            }
-            listItem.appendChild(link);
-          } else {
-            const span = document.createElement('span');
-            span.textContent = item.text || item.title || '';
-            listItem.appendChild(span);
-          }
-          
-          list.appendChild(listItem);
-        });
-        
-        sectionElement.appendChild(list);
-      }
-      
-      sectionsContainer.appendChild(sectionElement);
-    });
-    
-    wrapper.appendChild(sectionsContainer);
-  }
-  
-  // Render standalone items if no sections
-  if ((!indexData.sections || indexData.sections.length === 0) && 
-      indexData.items && indexData.items.length > 0) {
-    const itemsContainer = document.createElement('div');
-    itemsContainer.className = 'index-items';
-    
-    const list = document.createElement('ul');
-    list.className = 'index-items-list';
-    
-    indexData.items.forEach(item => {
-      const listItem = document.createElement('li');
-      listItem.className = 'index-item';
-      
-      if (item.href) {
-        const link = document.createElement('a');
-        link.href = item.href;
-        link.textContent = item.text || item.title || '';
-        link.className = 'index-item-link';
-        if (item.target) {
-          link.target = item.target;
-        }
-        link.setAttribute('aria-label', `Navigated to: ${item.text || item.title}`);
-        listItem.appendChild(link);
-      } else {
-        const span = document.createElement('span');
-        span.textContent = item.text || item.title || '';
-        listItem.appendChild(span);
-      }
-      
-      list.appendChild(listItem);
-    });
-    
-    itemsContainer.appendChild(list);
-    wrapper.appendChild(itemsContainer);
-  }
-  
-  // Add search functionality if enabled
-  if (options.enableSearch) {
-    const searchContainer = document.createElement('div');
-    searchContainer.className = 'index-search-container';
-    
-    const searchInput = document.createElement('input');
-    searchInput.type = 'search';
-    searchInput.className = 'index-search-input';
-    searchInput.placeholder = options.searchPlaceholder || 'Search index...';
-    searchInput.setAttribute('aria-label', 'Search index items');
-    
-    searchContainer.appendChild(searchInput);
-    wrapper.insertBefore(searchContainer, wrapper.firstChild);
-  }
-  
-  container.appendChild(wrapper);
-  
-  return container;
-}
-
-// Function to render dependency graph content
-function renderDependencyGraphContent(container, options = {}) {
-  const content = dependencyGraphContent;
-  return renderDependencyGraph(content, container, options);
-}
-
-/**
- * Renders both dependency graph and index view for a module.
- * @param {string} moduleId - The module identifier
- * @param {Object} moduleData - The module data containing dependencies and exports
- * @param {HTMLElement} container - The container element
- * @returns {Object} Object containing references to rendered elements
- */
-function renderModuleView(moduleId, moduleData, container) {
-  const result = {
-    graphContainer: null,
-    indexContainer: null
-  };
-  
-  if (!container) {
-    container = document.createElement('div');
-    container.className = 'module-view-container';
-  }
-  
-  container.innerHTML = '';
-  
-  // Render dependency graph
-  const graphContainer = document.createElement('div');
-  graphContainer.id = `dependency-graph-${moduleId}`;
-  graphContainer.className = 'module-dependency-graph';
-  renderDependencyGraph(moduleData.dependencies, graphContainer);
-  container.appendChild(graphContainer);
-  result.graphContainer = graphContainer;
-  
-  // Render index view with module info
-  const indexContainer = document.createElement('div');
-  indexContainer.id = `module-index-${moduleId}`;
-  indexContainer.className = 'module-index-view';
-  
-  const indexData = {
-    title: moduleData.name || moduleId,
-    description: moduleData.description || '',
-    items: moduleData.exports ? Object.keys(moduleData.exports).map(key => ({
-      text: key,
-      href: `#export-${key}`
-    })) : [],
-    sections: [
-      {
-        title: 'Dependencies',
-        items: moduleData.dependencies ? 
-          moduleData.dependencies.nodes.map(node => ({
-            text: node.label || node.id,
-            href: `#node-${node.id}`
-          })) : []
-      }
-    ]
-  };
-  
-  renderIndexView(indexData, indexContainer);
-  container.appendChild(indexContainer);
-  result.indexContainer = indexContainer;
-  
-  return result;
-}
-
-// New function: validateTableStructure
 function validateTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
@@ -687,6 +218,7 @@ function addressAccessibilityIssue(issue, element) {
 function addressAccessibilityIssues() {
   validateTableStructure();
   validateLandmarkStructure();
+  checkHtmlLangAttribute();
   // Additional accessibility issue handling can be added here
 }
 
@@ -825,11 +357,7 @@ module.exports = {
   main,
   config,
   version,
-  calculateSum,
-  calculateProduct,
-  // New functions for rendering dependency graphs and index views
-  renderDependencyGraph,
-  renderIndexView,
-  renderDependencyGraphContent,
-  renderModuleView
+  ensureHtmlLangAttribute,
+  checkHtmlLangAttribute,
+  handleReact015
 };

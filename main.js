@@ -402,16 +402,27 @@ function checkLandmarks(container = document) {
   return results;
 }
 
+function renderDependencyGraph() {
+  // Updated existing function using the new functions for rendering graph/index
+  if (typeof DependencyGraphRenderer === 'function') {
+    const renderer = new DependencyGraphRenderer();
+    if (renderer && typeof renderer.render === 'function') {
+      return renderer.render(dependencyGraphContent);
+    }
+    return renderer;
+  }
+  if (DependencyGraphRenderer && typeof DependencyGraphRenderer.render === 'function') {
+    return DependencyGraphRenderer.render(dependencyGraphContent);
+  }
+  return dependencyGraphContent;
+}
+
 /**
  * Renders the index view of the application.
  */
 function renderIndexView() {
-  // Implement your code here.
-  // Example of creating a button in-page:
-  const button = document.createElement('button');
-  button.textContent = 'Click Me';
-  // Append the button to the body or another element as needed
-  document.body.appendChild(button);
+  // Updated existing function using new functions for rendering graph/index
+  return renderDependencyGraph();
 }
 
 /**
@@ -896,6 +907,7 @@ globalObject.checkLandmarkElement = checkLandmarkElement;
 globalObject.checkLandmarks = checkLandmarks;
 globalObject.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 globalObject.renderIndexView = renderIndexView;
+globalObject.renderDependencyGraph = renderDependencyGraph;
 // ...
 
 // Export all functions including those from both branches

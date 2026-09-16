@@ -198,6 +198,11 @@ function getSvgAccessibleName(svgElement) {
   return svgElement.textContent.trim() || '';
 }
 
+function addressAccessibilityIssueForSpecificElement(element, issue) {
+  // Placeholder implementation
+  console.log(`Addressing issue ${issue} for element:`, element);
+}
+
 // Implement the function for addressing new accessibility issues
 function addressAccessibilityIssues(report) {
   if (report) {
@@ -657,6 +662,11 @@ function formatDate(date) {
   }).format(date);
 }
 
+// Export the old function to address accessibility issues
+function addressAccessibilityIssuesOld() {
+  return 'addressing old issues';
+}
+
 /**
  * Addresses accessibility issues from an insight report.
  * @param {Array} insightReport - An array of issue objects, each with a type property indicating the issue type.
@@ -704,213 +714,61 @@ function generateId() {
   return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
 }
 
-// Placeholder function for personName referenced in accessibility issues
-function personName() {
-  return 'User';
-}
-
 // Counts the total number of dependencies in package.json
 /**
  * Counts the total number of dependencies in package.json
  * @returns {Object} An object containing counts for dependencies, devDependencies, and total
  */
-function setHtmlLangAttribute(lang) {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang || 'en';
+function countDependencies() {
+  const packagePath = path.join(__dirname, 'package.json');
+
+  try {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageJson = JSON.parse(packageContent);
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    const dependencyCount = Object.keys(dependencies).length;
+    const devDependencyCount = Object.keys(devDependencies).length;
+    
+    return {
+      dependencies: dependencyCount,
+      devDependencies: devDependencyCount,
+      total: dependencyCount + devDependencyCount
+    };
+  } catch (error) {
+    console.error('Error reading package.json:', error.message);
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      total: 0
+    };
   }
-  return lang || 'en';
 }
 
-/**
- * Validates a landmark name
- * @param {string} landmarkName - The name of the landmark to validate
- * @returns {boolean} True if the landmark is valid, false otherwise
- */
-function validateLandmark(landmarkName) {
-  if (typeof landmarkName !== 'string' || landmarkName.trim() === '') {
-    return false;
-  }
-  return true;
-}
-
-/**
- * Checks for landmark elements in the given HTML content
- * @param {string} content - HTML content to check for landmark elements
- * @returns {Object} An object containing information about landmark elements found
- */
-function checkLandmarkElements(content) {
-  const landmarkTags = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
-  const found = {};
-  
-  for (const tag of landmarkTags) {
-    const regex = new RegExp(`<${tag}[^>]*>`, 'gi');
-    const matches = content.match(regex);
-    found[tag] = matches ? matches.length : 0;
-  }
-  
-  return {
-    landmarks: found,
-    totalLandmarks: Object.values(found).reduce((a, b) => a + b, 0)
-  };
-}
-
-/**
- * Generates an SVG badge string representing the total dependency count.
- * @returns {string} An SVG badge string showing the total dependency count.
- */
-function generateDependencyBadge() {
-  const counts = countDependencies();
-  const total = counts.total;
-
-  // Simple SVG badge
-  const badgeWidth = 70;
-  const badgeHeight = 20;
-  const backgroundColor = '#4c1';
-  const textColor = '#fff';
-
-  const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="${badgeWidth}" height="${badgeHeight}">
-  <rect width="${badgeWidth}" height="${badgeHeight}" fill="${backgroundColor}" rx="3"/>
-  <text x="${badgeWidth / 2}" y="${badgeHeight / 2 + 5}" fill="${textColor}" text-anchor="middle" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="11">
-    dependencies: ${total}
-  </text>
-</svg>
-  `.trim();
-
-  return svg;
-}
-
-/**
- * Ensures that the landmarks array contains unique elements
- * @param {Array} landmarks - The array of landmarks to check for uniqueness
- * @returns {Array} The filtered array with unique landmarks
- */
-function ensureUniqueLandmarks(landmarks) {
-  const uniqueLandmarks = new Set(landmarks);
-  return Array.from(uniqueLandmarks);
-}
-
-/**
- * Processes an insight report to address accessibility issues
- * @param {Object} insightReport - The insight report containing the accessibility issues
- */
-function addressAccessibilityIssues(insightReport) {
-  // TODO: Implement actual logic to address the accessibility issues based on the insight report structure
-  // For now, we'll just log the issues for demonstration purposes
-  insightReport.issues.forEach(issue => {
-    console.log(`Accessibility issue found: ${issue.description}`);
-    // Here you would add the logic to address the issue, such as logging, fixing, etc.
-  });
-}
-
-/**
- * Checks for accessibility issues in tables within the HTML content
- * @param {string} htmlContent - The HTML content to check
- * @returns {Array} An array of accessibility issues found
- */
-function checkTableAccessibility(htmlContent) {
-  const issues = [];
-  const tableElements = htmlContent.match(/<table.*?>.*?<\/table>/g);
-  
-  if (tableElements) {
-    tableElements.forEach((table) => {
-      // Check for the presence of a caption
-      if (!/<caption.*?>.*?<\/caption>/i.test(table)) {
-        issues.push('Table without a caption found.');
-      }
-      
-      // Check for the presence of at least one header cell
-      if (!/<th.*?>.*?<\/th>/i.test(table)) {
-        issues.push('Table without a header cell found.');
-      }
-      
-      // Check for the presence of scope attribute in header cells
-      const headerCells = table.match(/<th.*?>/g);
-      if (headerCells) {
-        headerCells.forEach((headerCell) => {
-          if (!/<th.*?scope.*?>/i.test(headerCell)) {
-            issues.push('Header cell without a scope attribute found.');
-          }
-        });
-      }
+// New function to convert anchor tags to buttons with specific id and text
+function convertAnchorsToButtons() {
+  if (typeof document !== 'undefined') {
+    const anchors = document.querySelectorAll('a');
+    anchors.forEach(anchor => {
+      const button = document.createElement('button');
+      button.id = anchor.id;
+      button.type = 'button';
+      button.textContent = anchor.textContent;
+      // Copy attributes from anchor to button
+      Array.from(anchor.attributes).forEach(attr => {
+        if (attr.name !== 'id') {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+      // Replace anchor with button
+      anchor.parentNode.replaceChild(button, anchor);
     });
   }
-  
-  return issues;
 }
 
-function getLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.getAttribute('lang') || 'en';
-  }
-  return 'en';
-}
-
-function createInPageButton() {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    const lang = getLangAttribute();
-    document.documentElement.setAttribute('lang', lang);
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.setAttribute('lang', lang);
-    button.textContent = 'In page button';
-    return button;
-  }
-  return null;
-}
-
-/**
- * Renders dependency graph content
- * @param {Object} options - Options for rendering the dependency graph
- * @returns {string} The rendered dependency graph HTML
- */
-function renderDependencyGraph(options = {}) {
-  const {
-    containerId = 'dependency-graph',
-    showDevDependencies = true,
-    maxDepth = 2
-  } = options;
-  
-  const content = dependencyGraphContent || {};
-  
-  let html = `<div id="${containerId}" class="dependency-graph">`;
-  html += '<h2>Dependency Graph</h2>';
-  
-  if (content.dependencies) {
-    html += '<div class="dependencies">';
-    html += '<h3>Dependencies</h3>';
-    html += '<ul>';
-    
-    Object.keys(content.dependencies).forEach(dep => {
-      html += `<li>${dep}: ${content.dependencies[dep]}</li>`;
-    });
-    
-    html += '</ul>';
-    html += '</div>';
-  }
-  
-  html += '</div>';
-  
-  return html;
-}
-
-// Maintain the existing content from origin/main
-// ...
-
-// Make functions accessible globally for browser usage
-const globalObject = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : global);
-globalObject.setSvgAccessibilityProps = setSvgAccessibilityProps;
-globalObject.isLinkAccessible = isLinkAccessible;
-globalObject.isButtonAccessible = isButtonAccessible;
-globalObject.checkAccessibility = checkAccessibility;
-globalObject.checkLandmarkElement = checkLandmarkElement;
-globalObject.checkLandmarks = checkLandmarks;
-globalObject.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
-globalObject.renderIndexView = renderIndexView;
-globalObject.renderDependencyGraph = renderDependencyGraph;
-// ...
-
-// Export all functions including those from both branches
+// Export for use in other modules
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
@@ -924,12 +782,11 @@ module.exports = {
   addressAccessibilityIssues,
   addressAccessibilityIssueForSpecificElement,
   validateTableStructure,
-  validateTableAccessibility,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
   newAccessibilityFunction,
-  addressOldAccessibilityIssues,
+  addressAccessibilityIssuesOld,
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
@@ -949,9 +806,11 @@ module.exports = {
   addressAccessibilityIssuesFromInsightReport,
   formatDate,
   generateId,
-  personName,
   countDependencies,
   dependencyGraphContent,
-  convertAnchorsToButtons,
-  a11yStore
+  convertAnchorsToButtons
 };
+
+export { a11yStore };
+export { addressAccessibilityIssues };
+export default a11yStore;

@@ -3,146 +3,210 @@
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// TODO: Any additional changes requested in the issue
-// main.js - Accessibility improvements implementation
+// Utility functions for accessibility
+const accessibilityUtils = {
+  // Initialize skip link functionality for keyboard navigation
+  initSkipLink: () => {
+    const skipLink = document.querySelector('.skip-link, [role="navigation"] a:first-child, #skip-to-content');
+    if (skipLink) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = skipLink.getAttribute('href')?.substring(1) || skipLink.getAttribute('aria-controls');
+        const target = document.getElementById(targetId) || document.querySelector('main, [role="main"]');
+        if (target) {
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+        }
+      });
+    }
+  },
 
 // Existing code preserved here...
 
-// New function or changes requested in the issue
-function handleNewAccessibilityIssue() {
-  // Implementation for the new accessibility issue
-  console.log('New accessibility issue addressed');
-}
+    const handleTabKey = (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+    
+    element.addEventListener('keydown', handleTabKey);
+    
+    // Return cleanup function for accessibility
+    return () => {
+      element.removeEventListener('keydown', handleTabKey);
+    };
+  },
 
-function personName() {
-  return 'PersonName';
-}
+  // Announce message to screen readers
+  announceToScreenReader: (message, priority = 'polite') => {
+    // Remove any existing announcer to ensure fresh announcement
+    const existingAnnouncer = document.querySelector('[role="status"], [role="alert"], .sr-only.aria-live-announcer');
+    if (existingAnnouncer) {
+      existingAnnouncer.remove();
+    }
+    
+    const announcer = document.createElement('div');
+    announcer.setAttribute('role', priority === 'assertive' ? 'alert' : 'status');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only aria-live-announcer';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.style.width = '1px';
+    announcer.style.height = '1px';
+    announcer.style.overflow = 'hidden';
+    announcer.textContent = message;
+    
+    document.body.appendChild(announcer);
+    
+    // Force a reflow to ensure the announcement is made
+    void announcer.offsetHeight;
+    
+    // Clean up after announcement
+    setTimeout(() => {
+      if (announcer.parentNode) {
+        announcer.remove();
+      }
+    }, 1000);
+  },
 
-function validateTableAccessibility() {
-  validateTableStructure();
-}
+  // Handle keyboard navigation
+  handleKeyboardNav: (e, handlers) => {
+    const key = e.key;
+    if (handlers[key]) {
+      handlers[key](e);
+    }
+  },
 
-function createInPageButton() {
-  const button = document.createElement('button');
-  button.textContent = 'Click Me';
-  document.body.appendChild(button);
-  return button;
-}
+  // Manage focus for dynamic content updates
+  manageFocusOnUpdate: (container, previousActiveElement) => {
+    const focusableElements = container.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    } else if (previousActiveElement && previousActiveElement.focus) {
+      previousActiveElement.focus();
+    }
+  },
 
-function renderDependencyGraph() {
-  return dependencyGraphContent;
-}
+  // Ensure proper labeling for interactive elements
+  ensureLabeling: (element, label) => {
+    const existingLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
+    if (!existingLabel) {
+      element.setAttribute('aria-label', label);
+    }
+    return element;
+  },
 
-// Import dependencyGraphContent
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-// PLACEHOLDER: Add functions for ensuring element has an id
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = personName() + 15;
+  // Announce errors to screen readers
+  announceError: (errorMessage) => {
+    accessibilityUtils.announceToScreenReader(`Error: ${errorMessage}`, 'assertive');
   }
-  return element;
-}
-
-// PLACEHOLDER: Add functions for adding aria-label
-function addAriaLabel(element, label) {
-  if (!element.nativeEvent || !element.nativeEvent.isTrusted) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
-}
-
-const dependencyGraphContent = require('./dependencyGraph');
-const fs = require('fs');
-const path = require('path');
-
-// Configuration
-const CONFIG = {
-  port: process.env.PORT || 3000,
-  host: process.env.HOST || 'localhost',
-  maxRetries: 3,
-  timeout: 5000
 };
 
-// Import dependencyGraphRenderer, addressAccessibilityIssue038, personName, addressAccessibilityIssueForSpecificElement, totalDependencies, addressOldAccessibilityIssues, and dependencyGraphContent
-const DependencyGraphRenderer = require('./dependencyGraphRenderer');
-const addressAccessibilityIssue038 = require('./accessibilityFunctions').addressAccessibilityIssue038;
-// Renamed to avoid redeclaration conflicts with local placeholder functions
-const accessibilityFunctionsNewFunction = require('./accessibilityFunctions').newFunction;
-const accessibilityFunctionsAddressIssueForSpecificElement = require('./accessibilityFunctions').addressAccessibilityIssueForSpecificElement;
-const accessibilityFunctionsTotalDependencies = require('./accessibilityFunctions').totalDependencies;
-const accessibilityFunctionsAddressOldAccessibilityIssues = require('./accessibilityFunctions').addressOldAccessibilityIssues;
+// Export functionality with accessibility support
+const exportUtils = {
+  exportData: (data, filename, mimeType) => {
+    try {
+      const blob = new Blob([data], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      
+      // Ensure download link is accessible
+      link.setAttribute('aria-label', `Download ${filename}`);
+      link.setAttribute('role', 'button');
+      
+      // Handle keyboard activation
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          link.click();
+        }
+      });
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up DOM
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+      
+      // Announce download completion to screen readers
+      accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+    } catch (error) {
+      accessibilityUtils.announceError(`Failed to download ${filename}: ${error.message}`);
+      throw error;
+    }
+  },
 
-// Import a11yStore from both branches
-const a11yStore = require('./a11yStore');
+  exportToJSON: (data, filename) => {
+    try {
+      const jsonString = JSON.stringify(data, null, 2);
+      exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+    } catch (error) {
+      accessibilityUtils.announceError(`Failed to export to JSON: ${error.message}`);
+      throw error;
+    }
+  },
 
-// Address the issue: REACT_038
-const addressAccessibilityIssue038Inline = (element, accessibilityInfo) => {
-  // Code to address the specific accessibility issue on the element
-  // This is a placeholder function and should be replaced with the actual implementation
-  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
+  exportToCSV: (data, filename) => {
+    if (!data || data.length === 0) {
+      accessibilityUtils.announceError('No data available to export');
+      return;
+    }
+    
+    try {
+      const headers = Object.keys(data[0]);
+      const csvRows = [];
+      
+      // Add header row
+      csvRows.push(headers.join(','));
+      
+      for (const row of data) {
+        const values = headers.map(header => {
+          const value = row[header] === null || row[header] === undefined ? '' : row[header];
+          const escaped = ('' + value).replace(/"/g, '\\"');
+          return `"${escaped}"`;
+        });
+        csvRows.push(values.join(','));
+      }
+      
+      const csvString = csvRows.join('\n');
+      exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
+    } catch (error) {
+      accessibilityUtils.announceError(`Failed to export to CSV: ${error.message}`);
+      throw error;
+    }
+  }
 };
 
-function getLangAttribute() {
-  // Code to get the language and return it
-  // Placeholder example:
-  return 'en';
-}
-
-function getFullLangAttribute() {
-  // Code to get full localized language and return it
-  // Placeholder example:
-  return 'en-US';
-}
-
-// New function: validateTableStructure
-function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Check if table has a caption, thead, thead > tr, tbody, tfoot, th, td
-    const hasCaption = !!table.querySelector('caption');
-    const hasThead = !!table.querySelector('thead');
-    const rowsInThead = Array.from(table.querySelectorAll('thead tr'));
-    const hasTbody = !!table.querySelector('tbody');
-    const hasTfoot = !!table.querySelector('tfoot');
-    const hasTh = Array.from(table.querySelectorAll('th'));
-
-    // Check if the caption is before the thead, thead before tbody, and tbody before tfoot
-    if (hasCaption) {
-      if (table.firstChild !== table.querySelector('caption')) {
-        throw new Error('Table caption should be the first child of the table');
-      }
-    }
-    if (hasThead) {
-      if (table.firstChild !== table.querySelector('thead')) {
-        throw new Error('Thead should be before the tbody');
-      }
-    }
-    if (hasTbody && hasThead) {
-      if (table.querySelector('thead').nextSibling !== table.querySelector('tbody')) {
-        throw new Error('Tbody should be immediately after thead');
-      }
-    }
-    if (hasTfoot && hasTbody) {
-      if (table.querySelector('tbody').nextSibling !== table.querySelector('tfoot')) {
-        throw new Error('Tfoot should be immediately after tbody');
-      }
-    }
-
-    // Additional checks for consistency
-    if (rowsInThead.length > 0) {
-      rowsInThead.forEach((row, index) => {
-        if (row.querySelectorAll('th').length !== row.querySelectorAll('td').length) {
-          throw new Error(`Row ${index} in table header should have the same number of th and td`);
+// Initialize accessibility features
+const initAccessibility = () => {
+  accessibilityUtils.initSkipLink();
+  
+  // Add keyboard support for all interactive elements
+  document.addEventListener('DOMContentLoaded', () => {
+    const interactiveElements = document.querySelectorAll('[role="button"], [role="link"], a, button, input[type="submit"], input[type="button"]');
+    
+    interactiveElements.forEach((element) => {
+      element.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+            e.preventDefault();
+            element.click();
+          }
         }
       });
     }

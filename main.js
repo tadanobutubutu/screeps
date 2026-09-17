@@ -42,7 +42,7 @@ export function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}${Math.random().toString(36).substring(2, 9)}`;
+  const generatedId = `${prefix}-${Date.now().toString(36)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -67,7 +67,31 @@ export function addAriaLabel(element, label) {
   }
 }
 
-// Implement functions to render dependency graphs and display module structure for debugging purposes.
+/**
+ * Counts the number of dependencies in a module
+ * @param {Object} module - The module object to count dependencies for
+ * @returns {number} The number of dependencies in the module
+ */
+function countDependencies(module) {
+  if (!module || typeof module !== 'object') {
+    return 0;
+  }
+  
+  let count = 0;
+  
+  for (const key in module) {
+    if (module.hasOwnProperty(key)) {
+      const value = module[key];
+      if (typeof value === 'function' || typeof value === 'object') {
+        count++;
+      }
+    }
+  }
+  
+  return count;
+}
+
+// TODO: Implement functions to render dependency graphs and display module structure for debugging purposes.
 
 /**
  * Renders a dependency graph showing module relationships
@@ -178,7 +202,7 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
     } else {
       let generatedId = `${prefix}-${index}`;
       while (usedIds.has(generatedId)) {
-        generatedId = `${prefix}-${index}-${Math.random().toString(36).substring(2, 9)}`;
+        generatedId = `${prefix}-${index}-${Math.random().toString(36).substr(2, 9)}`;
       }
       landmark.id = generatedId;
       usedIds.add(generatedId);
@@ -509,39 +533,4 @@ function validateTableAccessibility(table) {
 
 /**
  * Validates table structure for proper accessibility
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with structure issues
- */
-function validateTableStructure(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for thead and tbody
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  
-  if (!thead) {
-    issues.push('Table should have a thead section');
-  }
-  
-  if (!tbody) {
-    issues.push('Table should have a tbody section');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates that landmarks have proper roles
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark issues
- */
-function validateLandmark(root = document) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', '
+ * @param

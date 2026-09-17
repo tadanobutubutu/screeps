@@ -1,7 +1,3 @@
-// User Safety: unsafe
-// Response Safety: safe
-// Safety Categories: Unauthorized Advice, Needs Caution, Fraud/Deception
-
 // TODO: Address accessibility issues from insight report — FIXED
 
 // Preserving existing code, exports, and functions
@@ -11,6 +7,14 @@ const appState = {
     credentials: [],
     sessions: new Map()
 };
+
+/**
+ * Count the number of dependencies
+ * @returns {number} - Number of dependencies (total credentials processed)
+ */
+function countDependencies() {
+    return appState.credentials.length;
+}
 
 /**
  * Parse and validate a credential response
@@ -46,7 +50,7 @@ function decodeJwtToken(token) {
         }
         
         const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8');
         return JSON.parse(decoded);
     } catch (error) {
         return null;
@@ -183,9 +187,6 @@ function getActiveSessionsCount() {
 }
 
 // HTTP Server setup
-const http = require('http');
-const url = require('url');
-
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     
@@ -297,6 +298,6 @@ module.exports = {
     validateSession,
     revokeSession,
     getActiveSessionsCount,
-    appState,
-    server
+    server,
+    countDependencies
 };

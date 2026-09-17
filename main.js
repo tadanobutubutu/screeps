@@ -509,6 +509,5 @@ module.exports = {
     sanitizeFilename,
     processData,
     personName,
-    validateTableAccessibility,
-    calculateSum
+    validateTableAccessibility
 };

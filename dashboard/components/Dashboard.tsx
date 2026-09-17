@@ -49,6 +49,11 @@ export default function Dashboard() {
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const toastMsgRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        toastMsgRef.current = toastMsg;
+    }, [toastMsg]);
 
     const startToastTimer = useCallback(() => {
         if (toastTimeoutRef.current) {
@@ -150,6 +155,16 @@ export default function Dashboard() {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && toastMsgRef.current) {
+                e.preventDefault();
+                setToastMsg(null);
+                if (toastTimeoutRef.current) {
+                    clearTimeout(toastTimeoutRef.current);
+                    toastTimeoutRef.current = null;
+                }
+                return;
+            }
+
             const isEditing =
                 e.target instanceof HTMLInputElement ||
                 e.target instanceof HTMLTextAreaElement ||
@@ -1234,6 +1249,7 @@ export default function Dashboard() {
                 <div
                     key={toastMsg}
                     aria-live="polite"
+                    aria-keyshortcuts="Escape"
                     onMouseEnter={() => setToastHovered(true)}
                     onMouseLeave={() => setToastHovered(false)}
                     onFocus={() => setToastFocused(true)}
@@ -1248,7 +1264,7 @@ export default function Dashboard() {
                         right: '2rem',
                         backgroundColor: '#004b73',
                         color: 'white',
-                        padding: '0.75rem 1.5rem 1rem 1.5rem',
+                        padding: '0.75rem 1.25rem 1rem 1.25rem',
                         borderRadius: '8px',
                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                         fontSize: '0.9rem',
@@ -1256,13 +1272,29 @@ export default function Dashboard() {
                         zIndex: 1000,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.75rem',
+                        gap: '0.6rem',
                         animation: 'bounce 0.5s ease-in-out',
                         overflow: 'hidden',
                     }}
                 >
                     <span aria-hidden="true">✨</span>
                     <span style={{ flex: 1 }}>{toastMsg}</span>
+                    <kbd
+                        aria-label="Escキーで通知を閉じます"
+                        title="Esc キーで閉じる"
+                        style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            border: '1px solid rgba(255, 255, 255, 0.4)',
+                            borderRadius: '3px',
+                            padding: '0.1rem 0.35rem',
+                            fontSize: '0.65rem',
+                            color: 'white',
+                            lineHeight: 1,
+                            userSelect: 'none',
+                        }}
+                    >
+                        Esc
+                    </kbd>
                     <button
                         onClick={() => {
                             setToastMsg(null);
@@ -1275,8 +1307,9 @@ export default function Dashboard() {
                         onBlur={() => setToastCloseFocused(false)}
                         onMouseEnter={() => setToastCloseFocused(true)}
                         onMouseLeave={() => setToastCloseFocused(false)}
-                        aria-label="通知を閉じる"
-                        title="閉じる"
+                        aria-label="通知を閉じる (Escape)"
+                        aria-keyshortcuts="Escape"
+                        title="閉じる (Escape)"
                         style={{
                             background: 'transparent',
                             border: 'none',

@@ -88,11 +88,20 @@ function sanitizeFilename(filename) {
   return filename.replace(/[^a-z0-9_.-]/gi, '_');
 }
 
-/**
- * Process data items by adding metadata
- * @param {Array} items - Items to process
- * @returns {Array} - Processed items
- */
+// TODO: Add back any required exports that might have been removed
+// Example of how to export a required function from another file
+const { generateId, isValidEmail } = require('./otherFile');
+
+function readFileSafe(filePath) {
+  try {
+    return fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    log(`Error reading file ${filePath}: ${error.message}`, 'error');
+    return null;
+  }
+}
+
+// Existing data processing functions
 function processData(items) {
     if (!Array.isArray(items)) {
         return [];
@@ -390,5 +399,6 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   calculateSum,
-  createInPageButton
+  generateId,
+  isValidEmail
 };

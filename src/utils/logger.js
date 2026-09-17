@@ -210,6 +210,9 @@ function _safeStringify(data) {
             str = `[Unserializable Data: ${err && err.message ? err.message : String(err)}]`;
         }
     }
+    if (typeof str !== 'string') {
+        str = typeof data === 'function' ? '[Function]' : String(data ?? '');
+    }
     return str.substring(0, MAX_LOG_MESSAGE_LENGTH);
 }
 

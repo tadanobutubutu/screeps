@@ -15,7 +15,7 @@ const debounce = require('./main').debounce;
 const throttle = require('./main').throttle;
 
 // Additional utility functions for accessibility
-let language = navigator.language || navigator.userLanguage;
+// (Implementation added below for the new function)
 
 function getLangAttribute() {
   return language;
@@ -115,6 +115,19 @@ function removeAttribute() {
   // ...
 }
 
+// TODO: Implement this function for creating in-page buttons
+function createInPageButtons(selector, content) {
+  // select elements based on the provided selector
+  const elements = document.querySelectorAll(selector);
+
+  // iterate through the selected elements and add the content as a button
+  elements.forEach(element => {
+    const newButton = document.createElement('button');
+    newButton.textContent = content;
+    element.appendChild(newButton);
+  });
+}
+
 // Export functions
 module.exports = {
   formatDate,
@@ -130,18 +143,5 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
-  getElementById,
-  getElementsByClassName,
-  querySelector,
-  querySelectorAll,
-  createElement,
-  appendChild,
-  removeChild,
-  addEventListener,
-  removeEventListener,
-  setAttribute,
-  getAttribute,
-  hasAttribute,
-  removeAttribute,
-  // ... any other relevant functions extracted from the conflicting code base
+  createInPageButtons // Add the new function here
 };

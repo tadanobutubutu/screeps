@@ -10,3 +10,7 @@ Additionally, combining these checks before calling `room.lookForAt` short-circu
 ## 2026-08-03 - Bitpacked Integer Set Encoding for Screeps Grid Coordinates
 **Learning:** In 50x50 Screeps grid coordinate lookups (e.g. `findNearestOpenTile`), formatting string keys (`${x},${y}`) for `Set` lookups inside loops creates string object allocations on every evaluated tile and structure/creep result. Replacing string formatting with bitpacked integer formulas (`x * 50 + y`) stores fast primitive integers in the `Set`, providing O(1) lookups while completely eliminating heap string allocation and GC pressure.
 **Action:** Use `x * 50 + y` integer encoding instead of string template formatting (`${x},${y}`) when building coordinate sets in Screeps room/pathfinding utility functions.
+
+## 2026-08-04 - Pre-calculating Distance Map in Array Sorting
+**Learning:** In Screeps position array sorting routines (`sortByDistance`), invoking method calls (`origin.getRangeTo(item)`) directly inside `Array.prototype.sort()` comparator callback evaluates distances O(N log N) times (2 calls per comparison). Pre-mapping distance values into a temporary decorated array before sorting reduces distance method evaluations to O(N) (exactly 1 call per object).
+**Action:** When sorting Screeps entities by distance or property calculations, map objects to `{ obj, dist }` first, sort by `dist`, and unmap to eliminate redundant method/property evaluations.

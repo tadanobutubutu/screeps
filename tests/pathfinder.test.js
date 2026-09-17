@@ -144,4 +144,35 @@ describe('pathfinder', () => {
             expect(result).toBeNull();
         });
     });
+
+    describe('sortByDistance', () => {
+        test('距離の昇順でオブジェクトをソートする', () => {
+            const pos = {
+                x: 25,
+                y: 25,
+                getRangeTo: jest.fn((target) => {
+                    if (target.id === 'far') return 10;
+                    if (target.id === 'near') return 2;
+                    if (target.id === 'mid') return 5;
+                    return 0;
+                }),
+            };
+            const objects = [
+                { id: 'far', x: 35, y: 35 },
+                { id: 'near', x: 26, y: 26 },
+                { id: 'mid', x: 28, y: 28 },
+            ];
+
+            const sorted = pathfinder.sortByDistance(pos, objects);
+
+            expect(sorted.map((o) => o.id)).toEqual(['near', 'mid', 'far']);
+            // Verify O(N) getRangeTo evaluation: called exactly once per object (3 times total)
+            expect(pos.getRangeTo).toHaveBeenCalledTimes(3);
+        });
+
+        test('空配列または無効な入力の場合は安全にハンドリングする', () => {
+            expect(pathfinder.sortByDistance(null, [])).toEqual([]);
+            expect(pathfinder.sortByDistance({ x: 0 }, [{ id: 'a' }])).toEqual([{ id: 'a' }]);
+        });
+    });
 });

@@ -136,14 +136,135 @@ function validateTableStructure(table) {
   if (!table) {
     throw new Error('Table is required');
   }
-  
-  // Check for caption or aria-labelledby for table context
-  const hasCaption = table.querySelector('caption') !== null;
-  const hasAriaLabelledby = table.getAttribute('aria-labelledby') !== null;
-  const hasAriaLabel = table.getAttribute('aria-label') !== null;
-  
-  if (!hasCaption && !hasAriaLabelledby && !hasAriaLabel) {
-    return false;
+};
+
+function sanitizeFilename(filename) {
+  // ... (existing code)
+}
+
+/**
+ * Add landmark roles to elements to improve navigation support.
+ * Addresses REACT_017: Add landmark roles and fix landmark issues.
+ * @param {HTMLElement} container - The container element to process
+ */
+function addLandmarkRoles(container) {
+  if (!container) return;
+  const roleMap = {
+    'header': 'banner',
+    'footer': 'contentinfo',
+    'main': 'main',
+    'nav': 'navigation',
+    'aside': 'complementary'
+  };
+  Object.keys(roleMap).forEach(key => {
+    const elements = container.querySelectorAll(`[id="${key}"], .${key}`);
+    elements.forEach(el => {
+      if (!el.getAttribute('role')) {
+        el.setAttribute('role', roleMap[key]);
+      }
+    });
+  });
+}
+
+/**
+ * Ensure all landmark elements have unique accessible names to avoid ambiguity.
+ * Addresses REACT_025: Ensure unique landmarks (2 issues).
+ * @param {HTMLElement} container - The container element to process
+ */
+function ensureUniqueLandmarks(container) {
+  if (!container) return;
+  const landmarkSelectors = '[role="banner"], [role="contentinfo"], [role="main"], [role="navigation"], [role="complementary"], [role="region"], [role="search"]';
+  const landmarks = container.querySelectorAll(landmarkSelectors);
+  const seenNames = {};
+  landmarks.forEach(landmark => {
+    let name = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || landmark.textContent.trim();
+    if (!name) {
+      name = 'Landmark';
+    }
+    if (seenNames[name]) {
+      let uniqueName = name;
+      let counter = 1;
+      while (seenNames[uniqueName]) {
+        counter++;
+        uniqueName = `${name} (${counter})`;
+      }
+      landmark.setAttribute('aria-label', uniqueName);
+      seenNames[uniqueName] = true;
+    } else {
+      seenNames[name] = true;
+    }
+  });
+}
+
+/**
+ * Validate an existing session
+ * @param {string} sessionId - The session ID to validate
+ * @returns {Object|null} - Session data if valid, null otherwise
+ */
+function validateSession(sessionId) {
+    const session = appState.sessions.get(sessionId);
+    
+    if (!session) {
+        return null;
+    }
+
+    // Check session expiration (24 hours)
+    const expirationTime = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    
+    if (now - session.authenticatedAt > expirationTime) {
+        appState.sessions.delete(sessionId);
+        return null;
+    }
+
+    return session;
+}
+
+function readFileSafe(filePath) {
+  // ... (existing code)
+}
+
+// Existing data processing functions
+function processData(items) {
+  // ... (existing code)
+}
+
+function filterValidItems(items, validator) {
+  // ... (existing code)
+}
+
+// Initialize accessibility features
+const initAccessibility = () => {
+  // ... (existing code);
+};
+
+function groupByCategory(items, getCategory) {
+  // ... (existing code)
+};
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+
+_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
+// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+
+// TODO: Implement the new function as per the issue requirements
+function transformInputData(inputData, options = {}) {
+  const {
+    preserveKeys = true,
+    uppercase = false,
+    trimWhitespace = true,
+    maxLength = null
+  } = options;
+
+  if (!inputData) {
+    return null;
   }
   
   // Check for proper header structure (th elements)
@@ -326,8 +447,25 @@ module.exports = {
     decodeJwtToken,
     generateSessionId,
     validateTableStructure,
+    addLandmarkRoles,
+    ensureUniqueLandmarks,
     validateSession,
-    revokeSession,
-    getActiveSessionsCount,
-    server
+    accessibilityUtils,
+    exportUtils,
+    initAccessibility,
+    ensureElementId,
+    addAriaLabel,
+    renderDependencyGraph,
+    calculateSum,
+    function3,
+    newFocusTrap,
+    validateTableAccessibility,
+    transformInputData,
+    addressAccessibilityIssuesFromInsightReport,
+    readFileSafe,
+    processData,
+    filterValidItems,
+    groupByCategory,
+    log,
+    sanitizeFilename
 };

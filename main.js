@@ -52,3 +52,6 @@ module.exports = {
   validateTableStructure,
   // ... any other relevant functions extracted from the conflicting code base
 };
+
+// Add a language attribute to the HTML element
+document.documentElement.setAttribute('lang', 'en');

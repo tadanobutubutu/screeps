@@ -376,7 +376,7 @@ export function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Math.floor(Math.random() * 900000) + 100000}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -416,15 +416,13 @@ function setLanguageAttribute(languageCode) {
 // Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
 // Adds an aria-label to the dependencyGraph container if it doesn't already have one
 function addDepGraphAriaLabel() {
-  const container = document.getElementById('dependencyGraph');
-  if (container) {
-    addAriaLabel(container, 'Dependency Graph');
-  }
+  const container = document.querySelector('#dependencyGraph');
+  addAriaLabel(container, 'Dependency Graph');
 }
 
 // Fixes 26 table structure issues for accessibility
 // Ensures tables have proper headers, captions, and scope attributes
-function fixTableStructureAccessibility() {
+function fixTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     // Add caption if missing
@@ -502,4 +500,39 @@ export function ensureUniqueLandmarks() {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     // Keep the first <main> and convert others to <section> or <div>
-    for (let
+    for (let i = 1; i < mainElements.length; i++) {
+      const extraMain = mainElements[i];
+      const section = document.createElement('section');
+      section.setAttribute('role', 'region');
+      while (extraMain.firstChild) {
+        section.appendChild(extraMain.firstChild);
+      }
+      extraMain.parentNode.replaceChild(section, extraMain);
+    }
+  }
+}
+
+// Fixes fake link issues (e.g., divs/buttons styled as links but not using <a>)
+// Replaces fake links with proper anchor elements
+function fixFakeLinkIssue() {
+  const fakeLinks = document.querySelectorAll('.fake-link, [data-fake-link]');
+  fakeLinks.forEach((fakeLink) => {
+    const href = fakeLink.getAttribute('data-href') || fakeLink.getAttribute('href') || '#';
+    const text = fakeLink.textContent;
+    const anchor = document.createElement('a');
+    anchor.setAttribute('href', href);
+    anchor.textContent = text;
+    // Copy relevant attributes
+    const classes = fakeLink.getAttribute('class');
+    if (classes) {
+      anchor.setAttribute('class', classes);
+    }
+    const id = fakeLink.getAttribute('id');
+    if (id) {
+      anchor.setAttribute('id', id);
+    }
+    fakeLink.parentNode.replaceChild(anchor, fakeLink);
+  });
+}
+
+// ... (Preserve the existing code that needs to be preserved)

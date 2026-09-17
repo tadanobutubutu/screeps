@@ -32,8 +32,7 @@ export function validateEmail(email) {
   return emailRegex.test(email);
 }
 
-// 47: Implement function for addressing accessibility issues from insight report
-export const addressAccessibilityIssues = (insightReport) => {
+const addressAccessibilityIssues = (insightReport) => {
   const recommendations = [];
   
   if (!insightReport || !insightReport.accessibility || !insightReport.accessibility.issues) {

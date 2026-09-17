@@ -48,7 +48,7 @@ export function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
+  const generatedId = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -184,7 +184,7 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
     } else {
       let generatedId = `${prefix}-${index}`;
       while (usedIds.has(generatedId)) {
-        generatedId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
+        generatedId = `${prefix}-${index}-${Math.random().toString(36).substr(2, 9)}`;
       }
       landmark.id = generatedId;
       usedIds.add(generatedId);
@@ -209,8 +209,8 @@ setLanguageAttribute('en');
 
 // Simple interactive page with content rotation functionality
 function initApp() {
-  const container = document.getElementById('container') || document.createElement('div');
-
+  const container = document.getElementById('container');
+  
   // Create heading
   const h1 = ...
   h1.textContent = 'My Page';
@@ -319,60 +319,6 @@ function function3() {
   return 'function3';
 }
 
-/**
- * Creates an accessible in-page button with proper ARIA attributes
- * @param {string} text - Button text
- * @param {Function} onClick - Click handler
- * @returns {HTMLButtonElement} The created button element
- */
-export function createInPageButton(text, onClick) {
-  const button = document.createElement('button');
-  button.textContent = text;
-  button.type = 'button';
-
-  // Ensure button has an accessible name
-  if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
-    throw new Error('Button must have either text content or aria-label');
-  }
-  
-  if (onClick) {
-    button.addEventListener('click', onClick);
-  }
-  
-  return button;
-}
-
-/**
- * Validates table accessibility requirements
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with issues array
- */
-function validateTableAccessibility(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push('Table should have a caption for accessibility');
-  }
-  
-  // Check for th elements with scope or headers
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push('Table should have header cells (th) for accessibility');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates table structure for proper accessibility
- * @param {HTMLTableElement} table - The table to validate
- *
+// Helper functions for functionC
+function functionXc() {
+  return 'functionX

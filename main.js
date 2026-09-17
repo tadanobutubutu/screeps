@@ -36,7 +36,7 @@ export function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = ... 9)}`;
+  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -50,7 +50,12 @@ export function anotherFunction() {
 //<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// Address accessibility issues from insight report
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (handled by addProperLandmarkRegions())
 
 /**
  * Adds an aria-label to the element if it doesn't already have one
@@ -143,8 +148,8 @@ function displayModuleStructure(modules = {}) {
  * Sets the lang attribute on the HTML element based on the page content
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
-export function setLanguageAttribute(languageCode) {
-  const htmlElement = ...
+function setLanguageAttribute(languageCode) {
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     ... languageCode);
   }
@@ -154,8 +159,8 @@ export function setLanguageAttribute(languageCode) {
  * Gets the lang attribute from the HTML element
  * @returns {string|null} The language code or null if not set
  */
-export function getLangAttribute() {
-  const htmlElement = ...
+function getLangAttribute() {
+  const htmlElement = document.documentElement;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
@@ -240,7 +245,7 @@ export function loop() {
     let creep = Game.creeps[name];
     if (creep.memory.role === 'harvester') {
       if (creep.store.getFreeCapacity() > 0) {
-        let source = ...
+        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
         if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source);
         }
@@ -283,4 +288,35 @@ export function createInPageButton(text, onClick) {
   button.type = 'button';
   
   // Ensure button has an accessible name
-  if ... && !button
+  if (!button.textContent || !button.textContent.trim()) {
+    throw new Error('Button must have either text content or aria-label');
+  }
+  
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
+}
+
+/**
+ * Validates table accessibility requirements
+ * @param {HTMLTableElement} table - The table to validate
+ * @returns {Object} Validation result with issues array
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { valid: false, issues: ['Table element is required'] };
+  }
+  
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push('Table should have a caption for accessibility');
+  }
+  
+  // Check for th elements with scope or headers
+  const headers = table.querySelectorAll('th');
+  if (

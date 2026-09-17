@@ -1,3 +1,5 @@
+// Addressed accessibility issues as per insight report
+
 // Import render functions
 const renderHeader = require('./renderHeader');
 const renderFooter = require('./renderFooter');

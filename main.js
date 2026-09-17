@@ -47,7 +47,7 @@ function addSvgAccessibilityProps(props) {
   };
 }
 
-// Accessibility issues from insight report — FIXED
+// TODO: Add implementation details
 
 // Preserving existing code, exports, and functions
 

@@ -233,7 +233,13 @@ export const functionA = {
 };
 
 // TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-export function renderDependencyGraph(modules) {
+function renderDependencyGraph(modules) {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  const container = document.getElementById('dependencyGraph');
+  if (container) {
+    container.setAttribute('role', 'group');
+  }
+
   // Future implementation could traverse and log module dependencies
   console.log('Rendering dependency graph for modules:', modules);
   return {};

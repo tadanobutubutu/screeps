@@ -211,46 +211,32 @@ export const generateInsightReport = async (options) => {
   }
 };
 
-// New function to ensure dependencyGraph container has proper ARIA role
-export const ensureDependencyGraphARIA = (containerElement, role = 'region') => {
-  if (!containerElement || typeof containerElement !== 'object') {
-    return false;
-  }
+const addLangAttribute = (htmlElement) => {
+  if (!htmlElement) return;
 
-  // Set the ARIA role if not already present
-  if (!containerElement.getAttribute('role')) {
-    containerElement.setAttribute('role', role);
+  // Check if lang attribute is already set
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
   }
-
-  // Ensure the container has an accessible label
-  if (!containerElement.getAttribute('aria-label') && !containerElement.getAttribute('aria-labelledby')) {
-    containerElement.setAttribute('aria-label', 'Dependency Graph');
-  }
-
-  return true;
 };
 
-// Export a helper function to process accessibility recommendations
-export const processAccessibilityRecommendations = (insightReport) => {
-  const recommendations = addressAccessibilityIssues(insightReport);
-  const ariaRecommendations = [];
-
-  // Check for dependencyGraph specific issues
-  const dependencyGraphIssues = recommendations.filter(rec => 
-    rec.toLowerCase().includes('dependencygraph') || rec.toLowerCase().includes('dependency graph')
-  );
-
-  if (dependencyGraphIssues.length > 0) {
-    ariaRecommendations.push({
-      type: 'aria-role',
-      element: 'dependencyGraph',
-      recommendation: 'Ensure the dependencyGraph container has a proper ARIA role',
-      suggestedRole: 'region'
-    });
+// Function to add lang attribute to HTML element in the DOM
+const applyLangAttributeToHTML = () => {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    addLangAttribute(htmlElement);
   }
+};
 
-  return {
-    generalRecommendations: recommendations,
-    ariaSpecific: ariaRecommendations
-  };
+// Function to address other accessibility changes as per the insight report
+const addressAdditionalAccessibilityChanges = (insightReport) => {
+  // Placeholder for additional accessibility changes based on the insight report
+  // This is where you would add the code to address other issues as identified in the report.
+};
+
+module.exports = {
+  generateInsightReport,
+  addressAccessibilityIssues,
+  applyLangAttributeToHTML,
+  addressAdditionalAccessibilityChanges
 };

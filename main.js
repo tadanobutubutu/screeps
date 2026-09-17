@@ -309,7 +309,7 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
         ids.push(landmark.id);
       }
     } else {
-      let generatedId = `${prefix}-${index}`;
+      let generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
       while (usedIds.has(generatedId)) {
         generatedId = `${prefix}-${Math.floor(Math.random() * 900000) + 100000}`;
       }
@@ -532,7 +532,9 @@ function fixFakeLinkIssue() {
       anchor.setAttribute('id', id);
     }
     fakeLink.parentNode.replaceChild(anchor, fakeLink);
-  });
+  );
 }
 
 // ... (Preserve the existing code that needs to be preserved)
+
+export { ensureElementHasId, addAriaLabel, setLanguageAttribute };

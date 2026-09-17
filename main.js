@@ -36,7 +36,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}`;
+  const generatedId = `${prefix}_${Date.now().toString(36)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -59,24 +59,29 @@ function addLangAttribute(element, lang) {
   }
 }
 
-function fixTableStructureIssues(table) {
-  if (table && typeof table.querySelectorAll === 'function') {
-    const headers = table.querySelectorAll('th');
-    headers.forEach(function (th) {
-      if (!th.hasAttribute('scope')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
+// TODO: Implement functions to render dependency graphs and display module structure for debugging purposes.
+
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
+
+/**
+ * Sets the lang attribute on the HTML element based on the page content
+ * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
+ */
+function setLanguageAttribute(languageCode) {
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', languageCode);
   }
 }
 
-function addMainLandmark() {
-  if (typeof document !== 'undefined' && document.querySelector) {
-    if (!document.querySelector('main')) {
-      const mainEl = document.createElement('main');
-      document.body.appendChild(mainEl);
-    }
-  }
+/**
+ * Gets the lang attribute from the HTML element
+ * @returns {string|null} The language code or null if not set
+ */
+function getLangAttribute() {
+  const htmlElement = document.documentElement;
+  return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
 function addSvgAccessibleNames(svg) {
@@ -176,11 +181,27 @@ function myFunction(arg1, arg2) {
   }
 }
 
-// Existing code preserved
-
-// Add lang attribute to HTML element
-function getLangAttribute() {
-  // Implementation for getting the lang attribute
+/**
+ * Creates an accessible in-page button with proper ARIA attributes
+ * @param {string} text - Button text
+ * @param {Function} onClick - Click handler
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, onClick) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.type = 'button';
+  
+  // Ensure button has an accessible name
+  if (!button.textContent || !button.textContent.trim()) {
+    throw new Error('Button must have either text content or aria-label');
+  }
+  
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
 }
 
 function createInPageButton() {
@@ -206,3 +227,28 @@ function validateTableStructure(table) {
   if (!thead) {
     issues.push('Table should have a thead section');
   }
+  
+  if (!tbody) {
+    issues.push('Table should have a tbody section');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates that landmarks have proper roles
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} Validation result with landmark issues
+ */
+function validateLandmark(root = document) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
+  
+  // Check for main landmark
+  const mainElements = root.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    issues.push('Page should have at least one main landmark');
+  } else if (

@@ -66,7 +66,7 @@ const throttle = (func, limit) => {
   };
 };
 
-// Additional utility functions for accessibility
+// ADD Accessibility Functions
 function getLangAttribute() {
   // Implementation for REACT_015: Add lang attribute to HTML element
   // Returns the language attribute from the document's HTML element

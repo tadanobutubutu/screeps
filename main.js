@@ -6,13 +6,7 @@ import './table-styles.css';
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
 
-// Accessibility issues from insight report addressed:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// This is a simple utility library with added dependency graph rendering and module structure display functionalities, bot logic for Screeps and functions to ensure the element has an id and add an aria-label.
 
 // This is a simple utility library with added dependency graph rendering and module structure display functionalities, bot logic for Screeps and functions to ensure the element has an id and add an aria-label.
 
@@ -48,7 +42,7 @@ export function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Date.now().toString(36)}${Math.random().toString(36).substring(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -184,7 +178,7 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
     } else {
       let generatedId = `${prefix}-${index}`;
       while (usedIds.has(generatedId)) {
-        generatedId = `${prefix}-${index}-${Math.random().toString(36).substr(2, 9)}`;
+        generatedId = `${prefix}-${index}-${Math.random().toString(36).substring(2, 9)}`;
       }
       landmark.id = generatedId;
       usedIds.add(generatedId);
@@ -209,29 +203,34 @@ setLanguageAttribute('en');
 
 // Simple interactive page with content rotation functionality
 function initApp() {
-  const container = document.getElementById('container');
+  const container = document.getElementById('app');
+  if (!container) {
+    return;
+  }
   
   // Create heading
   const h1 = ...
   h1.textContent = 'My Page';
   h1.id = 'title';
+  ensureElementHasId(h1, 'heading');
+  container.appendChild(h1);
 
   // Create content area
   const content = ...
   content.id = 'content';
+  content.setAttribute('role', 'main');
   content.style.transition = 'transform 0.3s ease';
   content.style.transformOrigin = 'center center';
   container.appendChild(content);
 
   // Create button for rotating back (FIXED: changed from <a href="#"> to <button>)
-  const unrotateBtn = document.createElement('button');
-  unrotateBtn.id = 'unrotate';
-  unrotateBtn.textContent = 'rotate back';
-  unrotateBtn.setAttribute('aria-label', 'Rotate content back to original position');
-  ... function(e) {
+  const unrotateBtn = createInPageButton('rotate back', function(e) {
     e.preventDefault();
     content.style.transform = 'rotate(0deg)';
   });
+  unrotateBtn.id = 'unrotate';
+  unrotateBtn.setAttribute('aria-label', 'Rotate content back to original position');
+  container.appendChild(unrotateBtn);
 
   // Call the dependency graph rendering utility
   renderDependencyGraph();
@@ -394,9 +393,12 @@ export function add(a, b) {
 }
 
 // Helper functions for functionA
-export function functionX() { return 'functionX'; }
-export function functionY() { return 'functionY'; }
-export function functionZ() { return 'functionZ'; }
+function functionX() { return 'functionX'; }
+function functionY() { return 'functionY'; }
+function functionZ() { return 'functionZ'; }
+
+// TODO: This is the existing code that needs to be preserved
+// (This should be preserved)
 
 // TODO: Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
@@ -452,9 +454,27 @@ export function function2() {
   return 'function2';
 }
 
-// TODO: Implement new function3 logic here
-function function3() {
-  return 'function3';
+/**
+ * Creates an accessible in-page button with proper ARIA attributes
+ * @param {string} text - Button text
+ * @param {Function} onClick - Click handler
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, onClick) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.type = 'button';
+  
+  // Ensure button has an accessible name
+  if (!text && !button.getAttribute('aria-label')) {
+    throw new Error('Button must have either text content or aria-label');
+  }
+  
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
 }
 
 /**
@@ -524,52 +544,4 @@ function validateTableStructure(table) {
  */
 function validateLandmark(root = document) {
   const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
-  
-  // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page should have only one footer landmark');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-// Existing placeholder functions for function1 and function2 (referenced in exports)
-function function1() {
-  return 'function1';
-}
-
-function function2() {
-  return 'function2';
-}
-
-module.exports = {
-  ensureElementHasId,
-  addAriaLabel,
-  setLanguageAttribute,
-  ensureUniqueLandmarks,
-  initApp,
-  displayModuleStructure,
-  renderIndexView,
-  functionA,
-  functionB,
-  loop
-};
+  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', '

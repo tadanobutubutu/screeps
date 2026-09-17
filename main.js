@@ -376,7 +376,7 @@ export function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Math.floor(Math.random() * 900000) + 100000}`;
+  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -404,7 +404,7 @@ export function addAriaLabel(element, label) {
  * Sets the lang attribute on the HTML element based on the page content
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
-export function setLanguageAttribute(languageCode) {
+function setLanguageAttribute(languageCode) {
   const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', languageCode);
@@ -415,27 +415,30 @@ export function setLanguageAttribute(languageCode) {
 
 // Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
 // Adds an aria-label to the dependencyGraph container if it doesn't already have one
-export function addDepGraphAriaLabel() {
-  const container = document.querySelector('[data-dependency-graph]') || document.getElementById('dependencyGraph');
-  addAriaLabel(container, 'Dependency Graph');
+function addDepGraphAriaLabel() {
+  const container = document.getElementById('dependencyGraph');
+  if (container) {
+    addAriaLabel(container, 'Dependency Graph');
+  }
 }
 
 // Fixes 26 table structure issues for accessibility
 // Ensures tables have proper headers, captions, and scope attributes
-export function fixTableAccessibility() {
+function fixTableStructureAccessibility() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     // Add caption if missing
     if (!table.querySelector('caption')) {
       const caption = document.createElement('caption');
       caption.textContent = table.getAttribute('aria-label') || 'Data table';
+      caption.style.caption-side = 'top';
       table.prepend(caption);
     }
 
     // Ensure proper header structure with scope attributes
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach((th) => {
-      if (!th.hasAttribute('scope')) {
+      if (!th.getAttribute('scope')) {
         // Determine scope based on position
         const parent = th.parentElement;
         const isInThead = parent && parent.tagName === 'THEAD';
@@ -499,39 +502,4 @@ export function ensureUniqueLandmarks() {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     // Keep the first <main> and convert others to <section> or <div>
-    for (let i = 1; i < mainElements.length; i++) {
-      const extraMain = mainElements[i];
-      const section = document.createElement('section');
-      section.setAttribute('role', 'region');
-      while (extraMain.firstChild) {
-        section.appendChild(extraMain.firstChild);
-      }
-    }
-    titleEl.textContent = name || '';
-  }
-}
-
-// Fixes fake link issues (e.g., divs/buttons styled as links but not using <a>)
-// Replaces fake links with proper anchor elements
-export function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('.fake-link, [data-fake-link]');
-  fakeLinks.forEach((fakeLink) => {
-    const href = fakeLink.getAttribute('data-href') || fakeLink.getAttribute('href') || '#';
-    const text = fakeLink.textContent;
-    const anchor = document.createElement('a');
-    anchor.setAttribute('href', href);
-    anchor.textContent = text;
-    // Copy relevant attributes
-    const classes = fakeLink.getAttribute('class');
-    if (classes) {
-      anchor.setAttribute('class', classes);
-    }
-    const id = fakeLink.getAttribute('id');
-    if (id) {
-      anchor.setAttribute('id', id);
-    }
-    fakeLink.parentNode.replaceChild(anchor, fakeLink);
-  });
-}
-
-// ... (Preserve the existing code that needs to be preserved)
+    for (let

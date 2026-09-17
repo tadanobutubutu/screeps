@@ -232,308 +232,31 @@ function getLangAttribute() {
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
-// Default language setting
-setLanguageAttribute('en');
-
-// Simple interactive page with content rotation functionality
-function initApp() {
-  const container = document.getElementById('app');
-  if (!container) {
-    return;
-  }
-  
-  // Create heading
-  const h1 = ...
-  h1.textContent = 'My Page';
-  h1.id = 'title';
-  ensureElementHasId(h1, 'heading');
-  container.appendChild(h1);
-
-  // Create content area
-  const content = ...
-  content.id = 'content';
-  content.setAttribute('role', 'main');
-  content.style.transition = 'transform 0.3s ease';
-  content.style.transformOrigin = 'center center';
-  container.appendChild(content);
-
-  // Create button for rotating back (FIXED: changed from <a href="#"> to <button>)
-  const unrotateBtn = createInPageButton('rotate back', function(e) {
-    e.preventDefault();
-    content.style.transform = 'rotate(0deg)';
-  });
-  unrotateBtn.id = 'unrotate';
-  unrotateBtn.setAttribute('aria-label', 'Rotate content back to original position');
-  container.appendChild(unrotateBtn);
-
-  // Call the dependency graph rendering utility
-  renderDependencyGraph();
-}
-
-// Placeholder for module structure display utility.
-// Helps developers understand the current structure of loaded modules.
-export function displayModuleStructure(modules) {
-  // Future implementation could format and print module hierarchy
-  console.log('Displaying module structure for modules:', modules);
-  return {};
-}
-
-// TODO: Implement renderIndexView functionality
-// Placeholder for now, replace with actual implementation
 /**
- * Renders the index view of the application
- * @param {HTMLElement} container - The container element to render the index view into
- * @param {Object} options - Configuration options for the index view
- * @returns {HTMLElement} The rendered index view element
+ * Validates landmark structure for proper accessibility
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} Validation result with structure issues
  */
-function renderIndexView(container, options = {}) {
-  if (!container) {
-    throw new Error('Container element is required for renderIndexView');
-  }
-
-  const {
-    title = 'Welcome',
-    description = 'This is the index view',
-    showNavigation = true,
-    modules = []
-  } = options;
-
-  // Clear the container
-  container.innerHTML = '';
-
-  // Create main section for the index view
-  const mainSection = document.createElement('main');
-  mainSection.id = 'index-view';
-  mainSection.setAttribute('role', 'main');
-  ensureElementHasId(mainSection, 'index-view');
-
-  // Create header section
-  const header = document.createElement('header');
-  header.setAttribute('role', 'banner');
-  
-  const heading = document.createElement('h1');
-  heading.textContent = title;
-  heading.id = 'index-title';
-  header.appendChild(heading);
-
-  if (description) {
-    const desc = document.createElement('p');
-    desc.textContent = description;
-    desc.id = 'index-description';
-    header.appendChild(desc);
-  }
-
-  mainSection.appendChild(header);
-
-  // Create navigation if enabled
-  if (showNavigation) {
-    const nav = document.createElement('nav');
-    nav.setAttribute('role', 'navigation');
-    nav.setAttribute('aria-label', 'Main navigation');
-    
-    const ul = document.createElement('ul');
-    ul.style.listStyle = 'none';
-    ul.style.padding = '0';
-    ul.style.display = 'flex';
-    ul.style.gap = '1rem';
-    ul.style.flexWrap = 'wrap';
-
-    const navItems = [
-      { href: '#home', label: 'Home' },
-      { href: '#modules', label: 'Modules' },
-      { href: '#dependency-graph', label: 'Dependency Graph' },
-      { href: '#about', label: 'About' }
-    ];
-
-    navItems.forEach(item => {
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      a.href = item.href;
-      a.textContent = item.label;
-      a.style.textDecoration = 'none';
-      a.style.color = '#0066cc';
-      li.appendChild(a);
-      ul.appendChild(li);
-    });
-
-    nav.appendChild(ul);
-    mainSection.appendChild(nav);
-  }
-
-  // Create modules section if modules are provided
-  if (modules && modules.length > 0) {
-    const modulesSection = document.createElement('section');
-    modulesSection.setAttribute('aria-labelledby', 'modules-heading');
-    
-    const modulesHeading = document.createElement('h2');
-    modulesHeading.id = 'modules-heading';
-    modulesHeading.textContent = 'Loaded Modules';
-    modulesSection.appendChild(modulesHeading);
-
-    const modulesList = document.createElement('ul');
-    modulesList.style.listStyle = 'none';
-    modulesList.style.padding = '0';
-
-    modules.forEach(module => {
-      const li = document.createElement('li');
-      li.style.marginBottom = '0.5rem';
-      li.style.padding = '0.5rem';
-      li.style.backgroundColor = '#f5f5f5';
-      li.style.borderRadius = '4px';
-      
-      const moduleName = document.createElement('strong');
-      moduleName.textContent = module.name || 'Unnamed Module';
-      li.appendChild(moduleName);
-
-      if (module.description) {
-        const desc = document.createElement('span');
-        desc.textContent = ` - ${module.description}`;
-        desc.style.color = '#666';
-        li.appendChild(desc);
-      }
-
-      modulesList.appendChild(li);
-    });
-
-    modulesSection.appendChild(modulesList);
-    mainSection.appendChild(modulesSection);
-  }
-
-  // Create footer
-  const footer = document.createElement('footer');
-  footer.setAttribute('role', 'contentinfo');
-  footer.style.marginTop = '2rem';
-  footer.style.paddingTop = '1rem';
-  footer.style.borderTop = '1px solid #ddd';
-  footer.style.textAlign = 'center';
-  footer.style.color = '#666';
-  footer.textContent = `© ${new Date().getFullYear()} Application Index View`;
-  mainSection.appendChild(footer);
-
-  // Append to container
-  container.appendChild(mainSection);
-
-  return mainSection;
-}
-
-// Function to reset body rotation
-export function resetRotation() {
-  document.body.style.transform = 'rotate(0deg)';
-  document.body.style.transition = 'transform 0.3s ease';
-}
-
-export function add(a, b) {
-  return a + b;
-}
-
-// Helper functions for functionA
-function functionX() { return 'functionX'; }
-function functionY() { return 'functionY'; }
-function functionZ() { return 'functionZ'; }
-
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-
-// TODO: Re-add the required exports for functionA and functionB
-// Assuming that they are objects with properties X, Y, and Z
-export const functionA = {
-  // ... (Preserve the existing code for functionA)
-
-  X: functionX, // Do not remove or rename this export
-  Y: functionY, // Do not remove or rename this export
-  Z: functionZ, // Do not remove or rename this export
-};
-
-// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-export function renderDependencyGraph(modules) {
-  // Future implementation could traverse and log module dependencies
-  console.log('Rendering dependency graph for modules:', modules);
-  return {};
-}
-
-// Placeholder for bot logic for Screeps
-export function loop() {
-  for (let name in Game.creeps) {
-    let creep = Game.creeps[name];
-    if (creep.memory.role === 'harvester') {
-      if (creep.store.getFreeCapacity() > 0) {
-        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-        if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(source);
-        }
-      }
-    }
-  }
-}
-
-// Helper functions for functionB
-export function functionXb() { return 'functionXb'; }
-export function functionYb() { return 'functionYb'; }
-export function functionZb() { return 'functionZb'; }
-
-export const functionB = {
-  // ... (Preserve the existing code for functionB)
-
-  X: functionXb, // Do not remove or rename this export
-  Y: functionYb, // Do not remove or rename this export
-  Z: functionZb, // Do not remove or rename this export
-};
-
-// Existing placeholder functions for function1 and function2 (referenced in exports)
-export function function1() {
-  return 'function1';
-}
-
-export function function2() {
-  return 'function2';
-}
-
-/**
- * Creates an accessible in-page button with proper ARIA attributes
- * @param {string} text - Button text
- * @param {Function} onClick - Click handler
- * @returns {HTMLButtonElement} The created button element
- */
-function createInPageButton(text, onClick) {
-  const button = document.createElement('button');
-  button.textContent = text;
-  button.type = 'button';
-  
-  // Ensure button has an accessible name
-  if (!text && !button.getAttribute('aria-label')) {
-    throw new Error('Button must have either text content or aria-label');
-  }
-  
-  if (onClick) {
-    button.addEventListener('click', onClick);
-  }
-  
-  return button;
-}
-
-/**
- * Validates table accessibility requirements
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with issues array
- */
-function validateTableAccessibility(table) {
+function validateLandmarkStructure(root = document) {
   const issues = [];
   
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
+  if (!root) {
+    return { valid: false, issues: ['Root element is required'] };
   }
   
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push('Table should have a caption for accessibility');
-  }
+  // Check for proper landmark nesting
+  const landmarks = root.querySelectorAll('header, nav, main, footer, aside, section, article, [role]');
   
-  // Check for th elements with scope or headers
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push('Table should have header cells (th) for accessibility');
-  }
+  // Check for proper use of section elements
+  const sections = root.querySelectorAll('section, article');
+  sections.forEach((section, index) => {
+    const hasLabel = section.getAttribute('aria-label') || 
+                     section.getAttribute('aria-labelledby') || 
+                     section.querySelector('h1, h2, h3, h4, h5, h6');
+    if (!hasLabel) {
+      issues.push(`Section/Article at index ${index} should have an accessible name via aria-label, aria-labelledby, or heading`);
+    }
+  });
   
   return {
     valid: issues.length === 0,
@@ -542,5 +265,46 @@ function validateTableAccessibility(table) {
 }
 
 /**
- * Validates table structure for proper accessibility
- * @param
+ * Validates link accessibility requirements
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} Validation result with link issues
+ */
+function validateLinkAccessibility(root = document) {
+  const issues = [];
+  
+  if (!root) {
+    return { valid: false, issues: ['Root element is required'] };
+  }
+  
+  // Check for links without accessible names
+  const links = root.querySelectorAll('a');
+  links.forEach((link, index) => {
+    const hasText = link.textContent.trim().length > 0;
+    const hasAriaLabel = link.getAttribute('aria-label');
+    const hasAriaLabelledby = link.getAttribute('aria-labelledby');
+    const hasTitle = link.getAttribute('title');
+    
+    if (!hasText && !hasAriaLabel && !hasAriaLabelledby && !hasTitle) {
+      issues.push(`Link at index ${index} has no accessible name`);
+    }
+  });
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Handles fake links (elements with click handlers that look like links)
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} Result with fake links found
+ */
+function handleFakeLinks(root = document) {
+  const fakeLinks = [];
+  
+  if (!root) {
+    return { found: false, elements: [] };
+  }
+  
+  // Find elements that have click handlers but are not buttons or links

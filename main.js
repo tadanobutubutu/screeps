@@ -438,4 +438,301 @@ function loop() {
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
     if (creep.memory.role === 'harvester') {
-      if (creep.store.getFreeCapacity() >
+      if (creep.store.getFreeCapacity() > 0) {
+        let source = creep.pos.findClosestByPath(FIND_SOURCES);
+        if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source);
+        }
+      }
+    }
+  }
+}
+
+// Helper functions for functionB
+function functionXb() { return 'functionXb'; }
+function functionYb() { return 'functionYb'; }
+function functionZb() { return 'functionZb'; }
+
+const functionB = {
+  // ... (Preserve the existing code for functionB)
+
+  X: functionXb, // Do not remove or rename this export
+  Y: functionYb, // Do not remove or rename this export
+  Z: functionZb, // Do not remove or rename this export
+};
+
+// Existing placeholder functions for function1 and function2 (referenced in exports)
+function function1() {
+  return 'function1';
+}
+
+function function2() {
+  return 'function2';
+}
+
+/**
+ * Creates an accessible in-page button with proper ARIA attributes
+ * @param {string} text - Button text
+ * @param {Function} onClick - Click handler
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, onClick) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.type = 'button';
+  
+  // Ensure button has an accessible name
+  if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    throw new Error('Button must have either text content or aria-label');
+  }
+  
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
+}
+
+/**
+ * Validates table accessibility requirements
+ * @param {HTMLTableElement} table - The table to validate
+ * @returns {Object} Validation result with issues array
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { valid: false, issues: ['Table element is required'] };
+  }
+  
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push('Table should have a caption for accessibility');
+  }
+  
+  // Check for th elements with scope or headers
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push('Table should have header cells (th) for accessibility');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates table structure for proper accessibility
+ * @param {HTMLTableElement} table - The table to validate
+ * @returns {Object} Validation result with structure issues
+ */
+function validateTableStructure(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { valid: false, issues: ['Table element is required'] };
+  }
+  
+  // Check for thead and tbody
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  
+  if (!thead) {
+    issues.push('Table should have a thead section');
+  }
+  
+  if (!tbody) {
+    issues.push('Table should have a tbody section');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates that landmarks have proper roles
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} Validation result with landmark issues
+ */
+function validateLandmark(root = document) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
+  
+  // Check for main landmark
+  const mainElements = root.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    issues.push('Page should have at least one main landmark');
+  } else if (mainElements.length > 1) {
+    issues.push('Page should have only one main landmark');
+  }
+  
+  // Check for header landmark
+  const headerElements = root.querySelectorAll('header, [role="banner"]');
+  if (headerElements.length > 1) {
+    issues.push('Page should have only one header landmark');
+  }
+  
+  // Check for footer landmark
+  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
+  if (footerElements.length > 1) {
+    issues.push('Page should have only one footer landmark');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+// New accessibility functions required by the insight report
+function addLangAttribute(languageCode = 'en') {
+  const htmlElement = document.querySelector('html') || document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', languageCode);
+  }
+}
+
+function validateLandmarkStructure(root = document) {
+  const issues = [];
+  const landmarks = root.querySelectorAll ? root.querySelectorAll('header, nav, main, footer, aside, section, article, search, [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="region"], [role="article"], [role="search"]') : [];
+  const ids = new Set();
+  landmarks.forEach((landmark) => {
+    if (!landmark) return;
+    if (landmark.id) {
+      if (ids.has(landmark.id)) {
+        issues.push('Landmark has duplicate id: ' + landmark.id);
+      } else {
+        ids.add(landmark.id);
+      }
+    } else {
+      issues.push('Landmark is missing an id');
+    }
+  });
+  return { valid: issues.length === 0, issues };
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg) return null;
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const title = svg.querySelector ? svg.querySelector('title') : null;
+  if (title && title.textContent) return title.textContent.trim();
+  return svg.getAttribute('id') || null;
+}
+
+function setSvgAttributes(svg, accessibleName) {
+  if (!svg) return;
+  svg.setAttribute('role', 'img');
+  const name = accessibleName || getSvgAccessibleName(svg) || '';
+  if (name) {
+    svg.setAttribute('aria-label', name);
+  }
+  if (svg.querySelector) {
+    let titleEl = svg.querySelector('title');
+    if (!titleEl) {
+      titleEl = document.createElement('title');
+      if (svg.firstChild) {
+        svg.insertBefore(titleEl, svg.firstChild);
+      } else {
+        svg.appendChild(titleEl);
+      }
+    }
+    titleEl.textContent = name || '';
+  }
+}
+
+function validateLinkAccessibility(link) {
+  const issues = [];
+  if (!link) {
+    return { valid: false, issues: ['Link element is required'] };
+  }
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href === 'javascript:void(0)') {
+    issues.push('Link has invalid href');
+  }
+  if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+    issues.push('Link is missing accessible name');
+  }
+  return { valid: issues.length === 0, issues };
+}
+
+function handleFakeLinks(element) {
+  if (!element) return 0;
+  if (element.tagName === 'A') {
+    const btn = document.createElement('button');
+    btn.textContent = element.textContent;
+    btn.type = 'button';
+    if (element.getAttribute('aria-label')) {
+      btn.setAttribute('aria-label', element.getAttribute('aria-label'));
+    }
+    if (element.parentNode) {
+      element.parentNode.replaceChild(btn, element);
+    }
+    return 1;
+  }
+  if (element.querySelectorAll) {
+    const fakeLinks = element.querySelectorAll('a[href="#"], a[href="javascript:void(0)"], a[href=""]');
+    let count = 0;
+    fakeLinks.forEach((link) => {
+      handleFakeLinks(link);
+      count++;
+    });
+    return count;
+  }
+  return 0;
+}
+
+function ensureDependencyGraphAccessibility() {
+  if (typeof document !== 'undefined') {
+    const container = document.getElementById('dependencyGraph');
+    if (container) {
+      container.setAttribute('role', 'region');
+      if (!container.getAttribute('aria-label')) {
+        container.setAttribute('aria-label', 'Dependency Graph');
+      }
+    }
+  }
+}
+
+ensureDependencyGraphAccessibility();
+addLangAttribute('en');
+
+// Existing placeholder functions for function1 and function2 (referenced in exports)
+function function1() {
+  return 'function1';
+}
+
+function function2() {
+  return 'function2';
+}
+
+module.exports = {
+  ensureElementHasId,
+  addAriaLabel,
+  setLanguageAttribute,
+  ensureUniqueLandmarks,
+  initApp,
+  displayModuleStructure,
+  functionA,
+  functionB,
+  loop,
+  addLangAttribute,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  ensureDependencyGraphAccessibility,
+  anotherFunction,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  resetRotation,
+  add,
+  renderDependencyGraph
+};

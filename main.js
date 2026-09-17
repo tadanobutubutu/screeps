@@ -10,5 +10,6 @@ const main = () => {
 };
 
 module.exports = {
-  main
+  // ... existing exports
+  myFunction
 };

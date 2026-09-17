@@ -330,7 +330,6 @@ function getActiveSessionsCount() {
 }
 
 // HTTP Server setup
-
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     
@@ -509,12 +508,7 @@ module.exports = {
     server,
     sanitizeFilename,
     processData,
-    getLangAttribute,
-    createInPageButton,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    ensureUniqueLandmarks,
-    addProperLandmarkRegions,
-    validateLinkAccessibility,
-    handleFakeLinks
+    personName,
+    validateTableAccessibility,
+    calculateSum
 };

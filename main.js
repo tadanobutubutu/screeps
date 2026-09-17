@@ -31,100 +31,24 @@ export function validateEmail(email) {
   return emailRegex.test(email);
 }
 
-// TODO: Implement validateLandmark functionality
-export function validateLandmark(landmark) {
-  const validLandmarks = [
-    'banner',
-    'main',
-    'navigation',
-    'search',
-    'contentinfo',
-    'form',
-    'region',
-    'complementary'
-  ];
-  
-  if (!landmark || typeof landmark !== 'string') {
-    return false;
-  }
-  
-  return validLandmarks.includes(landmark.toLowerCase());
-}
+// TODO: Address accessibility issues from insight report:
+// - REACT_025: Add other accessibility changes as per the insight report
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-// Implemented function for addressing accessibility issues from insight report
-export const addressAccessibilityIssues = (insightReport) => {
-  const recommendations = [];
-  
-  if (!insightReport || !insightReport.accessibility || !insightReport.accessibility.issues) {
-    return recommendations;
-  }
-}
-
-  const issues = insightReport.accessibility.issues;
-  
-  issues.forEach((issue) => {
-    switch (issue.severity) {
-      case 'critical':
-        recommendations.push(`${issue.id}: [CRITICAL] ${issue.description || 'No description'}`);
-        if (issue.suggestedFix) {
-          recommendations.push(`  Fix: ${issue.suggestedFix}`);
-        }
-        break;
-      case 'high':
-        recommendations.push(`${issue.id}: [HIGH] ${issue.description || 'No description'}`);
-        if (issue.suggestedFix) {
-          recommendations.push(`  Fix: ${issue.suggestedFix}`);
-        }
-        break;
-      case 'medium':
-        recommendations.push(`${issue.id}: [MEDIUM] ${issue.description || 'No description'}`);
-        if (issue.suggestedFix) {
-          recommendations.push(`  Fix: ${issue.suggestedFix}`);
-        }
-        break;
-      case 'low':
-        recommendations.push(`${issue.id}: [LOW] ${issue.description || 'No description'}`);
-        if (issue.suggestedFix) {
-          recommendations.push(`  Fix: ${issue.suggestedFix}`);
-        }
-        break;
-      default:
-        recommendations.push(`${issue.id}: [UNKNOWN] ${issue.description || 'No description'}`);
-    }
-  });
-}
-
-  // New code to check for tables and push recommendations if issues found
-  if (insightReport.accessibility.tableIssues) {
-    const tableIssues = insightReport.accessibility.tableIssues;
-    tableIssues.forEach((tableIssue) => {
-      recommendations.push(`[TABLE] ${tableIssue.id}: ${tableIssue.description}`);
-      if (tableIssue.suggestedFix) {
-        recommendations.push(`  Fix: ${tableIssue.suggestedFix}`);
-      }
-    });
-  }
-
-  return recommendations;
-};
-
-export const generateInsightReport = async (options) => {
-  try {
-    const report = await insightApi.getReport(options);
-    return report;
-  } catch (error) {
-    console.error('Error generating insight report:', error);
-    throw error;
-  }
-};
-
-// TODO: Replace with actual report generation logic.
-export const generateReport = async (reportOptions) => {
-  const report = await generateInsightReport(reportOptions);
-  const accessibilityIssues = addressAccessibilityIssues(report);
-  const formattedReport = `Insight Report:
-  - Total Items: ${calculateTotal(report.items)}
-  - Accessibility Issues: ${accessibilityIssues.join('\n  - ')}`;
-  
-  return formattedReport;
+// Export functions
+module.exports = {
+  formatDate,
+  validateEmail,
+  calculateTotal,
+  fetchData,
+  saveData,
+  parseJSON,
+  debounce,
+  throttle,
+  getLangAttribute,
+  personName,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  validateTableStructure,
+  // ... any other relevant functions extracted from the conflicting code base
 };

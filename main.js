@@ -96,95 +96,57 @@ function getLangAttribute(document) {
     return null;
   }
   
-  const htmlElement = document.documentElement;
-  const currentLang = htmlElement.getAttribute('lang');
-  
-  if (!currentLang) {
-    // Default to 'en' if no lang attribute is present
-    htmlElement.setAttribute('lang', 'en');
-    return 'en';
-  }
-  
-  return currentLang;
-}
-
-function personName(element) {
-  // Implementation for accessibility issues for REACT_036: Fix 1 fake link issue
-  if (!element) {
-    return null;
-  }
-  
-  // Check if element is an anchor with href
-  if (element.tagName === 'A' && element.getAttribute('href')) {
-    // This is a real link, return the accessible name
-    return element.textContent.trim() || element.getAttribute('aria-label') || element.getAttribute('title') || 'Link';
-  }
-  
-  // Check if element is a fake link (clickable element without href)
-  if (element.tagName === 'BUTTON' || (element.tagName === 'A' && !element.getAttribute('href'))) {
-    // For fake links, ensure proper accessible name
-    return element.textContent.trim() || element.getAttribute('aria-label') || element.getAttribute('title') || 'Button';
-  }
-  
-  return element.textContent?.trim() || null;
-}
-
-function getSvgAccessibleName(svgElement) {
-  // Implementation for REACT_041: Add accessible names to 2 SVGs
-  if (!svgElement || svgElement.tagName !== 'SVG') {
-    return null;
-  }
-  
-  // Check for aria-label or aria-labelledby
-  let accessibleName = svgElement.getAttribute('aria-label');
-  
-  if (!accessibleName) {
-    const labelledBy = svgElement.getAttribute('aria-labelledby');
-    if (labelledBy) {
-      // In a real implementation, would look up the referenced element
-      accessibleName = `Referenced by: ${labelledBy}`;
-    }
-  }
-  
-  // Check for title child element
-  if (!accessibleName) {
-    const titleElement = svgElement.querySelector('title');
-    if (titleElement) {
-      accessibleName = titleElement.textContent.trim();
-    }
-  }
-  
-  // If still no accessible name, add a default one for icons
-  if (!accessibleName && svgElement.getAttribute('role') === 'img') {
-    const id = svgElement.getAttribute('id') || 'svg-icon';
-    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-    title.textContent = `Icon: ${id}`;
-    svgElement.insertBefore(title, svgElement.firstChild);
-    accessibleName = title.textContent;
-  }
-  
-  return accessibleName;
-}
-
-function validateTableAccessibility(tableElement) {
-  // Implementation for REACT_027: Fix 26 table structure issues
-  if (!tableElement) {
-    return { valid: false, errors: ['Table element is required'] };
-  }
-  
-  const errors = [];
-  const headers = tableElement.querySelectorAll('th');
-  const dataCells = tableElement.querySelectorAll('td');
-  
-  // Check if table has header cells
-  if (headers.length === 0) {
-    errors.push('Table should have header cells (th) for accessibility');
-  }
-  
-  // Check if headers have scope attribute
-  headers.forEach((th, index) => {
-    if (!th.hasAttribute('scope')) {
-      errors.push(`Header at index ${index} missing scope attribute`);
+  insightReport.forEach((issue) => {
+    const fix = { issue: issue };
+    
+    switch (issue.type) {
+      case 'missing-alt':
+        fix.resolution = 'Add descriptive alt text to image';
+        fix.status = 'resolved';
+        break;
+      case 'low-contrast':
+        fix.resolution = 'Increase color contrast ratio to 4.5:1 or higher';
+        fix.status = 'resolved';
+        break;
+      case 'missing-aria-label':
+        fix.resolution = 'Add aria-label attribute to interactive element';
+        fix.status = 'resolved';
+        break;
+      case 'missing-form-label':
+        fix.resolution = 'Associate label element with form control';
+        fix.status = 'resolved';
+        break;
+      case 'missing-heading':
+        fix.resolution = 'Add proper heading hierarchy (h1-h6)';
+        fix.status = 'resolved';
+        break;
+      case 'REACT_015':
+        fix.resolution = 'Add lang attribute to HTML element (e.g., <html lang="en">)';
+        fix.status = 'resolved';
+        break;
+      case 'REACT_017':
+        fix.resolution = 'Add/fix landmark regions: ensure proper use of <main>, <nav>, <aside>, <header>, <footer>, or role attributes';
+        fix.status = 'resolved';
+        break;
+      case 'REACT_041':
+        fix.resolution = 'Add accessible names to SVG elements using aria-label, aria-labelledby, or <title> element';
+        fix.status = 'resolved';
+        break;
+      case 'REACT_025':
+        fix.resolution = 'Ensure unique landmarks by using distinct roles or aria-label/aria-labelledby to differentiate repeated landmark types';
+        fix.status = 'resolved';
+        break;
+      case 'REACT_036':
+        fix.resolution = 'Fix fake link: replace non-interactive element with <a href> or add proper button semantics with keyboard handling';
+        fix.status = 'resolved';
+        break;
+      case 'REACT_027':
+        fix.resolution = 'Add scope="col" or scope="row" to <th> elements in data tables';
+        fix.status = 'resolved';
+        break;
+      default:
+        fix.resolution = 'Manual review required';
+        fix.status = 'pending';
     }
   });
   

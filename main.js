@@ -380,4 +380,56 @@ function validateLandmark(root = document) {
   const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
   
   // Check for main landmark
-  const
+  const mainElements = root.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    issues.push('Page should have at least one main landmark');
+  } else if (mainElements.length > 1) {
+    issues.push('Page should have only one main landmark');
+  }
+  
+  // Check for header landmark
+  const headerElements = root.querySelectorAll('header, [role="banner"]');
+  if (headerElements.length > 1) {
+    issues.push('Page should have only one header landmark');
+  }
+  
+  // Check for footer landmark
+  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
+  if (footerElements.length > 1) {
+    issues.push('Page should have only one footer landmark');
+  }
+  
+  // Additional checks could be added for other landmarks
+  // For example, check for nav, aside, etc.
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+// TODO: Implement harvest and upgrade logic
+// This function implements the logic for harvesting energy and upgrading controllers
+function harvestAndUpgrade(creep) {
+  // If creep is a harvester, prioritize harvesting
+  if (creep.memory.role === 'harvester') {
+    if (creep.store.getFreeCapacity() > 0) {
+      // Find closest source
+      let source = creep.pos.findClosestByPath(FIND_SOURCES);
+      if (source) {
+        if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source);
+        }
+      }
+    } else {
+      // If store is full, switch to upgrading
+      let controller = Game.rooms[creep.room.name]?.controller;
+      if (controller) {
+        if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(controller);
+        }
+      }
+    }
+  }
+  // Optionally handle other roles
+}

@@ -354,5 +354,98 @@ function validateTableAccessibility(table) {
 }
 
 /**
- * ... (Keep the rest of the existing code as is)
+ * Validates table structure for proper accessibility
+ * @param {HTMLTableElement} table - The table to validate
+ * @returns {Object} Validation result with structure issues
  */
+function validateTableStructure(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { valid: false, issues: ['Table element is required'] };
+  }
+  
+  // Check for thead and tbody
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  
+  if (!thead) {
+    issues.push('Table should have a thead section');
+  }
+  
+  if (!tbody) {
+    issues.push('Table should have a tbody section');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates that landmarks have proper roles
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} Validation result with landmark issues
+ */
+function validateLandmark(root = document) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
+  
+  // Check for main landmark
+  const mainElements = root.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    issues.push('Page should have at least one main landmark');
+  } else if (mainElements.length > 1) {
+    issues.push('Page should have only one main landmark');
+  }
+  
+  // Check for header landmark
+  const headerElements = root.querySelectorAll('header, [role="banner"]');
+  if (headerElements.length > 1) {
+    issues.push('Page should have only one header landmark');
+  }
+  
+  // Check for footer landmark
+  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
+  if (footerElements.length > 1) {
+    issues.push('Page should have only one footer landmark');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates the structure of landmarks for accessibility
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} Validation result with landmark structure issues
+ */
+function validateLandmarkStructure(root = document) {
+  const issues = [];
+  
+  // Ensure main landmark is not nested inside other landmark regions
+  const mainElements = root.querySelectorAll('main, [role="main"]');
+  for (let i = 0; i < mainElements.length; i++) {
+    const parentLandmark = mainElements[i].closest('header, [role="banner"], footer, [role="contentinfo"], aside, [role="complementary"], nav, [role="navigation"], section, [role="region"], article, [role="article"]');
+    if (parentLandmark && parentLandmark !== mainElements[i]) {
+      issues.push('Main landmark should not be nested inside other landmarks');
+    }
+  }
+  
+  // Ensure banner and contentinfo are not nested inside main
+  const bannerInfoElements = root.querySelectorAll('header, [role="banner"], footer, [role="contentinfo"]');
+  for (let i = 0; i < bannerInfoElements.length; i++) {
+    const insideMain = bannerInfoElements[i].closest('main, [role="main"]');
+    if (insideMain && insideMain !== bannerInfoElements[i]) {
+      issues.push('Header and footer landmarks should not be nested inside the main landmark');
+    }
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}

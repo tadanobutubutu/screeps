@@ -525,39 +525,55 @@ function transformInputData(inputData, options = {}) {
     return null;
   }
 
-  const transformValue = (value) => {
-    if (typeof value === 'string') {
-      let result = value;
-      if (trimWhitespace) {
-        result = result.trim();
-      }
-      if (uppercase) {
-        result = result.toUpperCase();
-      }
-      if (maxLength !== null && maxLength > 0 && result.length > maxLength) {
-        result = result.substring(0, maxLength);
-      }
-      return result;
+  let result = inputData;
+  
+  // Handle different types of input data
+  if (typeof result === 'string') {
+    // Apply whitespace trimming if requested
+    if (trimWhitespace) {
+      result = result.trim();
     }
-
-    if (Array.isArray(value)) {
-      return value.map(transformValue);
+    
+    // Apply uppercase conversion if requested
+    if (uppercase) {
+      result = result.toUpperCase();
     }
-
-    if (value !== null && typeof value === 'object') {
-      const result = {};
-      for (const key in value) {
-        if (Object.prototype.hasOwnProperty.call(value, key)) {
-          result[preserveKeys ? key : key] = transformValue(value[key]);
-        }
+    
+    // Apply maximum length constraint if specified
+    if (maxLength !== null && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    
+    return result;
+  }
+  
+  else if (Array.isArray(result)) {
+    // Process array elements
+    const processedArray = result.map(item => transformInputData(item, options));
+    
+    // Apply maximum length constraint for arrays if specified
+    if (maxLength !== null && processedArray.length > maxLength) {
+      return processedArray.slice(0, maxLength);
+    }
+    
+    return processedArray;
+  }
+  
+  else if (typeof result === 'object') {
+    // Process object properties
+    const processedObject = {};
+    
+    for (const key in result) {
+      if (result.hasOwnProperty(key)) {
+        const newKey = preserveKeys ? key : String.fromCharCode(key.charCodeAt(0) + 1);
+        processedObject[newKey] = transformInputData(result[key], options);
       }
-      return result;
     }
-
-    return value;
-  };
-
-  return transformValue(inputData);
+    
+    return processedObject;
+  }
+  
+  return result;
 }
 
 // Initialize on DOM ready
@@ -579,14 +595,6 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   calculateSum,
-  newFocusTrap,
-  getLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton,
-  transformInputData
+  transformInputData,
+  newFocusTrap
 };

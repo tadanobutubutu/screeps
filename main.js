@@ -15,28 +15,37 @@ const debounce = require('./main').debounce;
 const throttle = require('./main').throttle;
 
 // Additional utility functions for accessibility
+let language = navigator.language || navigator.userLanguage;
+
 function getLangAttribute() {
-  // Implementation for REACT_015: Add lang attribute to HTML element
+  return language;
+}
+
+function personName(person) {
+  if (person) {
+    const firstName = person.firstName || '';
+    const lastName = person.lastName || '';
+    return `${firstName} ${lastName}`;
+  }
+  return '';
+}
+
+function getSvgAccessibleName(svg) {
+  // Assuming you have SVG ID's and use them for accessibility
+  const id = svg.getAttribute('id');
+  if (id) {
+    return id;
+  }
+  return '';
+}
+
+function validateTableAccessibility(table) {
+  // Validate 26 table structure issues for REACT_025 and REACT_027
   // ...
 }
 
-function personName() {
-  // Implementation for accessibility issues for REACT_036: Fix 1 fake link issue
-  // ...
-}
-
-function getSvgAccessibleName() {
-  // Implementation for REACT_041: Add accessible names to 2 SVGs
-  // ...
-}
-
-function validateTableAccessibility() {
-  // Implementation for REACT_027: Fix 26 table structure issues
-  // ...
-}
-
-function validateTableStructure() {
-  // Implementation for REACT_027: Fix 26 table structure issues
+function validateTableStructure(table) {
+  // Validate table structure issues
   // ...
 }
 

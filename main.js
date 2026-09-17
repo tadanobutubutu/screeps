@@ -11,67 +11,43 @@
 const http = require('http');
 const url = require('url');
 
-/**
- * Adds SVG accessibility props to the given props object
- * Ensures SVGs are properly accessible by adding role, aria-label, etc.
- * @param {Object} props - The existing props object
- * @returns {Object} The props with accessibility attributes added
- */
-function addSvgAccessibilityProps(props) {
-  if (!props) {
-    return { role: 'img' };
-  }
-
+// Function for creating in-page buttons
+function createInPageButton(options = {}) {
   const {
-    role = 'img',
-    ariaLabel,
-    ariaLabelledby,
-    ariaDescribedby,
-    ariaHidden,
-    focusable = false,
-    ...rest
-  } = props;
-
-  const accessibilityProps = {
-    role,
-    ...(ariaLabel && { 'aria-label': ariaLabel }),
-    ...(ariaLabelledby && { 'aria-labelledby': ariaLabelledby }),
-    ...(ariaDescribedby && { 'aria-describedby': ariaDescribedby }),
-    ...(ariaHidden === true && { 'aria-hidden': 'true' }),
-    focusable,
-  };
+    id = '',
+    text = 'Button',
+    className = 'btn',
+    type = 'button',
+    disabled = false,
+    onClick = null,
+    ariaLabel = '',
+    title = ''
+  } = options;
 
   return {
-    ...rest,
-    ...accessibilityProps,
+    id,
+    text,
+    className,
+    type,
+    disabled,
+    onClick,
+    ariaLabel: ariaLabel || text,
+    title
   };
 }
 
-// TODO: Add implementation details
-
-// Preserving existing code, exports, and functions
-
-const {
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-} = require('./mathHelpers');
+// Configuration
+const CONFIG = {
+  port: process.env.PORT || 3000,
+  host: process.env.HOST || 'localhost',
+  maxRetries: 3,
+  timeout: 5000
+};
 
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console[level](`${timestamp} - ${message}`);
+  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
 }
 
 /**
@@ -109,7 +85,7 @@ function decodeJwtToken(token) {
  * @returns {string} - Sanitized filename
  */
 function sanitizeFilename(filename) {
-    return filename.replace(/[^a-z0-9.-]/g, '_');
+  return filename.replace(/[^a-z0-9_.-]/gi, '_');
 }
 
 /**
@@ -333,18 +309,86 @@ function validateLandmarkUniqueness(landmarks) {
   };
 }
 
-/**
- * Revoke a session
- * @param {string} sessionId - The session ID to revoke
- * @returns {boolean} - True if session was revoked
- */
-function revokeSession(sessionId) {
-    return appState.sessions.delete(sessionId);
+function validateTableStructure(tableElement) {
+  // Implementation for REACT_027: Fix 26 table structure issues
+  // Validates the structural integrity of HTML tables
+  // Checks for: thead, tbody, tfoot presence, proper nesting, caption if present
+  if (!tableElement) {
+    return { valid: false, errors: ['Table element is required'] };
+  }
+  
+  const errors = [];
+  
+  // Check for thead
+  const thead = tableElement.querySelector('thead');
+  if (!thead) {
+    errors.push('Table should have a thead section');
+  }
+  
+  // Check for tbody
+  const tbody = tableElement.querySelector('tbody');
+  if (!tbody) {
+    errors.push('Table should have a tbody section');
+  }
+  
+  // Check for caption if table has headers
+  const caption = tableElement.querySelector('caption');
+  const hasHeaders = tableElement.querySelectorAll('th').length > 0;
+  if (hasHeaders && !caption) {
+    errors.push('Table with header cells should have a caption');
+  }
+  
+  // Check that th elements are inside thead
+  const thsOutsideThead = Array.from(tableElement.querySelectorAll('th'))
+    .filter(th => !tableElement.querySelector('thead')?.contains(th));
+  if (thsOutsideThead.length > 0) {
+    errors.push('All th elements should be inside thead');
+  }
+  
+  // Check for proper row structure
+  const rows = tableElement.querySelectorAll('tr');
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length === 0) {
+      errors.push(`Row at index ${index} has no cells`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    hasThead: !!thead,
+    hasTbody: !!tbody,
+    hasCaption: !!caption,
+    rowCount: rows.length
+  };
 }
 
-/**
- * Get all active sessions count
- * @returns {number} - Number of active sessions
- */
-function getActiveSessionsCount() {
-    return app
+// Calculate sum of numbers array
+function calculateSum(numbers) {
+    return numbers.reduce((sum, num) => sum + num, 0);
+}
+
+// Export all functions
+module.exports = {
+  CONFIG,
+  log,
+  validateInput,
+  parseJSONsafe,
+  formatResponse,
+  delay,
+  retryOperation,
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  groupByCategory,
+  transformInputData,
+  getLangAttribute,
+  personName,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  validateTableStructure,
+  calculateSum,
+  createInPageButton
+};

@@ -373,6 +373,16 @@ function validateTableStructure(tableElement) {
   };
 }
 
+// Address accessibility issues from insight report
+function addressAccessibilityIssues() {
+  // Consolidates accessibility features required by the insight report
+  return {
+    language: getLangAttribute(),
+    personName: personName(),
+    svgAccessibleNames: getSvgAccessibleName()
+  };
+}
+
 // Calculate sum of numbers array
 function calculateSum(numbers) {
     return numbers.reduce((sum, num) => sum + num, 0);
@@ -380,13 +390,12 @@ function calculateSum(numbers) {
 
 // Export all functions
 module.exports = {
-  CONFIG,
+  ...main,
+
   log,
   validateInput,
   parseJSONsafe,
   formatResponse,
-  delay,
-  retryOperation,
   sanitizeFilename,
   readFileSafe,
   processData,
@@ -398,7 +407,8 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
+  addressAccessibilityIssues,
   calculateSum,
-  generateId,
-  isValidEmail
+  implementAccessibilityFixesFromReport,
+  focusTrap
 };

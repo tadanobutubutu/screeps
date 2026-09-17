@@ -32,7 +32,7 @@ export function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}_${Date.now().toString(36)}_${Math.random().toString(9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -141,7 +141,7 @@ function displayModuleStructure(modules = {}) {
  * Sets the lang attribute on the HTML element based on the page content
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
-function setLanguageAttribute(languageCode) {
+export function setLanguageAttribute(languageCode) {
   const htmlElement = document.documentElement;
   if (htmlElement) {
     ... languageCode);
@@ -152,7 +152,7 @@ function setLanguageAttribute(languageCode) {
  * Gets the lang attribute from the HTML element
  * @returns {string|null} The language code or null if not set
  */
-function getLangAttribute() {
+export function getLangAttribute() {
   const htmlElement = document.documentElement;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
@@ -162,7 +162,7 @@ setLanguageAttribute('en');
 
 // Simple interactive page with content rotation functionality
 export function initApp() {
-  const container = ...
+  const container = document.getElementById('app');
 
   // Create heading
   const h1 = ...
@@ -226,13 +226,7 @@ export const functionA = {
 };
 
 // TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-function renderDependencyGraph(modules) {
-  // Ensure the dependencyGraph container has a proper ARIA role
-  const container = document.getElementById('dependencyGraph');
-  if (container) {
-    container.setAttribute('role', 'group');
-  }
-
+export function renderDependencyGraph(modules) {
   // Future implementation could traverse and log module dependencies
   console.log('Rendering dependency graph for modules:', modules);
   return {};
@@ -295,103 +289,5 @@ export function createInPageButton(text, onClick) {
   if (!button.textContent || !button.textContent.trim()) {
     throw new Error('Button must have either text content or aria-label');
   }
-
-  if (onClick) {
-    button.addEventListener('click', onClick);
-  }
-
-  return button;
-}
-
-/**
- * Validates table accessibility requirements
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with issues array
- */
-function validateTableAccessibility(table) {
-  const issues = [];
-
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push('Table should have a caption for accessibility');
-  }
-
-  // Check for th elements with scope or headers
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push('Table should have header cells (th) for accessibility');
-  }
-
-  // NEW CODE BELOW
-
-  // Get all landmark HTML elements
-  const landmarks = [...document.getElementsByTagName('landmark')];
-
-  // Check for unique landmarks
-  const landmarkIds = new Set();
-  landmarks.forEach((landmark) => {
-    if (!landmarkIds.add(landmark.id)) {
-      issues.push(`Duplicate landmark found: ${landmark.id}`);
-    }
-  });
-
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates table structure for proper accessibility
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with structure issues
- */
-function validateTableStructure(table) {
-  const issues = [];
   
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for thead and tbody
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  
-  if (!thead) {
-    issues.push('Table should have a thead section');
-  }
-  
-  if (!tbody) {
-    issues.push('Table should have a tbody section');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates that landmarks have proper roles
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark issues
- */
-function validateLandmark(root = document) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
-  
-  // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role
+  if (onClick)

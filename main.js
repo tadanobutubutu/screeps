@@ -381,6 +381,9 @@ export function ensureElementHasId(element, prefix = 'element') {
   return generatedId;
 }
 
+// TODO: Address missing export that might have been removed — ADD CODE HERE
+export { ensureElementHasId };
+
 /**
  * Adds an aria-label to the element if it doesn't already have one
  * @param {HTMLElement} element - The element to add aria-label to
@@ -502,7 +505,7 @@ export function ensureUniqueLandmarks() {
     // Keep the first <main> and convert others to <section> or <div>
     for (let i = 1; i < mainElements.length; i++) {
       const extraMain = mainElements[i];
-      const section = document.createElement('section');
+      const section = document.createElement('div');
       section.setAttribute('role', 'region');
       while (extraMain.firstChild) {
         section.appendChild(extraMain.firstChild);

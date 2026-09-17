@@ -418,34 +418,30 @@ function validateLandmark(root = document) {
   };
 }
 
-/**
- * Validates the structure of landmarks for accessibility
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark structure issues
- */
-function validateLandmarkStructure(root = document) {
-  const issues = [];
-  
-  // Ensure main landmark is not nested inside other landmark regions
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  for (let i = 0; i < mainElements.length; i++) {
-    const parentLandmark = mainElements[i].closest('header, [role="banner"], footer, [role="contentinfo"], aside, [role="complementary"], nav, [role="navigation"], section, [role="region"], article, [role="article"]');
-    if (parentLandmark && parentLandmark !== mainElements[i]) {
-      issues.push('Main landmark should not be nested inside other landmarks');
-    }
-  }
-  
-  // Ensure banner and contentinfo are not nested inside main
-  const bannerInfoElements = root.querySelectorAll('header, [role="banner"], footer, [role="contentinfo"]');
-  for (let i = 0; i < bannerInfoElements.length; i++) {
-    const insideMain = bannerInfoElements[i].closest('main, [role="main"]');
-    if (insideMain && insideMain !== bannerInfoElements[i]) {
-      issues.push('Header and footer landmarks should not be nested inside the main landmark');
-    }
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
+// Export functions that need to be accessible
+export {
+  ensureElementHasId,
+  addAriaLabel,
+  setLanguageAttribute,
+  getLangAttribute,
+  initApp,
+  displayModuleStructure,
+  resetRotation,
+  add,
+  functionX,
+  functionY,
+  functionZ,
+  functionA,
+  renderDependencyGraph,
+  loop,
+  functionXb,
+  functionYb,
+  functionZb,
+  functionB,
+  function1,
+  function2,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark
+};

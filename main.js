@@ -18,7 +18,16 @@ let internalFunction2 = () => {
 };
 
 /**
- * Ensures the element has a id. If the element doesn't have a id, generates one.
+ * Generates a unique ID with a given prefix
+ * @param {string} prefix - The prefix for the generated ID
+ * @returns {string} A unique ID
+ */
+function generateUniqueId(prefix) {
+  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+/**
+ * Ensures the element has an id. If the element doesn't have an id, generates one.
  * @param {HTMLElement} element - The element to check
  * @param {string} prefix - Optional prefix for the generated id
  * @returns {string} The id of the element
@@ -32,7 +41,7 @@ export function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}_${Date.now().toString(36)}_${Math.random().toString(9)}`;
+  const generatedId = generateUniqueId(prefix);
   element.id = generatedId;
   return generatedId;
 }
@@ -44,9 +53,9 @@ export function anotherFunction() {
 // FIXED: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkRoles())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (handled by addProperLandmarkRegions())
 
@@ -161,14 +170,13 @@ export function getLangAttribute() {
 setLanguageAttribute('en');
 
 // Simple interactive page with content rotation functionality
-export function initApp() {
-  const container = document.getElementById('app');
+function initApp() {
+  const container = document.getElementById('container') || document.createElement('div');
 
   // Create heading
   const h1 = ...
   h1.textContent = 'My Page';
   h1.id = 'title';
-  ...
 
   // Create content area
   const content = ...
@@ -186,7 +194,6 @@ export function initApp() {
     e.preventDefault();
     content.style.transform = 'rotate(0deg)';
   });
-  ...
 
   // Call the dependency graph rendering utility
   renderDependencyGraph();
@@ -290,4 +297,78 @@ export function createInPageButton(text, onClick) {
     throw new Error('Button must have either text content or aria-label');
   }
   
-  if (onClick)
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
+}
+
+/**
+ * Validates table accessibility requirements
+ * @param {HTMLTableElement} table - The table to validate
+ * @returns {Object} Validation result with issues array
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { valid: false, issues: ['Table element is required'] };
+  }
+  
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push('Table should have a caption for accessibility');
+  }
+  
+  // Check for th elements with scope or headers
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push('Table should have header cells (th) for accessibility');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates table structure for proper accessibility
+ * @param {HTMLTableElement} table - The table to validate
+ * @returns {Object} Validation result with structure issues
+ */
+function validateTableStructure(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { valid: false, issues: ['Table element is required'] };
+  }
+  
+  // Check for thead and tbody
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  
+  if (!thead) {
+    issues.push('Table should have a thead section');
+  }
+  
+  if (!tbody) {
+    issues.push('Table should have a tbody section');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates that landmarks have proper roles
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} Validation result with landmark issues
+ */
+function validateLandmark(root = document) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main',

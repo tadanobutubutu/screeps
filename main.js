@@ -227,32 +227,34 @@ export const generateInsightReport = async (options) => {
   }
 };
 
-const addLangAttribute = (htmlElement) => {
-  if (!htmlElement) return;
-
-  // Check if lang attribute is already set
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
+// TODO: Implement this function for checking landmark elements
+const checkLandmarkElements = (rootElement) => {
+  // If rootElement is not a valid DOM element, return empty array
+  if (!rootElement || typeof rootElement.querySelectorAll !== 'function') {
+    return [];
   }
-};
 
-// Function to add lang attribute to HTML element in the DOM
-const applyLangAttributeToHTML = () => {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    addLangAttribute(htmlElement);
-  }
-};
+  // Define the landmark elements we want to check for
+  const landmarkTags = ['header', 'nav', 'main', 'footer', 'aside', 'section'];
+  const issues = [];
 
-// Function to address other accessibility changes as per the insight report
-const addressAdditionalAccessibilityChanges = (insightReport) => {
-  // Placeholder for additional accessibility changes based on the insight report
-  // This is where you would add the code to address other issues as identified in the report.
+  landmarkTags.forEach(tag => {
+    const elements = rootElement.querySelectorAll(tag);
+    if (elements.length === 0) {
+      issues.push({
+        id: `missing-landmark-${tag}`,
+        description: `No landmark element <${tag}> found`,
+        severity: 'medium',
+        suggestedFix: `Consider adding a <${tag}> element to improve page structure`
+      });
+    }
+  });
+
+  return issues;
 };
 
 module.exports = {
   generateInsightReport,
   addressAccessibilityIssues,
-  applyLangAttributeToHTML,
-  addressAdditionalAccessibilityChanges
+  checkLandmarkElements
 };

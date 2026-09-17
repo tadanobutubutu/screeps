@@ -48,7 +48,7 @@ export function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = generateUniqueId(prefix);
+  const generatedId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -153,10 +153,53 @@ export function setLanguageAttribute(languageCode) {
 }
 
 /**
+ * Ensures all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
+ * @param {HTMLElement[]} landmarks - Array of landmark elements to ensure unique ids
+ * @param {string} prefix - Optional prefix for the generated id
+ * @returns {string[]} Array of ids for all landmarks
+ */
+function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
+  if (!landmarks || !Array.isArray(landmarks)) {
+    throw new Error('Landmarks array is required');
+  }
+
+  const ids = [];
+  const usedIds = new Set();
+
+  landmarks.forEach((landmark, index) => {
+    if (!landmark) {
+      return;
+    }
+
+    if (landmark.id) {
+      if (usedIds.has(landmark.id)) {
+        const newId = `${prefix}-${index}`;
+        landmark.id = newId;
+        usedIds.add(newId);
+        ids.push(newId);
+      } else {
+        usedIds.add(landmark.id);
+        ids.push(landmark.id);
+      }
+    } else {
+      let generatedId = `${prefix}-${index}`;
+      while (usedIds.has(generatedId)) {
+        generatedId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
+      }
+      landmark.id = generatedId;
+      usedIds.add(generatedId);
+      ids.push(generatedId);
+    }
+  });
+
+  return ids;
+}
+
+/**
  * Gets the lang attribute from the HTML element
  * @returns {string|null} The language code or null if not set
  */
-export function getLangAttribute() {
+function getLangAttribute() {
   const htmlElement = document.documentElement;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
@@ -288,7 +331,7 @@ export function createInPageButton(text, onClick) {
   button.type = 'button';
 
   // Ensure button has an accessible name
-  if (!button.textContent || !button.textContent.trim()) {
+  if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
     throw new Error('Button must have either text content or aria-label');
   }
   
@@ -332,262 +375,4 @@ function validateTableAccessibility(table) {
 /**
  * Validates table structure for proper accessibility
  * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with structure issues
- */
-function validateTableStructure(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for thead and tbody
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  
-  if (!thead) {
-    issues.push('Table should have a thead section');
-  }
-  
-  if (!tbody) {
-    issues.push('Table should have a tbody section');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates that landmarks have proper roles
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark issues
- */
-function validateLandmark(root = document) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
-  
-  // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page should have only one footer landmark');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates landmark structure for proper accessibility
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark structure issues
- */
-function validateLandmarkStructure(root = document) {
-  const issues = [];
-  
-  if (!root) {
-    return { valid: false, issues: ['Root element is required'] };
-  }
-  
-  // Ensure essential landmarks are present
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  const navElements = root.querySelectorAll('nav, [role="navigation"]');
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  }
-  
-  if (navElements.length === 0) {
-    issues.push('Page should have at least one navigation landmark');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Ensures that landmarks are unique and have distinct labels where needed
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark uniqueness issues
- */
-function ensureUniqueLandmarks(root = document) {
-  const issues = [];
-  
-  if (!root) {
-    return { valid: false, issues: ['Root element is required'] };
-  }
-  
-  // Ensure only one main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Ensure only one banner (header) landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one banner landmark');
-  }
-  
-  // Ensure only one contentinfo (footer) landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page should have only one contentinfo landmark');
-  }
-  
-  // Check that multiple nav landmarks have unique labels
-  const navElements = root.querySelectorAll('nav, [role="navigation"]');
-  if (navElements.length > 1) {
-    const labels = new Set();
-    navElements.forEach((nav) => {
-      const label = nav.getAttribute('aria-label') || nav.getAttribute('aria-labelledby') || '';
-      if (labels.has(label)) {
-        issues.push('Multiple nav landmarks should have unique labels');
-      }
-      labels.add(label);
-    });
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates link accessibility requirements
- * @param {HTMLAnchorElement} link - The link element to validate
- * @returns {Object} Validation result with link issues
- */
-function validateLinkAccessibility(link) {
-  const issues = [];
-  
-  if (!link) {
-    return { valid: false, issues: ['Link element is required'] };
-  }
-  
-  // Check if the link has discernible text
-  const linkText = (link.textContent || '').trim();
-  const ariaLabel = link.getAttribute('aria-label');
-  const ariaLabelledBy = link.getAttribute('aria-labelledby');
-  
-  if (!linkText && !ariaLabel && !ariaLabelledBy) {
-    issues.push('Link must have discernible text or aria-label');
-  }
-  
-  // Check for fake links (anchors without href or with href="#")
-  const href = link.getAttribute('href');
-  if (!href || href === '#') {
-    issues.push('Link should have a valid href; use <button> for actions that do not navigate');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Handles fake links by converting them to appropriate elements
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Result describing the actions taken
- */
-function handleFakeLinks(root = document) {
-  const result = {
-    converted: 0,
-    issues: []
-  };
-  
-  if (!root) {
-    result.issues.push('Root element is required');
-    return result;
-  }
-  
-  // Find anchors without proper href or with href="#"
-  const anchors = root.querySelectorAll('a');
-  anchors.forEach((anchor) => {
-    const href = anchor.getAttribute('href');
-    if (!href || href === '#') {
-      result.issues.push('Found a fake link that should be converted to a button');
-      result.converted += 1;
-    }
-  });
-  
-  return result;
-}
-
-/**
- * Gets the accessible name for an SVG element
- * @param {SVGElement} svg - The SVG element
- * @returns {string|null} The accessible name or null if not present
- */
-function getSvgAccessibleName(svg) {
-  if (!svg) {
-    return null;
-  }
-  
-  const ariaLabel = svg.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-  
-  const ariaLabelledBy = svg.getAttribute('aria-labelledby');
-  if (ariaLabelledBy) {
-    const labelElement = document.getElementById(ariaLabelledBy);
-    if (labelElement) {
-      return labelElement.textContent || null;
-    }
-  }
-  
-  const titleElement = svg.querySelector('title');
-  if (titleElement && titleElement.textContent) {
-    return titleElement.textContent;
-  }
-  
-  return null;
-}
-
-/**
- * Sets accessible attributes on an SVG element
- * @param {SVGElement} svg - The SVG element
- * @param {string} accessibleName - The accessible name to set
- * @returns {void}
- */
-function setSvgAttributes(svg, accessibleName) {
-  if (!svg) {
-    throw new Error('SVG element is required');
-  }
-  
-  if (!accessibleName) {
-    throw new Error('Accessible name is required');
-  }
-  
-  if (!svg.getAttribute('aria-label')) {
-    svg.setAttribute('aria-label', accessibleName);
-  }
-  
-  if (!svg.getAttribute('role')) {
-    svg.setAttribute('role', 'img');
-  }
-}
+ *

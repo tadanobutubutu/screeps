@@ -36,7 +36,7 @@ export function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
+  const generatedId = `${prefix}_${Math.random().toString(36).substring(2, 11)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -282,6 +282,11 @@ export function function2() {
   return 'function2';
 }
 
+// TODO: Implement new function3 logic here
+function function3() {
+  return 'function3';
+}
+
 /**
  * Creates an accessible in-page button with proper ARIA attributes
  * @param {string} text - Button text
@@ -375,27 +380,4 @@ function validateLandmark(root = document) {
   const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
   
   // Check for main landmark
-  const mainElements = root.querySelectorAll('[role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page should have only one footer landmark');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
+  const

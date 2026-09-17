@@ -143,13 +143,23 @@ function handleCredentialResponse(credentialResponse) {
         };
     }
 
-    const credential = parsedResponse.credential;
-    
-    if (!credential) {
-        return {
-            status: 'error',
-            message: 'No credential provided'
-        };
+function transformInputData(inputData, options = {}) {
+  const {
+    preserveKeys = true,
+    uppercase = false,
+    trimWhitespace = true,
+    maxLength = null
+  } = options;
+
+  if (!inputData) {
+    return null;
+  }
+
+  if (typeof inputData === 'string') {
+    let result = trimWhitespace ? inputData.trim() : inputData;
+    result = uppercase ? result.toUpperCase() : result;
+    if (maxLength && result.length > maxLength) {
+      result = result.substring(0, maxLength);
     }
 
     // Decode the JWT token to extract user information

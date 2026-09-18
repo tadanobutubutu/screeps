@@ -72,101 +72,50 @@ function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
 
-/**
- * Parse command line arguments
- * @returns {Object} Parsed arguments object
- */
-function parseArgs() {
-  const args = process.argv.slice(2);
-  const parsed = {
-    validate: false,
-    help: false,
-    config: null,
-    file: null
-  };
-  
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === '--validate' || arg === '-v') {
-      parsed.validate = true;
-    } else if (arg === '--help' || arg === '-h') {
-      parsed.help = true;
-    } else if (arg === '--config' || arg === '-c') {
-      if (args[i + 1] && !args[i + 1].startsWith('-')) {
-        parsed.config = args[i + 1];
-        i++;
-      }
-    } else if (!arg.startsWith('-')) {
-      parsed.file = arg;
-    }
-  }
-  
-  return parsed;
-}
+// // // TODO: Implement CLI logic
 
 /**
- * Display CLI help message
+ * Parse command-line arguments and execute appropriate commands
+ * @param {Array} args - Command-line arguments (excluding node and script path)
  */
-function showHelp() {
-  console.log('Usage: node main.js [options] [file]');
-  console.log('');
-  console.log('Options:');
-  console.log('  -v, --validate    Run validation on loaded tables');
-  console.log('  -c, --config      Specify configuration file');
-  console.log('  -h, --help        Display this help message');
-  console.log('');
-  console.log('Examples:');
-  console.log('  node main.js --validate');
-  console.log('  node main.js -v tables.json');
-}
-
-/**
- * Run CLI with parsed arguments
- * @param {Object} args - Parsed command line arguments
- */
-function runCLI(args) {
-  if (args.help) {
-    showHelp();
+function cli(args) {
+  if (args.length < 2) {
+    console.log('Usage: node main.js <command> [options]');
+    console.log('');
+    console.log('Commands:');
+    console.log('  validate              Validate all tables');
+    console.log('  validate --accessibility  Validate accessibility only');
+    console.log('  validate --structure Validate structure only');
+    console.log('');
+    console.log('Examples:');
+    console.log('  node main.js validate');
+    console.log('  node main.js validate --accessibility');
+    console.log('  node main.js validate --structure');
     return;
   }
-  
-  if (args.validate) {
-    const result = validateAllTables();
-    
-    console.log('Validation Results:');
-    console.log('-------------------');
-    
-    if (result.isValid) {
-      console.log('✓ All tables passed validation');
+
+  const command = args[0];
+  const options = args.slice(1);
+
+  if (command === 'validate') {
+    if (options.includes('--accessibility')) {
+      const result = validateTableAccessibility();
+      console.log(JSON.stringify(result, null, 2));
+    } else if (options.includes('--structure')) {
+      const result = validateTableStructure();
+      console.log(JSON.stringify(result, null, 2));
     } else {
-      console.log('✗ Validation failed');
-      
-      if (!result.accessibility.isValid) {
-        console.log('\nAccessibility Errors:');
-        result.accessibility.errors.forEach(err => {
-          console.log(`  - Table ${err.tableIndex}: ${err.error}`);
-        });
-      }
-      
-      if (!result.structure.isValid) {
-        console.log('\nStructure Errors:');
-        result.structure.errors.forEach(err => {
-          let msg = `  - Table ${err.tableIndex}`;
-          if (err.rowIndex !== undefined) {
-            msg += `, Row ${err.rowIndex}`;
-          }
-          msg += `: ${err.error}`;
-          console.log(msg);
-        });
-      }
+      const result = validateAllTables();
+      console.log(JSON.stringify(result, null, 2));
     }
-    
-    console.log('');
-    console.log(`Tables validated: ${getTables().length}`);
+  } else {
+    console.log(`Unknown command: ${command}`);
+    console.log('Run with no arguments to see usage information.');
   }
 }
 
-// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
+// Export CLI for external use
+module.exports.cli = cli;
 
 /**
  * Validates that all tables in the application meet accessibility standards

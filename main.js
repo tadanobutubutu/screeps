@@ -266,127 +266,169 @@ function validateAllTables() {
 }
 
 /**
- * Add lang attribute to HTML element
- * REACT_015: Ensures the HTML element has a lang attribute for accessibility
- * @param {Document|Element} doc - Document or element to modify
- * @returns {Document|Element} Modified document or element
+ * Checks for unique landmark roles across the application
+ * @returns {Object} Validation result with isValid flag and array of errors
  */
-function addLangAttribute(doc) {
-  const element = doc.documentElement || doc;
-  if (!element.hasAttribute('lang')) {
-    element.setAttribute('lang', 'en');
-  }
-  return doc;
-}
+function validateUniqueLandmarks() {
+  const errors = [];
+  const tables = getTables();
+  const landmarkRolesMap = {};
 
-/**
- * Fix table structure issues
- * REACT_027: Ensures tables have proper thead/tbody structure
- * @param {Document|Element} doc - Document or element to modify
- * @returns {Document|Element} Modified document or element
- */
-function fixTableStructureIssues(doc) {
-  const tables = doc.querySelectorAll ? doc.querySelectorAll('table') : [];
-  tables.forEach(table => {
-    if (table.querySelector('thead') === null && table.rows && table.rows.length > 0) {
-      const thead = doc.createElement('thead');
-      thead.appendChild(table.rows[0]);
-      table.insertBefore(thead, table.firstChild);
-    }
-    if (!table.querySelector('tbody') && table.rows && table.rows.length > 1) {
-      const tbody = doc.createElement('tbody');
-      for (let i = 1; i < table.rows.length; i++) {
-        tbody.appendChild(table.rows[i]);
-      }
-      table.appendChild(tbody);
-    }
-  });
-  return doc;
-}
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
 
-/**
- * Add main landmark
- * REACT_017: Ensures the page has a proper main landmark
- * @param {Document|Element} doc - Document or element to modify
- * @returns {Document|Element} Modified document or element
- */
-function addMainLandmark(doc) {
-  const body = doc.body || doc;
-  const existingMain = body.querySelector ? body.querySelector('main, [role="main"]') : null;
-  if (!existingMain) {
-    const main = doc.createElement('main');
-    main.setAttribute('role', 'main');
-    if (body.firstChild) {
-      body.insertBefore(main, body.firstChild);
-    } else {
-      body.appendChild(main);
-    }
-  }
-  return doc;
-}
-
-/**
- * Add accessible names to SVGs
- * REACT_041: Ensures SVG elements have accessible names
- * @param {Document|Element} doc - Document or element to modify
- * @returns {Document|Element} Modified document or element
- */
-function addSvgAccessibleNames(doc) {
-  const svgs = doc.querySelectorAll ? doc.querySelectorAll('svg') : [];
-  let svgCount = 0;
-  svgs.forEach(svg => {
-    const hasAccessibleName = svg.getAttribute('aria-label') || 
-                              svg.getAttribute('aria-labelledby') || 
-                              svg.querySelector('title');
-    if (!hasAccessibleName) {
-      svgCount++;
-      svg.setAttribute('aria-label', `SVG graphic ${svgCount}`);
-      const title = doc.createElement('title');
-      title.textContent = `SVG graphic ${svgCount}`;
-      svg.insertBefore(title, svg.firstChild);
-    }
-  });
-  return doc;
-}
-
-/**
- * Ensure unique landmarks
- * REACT_025: Ensures only one main landmark exists per page
- * @param {Document|Element} doc - Document or element to modify
- * @returns {Document|Element} Modified document or element
- */
-function ensureUniqueLandmarks(doc) {
-  const body = doc.body || doc;
-  const mains = body.querySelectorAll ? body.querySelectorAll('main, [role="main"]') : [];
-  if (mains.length > 1) {
-    for (let i = 1; i < mains.length; i++) {
-      mains[i].removeAttribute('role');
-      mains[i].removeAttribute('aria-label');
-    }
-  }
-  return doc;
-}
-
-/**
- * Fix fake link issues
- * REACT_036: Converts links without href to proper buttons or adds role
- * @param {Document|Element} doc - Document or element to modify
- * @returns {Document|Element} Modified document or element
- */
-function fixFakeLinkIssue(doc) {
-  const links = doc.querySelectorAll ? doc.querySelectorAll('a') : [];
-  links.forEach(link => {
-    const href = link.getAttribute('href');
-    if (href === '#' || href === '' || href === null) {
-      if (!link.hasAttribute('role')) {
-        link.setAttribute('role', 'button');
-      }
-      if (!link.hasAttribute('tabindex')) {
-        link.setAttribute('tabindex', '0');
+    if (table.headers && Array.isArray(table.headers)) {
+      for (let j = 0; j < table.headers.length; j++) {
+        const header = table.headers[j];
+        if (header && typeof header === 'object' && header.role) {
+          const role = header.role;
+          if (!landmarkRolesMap[role]) {
+            landmarkRolesMap[role] = [];
+          }
+          landmarkRolesMap[role].push({ tableIndex: i, headerIndex: j });
+        }
       }
     }
-  });
-  return doc;
+  }
+
+  for (const role in landmarkRolesMap) {
+    if (landmarkRolesMap[role].length > 1) {
+      errors.push({
+        role: role,
+        locations: landmarkRolesMap[role],
+        error: `Landmark role "${role}" is used multiple times`
+      });
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Checks for fake link issues (links that don't navigate or are not proper anchors)
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateFakeLinks() {
+  const errors = [];
+  const tables = getTables();
+
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+
+    if (table.headers && Array.isArray(table.headers)) {
+      for (let j = 0; j < table.headers.length; j++) {
+        const header = table.headers[j];
+        if (header && typeof header === 'object' && header.text) {
+          const text = header.text.toString();
+          if (text.startsWith('#') && text.length === 1) {
+            errors.push({
+              tableIndex: i,
+              headerIndex: j,
+              text: text,
+              error: 'Fake link detected: anchor with no href target'
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Validates that all SVGs in the application have accessible names
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateSvgAccessibility() {
+  const errors = [];
+  const tables = getTables();
+
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+
+    if (table.headers && Array.isArray(table.headers)) {
+      for (let j = 0; j < table.headers.length; j++) {
+        const header = table.headers[j];
+        if (header && typeof header === 'object' && header.svg) {
+          const svg = header.svg;
+          if (!svg.alt && !svg.title && !svg.descr) {
+            errors.push({
+              tableIndex: i,
+              headerIndex: j,
+              error: 'SVG is missing accessible name (alt, title, or descr attribute)'
+            });
+          }
+        }
+      }
+    }
+
+    if (table.rows && Array.isArray(table.rows)) {
+      for (let k = 0; k < table.rows.length; k++) {
+        const row = table.rows[k];
+        if (Array.isArray(row)) {
+          for (let l = 0; l < row.length; l++) {
+            const cell = row[l];
+            if (cell && typeof cell === 'object' && cell.svg) {
+              const svg = cell.svg;
+              if (!svg.alt && !svg.title && !svg.descr) {
+                errors.push({
+                  tableIndex: i,
+                  rowIndex: k,
+                  cellIndex: l,
+                  error: 'SVG is missing accessible name (alt, title, or descr attribute)'
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Validates and adds scope attributes to header elements
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateHeaderScope() {
+  const errors = [];
+  const tables = getTables();
+
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+
+    if (table.headers && Array.isArray(table.headers)) {
+      for (let j = 0; j < table.headers.length; j++) {
+        const header = table.headers[j];
+        if (header && typeof header === 'object') {
+          if (!header.scope || (header.scope !== 'col' && header.scope !== 'row')) {
+            errors.push({
+              tableIndex: i,
+              headerIndex: j,
+              error: 'Header element missing valid scope attribute (scope="col" or scope="row")'
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
 }
 
 // Module exports
@@ -402,10 +444,8 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateAllTables,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue
+  validateUniqueLandmarks,
+  validateFakeLinks,
+  validateSvgAccessibility,
+  validateHeaderScope
 };

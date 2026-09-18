@@ -161,3 +161,8 @@
 
 **Learning:** Pausing transient toast notification auto-dismiss timers when users hover or focus inside the toast element prevents status messages from vanishing prematurely while being read (WCAG 2.2.1 / 2.2.4). To keep visual timer bar animations synchronized when interaction ends, keying the progress bar element to the dynamic hover/focus state (`key={\`${toastMsg}-${toastHovered || toastFocused}\`}`) deterministically resets the CSS animation lifecycle to match the restarted timeout.
 **Action:** Always pause auto-dismiss timers on hover and focus inside toast elements, and force animation key resets upon state transition to maintain visual synchronization.
+
+## 2026-08-31 - [Raw Telemetry Data Payload Size Indicators & Accessible Metadata]
+
+**Learning:** Displaying a formatted byte payload size badge (e.g. `842 B` or `1.2 KB`) directly inside collapsible telemetry headers (`<summary>`) and adjacent copy triggers gives users immediate visual feedback regarding telemetry volume before expanding accordion details or copying to clipboard. Pairing the badge with explicit screen-reader descriptors (`aria-label="データサイズ 842 B"`) ensures screen-reader users receive equivalent data volume information without needing to parse multi-line JSON blocks.
+**Action:** Always complement raw data inspect/copy triggers with formatted byte/size metadata badges paired with explicit `aria-label` attributes for screen readers.

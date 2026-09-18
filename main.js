@@ -161,102 +161,18 @@ function validateLandmark(landmark) {
   return true;
 }
 
-// Original rendering functions from HEAD
-function renderDependencyGraph(graph) {
-    if (!graph || typeof graph !== 'object') {
-        return '';
-    }
-
-    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
-    const edges = Array.isArray(graph.edges) ? graph.edges : [];
-
-    const nodeSet = new Set(nodes.map(n => n && n.id).filter(Boolean));
-    const validEdges = edges.filter(e => nodeSet.has(e.from) && nodeSet.has(e.to));
-
-    const lines = [];
-    lines.push('digraph dependencies {');
-    lines.push('  rankdir=LR;');
-    lines.push('  node [shape=box, style=filled, fillcolor="#eef"];');
-
-    for (const node of nodes) {
-        if (node && node.id) {
-            const label = (node.label || node.id).replace(/"/g, '\\"');
-            lines.push(`  "${node.id}" [label="${label}"];`);
-        }
-    }
-
-    for (const edge of validEdges) {
-        lines.push(`  "${edge.from}" -> "${edge.to}";`);
-    }
-
-    lines.push('}');
-    return lines.join('\n');
+// New function to render a statistics view
+/**
+ * Renders a statistics view
+ * @param {Object} stats - Statistics data
+ * @returns {string} The rendered HTML/content for the statistics view
+ */
+function renderStatistics(stats = {}) {
+  const content = indexContent.generateStatistics(stats);
+  // Render the statistics with the generated content
+  return `<div class="statistics-view">${content}</div>`;
 }
 
-function renderIndexView(items) {
-    if (!Array.isArray(items)) {
-        return '';
-    }
-
-    const lines = [];
-    lines.push('# Index');
-    lines.push('');
-
-    items.forEach((item, index) => {
-        if (!item) {
-            return;
-        }
-        const title = item.title || item.name || `Item ${index + 1}`;
-        const id = item.id !== undefined ? item.id : index;
-        lines.push(`- [${title}](#item-${id})`);
-    });
-
-    lines.push('');
-    return lines.join('\n');
-}
-
-function updateDependencyGraph(view, graph) {
-    if (!view) {
-        return null;
-    }
-    const rendered = renderDependencyGraph(graph);
-    view.graphSource = rendered;
-    view.lastUpdated = new Date().toISOString();
-    return view;
-}
-
-function updateIndexView(view, items) {
-    if (!view) {
-        return null;
-    }
-    view.indexSource = renderIndexView(items);
-    view.lastUpdated = new Date().toISOString();
-    return view;
-}
-
-// Original function
-function hello() {
-  return 'Hello, World!';
-}
-
-// Existing function
-function getConfig() {
-  return { version: VERSION, name: APP_NAME };
-}
-
-// New function to implement validateLandmark
-function validateLandmark(landmark) {
-  if (!landmark || typeof landmark !== 'object' || landmark.id === undefined) {
-    return false;
-  }
-  if (!landmark.name || typeof landmark.name !== 'string') {
-    return false;
-  }
-  // Additional validation rules can be added here
-  return true;
-}
-
-// Export all functions and constants
 module.exports = {
   // Constants
   VERSION,
@@ -274,12 +190,5 @@ module.exports = {
   renderDependencyGraph,
   renderIndex,
   renderApp,
-  getLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton
+  renderStatistics // Exporting the new function
 };

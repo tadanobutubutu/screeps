@@ -42,9 +42,17 @@ function initialize() {
   return true;
 }
 
-// Preserve existing exports and functions
-export function existingFunction() {
-    // existing function code
+/**
+ * Load table data into the application
+ * @param {Array} tables - Array of table objects to load
+ */
+function loadTables(tables) {
+  if (!Array.isArray(tables)) {
+    throw new Error('Tables must be an array');
+  }
+  appData.tables = tables;
+  applySvgAccessibilityProps();
+  return true;
 }
 
 /**
@@ -71,247 +79,60 @@ function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
 
+const tablePrototype = {
+  // ... Existing properties
+
+  // Add SVG accessibility props
+  get ariaLabel() {
+    return this.caption || '';
+  },
+  get ariaLabelledby() {
+    const id = this.id || '';
+    return id ? `${id}` : `${this.id || ''}-label`;
+  }
+};
+
 /**
- * Validates that all tables in the application meet accessibility standards
+ * Validate that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors
  */
 function validateTableAccessibility() {
-  // ... Existing code ...
+  // ... Existing code
+
+  // Add check for table's ARIA attributes
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    // ... Existing checks
+
+    if (table.tagName.toLowerCase() === 'svg') {
+      if (table.ariaLabel === undefined && table.caption === undefined) {
+        errors.push({
+          tableIndex: i,
+          error: `Table should have aria-label or caption for accessibility when using SVG`
+        });
+      }
+      table.__ariaLabel = table.ariaLabel || table.caption;
+      table.__ariaLabelledby = table.ariaLabelledby || `${table.id || ''}-label`;
+    }
+  }
+  // ... Existing code
 }
 
 /**
- * Validates the structure of all tables in the application
- * @returns {Object} Validation result with isValid flag and array of errors
+ * Function to apply SVG accessibility props to all tables
  */
-function validateTableStructure() {
-  // ... Existing code ...
-}
-
-/**
- * Validate all tables (convenience function)
- * @returns {Object} Combined validation results
- */
-function validateAllTables() {
-  // ... Existing code ...
-}
-
-/**
- * Render the index view with all loaded tables
- * @returns {string} HTML string of the index view
- */
-function renderIndexView() {
+function applySvgAccessibilityProps() {
   const tables = getTables();
-  let indexView = '<table><thead><tr>';
-
-  if (!tables.length) {
-    // No tables loaded, return a message
-    return '<p>No tables loaded.</p>';
-  }
-
-  const firstTable = tables[0];
-  indexView += '<th>' + firstTable.headers[0] + '</th>';
-
-  for (let i = 1; i < firstTable.headers.length; i++) {
-    indexView += '<th>' + firstTable.headers[i] + '</th>';
-  }
-
-  indexView += '</tr></thead><tbody>';
-
-  tables.forEach((table, index) => {
-    indexView += '<tr>';
-
-    table.rows.forEach((row) => {
-      if (!Array.isArray(row)) {
-        throw new Error(`Row at table ${index} is not an array.`);
-      }
-
-      let rowHtml = '<td>';
-
-      row.forEach((cell, cellIndex) => {
-        rowHtml += cell;
-      });
-
-      rowHtml += '</td>';
-      indexView += rowHtml;
-    });
-
-    indexView += '</tr>';
-  });
-
-  indexView += '</tbody></table>';
-  return indexView;
-}
-
-/**
- * Get language attribute for HTML element
- */
-function getLangAttribute() {
-  // Return default language code
-  return 'en';
-}
-
-/**
- * Create an in-page button
- */
-function createInPageButton() {
-  // Return a simple button object
-  return { type: 'button', label: 'Click' };
-}
-
-/**
- * Validate landmark elements
- */
-function validateLandmark() {
-  // Placeholder implementation
-  return true;
-}
-
-/**
- * Validate landmark structure
- */
-function validateLandmarkStructure() {
-  // Placeholder implementation
-  return true;
-}
-
-/**
- * Ensure unique landmarks
- */
-function ensureUniqueLandmarks() {
-  // Placeholder implementation
-  return true;
-}
-
-/**
- * Get accessible name for SVG
- */
-function getSvgAccessibleName() {
-  // Return default name
-  return 'SVG Element';
-}
-
-/**
- * Set attributes for SVG accessibility
- */
-function setSvgAttributes() {
-  // Placeholder implementation
-  return true;
-}
-
-/**
- * Validate link accessibility
- */
-function validateLinkAccessibility() {
-  // Placeholder implementation
-  return true;
-}
-
-/**
- * Handle fake links
- */
-function handleFakeLinks() {
-  // Placeholder implementation
-  return true;
-}
-
-/**
- * Add lang attribute to HTML element
- */
-function addLangAttribute() {
-  // Set language attribute on HTML element
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = document.documentElement.lang || 'en';
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    if (table.tagName.toLowerCase() === "svg") {
+      table.setAttribute('aria-label', table.__ariaLabel);
+      table.setAttribute('aria-labelledby', table.__ariaLabelledby);
+    }
   }
 }
 
-/**
- * Fix 26 table structure issues
- */
-function fixTableStructure() {
-  const errors = [];
-  
-  // Get all tables in the document
-  if (typeof document !== 'undefined') {
-    const tables = document.querySelectorAll('table');
-    
-    tables.forEach((table, index) => {
-      // Check if table has proper structure
-      const headers = table.querySelectorAll('th');
-      const rows = table.querySelectorAll('tr');
-      
-      // Check if table has headers
-      if (headers.length === 0) {
-        errors.push({
-          tableIndex: index,
-          error: 'Table must have headers'
-        });
-      }
-      
-      // Check if table has rows
-      if (rows.length === 0) {
-        errors.push({
-          tableIndex: index,
-          error: 'Table must have rows'
-        });
-        return;
-      }
-      
-      // Check if each row has same number of cells as headers
-      const headerCount = headers.length;
-      
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const cells = row.querySelectorAll('td, th');
-        
-        if (cells.length !== headerCount) {
-          errors.push({
-            tableIndex: index,
-            rowIndex: i,
-            error: `Row has ${cells.length} cells but headers have ${headerCount}`
-          });
-        }
-      }
-    });
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
-
-/**
- * Add/fix 4 landmark issues
- */
-function addLandmarkIssues() {
-  const errors = [];
-  
-  if (typeof document !== 'undefined') {
-    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
-    
-    landmarks.forEach((landmark, index) => {
-      const role = landmark.getAttribute('role');
-      
-      // Check if landmark has label
-      const label = landmark.getAttribute('aria-label') || 
-                    landmark.getAttribute('aria-labelledby') || 
-                    landmark.querySelector('title')?.textContent;
-      
-      if (!label) {
-        errors.push({
-          landmarkIndex: index,
-          role: role,
-          error: 'Landmark should have aria-label or caption for accessibility'
-        });
-      }
-    });
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
+// ... Existing functions
 
 /**
  * Gets the language attribute for the HTML element

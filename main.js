@@ -34,15 +34,12 @@ const appData = {
   }
 };
 
-// existing code from main.js after conflict markers
-
-// new function or changes requested in the issue
-function generateReport() {
-    // Example logic for report generation
-    let report = 'Report content...';
-    console.log(report);
-    // Return the report for further use or return value
-    return report;
+/**
+ * Initialize the application
+ */
+function initialize() {
+  console.og('Application initialized');
+  return true;
 }
 
 // Preserve existing exports and functions
@@ -437,6 +434,72 @@ function handleFakeLinks() {
   };
 }
 
+/**
+ * Generate a report from validation results
+ * @param {Object} validationResults - Results from validateAllTables or individual validation functions
+ * @returns {string} Formatted report string
+ */
+function generateReport(validationResults) {
+  const lines = [];
+  lines.push('=== Table Validation Report ===');
+  lines.push('');
+  
+  const totalTables = getTables().length;
+  lines.push(`Total tables validated: ${totalTables}`);
+  lines.push('');
+  
+  // Overall status
+  const overallValid = validationResults.isValid !== undefined 
+    ? validationResults.isValid 
+    : (validationResults.accessibility?.isValid && validationResults.structure?.isValid);
+  
+  lines.push(`Overall Status: ${overallValid ? 'PASSED' : 'FAILED'}`);
+  lines.push('');
+  
+  // Accessibility section
+  if (validationResults.accessibility) {
+    const accResult = validationResults.accessibility;
+    lines.push('--- Accessibility Validation ---');
+    lines.push(`Status: ${accResult.isValid ? 'PASSED' : 'FAILED'}`);
+    lines.push(`Errors found: ${accResult.errors.length}`);
+    
+    if (accResult.errors.length > 0) {
+      lines.push('');
+      lines.push('Errors:');
+      accResult.errors.forEach(err => {
+        lines.push(`  - Table ${err.tableIndex}: ${err.error}`);
+      });
+    }
+    lines.push('');
+  }
+  
+  // Structure section
+  if (validationResults.structure) {
+    const structResult = validationResults.structure;
+    lines.push('--- Structure Validation ---');
+    lines.push(`Status: ${structResult.isValid ? 'PASSED' : 'FAILED'}`);
+    lines.push(`Errors found: ${structResult.errors.length}`);
+    
+    if (structResult.errors.length > 0) {
+      lines.push('');
+      lines.push('Errors:');
+      structResult.errors.forEach(err => {
+        let errorMsg = `  - Table ${err.tableIndex}`;
+        if (err.rowIndex !== undefined) {
+          errorMsg += `, Row ${err.rowIndex}`;
+        }
+        errorMsg += `: ${err.error}`;
+        lines.push(errorMsg);
+      });
+    }
+    lines.push('');
+  }
+  
+  lines.push('=== End of Report ===');
+  
+  return lines.join('\n');
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -450,14 +513,5 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateAllTables,
-  getLangAttribute,
-  createInPageButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLandmarkUniqueness,
-  validateLinkAccessibility,
-  handleFakeLinks
+  generateReport
 };

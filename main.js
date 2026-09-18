@@ -449,6 +449,58 @@ const validateTableAccessibilityDetailed = (tableElement) => {
   });
 }
 
+// Fix table structure issues for accessibility
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const hasThead = table.querySelector('thead') !== null;
+    const hasTbody = table.querySelector('tbody') !== null;
+    
+    if (hasThead || hasTbody) return;
+    
+    // Check if first row looks like a header row
+    const firstRow = table.rows[0];
+    if (!firstRow) return;
+    
+    let isHeaderRow = true;
+    for (let i = 0; i < firstRow.cells.length; i++) {
+      const cell = firstRow.cells[i];
+      if (cell.tagName === 'TH') {
+        isHeaderRow = true;
+      } else if (cell.textContent.trim() === '') {
+        isHeaderRow = true;
+      } else {
+        isHeaderRow = false;
+        break;
+      }
+    }
+    
+    if (isHeaderRow) {
+      const thead = document.createElement('thead');
+      thead.appendChild(firstRow.cloneNode(true));
+      table.insertBefore(thead, table.firstChild);
+      
+      const tbody = document.createElement('tbody');
+      for (let i = 1; i < table.rows.length; i++) {
+        tbody.appendChild(table.rows[i].cloneNode(true));
+      }
+      table.appendChild(tbody);
+    }
+  });
+}
+
+// Add main landmark for accessibility
+function addMainLandmark() {
+  const mains = document.querySelectorAll('main');
+  if (mains.length === 0) {
+    const main = document.createElement('main');
+    while (document.body.firstChild) {
+      main.appendChild(document.body.firstChild);
+    }
+    document.body.appendChild(main);
+  }
+}
+
 // Render a dependency graph visualization with accessibility support
 function renderDependencyGraph(container, graphData) {
   if (!container || typeof container.appendChild !== 'function') {
@@ -902,7 +954,7 @@ if (typeof module !== 'undefined' && module.exports) {
     getLangAttribute,
     getSvgAccessibleName,
     setSvgAttributes,
-    generateAccessibilityReport
+    createAnnouncer
   };
 }
 

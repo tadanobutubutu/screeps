@@ -96,6 +96,7 @@ function addressReactAccessibilityIssues(insightReport) {
 // appropriate modules.
 // Updated: imported and used dependencyGraphContent and indexContent in the
 // relevant rendering functions.
+// TODO: This is the existing code that needs to be preserved
 
 // Placeholder content generators - should be replaced with actual imports
 const dependencyGraphContent = {

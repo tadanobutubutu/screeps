@@ -1,4 +1,4 @@
-// TODO: Implement validation for landmark, landmarkStructure, and landmarkAttributes.
+// TODO: This is the existing code that needs to be preserved
 
 const dependencyGraphContent = {
   generate: function(options = {}) {

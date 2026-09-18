@@ -136,6 +136,11 @@ function addLangAttribute(lang) {
   }
 }
 
+function main() {
+  // Main function implementation
+  console.log('Dependency visualization tool running');
+}
+
 module.exports = {
   renderDependencyGraph,
   renderIndex,

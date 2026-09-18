@@ -549,6 +549,50 @@ function validateAccessibility() {
   };
 }
 
+/**
+ * Get the language attribute for the document (REACT_015)
+ * @returns {string} Language code (defaults to 'en' if not set)
+ */
+function getLangAttribute() {
+  // Check for lang attribute on document.documentElement
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const lang = document.documentElement.getAttribute('lang');
+    if (lang && lang.trim() !== '') {
+      return lang.trim();
+    }
+  }
+  // Default to English if no lang attribute is found
+  return 'en';
+}
+
+/**
+ * Create an in-page button element with proper accessibility attributes (REACT_015)
+ * @param {string} text - Button label text
+ * @param {Function} onClick - Click handler function
+ * @param {Object} options - Optional configuration
+ * @param {string} options.id - Button ID
+ * @param {string} options.className - Additional CSS class names
+ * @returns {Object} Button configuration object with accessibility support
+ */
+function createInPageButton(text, onClick, options = {}) {
+  const lang = getLangAttribute();
+  
+  return {
+    tagName: 'button',
+    text: text,
+    attributes: {
+      type: 'button',
+      lang: lang,
+      'aria-label': options.ariaLabel || text
+    },
+    id: options.id || null,
+    className: options.className || '',
+    onClick: typeof onClick === 'function' ? onClick : null,
+    // Include the lang attribute in the rendered element for accessibility
+    lang: lang
+  };
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -563,13 +607,5 @@ module.exports = {
   validateTableStructure,
   validateAllTables,
   getLangAttribute,
-  createInPageButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  validateUniqueLandmarks,
-  validateAccessibility
+  createInPageButton
 };

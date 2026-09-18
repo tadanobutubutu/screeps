@@ -128,9 +128,9 @@ export function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
         ids.push(landmark.id);
       }
     } else {
-      let generatedId = `${prefix}-${Math.floor(Math.random() * 900000) + 100000}`;
+      let generatedId = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       while (usedIds.has(generatedId)) {
-        generatedId = `${prefix}-${Math.floor(Math.random() * 900000) + 100000}`;
+        generatedId = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       }
       landmark.id = generatedId;
       usedIds.add(generatedId);
@@ -144,7 +144,7 @@ export function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
 export function setLanguageAttribute(languageCode) {
   const htmlElement = document.querySelector('html');
   if (htmlElement) {
-    htmlElement.setAttribute('lang', languageCode || 'en');
+    htmlElement.lang = languageCode;
   }
 }
 
@@ -154,11 +154,13 @@ export function anotherFunction() {
 }
 
 export function addDependencyGraphAriaLabel() {
-  const container = document.getElementById('dependencyGraph');
-  addAriaLabel(container, 'Dependency Graph');
+  const container = document.querySelector('.dependencyGraph');
+  if (container) {
+    addAriaLabel(container, 'Dependency Graph');
+  }
 }
 
-export function fixTableStructureIssues() {
+export function fixTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     // ... (Preserve existing functionality)
@@ -193,7 +195,7 @@ export function addSvgAccessibleNames() {
   });
 }
 
-export function ensureUniqueLandmarks() {
+export function ensureUniqueLandmarksMultiple() {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     for (let i = 1; i < mainElements.length; i++) {
@@ -205,7 +207,7 @@ export function ensureUniqueLandmarks() {
 }
 
 export function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"], .fake-link, [data-fake-link]');
+  const fakeLinks = document.querySelectorAll('.fake-link, [data-fake-link]');
   fakeLinks.forEach((fakeLink) => {
     const href = fakeLink.getAttribute('data-href');
     if (href) {
@@ -216,7 +218,7 @@ export function fixFakeLinkIssue() {
   });
 }
 
-export function addSVGAccessibilityProps(svgElement, options = {}) {
+export function enhanceSvgAccessibility(svgElement, options = {}) {
   if (!svgElement) {
     return;
   }
@@ -231,7 +233,8 @@ export function addSVGAccessibilityProps(svgElement, options = {}) {
     svgElement.setAttribute('aria-label', label);
   }
 
-  svgElement.setAttribute('focusable', 'false');
+  // Make SVG focusable for keyboard navigation
+  svgElement.setAttribute('tabindex', '0');
 
   return svgElement;
 }
@@ -240,20 +243,23 @@ export function enhanceSVGsAccessibility() {
   const svgElements = document.querySelectorAll('svg');
 
   svgElements.forEach((svg) => {
-    const hasRole = svg.getAttribute('role');
-    const hasAriaLabel = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby');
+    // Skip if already has accessibility attributes
+    const hasRole = svg.hasAttribute('role');
+    const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby') || svg.hasAttribute('aria-describedby');
     const hasDescriptiveChild = svg.querySelector('title, desc');
 
     if (!hasRole && !hasAriaLabel && !hasDescriptiveChild) {
-      setSvgAttributes(svg, { label: 'Decorative image' });
+      // Add default accessibility props to bare SVGs
+      enhanceSvgAccessibility(svg, { label: 'SVG Icon' });
     }
   });
 }
 
 export function setupAccessibility() {
   // Add lang attribute with default English
-  setLanguageAttribute();
+  setLanguageAttribute('en');
 
+  // Ensure skip links work properly
   const skipLink = document.querySelector('.skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
@@ -269,12 +275,12 @@ export function setupAccessibility() {
   enhanceSVGsAccessibility();
 }
 
-let internalFunction1 = (arg1, arg2) => {
-  return arg1 + arg2;
+export let internalFunction1 = (arg1, arg2) => {
+  // Implementation of the new function (adjust as necessary)
 };
 
-let internalFunction2 = () => {
-  return true;
+export let internalFunction2 = () => {
+  // Implementation of the new function (adjust as necessary)
 };
 
 export function ensureElementHasId(element, prefix = 'element') {
@@ -283,18 +289,3 @@ export function ensureElementHasId(element, prefix = 'element') {
   }
 
   if (element.id) {
-    return element.id;
-  }
-
-  const generatedId = `${prefix}-${Math.floor(Math.random() * 900000) + 100000}`;
-  element.id = generatedId;
-  return generatedId;
-}
-
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-export function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', languageCode);
-  }
-}

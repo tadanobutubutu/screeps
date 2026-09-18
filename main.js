@@ -90,6 +90,20 @@ function validateTableAccessibility() {
           tableIndex: i,
           error: `Table should have aria-label or caption for accessibility when using SVG`
         });
+      } else if (issue.type === 'svg') {
+        // Extract the accessible name for an SVG from its content
+        const svgContent = issue.element.innerHTML;
+        const svgName = /<title>(.*?)<\/title>/gi.exec(svgContent);
+        if (svgName && svgName.length > 1) {
+          issue.element.setAttribute('aria-label', svgName[1]);
+        } else {
+          issue.element.setAttribute('aria-label', defaultText);
+        }
+        summary.fixes.push({
+          type: 'svg',
+          index: issue.index,
+          action: 'Extracted accessible name'
+        });
       }
       table.__ariaLabel = table.ariaLabel || table.caption;
       table.__ariaLabelledby = table.ariaLabelledby || `${table.id || ''}-label`;

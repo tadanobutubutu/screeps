@@ -108,6 +108,14 @@ function addressAccessibilityIssues(insightReport) {
 
 // ...
 
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+function someFunction() {
+  return null;
+}
+
 module.exports = {
     // ...
     validateTableAccessibility,

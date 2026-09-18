@@ -55,19 +55,28 @@ module.exports = {
         let bestPos = null;
         let bestScore = Infinity;
 
-        openSpaces.forEach((space) => {
+        // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop instead of openSpaces.forEach
+        // and eliminate array allocation/spread overhead in source distance calculation.
+        for (let i = 0; i < openSpaces.length; i++) {
+            const space = openSpaces[i];
             const pos = new RoomPosition(space.x, space.y, room.name);
 
             // Calculate distance score (lower is better)
             const controllerDist = pos.getRangeTo(controller);
-            const sourceDist = Math.min(...sources.map((s) => pos.getRangeTo(s)));
+            let sourceDist = Infinity;
+            for (let j = 0; j < sources.length; j++) {
+                const dist = pos.getRangeTo(sources[j]);
+                if (dist < sourceDist) {
+                    sourceDist = dist;
+                }
+            }
             const score = controllerDist * 2 + sourceDist;
 
             if (score < bestScore) {
                 bestScore = score;
                 bestPos = pos;
             }
-        });
+        }
 
         return bestPos;
     },
@@ -78,13 +87,15 @@ module.exports = {
             return;
         }
 
-        positions.forEach((pos) => {
+        // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop instead of forEach to eliminate closure allocations
+        for (let i = 0; i < positions.length; i++) {
+            const pos = positions[i];
             room.visual.circle(pos.x, pos.y, {
                 radius: 0.4,
                 fill: color,
                 opacity: 0.5,
             });
-        });
+        }
     },
 
     // Get tiles at a certain distance from a position (Floodfill concept)

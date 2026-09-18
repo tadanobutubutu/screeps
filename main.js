@@ -144,23 +144,44 @@ function displayModuleStructure(modules) {
 }
 
 /**
- * Ensures all landmark identifiers are unique by deduplicating the provided array.
- * @param {Array} landmarks - Array of landmark identifiers or objects
- * @returns {Array} Array of unique landmark identifiers
+ * Renders an index view, typically for a collection or list of items,
+ * consolidating existing rendering logic with module structure display.
+ * @param {Object} data - Data object containing items to render in the index view
+ * @returns {string} Formatted index view
  */
-function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
+function renderIndexView(data) {
+  if (!data || typeof data !== 'object') {
+    return 'Invalid data object';
   }
-  const seen = new Set();
-  return landmarks.filter(item => {
-    const key = typeof item === 'object' ? JSON.stringify(item) : item;
-    if (seen.has(key)) {
-      return false;
+
+  const items = Array.isArray(data.items) ? data.items : [];
+  let result = 'Index View:\n';
+  result += `Title: ${data.title || 'Untitled'}\n`;
+  result += `Total items: ${items.length}\n\n`;
+
+  items.forEach((item, index) => {
+    result += `${index + 1}. ${item.name || `Item ${index + 1}`}\n`;
+
+    if (item.description) {
+      result += `   Description: ${item.description}\n`;
     }
-    seen.add(key);
-    return true;
+
+    if (item.version) {
+      result += `   Version: ${item.version}\n`;
+    }
+
+    if (item.dependencies && Array.isArray(item.dependencies)) {
+      result += `   Dependencies: ${item.dependencies.join(', ')}\n`;
+    }
+
+    if (item.exports) {
+      result += `   Exports: ${JSON.stringify(item.exports)}\n`;
+    }
+
+    result += '\n';
   });
+
+  return result;
 }
 
 // Export the new functions if needed
@@ -171,6 +192,6 @@ module.exports = {
   renderDependencyTree,
   renderDependencyList,
   displayModuleStructure,
-  validateLandmark
+  renderIndexView
   // ... other existing exports
 };

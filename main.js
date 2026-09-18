@@ -15,7 +15,8 @@ const appData = {
   config: {
     validateAccessibility: true,
     validateStructure: true
-  }
+  },
+  landmarkRegions: []
 };
 
 /**
@@ -107,63 +108,62 @@ function validateAllTables() {
           // Assume that table has proper semantic HTML structure
         }
 
-        tables.forEach((table) => {
-          validateAccessibility(table);
-        });
+/**
+ * Add proper landmark regions to the application
+ * This function creates and manages landmark regions for Screeps rooms
+ * @returns {Object} Result with success status, count, and regions array
+ */
+function addProperLandmarkRegions() {
+  const landmarkRegions = [];
+  const tables = getTables();
+  
+  // Define the standard landmark region types for Screeps
+  const regionTypes = ['controller', 'source', 'mineral', 'powerBank', 'keeperLair'];
+  
+  // Process each table to add landmark regions
+  tables.forEach((table, index) => {
+    const region = {
+      id: `landmark_${index}_${Date.now()}`,
+      tableId: table.id || index,
+      name: table.name || `Region ${index}`,
+      type: regionTypes[index % regionTypes.length],
+      position: {
+        x: table.x || Math.floor(Math.random() * 50),
+        y: table.y || Math.floor(Math.random() * 50)
+      },
+      created: Date.now(),
+      isActive: true
+    };
+    landmarkRegions.push(region);
+  });
+  
+  // Store landmark regions in appData
+  appData.landmarkRegions = landmarkRegions;
+  
+  return {
+    success: true,
+    count: landmarkRegions.length,
+    regions: landmarkRegions
+  };
+}
 
-        return {
-          isValid: errors.length === 0,
-          errors
-        };
-      }
+/**
+ * Get all landmark regions
+ * @returns {Array} Array of landmark region objects
+ */
+function getLandmarkRegions() {
+  return appData.landmarkRegions;
+}
 
-      /**
-       * Validates the structure of all tables in the application
-       * @returns {Object} Validation result with isValid flag and array of errors
-       */
-      function validateTableStructure() {
-        const errors = [];
-        const tables = getTables();
-
-        // Function to validate structure for each table
-        function validateStructure(table) {
-          // Assume that table has proper semantic HTML structure
-        }
-
-        tables.forEach((table) => {
-          validateStructure(table);
-        });
-
-        return {
-          isValid: errors.length === 0,
-          errors
-        };
-      }
-
-      /**
-       * Validate all tables (convenience function)
-       * @returns {Object} Combined validation results
-       */
-      function validateAllTables() {
-        const accessibilityResult = validateTableAccessibility();
-        const structureResult = validateTableStructure();
-
-        return {
-          accessibility: accessibilityResult,
-          structure: structureResult,
-          isValid: accessibilityResult.isValid && structureResult.isValid
-        };
-      }
-
-      // Module exports
-      module.exports = {
-        initialize,
-        loadTables,
-        getTables,
-        getConfig,
-        setConfig,
-        validateTableAccessibility,
-        validateTableStructure,
-        validateAllTables,
-        MyComponent
-      };
+module.exports = {
+  initialize,
+  loadTables,
+  getTables,
+  getConfig,
+  setConfig,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateAllTables,
+  addProperLandmarkRegions,
+  getLandmarkRegions
+};

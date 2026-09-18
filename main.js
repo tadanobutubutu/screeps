@@ -33,14 +33,6 @@ function announceToScreenReader(message, priority = 'polite') {
   }, 1000);
 }
 
-// Preserving existing code, exports, and functions
-
-  // Clear after announcement to allow re-announcement of same message
-  setTimeout(() => {
-    announcer.textContent = '';
-  }, 1000);
-}
-
 function createAnnouncer() {
   const announcer = document.createElement('div');
   announcer.id = 'sr-announcer';

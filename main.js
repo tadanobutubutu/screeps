@@ -1,4 +1,4 @@
-// Import required module(s) - for addressing accessibility issues
+// Import required module(s) - for fixing table structure issues and SVG accessibility issues
 import './table-styles.css';
 
 // main.js - Entry point for the application
@@ -141,19 +141,54 @@ export function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
   return ids;
 }
 
-function addDependencyGraphAriaLabel() {
-  const container = document.getElementById('dependencyGraph');
-  addAriaLabel(container, 'Dependency Graph');
+function setLanguageAttribute(languageCode = 'en') {
+  const htmlElement = document.documentElement || document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', languageCode);
+  }
 }
 
-function checkTablesAccessibility(tables) {
-  tables.forEach((table) => {
-    // ... (Preserve existing functionality)
+export function anotherFunction() {
+  // More existing functionality
+  return 'anotherFunction executed';
+}
 
-    // Add new functionality to enhance table structure
-    if (table.hasAttribute('role') !== 'table') {
+function wrapContentInMain(container) {
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table) => {
+    // Wrap tables in a main element if not already
+    if (!table.closest('main')) {
+      const main = document.createElement('main');
+      table.parentNode.insertBefore(main, table);
+      main.appendChild(table);
+    }
+  });
+}
+
+function validateTableAccessibility(tables) {
+  tables.forEach((table) => {
+    // Validate that tables have proper accessibility attributes
+    if (!table.getAttribute('role') && !table.querySelector('caption')) {
+      // Add role="table" for accessibility
       table.setAttribute('role', 'table');
     }
+    // Ensure proper table structure
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th) => {
+      if (!th.getAttribute('scope')) {
+        // Determine if header is for column or row
+        const parent = th.parentElement;
+        if (parent && parent.tagName === 'TR') {
+          const cells = Array.from(parent.children);
+          const thIndex = cells.indexOf(th);
+          if (thIndex === 0) {
+            th.setAttribute('scope', 'row');
+          } else {
+            th.setAttribute('scope', 'col');
+          }
+        }
+      }
+    });
   });
 }
 
@@ -164,7 +199,12 @@ export function addMainLandmark() {
     const body = document.body;
     if (body) {
       // Wrap content in main element
-      body.insertBefore(mainElement, body.firstChild);
+      const firstChild = body.firstChild;
+      if (firstChild) {
+        body.insertBefore(mainElement, firstChild);
+      } else {
+        body.appendChild(mainElement);
+      }
     }
   }
   return mainElement;
@@ -173,11 +213,18 @@ export function addMainLandmark() {
 export function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg) => {
-    // ... (Merge the changes from both branches)
-
-    // Add new function for additional SVG accessibility enhancements
-    if (svg.querySelector('title') && !svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', svg.querySelector('title').innerText);
+    // Merge the changes from both branches
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (title) {
+        const titleText = title.textContent;
+        if (titleText) {
+          svg.setAttribute('aria-label', titleText);
+        }
+      }
     }
   });
 }
@@ -186,26 +233,44 @@ export function ensureUniqueLandmarksMultiple() {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     // Keep the first <main> and convert others to <section> or <div>
-    // Preserve existing functionality
-  } else if (mainElements.length === 1) {
-    mainElements[0].setAttribute('id', 'main-content');
+    for (let i = 1; i < mainElements.length; i++) {
+      const element = mainElements[i];
+      const newElement = document.createElement('section');
+      newElement.id = `section-${i}`;
+      // Copy attributes
+      Array.from(element.attributes).forEach((attr) => {
+        newElement.setAttribute(attr.name, attr.value);
+      });
+      // Move children
+      while (element.firstChild) {
+        newElement.appendChild(element.firstChild);
+      }
+      element.parentNode.replaceChild(newElement, element);
+    }
   }
 }
 
 function fixFakeLinkIssue() {
   const fakeLinks = document.querySelectorAll('.fake-link, [data-fake-link]');
   fakeLinks.forEach((fakeLink) => {
-    // ... (Preserve existing functionality)
-
-    // Add new function to set an id for fake links
-    if (!fakeLink.id) {
-      const generatedId = ensureElementHasId(fakeLink);
-      fakeLink.id = generatedId;
+    // Preserve existing functionality
+    const href = fakeLink.getAttribute('data-href');
+    if (href) {
+      fakeLink.setAttribute('role', 'link');
+      fakeLink.setAttribute('tabindex', '0');
+      fakeLink.addEventListener('click', () => {
+        window.location.href = href;
+      });
+      fakeLink.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          window.location.href = href;
+        }
+      });
     }
   });
 }
 
-function addSvgAccessibilityProps(svgElement, options = {}) {
+function setSvgAttributes(svgElement, options = {}) {
   if (!svgElement) {
     return;
   }
@@ -226,18 +291,43 @@ function addSvgAccessibilityProps(svgElement, options = {}) {
   return svgElement;
 }
 
-export function enhanceSVGsAccessibility() {
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) {
+    return '';
+  }
+  // Check for aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  // Check for aria-labelledby
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) {
+      return labelElement.textContent;
+    }
+  }
+  // Check for title element
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent;
+  }
+  return '';
+}
+
+function enhanceSVGsAccessibility() {
   const svgElements = document.querySelectorAll('svg');
 
   svgElements.forEach((svg) => {
     // Skip if already has accessibility attributes
     const hasRole = svg.hasAttribute('role');
-    const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby') || svg.hasAttribute('aria-describedby');
+    const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby');
     const hasDescriptiveChild = svg.querySelector('title, desc');
 
     if (!hasRole && !hasAriaLabel && !hasDescriptiveChild) {
       // Add default accessibility props to bare SVGs
-      addSvgAccessibilityProps(svg, { label: 'Decorative image' });
+      setSvgAttributes(svg, { label: 'Decorative SVG' });
     }
   });
 }
@@ -247,50 +337,6 @@ export function setupAccessibility() {
   setLanguageAttribute('en');
 
   // Ensure skip links work properly
-  const skipLink = document.querySelector('.skip-link, [data-skip-link]');
+  const skipLink = document.querySelector('a[href^="#"]');
   if (skipLink) {
-    skipLink.addEventListener('click', (e) => {
-      const targetId = skipLink.getAttribute('href').slice(1);
-      const target = document.getElementById(targetId);
-      if (target) {
-        target.tabIndex = -1;
-        target.focus();
-      }
-    });
-  }
-
-  enhanceSVGsAccessibility();
-
-  // Fix table structure issues if any
-  fixTableStructureIssues();
-}
-
-export let internalFunction1 = (arg1, arg2) => {
-  // Implementation of the new function (adjust as necessary)
-};
-
-export let internalFunction2 = () => {
-  // Implementation of the new function (adjust as necessary)
-};
-
-export function ensureElementHasId(element, prefix = 'element') {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (element.id) {
-    return element.id;
-  }
-
-  const generatedId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
-  element.id = generatedId;
-  return generatedId;
-}
-
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', languageCode || 'en');
-  }
-}
+    skipLink.addEventListener('click', (

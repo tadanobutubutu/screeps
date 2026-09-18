@@ -364,13 +364,8 @@ function validateAllTables() {
   };
 }
 
-/**
- * Get all application data
- * @returns {Object} Application data object
- */
-function getData() {
-  return { ...appData };
-}
+// Add lang attribute to HTML element
+document.documentElement.setAttribute('lang', 'en');
 
 // Module exports
 module.exports = {

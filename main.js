@@ -134,7 +134,7 @@ function displayModuleStructure(modules) {
     }
     
     if (module.exports) {
-      result += `   Exports: ${Array.isArray(module.exports) ? module.exports.join(', ') : module.exports}\n`;
+      result += `   Exports: ${module.exports}\n`;
     }
     
     result += '\n';

@@ -364,6 +364,14 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Get all application data
+ * @returns {Object} Application data object
+ */
+function getData() {
+  return { ...appData };
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -377,13 +385,5 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateAllTables,
-  parseArgs,
-  showHelp,
-  runCLI
+  getData
 };
-
-// Run CLI if this file is executed directly
-if (require.main === module) {
-  const args = parseArgs();
-  runCLI(args);
-}

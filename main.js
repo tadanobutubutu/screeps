@@ -566,17 +566,59 @@ function ... newData) {
   return true;
 }
 
-// Generate a report based on accessibility issues found in the page
-function generateAccessibilityReport() {
-  const report = {
-    timestamp: new Date().toISOString(),
-    issues: [],
-    summary: {
-      total: 0,
-      critical: 0,
-      serious: 0,
-      moderate: 0,
-      minor: 0
+/**
+ * Load table data into the application
+ * @param {Array} tables - Array of table objects to load
+ */
+function loadTables(tables) {
+  if (!Array.isArray(tables)) {
+    throw new Error('Tables must be an array');
+  }
+  appData.tables = tables;
+  return true;
+}
+
+/**
+ * Get all loaded tables
+ * @returns {Array} Array of table objects
+ */
+function getTables() {
+  return appData.tables;
+}
+
+/**
+ * Get application configuration
+ * @returns {Object} Configuration object
+ */
+function getConfig() {
+  return { ...appData.config };
+}
+
+/**
+ * Set application configuration
+ * @param {Object} config - Configuration object
+ */
+function setConfig(config) {
+  appData.config = { ...appData.config, ...config };
+}
+
+/**
+ * Validates that all tables in the application meet accessibility standards
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateTableAccessibility() {
+  const errors = [];
+  const tables = getTables();
+  
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    
+    // Check if table has headers
+    if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
+      errors.push({
+        tableIndex: i,
+        error: 'Table must have headers defined'
+      });
     }
   };
 

@@ -141,7 +141,7 @@ module.exports = {
   renderIndex,
   renderApp,
   wrapPrimaryContentInMain,
-  myNewFunction,
-  validateTableAccessibility,
-  validateTableStructure
+  myNewFunction
 };
+
+// TODO: This is the existing code that need to be preserved

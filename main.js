@@ -135,10 +135,7 @@ function addIndexAriaLabel() {
 }
 
 function renderApp(context) {
-  addLangAttribute();
-  addDepGraphAriaLabel();
-  addIndexAriaLabel();
-  return `<div id="app">${renderIndex(context)}</div>`;
+  return `<div class="app-view">${context.content || ''}</div>`;
 }
 
 /**

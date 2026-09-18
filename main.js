@@ -73,70 +73,100 @@ function setConfig(config) {
 }
 
 /**
- * Ensures a table has proper accessibility attributes
- * @param {Object} table - Table object to enhance
- * @returns {Object} Table with accessibility attributes added
+ * Parse command line arguments
+ * @returns {Object} Parsed arguments object
  */
-function ensureTableAccessibility(table) {
-  if (!table || typeof table !== 'object') {
-    throw new Error('Table must be a valid object');
-  }
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const parsed = {
+    validate: false,
+    help: false,
+    config: null,
+    file: null
+  };
   
-  // Ensure table has a caption or aria-label for screen readers
-  if (!table.caption && !table.ariaLabel) {
-    table.caption = table.caption || 'Data table';
-  }
-  
-  // Ensure headers array exists and has content
-  if (!table.headers || !Array.isArray(table.headers)) {
-    table.headers = [];
-  }
-  
-  // Ensure rows array exists
-  if (!table.rows || !Array.isArray(table.rows)) {
-    table.rows = [];
-  }
-  
-  // Ensure each header cell has proper scope information
-  table.headers = table.headers.map((header, index) => {
-    if (typeof header === 'string') {
-      return {
-        content: header,
-        scope: 'col',
-        id: `header-${index}`
-      };
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--validate' || arg === '-v') {
+      parsed.validate = true;
+    } else if (arg === '--help' || arg === '-h') {
+      parsed.help = true;
+    } else if (arg === '--config' || arg === '-c') {
+      if (args[i + 1] && !args[i + 1].startsWith('-')) {
+        parsed.config = args[i + 1];
+        i++;
+      }
+    } else if (!arg.startsWith('-')) {
+      parsed.file = arg;
     }
-    if (typeof header === 'object' && header !== null) {
-      header.scope = header.scope || 'col';
-      header.id = header.id || `header-${index}`;
-      return header;
-    }
-    return { content: String(header), scope: 'col', id: `header-${index}` };
-  });
+  }
   
-  // Mark table as accessibility-enhanced
-  table._accessibilityEnhanced = true;
-  
-  return table;
+  return parsed;
 }
 
 /**
- * Creates an accessible table structure with proper semantics
- * @param {Object} tableConfig - Configuration for the table
- * @returns {Object} Accessible table object
+ * Display CLI help message
  */
-function createAccessibleTable(tableConfig) {
-  const { headers, rows, caption, ariaLabel } = tableConfig;
-  
-  const table = {
-    headers: headers || [],
-    rows: rows || [],
-    caption: caption,
-    ariaLabel: ariaLabel
-  };
-  
-  return ensureTableAccessibility(table);
+function showHelp() {
+  console.log('Usage: node main.js [options] [file]');
+  console.log('');
+  console.log('Options:');
+  console.log('  -v, --validate    Run validation on loaded tables');
+  console.log('  -c, --config      Specify configuration file');
+  console.log('  -h, --help        Display this help message');
+  console.log('');
+  console.log('Examples:');
+  console.log('  node main.js --validate');
+  console.log('  node main.js -v tables.json');
 }
+
+/**
+ * Run CLI with parsed arguments
+ * @param {Object} args - Parsed command line arguments
+ */
+function runCLI(args) {
+  if (args.help) {
+    showHelp();
+    return;
+  }
+  
+  if (args.validate) {
+    const result = validateAllTables();
+    
+    console.log('Validation Results:');
+    console.log('-------------------');
+    
+    if (result.isValid) {
+      console.log('✓ All tables passed validation');
+    } else {
+      console.log('✗ Validation failed');
+      
+      if (!result.accessibility.isValid) {
+        console.log('\nAccessibility Errors:');
+        result.accessibility.errors.forEach(err => {
+          console.log(`  - Table ${err.tableIndex}: ${err.error}`);
+        });
+      }
+      
+      if (!result.structure.isValid) {
+        console.log('\nStructure Errors:');
+        result.structure.errors.forEach(err => {
+          let msg = `  - Table ${err.tableIndex}`;
+          if (err.rowIndex !== undefined) {
+            msg += `, Row ${err.rowIndex}`;
+          }
+          msg += `: ${err.error}`;
+          console.log(msg);
+        });
+      }
+    }
+    
+    console.log('');
+    console.log(`Tables validated: ${getTables().length}`);
+  }
+}
+
+// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
 
 /**
  * Validates that all tables in the application meet accessibility standards
@@ -397,6 +427,14 @@ module.exports = {
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
-  validateLandmarkElements,
-  validateAllTables
+  validateAllTables,
+  parseArgs,
+  showHelp,
+  runCLI
 };
+
+// Run CLI if this file is executed directly
+if (require.main === module) {
+  const args = parseArgs();
+  runCLI(args);
+}

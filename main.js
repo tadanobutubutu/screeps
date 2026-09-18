@@ -289,3 +289,18 @@ export function ensureElementHasId(element, prefix = 'element') {
   }
 
   if (element.id) {
+    return element.id;
+  }
+
+  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = generatedId;
+  return generatedId;
+}
+
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+function setLanguageAttribute(languageCode) {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', languageCode);
+  }
+}

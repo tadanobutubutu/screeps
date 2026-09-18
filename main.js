@@ -5,6 +5,39 @@
  * Contains functions for rendering dependency graphs, index views, and app views
  */
 
+/**
+ * Creates in-page navigation buttons for accessibility and ease of navigation.
+ * Includes skip link and back-to-top functionality.
+ */
+function createInPageButtons() {
+    // Create a container for in-page buttons
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'in-page-buttons';
+    buttonContainer.setAttribute('role', 'navigation');
+    buttonContainer.setAttribute('aria-label', 'In-page navigation');
+
+    // Create skip to main content button
+    const skipButton = document.createElement('button');
+    skipButton.textContent = 'Skip to main content';
+    skipButton.addEventListener('click', () => {
+        const main = document.querySelector('main');
+        if (main) main.focus();
+    });
+
+    // Create back to top button
+    const backToTopButton = document.createElement('button');
+    backToTopButton.textContent = 'Back to top';
+    backToTopButton.addEventListener('click', () => {
+        window.scrollTo(0, 0);
+    });
+
+    buttonContainer.appendChild(skipButton);
+    buttonContainer.appendChild(backToTopButton);
+
+    // Append to body as one of the first elements
+    document.body.insertBefore(buttonContainer, document.body.firstChild);
+}
+
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from the
 // appropriate modules.
@@ -178,8 +211,8 @@ module.exports = {
   myNewFunction,
   ensureUniqueLandmarks,
   addressAccessibilityIssues,
-  fixSVGAccessibility,
-  generateAccessibleFavicon,
+  addressReactAccessibilityIssues,
+  createInPageButtons,
   utilityFunction,
   formatData,
   setLanguageAttribute

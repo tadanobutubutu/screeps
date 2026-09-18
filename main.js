@@ -155,15 +155,80 @@ function getLandmarkRegions() {
   return appData.landmarkRegions;
 }
 
-module.exports = {
-  initialize,
-  loadTables,
-  getTables,
-  getConfig,
-  setConfig,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateAllTables,
-  addProperLandmarkRegions,
-  getLandmarkRegions
-};
+      /**
+       * Get all loaded tables
+       * @returns {Array} Array of table objects
+       */
+      function getTables() {
+        return appData.tables;
+      }
+
+      /**
+       * Get application configuration
+       * @returns {Object} Configuration object
+       */
+      function getConfig() {
+        return { ...appData.config };
+      }
+
+      /**
+       * Set application configuration
+       * @param {Object} config - Configuration object
+       */
+      function setConfig(config) {
+        appData.config = { ...appData.config, ...config };
+      }
+
+      /**
+       * TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
+       */
+
+      /**
+       * Validates that all tables in the application meet accessibility standards
+       * @returns {Object} Validation result with isValid flag and array of errors
+       */
+      function validateTableAccessibility() {
+        const errors = [];
+        const tables = getTables();
+
+        // ... Existing validateTableAccessibility() implementation
+      }
+
+      /**
+       * Validates the structure of all tables in the application
+       * @returns {Object} Validation result with isValid flag and array of errors
+       */
+      function validateTableStructure() {
+        const errors = [];
+        const tables = getTables();
+
+        // ... Existing validateTableStructure() implementation
+      }
+
+      /**
+       * Validate all tables (convenience function)
+       * @returns {Object} Combined validation results
+       */
+      function validateAllTables() {
+        const accessibilityResult = validateTableAccessibility();
+        const structureResult = validateTableStructure();
+
+        return {
+          accessibility: accessibilityResult,
+          structure: structureResult,
+          isValid: accessibilityResult.isValid && structureResult.isValid
+        };
+      }
+
+      // Module exports
+      module.exports = {
+        initialize,
+        loadTables,
+        getTables,
+        getConfig,
+        setConfig,
+        validateTableAccessibility,
+        validateTableStructure,
+        validateAllTables,
+        MyComponent
+      };

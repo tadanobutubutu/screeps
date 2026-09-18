@@ -71,14 +71,48 @@ function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
 
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAccessibility())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmarkAccessibility())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+/**
+ * Validates that landmark elements are properly defined for accessibility
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateLandmarkElements() {
+  const errors = [];
+  const tables = getTables();
+  
+  // Define standard HTML5 landmark elements
+  const landmarkElements = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    
+    // Check if table has landmark role or element defined
+    const hasLandmarkRole = table.role === 'region' || landmarkElements.some(el => table[el]);
+    const hasLandmarkAria = table.ariaRole && landmarkElements.includes(table.ariaRole.replace('region', ''));
+    const hasMainElement = table.isMain === true;
+    
+    // Table should have some form of landmark association for proper document structure
+    if (!hasLandmarkRole && !hasLandmarkAria && !hasMainElement) {
+      errors.push({
+        tableIndex: i,
+        error: 'Table should be associated with a landmark element (e.g., within main, section, or have role="region")'
+      });
+    }
+    
+    // Check for nested landmarks (which can be problematic)
+    if (table.containedInLandmark === undefined) {
+      // Tables should be aware of their landmark container
+      errors.push({
+        tableIndex: i,
+        error: 'Table should specify which landmark element contains it'
+      });
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
 
 /**
  * Validates that all tables in the application meet accessibility standards
@@ -257,11 +291,13 @@ function addressAccessibilityIssues(applyFixes = true) {
 function validateAllTables() {
   const accessibilityResult = validateTableAccessibility();
   const structureResult = validateTableStructure();
+  const landmarkResult = validateLandmarkElements();
   
   return {
     accessibility: accessibilityResult,
     structure: structureResult,
-    isValid: accessibilityResult.isValid && structureResult.isValid
+    landmarks: landmarkResult,
+    isValid: accessibilityResult.isValid && structureResult.isValid && landmarkResult.isValid
   };
 }
 
@@ -443,9 +479,6 @@ module.exports = {
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables,
-  validateUniqueLandmarks,
-  validateFakeLinks,
-  validateSvgAccessibility,
-  validateHeaderScope
+  validateLandmarkElements,
+  validateAllTables
 };

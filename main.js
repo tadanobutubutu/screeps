@@ -255,20 +255,11 @@ function ensureUniqueMainLandmarks() {
 function fixFakeLinkIssue() {
   const fakeLinks = document.querySelectorAll('.fake-link, [data-fake-link]');
   fakeLinks.forEach((fakeLink) => {
-    // Preserve existing functionality
-    const href = fakeLink.getAttribute('data-href');
-    if (href) {
-      fakeLink.setAttribute('role', 'link');
-      fakeLink.setAttribute('tabindex', '0');
-      fakeLink.addEventListener('click', () => {
-        window.location.href = href;
-      });
-      fakeLink.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          window.location.href = href;
-        }
-      });
-    }
+    // Replace the anchor with a button for accessibility
+    const button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    button.textContent = fakeLink.textContent;
+    fakeLink.parentNode.replaceChild(button, fakeLink);
   });
 }
 
@@ -353,6 +344,9 @@ export function setupAccessibility() {
 
   // Enhance SVG accessibility for all SVGs on the page
   enhanceSVGsAccessibility();
+
+  // Fix fake link issue
+  fixFakeLinkIssue();
 }
 
 let internalFunction1 = (arg1, arg2) => {
@@ -377,10 +371,10 @@ function ensureElementHasId(element, prefix = 'element') {
   return generatedId;
 }
 
-function addAriaLabel(element, label) {
-  if (!element) return;
-  element.setAttribute('aria-label', label);
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+function setLanguageAttribute(languageCode) {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', languageCode);
+  }
 }
-
-// Export for use in other modules if needed
-export { ensureUniqueLandmarks, setupAccessibility, addMainLandmark, ensureUniqueMainLandmarks };

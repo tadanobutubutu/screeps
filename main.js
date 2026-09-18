@@ -156,143 +156,66 @@ function validateLandmarkStructure() {
   };
 }
 
-/**
- * Validates landmark attributes for accessibility
- * @returns {Object} Validation result with isValid flag and array of errors
- */
-function validateLandmarkAttributes() {
-  const errors = [];
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
+// REACT_025: Additional accessibility validation functions
 
 /**
- * Gets the accessible name for an SVG element
- * @param {Object} svg - SVG element object
- * @returns {string} Accessible name for the SVG
+ * Validates HTML attributes for accessibility compliance
+ * Checks for required ARIA attributes and semantic HTML structure
+ * @param {Object} attributes - Object containing HTML attribute key-value pairs
+ * @returns {Object} Validation result with isValid flag and array of warnings
  */
-function getSvgAccessibleName(svg) {
-  if (!svg) return '';
-  return svg.ariaLabel || svg.title || svg.id || 'Unnamed SVG';
-}
-
-/**
- * Sets accessibility attributes on an SVG element
- * @param {Object} svg - SVG element object
- * @param {string} accessibleName - Accessible name to set
- * @returns {Object} Updated SVG element
- */
-function setSvgAttributes(svg, accessibleName) {
-  if (!svg) return null;
-  return {
-    ...svg,
-    ariaLabel: accessibleName,
-    role: 'img'
-  };
-}
-
-/**
- * Validates that landmarks are unique on the page
- * @returns {Object} Validation result with isValid flag and array of errors
- */
-function validateLandmarkUniqueness() {
-  const errors = [];
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
-
-/**
- * Validates link accessibility
- * @returns {Object} Validation result with isValid flag and array of errors
- */
-function validateLinkAccessibility() {
-  const errors = [];
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
-
-/**
- * Handles fake links (links that should be buttons)
- * @returns {Object} Result with list of fake links found
- */
-function handleFakeLinks() {
-  const fakeLinks = [];
-  return {
-    converted: fakeLinks,
-    count: fakeLinks.length
-  };
-}
-
-/**
- * Generate a report from validation results
- * @param {Object} validationResults - Results from validateAllTables or individual validation functions
- * @returns {string} Formatted report string
- */
-function generateReport(validationResults) {
-  const lines = [];
-  lines.push('=== Table Validation Report ===');
-  lines.push('');
+function validateHtmlAttributes(attributes) {
+  const warnings = [];
+  const langValue = attributes && attributes.lang;
   
-  const totalTables = getTables().length;
-  lines.push(`Total tables validated: ${totalTables}`);
-  lines.push('');
-  
-  // Overall status
-  const overallValid = validationResults.isValid !== undefined 
-    ? validationResults.isValid 
-    : (validationResults.accessibility?.isValid && validationResults.structure?.isValid);
-  
-  lines.push(`Overall Status: ${overallValid ? 'PASSED' : 'FAILED'}`);
-  lines.push('');
-  
-  // Accessibility section
-  if (validationResults.accessibility) {
-    const accResult = validationResults.accessibility;
-    lines.push('--- Accessibility Validation ---');
-    lines.push(`Status: ${accResult.isValid ? 'PASSED' : 'FAILED'}`);
-    lines.push(`Errors found: ${accResult.errors.length}`);
-    
-    if (accResult.errors.length > 0) {
-      lines.push('');
-      lines.push('Errors:');
-      accResult.errors.forEach(err => {
-        lines.push(`  - Table ${err.tableIndex}: ${err.error}`);
-      });
-    }
-    lines.push('');
+  // REACT_015: Check for lang attribute presence and validity
+  if (langValue === undefined || langValue === null || langValue === '') {
+    warnings.push({
+      code: 'REACT_015',
+      message: 'HTML element should have a valid lang attribute for screen readers'
+    });
+  } else if (typeof langValue !== 'string' || langValue.trim().length === 0) {
+    warnings.push({
+      code: 'REACT_015',
+      message: 'lang attribute must be a non-empty string'
+    });
   }
   
-  // Structure section
-  if (validationResults.structure) {
-    const structResult = validationResults.structure;
-    lines.push('--- Structure Validation ---');
-    lines.push(`Status: ${structResult.isValid ? 'PASSED' : 'FAILED'}`);
-    lines.push(`Errors found: ${structResult.errors.length}`);
+  return {
+    isValid: warnings.length === 0,
+    warnings: warnings
+  };
+}
+
+/**
+ * Validates that table cells have proper scope attributes for screen readers
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateTableScopeAttributes() {
+  const errors = [];
+  const tables = getTables();
+  
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
     
-    if (structResult.errors.length > 0) {
-      lines.push('');
-      lines.push('Errors:');
-      structResult.errors.forEach(err => {
-        let errorMsg = `  - Table ${err.tableIndex}`;
-        if (err.rowIndex !== undefined) {
-          errorMsg += `, Row ${err.rowIndex}`;
-        }
-        errorMsg += `: ${err.error}`;
-        lines.push(errorMsg);
+    if (!table.headers || !Array.isArray(table.headers)) {
+      continue;
+    }
+    
+    // Check if headers have scope information
+    const headerScopeInfo = table.headerScope;
+    if (!headerScopeInfo) {
+      warnings.push({
+        tableIndex: i,
+        warning: 'Table should specify header scope (col/row) for accessibility'
       });
     }
-    lines.push('');
   }
   
-  lines.push('=== End of Report ===');
-  
-  return lines.join('\n');
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
 }
 
 // Module exports
@@ -308,6 +231,6 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateAllTables,
-  addLangAttribute,
-  checkTableAccessibility
+  validateHtmlAttributes,
+  validateTableScopeAttributes
 };

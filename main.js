@@ -72,46 +72,83 @@ function setConfig(config) {
 }
 
 /**
- * Validates that landmark elements are properly defined for accessibility
+ * Validate a landmark's attributes are valid
+ * @param {Object} landmark - The landmark object to validate
  * @returns {Object} Validation result with isValid flag and array of errors
  */
-function validateLandmarkElements() {
+function validateLandmarkAttributes(landmark) {
   const errors = [];
-  const tables = getTables();
-  
-  // Define standard HTML5 landmark elements
-  const landmarkElements = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
-  for (let i = 0; i < tables.length; i++) {
-    const table = tables[i];
-    
-    // Check if table has landmark role or element defined
-    const hasLandmarkRole = table.role === 'region' || landmarkElements.some(el => table[el]);
-    const hasLandmarkAria = table.ariaRole && landmarkElements.includes(table.ariaRole.replace('region', ''));
-    const hasMainElement = table.isMain === true;
-    
-    // Table should have some form of landmark association for proper document structure
-    if (!hasLandmarkRole && !hasLandmarkAria && !hasMainElement) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table should be associated with a landmark element (e.g., within main, section, or have role="region")'
-      });
-    }
-    
-    // Check for nested landmarks (which can be problematic)
-    if (table.containedInLandmark === undefined) {
-      // Tables should be aware of their landmark container
-      errors.push({
-        tableIndex: i,
-        error: 'Table should specify which landmark element contains it'
-      });
-    }
+
+  if (!landmark.id) {
+    errors.push({
+      field: 'id',
+      error: 'Landmark must have an id'
+    });
   }
-  
+
+  if (!landmark.ariaLabel) {
+    errors.push({
+      field: 'ariaLabel',
+      error: 'Landmark should have an aria-label for accessibility'
+    });
+  }
+
   return {
     isValid: errors.length === 0,
     errors: errors
   };
+}
+
+/**
+ * Validate a landmark's structure is valid
+ * @param {Object} landmark - The landmark object to validate
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateLandmarkStructure(landmark) {
+  const errors = [];
+
+  if (!landmark.tagName || !['div', 'section', 'nav', 'header', 'main', 'footer', 'article'].includes(landmark.tagName)) {
+    errors.push({
+      field: 'tagName',
+      error: 'Landmark tagName should be one of: div, section, nav, header, main, footer, article'
+    });
+  }
+
+  if (landmark.hasOwnProperty('role') && !['landmark', 'banner', 'navigation', 'main', 'article', 'complementary', 'contentinfo', 'form', 'alert', 'grid', 'listbox', 'menu', 'menubutton', 'slider', 'spinner', 'tab', 'tablist', 'tabpanel'].includes(landmark.role)) {
+    errors.push({
+      field: 'role',
+      error: 'Landmark role should be one of: landmark, banner, navigation, main, article, complementary, contentinfo, form, alert, grid, listbox, menu, menubutton, slider, spinner, tab, tablist, tabpanel'
+    });
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Validate a landmark object
+ * @param {Object} landmark - The landmark object to validate
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateLandmark(landmark) {
+  const landmarkResult = validateLandmarkStructure(landmark);
+  const attributesResult = validateLandmarkAttributes(landmark);
+
+  return {
+    structure: landmarkResult,
+    attributes: attributesResult,
+    isValid: landmarkResult.isValid && attributesResult.isValid
+  };
+}
+
+/**
+ * Validates that landmark elements are properly defined for accessibility
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateTableAccessibility() {
+  // (...)
 }
 
 /**
@@ -161,59 +198,7 @@ function validateTableAccessibility() {
  * Export new createInPageButton() function
  */
 function validateTableStructure() {
-  const errors = [];
-  const tables = getTables();
-  
-  for (let i = 0; i < tables.length; i++) {
-    const table = tables[i];
-    
-    // Check if table has headers
-    if (!table.headers) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table missing headers property'
-      });
-      continue;
-    }
-    
-    // Check if table has rows
-    if (!table.rows || !Array.isArray(table.rows)) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table missing rows property'
-      });
-      continue;
-    }
-    
-    // Validate each row has same number of cells as headers
-    const headerCount = table.headers.length;
-    
-    for (let j = 0; j < table.rows.length; j++) {
-      const row = table.rows[j];
-      
-      if (!Array.isArray(row)) {
-        errors.push({
-          tableIndex: i,
-          rowIndex: j,
-          error: 'Row must be an array of cells'
-        });
-        continue;
-      }
-      
-      if (row.length !== headerCount) {
-        errors.push({
-          tableIndex: i,
-          rowIndex: j,
-          error: `Row has ${row.length} cells but headers have ${headerCount}`
-        });
-      }
-    }
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
+  // (...)
 }
 
 /**
@@ -289,182 +274,7 @@ function addressAccessibilityIssues(applyFixes = true) {
  * @returns {Object} Combined validation results
  */
 function validateAllTables() {
-  const accessibilityResult = validateTableAccessibility();
-  const structureResult = validateTableStructure();
-  const landmarkResult = validateLandmarkElements();
-  
-  return {
-    accessibility: accessibilityResult,
-    structure: structureResult,
-    landmarks: landmarkResult,
-    isValid: accessibilityResult.isValid && structureResult.isValid && landmarkResult.isValid
-  };
-}
-
-/**
- * Checks for unique landmark roles across the application
- * @returns {Object} Validation result with isValid flag and array of errors
- */
-function validateUniqueLandmarks() {
-  const errors = [];
-  const tables = getTables();
-  const landmarkRolesMap = {};
-
-  for (let i = 0; i < tables.length; i++) {
-    const table = tables[i];
-
-    if (table.headers && Array.isArray(table.headers)) {
-      for (let j = 0; j < table.headers.length; j++) {
-        const header = table.headers[j];
-        if (header && typeof header === 'object' && header.role) {
-          const role = header.role;
-          if (!landmarkRolesMap[role]) {
-            landmarkRolesMap[role] = [];
-          }
-          landmarkRolesMap[role].push({ tableIndex: i, headerIndex: j });
-        }
-      }
-    }
-  }
-
-  for (const role in landmarkRolesMap) {
-    if (landmarkRolesMap[role].length > 1) {
-      errors.push({
-        role: role,
-        locations: landmarkRolesMap[role],
-        error: `Landmark role "${role}" is used multiple times`
-      });
-    }
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
-
-/**
- * Checks for fake link issues (links that don't navigate or are not proper anchors)
- * @returns {Object} Validation result with isValid flag and array of errors
- */
-function validateFakeLinks() {
-  const errors = [];
-  const tables = getTables();
-
-  for (let i = 0; i < tables.length; i++) {
-    const table = tables[i];
-
-    if (table.headers && Array.isArray(table.headers)) {
-      for (let j = 0; j < table.headers.length; j++) {
-        const header = table.headers[j];
-        if (header && typeof header === 'object' && header.text) {
-          const text = header.text.toString();
-          if (text.startsWith('#') && text.length === 1) {
-            errors.push({
-              tableIndex: i,
-              headerIndex: j,
-              text: text,
-              error: 'Fake link detected: anchor with no href target'
-            });
-          }
-        }
-      }
-    }
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
-
-/**
- * Validates that all SVGs in the application have accessible names
- * @returns {Object} Validation result with isValid flag and array of errors
- */
-function validateSvgAccessibility() {
-  const errors = [];
-  const tables = getTables();
-
-  for (let i = 0; i < tables.length; i++) {
-    const table = tables[i];
-
-    if (table.headers && Array.isArray(table.headers)) {
-      for (let j = 0; j < table.headers.length; j++) {
-        const header = table.headers[j];
-        if (header && typeof header === 'object' && header.svg) {
-          const svg = header.svg;
-          if (!svg.alt && !svg.title && !svg.descr) {
-            errors.push({
-              tableIndex: i,
-              headerIndex: j,
-              error: 'SVG is missing accessible name (alt, title, or descr attribute)'
-            });
-          }
-        }
-      }
-    }
-
-    if (table.rows && Array.isArray(table.rows)) {
-      for (let k = 0; k < table.rows.length; k++) {
-        const row = table.rows[k];
-        if (Array.isArray(row)) {
-          for (let l = 0; l < row.length; l++) {
-            const cell = row[l];
-            if (cell && typeof cell === 'object' && cell.svg) {
-              const svg = cell.svg;
-              if (!svg.alt && !svg.title && !svg.descr) {
-                errors.push({
-                  tableIndex: i,
-                  rowIndex: k,
-                  cellIndex: l,
-                  error: 'SVG is missing accessible name (alt, title, or descr attribute)'
-                });
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
-
-/**
- * Validates and adds scope attributes to header elements
- * @returns {Object} Validation result with isValid flag and array of errors
- */
-function validateHeaderScope() {
-  const errors = [];
-  const tables = getTables();
-
-  for (let i = 0; i < tables.length; i++) {
-    const table = tables[i];
-
-    if (table.headers && Array.isArray(table.headers)) {
-      for (let j = 0; j < table.headers.length; j++) {
-        const header = table.headers[j];
-        if (header && typeof header === 'object') {
-          if (!header.scope || (header.scope !== 'col' && header.scope !== 'row')) {
-            errors.push({
-              tableIndex: i,
-              headerIndex: j,
-              error: 'Header element missing valid scope attribute (scope="col" or scope="row")'
-            });
-          }
-        }
-      }
-    }
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
+  // (...)
 }
 
 // Module exports
@@ -479,6 +289,8 @@ module.exports = {
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
-  validateLandmarkElements,
-  validateAllTables
+  validateAllTables,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure
 };

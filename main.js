@@ -148,87 +148,79 @@ function addProperLandmarkRegions() {
 }
 
 /**
- * Get all landmark regions
- * @returns {Array} Array of landmark region objects
+ * Validates that all landmarks are unique across all tables
+ * @returns {Object} Validation result with isValid flag and array of errors
  */
-function getLandmarkRegions() {
-  return appData.landmarkRegions;
+function validateLandmarkUniqueness() {
+  const errors = [];
+  const tables = getTables();
+  const seenLandmarks = new Set();
+  const duplicateLandmarks = [];
+
+  tables.forEach((table, tableIndex) => {
+    if (table.landmarks && Array.isArray(table.landmarks)) {
+      table.landmarks.forEach((landmark, landmarkIndex) => {
+        const landmarkId = landmark.id || landmark.name || JSON.stringify(landmark);
+        
+        if (seenLandmarks.has(landmarkId)) {
+          const error = {
+            type: 'duplicate_landmark',
+            message: `Duplicate landmark found: ${landmarkId}`,
+            tableIndex,
+            landmarkIndex,
+            landmark
+          };
+          errors.push(error);
+          duplicateLandmarks.push(landmarkId);
+        } else {
+          seenLandmarks.add(landmarkId);
+        }
+      });
+    }
+  });
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    uniqueCount: seenLandmarks.size,
+    duplicateCount: duplicateLandmarks.length
+  };
 }
 
-      /**
-       * Get all loaded tables
-       * @returns {Array} Array of table objects
-       */
-      function getTables() {
-        return appData.tables;
-      }
+/**
+ * Ensures unique landmarks by removing duplicates, keeping the first occurrence
+ * @param {Array} landmarks - Array of landmark objects to deduplicate
+ * @returns {Array} Array of unique landmarks
+ */
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    throw new Error('Landmarks must be an array');
+  }
 
-      /**
-       * Get application configuration
-       * @returns {Object} Configuration object
-       */
-      function getConfig() {
-        return { ...appData.config };
-      }
+  const seen = new Set();
+  const uniqueLandmarks = [];
 
-      /**
-       * Set application configuration
-       * @param {Object} config - Configuration object
-       */
-      function setConfig(config) {
-        appData.config = { ...appData.config, ...config };
-      }
+  landmarks.forEach(landmark => {
+    const landmarkId = landmark.id || landmark.name || JSON.stringify(landmark);
+    
+    if (!seen.has(landmarkId)) {
+      seen.add(landmarkId);
+      uniqueLandmarks.push(landmark);
+    }
+  });
 
-      /**
-       * TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
-       */
+  return uniqueLandmarks;
+}
 
-      /**
-       * Validates that all tables in the application meet accessibility standards
-       * @returns {Object} Validation result with isValid flag and array of errors
-       */
-      function validateTableAccessibility() {
-        const errors = [];
-        const tables = getTables();
-
-        // ... Existing validateTableAccessibility() implementation
-      }
-
-      /**
-       * Validates the structure of all tables in the application
-       * @returns {Object} Validation result with isValid flag and array of errors
-       */
-      function validateTableStructure() {
-        const errors = [];
-        const tables = getTables();
-
-        // ... Existing validateTableStructure() implementation
-      }
-
-      /**
-       * Validate all tables (convenience function)
-       * @returns {Object} Combined validation results
-       */
-      function validateAllTables() {
-        const accessibilityResult = validateTableAccessibility();
-        const structureResult = validateTableStructure();
-
-        return {
-          accessibility: accessibilityResult,
-          structure: structureResult,
-          isValid: accessibilityResult.isValid && structureResult.isValid
-        };
-      }
-
-      // Module exports
-      module.exports = {
-        initialize,
-        loadTables,
-        getTables,
-        getConfig,
-        setConfig,
-        validateTableAccessibility,
-        validateTableStructure,
-        validateAllTables,
-        MyComponent
-      };
+module.exports = {
+  initialize,
+  loadTables,
+  getTables,
+  getConfig,
+  setConfig,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateAllTables,
+  validateLandmarkUniqueness,
+  ensureUniqueLandmarks
+};

@@ -50,10 +50,8 @@ function wrapPrimaryContentInMain() {
  * @returns {string} The rendered HTML/content for the dependency graph
  */
 function renderDependencyGraph(options = {}) {
-  // Update: Incorporate both changes to generate the content
-  const content = options.isDependencyGraphNeeded ? dependencyGraphContent.generate(options) : indexContent.generate(options);
-  // Render the dependency graph with the generated content
-  return `<div class="dependency-graph-view">${content}</div>`;
+  const content = (options.isDependencyGraphNeeded) ? dependencyGraphContent.generate(options) : indexContent.generate(options);
+  return `<div class="dependency-graph">${content}</div>`;
 }
 
 /**
@@ -62,11 +60,8 @@ function renderDependencyGraph(options = {}) {
  * @returns {string} The rendered HTML/content for the index
  */
 function renderIndex(data = {}) {
-  // Ensure the index view is rendered when the dependency graph view is not requested
   const content = (data.isDependencyGraphNeeded) ? '' : indexContent.generate(data);
-  // Render the index with the generated content
-  const displayStyle = (content !== '') ? '' : ' style="display: none;"';
-  return `<div class="index-view hidden"${displayStyle}>${content}</div>`;
+  return `<div class="index-view hidden"${(content !== '') ? '' : ' style="display: none;"'}>${content}</div>`;
 }
 
 /**
@@ -75,13 +70,11 @@ function renderIndex(data = {}) {
  * @returns {string} The rendered application view
  */
 function renderApp(context) {
-  // Update: Conditionally render the index or the dependency graph based on context
-  const viewFunction = context && context.isDependencyGraphNeeded ? renderDependencyGraph : renderIndex;
-  return `<div class="app-container">${viewFunction(context || {})}</div>`;
+  const viewFunction = (context.isDependencyGraphNeeded) ? renderDependencyGraph : renderIndex;
+  return `<div id="app">${viewFunction(context)}</div>`;
 }
 
 const myNewFunction = () => {
-  // Implementation of your new function goes here
   console.log('myNewFunction has been executed');
 };
 

@@ -1,7 +1,10 @@
 // TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-// main.js - Accessibility improvements implementation
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.getElementById('primary-content');
+  if (!primaryContent) {
+    console.error('Primary content element not found');
+    return;
+  }
 
 // Import content generators for dependency graphs and index views
 const dependencyGraphContent = require('./contentGenerators/dependencyGraph');

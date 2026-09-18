@@ -36,7 +36,9 @@ const appData = {
   config: {
     validateAccessibility: true,
     validateStructure: true
-  }
+  },
+  credential: null,
+  credentialTimestamp: null
 };
 
 /**
@@ -85,8 +87,62 @@ function setConfig(config) {
 }
 
 /**
- * Validate a landmark's attributes are valid
- * @param {Object} landmark - The landmark object to validate
+ * Handle credential response from authentication provider
+ * @param {Object} credentialResponse - The credential response object from authentication
+ * @returns {Object} Result of processing the credential response with success status and any error message
+ */
+function handleCredentialResponse(credentialResponse) {
+  if (!credentialResponse) {
+    return {
+      success: false,
+      error: 'Credential response is required'
+    };
+  }
+  
+  if (!credentialResponse.credential) {
+    return {
+      success: false,
+      error: 'Credential token is missing from response'
+    };
+  }
+  
+  if (typeof credentialResponse.credential !== 'string') {
+    return {
+      success: false,
+      error: 'Credential must be a string'
+    };
+  }
+  
+  // Store the credential and timestamp
+  appData.credential = credentialResponse.credential;
+  appData.credentialTimestamp = Date.now();
+  
+  return {
+    success: true,
+    message: 'Credential response handled successfully'
+  };
+}
+
+/**
+ * Get the currently stored credential
+ * @returns {string|null} The stored credential or null if not set
+ */
+function getCredential() {
+  return appData.credential;
+}
+
+/**
+ * Clear the stored credential
+ * @returns {boolean} True if credential was cleared
+ */
+function clearCredential() {
+  appData.credential = null;
+  appData.credentialTimestamp = null;
+  return true;
+}
+
+/**
+ * Validates that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors
  */
 function validateLandmarkAttributes(landmark) {
@@ -303,5 +359,7 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateAllTables,
-  getTableByIndex
+  handleCredentialResponse,
+  getCredential,
+  clearCredential
 };

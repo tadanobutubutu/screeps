@@ -59,6 +59,23 @@ function formatDate(date) {
   return `${year}-${month}-${day}`;
 }
 
+// Function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+    if (!report || typeof report !== 'object') {
+        return [];
+    }
+    
+    const issues = report.issues || report.accessibilityIssues || [];
+    if (!Array.isArray(issues)) {
+        return [];
+    }
+    
+    return issues.filter(issue => {
+        if (!issue || typeof issue !== 'object') return false;
+        return issue.type === 'accessibility' || issue.category === 'accessibility';
+    });
+}
+
 // Original rendering functions from HEAD
 function renderDependencyGraph(graph) {
     if (!graph || typeof graph !== 'object') {
@@ -128,7 +145,13 @@ function updateDependencyGraph(view, graph) {
 
 module.exports = {
   renderDependencyGraph,
-  renderIndex,
-  renderApp,
-  // Add additional functions here if required
+  renderIndexView,
+  updateDependencyGraph,
+  updateIndexView,
+  // Utility functions from HEAD
+  sum,
+  isEven,
+  getTimestamp,
+  // Accessibility function
+  addressAccessibilityIssues
 };

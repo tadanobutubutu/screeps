@@ -2,15 +2,7 @@
  * Main application module for Screeps bot
  */
 
-// Sample data store
-const appData = {
-  tables: [],
-  config: {
-    validateAccessibility: true,
-    validateStructure: true
-  },
-  landmarkRegions: []
-};
+// TODO: Create or update the affected functions to be accessible
 
 /**
  * Initialize the application
@@ -43,38 +35,10 @@ function formatDate(date) {
   if (!(date instanceof Date)) {
     date = new Date(date);
   }
-  appData.tables = tables;
-  return true;
-}
-
-// Function to count dependencies
-function countDependencies(code) {
-  const dependencies = {};
-  const regex = /function\s+([\w\$]+)/g;
-
-  while (match = regex.exec(code)) {
-    key = match[1];
-    if (key !== 'countDependencies') {
-      if (!dependencies[key]) dependencies[key] = 0;
-      dependencies[key]++;
-    }
-  }
-
-  return dependencies;
-}
-
-// Function to use countDependencies
-function newFunction1() {
-  // ... existing code ...
-  const dependencies = countDependencies(code);
-  // ... rest of newFunction1 ...
-}
-
-// Function to use countDependencies
-function newFunction2() {
-  // ... existing code ...
-  const dependencies = countDependencies(code);
-  // ... rest of newFunction2 ...
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 // Original rendering functions from HEAD
@@ -86,7 +50,30 @@ function renderDependencyGraph(graph) {
     // ... existing code ...
   }
 
-  function renderIndexView(items) {
+    const nodeSet = new Set(nodes.map(n => n && n.id).filter(Boolean));
+    const validEdges = edges.filter(e => nodeSet.has(e.from) && nodeSet.has(e.to));
+
+    const lines = [];
+    lines.push('digraph dependencies {');
+    lines.push('  rankdir=LR;');
+    lines.push('  node [shape=box, style=filled, fillcolor="#eef"];');
+
+    for (const node of nodes) {
+        if (node && node.id) {
+            const label = node.label || node.id;
+            lines.push(`  "${node.id}" [label="${label}"];`);
+        }
+    }
+
+    for (const edge of validEdges) {
+        lines.push(`  "${edge.from}" -> "${edge.to}";`);
+    }
+
+    lines.push('}');
+    return lines.join('\n');
+}
+
+function renderIndexView(items) {
     if (!Array.isArray(items)) {
         return '';
     }
@@ -94,7 +81,20 @@ function renderDependencyGraph(graph) {
     // ... existing code ...
   }
 
-  function updateDependencyGraph(view, graph) {
+    items.forEach((item, index) => {
+        if (!item) {
+            return;
+        }
+        const title = item.title || item.name || `Item ${index + 1}`;
+        const id = item.id !== undefined ? item.id : index;
+        lines.push(`- [${title}](#${id})`);
+    });
+
+    lines.push('');
+    return lines.join('\n');
+}
+
+function updateDependencyGraph(view, graph) {
     if (!view) {
         return null;
     }

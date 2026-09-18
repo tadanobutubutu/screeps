@@ -33,13 +33,28 @@ function initialize() {
   return true;
 }
 
-/**
- * Load table data into the application
- * @param {Array} tables - Array of table objects to load
- */
-function loadTables(tables) {
-  if (!Array.isArray(tables)) {
-    throw new Error('Tables must be an array');
+// Existing function
+function getConfig() {
+  return { version: VERSION, name: APP_NAME };
+}
+
+// Existing function
+function isValid(value) {
+  return value !== null && value !== undefined;
+}
+
+function capitalize(str) {
+  if (typeof str !== 'string') return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
   }
   appData.tables = tables;
   return true;
@@ -263,17 +278,8 @@ module.exports = {
   loadTables,
   getTables,
   getConfig,
-  setConfig,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateAllTables,
-  getLangAttribute,
-  createInPageButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks
+  isValid,
+  capitalize,
+  greet,
+  formatDate
 };

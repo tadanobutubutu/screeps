@@ -72,17 +72,6 @@ function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
 
-// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
-// TODO: This is the existing code that needs to be preserved
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// _Commit: 802474da5576f25a22961a91e4a288365bb30708_
-// <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
-
 /**
  * Validate that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors
@@ -235,6 +224,27 @@ function validateTableScopeAttributes() {
   };
 }
 
+/**
+ * Adds proper landmark regions to the tables for accessibility
+ */
+function addProperLandmarkRegions() {
+  const tables = getTables();
+  
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    
+    // Check for proper ARIA roles and landmarks
+    if (!table.ariaRole) {
+      table.ariaRole = 'table'; // Default to 'table' role
+    }
+    
+    // Check if table has a caption or aria-label
+    if (!table.caption && !table.ariaLabel) {
+      table.ariaLabel = `Table ${i + 1}`;
+    }
+  }
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -248,6 +258,5 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateAllTables,
-  validateHtmlAttributes,
-  validateTableScopeAttributes
+  addProperLandmarkRegions
 };

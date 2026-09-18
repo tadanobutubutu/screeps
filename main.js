@@ -316,69 +316,48 @@ function createInPageButton() {
 }
 
 /**
- * Validate landmark regions
- * @returns {Object} Validation result
+ * Get the language attribute value for the HTML element
+ * Addresses REACT_015 accessibility issue
+ * @returns {string} Language attribute value (e.g., 'en', 'es', 'fr')
  */
-function validateLandmark() {
-  // Placeholder implementation – always valid
-  return { isValid: true, errors: [] };
+function getLangAttribute() {
+  // Default to 'en' (English) as the language attribute
+  return appData.config.lang || 'en';
 }
 
 /**
- * Validate landmark structure
- * @returns {Object} Validation result
+ * Create an accessible in-page button element
+ * Addresses REACT_015 accessibility issue by including lang attribute on the button
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Text content of the button
+ * @param {string} [options.id] - Optional ID for the button
+ * @param {string} [options.className] - Optional CSS class names
+ * @param {Function} [options.onClick] - Optional click handler
+ * @returns {Object} Button element object with accessibility attributes
  */
-function validateLandmarkStructure() {
-  // Placeholder implementation – always valid
-  return { isValid: true, errors: [] };
-}
-
-/**
- * Ensure all landmarks have unique roles
- * @returns {boolean} True if all landmarks are unique
- */
-function ensureUniqueLandmarks() {
-  // Placeholder implementation – always unique
-  return true;
-}
-
-/**
- * Get an accessible name for an SVG element
- * @returns {string} The accessible name
- */
-function getSvgAccessibleName() {
-  return 'SVG Graphic';
-}
-
-/**
- * Set attributes on an SVG element
- * @param {Object} svgElement - The SVG element to modify
- * @param {Object} attributes - Attributes to set
- * @returns {Object} The updated SVG element
- */
-function setSvgAttributes(svgElement, attributes) {
-  if (svgElement && typeof svgElement === 'object') {
-    Object.assign(svgElement, attributes);
+function createInPageButton(options = {}) {
+  const lang = getLangAttribute();
+  
+  const button = {
+    tagName: 'button',
+    type: 'button',
+    text: options.text || 'Button',
+    lang: lang,
+    id: options.id || null,
+    className: options.className || '',
+    onClick: options.onClick || null,
+    attributes: {
+      type: 'button',
+      lang: lang,
+      'aria-label': options.ariaLabel || options.text || 'Button'
+    }
+  };
+  
+  if (button.id) {
+    button.attributes.id = button.id;
   }
-  return svgElement;
-}
-
-/**
- * Validate link accessibility
- * @returns {Object} Validation result
- */
-function validateLinkAccessibility() {
-  // Placeholder implementation – always valid
-  return { isValid: true, errors: [] };
-}
-
-/**
- * Handle fake links (e.g., missing href, javascript void)
- * @returns {boolean} True if handled successfully
- */
-function handleFakeLinks() {
-  // Placeholder implementation – always successful
-  return true;
+  
+  return button;
 }
 
 // Module exports
@@ -395,12 +374,5 @@ module.exports = {
   validateTableStructure,
   validateAllTables,
   getLangAttribute,
-  createInPageButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks
+  createInPageButton
 };

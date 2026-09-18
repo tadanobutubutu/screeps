@@ -247,6 +247,9 @@ function createInPageButton(options) {
     button.setAttribute('aria-label', options.label);
   }
 
+  // Accessibility improvements
+  button.setAttribute('aria-label', text); // Add aria-label for screen readers
+
   return button;
 }
 

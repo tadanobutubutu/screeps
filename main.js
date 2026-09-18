@@ -17,7 +17,20 @@
  * Main application module
  */
 
- // Sample data store
+/**
+ * Get a table by its index
+ * @param {number} index - Index of the table to retrieve
+ * @returns {Object|null} Table object or null if not found
+ */
+function getTableByIndex(index) {
+  const tables = getTables();
+  if (index < 0 || index >= tables.length) {
+    return null;
+  }
+  return tables[index];
+}
+
+// Sample data store
 const appData = {
   tables: [],
   config: {
@@ -290,7 +303,5 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateAllTables,
-  validateLandmark,
-  validateLandmarkAttributes,
-  validateLandmarkStructure
+  getTableByIndex
 };

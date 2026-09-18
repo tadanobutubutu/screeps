@@ -104,7 +104,16 @@ if (typeof document !== 'undefined') {
 // Update or create the affected functions to be accessible
 // Address additional accessibility issues by fixing table structure issues
 
-export function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
+function generateUniqueId(prefix = 'id', length = 9) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = `${prefix}-`;
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
   if (!landmarks || !Array.isArray(landmarks)) {
     throw new Error('Landmarks array is required');
   }
@@ -128,9 +137,9 @@ export function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
         ids.push(landmark.id);
       }
     } else {
-      let generatedId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
+      let generatedId = generateUniqueId(prefix);
       while (usedIds.has(generatedId)) {
-        generatedId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
+        generatedId = generateUniqueId(prefix);
       }
       landmark.id = generatedId;
       usedIds.add(generatedId);
@@ -142,9 +151,9 @@ export function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
 }
 
 function setLanguageAttribute(languageCode = 'en') {
-  const htmlElement = document.documentElement || document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', languageCode);
+    htmlElement.lang = languageCode;
   }
 }
 
@@ -153,7 +162,12 @@ export function anotherFunction() {
   return 'anotherFunction executed';
 }
 
-function wrapContentInMain(container) {
+function addDependencyGraphAccessibility(container) {
+  const container = document.querySelector('.dependencyGraph');
+  addAriaLabel(container, 'Dependency Graph');
+}
+
+function fixTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     // Wrap tables in a main element if not already
@@ -199,12 +213,7 @@ export function addMainLandmark() {
     const body = document.body;
     if (body) {
       // Wrap content in main element
-      const firstChild = body.firstChild;
-      if (firstChild) {
-        body.insertBefore(mainElement, firstChild);
-      } else {
-        body.appendChild(mainElement);
-      }
+      body.insertBefore(mainElement, body.firstChild);
     }
   }
   return mainElement;
@@ -229,23 +238,16 @@ export function addSvgAccessibleNames() {
   });
 }
 
-export function ensureUniqueLandmarksMultiple() {
+function ensureUniqueMainLandmarks() {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     // Keep the first <main> and convert others to <section> or <div>
     for (let i = 1; i < mainElements.length; i++) {
-      const element = mainElements[i];
-      const newElement = document.createElement('section');
-      newElement.id = `section-${i}`;
-      // Copy attributes
-      Array.from(element.attributes).forEach((attr) => {
-        newElement.setAttribute(attr.name, attr.value);
-      });
-      // Move children
-      while (element.firstChild) {
-        newElement.appendChild(element.firstChild);
+      const section = document.createElement('section');
+      while (mainElements[i].firstChild) {
+        section.appendChild(mainElements[i].firstChild);
       }
-      element.parentNode.replaceChild(newElement, element);
+      mainElements[i].parentNode.replaceChild(section, mainElements[i]);
     }
   }
 }
@@ -270,7 +272,7 @@ function fixFakeLinkIssue() {
   });
 }
 
-function setSvgAttributes(svgElement, options = {}) {
+function addSvgAccessibilityProps(svgElement, options = {}) {
   if (!svgElement) {
     return;
   }
@@ -322,12 +324,12 @@ function enhanceSVGsAccessibility() {
   svgElements.forEach((svg) => {
     // Skip if already has accessibility attributes
     const hasRole = svg.hasAttribute('role');
-    const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby');
+    const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby') || svg.hasAttribute('aria-describedby');
     const hasDescriptiveChild = svg.querySelector('title, desc');
 
     if (!hasRole && !hasAriaLabel && !hasDescriptiveChild) {
       // Add default accessibility props to bare SVGs
-      setSvgAttributes(svg, { label: 'Decorative SVG' });
+      addSvgAccessibilityProps(svg, { label: 'Decorative SVG' });
     }
   });
 }
@@ -337,6 +339,48 @@ export function setupAccessibility() {
   setLanguageAttribute('en');
 
   // Ensure skip links work properly
-  const skipLink = document.querySelector('a[href^="#"]');
+  const skipLink = document.querySelector('.skip-link, [href="#main"]');
   if (skipLink) {
-    skipLink.addEventListener('click', (
+    skipLink.addEventListener('click', (e) => {
+      const targetId = skipLink.getAttribute('href').substring(1);
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.tabIndex = -1;
+        target.focus();
+      }
+    });
+  }
+
+  // Enhance SVG accessibility for all SVGs on the page
+  enhanceSVGsAccessibility();
+}
+
+let internalFunction1 = (arg1, arg2) => {
+  // Implementation of the new function (adjust as necessary)
+};
+
+let internalFunction2 = () => {
+  // Implementation of the new function (adjust as necessary)
+};
+
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+
+  if (element.id) {
+    return element.id;
+  }
+
+  const generatedId = generateUniqueId(prefix);
+  element.id = generatedId;
+  return generatedId;
+}
+
+function addAriaLabel(element, label) {
+  if (!element) return;
+  element.setAttribute('aria-label', label);
+}
+
+// Export for use in other modules if needed
+export { ensureUniqueLandmarks, setupAccessibility, addMainLandmark, ensureUniqueMainLandmarks };

@@ -162,59 +162,27 @@ function addProperLandmarkRegions() {
 }
 
 /**
- * Ensure unique landmarks (Issue: REACT_025)
- * @returns {Object} Validation result with isValid flag and array of errors
- * TODO: Implement this function to ensure unique landmarks as per requirements
+ * Clear all loaded tables from the application
  */
-function ensureUniqueLandmarks() {
-  // ...
+function clearTables() {
+  appData.tables = [];
+  return true;
 }
 
 /**
- * Validate landmark structure (Issue: REACT_017)
- * @returns {Object} Validation result with isValid flag and array of errors
- * TODO: Implement this function to validate landmark structure as necessary
+ * Get the current application data store
+ * @returns {Object} The appData object
  */
-function validateLandmarkStructure() {
-  // ...
+function getAppData() {
+  return appData;
 }
 
 /**
- * Get accessible name for SVG elements (Issue: REACT_041)
- * @param {Element} svgElement - The SVGElement for which to get an accessible name
- * @returns {String} Accessible name for the SVG element
- * TODO: Implement this function to get accessible names for the specified SVGs
+ * Check if the application is initialized
+ * @returns {boolean} True if tables are loaded, false otherwise
  */
-function getSvgAccessibleName(svgElement) {
-  // ...
-}
-
-/**
- * Set SVG attributes (Issue: REACT_041)
- * @param {String} svgElementId - The ID of the SVG element
- * @param {String} accessibleName - The accessible name for the SVG element
- * @param {String} otherAttributes - Other attributes to set on the SVG element (as an object)
- * TODO: Implement this function to set the given accessible name and other attributes on the specified SVG element
- */
-function setSvgAttributes(svgElementId, accessibleName, otherAttributes) {
-  // ...
-}
-
-/**
- * Validate and handle fake links (Issue: REACT_036)
- * @returns {Object} Validation result with isValid flag and array of errors
- * TODO: Implement this function to find and handle any fake links as per the requirements
- */
-function validateLinkAccessibility() {
-  // ...
-}
-
-/**
- * Validate and handle unique landmarks (Issue: REACT_025)
- * TODO: Implement this function to find and handle any duplicated landmarks
- */
-function validateUniqueLandmarks() {
-  // ...
+function isInitialized() {
+  return appData.tables.length > 0;
 }
 
 module.exports = {
@@ -226,11 +194,7 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateAllTables,
-  ensureUniqueLandmarks,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  validateUniqueLandmarks,
-  // ... Any other required exports
+  clearTables,
+  getAppData,
+  isInitialized
 };

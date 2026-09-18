@@ -10,10 +10,30 @@ function main() {
 }
 
 // Accessibility helper function to announce dynamic content changes to screen readers
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.id = 'sr-announcer';
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.className = 'sr-only';
+  announcer.style.position = 'absolute';
+  announcer.style.left = '-9999px';
+  document.body.appendChild(announcer);
+  return announcer;
+}
+
 function announceToScreenReader(message, priority = 'polite') {
   const announcer = document.getElementById('sr-announcer') || createAnnouncer();
   announcer.setAttribute('aria-live', priority);
   announcer.textContent = message;
+
+  // Clear after announcement to allow re-announcement of same message
+  setTimeout(() => {
+    announcer.textContent = '';
+  }, 1000);
+}
+
+// Preserving existing code, exports, and functions
 
   // Clear after announcement to allow re-announcement of same message
   setTimeout(() => {
@@ -77,6 +97,69 @@ function toggleAriaExpanded(element) {
     if (controlledElement) {
       controlledElement.setAttribute('aria-hidden', isExpanded);
     }
+  }
+}
+
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = 'elem-' + Math.random().toString(36).substr(2, 9);
+  }
+  return element;
+};
+
+  const controlsId = element.getAttribute('aria-controls');
+  if (controlsId) {
+    const controlledElement = document.getElementById(controlsId);
+    if (controlledElement) {
+      controlledElement.setAttribute('aria-hidden', isExpanded);
+    }
+  });
+
+  return { valid: issues.length === 0, issues };
+};
+
+// Ensure unique landmark ARIA labels
+const ensureUniqueLandmarkLabels = (document) => {
+  const landmarks = document.querySelectorAll('nav, header, footer, aside, main, [role="navigation"], [role="banner"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const labelMap = new Map();
+  const duplicates = [];
+  
+  landmarks.forEach(landmark => {
+    const label = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || '';
+    if (label && labelMap.has(label)) {
+      duplicates.push({ label, element: landmark });
+    } else {
+      labelMap.set(label, landmark);
+    }
+  });
+  
+  // Assign unique labels to duplicates
+  duplicates.forEach((dup, index) => {
+    const uniqueLabel = `${dup.label}-${index + 1}`;
+    dup.element.setAttribute('aria-label', uniqueLabel);
+  });
+  
+  return duplicates;
+};
+
+// Get landmark accessibility information
+const getLandmarkAccessibilityInfo = (document) => {
+  const landmarks = document.querySelectorAll('[role], nav, header, footer, aside, main');
+  return Array.from(landmarks).map(el => ({
+    tag: el.tagName.toLowerCase(),
+    role: el.getAttribute('role'),
+    ariaLabel: el.getAttribute('aria-label'),
+    ariaLabelledby: el.getAttribute('aria-labelledby'),
+    id: el.id
+  }));
+};
+
+function getLangAttribute(element) {
+  if (element && element.getAttribute) {
+    return element.getAttribute('lang') || document.documentElement.lang;
+  }
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.getAttribute('lang') || 'en';
   }
 }
 
@@ -197,6 +280,123 @@ function fixFakeLinkIssue() {
       if (onclick) {
         link.setAttribute('tabindex', '0');
       }
+    };
+
+    element.addEventListener('keydown', handleKeyDown);
+
+    return {
+      destroy: () => {
+        element.removeEventListener('keydown', handleKeyDown);
+        originalFocus.focus();
+      }
+    };
+  };
+
+  return {
+    create: createTrap,
+    
+    // Alias for create to match the expected API
+    trapFocus: createTrap,
+    
+    // Helper method to check if an element is focusable
+    isFocusable: (element) => {
+      if (!element) return false;
+      
+      return (
+        element.tabIndex >= 0 || 
+        (element.tagName === 'A' && element.href) ||
+        (element.tagName === 'BUTTON' && !element.disabled) ||
+        (element.tagName === 'INPUT' && !element.disabled) ||
+        (element.tagName === 'TEXTAREA' && !element.disabled) ||
+        (element.tagName === 'SELECT' && !element.disabled)
+      );
+    }
+  };
+}
+
+// Render a dependency graph visualization with accessibility support
+function renderDependencyGraph(container, graphData) {
+  // ... Existing functions and exports ...
+}
+
+// Update existing dependency graph with new data
+function updateDependencyGraph(graphElement, newData) {
+  // ... Existing functions and exports ...
+}
+
+// Update document.readyState check to call new functions as well
+function initAccessibility() {
+  // ... Existing functions and exports ...
+
+  // Add new accessibility functions from insight report
+  addLangAttribute();
+  addSvgAccessibleNames();
+  ensureUniqueLandmarks();
+  fixFakeLinkIssue();
+
+  // ... Existing functions and exports for initAccessibility ...
+}
+
+// Initialize accessibility features on DOM ready
+if (typeof document !== 'undefined' && document.addEventListener) {
+  document.addEventListener('DOMContentLoaded', () => {
+    // ... Existing functions and exports for DOMContentLoaded event ...
+
+    // Add new accessibility functions from insight report
+    addLangAttribute();
+    fixTableStructureIssues();
+    addMainLandmark();
+    addSvgAccessibleNames();
+    ensureUniqueLandmarks();
+    fixFakeLinkIssue();
+    createInPageButton({ id: 'example', label: 'Example Link' });
+
+    // ... Existing functions and exports for DOMContentLoaded event ...
+  });
+}
+
+// ... Existing exports ...
+
+/**
+ * Generate a unique session ID
+ * @returns {string} - Generated session ID
+ */
+function generateSessionId() {
+    const timestamp = Date.now().toString(36);
+    const randomPart = Math.random().toString(36).substring(2, 15);
+    return timestamp + '-' + randomPart;
+}
+
+// Validate table accessibility (REACT_027)
+const validateTableAccessibilityDetailed = (tableElement) => {
+  if (!tableElement || tableElement.tagName !== 'TABLE') {
+    return { valid: false, errors: ['Invalid table element'] };
+  }
+
+  const errors = [];
+  
+  // Check for caption
+  const caption = tableElement.querySelector('caption');
+  if (!caption) {
+    errors.push('Table missing caption');
+  }
+  
+  // Check for summary or aria-label
+  const summary = tableElement.getAttribute('summary') || tableElement.getAttribute('aria-label');
+  if (!summary) {
+    errors.push('Table missing summary or aria-label');
+  }
+  
+  // Check headers
+  const headers = tableElement.querySelectorAll('th');
+  if (headers.length === 0) {
+    errors.push('Table missing header cells');
+  }
+  
+  // Check scope attributes on header cells
+  headers.forEach((th) => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', 'col');
     }
   });
   const buttonsAsLinks = document.querySelectorAll('button[href], a[onclick]');

@@ -79,19 +79,6 @@ function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
 
-const tablePrototype = {
-  // ... Existing properties
-
-  // Add SVG accessibility props
-  get ariaLabel() {
-    return this.caption || '';
-  },
-  get ariaLabelledby() {
-    const id = this.id || '';
-    return id ? `${id}` : `${this.id || ''}-label`;
-  }
-};
-
 /**
  * Validate that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors

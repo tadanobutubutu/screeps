@@ -14,6 +14,69 @@ function checkLandmarkElements() {
 }
 
 /**
+ * Validates landmark elements for accessibility compliance
+ * @param {Object} landmarkData - Object containing landmark information to validate
+ * @returns {Object} Validation result with isValid flag and any errors found
+ */
+function validateLandmark(landmarkData) {
+  const errors = [];
+  
+  if (!landmarkData || typeof landmarkData !== 'object') {
+    return {
+      isValid: false,
+      errors: ['Invalid landmark data provided']
+    };
+  }
+  
+  // Check for required landmarks
+  const requiredLandmarks = ['main'];
+  requiredLandmarks.forEach(landmark => {
+    if (!landmarkData[landmark]) {
+      errors.push(`Missing required landmark: ${landmark}`);
+    }
+  });
+  
+  // Check for proper landmark naming
+  if (landmarkData.nav && !landmarkData.nav.name && !landmarkData.nav.ariaLabel) {
+    errors.push('Navigation landmark should have an accessible name');
+  }
+  
+  if (landmarkData.aside && !landmarkData.aside.name && !landmarkData.aside.ariaLabel) {
+    errors.push('Complementary landmark (aside) should have an accessible name');
+  }
+  
+  // Check for landmark conflicts
+  if (landmarkData.header) {
+    const headerCount = Array.isArray(landmarkData.header) 
+      ? landmarkData.header.length 
+      : 1;
+    if (headerCount > 1) {
+      errors.push('Multiple header landmarks detected - consider using one header with nested elements');
+    }
+  }
+  
+  // Validate landmark hierarchy
+  if (landmarkData.main && landmarkData.main.nestedLandmarks) {
+    const invalidNesting = landmarkData.main.nestedLandmarks.filter(
+      nested => ['header', 'footer', 'main'].includes(nested)
+    );
+    if (invalidNesting.length > 0) {
+      errors.push(`Invalid landmark nesting in main: ${invalidNesting.join(', ')} should not be nested inside main`);
+    }
+  }
+  
+  // Check for landmark redundancy
+  if (landmarkData.nav && landmarkData.nav.isRedundant) {
+    errors.push('Navigation landmark may be redundant if it is the only nav element');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
  * Renders a dependency graph visualization for debugging purposes
  * @param {Object} dependencies - Object containing module dependencies
  * @param {string} [format='tree'] - Output format ('tree', 'list', 'json')
@@ -66,12 +129,12 @@ function displayModuleStructure(modules) {
       result += `   Version: ${module.version}\n`;
     }
     
-    if (module.dependencies && module.dependencies.length) {
-      result += `   Dependencies: ${module.dependencies.join(', ')}\n`;
+    if (module.dependencies && Object.keys(module.dependencies).length > 0) {
+      result += `   Dependencies: ${Object.keys(module.dependencies).join(', ')}\n`;
     }
     
     if (module.exports) {
-      result += `   Exports: ${module.exports}\n`;
+      result += `   Exports: ${Array.isArray(module.exports) ? module.exports.join(', ') : module.exports}\n`;
     }
     
     result += '\n';
@@ -105,7 +168,9 @@ module.exports = {
   // ... existing exports would go here
   checkLandmarkElements,
   renderDependencyGraph,
+  renderDependencyTree,
+  renderDependencyList,
   displayModuleStructure,
-  ensureUniqueLandmarks
+  validateLandmark
   // ... other existing exports
 };

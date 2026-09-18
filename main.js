@@ -18,16 +18,29 @@
  */
 
 /**
- * Get a table by its index
- * @param {number} index - Index of the table to retrieve
- * @returns {Object|null} Table object or null if not found
+ * Validates landmark elements in the application
+ * @returns {Object} Validation result with isValid flag and array of errors
  */
-function getTableByIndex(index) {
+function validateLandmark() {
+  const errors = [];
   const tables = getTables();
-  if (index < 0 || index >= tables.length) {
-    return null;
+  
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    
+    // Check if table has proper landmark information
+    if (!table.landmark) {
+      errors.push({
+        tableIndex: i,
+        error: 'Table missing landmark property'
+      });
+    }
   }
-  return tables[index];
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
 }
 
 // Sample data store
@@ -359,7 +372,5 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateAllTables,
-  handleCredentialResponse,
-  getCredential,
-  clearCredential
+  validateLandmark
 };

@@ -95,6 +95,14 @@ export default function Dashboard() {
         return num.toString();
     };
 
+    const formatBytes = (bytes: number) => {
+        if (bytes < 1024) return `${bytes} B`;
+        return `${(bytes / 1024).toFixed(1)} KB`;
+    };
+
+    const rawJsonStr = stats ? JSON.stringify(stats, null, 2) : '';
+    const jsonSizeFormatted = stats ? formatBytes(new Blob([rawJsonStr]).size) : '';
+
     const copySummary = useCallback(() => {
         if (!stats) return;
         const gclStr = stats.gcl
@@ -1183,6 +1191,22 @@ export default function Dashboard() {
                             ▶
                         </span>
                         <span>生データを確認</span>
+                        {stats && (
+                            <span
+                                style={{
+                                    fontSize: '0.7rem',
+                                    color: '#718096',
+                                    backgroundColor: '#edf2f7',
+                                    padding: '0.1rem 0.35rem',
+                                    borderRadius: '4px',
+                                    border: '1px solid #cbd5e0',
+                                    fontWeight: 'normal',
+                                }}
+                                aria-label={`データサイズ ${jsonSizeFormatted}`}
+                            >
+                                {jsonSizeFormatted}
+                            </span>
+                        )}
                     </summary>
                     <div
                         style={{
@@ -1204,9 +1228,15 @@ export default function Dashboard() {
                                 onFocus={() => setJsonFocused(true)}
                                 onBlur={() => setJsonFocused(false)}
                                 aria-label={
-                                    copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'
+                                    copiedJson
+                                        ? 'コピー済み'
+                                        : `生データをJSONとしてコピー (${jsonSizeFormatted})`
                                 }
-                                title={copiedJson ? 'コピー済み' : 'JSONをコピー'}
+                                title={
+                                    copiedJson
+                                        ? 'コピー済み'
+                                        : `生データをJSONとしてコピー (${jsonSizeFormatted})`
+                                }
                                 style={{
                                     fontSize: '0.75rem',
                                     padding: '0.3rem 0.6rem',
@@ -1226,7 +1256,9 @@ export default function Dashboard() {
                                     outlineOffset: '2px',
                                 }}
                             >
-                                {copiedJson ? '✅ コピー済み' : '📋 JSONをコピー'}
+                                {copiedJson
+                                    ? '✅ コピー済み'
+                                    : `📋 JSONをコピー (${jsonSizeFormatted})`}
                             </button>
                         </div>
                         <pre

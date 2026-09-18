@@ -80,6 +80,76 @@ function setConfig(config) {
 }
 
 /**
+ * REACT_015: Add lang attribute to HTML element for accessibility
+ * Returns the lang attribute value for the document
+ * @param {string} langCode - The language code to set (e.g., 'en', 'es', 'fr')
+ * @returns {Object} Result object with lang attribute and status
+ */
+function addLangAttribute(langCode) {
+  if (!langCode || typeof langCode !== 'string') {
+    return {
+      success: false,
+      error: 'Invalid lang code provided'
+    };
+  }
+  
+  // Validate that it's a proper language code format
+  const validLangCode = /^[a-z]{2}(-[A-Z]{2})?$/;
+  if (!validLangCode.test(langCode)) {
+    return {
+      success: false,
+      error: 'Lang code must be a valid BCP 47 language tag (e.g., "en", "en-US")'
+    };
+  }
+  
+  return {
+    success: true,
+    lang: langCode,
+    attribute: `lang="${langCode}"`
+  };
+}
+
+/**
+ * Check and validate accessibility attributes on tables
+ * @param {Object} table - Table object to check
+ * @returns {Object} Accessibility check result
+ */
+function checkTableAccessibility(table) {
+  const issues = [];
+  
+  // Check for lang attribute
+  if (!table.lang) {
+    issues.push({
+      code: 'REACT_015',
+      message: 'Table missing lang attribute for accessibility'
+    });
+  }
+  
+  // Check for other accessibility attributes
+  if (!table.headers && !table.caption) {
+    issues.push({
+      code: 'REACT_025',
+      message: 'Table missing caption or headers for screen readers'
+    });
+  }
+  
+  // Check for ARIA attributes if needed
+  if (!table.ariaLabel && !table.ariaDescribedBy && !table.caption) {
+    issues.push({
+      code: 'REACT_025',
+      message: 'Table should have aria-label, aria-describedby, or caption'
+    });
+  }
+  
+  return {
+    hasIssues: issues.length > 0,
+    issues: issues
+  };
+}
+
+// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
+
+/**
  * Validate that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors
  */
@@ -320,18 +390,7 @@ module.exports = {
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  addLangAttribute,
+  checkTableAccessibility
 };
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-
-// _Commit: 3d9da56a36fddcbadbb0fcbc219a81c7e69a16d2_
-
-// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->

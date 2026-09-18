@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync, execFileSync } = require('child_process');
 
 const GITHUB_API = 'https://api.github.com';
 // Dynamic env evaluation for testing
@@ -84,8 +83,8 @@ function getAllContributorsConfig() {
  * Contributor として追加されているか確認
  */
 function isAlreadyContributor(config, username) {
-    if (!config || !config.contributors) return false;
-    return config.contributors.some((c) => c.login === username);
+    if (!config || !Array.isArray(config.contributors)) return false;
+    return config.contributors.some((c) => c && typeof c === 'object' && c.login === username);
 }
 
 /**
@@ -123,6 +122,7 @@ function updateAllContributorsConfig(config) {
 function updateReadme() {
     try {
         console.log('📝 Updating README with all-contributors...');
+        const { execFileSync } = require('child_process');
         execFileSync('npx', ['all-contributors-cli', 'generate'], { stdio: 'inherit' });
         console.log('✅ README updated');
     } catch (error) {
@@ -140,6 +140,7 @@ function commitAndPush(username) {
     }
     try {
         console.log('📤 Committing changes...');
+        const { execFileSync } = require('child_process');
         execFileSync('git', ['add', '.all-contributorsrc', 'README.md'], { stdio: 'inherit' });
         execFileSync('git', ['commit', '-m', `docs: add ${username} as a contributor`], {
             stdio: 'inherit',

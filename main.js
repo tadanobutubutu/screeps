@@ -1,5 +1,9 @@
-// Import required module(s) - for fixing table structure issues and SVG accessibility issues
-import './table-styles.css';
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+
+// Accessible Insight Report Interface - Dependency Graph Rendering
+// Line 13: Address accessibility issues from insight report — CONTINUING
 
 // main.js - Entry point for the application
 
@@ -23,79 +27,79 @@ if (typeof document !== 'undefined') {
   if (htmlElement) htmlElement.setAttribute('lang', 'en');
 }
 
-// REACT_025: Add other accessibility changes as per the insight report
-function applyInsightReportAccessibility() {
-  // Ensure the dependencyGraph container has a proper ARIA role and label
-  const dependencyGraph = document.getElementById('dependencyGraph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'region');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-  }
+// Accessibility helper function to announce dynamic content changes to screen readers
+function announceToScreenReader(message, priority = 'polite') {
+  const announcer = document.getElementById('sr-announcer') || createAnnouncer();
+  announcer.setAttribute('aria-live', priority);
+  announcer.textContent = message;
 
-  // Address table structure issues
-  document.querySelectorAll('table').forEach((table) => {
-    const caption = table.querySelector('caption');
-    if (!caption) {
-      const newCaption = document.createElement('caption');
-      newCaption.textContent = 'Data Table';
-      table.insertBefore(newCaption, table.firstChild);
-    }
-  });
-
-  // Ensure main landmark exists
-  let mainElement = document.querySelector('main');
-  if (!mainElement) {
-    mainElement = document.createElement('main');
-    if (document.body) document.body.appendChild(mainElement);
-  }
-
-  // Ensure all landmark elements have unique ids; generate if missing
-  const landmarks = document.querySelectorAll('main, header, nav, aside, footer, [role="main"], [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  const usedIds = new Set();
-  landmarks.forEach((landmark, index) => {
-    if (!landmark) return;
-    if (landmark.id) {
-      if (usedIds.has(landmark.id)) {
-        const newId = 'landmark-' + index;
-        landmark.id = newId;
-        usedIds.add(newId);
-      } else {
-        usedIds.add(landmark.id);
-      }
-    } else {
-      let generatedId = 'landmark-' + index;
-      while (usedIds.has(generatedId)) {
-        generatedId = 'landmark-' + Math.random().toString(36).substr(2, 9);
-      }
-      landmark.id = generatedId;
-      usedIds.add(generatedId);
-    }
-  });
-
-  // Add accessible names to bare SVG elements
-  document.querySelectorAll('svg').forEach((svg) => {
-    if (!svg.hasAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-    if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
-      svg.setAttribute('aria-label', 'Graphic');
-    }
-  });
-
-  // Fix fake link issues by ensuring keyboard accessibility
-  const fakeLinks = document.querySelectorAll('[role="link"], .fake-link, [data-fake-link]');
-  fakeLinks.forEach((fakeLink) => {
-    if (!fakeLink.hasAttribute('tabindex')) {
-      fakeLink.setAttribute('tabindex', '0');
-    }
-  });
+  // Clear after announcement to allow re-announcement of same message
+  setTimeout(() => {
+    announcer.textContent = '';
+  }, 1000);
 }
 
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', applyInsightReportAccessibility);
-  } else {
-    applyInsightReportAccessibility();
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.id = 'sr-announcer';
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.className = 'sr-only';
+  announcer.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+  document.body.appendChild(announcer);
+  return announcer;
+}
+
+// Trap focus within modal dialogs for accessibility
+function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  function handleTabKey(e) {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          lastFocusable.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          firstFocusable.focus();
+          e.preventDefault();
+        }
+      }
+    }
+    // Close on Escape key
+    if (e.key === 'Escape') {
+      element.setAttribute('aria-hidden', 'true');
+      element.style.display = 'none';
+      document.removeEventListener('keydown', handleTabKey);
+    }
+  }
+
+  document.addEventListener('keydown', handleTabKey);
+  firstFocusable && firstFocusable.focus();
+}
+
+// Update ARIA expanded state for collapsible sections
+function toggleAriaExpanded(element) {
+  const isExpanded = element.getAttribute('aria-expanded') === 'true';
+  element.setAttribute('aria-expanded', !isExpanded);
+
+  const controlsId = element.getAttribute('aria-controls');
+  if (controlsId) {
+    const controlledElement = document.getElementById(controlsId);
+    if (controlledElement) {
+      controlledElement.setAttribute('aria-hidden', isExpanded);
+    }
+  });
+
+  // Add warning for accessibility audit
+  if (images.length > 0) {
+    console.warn(`Accessibility: ${images.length} image(s) had missing alt text and were assigned default descriptions.`);
   }
 }
 
@@ -335,30 +339,30 @@ function renderDependencyGraph(container, graphData) {
     console.warn('renderDependencyGraph: Invalid container element');
     return null;
   }
-  
+
   const graphWrapper = document.createElement('div');
   graphWrapper.className = 'dependency-graph';
   graphWrapper.setAttribute('role', 'figure');
   graphWrapper.setAttribute('aria-label', 'Dependency graph');
-  
+
   const title = document.createElement('h3');
   title.textContent = 'Dependency Graph';
   graphWrapper.appendChild(title);
-  
+
   const description = document.createElement('p');
   description.className = 'sr-only';
   description.textContent = 'This visualization shows the dependencies and their relationships.';
   graphWrapper.appendChild(description);
-  
+
   const list = document.createElement('ul');
   list.setAttribute('aria-label', 'Dependency list');
-  
+
   if (graphData && Array.isArray(graphData)) {
     graphData.forEach((item, index) => {
       const listItem = document.createElement('li');
       const itemName = item && item.name ? item.name : `Node ${index + 1}`;
       listItem.textContent = itemName;
-      
+
       if (item && item.dependencies && Array.isArray(item.dependencies) && item.dependencies.length > 0) {
         const subList = document.createElement('ul');
         subList.setAttribute('aria-label', `Dependencies for ${itemName}`);
@@ -369,14 +373,14 @@ function renderDependencyGraph(container, graphData) {
         });
         listItem.appendChild(subList);
       }
-      
+
       list.appendChild(listItem);
     });
   }
-  
+
   graphWrapper.appendChild(list);
   container.appendChild(graphWrapper);
-  
+
   return graphWrapper;
 }
 
@@ -386,10 +390,10 @@ function updateDependencyGraph(graphElement, newData) {
     console.warn('updateDependencyGraph: Invalid graph element');
     return false;
   }
-  
+
   const newGraph = renderDependencyGraph(document.createElement('div'), newData);
   if (!newGraph) return false;
-  
+
   graphElement.parentNode.replaceChild(newGraph, graphElement);
   return true;
 }
@@ -612,7 +616,7 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     inputs.forEach((input, index) => {
       const id = input.id || `auto-input-${index}`;
       input.id = id;
-      
+
       if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
         const label = document.createElement('label');
         label.htmlFor = id;

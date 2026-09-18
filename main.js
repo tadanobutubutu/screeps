@@ -317,120 +317,45 @@ function addLandmarkIssues() {
 }
 
 /**
- * Add accessible names to 2 SVGs
+ * Renders a dependency graph for a given table.
+ * @param {Object} table - Table object containing headers and rows.
+ * @returns {string} Graphviz DOT format string representing the dependency graph.
  */
-function addSvgAccessibleNames() {
-  const errors = [];
-  
-  if (typeof document !== 'undefined') {
-    const svgElements = document.querySelectorAll('svg');
-    
-    svgElements.forEach((svg, index) => {
-      // Skip if SVG already has aria-label or title
-      if (svg.hasAttribute('aria-label') || svg.querySelector('title')) {
-        return;
-      }
-      
-      // Add aria-label to SVG
-      svg.setAttribute('aria-label', `SVG image ${index + 1}`);
-      errors.push({
-        svgIndex: index,
-        error: 'Added aria-label to SVG'
-      });
+function renderDependencyGraph(table) {
+  const nodes = [];
+  const edges = [];
+
+  // Nodes for each header cell
+  table.headers.forEach((header, idx) => {
+    nodes.push(`"header_${idx}" [label="${header}"];`);
+  });
+
+  // Nodes for each row cell and edges from header to cell
+  table.rows.forEach((row, rowIdx) => {
+    row.forEach((cell, colIdx) => {
+      const cellNode = `"cell_${rowIdx}_${colIdx}" [label="${cell}"];`;
+      const headerNode = `"header_${colIdx}"`;
+      edges.push(`${cellNode} -> ${headerNode} [style=dashed];`);
+      nodes.push(cellNode);
     });
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
+  });
+
+  return `digraph DependencyGraph {
+    ${nodes.join('\n')}
+    ${edges.join('\n')}
+  }`;
 }
 
 /**
- * Ensure unique landmarks
+ * Updates the dependency graph for all tables in the application.
+ * This function could be used to re-render graphs after data changes.
  */
-function ensureUniqueLandmarks() {
-  const errors = [];
-  
-  if (typeof document !== 'undefined') {
-    const landmarks = document.querySelectorAll('[role]');
-    const roleCounts = {};
-    
-    landmarks.forEach((landmark, index) => {
-      const role = landmark.getAttribute('role');
-      
-      if (!role) return;
-      
-      if (!roleCounts[role]) {
-        roleCounts[role] = 1;
-      } else {
-        roleCounts[role]++;
-        errors.push({
-          landmarkIndex: index,
-          role: role,
-          error: 'Multiple landmarks with same role, should be unique'
-        });
-      }
-    });
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
-
-/**
- * Fix 1 fake link issue
- */
-function fixFakeLinkIssue() {
-  const errors = [];
-  
-  if (typeof document !== 'undefined') {
-    const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
-    
-    fakeLinks.forEach((link, index) => {
-      // Check if link has text content
-      const text = link.textContent.trim();
-      
-      if (!text) {
-        errors.push({
-          linkIndex: index,
-          error: 'Fake link has no text content'
-        });
-      }
-    });
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
-
-/**
- * Adds lang attribute to the HTML element for accessibility
- * Implements REACT_015: Add lang attribute to HTML element
- * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr')
- * @returns {boolean} True if successful, false otherwise
- */
-function addLangAttribute(lang) {
-  if (typeof lang !== 'string' || lang.length === 0) {
-    return false;
-  }
-  
-  try {
-    // In a real DOM environment, we would do:
-    // document.documentElement.lang = lang;
-    // Or: document.querySelector('html').setAttribute('lang', lang);
-    
-    // For environments without DOM (like tests), we'll store it in appData
-    appData.htmlLang = lang;
-    return true;
-  } catch (error) {
-    console.error('Error setting lang attribute:', error);
-    return false;
-  }
+function updateDependencyGraphs() {
+  const tables = getTables();
+  tables.forEach(table => {
+    const graph = renderDependencyGraph(table);
+    console.log(`Dependency graph for table ${table.headers[0] || 'unknown'}:\n${graph}`);
+  });
 }
 
 // Module exports
@@ -446,5 +371,6 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateAllTables,
-  addLangAttribute
+  renderDependencyGraph,
+  updateDependencyGraphs
 };

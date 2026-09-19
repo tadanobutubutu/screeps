@@ -8,6 +8,8 @@
 
 // Combined utility and accessibility features
 
+// TODO: Implement harvest and upgrade logic
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Ensure unique landmarks
 

@@ -116,255 +116,99 @@ function initializeAccessibility() {
 }
 
 /**
- * Checks if a link is accessible by attempting to navigate to it
- * @param {string} link - The URL of the link to check
- * @returns {Promise<boolean>} - Resolves to true if the link is accessible, false otherwise
+ * Validates landmark elements in a given container
+ * Checks for proper landmark structure, required landmarks, and accessibility issues
+ * @param {Element} [root=document.body] - Root element to search within
+ * @param {Object} [options={}] - Validation options
+ * @param {boolean} [options.checkRequired=true] - Whether to check for required landmarks
+ * @returns {Object} Validation result object
  */
-function isEmpty(value) {
-  return value === null || value === undefined || value === '';
-}
+function validateLandmark(root = document.body, options = {}) {
+  const {
+    checkRequired = true
+  } = options;
 
-/**
- * Capitalizes the first letter of a string
- * @param {string} str - The string to capitalize
- * @returns {string} - The capitalized string
- */
-function capitalize(str) {
-  if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+  // Valid landmark roles according to ARIA specification
+  const validLandmarkRoles = [
+    'banner', 'navigation', 'main', 'complementary', 'contentinfo', 
+    'search', 'form', 'region'
+  ];
 
-/**
- * Generates a random integer between min and max (inclusive)
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Random integer
- */
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-/**
- * Clamps a number between min and max values
- * @param {number} num - Number to clamp
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Clamped number
- */
-function clamp(num, min, max) {
-  return Math.min(Math.max(num, min), max);
-}
-
-/**
- * Deep clones an object
- * @param {*} obj - Object to clone
- * @returns {*} - Cloned object
- */
-function deepClone(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (obj instanceof Date) return new Date(obj.getTime());
-  if (obj instanceof Array) return obj.map(function(item) { return deepClone(item); });
-  if (obj instanceof Object) {
-    const cloned = {};
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        cloned[key] = deepClone(obj[key]);
-      }
-    }
-    return cloned;
-  }
-}
-
-// Add accessible names to SVG elements
-function addAccessibleNamesToSvg(container) {
-  const svgs = container.querySelectorAll('svg');
-  if (svgs.length >= 2) {
-    svgs[0].setAttribute('aria-label', 'First SVG');
-    svgs[1].setAttribute('aria-label', 'Second SVG');
-  }
-
-  if (!containerEl) {
-    console.error('renderIndexView: Container element not found');
-    return null;
-  }
-
-  if (typeof itemRenderer !== 'function') {
-    console.error('renderIndexView: itemRenderer function is required');
-    return null;
-  }
-
-  // Create the list element
-  const list = document.createElement('ul');
-  list.setAttribute('role', role);
-  list.setAttribute('class', 'index-view-list');
-  list.id = `index-view-${Date.now()}`;
-
-  // Create document fragment for performance
-  const fragment = document.createDocumentFragment();
-  const itemElements = [];
-
-  data.forEach((item, index) => {
-    const listItem = document.createElement('li');
-    listItem.setAttribute('role', itemRole);
-    listItem.setAttribute('tabindex', '0');
-    listItem.dataset.index = index;
-
-    const renderedContent = itemRenderer(item, index);
-    if (renderedContent instanceof HTMLElement) {
-      listItem.appendChild(renderedContent);
-    } else {
-      listItem.innerHTML = renderedContent;
-    }
-
-    itemElements.push(listItem);
-    fragment.appendChild(listItem);
+  // Find all elements with explicit landmark roles
+  const landmarks = [];
+  
+  validLandmarkRoles.forEach(role => {
+    const elements = root.querySelectorAll(`[role="${role}"]`);
+    elements.forEach(el => {
+      landmarks.push({
+        role: role,
+        element: el,
+        id: el.id || null
+      });
+    });
   });
 
-  list.appendChild(fragment);
-  containerEl.appendChild(list);
-
-  // Set up keyboard navigation
-  const handleKeyDown = (event) => {
-    const currentIndex = parseInt(event.target.dataset.index, 10);
-
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        if (currentIndex < itemElements.length - 1) {
-          itemElements[currentIndex + 1].focus();
-        }
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        if (currentIndex > 0) {
-          itemElements[currentIndex - 1].focus();
-        }
-        break;
-      case 'Home':
-        event.preventDefault();
-        itemElements[0].focus();
-        break;
-      case 'End':
-        event.preventDefault();
-        itemElements[itemElements.length - 1].focus();
-        break;
-      case 'Enter':
-      case ' ':
-        if (onItemSelect) {
-          event.preventDefault();
-          onItemSelect(itemElements[currentIndex], item);
-        }
-        break;
-    }
-  };
-
-  list.addEventListener('keydown', handleKeyDown);
-
-  // Handle item selection on click
-  list.addEventListener('click', (event) => {
-    const clickedItem = event.target.closest('li');
-    if (clickedItem && onItemSelect) {
-      const index = parseInt(clickedItem.dataset.index, 10);
-      onItemSelect(clickedItem, data[index]);
+  // Check for duplicate IDs
+  const idCount = {};
+  landmarks.forEach(lm => {
+    if (lm.id) {
+      idCount[lm.id] = (idCount[lm.id] || 0) + 1;
     }
   });
 
-  // Set initial focus to first item if any
-  if (itemElements.length > 0) {
-    itemElements[0].focus();
+  const duplicateIds = Object.keys(idCount).filter(id => idCount[id] > 1);
+
+  // Check for missing landmark roles (if checking required)
+  const foundRoles = landmarks.map(lm => lm.role);
+  const missingRoles = checkRequired 
+    ? validLandmarkRoles.filter(role => !foundRoles.includes(role) && 
+        ['main', 'navigation', 'banner'].includes(role))
+    : [];
+
+  // Check for accessibility issues
+  const issues = [];
+
+  // Check for multiple main landmarks (best practice is one)
+  const mainLandmarks = landmarks.filter(lm => lm.role === 'main');
+  if (mainLandmarks.length > 1) {
+    issues.push({
+      type: 'multiple-main-landmarks',
+      message: `Found ${mainLandmarks.length} <main> landmarks. Best practice is to have exactly one.`,
+      severity: 'warning'
+    });
   }
+
+  // Check for missing main landmark
+  if (checkRequired && mainLandmarks.length === 0) {
+    issues.push({
+      type: 'missing-main',
+      message: 'No <main> landmark found. Pages should have exactly one main landmark.',
+      severity: 'error'
+    });
+  }
+
+  // Check navigation landmarks for proper labeling
+  const navLandmarks = landmarks.filter(lm => lm.role === 'navigation');
+  navLandmarks.forEach((nav, index) => {
+    if (!nav.id && !nav.element.getAttribute('aria-label') && 
+        !nav.element.getAttribute('aria-labelledby')) {
+      issues.push({
+        type: 'unlabeled-navigation',
+        message: `Navigation landmark at index ${index} is missing an accessible label (id, aria-label, or aria-labelledby).`,
+        severity: 'warning'
+      });
+    }
+  });
 
   return {
-    getList: () => list,
-    getItems: () => itemElements,
-    getItem: (index) => itemElements[index],
-    updateData: (newData) => {
-      itemElements.forEach((el) => el.remove());
-      itemElements.length = 0;
-
-      const newFragment = document.createDocumentFragment();
-      newData.forEach((item, index) => {
-        const listItem = document.createElement('li');
-        listItem.setAttribute('role', itemRole);
-        listItem.setAttribute('tabindex', '0');
-        listItem.dataset.index = index;
-
-        const renderedContent = itemRenderer(item, index);
-        if (renderedContent instanceof HTMLElement) {
-          listItem.appendChild(renderedContent);
-        } else {
-          listItem.innerHTML = renderedContent;
-        }
-
-        itemElements.push(listItem);
-        newFragment.appendChild(listItem);
-      });
-
-      list.appendChild(newFragment);
-
-      if (itemElements.length > 0) {
-        itemElements[0].focus();
-      }
-    },
-    destroy: () => {
-      list.removeEventListener('keydown', handleKeyDown);
-      list.removeEventListener('click', handleKeyDown);
-      list.remove();
-      itemElements.length = 0;
-    }
+    isValid: issues.filter(i => i.severity === 'error').length === 0,
+    landmarks: landmarks,
+    landmarkCount: landmarks.length,
+    rolesFound: [...new Set(foundRoles)],
+    duplicateIds: duplicateIds,
+    missingRoles: missingRoles,
+    issues: issues
   };
-}
-
-// Wrap primary content in main element for accessibility
-function wrapPrimaryContentInMain() {
-  // If main element already exists, do nothing
-  if (document.querySelector('main')) return;
-
-  // Create main element
-  const main = document.createElement('main');
-  
-  // Move all body content into main element
-  const body = document.body;
-  while (body.firstChild) {
-    main.appendChild(body.firstChild);
-  }
-  
-  // Append main to body
-  body.appendChild(main);
-}
-
-/**
- * Counts dependencies in a package.json-like object
- * @param {Object} packageJson - A package.json object containing dependencies
- * @param {Object} options - Options for counting dependencies
- * @param {boolean} options.includeDevDependencies - Whether to include devDependencies (default: false)
- * @param {boolean} options.includePeerDependencies - Whether to include peerDependencies (default: false)
- * @param {boolean} options.includeOptionalDependencies - Whether to include optionalDependencies (default: false)
- * @returns {number} - The total count of dependencies
- */
-function countDependencies(packageJson, options = {}) {
-  const { includeDevDependencies = false, includePeerDependencies = false, includeOptionalDependencies = false } = options;
-  
-  let count = 0;
-  
-  if (packageJson && typeof packageJson === 'object') {
-    if (packageJson.dependencies) {
-      count += Object.keys(packageJson.dependencies).length;
-    }
-    if (includeDevDependencies && packageJson.devDependencies) {
-      count += Object.keys(packageJson.devDependencies).length;
-    }
-    if (includePeerDependencies && packageJson.peerDependencies) {
-      count += Object.keys(packageJson.peerDependencies).length;
-    }
-    if (includeOptionalDependencies && packageJson.optionalDependencies) {
-      count += Object.keys(packageJson.optionalDependencies).length;
-    }
-  }
-  
-  return count;
 }
 
 // Export for use in other modules
@@ -381,7 +225,7 @@ if (typeof module !== 'undefined' && module.exports) {
     clamp,
     deepClone,
     addAccessibleNamesToSvg,
-    countDependencies
+    validateLandmark
   };
 }
 
@@ -406,6 +250,5 @@ _Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     window.accessibilityFeatures = initializeAccessibility();
-    // Auto-initialize can be called here if needed
   });
 }

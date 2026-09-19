@@ -4,13 +4,15 @@
  * TODO: Add any other missing exports that might have been?
  * Added missing exports as per the issue
  */
-
-export function foo() {
-  return "foo";
-}
-
-export function bar() {
-  return "bar";
+function ensureUniqueLandmarkId(baseName) {
+    let candidate = baseName;
+    if (_usedLandmarkIds.has(candidate)) {
+        // Collision handling: add random suffix
+        const suffix = Math.random().toString(36).substring(2, 9);
+        candidate = `${baseName}-${suffix}`;
+    }
+    _usedLandmarkIds.add(candidate);
+    return candidate;
 }
 
 /**
@@ -197,21 +199,18 @@ function addProperLandmarkRegions() {
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
   const collapsibles = document.querySelectorAll('[aria-expanded]');
-  collapsibles.forEach(collapsible => {
-    if (collapsible.getAttribute('aria-expanded') === 'true') {
-      collapsible.setAttribute('aria-expanded', 'false');
+  collapsibles.forEach(el => {
+    if (el.getAttribute('aria-expanded') === 'true') {
+      el.setAttribute('aria-expanded', 'false');
     }
   });
 
-  // Add aria-labels to form inputs that don't have associated labels
-  const inputs = document.querySelectorAll('input:not([aria-label])');
+  // Add aria-labels to form inputs
+  const inputs = document.querySelectorAll('input');
   inputs.forEach((input, index) => {
     const id = input.id || `input-${index}`;
     input.id = id;
-    const associatedLabel = document.querySelector(`label[for="${id}"]`);
-    if (associatedLabel && !input.getAttribute('aria-label')) {
-      input.setAttribute('aria-label', associatedLabel.textContent);
-    } else if (!input.getAttribute('aria-label')) {
+    if (!input.getAttribute('aria-label')) {
       input.setAttribute('aria-label', `Input field ${index + 1}`);
     }
   });
@@ -229,7 +228,7 @@ function addAriaToFormControls() {
 
   formControls.forEach(control => {
     // Ensure all form controls have accessible names
-    if (control.id && !control.getAttribute('aria-label')) {
+    if (control.id && control.id !== control.getAttribute('aria-labelledby')) {
       const label = document.querySelector(`label[for="${control.id}"]`) || null;
       if (label) {
         label.id = label.id || `label-${control.id}`;
@@ -238,7 +237,7 @@ function addAriaToFormControls() {
     }
 
     // Mark required fields appropriately
-    if (control.required && !control.getAttribute('aria-required')) {
+    if (control.hasAttribute('required') && !control.hasAttribute('aria-required')) {
       control.setAttribute('aria-required', 'true');
     }
   });
@@ -262,10 +261,7 @@ function createAnnouncer() {
   };
 }
 
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
+addAriaToFormControls();
 
 // Function to improve keyboard navigation for interactive elements
 function improveKeyboardNavigation() {

@@ -318,14 +318,4 @@ function createInPageButton(text, ariaLabel) {
     return button;
 }
 
-// Export new functions for use in other modules
-exports.ensureUniqueLandmarkId = ensureUniqueLandmarkId;
-exports.uniqueLandmarks = uniqueLandmarks;
-exports.addLangAttribute = addLangAttribute;
-exports.addAriaLabel = addAriaLabel;
-exports.getLangAttribute = getLangAttribute;
-exports.getFullLangAttribute = getFullLangAttribute;
-exports.setupKeyboardNavigation = setupKeyboardNavigation;
-exports.trapFocus = trapFocus;
-
 // ... other existing functions remained unchanged

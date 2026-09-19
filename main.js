@@ -129,17 +129,29 @@ function addAccessibleNamesToSvg(container) {
 
 // Initialize accessibility features
 function initializeAccessibility() {
-  const container = document.body;
-  document.addEventListener('keydown', handleKeyboardNavigation({}));
-  document.addEventListener('keydown', trapFocus(container));
   const announcer = createAnnouncer();
-  addAccessibleNamesToSvg(container);
+  const handleKeyboard = handleKeyboardNavigation({
+    onEscape: () => {
+      document.body.classList.remove('modal-open');
+    }
+  });
+  addARIAAttributes();
+  trapFocus(document.body);
   
   return {
     announcer,
-    handleKeyboardNavigation,
-    trapFocus
+    handleKeyboard
   };
+}
+
+// Function to add ARIA attributes to SVG elements for accessibility
+function addARIAAttributes() {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
 }
 
 // TODO: add the new functions or changes requested in the issue
@@ -426,5 +438,6 @@ _Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     window.accessibilityFeatures = initializeAccessibility();
+    addARIAAttributes();
   });
 }

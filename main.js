@@ -313,252 +313,20 @@ function validateTableAccessibility(table) {
 }
 
 /**
- * Validates and fixes table structure for accessibility.
- * Ensures proper use of th, td, and structural elements.
- * @param {HTMLTableElement} table - The table element to validate.
- * @returns {void}
+ * Ensures the dependency graph container has a proper ARIA role.
+ * This addresses accessibility issues by adding role="region" to the container.
  */
-function validateTableStructure(table) {
-  if (!(table instanceof HTMLTableElement)) {
-    return;
-  }
-  
-  // Add scope attributes to th elements in header rows
-  const thElements = table.querySelectorAll('th');
-  thElements.forEach(th => {
-    if (!th.hasAttribute('scope') && !th.hasAttribute('aria-sort')) {
-      const row = th.closest('tr');
-      const tableHeader = table.querySelector('thead') || table.querySelector('tr:first-child');
-      
-      if (row && tableHeader && row === tableHeader.querySelector('tr')) {
-        th.setAttribute('scope', 'col');
-      } else {
-        th.setAttribute('scope', 'row');
-      }
-    }
-  });
-  
-  // Add proper row headers if missing
-  const rows = table.querySelectorAll('tr');
-  rows.forEach(row => {
-    const headerCells = row.querySelectorAll('th');
-    if (headerCells.length === 0) {
-      const firstCell = row.querySelector('td');
-      if (firstCell && !firstCell.hasAttribute('scope')) {
-        firstCell.setAttribute('scope', 'row');
-      }
-    }
-  });
-}
-
-/**
- * Validates that a landmark element has proper accessibility attributes.
- * @param {HTMLElement} landmark - The landmark element to validate.
- * @returns {boolean} True if the landmark is properly configured.
- */
-function validateLandmark(landmark) {
-  if (!landmark || !(landmark instanceof HTMLElement)) {
-    return false;
-  }
-  
-  const role = landmark.getAttribute('role');
-  const ariaLabel = landmark.getAttribute('aria-label');
-  const ariaLabelledby = landmark.getAttribute('aria-labelledby');
-  
-  // Landmarks should have a role and some form of accessible name
-  if (!role) {
-    return false;
-  }
-  
-  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
-  if (!validRoles.includes(role)) {
-    return false;
-  }
-  
-  // Check for accessible name
-  if (!ariaLabel && !ariaLabelledby && !landmark.id) {
-    return false;
-  }
-  
-  return true;
-}
-
-/**
- * Validates landmark structure and ensures unique landmark IDs.
- * @param {Array<HTMLElement>} landmarks - Array of landmark elements.
- * @returns {Array<HTMLElement>} Validated landmarks with unique IDs.
- */
-function validateLandmarkStructure(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-  
-  return landmarks.map(landmark => {
-    // Ensure the landmark has a role
-    if (!landmark.hasAttribute('role')) {
-      landmark.setAttribute('role', 'region');
-    }
-    
-    // Ensure unique ID
-    const existingId = landmark.id;
-    if (existingId) {
-      if (Array.from(_usedLandmarkIds).some(id => id.startsWith(existingId) && id !== existingId)) {
-        landmark.id = ensureUniqueLandmarkId(existingId);
-      }
-      _usedLandmarkIds.add(landmark.id);
-    } else {
-      const baseName = landmark.getAttribute('role') || 'landmark';
-      landmark.id = ensureUniqueLandmarkId(baseName);
-    }
-    
-    return landmark;
-  });
-}
-
-/**
- * Handles accessibility issues for links.
- * Fixes fake links (links that look like links but don't navigate anywhere).
- * @param {HTMLAnchorElement} link - The link to handle.
- * @returns {void}
- */
-function handleAccessibilityIssues(link) {
-  if (!(link instanceof HTMLAnchorElement)) {
-    return;
-  }
-  
-  // Check for fake links (href is empty or #)
-  const href = link.getAttribute('href');
-  if (href === '' || href === '#') {
-    // If it's a fake link that should navigate, make it a proper button
-    if (link.textContent.trim().length === 0) {
-      const button = createInPageButton(link.getAttribute('aria-label') || 'Interactive element', 'target');
-      link.parentNode.replaceChild(button, link);
-    } else {
-      // If it has text but no href, add a proper href or make it accessible
-      if (!link.hasAttribute('aria-label') && link.textContent.trim().length > 0) {
-        link.setAttribute('aria-label', link.textContent.trim());
-      }
-    }
-  }
-  
-  // Use the existing isLinkAccessible function for validation
-  if (!isLinkAccessible(link)) {
-    const currentText = link.textContent.trim();
-    if (currentText.length === 0) {
-      link.textContent = link.getAttribute('aria-label') || 'Link';
-    }
+function ensureDependencyGraphAriaRole() {
+  const container = document.getElementById('dependencyGraph') || document.querySelector('.dependencyGraph');
+  if (container && !container.hasAttribute('role')) {
+    container.setAttribute('role', 'region');
   }
 }
 
-/**
- * Renders the index view of the application.
- * This function is responsible for displaying the main index page,
- * including the list of items, navigation, and any relevant metadata.
- *
- * @returns {void}
- */
-function renderIndexView() {
-  // Get the root container where the index view will be rendered
-  const rootContainer = document.getElementById('app') || document.body;
-
-  // Clear existing content
-  rootContainer.innerHTML = '';
-
-  // Create the index header
-  const header = document.createElement('header');
-  header.setAttribute('role', 'banner');
-  header.id = ensureUniqueLandmarkId('index-header');
-  const headerTitle = document.createElement('h1');
-  headerTitle.textContent = 'Index';
-  header.appendChild(headerTitle);
-  rootContainer.appendChild(header);
-
-  // Create the navigation landmark
-  const nav = document.createElement('nav');
-  nav.setAttribute('role', 'navigation');
-  nav.id = ensureUniqueLandmarkId('index-nav');
-  const navList = document.createElement('ul');
-  const navItems = ['Home', 'About', 'Contact'];
-  navItems.forEach(itemText => {
-    const listItem = document.createElement('li');
-    const link = document.createElement('a');
-    link.href = `#${itemText.toLowerCase()}`;
-    link.textContent = itemText;
-    listItem.appendChild(link);
-    navList.appendChild(listItem);
-  });
-  nav.appendChild(navList);
-  rootContainer.appendChild(nav);
-
-  // Create the main content area
-  const main = document.createElement('main');
-  main.setAttribute('role', 'main');
-  main.id = ensureUniqueLandmarkId('index-main');
-
-  const section = document.createElement('section');
-  section.setAttribute('aria-labelledby', 'index-section-title');
-  const sectionTitle = document.createElement('h2');
-  sectionTitle.id = 'index-section-title';
-  sectionTitle.textContent = 'Welcome';
-  section.appendChild(sectionTitle);
-
-  const description = document.createElement('p');
-  description.textContent = 'This is the index view of the application.';
-  section.appendChild(description);
-
-  main.appendChild(section);
-  rootContainer.appendChild(main);
-
-  // Create the footer landmark
-  const footer = document.createElement('footer');
-  footer.setAttribute('role', 'contentinfo');
-  footer.id = ensureUniqueLandmarkId('index-footer');
-  const footerText = document.createElement('p');
-  footerText.textContent = '© 2024 Application';
-  footer.appendChild(footerText);
-  rootContainer.appendChild(footer);
-}
-
-/**
- * Spawns a Creep in the room with the specified name, body parts, and memory.
- * @param {string} name - The name of the creep to spawn.
- * @param {string[]} body - Array of body part strings (e.g., 'work', 'carry', 'move').
- * @param {Object} [memory={}] - Initial memory object for the creep.
- * @returns {string|null} The spawned creep's name on success, or null if spawning failed.
- */
-function spawnCreep(name, body, memory = {}) {
-  // Validate inputs
-  if (typeof name !== 'string' || name.trim().length === 0) {
-    return null;
-  }
-
-  if (!Array.isArray(body) || body.length === 0) {
-    return null;
-  }
-
-  if (typeof memory !== 'object' || memory === null) {
-    return null;
-  }
-
-  try {
-    // Attempt to spawn the creep
-    const result = Game.spawns['Spawn1'].spawnCreep(body, name, { memory });
-
-    // Check if the spawn was successful
-    if (result === OK && Game.creeps[name]) {
-      return name;
-    }
-
-    return null;
-  } catch (error) {
-    return null;
-  }
-}
-
-// Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
-// Assumes you have already set the id on the button element in your code.
-
+addProperLandmarkRegions();
+addProperAccountManagement();
 addAriaToFormControls();
+ensureDependencyGraphAriaRole();
 
 module.exports = {
   addProperLandmarkRegions,
@@ -576,7 +344,14 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  handleAccessibilityIssues
+  addAccessibleNamesToSVGs,
+  removeFakeLinks,
+  initializeAccessibility,
+  createAnnouncer,
+  prefersReducedMotion,
+  improveKeyboardNavigation,
+  addLiveRegionForDynamicContent,
+  isLinkAccessible,
+  addAriaLabel,
+  ensureDependencyGraphAriaRole
 };

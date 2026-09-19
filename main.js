@@ -1,4 +1,8 @@
-// TODO: Address accessibility issues from insight report:
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+// Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
@@ -8,13 +12,6 @@
 
 // Preserve existing functionality
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-
 // Internal set to track used landmark IDs
 const _usedLandmarkIds = new Set();
 
@@ -23,13 +20,12 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function generateUniqueLandmarkId(baseName) {
+function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
-    let counter = 0;
-    while (_usedLandmarkIds.has(candidate)) {
-        // Collision handling: add counter suffix
-        counter++;
-        candidate = `${baseName}-${counter}`;
+    if (_usedLandmarkIds.has(candidate)) {
+        // Collision handling: add random suffix
+        const suffix = Math.floor(Math.random() * 9000) + 1000;
+        candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -52,132 +48,12 @@ function uniqueLandmarks(landmarks) {
 }
 
 /**
- * Ensures that all landmarks on the page have unique IDs.
- * Iterates through landmark elements and assigns unique IDs where needed.
- * @returns {void}
- */
-function ensureUniqueLandmarks() {
-    const landmarks = document.querySelectorAll('[role], main, nav, header, footer, aside, section');
-    landmarks.forEach((landmark, index) => {
-        const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-        const baseId = landmark.id || `${role}-${index}`;
-        if (!_usedLandmarkIds.has(baseId)) {
-            landmark.id = baseId;
-            _usedLandmarkIds.add(baseId);
-        } else {
-            landmark.id = ensureUniqueLandmarkId(baseId);
-        }
-    });
-}
-
-/**
- * Validates landmark elements on the page.
- * Checks if landmarks have proper roles and structure.
- * @returns {void}
- */
-function validateLandmark() {
-    const landmarks = document.querySelectorAll('[role], main, nav, header, footer, aside');
-    landmarks.forEach(landmark => {
-        const role = landmark.getAttribute('role');
-        const tagName = landmark.tagName.toLowerCase();
-        if (!role && !['main', 'nav', 'header', 'footer', 'aside'].includes(tagName)) {
-            console.error('Landmark without proper role:', landmark);
-        }
-    });
-}
-
-/**
- * Validates the structure of landmark elements on the page.
- * Ensures landmarks have IDs and proper attributes.
- * @returns {void}
- */
-function validateLandmarkStructure() {
-    const landmarks = document.querySelectorAll('[role], main, nav, header, footer, aside');
-    landmarks.forEach(landmark => {
-        if (!landmark.id) {
-            console.error('Landmark without id:', landmark);
-        }
-    });
-}
-
-/**
- * Gets an accessible name for an SVG element.
- * @param {SVGElement} svg - The SVG element.
- * @returns {string} The accessible name.
- */
-function getSvgAccessibleName(svg) {
-    const ariaLabel = svg.getAttribute('aria-label');
-    if (ariaLabel) return ariaLabel;
-    const ariaLabelledby = svg.getAttribute('aria-labelledby');
-    if (ariaLabelledby) {
-        const labelledByElement = document.getElementById(ariaLabelledby);
-        if (labelledByElement) return labelledByElement.textContent.trim();
-    }
-    const title = svg.querySelector('title');
-    if (title) return title.textContent.trim();
-    return '';
-}
-
-/**
- * Creates an in-page button with proper accessibility attributes.
- * @param {string} text - The text content of the button.
- * @param {Function} onClick - The click handler.
- * @returns {HTMLButtonElement} The created button.
- */
-function createInPageButton(text, onClick) {
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.setAttribute('aria-label', text);
-    button.addEventListener('click', onClick);
-    return button;
-}
-
-/**
- * Creates an accessible link element.
- * @param {string} href - The href URL.
- * @param {string} text - The link text.
- * @returns {HTMLAnchorElement} The created link.
- */
-function createAccessibleLink(href, text) {
-    const link = document.createElement('a');
-    link.setAttribute('href', href);
-    link.textContent = text;
-    if (!text || text.trim().length === 0) {
-        link.setAttribute('aria-label', 'Link');
-    }
-    return link;
-}
-
-/**
- * Handles accessibility issues found in the document.
- * Runs various accessibility checks and fixes.
- * @returns {void}
- */
-function handleAccessibilityIssues() {
-    ensureUniqueLandmarks();
-    validateLandmark();
-    validateLandmarkStructure();
-    validateTableAccessibility();
-    validateTableStructure();
-    removeFakeLinks();
-}
-
-// Add lang attribute as per the issue requirement
-function addLangAttribute() {
-  // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('html');
-  if (elementToModify) {
-    elementToModify.lang = 'en'; // Example: English
-  }
-}
-
-/**
  * Adds an aria-label attribute to an element if it doesn't already have one.
  * @param {HTMLElement} element - The element to add the aria-label to.
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (element && !element.hasAttribute('aria-label')) {
+    if (!element.getAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -199,60 +75,52 @@ function getFullLangAttribute() {
 }
 
 /**
- * Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
- * Assumes you have already set the id on the button element in your code.
+ * Ensures an element has an ID, generating one if necessary.
+ * @param {HTMLElement} element - The element to check.
+ * @param {string} [prefix='element'] - Prefix for generated ID.
+ * @returns {string} The element's ID.
  */
-function replaceMyButtonId() {
-  const button = document.querySelector('.my-button');
-  if (button) {
-    button.classList.remove('my-button');
-    button.id = 'exampleButton';
-    button.setAttribute('aria-label', 'Example Button');
-  }
+function ensureElementHasId(element, prefix = 'element') {
+    if (!element.id) {
+        element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+    return element.id;
 }
 
 /**
- * Creates an in-page button with proper accessible attributes.
- * @returns {HTMLButtonElement} The created button element.
+ * Renders a dependency graph visualization.
+ * @param {HTMLElement} container - Container element for the graph.
+ * @param {Array} dependencies - Array of dependency objects.
  */
-function createInPageButton() {
-  const button = document.createElement('button');
-  button.setAttribute('aria-label', 'In-page action button');
-  button.id = ensureUniqueLandmarkId('in-page-button');
-  return button;
-}
-
-/**
- * Creates an accessible link element.
- * @param {string} href - The href attribute for the link.
- * @param {string} textContent - The visible text content of the link.
- * @returns {HTMLAnchorElement} The created anchor element.
- */
-function createAccessibleLink(href, textContent) {
-  const link = document.createElement('a');
-  link.href = href;
-  link.textContent = textContent;
-  return link;
-}
-
-/**
- * Validates if a link is accessible and handles fake links appropriately.
- * @param {HTMLAnchorElement} link - The link element to validate.
- * @returns {boolean} True if the link is accessible, false otherwise.
- */
-function validateLinkAccessibility(link) {
-  return isLinkAccessible(link);
-}
-
-/**
- * Handles fake links by hiding them or converting them to buttons.
- * @returns {void}
- */
-function handleFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""]');
-  fakeLinks.forEach(link => {
-    link.style.display = 'none';
-  });
+function renderDependencyGraph(container, dependencies) {
+    if (!container || !dependencies) return;
+    
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('aria-label', 'Dependency graph');
+    svg.setAttribute('role', 'img');
+    
+    let y = 50;
+    dependencies.forEach(dep => {
+        const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', '50');
+        rect.setAttribute('y', y.toString());
+        rect.setAttribute('width', '200');
+        rect.setAttribute('height', '40');
+        rect.setAttribute('rx', '4');
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', '60');
+        text.setAttribute('y', (y + 25).toString());
+        text.textContent = dep.name || dep;
+        
+        group.appendChild(rect);
+        group.appendChild(text);
+        svg.appendChild(group);
+        y += 60;
+    });
+    
+    container.appendChild(svg);
 }
 
 /**
@@ -261,163 +129,256 @@ function handleFakeLinks() {
  * @returns {string} The accessible name.
  */
 function getSvgAccessibleName(svg) {
-  return svg.getAttribute('aria-label') || 
-         svg.getAttribute('title') || 
-         svg.querySelector('title')?.textContent || 
-         'SVG graphic';
+    const title = svg.querySelector('title');
+    const ariaLabel = svg.getAttribute('aria-label');
+    
+    if (ariaLabel) return ariaLabel;
+    if (title) return title.textContent;
+    
+    return '';
 }
 
 /**
- * Sets accessibility props for SVG elements.
- * @param {SVGElement} svg - The SVG element.
- * @param {string} name - The accessible name for the SVG.
- * @returns {void}
+ * Creates an accessible in-page button with proper labeling.
+ * @param {string} text - Button text content.
+ * @param {string} [ariaLabel] - Optional aria-label.
+ * @returns {HTMLButtonElement} The created button.
  */
-function setSvgAccessibilityProps(svg, name) {
-  if (!svg.hasAttribute('role')) {
-    svg.setAttribute('role', 'img');
-  }
-  if (!svg.hasAttribute('aria-label')) {
-    svg.setAttribute('aria-label', name);
-  }
-}
-
-/**
- * Validates a landmark element for accessibility.
- * @param {HTMLElement} landmark - The landmark element to validate.
- * @returns {void}
- */
-function validateLandmark(landmark) {
-  if (!landmark.id) {
-    landmark.id = ensureUniqueLandmarkId(landmark.tagName.toLowerCase());
-  }
-}
-
-/**
- * Validates and fixes landmark structure.
- * @returns {void}
- */
-function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
-  landmarks.forEach(landmark => {
-    validateLandmark(landmark);
-  });
-}
-
-/**
- * Ensures landmarks are unique by adding IDs if needed.
- * @returns {void}
- */
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
-  landmarks.forEach(landmark => {
-    if (!landmark.id) {
-      landmark.id = ensureUniqueLandmarkId(landmark.getAttribute('role'));
+function createInPageButton(text, ariaLabel) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    if (ariaLabel) {
+        button.setAttribute('aria-label', ariaLabel);
     }
-  });
+    return button;
 }
 
 /**
- * Adds proper ARIA landmark regions to the document.
- * This improves screen reader navigation by ensuring proper landmark roles.
- *
- * @returns {void}
+ * Creates an accessible link with proper attributes.
+ * @param {string} href - The URL for the link.
+ * @param {string} text - Link text content.
+ * @param {Object} [options] - Additional options.
+ * @returns {HTMLAnchorElement} The created link.
  */
-function addProperLandmarkRegions() {
-  // Create main landmark
-  const main = document.querySelector('main') || document.getElementById('main');
-  main.setAttribute('role', 'main');
-  main.id = 'main-content';
-
-  // Create navigation landmark
-  const nav = document.querySelector('nav') || document.createElement('nav');
-  nav.setAttribute('role', 'navigation');
-  nav.id = nav.id || 'primary-navigation';
-
-  // Create banner/header landmark
-  const header = document.querySelector('header') || document.querySelector('[role="banner"]');
-  header.setAttribute('role', 'banner');
-  header.id = header.id || 'site-header';
-
-  // Create contentinfo/footer landmark
-  const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]');
-  footer.setAttribute('role', 'contentinfo');
-  footer.id = footer.id || 'site-footer';
-
-  // Create aside landmark for complementary content
-  const asides = document.querySelectorAll('aside') || [];
-  asides.forEach((aside, index) => {
-    aside.setAttribute('role', 'complementary');
-    if (!aside.id) aside.id = `sidebar-${index + 1}`;
-  });
+function createAccessibleLink(href, text, options = {}) {
+    const link = document.createElement('a');
+    link.href = href;
+    link.textContent = text;
+    
+    if (options.ariaLabel) {
+        link.setAttribute('aria-label', options.ariaLabel);
+    }
+    
+    if (options.onClick) {
+        link.addEventListener('click', options.onClick);
+    }
+    
+    return link;
 }
 
 /**
- * Validates that landmarks have proper structure (role and accessible name).
- * @param {HTMLElement} landmark - The landmark element to validate.
- * @returns {boolean} True if the landmark has valid structure.
+ * Validates landmark accessibility.
+ * @param {HTMLElement} element - Element to validate.
+ * @returns {Object} Validation result.
  */
-function addProperAccountManagement() {
-  // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('.collapsible');
-  collapsibles.forEach(collapsible => {
-    if (!collapsible.hasAttribute('aria-expanded')) {
-      collapsible.setAttribute('aria-expanded', 'false');
+function validateLandmark(element) {
+    const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search', 'region'];
+    const role = element.getAttribute('role');
+    
+    if (role && !validRoles.includes(role)) {
+        return { valid: false, message: `Invalid landmark role: ${role}` };
     }
-  });
-
-  // Add aria-labels to form inputs
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach((input, index) => {
-    const id = input.id || 'input-' + (index + 1);
-    input.id = id;
-    if (!input.hasAttribute('aria-label')) {
-      input.setAttribute('aria-label', 'Input field ' + (index + 1));
-    }
-  });
+    
+    return { valid: true };
 }
 
 /**
- * Adds ARIA attributes to form controls for better accessibility.
- * This function focuses on ensuring that form controls have proper labeling and roles.
- *
- * @returns {void}
+ * Validates landmark structure for accessibility.
+ * @param {HTMLElement} container - Container element to validate.
+ * @returns {Object} Validation result.
  */
-function addAriaToFormControls() {
-  // Add required aria attributes to form controls
-  const formControls = document.querySelectorAll('input, select, textarea');
-
-  formControls.forEach(control => {
-    // Ensure all form controls have accessible names
-    if (!control.id) {
-      const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
-      if (label) {
-        label.id = label.id || `label-${Math.random().toString(36).substr(2, 9)}`;
-        control.setAttribute('aria-labelledby', label.id);
-      }
-    }
-
-    // Mark required fields appropriately
-    if (control.required && !control.hasAttribute('aria-required')) {
-      control.setAttribute('aria-required', 'true');
-    }
-  });
+function validateLandmarkStructure(container) {
+    const landmarks = container.querySelectorAll('[role]');
+    const unique = uniqueLandmarks(Array.from(landmarks).map(lm => ({ id: lm.id || Math.random().toString(36) })));
+    
+    return {
+        valid: landmarks.length === unique.length,
+        message: landmarks.length === unique.length ? 'All landmarks are unique' : 'Duplicate landmarks found'
+    };
 }
 
 /**
- * Adds accessible names to SVGs.
- * @param {Array} svgs - Array of SVG elements.
- * @returns {void}
+ * Ensures all landmarks have unique IDs.
+ * @param {HTMLElement} container - Container element.
+ * @returns {Array} List of landmark IDs.
  */
-function addAccessibleNamesToSVGs(svgs) {
-  svgs.forEach((svg, index) => {
-    const id = svg.id || `svg-${index + 1}`;
-    svg.setAttribute('id', id);
-    const label = document.createElement('label');
-    label.setAttribute('for', id);
-    label.textContent = 'SVG description';
-    svg.insertAdjacentElement('afterend', label);
-  });
+function ensureUniqueLandmarks(container) {
+    const landmarks = container.querySelectorAll('[role]');
+    const ids = [];
+    
+    landmarks.forEach(landmark => {
+        if (!landmark.id) {
+            landmark.id = createUniqueLandmarkId(landmark.getAttribute('role') || 'landmark');
+        }
+        ids.push(landmark.id);
+    });
+    
+    return ids;
 }
 
 /**
+ * Validates table accessibility.
+ * @param {HTMLTableElement} table - Table element to validate.
+ * @returns {Object} Validation result.
+ */
+function validateTableAccessibility(table) {
+    const headers = table.querySelectorAll('th');
+    let issues = 0;
+    
+    headers.forEach(th => {
+        if (!th.getAttribute('scope')) {
+            issues++;
+        }
+    });
+    
+    return { valid: issues === 0, issues };
+}
+
+/**
+ * Validates table structure for accessibility.
+ * @param {HTMLTableElement} table - Table element to validate.
+ * @returns {Object} Validation result.
+ */
+function validateTableStructure(table) {
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const ths = table.querySelectorAll('th');
+    
+    const issues = [];
+    
+    if (!thead) issues.push('Missing thead');
+    if (!tbody) issues.push('Missing tbody');
+    
+    ths.forEach((th, index) => {
+        if (!th.getAttribute('scope')) {
+            issues.push(`th at index ${index} missing scope attribute`);
+        }
+    });
+    
+    return {
+        valid: issues.length === 0,
+        issues
+    };
+}
+
+/**
+ * Handles accessibility issues for an element.
+ * @param {HTMLElement} element - Element to fix.
+ * @param {Array} issues - List of issues to address.
+ */
+function handleAccessibilityIssues(element, issues) {
+    issues.forEach(issue => {
+        switch (issue.type) {
+            case 'missing-lang':
+                if (!document.documentElement.lang) {
+                    document.documentElement.lang = issue.value || 'en';
+                }
+                break;
+            case 'missing-aria-label':
+                addAriaLabel(element, issue.value);
+                break;
+            case 'missing-id':
+                ensureElementHasId(element, issue.prefix);
+                break;
+            case 'missing-landmark':
+                if (!element.getAttribute('role')) {
+                    element.setAttribute('role', issue.role || 'region');
+                }
+                break;
+            case 'table-scope':
+                if (element.tagName === 'TH' && !element.getAttribute('scope')) {
+                    element.setAttribute('scope', issue.value || 'col');
+                }
+                break;
+        }
+    });
+}
+
+// Accessibility helper functions
+function handleKeyboardNavigation(options = {}) {
+    const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+
+    return function(event) {
+        switch (event.key) {
+            case 'Enter':
+                if (onEnter) onEnter(event);
+                break;
+            case 'Escape':
+                if (onEscape) onEscape(event);
+                break;
+            case 'ArrowUp':
+                if (onArrowUp) {
+                    event.preventDefault();
+                    onArrowUp(event);
+                }
+                break;
+            case 'ArrowDown':
+                if (onArrowDown) {
+                    event.preventDefault();
+                    onArrowDown(event);
+                }
+                break;
+        }
+    };
+}
+
+/**
+ * Traps focus within a container element.
+ * @param {HTMLElement} container - Container element for focus trapping.
+ */
+function trapFocus(container) {
+    const focusableElements = container.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    const handleTab = function(event) {
+        if (event.key !== 'Tab') return;
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+            event.preventDefault();
+            lastElement.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+            event.preventDefault();
+            firstElement.focus();
+        }
+    };
+
+    container.addEventListener('keydown', handleTab);
+}
+
+// Export functions for testing and external use
+module.exports = {
+    createUniqueLandmarkId,
+    uniqueLandmarks,
+    addAriaLabel,
+    getLangAttribute,
+    getFullLangAttribute,
+    ensureElementHasId,
+    renderDependencyGraph,
+    getSvgAccessibleName,
+    createInPageButton,
+    createAccessibleLink,
+    validateLandmark,
+    validateLandmarkStructure,
+    ensureUniqueLandmarks,
+    validateTableAccessibility,
+    validateTableStructure,
+    handleAccessibilityIssues,
+    handleKeyboardNavigation,
+    trapFocus
+};

@@ -35,7 +35,7 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function createLandmarkId(baseName) {
+function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
@@ -63,40 +63,36 @@ function uniqueLandmarks(landmarks) {
     return result;
 }
 
-// Internal function to call handle functions for each accessibility issue
-function handleAccessibilityIssues() {
-  addLangAttribute(); // Added the call to the added function
-  handleLandmarks();
-  handleSvgAccessibility();
-  handleFakeLinkIssue();
+/**
+ * Ensures all landmarks have unique IDs by adding suffixes to duplicates.
+ * @param {Array} landmarks - List of landmark objects.
+ * @returns {Array} Landmarks with unique IDs.
+ */
+function ensureUniqueLandmarks(landmarks) {
+    const idCount = {};
+    const result = [];
+    
+    for (const lm of landmarks) {
+        if (idCount[lm.id]) {
+            idCount[lm.id]++;
+            lm.id = `${lm.id}-${idCount[lm.id]}`;
+        } else {
+            idCount[lm.id] = 1;
+        }
+        result.push(lm);
+    }
+    
+    return result;
 }
 
-// ... existing functions remained unchanged
-
-// Accessibility helper functions
-function setupKeyboardNavigation(element, options = {}) {
-  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
-
-  element.addEventListener('keydown', (event) => {
-    switch (event.key) {
-      case 'Enter':
-        if (onEnter) onEnter(event);
-        break;
-      case 'Escape':
-        if (onEscape) onEscape(event);
-        break;
-      case 'ArrowUp':
-        if (onArrowUp) {
-          event.preventDefault();
-          onArrowUp(event);
-        }
-        break;
-      case 'ArrowDown':
-        if (onArrowDown) {
-          event.preventDefault();
-          onArrowDown(event);
-        }
-        break;
+/**
+ * Adds an aria-label attribute to an element if it doesn't already have one.
+ * @param {HTMLElement} element - The element to add the aria-label to.
+ * @param {string} label - The label text to be added.
+ */
+function addAriaLabel(element, label) {
+    if (element && !element.hasAttribute('aria-label')) {
+        element.setAttribute('aria-label', label);
     }
   });
 }
@@ -117,9 +113,7 @@ function addLangAttribute() {
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
-document.addEventListener('DOMContentLoaded', () => {
-  getLangAttribute();
-});
+addLangAttribute();
 
 // Create in-page button with accessibility considerations
 createInPageButton();
@@ -146,7 +140,9 @@ if (svg) {
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-uniqueLandmarks([]);
+const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
+const uniqueLandmarkList = ensureUniqueLandmarks(Array.from(landmarks).map(el => ({ id: el.id || el.tagName.toLowerCase(), element: el })));
+
 handleFakeLinks();
 
 /**
@@ -257,7 +253,7 @@ function formatProductName(product) {
 }
 
 function renderProductList(products) {
-  const container = document.getElementById('product-list');
+  const container = document.createElement('div');
   container.innerHTML = products.map(p => `<div>${formatProductName(p)}</div>`).join('');
   return container;
 }
@@ -281,14 +277,16 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return renderComponent(input);
+    return renderValidOutput(input);
   }
-  return null;
+  return renderError(input);
 }
 
-module.exports = {
-  createLandmarkId,
+// Export functions for external use
+export {
+  createUniqueLandmarkId,
   uniqueLandmarks,
+  ensureUniqueLandmarks,
   addAriaLabel,
   addLangAttribute,
   formatProductName,

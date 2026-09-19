@@ -154,12 +154,12 @@ function renderDependencyGraph(dependencies, format = 'tree') {
       result += `   Version: ${module.version}\n`;
     }
     
-    if (module.dependencies && module.dependencies.length) {
-      result += `   Dependencies: ${module.dependencies.join(', ')}\n`;
+    if (module.dependencies && Object.keys(module.dependencies).length > 0) {
+      result += `   Dependencies: ${Object.keys(module.dependencies).join(', ')}\n`;
     }
     
     if (module.exports) {
-      result += `   Exports: ${module.exports}\n`;
+      result += `   Exports: ${Array.isArray(module.exports) ? module.exports.join(', ') : module.exports}\n`;
     }
     
     result += '\n';
@@ -173,6 +173,7 @@ function renderDependencyGraph(dependencies, format = 'tree') {
 }
 
 renderDependencyGraph(dependencyGraphContent);
+displayModuleStructure(dependencyGraphContent);
 
 export {
   renderDependencyGraph,

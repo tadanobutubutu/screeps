@@ -16,6 +16,121 @@ import { dependencyGraphContent, indexContent } from './content';
 // ----- END ORIGINAL CODE -----
 
 /**
+ * Checks for landmark elements in HTML content for accessibility purposes
+ * Landmark elements help screen readers navigate the page structure
+ * @param {string} htmlContent - HTML content to check for landmark elements
+ * @returns {Object} Object containing found landmarks and any missing required landmarks
+ */
+function checkLandmarkElements(htmlContent) {
+  const landmarkElements = ['header', 'main', 'nav', 'footer', 'aside', 'section', 'article'];
+  const result = {
+    found: [],
+    missing: [],
+    hasMainElement: false,
+    hasHeaderElement: false,
+    hasNavElement: false,
+    hasFooterElement: false
+  };
+
+  if (!htmlContent || typeof htmlContent !== 'string') {
+    return { error: 'Invalid HTML content provided' };
+  }
+
+  const lowerContent = htmlContent.toLowerCase();
+
+  landmarkElements.forEach(element => {
+    const regex = new RegExp(`<${element}[\\s>]`, 'i');
+    if (regex.test(lowerContent)) {
+      result.found.push(element);
+      
+      switch (element) {
+        case 'main':
+          result.hasMainElement = true;
+          break;
+        case 'header':
+          result.hasHeaderElement = true;
+          break;
+        case 'nav':
+          result.hasNavElement = true;
+          break;
+        case 'footer':
+          result.hasFooterElement = true;
+          break;
+      }
+    }
+  });
+
+  // Check for required landmarks (at least one main element is required for accessibility)
+  if (!result.hasMainElement) {
+    result.missing.push('main');
+  }
+
+  // Check for proper header usage (should not be used inside main)
+  const headerInMainRegex = /<main[^>]*>[\s\S]*?<header/gi;
+  if (headerInMainRegex.test(lowerContent)) {
+    result.accessibilityWarning = 'Header element should not be placed directly inside main element';
+  }
+
+  // Check for multiple nav elements and their purposes
+  const navMatches = lowerContent.match(/<nav[^>]*>/gi) || [];
+  if (navMatches.length > 1) {
+    result.multipleNavs = true;
+    result.warning = 'Multiple nav elements detected. Ensure each has an appropriate aria-label';
+  }
+
+  return result;
+}
+
+/**
+ * Validates landmark element structure for WCAG compliance
+ * @param {string} htmlContent - HTML content to validate
+ * @returns {Object} Validation results with accessibility score
+ */
+function validateLandmarkStructure(htmlContent) {
+  const checkResult = checkLandmarkElements(htmlContent);
+  
+  let score = 100;
+  const issues = [];
+
+  if (!checkResult.hasMainElement) {
+    score -= 40;
+    issues.push('Missing main landmark element');
+  }
+
+  if (!checkResult.hasHeaderElement) {
+    score -= 10;
+    issues.push('Missing header landmark element');
+  }
+
+  if (!checkResult.hasNavElement) {
+    score -= 15;
+    issues.push('Missing nav landmark element');
+  }
+
+  if (!checkResult.hasFooterElement) {
+    score -= 10;
+    issues.push('Missing footer landmark element');
+  }
+
+  if (checkResult.accessibilityWarning) {
+    score -= 15;
+    issues.push(checkResult.accessibilityWarning);
+  }
+
+  if (checkResult.multipleNavs && !checkResult.warning.includes('aria-label')) {
+    score -= 10;
+    issues.push(checkResult.warning);
+  }
+
+  return {
+    score: Math.max(0, score),
+    passed: score >= 70,
+    issues: issues,
+    landmarks: checkResult.found
+  };
+}
+
+/**
  * Renders a dependency graph visualization for debugging purposes
  * @param {Object} dependencies - Object containing module dependencies
  * @param {string} [format='tree'] - Output format ('tree', 'list', 'json')
@@ -34,6 +149,20 @@ function renderDependencyGraph(dependencies, format = 'tree') {
     if (fix) {
       fixes.push(fix);
     }
+    
+    if (module.version) {
+      result += `   Version: ${module.version}\n`;
+    }
+    
+    if (module.dependencies && module.dependencies.length) {
+      result += `   Dependencies: ${module.dependencies.join(', ')}\n`;
+    }
+    
+    if (module.exports) {
+      result += `   Exports: ${module.exports}\n`;
+    }
+    
+    result += '\n';
   });
 
   return {
@@ -43,69 +172,13 @@ function renderDependencyGraph(dependencies, format = 'tree') {
   };
 }
 
-function generateAccessibilityFix(issue) {
-  if (!issue || !issue.type) {
-    return null;
-  }
+renderDependencyGraph(dependencyGraphContent);
 
-  const fix = {
-    originalIssue: issue,
-    description: '',
-    codeChange: null
-  };
-
-  switch (issue.type) {
-    case 'color-contrast':
-      fix.description = 'Improve color contrast for better visibility';
-      fix.codeChange = generateColorContrastFix(issue);
-      break;
-    case 'missing-alt':
-      fix.description = 'Add alt text to images for screen readers';
-      fix.codeChange = generateAltTextFix(issue);
-      break;
-    case 'missing-aria-label':
-      fix.description = 'Add aria-label for better accessibility';
-      fix.codeChange = generateAriaLabelFix(issue);
-      break;
-    case 'heading-order':
-      fix.description = 'Fix heading hierarchy for proper document structure';
-      fix.codeChange = generateHeadingOrderFix(issue);
-      break;
-    case 'missing-form-label':
-      fix.description = 'Associate form labels with their inputs';
-      fix.codeChange = generateFormLabelFix(issue);
-      break;
-    case 'keyboard-navigation':
-      fix.description = 'Improve keyboard navigation support';
-      fix.codeChange = generateKeyboardFix(issue);
-      break;
-    case 'focus-indicator':
-      fix.description = 'Ensure focus indicators are visible';
-      fix.codeChange = generateFocusIndicatorFix(issue);
-      break;
-    default:
-      fix.description = `Address ${issue.type} accessibility issue`;
-      fix.codeChange = generateGenericAccessibilityFix(issue);
-  }
-
-  return fix;
-}
-
-function generateColorContrastFix(issue) {
-  return {
-    type: 'style',
-    recommendation: 'Increase contrast ratio to at least 4.5:1 for normal text',
-    currentContrast: issue.currentRatio || 'unknown',
-    recommendedColors: issue.suggestedColors || {
-      foreground: '#000000',
-      background: '#FFFFFF'
-    }
-  };
-}
-
-function generateAltTextFix(issue) {
-  return {
-    type: 'attribute',
-    element: issue.element || 'img',
-    attribute: 'alt',
-    value: issue.suggestedAlt || 'Des
+export {
+  renderDependencyGraph,
+  renderDependencyTree,
+  renderDependencyList,
+  displayModuleStructure,
+  checkLandmarkElements,
+  validateLandmarkStructure
+};

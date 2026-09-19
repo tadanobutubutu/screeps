@@ -245,24 +245,38 @@ function isLinkAccessible(link) {
     return false;
 }
 
-// Add accessibility enhancements when DOM is ready
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', addAriaToFormControls);
-    } else {
-        addAriaToFormControls();
-    }
+/**
+ * Counts the number of dependencies (external scripts) in the document.
+ * @returns {number} The count of external script elements with a src attribute.
+ */
+function countDependencies() {
+  const scripts = document.querySelectorAll('script[src]');
+  return scripts.length;
 }
 
+addProperLandmarkRegions();
+addProperAccountManagement();
+addAriaToFormControls();
+
 module.exports = {
-    addProperLandmarkRegions,
-    addProperAccountManagement,
-    addAriaToFormControls,
-    replaceMyButtonId,
-    getLangAttribute,
-    getFullLangAttribute,
-    ensureUniqueLandmarkId,
-    uniqueLandmarks,
-    isLinkAccessible,
-    addAriaLabel
+  addProperLandmarkRegions,
+  addProperAccountManagement,
+  addAriaToFormControls,
+  replaceMyButtonId,
+  getFullLangAttribute,
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  validateTableAccessibility,
+  validateTableStructure,
+  addAccessibleNamesToSVGs,
+  removeFakeLinks,
+  initializeAccessibility,
+  createAnnouncer,
+  prefersReducedMotion,
+  improveKeyboardNavigation,
+  addLiveRegionForDynamicContent,
+  isLinkAccessible,
+  addAriaLabel,
+  addLangAttribute,
+  countDependencies
 };

@@ -1,6 +1,11 @@
-Here's the resolved version of the file `main.js`:
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-```javascript
 // Preserve existing functionality
 // TODO: This is the existing code that needs to be preserved
 
@@ -124,75 +129,3 @@ function trapFocus(container) {
 }
 
 // ... other existing functions remained unchanged
-
-// Call the function to address accessibility issues
-handleAccessibilityIssues();
-
-// Add lang attribute to HTML element
-addLangAttribute();
-
-module.exports = {
-  setupKeyboardNavigation,
-  trapFocus,
-  // ... other exports remained unchanged
-};
-```
-
-// Validate table structure and accessibility
-// Assuming you have a table element with an id of 'myTable'
-const table = document.getElementById('myTable');
-validateTableAccessibility(table);
-validateTableStructure(table);
-
-// Add/fix landmark issues
-validateLandmark();
-...
-
-// Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
-const svg = document.getElementById('mySvg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
-
-// Ensure unique landmarks
-// This would be handled by the appropriate function call
-...
-handleFakeLinks();
-
-// ... rest of your code ...
-
-// React / UI related functions
-
-// TODO: Add these imported modules to the relevant rendering functions
-
-function formatProductName(product) {
-  return `${product.name} - ...
-}
-
-function renderProductList(products) {
-  const container = ...
-  container.innerHTML = ...
-  return container;
-}
-
-function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
-}
-
-function renderCart(cart) {
-  const total = calculateTotalPrice(cart);
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Total: ...
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
-}
-
-function validateAndRender(input) {
-  if (validateInput(input)) {
-    return ...
-}

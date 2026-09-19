@@ -319,3 +319,5 @@ function createInPageButton(text, ariaLabel) {
 }
 
 // ... other existing functions remained unchanged
+
+export { getLangAttribute, getFullLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks, getSvgAccessibleName, createInPageButton, createAccessibleLink, handleAccessibilityIssues };

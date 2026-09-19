@@ -4,10 +4,10 @@
 // main.js - Accessibility improvements implementation
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(container, options = {}) {
+function keyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  const handleKeydown = (event) => {
+  return function(event) {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -29,18 +29,6 @@ function setupKeyboardNavigation(container, options = {}) {
         break;
     }
   };
-
-  if (container) {
-    container.addEventListener('keydown', handleKeydown);
-  }
-
-  return {
-    remove: () => {
-      if (container) {
-        container.removeEventListener('keydown', handleKeydown);
-      }
-    }
-  };
 }
 
 // Helper to manage focus within a container
@@ -51,7 +39,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  const handleTabKey = (event) => {
+  function handleTab(event) {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -61,13 +49,13 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  };
+  }
 
-  container.addEventListener('keydown', handleTabKey);
+  container.addEventListener('keydown', handleTab);
 
   return {
-    remove: () => {
-      container.removeEventListener('keydown', handleTabKey);
+    destroy: function() {
+      container.removeEventListener('keydown', handleTab);
     }
   };
 }
@@ -81,13 +69,13 @@ function createAnnouncer() {
   document.body.appendChild(announcer);
   
   return {
-    announce: (message) => {
+    announce: function(message) {
       announcer.textContent = '';
-      setTimeout(() => {
+      setTimeout(function() {
         announcer.textContent = message;
       }, 100);
     },
-    destroy: () => {
+    destroy: function() {
       if (announcer.parentNode) {
         announcer.parentNode.removeChild(announcer);
       }
@@ -107,10 +95,10 @@ function initializeAccessibility() {
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
-    setupKeyboardNavigation,
-    trapFocus,
-    prefersReducedMotion,
-    createAnnouncer
+    keyboardNavigation: keyboardNavigation,
+    trapFocus: trapFocus,
+    createAnnouncer: createAnnouncer,
+    prefersReducedMotion: prefersReducedMotion
   };
 }
 
@@ -121,34 +109,82 @@ function initializeAccessibility() {
  * @param {string} link - The URL of the link to check
  * @returns {Promise<boolean>} - Resolves to true if the link is accessible, false otherwise
  */
-async function isLinkAccessible(link) {
-  try {
-    const response = await fetch(link, { method: 'HEAD' });
-    return response.ok;
-  } catch (error) {
-    return false;
+function isEmpty(value) {
+  return value === null || value === undefined || value === '';
+}
+
+/**
+ * Capitalizes the first letter of a string
+ * @param {string} str - The string to capitalize
+ * @returns {string} - The capitalized string
+ */
+function capitalize(str) {
+  if (typeof str !== 'string' || str.length === 0) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Generates a random integer between min and max (inclusive)
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Random integer
+ */
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Clamps a number between min and max values
+ * @param {number} num - Number to clamp
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Clamped number
+ */
+function clamp(num, min, max) {
+  return Math.min(Math.max(num, min), max);
+}
+
+/**
+ * Deep clones an object
+ * @param {*} obj - Object to clone
+ * @returns {*} - Cloned object
+ */
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj.getTime());
+  if (obj instanceof Array) return obj.map(function(item) { return deepClone(item); });
+  if (obj instanceof Object) {
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        cloned[key] = deepClone(obj[key]);
+      }
+    }
+    return cloned;
   }
 }
 
-// New function requested in the issue (Add back any required exports that might have been?)
-// Example: a hypothetical new function
-/**
- * New function to demonstrate the addition of a new export
- * @param {number} a - The first number
- * @param {number} b - The second number
- * @returns {number} - The sum of a and b
- */
-function add(a, b) {
-  return a + b;
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    initializeAccessibility,
+    keyboardNavigation,
+    trapFocus,
+    createAnnouncer,
+    prefersReducedMotion,
+    isEmpty,
+    capitalize,
+    getRandomInt,
+    clamp,
+    deepClone
+  };
 }
 
 // Auto-initialize when DOM is ready
 if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      window.accessibilityFeatures = initializeAccessibility();
-    });
-  } else {
+  document.addEventListener('DOMContentLoaded', function() {
     window.accessibilityFeatures = initializeAccessibility();
   }
 }

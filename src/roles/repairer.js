@@ -135,8 +135,10 @@ function _findBestRepairTarget(creep, room, wallTarget) {
     let minPriority = Infinity;
     let minHitsRatio = Infinity;
     let minDistance = Infinity;
-    // ⚡ PERFORMANCE OPTIMIZATION: Hoist position method check outside search loop to prevent redundant evaluations per iteration.
+    // ⚡ PERFORMANCE OPTIMIZATION: Hoist position method check and wall target HP calculation outside search loop
     const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
+    const rcl = room.controller ? room.controller.level : 1;
+    const targetWallHp = wallTarget || WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
 
     for (let i = 0; i < structures.length; i++) {
         const s = structures[i];
@@ -144,9 +146,7 @@ function _findBestRepairTarget(creep, room, wallTarget) {
 
         // ⚡ PERFORMANCE OPTIMIZATION: Inline damage threshold check to avoid nested function call overhead per structure
         if (type === STRUCTURE_WALL || type === STRUCTURE_RAMPART) {
-            const rcl = room.controller ? room.controller.level : 1;
-            const target = wallTarget || WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
-            if (s.hits >= target) continue;
+            if (s.hits >= targetWallHp) continue;
         } else {
             const threshold = REPAIR_THRESHOLD[type] || REPAIR_THRESHOLD.OTHER;
             if (s.hits >= s.hitsMax * threshold) continue;

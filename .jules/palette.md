@@ -1,5 +1,10 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-09-01 - [Polite Status Live Regions for Asynchronous UI Updates]
+
+**Learning:** When displaying transient status indicators for asynchronous actions (such as `✅ 更新完了` badges upon dashboard telemetry updates), pairing `role="status"` with `aria-live="polite"` and an explicit, translated `aria-label` (e.g. `aria-label="データの更新が完了しました"`) ensures screen readers announce status changes seamlessly without interrupting current speech or forcing focus context shifts (WCAG 4.1.3 Status Messages).
+**Action:** Always equip transient state feedback elements with `role="status"`, `aria-live="polite"`, and descriptive `aria-label` attributes.
+
 ## 2026-08-22 - [Polite Live Regions for Dynamic Timestamps & Empty States]
 
 **Learning:** Timestamps indicating background data refreshes and fallback "empty state" tags (such as when no active rooms are available) should be wrapped in polite live regions (`role="status"` and `aria-live="polite"`). Pairing dynamic timestamps with accurate screen-reader descriptors (`aria-label="最後にデータが更新された時間: HH:MM:SS"`) ensures non-sighted users are informed as stats update without interrupting active speech or requiring manual focus shifts (WCAG 4.1.3 Status Messages).

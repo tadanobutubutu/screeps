@@ -116,7 +116,7 @@ function addLangAttribute() {
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
-addLangAttribute();
+getLangAttribute();
 
     // Create in-page button with accessibility considerations
     createInPageButton();
@@ -178,8 +178,8 @@ function formatProductName(product) {
 }
 
 function renderProductList(products) {
-  const container = document.createElement('div');
-  container.innerHTML = products.map(p => `<div>${formatProductName(p)}</div>`).join('');
+  const container = document.getElementById('productList');
+  container.innerHTML = ...
   return container;
 }
 

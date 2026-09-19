@@ -21,13 +21,15 @@ _Commit: aeb56379799401e81e60116be6cede327e2b5df3_
 <!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
 
 /**
- * Ensures that the HTML element has a lang attribute.
- * This improves accessibility by specifying the language of the document.
- * 
- * @param {string} lang - The language code to set (e.g., 'en', 'fr', 'es').
- * @returns {Object} - An object with two methods:
- *   - getLangAttribute(): Returns the current lang attribute value.
- *   - addLangAttribute(lang): Sets the lang attribute on the HTML element.
+ * Stores used landmark IDs to prevent duplicates.
+ * @type {Set<string>}
+ */
+const _usedLandmarkIds = new Set();
+
+/**
+ * Creates a unique identifier for a landmark given a base name.
+ * @param {string} baseName - Base name of the landmark.
+ * @returns {string} Unique ID.
  */
 function ... {
     let candidate = baseName;
@@ -1642,4 +1644,56 @@ function getRandomInt(min, max) {
 /**
  * Clamps a number between min and max values
  * @param {number} num - Number to clamp
- * @param {number} min
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Clamped number
+ */
+function clamp(num, min, max) {
+  return Math.min(Math.max(num, min), max);
+}
+
+/**
+ * Deep clones an object
+ * @param {*} obj - Object to clone
+ * @returns {*} - Cloned object
+ */
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj.getTime());
+  if (obj instanceof Array) return obj.map(item => deepClone(item));
+  if (obj instanceof Object) {
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        cloned[key] = deepClone(obj[key]);
+      }
+    }
+    return cloned;
+  }
+  return obj;
+}
+
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    addProperLandmarkRegions,
+    addProperAccountManagement,
+    addAriaToFormControls,
+    ensureUniqueLandmarkId,
+    uniqueLandmarks,
+    setupKeyboardNavigation,
+    addressAccessibilityIssues,
+    trapFocus,
+    ensureUniqueLandmarks,
+    createAnnouncer,
+    prefersReducedMotion,
+    improveKeyboardNavigation,
+    addLiveRegionForDynamicContent,
+    initializeAccessibility,
+    isEmpty,
+    capitalize,
+    getRandomInt,
+    clamp,
+    deepClone
+  };
+}

@@ -14,8 +14,17 @@ async function isLinkAccessible(link) {
   }
 }
 
-// Existing isLinkAccessible function implementation
-// ...
+// New function requested in the issue (Add back any required exports that might have been?)
+// Example: a hypothetical new function
+/**
+ * New function to demonstrate the addition of a new export
+ * @param {number} a - The first number
+ * @param {number} b - The second number
+ * @returns {number} - The sum of a and b
+ */
+function add(a, b) {
+  return a + b;
+}
 
 module.exports = {
   isEmpty,
@@ -23,5 +32,5 @@ module.exports = {
   getRandomInt,
   clamp,
   deepClone,
-  isLinkAccessible
+  add // Export the new function
 };

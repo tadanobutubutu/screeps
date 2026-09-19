@@ -14,6 +14,8 @@
 // Internal set to track used landmark IDs
 const _usedLandmarkIds = new Set();
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+
 /**
  * Creates a unique identifier for a landmark given a base name.
  * @param {string} baseName - Base name of the landmark.

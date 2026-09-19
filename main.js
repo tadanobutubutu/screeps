@@ -89,10 +89,8 @@ function addLangAttribute() {
 
 // DOM-based accessibility code
 
-// Add lang attribute to HTML element (REACT_015)
-if (typeof document !== 'undefined') {
-    addLangAttribute();
-}
+// Add lang attribute to HTML element
+addLangAttribute();
 
 // Create in-page button with accessibility considerations (REACT_041)
 createInPageButton();
@@ -100,22 +98,18 @@ createInPageButton();
 // Validate table structure and accessibility (REACT_027)
 // Assuming you have a table element with an id of 'myTable'
 const table = document.getElementById('myTable');
-if (table) {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-}
+validateTableAccessibility(table);
+validateTableStructure(table);
 
 // Add/fix landmark issues (REACT_017)
 validateLandmark();
 validateLandmarkStructure();
 
-// Add accessible names to SVGs (REACT_041)
-// Assuming you have SVG elements with class 'accessible-svg'
-const svgElements = document.querySelectorAll('svg');
-svgElements.forEach((svg) => {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-});
+// Add accessible names to SVGs
+// Assuming you have an SVG element with an id of 'mySvg'
+const svg = document.getElementById('mySvg');
+const accessibleName = getSvgAccessibleName(svg);
+setSvgAttributes(svg, accessibleName);
 
 // Ensure unique landmarks (REACT_025)
 // Get all landmarks and ensure they have unique IDs

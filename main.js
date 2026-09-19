@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report:
+// TODO: Address accessibility issues from insight report — FIXED
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] Add skip link functionality for keyboard navigation

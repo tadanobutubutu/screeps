@@ -21,10 +21,19 @@ const getRepo = () => {
  */
 async function githubRequest(endpoint, options = {}) {
     const url = `${GITHUB_API}${endpoint}`;
+    // Security: Sanitize headers to prevent HTTP Header Injection / CRLF Injection
+    const sanitizeHeader = (val) => String(val ?? '').replace(/[\r\n]/g, '');
+    const customHeaders = {};
+    if (options.headers && typeof options.headers === 'object') {
+        for (const [k, v] of Object.entries(options.headers)) {
+            customHeaders[sanitizeHeader(k)] = sanitizeHeader(v);
+        }
+    }
+
     const headers = {
-        Authorization: `token ${getGithubToken()}`,
+        Authorization: `token ${sanitizeHeader(getGithubToken())}`,
         Accept: 'application/vnd.github+json',
-        ...options.headers,
+        ...customHeaders,
     };
 
 

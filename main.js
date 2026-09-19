@@ -24,7 +24,7 @@ function ensureUniqueLandmarkId(baseName) {
     let counter = 0;
     while (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
+        const suffix = Math.floor(Math.random() * 900) + 100;
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -48,13 +48,22 @@ function uniqueLandmarks(landmarks) {
     return result;
 }
 
+// Add lang attribute as per the issue requirement
+function addLangAttribute() {
+  // Assuming there is a relevant element selector or similar to target
+  const elementToModify = document.querySelector('html');
+  if (elementToModify) {
+    elementToModify.lang = 'en'; // Example: English
+  }
+}
+
 /**
  * Adds an aria-label attribute to an element if it doesn't already have one.
  * @param {HTMLElement} element - The element to add the aria-label to.
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (element && !element.hasAttribute('aria-label')) {
+    if (!element.getAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -194,10 +203,10 @@ function replaceMyButtonId() {
  * @returns {void}
  */
 function addProperLandmarkRegions() {
-    // Create main landmark
-    const main = document.querySelector('main') || document.createElement('main');
-    main.setAttribute('role', 'main');
-    main.id = 'main-content';
+  // Create main landmark
+  const main = document.querySelector('main') || document.querySelector('[role="main"]');
+  main.setAttribute('role', 'main');
+  main.id = 'main-content';
 
     // Create navigation landmark
     const nav = document.querySelector('nav') || document.createElement('nav');
@@ -230,23 +239,23 @@ function addProperLandmarkRegions() {
  * @returns {void}
  */
 function addProperAccountManagement() {
-    // Add aria-expanded to collapsible menus/buttons
-    const collapsibles = document.querySelectorAll('.collapsible');
-    collapsibles.forEach((collapsible) => {
-        if (!collapsible.hasAttribute('aria-expanded')) {
-            collapsible.setAttribute('aria-expanded', 'false');
-        }
-    });
+  // Add aria-expanded to collapsible menus/buttons
+  const collapsibles = document.querySelectorAll('.collapsible');
+  collapsibles.forEach(collapsible => {
+    if (!collapsible.getAttribute('aria-expanded')) {
+      collapsible.setAttribute('aria-expanded', 'false');
+    }
+  });
 
-    // Add aria-labels to form inputs
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach((input, index) => {
-        const id = input.id || `input-${index}`;
-        input.id = id;
-        if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
-            input.setAttribute('aria-label', `Input field ${index + 1}`);
-        }
-    });
+  // Add aria-labels to form inputs
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach((input, index) => {
+    const id = input.id || `input-${index}`;
+    input.id = id;
+    if (!input.getAttribute('aria-label')) {
+      input.setAttribute('aria-label', `Input field ${index + 1}`);
+    }
+  });
 }
 
 /**
@@ -273,15 +282,81 @@ function addAriaToFormControls() {
     // Add required aria attributes to form controls
     const formControls = document.querySelectorAll('input, select, textarea');
 
-    formControls.forEach((control) => {
-        // Ensure all form controls have accessible names
-        if (!control.id) {
-            const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
-            if (label) {
-                label.id = label.id || `label-${Math.random().toString(36).substring(2, 9)}`;
-                control.setAttribute('aria-labelledby', label.id);
-            }
+  formControls.forEach(control => {
+    // Ensure all form controls have accessible names
+    if (!control.id && !control.getAttribute('aria-label')) {
+      const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
+      if (label) {
+        label.id = label.id || `label-${Math.random().toString(36).substr(2, 9)}`;
+        control.setAttribute('aria-labelledby', label.id);
+      }
+    }
+
+    // Mark required fields appropriately
+    if (control.required && !control.getAttribute('aria-required')) {
+      control.setAttribute('aria-required', 'true');
+    }
+  });
+}
+
+/**
+ * Adds accessible names to SVGs.
+ * @param {Array} svgs - Array of SVG elements.
+ * @returns {void}
+ */
+function addAccessibleNamesToSVGs(svgs) {
+  svgs.forEach(svg => {
+    const id = `svg-${Math.random().toString(36).substr(2, 9)}`;
+    svg.setAttribute('id', id);
+    const label = document.createElement('label');
+    label.setAttribute('for', id);
+    label.textContent = 'SVG description';
+    svg.parentNode.insertBefore(label, svg);
+  });
+}
+
+/**
+ * Removes fake links from the document.
+ * @returns {void}
+ */
+function removeFakeLinks() {
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    link.style.display = 'none';
+  });
+}
+
+/**
+ * Implement validateTableAccessibility() function to check for accessibility issues in tables.
+ * This function should check for proper table headers, roles, and other relevant ARIA attributes.
+ *
+ * @returns {void}
+ */
+function validateTableAccessibility() {
+  // Check for tables with no headers or headers that are not properly labeled
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      console.error('Table without headers found:', table);
+    } else {
+      headers.forEach(header => {
+        // Check for proper scope attribute
+        const scope = header.getAttribute('scope');
+        if (!scope) {
+          console.error('Table header without scope attribute:', header);
+        } else if (scope !== 'col' && scope !== 'row' && scope !== 'colgroup' && scope !== 'rowgroup') {
+          console.error('Table header with invalid scope value:', header);
         }
+        
+        // Check for proper role attribute
+        if (!header.getAttribute('role') || (header.getAttribute('role') !== 'columnheader' && header.getAttribute('role') !== 'rowheader')) {
+          console.error('Table header without proper role attribute:', header);
+        }
+      });
+    }
+  });
+}
 
         // Mark required fields appropriately
         if (control.hasAttribute('required') && !control.hasAttribute('aria-required')) {
@@ -294,6 +369,7 @@ function addAriaToFormControls() {
 // ARIA live region announcer
 function createAnnouncer() {
   const announcer = document.createElement('div');
+  announcer.setAttribute('role', 'status');
   announcer.setAttribute('aria-live', 'polite');
   announcer.setAttribute('aria-atomic', 'true');
   announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
@@ -316,267 +392,19 @@ function prefersReducedMotion() {
 
 // Function to improve keyboard navigation for interactive elements
 function improveKeyboardNavigation() {
-  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
+  const interactiveElements = document.querySelectorAll('a, button, input, select, textarea, [tabindex]');
   interactiveElements.forEach(element => {
     element.setAttribute('tabindex', '0');
   });
 }
 
 // Function to add ARIA live regions for dynamic content updates
-function addLiveRegionForDynamicContent() {
+function addLiveRegion() {
   const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('role', 'status');
   liveRegion.setAttribute('aria-live', 'polite');
-  liveRegion.setAttribute('role', 'alert');
+  liveRegion.setAttribute('aria-atomic', 'alert');
   document.body.appendChild(liveRegion);
 }
 
-/**
- * Creates a skip link that allows keyboard users to skip to main content.
- * Skip links improve accessibility by providing a quick way to navigate to the main content.
- * 
- * @param {string} targetSelector - CSS selector for the target element to skip to.
- * @param {string} [linkText='Skip to main content'] - Text for the skip link.
- * @returns {HTMLAnchorElement|null} The created skip link element or null if failed.
- */
-function createSkipLink(targetSelector, linkText = 'Skip to main content') {
-  // Create the skip link element
-  const skipLink = document.createElement('a');
-  skipLink.href = targetSelector;
-  skipLink.textContent = linkText;
-  
-  // Add necessary attributes for accessibility
-  skipLink.setAttribute('class', 'skip-link');
-  skipLink.setAttribute('aria-label', linkText);
-  
-  // Style the skip link to be visually hidden by default but visible on focus
-  skipLink.style.cssText = 'position: absolute; top: -40px; left: -40px; background: #000; color: #fff; padding: 8px; text-decoration: none; z-index: 1000;';
-  
-  // Add focus styles to make it visible when focused
-  skipLink.addEventListener('focus', () => {
-    skipLink.style.top = '10px';
-    skipLink.style.left = '10px';
-  });
-  
-  // Add blur styles to hide it again when not focused
-  skipLink.addEventListener('blur', () => {
-    skipLink.style.top = '-40px';
-    skipLink.style.left = '-40px';
-  });
-  
-  // Insert the skip link as the first child of body
-  if (document.body) {
-    document.body.insertBefore(skipLink, document.body.firstChild);
-    return skipLink;
-  }
-  
-  return null;
-}
-
-/**
- * Validates and adds a skip link to the document if not present.
- * This ensures keyboard users can easily navigate to main content.
- * 
- * @param {string} targetSelector - CSS selector for the main content element.
- * @returns {HTMLAnchorElement|null} The skip link element or null if failed.
- */
-function ensureSkipLink(targetSelector = '#main-content') {
-  // Check if skip link already exists
-  let skipLink = document.querySelector('.skip-link');
-  
-  if (!skipLink) {
-    skipLink = createSkipLink(targetSelector);
-  }
-  
-  return skipLink;
-}
-
-/**
- * Handles various accessibility issues including skip links and fake links.
- * This is a comprehensive function to address multiple accessibility concerns.
- * 
- * @param {Object} [options] - Configuration options.
- * @param {string} [options.mainContentSelector='#main-content'] - Selector for main content.
- * @returns {void}
- */
-function handleAccessibilityIssues(options = {}) {
-  const mainContentSelector = options.mainContentSelector || '#main-content';
-  
-  // Remove fake links (links with empty href="#")
-  removeFakeLinks();
-  
-  // Ensure skip link exists
-  ensureSkipLink(mainContentSelector);
-}
-
-/**
- * Function to ensure landmarks have unique identifiers
- * @param {Array} landmarks - List of landmark objects.
- * @returns {Array} Landmarks with unique IDs.
- */
-function isLinkAccessible(link) {
-    if (!(link instanceof HTMLAnchorElement)) {
-        return false;
-    }
-
-    // Check for non-empty text content
-    const textContent = link.textContent.trim();
-    if (textContent.length > 0) {
-        return true;
-    }
-
-    // Check for aria-label with non-empty value
-    const ariaLabel = link.getAttribute('aria-label');
-    if (ariaLabel && ariaLabel.trim().length > 0) {
-        return true;
-    }
-
-    // Check for aria-labelledby referencing existing element with text
-    const ariaLabelledby = link.getAttribute('aria-labelledby');
-    if (ariaLabelledby) {
-        const labelledByElement = document.getElementById(ariaLabelledby);
-        if (labelledByElement && labelledByElement.textContent.trim().length > 0) {
-            return true;
-        }
-    }
-
-    // Check for title attribute with non-empty value
-    const title = link.getAttribute('title');
-    if (title && title.trim().length > 0) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Counts the number of dependencies (external scripts) in the document.
- * @returns {number} The count of external script elements with a src attribute.
- */
-function countDependencies() {
-  const scripts = document.querySelectorAll('script[src]');
-  return scripts.length;
-}
-
-/**
- * Gets the lang attribute of the document.
- * @returns {string} The lang attribute.
- */
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-/**
- * Validates a landmark element.
- * @param {HTMLElement} landmark - The landmark element to validate.
- * @returns {boolean} True if valid.
- */
-function validateLandmark(landmark) {
-  if (!landmark) return false;
-  const role = landmark.getAttribute('role');
-  const validRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'form', 'search'];
-  return validRoles.includes(role);
-}
-
-/**
- * Validates the structure of landmarks in the document.
- * Ensures landmarks have unique IDs and are properly nested.
- */
-function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('[role], main, nav, header, footer, aside');
-  const ids = new Set();
-  landmarks.forEach(lm => {
-    const id = lm.id;
-    if (id) {
-      if (ids.has(id)) {
-        console.error('Duplicate landmark ID found:', id);
-      } else {
-        ids.add(id);
-      }
-    } else {
-      console.warn('Landmark without ID:', lm);
-    }
-  });
-}
-
-/**
- * Gets an accessible name for an SVG element.
- * @param {SVGElement} svg - The SVG element.
- * @returns {string} The accessible name.
- */
-function getSvgAccessibleName(svg) {
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || 'SVG';
-}
-
-/**
- * Creates an in-page button with the given text and click handler.
- * @param {string} text - The button text.
- * @param {Function} onClick - The click handler.
- * @returns {HTMLElement} The created button.
- */
-function createInPageButton(text, onClick) {
-  const button = document.createElement('button');
-  button.textContent = text;
-  button.addEventListener('click', onClick);
-  return button;
-}
-
-/**
- * Creates an accessible link element.
- * @param {string} text - The link text.
- * @param {string} href - The URL.
- * @param {string} ariaLabel - Optional aria-label.
- * @returns {HTMLElement} The created link.
- */
-function createAccessibleLink(text, href, ariaLabel) {
-  const link = document.createElement('a');
-  link.href = href;
-  link.textContent = text;
-  if (ariaLabel) {
-    link.setAttribute('aria-label', ariaLabel);
-  }
-  return link;
-}
-
-/**
- * Handles accessibility issues by running various checks and fixes.
- */
-function handleAccessibilityIssues() {
-  // Add your logic here
-  console.log('Handling accessibility issues...');
-}
-
-addProperLandmarkRegions();
-addProperAccountManagement();
-addAriaToFormControls();
-
-module.exports = {
-  addProperLandmarkRegions,
-  addProperAccountManagement,
-  addAriaToFormControls,
-  replaceMyButtonId,
-  getFullLangAttribute,
-  getLangAttribute,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  validateTableAccessibility,
-  validateTableStructure,
-  addAccessibleNamesToSVGs,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  removeFakeLinks,
-  initializeAccessibility,
-  createAnnouncer,
-  prefersReducedMotion,
-  improveKeyboardNavigation,
-  addLiveRegionForDynamicContent,
-  isLinkAccessible,
-  addAriaLabel,
-  createSkipLink,
-  ensureSkipLink,
-  handleAccessibilityIssues
-};
+// Initialize

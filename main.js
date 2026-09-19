@@ -29,39 +29,15 @@
 const _usedLandmarkIds = new Set();
 
 /**
- * Checks if a link is accessible.
- * @param {HTMLAnchorElement} link - The link element to check.
- * @returns {Object} - An object containing accessibility status and any issues found.
- */
-function isLinkAccessible(link) {
-    const result = { isAccessible: true, issues: [] };
-    
-    // Check if link has a valid href
-    if (!link || !link.href) {
-        result.isAccessible = false;
-        result.issues.push('Link is missing or has no href attribute');
-    }
-    
-    // Check if link has accessible text
-    const linkText = link.textContent.trim();
-    if (!linkText && !link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby')) {
-        result.isAccessible = false;
-        result.issues.push('Link has no accessible name (no text, aria-label, or aria-labelledby)');
-    }
-    
-    return result;
-}
-
-/**
  * Creates a unique identifier for a landmark given a base name.
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function createUniqueLandmarkId(baseName) {
+function ensureUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 9000) + 1000;
+        const suffix = Math.random().toString(36).substring(2, 9);
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -69,14 +45,13 @@ function createUniqueLandmarkId(baseName) {
 }
 
 /**
- * Returns a new array containing only unique landmark objects.
+ * Returns a new array containing only unique landmarks from the input list.
  * @param {Array} landmarks - List of landmark objects.
  * @returns {Array} Unique landmarks.
  */
-export function uniqueLandmarks(landmarks) {
+function uniqueLandmarks(landmarks) {
     const seen = new Set();
     const result = [];
-    if (!landmarks) return result;
     for (const lm of landmarks) {
         if (!seen.has(lm.id)) {
             seen.add(lm.id);
@@ -86,72 +61,70 @@ export function uniqueLandmarks(landmarks) {
     return result;
 }
 
-/**
- * Validates a landmark's structure and adds or fixes landmark roles if necessary.
- * @param {HTMLElement} landmark - Landmark to be validated.
- */
-function validateLandmarkStructure(landmark) {
-  const id = landmark.id;
-  if (!id) {
-    landmark.id = ensureUniqueLandmarkId(`landmark-${idPrefix}`);
-  }
-
-/**
- * Adds lang attribute as per the issue requirement
- */
+// Add lang attribute as per the issue requirement
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('html');
+  const elementToModify = document.querySelector('some-selector');
   if (elementToModify) {
     elementToModify.setAttribute('lang', 'en'); // Example: English
   }
 }
 
-// ... other fixes ...
-
-// DOM-based accessibility code
-
-// Add lang attribute to HTML element
-addLangAttribute();
-
-// Create in-page button with accessibility considerations
-createInPageButton();
-
-// Validate table structure and accessibility
-// Assuming you have a table element with an id of 'myTable'
-const table = document.getElementById('myTable');
-validateTableAccessibility(table);
-validateTableStructure(table);
-
-// Add/fix landmark issues
-validateLandmark();
-// ...
-
-// Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
-const svg = document.getElementById('mySvg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
-
-// Ensure unique landmarks
-// This would be handled by the appropriate function call
-uniqueLandmarks([]);
-handleFakeLinks();
-
-// ... rest of your code ...
-
-// React / UI related functions
-
-// TODO: Add these imported modules to the relevant rendering functions
-
-function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
+/**
+ * Adds an aria-label attribute to an element if it doesn't already have one.
+ * @param {HTMLElement} element - The element to add the aria-label to.
+ * @param {string} label - The label text to be added.
+ */
+function addAriaLabel(element, label) {
+    if (!element.hasAttribute('aria-label')) {
+        element.setAttribute('aria-label', label);
+    }
 }
 
-function renderProductList(products) {
-  const container = document.createElement('div');
-  container.innerHTML = products.map(p => `<div>${formatProductName(p)}</div>`).join('');
-  return container;
+/**
+ * Gets the language attribute from the HTML element.
+ * @returns {string} - the language attribute value
+ */
+function getLangAttribute() {
+    return document.documentElement.lang || '';
+}
+
+/**
+ * This function gets the full language attribute with region (if provided)
+ * @returns {string} - the full language attribute with region (if provided)
+ */
+function getFullLangAttribute() {
+    return document.documentElement.lang || '';
+}
+
+// ... existing functions from both branches
+
+// Accessibility helper functions
+function setupKeyboardNavigation(element, options = {}) {
+  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+
+  element.addEventListener('keydown', (event) => {
+    switch (event.key) {
+      case 'Enter':
+        if (onEnter) onEnter(event);
+        break;
+      case 'Escape':
+        if (onEscape) onEscape(event);
+        break;
+      case 'ArrowUp':
+        if (onArrowUp) {
+          event.preventDefault();
+          onArrowUp(event);
+        }
+        break;
+      case 'ArrowDown':
+        if (onArrowDown) {
+          event.preventDefault();
+          onArrowDown(event);
+        }
+        break;
+    }
+  });
 }
 
 function trapFocus(container) {

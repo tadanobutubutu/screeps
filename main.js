@@ -1,3 +1,12 @@
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks and validateLandmarkStructure())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+
 // main.js
 // Implementation of unique landmark functions
 
@@ -60,8 +69,62 @@ function handleAccessibilityIssues() {
 const _usedLandmarkIds = new Set();
 
 /**
- * TODO: Add any other missing exports that might have been?
- * Added missing exports as per the issue
+ * Renders the index view in the DOM.
+ * This function creates and displays the main index page content,
+ * including a header, navigation, main content area, and footer.
+ *
+ * @returns {void}
+ */
+function renderIndexView() {
+  // Clear existing body content
+  document.body.innerHTML = '';
+
+  // Create header/banner landmark
+  const header = document.createElement('header');
+  header.setAttribute('role', 'banner');
+  header.id = 'site-header';
+  const headerTitle = document.createElement('h1');
+  headerTitle.textContent = 'Welcome to My Site';
+  header.appendChild(headerTitle);
+  document.body.appendChild(header);
+
+  // Create navigation landmark
+  const nav = document.createElement('nav');
+  nav.setAttribute('role', 'navigation');
+  nav.id = 'primary-navigation';
+  const navList = document.createElement('ul');
+  const homeLink = document.createElement('a');
+  homeLink.href = '/';
+  homeLink.textContent = 'Home';
+  const listItem = document.createElement('li');
+  listItem.appendChild(homeLink);
+  navList.appendChild(listItem);
+  nav.appendChild(navList);
+  document.body.appendChild(nav);
+
+  // Create main landmark
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+  main.id = 'main-content';
+  const mainContent = document.createElement('p');
+  mainContent.textContent = 'This is the index page. Explore the site using the navigation above.';
+  main.appendChild(mainContent);
+  document.body.appendChild(main);
+
+  // Create contentinfo/footer landmark
+  const footer = document.createElement('footer');
+  footer.setAttribute('role', 'contentinfo');
+  footer.id = 'site-footer';
+  const footerText = document.createElement('p');
+  footerText.textContent = '© 2023 My Site. All rights reserved.';
+  footer.appendChild(footerText);
+  document.body.appendChild(footer);
+}
+
+/**
+ * Creates a unique identifier for a landmark given a base name.
+ * @param {string} baseName - Base name of the landmark.
+ * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
     let candidate = baseName;
@@ -158,7 +221,6 @@ module.exports = {
   getFullLangAttribute,
   ensureUniqueLandmarkId,
   uniqueLandmarks,
-  addAriaLabels,
-  setSvgAccessibleNames,
-  getSvgAccessibleName // Add this function to the exports
+  isLinkAccessible,
+  renderIndexView
 };

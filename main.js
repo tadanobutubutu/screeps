@@ -1,4 +1,4 @@
-// Accessibility improvements implementation
+// Preserve existing functionality
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
@@ -217,7 +217,7 @@ export {
   setSvgAttributes,
   validateLinkAccessibility,
   handleFakeLinks,
-  createUniqueLandmarkId,
+  ensureUniqueLandmarkId,
   uniqueLandmarks,
   addAriaLabel,
   addLangAttribute

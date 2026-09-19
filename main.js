@@ -406,5 +406,6 @@ _Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     window.accessibilityFeatures = initializeAccessibility();
+    // Auto-initialize can be called here if needed
   });
 }

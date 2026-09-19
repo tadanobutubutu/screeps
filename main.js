@@ -25,7 +25,7 @@ function addressAccessibilityIssuesFromInsightReport(report) {
 }
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(options = {}) {
+function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
   return (event) => {
@@ -108,7 +108,7 @@ function initializeAccessibility() {
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
-    setupKeyboardNavigation,
+    handleKeyboardNavigation,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion
@@ -335,11 +335,43 @@ function wrapPrimaryContentInMain() {
   body.appendChild(main);
 }
 
+/**
+ * Counts dependencies in a package.json-like object
+ * @param {Object} packageJson - A package.json object containing dependencies
+ * @param {Object} options - Options for counting dependencies
+ * @param {boolean} options.includeDevDependencies - Whether to include devDependencies (default: false)
+ * @param {boolean} options.includePeerDependencies - Whether to include peerDependencies (default: false)
+ * @param {boolean} options.includeOptionalDependencies - Whether to include optionalDependencies (default: false)
+ * @returns {number} - The total count of dependencies
+ */
+function countDependencies(packageJson, options = {}) {
+  const { includeDevDependencies = false, includePeerDependencies = false, includeOptionalDependencies = false } = options;
+  
+  let count = 0;
+  
+  if (packageJson && typeof packageJson === 'object') {
+    if (packageJson.dependencies) {
+      count += Object.keys(packageJson.dependencies).length;
+    }
+    if (includeDevDependencies && packageJson.devDependencies) {
+      count += Object.keys(packageJson.devDependencies).length;
+    }
+    if (includePeerDependencies && packageJson.peerDependencies) {
+      count += Object.keys(packageJson.peerDependencies).length;
+    }
+    if (includeOptionalDependencies && packageJson.optionalDependencies) {
+      count += Object.keys(packageJson.optionalDependencies).length;
+    }
+  }
+  
+  return count;
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     initializeAccessibility,
-    keyboardNavigation,
+    handleKeyboardNavigation,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
@@ -349,7 +381,7 @@ if (typeof module !== 'undefined' && module.exports) {
     clamp,
     deepClone,
     addAccessibleNamesToSvg,
-    wrapPrimaryContentInMain
+    countDependencies
   };
 }
 
@@ -374,7 +406,5 @@ _Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     window.accessibilityFeatures = initializeAccessibility();
-    // Export accessibility features globally
-    window.addAccessibleNamesToSvg = addAccessibleNamesToSvg;
   });
 }

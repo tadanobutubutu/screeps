@@ -1729,22 +1729,6 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     addProperLandmarkRegions,
     addProperAccountManagement,
-    addAriaToFormControls,
-    ensureUniqueLandmarkId,
-    uniqueLandmarks,
-    setupKeyboardNavigation,
-    addressAccessibilityIssues,
-    trapFocus,
-    ensureUniqueLandmarks,
-    createAnnouncer,
-    prefersReducedMotion,
-    improveKeyboardNavigation,
-    addLiveRegionForDynamicContent,
-    initializeAccessibility,
-    isEmpty,
-    capitalize,
-    getRandomInt,
-    clamp,
-    deepClone
-  }
+    addAriaToFormControls
+  };
 }

@@ -210,13 +210,15 @@ function displayModuleStructure(modules) {
     if (module.version) {
       result += `   Version: ${module.version}\n`;
     }
-
-    let moduleKeyValuePairs = getKeyValuePairs(module);
-    let moduleDependencies = Array.isArray(module.dependencies) ? getValues(module.dependencies) : [];
-
-    result += `   Properties:\n     - ${moduleKeyValuePairs.join('\n     - ')}\n`;
-    result += `   Dependencies: ${moduleDependencies.join(', ')}\n`;
-
+    
+    if (module.dependencies && Object.keys(module.dependencies).length > 0) {
+      result += `   Dependencies: ${Object.keys(module.dependencies).join(', ')}\n`;
+    }
+    
+    if (module.exports) {
+      result += `   Exports: ${module.exports}\n`;
+    }
+    
     result += '\n';
   });
 
@@ -224,7 +226,6 @@ function displayModuleStructure(modules) {
 }
 
 renderDependencyGraph(dependencyGraphContent);
-displayModuleStructure(indexContent);
 
 export {
   renderDependencyGraph,

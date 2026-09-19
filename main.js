@@ -25,10 +25,10 @@ function addressAccessibilityIssuesFromInsightReport(report) {
 }
 
 // Accessibility helper function for keyboard navigation
-function keyboardNavigation(options = {}) {
+function setupKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  return function(event) {
+  return (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -60,7 +60,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  function handleTab(event) {
+  return (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -69,14 +69,6 @@ function trapFocus(container) {
     } else if (!event.shiftKey && document.activeElement === lastElement) {
       event.preventDefault();
       firstElement.focus();
-    }
-  }
-
-  container.addEventListener('keydown', handleTab);
-
-  return {
-    destroy: function() {
-      container.removeEventListener('keydown', handleTab);
     }
   };
 }
@@ -185,33 +177,12 @@ function deepClone(obj) {
   }
 }
 
-/**
- * Renders an index view with accessibility support
- * @param {Object} options - Configuration options
- * @param {Array} options.data - Array of items to render
- * @param {HTMLElement|string} options.container - Container element or selector
- * @param {Function} options.itemRenderer - Function to render each item (receives item and index)
- * @param {Function} [options.onItemSelect] - Callback when item is selected
- * @param {string} [options.role='list'] - ARIA role for the list
- * @param {string} [options.itemRole='listitem'] - ARIA role for each item
- * @returns {Object|null} - Methods to interact with the view or null on error
- */
-function renderIndexView(options = {}) {
-  const {
-    data = [],
-    container,
-    itemRenderer,
-    onItemSelect,
-    role = 'list',
-    itemRole = 'listitem'
-  } = options;
-
-  // Get container element
-  let containerEl;
-  if (typeof container === 'string') {
-    containerEl = document.querySelector(container);
-  } else {
-    containerEl = container;
+// Add accessible names to SVG elements
+function addAccessibleNamesToSvg(container) {
+  const svgs = container.querySelectorAll('svg');
+  if (svgs.length >= 2) {
+    svgs[0].setAttribute('aria-label', 'First SVG');
+    svgs[1].setAttribute('aria-label', 'Second SVG');
   }
 
   if (!containerEl) {
@@ -385,5 +356,7 @@ _Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     window.accessibilityFeatures = initializeAccessibility();
-  }
+    // Export accessibility features globally
+    window.addAccessibleNamesToSvg = addAccessibleNamesToSvg;
+  });
 }

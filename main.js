@@ -1,13 +1,7 @@
-// TODO: Address accessibility issues from insight report
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_025: Add other accessibility changes as per the insight report
+// - [NEW] Add skip link functionality for keyboard navigation
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -203,6 +197,124 @@ function addAriaToFormControls() {
             control.setAttribute('aria-required', 'true');
         }
     });
+  });
+}
+
+// ARIA live region announcer
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
+  document.body.appendChild(announcer);
+  
+  return {
+    announce: (message) => {
+      announcer.textContent = '';
+      setTimeout(() => {
+        announcer.textContent = message;
+      }, 100);
+    }
+  };
+}
+
+// Check if user prefers reduced motion
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Function to improve keyboard navigation for interactive elements
+function improveKeyboardNavigation() {
+  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
+  interactiveElements.forEach(element => {
+    element.setAttribute('tabindex', '0');
+  });
+}
+
+// Function to add ARIA live regions for dynamic content updates
+function addLiveRegionForDynamicContent() {
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('role', 'alert');
+  document.body.appendChild(liveRegion);
+}
+
+/**
+ * Creates a skip link that allows keyboard users to skip to main content.
+ * Skip links improve accessibility by providing a quick way to navigate to the main content.
+ * 
+ * @param {string} targetSelector - CSS selector for the target element to skip to.
+ * @param {string} [linkText='Skip to main content'] - Text for the skip link.
+ * @returns {HTMLAnchorElement|null} The created skip link element or null if failed.
+ */
+function createSkipLink(targetSelector, linkText = 'Skip to main content') {
+  // Create the skip link element
+  const skipLink = document.createElement('a');
+  skipLink.href = targetSelector;
+  skipLink.textContent = linkText;
+  
+  // Add necessary attributes for accessibility
+  skipLink.setAttribute('class', 'skip-link');
+  skipLink.setAttribute('aria-label', linkText);
+  
+  // Style the skip link to be visually hidden by default but visible on focus
+  skipLink.style.cssText = 'position: absolute; top: -40px; left: -40px; background: #000; color: #fff; padding: 8px; text-decoration: none; z-index: 1000;';
+  
+  // Add focus styles to make it visible when focused
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.top = '10px';
+    skipLink.style.left = '10px';
+  });
+  
+  // Add blur styles to hide it again when not focused
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.top = '-40px';
+    skipLink.style.left = '-40px';
+  });
+  
+  // Insert the skip link as the first child of body
+  if (document.body) {
+    document.body.insertBefore(skipLink, document.body.firstChild);
+    return skipLink;
+  }
+  
+  return null;
+}
+
+/**
+ * Validates and adds a skip link to the document if not present.
+ * This ensures keyboard users can easily navigate to main content.
+ * 
+ * @param {string} targetSelector - CSS selector for the main content element.
+ * @returns {HTMLAnchorElement|null} The skip link element or null if failed.
+ */
+function ensureSkipLink(targetSelector = '#main-content') {
+  // Check if skip link already exists
+  let skipLink = document.querySelector('.skip-link');
+  
+  if (!skipLink) {
+    skipLink = createSkipLink(targetSelector);
+  }
+  
+  return skipLink;
+}
+
+/**
+ * Handles various accessibility issues including skip links and fake links.
+ * This is a comprehensive function to address multiple accessibility concerns.
+ * 
+ * @param {Object} [options] - Configuration options.
+ * @param {string} [options.mainContentSelector='#main-content'] - Selector for main content.
+ * @returns {void}
+ */
+function handleAccessibilityIssues(options = {}) {
+  const mainContentSelector = options.mainContentSelector || '#main-content';
+  
+  // Remove fake links (links with empty href="#")
+  removeFakeLinks();
+  
+  // Ensure skip link exists
+  ensureSkipLink(mainContentSelector);
 }
 
 /**
@@ -366,12 +478,7 @@ module.exports = {
   addLiveRegionForDynamicContent,
   isLinkAccessible,
   addAriaLabel,
-  addLangAttribute,
-  getLangAttribute,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink,
+  createSkipLink,
+  ensureSkipLink,
   handleAccessibilityIssues
 };

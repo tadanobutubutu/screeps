@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 import { dependencyGraphContent, indexContent } from './content';
 
 // Address accessibility issues from insight report

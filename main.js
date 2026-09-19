@@ -53,7 +53,7 @@ function isLinkAccessible(link) {
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function generateUniqueLandmarkId(baseName) {
+export function createLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
@@ -82,151 +82,12 @@ export function uniqueLandmarks(landmarks) {
     return result;
 }
 
-/**
- * Ensures that all landmarks in the array have unique IDs.
- * @param {Array} landmarks - List of landmark objects.
- * @returns {Array} Landmarks with unique IDs.
- */
-function ensureUniqueLandmarks(landmarks) {
-    const result = [];
-    for (const lm of landmarks) {
-        if (!lm.id) {
-            lm.id = ensureUniqueLandmarkId(lm.getAttribute('role') || 'region');
-        } else if (_usedLandmarkIds.has(lm.id)) {
-            lm.id = ensureUniqueLandmarkId(lm.id);
-        }
-        _usedLandmarkIds.add(lm.id);
-        result.push(lm);
-    }
-    return result;
-}
-
-/**
- * Validates a single landmark element for required accessibility attributes.
- * @param {HTMLElement} element - The landmark element to validate.
- * @returns {boolean} True if valid, false otherwise.
- */
-function validateLandmark(element) {
-    const requiredRoles = ['banner', 'navigation', 'main', 'article', 'aside', 'footer', 'region'];
-    const role = element.getAttribute('role');
-    if (!role || !requiredRoles.includes(role)) {
-        return false;
-    }
-    return true;
-}
-
-/**
- * Validates and fixes the structure of landmark elements.
- * @param {Array} landmarks - List of landmark elements.
- * @returns {Array} Validated landmarks.
- */
-function validateLandmarkStructure(landmarks) {
-    return landmarks.filter(lm => validateLandmark(lm));
-}
-
-/**
- * Gets an accessible name for an SVG element.
- * @param {HTMLElement} svgElement - The SVG element.
- * @returns {string} Accessible name.
- */
-function getSvgAccessibleName(svgElement) {
-    const title = svgElement.querySelector('title');
-    if (title) {
-        return title.textContent || '';
-    }
-    return svgElement.getAttribute('aria-label') || svgElement.getAttribute('alt') || '';
-}
-
-/**
- * Creates an in-page navigation button with accessibility features.
- * @param {string} targetSelector - CSS selector for the target element.
- * @param {string} [label='Skip to content'] - Button label.
- * @returns {HTMLButtonElement} The created button.
- */
-function createInPageButton(targetSelector, label = 'Skip to content') {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = label;
-    button.setAttribute('aria-label', label);
-    button.addEventListener('click', () => {
-        const target = document.querySelector(targetSelector);
-        if (target) {
-            target.focus();
-        }
-    });
-    return button;
-}
-
-/**
- * Creates an accessible link element.
- * @param {string} href - The link URL.
- * @param {string} text - Link text.
- * @param {Object} [options] - Additional options.
- * @param {string} [options.title] - Title attribute.
- * @param {string} [options['aria-describedby']] - Description ID.
- * @returns {HTMLAnchorElement} The created link.
- */
-function createAccessibleLink(href, text, options = {}) {
-    const link = document.createElement('a');
-    link.href = href;
-    link.textContent = text;
-    link.setAttribute('aria-label', text);
-    if (options.title) {
-        link.title = options.title;
-    }
-    if (options['aria-describedby']) {
-        link.setAttribute('aria-describedby', options['aria-describedby']);
-    }
-    return link;
-}
-
-/**
- * Validates and fixes table accessibility issues.
- * @param {HTMLTableElement} table - The table element.
- * @returns {void}
- */
-function validateTableAccessibility(table) {
-    const headers = table.querySelectorAll('th');
-    headers.forEach((th, index) => {
-        if (!th.hasAttribute('scope')) {
-            th.setAttribute('scope', 'col');
-        }
-    });
-}
-
-/**
- * Validates table structure for proper accessibility.
- * @param {HTMLTableElement} table - The table element.
- * @returns {boolean} True if valid structure.
- */
-function validateTableStructure(table) {
-    const hasCaption = !!table.querySelector('caption');
-    const hasHeader = !!table.querySelector('thead');
-    return hasCaption || hasHeader;
-}
-
-/**
- * Handles accessibility issues by applying fixes.
- * @param {Object} issues - Accessibility issues to resolve.
- * @returns {void}
- */
-function handleAccessibilityIssues(issues = {}) {
-    if (issues.tables) {
-        issues.tables.forEach(validateTableAccessibility);
-    }
-    if (issues.landmarks) {
-        ensureUniqueLandmarks(issues.landmarks);
-    }
-}
-
-/**
- * Add lang attribute as per the issue requirement
- */
-function addLangAttribute() {
+// Add lang attribute as per the issue requirement
+export function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = document.documentElement;
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
+    elementToModify.lang = 'en'; // Example: English
   }
 }
 
@@ -236,7 +97,7 @@ function addLangAttribute() {
  * @param {string} role - The role attribute value for the landmark.
  */
 export function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -244,85 +105,68 @@ export function addAriaLabel(element, label) {
 /**
  * Adds lang attribute as per the issue requirement
  */
-export function addLangAttribute() {
-  // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('html');
-  if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
-  }
+export function getLangAttribute() {
+    return document.documentElement.lang || '';
 }
 
-// ... other fixes ...
-
-// DOM-based accessibility code
-
-// Add lang attribute to HTML element
-addLangAttribute();
-
-// Create in-page button with accessibility considerations
-createInPageButton();
-
-// Validate table structure and accessibility
-// Assuming you have a table element with an id of 'myTable'
-const table = document.getElementById('myTable');
-if (table) {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
+/**
+ * This function gets the full language attribute with region (if provided)
+ * @returns {string} - the full language attribute with region (if provided)
+ */
+export function getFullLangAttribute() {
+    return document.documentElement.lang || '';
 }
 
 // Add/fix landmark issues
 validateLandmark();
 
-// Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
-const svg = document.getElementById('mySvg');
-if (svg) {
-  const accessibleName = getSvgAccessibleName(svg);
-  setSvgAttributes(svg, accessibleName);
+// Accessibility helper functions
+export function handleKeyboardNavigation(options = {}) {
+  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+
+  return function(event) {
+    switch (event.key) {
+      case 'Enter':
+        if (onEnter) onEnter(event);
+        break;
+      case 'Escape':
+        if (onEscape) onEscape(event);
+        break;
+      case 'ArrowUp':
+        if (onArrowUp) {
+          event.preventDefault();
+          onArrowUp(event);
+        }
+        break;
+      case 'ArrowDown':
+        if (onArrowDown) {
+          event.preventDefault();
+          onArrowDown(event);
+        }
+        break;
+    }
+  };
 }
 
-// Ensure unique landmarks
-// This would be handled by the appropriate function call
-validateLandmarkStructure();
+export function trapFocus(container) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
 
-// ... rest of your code ...
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
 
-// React / UI related functions
+  return function(event) {
+    if (event.key !== 'Tab') return;
 
-// TODO: Add these imported modules to the relevant rendering functions
-
-function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
-}
-
-function renderProductList(products) {
-  const container = document.createElement('div');
-  container.innerHTML = products.map(p => `<div>${formatProductName(p)}</div>`).join('');
-  return container;
-}
-
-export function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
-}
-
-function calculateDiscount(subtotal) {
-  // Default discount logic
-  return subtotal > 100 ? subtotal * 0.1 : 0;
-}
-
-function formatDate(date) {
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-}
-
-function validateInput(input) {
-  // Basic validation logic
-  return input && input.length > 0;
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  };
 }
 
 // ... other existing functions remained unchanged

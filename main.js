@@ -74,25 +74,20 @@ function uniqueLandmarks(landmarks) {
 }
 
 /**
- * Ensures all landmarks have unique IDs by adding suffixes to duplicates.
+ * Ensures that all landmarks have unique IDs.
  * @param {Array} landmarks - List of landmark objects.
  * @returns {Array} Landmarks with unique IDs.
  */
 function ensureUniqueLandmarks(landmarks) {
-    const idCount = {};
-    const result = [];
-    
-    for (const lm of landmarks) {
-        if (idCount[lm.id]) {
-            idCount[lm.id]++;
-            lm.id = `${lm.id}-${idCount[lm.id]}`;
-        } else {
-            idCount[lm.id] = 1;
+    const uniqueIds = new Set();
+    return landmarks.map(landmark => {
+        let id = landmark.id;
+        if (!id || uniqueIds.has(id)) {
+            id = createUniqueLandmarkId(landmark.role || 'landmark');
         }
-        result.push(lm);
-    }
-    
-    return result;
+        uniqueIds.add(id);
+        return { ...landmark, id };
+    });
 }
 
 /**
@@ -120,34 +115,66 @@ function addLangAttribute() {
 
 // DOM-based accessibility code
 
-// Add lang attribute to HTML element
-addLangAttribute();
+/**
+ * Initializes all accessibility improvements for the page.
+ */
+function initializeAccessibility() {
+    // Add lang attribute to HTML element
+    addLangAttribute();
 
-// Create in-page button with accessibility considerations
-createInPageButton();
+    // Create in-page button with accessibility considerations
+    createInPageButton();
 
-// Validate table structure and accessibility
-// Assuming you have a table element with an id of 'myTable'
-const table = document.getElementById('myTable');
-if (table) {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
+    // Validate table structure and accessibility
+    // Assuming you have a table element with an id of 'myTable'
+    const table = document.querySelector('table[data-accessibility-table]');
+    if (table) {
+        validateTableAccessibility(table);
+        validateTableStructure(table);
+    }
+
+    // Add/fix landmark issues
+    validateLandmark();
+    validateLandmarkStructure();
+
+    // Add accessible names to SVGs
+    // Assuming you have an SVG element with an id of 'mySvg'
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+        const accessibleName = getSvgAccessibleName(svg);
+        setSvgAttributes(svg, accessibleName);
+    });
+
+    // Ensure unique landmarks
+    // This would be handled by the appropriate function call
+    const landmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="contentinfo"], [role="navigation"], [role="complementary"], [role="search"]');
+    const landmarkArray = Array.from(landmarks).map(el => ({
+        id: el.id,
+        role: el.getAttribute('role'),
+        element: el
+    }));
+    const uniqueLandmarkArray = ensureUniqueLandmarks(landmarkArray);
+    uniqueLandmarkArray.forEach(lm => {
+        if (lm.element) {
+            lm.element.id = lm.id;
+        }
+    });
+
+    // Fix fake links
+    handleFakeLinks();
+
+    // Validate link accessibility
+    validateLinkAccessibility();
 }
 
-// Add/fix landmark issues
-validateLandmark();
-
-// Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
-const svg = document.getElementById('mySvg');
-if (svg) {
-  const accessibleName = getSvgAccessibleName(svg);
-  setSvgAttributes(svg, accessibleName);
+// Initialize accessibility when DOM is ready
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeAccessibility);
+    } else {
+        initializeAccessibility();
+    }
 }
-
-// Ensure unique landmarks
-// This would be handled by the appropriate function call
-uniqueLandmarks([]);
 
 // Handle fake links
 handleFakeLinks();
@@ -160,7 +187,7 @@ function formatProductName(product) {
 
 function renderProductList(products) {
   const container = document.createElement('div');
-  container.innerHTML = products.map(p => `<div class="product">${formatProductName(p)}</div>`).join('');
+  container.innerHTML = products.map(p => `<div>${formatProductName(p)}</div>`).join('');
   return container;
 }
 
@@ -188,7 +215,7 @@ function formatDate(date) {
 function renderCart(cart) {
   const total = calculateTotalPrice(cart);
   return `
-    <div class="cart">
+    <div class="cart" role="region" aria-label="Shopping Cart">
       <h2>Shopping Cart</h2>
       <p>Total: $${total.toFixed(2)}</p>
       <p>Date: ${formatDate(new Date())}</p>
@@ -200,21 +227,36 @@ function validateAndRender(input) {
   if (validateInput(input)) {
     return renderCart(input);
   }
-  return '<div class="error">Invalid input</div>';
+  return '<div class="error" role="alert">Invalid input</div>';
 }
 
-// Export functions for testing
+// Helper functions that may be referenced but not defined
+function calculateDiscount(amount) {
+  return amount > 100 ? amount * 0.1 : 0;
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function validateInput(input) {
+  return input && typeof input === 'object' && Array.isArray(input.items);
+}
+
+// Export functions for external use
 export {
   createUniqueLandmarkId,
   uniqueLandmarks,
+  ensureUniqueLandmarks,
   addAriaLabel,
   addLangAttribute,
+  initializeAccessibility,
   formatProductName,
   renderProductList,
   calculateTotalPrice,
-  calculateDiscount,
   renderCart,
   validateAndRender,
+  calculateDiscount,
   formatDate,
   validateInput
 };

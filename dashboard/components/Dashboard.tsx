@@ -510,6 +510,9 @@ export default function Dashboard() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     {refreshSuccess && (
                         <span
+                            role="status"
+                            aria-live="polite"
+                            aria-label="データの更新が完了しました"
                             style={{
                                 fontSize: '0.8rem',
                                 color: '#155d27',
@@ -522,7 +525,6 @@ export default function Dashboard() {
                                 gap: '0.2rem',
                                 animation: 'bounce 0.5s ease-in-out',
                             }}
-                            aria-live="polite"
                         >
                             ✅ 更新完了
                         </span>

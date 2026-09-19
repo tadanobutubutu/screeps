@@ -27,9 +27,9 @@ function generateUniqueLandmarkId(baseName) {
     let candidate = baseName;
     let counter = 0;
     while (_usedLandmarkIds.has(candidate)) {
-        // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 9) + 1;
-        candidate = baseName + '-' + suffix;
+        // Collision handling: add counter suffix
+        counter++;
+        candidate = `${baseName}-${counter}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -165,9 +165,9 @@ function handleAccessibilityIssues() {
 // Add lang attribute as per the issue requirement
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.documentElement;
+  const elementToModify = document.querySelector('html');
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
+    elementToModify.lang = 'en'; // Example: English
   }
 }
 
@@ -330,11 +330,9 @@ function addProperLandmarkRegions() {
   main.id = 'main-content';
 
   // Create navigation landmark
-  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
-  if (nav) {
-    nav.setAttribute('role', 'navigation');
-    nav.id = nav.id || 'primary-navigation';
-  }
+  const nav = document.querySelector('nav') || document.createElement('nav');
+  nav.setAttribute('role', 'navigation');
+  nav.id = nav.id || 'primary-navigation';
 
   // Create banner/header landmark
   const header = document.querySelector('header') || document.querySelector('[role="banner"]');
@@ -347,7 +345,7 @@ function addProperLandmarkRegions() {
   footer.id = footer.id || 'site-footer';
 
   // Create aside landmark for complementary content
-  const asides = document.querySelectorAll('aside');
+  const asides = document.querySelectorAll('aside') || [];
   asides.forEach((aside, index) => {
     aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
@@ -362,9 +360,9 @@ function addProperLandmarkRegions() {
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
   const collapsibles = document.querySelectorAll('.collapsible');
-  collapsibles.forEach(item => {
-    if (!item.hasAttribute('aria-expanded')) {
-      item.setAttribute('aria-expanded', 'false');
+  collapsibles.forEach(collapsible => {
+    if (!collapsible.hasAttribute('aria-expanded')) {
+      collapsible.setAttribute('aria-expanded', 'false');
     }
   });
 
@@ -379,4 +377,47 @@ function addProperAccountManagement() {
   });
 }
 
-// ... other existing functions remained unchanged
+/**
+ * Adds ARIA attributes to form controls for better accessibility.
+ * This function focuses on ensuring that form controls have proper labeling and roles.
+ *
+ * @returns {void}
+ */
+function addAriaToFormControls() {
+  // Add required aria attributes to form controls
+  const formControls = document.querySelectorAll('input, select, textarea');
+
+  formControls.forEach(control => {
+    // Ensure all form controls have accessible names
+    if (!control.id) {
+      const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
+      if (label) {
+        label.id = label.id || `label-${Math.random().toString(36).substr(2, 9)}`;
+        control.setAttribute('aria-labelledby', label.id);
+      }
+    }
+
+    // Mark required fields appropriately
+    if (control.required && !control.hasAttribute('aria-required')) {
+      control.setAttribute('aria-required', 'true');
+    }
+  });
+}
+
+/**
+ * Adds accessible names to SVGs.
+ * @param {Array} svgs - Array of SVG elements.
+ * @returns {void}
+ */
+function addAccessibleNamesToSVGs(svgs) {
+  svgs.forEach((svg, index) => {
+    const id = svg.id || `svg-${index + 1}`;
+    svg.setAttribute('id', id);
+    const label = document.createElement('label');
+    label.setAttribute('for', id);
+    label.textContent = 'SVG description';
+    svg.insertAdjacentElement('afterend', label);
+  });
+}
+
+/**

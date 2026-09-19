@@ -20,8 +20,12 @@
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 // Internal set to track used landmark IDs
+// Global set to track used landmark IDs
 const _usedLandmarkIds = new Set();
 
 /**
@@ -57,7 +61,7 @@ export function createLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 9000) + 1000;
+        const suffix = Math.random().toString(36).substring(2, 9);
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -83,11 +87,11 @@ export function uniqueLandmarks(landmarks) {
 }
 
 // Add lang attribute as per the issue requirement
-export function addLangAttribute() {
+function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.documentElement;
+  const elementToModify = document.querySelector('some-selector');
   if (elementToModify) {
-    elementToModify.lang = 'en'; // Example: English
+    elementToModify.setAttribute('lang', 'en'); // Example: English
   }
 }
 
@@ -96,16 +100,17 @@ export function addLangAttribute() {
  * @param {HTMLElement} element - The element to add the landmark role to.
  * @param {string} role - The role attribute value for the landmark.
  */
-export function addAriaLabel(element, label) {
-    if (element && !element.hasAttribute('aria-label')) {
+function addAriaLabel(element, label) {
+    if (!element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
 
 /**
- * Adds lang attribute as per the issue requirement
+ * Gets the language attribute from the HTML element.
+ * @returns {string} - the language attribute value
  */
-export function getLangAttribute() {
+function getLangAttribute() {
     return document.documentElement.lang || '';
 }
 
@@ -113,18 +118,17 @@ export function getLangAttribute() {
  * This function gets the full language attribute with region (if provided)
  * @returns {string} - the full language attribute with region (if provided)
  */
-export function getFullLangAttribute() {
+function getFullLangAttribute() {
     return document.documentElement.lang || '';
 }
 
-// Add/fix landmark issues
-validateLandmark();
+// ... existing functions from both branches
 
 // Accessibility helper functions
-export function handleKeyboardNavigation(options = {}) {
+function setupKeyboardNavigation(element, options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
 
-  return function(event) {
+  element.addEventListener('keydown', (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -145,10 +149,10 @@ export function handleKeyboardNavigation(options = {}) {
         }
         break;
     }
-  };
+  });
 }
 
-export function trapFocus(container) {
+function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
@@ -156,7 +160,7 @@ export function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  return function(event) {
+  container.addEventListener('keydown', (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -166,7 +170,7 @@ export function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  };
+  });
 }
 
 // ... other existing functions remained unchanged

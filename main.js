@@ -246,8 +246,8 @@ function displayModuleStructure(modules) {
   }
 
   let result = 'Module Structure:\n';
-  result += `Total modules: ${Object.keys(modules).length}\n\n`;
-
+  result += `Total modules: ${Object.keys(modules).length}\n`;
+  
   Object.keys(modules).forEach((moduleName, index) => {
     const module = modules[moduleName];
     result += `${index + 1}. Module: ${moduleName}\n`;
@@ -265,7 +265,7 @@ function displayModuleStructure(modules) {
     }
     
     if (module.exports) {
-      result += `   Exports: ${module.exports}\n`;
+      result += `   Exports: ${Array.isArray(module.exports) ? module.exports.join(', ') : module.exports}\n`;
     }
     
     result += '\n';

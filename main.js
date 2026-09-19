@@ -35,7 +35,7 @@ function addressAccessibilityIssuesFromInsightReport(report) {
 }
 
 // Accessibility helper function for keyboard navigation
-function handleKeyboardNavigation(options = {}) {
+function keyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
   return (event) => {
@@ -70,7 +70,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  const handleTabKey = (event) => {
+  return (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -80,12 +80,6 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  };
-
-  container.addEventListener('keydown', handleTabKey);
-
-  return () => {
-    container.removeEventListener('keydown', handleTabKey);
   };
 }
 
@@ -163,30 +157,12 @@ function addARIAAttributes() {
 
 // Initialize accessibility features
 function initializeAccessibility() {
-  const cleanupFunctions = [];
-  
-  // Add lang attribute to HTML element
-  addLangAttribute();
-  
-  // Add accessible names to SVGs
-  addAccessibleNamesToSvg();
-  
-  // Add ARIA attributes
-  addARIAAttributes();
-  
-  // Create announcer for screen readers
-  const announcer = createAnnouncer();
-  
-  // Check for reduced motion preference
-  const reducedMotion = prefersReducedMotion();
-  
-  // Return cleanup function and features
+  // Initialize features here
   return {
-    announcer,
-    prefersReducedMotion: reducedMotion,
-    cleanup: () => {
-      cleanupFunctions.forEach(fn => fn());
-    }
+    announce: createAnnouncer().announce,
+    trapFocus: trapFocus,
+    keyboardNavigation: keyboardNavigation,
+    prefersReducedMotion: prefersReducedMotion
   };
 }
 
@@ -439,7 +415,7 @@ function ensureDependencyGraphAria() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     initializeAccessibility,
-    handleKeyboardNavigation,
+    keyboardNavigation,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,

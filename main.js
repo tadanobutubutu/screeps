@@ -60,11 +60,11 @@ function addAriaLabel(element, label) {
 }
 
 /**
- * This function gets the language attribute from the HTML element.
+ * Gets the language attribute of the HTML document.
  * @returns {string} - the language attribute value
  */
 function getLangAttribute() {
-    return document.documentElement.lang || '';
+  return document.documentElement.lang || '';
 }
 
 /**

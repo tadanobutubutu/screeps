@@ -529,11 +529,3 @@ function trapFocus(container) {
 }
 
 // ... other existing functions remained unchanged
-
-// Export CLI functions for testing
-module.exports = {
-    parseCLIArgs,
-    showHelp,
-    runCLI,
-    CLI_MODE
-};

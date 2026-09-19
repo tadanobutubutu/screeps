@@ -350,6 +350,21 @@ function addProperLandmarkRegions() {
   }
 }
 
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role.
+ * Sets role="tree" and aria-label if not already present.
+ */
+function ensureDependencyGraphAria() {
+  const container = document.getElementById('dependencyGraph');
+  if (!container) return;
+  if (!container.hasAttribute('role')) {
+    container.setAttribute('role', 'tree');
+  }
+  if (!container.hasAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -364,22 +379,7 @@ if (typeof module !== 'undefined' && module.exports) {
     clamp,
     deepClone,
     addAccessibleNamesToSvg,
-    getLangAttribute,
-    addLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    fixTableStructure,
-    addMainLandmark,
-    validateLandmark,
-    validateLandmarkStructure,
-    validateLandmarkAttributes,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    ensureUniqueLandmarks,
-    createInPageButton,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    addProperLandmarkRegions
+    ensureDependencyGraphAria
   };
 }
 
@@ -404,5 +404,7 @@ _Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     window.accessibilityFeatures = initializeAccessibility();
+    addAccessibleNamesToSvg();
+    ensureDependencyGraphAria();
   });
 }

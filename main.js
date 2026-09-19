@@ -317,6 +317,24 @@ function addAccessibleNamesToSvg(container) {
   };
 }
 
+// Wrap primary content in main element for accessibility
+function wrapPrimaryContentInMain() {
+  // If main element already exists, do nothing
+  if (document.querySelector('main')) return;
+
+  // Create main element
+  const main = document.createElement('main');
+  
+  // Move all body content into main element
+  const body = document.body;
+  while (body.firstChild) {
+    main.appendChild(body.firstChild);
+  }
+  
+  // Append main to body
+  body.appendChild(main);
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -331,7 +349,7 @@ if (typeof module !== 'undefined' && module.exports) {
     clamp,
     deepClone,
     addAccessibleNamesToSvg,
-    addressAccessibilityIssuesFromInsightReport // Add the new function to the exports
+    wrapPrimaryContentInMain
   };
 }
 

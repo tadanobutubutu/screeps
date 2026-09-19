@@ -4,6 +4,10 @@ import { dependencyGraphContent, indexContent } from './content';
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 // export function calculateSum(a, b) { return a + b; }
 
+function calculateSum(a, b) {
+  return a + b;
+}
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -215,10 +219,13 @@ function displayModuleStructure(modules) {
   return result;
 }
 
-/**
- * Counts the total number of dependencies in a dependency object
- * @param {Object} dependencies - Object containing module dependencies
- * @returns {number} Total count of dependencies
- */
-function countDependencies(dependencies) {
-  if (!dependencies || typeof dependencies !== '
+renderDependencyGraph(dependencyGraphContent);
+displayModuleStructure(indexContent);
+
+export {
+  renderDependencyGraph,
+  renderDependencyTree,
+  renderDependencyList,
+  displayModuleStructure,
+  calculateSum
+};

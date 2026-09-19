@@ -82,11 +82,11 @@ function getFullLangAttribute() {
 }
 
 /**
- * This function gets the language attribute
- * @returns {string} - the language attribute
+ * Gets the language attribute of the document.
+ * @returns {string} The language code.
  */
 function getLangAttribute() {
-    return document.documentElement.lang || '';
+    return document.documentElement.lang || 'en';
 }
 
 /**
@@ -352,6 +352,7 @@ module.exports = {
   addAriaToFormControls,
   replaceMyButtonId,
   getFullLangAttribute,
+  getLangAttribute,
   ensureUniqueLandmarkId,
   uniqueLandmarks,
   validateTableAccessibility,

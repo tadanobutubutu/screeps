@@ -392,6 +392,136 @@ function addProperAccountManagement() {
     if (control.required && !control.getAttribute('aria-required')) {
       control.setAttribute('aria-required', 'true');
     }
+  });
+}
+
+/**
+ * Adds accessible names to SVGs.
+ * @param {Array} svgs - Array of SVG elements.
+ * @returns {void}
+ */
+function addAccessibleNamesToSVGs(svgs) {
+  svgs.forEach(svg => {
+    const id = `svg-${Date.now()}`;
+    svg.setAttribute('id', id);
+    const label = document.createElement('label');
+    label.setAttribute('for', id);
+    label.textContent = 'SVG description';
+    svg.parentNode.insertBefore(label, svg);
+  });
+}
+
+/**
+ * Removes fake links from the document.
+ * @returns {void}
+ */
+function removeFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    link.style.display = 'none';
+  });
+}
+
+/**
+ * Implement validateTableAccessibility() function to check for accessibility issues in tables.
+ * This function should check for proper table headers, roles, and other relevant ARIA attributes.
+ *
+ * @returns {void}
+ */
+function validateTableAccessibility() {
+  // Check for tables with no headers or headers that are not properly labeled
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      console.error('Table without headers found:', table);
+    } else {
+      headers.forEach(header => {
+        // Check for proper scope attribute
+        const scope = header.getAttribute('scope');
+        if (!scope) {
+          console.error('Table header without scope attribute:', header);
+        } else if (scope !== 'col' && scope !== 'row' && scope !== 'colgroup' && scope !== 'rowgroup') {
+          console.error('Table header with invalid scope value:', header);
+        }
+        
+        // Check for proper role attribute
+        if (!header.hasAttribute('role') || (header.getAttribute('role') !== 'columnheader' && header.getAttribute('role') !== 'rowheader')) {
+          console.error('Table header without proper role attribute:', header);
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Implement validateTableStructure() function to check for proper table structure.
+ * This function should check for tables with proper nesting and other structural issues.
+ *
+ * @returns {void}
+ */
+function validateTableStructure() {
+  // Check for tables with incorrect nesting or other structural issues
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0) {
+        console.error('Table row without cells found:', row);
+      }
+    });
+    
+    // Check for tables without proper structure (missing thead, tbody, tfoot)
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    
+    // If table has rows directly under table (not in tbody), that's a structural issue
+    const directRows = table.querySelectorAll(':scope > tr');
+    if (directRows.length > 0) {
+      console.error('Table with rows directly under table element (should be in tbody):', table);
+    }
+  });
+}
+
+/**
+ * Implement validateLandmarkStructure() function to check for landmark structure.
+ * This function checks for the presence of exactly one banner, one main, and one contentinfo landmark.
+ *
+ * @returns {void}
+ */
+function validateLandmarkStructure() {
+    const bannerCount = document.querySelectorAll('[role="banner"]').length;
+    if (bannerCount !== 1) {
+        console.error(`Expected exactly one banner landmark, found ${bannerCount}`);
+    }
+
+    const mainCount = document.querySelectorAll('[role="main"]').length;
+    if (mainCount !== 1) {
+        console.error(`Expected exactly one main landmark, found ${mainCount}`);
+    }
+
+    const contentinfoCount = document.querySelectorAll('[role="contentinfo"]').length;
+    if (contentinfoCount !== 1) {
+        console.error(`Expected exactly one contentinfo landmark, found ${contentinfoCount}`);
+    }
+}
+
+// ARIA live region announcer
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
+  document.body.appendChild(announcer);
+  
+  return {
+    announce: (message) => {
+      announcer.textContent = '';
+      setTimeout(() => {
+        announcer.textContent = message;
+      }, 100);
+    }
   };
 
   container.addEventListener('keydown', keydownHandler);
@@ -432,11 +562,29 @@ function validateLandmark(element) {
     return true;
 }
 
-// Export any necessary functions
-export function addLangAttribute() { /* ... */ }
-export function addAriaLabel(element, label) { /* ... */ }
-export function getLangAttribute() { /* ... */ }
-export function getFullLangAttribute() { /* ... */ }
-export function setupKeyboardNavigation(element, options) { /* ... */ }
-export function trapFocus(container) { /* ... */ }
-export function validateLandmark(element) { /* ... */ }
+addProperLandmarkRegions();
+addProperAccountManagement();
+addAriaToFormControls();
+
+module.exports = {
+  addProperLandmarkRegions,
+  addProperAccountManagement,
+  addAriaToFormControls,
+  replaceMyButtonId,
+  getFullLangAttribute,
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  addAccessibleNamesToSVGs,
+  removeFakeLinks,
+  initializeAccessibility,
+  createAnnouncer,
+  prefersReducedMotion,
+  improveKeyboardNavigation,
+  addLiveRegionForDynamicContent,
+  isLinkAccessible,
+  addAriaLabel,
+  addLangAttribute
+};

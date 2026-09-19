@@ -1,10 +1,4 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 
 // Preserve existing functionality
 // TODO: This is the existing code that needs to be preserved
@@ -41,11 +35,11 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function createUniqueLandmarkId(baseName) {
+function createLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 100) + 1;
+        const suffix = Math.floor(Math.random() * 900) + 100;
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -124,10 +118,7 @@ function addLangAttribute() {
 
 // Add lang attribute to HTML element
 document.addEventListener('DOMContentLoaded', () => {
-  const langAttr = getLangAttribute();
-  if (langAttr) {
-    document.documentElement.setAttribute('lang', langAttr);
-  }
+  getLangAttribute();
 });
 
 // Create in-page button with accessibility considerations
@@ -155,9 +146,7 @@ if (svg) {
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-validateLandmarkStructure();
-
-// Handle fake links
+uniqueLandmarks([]);
 handleFakeLinks();
 
 /**
@@ -264,13 +253,12 @@ function handleAccessibilityIssues(options = {}) {
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return `${product.name} - ${product.category || 'Unknown'}`;
+  return `${product.name} - ${product.category}`;
 }
 
 function renderProductList(products) {
-  const container = document.createElement('div');
-  container.className = 'product-list';
-  container.innerHTML = products.map(p => `<div class="product">${formatProductName(p)}</div>`).join('');
+  const container = document.getElementById('product-list');
+  container.innerHTML = products.map(p => `<div>${formatProductName(p)}</div>`).join('');
   return container;
 }
 
@@ -293,26 +281,19 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return renderProductList(input);
+    return renderComponent(input);
   }
   return null;
 }
 
-function formatDate(date) {
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-}
-
-function calculateDiscount(subtotal) {
-  if (subtotal > 100) {
-    return subtotal * 0.1; // 10% discount for orders over $100
-  }
-  return 0;
-}
-
-function validateInput(input) {
-  return input && Array.isArray(input) && input.length > 0;
-}
+module.exports = {
+  createLandmarkId,
+  uniqueLandmarks,
+  addAriaLabel,
+  addLangAttribute,
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender
+};

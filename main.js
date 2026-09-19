@@ -1,14 +1,14 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
 // Preserve existing functionality
 
-// TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 // main.js - Accessibility improvements implementation
@@ -165,7 +165,7 @@ function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 9000) + 1000;
+        const suffix = Math.floor(Math.random() * 900) + 100;
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -192,18 +192,18 @@ function uniqueLandmarks(landmarks) {
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
   const elementToModify = document.documentElement;
-  if (elementToModify) {
+  if (elementToModify && !elementToModify.lang) {
     elementToModify.lang = 'en'; // Example: English
   }
 }
 
 /**
- * Adds an aria-label attribute to an element if it doesn't already have one.
+ * Adds an aria--label attribute to an element if it doesn't already have one.
  * @param {HTMLElement} element - The element to add the aria-label to.
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (element && !element.hasAttribute('aria-label')) {
+    if (element && !element.getAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -225,10 +225,10 @@ function getFullLangAttribute() {
 }
 
 // Accessibility helper functions
-function handleKeyboardNavigation(element, options = {}) {
+function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
 
-  element.addEventListener('keydown', (event) => {
+  return function(event) {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -249,7 +249,7 @@ function handleKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-    return element.id;
+  };
 }
 
 /**
@@ -303,17 +303,15 @@ function getSvgAccessibleName(svg) {
     return '';
 }
 
-/**
- * Creates an accessible in-page button with proper labeling.
- * @param {string} text - Button text content.
- * @param {string} [ariaLabel] - Optional aria-label.
- * @returns {HTMLButtonElement} The created button.
- */
-function createInPageButton(text, ariaLabel) {
-    const button = document.createElement('button');
-    button.textContent = text;
-    if (ariaLabel) {
-        button.setAttribute('aria-label', ariaLabel);
+  container.addEventListener('keydown', function(event) {
+    if (event.key !== 'Tab') return;
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
     }
     return button;
 }

@@ -224,9 +224,11 @@ function addProperLandmarkRegions() {
   main.id = 'main-content';
 
   // Create navigation landmark
-  const nav = document.querySelector('nav') || document.createElement('nav');
-  nav.setAttribute('role', 'navigation');
-  nav.id = nav.id || 'primary-navigation';
+  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
+  if (nav) {
+    nav.setAttribute('role', 'navigation');
+    nav.id = nav.id || 'primary-navigation';
+  }
 
   // Create banner/header landmark
   const header = document.querySelector('header') || document.getElementById('header') || document.createElement('header');
@@ -239,11 +241,13 @@ function addProperLandmarkRegions() {
   footer.id = footer.id || 'site-footer';
 
   // Create aside landmark for complementary content
-  const asides = document.querySelectorAll('aside') || [];
-  asides.forEach((aside, index) => {
-    aside.setAttribute('role', 'complementary');
-    if (!aside.id) aside.id = 'sidebar-' + (index + 1);
-  });
+  const asides = document.querySelectorAll('aside') || document.querySelectorAll('[role="complementary"]');
+  if (asides) {
+    asides.forEach((aside, index) => {
+      aside.setAttribute('role', 'complementary');
+      if (!aside.id) aside.id = `sidebar-${index + 1}`;
+    });
+  }
 }
 
 /**

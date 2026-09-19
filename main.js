@@ -4,6 +4,8 @@ import { validateTableAccessibility, validateTableStructure } from './utils/tabl
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { createAccessibleLink } from './utils/linkAccessibilityUtils'; // Import createAccessibleLink for REACT_036
+import { ensureUniqueLandmarks } from './utils/landmarkUtils'; // Import ensureUniqueLandmarks for REACT_017 and REACT_025
 
 // Preserve existing functionality
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils/formatters';
@@ -99,7 +101,8 @@ function validateTable(table) {
 
 // Add/fix landmark issues (REACT_017)
 validateLandmark();
-...
+validateLandmarkStructure();
+ensureUniqueLandmarks(); // Handle unique landmarks for REACT_025
 
 // Add accessible names to SVGs
 function validateSvgAccessibility(svg) {
@@ -110,7 +113,7 @@ function validateSvgAccessibility(svg) {
 }
 
 // Ensure unique landmarks
-// This is handled by the createUniqueLandmarkId and uniqueLandmarks functions
+ensureUniqueLandmarkId('main-content');
 
 // Add accessible names to SVGs
 function processSvgAccessibility(svg) {
@@ -122,6 +125,11 @@ function processSvgAccessibility(svg) {
 
 // Handle fake links accessibility
 handleFakeLinks();
+
+// Create accessible links for fake link issues (REACT_036)
+createAccessibleLink();
+
+// ... rest of your code ...
 
 // React / UI related functions
 
@@ -212,15 +220,12 @@ export {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  ensureUniqueLandmarks,
+  ensureUniqueLandmarks, // Export ensureUniqueLandmarks for REACT_025
   getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,
   handleFakeLinks,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  addAriaLabel,
-  addLangAttribute
+  createAccessibleLink // Export createAccessibleLink for REACT_036
 };
 
 // Export utility functions

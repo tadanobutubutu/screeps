@@ -407,4 +407,107 @@ function addLiveRegion() {
   document.body.appendChild(liveRegion);
 }
 
-// Initialize
+// Initialize accessibility features
+function initializeAccessibility() {
+  const announcer = createAnnouncer();
+  
+  // Ensure all landmarks have unique IDs
+  uniqueLandmarks();
+  
+  // Improve keyboard navigation
+  improveKeyboardNavigation();
+  
+  // Add live region for dynamic content
+  addLiveRegionForDynamicContent();
+  
+  // Return the announcer for use in the app
+  return {
+    announce: announcer.announce,
+    prefersReducedMotion
+  };
+}
+
+/**
+ * Checks whether a link is accessible.
+ * A link is considered accessible if it has a non-empty text content
+ * or an accessible name (via aria-label, aria-labelledby, or title attribute).
+ * @param {HTMLAnchorElement} link - The link element to check.
+ * @returns {boolean} True if the link is accessible, false otherwise.
+ */
+function isLinkAccessible(link) {
+  if (!(link instanceof HTMLAnchorElement)) {
+    return false;
+  }
+
+  // Check for non-empty text content
+  const textContent = link.textContent.trim();
+  if (textContent.length > 0) {
+    return true;
+  }
+
+  // Check for aria-label with non-empty value
+  const ariaLabel = link.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim().length > 0) {
+    return true;
+  }
+
+  // Check for aria-labelledby referencing existing element with text
+  const ariaLabelledby = link.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelledByElement = document.getElementById(ariaLabelledby);
+    if (labelledByElement && labelledByElement.textContent.trim().length > 0) {
+      return true;
+    }
+  }
+
+  // Check for title attribute with non-empty value
+  const title = link.getAttribute('title');
+  if (title && title.trim().length > 0) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Retrieves all accessible links from the document.
+ * Uses the isLinkAccessible function to determine accessibility.
+ * @returns {Array} Array of accessible link elements.
+ */
+function function3() {
+  const links = document.querySelectorAll('a');
+  const accessibleLinks = [];
+  links.forEach(link => {
+    if (isLinkAccessible(link)) {
+      accessibleLinks.push(link);
+    }
+  });
+  return accessibleLinks;
+}
+
+addProperLandmarkRegions();
+addProperAccountManagement();
+addAriaToFormControls();
+
+module.exports = {
+  addProperLandmarkRegions,
+  addProperAccountManagement,
+  addAriaToFormControls,
+  replaceMyButtonId,
+  getFullLangAttribute,
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  validateTableAccessibility,
+  validateTableStructure,
+  addAccessibleNamesToSVGs,
+  removeFakeLinks,
+  initializeAccessibility,
+  createAnnouncer,
+  prefersReducedMotion,
+  improveKeyboardNavigation,
+  addLiveRegionForDynamicContent,
+  isLinkAccessible,
+  function3,
+  addAriaLabel,
+  addLangAttribute
+};

@@ -65,8 +65,18 @@ function addAriaLabel(element, label) {
 }
 
 /**
- * Gets the lang attribute value from the HTML element.
- * @returns {string} The lang attribute value.
+ * This function gets the language attribute without region (if provided)
+ * @returns {string} - the language attribute without region (if provided)
+ */
+function getLangAttribute() {
+    const lang = document.documentElement.lang || '';
+    // Return just the base language (e.g., 'en' from 'en-US')
+    return lang.split('-')[0];
+}
+
+/**
+ * This function gets the full language attribute with region (if provided)
+ * @returns {string} - the full language attribute with region (if provided)
  */
 function getLangAttribute() {
     return document.documentElement.lang || '';
@@ -91,30 +101,64 @@ function replaceMyButtonId() {
   }
 }
 
-// Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
-  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
-  
-  element.addEventListener('keydown', (event) => {
-    switch (event.key) {
-      case 'Enter':
-        if (onEnter) onEnter(event);
-        break;
-      case 'Escape':
-        if (onEscape) onEscape(event);
-        break;
-      case 'ArrowUp':
-        if (onArrowUp) {
-          event.preventDefault();
-          onArrowUp(event);
-        }
-        break;
-      case 'ArrowDown':
-        if (onArrowDown) {
-          event.preventDefault();
-          onArrowDown(event);
-        }
-        break;
+/**
+ * Adds proper ARIA landmark regions to the document.
+ * This improves screen reader navigation by ensuring proper landmark roles.
+ *
+ * @returns {void}
+ */
+function addProperLandmarkRegions() {
+  // Create main landmark
+  const main = document.querySelector('main') || document.createElement('main');
+  main.setAttribute('role', 'main');
+  main.id = 'main-content';
+
+  // Create navigation landmark
+  const nav = document.querySelector('nav') || document.createElement('nav');
+  nav.setAttribute('role', 'navigation');
+  nav.id = nav.id || 'primary-navigation';
+
+  // Create banner/header landmark
+  const header = document.querySelector('header') || document.querySelector('[role="banner"]') || document.createElement('header');
+  header.setAttribute('role', 'banner');
+  header.id = header.id || 'site-header';
+
+  // Create contentinfo/footer landmark
+  const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]') || document.createElement('footer');
+  footer.setAttribute('role', 'contentinfo');
+  footer.id = footer.id || 'site-footer';
+
+  // Create aside landmark for complementary content
+  const asides = document.querySelectorAll('aside') || document.querySelectorAll('[role="complementary"]');
+  asides.forEach((aside, index) => {
+    aside.setAttribute('role', 'complementary');
+    if (!aside.id) aside.id = `sidebar-${index + 1}`;
+  });
+}
+
+/**
+ * Adds proper ARIA account management elements to the document.
+ * This includes adding `aria-expanded` attributes for collapsible menus,
+ * and adding `aria-label` to form elements.
+ *
+ * @returns {void}
+ */
+function addProperAccountManagement() {
+  // Add aria-expanded to collapsible menus/buttons
+  const collapsibles = document.querySelectorAll('.collapsible');
+  collapsibles.forEach(collapsible => {
+    if (!collapsible.hasAttribute('aria-expanded')) {
+      collapsible.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Add aria-labels to form inputs
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach((input, index) => {
+    const id = input.id || `input-${index}`;
+    input.id = id;
+    if (!input.hasAttribute('aria-label')) {
+      input.setAttribute('aria-label', `Input field ${index + 1}`);
     }
   });
 }
@@ -147,8 +191,15 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
-    if (event.key !== 'Tab') return;
+  formControls.forEach(control => {
+    // Ensure all form controls have accessible names
+    if (!control.id && !control.getAttribute('aria-label')) {
+      const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
+      if (label) {
+        label.id = label.id || `label-${Math.random().toString(36).substr(2, 9)}`;
+        control.setAttribute('aria-labelledby', label.id);
+      }
+    }
 
     if (event.shiftKey && document.activeElement === firstElement) {
       event.preventDefault();
@@ -506,15 +557,8 @@ function spawnCreep(name, body, memory = {}) {
 
 // Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
 // Assumes you have already set the id on the button element in your code.
-replaceMyButtonId();
 
-// Function to improve keyboard navigation for interactive elements
-function improveKeyboardNavigation() {
-  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
-  interactiveElements.forEach(element => {
-    element.setAttribute('tabindex', '0');
-  });
-}
+addAriaToFormControls();
 
 module.exports = {
   addProperLandmarkRegions,

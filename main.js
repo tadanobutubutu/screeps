@@ -70,7 +70,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  return (event) => {
+  const handleTabKey = (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -81,11 +81,18 @@ function trapFocus(container) {
       firstElement.focus();
     }
   };
+
+  container.addEventListener('keydown', handleTabKey);
+
+  return () => {
+    container.removeEventListener('keydown', handleTabKey);
+  };
 }
 
 // ARIA live region announcer
 function createAnnouncer() {
   const announcer = document.createElement('div');
+  announcer.setAttribute('role', 'status');
   announcer.setAttribute('aria-live', 'polite');
   announcer.setAttribute('aria-atomic', 'true');
   announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
@@ -111,47 +118,76 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-// Add ARIA attributes to SVG elements
-function addAccessibleNamesToSvg(container) {
-  const svgs = container.querySelectorAll('svg[aria-hidden="true"]');
-  svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-labelledby')) {
-      const titleId = `svg-title-${Date.now()}-${index}`;
-      const title = svg.querySelector('title');
-      if (title) {
-        title.id = titleId;
-        svg.setAttribute('aria-labelledby', titleId);
-        svg.setAttribute('role', 'img');
-      }
+// Add lang attribute to HTML element for accessibility (REACT_015)
+function addLangAttribute(lang = 'en') {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+  }
+  return htmlElement.getAttribute('lang');
+}
+
+// Add accessible names to SVG elements
+function addAccessibleNamesToSvg() {
+  const svgElements = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  svgElements.forEach((svg, index) => {
+    const id = `svg-title-${index}`;
+    let title = svg.querySelector('title');
+    if (!title) {
+      title = document.createElement('title');
+      title.id = id;
+      title.textContent = `SVG icon ${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+    }
+    svg.setAttribute('aria-labelledby', title.id);
+  });
+}
+
+// Add ARIA attributes to common elements
+function addARIAAttributes() {
+  // Add role="button" to elements that should behave as buttons
+  const buttonLikeElements = document.querySelectorAll('[data-accessible-button]');
+  buttonLikeElements.forEach(el => {
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+  });
+
+  // Add aria-disabled for disabled-like elements that are focusable
+  const disabledLikeElements = document.querySelectorAll('[aria-disabled="true"]');
+  disabledLikeElements.forEach(el => {
+    if (!el.hasAttribute('tabindex')) {
+      el.setAttribute('tabindex', '-1');
     }
   });
 }
 
 // Initialize accessibility features
 function initializeAccessibility() {
-  const announcer = createAnnouncer();
-  const handleKeyboard = handleKeyboardNavigation({
-    onEscape: () => {
-      document.body.classList.remove('modal-open');
-    }
-  });
-  addARIAAttributes();
-  trapFocus(document.body);
+  const cleanupFunctions = [];
   
+  // Add lang attribute to HTML element
+  addLangAttribute();
+  
+  // Add accessible names to SVGs
+  addAccessibleNamesToSvg();
+  
+  // Add ARIA attributes
+  addARIAAttributes();
+  
+  // Create announcer for screen readers
+  const announcer = createAnnouncer();
+  
+  // Check for reduced motion preference
+  const reducedMotion = prefersReducedMotion();
+  
+  // Return cleanup function and features
   return {
     announcer,
-    handleKeyboard
-  };
-}
-
-// Function to add ARIA attributes to SVG elements for accessibility
-function addARIAAttributes() {
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach((svg, index) => {
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-hidden', 'true');
+    prefersReducedMotion: reducedMotion,
+    cleanup: () => {
+      cleanupFunctions.forEach(fn => fn());
     }
-  });
+  };
 }
 
 // TODO: add the new functions or changes requested in the issue
@@ -407,6 +443,7 @@ if (typeof module !== 'undefined' && module.exports) {
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
+    addLangAttribute,
     isEmpty,
     capitalize,
     getRandomInt,
@@ -438,6 +475,5 @@ _Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function() {
     window.accessibilityFeatures = initializeAccessibility();
-    addARIAAttributes();
   });
 }

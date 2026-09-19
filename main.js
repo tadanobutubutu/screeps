@@ -1,11 +1,3 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
 // Preserve existing functionality
 import { getLangAttribute, createInPageButton, createAccessibleLink, handleAccessibilityIssues } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
@@ -72,7 +64,7 @@ function uniqueLandmarks(landmarks) {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if ... {
+    if (!element.getAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
   });
@@ -89,26 +81,36 @@ function addLangAttribute() {
   }
 }
 
+// TODO: Implement the function for addressing new accessibility issues
 /**
- * Ensures the dependencyGraph container has a proper ARIA role.
- * Per the issue: ensure the dependencyGraph container has a proper ARIA role.
- * Adds role="img" and an accessible aria-label if missing so that the
- * dependency graph container is perceivable by assistive technologies.
- * @param {HTMLElement} [container] - Optional container element. If omitted, the function will look up the element with id "dependencyGraph".
- * @returns {HTMLElement|null} The container element that was processed, or null if not found.
+ * Main function to handle all accessibility issues.
+ * Addresses: REACT_015, REACT_017, REACT_025, REACT_027, REACT_036, REACT_041
+ * @param {Document|HTMLElement} context - The document or element context to process.
  */
-function ensureDependencyGraphRole(container) {
-    const target = container || (typeof document !== 'undefined' ? document.getElementById('dependencyGraph') : null);
-    if (!target) {
-        return null;
-    }
-    if (!target.hasAttribute('role')) {
-        target.setAttribute('role', 'img');
-    }
-    if (!target.hasAttribute('aria-label')) {
-        target.setAttribute('aria-label', 'Dependency graph');
-    }
-    return target;
+function handleAccessibilityIssues(context = document) {
+    // Handle REACT_015: Add lang attribute to HTML element
+    getLangAttribute();
+
+    // Handle REACT_027: Validate table accessibility and structure
+    const tables = context.querySelectorAll('table');
+    tables.forEach(table => {
+        validateTableAccessibility(table);
+        validateTableStructure(table);
+    });
+
+    // Handle REACT_017 & REACT_025: Validate and fix landmark issues
+    validateLandmark();
+    validateLandmarkStructure();
+
+    // Handle REACT_041: Add accessible names to SVGs
+    const svgs = context.querySelectorAll('svg');
+    svgs.forEach(svg => {
+        const accessibleName = getSvgAccessibleName(svg);
+        setSvgAttributes(svg, accessibleName);
+    });
+
+    // Handle REACT_036: Fix fake link issues
+    handleFakeLinks();
 }
 
 // ... other fixes ...
@@ -125,24 +127,30 @@ createInPageButton();
 // Assuming you have a table element with an id of 'myTable'
 const table = document.getElementById('myTable');
 if (table) {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
+    validateTableAccessibility(table);
+    validateTableStructure(table);
 }
 
 // Add/fix landmark issues (REACT_017)
 validateLandmark();
+validateLandmarkStructure();
+
+// Ensure unique landmarks
+uniqueLandmarks([]);
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
 const svg = document.getElementById('mySvg');
 if (svg) {
-  const accessibleName = getSvgAccessibleName(svg);
-  setSvgAttributes(svg, accessibleName);
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
 }
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-validateLandmarkStructure();
+ensureUniqueLandmarks();
+
+// Handle fake links accessibility
 handleFakeLinks();
 
 // Ensure the dependencyGraph container has a proper ARIA role (per issue requirement)
@@ -150,34 +158,12 @@ ensureDependencyGraphRole();
 
 // ... rest of your code ...
 
-/**
- * Performs accessibility checks on tables in the document.
- * Validates table structure and accessibility according to WCAG guidelines.
- * @param {string|HTMLElement} tableSelector - CSS selector or HTMLElement for the table to check.
- * @returns {Object} Result object containing accessibility validation results.
- */
-function checkTableAccessibility(tableSelector) {
-    const tableElement = typeof tableSelector === 'string' 
-        ? document.querySelector(tableSelector) 
-        : tableSelector;
-    
-    if (!tableElement) {
-        return { 
-            success: false, 
-            errors: ['Table element not found'] 
-        };
-    }
-    
-    const accessibilityResult = validateTableAccessibility(tableElement);
-    const structureResult = validateTableStructure(tableElement);
-    
-    return {
-        success: accessibilityResult.valid && structureResult.valid,
-        accessibility: accessibilityResult,
-        structure: structureResult,
-        errors: [...(accessibilityResult.errors || []), ...(structureResult.errors || [])],
-        warnings: [...(accessibilityResult.warnings || []), ...(structureResult.warnings || [])]
-    };
+// React / UI related functions
+
+// TODO: Add these imported modules to the relevant rendering functions
+
+function formatProductName(product) {
+  return `${product.name} - ${product.category}`;
 }
 
 // React / UI related functions
@@ -224,7 +210,7 @@ function validateAndRender(input) {
 // Render full page with accessibility landmarks
 function renderPage(data) {
   const header = renderHeader(data.title);
-  const content = data.content || '';
+  const content = data.content;
   const footer = renderFooter();
   return `${header}${content}${footer}`;
 }
@@ -315,13 +301,13 @@ export {
   updateState
 };
 
-// Export the new dependency-graph role helper
+// ... other exports ...
+
+// Export the new handleAccessibilityIssues function
 export {
-  ensureDependencyGraphRole,
-  addAriaLabel,
+  handleAccessibilityIssues,
   addLangAttribute,
-  ensureUniqueLandmarkId,
+  addAriaLabel,
+  createUniqueLandmarkId,
   uniqueLandmarks
 };
-
-// ... other exports ...

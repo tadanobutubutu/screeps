@@ -1,35 +1,13 @@
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
-// The functions below have been created to match the exported names
+// main.js - Combined utility and accessibility features
 
-// Existing functionality preserved
-function exampleFunction() {
-  return 'example';
-}
-
-// New function implementation
-function addressAccessibilityIssuesFromInsightReport(report) {
-  // Placeholder logic for addressing accessibility issues based on an insight report
-  // This function should be implemented based on the actual requirements and logic
-  // that needs to be applied to the report.
-  if (!report || !Array.isArray(report)) {
-    console.error('Invalid report format');
-    return;
-  }
-
-  report.forEach(issue => {
-    // Implement logic to address each issue in the report
-    console.log(`Addressing issue: ${issue.description}`);
-    // For demonstration purposes, we are just logging the issue.
-    // In a real-world scenario, this could involve modifying the DOM,
-    // applying styles, or interacting with other parts of the application.
-  });
-}
+// TODO: Address accessibility issues from insight report:
+// - REACT_025: Ensure unique landmarks
 
 // Accessibility helper function for keyboard navigation
-function keyboardNavigation(options = {}) {
+function setupKeyboardNavigation(element, options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  return (event) => {
+  element.addEventListener('keydown', (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -50,18 +28,19 @@ function keyboardNavigation(options = {}) {
         }
         break;
     }
-  };
+  });
 }
 
 // Helper to manage focus within a container
 function trapFocus(container) {
-  const focusableElementsString = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-  const focusableElements = container.querySelectorAll(focusableElementsString);
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
   
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  return (event) => {
+  container.addEventListener('keydown', (event) => {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -71,29 +50,45 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  };
+  });
+}
+
+// Function to ensure landmarks have unique identifiers
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="region"]');
+  let uniqueIds = [];
+
+  function generateUniqueId() {
+    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  }
+
+  landmarks.forEach((landmark) => {
+    const existingIds = uniqueIds.map((id) => id.split('-')[1]);
+    let id;
+
+    while (existingIds.includes(landmark.id.split('-')[1])) {
+      id = generateUniqueId();
+    }
+
+    uniqueIds.push(id);
+    landmark.id = id;
+  });
 }
 
 // ARIA live region announcer
 function createAnnouncer() {
   const announcer = document.createElement('div');
-  announcer.setAttribute('role', 'status');
   announcer.setAttribute('aria-live', 'polite');
   announcer.setAttribute('aria-atomic', 'true');
   announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
   document.body.appendChild(announcer);
   
   return {
-    announce: function(message) {
+    announce: (message) => {
       announcer.textContent = '';
-      setTimeout(function() {
+      setTimeout(() => {
         announcer.textContent = message;
       }, 100);
-    },
-    destroy: () => {
-      if (announcer.parentNode) {
-        announcer.parentNode.removeChild(announcer);
-      }
     }
   };
 }
@@ -103,60 +98,21 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-// Add lang attribute to HTML element for accessibility (REACT_015)
-function addLangAttribute(lang = 'en') {
-  const htmlElement = document.documentElement;
-  if (!htmlElement.getAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang);
-  }
-  return htmlElement.getAttribute('lang');
+// Initialize accessibility features
+function initializeAccessibility() {
+  const announcer = createAnnouncer();
+  
+  // Ensure all landmarks have unique IDs
+  ensureUniqueLandmarks();
+  
+  // Return the announcer for use in the app
+  return {
+    announce: announcer.announce,
+    setupKeyboardNavigation,
+    trapFocus,
+    prefersReducedMotion
+  };
 }
-
-// Missing accessibility functions
-function replaceMyButtonId() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach((button, index) => {
-    if (!button.getAttribute('id')) {
-      button.setAttribute('id', `button-${index}`);
-    }
-  });
-}
-
-function addProperLandmarkRegions() {
-  const landmarks = document.querySelectorAll('[data-landmark]');
-  landmarks.forEach(el => {
-    el.setAttribute('role', el.getAttribute('data-landmark'));
-  });
-}
-
-function addProperAccountManagement() {
-  const accountElements = document.querySelectorAll('[data-account]');
-  accountElements.forEach(el => {
-    if (!el.getAttribute('aria-label')) {
-      el.setAttribute('aria-label', 'Account management');
-    }
-  });
-}
-
-function addARIAAttributes() {
-  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
-  interactiveElements.forEach(el => {
-    if (!el.hasAttribute('aria-label') && !el.textContent) {
-      el.setAttribute('aria-label', 'Interactive element');
-    }
-  });
-}
-
-function addAccessibleNamesToSvg() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('title')) {
-      svg.setAttribute('aria-label', `SVG ${index + 1}`);
-    }
-  });
-}
-
-// TODO: add the new functions or changes requested in the issue
 
 /**
  * Checks if a value is an empty string, null, or undefined
@@ -168,23 +124,26 @@ function isEmpty(value) {
 }
 
 /**
- * Validates landmark elements in a given container
- * Checks for proper landmark structure, required landmarks, and accessibility issues
- * @param {Element} [root=document.body] - Root element to search within
- * @param {Object} [options={}] - Validation options
- * @param {boolean} [options.checkRequired=true] - Whether to check for required landmarks
- * @returns {Object} Validation result object
+ * Capitalizes the first letter of a string
+ * @param {string} str - The string to capitalize
+ * @returns {string} - The capitalized string
  */
-function validateLandmark(root = document.body, options = {}) {
-  const {
-    checkRequired = true
-  } = options;
+function capitalize(str) {
+  if (typeof str !== 'string' || str.length === 0) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
-  // Valid landmark roles according to ARIA specification
-  const validLandmarkRoles = [
-    'banner', 'navigation', 'main', 'complementary', 'contentinfo', 
-    'search', 'form', 'region'
-  ];
+/**
+ * Generates a random integer between min and max (inclusive)
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Random integer
+ */
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 /**
  * Clamps a number between min and max values
@@ -197,249 +156,160 @@ function clamp(num, min, max) {
   return Math.min(Math.max(num, min), max);
 }
 
-  // Check for duplicate IDs
-  const idCount = {};
-  landmarks.forEach(lm => {
-    if (lm.id) {
-      idCount[lm.id] = (idCount[lm.id] || 0) + 1;
+/**
+ * Deep clones an object
+ * @param {*} obj - Object to clone
+ * @returns {*} - Cloned object
+ */
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj.getTime());
+  if (obj instanceof Array) return obj.map(item => deepClone(item));
+  if (obj instanceof Object) {
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        cloned[key] = deepClone(obj[key]);
+      }
     }
-  });
-
-  const duplicateIds = Object.keys(idCount).filter(id => idCount[id] > 1);
-
-  // Check for missing landmark roles (if checking required)
-  const foundRoles = landmarks.map(lm => lm.role);
-  const missingRoles = checkRequired 
-    ? validLandmarkRoles.filter(role => !foundRoles.includes(role) && 
-        ['main', 'navigation', 'banner'].includes(role))
-    : [];
-
-  // Check for accessibility issues
-  const issues = [];
-
-  // Check for multiple main landmarks (best practice is one)
-  const mainLandmarks = landmarks.filter(lm => lm.role === 'main');
-  if (mainLandmarks.length > 1) {
-    issues.push({
-      type: 'multiple-main-landmarks',
-      message: `Found ${mainLandmarks.length} <main> landmarks. Best practice is to have exactly one.`,
-      severity: 'warning'
-    });
+    return cloned;
   }
-
-  // Check for missing main landmark
-  if (checkRequired && mainLandmarks.length === 0) {
-    issues.push({
-      type: 'missing-main',
-      message: 'No <main> landmark found. Pages should have exactly one main landmark.',
-      severity: 'error'
-    });
-  }
-
-  // Check navigation landmarks for proper labeling
-  const navLandmarks = landmarks.filter(lm => lm.role === 'navigation');
-  navLandmarks.forEach((nav, index) => {
-    if (!nav.id && !nav.element.getAttribute('aria-label') && 
-        !nav.element.getAttribute('aria-labelledby')) {
-      issues.push({
-        type: 'unlabeled-navigation',
-        message: `Navigation landmark at index ${index} is missing an accessible label (id, aria-label, or aria-labelledby).`,
-        severity: 'warning'
-      });
-    }
-  });
-
-  return {
-    isValid: issues.filter(i => i.severity === 'error').length === 0,
-    landmarks: landmarks,
-    landmarkCount: landmarks.length,
-    rolesFound: [...new Set(foundRoles)],
-    duplicateIds: duplicateIds,
-    missingRoles: missingRoles,
-    issues: issues
-  };
-}
-
-// New accessibility functions from issue
-
-function getLangAttribute() {
-  const html = document.documentElement;
-  return html.getAttribute('lang') || 'en';
-}
-
-function addLangAttribute(lang = 'en') {
-  document.documentElement.setAttribute('lang', lang);
-}
-
-function validateTableAccessibility(table) {
-  if (!table) return false;
-  const hasHeader = table.querySelector('th');
-  const hasCaption = table.querySelector('caption');
-  return !!(hasHeader || hasCaption);
-}
-
-function validateTableStructure(table) {
-  if (!table) return false;
-  const rows = table.querySelectorAll('tr');
-  return rows.length > 0;
-}
-
-function fixTableStructure(table) {
-  if (!table) return;
-  // Ensure first row has th elements if it's a header
-  const firstRow = table.querySelector('tr');
-  if (firstRow && !firstRow.querySelector('th')) {
-    const cells = firstRow.querySelectorAll('td, th');
-    cells.forEach(cell => {
-      const th = document.createElement('th');
-      th.textContent = cell.textContent;
-      th.setAttribute('scope', 'col');
-      cell.replaceWith(th);
-    });
-  }
-}
-
-function addMainLandmark() {
-  if (!document.querySelector('main')) {
-    const main = document.createElement('main');
-    document.body.insertBefore(main, document.body.firstChild);
-  }
-}
-
-function validateLandmark() {
-  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="search"], main, nav, header, footer');
-  return landmarks.length > 0;
-}
-
-function validateLandmarkStructure() {
-  const main = document.querySelector('main, [role="main"]');
-  return !!main;
-}
-
-function validateLandmarkAttributes() {
-  const main = document.querySelector('main, [role="main"]');
-  if (!main) return false;
-  return !main.getAttribute('aria-label') && !main.getAttribute('aria-labelledby');
-}
-
-function getSvgAccessibleName(svg) {
-  if (!svg) return '';
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
-}
-
-function setSvgAttributes(svg, attributes = {}) {
-  if (!svg) return;
-  Object.keys(attributes).forEach(key => {
-    svg.setAttribute(key, attributes[key]);
-  });
-}
-
-function ensureUniqueLandmarks() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    // Keep first, remove extra or convert to div
-    for (let i = 1; i < mains.length; i++) {
-      mains[i].setAttribute('role', 'region');
-    }
-  }
-}
-
-function createInPageButton(text = 'Click here') {
-  const button = document.createElement('button');
-  button.textContent = text;
-  return button;
-}
-
-function validateLinkAccessibility(link) {
-  if (!link) return false;
-  const hasText = link.textContent.trim().length > 0;
-  const hasAriaLabel = link.getAttribute('aria-label');
-  const hasTitle = link.getAttribute('title');
-  return !!(hasText || hasAriaLabel || hasTitle);
-}
-
-function handleFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
-  fakeLinks.forEach(el => {
-    if (!el.getAttribute('tabindex')) {
-      el.setAttribute('tabindex', '0');
-    }
-    if (el.tagName !== 'BUTTON') {
-      el.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          el.click();
-        }
-      });
-    }
-  });
-}
-
-function addProperLandmarkRegions() {
-  if (!document.querySelector('header, [role="banner"]')) {
-    const header = document.createElement('header');
-    document.body.insertBefore(header, document.body.firstChild);
-  }
-  if (!document.querySelector('footer, [role="contentinfo"]')) {
-    const footer = document.createElement('footer');
-    document.body.appendChild(footer);
-  }
+  return obj;
 }
 
 /**
- * Ensures the dependencyGraph container has a proper ARIA role.
- * Sets role="tree" and aria-label if not already present.
+ * Harvests resources from a given source
+ * @param {Object} source - The resource source object
+ * @param {number} amount - Amount to harvest
+ * @param {Object} gameState - The current game state
+ * @returns {Object} - Updated game state with harvested resources
  */
-function ensureDependencyGraphAria() {
-  const container = document.getElementById('dependencyGraph');
-  if (!container) return;
-  if (!container.hasAttribute('role')) {
-    container.setAttribute('role', 'tree');
+function harvest(source, amount, gameState) {
+  const updatedGameState = deepClone(gameState);
+  
+  if (!source || !source.resources || !updatedGameState.resources) {
+    return updatedGameState;
   }
-  if (!container.hasAttribute('aria-label')) {
-    container.setAttribute('aria-label', 'Dependency Graph');
+  
+  const resourcesToAdd = {};
+  for (const resourceType in source.resources) {
+    if (source.resources.hasOwnProperty(resourceType)) {
+      resourcesToAdd[resourceType] = source.resources[resourceType] * amount;
+    }
   }
+  
+  for (const resourceType in resourcesToAdd) {
+    if (resourcesToAdd.hasOwnProperty(resourceType)) {
+      if (!updatedGameState.resources[resourceType]) {
+        updatedGameState.resources[resourceType] = 0;
+      }
+      updatedGameState.resources[resourceType] += resourcesToAdd[resourceType];
+    }
+  }
+  
+  if (source.harvestTime && updatedGameState.lastHarvestTime !== undefined) {
+    updatedGameState.lastHarvestTime = Date.now();
+  }
+  
+  return updatedGameState;
+}
+
+/**
+ * Upgrades a building or feature
+ * @param {string} upgradeType - Type of upgrade to perform
+ * @param {Object} gameState - The current game state
+ * @param {Object} upgradesConfig - Configuration for available upgrades
+ * @returns {Object} - Updated game state with applied upgrades
+ */
+function upgrade(upgradeType, gameState, upgradesConfig) {
+  const updatedGameState = deepClone(gameState);
+  
+  if (!upgradesConfig || !upgradesConfig[upgradeType]) {
+    return updatedGameState;
+  }
+  
+  const upgrade = upgradesConfig[upgradeType];
+  
+  if (!updatedGameState.resources || !upgrade.cost) {
+    return updatedGameState;
+  }
+  
+  let canAfford = true;
+  for (const resourceType in upgrade.cost) {
+    if (upgrade.cost.hasOwnProperty(resourceType)) {
+      if (!updatedGameState.resources[resourceType] || 
+          updatedGameState.resources[resourceType] < upgrade.cost[resourceType]) {
+        canAfford = false;
+        break;
+      }
+    }
+  }
+  
+  if (!canAfford) {
+    return updatedGameState;
+  }
+  
+  for (const resourceType in upgrade.cost) {
+    if (upgrade.cost.hasOwnProperty(resourceType)) {
+      updatedGameState.resources[resourceType] -= upgrade.cost[resourceType];
+    }
+  }
+  
+  if (upgrade.effect) {
+    for (const effectType in upgrade.effect) {
+      if (upgrade.effect.hasOwnProperty(effectType)) {
+        if (effectType === 'levels') {
+          if (!updatedGameState.levels) {
+            updatedGameState.levels = {};
+          }
+          if (!updatedGameState.levels[upgradeType]) {
+            updatedGameState.levels[upgradeType] = 0;
+          }
+          updatedGameState.levels[upgradeType] += 1;
+        } else if (effectType === 'production') {
+          if (!updatedGameState.production) {
+            updatedGameState.production = {};
+          }
+          if (!updatedGameState.production[upgradeType]) {
+            updatedGameState.production[upgradeType] = {};
+          }
+          for (const stat in upgrade.effect[effectType]) {
+            if (upgrade.effect[effectType].hasOwnProperty(stat)) {
+              if (!updatedGameState.production[upgradeType][stat]) {
+                updatedGameState.production[upgradeType][stat] = 0;
+              }
+              updatedGameState.production[upgradeType][stat] += upgrade.effect[effectType][stat];
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return updatedGameState;
 }
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     initializeAccessibility,
-    keyboardNavigation,
+    setupKeyboardNavigation,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
-    addLangAttribute,
     isEmpty,
     capitalize,
     getRandomInt,
     clamp,
     deepClone,
-    addAccessibleNamesToSvg,
-    ensureDependencyGraphAria
+    harvest,
+    upgrade
   };
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc4 >
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac4 >
-// _Commit: f8051b788bad4952d8493f08d3c722a06ff80d3_
-// <!-- todo-hash: b498b47abee4 >
-// _Commit: 60d5f1a2c3e4b5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
-// _Commit: abcdef1234567890abcdef1234567890abcdef12
-
-_Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
-
-<!-- todo-hash: e242a52a58b42aca6ca1fe442222a93da9f0c2f4 -->
-
 // Auto-initialize when DOM is ready
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', () => {
     window.accessibilityFeatures = initializeAccessibility();
   });
 }

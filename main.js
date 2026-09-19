@@ -25,6 +25,30 @@
 const _usedLandmarkIds = new Set();
 
 /**
+ * Checks if a link is accessible.
+ * @param {HTMLAnchorElement} link - The link element to check.
+ * @returns {Object} - An object containing accessibility status and any issues found.
+ */
+function isLinkAccessible(link) {
+    const result = { isAccessible: true, issues: [] };
+    
+    // Check if link has a valid href
+    if (!link || !link.href) {
+        result.isAccessible = false;
+        result.issues.push('Link is missing or has no href attribute');
+    }
+    
+    // Check if link has accessible text
+    const linkText = link.textContent.trim();
+    if (!linkText && !link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby')) {
+        result.isAccessible = false;
+        result.issues.push('Link has no accessible name (no text, aria-label, or aria-labelledby)');
+    }
+    
+    return result;
+}
+
+/**
  * Creates a unique identifier for a landmark given a base name.
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.

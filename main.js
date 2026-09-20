@@ -79,20 +79,14 @@ export function triggerAccessibilityMode() {
 // Updated to use dependencyGraphContent.
 export function renderDependencyGraph() {
   // Example usage: replace with actual rendering logic
-  const container = document.getElementById('dependencyGraph');
-  if (container) {
-    container.innerHTML = dependencyGraphContent;
-  }
+  ...
 }
 
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
   // Example usage: replace with actual rendering logic
-  const container = document.getElementById('indexView');
-  if (container) {
-    container.innerHTML = indexContent;
-  }
+  ...
 }
 
 // TODO: fix lint error for exports (maintain existing export pattern)
@@ -219,10 +213,7 @@ function createInPageButton() {
 function fixAccessibilityIssues() {
   // 1. REACT_015: Ensure lang attribute is set on the HTML element
   const lang = getLangAttribute();
-  const html = document.documentElement;
-  if (!html.hasAttribute('lang')) {
-    html.setAttribute('lang', lang);
-  }
+  ... lang);
 
   // 2. REACT_027: Validate table accessibility and structure
   const table = ...
@@ -236,7 +227,7 @@ function fixAccessibilityIssues() {
   ...
 
   // 4. REACT_025: Ensure unique landmarks
-  ensureUniqueLandmarks();
+  ...
   handleFakeLinks();
 
   // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
@@ -274,17 +265,7 @@ function personName() {
 // Implement wrapPrimaryContentInMain function
 function wrapPrimaryContentInMain(primaryContent) {
   // Wrap primary content in a <main> element for accessibility
-  const main = document.createElement('main');
-  main.id = 'main-content';
-  main.setAttribute('role', 'main');
-  
-  if (typeof primaryContent === 'string') {
-    main.innerHTML = primaryContent;
-  } else if (primaryContent instanceof HTMLElement) {
-    main.appendChild(primaryContent);
-  }
-  
-  return main;
+  return ...
 }
 
 /**
@@ -300,8 +281,7 @@ export function renderDependencyGraph() {
 }
 
 // Add lang attribute to HTML element
-const langAttr = getLangAttribute();
-document.documentElement.setAttribute('lang', langAttr);
+... getLangAttribute());
 
 // Create in-page button with accessibility considerations
 const inPageButton = createInPageButton();
@@ -309,11 +289,9 @@ document.body.appendChild(inPageButton);
 
 // Validate table structure and accessibility
 // Assuming you have a table element with an id of 'myTable'
-const tableElement = document.getElementById('myTable');
-if (tableElement) {
-  validateTableAccessibility(tableElement);
-  validateTableStructure(tableElement);
-}
+const table = ...
+validateTableAccessibility(table);
+validateTableStructure(table);
 
 // Add/fix landmark issues
 validateLandmark();
@@ -321,15 +299,13 @@ validateLandmark();
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
-const svgElement = document.getElementById('mySvg');
-if (svgElement) {
-  const accessibleName = getSvgAccessibleName(svgElement);
-  setSvgAttributes(svgElement, accessibleName);
-}
+const svg = ...
+const accessibleName = getSvgAccessibleName(svg);
+setSvgAttributes(svg, accessibleName);
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-ensureUniqueLandmarks();
+...
 handleFakeLinks();
 
 // ... rest of your code ...
@@ -341,6 +317,11 @@ function addAriaLabel(element) {
   }
 }
 
+const dependencyGraphContainer = ...
+dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
+... 'region');
+... 'Dependency Graph');
+
 // React / UI related functions
 
 // TODO: Add these imported modules to the relevant rendering functions
@@ -350,9 +331,8 @@ function formatProductName(product) {
 }
 
 function renderProductList(products) {
-  const container = document.createElement('div');
-  container.className = 'product-list';
-  container.innerHTML = products.map(p => `<div class="product">${formatProductName(p)}</div>`).join('');
+  const container = ...
+  container.innerHTML = ...
   return container;
 }
 
@@ -363,3 +343,74 @@ function calculateTotalPrice(cart) {
 }
 
 function renderCart(cart) {
+  const total = calculateTotalPrice(cart);
+  return `
+    <div class="cart">
+      <h2>Shopping Cart</h2>
+      <p>Total: ...
+      <p>Date: ${formatDate(new Date())}</p>
+    </div>
+  `;
+}
+
+function validateAndRender(input) {
+  if (validateInput(input)) {
+    return ...
+  }
+}
+
+function renderProductCard(product) {
+  // Example rendering logic
+  return `<div ...
+}
+
+function calculateDiscount(subtotal) {
+  // Example discount calculation
+  return subtotal * 0.1; // 10% discount
+}
+
+function formatCurrency(amount) {
+  // Example currency formatting
+  return ...
+}
+
+function formatDate(date) {
+  // Example date formatting
+  return ...
+}
+
+function validateInput(input) {
+  // Example validation logic
+  return input && input.products && ...
+}
+
+function getLangAttribute() {
+  // Example language attribute getter
+  return 'en';
+}
+
+function setSvgAttributes(svg, accessibleName) {
+  // Example SVG attribute setter
+  ... accessibleName);
+}
+
+function validateLinkAccessibility() {
+  // Example link accessibility validation
+}
+
+function handleFakeLinks() {
+  // Example fake links handler
+}
+
+export { ensureElementId };
+export { addAriaLabel };
+export { renderDependencyGraph };
+export { dependencyGraphContainer };
+export { validateLandmarkStructure };
+export { validateLandmark };
+export { validateTableAccessibility };
+export { validateTableStructure };
+export { getSvgAccessibleName };
+export { createInPageButton };
+export { handleFakeLinks };
+export { validateLinkAccessibility };

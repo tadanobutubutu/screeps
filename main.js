@@ -347,6 +347,106 @@ ensureDependencyGraphARIA(dependencyGraph);
 // Create accessible links for fake link issues (REACT_036)
 createAccessibleLink();
 
+// New function to check link accessibility
+function checkLinkAccessibility() {
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  return validateLinkAccessibility();
+}
+
 // ... rest of your code ...
 
 // React / UI related functions
+
+// TODO: Add these imported modules to the relevant rendering functions
+
+function formatProductName(product) {
+  return `${product.name} - ...`;
+}
+
+function renderProductList(products) {
+  const container = document.createElement('div');
+  container.innerHTML = products.map(p => renderProductCard(p)).join('');
+  return container;
+}
+
+function calculateTotalPrice(cart) {
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const discount = calculateDiscount(subtotal);
+  return subtotal - discount;
+}
+
+function renderCart(cart) {
+  const total = calculateTotalPrice(cart);
+  return `
+    <div class="cart">
+      <h2>Shopping Cart</h2>
+      <p>Total: ...${total}</p>
+      <p>Date: ${formatDate(new Date())}</p>
+    </div>
+  `;
+}
+
+function validateAndRender(input) {
+  if (validateInput(input)) {
+    return renderProductList([input]);
+  }
+  return '<p>Invalid input</p>';
+}
+
+function renderPage(data) {
+  const header = renderHeader(data.title);
+  const content = renderProductList(data.products);
+  const footer = renderFooter();
+  return `${header}${content}${footer}`;
+}
+
+// ... other functions ...
+
+// Export accessibility utility functions
+export {
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibility // Exporting the new function
+};
+
+// Export utility functions
+export {
+  formatCurrency,
+  formatDate,
+  calculateDiscount,
+  validateInput
+};
+
+// Export component functions
+export {
+  renderHeader,
+  renderFooter,
+  renderProductCard
+};
+
+// Export state
+export {
+  state,
+  updateState
+};
+
+// Export UI / product functions
+export {
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage
+};
+
+// ... other exports ...

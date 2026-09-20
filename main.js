@@ -50,5 +50,173 @@ export function render() {
     document.body.style.color = theme.textColor;
 }
 
-export { addLangAttribute, ensureElementId, ... handleErrorState, renderDependencyGraph, renderIndexView, getFullLangAttribute, render, checkLinkAccessibility, newFunction };
-```
+/**
+ * Displays module structure for debugging purposes.
+ * @param {Array} modules - Array of module objects
+ * @returns {string} Formatted module structure display
+ */
+function displayModuleStructure(modules) {
+  if (!Array.isArray(modules)) {
+    return 'Error: modules must be an array';
+  }
+  
+  let output = 'Module Structure:\n';
+  output += '==================\n\n';
+  
+  modules.forEach((mod, index) => {
+    const name = mod.name || mod.id || `Module ${index + 1}`;
+    output += `${index + 1}. ${name}\n`;
+    
+    if (mod.dependencies && Array.isArray(mod.dependencies)) {
+      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
+    }
+    
+    if (mod.path) {
+      output += `   Path: ${mod.path}\n`;
+    }
+    
+    output += '\n';
+  });
+  
+  return output;
+}
+
+/**
+ * Generates a dependency report for debugging
+ * @param {Object} dependencies - The dependency object
+ * @returns {Object} Report containing statistics
+ */
+function generateDependencyReport(dependencies) {
+  return {
+    totalDependencies: Object.keys(dependencies).length,
+    maxDepth: getDependencyDepth(dependencies),
+    graph: renderDependencyGraph(dependencies)
+  };
+}
+
+/**
+ * Builds a navigable, screen-reader-friendly textual representation
+ * of the dependency graph using semantic newlines and clear prefixes.
+ *
+ * Accessibility improvements:
+ * - Uses headings and consistent prefixes so screen readers can
+ *   announce the structure predictably.
+ * - Avoids relying on box-drawing characters alone; provides a
+ *   textual depth indicator (e.g., "Depth N:") for each level.
+ * - Includes plain-text connectors ("child of", "leaf") so the
+ *   hierarchy is understandable without visual rendering.
+ *
+ * @param {Object} dependencies - The dependency object
+ * @param {number} depth - Current depth in the tree
+ * @returns {string} Accessible textual representation of the dependency graph
+ */
+function renderAccessibleDependencyGraph(dependencies, depth = 0) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return '';
+  }
+
+  const keys = Object.keys(dependencies);
+  if (keys.length === 0) {
+    return `Depth ${depth}: (empty)\n`;
+  }
+
+  let output = `Depth ${depth}: (${keys.length} item${keys.length === 1 ? '' : 's'})\n`;
+
+  keys.forEach((key, index) => {
+    const value = dependencies[key];
+    const isLast = index === keys.length - 1;
+    const position = isLast ? 'last' : 'not last';
+
+    if (typeof value === 'object' && value !== null) {
+      output += `  - ${key} (has ${Object.keys(value).length} child${Object.keys(value).length === 1 ? '' : 's'}, ${position})\n`;
+      output += renderAccessibleDependencyGraph(value, depth + 1);
+    } else {
+      output += `  - ${key} (leaf, value: ${value}, ${position})\n`;
+    }
+  });
+
+  return output;
+}
+
+// New function to visualize the dependency tree
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+}
+
+/**
+ * Main processing function
+ */
+function main() {
+  const sampleDependencies = {
+    'express': '4.18.2',
+    'lodash': {
+      'isArray': '4.0.0',
+      'merge': {
+        'isObject': '4.0.0'
+      }
+    }
+  };
+  
+  console.log('Dependency Graph:');
+  console.log(renderDependencyGraph(sampleDependencies));
+  
+  console.log('Depth:', getDependencyDepth(sampleDependencies));
+}
+
+// Function for accessibility checks on tables
+function checkTableAccessibility(table) {
+    const errors = [];
+    
+    // Check if table exists
+    if (!table) {
+        errors.push('Table must exist');
+        return { valid: false, errors };
+    }
+    
+    // Check if table has headers
+    if (!table.headers || table.headers.length === 0) {
+        errors.push('Tables must have header cells for accessibility');
+    }
+    
+    // Check if table has a caption or title for context
+    if (!table.caption && !table.title) {
+        errors.push('Tables should have a caption or title for accessibility');
+    }
+    
+    // Check if data cells have proper scope or headers attributes
+    if (table.rows && table.rows.length > 0) {
+        table.rows.forEach((row, rowIndex) => {
+            if (row.cells) {
+                row.cells.forEach((cell, cellIndex) => {
+                    if (cell.isHeader && !cell.scope && !cell.headers) {
+                        errors.push(`Header cell at row ${rowIndex}, column ${cellIndex} should have a scope or headers attribute`);
+                    }
+                });
+            }
+        });
+    }
+    
+    return {
+        valid: errors.length === 0,
+        errors
+    };
+}
+
+module.exports = {
+  getLangAttribute,
+  createInPageButton,
+  renderDependencyGraph,
+  displayModuleStructure,
+  getDependencyDepth,
+  generateDependencyReport,
+  renderAccessibleDependencyGraph,
+  main,
+  visualizeDependencyTree,
+  checkTableAccessibility
+};
+
+// Run if executed directly
+if (require.main === module) {
+  main();
+}

@@ -20,6 +20,14 @@ import { state, updateState } from './state.js';
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLinkAccessibility())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton() and handleFakeLinks())
 
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
@@ -35,8 +43,8 @@ import { state, updateState } from './state.js';
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute } from './'; // Adjust the path to the existing accessibility helper functions if needed
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from "..." ; // Adjust the path to the new accessibility helper functions
+import { getDocument, getLangAttribute, addLangAttribute } from './accessibility';
+import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './accessibility';
 
 /**
  * Fixes 26 table structure issues for accessibility.

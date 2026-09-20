@@ -38,11 +38,11 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function createLandmarkId(baseName) {
+function generateUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 10);
+        const suffix = Math.floor(Math.random() * 9000) + 1000;
         candidate = `${baseName}-${suffix}`;
         // If still exists, try with counter
         if (_usedLandmarkIds.has(candidate)) {
@@ -202,7 +202,6 @@ if (table) {
 const mainContainer = document.querySelector('main') || document.body;
 fixLandmarkIssues(mainContainer);
 validateLandmark();
-validateLandmarkStructure();
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
@@ -214,6 +213,7 @@ if (svg) {
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
+validateLandmarkStructure();
 
 // Add accessible names to SVGs
 function processSvgAccessibility(svg) {
@@ -274,8 +274,8 @@ function formatProductName(product) {
  * @returns {HTMLElement} Container with rendered products
  */
 function renderProductList(products) {
-  const container = document.createElement('div');
-  container.innerHTML = products.map(p => `<div class="product">${p.name}</div>`).join('');
+  const container = document.getElementById('product-list');
+  container.innerHTML = products.map(p => `<div>${p.name}</div>`).join('');
   return container;
 }
 
@@ -315,7 +315,7 @@ function validateAndRender(input) {
 
 function renderPage(data) {
   const header = renderHeader(data.title);
-  const content = '<div class="content">' + data.content + '</div>';
+  const content = data.content;
   const footer = renderFooter();
   return `${header}${content}${footer}`;
 }
@@ -338,8 +338,7 @@ export {
   getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,
-  handleFakeLinks,
-  addressAccessibilityIssues
+  handleFakeLinks
 };
 
 // Export utility functions
@@ -390,6 +389,14 @@ function displayModuleStructure(module) {
 }
 
 // Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+export {
+  checkLinkAccessibility,
+  renderDependencyGraph,
+  displayModuleStructure,
+  generateUniqueLandmarkId,
+  uniqueLandmarks,
+  addAriaLabel,
+  addLangAttribute
+};
 
 // ... other exports ...

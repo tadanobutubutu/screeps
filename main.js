@@ -314,30 +314,24 @@ export {
   getDependencyDepth
 };
 
-// Exporting for CommonJS compatibility
-module.exports = {
-  renderDependencyGraph,
-  displayModuleStructure,
-  getDependencyDepth,
-  generateDependencyReport,
-  main,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  fixAccessibilityIssues,
-  divide,
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  someFunction
-};
+function main() {
+  const sampleDependencies = {
+    'express': '4.18.2',
+    'lodash': {
+      'isArray': '4.0.0',
+      'merge': {
+        'isObject': '4.0.0'
+      }
+    }
+  };
+  
+  // Use the generateDependencyReport function to get graph and depth
+  const report = generateDependencyReport(sampleDependencies);
+  
+  console.log('Dependency Graph:');
+  console.log(report.graph);
+  console.log('Depth:', report.maxDepth);
+}
 
 // Run if executed directly
 if (require.main === module) {

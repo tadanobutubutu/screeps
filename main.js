@@ -35,6 +35,12 @@ import { indexContent } from './indexContent';
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
 
+// Import accessibility helper functions from local modules
+import { getDocument, getLangAttribute } from './accessibilityHelpers';
+import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './accessibilityHelpers';
+
+// Import dependency graph and index content modules for rendering dependency graphs and index views
+
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())

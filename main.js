@@ -38,8 +38,8 @@ function addMainLandmark(reactRoot) {
   // Move the first child of reactRoot into the main landmark
   if ... {
     const firstChild = reactRoot.firstChild;
-    ... firstChild);
-    ...
+    mainLandmark.appendChild(firstChild);
+    reactRoot.appendChild(mainLandmark);
   } else {
     ...
   }
@@ -53,14 +53,14 @@ function addMainLandmark(reactRoot) {
  * @param {string} politeness - 'polite' or 'assertive'
  */
 function announceToScreenReader(message, politeness = 'polite') {
-  const announcement = ...
-  ... politeness);
-  ... 'true');
+  const announcement = document.createElement('div');
+  announcement.setAttribute('role', politeness);
+  announcement.setAttribute('aria-live', 'true');
   announcement.className = 'sr-only';
-  announcement.style.cssText = ...
+  announcement.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px);';
   announcement.textContent = message;
-  ...
-  setTimeout(() => announcement.remove(), 1000);
+  document.body.appendChild(announcement);
+  setTimeout(() => announcement.remove(), 1);
 }
 
 function displayModuleStructure() {
@@ -277,7 +277,7 @@ function createInPageButton(onClick, label, buttonText) {
   return button;
 }
 
-// React-specific exports
+// React--specific exports
 // Exports
 export { YouHaveComponent };
 export { addLangAttribute, fixTableStructure, addMainLandmark };

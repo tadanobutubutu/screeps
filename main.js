@@ -543,7 +543,6 @@ export { ensureElementId };
 export { addAriaLabel };
 export { renderDependencyGraph };
 export { dependencyGraphContainer };
-export { ... };
 export { fixAccessibilityIssues };
 export { wrapPrimaryContentInMain };
 export { calculateSum };

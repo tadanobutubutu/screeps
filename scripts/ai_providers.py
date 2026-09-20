@@ -72,7 +72,7 @@ MLVOCA_MODELS = ["tinyllama", "deepseek-r1:1.5b"]
 LLM7_BASE = "https://api.llm7.io/v1/chat/completions"
 LLM7_MODELS = ["gpt-5.4-mini", "minimax-m2.7", "deepseek-v4-flash"]
 
-AI_HORDE_ANON_KEY = "00000000000000000000000000000000"
+AI_HORDE_ANON_KEY = "0" * 32
 
 CEREBRAS_BASE = "https://api.cerebras.ai/v1/chat/completions"
 CEREBRAS_MODELS = ["gpt-oss-120b", "llama-3.3-70b"]
@@ -96,10 +96,15 @@ INVALID_RESPONSE_MARKERS = (
 )
 
 
+def sanitize_header(val):
+    """Strip carriage return and line feed characters to prevent HTTP Header Injection."""
+    return re.sub(r"[\r\n]", "", str(val)) if val is not None else ""
+
+
 def normalize_token(value):
     if not value:
         return None
-    token = value.strip().strip('"').strip("'")
+    token = sanitize_header(value).strip().strip('"').strip("'")
     return token or None
 
 
@@ -110,7 +115,8 @@ def _openai_chat(url, model, prompt, headers=None, timeout=90):
     }
     req_headers = {"Content-Type": "application/json"}
     if headers:
-        req_headers.update(headers)
+        for k, v in headers.items():
+            req_headers[sanitize_header(k)] = sanitize_header(v)
     req = urllib.request.Request(
         url,
         data=json.dumps(payload).encode("utf-8"),

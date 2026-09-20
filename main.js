@@ -27,11 +27,11 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function generateUniqueLandmarkId(baseName) {
+function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 900) + 100;
+        const suffix = Math.floor(Math.random() * 10);
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -76,7 +76,7 @@ function ensureUniqueLandmarks(landmarks) {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (element && !element.hasAttribute('aria-label')) {
+    if (!element.getAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
   });
@@ -86,7 +86,6 @@ function addAriaLabel(element, label) {
  * Adds lang attribute as per the issue requirement
  */
 function addLangAttribute() {
-  // Assuming there is a relevant element selector or similar to target
   const elementToModify = document.documentElement;
   if (elementToModify) {
     elementToModify.setAttribute('lang', 'en'); // Example: English
@@ -132,8 +131,6 @@ if (table) {
 const mainContainer = document.querySelector('main') || document.body;
 fixLandmarkIssues(mainContainer);
 validateLandmark();
-addMainLandmark(mainContainer);
-addLandmarkRegions(document.querySelectorAll('section, aside'));
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
@@ -145,8 +142,6 @@ if (svg) {
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
-ensureUniqueLandmarks(Array.from(landmarks));
 
 // Add accessible names to SVGs
 function processSvgAccessibility(svg) {
@@ -198,9 +193,8 @@ function formatProductName(product) {
  * @returns {HTMLElement} Container with rendered products
  */
 function renderProductList(products) {
-  const container = document.createElement('div');
-  container.className = 'product-list';
-  container.innerHTML = products.map(p => `<div class="product-card">${p.name}</div>`).join('');
+  const container = document.getElementById('product-list');
+  container.innerHTML = products.map(p => renderProductCard(p)).join('');
   return container;
 }
 
@@ -221,192 +215,4 @@ function calculateTotalPrice(cart) {
  * @returns {string} HTML string for cart
  */
 function renderCart(cart) {
-  const total = calculateTotalPrice(cart);
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Total: $${total.toFixed(2)}</p>
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
-}
-
-/**
- * Validates input and renders appropriate output
- * @param {string} input - User input to validate
- * @returns {string} HTML string
- */
-function validateAndRender(input) {
-  if (validateInput(input)) {
-    return `<div class="valid">${input}</div>`;
-  }
-  return '<p>Invalid input</p>';
-}
-
-/**
- * Renders complete page with header, content, and footer
- * @param {Object} data - Page data object
- * @returns {string} Complete page HTML
- */
-function renderPage(data) {
-  const header = renderHeader(data.title);
-  const content = data.content || '';
-  const footer = renderFooter();
-  return `${header}${content}${footer}`;
-}
-
-// New function or change requested in the issue
-/**
- * Checks accessibility of all links on the page
- * @returns {Array} Array of accessibility issues found
- */
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility(document.querySelectorAll('a'));
-}
-
-/**
- * Format currency for display
- * @param {number} amount - Amount to format
- * @returns {string} Formatted currency string
- */
-function formatCurrency(amount) {
-  return `$${amount.toFixed(2)}`;
-}
-
-/**
- * Format date for display
- * @param {Date} date - Date to format
- * @returns {string} Formatted date string
- */
-function formatDate(date) {
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-/**
- * Calculate discount based on subtotal
- * @param {number} subtotal - Subtotal amount
- * @returns {number} Discount amount
- */
-function calculateDiscount(subtotal) {
-  if (subtotal > 100) {
-    return subtotal * 0.1; // 10% discount for orders over $100
-  }
-  return 0;
-}
-
-/**
- * Validate user input
- * @param {string} input - Input to validate
- * @returns {boolean} Whether input is valid
- */
-function validateInput(input) {
-  return input && input.trim().length > 0;
-}
-
-/**
- * Render header section
- * @param {string} title - Page title
- * @returns {string} Header HTML
- */
-function renderHeader(title) {
-  return `<header><h1>${title}</h1></header>`;
-}
-
-/**
- * Render footer section
- * @returns {string} Footer HTML
- */
-function renderFooter() {
-  return `<footer><p>&copy; 2024</p></footer>`;
-}
-
-/**
- * Render product card
- * @param {Object} product - Product object
- * @returns {string} Product card HTML
- */
-function renderProductCard(product) {
-  return `
-    <div class="product-card" data-product-id="${product.id}">
-      <h3>${product.name}</h3>
-      <p class="price">${formatCurrency(product.price)}</p>
-    </div>
-  `;
-}
-
-// State management
-let state = {
-  cart: [],
-  products: [],
-  user: null
-};
-
-/**
- * Update application state
- * @param {Object} updates - State updates to apply
- */
-function updateState(updates) {
-  state = { ...state, ...updates };
-}
-
-// Export accessibility utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  checkLinkAccessibility // Exporting the new function
-};
-
-// Export utility functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
-};
-
-// Export component functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
-// Export state
-export {
-  state,
-  updateState
-};
-
-// Export UI / product functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage
-};
-
-// Export the new function
-export { checkLinkAccessibility };
-
-// Export landmark utilities
-export {
-  generateUniqueLandmarkId,
-  uniqueLandmarks,
-  addAriaLabel,
-  addLangAttribute,
-  ensureUniqueLandmarks
-};
-
-// ... other exports ...
+  const total = calculateTotalPrice(c

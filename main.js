@@ -473,3 +473,6 @@ export { ensureElementId };
 export { addAriaLabel };
 export { renderDependencyGraph };
 export { dependencyGraphContainer };
+export { createInPageButton };
+export { handleAccessibilityIssues };
+export { createAccessibleLink };

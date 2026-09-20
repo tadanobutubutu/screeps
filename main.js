@@ -1,58 +1,59 @@
-// main.js
+// Example functions that might be in main.js for rendering dependency graphs
 
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', 'en');
+function renderDependencyGraph(modules) {
+  const graph = {};
+  modules.forEach(module => {
+    graph[module.id] = {
+      name: module.name,
+      dependencies: module.dependencies.map(dep => dep.id)
+    };
+  });
+  return graph;
+}
 
-// Add landmark roles and fix landmark issues
-function addLandmarkRole(element, role) {
-  if (element && !element.hasAttribute('role')) {
-    element.setAttribute('role', role);
+function displayModuleStructure(modules, options = {}) {
+  if (options.debug) {
+    console.log('Module Structure:');
+    modules.forEach(module => {
+      console.log(`  ${module.name} (${module.id})`);
+      module.dependencies.forEach(dep => {
+        console.log(`    └── ${dep.name} (${dep.id})`);
+      });
+    });
   }
+  return modules;
 }
 
-// Example usage for adding landmark roles
-const navigation = document.querySelector('#navigation');
-addLandmarkRole(navigation, 'navigation');
-
-const mainContent = document.querySelector('#main-content');
-addLandmarkRole(mainContent, 'main');
-
-const search = document.querySelector('#search');
-addLandmarkRole(search, 'search');
-
-// Add accessible names to 2 SVGs
-function addAccessibleName(svg, name) {
-  const title = document.createElement('title');
-  title.textContent = name;
-  svg.appendChild(title);
+// Updated versions addressing the issue
+function renderDependencyGraphUpdated(modules) {
+  const graph = {};
+  modules.forEach(module => {
+    graph[module.id] = {
+      name: module.name,
+      dependencies: module.dependencies.map(dep => dep.id),
+      debugInfo: {
+        type: module.type || 'unknown',
+        size: module.size || 0
+      }
+    };
+  });
+  return graph;
 }
 
-// Example usage for adding accessible names to SVGs
-const svg1 = document.querySelector('#svg1');
-addAccessibleName(svg1, 'SVG description 1');
-
-const svg2 = document.querySelector('#svg2');
-addAccessibleName(svg2, 'SVG description 2');
-
-// Fix 1 fake link issue
-function fixFakeLink(element) {
-  if (element && element.style.display === 'none') {
-    element.style.display = 'inline';
+function displayModuleStructureUpdated(modules, options = {}) {
+  if (options.debug || options.detailed) {
+    console.log('Enhanced Module Structure Debug Info:');
+    console.log('Total Modules:', modules.length);
+    
+    modules.forEach(module => {
+      console.group(`Module: ${module.name} (${module.id})`);
+      console.log('Type:', module.type || 'unknown');
+      console.log('Dependencies:');
+      module.dependencies.forEach(dep => {
+        console.log(`  └── ${dep.name} (${dep.id}) [${dep.type || 'unknown'}]`);
+      });
+      console.groupEnd();
+    });
   }
+  return modules;
 }
-
-// Example usage for fixing fake links
-const fakeLink = document.querySelector('.fake-link');
-fixFakeLink(fakeLink);
-
-// Ensure unique landmarks (2 issues)
-// Assuming you have a function to check for duplicate landmarks
-function ensureUniqueLandmarks() {
-  // Your logic to check for and address duplicate landmarks
-}
-
-// Call the function to ensure unique landmarks
-ensureUniqueLandmarks();
-
-// Export any necessary functions if needed
-// export { addLandmarkRole, addAccessibleName, fixFakeLink, ensureUniqueLandmarks };

@@ -4,16 +4,25 @@
 // Updated to import and use dependencyGraphContent and indexContent
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
-import { fixAccessibilityIssues } from './accessibilityHelper'; // Adjust the path to the new accessibility helper functions
+
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+//_Commit: b2121df01283af5803b4e39b5a2143ecea635c8d_
+
+<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute } from './accessibilityHelper'; // Adjusted path to accessibility helper
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './accessibilityHelpers'; // Adjusted path to new accessibility helpers
-
-// Import your new function from your new module
-import { triggerAccessibilityMode } from './accessibilityMode';
+import { getDocument, getLangAttribute } from './accessibilityHelpers';
+import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './accessibilityHelpers';
 
 // ... rest of your code ...
 
@@ -70,18 +79,30 @@ export function triggerAccessibilityMode() {
 // Updated to use dependencyGraphContent.
 export function renderDependencyGraph() {
   // Example usage: replace with actual rendering logic
-  ...
+  const container = document.getElementById('dependencyGraph');
+  if (container) {
+    container.innerHTML = dependencyGraphContent;
+  }
 }
 
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
   // Example usage: replace with actual rendering logic
-  ...
+  const container = document.getElementById('indexView');
+  if (container) {
+    container.innerHTML = indexContent;
+  }
 }
 
 // TODO: fix lint error for exports (maintain existing export pattern)
 export { makeHeaderFocusable }; // new export statement from conflicting branch
+
+// Ensure the dependencyGraph container has a proper ARIA role
+export const dependencyGraphContainer = document.createElement('div');
+dependencyGraphContainer.id = 'dependencyGraph';
+dependencyGraphContainer.setAttribute('role', 'region');
+dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
 
 function ensureElementId(element) {
   // Combined and reconciled code from both branches
@@ -171,7 +192,9 @@ function fixAccessibilityIssues() {
 // Implement wrapPrimaryContentInMain function
 function wrapPrimaryContentInMain(primaryContent) {
   // Wrap primary content in a <main> element for accessibility
-  return ...
+  const mainElement = document.createElement('main');
+  mainElement.innerHTML = primaryContent;
+  return mainElement;
 }
 
 /**
@@ -187,15 +210,17 @@ export function renderDependencyGraph() {
 }
 
 // Add lang attribute to HTML element
-... getLangAttribute());
+document.documentElement.lang = getLangAttribute();
 
 export { makeHeaderFocusable };
 
 // Validate table structure and accessibility
 // Assuming you have a table element with an id of 'myTable'
-const table = ...
-validateTableAccessibility(table);
-validateTableStructure(table);
+const table = document.getElementById('myTable');
+if (table) {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+}
 
 // Add/fix landmark issues
 validateLandmark();
@@ -203,13 +228,17 @@ validateLandmark();
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
-const svg = ...
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
+const svg = document.getElementById('mySvg');
+if (svg) {
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
+}
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-...
+ensureUniqueLandmarks();
+
+// Handle fake links
 handleFakeLinks();
 
 // ... rest of your code ...
@@ -221,11 +250,6 @@ function addAriaLabel(element) {
   }
 }
 
-const dependencyGraphContainer = ...
-dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
-... 'region');
-... 'Dependency Graph');
-
 // React / UI related functions
 
 // TODO: Add these imported modules to the relevant rendering functions
@@ -235,8 +259,8 @@ function formatProductName(product) {
 }
 
 function renderProductList(products) {
-  const container = ...
-  container.innerHTML = ...
+  const container = document.createElement('div');
+  container.innerHTML = products.map(p => `<div class="product">${p.name}</div>`).join('');
   return container;
 }
 
@@ -251,7 +275,7 @@ function renderCart(cart) {
   return `
     <div class="cart">
       <h2>Shopping Cart</h2>
-      <p>Total: ...
+      <p>Total: $${total.toFixed(2)}</p>
       <p>Date: ${formatDate(new Date())}</p>
     </div>
   `;
@@ -261,11 +285,12 @@ function validateAndRender(input) {
   if (validateInput(input)) {
     return ...
   }
+  return null;
 }
 
 function renderProductCard(product) {
   // Example rendering logic
-  return `<div ...
+  return `<div class="product-card">${product.name}</div>`;
 }
 
 function calculateDiscount(subtotal) {
@@ -295,7 +320,9 @@ function getLangAttribute() {
 
 function setSvgAttributes(svg, accessibleName) {
   // Example SVG attribute setter
-  ... accessibleName);
+  if (svg && accessibleName) {
+    svg.setAttribute('aria-label', accessibleName);
+  }
 }
 
 function validateLinkAccessibility() {
@@ -306,9 +333,16 @@ function handleFakeLinks() {
   // Example fake links handler
 }
 
-function personName() {
-  // Additional function needed for REACT_036 fix
-  console.log('Person name accessibility check');
+function ensureUniqueLandmarks() {
+  // Example unique landmarks handler
+}
+
+// Additional accessibility helper functions
+function makeHeaderFocusable() {
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('tabindex', '0');
+  }
 }
 
 export { ensureElementId };

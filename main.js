@@ -46,7 +46,15 @@ function validateLandmarkStructure() {
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute, getFullLangAttribute } from './accessibilityHelpers';
+import { getDocument, getLangAttribute} from './accessibilityHelpers'; // Adjust the path to the existing accessibility helper functions if needed
+import { createInPageButton, handleAccessibilityIssues, createAccessibleLink} from './newAccessibilityHelpers'; // Adjust the path to the new accessibility helper functions
+
+// Import your new function from your new module
+// import { triggerAccessibilityMode} from ...
+
+// Import dependency graph and index content modules for rendering dependency graphs and index views
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
 
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())

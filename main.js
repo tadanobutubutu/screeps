@@ -1,9 +1,32 @@
 // main.js
 // TODO: Add the necessary new functions (without strict mode)
 
-// Example new functions
-function harvest(creep) {
-    // TODO: implement harvesting logic
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * Calculates the depth of dependency tree
+ * @param {Object} dependencies - The dependency object
+ * * @param {string} currentKey - Current key being processed
+ * @returns {number} Maximum depth of the dependency tree
+ */
+function getDependencyDepth(dependencies, currentKey = '') {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  
+  let maxDepth = 0;
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach(key => {
+    const value = dependencies[key];
+    if (typeof value === 'object' && value !== null) {
+      const nestedDepth = getDependencyDepth(value, key);
+      maxDepth = Math.max(maxDepth, nestedDepth + 1);
+    }
+  });
+  
+  return maxDepth;
 }
 
 /**
@@ -40,14 +63,130 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
   return output;
 }
 
-function upgradeController(creep, controller) {
-    // TODO: implement upgrade logic
+/**
+ * Displays module structure for debugging purposes.
+ * @param {Array} modules - Array of module objects
+ * @returns {string} Formatted module structure display
+ */
+function displayModuleStructure(modules) {
+  if (!Array.isArray(modules)) {
+    return 'Error: modules must be an array';
+  }
+  
+  let output = 'Module Structure:\n';
+  output += '==================\n\n';
+  
+  modules.forEach((mod, index) => {
+    const name = mod.name || mod.id || `Module ${index + 1}`;
+    output += `${index + 1}. ${name}\n`;
+    
+    if (mod.dependencies && Array.isArray(mod.dependencies)) {
+      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
+    }
+    
+    if (mod.path) {
+      output += `   Path: ${mod.path}\n`;
+    }
+    
+    output += '\n';
+  });
+  
+  return output;
+}
+
+/**
+ * Generates a dependency report for debugging
+ * @param {Object} dependencies - The dependency object
+ * @returns {Object} Report containing statistics
+ */
+function generateDependencyReport(dependencies) {
+  return {
+    totalDependencies: Object.keys(dependencies).length,
+    maxDepth: getDependencyDepth(dependencies),
+    graph: renderDependencyGraph(dependencies)
+  };
+}
+
+/**
+ * Validates a module object for display purposes.
+ * @param {Object} module - Module object to validate
+ * @returns {boolean} True if valid, false otherwise
+ */
+function isValidModule(module) {
+  return module && typeof module === 'object' && (
+    module.name !== undefined || module.id !== undefined
+  );
+}
+
+/**
+ * Filters modules based on a given predicate.
+ * @param {Array} modules - Array of module objects
+ * @param {Function} predicate - Function returning true for modules to include
+ * @returns {Array} Filtered modules
+ */
+function filterModules(modules, predicate) {
+  if (!Array.isArray(modules)) {
+    return [];
+  }
+  
+  return modules.filter(module => predicate(module));
+}
+
+/**
+ * Sorts modules by a specified key.
+ * @param {Array} modules - Array of module objects
+ * @param {string} key - Key to sort by
+ * @param {boolean} ascending - Sort order
+ * @returns {Array} Sorted modules
+ */
+function sortModules(modules, key, ascending = true) {
+  if (!Array.isArray(modules) || !key) {
+    return modules;
+  }
+  
+  return modules.slice().sort((a, b) => {
+    const valA = a[key];
+    const valB = b[key];
+    
+    if (valA < valB) return ascending ? -1 : 1;
+    if (valA > valB) return ascending ? 1 : -1;
+    return 0;
+  });
+}
+
+/**
+ * Main processing function
+ */
+function main() {
+  const sampleDependencies = {
+    'express': '4.18.2',
+    'lodash': {
+      'isArray': '4.0.0',
+      'merge': {
+        'isObject': '4.0.0'
+      }
+    }
+  };
+  
+  console.log('Dependency Graph:');
+  console.log(renderDependencyGraph(sampleDependencies));
+  
+  console.log('Depth:', getDependencyDepth(sampleDependencies));
 }
 
 // Export the main loop
 module.exports = {
-    loop: function() {
-        // Main game loop
-        // For each creep, call appropriate functions
-    }
+  renderDependencyGraph,
+  displayModuleStructure,
+  getDependencyDepth,
+  generateDependencyReport,
+  main,
+  isValidModule,
+  filterModules,
+  sortModules
+};
+
+// Run if executed directly
+if (require.main === module) {
+  main();
 }

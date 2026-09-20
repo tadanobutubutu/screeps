@@ -1,44 +1,10 @@
 // TODO: Add back any required exports that might have been removed
 
 // main.js
-// Updated to import and use dependencyGraphContent, indexContent, and the accessibility helper functions
-import { dependencyGraphContent, indexContent } from './dependencyGraphContent';
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink, ensureUniqueLandmarks, validateLandmark, validateLandmarkStructure } from './accessibilityHelpers';
-import { addKeyboardNavigation as originalAddKeyboardNavigation } from './keyboardNavigation';
-import { triggerAccessibilityMode } from './accessibilityMode';
-
-// Importing utilities for formatting and validation
-import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
-import { renderHeader, renderFooter, renderProductCard } from './components.js';
-import { state, updateState } from './state.js';
-
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLinkAccessibility())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton() and handleFakeLinks())
-
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: b2121df01283af5803b4e39b5a2143ecea635c8d_
-
-<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+// Updated to import and use dependencyGraphContent and indexContent
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+import { fixAccessibilityIssues } from './accessibilityHelper'; // Adjust the path to the new accessibility helper functions
 
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
@@ -46,12 +12,10 @@ import { createElement } from 'react';
 import { getDocument, getLangAttribute, addLangAttribute } from './accessibility';
 import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './accessibility';
 
-// Import your new function from your new module
-// import { triggerAccessibilityMode } from ...
+// TODO: Add the export for fixAccessibilityIssues function
+export { fixAccessibilityIssues };
 
-// Import dependency graph and index content modules for rendering dependency graphs and index views
-import { dependencyGraphContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
+// ... rest of your code ...
 
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())

@@ -1,32 +1,17 @@
-// Address missing required exports
-const main = () => {
-  return 'Hello, World!';
-};
+// Original code
+// TODO: Implement credential response handling
+// ...
 
-const helper = (input) => {
-  return input ? input.toString() : '';
-};
+// <<<<<<< HEAD
+// Some code that is part of the current branch
+// Some more code...
+// ========
 
-const processData = (data) => {
-  if (!data) return null;
-  return { ...data, processed: true };
-};
+// Code from the branch you are trying to merge
+// This code should be merged with the current branch
+// Some conflicting code...
 
-const validateInput = (input) => {
-  return input !== null && input !== undefined;
-};
-
-const formatOutput = (data) => {
-  if (Array.isArray(data)) {
-    return data.map(item => String(item));
-  }
-  return String(data);
-};
-
-module.exports = {
-  main,
-  helper,
-  processData,
-  validateInput,
-  formatOutput
-};
+// >>>>>>> feature-branch
+// More code from the feature branch
+// This code should replace the conflicting code in the current branch
+// ...

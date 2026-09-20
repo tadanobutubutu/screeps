@@ -223,31 +223,16 @@ function _planRoads(room) {
     const cachedStructures = cache.getStructures(room) || [];
     const cachedSites = cache.getConstructionSites(room) || [];
 
-    // ⚡ PERFORMANCE OPTIMIZATION: Hoist cache to sets for O(1) tile checking
-    const structSet = new Set();
+    // ⚡ PERFORMANCE OPTIMIZATION: Use a single Set with bitpacked integer coordinates (x * 50 + y)
+    // for O(1) tile lookups without string formatting or 2D array heap allocations.
+    const occupiedSet = new Set();
     for (let k = 0; k < cachedStructures.length; k++) {
         const s = cachedStructures[k];
-        if (s && s.pos) structSet.add(s.pos.x + ',' + s.pos.y);
+        if (s && s.pos) occupiedSet.add(s.pos.x * 50 + s.pos.y);
     }
-    const siteSet = new Set();
     for (let k = 0; k < cachedSites.length; k++) {
         const s = cachedSites[k];
-        if (s && s.pos) siteSet.add(s.pos.x + ',' + s.pos.y);
-    }
-
-    // ⚡ PERFORMANCE OPTIMIZATION: O(1) grid lookup instead of lookForAt / nested loops
-    const occupiedGrid = new Array(50);
-    for (let i = 0; i < 50; i++) {
-        occupiedGrid[i] = new Array(50).fill(false);
-    }
-
-    for (let i = 0; i < cachedStructures.length; i++) {
-        const s = cachedStructures[i];
-        if (s.pos) occupiedGrid[s.pos.x][s.pos.y] = true;
-    }
-    for (let i = 0; i < cachedSites.length; i++) {
-        const s = cachedSites[i];
-        if (s.pos) occupiedGrid[s.pos.x][s.pos.y] = true;
+        if (s && s.pos) occupiedSet.add(s.pos.x * 50 + s.pos.y);
     }
 
     for (let i = 0; i < targets.length; i++) {
@@ -258,9 +243,9 @@ function _planRoads(room) {
         let planned = 0;
         for (let j = 0; j < result.path.length; j++) {
             const pos = result.path[j];
-            const posKey = pos.x + ',' + pos.y;
+            const posKey = pos.x * 50 + pos.y;
 
-            if (structSet.has(posKey) || siteSet.has(posKey)) continue;
+            if (occupiedSet.has(posKey)) continue;
 
             // 既存の構造物や建設サイトがない場所にのみ道路を計画
             const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);

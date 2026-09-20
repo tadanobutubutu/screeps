@@ -422,6 +422,9 @@ function ensureUniqueLandmarks() {
   // Function to ensure landmarks are unique
 }
 
+// TODO: Address missing export that might have been removed — ADD CODE HERE
+export { renderIndex };
+
 export { ensureElementId };
 export { addAriaLabel };
 export { renderDependencyGraph };

@@ -1,45 +1,11 @@
-// TODO: Create or update the affected functions to be accessible
-//------ BEGIN ORIGINAL CODE (unchanged)------
-
-// Sample function that should be accessible
-function calculateTotal(items) {
-  return items.reduce((sum, item) => sum + item.price, 0);
-}
-
-// Another function to be exported
-function formatCurrency(amount) {
-  return `$${amount.toFixed(2)}`;
-}
-
-// Internal helper function
-function validateInput(data) {
-  if (!data || typeof data !== 'object') {
-    return false;
-  }
-  return true;
-}
-
-// Main application logic
-function processOrder(order) {
-  if (!validateInput(order)) {
-    return { error: 'Invalid order data' };
-  }
-  
-  const total = calculateTotal(order.items || []);
-  return {
-    orderId: order.id,
-    total: total,
-    formattedTotal: formatCurrency(total),
-    status: 'processed'
-  };
-}
-
-//------ END ORIGINAL CODE (unchanged)------
-
-// Export all functions that should be accessible
-module.exports = {
-  calculateTotal,
-  formatCurrency,
-  processOrder,
-  validateInput
-};
+// TODO: This is the existing code that needs to be preserved
+// _Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
+// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// <!--- START ADDITIONAL FUNCTION --->
+// <<<<<<< HEAD
+// some code that was added by the current branch
+// =======
+// some conflicting code
+// >> >>>>>
+// additional code that was added by the current branch
+// <!--- END ADDITIONAL FUNCTION --->

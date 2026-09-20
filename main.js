@@ -5,6 +5,8 @@
 const fs = require('fs');
 const path = require('path');
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+
 /**
  * Calculates the depth of dependency tree
  * @param {Object} dependencies - The dependency object

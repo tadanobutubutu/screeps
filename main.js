@@ -19,6 +19,7 @@
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -31,8 +32,8 @@ import { indexContent } from './indexContent';
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute} from './accessibilityHelpers'; // Adjust the path to the existing accessibility helper functions if needed
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink} from './newAccessibilityHelpers'; // Adjust the path to the new accessibility helper functions
+import { getDocument, getLangAttribute } from './accessibilityHelpers'; // Adjusted path to accessibility helper functions
+import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './newAccessibilityHelpers'; // Adjusted path to new accessibility helper functions
 
 // Import your new function from your new module
 // import { triggerAccessibilityMode} from ...

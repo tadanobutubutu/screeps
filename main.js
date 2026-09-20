@@ -210,16 +210,19 @@ function main() {
   console.log('Depth:', getDependencyDepth(sampleDependencies));
 }
 
-// Export the main loop
+// TODO: Implement tower defense
+function towerDefense() {
+  // Placeholder for tower defense logic
+  console.log('Tower defense system initialized.');
+}
+
 module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   getDependencyDepth,
   generateDependencyReport,
-  renderAccessibleDependencyGraph,
-  displayAccessibleModuleStructure,
-  generateAccessibleDependencyReport,
-  main
+  main,
+  towerDefense
 };
 
 // Run if executed directly

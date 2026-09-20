@@ -75,7 +75,38 @@ function validateTableStructure() {
 }
 
 function validateLandmark() {
-  // Existing code...
+  // Validate landmark elements for accessibility
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="search"]');
+  
+  // Check for multiple main landmarks
+  const mainLandmarks = document.querySelectorAll('main, [role="main"]');
+  if (mainLandmarks.length > 1) {
+    console.warn('Multiple main landmarks found. There should be only one main landmark.');
+  }
+  
+  // Ensure required landmarks are present
+  const hasHeader = document.querySelector('header, [role="banner"]');
+  const hasNav = document.querySelector('nav, [role="navigation"]');
+  const hasMain = document.querySelector('main, [role="main"]');
+  const hasFooter = document.querySelector('footer, [role="contentinfo"]');
+  
+  if (!hasHeader) {
+    console.warn('No header landmark found. Consider adding a header element.');
+  }
+  if (!hasNav) {
+    console.warn('No navigation landmark found. Consider adding a nav element.');
+  }
+  if (!hasMain) {
+    console.warn('No main landmark found. The main content should be within a main element.');
+  }
+  if (!hasFooter) {
+    console.warn('No footer landmark found. Consider adding a footer element.');
+  }
+  
+  // Validate landmark structure
+  if (typeof validateLandmarkStructure === 'function') {
+    validateLandmarkStructure();
+  }
 }
 
 function validateLandmarkStructure() {
@@ -241,7 +272,6 @@ if (table) {
 // Add/fix landmark issues
 validateLandmark();
 ...
-
 
 // Add accessible names to SVGs
 const svgElements = ... #myOtherSvg');

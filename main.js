@@ -21,33 +21,9 @@ import { indexContent } from './indexContent';
 
 
 // Importing the necessary functions
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-
-// Import required modules
-import { v4 as uuidv4 } from 'uuid';
-import { createElement } from 'react';
-
-// Import accessibility helper functions (adjust paths as needed)
-// import { getDocument, getLangAttribute } from './accessibilityHelpers';
-// import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './accessibilityHelpers';
-
-// Import your new function from your new module
-// import { triggerAccessibilityMode } from './accessibilityMode';
-
-// Import dependency graph and index content modules for rendering dependency graphs and index views
+import { getLangAttribute } from './utils/accessibilityUtils';
+import { renderHeader, renderFooter } from './components.js';
+import { state, updateState } from './state.js';
 
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -188,79 +164,11 @@ export function renderIndex() {
   ...
 }
 
-// Report generation logic
-function generateAccessibilityReport() {
-  const report = {
-    timestamp: new Date().toISOString(),
-    issues: [],
-    summary: {
-      total: 0,
-      fixed: 0,
-      pending: 0
-    }
-  };
-
-  // REACT_015: Lang attribute issue
-  report.issues.push({
-    id: 'REACT_015',
-    description: 'Add lang attribute to HTML element',
-    status: getLangAttribute() ? 'fixed' : 'pending'
-  });
-
-  // REACT_027: Table structure issues
-  const tableIssuesCount = 26;
-  report.issues.push({
-    id: 'REACT_027',
-    description: `Fix ${tableIssuesCount} table structure issues`,
-    status: 'fixed'
-  });
-
-  // REACT_017: Landmark issues
-  const landmarkIssuesCount = 4;
-  report.issues.push({
-    id: 'REACT_017',
-    description: `Add/fix ${landmarkIssuesCount} landmark issues`,
-    status: 'fixed'
-  });
-
-  // REACT_041: SVG accessible names
-  const svgIssuesCount = 2;
-  report.issues.push({
-    id: 'REACT_041',
-    description: `Add accessible names to ${svgIssuesCount} SVGs`,
-    status: 'fixed'
-  });
-
-  // REACT_025: Unique landmarks
-  const uniqueLandmarkIssues = 2;
-  report.issues.push({
-    id: 'REACT_025',
-    description: `Ensure unique landmarks (${uniqueLandmarkIssues} issues)`,
-    status: 'fixed'
-  });
-
-  // REACT_036: Fake link issue
-  report.issues.push({
-    id: 'REACT_036',
-    description: 'Fix 1 fake link issue',
-    status: 'fixed'
-  });
-
-  // Calculate summary
-  report.summary.total = report.issues.length;
-  report.summary.fixed = report.issues.filter(i => i.status === 'fixed').length;
-  report.summary.pending = report.issues.filter(i => i.status === 'pending').length;
-
-  return report;
+function makeHeaderFocusable() {
+  // Implementation for making header focusable
 }
 
-export { makeHeaderFocusable };
-
-// Ensure the dependencyGraph container has a proper ARIA role
-export const dependencyGraphContainer = document.createElement('div');
-dependencyGraphContainer.id = 'dependencyGraph';
-dependencyGraphContainer.setAttribute('role', 'region');
-dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+export { makeHeaderFocusable }; // new export statement from conflicting branch
 
 function ensureElementId(element) {
   // Combined and reconciled code from both branches
@@ -541,7 +449,6 @@ function ensureUniqueLandmarks() {
 
 export { ensureElementId };
 export { addAriaLabel };
-export { renderDependencyGraph };
 export { dependencyGraphContainer };
 export { fixAccessibilityIssues };
 export { wrapPrimaryContentInMain };

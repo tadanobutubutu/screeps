@@ -42,7 +42,7 @@ function generateUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 9000) + 1000;
+        const suffix = Math.floor(Math.random() * 10000) % 9 + 1;
         candidate = `${baseName}-${suffix}`;
         // If still exists, try with counter
         if (_usedLandmarkIds.has(candidate)) {
@@ -202,6 +202,7 @@ if (table) {
 const mainContainer = document.querySelector('main') || document.body;
 fixLandmarkIssues(mainContainer);
 validateLandmark();
+validateLandmarkStructure();
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
@@ -213,7 +214,7 @@ if (svg) {
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-validateLandmarkStructure();
+ensureUniqueLandmarks();
 
 // Add accessible names to SVGs
 function processSvgAccessibility(svg) {
@@ -275,7 +276,7 @@ function formatProductName(product) {
  */
 function renderProductList(products) {
   const container = document.getElementById('product-list');
-  container.innerHTML = products.map(p => `<div>${p.name}</div>`).join('');
+  container.innerHTML = products.map(p => `<div>${formatProductName(p)}</div>`).join('');
   return container;
 }
 
@@ -308,7 +309,7 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return `<div>${input}</div>`;
+    return `<div class="validated">${input}</div>`;
   }
   return '<p>Invalid input</p>';
 }
@@ -324,7 +325,14 @@ function renderPage(data) {
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
+  const links = document.querySelectorAll('a[href]');
+  const results = [];
+  links.forEach(link => {
+    if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+      results.push({ element: link, issue: 'Link missing accessible text' });
+    }
+  });
+  return results;
 }
 
 // Export accessibility utility functions
@@ -389,14 +397,6 @@ function displayModuleStructure(module) {
 }
 
 // Export the new function
-export {
-  checkLinkAccessibility,
-  renderDependencyGraph,
-  displayModuleStructure,
-  generateUniqueLandmarkId,
-  uniqueLandmarks,
-  addAriaLabel,
-  addLangAttribute
-};
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
 
 // ... other exports ...

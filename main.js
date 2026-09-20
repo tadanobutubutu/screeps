@@ -19,8 +19,14 @@
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// Updated import paths for accessibility helper functions
+import { getDocument, getLangAttribute } from './accessibilityHelpers';
+import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './accessibilityHelpers';
+
+// Import triggerAccessibilityMode as mentioned in the issue
+import { triggerAccessibilityMode } from './accessibilityHelpers';
+
+// Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
@@ -32,11 +38,6 @@ import { indexContent } from './indexContent';
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute } from './accessibilityHelpers'; // Adjusted path to accessibility helper functions
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './newAccessibilityHelpers'; // Adjusted path to new accessibility helper functions
-
-// Import your new function from your new module
-// import { triggerAccessibilityMode} from ...
 
 // Import dependency graph and index content modules for rendering dependency graphs and index views
 import { dependencyGraphContent } from './dependencyGraphContent';
@@ -306,82 +307,6 @@ function createLandmarkElement(type) {
   return element;
 }
 
-function createInPageButton() {
-  // Existing code...
-  const button = document.createElement('button');
-  button.setAttribute('type', 'button');
-  button.setAttribute('aria-label', 'Navigate to main content');
-  button.textContent = 'Skip to main content';
-  button.className = 'in-page-button';
-  
-  // Make it keyboard accessible
-  button.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      const main = document.querySelector('main') || document.querySelector('[role="main"]');
-      if (main) {
-        main.setAttribute('tabindex', '-1');
-        main.focus();
-      }
-    }
-  });
-  
-  // Position offscreen but visible to screen readers
-  button.style.position = 'absolute';
-  button.style.left = '-9999px';
-  button.style.top = 'auto';
-  button.style.width = '1px';
-  button.style.height = '1px';
-  button.style.overflow = 'hidden';
-  
-  return button;
-}
-
-function createAccessibleLink(element, targetId) {
-  // Create accessible link with proper attributes
-  if (!element) return;
-  
-  const target = document.getElementById(targetId);
-  if (target) {
-    element.setAttribute('href', `#${targetId}`);
-    element.setAttribute('role', 'link');
-    
-    if (!element.getAttribute('aria-label')) {
-      element.setAttribute('aria-label', `Link to ${targetId}`);
-    }
-  }
-}
-
-function validateLinkAccessibility() {
-  // Example link accessibility validation
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    // Check if links have accessible text
-    if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
-      console.warn('Link missing accessible text');
-    }
-  });
-}
-
-function handleFakeLinks() {
-  // REACT_036: Fix fake link issue
-  const fakeLinks = document.querySelectorAll('[role="link"], [onclick*="navigation"], a[href="#"]');
-  fakeLinks.forEach(link => {
-    if (link.tagName !== 'A') {
-      link.setAttribute('role', 'button');
-      link.setAttribute('tabindex', '0');
-      
-      link.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          // Trigger click handler
-          link.click();
-        }
-      });
-    }
-  });
-}
-
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
   // 1. REACT_015: Ensure lang attribute is set on the HTML element
@@ -557,3 +482,16 @@ export { ensureElementId };
 export { addAriaLabel };
 export { renderDependencyGraph };
 export { dependencyGraphContainer };
+
+// Export accessibility-related functions to make them accessible
+export { createInPageButton };
+export { handleAccessibilityIssues };
+export { createAccessibleLink };
+export { triggerAccessibilityMode };
+export { fixAccessibilityIssues };
+export { validateTableAccessibility };
+export { validateTableStructure };
+export { validateLandmark };
+export { validateLandmarkStructure };
+export { getSvgAccessibleName };
+export { wrapPrimaryContentInMain };

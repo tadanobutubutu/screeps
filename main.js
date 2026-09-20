@@ -32,105 +32,6 @@ import { indexContent } from './indexContent';
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute } from './accessibilityHelpers';
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from "./accessibilityHelpers";
-
-// Import dependency graph and index content modules for rendering dependency graphs and index views
-
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-// - REACT_037: Add proper landmark regions (handled by addProperLandmarkRegions())
-
-// New function to trigger accessibility mode - addresses the TODO on line 28
-export function triggerAccessibilityMode() {
-  // Apply all accessibility improvements
-  const lang = getLangAttribute();
-  const document = getDocument();
-  
-  if (document) {
-    // Set lang attribute on HTML element
-    document.documentElement.lang = lang;
-    
-    // Validate tables
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      validateTableAccessibility(table);
-      validateTableStructure(table);
-    });
-    
-    // Validate landmarks
-    validateLandmark();
-    validateLandmarkStructure();
-    
-    // Ensure unique landmarks
-    ensureUniqueLandmarks();
-    
-    // Add accessible names to SVGs
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      const accessibleName = getSvgAccessibleName(svg);
-      setSvgAttributes(svg, accessibleName);
-    });
-    
-    // Handle fake links
-    handleFakeLinks();
-    
-    // Fix any accessibility issues
-    handleAccessibilityIssues();
-  }
-  
-  return true;
-}
-
-// Function to address accessibility issues from insight report
-function addressAccessibilityIssuesFromInsightReport() {
-  // Log the start of accessibility fixes
-  console.log('Addressing accessibility issues from insight report...');
-  
-  // 1. REACT_015: Add lang attribute to HTML element
-  const lang = getLangAttribute();
-  const document = getDocument();
-  if (document && document.documentElement) {
-    document.documentElement.lang = lang;
-    console.log('REACT_015: Added lang attribute to HTML element');
-  }
-  
-  // 2. REACT_027: Fix table structure issues (26 issues)
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table, index) => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-  console.log(`REACT_027: Validated ${tables.length} table(s) for accessibility and structure`);
-  
-  // 3. REACT_017: Add/fix landmark issues (4 issues)
-  validateLandmark();
-  validateLandmarkStructure();
-  console.log('REACT_017: Validated landmarks and landmark structure');
-  
-  // 4. REACT_025: Ensure unique landmarks (2 issues)
-  ensureUniqueLandmarks();
-  console.log('REACT_025: Ensured unique landmarks');
-  
-  // 5. REACT_041: Add accessible names to SVGs (2 SVGs)
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach((svg, index) => {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-  });
-  console.log(`REACT_041: Added accessible names to ${svgElements.length} SVG(s)`);
-  
-  // 6. REACT_036: Fix fake link issue (1 issue)
-  handleFakeLinks();
-  console.log('REACT_036: Fixed fake link issues');
-  
-  console.log('All accessibility issues from insight report have been addressed.');
-}
 
 // Renders the dependency graph view.
 // Updated to use dependencyGraphContent.
@@ -206,26 +107,28 @@ function setSvgAttributes(svg, accessibleName) {
 function fixAccessibilityIssues() {
   // 1. REACT_015: Ensure lang attribute is set on the HTML element
   const lang = getLangAttribute();
-  ... lang);
+  if (lang) {
+    document.documentElement.lang = lang;
+  }
 
   // 2. REACT_027: Validate table accessibility and structure
-  const table = ...
-  if (table) {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
     validateTableAccessibility(table);
     validateTableStructure(table);
   });
 
   // 3. REACT_017: Validate landmark and landmark structure issues
   validateLandmark();
-  ...
+  validateLandmarkStructure();
+  ensureUniqueLandmarks();
 
   // 4. REACT_025: Ensure unique landmarks
-  ...
   handleFakeLinks();
 
   // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
-  const svgElements = ... #myOtherSvg');
-  ... => {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
     setSvgAttributes(svg, accessibleName);
   });
@@ -252,13 +155,13 @@ function ensureUniqueLandmarks() {
 // Implement wrapPrimaryContentInMain function
 function wrapPrimaryContentInMain(primaryContent) {
   // Wrap primary content in a <main> element for accessibility
-  return ...
+  return createElement('main', { id: 'main-content', role: 'main' }, primaryContent);
 }
 
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
-... getLangAttribute());
+document.documentElement.lang = getLangAttribute();
 
 // Create in-page button with accessibility considerations
 const inPageBtn = createInPageButton({
@@ -274,9 +177,11 @@ document.body.appendChild(inPageBtn);
 
 // Validate table structure and accessibility
 // Assuming you have a table element with an id of 'myTable'
-const table = ...
-validateTableAccessibility(table);
-validateTableStructure(table);
+const tables = document.querySelectorAll('table');
+tables.forEach(table => {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+});
 
 // Add/fix landmark issues
 validateLandmark();
@@ -284,13 +189,15 @@ validateLandmark();
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
-const svg = ...
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
+const svgs = document.querySelectorAll('svg');
+svgs.forEach(svg => {
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
+});
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-...
+ensureUniqueLandmarks();
 handleFakeLinks();
 
 function addAriaLabel(element) {
@@ -383,7 +290,10 @@ function getLangAttribute() {
 
 function setSvgAttributes(svg, accessibleName) {
   // Example SVG attribute setter
-  ... accessibleName);
+  if (accessibleName) {
+    svg.setAttribute('aria-label', accessibleName);
+    svg.setAttribute('role', 'img');
+  }
 }
 
 function validateLinkAccessibility() {
@@ -406,24 +316,26 @@ function handleFakeLinks() {
   });
 }
 
-// TODO: Implement a function to count dependencies
-function countDependencies(dependencies) {
-  if (dependencies && typeof dependencies === 'object') {
-    if (Array.isArray(dependencies)) {
-      return dependencies.length;
-    }
-    // If dependencies is an object, count its keys
-    return Object.keys(dependencies).length;
-  }
-  return 0;
-}
-
 function ensureUniqueLandmarks() {
-  // Function to ensure landmarks are unique
+  // Ensure all landmarks have unique aria-labelledby or aria-label attributes
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article');
+  const seenLabels = new Map();
+  
+  landmarks.forEach(landmark => {
+    let label = landmark.getAttribute('aria-labelledby') || 
+                landmark.getAttribute('aria-label') || 
+                '';
+    
+    if (seenLabels.has(label)) {
+      // Generate unique ID for this landmark
+      const id = `landmark-${uuidv4()}`;
+      landmark.setAttribute('aria-labelledby', id);
+      seenLabels.get(label).id = id;
+    } else {
+      seenLabels.set(label, landmark);
+    }
+  });
 }
-
-// TODO: Address missing export that might have been removed — ADD CODE HERE
-export { renderIndex };
 
 export { ensureElementId };
 export { addAriaLabel };

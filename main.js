@@ -1,8 +1,4 @@
-// TODO: Create or update the affected functions to be accessible
-// TODO: Add any updates related to new functions
-// TODO: This is the existing code that needs to be preserved
-
-// Address REACT_025 by adding ARIA roles and keyboard interaction
+// Address accessibility issues from insight report: add aria attributes
 
 // TODO: Add the necessary new functions (without strict mode)
 function originalPlaceholder() {
@@ -28,8 +24,8 @@ function fixTableStructure(table) {
   }
 
   // Move direct tr elements into tbody if they're not already inside thead/tbody
-  const rows = ... => 
-    child.tagName === 'TR' && 
+  const rows = Array.from(table.children).filter(
+    child => child.tagName === 'TR' && 
     child.parentElement === table
   );
 
@@ -50,6 +46,8 @@ function addMainLandmark(reactRoot) {
     mainLandmark.appendChild(firstChild);
     reactRoot.appendChild(mainLandmark);
   } else {
+    reactRoot.appendChild(mainLandmark);
+  } else {
     ...
   }
 }
@@ -66,7 +64,7 @@ function announceToScreenReader(message, politeness = 'polite') {
   announcement.setAttribute('role', politeness);
   announcement.setAttribute('aria-live', 'true');
   announcement.className = 'sr-only';
-  announcement.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px);';
+  announcement.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
   announcement.textContent = message;
   document.body.appendChild(announcement);
   setTimeout(() => announcement.remove(), 1);
@@ -259,15 +257,12 @@ function YouHaveComponent() {
 
   return (
     <div
-      tabIndex={0} // Add tabIndex to make the component interactable via keyboard
-      role="button" // Add a role to help screen readers identify this as a button
-      onKeyPress={handleKeyPress} // Add onKeyPress to handle keyboard events
-      onClick={() => {
-        if (!isClicked) {
-          alert('Clicked!');
-        }
-        setIsClicked(true);
-      }}
+      tabIndex={0}
+      role="button"
+      aria-label="You Have A Component"
+      aria-pressed="false"
+      onClick={() => alert('Clicked!')}
+      onKeyDown={(e) => handleKeyboardInteraction(e, () => alert('Clicked!'))}
     >
       You Have A Component
     </div>

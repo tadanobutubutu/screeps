@@ -22,84 +22,15 @@
 
 // ... (other code in main.js)
 
-// ... (existing code, exports, and functions)
-
-function getLangAttribute() {
-  // Code for getting the language attribute
-}
-
-function addLangAttribute(element) {
-  // Code for adding the language attribute to the specified element
-}
-
-function validateTableAccessibility() {
-  // Code for validating table accessibility
-}
-
-function validateTableStructure() {
-  // Code for validating table structure
-}
-
-function fixTableStructure() {
-  // Code for fixing table structure issues
-}
-
-function addMainLandmark() {
-  // Code for adding main landmark
-}
-
-function validateLandmark() {
-  // Code for validating landmark
-}
-
-function validateLandmarkStructure() {
-  // Code for validating landmark structure
-}
-
-function validateLandmarkAttributes() {
-  // Code for validating landmark attributes
-}
-
-function getSvgAccessibleName() {
-  // Code for getting accessible name for SVGs
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  // Code for setting SVG attributes with the accessible name
-}
-
-function ensureUniqueLandmarks() {
-  // Code for ensuring unique landmarks
-}
-
-function createInPageButton() {
-  // Code for creating an in-page button
-}
-
-function validateLinkAccessibility() {
-  // Code for validating link accessibility
-}
-
-function handleFakeLinks() {
-  // Code for handling fake links
-}
-
-function addLandmarkRegions() {
-  // Code for adding proper landmark regions
-}
-
-function addProperLandmarkRegions() {
-  // Implementation of the function to address accessibility issues
-  // This addresses issues from the insight report:
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix table structure issues
-  // - REACT_017: Add/fix landmark issues
-  // - REACT_041: Add accessible names to SVGs
-  // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix fake link issues
-
-  if (!insightReport || !insightReport.issues) {
-    return;
+/**
+ * Checks if a specified landmark element is present in the document.
+ * @param {string} id - The ID of the landmark element to check for.
+ * @returns {boolean} True if the landmark element exists, false otherwise.
+ */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  if (!element) {
+    return false;
   }
   
   // Validate that the landmark has required properties
@@ -585,83 +516,9 @@ const fixFakeLinks = () => {
   });
 };
 
-/**
- * Adds proper landmark regions to the document.
- *
- * This function ensures that landmark elements (banner, navigation, main,
- * complementary, contentinfo) are properly structured with appropriate
- * roles and unique accessible names. It addresses REACT_017 and
- * REACT_025 issues by wrapping bare content in proper landmark regions
- * where they are missing and ensuring existing landmarks have unique labels.
- */
-const addProperLandmarkRegions = () => {
-  // Skip if document is not available (e.g., in Node.js test environment)
-  if (typeof document === 'undefined') {
-    return;
-  }
-
-  // Ensure header has banner role and a unique accessible name
-  const headers = document.querySelectorAll('header, [role="banner"]');
-  headers.forEach((header, index) => {
-    if (!header.hasAttribute('role')) {
-      header.setAttribute('role', 'banner');
-    }
-    if (headers.length > 1 && !header.hasAttribute('aria-label')) {
-      header.setAttribute('aria-label', `Header ${index + 1}`);
-    }
-  });
-
-  // Ensure nav elements have navigation role and unique accessible names
-  const navs = document.querySelectorAll('nav, [role="navigation"]');
-  navs.forEach((nav, index) => {
-    if (!nav.hasAttribute('role')) {
-      nav.setAttribute('role', 'navigation');
-    }
-    if (navs.length > 1 && !nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
-      nav.setAttribute('aria-label', `Navigation ${index + 1}`);
-    }
-  });
-
-  // Ensure a main landmark exists; wrap primary content if missing
-  let mainElement = document.querySelector('main, [role="main"]');
-  if (!mainElement) {
-    const primaryContent = document.querySelector('#primary-content') || document.querySelector('#main-content');
-    if (primaryContent) {
-      mainElement = document.createElement('main');
-      mainElement.setAttribute('role', 'main');
-      mainElement.appendChild(primaryContent);
-      document.body.insertBefore(mainElement, document.body.firstChild);
-    }
-  } else if (!mainElement.hasAttribute('role')) {
-    mainElement.setAttribute('role', 'main');
-  }
-
-  // Ensure complementary (aside) landmarks have proper role and unique labels
-  const asides = document.querySelectorAll('aside, [role="complementary"]');
-  asides.forEach((aside, index) => {
-    if (!aside.hasAttribute('role')) {
-      aside.setAttribute('role', 'complementary');
-    }
-    if (asides.length > 1 && !aside.hasAttribute('aria-label') && !aside.hasAttribute('aria-labelledby')) {
-      aside.setAttribute('aria-label', `Complementary ${index + 1}`);
-    }
-  });
-
-  // Ensure footer has contentinfo role and a unique accessible name
-  const footers = document.querySelectorAll('footer, [role="contentinfo"]');
-  footers.forEach((footer, index) => {
-    if (!footer.hasAttribute('role')) {
-      footer.setAttribute('role', 'contentinfo');
-    }
-    if (footers.length > 1 && !footer.hasAttribute('aria-label')) {
-      footer.setAttribute('aria-label', `Footer ${index + 1}`);
-    }
-  });
-};
-
 // Placeholder for the affected SVGs
 const icons = {
-  icon: '<svg ... viewBox="0 0 100 100" aria-label="Screeps ... Dashboard</title><text y=".9em" ...'
+  icon: '<svg ... viewBox="0 0 100 100" aria-label="Screeps ... Dashboard</title><text y=".9em" ...>'
 };
 
 // Initialize accessibility improvements
@@ -707,9 +564,6 @@ function initialize() {
   // Accessibility: Add landmark roles and fix landmark issues
   addLandmarkRoles();
   addLandmarkRolesDetailed();
-
-  // Accessibility: Add proper landmark regions (REACT_017, REACT_025)
-  addProperLandmarkRegions();
 
   // Accessibility: Add accessible names to 2 SVGs
   addSvgAccessibleNames();
@@ -804,15 +658,14 @@ export {
   addLandmarkRolesDetailed,
   ensureUniqueLandmarkElements,
   addSVGAccessibleName,
-  fixFakeLinks,
+  fixFakeLinkIssues,
   createUnrotateButton,
   ensureThScope,
   addLandmarkRoles,
   addSvgAccessibleNames,
   ensurePageUniqueLandmarks,
   fixFakeLink,
-  initializeAccessibility,
-  addProperLandmarkRegions
+  initializeAccessibility
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
@@ -827,11 +680,13 @@ module.exports.addFixLandmarkIssues = addFixLandmarkIssues;
 module.exports.getSvgAccessibleName = getSvgAccessibleName;
 module.exports.addAriaToFormControls = addAriaToFormControls;
 module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
-module.exports.createAccessibleLink = createAccessibleLink;
-module.exports.createInPageButton = createInPageButton;
-module.exports.rotateBack = rotateBack;
-module.exports.checkLandmarkElement = checkLandmarkElement;
-module.exports.addProperLandmarkRegions = addProperLandmarkRegions;
+module.exports.createUnrotateButton = createUnrotateButton;
+module.exports.ensureThScope = ensureThScope;
+module.exports.addLandmarkRoles = addLandmarkRoles;
+module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
+module.exports.ensurePageUniqueLandmarks = ensurePageUniqueLandmarks;
+module.exports.fixFakeLink = fixFakeLink;
+module.exports.initializeAccessibility = initializeAccessibility;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

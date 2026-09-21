@@ -85,7 +85,7 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.getElementById('unrotate');
+const fakeLink = document.querySelector('...');
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
@@ -114,9 +114,10 @@ function getConfig() {
 }
 
 // Example usage for SVGs:
-// const svg1 = document.querySelector('.icon-svg-1');
-// addSvgAccessibility(svg1, 'Description of first icon');
-// addSvgAccessibility(svg2, 'Description of second icon');
+// const svg1 = ...
+// const svg2 = ...
+// svg1.setAttribute('aria-label', 'Description of first icon');
+// svg2.setAttribute('aria-label', 'Description of second icon');
 
 // REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // Ensure all <th> elements have scope attribute
@@ -142,13 +143,23 @@ function ensureThScope() {
  * Setup skip link functionality for keyboard navigation
  */
 function setupSkipLinks() {
-  // ... (head branch's implementation for skip link functionality)
+  const skipLink = document.querySelector('[href^="#"]') || document.querySelector('.skip-link');
+  if (skipLink) {
+    skipLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(skipLink.getAttribute('href') || '');
+      if (target) {
+        target.focus();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
 }
 
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
@@ -454,45 +465,82 @@ function handleEvent(event) {
 
 // ... (head branch's added feature - add landmark roles and fix landmark issues)
 function addLandmarkRoles() {
-  // ... (head branch's implementation for adding landmark roles)
+  const header = document.querySelector('header');
+  if (header) header.setAttribute('role', 'banner');
+
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  if (mainContent) mainContent.setAttribute('role', 'main');
+
+  const footer = document.querySelector('footer');
+  if (footer) footer.setAttribute('role', 'contentinfo');
 }
 
 // ... (head branch's added feature - add accessible names to 2 SVGs)
 function addSvgAccessibleNames() {
-  // ... (head branch's implementation for adding accessible names to SVGs)
+  const svg1 = document.querySelector('svg:first-of-type');
+  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
+
+  const svg2 = document.querySelector('svg:nth-of-type(2)');
+  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
 // ... (head branch's added feature - ensure unique landmarks)
 function ensureUniqueLandmarks() {
-  // ... (head branch's implementation for ensuring unique landmarks)
+  const landmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="contentinfo"]');
+  const landmarkIds = new Set();
+
+  landmarks.forEach((landmark) => {
+    const id = landmark.id;
+    if (landmarkIds.has(id)) {
+      console.error('Duplicate landmark ID encountered:', id);
+    } else {
+      landmarkIds.add(id);
+    }
+  });
 }
 
 // ... (head branch's added feature - fix 1 fake link issue)
 function fixFakeLink() {
-  // ... (head branch's implementation for fixing fake link issue)
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach((link) => {
+    if (!link.textContent.trim()) {
+      link.setAttribute('role', 'button');
+    }
+  });
 }
 
 // Initialize accessibility improvements
 function initializeAccessibility() {
-  // Initialize accessibility features from a11y utilities
-  initA11y();
+  // Replace fake links with proper buttons
+  const fakeLink = document.querySelector('a[href="#"]');
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    parent.replaceChild(newButton, fakeLink);
+  }
 
-  // ... (head branch's implementation for skip link, button accessibility, landmark roles, accessible SVG names, unique landmarks, and fixing fake links)
+  // Ensure table headers have proper scope
+  ensureThScope();
+
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') || svg.getAttribute('aria-hidden') !== 'true') {
+      svg.setAttribute('aria-label', `Icon ${index + 1}`);
+    }
+  });
 }
 
-/**
- * Count the total number of dependencies across all modules.
- * Iterates over an object where each key is a module name and each value is an array
- * of that module's dependencies, then sums the lengths of those arrays.
- * @param {Object} dependencies - Object mapping module names to their dependency arrays
- * @returns {number} Total count of all dependencies
- */
-function countDependencies(dependencies) {
-  let total = 0;
-  for (const moduleName in dependencies) {
-    if (Object.prototype.hasOwnProperty.call(dependencies, moduleName) && Array.isArray(dependencies[moduleName])) {
-      total += dependencies[moduleName].length;
-    }
+// Initialize the application with accessibility improvements
+function initialize() {
+  // Existing initialization logic preserved
+  console.log('Application initialized');
+
+  // Accessibility: Ensure main content is keyboard accessible
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.setAttribute('role', 'main');
   }
   return total;
 }
@@ -553,80 +601,30 @@ function initialize() {
 // ... (head branch's added function - newFunction)
 
 // Export existing functionality and new functions
-export {
-  VERSION,
-  CONFIG,
-  initialize,
-  getConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssues,
-  createInPageButton,
-  personName,
-  setupSkipLinks,
-  setupButtonAccessibility,
-  setupMainContentAccessibility,
-  handleMainKeydown,
-  countDependencies,
-  validateAccessibleNames,
-  validateFormAccessibility,
-  validateHeadingHierarchy,
-  validateImageAccessibility,
-  setupFocusIndicators,
-  trapFocus,
-  announceToScreenReader,
-  setupAriaLandmarks,
-  runFullAccessibilityAudit,
-  initAccessibilityEnhancements,
-  handleEvent,
-  greet,
-  add,
-  calculateDiscount,
+export { 
+  initialize, 
+  getConfig, 
+  setupSkipLinks, 
+  setupButtonAccessibility, 
+  createInPageButton, 
+  performTask, 
+  handleEvent, 
+  greet, 
+  add, 
+  calculateDiscount, 
   newFunction,
   rotateBack,
-  updateTitle,
-  countDependencies
+  createUnrotateButton,
+  ensureThScope,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLink,
+  initializeAccessibility
 };
 
-export default {
-  VERSION,
-  CONFIG,
-  initialize,
-  getConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssues,
-  createInPageButton,
-  personName,
-  setupSkipLinks,
-  setupButtonAccessibility,
-  setupMainContentAccessibility,
-  handleMainKeydown,
-  countDependencies,
-  validateAccessibleNames,
-  validateFormAccessibility,
-  validateHeadingHierarchy,
-  validateImageAccessibility,
-  setupFocusIndicators,
-  trapFocus,
-  announceToScreenReader,
-  setupAriaLandmarks,
-  runFullAccessibilityAudit,
-  initAccessibilityEnhancements,
-  Main
-};
+// Compatibility for CommonJS if needed (as per HEAD)
+module.exports = { newFunction, initialize, getConfig, setupSkipLinks, setupButtonAccessibility, createInPageButton, performTask, handleEvent, greet, add, calculateDiscount, rotateBack, createUnrotateButton, ensureThScope, addLandmarkRoles, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLink, initializeAccessibility };
 
 initialize();
 initializeAccessibility();

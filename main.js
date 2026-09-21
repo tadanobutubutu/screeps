@@ -19,7 +19,27 @@ const createInPageButton = (options) => {
 const icons = {};
 
 function processLandmarks(landmarks) {
-  // ... (existing code for processLandmarks)
+  // Ensure all landmarks have valid structure
+  const landmarkStructureCheck = (landmark) => {
+    // Check landmark properties here
+    return landmark && typeof landmark === 'object' && landmark.id !== undefined && landmark.type !== undefined;
+  };
+
+  const validLandmarks = landmarks.filter(landmarkStructureCheck);
+
+  // Ensure the landmarks are unique
+  const ensureUniqueLandmarks = (landmarks) => {
+    const seenIds = new Set();
+    return landmarks.filter(landmark => {
+      if (seenIds.has(landmark.id)) {
+        return false;
+      }
+      seenIds.add(landmark.id);
+      return true;
+    });
+  };
+
+  return ensureUniqueLandmarks(validLandmarks);
 }
 
 // New accessibility-related functions from TODO

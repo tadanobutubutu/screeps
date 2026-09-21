@@ -22,61 +22,14 @@ const CONFIG = {
   env: process.env.NODE_ENV || 'development'
 };
 
-// Harvest and upgrade logic
-const resources = {
-  gold: 0,
-  wood: 0,
-  stone: 0,
-  food: 0
-};
-
-const buildings = {};
-
-function harvest(resourceType, amount) {
-  if (resources.hasOwnProperty(resourceType)) {
-    resources[resourceType] += amount;
-    console.log(`Harvested ${amount} ${resourceType}. Total: ${resources[resourceType]}`);
-    return {
-      success: true,
-      resourceType,
-      amount,
-      total: resources[resourceType]
-    };
-  }
-  return {
-    success: false,
-    error: `Unknown resource type: ${resourceType}`
-  };
-}
-
-function upgrade(buildingId, currentLevel) {
-  const newLevel = currentLevel + 1;
-  buildings[buildingId] = newLevel;
-  console.log(`Upgraded ${buildingId} from level ${currentLevel} to level ${newLevel}`);
-  return {
-    success: true,
-    buildingId,
-    previousLevel: currentLevel,
-    newLevel
-  };
-}
-
-function getResources() {
-  return { ...resources };
-}
-
-function getBuildingLevel(buildingId) {
-  return buildings[buildingId] || 0;
-}
-
 function initialize() {
   console.log('Application initialized');
 
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.querySelector('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
-    mainContent.removeAttribute('aria-hidden');
+    mainContent.focus();
   }
 
   // Accessibility: Add skip link functionality
@@ -86,9 +39,9 @@ function initialize() {
   setupButtonAccessibility();
 
   // Add dependency graph button functionality
-  const depGraphContainer = document.getElementById('dep-graph-container');
+  const depGraphContainer = document.getElementById('dependency-graph-container');
   if(depGraphContainer) {
-    createInPageDepGraphButton(depGraphContainer, renderDependencyGraph);
+    createInPageDepGraphButton(renderDependencyGraph);
   }
   return true;
 }
@@ -96,9 +49,40 @@ function initialize() {
 /**
  * Implement this function for creating in-page buttons
  */
-function createInPageDepGraphButton(depGraphContainer, renderFunction) {
+function createInPageDepGraphButton(renderFunction) {
   const button = createInPageButton('Render Dependency Graph', renderFunction);
-  depGraphContainer.appendChild(button);
+  const container = document.getElementById('dependency-graph-container');
+  if (container) {
+    container.appendChild(button);
+  }
+}
+
+/**
+ * Helper function to create in-page buttons
+ */
+function createInPageButton(label, onClick) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.type = 'button';
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+/**
+ * Set up skip link functionality for accessibility
+ */
+function setupSkipLinks() {
+  const skipLink = document.querySelector('a[href="#main-content"]');
+  if (skipLink) {
+    const mainContent = document.getElementById('main-content') || document.querySelector('main');
+    if (mainContent) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        mainContent.setAttribute('tabindex', '-1');
+        mainContent.focus();
+      });
+    }
+  }
 }
 
 /**
@@ -107,7 +91,7 @@ function createInPageDepGraphButton(depGraphContainer, renderFunction) {
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
@@ -127,6 +111,16 @@ function getVersion() {
   return VERSION;
 }
 
+<<<<<<< HEAD
+// Implement the function for addressing new accessibility issues
+function addressAccessibilityIssues() {
+  // Assuming we are adding an ARIA role to the dependencyGraph container
+  const dependencyGraph = document.getElementById('dependency-graph-container');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'group');
+    // You might want to set other ARIA properties or check for more complex requirements from the insight report
+  }
+=======
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
@@ -149,7 +143,7 @@ function addressAccessibilityIssues() {
       el.hasAttribute('aria-label') ||
       el.hasAttribute('aria-labelledby') ||
       el.textContent.trim().length > 0 ||
-      el.querySelector('[aria-label]') !== null;
+      el.getAttribute('placeholder') !== null;
     if (!hasLabel) {
       issues.push({
         type: 'missing-accessible-name',
@@ -159,10 +153,10 @@ function addressAccessibilityIssues() {
     }
   });
 
-  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const headings = document.querySelectorAll('h2, h3, h4, h5, h6');
   let previousLevel = 0;
   headings.forEach((heading) => {
-    const level = parseInt(heading.tagName.substring(1), 10);
+    const level = parseInt(heading.tagName.charAt(1), 10);
     if (previousLevel > 0 && level - previousLevel > 1) {
       issues.push({
         type: 'heading-skip',
@@ -191,10 +185,10 @@ function addressAccessibilityIssues() {
       missingLang: issues.filter((i) => i.type === 'missing-lang').length
     }
   };
-}
+>>>>>>> origin/main
 
 // New accessibility enhancement: ensure root container has accessible name and create announcement region
-const rootContainer = document.getElementById('root').parentElement;
+const rootContainer = document.getElementById('root');
 if (rootContainer) {
   rootContainer.setAttribute('role', 'main');
 }
@@ -202,6 +196,7 @@ if (rootContainer) {
 const announcementId = 'accessibility-announcement';
 const announcement = document.createElement('div');
 announcement.id = announcementId;
+announcement.setAttribute('role', 'status');
 announcement.setAttribute('aria-live', 'polite');
 announcement.setAttribute('aria-atomic', 'true');
 // Hide off-screen
@@ -283,11 +278,7 @@ export {
   setupButtonAccessibility,
   createInPageDepGraphButton,
   renderDependencyGraph,
-  setupSkipLinks,
-  harvest,
-  upgrade,
-  getResources,
-  getBuildingLevel
+  setupSkipLinks
 };
 
 // Add the new function to the default export
@@ -304,9 +295,5 @@ export default {
   setupButtonAccessibility,
   createInPageDepGraphButton,
   renderDependencyGraph,
-  setupSkipLinks,
-  harvest,
-  upgrade,
-  getResources,
-  getBuildingLevel
+  setupSkipLinks
 };

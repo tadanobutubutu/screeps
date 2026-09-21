@@ -437,20 +437,27 @@ function renderIndexView(targetElement, options = {}) {
   ReactDOM.render(<IndexView />, targetElement);
 }
 
+/**
+ * Ensures the given element has an accessible name.
+ * If no aria-label or aria-labelledby is present, sets aria-label to the provided value.
+ * @param {HTMLElement} element - The DOM element to check.
+ * @param {string} fallbackLabel - The label to use if none exists.
+ */
+function ensureAccessibleName(element, fallbackLabel) {
+  if (!element || !element.setAttribute) {
+    console.error('ensureAccessibleName: Invalid element provided');
+    return;
+  }
+
+  if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+    element.setAttribute('aria-label', fallbackLabel);
+  }
+}
+
 module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
   calculateSum,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  ensureUniqueLandmarks
+  ensureAccessibleName
 };

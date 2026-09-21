@@ -613,7 +613,7 @@ export {
   add, 
   calculateDiscount, 
   newFunction,
-  rotateBack,
+  // Add back required exports that might have been removed
   createUnrotateButton,
   ensureThScope,
   addLandmarkRoles,

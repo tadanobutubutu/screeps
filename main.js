@@ -104,308 +104,195 @@ function checkLandmarkElement(id) {
   return element !== null;
 }
 
-// Ensure the dependencyGraph container has a proper ARIA role
-function ensureDependencyGraphAriaRole() {
-  const dependencyGraphContainer = document.getElementById('dependencyGraph');
-  if (dependencyGraphContainer) {
-    if (!dependencyGraphContainer.hasAttribute('role')) {
-      dependencyGraphContainer.setAttribute('role', 'region');
+// Ensure unique landmarks by filtering duplicates
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    const key = landmark.role + '-' + (landmark.id || landmark.label || '');
+    if (seen.has(key)) {
+      return false;
     }
     if (!dependencyGraphContainer.hasAttribute('aria-label')) {
       dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
     }
-  }
-}
+    titleElement.textContent = accessibleName;
+  });
+};
 
-// Helper function to get element by ID
-function getElementById(id) {
-    return document.getElementById(id);
-}
-
-// Helper function to query elements
-function queryElements(selector) {
-    return document.querySelectorAll(selector);
-}
-
-// Function to check landmark elements in the DOM
-function checkLandmarkElements() {
-    const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
-    const results = {};
-
-    landmarkSelectors.forEach((landmark) => {
-        const elements = document.querySelectorAll(landmark);
-        results[landmark] = {
-            count: elements.length,
-            exists: elements.length > 0
-        };
-    });
-
-    return results;
-}
-
-// Function to validate landmark structure
-function validateLandmarkStructure() {
-    const results = checkLandmarkElements();
-    const validation = {
-        isValid: true,
-        errors: [],
-        warnings: []
-    };
-
-    if (!results.main.exists) {
-        validation.isValid = false;
-        validation.errors.push('Required <main> landmark element');
+/**
+ * Fixes fake links (elements that look like links but are not semantic <a> tags).
+ *
+ * This addresses the REACT_036 issue by identifying elements that have
+ * click handlers but are not <a> tags and adding appropriate ARIA roles
+ * and attributes to make them accessible.
+ */
+const fixFakeLinks = () => {
+  const fakeLinks = document.querySelectorAll('[onClick]');
+  fakeLinks.forEach((element) => {
+    if (element.tagName.toLowerCase() !== 'a') {
+      // Add role="button" and appropriate ARIA attributes
+      element.setAttribute('role', 'button');
+      element.setAttribute('tabindex', '0');
+      // Use the element's text content as the aria-label if not present
+      element.setAttribute('aria-label', element.textContent.trim() || 'Link');
     }
+  });
+};
 
-    return validation;
+function helloWorld() {
+  return 'Hello, World!';
 }
 
 /**
- * Function for addressing accessibility issues from insight report
- * 
- * This function processes the insight report data and applies all necessary
- * accessibility fixes to the document based on the identified issues.
- * 
- * @param {Object} insightReport - The insight report containing accessibility issues
- * @param {Array} insightReport.issues - Array of accessibility issues from the report
- * @param {Object} insightReport.config - Configuration options for fixing issues
- * @returns {Object} Result object containing fixes applied and any remaining issues
+ * REACT_015: Get the lang attribute for the HTML element
+ * @returns {string} The language attribute value, defaults to 'en'
  */
-function addressAccessibilityIssues(insightReport) {
-    const result = {
-        applied: [],
-        failed: [],
-        summary: {
-            total: 0,
-            successful: 0,
-            failed: 0
-        }
-    };
+function getLangAttribute() {
+    const htmlElement = document.documentElement;
+    return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
+}
 
-    // Default configuration for accessibility fixes
-    const config = insightReport.config || {
-        fixLangAttribute: true,
-        fixLandmarkRoles: true,
-        fixSvgAccessibleNames: true,
-        fixDuplicateLandmarks: true,
-        fixFakeLinks: true,
-        fixTableScopes: true
-    };
+/**
+ * REACT_015: Get accessible name for personName component
+ * @param {Object} person - Person object with name property
+ * @returns {string} Accessible name for the person
+ */
+function personName(person) {
+    if (!person || !person.name) {
+        return '';
+    }
+    return person.name;
+}
 
-    // Process the insight report issues
-    const issues = insightReport.issues || [];
-    result.summary.total = issues.length;
-
-    // REACT_015: Fix lang attribute on HTML element
-    if (config.fixLangAttribute) {
-        const langIssue = issues.find(issue => issue.code === 'REACT_015');
-        if (langIssue) {
-            try {
-                const lang = langIssue.language || 'en';
-                setLanguageAttribute(lang);
-                result.applied.push({
-                    code: 'REACT_015',
-                    action: 'setLanguageAttribute',
-                    value: lang
-                });
-            } catch (error) {
-                result.failed.push({
-                    code: 'REACT_015',
-                    error: error.message
-                });
-            }
-        }
+/**
+ * REACT_027: Validate table accessibility
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation result with isValid and errors
+ */
+function validateTableAccessibility(table) {
+    const result = { isValid: true, errors: [] };
+    
+    if (!table) {
+        result.isValid = false;
+        result.errors.push('Table element is required');
+        return result;
     }
 
-    // REACT_017: Add landmark roles
-    if (config.fixLandmarkRoles) {
-        const landmarkIssue = issues.find(issue => issue.code === 'REACT_017');
-        if (landmarkIssue) {
-            try {
-                addLandmarkRoles();
-                result.applied.push({
-                    code: 'REACT_017',
-                    action: 'addLandmarkRoles'
-                });
-            } catch (error) {
-                result.failed.push({
-                    code: 'REACT_017',
-                    error: error.message
-                });
-            }
+    // Check if table has proper caption or aria-labelledby
+    const hasCaption = table.querySelector('caption');
+    const hasAriaLabel = table.getAttribute('aria-label');
+    const hasAriaLabelledby = table.getAttribute('aria-labelledby');
+
+    if (!hasCaption && !hasAriaLabel && !hasAriaLabelledby) {
+        result.isValid = false;
+        result.errors.push('Table must have a caption, aria-label, or aria-labelledby');
+    }
+
+    // Check for th elements with scope or headers attribute
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, index) => {
+        if (!th.getAttribute('scope') && !th.getAttribute('id')) {
+            result.isValid = false;
+            result.errors.push(`TH element at index ${index} missing scope or id`);
         }
-    }
-
-    // REACT_041: Add accessible names to SVGs
-    if (config.fixSvgAccessibleNames) {
-        const svgIssues = issues.filter(issue => issue.code === 'REACT_041');
-        if (svgIssues.length > 0) {
-            try {
-                svgIssues.forEach(svgIssue => {
-                    if (svgIssue.selector && svgIssue.accessibleName) {
-                        addSVGAccessibleName(svgIssue.selector, svgIssue.accessibleName);
-                        result.applied.push({
-                            code: 'REACT_041',
-                            action: 'addSVGAccessibleName',
-                            selector: svgIssue.selector,
-                            accessibleName: svgIssue.accessibleName
-                        });
-                    }
-                });
-            } catch (error) {
-                result.failed.push({
-                    code: 'REACT_041',
-                    error: error.message
-                });
-            }
-        }
-    }
-
-    // REACT_025: Fix duplicate landmarks
-    if (config.fixDuplicateLandmarks) {
-        const duplicateLandmarkIssues = issues.filter(issue => issue.code === 'REACT_025');
-        if (duplicateLandmarkIssues.length > 0) {
-            try {
-                ensureUniqueLandmarkElements();
-                result.applied.push({
-                    code: 'REACT_025',
-                    action: 'ensureUniqueLandmarkElements',
-                    count: duplicateLandmarkIssues.length
-                });
-            } catch (error) {
-                result.failed.push({
-                    code: 'REACT_025',
-                    error: error.message
-                });
-            }
-        }
-    }
-
-    // REACT_036: Fix fake links
-    if (config.fixFakeLinks) {
-        const fakeLinkIssues = issues.filter(issue => issue.code === 'REACT_036');
-        if (fakeLinkIssues.length > 0) {
-            try {
-                fixFakeLinks();
-                result.applied.push({
-                    code: 'REACT_036',
-                    action: 'fixFakeLinks',
-                    count: fakeLinkIssues.length
-                });
-            } catch (error) {
-                result.failed.push({
-                    code: 'REACT_036',
-                    error: error.message
-                });
-            }
-        }
-    }
-
-    // REACT_025: Add scope to table headers
-    if (config.fixTableScopes) {
-        const tableScopeIssues = issues.filter(issue => issue.code === 'REACT_025' && issue.type === 'scope');
-        if (tableScopeIssues.length > 0) {
-            try {
-                // Find all tables and add scope attributes to th elements
-                const tables = document.querySelectorAll('table');
-                tables.forEach(table => {
-                    const ths = table.querySelectorAll('th');
-                    ths.forEach((th, index) => {
-                        if (!th.getAttribute('scope')) {
-                            const isFirstRow = index < ths.length / 2;
-                            th.setAttribute('scope', isFirstRow ? 'col' : 'row');
-                        }
-                    });
-                });
-                result.applied.push({
-                    code: 'REACT_025',
-                    action: 'addTableScopes',
-                    count: tableScopeIssues.length
-                });
-            } catch (error) {
-                result.failed.push({
-                    code: 'REACT_025',
-                    error: error.message
-                });
-            }
-        }
-    }
-
-    // Update summary counts
-    result.summary.successful = result.applied.length;
-    result.summary.failed = result.failed.length;
-
-    // Log the accessibility fixes applied
-    console.log('Accessibility fixes applied:', result.applied);
-    if (result.failed.length > 0) {
-        console.warn('Accessibility fixes failed:', result.failed);
-    }
+    });
 
     return result;
 }
 
 /**
- * Initializes the application and applies accessibility fixes.
+ * REACT_027: Validate table structure
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation result with isValid and errors
  */
-const initApp = () => {
-  // Initialize the main application
-  initializeApp();
+function validateTableStructure(table) {
+    const result = { isValid: true, errors: [] };
+    
+    if (!table) {
+        result.isValid = false;
+        result.errors.push('Table element is required');
+        return result;
+    }
 
-  // Apply accessibility fixes
-  setLanguageAttribute(); // Default to 'en'
-  addLandmarkRoles();
-  
-  // Add accessible names to SVGs (example selectors and names)
-  addSVGAccessibleName('#home-icon', 'Home icon');
-  addSVGAccessibleName('#settings-icon', 'Settings icon');
+    // Check for proper thead and tbody structure
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
 
-  // Fix fake links
-  fixFakeLinks();
+    if (!thead) {
+        result.isValid = false;
+        result.errors.push('Table should have a thead element');
+    }
 
-  // Initialize the application data
-  console.log('Initializing ' + appData.title + ' v' + appData.version);
+    if (!tbody) {
+        result.isValid = false;
+        result.errors.push('Table should have a tbody element');
+    }
 
-  // Signal that the app has started
-  appStarted();
-};
+    // Check that th elements are in thead
+    const ths = table.querySelectorAll('th');
+    ths.forEach((th) => {
+        if (!thead || !thead.contains(th)) {
+            result.isValid = false;
+            result.errors.push('All TH elements should be inside thead');
+        }
+    });
 
-// Check if the environment is secure before initializing
-if (isSecureContext()) {
-  initApp();
-} else {
-  console.warn('Application is not running in a secure context. Some features may not be available.');
+    return result;
 }
 
-// Register the service worker
-registerSW();
+/**
+ * REACT_041: Get SVG accessible name
+ * @param {SVGElement} svg - The SVG element
+ * @returns {string} Accessible name for the SVG
+ */
+function getSvgAccessibleName(svg) {
+    if (!svg) {
+        return '';
+    }
 
-// Export functions for testing
-export {
-    ensureUniqueLandmarks,
-    landmarkStructureCheck,
-    ensureUniqueLandmarks,
-    addLangAttribute,
-    checkLandmarkElement,
-    checkLandmarkElements,
-    validateLandmarkStructure,
-    initApp,
-    icons,
-    isSecureContext,
-    setLanguageAttribute,
-    addLandmarkRoles,
-    ensureUniqueLandmarkElements,
-    addSVGAccessibleName,
-    fixFakeLinks,
-    landmarks,
-    functionA,
-    functionB,
-    processLandmarks,
-    getLangAttribute,
-    personName,
-    validateTableAccessibility,
-    validateTableStructure,
-    getSvgAccessibleName,
-    createInPageButton,
-    ensureLandmarkUniqueness,
-    addressAccessibilityIssues
-};
+    // Check for aria-label first
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel) {
+        return ariaLabel;
+    }
+
+    // Check for aria-labelledby reference
+    const ariaLabelledby = svg.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+        const referencedElement = document.getElementById(ariaLabelledby);
+        if (referencedElement) {
+            return referencedElement.textContent || '';
+        }
+    }
+
+    // Check for title element inside SVG
+    const title = svg.querySelector('title');
+    if (title) {
+        return title.textContent || '';
+    }
+
+    return '';
+}
+
+/**
+ * REACT_036: Create an accessible in-page button (not a fake link)
+ * @param {Object} props - Button properties
+ * @param {string} props.text - Button text content
+ * @param {Function} props.onClick - Click handler
+ * @param {string} props.id - Button ID (optional)
+ * @param {string} props.className - Button class name (optional)
+ * @returns {React.Element} Accessible button element
+ */
+function createInPageButton({ text, onClick, id, className }) {
+    return React.createElement('button', {
+        type: 'button',
+        onClick: onClick,
+        id: id,
+        className: className,
+        'aria-label': text
+    }, text);
+}
+
+/**
+ * REACT_025: Ensure unique landmarks (enhancement for accessibility)
+ * Addresses the requirement to

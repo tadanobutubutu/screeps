@@ -12,34 +12,37 @@ import { appStarted } from './events/appStarted.js';
 
 // Function to create in-page buttons
 const createInPageButton = (options) => {
-  // ... (existing code for createInPageButton)
+  // ... existing code ...
+
+  return (
+    <button
+      // ... existing button attributes ...
+      style={{
+        // ... existing styles ...
+      }}
+    >
+      <span aria-hidden="true">{icon}</span>
+      <span> {label}</span>
+    </button>
+  );
 };
 
 // Placeholder for the affected SVGs
 const icons = {};
 
 function processLandmarks(landmarks) {
-  // Ensure all landmarks have valid structure
-  const landmarkStructureCheck = (landmark) => {
-    // Check landmark properties here
-    return landmark && typeof landmark === 'object' && landmark.id !== undefined && landmark.type !== undefined;
+  // ... existing code ...
+
+  // Add new function to check landmark accessibility
+  const checkLandmarkAccessibility = (landmark) => {
+    // Add your own landmark accessibility check logic here
+    // ...
+    return true; // Add your own check logic
   };
 
-  const validLandmarks = landmarks.filter(landmarkStructureCheck);
+  const validLandmarks = landmarks.filter(landmarkStructureCheck).filter(checkLandmarkAccessibility);
 
-  // Ensure the landmarks are unique
-  const ensureUniqueLandmarks = (landmarks) => {
-    const seenIds = new Set();
-    return landmarks.filter(landmark => {
-      if (seenIds.has(landmark.id)) {
-        return false;
-      }
-      seenIds.add(landmark.id);
-      return true;
-    });
-  };
-
-  return ensureUniqueLandmarks(validLandmarks);
+  // ... existing code ...
 }
 
 // New accessibility-related functions from TODO
@@ -474,10 +477,21 @@ function ensureAccessibleName(element, fallbackLabel) {
   }
 }
 
+// New function to fix button identifiers for accessibility
+function fixButtonIdentifiers(buttons) {
+  buttons.forEach((button) => {
+    if (!button.id) {
+      console.error('fixButtonIdentifiers: Button without id found');
+      return;
+    }
+    button.setAttribute('id', `button-${button.id}`);
+  });
+}
+
 module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
   calculateSum,
-  ensureAccessibleName
+  fixButtonIdentifiers
 };

@@ -85,7 +85,7 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('...');
+const fakeLink = document.querySelector('.fake-link');
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
@@ -128,7 +128,7 @@ function ensureThScope() {
       // Determine if it's a column header or row header based on context
       const parent = th.parentElement;
       const parentTagName = parent ? parent.tagName.toLowerCase() : '';
-      const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
+      const isFirstCell = parent && Array.prototype.indexOf.call(parent.children, th) === 0;
 
       if (isFirstCell && parentTagName === 'tr') {
         th.setAttribute('scope', 'row');
@@ -143,7 +143,7 @@ function ensureThScope() {
  * Setup skip link functionality for keyboard navigation
  */
 function setupSkipLinks() {
-  const skipLink = document.querySelector('[href^="#"]') || document.querySelector('.skip-link');
+  const skipLink = document.querySelector('.skip-link') || document.querySelector('a[href="#main-content"]');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
@@ -468,7 +468,7 @@ function addLandmarkRoles() {
   const header = document.querySelector('header');
   if (header) header.setAttribute('role', 'banner');
 
-  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  const mainContent = document.querySelector('main');
   if (mainContent) mainContent.setAttribute('role', 'main');
 
   const footer = document.querySelector('footer');
@@ -477,180 +477,8 @@ function addLandmarkRoles() {
 
 // ... (head branch's added feature - add accessible names to 2 SVGs)
 function addSvgAccessibleNames() {
-  const svg1 = document.querySelector('svg:first-of-type');
-  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
-
-  const svg2 = document.querySelector('svg:nth-of-type(2)');
-  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
-}
-
-// ... (head branch's added feature - ensure unique landmarks)
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="contentinfo"]');
-  const landmarkIds = new Set();
-
-  landmarks.forEach((landmark) => {
-    const id = landmark.id;
-    if (landmarkIds.has(id)) {
-      console.error('Duplicate landmark ID encountered:', id);
-    } else {
-      landmarkIds.add(id);
-    }
-  });
-}
-
-// ... (head branch's added feature - fix 1 fake link issue)
-function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach((link) => {
-    if (!link.textContent.trim()) {
-      link.setAttribute('role', 'button');
-    }
-  });
-}
-
-// Initialize accessibility improvements
-function initializeAccessibility() {
-  // Replace fake links with proper buttons
-  const fakeLink = document.querySelector('a[href="#"]');
-  if (fakeLink && fakeLink.tagName === 'A') {
-    const parent = fakeLink.parentElement;
-    const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
-  }
-
-  // Ensure table headers have proper scope
-  ensureThScope();
-
-  // Add accessible names to SVGs
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') || svg.getAttribute('aria-hidden') !== 'true') {
-      svg.setAttribute('aria-label', `Icon ${index + 1}`);
-    }
-  });
-}
-
-// Initialize the application with accessibility improvements
-function initialize() {
-  // Existing initialization logic preserved
-  console.log('Application initialized');
-
-  // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
-  if (mainContent) {
-    mainContent.setAttribute('tabindex', '-1');
-    mainContent.setAttribute('role', 'main');
-  }
-  return total;
-}
-
-// New function or change requested in the issue
-function newFunction() {
-  // Implementation of the new function
-}
-
-export function calculateDiscount(price, discount) {
-  if (typeof price !== 'number' || price < 0) {
-    throw new Error('Price must be a non-negative number');
-  }
-  if (typeof discount !== 'number' || discount < 0) {
-    throw new Error('Discount must be a non-negative number');
-  }
-
-  // Calculate discounted price
-  const discountedPrice = price * (1 - discount / 100);
-  return Math.max(0, discountedPrice);
-}
-
-// Function to greet a user
-function greet(name) {
-  // ... (head branch's implementation for greeting a user)
-}
-
-// Function to add two numbers
-function add(a, b) {
-  // ... (head branch's implementation for adding two numbers)
-}
-
-// Initialize the application with accessibility improvements
-function initialize() {
-  console.log('Application initialized');
-
-  // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.querySelector('main');
-  if (mainContent) {
-    mainContent.setAttribute('tabindex', '-1');
-    mainContent.focus();
-  }
-
-  // Accessibility: Add skip link functionality
-  setupSkipLinks();
-
-  // Accessibility: Ensure buttons have proper labels
-  setupButtonAccessibility();
-
-  // Add dependency graph button functionality
-  const depGraphContainer = document.getElementById('dependency-graph');
-  if(depGraphContainer) {
-    createInPageDepGraphButton(renderDependencyGraph);
-  }
-  return true;
-}
-
-// ... (head branch's added function - newFunction)
-
-// Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
-  newFunction,
-  // Add back required exports that might have been removed
-  createUnrotateButton,
-  ensureThScope,
-  addLandmarkRoles,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLink,
-  initializeAccessibility
-};
-
-// Compatibility for CommonJS if needed (as per HEAD)
-module.exports = { newFunction, initialize, getConfig, setupSkipLinks, setupButtonAccessibility, createInPageButton, performTask, handleEvent, greet, add, calculateDiscount, rotateBack, createUnrotateButton, ensureThScope, addLandmarkRoles, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLink, initializeAccessibility };
-
-initialize();
-initializeAccessibility();
-
-// Node.js initializations (HEAD branch's code)
-function initialize() {
-  console.log('Application initialized');
-  return true;
-}
-
-function getConfig() {
-  return {
-    apiUrl: process.env.API_URL || 'http://localhost:3000',
-    env: process.env.NODE_ENV || 'development'
-  };
-}
-
-function getVersion() {
-  return '1.0.0';
-}
-
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-// ... (HEAD branch's code for accessibility-related functions)
-```
-
-This resolved file integrates the accessibility improvements and adds new features from both branches, while preserving existing functionality. It also corrects a missing export (`REACT_015`). The file maintains the original exports and structure, while including the additional accessibility-related functions and changes.
+    const hasTitle = svg.querySelector('title');
+    const hasAriaLabel = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby');
+    if (!hasTitle && !hasAria

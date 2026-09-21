@@ -23,7 +23,11 @@ function anotherNewFunction() {
 // Additional existing code logic
 // >>>>>>> HEAD
 
-// Exporting functions if necessary
+function main() {
+  // Main function implementation
+  console.log('Dependency visualization tool running');
+}
+
 module.exports = {
   existingFunction,
   newFunction,

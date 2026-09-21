@@ -32,25 +32,25 @@ function _applyStructureCosts(costs, room) {
     const structures = cacheUtils.getStructures(room);
     for (let i = 0; i < structures.length; i++) {
         const struct = structures[i];
-        switch (struct.structureType) {
+        // ⚡ PERFORMANCE OPTIMIZATION: Hoist position and type properties to avoid repeated lookups per structure
+        const pos = struct.pos;
+        const type = struct.structureType;
+        switch (type) {
             case STRUCTURE_ROAD:
-                costs.set(struct.pos.x, struct.pos.y, PATHFINDER_DEFAULTS.ROAD_COST);
+                costs.set(pos.x, pos.y, PATHFINDER_DEFAULTS.ROAD_COST);
                 break;
             case STRUCTURE_WALL:
-                costs.set(struct.pos.x, struct.pos.y, 255);
+                costs.set(pos.x, pos.y, 255);
                 break;
             case STRUCTURE_RAMPART:
                 if (!struct.my && !struct.isPublic) {
-                    costs.set(struct.pos.x, struct.pos.y, 255);
+                    costs.set(pos.x, pos.y, 255);
                 }
                 break;
             default:
-                if (
-                    struct.structureType !== STRUCTURE_CONTAINER &&
-                    struct.structureType !== STRUCTURE_LINK
-                ) {
+                if (type !== STRUCTURE_CONTAINER && type !== STRUCTURE_LINK) {
                     if (!struct.my) {
-                        costs.set(struct.pos.x, struct.pos.y, 255);
+                        costs.set(pos.x, pos.y, 255);
                     }
                 }
         }
@@ -66,12 +66,15 @@ function _applyConstructionSiteCosts(costs, room) {
     const sites = cacheUtils.getConstructionSites(room);
     for (let i = 0; i < sites.length; i++) {
         const site = sites[i];
+        // ⚡ PERFORMANCE OPTIMIZATION: Hoist position and type properties to avoid repeated lookups per site
+        const pos = site.pos;
+        const type = site.structureType;
         if (
-            site.structureType !== STRUCTURE_ROAD &&
-            site.structureType !== STRUCTURE_RAMPART &&
-            site.structureType !== STRUCTURE_CONTAINER
+            type !== STRUCTURE_ROAD &&
+            type !== STRUCTURE_RAMPART &&
+            type !== STRUCTURE_CONTAINER
         ) {
-            costs.set(site.pos.x, site.pos.y, 3);
+            costs.set(pos.x, pos.y, 3);
         }
     }
 }

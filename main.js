@@ -218,5 +218,6 @@ module.exports = {
   addLangAttribute,
   checkLandmarkElement,
   calculateSum,
-  createInPageButton
+  createInPageButton,
+  icons
 };

@@ -1,13 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// Existing code starts here
 
 // This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -15,77 +6,6 @@
 // More existing code that should be preserved
 
 // Existing code ends here
-
-// TODO: Implement harvest and upgrade logic
-/**
- * Harvests resources from a source and carries them back
- * @param {Object} creep - The creep performing the harvest action
- * @param {Object} source - The source to harvest from
- * @returns {number} Result code from the harvest action
- */
-function harvest(creep, source) {
-  if (!creep || !source) {
-    return -1;
-  }
-  
-  if (creep.store.getFreeCapacity() === 0) {
-    return ERR_FULL;
-  }
-  
-  const result = creep.harvest(source);
-  return result;
-}
-
-/**
- * Upgrades the room controller using energy from the creep
- * @param {Object} creep - The creep performing the upgrade action
- * @returns {number} Result code from the upgrade action
- */
-function upgradeController(creep) {
-  if (!creep || !creep.room || !creep.room.controller) {
-    return -1;
-  }
-  
-  if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-    return ERR_NOT_ENOUGH_RESOURCES;
-  }
-  
-  const result = creep.upgradeController(creep.room.controller);
-  return result;
-}
-
-/**
- * Main logic for harvesting and upgrading
- * @param {Object} creep - The creep to run logic for
- */
-function runHarvestAndUpgradeLogic(creep) {
-  if (!creep) {
-    return;
-  }
-  
-  const controller = creep.room.controller;
-  
-  // If creep is full or has no energy, try to upgrade
-  if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-    // Go harvest
-    const sources = creep.room.find(FIND_SOURCES);
-    if (sources.length > 0) {
-      // Find the closest source with available space
-      const target = creep.pos.findClosestByPath(sources);
-      if (target) {
-        harvest(creep, target);
-      }
-    }
-  } else {
-    // Upgrade the controller if we're close enough
-    if (controller && creep.pos.inRangeTo(controller, 3)) {
-      upgradeController(creep);
-    } else if (controller) {
-      // Move towards the controller
-      creep.moveTo(controller, { reusePath: 10 });
-    }
-  }
-}
 
 // TODO: This is the existing code that needs to be preserved
 // (This should be preserved)
@@ -103,7 +23,7 @@ function checkLandmarkElement(id) {
   if (!element) {
     return false;
   }
-  
+
   // Validate that the landmark has required properties
   if (element.getAttribute('name') && element.getAttribute('coordinates')) {
     return true;
@@ -112,14 +32,13 @@ function checkLandmarkElement(id) {
   return false;
 }
 
-export function calculateSum(a, b) {
-    return a + b;
+  return false;
 }
 
 /**
  * Checks accessibility of tables in the document.
  * Ensures that <th> elements have proper scope attributes (scope="col" or scope="row").
- * 
+ *
  * @returns {Object} An object containing accessibility check results.
  */
 const checkTableAccessibility = () => {
@@ -129,20 +48,20 @@ const checkTableAccessibility = () => {
     totalThElements: 0,
     thElementsWithoutScope: 0
   };
-  
+
   // Skip if document is not available (e.g., in Node.js test environment)
   if (typeof document === 'undefined') {
     return results;
   }
-  
+
   const tables = document.querySelectorAll('table');
   results.totalTables = tables.length;
-  
+
   tables.forEach((table, tableIndex) => {
     const thElements = table.querySelectorAll('th');
     results.totalThElements += thElements.length;
     const issues = [];
-    
+
     thElements.forEach((th, thIndex) => {
       const scope = th.getAttribute('scope');
       if (!scope) {
@@ -160,7 +79,7 @@ const checkTableAccessibility = () => {
         });
       }
     });
-    
+
     if (issues.length > 0) {
       results.tablesWithIssues.push({
         tableIndex,
@@ -168,7 +87,7 @@ const checkTableAccessibility = () => {
       });
     }
   });
-  
+
   return results;
 };
 
@@ -593,7 +512,59 @@ const setLanguageAttribute = (lang = 'en') => {
       fixedIssues: allIssues.filter(i => i.fixed).length,
       remainingIssues: allIssues.filter(i => !i.fixed).length
     }
-  };
+    titleElement.textContent = accessibleName;
+  });
+};
+
+/**
+ * Fixes fake links (elements that look like links but are not semantic <a> tags).
+ *
+ * This addresses the REACT_036 issue by identifying elements that have
+ * click handlers but are not <a> tags and adding appropriate ARIA roles
+ * and attributes to make them accessible.
+ */
+const fixFakeLinks = () => {
+  const fakeLinks = document.querySelectorAll('[role="link"], .fake-link');
+  fakeLinks.forEach((element) => {
+    if (element.tagName.toLowerCase() !== 'a') {
+      // Add role="button" and appropriate ARIA attributes
+      element.setAttribute('role', 'button');
+      if (!element.hasAttribute('tabindex')) {
+        element.setAttribute('tabindex', '0');
+      }
+      if (!element.hasAttribute('aria-label')) {
+        // Use the element's text content as the aria-label if not present
+        element.setAttribute('aria-label', element.textContent.trim() || 'Link');
+      }
+    }
+  });
+};
+
+// Placeholder for the affected SVGs
+const icons = {
+  icon: '<svg ... viewBox="0 0 100 100" aria-label="Screeps ... Dashboard</title><text y=".9em" ...>'
+};
+
+// Initialize accessibility improvements
+function initializeAccessibility() {
+  // Replace fake links with proper buttons
+  const fakeLink = document.getElementById('unrotate');
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    parent.replaceChild(newButton, fakeLink);
+  }
+
+  // Ensure table headers have proper scope
+  ensureThScope();
+
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-hidden') || svg.getAttribute('aria-hidden') !== 'true') {
+      svg.setAttribute('aria-label', `Icon ${index + 1}`);
+    }
+  });
 }
 
 // Person name function used by multiple accessibility rules
@@ -614,18 +585,18 @@ if (require.main === module) {
 }
 
 // Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  checkLandmarkElement, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
+export {
+  initialize,
+  getConfig,
+  setupSkipLinks,
+  setupButtonAccessibility,
+  checkLandmarkElement,
+  createInPageButton,
+  performTask,
+  handleEvent,
+  greet,
+  add,
+  calculateDiscount,
   newFunction,
   checkTableAccessibility,
   setLanguageAttribute,
@@ -640,61 +611,16 @@ export {
   ensurePageUniqueLandmarks,
   fixFakeLink,
   initializeAccessibility,
-  harvest,
-  upgradeController,
-  runHarvestAndUpgradeLogic,
-  calculateSum,
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  validateInput,
-  addressAccessibilityIssues,
   getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
+  wrapPrimaryContentInMain,
   validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
+  validateTableAccessibility,
   validateLandmarkStructure,
-  validateLandmarkAttributes,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
+  addFixLandmarkIssues,
   getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  personName,
-  main,
-  mainExecution,
-  versionOneImplementation
+  addAriaToFormControls,
+  ensureUniqueLandmarks
 };
-
-// Compatibility for CommonJS if needed (as per HEAD)
-module.exports.newFunction = newFunction;
-module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
-module.exports.getLangAttribute = getLangAttribute;
-module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
-module.exports.validateTableStructure = validateTableStructure;
-module.exports.validateTableAccessibility = validateTableAccessibility;
-module.exports.validateLandmarkStructure = validateLandmarkStructure;
-module.exports.addFixLandmarkIssues = addFixLandmarkIssues;
-module.exports.getSvgAccessibleName = getSvgAccessibleName;
-module.exports.addAriaToFormControls = addAriaToFormControls;
-module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
-module.exports.createUnrotateButton = createUnrotateButton;
-module.exports.ensureThScope = ensureThScope;
-module.exports.addLandmarkRoles = addLandmarkRoles;
-module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
-module.exports.ensurePageUniqueLandmarks = ensurePageUniqueLandmarks;
-module.exports.fixFakeLink = fixFakeLink;
-module.exports.initializeAccessibility = initializeAccessibility;
-module.exports.harvest = harvest;
-module.exports.upgradeController = upgradeController;
-module.exports.runHarvestAndUpgradeLogic = runHarvestAndUpgradeLogic;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

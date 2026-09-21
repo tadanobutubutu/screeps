@@ -407,81 +407,9 @@ const setLanguageAttribute = (lang = 'en') => {
   }
 };
 
-/**
- * Adds landmark roles to the main navigation and content sections.
- *
- * This addresses the REACT_017 issue by adding appropriate ARIA roles
- * such as 'navigation', 'main', and 'banner' to relevant HTML elements.
- */
-const addLandmarkRolesDetailed = () => {
-  // Navigation landmark
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.hasAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
-  }
-
-  // Main content landmark
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.hasAttribute('role')) {
-    mainElement.setAttribute('role', 'main');
-  }
-
-  // Header landmark (banner)
-  const headerElement = document.querySelector('header');
-  if (headerElement && !headerElement.hasAttribute('role')) {
-    headerElement.setAttribute('role', 'banner');
-  }
-};
-
-/**
- * Ensures that landmarks are unique by adding unique ARIA labels where necessary.
- *
- * This addresses the REACT_025 issue by checking for duplicate landmarks
- * and making them unique with appropriate aria-label or aria-labelledby attributes.
- */
-const ensureUniqueLandmarkElements = () => {
-  // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('nav');
-  if (navElements.length > 1) {
-    navElements.forEach((nav, index) => {
-      if (index > 0) {
-        nav.setAttribute('aria-label', `Navigation ${index + 1}`);
-      }
-    });
-  }
-
-  // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    mainElements.forEach((main, index) => {
-      if (index > 0) {
-        main.setAttribute('aria-label', `Main content ${index + 1}`);
-      }
-    });
-  }
-};
-
-/**
- * Adds accessible names to SVG elements.
- *
- * This addresses the REACT_041 issue by ensuring that SVGs have appropriate
- * accessible names, either through title or desc elements.
- *
- * @param {string} svgSelector - The CSS selector for the SVG element(s).
- * @param {string} accessibleName - The accessible name to set.
- */
-const addSVGAccessibleName = (svgSelector, accessibleName) => {
-  const svgs = document.querySelectorAll(svgSelector);
-  svgs.forEach((svg) => {
-    // Check if the SVG already has a title element
-    let titleElement = svg.querySelector('title');
-    if (!titleElement) {
-      titleElement = document.createElement('title');
-      svg.insertBefore(titleElement, svg.firstChild);
-    }
-    titleElement.textContent = accessibleName;
-  });
-};
+function analyzeAccessibility(issuesData) {
+  return issuesData;
+}
 
 /**
  * Fixes fake links (elements that look like links but are not semantic <a> tags).
@@ -596,6 +524,17 @@ function add(a, b) {
   return a + b;
 }
 
+/**
+ * Get the application configuration
+ * @returns {Object} The configuration object with apiUrl and timeout properties
+ */
+function getConfig() {
+  return {
+    apiUrl: process.env.API_URL || '',
+    timeout: 5000
+  };
+}
+
 // Export existing functionality and new functions
 export { 
   initialize, 
@@ -622,16 +561,7 @@ export {
   addSvgAccessibleNames,
   ensurePageUniqueLandmarks,
   fixFakeLink,
-  initializeAccessibility,
-  // Added missing exports
-  getLangAttribute,
-  wrapPrimaryContentInMain,
-  validateTableStructure,
-  validateTableAccessibility,
-  validateLandmarkStructure,
-  addFixLandmarkIssues,
-  getSvgAccessibleName,
-  addAriaToFormControls
+  initializeAccessibility
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
@@ -664,14 +594,3 @@ if (typeof document !== 'undefined') {
 }
 
 // More existing code that should be preserved
-
-/**
- * Get the application configuration
- * @returns {Object} The configuration object with apiUrl and timeout properties
- */
-function getConfig() {
-  return {
-    apiUrl: process.env.API_URL || '',
-    timeout: 5000
-  };
-}

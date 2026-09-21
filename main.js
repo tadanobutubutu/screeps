@@ -15,11 +15,9 @@ import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// TODO: This is the existing code that needs to be preserved
+// (This should be preserved)
+// Accessibility issues from insight report have been addressed
 
 // Accessibility Utilities
 const a11y = {

@@ -1,6 +1,6 @@
-// This file combines changes from both branches with preserved functionality
-
-// JavaScript/Node.js Multi-purpose Bot application (Screeps compatible)
+// main.js - Application entry point
+const fs = require('fs');
+const path = require('path');
 
 // Import React and necessary modules
 import React from 'react';

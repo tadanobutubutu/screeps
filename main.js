@@ -58,21 +58,55 @@ function ensureUniqueLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
     }
-    
-    const seen = new Set();
-    const uniqueLandmarks = [];
-    
-    for (const landmark of landmarks) {
-        if (!landmark || typeof landmark.id === 'undefined') {
-            continue;
-        }
-        
-        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-        
-        if (!seen.has(landmarkId)) {
-            seen.add(landmarkId);
-            uniqueLandmarks.push(landmark);
-        }
+  }
+
+  return uniqueLandmarks;
+}
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+function addressAccessibilityIssues() {
+  // Ensure the root container has an accessible name
+  const rootContainer = document.getElementById('root');
+  if (rootContainer) {
+    rootContainer.setAttribute('role', 'main');
+  }
+
+  // Create a hidden live region for dynamic announcements
+  const announcementId = 'accessibility-announcement';
+  let announcement = document.getElementById(announcementId);
+  if (!announcement) {
+    announcement = document.createElement('div');
+    document.body.appendChild(announcement);
+  }
+  announcement.id = announcementId;
+  announcement.setAttribute('role', 'status');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.setAttribute('aria-atomic', 'true');
+  // Hide off-screen
+  announcement.style.position = 'absolute';
+  announcement.style.left = '-9999px';
+  announcement.style.top = '-9999px';
+  
+  return announcement;
+}
+
+// New function to add accessible names to SVGs
+function getSvgAccessibleName(svg) {
+  // Implement logic to get or set accessible name for SVG
+  // For example, check if there's an `aria-label` attribute and return its value
+  return svg.getAttribute('aria-label') || svg.textContent;
+}
+
+// New function to add ARIA attributes to form controls
+function addAriaToFormControls() {
+  const formControls = document.querySelectorAll('input, select, textarea');
+  formControls.forEach(control => {
+    // Implement logic to add ARIA attributes to form controls
+    // For example, add `aria-labelledby` if there's a label associated with the control
+    const labelId = control.getAttribute('for');
+    if (labelId) {
+      control.setAttribute('aria-labelledby', labelId);
     }
     
     return uniqueLandmarks;

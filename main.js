@@ -35,7 +35,7 @@ function getVersion() {
   return VERSION;
 }
 
-// This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
@@ -46,21 +46,15 @@ function addressAccessibilityIssues() {
 
   // Create a hidden live region for dynamic announcements
   const announcementId = 'accessibility-announcement';
-  let announcement = document.getElementById(announcementId);
-  if (!announcement) {
-    announcement = document.createElement('div');
-    announcement.id = announcementId;
-    document.body.appendChild(announcement);
-  }
+  const announcement = document.createElement('div');
+  announcement.id = announcementId;
   announcement.setAttribute('aria-live', 'polite');
   announcement.setAttribute('aria-atomic', 'true');
   // Hide off-screen
   announcement.style.position = 'absolute';
   announcement.style.left = '-9999px';
   announcement.style.top = '-9999px';
-  announcement.style.width = '1px';
-  announcement.style.height = '1px';
-  announcement.style.overflow = 'hidden';
+  rootContainer.appendChild(announcement);
 }
 
 // Validate that tables in the document are accessible
@@ -101,7 +95,7 @@ function validateTableStructure() {
       isValid = false;
       error = 'Table has no rows';
     } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td').length + row.querySelectorAll('th').length);
       const allSame = cellCounts.every(count => count === cellCounts[0]);
       
       if (!allSame) {

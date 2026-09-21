@@ -1,69 +1,41 @@
-// Main entry point for the application
-/**
- * Main entry point for the application
- */
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
 
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
-// Configuration
+document.documentElement.lang = 'en';
+
+reportWebVitals();
+
+const VERSION = '1.0.0';
+
 const CONFIG = {
-    dataPath: './data',
-    maxResults: 100
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  env: process.env.NODE_ENV || 'development'
 };
 
-const landmarkConfig = {
-    maxResults: 100
-};
-
-// Helper function to validate landmark structure
-function isValidLandmark(landmark) {
-    return landmark && 
-           typeof landmark.id !== 'undefined' && 
-           landmark.id !== null;
+function initialize() {
+  console.log('Application initialized');
+  return true;
 }
 
-// >>>>>>> origin/main-branch
-
-// New code or changes requested in the issue
-function newFunction() {
-  // New function logic
+function getConfig() {
+  return CONFIG;
 }
 
-// Additional new function or change if requested
-function anotherNewFunction() {
-  // Another new function logic
+function getVersion() {
+  return VERSION;
 }
 
-// Existing code from main.js after conflict
-// <<<<<<< origin/main-branch
-// Additional existing code logic
-// >>>>>>> HEAD
-
-function main() {
-  // Main function implementation
-  console.log('Dependency visualization tool running');
-}
-
-// Get landmark by ID
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
-}
-
-// Ensure unique landmarks by ID
-function ensureUniqueLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
-  }
-
-  return uniqueLandmarks;
-}
-
-// TODO: This is the existing code that needs to be preserved
+// This is the existing code that needs to be preserved
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
@@ -77,147 +49,100 @@ function addressAccessibilityIssues() {
   let announcement = document.getElementById(announcementId);
   if (!announcement) {
     announcement = document.createElement('div');
+    announcement.id = announcementId;
     document.body.appendChild(announcement);
   }
-  announcement.id = announcementId;
-  announcement.setAttribute('role', 'status');
   announcement.setAttribute('aria-live', 'polite');
   announcement.setAttribute('aria-atomic', 'true');
   // Hide off-screen
   announcement.style.position = 'absolute';
   announcement.style.left = '-9999px';
   announcement.style.top = '-9999px';
+  announcement.style.width = '1px';
+  announcement.style.height = '1px';
+  announcement.style.overflow = 'hidden';
+}
+
+// Validate that tables in the document are accessible
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
   
-  return announcement;
+  tables.forEach((table, index) => {
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasHeaders = table.querySelector('th') !== null;
+    const hasScope = Array.from(table.querySelectorAll('th')).every(
+      th => th.hasAttribute('scope')
+    );
+    
+    results.push({
+      tableIndex: index,
+      hasCaption,
+      hasHeaders,
+      hasScope,
+      isAccessible: hasCaption && hasHeaders && hasScope
+    });
+  });
+  
+  return results;
 }
 
-// New function to add accessible names to SVGs
-function getSvgAccessibleName(svg) {
-  // Implement logic to get or set accessible name for SVG
-  // For example, check if there's an `aria-label` attribute and return its value
-  return svg.getAttribute('aria-label') || svg.textContent;
-}
-
-// New function to add ARIA attributes to form controls
-function addAriaToFormControls() {
-  const formControls = document.querySelectorAll('input, select, textarea');
-  formControls.forEach(control => {
-    // Implement logic to add ARIA attributes to form controls
-    // For example, add `aria-labelledby` if there's a label associated with the control
-    const labelId = control.getAttribute('for');
-    if (labelId) {
-      control.setAttribute('aria-labelledby', labelId);
+// Validate the structure of tables in the document
+function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
+  
+  tables.forEach((table, index) => {
+    const rows = table.querySelectorAll('tr');
+    let isValid = true;
+    let error = null;
+    
+    if (rows.length === 0) {
+      isValid = false;
+      error = 'Table has no rows';
+    } else {
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
+      const allSame = cellCounts.every(count => count === cellCounts[0]);
+      
+      if (!allSame) {
+        isValid = false;
+        error = 'Table has inconsistent cell counts across rows';
+      }
     }
     
-    return uniqueLandmarks;
+    results.push({
+      tableIndex: index,
+      rowCount: rows.length,
+      isValid,
+      error
+    });
+  });
+  
+  return results;
 }
 
-// Function to write the generated report to a file
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-
-// TODO: Implement function for generating a report based on accessibility issues
-function generateAccessibilityReport() {
-  const report = scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
-// Scan accessibility using axe-core
-function scanAccessibility() {
-  return {
-    timestamp: new Date().toISOString(),
-    violations: [],
-    passes: [],
-    incomplete: []
-  };
-}
-
-// Existing utility function
-const formatResponse = (data) => {
-  return JSON.stringify(data, null, 2);
+// Export the new function
+export {
+  VERSION,
+  CONFIG,
+  initialize,
+  getConfig,
+  getVersion,
+  addressAccessibilityIssues,
+  root,
+  validateTableAccessibility,
+  validateTableStructure
 };
 
-// Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
-const { validateInput } = require('./utils/validators');
-const { processData } = require('./utils/processor');
-
-// Application main entry point
-const app = express();
-
-// Middleware
-app.use(express.json());
-
-// Endpoint for getting landmarks
-app.get('/landmarks', (req, res) => {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-  res.json(formatResponse(sorted));
-});
-
-// Export new necessary functions
-module.exports = {
-  validateInput,
-  processData,
-  formatResponse,
-  config: CONFIG,
-  // landmark functions
-  isValidLandmark,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  ensureUniqueLandmarks,
-  landmarkConfig,
-  generateAccessibilityReport
+// Add the new function to the default export
+export default {
+  VERSION,
+  CONFIG,
+  initialize,
+  getConfig,
+  getVersion,
+  addressAccessibilityIssues,
+  root,
+  validateTableAccessibility,
+  validateTableStructure
 };
-
-// Export the report function as well
-module.exports.generateAccessibilityReport = generateAccessibilityReport;
-
-function loadContent() {
-  // ... existing code to load content ...
-}
-
-function saveContent() {
-  // ... existing code to save content ...
-}
-
-function updateUI() {
-  // ... existing code to update UI ...
-}
-
-function handleButtonClick() {
-  // ... existing code for handling button click ...
-  // Add accessibility improvement
-  const button = document.querySelector('#myButton');
-  if (button) {
-    button.setAttribute('aria-label', 'Save content');
-  }
-}
-
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-  
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-  
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
-}

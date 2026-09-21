@@ -1,4 +1,6 @@
-// TODO: Address accessibility issues from insight report:
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
+// Existing code starts here
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -81,12 +83,14 @@ export function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('.fake-link');
-if (fakeLink && fakeLink.tagName === 'A') {
-  const parent = fakeLink.parentElement;
-  const newButton = createUnrotateButton();
-  parent.replaceChild(newButton, fakeLink);
-}
+const fakeLinks = document.querySelectorAll('a[href="#"]');
+fakeLinks.forEach((fakeLink) => {
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    parent.replaceChild(newButton, fakeLink);
+  }
+});
 
 // TODO: Add a language attribute to the HTML element
 if (typeof document !== 'undefined') {
@@ -110,8 +114,10 @@ function getConfig() {
 }
 
 // Example usage for SVGs:
-const svg1 = document.querySelector('.svg-icon-1');
-const svg2 = document.querySelector('.svg-icon-2');
+// const svg1 = document.getElementById('svg1');
+// const svg2 = document.getElementById('svg2');
+// if (svg1) svg1.setAttribute('aria-label', 'Description of first icon');
+// if (svg2) svg2.setAttribute('aria-label', 'Description of second icon');
 
 // REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // Ensure all <th> elements have scope attribute
@@ -462,7 +468,7 @@ function addLandmarkRoles() {
   const header = document.querySelector('header');
   if (header) header.setAttribute('role', 'banner');
 
-  const mainContent = document.querySelector('main') || document.getElementById('main');
+  const mainContent = document.querySelector('main');
   if (mainContent) mainContent.setAttribute('role', 'main');
 
   const footer = document.querySelector('footer');
@@ -484,7 +490,7 @@ function addSvgAccessibleNames() {
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"], [role="banner"], [role="contentinfo"], [role="navigation"]');
+  const landmarks = document.querySelectorAll('[role="main"], [role="banner"], [role="contentinfo"]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
@@ -499,13 +505,12 @@ function ensureUniqueLandmarks() {
 
 // Function to fix 1 fake link issue
 function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]:not([aria-hidden])');
   fakeLinks.forEach((link) => {
-    if (link.getAttribute('aria-hidden') === 'true') {
-      const button = document.createElement('button');
-      button.textContent = link.textContent;
-      button.setAttribute('aria-label', link.textContent || 'Button');
-      link.parentNode.replaceChild(button, link);
+    if (link.textContent.includes('rotate back')) {
+      const parent = link.parentElement;
+      const newButton = createUnrotateButton();
+      parent.replaceChild(newButton, link);
     }
   });
 }
@@ -645,7 +650,7 @@ function generateAccessibilityReport() {
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
-  const fakeLink = document.querySelector('.fake-link');
+  const fakeLink = document.querySelector('a[href="#"]');
   if (fakeLink && fakeLink.tagName === 'A') {
     const parent = fakeLink.parentElement;
     const newButton = createUnrotateButton();
@@ -716,32 +721,4 @@ export function calculateDiscount(price, discount) {
   return Math.max(0, discountedPrice);
 }
 
-function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-function add(a, b) {
-  return a + b;
-}
-
-// Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
-  newFunction,
-  createUnrotateButton,
-  initializeAccessibility
-};
-
-// Compatibility for CommonJS if needed (as per HEAD)
-module.exports = newFunction;
-
-// Initialize
+function

@@ -82,6 +82,7 @@ function getVersion() {
 
 // Implement the function for addressing new accessibility issues
 function addressAccessibilityIssues() {
+  // TODO: Implement the function for addressing new accessibility issues
   const issues = [];
   const elements = document.querySelectorAll('img');
   elements.forEach((img) => {
@@ -132,18 +133,6 @@ function addressAccessibilityIssues() {
     });
   }
 
-  // Additional accessibility checks for dependencyGraph container
-  const dependencyGraph = document.querySelector('.dependencyGraph');
-  if (dependencyGraph) {
-    if (!dependencyGraph.hasAttribute('role')) {
-      issues.push({
-        type: 'missing-role',
-        element: dependencyGraph,
-        message: 'Element is missing ARIA role'
-      });
-    }
-  }
-
   return {
     total: issues.length,
     issues,
@@ -151,8 +140,7 @@ function addressAccessibilityIssues() {
       missingAlt: issues.filter((i) => i.type === 'missing-alt').length,
       missingAccessibleName: issues.filter((i) => i.type === 'missing-accessible-name').length,
       headingSkips: issues.filter((i) => i.type === 'heading-skip').length,
-      missingLang: issues.filter((i) => i.type === 'missing-lang').length,
-      missingRole: issues.filter((i) => i.type === 'missing-role').length
+      missingLang: issues.filter((i) => i.type === 'missing-lang').length
     }
   };
 }
@@ -173,7 +161,6 @@ announcement.style.position = 'absolute';
 announcement.style.left = '-9999px';
 announcement.style.top = '-9999px';
 document.body.appendChild(announcement);
-
 
 // Validate that tables in the document are accessible
 function validateTableAccessibility() {

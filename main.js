@@ -22,6 +22,11 @@
  * - REACT_036: Fix 1 fake link issue
  * - REACT_025: Add scope="col" or scope="row" to <th> elements (already implemented)
  *
+ * IMPLEMENTATION DETAILS:
+ * - Landmarks (header, nav, main, aside, footer) should be used no more than once per page
+ * - Tables should have proper caption or aria-labelledby for accessibility
+ * - TH elements must have scope attribute or id with headers attribute on TD
+ *
  * Also included are fixes for the landmark and uniqueness issues.
  *
  * @module main
@@ -65,7 +70,7 @@ function checkLandmarkElement(id) {
 function ensureUniqueLandmarks(landmarks) {
   const seen = new Set();
   return landmarks.filter(landmark => {
-    const key = ...
+    const key = landmark.id || landmark.role || JSON.stringify(landmark);
     if (seen.has(key)) {
       return false;
     }
@@ -195,8 +200,8 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
  * and attributes to make them accessible.
  */
 const fixFakeLinks = () => {
-  const fakeLinks = ... [onClick]');
-  ... => {
+  const fakeLinks = document.querySelectorAll('[onClick]');
+  fakeLinks.forEach((element) => {
     if (element.tagName.toLowerCase() !== 'a') {
       // Add role="button" and appropriate ARIA attributes
       element.setAttribute('role', 'button');
@@ -220,7 +225,7 @@ function helloWorld() {
  * @returns {string} The language attribute value, defaults to 'en'
  */
 function getLangAttribute() {
-    const htmlElement = ...
+    const htmlElement = document.documentElement;
     return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
 }
 
@@ -263,5 +268,33 @@ function validateTableAccessibility(table) {
     // Check for th elements with scope or headers attribute
     const headers = ...
     headers.forEach((th, index) => {
-        if ... && !th.id) {
+        if (!th.getAttribute('scope') && !th.id) {
             result.isValid = false;
+            result.errors.push(`TH element at index ${index} missing scope or id`);
+        }
+    });
+
+    return result;
+}
+
+/**
+ * REACT_027: Validate table structure
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation result with isValid and errors
+ */
+function validateTableStructure(table) {
+    const result = { isValid: true, errors: [] };
+    
+    if (!table) {
+        result.isValid = false;
+        result.errors.push('Table element is required');
+        return result;
+    }
+
+    // Check for proper thead and tbody structure
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+
+    if (!thead) {
+        result.isValid = false;
+        result.errors.push('

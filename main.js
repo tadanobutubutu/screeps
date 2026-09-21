@@ -19,46 +19,65 @@ const functionB = {
 };
 
 // Function to create in-page buttons
-const createInPageButton = (options: {
-  onClick: () => void;
-  label: string;
-  icon: string;
-  disabled?: boolean;
-  isActive?: boolean;
-  hoverState: boolean;
-  setHoverState: (value: boolean) => void;
-  ariaLabel?: string;
-  title?: string;
-}) => {
-  // ... (Existing code remains unchanged)
+const createInPageButton = (options) => {
+  // ... (existing code for createInPageButton)
 };
 
 // Placeholder for the affected SVGs
 const icons = {};
 
-// Function for landmark structure check
-const landmarkStructureCheck = (landmark) => {
-  // Add your own check logic here
-};
+function processLandmarks(landmarks) {
+  // ... (existing code for processLandmarks)
 
-// Function for ensuring unique landmarks
-const ensureUniqueLandmarks = (landmarks) => {
-  // Add your own unique landmark logic here
-};
+  // New function to check table accessibility
+  function checkTableAccessibility(table) {
+    if (!(table instanceof HTMLElement)) {
+      console.error('checkTableAccessibility: Invalid HTML element provided');
+      return false;
+    }
+
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasScopeAttribute = table.querySelector('th[scope]') !== null;
+
+    if (!hasCaption || !hasScopeAttribute) {
+      console.error('Table accessibility issue: Missing caption or scope attribute');
+      return false;
+    }
+
+    return true;
+  }
+
+  const validLandmarks = landmarks.filter(landmarkStructureCheck);
+  const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
+
+  // Check accessibility for each table in landmarks
+  uniqueLandmarks.forEach(landmark => {
+    if (landmark.type === 'table') {
+      const table = document.getElementById(landmark.id);
+      if (!table || !checkTableAccessibility(table)) {
+        console.error(`Accessibility issue with table: ${landmark.id}`);
+      }
+    }
+  });
+
+  return uniqueLandmarks;
+}
+
+function addLangAttribute(htmlElement) {
+  // ... (existing code for addLangAttribute)
+}
 
 // Function to check if the specified landmark element is in the document.
 // @param {string} id - The ID of the landmark element.
 // @returns {boolean} Returns true if the element exists; otherwise, false.
-const checkLandmarkElement = (id) => {
-  const element = document.getElementById(id);
-  return element !== null;
-};
+function checkLandmarkElement(id) {
+  // ... (existing code for checkLandmarkElement)
+}
 
 // Add newly created functions to module exports
 module.exports = {
-    landmarkStructureCheck,
-    ensureUniqueLandmarks,
-    addLangAttribute,
-    checkLandmarkElement,
-    createInPageButton // Add createInPageButton to the end of module exports
+  landmarkStructureCheck,
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  checkLandmarkElement
 };

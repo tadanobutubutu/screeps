@@ -204,8 +204,8 @@ function getConfig() {
 }
 
 // Example usage for SVGs:
-// const svg1 = ...
-// const svg2 = ...
+// const svg1 = document.querySelector('.svg-icon-1');
+// const svg2 = document.querySelector('.svg-icon-2');
 // svg1.setAttribute('aria-label', 'Description of first icon');
 // svg2.setAttribute('aria-label', 'Description of second icon');
 
@@ -289,10 +289,10 @@ function addLandmarkRoles() {
 
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
-  const svg1 = document.querySelector('svg:first-of-type');
+  const svg1 = document.querySelector('.svg-icon-1');
   if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
-  const svg2 = document.querySelector('svg:nth-of-type(2)');
+  const svg2 = document.querySelector('.svg-icon-2');
   if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
@@ -315,9 +315,12 @@ function ensureUniqueLandmarks() {
 function fixFakeLink() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach((link) => {
-    if (link.getAttribute('aria-hidden') === 'true') {
-      link.setAttribute('role', 'button');
-    }
+    const parent = link.parentElement;
+    const newButton = document.createElement('button');
+    newButton.textContent = link.textContent;
+    newButton.setAttribute('role', 'button');
+    newButton.setAttribute('aria-label', link.getAttribute('aria-label') || 'Action');
+    parent.replaceChild(newButton, link);
   });
 }
 
@@ -377,6 +380,40 @@ function initialize() {
 // New function or change requested in the issue
 function newFunction() {
   // Implementation of the new function
+}
+
+/**
+ * Addresses accessibility issues from the insight report.
+ * This function implements fixes for accessibility problems identified in the report.
+ */
+function addressInsightAccessibilityIssues() {
+  // REACT_015: Ensure lang attribute is set on HTML element
+  if (document.documentElement.lang === '' || !document.documentElement.lang) {
+    document.documentElement.lang = 'en-US';
+  }
+
+  // REACT_017: Add landmark roles and fix landmark issues
+  addLandmarkRoles();
+
+  // REACT_025: Ensure unique landmarks (2 issues)
+  ensureUniqueLandmarks();
+
+  // REACT_036: Fix fake link issues - convert <a href="#"> to <button> with proper ARIA
+  fixFakeLink();
+
+  // REACT_027: Ensure table headers have proper scope
+  ensureThScope();
+
+  // Set up skip links for keyboard navigation
+  setupSkipLinks();
+
+  // Ensure buttons have proper accessibility attributes
+  setupButtonAccessibility();
+
+  // Add accessible names to SVGs
+  addSvgAccessibleNames();
+
+  console.log('Accessibility issues from insight report have been addressed.');
 }
 
 export function calculateDiscount(price, discount) {
@@ -463,19 +500,15 @@ export {
   add, 
   calculateDiscount, 
   newFunction,
-  generateReport
+  addressInsightAccessibilityIssues 
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
-module.exports = { newFunction };
+module.exports = { newFunction, addressInsightAccessibilityIssues };
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initialize);
-  } else {
-    initialize();
   }
 }
-
-// More existing code that should be preserved

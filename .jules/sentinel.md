@@ -21,3 +21,9 @@
 **Vulnerability:** `logger.error()` dropped extra error metadata when level was passed as second argument and serialized `Error` instances to `{}` via `JSON.stringify()`, while `getSafeStack()` stripped directory paths before calling `_redactPaths()`, bypassing path redaction.
 **Learning:** Passing `Error` instances directly to `JSON.stringify()` returns `{}` because Error properties (`message`, `stack`) are non-enumerable, causing silent error metadata loss.
 **Prevention:** Explicitly extract `extraData.message` when handling `Error` objects in logging functions, and pass untransformed stack strings directly to `_redactPaths()` so absolute paths are cleanly sanitized as `[REDACTED]`.
+
+## 2026-09-21 - [Prevent API Key Leakage via URL Query Parameters in Automation Scripts]
+
+**Vulnerability:** Multiple AI automation scripts transmitted sensitive Gemini API keys as URL query parameters (`?key=...` or `params={'key': key}`), exposing API tokens in HTTP proxy logs, server access logs, referrer headers, and process listings.
+**Learning:** Defaulting to URL query string parameters for API authentication is a common anti-pattern when integrating third-party APIs that support query parameter fallback.
+**Prevention:** Always transmit sensitive API tokens and credentials via dedicated HTTP request headers (such as `x-goog-api-key` or `Authorization: Bearer <token>`) rather than URL query parameters to avoid logging credentials in plain text URL logs.

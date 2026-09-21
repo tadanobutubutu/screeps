@@ -31,8 +31,9 @@ def ask_ai(prompt):
     key = os.environ.get("GEMINI_API_KEY")
     if key:
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"
+        headers = {"Content-Type": "application/json", "x-goog-api-key": key.strip()}
         try:
-            r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60, params={"key": key})
+            r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, headers=headers, timeout=60)
             if r.status_code == 200:
                 return r.json()['candidates'][0]['content']['parts'][0]['text']
         except: pass

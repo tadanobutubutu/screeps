@@ -116,10 +116,10 @@ def main():
     result = ""
     key = os.environ.get("GEMINI_API_KEY")
     if key:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"
         try:
             payload = {"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"response_mime_type": "application/json"}}
-            headers = {'Content-Type': 'application/json'}
+            headers = {'Content-Type': 'application/json', 'x-goog-api-key': key.strip()}
             req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers=headers)
             with urllib.request.urlopen(req, timeout=60) as f:
                 res_json = json.loads(f.read().decode('utf-8'))

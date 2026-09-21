@@ -389,9 +389,39 @@ function initializeAccessibility() {
   // ... (head branch's implementation for skip link, button accessibility, landmark roles, accessible SVG names, unique landmarks, and fixing fake links)
 }
 
-// Function to calculate discount
-function calculateDiscount(price, discount) {
-  // ... (head branch's implementation for calculating discount)
+/**
+ * Count the total number of dependencies across all modules.
+ * Iterates over an object where each key is a module name and each value is an array
+ * of that module's dependencies, then sums the lengths of those arrays.
+ * @param {Object} dependencies - Object mapping module names to their dependency arrays
+ * @returns {number} Total count of all dependencies
+ */
+function countDependencies(dependencies) {
+  let total = 0;
+  for (const moduleName in dependencies) {
+    if (Object.prototype.hasOwnProperty.call(dependencies, moduleName) && Array.isArray(dependencies[moduleName])) {
+      total += dependencies[moduleName].length;
+    }
+  }
+  return total;
+}
+
+// New function or change requested in the issue
+function newFunction() {
+  // Implementation of the new function
+}
+
+export function calculateDiscount(price, discount) {
+  if (typeof price !== 'number' || price < 0) {
+    throw new Error('Price must be a non-negative number');
+  }
+  if (typeof discount !== 'number' || discount < 0) {
+    throw new Error('Discount must be a non-negative number');
+  }
+
+  // Calculate discounted price
+  const discountedPrice = price * (1 - discount / 100);
+  return Math.max(0, discountedPrice);
 }
 
 // Function to greet a user
@@ -470,8 +500,7 @@ export {
   newFunction,
   rotateBack,
   updateTitle,
-  Main,
-  a11y
+  countDependencies
 };
 
 export default {

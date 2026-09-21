@@ -43,8 +43,9 @@ function renderIndexView() {
     return;
   }
 
-  // Example of rendering a component, replace with actual logic
-  ReactDOM.render(<div>Hello, World!</div>, appElement);
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang',en); // Default to English if not specified
+  }
 }
 
 // Function to initialize the application

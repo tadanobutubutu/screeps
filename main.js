@@ -38,7 +38,65 @@ function landmarkStructureCheck(landmark) {
   return true; // Add your own check logic
 }
 
-// Function to ensure unique landmarks
+// Process and filter landmarks
+function processLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+
+    // Ensure all landmarks have valid structure
+    const landmarkStructureCheck = (landmark) => {
+        if (!landmark || typeof landmark !== 'object') {
+            return false;
+        }
+        if (!landmark.role) {
+            return false;
+        }
+        if (!landmark['aria-label'] && !landmark['aria-labelledby']) {
+            return false;
+        }
+        return true;
+    };
+
+    const validLandmarks = landmarks.filter(landmarkStructureCheck);
+
+    // Ensure the landmarks are unique
+    const ensureUniqueLandmarks = (landmarks) => {
+        const seen = new Set();
+        return landmarks.filter((landmark) => {
+            const key = landmark.id || `${landmark.role}-${landmark['aria-label']}`;
+            if (seen.has(key)) {
+                return false;
+            }
+            seen.add(key);
+            return true;
+        });
+    };
+
+    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+// Sort landmarks by name
+function sortLandmarks(landmarks, ascending = true) {
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+        
+        if (ascending) {
+            return nameA.localeCompare(nameB);
+        }
+        return nameB.localeCompare(nameA);
+    });
+}
+
+// Get landmark by ID
+function getLandmarkById(landmarks, id) {
+    return landmarks.find(landmark => landmark.id === id) || null;
+}
+
+// Ensure unique landmarks by ID
 function ensureUniqueLandmarks(landmarks) {
   const uniqueLandmarks = landmarks.filter((landmark, index) => {
     return index === landmarks.findIndex((existingLandmark) => {

@@ -47,18 +47,11 @@ function processLandmarks(landmarks) {
     return true;
   }
 
-  const validLandmarks = landmarks.filter(landmarkStructureCheck);
-  const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
-
-  // Check accessibility for each table in landmarks
-  uniqueLandmarks.forEach(landmark => {
-    if (landmark.type === 'table') {
-      const table = document.getElementById(landmark.id);
-      if (!table || !checkTableAccessibility(table)) {
-        console.error(`Accessibility issue with table: ${landmark.id}`);
-      }
-    }
-  });
+  const ensureUniqueLandmarks = (landmarks) => {
+    // Add your own unique landmark logic here
+    // ...
+    return landmarks;
+  };
 
   return uniqueLandmarks;
 }
@@ -74,32 +67,41 @@ function checkLandmarkElement(id) {
   // ... (existing code for checkLandmarkElement)
 }
 
-// New function to address accessibility issues from insight report
-function addressAccessibilityIssues(issues) {
-  issues.forEach(issue => {
+function addressAccessibilityIssues(insightReport) {
+  if (!Array.isArray(insightReport)) {
+    console.error('addressAccessibilityIssues: insightReport must be an array');
+    return;
+  }
+
+  insightReport.forEach(issue => {
     switch (issue.type) {
-      case 'landmark':
-        const landmarkId = issue.id;
-        if (!checkLandmarkElement(landmarkId)) {
-          console.error(`Accessibility issue: Landmark with id ${landmarkId} not found.`);
+      case 'missingLang':
+        if (issue.element && issue.element instanceof HTMLElement) {
+          addLangAttribute(issue.element);
         } else {
-          // Additional logic to address landmark accessibility issues
+          console.error('addressAccessibilityIssues: missingLang issue missing or invalid element');
         }
         break;
-      case 'button':
-        const buttonId = issue.id;
-        const button = document.getElementById(buttonId);
-        if (!button) {
-          console.error(`Accessibility issue: Button with id ${buttonId} not found.`);
+      case 'missingLandmark':
+        if (issue.id) {
+          const exists = checkLandmarkElement(issue.id);
+          if (!exists) {
+            console.warn(`addressAccessibilityIssues: landmark with id "${issue.id}" not found`);
+          }
         } else {
-          // Additional logic to address button accessibility issues
+          console.error('addressAccessibilityIssues: missingLandmark issue missing id');
         }
         break;
-      // Add more cases for different issue types as needed
       default:
-        console.error(`Accessibility issue type ${issue.type} not recognized.`);
+        console.warn(`addressAccessibilityIssues: unhandled issue type "${issue.type}"`);
     }
   });
 }
 
-// ... (Keep the rest of the original code that wasn't related to accessibility, if any)
+module.exports = {
+    landmarkStructureCheck,
+    ensureUniqueLandmarks,
+    addLangAttribute,
+    checkLandmarkElement,
+    addressAccessibilityIssues
+};

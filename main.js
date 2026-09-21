@@ -85,7 +85,7 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector('.fake-link');
+const fakeLink = document.querySelector('a[href="#"]');
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
@@ -147,7 +147,7 @@ function setupSkipLinks() {
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href') || '');
+      const target = document.querySelector(e.target.getAttribute('href') || '');
       if (target) {
         target.focus();
         target.scrollIntoView({ behavior: 'smooth' });
@@ -477,20 +477,20 @@ function addLandmarkRoles() {
 
 // ... (head branch's added feature - add accessible names to 2 SVGs)
 function addSvgAccessibleNames() {
-  const svg1 = document.getElementById('svg1');
+  const svg1 = document.querySelector('.svg-icon-1');
   if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
-  const svg2 = document.getElementById('svg2');
+  const svg2 = document.querySelector('.svg-icon-2');
   if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[aria-landmark]');
+  const landmarks = document.querySelectorAll('[role="main"]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
-    const id = landmark.getAttribute('aria-labelledby');
+    const id = landmark.id;
     if (landmarkIds.has(id)) {
       console.error('Duplicate landmark ID encountered:', id);
     } else {
@@ -501,9 +501,9 @@ function ensureUniqueLandmarks() {
 
 // Function to fix 1 fake link issue
 function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[href="#"]:not([ aria-hidden ])');
+  const fakeLinks = document.querySelectorAll('a[href="#"][aria-hidden="true"]');
   fakeLinks.forEach((link) => {
-    link.removeAttribute('href');
+    // Convert to button with proper ARIA
   });
 }
 
@@ -589,7 +589,7 @@ function addProperLandmarkRegions() {
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
-  const fakeLink = document.getElementById('unrotate');
+  const fakeLink = document.querySelector('a[href="#"]');
   if (fakeLink && fakeLink.tagName === 'A') {
     const parent = fakeLink.parentElement;
     const newButton = createUnrotateButton();
@@ -600,9 +600,9 @@ function initializeAccessibility() {
   ensureThScope();
 
   // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.hasAttribute('aria-hidden') || svg.getAttribute('aria-hidden') !== 'true') {
+    if (!svg.getAttribute('aria-label') || svg.getAttribute('aria-hidden') !== 'true') {
       svg.setAttribute('aria-label', `Icon ${index + 1}`);
     }
   });
@@ -685,17 +685,7 @@ export {
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
-module.exports.newFunction = newFunction;
-module.exports.initialize = initialize;
-module.exports.getConfig = getConfig;
-module.exports.setupSkipLinks = setupSkipLinks;
-module.exports.setupButtonAccessibility = setupButtonAccessibility;
-module.exports.createInPageButton = createInPageButton;
-module.exports.performTask = performTask;
-module.exports.handleEvent = handleEvent;
-module.exports.greet = greet;
-module.exports.add = add;
-module.exports.calculateDiscount = calculateDiscount;
+module.exports = newFunction;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

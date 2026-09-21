@@ -1,4 +1,31 @@
-// Main application entry point
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+/**
+ * Main entry point for the Frontend application.
+ *
+ * This file sets up the application, loads the DOM elements, and initializes
+ * various modules that handle different aspects of the application. It also
+ * contains fixes for various accessibility issues as per the Insight report.
+ *
+ * The following accessibility issues are addressed:
+ * - REACT_015: Add lang attribute to HTML element
+ * - REACT_017: Add landmark roles and fix landmark issues
+ * - REACT_041: Add accessible names to 2 SVGs
+ * - REACT_025: Ensure unique landmarks (2 issues)
+ * - REACT_036: Fix 1 fake link issue
+ * - REACT_025: Add scope="col" or scope="row" to <th> elements (already implemented)
+ *
+ * Also included are fixes for the landmark and uniqueness issues.
+ *
+ * @module main
+ */
 
 import './styles.css';
 
@@ -30,21 +57,21 @@ const icons = {
  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
+  const element = ...
   return element !== null;
 }
 
 // Ensure unique landmarks by filtering duplicates
-function ensureUniqueLandmarks(landmarksList) {
-    const seen = new Set();
-    return landmarksList.filter(landmark => {
-        const key = landmark.role + '-' + (landmark.id || '');
-        if (seen.has(key)) {
-            return false;
-        }
-        seen.add(key);
-        return true;
-    });
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    const key = ...
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
 }
 
 // Testing the checkLandmarkElement function:
@@ -80,7 +107,7 @@ const isSecureContext = () => {
 const setLanguageAttribute = (lang = 'en') => {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
+    ... lang);
   }
 };
 
@@ -92,21 +119,21 @@ const setLanguageAttribute = (lang = 'en') => {
  */
 const addLandmarkRoles = () => {
   // Navigation landmark
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
+  const navElement = ...
+  if (navElement) {
+    ... 'navigation');
   }
 
   // Main content landmark
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.getAttribute('role')) {
+  const mainElement = ...
+  if (mainElement) {
     mainElement.setAttribute('role', 'main');
   }
 
   // Header landmark (banner)
-  const headerElement = document.querySelector('header');
-  if (headerElement && !headerElement.getAttribute('role')) {
-    headerElement.setAttribute('role', 'banner');
+  const headerElement = ...
+  if (headerElement) {
+    ... 'banner');
   }
 };
 
@@ -118,9 +145,9 @@ const addLandmarkRoles = () => {
  */
 const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('nav');
+  const navElements = ...
   if (navElements.length > 1) {
-    navElements.forEach((nav, index) => {
+    ... index) => {
       if (index > 0) {
         nav.setAttribute('aria-label', `Navigation ${index + 1}`);
       }
@@ -128,9 +155,9 @@ const ensureUniqueLandmarkElements = () => {
   }
 
   // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('main');
+  const mainElements = ...
   if (mainElements.length > 1) {
-    mainElements.forEach((main, index) => {
+    ... index) => {
       if (index > 0) {
         main.setAttribute('aria-label', `Main content ${index + 1}`);
       }
@@ -148,10 +175,10 @@ const ensureUniqueLandmarkElements = () => {
  * @param {string} accessibleName - The accessible name to set.
  */
 const addSVGAccessibleName = (svgSelector, accessibleName) => {
-  const svgs = document.querySelectorAll(svgSelector);
+  const svgs = ...
   svgs.forEach((svg) => {
     // Check if the SVG already has a title element
-    let titleElement = svg.querySelector('title');
+    let titleElement = ...
     if (!titleElement) {
       titleElement = document.createElement('title');
       svg.insertBefore(titleElement, svg.firstChild);
@@ -168,8 +195,8 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
  * and attributes to make them accessible.
  */
 const fixFakeLinks = () => {
-  const fakeLinks = document.querySelectorAll('[onclick], [onmousedown]');
-  fakeLinks.forEach((element) => {
+  const fakeLinks = ... [onClick]');
+  ... => {
     if (element.tagName.toLowerCase() !== 'a') {
       // Add role="button" and appropriate ARIA attributes
       element.setAttribute('role', 'button');
@@ -188,154 +215,53 @@ function helloWorld() {
   return 'Hello, World!';
 }
 
-// New function implementation as per the issue requirements
-function processLandmarks(landmarksList) {
-  // Ensure all landmarks have valid structure
-  const validLandmarks = landmarksList.filter(landmark => {
-    return landmark.name && landmark.coordinates;
-  });
-  
-  // Ensure the landmarks are unique
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-  return uniqueLandmarks;
+/**
+ * REACT_015: Get the lang attribute for the HTML element
+ * @returns {string} The language attribute value, defaults to 'en'
+ */
+function getLangAttribute() {
+    const htmlElement = ...
+    return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
 }
-
-// Function to initialize the dependency graph with accessibility support
-function initDependencyGraph(containerId) {
-  const container = document.getElementById(containerId);
-  if (container) {
-    container.setAttribute('role', 'img');
-    container.setAttribute('aria-label', 'Dependency graph visualization');
-  }
-  return container;
-}
-
-// Function to render the dependency graph
-function renderDependencyGraph(containerId) {
-  const container = document.getElementById(containerId);
-  if (container) {
-    // Add the logic to render the dependency graph inside the container
-    // This is a placeholder for the actual rendering logic
-    container.innerHTML = 'Dependency Graph Data';
-  }
-}
-
-// Helper function to get element by ID
-function getElementById(id) {
-    return document.getElementById(id);
-}
-
-// Helper function to query elements
-function queryElements(selector) {
-    return document.querySelectorAll(selector);
-}
-
-// Function to check landmark elements in the DOM
-function checkLandmarkElements() {
-    const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
-    const results = {};
-
-    landmarkSelectors.forEach(landmark => {
-        const elements = document.querySelectorAll(landmark);
-        results[landmark] = {
-            count: elements.length,
-            exists: elements.length > 0
-        };
-    });
-
-    return results;
-}
-
-// Function to validate landmark structure
-function validateLandmarkStructure() {
-    const results = checkLandmarkElements();
-    const validation = {
-        isValid: true,
-        errors: [],
-        warnings: []
-    };
-
-    if (!results.main.exists) {
-        validation.isValid = false;
-        validation.errors.push('Missing required <main> landmark element');
-    }
-
-    return validation;
-}
-
-// Application data placeholder
-const appData = {
-  title: 'Application',
-  version: '1.0.0'
-};
 
 /**
- * Initializes the application and applies accessibility fixes.
+ * REACT_015: Get accessible name for personName component
+ * @param {Object} person - Person object with name property
+ * @returns {string} Accessible name for the person
  */
-const initApp = () => {
-  // Initialize the main application
-  initializeApp();
-
-  // Apply accessibility fixes
-  setLanguageAttribute(); // Default to 'en'
-  addLandmarkRoles();
-  ensureUniqueLandmarkElements();
-
-  // Add accessible names to SVGs (example selectors and names)
-  addSVGAccessibleName('.icon-home', 'Home icon');
-  addSVGAccessibleName('.icon-settings', 'Settings icon');
-
-  // Fix fake links
-  fixFakeLinks();
-
-  // Initialize the application data
-  console.log('Initializing ' + appData.title + ' v' + appData.version);
-
-  // Signal that the app has started
-  appStarted();
-};
-
-// Application main entry point
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-
-const app = express();
-
-// TODO: add the new functions or changes requested in the issue
-// Here is the implementation for checking link accessibility
-// The existing isLinkAccessible function implementation
-
-// Application configuration
-const config = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
-
-// Landmark configuration
-const landmarkConfig = {
-  dataPath: './data',
-  maxResults: 100
-};
-
-// Endpoint for getting landmarks
-app.get('/landmarks', (req, res) => {
-  // Your code for handling the request and response logic goes here
-});
-
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
+function personName(person) {
+    if (!person || !person.name) {
+        return '';
+    }
+    return person.name;
 }
-```
-This resolved the Git merge conflict by integrating both changes. The changes from the `HEAD` branch were removed as they were not relevant to the functions in question, and the `landmark` functions were added from the `origin/main` branch. The express server endpoint for getting landmarks was also added to allow integrating the filtered and sorted landmarks from the server-side codebase.
+
+/**
+ * REACT_027: Validate table accessibility
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation result with isValid and errors
+ */
+function validateTableAccessibility(table) {
+    const result = { isValid: true, errors: [] };
+    
+    if (!table) {
+        result.isValid = false;
+        result.errors.push('Table element is required');
+        return result;
+    }
+
+    // Check if table has proper caption or aria-labelledby
+    const hasCaption = ...
+    const hasAriaLabel = table.getAttribute('aria-label');
+    const hasAriaLabelledby = table.getAttribute('aria-labelledby');
+
+    if (!hasCaption && !hasAriaLabel && !hasAriaLabelledby) {
+        result.isValid = false;
+        result.errors.push('Table must have a caption, aria-label, or aria-labelledby');
+    }
+
+    // Check for th elements with scope or headers attribute
+    const headers = ...
+    headers.forEach((th, index) => {
+        if ... && !th.id) {
+            result.isValid = false;

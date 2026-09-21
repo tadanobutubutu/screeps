@@ -112,8 +112,8 @@ function getConfig() {
 }
 
 // Example usage for SVGs:
-// const svg1 = document.querySelector('svg:first-of-type');
-// const svg2 = document.querySelector('svg:last-of-type');
+// const svg1 = document.querySelector('.svg-1');
+// const svg2 = document.querySelector('.svg-2');
 // svg1.setAttribute('aria-label', 'Description of first icon');
 // svg2.setAttribute('aria-label', 'Description of second icon');
 
@@ -145,7 +145,7 @@ function setupSkipLinks() {
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.getElementById(skipLink.getAttribute('href').slice(1));
+      const target = document.querySelector(e.target.getAttribute('href') || '');
       if (target) {
         target.focus();
         target.scrollIntoView({ behavior: 'smooth' });
@@ -466,7 +466,7 @@ function addLandmarkRoles() {
   const header = document.querySelector('header');
   if (header) header.setAttribute('role', 'banner');
 
-  const mainContent = document.querySelector('main') || document.getElementById('main');
+  const mainContent = document.querySelector('main');
   if (mainContent) mainContent.setAttribute('role', 'main');
 
   const footer = document.querySelector('footer');
@@ -475,16 +475,16 @@ function addLandmarkRoles() {
 
 // ... (head branch's added feature - add accessible names to 2 SVGs)
 function addSvgAccessibleNames() {
-  const svg1 = document.querySelector('svg:first-of-type');
+  const svg1 = document.querySelector('.svg-1');
   if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
-  const svg2 = document.querySelector('svg:last-of-type');
+  const svg2 = document.querySelector('.svg-2');
   if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"], [role="banner"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="contentinfo"]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
@@ -501,8 +501,9 @@ function ensureUniqueLandmarks() {
 function fixFakeLink() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach((link) => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
+    const parent = link.parentElement;
+    const newButton = createUnrotateButton();
+    parent.replaceChild(newButton, link);
   });
 }
 
@@ -652,7 +653,7 @@ function initializeAccessibility() {
   ensureThScope();
 
   // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll('svg:not([aria-label])');
   svgs.forEach((svg, index) => {
     if (!svg.getAttribute('aria-label') || svg.getAttribute('aria-hidden') !== 'true') {
       svg.setAttribute('aria-label', `Icon ${index + 1}`);
@@ -740,7 +741,7 @@ export {
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
-module.exports = { newFunction };
+module.exports = newFunction;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

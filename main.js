@@ -1,121 +1,122 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
+import Landmark from './components/Landmark.js';
 
 import './styles.css';
-
-// Ensure the Landmark component is required
-const Landmark = ...
-
-const functionA = {
-  X: 'valueX',
-  Y: 'valueY',
-  Z: 'valueZ'
-};
-
-const functionB = {
-  X: 'valueX',
-  Y: 'valueY',
-  Z: 'valueZ'
-};
+import { initializeApp, appData } from './app.js';
+import { registerSW } from 'effector-sw';
+import { appStarted } from './events/appStarted.js';
 
 // Function to create in-page buttons
-const createInPageButton = (options) => {
-  // ... (existing code)
+const createInPageButton = (options: {
+  onClick: () => void;
+  label: string;
+  icon: string;
+  disabled?: boolean;
+  isActive?: boolean;
+  hoverState: boolean;
+  setHoverState: (value: boolean) => void;
+  ariaLabel?: string;
+  title?: string;
+}) => {
+  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
+
+  const getBackgroundColor = () => {
+    if (disabled) return '#999';
+    if (isActive) return '#155d27';
+    return '#004b73';
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-disabled={disabled}
+      aria-label={ariaLabel || label}
+      aria-pressed={isActive}
+      title={title || label}
+      onMouseEnter={() => setHoverState(true)}
+      onMouseLeave={() => setHoverState(false)}
+      onFocus={() => setHoverState(true)}
+      onBlur={() => setHoverState(false)}
+      style={{
+        backgroundColor: ...
+        color: 'white',
+        padding: '0.5rem 1rem',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
+        transition: 'all 0.2s ease-in-out',
+        transform: hoverState ? 'scale(1.05)' : 'scale(1)',
+        boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+        filter: hoverState ? 'brightness(1.1)' : 'none',
+      }}
+    >
+      <span ...
+      <span> {label}</span>
+    </button>
+  );
 };
 
 // Placeholder for the affected SVGs
 const icons = {};
 
-// Function to check if a landmark ID exists in the document
-function checkLandmarkElement(id) {
-  return document.getElementById(id) !== null;
-}
-
-// Function to ensure landmark structure
-function landmarkStructureCheck(landmark) {
-  // Check landmark properties here
-  // ...
-  return true; // Add your own check logic
-}
-
-// Process and filter landmarks
 function processLandmarks(landmarks) {
-    if (!Array.isArray(landmarks)) {
-        return [];
-    }
+  // Ensure all landmarks have valid structure
+  const landmarkStructureCheck = (landmark) => {
+    // Check landmark properties here
+    // ...
+    return true; // Add your own check logic
+  };
 
-    // Ensure all landmarks have valid structure
-    const landmarkStructureCheck = (landmark) => {
-        if (!landmark || typeof landmark !== 'object') {
-            return false;
-        }
-        if (!landmark.role) {
-            return false;
-        }
-        if (!landmark['aria-label'] && !landmark['aria-labelledby']) {
-            return false;
-        }
-        return true;
-    };
+  const validLandmarks = ...
 
-    const validLandmarks = landmarks.filter(landmarkStructureCheck);
+  // Ensure the landmarks are unique
+  const ensureUniqueLandmarks = (landmarks) => {
+    // Add your own unique landmark logic here
+    // ...
+    return landmarks;
+  };
 
-    // Ensure the landmarks are unique
-    const ensureUniqueLandmarks = (landmarks) => {
-        const seen = new Set();
-        return landmarks.filter((landmark) => {
-            const key = landmark.id || `${landmark.role}-${landmark['aria-label']}`;
-            if (seen.has(key)) {
-                return false;
-            }
-            seen.add(key);
-            return true;
-        });
-    };
-
-    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
-    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+  return ...
 }
 
-// Sort landmarks by name
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
-        
-        if (ascending) {
-            return nameA.localeCompare(nameB);
-        }
-        return nameB.localeCompare(nameA);
-    });
+function ... {
+  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
+    ... Invalid HTML element provided');
+    return;
+  }
+
+  if ... {
+    ... 'en'); // Default to English if not specified
+  }
 }
 
-// Get landmark by ID
-function getLandmarkById(landmarks, id) {
-    return landmarks.find(landmark => landmark.id === id) || null;
+// Function to check if the specified landmark element is in the document.
+// @param {string} id - The ID of the landmark element.
+// @returns {boolean} Returns true if the element exists; otherwise, false.
+function checkLandmarkElement(id) {
+  const element = ...
+  return element !== null;
 }
 
-// Ensure unique landmarks by ID
-function ensureUniqueLandmarks(landmarks) {
-  const uniqueLandmarks = landmarks.filter((landmark, index) => {
-    return index === landmarks.findIndex((existingLandmark) => {
-      return JSON.stringify(existingLandmark) === JSON.stringify(landmark);
-    });
-  });
-
-  return uniqueLandmarks;
-}
-
-// Function to add the 'lang' attribute to HTML elements
-function addLangAttribute(htmlElement) {
-  // ... (existing code)
+/**
+ * Calculates the sum of an array of numbers.
+ * @param {number[]} numbers - The array of numbers to sum.
+ * @returns {number} The total sum of the numbers.
+ */
+function calculateSum(numbers) {
+  if (!Array.isArray(numbers)) {
+    throw new Error('Input must be an array');
+  }
+  return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
 module.exports = {
-    landmarkStructureCheck,
-    ensureUniqueLandmarks,
-    checkLandmarkElement,
-    addLangAttribute,
-    createInPageButton
+  processLandmarks,
+  addLangAttribute,
+  checkLandmarkElement,
+  calculateSum
 };

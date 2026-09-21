@@ -70,7 +70,7 @@ export function rotateBack() {
 // Use unique aria-label or aria-labelledby for landmark regions
 
 // REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
-function createUnrotateButton() {
+export function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
@@ -737,12 +737,7 @@ export {
   add, 
   calculateDiscount, 
   newFunction,
-  rotateBack,
-  addLandmarkRoles,
-  ensureThScope,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLink,
+  createUnrotateButton,
   initializeAccessibility
 };
 

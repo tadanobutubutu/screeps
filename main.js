@@ -1,52 +1,34 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
-const { parseArgs } = require('util');
+// Main module entry point
+const config = require('./config');
+const utils = require('./utils');
 
-// Global reference to mainWindow to prevent garbage collection
-let mainWindow;
+const VERSION = '1.0.0';
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-    },
-  });
-
-  mainWindow.loadFile('index.html');
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+function initialize(options = {}) {
+  const settings = { ...config.defaults, ...options };
+  return {
+    version: VERSION,
+    settings,
+    initialized: true
+  };
 }
 
-app.whenReady().then(() => {
-  createWindow();
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
-});
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-// New function to address accessibility issues
-function validateAccessibility() {
-  // Add code to validate accessibility based on the insight report
+function getVersion() {
+  return VERSION;
 }
 
-// Export functions for testing
+function getConfig() {
+  return config;
+}
+
+function processData(data) {
+  return utils.process(data);
+}
+
 module.exports = {
-  createWindow,
-  parseArgs,
-  app,
-  validateAccessibility, // Added function
+  VERSION,
+  initialize,
+  getVersion,
+  getConfig,
+  processData
 };

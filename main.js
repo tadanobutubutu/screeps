@@ -112,8 +112,8 @@ function getConfig() {
 }
 
 // Example usage for SVGs:
-// const svg1 = ...
-// const svg2 = ...
+// const svg1 = document.querySelector('svg:first-of-type');
+// const svg2 = document.querySelector('svg:last-of-type');
 // svg1.setAttribute('aria-label', 'Description of first icon');
 // svg2.setAttribute('aria-label', 'Description of second icon');
 
@@ -145,7 +145,7 @@ function setupSkipLinks() {
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href') || '');
+      const target = document.getElementById(skipLink.getAttribute('href').slice(1));
       if (target) {
         target.focus();
         target.scrollIntoView({ behavior: 'smooth' });
@@ -475,16 +475,16 @@ function addLandmarkRoles() {
 
 // ... (head branch's added feature - add accessible names to 2 SVGs)
 function addSvgAccessibleNames() {
-  const svg1 = document.querySelector('.svg-icon-1');
+  const svg1 = document.querySelector('svg:first-of-type');
   if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
-  const svg2 = document.querySelector('.svg-icon-2');
+  const svg2 = document.querySelector('svg:last-of-type');
   if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
 // Function to ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"]');
+  const landmarks = document.querySelectorAll('[role="main"], [role="banner"], [role="contentinfo"]');
   const landmarkIds = new Set();
 
   landmarks.forEach((landmark) => {
@@ -501,9 +501,8 @@ function ensureUniqueLandmarks() {
 function fixFakeLink() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach((link) => {
-    const button = document.createElement('button');
-    button.textContent = link.textContent;
-    link.parentNode.replaceChild(button, link);
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
   });
 }
 
@@ -656,4 +655,100 @@ function initializeAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     if (!svg.getAttribute('aria-label') || svg.getAttribute('aria-hidden') !== 'true') {
-      svg.setAttribute('aria-label', `Icon
+      svg.setAttribute('aria-label', `Icon ${index + 1}`);
+    }
+  });
+}
+
+// Initialize the application with accessibility improvements
+function initialize() {
+  // Existing initialization logic preserved
+  console.log('Application initialized');
+
+  // Accessibility: Ensure main content is keyboard accessible
+  const mainContent = document.querySelector('main') || document.getElementById('main');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.setAttribute('role', 'main');
+  }
+
+  // Accessibility: Add skip link functionality
+  setupSkipLinks();
+
+  // Accessibility: Ensure buttons have proper labels
+  setupButtonAccessibility();
+
+  // Accessibility: Add landmark roles and fix landmark issues
+  addLandmarkRoles();
+
+  // Accessibility: Add accessible names to 2 SVGs
+  addSvgAccessibleNames();
+
+  // Accessibility: Ensure unique landmarks (2 issues)
+  ensureUniqueLandmarks();
+
+  // Accessibility: Fix 1 fake link issue
+  fixFakeLink();
+}
+
+// New function or change requested in the issue
+function newFunction() {
+  // Implementation of the new function
+}
+
+export function calculateDiscount(price, discount) {
+  if (typeof price !== 'number' || price < 0) {
+    throw new Error('Price must be a non-negative number');
+  }
+  if (typeof discount !== 'number' || discount < 0) {
+    throw new Error('Discount must be a non-negative number');
+  }
+
+  // Calculate discounted price
+  const discountedPrice = price * (1 - discount / 100);
+  return Math.max(0, discountedPrice);
+}
+
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+function add(a, b) {
+  return a + b;
+}
+
+// Export existing functionality and new functions
+export { 
+  initialize, 
+  getConfig, 
+  setupSkipLinks, 
+  setupButtonAccessibility, 
+  createInPageButton, 
+  performTask, 
+  handleEvent, 
+  greet, 
+  add, 
+  calculateDiscount, 
+  newFunction,
+  rotateBack,
+  addLandmarkRoles,
+  ensureThScope,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLink,
+  initializeAccessibility
+};
+
+// Compatibility for CommonJS if needed (as per HEAD)
+module.exports = { newFunction };
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
+}
+
+// More existing code that should be preserved

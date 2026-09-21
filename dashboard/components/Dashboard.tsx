@@ -272,6 +272,7 @@ export default function Dashboard() {
     if (loading)
         return (
             <div
+                role="status"
                 aria-live="polite"
                 aria-busy="true"
                 style={{
@@ -1282,6 +1283,7 @@ export default function Dashboard() {
             {toastMsg && (
                 <div
                     key={toastMsg}
+                    role="status"
                     aria-live="polite"
                     aria-keyshortcuts="Escape"
                     onMouseEnter={() => setToastHovered(true)}

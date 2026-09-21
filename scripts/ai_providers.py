@@ -246,13 +246,16 @@ def call_gemini(prompt, key):
         print("Trying Google Gemini API (gemini-1.5-flash-latest)...")
         url = (
             "https://generativelanguage.googleapis.com/v1beta/models/"
-            f"gemini-1.5-flash-latest:generateContent?key={key}"
+            "gemini-1.5-flash-latest:generateContent"
         )
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         req = urllib.request.Request(
             url,
             data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
+            headers={
+                "Content-Type": "application/json",
+                "x-goog-api-key": key,
+            },
         )
         with urllib.request.urlopen(req, timeout=90) as response:
             data = json.loads(response.read().decode("utf-8"))

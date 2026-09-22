@@ -369,6 +369,11 @@ if (require.main === module) {
 // const report = getInsightReport(); // Hypothetical function to get the insight report
 // addressAccessibilityIssues(report);
 
+function renderIndexView() {
+  // Render the index view using the HTML component with the appropriate language attribute
+  return HTML({ lang: getLangAttribute() });
+}
+
 module.exports = {
   config,
   appState,
@@ -399,4 +404,5 @@ module.exports = {
   addProperLandmarkRegions,
   main,
   mainExecution,
+  renderIndexView,
 };

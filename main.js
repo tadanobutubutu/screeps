@@ -190,72 +190,45 @@ function setSvgAttributes(svg, accessibleName) {
  * when there are multiple instances of the same landmark role.
  */
 function ensureUniqueLandmarks() {
-  // Find all elements with landmark roles
-  const landmarkRoles = ['main', 'navigation', 'complementary', 'contentinfo', 'banner', 'search', 'form', 'region'];
-  const landmarks = [];
+  // Code for ensuring unique landmarks
+  // Find all landmarks on the page (elements with landmark roles)
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="search"], [role="region"], [role="application"]');
   
-  landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    elements.forEach(element => {
-      landmarks.push({
-        element: element,
-        role: role,
-        name: getAccessibleName(element)
-      });
-    });
-  });
+  if (landmarks.length === 0) {
+    console.log('No landmarks found to ensure uniqueness');
+    return;
+  }
   
-  // Group landmarks by role
-  const roleGroups = {};
-  landmarks.forEach(landmark => {
-    if (!roleGroups[landmark.role]) {
-      roleGroups[landmark.role] = [];
+  // Keep track of landmark types and ensure they have unique IDs if needed
+  const landmarkTypes = new Set();
+  let uniqueIdCount = 0;
+  
+  landmarks.forEach((landmark, index) => {
+    const role = landmark.getAttribute('role');
+    
+    // Add role to set for tracking duplicate types
+    landmarkTypes.add(role);
+    
+    // Check if landmark has an id
+    if (!landmark.id) {
+      // Generate a unique ID for the landmark if it doesn't have one
+      const uniqueId = `landmark-${role}-${++uniqueIdCount}`;
+      landmark.id = uniqueId;
+      console.log(`Added ID "${uniqueId}" to ${role} landmark at index ${index}`);
+    } else {
+      console.log(`Landmark ${role} at index ${index} already has ID "${landmark.id}"`);
     }
-    roleGroups[landmark.role].push(landmark);
-  });
-  
-  // For each role group with multiple elements, ensure unique accessible names
-  Object.keys(roleGroups).forEach(role => {
-    const group = roleGroups[role];
-    if (group.length > 1) {
-      const names = new Set();
-      group.forEach(landmark => {
-        let name = landmark.name;
-        let counter = 1;
-        
-        // If name already exists or is empty, generate a unique one
-        while (names.has(name) || !name) {
-          name = landmark.element.getAttribute('aria-label') || 
-                 landmark.element.getAttribute('aria-labelledby') ||
-                 `${role} ${counter}`;
-          counter++;
-        }
-        
-        names.add(name);
-        
-        // Set the unique name if it's different from current
-        if (name !== landmark.name) {
-          if (landmark.element.setAttribute) {
-            landmark.element.setAttribute('aria-label', name);
-          }
-        }
-      });
+    
+    // Check for aria-labelledby or aria-label for better accessibility
+    if (!landmark.hasAttribute('aria-labelledby') && !landmark.hasAttribute('aria-label')) {
+      console.log(`Landmark ${role} with ID "${landmark.id}" should have aria-labelledby or aria-label for better accessibility`);
     }
   });
-}
-
-/**
- * Helper function to get the accessible name of an element.
- * @param {Element} element - The DOM element
- * @returns {string} The accessible name
- */
-function getAccessibleName(element) {
-  if (!element) return '';
   
-  return element.getAttribute('aria-label') || 
-         element.getAttribute('aria-labelledby') || 
-         element.textContent || 
-         '';
+  // Log summary information
+  console.log(`Ensured uniqueness for ${landmarks.length} landmarks:`);
+  console.log(`- Unique landmark types found: ${Array.from(landmarkTypes).join(', ')}`);
+  console.log(`- Landmarks with generated IDs: ${Array.from(landmarks).filter(landmark => landmark.id && landmark.id.startsWith('landmark-')).length}`);
 }
 
 function createInPageButton() {

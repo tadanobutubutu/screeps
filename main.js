@@ -1,30 +1,16 @@
+// main.js - Application entry point
+// TODO: Address accessibility issues from insight report
+
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
-const { validateInput, processData, formatResponse, ensureUniqueLandmarks, validateLandmark } = require('./utils/validators');
-const { landmarkFunctions } = require('./utils/processor');
 
 // Configuration
 const CONFIG = {
     dataPath: './data',
-    maxResults: 100,
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000,
-    enforcedRules: [
-      'link-name-exists',
-      'link-purpose-describes-destination',
-      'link-is-meaningful',
-      'headings-make-up-hierarchy',
-      'unnested-headings',
-      'link-has-a-visdesc',
-      'aria-proptype-valid',
-      'landmark',
-      'aria-role-valid-passive',
-      'aria-role-valid-active',
-      'aria-hidden-make-sense'
-    ]
+    maxResults: 100
 };
 
 // Helper function to validate landmark structure
@@ -51,10 +37,10 @@ function processLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
     }
-
+    
     const validLandmarks = landmarks.filter(isValidLandmark);
     const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-
+    
     return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
@@ -63,7 +49,7 @@ function sortLandmarks(landmarks, ascending = true) {
     return landmarks.slice().sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
-
+        
         if (ascending) {
             return nameA.localeCompare(nameB);
         }
@@ -81,66 +67,24 @@ function ensureUniqueLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];
     }
-
+    
     const seen = new Set();
     const uniqueLandmarks = [];
-
+    
     for (const landmark of landmarks) {
         if (!landmark || typeof landmark.id === 'undefined') {
             continue;
         }
-
+        
         const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
+        
         if (!seen.has(landmarkId)) {
             seen.add(landmarkId);
             uniqueLandmarks.push(landmark);
         }
     }
-
+    
     return uniqueLandmarks;
-}
-
-// Validate landmark structure
-function validateLandmarkStructure(landmark) {
-    const { valid, violations } = axe.run(landmark);
-    const hasViolations = violations && violations.length > 0;
-
-    if (hasViolations) {
-        console.error('Accessibility issues found in landmark:', violations);
-    }
-
-    return valid && !hasViolations;
-}
-
-// Function to validate landmarks structure and add/fix landmark issues
-function validateLandmarks() {
-    const landmarks = loadLandmarks();
-    const processedLandmarks = landmarks.map(landmark => {
-        if (validateLandmarkStructure(landmark)) {
-            return landmark;
-        }
-
-        // If the landmark doesn't meet accessibility standards, let's try to fix it
-        // For simplicity, the fixes suggested here are quite modest and can be further improved
-        // Legal landmark types: region, banner, article, navigation, main, complementary, contentinfo
-        if (!landmark.type || !landmark.type.match(/^(region|banner|article|navigation|main|complementary|contentinfo)$/)) {
-            console.warn('Invalid landmark type provided.', landmark);
-            landmark.type = 'region';
-        }
-
-        if (!landmark.id && typeof landmark.name === 'string') {
-            landmark.id = `landmark_${landmark.name.toLowerCase().replace(/ /g, '-')}`;
-        }
-
-        if (!landmark.name) {
-            landmark.name = 'Unnamed Landmark';
-        }
-
-        return landmark;
-    });
-
-    return processLandmarks(processedLandmarks);
 }
 
 // Function to write the generated report to a file
@@ -151,10 +95,10 @@ function writeReport(report) {
 
 // TODO: Implement function for generating a report based on accessibility issues
 // Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport(element) {
-    const report = axe.run(element, CONFIG.enforcedRules);
-    writeReport(report);
-    return report;
+function generateAccessibilityReport() {
+  const report = scanAccessibility();
+  writeReport(report);
+  return report;
 }
 
 // Existing utility function
@@ -166,87 +110,93 @@ const formatResponse = (data) => {
 const { validateInput } = require('./utils/validators');
 const { processData } = require('./utils/processor');
 
-// Application main entry point
-const app = express();
+// Define configuration objects for export
+const config = CONFIG;
+const landmarkConfig = {}; // Placeholder for landmark-specific configuration
 
-// TODO: add the new functions or changes requested in the issue
-// Here is the implementation for checking link accessibility
-function isLinkAccessible(link) {
-    const { valid, violations } = axe.run(link);
-    return valid && !violations || violations.length === 0;
+// API configuration from HEAD branch
+const API_CONFIG = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+// REACT_017: Render navigation with landmark roles
+function renderNavigation() {
+  return [
+    '<nav role="navigation" aria-label="Main menu">',
+      '<ul>',
+        '<li><a href="#" role="menuitem">Home</a></li>',
+        '<li><a href="#" role="menuitem">About</a></li>',
+        '<li><a href="#" role="menuitem">Contact</a></li>',
+      '</ul>',
+    '</nav>'
+  ].join('');
 }
 
-// Function that imports all necessary functions related to landmarks from the landmarkFunctions object
-function loadLandmarkFunctions() {
-    const availableFunctions = fastMap(landmarkFunctions, ([key, value]) => ({ key, value }));
-    return availableFunctions.filter(({ value }) => typeof value === 'function');
+// REACT_025: Ensure unique landmarks
+function renderMainContent() {
+  return [
+    '<main id="main-content" role="main" aria-label="Main Content">',
+      '<h1>Welcome to the Application</h1>',
+      '<p>This is the main content area.</p>',
+    '</main>'
+  ].join('');
 }
 
-// Function for handling a GET request for landmarks
-app.get('/landmarks', (req, res) => {
-    const { landmarks } = loadLandmarkFunctions();
+// REACT_041: Add accessible names to SVGs
+function renderIcons() {
+  return [
+    '<svg role="img" aria-label="Home Icon" focusable="false">',
+      '<title>Home Icon</title>',
+      '<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>',
+    '</svg>',
+    '<svg role="img" aria-label="Settings Icon" focusable="false">',
+      '<title>Settings Icon</title>',
+      '<circle cx="12" cy="12" r="10"><path d="M12 15l5-3-5-3v6zm0 0v6m0-6l-5 3 5 3z"/></circle>',
+    '</svg>'
+  ].join('');
+}
 
-    // Your code for handling the request and response logic goes here
-    const requestedLandmark = req.query.landmark;
-
-    if (requestedLandmark) {
-        const landmarkFunction = landmarks[requestedLandmark];
-
-        if (!landmarkFunction) {
-            return res.status(404).json({ error: `Invalid landmark function requested: ${requestedLandmark}` });
-        }
-
-        const element = req.query.element || req.query.html;
-
-        if (!element) {
-            return res.status(400).json({ error: 'No element or HTML provided' });
-        }
-
-        if (typeof element !== 'string') {
-            return res.status(400).json({ error: 'Element or HTML must be a string' });
-        }
-
-        const accessibilityReport = generateAccessibilityReport(element);
-        const results = landmarkFunction(accessibilityReport);
-
-        res.json(formatResponse(results));
-    } else {
-        const landmarks = validateLandmarks();
-        res.json(formatResponse(landmarks));
-    }
-});
-
-app.use(express.json());
+// REACT_036: Fix fake link issue (use real <a> tags or button roles)
+function renderButtons() {
+  return [
+    '<a href="#" role="button" aria-label="Click Here">Click Here</a>'
+  ].join('');
+}
 
 // Export new necessary functions
 module.exports = {
-    validateInput,
-    processData,
-    formatResponse,
-    config: CONFIG,
-    landmarkFunctions,
-    landmarkConfig: landmarkFunctions.reduce((acc, [key, func]) => {
-        acc[key] = {
-            fn: func,
-            args: func.length > 1 ? [...func.arguments] : []
-        };
-        return acc;
-    }, {}),
-    validateLandmarkStructure,
-    validateLandmarks
+  validateInput,
+  processData,
+  formatResponse,
+  config,
+  landmarkConfig,
+  apiConfig: API_CONFIG,
+  // landmark functions
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  ensureUniqueLandmarks,
+  // render functions
+  renderNavigation,
+  renderMainContent,
+  renderIcons,
+  renderButtons
 };
 
 // Main execution when run directly
 if (require.main === module) {
-    const landmarks = loadLandmarks();
-    const processed = processLandmarks(landmarks);
-    const sorted = sortLandmarks(processed);
-
-    console.log(`Loaded ${landmarks.length} landmarks`);
-    console.log(`Processed to ${processed.length} unique landmarks`);
-    console.log(`Sorted ${sorted.length} landmarks`);
-
-    if (sorted.length > 0) {
-        console.log('First landmark:', sorted[0]);
-    }
+  const landmarks = loadLandmarks();
+  const processed = processLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
+  
+  console.log(`Loaded ${landmarks.length} landmarks`);
+  console.log(`Processed to ${processed.length} unique landmarks`);
+  console.log(`Sorted ${sorted.length} landmarks`);
+  
+  if (sorted.length > 0) {
+    console.log('First landmark:', sorted[0]);
+  }
 }

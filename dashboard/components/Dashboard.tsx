@@ -318,21 +318,23 @@ export default function Dashboard() {
         );
     if (error)
         return (
-            <main aria-live="assertive" style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-                <pre
-                    tabIndex={0}
-                    aria-label="エラーメッセージ詳細"
-                    style={{
-                        color: '#c53030',
-                        backgroundColor: '#fff5f5',
-                        padding: '1rem',
-                        borderRadius: '4px',
-                        overflow: 'auto',
-                    }}
-                >
-                    {error}
-                </pre>
+            <main id="main-content" tabIndex={-1} style={{ padding: '2rem', fontFamily: 'monospace', outline: 'none' }}>
+                <div role="alert" aria-live="assertive">
+                    <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+                    <pre
+                        tabIndex={0}
+                        aria-label="エラーメッセージ詳細"
+                        style={{
+                            color: '#c53030',
+                            backgroundColor: '#fff5f5',
+                            padding: '1rem',
+                            borderRadius: '4px',
+                            overflow: 'auto',
+                        }}
+                    >
+                        {error}
+                    </pre>
+                </div>
                 <button
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}
@@ -828,8 +830,8 @@ export default function Dashboard() {
                     {stats?.power !== undefined && (
                         <p
                             className="interactive-hint"
-                            title="グローバルパワーレベル (GPL) です"
-                            aria-label="グローバルパワーレベル (GPL) です"
+                            title={`グローバルパワーレベル (GPL): ${stats.power}`}
+                            aria-label={`グローバルパワーレベル (GPL): ${stats.power}`}
                             tabIndex={0}
                             style={{ margin: 0 }}
                         >
@@ -852,12 +854,12 @@ export default function Dashboard() {
                         title={
                             roomQuery
                                 ? `検索に一致した部屋数: ${filteredRooms.length} / 全部屋数: ${stats?.rooms?.length || 0}`
-                                : 'AI が現在活動している部屋のリストです'
+                                : `AI が現在活動している部屋のリストです (${stats?.rooms?.length || 0} 部屋)`
                         }
                         aria-label={
                             roomQuery
                                 ? `検索に一致した部屋数 ${filteredRooms.length}、全部屋数 ${stats?.rooms?.length || 0}`
-                                : 'AI が現在活動している部屋のリストです'
+                                : `AI が現在活動している部屋のリストです (${stats?.rooms?.length || 0} 部屋)`
                         }
                     >
                         🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'} (

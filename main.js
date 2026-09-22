@@ -1,6 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-
+// TODO: Create or update the affected functions to be accessible
+//------ BEGIN ORIGINAL CODE (unchanged)------
 export function calculateSum(a, b) {
     return a + b;
 }

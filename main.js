@@ -1,20 +1,6 @@
-// TODO: This is the existing code that needs to be preserved
-// _Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
-// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
-// <!--- START ADDITIONAL FUNCTION --->
-
-// _Commit: 2436163265c69795fd0754cd42511f212db7ba4a_
-
-// <!-- todo-hash: 35ed81c951f7dca97d05b752e8997e4937f7e108 -->
-
-export function calculateSum(a, b) {
-    return a + b;
-}
-
-// Below is the existing code (preserving syntax and existing exports)
-import react from 'react';
-
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+// REACT_015: Add lang attribute
+const { ERR_NOT_IN_RANGE, STRUCTURE_TOWER, RESOURCE_ENERGY } = require('game/constants');
+const _ = require('lodash');
 
 const main = {
   loop: function() {
@@ -614,7 +600,9 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   personName,
+  main,
   mainExecution,
-  versionOneImplementation,
-  main
+  ERR_NOT_IN_RANGE,
+  STRUCTURE_TOWER,
+  RESOURCE_ENERGY
 };

@@ -228,9 +228,11 @@ function _findSourceContainer(source) {
  * @param {StructureContainer} container
  */
 function _mineToContainer(creep, source, container) {
+    // ⚡ PERFORMANCE OPTIMIZATION: Hoist container.pos reference to avoid redundant property lookups per tick
+    const containerPos = container.pos;
     // コンテナの上に立つ（隣接ではなくコンテナ上）
-    if (!creep.pos.isEqualTo(container.pos)) {
-        pathfinder.moveTo(creep, container.pos, { range: 0 });
+    if (!creep.pos.isEqualTo(containerPos)) {
+        pathfinder.moveTo(creep, containerPos, { range: 0 });
         return;
     }
 

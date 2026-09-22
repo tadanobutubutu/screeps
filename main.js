@@ -127,10 +127,7 @@ const config = {
 
 function getLangAttribute() {
   // Code for getting the language attribute
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || 'en';
-  }
-  return 'en';
+  return document.documentElement.getAttribute('lang');
 }
 
 function addLangAttribute(element) {
@@ -148,37 +145,7 @@ function addLangAttribute(element) {
 // Add the new function or change here:
 function myNewFunction(data, options = {}) {
   // your new function logic goes here
-  if (!data) {
-    console.log('Function called without data');
-    return null;
-  }
-  
-  const {
-    process = true,
-    validate = true,
-    timestamp = true
-  } = options;
-  
-  let result = data;
-  
-  if (process && typeof data === 'string') {
-    result = data.trim().toUpperCase();
-  }
-  
-  if (validate && typeof result === 'string' && result.length === 0) {
-    throw new Error('Processed result cannot be empty');
-  }
-  
-  const output = {
-    input: data,
-    result: result
-  };
-  
-  if (timestamp) {
-    output.timestamp = new Date().toISOString();
-  }
-  
-  return output;
+  console.log('New function called');
 }
 
 function processData(data) {
@@ -394,14 +361,14 @@ function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This processes the insight report and takes appropriate actions to fix issues
   
-  if (!insightReport || !insightReport.issues) {
+  if (!insightReport || !Array.isArray(insightReport)) {
     console.log('No valid accessibility issues found in the insight report');
     return [];
   }
   
   const addressedIssues = [];
   
-  insightReport.issues.forEach((issue, index) => {
+  insightReport.forEach((issue) => {
     console.log(`Addressing accessibility issue ${issue.code}: ${issue.message}`);
     
     let actionTaken = false;
@@ -411,10 +378,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_015':
         // Add lang attribute to HTML element
         try {
-          const htmlElement = document.querySelector('html');
-          if (htmlElement) {
-            addLangAttribute(htmlElement);
-          }
+          const htmlElement = document.documentElement;
+          addLangAttribute(htmlElement);
           actionTaken = true;
           console.log('Added language attribute to HTML element');
         } catch (error) {
@@ -455,11 +420,9 @@ function addressAccessibilityIssues(insightReport) {
         try {
           const svgElements = document.querySelectorAll('svg');
           svgElements.forEach(svg => {
-            if (svg && svg.setAttribute) {
-              const accessibleName = getSvgAccessibleName(svg);
-              if (accessibleName) {
-                setSvgAttributes(svg, accessibleName);
-              }
+            const accessibleName = getSvgAccessibleName(svg);
+            if (accessibleName) {
+              setSvgAttributes(svg, accessibleName);
             }
           });
           actionTaken = true;
@@ -612,4 +575,19 @@ function renderDependencyGraph(dependencies, containerId) {
     }
   }
   
-  // Create a
+  // Create a simple text representation of the graph
+  const graphElement = document.createElement('div');
+  graphElement.className = 'dependency-graph-content';
+  
+  // Add nodes section
+  const nodesSection = document.createElement('div');
+  nodesSection.className = 'graph-nodes';
+  nodesSection.innerHTML = '<h4>Nodes:</h4><ul>' + 
+    nodes.map(node => `<li>${node.name}</li>`).join('') + 
+    '</ul>';
+  
+  // Add edges section
+  const edgesSection = document.createElement('div');
+  edgesSection.className = 'graph-edges';
+  edgesSection.innerHTML = '<h4>Dependencies:</h4><ul>' + 
+    edges.map

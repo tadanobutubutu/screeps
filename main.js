@@ -2,53 +2,15 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const Landmark = require('./landmark.js'); // Import Landmark module
 
+// Import the new function
+const createInPageButton = require('./createInPageButton');
+
 import './styles.css';
 import { initializeApp, appData } from './app.js';
 import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
-// Function to create in-page buttons
-const createInPageButton = (options) => {
-  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
-
-  const getBackgroundColor = () => {
-    if (disabled) return '#999';
-    if (isActive) return '#155d27';
-    return '#004b73';
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-disabled={disabled}
-      aria-label={ariaLabel || label}
-      aria-pressed={isActive}
-      title={title || label}
-      onMouseEnter={() => setHoverState(true)}
-      onMouseLeave={() => setHoverState(false)}
-      onFocus={() => setHoverState(true)}
-      onBlur={() => setHoverState(false)}
-      style={{
-        backgroundColor: getBackgroundColor(),
-        color: 'white',
-        padding: '0.5rem 1rem',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.6 : 1,
-        transition: 'all 0.2s ease-in-out',
-        transform: hoverState ? 'scale(1.05)' : 'scale(1)',
-        boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-        filter: hoverState ? 'brightness(1.1)' : 'none',
-      }}
-    >
-      <span>{icon}</span>
-      <span> {label}</span>
-    </button>
-  );
-};
+// Function to create in-page buttons (from createInPageButton.js)
 
 // Placeholder for the affected SVGs
 const icons = {};
@@ -104,49 +66,12 @@ function calculateSum(numbers) {
   return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
-/**
- * Addresses accessibility issues based on an insight report.
- * @param {Array} insightReport - An array of issue objects, each containing a 'type' and 'element' property.
- * @returns {number} The number of issues that were addressed.
- */
-function addressAccessibilityIssues(insightReport) {
-  if (!Array.isArray(insightReport)) {
-    console.error('addressAccessibilityIssues: insightReport must be an array');
-    return 0;
-  }
-
-  const fixers = {
-    lang: (element) => {
-      if (element) {
-        addLangAttribute(element);
-        return true;
-      }
-      return false;
-    },
-    // Add more fixers for other issue types as needed
-  };
-
-  let fixedCount = 0;
-
-  insightReport.forEach((issue) => {
-    const { type, element } = issue;
-    const fixer = fixers[type];
-    if (fixer) {
-      if (fixer(element)) {
-        fixedCount++;
-      }
-    } else {
-      console.warn(`addressAccessibilityIssues: No fixer implemented for issue type "${type}"`);
-    }
-  });
-
-  return fixedCount;
-}
+// Function to create in-page buttons (from createInPageButton.js)
 
 module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
   calculateSum,
-  addressAccessibilityIssues
+  createInPageButton
 };

@@ -1,5 +1,10 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-09-02 - [Accessible Name Calculation & Dynamic Telemetry Stats]
+
+**Learning:** When using `aria-label` or `title` attributes on elements displaying dynamic numerical statistics (such as `💪 GPL: 5`), setting static description strings (e.g., `aria-label="グローバルパワーレベル (GPL) です"`) overrides all child text nodes during screen-reader accessible name computation (WCAG 4.1.2 Name, Role, Value). This inadvertently hides the actual statistic from non-sighted users. Including the dynamic state directly in `aria-label` and `title` (e.g., `aria-label={`グローバルパワーレベル (GPL): ${stats.power}`}`) ensures full visual and auditory fidelity.
+**Action:** Always include dynamic state/numerical values within `aria-label` and `title` attributes whenever overriding an element's accessible name.
+
 ## 2026-09-01 - [Polite Status Live Regions for Asynchronous UI Updates]
 
 **Learning:** When displaying transient status indicators for asynchronous actions (such as `✅ 更新完了` badges upon dashboard telemetry updates), pairing `role="status"` with `aria-live="polite"` and an explicit, translated `aria-label` (e.g. `aria-label="データの更新が完了しました"`) ensures screen readers announce status changes seamlessly without interrupting current speech or forcing focus context shifts (WCAG 4.1.3 Status Messages).

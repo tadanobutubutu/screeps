@@ -1,4 +1,4 @@
-const HTML = ({ lang }) => ({ lang });
+const HTML = ({ lang }) => React.createElement('html', { lang }, null);
 
 // Sample data and state
 const config = {
@@ -426,10 +426,13 @@ export default function App() {
     // Your app functionality here
   };
 
-  return {
-    element: HTML({ lang: 'en' }),
-    children: [MyApp()]
-  };
+  return (
+    React.createElement(HTML, { lang: 'en' },
+      React.createElement(React.Fragment, null,
+        React.createElement(MyApp, null)
+      )
+    )
+  );
 }
 
 module.exports = {

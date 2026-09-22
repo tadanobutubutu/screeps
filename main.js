@@ -151,7 +151,10 @@ function validateLandmarkStructure() {
 
 function validateLandmarkAttributes(element) {
   // Code for validating landmark attributes
-  return true;
+  if (!element) {
+    return false;
+  }
+  return element.hasAttribute('role') || element.tagName === 'MAIN' || element.tagName === 'NAV' || element.tagName === 'ASIDE' || element.tagName === 'FOOTER' || element.tagName === 'HEADER';
 }
 
 function getSvgAccessibleName(svg) {
@@ -241,67 +244,8 @@ function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This processes the insight report and takes appropriate actions to fix issues
   
-  if (!insightReport || !Array.isArray(insightReport.accessibilityIssues)) {
-    console.log('No valid accessibility issues found in the insight report');
-    return {
-      summary: {
-        totalIssues: 0,
-        addressed: 0,
-        pending: 0,
-        generatedAt: new Date().toISOString()
-      },
-      issues: [],
-      details: []
-    };
-  }
-
-  const issues = insightReport.accessibilityIssues;
-  const totalIssues = issues.length;
-
-  // Determine which issues have been addressed
-  const addressedCodes = new Set(
-    addressedIssues
-      .filter(item => item && item.actionTaken && item.issue && item.issue.code)
-      .map(item => item.issue.code)
-  );
-
-  const addressedCount = addressedCodes.size;
-  const pendingCount = totalIssues - addressedCount;
-
-  // Build the report details
-  const details = issues.map(issue => {
-    const isAddressed = addressedCodes.has(issue.code);
-    return {
-      code: issue.code,
-      message: issue.message,
-      severity: issue.severity || 'unknown',
-      status: isAddressed ? 'addressed' : 'pending',
-      addressedAt: isAddressed
-        ? (addressedIssues.find(item => item.issue && item.issue.code === issue.code) || {}).timestamp
-        : null
-    };
-  });
-
-  const report = {
-    summary: {
-      totalIssues,
-      addressed: addressedCount,
-      pending: pendingCount,
-      generatedAt: new Date().toISOString()
-    },
-    issues: issues.map(issue => ({
-      code: issue.code,
-      message: issue.message
-    })),
-    details
-  };
-
-  console.log(`Accessibility report generated: ${addressedCount}/${totalIssues} issues addressed`);
-  return report;
-}
-
-function addressAccessibilityIssues(insightReport) {
-  const issues = insightReport?.issues?.length ? insightReport.issues : insightReport?.accessibilityIssues;
+  // Support both insightReport.issues and insightReport.accessibilityIssues
+  const issues = insightReport?.issues?.length ? insightReport.issues : (insightReport?.accessibilityIssues || []);
   if (!issues || !Array.isArray(issues)) {
     console.log('No valid accessibility issues found in the insight report');
     return [];
@@ -357,8 +301,8 @@ function addressAccessibilityIssues(insightReport) {
         try {
           const svgElements = issue.elements || [];
           svgElements.forEach(svg => {
-            if (svg && svg.querySelector) {
-              const accessibleName = getSvgAccessibleName();
+            if (svg && svg.setAttribute) {
+              const accessibleName = getSvgAccessibleName(svg);
               if (accessibleName) {
                 setSvgAttributes(svg, accessibleName);
               }
@@ -404,234 +348,4 @@ function addressAccessibilityIssues(insightReport) {
   return results;
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-function generateAccessibilityReport(input) {
-  let issues = [];
-
-  if (input && Array.isArray(input.accessibilityIssues)) {
-    issues = input.accessibilityIssues;
-  } else if (Array.isArray(input)) {
-    issues = input;
-  } else {
-    return {
-      totalIssues: 0,
-      addressed: 0,
-      unaddressed: 0,
-      details: [],
-      generatedAt: new Date().toISOString(),
-      summary: 'No valid accessibility issues provided'
-    };
-  }
-
-  const details = issues.map(issue => {
-    const isAddressed = !!(issue && issue.actionTaken);
-    return {
-      code: issue ? issue.code : 'UNKNOWN',
-      message: issue ? issue.message : 'No message',
-      status: isAddressed ? 'addressed' : 'unaddressed',
-      timestamp: issue && issue.timestamp ? issue.timestamp : new Date().toISOString()
-    };
-  });
-
-  const addressed = details.filter(d => d.status === 'addressed').length;
-  const unaddressed = details.length - addressed;
-
-  const report = {
-    totalIssues: details.length,
-    addressed,
-    unaddressed,
-    details,
-    generatedAt: new Date().toISOString(),
-    summary: `Found ${details.length} accessibility issues: ${addressed} addressed, ${unaddressed} unaddressed.`
-  };
-
-  return report;
-}
-
-function ensureElementHasId(element, prefix = 'element') {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-  
-  if (element.id) {
-    return element.id;
-  }
-  
-  const uniqueId = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = uniqueId;
-  return uniqueId;
-}
-
-function addAriaLabel(element, label) {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-  
-  if (typeof label !== 'string' || label.trim() === '') {
-    throw new Error('Aria label must be a non-empty string');
-  }
-  
-  element.setAttribute('aria-label', label);
-  return element;
-}
-
-function renderDependencyGraph(dependencies, containerId) {
-  if (!dependencies || typeof dependencies !== 'object') {
-    throw new Error('Dependencies must be a valid object');
-  }
-  
-  if (!containerId || typeof containerId !== 'string') {
-    throw new Error('Container id must be a non-empty string');
-  }
-  
-  const container = document.getElementById(containerId);
-  if (!container) {
-    throw new Error(`Container element with id "${containerId}" not found`);
-  }
-  
-  const graphContainer = document.createElement('div');
-  graphContainer.className = 'dependency-graph';
-  graphContainer.setAttribute('role', 'img');
-  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
-  
-  const nodes = [];
-  const edges = [];
-  
-  for (const [key, value] of Object.entries(dependencies)) {
-    ensureElementHasId({ id: '' }, key);
-    nodes.push({
-      id: key,
-      name: key,
-      dependencies: Array.isArray(value) ? value : []
-    });
-    
-    if (Array.isArray(value)) {
-      value.forEach(dep => {
-        edges.push({
-          source: dep,
-          target: key
-        });
-      });
-    }
-  }
-  
-  const graphElement = document.createElement('div');
-  graphElement.className = 'dependency-graph-content';
-  
-  const nodesSection = document.createElement('div');
-  nodesSection.className = 'graph-nodes';
-  nodesSection.innerHTML = '<h4>Nodes:</h4><ul>' + 
-    nodes.map(node => `<li>${node.name}</li>`).join('') + 
-    '</ul>';
-  
-  const edgesSection = document.createElement('div');
-  edgesSection.className = 'graph-edges';
-  edgesSection.innerHTML = '<h4>Dependencies:</h4><ul>' + 
-    edges.map(edge => `<li>${edge.source} → ${edge.target}</li>`).join('') + 
-    '</ul>';
-  
-  graphElement.appendChild(nodesSection);
-  graphElement.appendChild(edgesSection);
-  graphContainer.appendChild(graphElement);
-  
-  container.innerHTML = '';
-  container.appendChild(graphContainer);
-  
-  return graphContainer;
-}
-
-// Define the missing variables and functions referenced in module.exports
-const appState = {
-  cache: new Map(),
-  users: [],
-  clear: function() {
-    this.cache.clear();
-    this.users = [];
-  }
-};
-
-appState.cache = {
-  get: function(key) {
-    return localStorage ? localStorage.getItem(key) : null;
-  },
-  set: function(key, value) {
-    if (localStorage) {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-  },
-  clear: function() {
-    if (localStorage) {
-      localStorage.clear();
-    }
-  }
-};
-
-const config = {
-  // Default configuration
-  debug: false,
-  version: '1.0.0'
-};
-
-function initializeApp() {
-  console.log('App initialized');
-  return true;
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-if (require.main === module) {
-  main();
-}
-
-export default function App() {
-  const MyApp = () => {
-    // Your app functionality here
-  };
-
-  return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
-  );
-}
-
-module.exports = {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  main,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  calculateSum,
-  myNewFunction
-};
+// - REACT_041: Add accessible names to 2 SVGs

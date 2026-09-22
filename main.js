@@ -138,98 +138,35 @@ function addProperLandmarkRegions() {
 }
 
 function addressAccessibilityIssues(insightReport) {
-  // Implementation of the function to address accessibility issues
-  // This processes the insight report and takes appropriate actions to fix issues
-  
-  // Support both insightReport.issues and insightReport.accessibilityIssues
-  const issues = insightReport?.issues?.length ? insightReport.issues : (insightReport?.accessibilityIssues || []);
-  if (!issues || !Array.isArray(issues)) {
-    console.log('No valid accessibility issues found in the insight report');
-    return [];
-  }
-  
-  const addressedIssues = [];
-  
-  issues.forEach((issue, index) => {
-    console.log(`Addressing accessibility issue ${issue.code}: ${issue.message}`);
-    
-    let actionTaken = false;
-    
-    switch(issue.code) {
-      case 'REACT_015':
-        // Add lang attribute to HTML element
-        try {
-          console.log('Adding language attribute');
-          actionTaken = true;
-          console.log('Added language attribute to HTML element');
-        } catch (error) {
-          console.error('Failed to add language attribute:', error);
-        }
-        break;
-        
-      case 'REACT_027':
-        // Fix table structure issues
-        try {
-          console.log('Fixing table structure');
-          actionTaken = true;
-          console.log('Fixed table structure issues');
-        } catch (error) {
-          console.error('Failed to fix table structure:', error);
-        }
-        break;
-        
-      case 'REACT_017':
-      case 'REACT_025':
-        // Add/fix landmark issues
-        try {
-          addMainLandmark(document.querySelector('main'));
-          ensureUniqueLandmarks();
-          actionTaken = true;
-          console.log('Added and ensured unique landmarks');
-        } catch (error) {
-          console.error('Failed to fix landmark issues:', error);
-        }
-        break;
-        
-      case 'REACT_041':
-        // Add accessible names to SVGs
-        try {
-          const svgElements = document.querySelectorAll('svg');
-          svgElements.forEach(svg => {
-            if (svg && svg.setAttribute) {
-              const accessibleName = getSvgAccessibleName(svg);
-              if (accessibleName) {
-                setSvgAttributes(svg, accessibleName);
-              }
-            }
-          });
-          actionTaken = true;
-          console.log('Added accessible names to SVGs');
-        } catch (error) {
-          console.error('Failed to add SVG accessible names:', error);
-        }
-        break;
-        
-      case 'REACT_036':
-        // Fix fake link issues
-        try {
-          handleFakeLinks();
-          actionTaken = true;
-          console.log('Fixed fake link issues');
-        } catch (error) {
-          console.error('Failed to fix fake link issues:', error);
-        }
-        break;
-        
-      default:
-        console.log(`No specific handler for issue code: ${issue.code}`);
-        break;
-    }
-    
-    addressedIssues.push({
-      issue,
-      actionTaken,
-      timestamp: new Date().toISOString()
+  // Mock implementation of the function to address accessibility issues
+  // This should be replaced with actual logic based on the insight report structure
+
+  // For example, we might log the issues or take some action to fix them
+  if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
+    insightReport.accessibilityIssues.forEach(issue => {
+      console.log(`Accessibility issue detected: ${issue.message}`);
+      // Add your logic here to address the issue, such as updating the DOM or calling other functions
+      if (issue.code === 'REACT_015') {
+        addLangAttribute(document.documentElement);
+      } else if (issue.code === 'REACT_017') {
+        addMainLandmark();
+        validateLandmark();
+        validateLandmarkStructure();
+        validateLandmarkAttributes();
+        ensureUniqueLandmarks();
+      } else if (issue.code === 'REACT_041') {
+        const svgs = document.querySelectorAll('svg');
+        svgs.forEach(svg => {
+          const accessibleName = getSvgAccessibleName(svg);
+          setSvgAttributes(svg, accessibleName);
+        });
+      } else if (issue.code === 'REACT_025') {
+        validateTableAccessibility();
+        validateTableStructure();
+        fixTableStructure();
+      } else if (issue.code === 'REACT_036') {
+        handleFakeLinks();
+      }
     });
   }
 

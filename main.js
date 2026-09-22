@@ -5,7 +5,10 @@
 // - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
 
 // Function to detect the language of the page content
 function detectAndSetLang() {

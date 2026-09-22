@@ -164,7 +164,7 @@ function addLangAttribute(element) {
 // Add the new function or change here:
 function myNewFunction(data, options = {}) {
   // your new function logic goes here
-  console.log('Function called');
+  console.log('called');
 }
 
 function processData(data) {
@@ -380,7 +380,7 @@ function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This processes the insight report and takes appropriate actions to fix issues
   
-  if (!insightReport || !insightReport.issues || insightReport.issues.length === 0) {
+  if (!insightReport || !insightReport.issues) {
     console.log('No valid accessibility issues found in the insight report');
     return [];
   }
@@ -397,9 +397,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_015':
         // Add lang attribute to HTML element
         try {
-          if (issue.element) {
-            addLangAttribute(issue.element);
-          }
+          const htmlElement = document.querySelector('html');
+          addLangAttribute(htmlElement);
           actionTaken = true;
           console.log('Added language attribute to HTML element');
         } catch (error) {
@@ -410,9 +409,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_027':
         // Fix table structure issues
         try {
-          if (issue.element) {
-            fixTableStructure(issue.element);
-          }
+          const tables = document.querySelectorAll('table');
+          tables.forEach(table => fixTableStructure(table));
           actionTaken = true;
           console.log('Fixed table structure issues');
         } catch (error) {
@@ -440,11 +438,9 @@ function addressAccessibilityIssues(insightReport) {
         try {
           const svgElements = issue.elements || [];
           svgElements.forEach(svg => {
-            if (svg && svg.setAttribute) {
-              const accessibleName = getSvgAccessibleName(svg);
-              if (accessibleName) {
-                setSvgAttributes(svg, accessibleName);
-              }
+            const accessibleName = getSvgAccessibleName();
+            if (accessibleName) {
+              setSvgAttributes(svg, accessibleName);
             }
           });
           actionTaken = true;
@@ -523,7 +519,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
   
-  const uniqueId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const uniqueId = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   element.id = uniqueId;
   return uniqueId;
 }
@@ -579,7 +575,8 @@ function renderDependencyGraph(dependencies, containerId) {
   const edges = [];
   
   for (const [key, value] of Object.entries(dependencies)) {
-    const nodeId = ensureElementHasId({ id: '' }, key);
+    const tempElement = { id: '' };
+    const nodeId = ensureElementHasId(tempElement, key);
     nodes.push({
       id: key,
       name: key,
@@ -604,7 +601,7 @@ function renderDependencyGraph(dependencies, containerId) {
   const nodesSection = document.createElement('div');
   nodesSection.className = 'graph-nodes';
   nodesSection.innerHTML = '<h4>Nodes:</h4><ul>' + 
-    nodes.map(node => `<li>${node.name}</li>`).join('') + 
+    nodes.map(node => `<li>${node.id}: ${node.name}</li>`).join('') + 
     '</ul>';
   
   // Add edges section
@@ -622,67 +619,3 @@ function renderDependencyGraph(dependencies, containerId) {
   // Clear container and append the graph
   container.innerHTML = '';
   container.appendChild(graphContainer);
-  
-  return graphContainer;
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
-
-// Example usage of the new function (if applicable)
-// This would depend on how the insight report is obtained and when you want to address the issues
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-export default function App() {
-  const MyApp = () => {
-    // Your app functionality here
-  };
-
-  return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
-  );
-}
-
-module.exports = {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  main,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  ensureElementHasId,
-  addAriaLabel,

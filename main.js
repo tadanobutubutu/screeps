@@ -759,5 +759,7 @@ module.exports = {
   handleFakeLinks,
   personName,
   mainExecution,
-  exportAllAccessibilityHelpers
+  
+  // Required exports that might have been missing
+  someFunction
 };

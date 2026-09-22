@@ -1,10 +1,4 @@
-'use strict';
-
-const React = require('react');
-
-// HTML component using React.createElement
-const HTML = ({ lang }) =>
-  React.createElement('html', { lang }, '/* other children */');
+const HTML = ({ lang }) => ({ lang });
 
 // Sample data and state
 const config = {
@@ -432,14 +426,10 @@ export default function App() {
     // Your app functionality here
   };
 
-  return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
-  );
+  return {
+    element: HTML({ lang: 'en' }),
+    children: [MyApp()]
+  };
 }
 
 module.exports = {

@@ -1,4 +1,14 @@
-import react from 'react';
+import React from 'react';
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
+// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+
+// TODO: This is the existing code that needs to be preserved
 
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
@@ -155,7 +165,7 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_041':
         // Add accessible names to SVGs
         if (issue.svg) {
-          const accessibleName = getSvgAccessibleName(issue.svg);
+          const accessibleName = getSvgAccessibleName();
           setSvgAttributes(issue.svg, accessibleName);
         }
         break;
@@ -200,11 +210,11 @@ function processAccessibilityReport(report) {
 
   if (report) {
     if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
+    if (report.REACT_027) findings.tableIssues = report.REACT_027 || 0;
+    if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
+    if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
   }
 
   return findings;

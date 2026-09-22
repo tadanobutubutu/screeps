@@ -24,6 +24,93 @@ function detectAndSetLang() {
 // Below is the existing code (preserving syntax and existing exports)
 // ...
 
+// CLI Logic Implementation
+function parseCLIArgs(args) {
+  const command = args[2]; // Skip 'node' and script name
+  const options = {};
+  
+  for (let i = 3; i < args.length; i++) {
+    const arg = args[i];
+    if (arg.startsWith('--')) {
+      const [key, value] = arg.slice(2).split('=');
+      options[key] = value || true;
+    } else if (arg.startsWith('-')) {
+      options[arg.slice(1)] = true;
+    }
+  }
+  
+  return { command, options };
+}
+
+function displayHelp() {
+  console.log(`
+Usage: node main.js <command> [options]
+
+Commands:
+  init                    Initialize the application
+  process <data>          Process the provided data
+  cache:clear            Clear the application cache
+  help                    Display this help message
+
+Options:
+  --verbose               Enable verbose output
+  --format=<format>       Output format (json, text)
+
+Examples:
+  node main.js init
+  node main.js process --data='[{"id":1}]'
+  node main.js cache:clear --verbose
+  `);
+}
+
+async function executeCLI() {
+  const { command, options } = parseCLIArgs(process.argv);
+  const verbose = options.verbose || false;
+  
+  if (verbose) {
+    console.log('CLI: Starting execution with command:', command);
+  }
+  
+  switch (command) {
+    case 'init':
+      if (verbose) console.log('CLI: Initializing application...');
+      const result = initialize();
+      console.log('Initialization complete:', result);
+      break;
+      
+    case 'process':
+      if (verbose) console.log('CLI: Processing data...');
+      let dataToProcess;
+      if (options.data) {
+        try {
+          dataToProcess = JSON.parse(options.data);
+        } catch (e) {
+          dataToProcess = options.data;
+        }
+      } else {
+        dataToProcess = { sample: true };
+      }
+      const processed = processData(dataToProcess);
+      console.log('Processed data:', JSON.stringify(processed, null, 2));
+      break;
+      
+    case 'cache:clear':
+      if (verbose) console.log('CLI: Clearing cache...');
+      clearCache();
+      break;
+      
+    case 'help':
+    case undefined:
+      displayHelp();
+      break;
+      
+    default:
+      console.error(`Unknown command: ${command}`);
+      console.log('Run 'node main.js help' for usage information.');
+      process.exit(1);
+  }
+}
+
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
 // ... (existing code, exports, and functions)
@@ -154,13 +241,15 @@ function fixTableStructure(table) {
   // Code for fixing table structure issues
   if (table && table.querySelector) {
     // Ensure table has proper structure with thead, tbody, etc.
-    if (table.querySelector('thead') === null) {
-      const thead = document.createElement('thead');
-      table.insertBefore(thead, table.firstChild);
+    const thead = table.querySelector('thead');
+    if (!thead) {
+      const theadElement = document.createElement('thead');
+      table.insertBefore(theadElement, table.firstChild);
     }
-    if (table.querySelector('tbody') === null) {
-      const tbody = document.createElement('tbody');
-      table.appendChild(tbody);
+    const tbody = table.querySelector('tbody');
+    if (!tbody) {
+      const tbodyElement = document.createElement('tbody');
+      table.appendChild(tbodyElement);
     }
   }
 }
@@ -305,7 +394,7 @@ function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This processes the insight report and takes appropriate actions to fix issues
   
-  if (!insightReport || !Array.isArray(insightReport.issues)) {
+  if (!insightReport || !insightReport.issues) {
     console.log('No valid accessibility issues found in the insight report');
     return [];
   }
@@ -318,7 +407,7 @@ function addressAccessibilityIssues(insightReport) {
     let actionTaken = false;
     
     // Address specific issues based on their codes
-    switch(issue.code) {
+    switch (issue.code) {
       case 'REACT_015':
         // Add lang attribute to HTML element
         try {
@@ -449,7 +538,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
   
-  const uniqueId = `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
+  const uniqueId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = uniqueId;
   return uniqueId;
 }
@@ -523,27 +612,4 @@ function renderDependencyGraph(dependencies, containerId) {
     }
   }
   
-  // Check for title element within SVG
-  const title = svg.querySelector('title');
-  if (title && title.textContent) {
-    return title.textContent;
-  }
-  
-  // Add nodes section
-  const nodesSection = document.createElement('div');
-  nodesSection.className = 'graph-nodes';
-  nodesSection.innerHTML = '<h4>Nodes:</h4><ul>' + 
-    nodes.map(node => `<li>${node.id}</li>`).join('') + 
-    '</ul>';
-  
-  // Add edges section
-  const edgesSection = document.createElement('div');
-  edgesSection.className = 'graph-edges';
-  edgesSection.innerHTML = '<h4>Dependencies:</h4><ul>' + 
-    edges.map(edge => `<li>${edge.source} → ${edge.target}</li>`).join('') + 
-    '</ul>';
-  
-  graphElement.appendChild(nodesSection);
-  graphElement.appendChild(edgesSection);
-  
-  // Clear container and append the graph
+  // Create a

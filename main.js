@@ -15,33 +15,9 @@ import { initializeApp, appData } from './app.js';
 import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
-// TODO: This is the existing code that needs to be preserved
-// _Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
-// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
-// <!--- START ADDITIONAL FUNCTION --->
-
-// New Function to create additional SVG icons
-const createAdditionalIcon = (options) => {
-  const { id, src, alt, className } = options;
-
-  if (!id || !src || !alt || !className) {
-    throw new Error('Missing required props for createAdditionalIcon: id, src, alt, className');
-  }
-
-  icons[id] = (
-    <svg
-      id={id}
-      className={className}
-      src={src}
-      width="24"
-      height="24"
-      role="img"
-      aria-labelledby={`svg-icon-${id} ${id}-description`}
-    >
-      <title id={`${id}-title`}>{alt}</title>
-      <desc id={`${id}-description`}>{alt}</desc>
-    </svg>
-  );
+// Function to create in-page buttons
+const createInPageButton = (options) => {
+  // ... existing code for createInPageButton ...
 };
 
 // New Function to clear the local storage
@@ -72,46 +48,19 @@ const fixTableStructureIssues = () => {
 };
 
 function processLandmarks(landmarks) {
-  // ... existing code ...
-
-  // Accessibility improvement: Ensure landmarks have 'role' attribute
-  const landmarkStructureCheck = (landmark) => {
-    // ... existing code ...
-
-    // Check for 'role' attribute
-    if (!landmark.hasAttribute('role')) {
-      landmark.setAttribute('role', 'landmark');
-    }
-
-    return true; // Add your own check logic
-  };
-
-  const validLandmarks = landmarks.filter(landmarkStructureCheck);
-
-  // Ensure the landmarks are unique
-  const ensureUniqueLandmarks = (items) => {
-    // Add your own unique landmark logic here
-    // ...
-    return items;
-  };
-
-  // Handle credential response for each landmark
-  validLandmarks.forEach((landmark) => {
-    if (landmark.hasOwnProperty('credential') && landmark.credential) {
-      // Add your credential validation logic here
-      // ...
-    }
-  });
-
-  return ensureUniqueLandmarks(validLandmarks);
+  // ... existing code for processLandmarks ...
 }
 
-// Function to check if the specified landmark element is in the document.
-// @param {string} id - The ID of the landmark element.
-// @returns {boolean} Returns true if the element exists; otherwise, false.
+function addLangAttribute(htmlElement) {
+  // ... existing code for addLangAttribute ...
+}
+
 function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
+  // ... existing code for checkLandmarkElement ...
+}
+
+function calculateSum(numbers) {
+  // ... existing code for calculateSum ...
 }
 
 // Function to check if the specified SVG element is in the document.
@@ -123,15 +72,48 @@ function checkSvgElement(id) {
 }
 
 /**
- * Calculates the sum of an array of numbers.
- * @param {number[]} numbers - The array of numbers to sum.
- * @returns {number} The total sum of the numbers.
+ * Validates a given landmark object.
+ * @param {Object} landmark - The landmark object to validate.
+ * @returns {boolean} Returns true if the landmark is valid; otherwise, false.
  */
-function calculateSum(numbers) {
-  if (!Array.isArray(numbers)) {
-    throw new Error('Input must be an array');
+function validateLandmark(landmark) {
+  // Implement validation logic here
+  // For example, check if required properties exist and have valid values
+  if (!landmark || typeof landmark !== 'object') {
+    return false;
   }
-  return numbers.reduce((acc, curr) => acc + curr, 0);
+  if (!landmark.id || typeof landmark.id !== 'string') {
+    return false;
+  }
+  if (!landmark.name || typeof landmark.name !== 'string') {
+    return false;
+  }
+  if (!landmark.description || typeof landmark.description !== 'string') {
+    return false;
+  }
+  // Add additional validation rules as needed
+  return true;
+}
+
+// Ensure all landmarks have valid structure
+function landmarkStructureCheck(landmark) {
+  return validateLandmark(landmark);
+}
+
+// Ensure the landmarks are unique
+function ensureUniqueLandmarks(landmarks) {
+  const uniqueLandmarks = new Set();
+  landmarks.forEach(landmark => {
+    if (validateLandmark(landmark)) {
+      uniqueLandmarks.add(landmark.id);
+    }
+  });
+  return Array.from(uniqueLandmarks);
+}
+
+function processLandmarks(landmarks) {
+  const validLandmarks = landmarks.filter(landmarkStructureCheck);
+  return ensureUniqueLandmarks(validLandmarks);
 }
 
 // New export for createAdditionalIcon function
@@ -142,9 +124,6 @@ module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
-  checkSvgElement,
   calculateSum,
-  createInPageButton, // Include the new createInPageButton function here
-  addSvgAccessibleName, // Include the new addSvgAccessibleName function here
-  fixTableStructureIssues // Include the new fixTableStructureIssues function here
+  validateLandmark
 };

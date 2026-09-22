@@ -106,58 +106,11 @@ function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // based on the insight report structure
 
-  if (!insightReport) {
-    return;
-  }
-
-  // Process accessibility issues from the insight report
-  if (Array.isArray(insightReport.accessibilityIssues)) {
-    insightReport.accessibilityIssues.forEach(issue => {
-      switch (issue.type) {
-        case 'table-accessibility':
-          validateTableAccessibility();
-          fixTableStructure();
-          break;
-        case 'table-structure':
-          validateTableStructure();
-          fixTableStructure();
-          break;
-        case 'landmark-missing':
-          addMainLandmark();
-          addProperLandmarkRegions();
-          break;
-        case 'landmark-structure':
-          validateLandmarkStructure();
-          break;
-        case 'landmark-attributes':
-          validateLandmarkAttributes();
-          break;
-        case 'landmark-unique':
-          ensureUniqueLandmarks();
-          break;
-        case 'svg-accessibility':
-          if (issue.element) {
-            const accessibleName = getSvgAccessibleName();
-            setSvgAttributes(issue.element, accessibleName);
-          }
-          break;
-        case 'link-accessibility':
-          validateLinkAccessibility();
-          break;
-        case 'fake-link':
-          handleFakeLinks();
-          break;
-        case 'lang-attribute':
-          if (issue.element) {
-            addLangAttribute(issue.element);
-          }
-          break;
-        case 'in-page-button':
-          createInPageButton();
-          break;
-        default:
-          console.log(`Unknown accessibility issue type: ${issue.type}`);
-      }
+  // For example, we might log the issues or take some action to fix them
+  if (insightReport && insightReport.issues) {
+    insightReport.issues.forEach((issue) => {
+      console.log(`Accessibility issue detected: ${issue.message}`);
+      // Add your logic here to address the issue, such as updating the DOM or calling other functions
     });
   }
 
@@ -182,13 +135,6 @@ if (require.main === module) {
   main();
 }
 
-// Address missing export that might have been removed — ADD CODE HERE
-function missingExportPlaceholder() {}
-
-// Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
 module.exports = {
   config,
   appState,
@@ -201,7 +147,19 @@ module.exports = {
   addressAccessibilityIssues,
   getLangAttribute,
   addLangAttribute,
-  getInsightReport,
-  addressMissingExportPlaceholder,
-  missingExportPlaceholder
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  main,
 };

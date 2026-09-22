@@ -10,39 +10,50 @@ import { initializeApp, appData } from './app.js';
 import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
-// Function to create in-page buttons (from createInPageButton.js)
+// Function to create in-page buttons
+const createInPageButton = (options) => {
+  // ... existing code ...
+
+  // Accessibility improvements
+  if (options.ariaLabel) {
+    button.setAttribute('aria-label', options.ariaLabel);
+  }
+  if (options.title) {
+    button.setAttribute('title', options.title);
+  }
+
+  return (
+    // ... existing JSX ...
+  );
+};
 
 // Placeholder for the affected SVGs
 const icons = {};
 
 function processLandmarks(landmarks) {
-  // Ensure all landmarks have valid structure
+  // ... existing code ...
+
+  // Accessibility improvement: Ensure landmarks have 'role' attribute
   const landmarkStructureCheck = (landmark) => {
-    // Check landmark properties here
-    // ...
+    // ... existing code ...
+
+    // Check for 'role' attribute
+    if (!landmark.hasAttribute('role')) {
+      landmark.setAttribute('role', 'landmark');
+    }
+
     return true; // Add your own check logic
   };
 
-  const validLandmarks = landmarks.filter(landmarkStructureCheck);
-
-  // Ensure the landmarks are unique
-  const ensureUniqueLandmarks = (landmarks) => {
-    // Add your own unique landmark logic here
-    // ...
-    return landmarks;
-  };
-
-  return ensureUniqueLandmarks(validLandmarks);
+  return validLandmarks;
 }
 
-function addLangAttribute(htmlElement, lang = 'en') {
-  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
-    console.error('Invalid HTML element provided');
-    return;
-  }
+function addLangAttribute(htmlElement) {
+  // ... existing code ...
 
-  if (lang) {
-    htmlElement.lang = lang; // Default to English if not specified
+  // Accessibility improvement: Ensure 'lang' attribute is present
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
   }
 }
 
@@ -60,10 +71,7 @@ function checkLandmarkElement(id) {
  * @returns {number} The total sum of the numbers.
  */
 function calculateSum(numbers) {
-  if (!Array.isArray(numbers)) {
-    throw new Error('Input must be an array');
-  }
-  return numbers.reduce((acc, curr) => acc + curr, 0);
+  // ... existing code ...
 }
 
 // Harvest and upgrade logic

@@ -1,6 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 import React from 'react';
+// TODO: This is the existing code that needs to be preserved
 
 // TODO: This is the existing code that needs to be preserved
 
@@ -125,80 +126,28 @@ function validateLandmarkAttributes(element) {
  return false;
  }
 
-  // TODO: Implement function for ensuring unique landmarks
+ // TODO: Implement function for ensuring unique landmarks
+}
+
 function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks) || landmarks.length === 0) {
-    return landmarks;
-  }
-  
-  // Check landmark nesting structure
-  commonLandmarks.forEach(element => {
-    const parent = element.parentElement;
-    if (parent) {
-      const parentTag = parent.tagName.toLowerCase();
-      const parentRole = parent.getAttribute('role');
-      
-      // Check if landmark is properly contained
-      if (parentRole === 'main' || parentTag === 'main') {
-        // Main should not be nested inside other landmarks
-        const grandParent = parent.parentElement;
-        if (grandParent) {
-          const grandParentRole = grandParent.getAttribute('role');
-          if (landmarkRoles.includes(grandParentRole)) {
-            issues.push({
-              type: 'nesting',
-              message: 'Main landmark should not be nested inside other landmarks.',
-              element: element
-            });
-          }
-        }
-      }
-      
-      // Banner should not be inside navigation or other landmarks
-      const elementRole = element.getAttribute('role') || element.tagName.toLowerCase();
-      if ((elementRole === 'banner' || elementRole === 'header') && 
-          (parentRole === 'navigation' || parentRole === 'main')) {
-        issues.push({
-          type: 'nesting',
-          message: 'Banner/header should not be nested inside navigation or main landmarks.',
-          element: element
-        });
-      }
-    }
-  });
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues,
-    landmarks: landmarks
-  };
+ if (!Array.isArray(landmarks) || landmarks.length === 0) {
+   return landmarks;
+ }
+ 
+ const uniqueLandmarks = [...new Set(landmarks.map(landmark => landmark.name))];
+
+ if (uniqueLandmarks.length !== landmarks.length) {
+   throw new Error('Landmarks are not unique');
+ }
+
+ // Return the processed array with duplicate landmarks removed
+ return landmarks.filter(({ name }) => {
+   const seen = new Set();
+   return !seen.has(name) && seen.add(name);
+ });
 }
 
-  if ... !== landmarks.length) {
-    throw new Error('Landmarks are not unique');
-  }
-
-  // Warn about missing header or footer
-  if (!results.hasHeader) {
-    results.issues.push('Missing header landmark');
-  }
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-
-// _Commit: ...
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-
- return true;
-}
-
-function ... {
+function addLandmarkRegions() {
  // Code for adding proper landmark regions
 }
 
@@ -216,16 +165,18 @@ function setSvgAttributes(svg, accessibleName) {
   if (!svg) return;
 
  svg.setAttribute('role', 'img');
- ... accessibleName);
+ if (accessibleName) {
+   svg.setAttribute('aria-label', accessibleName);
+ }
 }
 
 function ... {
  // Code for adding accessible names to SVGs
  if (!svgElements || ... return;
 
- ... => {
- const accessibleName = getSvgAccessibleName(svg);
- setSvgAttributes(svg, accessibleName);
+ svgElements.forEach(svg => {
+   const accessibleName = getSvgAccessibleName(svg);
+   setSvgAttributes(svg, accessibleName);
  });
 }
 
@@ -246,89 +197,90 @@ function fixFakeLinkIssue(element) {
   if (!element) return;
 
  // Convert fake links (buttons styled as links) to proper buttons or links
- if (element.tagName === 'BUTTON' && ... {
- ...
- element.setAttribute('role', 'button');
+ if (element.tagName === 'BUTTON' && element.classList.contains('fake-link')) {
+   element.setAttribute('role', 'button');
 
-    // Add accessible name if missing
-    if (!element.getAttribute('aria-label') && !element.textContent.trim()) {
-      console.warn('Fake link element missing accessible name');
-    }
-  }
+   // Add accessible name if missing
+   if (!element.getAttribute('aria-label') && !element.textContent.trim()) {
+     console.warn('Fake link element missing accessible name');
+   }
+ }
 }
 
 // Main accessibility issue handler
-function ... {
+function handleAccessibilityIssues(insightReport) {
  // Implementation of the function to address accessibility issues
  // This addresses issues from the insight report structure
 
-  if (!insightReport || !insightReport.issues) {
-    return;
-  }
+ if (!insightReport || !insightReport.issues) {
+   return;
+ }
 
- ... => {
- console.log(`Accessibility issue detected: ${issue.type} - ${issue.message || 'No message'}`);
+ insightReport.issues.forEach(issue => {
+   console.log(`Accessibility issue detected: ${issue.type} - ${issue.message || 'No message'}`);
 
- switch (issue.type) {
- case 'REACT_015':
- if (issue.element) {
- ...
- }
- break;
- case 'REACT_027':
- if (issue.element) {
- validateTableStructure();
- ...
- }
- break;
- case 'REACT_017':
- if (issue.element) {
- ...
- }
- break;
- case 'REACT_025':
- if (issue.element) {
- ...
- }
- break;
- case 'REACT_041':
- if (issue.elements && Array.isArray(issue.elements)) {
- ...
- }
- break;
- case 'REACT_036':
- if (issue.element) {
- ...
- }
- break;
- default:
- console.log(`Unknown issue type: ${issue.type}`);
- }
+   switch (issue.type) {
+     case 'REACT_015':
+       if (issue.element) {
+         addLangAttribute(issue.element);
+       }
+       break;
+     case 'REACT_027':
+       if (issue.element) {
+         validateTableStructure();
+         fixTableStructure();
+       }
+       break;
+     case 'REACT_017':
+       if (issue.element) {
+         addMainLandmark();
+       }
+       break;
+     case 'REACT_025':
+       if (issue.element) {
+         ensureUniqueLandmarks([issue.element]);
+       }
+       break;
+     case 'REACT_041':
+       if (issue.elements && Array.isArray(issue.elements)) {
+         addSvgAccessibleNames(issue.elements);
+       }
+       break;
+     case 'REACT_036':
+       if (issue.element) {
+         fixFakeLinkIssue(issue.element);
+       }
+       break;
+     default:
+       console.log(`Unknown issue type: ${issue.type}`);
+   }
  });
 }
 
 // - REACT_041: Add accessible names to 2 SVGs
-// ... your accessible names for SVGs refactoring code ...
+function refactorSvgAccessibleNames() {
+ // ... your accessible names for SVGs refactoring code ...
+}
 
 export function someNewFunction() {}
 
 // Additional methods and configurations
 function getInsightReport() {
-  return {
-    issues: []
-  };
+ return {
+   issues: []
+ };
 }
 
 function processAccessibilityReport(report) {
   const findings = {};
 
  if (report) {
- if (report.REACT_015) findings.langAttribute = true;
- if (report.REACT_027) findings.tableissues = ... || 0;
- if (report.REACT_017) findings.landmarkIssues = ... || 0;
- if (report.REACT_041) findings.svgIssues = ... || 0;
- if (report.REACT_025) findings.uniqueLandmarkIssues = ... || 0;
- if (report.REACT_036) findings.fakeLinkIssues = ... || 0;
+   if (report.REACT_015) findings.langAttribute = true;
+   if (report.REACT_027) findings.tableissues = report.REACT_027.length || 0;
+   if (report.REACT_017) findings.landmarkIssues = report.REACT_017.length || 0;
+   if (report.REACT_041) findings.svgIssues = report.REACT_041.length || 0;
+   if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.length || 0;
+   if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.length || 0;
  }
 
   return findings;

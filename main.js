@@ -105,7 +105,78 @@ function fixTableCell(cell) {
   },
 
   spawningLogic: function() {
-    // Implement spawning logic
+    // Count existing creeps by role
+    const creeps = Object.values(Game.creeps);
+    const harvesters = creeps.filter(c => c.memory.role === 'harvester').length;
+    const upgraders = creeps.filter(c => c.memory.role === 'upgrader').length;
+
+    // Define target numbers for each role based on room count
+    const targetHarvesters = 2;
+    const targetUpgraders = 2;
+
+    // Find available spawns (not currently spawning)
+    const spawns = Object.values(Game.spawns).filter(s => !s.spawning);
+
+    if (spawns.length > 0) {
+      const spawn = spawns[0];
+
+      // Define body compositions
+      const harvesterBody = [WORK, CARRY, MOVE];
+      const upgraderBody = [WORK, CARRY, MOVE];
+
+      // Calculate energy cost for bodies
+      const getBodyCost = (body) => {
+        return body.reduce((cost, part) => {
+          if (part === WORK) return cost + 100;
+          if (part === CARRY) return cost + 50;
+          if (part === MOVE) return cost + 50;
+          return cost;
+        }, 0);
+      };
+
+      const harvesterCost = getBodyCost(harvesterBody);
+      const upgraderCost = getBodyCost(upgraderBody);
+
+      // Get current spawn room energy
+      const room = spawn.room;
+      const energy = room.energyAvailable;
+      const energyCapacity = room.energyCapacityAvailable;
+
+      // Determine what body to use based on energy
+      const getUsableBody = (baseBody, cost, availableEnergy, maxEnergy) => {
+        if (availableEnergy >= cost) {
+          return baseBody;
+        }
+        // Scale down if needed
+        if (availableEnergy >= 200) {
+          return [WORK, CARRY, MOVE];
+        }
+        return null;
+      };
+
+      // Spawn harvesters first (priority)
+      if (harvesters < targetHarvesters) {
+        const body = getUsableBody(harvesterBody, harvesterCost, energy, energyCapacity);
+        if (body) {
+          const name = `Harvester${Game.time}`;
+          const result = spawn.canCreateCreep(body);
+          if (result === OK) {
+            spawn.createCreep(body, name, { role: 'harvester' });
+          }
+        }
+      }
+      // Then spawn upgraders
+      else if (upgraders < targetUpgraders) {
+        const body = getUsableBody(upgraderBody, upgraderCost, energy, energyCapacity);
+        if (body) {
+          const name = `Upgrader${Game.time}`;
+          const result = spawn.canCreateCreep(body);
+          if (result === OK) {
+            spawn.createCreep(body, name, { role: 'upgrader' });
+          }
+        }
+      }
+    }
   },
 
   myNewFunction: function() {
@@ -282,7 +353,7 @@ function validateLandmarkStructure() {
   // Code for validating landmark structure
 }
 
-function validateLandmarkAttributes() {
+function ... {
   // Code for validating landmark attributes
 }
 
@@ -299,9 +370,7 @@ function addSvgAccessibleNames() {
 function setSvgAttributes(svg, accessibleName) {
   // Code for setting SVG attributes with the accessible name
   if (svg && typeof svg === 'object') {
-    // Set accessible name attributes
-    svg.setAttribute('aria-label', accessibleName);
-    svg.setAttribute('role', 'img');
+    ... accessibleName);
   }
 }
 
@@ -327,17 +396,18 @@ function handleFakeLinks() {
   // Code for handling fake links
 }
 
-function addProperLandmarkRegions() {
+function ... {
   // Code for adding proper landmark regions
 }
 
-// Mock implementation of the function to address accessibility issues
-// This should be replaced with actual logic based on the insight report structure
-function addressAccessibilityIssues(insightReport) {
+function ... {
+  // Mock implementation of the function to address accessibility issues
+  // This should be replaced with actual logic based on the insight report structure
+
   // For example, we might log the issues or take some action to fix them
   if (insightReport && typeof insightReport === 'object') {
-    if (insightReport.issues && Array.isArray(insightReport.issues)) {
-      insightReport.issues.forEach(function(issue) {
+    if (insightReport.issues && ... {
+      ... => {
         console.log(`Accessibility issue detected: ${issue.message}`);
         // Add your logic here to address the issue, such as updating the DOM or calling other functions
       });

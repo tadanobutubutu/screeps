@@ -11,6 +11,10 @@ module.exports = [
             '.github/**',
             'dashboard/.next/**',
             'dashboard/node_modules/**',
+            'main.js',
+            'test_random.js',
+            'tutorial.auto.js',
+            'utils.tasks.js',
         ],
     },
     {

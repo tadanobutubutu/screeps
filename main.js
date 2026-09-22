@@ -3,7 +3,136 @@ import React from 'react';
 // TODO: Address accessibility issues from insight report:
 // (This comment remains as-is)
 
-// Added function for ensuring unique landmarks
+export function calculateSum(a, b) {
+ return a + b;
+}
+
+// Configuration
+const config = {
+ appName: 'Application',
+ version: '1.0.0'
+};
+
+// HTML component with lang attribute
+const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+
+// Language attribute functions
+function getLangAttribute() {
+ return document.documentElement.lang || 'en';
+}
+
+function addLangAttribute(element) {
+ if (element) {
+ element.setAttribute('lang', 'en');
+ }
+}
+
+// Data processing
+function processData(data) {
+ if (!data) {
+ throw new Error('No data provided');
+ }
+ return data.map(item => ({
+ ...item,
+ processed: true
+ }));
+}
+
+// User fetching with caching
+const appState = {
+ cache: new Map(),
+ users: []
+};
+
+function fetchUser(userId) {
+ // Fetch user implementation
+ const cachedUser = appState.cache.get(userId);
+ if (cachedUser) {
+ return cachedUser;
+ }
+
+ const user = {
+ id: userId,
+ name: `User ${userId}`,
+ createdAt: new Date().toISOString()
+ };
+
+ appState.cache.set(userId, user);
+ appState.users.push(user);
+ return user;
+}
+
+// Cache management
+function clearCache() {
+ // Clear the cache implementation
+ appState.cache.clear();
+ appState.users = [];
+ console.log('Cache cleared');
+}
+
+// Cell accessibility functions
+function validateTableCellAccessibility(cell) {
+ // Code for validating table cell accessibility
+}
+
+function fixTableCell(cell) {
+ // Code for fixing any issues in the table cell
+}
+
+function validateTableRowAccessibility(row) {
+ // Code for validating table row accessibility
+}
+
+function validateTableHeadersAccessibility(headers) {
+ // Code for validating table headers accessibility
+}
+
+function fixTableHeaders(headers) {
+ // Code for fixing table headers for better accessibility
+}
+
+// Table accessibility functions
+function validateTableAccessibility() {
+ // Code for validating table accessibility
+}
+
+function validateTableStructure() {
+ // Code for validating table structure
+}
+
+function fixTableStructure() {
+ // Code for fixing table structure issues
+}
+
+// Landmark functions
+function addMainLandmark() {
+ // Code for adding main landmark
+}
+
+function validateLandmark() {
+ // Code for validating landmark
+}
+
+function validateLandmarkStructure() {
+ // Code for validating landmark structure
+}
+
+function validateLandmarkAttributes(element) {
+ // Code for validating landmark attributes
+ if (!element) return false;
+
+ const validLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+ const role = element.getAttribute('role');
+ const tagName = element.tagName.toLowerCase();
+
+ if (role && !validLandmarks.includes(role)) {
+ return false;
+ }
+
+ return true;
+}
+
+// Ensure unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks) || landmarks.length === 0) {
     return landmarks;
@@ -22,131 +151,7 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-import react from 'react';
-
-// Configuration
-const config = {
-  appName: 'Application',
-  version: '1.0.0'
-};
-
-// HTML component with lang attribute
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
-
-function getLangAttribute(element) {
-  // Code for getting the language attribute
-}
-
-function addLangAttribute(element) {
-  if (element) {
-    element.setAttribute('lang', 'en');
-  }
-}
-
-// Data processing
-function processData(data) {
-  if (!data) {
-    throw new Error('No data provided');
-  }
-  return data.map(item => ({
-    ...item,
-    processed: true
-  }));
-}
-
-// User fetching with caching
-function fetchUser(userId) {
-  // Fetch user implementation
-  const cachedUser = appState.cache.get(userId);
-  if (cachedUser) {
-    return cachedUser;
-  }
-
-  const user = {
-    id: userId,
-    name: `User ${userId}`,
-    createdAt: new Date().toISOString()
-  };
-
-  appState.cache.set(userId, user);
-  appState.users.push(user);
-  return user;
-}
-
-// Cache management
-function clearCache() {
-  // Clear the cache implementation
-  appState.cache.clear();
-  appState.users = [];
-  console.log('Cache cleared');
-}
-
-// Cell accessibility functions
-function validateTableCellAccessibility(cell) {
-  // Code for validating table cell accessibility
-}
-
-function fixTableCell(cell) {
-  // Code for fixing any issues in the table cell
-}
-
-function ... {
- // Code for validating table row accessibility
-}
-
-function validateTableHeadersAccessibility(headers) {
-  // Code for validating table headers accessibility
-}
-
-function fixTableHeaders(headers) {
-  // Code for fixing table headers for better accessibility
-}
-
-// Table accessibility functions
-function validateTableAccessibility() {
-  // Code for validating table accessibility
-}
-
-function validateTableStructure() {
-  // Code for validating table structure
-}
-
-function fixTableStructureIssues() {
- // Code for fixing table structure issues
-}
-
-function addMainLandmark() {
-  // Code for adding main landmark
-}
-
-function validateLandmark() {
-  // Code for validating landmark
-}
-
-function validateLandmarkStructure() {
-  // Code for validating landmark structure
-}
-
-function validateLandmarkAttributes(element) {
-  // Code for validating landmark attributes
-  if (!element) return false;
-
-  const validLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
-
- if (role && !validLandmarks.includes(role.toLowerCase())) {
- return false;
- }
-
- // TODO: Implement function for ensuring unique landmarks
-ensureUniqueLandmarks(element.landmarks || []); // Inserted the new function here
-
- // Return true as existing code does not implement checking for proper landmarks
- return true;
-}
-
-function addProperLandmarkRegions() {
+function addLandmarkRegions() {
  // Code for adding proper landmark regions
 }
 
@@ -198,8 +203,8 @@ function fixFakeLinkIssue(element) {
   if (!element) return;
 
  // Convert fake links (buttons styled as links) to proper buttons or links
- if (element.tagName === 'BUTTON' && element.getAttribute('href')) {
-   element.setAttribute('role', 'button');
+ if (element.tagName === 'BUTTON' && element.getAttribute('role') !== 'button') {
+ element.setAttribute('role', 'button');
 
  // Add accessible name if missing
  if (!element.getAttribute('aria-label') && !element.textContent.trim()) {
@@ -213,13 +218,49 @@ function handleAccessibilityIssues(insightReport) {
  // Implementation of the function to address accessibility issues
  // This addresses issues from the insight report structure
 
-  // For example, we might log the issues or take some action to fix them
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach(issue => {
-      console.log(`Accessibility issue detected: ${issue.message}`);
-      // Add your logic here to address the issue, such as updating the DOM or calling other functions
-    });
-  }
+ if (!insightReport || !insightReport.issues) {
+ return;
+ }
+
+ insightReport.issues.forEach(issue => {
+ console.log(`Accessibility issue detected: ${issue.type} - ${issue.message || 'No message'}`);
+
+ switch (issue.type) {
+ case 'REACT_015':
+ if (issue.element) {
+ addLangAttribute(issue.element);
+ }
+ break;
+ case 'REACT_027':
+ if (issue.element) {
+ validateTableStructure();
+ fixTableStructure();
+ }
+ break;
+ case 'REACT_017':
+ if (issue.element) {
+ addMainLandmark();
+ }
+ break;
+ case 'REACT_025':
+ if (issue.element) {
+ ensureUniqueLandmarks([issue.element]);
+ }
+ break;
+ case 'REACT_041':
+ if (issue.elements && Array.isArray(issue.elements)) {
+ addSvgAccessibleNames(issue.elements);
+ }
+ break;
+ case 'REACT_036':
+ if (issue.element) {
+ fixFakeLinkIssue(issue.element);
+ }
+ break;
+ default:
+ console.log(`Unknown issue type: ${issue.type}`);
+ }
+ });
 }
 
 // - REACT_041: Add accessible names to 2 SVGs
@@ -277,14 +318,14 @@ function getInsightReport() {
 function processAccessibilityReport(report) {
    const findings = {};
 
-   if (report) {
-     if (report.REACT_015) findings.langAttribute = true;
-     if (report.REACT_027) findings.tableissues = report.REACT_027.count || 0;
-     if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-     if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-     if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-     if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
-   }
+ if (report) {
+ if (report.REACT_015) findings.langAttribute = true;
+ if (report.REACT_027) findings.tableissues = report.REACT_027 || 0;
+ if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
+ if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
+ if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
+ if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
+ }
 
    return findings;
 }

@@ -6,8 +6,9 @@ export function calculateSum(a, b) {
 }
 
 // Below is the existing code (preserving syntax and existing exports)
-// JSX component commented out to avoid syntax issues without transpilation
-// const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+import react from 'react';
+
+const HTML = ({ lang }) => react.createElement('html', { lang: lang }, '/* other children */');
 
 const main = {
   loop: function() {

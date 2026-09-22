@@ -46,4 +46,38 @@ const TaskQueue = {
 
     /**
      * Unregisters a task by name.
-     * @param {string} name - The name of the task to
+     * @param {string} name - The name of the task to unregister.
+     */
+    removeTask: function (name) {
+        if (!name || !utilsMemory.isSafeKey(name)) return;
+        const sanitizedName = String(name).substring(0, MAX_TASK_NAME_LENGTH);
+        this.tasks.delete(sanitizedName);
+    },
+
+    /**
+     * Executes all registered tasks if conditions and tick interval match.
+     * Includes Circuit Breaker pattern to disable tasks that fail repeatedly.
+     */
+    run: function () {
+        const currentTick = typeof Game !== 'undefined' ? Game.time : 0;
+        for (const task of this.tasks.values()) {
+            if (task.failures >= MAX_TASK_FAILURES) continue;
+            if (currentTick % task.interval === 0) {
+                if (task.condition && !task.condition()) continue;
+                try {
+                    task.action();
+                } catch (e) {
+                    task.failures++;
+                    const errMsg = e && e.message ? e.message : String(e);
+                    if (task.failures >= MAX_TASK_FAILURES) {
+                        logger.error(`Task ${task.name} failed 5 times and has been disabled`);
+                    } else {
+                        logger.error(`Error running periodic task ${task.name}: ${errMsg}`);
+                    }
+                }
+            }
+        }
+    },
+};
+
+module.exports = TaskQueue;

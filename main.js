@@ -33,8 +33,6 @@ const main = {
     // Additional loop functions from origin branch
     this.harvestLoop();
     this.upgradeLoop();
-    this.towerDefense();
-    this.spawningLogic();
     ...
   },
 
@@ -179,8 +177,48 @@ function fixTableCell(cell) {
   },
 
   myNewFunction: function() {
-    // New function logic goes here
-    console.log('myNewFunction executed');
+    // your new function logic goes here
+  },
+
+  // Additional functions for TODO items:
+  automateCreeps: function() {
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      
+      if (creep.memory.role === 'harvester') {
+        this.harvest(creep);
+      } else if (creep.memory.role === 'upgrader') {
+        this.upgrade(creep);
+      }
+    }
+  },
+
+  automateSpawning: function() {
+    const spawns = ...
+    
+    spawns.forEach(spawn => {
+      const harvesterCount = _.filter(Game.creeps, { memory: { role: 'harvester' } }).length;
+      const upgraderCount = _.filter(Game.creeps, { memory: { role: 'upgrader' } }).length;
+      
+      if (harvesterCount < 2) {
+        this.spawnCreep(spawn, 'harvester');
+      } else if (upgraderCount < 2) {
+        this.spawnCreep(spawn, 'upgrader');
+      }
+    });
+  },
+
+  spawnCreep: function(spawn, role) {
+    const body = role === 'harvester' 
+      ? [WORK, CARRY, MOVE] 
+      : [WORK, CARRY, MOVE];
+    
+    const name = role + Game.time;
+    const memory = { role: role };
+    
+    if (!Game.creeps[name]) {
+      spawn.spawnCreep(body, name, { memory: memory });
+    }
   }
 };
 
@@ -426,6 +464,49 @@ if (require.main === module) {
   mainExecution();
 }
 
+// Example usage of the new function (if applicable)
+// This would depend on how the insight report is obtained and when you want to address the issues
+// const report = getInsightReport(); // Hypothetical function to get the insight report
+// addressAccessibilityIssues(report);
+
+/**
+ * Function to count dependencies
+ * Counts creeps by role and returns dependency statistics
+ * @returns {Object} Object containing counts of different creep roles
+ */
+function countDependencies() {
+  const dependencies = {
+    totalCreeps: Object.keys(Game.creeps).length,
+    roles: {}
+  };
+
+  // Count creeps by role
+  for (const name in Game.creeps) {
+    const creep = Game.creeps[name];
+    const role = creep.memory.role || 'unassigned';
+    
+    if (!dependencies.roles[role]) {
+      dependencies.roles[role] = 0;
+    }
+    dependencies.roles[role]++;
+  }
+
+  // Count structures that depend on resources
+  dependencies.structures = {
+    sources: 0,
+    spawns: Object.keys(Game.spawns).length
+  };
+
+  // Count sources across all rooms
+  for (const roomName in Game.rooms) {
+    const room = Game.rooms[roomName];
+    const sources = room.find(FIND_SOURCES);
+    dependencies.structures.sources += sources.length;
+  }
+
+  return dependencies;
+}
+
 module.exports = {
   config,
   appState,
@@ -454,5 +535,5 @@ module.exports = {
   addProperLandmarkRegions,
   main,
   mainExecution,
-  calculateSum,
+  countDependencies,
 };

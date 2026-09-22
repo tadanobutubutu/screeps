@@ -15,23 +15,39 @@ import { initializeApp, appData } from './app.js';
 import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
-// Functions to address SVG accessible names
-const addSvgAccessibleName = (svgElement, name) => {
-  if (!svgElement || !(svgElement instanceof SVGElement)) {
-    console.error('addSvgAccessibleName: Invalid SVG element provided');
-    return;
+// TODO: This is the existing code that needs to be preserved
+// _Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
+// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// <!--- START ADDITIONAL FUNCTION --->
+
+// New Function to create additional SVG icons
+const createAdditionalIcon = (options) => {
+  const { id, src, alt, className } = options;
+
+  if (!id || !src || !alt || !className) {
+    throw new Error('Missing required props for createAdditionalIcon: id, src, alt, className');
   }
 
-  svgElement.setAttribute('aria-labelledby', `svg-${name}`);
-  const titleId = `svg-${name}-title`;
-  const titleElement = document.getElementById(titleId);
-  if (!titleElement) {
-    titleElement = document.createElement('span');
-    titleElement.id = titleId;
-    titleElement.innerHTML = name;
-    svgElement.appendChild(titleElement);
-  }
+  icons[id] = (
+    <svg
+      id={id}
+      className={className}
+      src={src}
+      width="24"
+      height="24"
+      role="img"
+      aria-labelledby={`svg-icon-${id} ${id}-description`}
+    >
+      <title id={`${id}-title`}>{alt}</title>
+      <desc id={`${id}-description`}>{alt}</desc>
+    </svg>
+  );
 };
+
+// New Function to clear the local storage
+function clearLocalStorage() {
+  localStorage.clear();
+}
 
 // Placeholder for the affected SVGs
 const icons = {};
@@ -118,11 +134,9 @@ function calculateSum(numbers) {
   return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
-// New function: Handle credential response for a landmark
-function handleLandmarkCredentialResponse(landmarkId, credentialResponse) {
-  // Validate credential response and update your app state or UI accordingly
-  // ...
-}
+// New export for createAdditionalIcon function
+exports.createAdditionalIcon = createAdditionalIcon;
+exports.clearLocalStorage = clearLocalStorage; // New export for clearLocalStorage function
 
 module.exports = {
   processLandmarks,

@@ -346,8 +346,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_017':
       case 'REACT_025':
         try {
-          const mainElement = document.querySelector('main') || document.querySelector('[role="main"]') || document.body;
-          addMainLandmark(mainElement);
+          const mainElements = document.querySelectorAll('[role="main"], main');
+          mainElements.forEach(mainElement => addMainLandmark(mainElement));
           ensureUniqueLandmarks();
           actionTaken = true;
           console.log('Added and ensured unique landmarks');

@@ -66,48 +66,53 @@ function calculateSum(numbers) {
   return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
+// Harvest and upgrade logic
 /**
- * Counts the number of dependencies imported in the current module.
- * It scans the module's source code for `require(...)` and `import ...` statements.
- * @param {string} [source] - Optional source code string. Defaults to the current module's source.
- * @returns {number} The total count of dependencies.
+ * Harvests a resource by a specified amount.
+ * @param {string} resource - The name/type of the resource to harvest.
+ * @param {number} amount - The amount of resource to harvest (default: 1).
+ * @returns {Object|null} Returns an object with resource details and timestamp, or null if invalid.
  */
-function countDependencies(source) {
-  const code = typeof source === 'string' ? source : require('fs').readFileSync(__filename, 'utf8');
+function harvestResource(resource, amount = 1) {
+  if (!resource || typeof resource !== 'string') {
+    console.error('harvestResource: Invalid resource provided');
+    return null;
+  }
 
-  // Match CommonJS require() calls (single-line)
-  const requireMatches = code.match(/require\(['"][^'"]+['"]\)/g) || [];
+  if (typeof amount !== 'number' || amount <= 0) {
+    console.error('harvestResource: Amount must be a positive number');
+    return null;
+  }
 
-  // Match ES module import statements (single-line and multi-line)
-  const importMatches = code.match(/^\s*import\s.+?from\s+['"][^'"]+['"];?/gm) || [];
+  return {
+    resource,
+    amount,
+    timestamp: Date.now()
+  };
+}
 
-  // Also match side-effect imports like import './styles.css';
-  const sideEffectImports = code.match(/^\s*import\s+['"][^'"]+['"];?/gm) || [];
+/**
+ * Upgrades an item to a specified level.
+ * @param {Object} item - The item object to upgrade.
+ * @param {number} level - The number of levels to upgrade (default: 1).
+ * @returns {Object|null} Returns the upgraded item with new level and timestamp, or null if invalid.
+ */
+function upgradeItem(item, level = 1) {
+  if (!item || typeof item !== 'object') {
+    console.error('upgradeItem: Invalid item provided');
+    return null;
+  }
 
-  // Combine and deduplicate based on the module specifier
-  const seen = new Set();
+  if (typeof level !== 'number' || level <= 0) {
+    console.error('upgradeItem: Level must be a positive number');
+    return null;
+  }
 
-  requireMatches.forEach((match) => {
-    const specifier = match.match(/require\(['"]([^'"]+)['"]\)/);
-    if (specifier) seen.add(specifier[1]);
-  });
-
-  importMatches.forEach((match) => {
-    const specifier = match.match(/from\s+['"]([^'"]+)['"]/);
-    if (specifier) {
-      seen.add(specifier[1]);
-    } else {
-      const sideEffect = match.match(/import\s+['"]([^'"]+)['"]/);
-      if (sideEffect) seen.add(sideEffect[1]);
-    }
-  });
-
-  sideEffectImports.forEach((match) => {
-    const specifier = match.match(/import\s+['"]([^'"]+)['"]/);
-    if (specifier) seen.add(specifier[1]);
-  });
-
-  return seen.size;
+  return {
+    ...item,
+    level: (item.level || 0) + level,
+    upgradedAt: Date.now()
+  };
 }
 
 module.exports = {
@@ -115,5 +120,6 @@ module.exports = {
   addLangAttribute,
   checkLandmarkElement,
   calculateSum,
-  countDependencies
+  harvestResource,
+  upgradeItem
 };

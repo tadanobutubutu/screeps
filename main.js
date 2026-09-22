@@ -1,6 +1,31 @@
-// HTML element factory function (replacing JSX for plain JS compatibility)
-const HTML = ({ lang }) => {
-  return `<html lang="${lang}"><!-- other children --></html>`;
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+export function calculateSum(a, b) {
+    return a + b;
+}
+
+// Below is the existing code (preserving syntax and existing exports)
+// ...
+import react from 'react';
+
+const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+
+// Sample data and state
+const config = {
+  appName: 'DependencyGraphViewer',
+  version: '1.0.0',
+  settings: {
+    showGrid: true,
+    maxNodes: 100
+  }
 };
 
 // Language attribute functions

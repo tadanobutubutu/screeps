@@ -379,13 +379,41 @@ function fixFakeLinkIssue(element) {
 // TODO: Address accessibility issues from insight report — FIXED
 // Implementation of the function to address accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
-  // Implementation that processes the insight report and applies fixes
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach((issue) => {
-      console.log(`Accessibility issue detected: ${issue.message}`);
-      // Add your logic here to address the issue, such as updating the DOM or calling other functions
-    });
+  if (!insightReport || !insightReport.issues || !Array.isArray(insightReport.issues)) {
+    return;
   }
+  
+  const processedTypes = new Set();
+  
+  insightReport.issues.forEach(issue => {
+    if (!issue || !issue.type || processedTypes.has(issue.type)) {
+      return;
+    }
+    
+    processedTypes.add(issue.type);
+    
+    switch (issue.type) {
+      case 'fake-link':
+        fixFakeLinks();
+        break;
+      case 'missing-landmark':
+        ensureUniqueLandmarks();
+        addMainLandmark();
+        break;
+      case 'missing-lang':
+        addLangAttribute();
+        break;
+      case 'table-structure':
+        fixTableStructureIssues();
+        fixTableHeaderCellScope();
+        break;
+      case 'svg-accessible-name':
+        addSvgAccessibleNames();
+        break;
+      default:
+        console.log(`Accessibility issue detected: ${issue.message || issue.type}`);
+    }
+  });
 }
 
 // - REACT_041: Add accessible names to 2 SVGs

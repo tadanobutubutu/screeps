@@ -26,7 +26,7 @@ const main = {
     this.harvestLoop();
     this.upgradeLoop();
     
-    // TODO: Implement the function for addressing new accessibility issues
+    this.addressAccessibilityIssues();
     this.myNewFunction();
     
     // Report generation logic
@@ -121,6 +121,11 @@ const main = {
   myNewFunction: function() {
     // Log the current language setting as part of accessibility
     console.log('Current language for accessibility:', getLangAttribute());
+  },
+
+  addressAccessibilityIssues: function(insightReport) {
+    // Delegate to the global function
+    return addressAccessibilityIssues(insightReport);
   },
 
   automateCreeps: function() {

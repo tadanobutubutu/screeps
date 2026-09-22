@@ -4,7 +4,9 @@
     "utils.logging.js"
   ],
   "rules": [
-    "Remove console.log"
+    "Remove console.log",
+    "Optimize Game.creeps loop",
+    "Strict undefined check"
   ],
-  "timestamp": "2026-08-31T19:52:26.497Z"
+  "timestamp": "2026-08-30T11:47:18.201Z"
 }

@@ -124,10 +124,6 @@ const main = {
   },
 
   myNewFunction: function() {
-    // your new function logic goes here
-    // Example: Log a message to the console to simulate accessibility improvement
-    console.log('Accessibility function is running...');
-    // Run the addressAccessibilityIssues function with a default report
     const report = {
       htmlElement: { tagName: 'html', attributes: {} },
       svgElements: [

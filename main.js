@@ -26,7 +26,6 @@ const main = {
     this.harvestLoop();
     this.upgradeLoop();
     
-    this.addressAccessibilityIssues();
     this.myNewFunction();
     
     // Report generation logic
@@ -119,13 +118,12 @@ const main = {
   },
 
   myNewFunction: function() {
-    // Log the current language setting as part of accessibility
-    console.log('Current language for accessibility:', getLangAttribute());
-  },
-
-  addressAccessibilityIssues: function(insightReport) {
-    // Delegate to the global function
-    return addressAccessibilityIssues(insightReport);
+    // Gather insight report from current game state
+    const insightReport = {
+      htmlElement: { tagName: 'html', attributes: { lang: getLangAttribute() } },
+      svgElements: []
+    };
+    addressAccessibilityIssues(insightReport);
   },
 
   automateCreeps: function() {

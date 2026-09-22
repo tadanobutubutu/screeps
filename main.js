@@ -145,10 +145,15 @@ function fixTableStructure(table) {
       const theadElement = document.createElement('thead');
       table.insertBefore(theadElement, table.firstChild);
     }
-    const tbody = table.querySelector('tbody');
-    if (!tbody) {
-      const tbodyElement = document.createElement('tbody');
-      table.appendChild(tbodyElement);
+    
+    if (!table.querySelector('tbody')) {
+      const tbody = document.createElement('tbody');
+      const existingTbody = table.querySelectorAll('tbody');
+      if (existingTbody.length > 0) {
+        table.appendChild(tbody);
+      } else {
+        table.appendChild(tbody);
+      }
     }
   }
 }
@@ -293,14 +298,14 @@ function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This processes the insight report and takes appropriate actions to fix issues
   
-  if (!insightReport || !insightReport.issues) {
+  if (!insightReport || !Array.isArray(insightReport)) {
     console.log('No valid accessibility issues found in the insight report');
     return [];
   }
   
   const addressedIssues = [];
   
-  insightReport.issues.forEach((issue, index) => {
+  insightReport.forEach((issue, index) => {
     console.log(`Addressing accessibility issue ${issue.code}: ${issue.message}`);
     
     let actionTaken = false;
@@ -311,7 +316,9 @@ function addressAccessibilityIssues(insightReport) {
         // Add lang attribute to HTML element
         try {
           const htmlElement = document.querySelector('html');
-          addLangAttribute(htmlElement);
+          if (htmlElement) {
+            addLangAttribute(htmlElement);
+          }
           actionTaken = true;
           console.log('Added language attribute to HTML element');
         } catch (error) {
@@ -350,9 +357,11 @@ function addressAccessibilityIssues(insightReport) {
         try {
           const svgElements = issue.elements || [];
           svgElements.forEach(svg => {
-            const accessibleName = getSvgAccessibleName();
-            if (accessibleName) {
-              setSvgAttributes(svg, accessibleName);
+            if (svg && svg.setAttribute) {
+              const accessibleName = getSvgAccessibleName(svg);
+              if (accessibleName) {
+                setSvgAttributes(svg, accessibleName);
+              }
             }
           });
           actionTaken = true;
@@ -431,7 +440,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
   
-  const uniqueId = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  const uniqueId = `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   element.id = uniqueId;
   return uniqueId;
 }
@@ -478,124 +487,6 @@ function renderDependencyGraph(dependencies, containerId) {
   // Create the graph container
   const graphContainer = document.createElement('div');
   graphContainer.className = 'dependency-graph';
-  const graphImage = document.createElement('img');
-  graphImage.setAttribute('role', 'img');
-  graphImage.setAttribute('aria-label', 'Dependency graph visualization');
-  
-  // Build the graph structure from dependencies
-  const nodes = [];
-  const edges = [];
-  
-  for (const [key, value] of Object.entries(dependencies)) {
-    const tempElement = { id: '' };
-    const nodeId = ensureElementHasId(tempElement, key);
-    nodes.push({
-      id: key,
-      name: key,
-      dependencies: Array.isArray(value) ? value : []
-    });
-    
-    if (Array.isArray(value)) {
-      value.forEach(dep => {
-        edges.push({
-          source: dep,
-          target: key
-        });
-      });
-    }
-  }
-  
-  // Create a simple text representation of the graph
-  const graphElement = document.createElement('div');
-  graphElement.className = 'dependency-graph-content';
-  
-  // Add nodes section
-  const nodesSection = document.createElement('div');
-  nodesSection.className = 'graph-nodes';
-  nodesSection.innerHTML = '<h4>Nodes:</h4><ul>' + 
-    nodes.map(node => `<li>${node.id}: ${node.name}</li>`).join('') + 
-    '</ul>';
-  
-  // Add edges section
-  const edgesSection = document.createElement('div');
-  edgesSection.className = 'graph-edges';
-  edgesSection.innerHTML = '<h4>Dependencies:</h4><ul>' + 
-    edges.map(edge => `<li>${edge.source} → ${edge.target}</li>`).join('')+ 
-    '</ul>';
-  
-  graphElement.appendChild(nodesSection);
-  graphElement.appendChild(edgesSection);
-  graphContainer.appendChild(graphImage);
-  graphContainer.appendChild(graphElement);
-  
-  // Clear container and append the graph
-  container.innerHTML = '';
-  container.appendChild(graphContainer);
-  
-  return graphContainer;
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
-
-// Example usage of the new function (if applicable)
-// This would depend on how the insight report is obtained and when you want to address the issues
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-export default function App() {
-  const MyApp = () => {
-    // Your app functionality here
-  };
-
-  return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
-  );
-}
-
-export {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  main,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  calculateSum,
-  myNewFunction
-};
+  const graphImg = document.createElement('img');
+  graphImg.setAttribute('role', 'img');
+  graphImg.setAttribute

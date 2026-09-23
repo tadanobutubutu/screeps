@@ -773,6 +773,57 @@ function newFocusTrap(container) {
   container.addEventListener('keydown', handleKeyDown);
 }
 
+// TODO: Implement this function for accessibility checks on tables
+
+/**
+ * Validates accessibility features for table elements
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {Object} - Validation results with valid status and errors array
+ */
+function validateTableAccessibility(table) {
+  const results = {
+    valid: true,
+    errors: []
+  };
+
+  if (!table) {
+    results.valid = false;
+    results.errors.push('Table element is required');
+    return results;
+  }
+
+  // Check for caption element
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    results.valid = false;
+    results.errors.push('Table should have a <caption> element describing its purpose');
+  }
+
+  // Check for proper use of header cells
+  const headerCells = table.querySelectorAll('th');
+  if (headerCells.length === 0) {
+    results.valid = false;
+    results.errors.push('Table should use <th> elements for header cells');
+  }
+
+  // Check scope attributes on header cells
+  headerCells.forEach((header, index) => {
+    if (!header.hasAttribute('scope')) {
+      results.valid = false;
+      results.errors.push(`Table header at position ${index + 1} should have a scope attribute (col, row, colgroup, or rowgroup)`);
+    }
+  });
+
+  // Check for aria-label or aria-labelledby as alternative to caption
+  if (!results.valid && !caption) {
+    if (!table.hasAttribute('aria-label') && !table.hasAttribute('aria-labelledby')) {
+      results.errors.push('Table should have either a <caption>, aria-label, or aria-labelledby attribute');
+    }
+  }
+
+  return results;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -794,5 +845,5 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  newFocusTrap
+  validateTableAccessibility
 };

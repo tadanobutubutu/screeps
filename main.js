@@ -460,94 +460,89 @@ function validateLandmarkAccessibility(doc) {
   return results;
 }
 
-// ADD: Get accessible name for an SVG element (REACT_041)
-function getSvgAccessibleName(svg) {
-  if (!svg || svg.tagName !== 'SVG') {
-    return 'SVG';
-  }
+/**
+ * Gets all landmark elements from a container
+ * @param {HTMLElement} container - The container element
+ * @returns {HTMLElement[]} - Array of landmark elements
+ */
+function getLandmarkElements(container) {
+  if (!container) return [];
 
-  const ariaLabel = svg.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-
-  const ariaLabelledby = svg.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labelledElement = document.getElementById(ariaLabelledby);
-    if (labelledElement) {
-      return labelledElement.textContent;
-    }
-  }
-
-  const title = svg.querySelector('title');
-  if (title) {
-    return title.textContent;
-  }
-
-  return 'SVG graphic';
-}
-
-// ADD: Address fake link accessibility issues (REACT_036)
-function fixFakeLinks(doc) {
-  if (!doc) return;
-
-  const elements = doc.querySelectorAll('[role="link"], [href]:not(a)');
-  elements.forEach(el => {
-    if (el.getAttribute('role') === 'link') {
-      const accessibleName = el.getAttribute('aria-label') || el.textContent.trim();
-      if (!accessibleName) {
-        el.setAttribute('aria-label', 'Link');
-      }
-    }
-    if (!el.getAttribute('tabindex')) {
-      el.setAttribute('tabindex', '0');
-    }
-  });
-}
-
-// ADD: Ensure unique landmarks (REACT_025 extension)
-function makeLandmarksUnique(elements) {
-  const landmarkRoles = {};
+  const landmarkElements = [];
+  const selector = 'header, main, nav, aside, section, article, footer';
+  const elements = container.querySelectorAll(selector);
 
   elements.forEach(el => {
-    const role = el.getAttribute('role');
-    if (role && ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'].includes(role)) {
-      landmarkRoles[role] = landmarkRoles[role] || 0;
-      landmarkRoles[role]++;
+    if (isLandmark(el)) {
+      landmarkElements.push(el);
     }
   });
+
+  return landmarkElements;
 }
 
-module.exports = {
-  validateLandmark,
-  processLandmarks,
-  config,
-  isLandmark,
-  validateLandmarks,
-  getLandmarkElements,
-  validateTableStructure,
-  SomeModule,
-  setSvgAccessibleName,
-  setLanguage,
-  improveAccessibility,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  // functionB: ensureUniqueLandmarks, // Add functionB export here if it is implemented
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  addLangAttribute,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  getLangAttribute,
-  personName,
-  validateTableStructure,
-  validateTableAccessibility,
-  validateLandmarkStructure,
-  validateLandmarkAccessibility,
-  getSvgAccessibleName,
-  fixFakeLinks,
-  makeLandmarksUnique
+// Example module pattern (common in Screeps)
+const SomeModule = {
+  // Some functionality
 };
+
+// Export the module
+module.exports.SomeModule = SomeModule;
+
+// New functions for rendering dependency graphs and displaying module structure
+
+function getDependencies(module, dependenciesMap) {
+  const dependencies = [];
+
+  for (const dependencyName of Object.keys(dependenciesMap)) {
+    if (dependenciesMap[dependencyName].includes(module.id)) {
+      dependencies.push({ name: dependencyName, dependencyOn: module.id });
+    }
+  }
+
+  return dependencies;
+}
+
+function renderModuleDependencyGraph(container, dependenciesMap) {
+  if (!container) return;
+  const modules = Object.values(dependenciesMap);
+
+  modules.forEach(module => {
+    const dependencies = getDependencies(module, dependenciesMap);
+
+    const dependencyList = dependencies.map(dep => `- ${dep.name}`).join('\n');
+    const dependencyEntry = `Module:${module.id}\nDependencies:\n${dependencyList}`;
+
+    const entryElement = document.createElement('div');
+    entryElement.innerHTML = dependencyEntry;
+
+    container.appendChild(entryElement);
+  });
+}
+
+function printModuleStructure(container, module, dependenciesMap) {
+  if (!container) return;
+  const moduleId = module.id;
+  const dependencies = getDependencies(module, dependenciesMap);
+  let moduleStructure = `Module: ${moduleId}\n`;
+
+  if (dependencies.length > 0) {
+    moduleStructure += 'Dependencies:\n';
+    dependencies.forEach(dep => {
+      moduleStructure += `${dep.name}\n`;
+    });
+  }
+
+  // Recursively call function for each dependent module
+  dependencies.forEach(dep => {
+    printModuleStructure(container, dependenciesMap[dep.name], dependenciesMap);
+  });
+
+  const entryElement = document.createElement('div');
+  entryElement.innerHTML = moduleStructure;
+
+  container.appendChild(entryElement);
+}
+
+module.exports.renderModuleDependencyGraph = renderModuleDependencyGraph;
+module.exports.printModuleStructure = printModuleStructure;

@@ -166,7 +166,7 @@ function createInPageButton(options) {
 function renderDependencyGraphContent(container) {
   if (!container) return;
   // Process the container for dependency graph content
-  const elements = container.querySelectorAll('[data-dependency]');
+  const elements = container.querySelectorAll('*');
   elements.forEach(el => {
     if (el.dataset) {
       // Process dependency data

@@ -626,47 +626,31 @@ function getSvgAccessibleName(doc = document) {
   return names;
 }
 
-// Set SVG attributes with accessible name
-function setSvgAttributes(svg, accessibleName) {
-  // Code for setting SVG attributes with the accessible name
-  if (svg && svg.tagName.toLowerCase() === 'svg') {
-    // Check if title exists, if not create one
-    let title = svg.querySelector('title');
-    if (!title) {
-      title = document.createElement('title');
-      svg.insertBefore(title, svg.firstChild);
-    }
-    title.textContent = accessibleName;
-    
-    // Set aria-label on the SVG
-    svg.setAttribute('aria-label', accessibleName);
-    svg.removeAttribute('aria-hidden');
-    
-    return svg;
-  }
-  return null;
-}
-
-// Export functions
-export {
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  generateAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes
+module.exports = {
+  config: config,
+  appState: appState,
+  initializeApp: initializeApp,
+  processData: processData,
+  fetchUser: fetchUser,
+  clearCache: clearCache,
+  initialize: initialize,
+  validateInput: validateInput,
+  addressAccessibilityIssues: addressAccessibilityIssues,
+  getLangAttribute: getLangAttribute,
+  addLangAttribute: addLangAttribute,
+  validateTableAccessibility: validateTableAccessibility,
+  validateTableStructure: validateTableStructure,
+  fixTableStructure: fixTableStructure,
+  addMainLandmark: addMainLandmark,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  validateLandmarkAttributes: validateLandmarkAttributes,
+  getSvgAccessibleName: getSvgAccessibleName,
+  setSvgAttributes: setSvgAttributes,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  createInPageButton: createInPageButton,
+  validateLinkAccessibility: validateLinkAccessibility,
+  handleFakeLinks: handleFakeLinks,
+  addLandmarkRegions: addLandmarkRegions,
+  someFunction: someFunction
 };

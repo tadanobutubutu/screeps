@@ -37,7 +37,11 @@ function validateLandmark(landmark) {
 }
 
 /**
- * Configuration for landmark checks */
+ * Main JavaScript module for landmark element validation
+ * @module main
+ */
+
+/** Configuration for landmark checks */
 const config = {
   requiredLandmarks: ['main', 'header', 'footer'],
   optionalLandmarks: ['nav', 'aside', 'section'],
@@ -471,10 +475,10 @@ function calculateSum(a, b) {
 }
 
 function addProperLandmarkRegions(affectedElements) {
-  if (!affectedElements || !Array.isArray(affectedElements)) return;
+  if (!affectedElements || !affectedElements.length) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName) {
+    if (el && el.tagName && !el.getAttribute('role')) {
       el.setAttribute('role', 'region');
     }
   });

@@ -64,11 +64,19 @@ function addLangAttribute(element, lang) {
   return false;
 }
 
-function validateTableAccessibility(table) {
-  if (!table) return false;
-  const hasCaption = !!table.querySelector('caption');
-  const hasTh = table.querySelectorAll('th').length > 0;
-  return hasCaption && hasTh;
+function improveAccessibility(container) {
+  if (!container) {
+    container = document.body;
+  }
+  if (container) {
+    renderDependencyGraphContent(container);
+  }
+
+  // Ensure all clickable elements are focusable
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
+  });
 }
 
 function validateTableStructure(table) {
@@ -110,84 +118,15 @@ function ensureUniqueLandmarks() {
   // Code for ensuring unique landmarks
 }
 
-function createInPageButton() {
-  // Code for creating an in-page button
-}
-
-function validateLinkAccessibility() {
-  // Code for validating link accessibility
-}
-
-function handleFakeLinks() {
-  // Code for handling fake links
-}
-
-function addLandmarkRegions() {
-  // Code for adding proper landmark regions
-}
-
-function addressAccessibilityIssues(insightReport) {
-  // Mock implementation of the function to address accessibility issues
-  // This should be replaced with actual logic based on the insight report structure
-
-  // For example, we might log the issues or take some action to fix them
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach(issue => {
-      console.log('Accessibility issue detected: ' + issue.message);
-      // Add your logic here to address the issue, such as updating the DOM or calling other functions
-    });
-  }
-}
-
-// New function to add landmark roles and fix issues (Screeps-oriented)
-function addLandmarkRoles() {
-  // This function adds appropriate landmark roles to Screeps structures
-  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
-
-  landmarkTypes.forEach(type => {
-    const structures = _.filter(Game.structures, s => s.structureType === type);
-    structures.forEach(structure => {
-      if (structure) {
-        structure.landmarkType = 'region';
-      }
-    });
-  });
-}
-
-// New functions for table validation
-function validateTableAccessibility(table) {
-  if (!table) return false;
-  const hasCaption = ...
-  const hasTh = ... > 0;
-  return hasCaption && hasTh;
-}
-
-function validateTableStructure(table) {
-  if (!table) return false;
-  const thead = ...
-  const tbody = ...
-  return !!(thead && tbody);
-}
-
-function fixTableStructure(table) {
-  // Fix table structure issues for accessibility
-  if (!table) {
-    console.warn('Table element required');
-    return false;
-  }
-  
-  let fixed = false;
-  
-  // Ensure thead exists
-  if ... {
-    const thead = document.createElement('thead');
-    const firstRow = table.querySelector('tr');
-    if (firstRow) {
-      const headerCells = ...
-      if (headerCells.length > 0) {
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, table.firstChild);
-        fixed = true;
+function validateSvgAccessibility() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (svg && svg.querySelector) {
+      const title = svg.querySelector('title');
+      if (title) {
+        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+        title.id = titleId;
+        svg.setAttribute('aria-labelledby', titleId);
       }
     }
   }
@@ -282,29 +221,20 @@ function checkTableAccessibility(container, options = {}) {
   return mainElement;
 }
 
-// Validate landmarks
-function validateLandmark(doc = document) {
-  // Validate that landmarks are properly defined
-  if (!doc) {
-    return { valid: false, issues: ['Document is required'] };
-  }
-  
-  const issues = [];
-  
-  const landmarks = {
-    header: doc.querySelector('header'),
-    nav: doc.querySelector('nav'),
-    main: doc.querySelector('main'),
-    aside: doc.querySelector('aside'),
-    footer: doc.querySelector('footer')
-  };
-  
-  Object.entries(landmarks).forEach(([name, element]) => {
-    if (element && !element.textContent.trim()) {
-      issues.push({
-        landmark: name,
-        issue: 'Landmark is empty'
-      });
+function renderIndexView(indexData) {
+  console.log('Rendering index view with data:', indexData);
+}
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function addProperLandmarkRegions(affectedElements) {
+  if (!affectedElements || !affectedElements.length) return;
+
+  affectedElements.forEach(el => {
+    if (el && el.tagName) {
+      el.setAttribute('role', 'region');
     }
   });
   

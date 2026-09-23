@@ -578,137 +578,98 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
-// CLI logic implementation
-function parseCliArgs(args) {
-  const options = {
-    input: null,
-    output: 'text',
-    verbose: false
+/**
+ * Checks link and button accessibility in a container
+ * @param {HTMLElement} container - The container element to check
+ * @returns {Object} - Validation results with valid flag and errors array
+ */
+function checkLinkButtonAccessibility(container) {
+  const results = {
+    valid: true,
+    errors: [],
+    links: [],
+    buttons: []
   };
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === '-i' || arg === '--input') {
-      options.input = args[++i];
-    } else if (arg === '-o' || arg === '--output') {
-      options.output = args[++i];
-    } else if (arg === '-v' || arg === '--verbose') {
-      options.verbose = true;
-    } else if (arg === '-h' || arg === '--help') {
-      options.help = true;
-    }
+  if (!container) {
+    results.valid = false;
+    results.errors.push('Container element is required');
+    return results;
   }
 
-  return options;
-}
+  // Check links
+  const links = container.querySelectorAll('a');
+  links.forEach((link, index) => {
+    const linkInfo = {
+      index,
+      href: link.getAttribute('href'),
+      text: link.textContent.trim(),
+      hasAriaLabel: link.hasAttribute('aria-label'),
+      hasAriaLabelledby: link.hasAttribute('aria-labelledby'),
+      valid: true,
+      errors: []
+    };
 
-function displayHelp() {
-  console.log(`
-Usage: node main.js [options]
-
-Options:
-  -i, --input <file|url>  Input file path or URL to validate
-  -o, --output <format>   Output format: text or json (default: text)
-  -v, --verbose          Verbose output
-  -h, --help             Display this help message
-`);
-}
-
-async function readFile(filePath) {
-  try {
-    const fs = require('fs');
-    const content = fs.readFileSync(filePath, 'utf8');
-    return { valid: true, content };
-  } catch (error) {
-    return { valid: false, errors: [error.message] };
-  }
-}
-
-async function fetchUrl(url) {
-  if (typeof url !== 'string') {
-    return { valid: false, errors: ['Invalid input: URL must be a string'] };
-  }
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      return { valid: false, errors: [`Failed to fetch URL: ${response.status} ${response.statusText}`] };
-    }
-    const html = await response.text();
-    return { valid: true, html };
-  } catch (error) {
-    return { valid: false, errors: [`Failed to fetch URL: ${error.message}`] };
-  }
-}
-
-async function runCli() {
-  const args = process.argv.slice(2);
-  const options = parseCliArgs(args);
-
-  if (options.help) {
-    displayHelp();
-    return;
-  }
-
-  let htmlContent = '';
-
-  if (options.input) {
-    if (options.input.startsWith('http://') || options.input.startsWith('https://')) {
-      const result = await fetchUrl(options.input);
-      if (!result.valid) {
-        console.error('Error fetching URL:');
-        result.errors.forEach(err => console.error('  -', err));
-        process.exit(1);
-      }
-      htmlContent = result.html;
-    } else {
-      const result = await readFile(options.input);
-      if (!result.valid) {
-        console.error('Error reading file:');
-        result.errors.forEach(err => console.error('  -', err));
-        process.exit(1);
-      }
-      htmlContent = result.content;
-    }
-  } else {
-    console.error('No input provided. Use --help for usage information.');
-    process.exit(1);
-  }
-
-  const { JSDOM } = require('jsdom');
-  const dom = new JSDOM(htmlContent);
-  const results = validateLandmarks(dom.window.document);
-
-  if (options.output === 'json') {
-    console.log(JSON.stringify(results, null, 2));
-  } else {
-    console.log('\n=== Landmark Validation Results ===\n');
-    console.log(`Overall: ${results.valid ? 'PASS' : 'FAIL'}\n`);
-
-    if (results.landmarks.length > 0) {
-      console.log('Found landmarks:');
-      results.landmarks.forEach(lm => {
-        const id = lm.id ? `#${lm.id}` : '(no id)';
-        console.log(`  - <${lm.tag}> ${id}`);
-      });
-      console.log('');
+    // Check if link has valid href
+    if (!linkInfo.href || linkInfo.href === '#' || linkInfo.href.trim() === '') {
+      linkInfo.valid = false;
+      linkInfo.errors.push('Link must have a valid href attribute');
     }
 
-    if (results.errors.length > 0) {
-      console.log('Errors:');
-      results.errors.forEach(err => console.log(`  - ${err}`));
+    // Check if link has accessible name
+    const hasAccessibleName = linkInfo.text !== '' || linkInfo.hasAriaLabel || linkInfo.hasAriaLabelledby;
+    if (!hasAccessibleName) {
+      linkInfo.valid = false;
+      linkInfo.errors.push('Link must have accessible text content or aria-label/aria-labelledby');
     }
-  }
 
-  process.exit(results.valid ? 0 : 1);
-}
+    // Check for suspicious href patterns
+    if (linkInfo.href && linkInfo.href.startsWith('javascript:')) {
+      linkInfo.valid = false;
+      linkInfo.errors.push('Link should not use javascript: protocol');
+    }
 
-// Allow running directly
-if (require.main === module) {
-  runCli().catch(err => {
-    console.error('Unexpected error:', err);
-    process.exit(1);
+    results.links.push(linkInfo);
+    if (!linkInfo.valid) {
+      results.valid = false;
+      linkInfo.errors.forEach(err => results.errors.push(`Link ${index}: ${err}`));
+    }
   });
+
+  // Check buttons
+  const buttons = container.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    const buttonInfo = {
+      index,
+      type: button.getAttribute('type') || 'button',
+      text: button.textContent.trim(),
+      hasAriaLabel: button.hasAttribute('aria-label'),
+      hasAriaLabelledby: button.hasAttribute('aria-labelledby'),
+      disabled: button.disabled,
+      valid: true,
+      errors: []
+    };
+
+    // Check if button has accessible name
+    const hasAccessibleName = buttonInfo.text !== '' || buttonInfo.hasAriaLabel || buttonInfo.hasAriaLabelledby;
+    if (!hasAccessibleName) {
+      buttonInfo.valid = false;
+      buttonInfo.errors.push('Button must have accessible text content or aria-label/aria-labelledby');
+    }
+
+    // Check for missing type attribute (defaults to submit in forms)
+    if (!button.hasAttribute('type')) {
+      buttonInfo.errors.push('Button should have explicit type attribute (button, submit, reset)');
+    }
+
+    results.buttons.push(buttonInfo);
+    if (!buttonInfo.valid) {
+      results.valid = false;
+      buttonInfo.errors.forEach(err => results.errors.push(`Button ${index}: ${err}`));
+    }
+  });
+
+  return results;
 }
 
 module.exports = {
@@ -733,5 +694,5 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  addLangAttribute
+  checkLinkButtonAccessibility
 };

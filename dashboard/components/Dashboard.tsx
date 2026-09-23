@@ -342,8 +342,8 @@ export default function Dashboard() {
                     onFocus={() => setErrCopyFocused(true)}
                     onBlur={() => setErrCopyFocused(false)}
                     aria-live="polite"
-                    aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
-                    title={copied ? 'コピー済み' : 'エラーをコピー'}
+                    aria-label={copied ? 'エラーをコピーしました' : 'エラーをコピー'}
+                    title={copied ? 'エラーをコピーしました' : 'エラーをコピー'}
                     style={{
                         backgroundColor: copied ? '#155d27' : '#004b73',
                         color: 'white',
@@ -840,6 +840,7 @@ export default function Dashboard() {
                     )}
                 </div>
                 <div
+                    id="room-list"
                     style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -971,6 +972,7 @@ export default function Dashboard() {
                                 }}
                                 placeholder="部屋を検索... (Escでクリア)"
                                 aria-label="部屋名で検索"
+                                aria-controls="room-list"
                                 aria-keyshortcuts="Alt+s Escape"
                                 style={{
                                     fontSize: '0.75rem',
@@ -1077,10 +1079,10 @@ export default function Dashboard() {
                                   onFocus={() => setFocusedRoom(room)}
                                   onBlur={() => setFocusedRoom(null)}
                                   aria-label={
-                                      copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
+                                      copiedRoom === room ? `部屋名 ${room} をコピーしました` : `部屋名 ${room} をコピー`
                                   }
                                   title={
-                                      copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
+                                      copiedRoom === room ? `部屋名 ${room} をコピーしました` : `部屋名 ${room} をコピー`
                                   }
                                   style={{
                                       fontSize: '0.75rem',
@@ -1234,12 +1236,12 @@ export default function Dashboard() {
                                 onBlur={() => setJsonFocused(false)}
                                 aria-label={
                                     copiedJson
-                                        ? 'コピー済み'
+                                        ? '生データをJSONとしてコピーしました'
                                         : `生データをJSONとしてコピー (${jsonSizeFormatted})`
                                 }
                                 title={
                                     copiedJson
-                                        ? 'コピー済み'
+                                        ? '生データをJSONとしてコピーしました'
                                         : `生データをJSONとしてコピー (${jsonSizeFormatted})`
                                 }
                                 style={{

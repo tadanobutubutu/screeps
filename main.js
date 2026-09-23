@@ -366,16 +366,9 @@ function renderDependencyGraphContent(container) {
   elements.forEach(el => {
     if (el.dataset) {
       // Process dependency data
-      const dependencyData = el.dataset.dependency;
-      if (dependencyData) {
-        try {
-          const parsedData = JSON.parse(dependencyData);
-          el.setAttribute('data-dependency-processed', 'true');
-          el.dataset.processed = 'true';
-        } catch (e) {
-          // If not JSON, treat as raw identifier
-          el.setAttribute('data-dependency-id', dependencyData);
-        }
+      const dependencyInfo = el.dataset.dependency;
+      if (dependencyInfo) {
+        el.setAttribute('aria-label', `Dependency: ${dependencyInfo}`);
       }
     }
   });
@@ -436,13 +429,11 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (svg && svg.querySelector) {
-      const title = svg.querySelector('title');
-      if (title) {
-        const titleId = 'svg-title-' + Math.random().toString(36).substring(2, 9);
-        title.id = titleId;
-        svg.setAttribute('aria-labelledby', titleId);
-      }
+    const title = svg.querySelector('title');
+    if (title && !svg.getAttribute('aria-labelledby')) {
+      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+      title.id = titleId;
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
 }
@@ -513,30 +504,30 @@ function addressInsightIssues(insightReport) {
  * @returns {Object|null} The rendered graph structure or null if data is invalid
  */
 function renderDependencyGraph(dependencyData) {
-  if (!dependencyData) {
-    console.warn('No dependency data provided for rendering');
+  console.log('Rendering dependency graph with data:', dependencyData);
+  // Validate and process the dependency data
+  if (!dependencyData || typeof dependencyData !== 'object') {
+    console.warn('Invalid dependency data provided to renderDependencyGraph');
     return null;
   }
-
-  const nodes = Array.isArray(dependencyData) ? dependencyData : (dependencyData.nodes || []);
+  
+  // Process nodes and edges from dependency data
+  const nodes = dependencyData.nodes || [];
   const edges = dependencyData.edges || [];
-
-  const graph = {
-    nodes: nodes.map((node, index) => ({
-      id: node.id || `node-${index}`,
-      label: node.label || node.name || `Node ${index}`,
-      dependencies: node.dependencies || []
+  
+  // Return processed graph data for potential further use
+  return {
+    nodes: nodes.map(node => ({
+      id: node.id || node.name,
+      label: node.label || node.name,
+      type: node.type || 'default'
     })),
     edges: edges.map(edge => ({
-      source: edge.source || edge.from,
-      target: edge.target || edge.to,
-      type: edge.type || 'dependency'
-    })),
-    renderedAt: new Date().toISOString()
+      source: edge.source,
+      target: edge.target,
+      weight: edge.weight || 1
+    }))
   };
-
-  console.log('Rendering dependency graph with data:', graph);
-  return graph;
 }
 
 /**
@@ -546,26 +537,31 @@ function renderDependencyGraph(dependencyData) {
  * @returns {Object|null} The rendered index view or null if data is invalid
  */
 function renderIndexView(indexData) {
-  if (!indexData) {
-    console.warn('No index data provided for rendering');
+  console.log('Rendering index view with data:', indexData);
+  // Validate and process the index data
+  if (!indexData || typeof indexData !== 'object') {
+    console.warn('Invalid index data provided to renderIndexView');
     return null;
   }
-
-  const entries = Array.isArray(indexData) ? indexData : (indexData.entries || []);
-
-  const view = {
-    entries: entries.map((entry, index) => ({
-      id: entry.id || `entry-${index}`,
-      title: entry.title || entry.name || `Entry ${index}`,
-      path: entry.path || entry.url || '#',
-      category: entry.category || 'default'
+  
+  // Process index entries and metadata
+  const entries = indexData.entries || [];
+  const metadata = indexData.metadata || {};
+  
+  // Return processed index data for potential further use
+  return {
+    entries: entries.map(entry => ({
+      id: entry.id,
+      title: entry.title || 'Untitled',
+      description: entry.description || '',
+      url: entry.url || '#'
     })),
     totalCount: entries.length,
-    renderedAt: new Date().toISOString()
+    metadata: {
+      createdAt: metadata.createdAt || new Date().toISOString(),
+      lastUpdated: metadata.lastUpdated || new Date().toISOString()
+    }
   };
-
-  console.log('Rendering index view with data:', view);
-  return view;
 }
 
 function calculateSum(a, b) {
@@ -573,7 +569,7 @@ function calculateSum(a, b) {
 }
 
 function addProperLandmarkRegions(affectedElements) {
-  if (!affectedElements || !Array.isArray(affectedElements)) return;
+  if (!affectedElements || !Array.isArray(affectedElements) || affectedElements.length === 0) return;
 
   affectedElements.forEach(el => {
     if (el && el.tagName) {

@@ -218,10 +218,10 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (svg && svg.querySelector) {
+    if (svg && !svg.getAttribute('aria-label')) {
       const title = svg.querySelector('title');
       if (title) {
-        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+        const titleId = 'svg-title-' + Math.random().toString(36).substring(2, 9);
         title.id = titleId;
         svg.setAttribute('aria-labelledby', titleId);
       }

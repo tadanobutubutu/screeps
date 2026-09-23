@@ -3,18 +3,18 @@ function validateLandmark(landmark) {
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
   const errors = [];
-  
+
   // Check if landmark exists
   if (!landmark) {
     errors.push('Landmark is required');
     return { valid: false, errors };
   }
-  
+
   // Validate name
   if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
     errors.push('Landmark must have a valid name');
   }
-  
+
   // Validate latitude
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -31,7 +31,7 @@ function validateLandmark(landmark) {
   } else if (landmark.latitude < -90 || landmark.latitude > 90) {
     errors.push('Landmark latitude must be between -90 and 90');
   }
-  
+
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
@@ -40,7 +40,7 @@ function validateLandmark(landmark) {
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
   }
-  
+
   return {
     valid: errors.length === 0,
     errors
@@ -289,55 +289,87 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
-// Added functions for REACT_017 and new REACT_025
-function setLandmarkRoles(elements) {
-  if (!elements || !Array.isArray(elements)) return;
+/**
+ * Performs accessibility checks on tables
+ * @param {Document|HTMLElement} [doc] - The document or container to validate tables within
+ * @returns {Object} - Validation results containing validity status and list of errors
+ */
+function validateTableAccessibility(doc) {
+  const results = {
+    valid: true,
+    tables: [],
+    errors: []
+  };
 
-  elements.forEach(el => {
-    if (el && el.tagName) {
-      const tagName = el.tagName.toLowerCase();
-      const landmarkRoleMap = {
-        'header': 'banner',
-        'main': 'main',
-        'nav': 'navigation',
-        'aside': 'complementary',
-        'footer': 'contentinfo',
-        'section': 'region',
-        'article': 'article'
-      };
+  if (!doc) return results;
 
-      if (tagName in landmarkRoleMap && !el.hasAttribute('role')) {
-        el.setAttribute('role', landmarkRoleMap[tagName]);
+  let tables = [];
+  if (typeof doc.querySelectorAll === 'function') {
+    tables = doc.querySelectorAll('table');
+  } else if (doc.body && typeof doc.body.querySelectorAll === 'function') {
+    tables = doc.body.querySelectorAll('table');
+  } else {
+    return results;
+  }
+
+  tables.forEach(table => {
+    const errors = [];
+
+    // Check for caption
+    const caption = table.querySelector('caption');
+    if (!caption || !caption.textContent.trim()) {
+      errors.push('Table must have a caption describing its purpose');
+    }
+
+    // Check for proper structure with thead, tbody, tfoot
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+
+    if (rows.length === 0) {
+      errors.push('Table must contain at least one row');
+    }
+
+    if (rows.length > 0 && !thead && !tbody) {
+      errors.push('Table with multiple rows should use <thead> and <tbody> for proper structure');
+    }
+
+    // Check for accessible column headers
+    const firstRow = rows[0];
+    if (firstRow) {
+      const ths = firstRow.querySelectorAll('th');
+      const tds = firstRow.querySelectorAll('td');
+      if (ths.length === 0 && tds.length > 0) {
+        errors.push('Table header row should use <th> elements instead of <td>');
       }
+
+      // Check that <th> elements have scope attribute when present
+      ths.forEach(th => {
+        if (!th.hasAttribute('scope')) {
+          errors.push('Table header cells (<th>) should have a scope attribute');
+        }
+      });
+    }
+
+    // Check that tables don't use layout purposes (basic heuristic: no <th> at all)
+    if (rows.length > 0 && table.querySelectorAll('th').length === 0) {
+      errors.push('Data tables should use <th> elements to identify header cells');
+    }
+
+    results.tables.push({
+      hasCaption: !!caption,
+      hasHeader: !!thead || table.querySelectorAll('th').length > 0,
+      errorCount: errors.length,
+      errors
+    });
+
+    if (errors.length > 0) {
+      results.valid = false;
+      results.errors.push(...errors.map(err => `Table: ${err}`));
     }
   });
-}
 
-function resolveLandmarkConflicts(landmarks) {
-  if (!landmarks || !Array.isArray(landmarks)) return [];
-
-  const idCount = {};
-  landmarks.forEach(landmark => {
-    if (landmark.id) {
-      idCount[landmark.id] = (idCount[landmark.id] || 0) + 1;
-    }
-  });
-
-  const resolvedLandmarks = [];
-  landmarks.forEach(landmark => {
-    if (landmark.id && idCount[landmark.id] > 1) {
-      if (!landmark.getAttribute('aria-label')) {
-        const baseName = landmark.id + '-landmark';
-        landmark.setAttribute('aria-label', baseName);
-      }
-      if (!landmark.getAttribute('data-unique-id')) {
-        landmark.setAttribute('data-unique-id', landmark.id + '-' + Date.now());
-      }
-    }
-    resolvedLandmarks.push(landmark);
-  });
-
-  return resolvedLandmarks;
+  return results;
 }
 
 module.exports = {
@@ -359,5 +391,5 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  function3
+  validateTableAccessibility
 };

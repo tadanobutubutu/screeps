@@ -511,17 +511,35 @@ function ensureLandmarkUniqueness(elements) {
 }
 
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('main, nav, aside, header, footer, section, article');
-  const uniqueLandmarks = [];
-  
-  landmarks.forEach(landmark => {
-    const tag = landmark.tagName.toLowerCase();
-    const id = landmark.id || `landmark-${uniqueLandmarks.length}`;
-    landmark.id = id;
-    uniqueLandmarks.push(landmark);
+  // Implementation: Ensure all landmark elements in the document are unique.
+  // This function scans the DOM for landmark elements and verifies that
+  // no two landmarks share the same role or purpose, returning a report
+  // of any duplicate landmarks found.
+  if (typeof document === 'undefined') {
+    return {};
+  }
+
+  const landmarks = document.querySelectorAll('header, main, nav, aside, section, article, footer');
+  const seenRoles = {};
+  const duplicates = [];
+
+  landmarks.forEach(el => {
+    const role = el.tagName.toLowerCase();
+    if (seenRoles[role]) {
+      duplicates.push({
+        role: role,
+        elements: [seenRoles[role], el]
+      });
+    } else {
+      seenRoles[role] = el;
+    }
   });
-  
-  return uniqueLandmarks;
+
+  return {
+    unique: duplicates.length === 0,
+    total: landmarks.length,
+    duplicates: duplicates
+  };
 }
 
 function validateSvgAccessibility() {

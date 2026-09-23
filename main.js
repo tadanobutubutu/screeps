@@ -1,4 +1,7 @@
-// Implemented validateLandmark functionality
+/**
+ * Main JavaScript module for landmark element validation
+ * @module main
+ */
 function validateLandmark(landmark) {
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -72,14 +75,6 @@ function function3(param1, param2, param3) {
   
   return result;
 }
-
-/**
- * Main JavaScript module for landmark element validation
- * @module main
- */
-
-// Implemented accessibility improvements - landmark validation, SVG accessibility,
-// focus management, landmark uniqueness, and ARIA attribute handling for improved screen reader support
 
 /**
  * Configuration for landmark checks */
@@ -232,7 +227,7 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (svg && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
       const title = svg.querySelector('title');
       if (title) {
         const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);

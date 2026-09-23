@@ -513,55 +513,53 @@ function addProperLandmarkRegions(affectedElements) {
 }
 
 /**
- * Gets the lang attribute value from the HTML element
- * @param {Document} doc - The document to get lang attribute from
- * @returns {string|null} - The lang attribute value or null if not set
+ * Generates a report based on accessibility issues
+ * @param {Array} issues - Array of accessibility issue objects
+ * @returns {Object} - Accessibility report
  */
-function getLangAttribute(doc) {
-  if (!doc) return null;
-  const html = doc.documentElement || doc.querySelector('html');
-  if (html) {
-    return html.getAttribute('lang');
+function generateAccessibilityReport(issues) {
+  if (!Array.isArray(issues)) {
+    return {
+      totalIssues: 0,
+      uniqueIssues: 0,
+      issuesByCode: {},
+      criticalIssues: [],
+      highIssues: [],
+      moderateIssues: [],
+      lowIssues: []
+    };
   }
-  return null;
-}
 
-/**
- * Creates an in-page button with accessibility considerations
- * @param {Object} options - Button configuration options
- * @returns {HTMLElement} - The created button element
- */
-function createInPageButton(options) {
-  const button = document.createElement('button');
-  
-  if (options && options.id) {
-    button.id = options.id;
-  }
-  
-  if (options && options.textContent) {
-    button.textContent = options.textContent;
-  }
-  
-  if (options && options.className) {
-    button.className = options.className;
-  }
-  
-  // Ensure proper accessible labeling
-  if (options && options.label) {
-    button.setAttribute('aria-label', options.label);
-  } else if (!options || !options.textContent) {
-    button.setAttribute('aria-label', 'In-page button');
-  }
-  
-  // Ensure button is focusable
-  button.tabIndex = 0;
-  
-  // Add click handler if provided
-  if (options && typeof options.onClick === 'function') {
-    button.addEventListener('click', options.onClick);
-  }
-  
-  return button;
+  const report = {
+    totalIssues: issues.length,
+    uniqueIssues: new Set(issues.map(issue => issue.code)).size,
+    issuesByCode: {},
+    criticalIssues: [],
+    highIssues: [],
+    moderateIssues: [],
+    lowIssues: []
+  };
+
+  issues.forEach(issue => {
+    const severity = issue.severity || 'low';
+    if (severity === 'critical') {
+      report.criticalIssues.push(issue);
+    } else if (severity === 'high') {
+      report.highIssues.push(issue);
+    } else if (severity === 'moderate') {
+      report.moderateIssues.push(issue);
+    } else {
+      report.lowIssues.push(issue);
+    }
+
+    if (report.issuesByCode[issue.code]) {
+      report.issuesByCode[issue.code]++;
+    } else {
+      report.issuesByCode[issue.code] = 1;
+    }
+  });
+
+  return report;
 }
 
 module.exports = {
@@ -585,6 +583,5 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  getLangAttribute,
-  createInPageButton
+  generateAccessibilityReport
 };

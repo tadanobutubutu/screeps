@@ -14,7 +14,14 @@ const appData = {};
 // const { myFunction } = require('./otherFile');
 // module.exports = { myFunction };
 // TODO: Add back any required exports that might have been removed
-
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAccessibility())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmarkAccessibility())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -159,9 +166,47 @@ function fixLandmarkIssues(insightReport) {
   });
 }
 
-// Placeholder implementation for rendering a dependency graph
+// Helper function to generate HTML for dependency graph
+function generateDependencyGraphHTML(data) {
+  if (!data || !Array.isArray(data.nodes)) {
+    return '<div class="no-data">No dependency data available</div>';
+  }
+  
+  let html = '<ul class="dependency-list">';
+  
+  data.nodes.forEach(node => {
+    html += `<li class="dependency-node" data-id="${node.id}">`;
+    html += `<span class="node-name">${node.name}</span>`;
+    
+    if (node.dependencies && node.dependencies.length > 0) {
+      html += '<ul class="sub-dependencies">';
+      node.dependencies.forEach(depId => {
+        const depNode = data.nodes.find(n => n.id === depId);
+        if (depNode) {
+          html += `<li class="dependency-item">${depNode.name}</li>`;
+        }
+      });
+      html += '</ul>';
+    }
+    
+    html += '</li>';
+  });
+  
+  html += '</ul>';
+  
+  return html;
+}
+
+// Updated function for rendering dependency graph with actual implementation
 function renderDependencyGraph(dependencyData) {
-  console.log('Rendering dependency graph with data:', dependencyData);
+  // Convert dependency data to HTML representation
+  const htmlContent = generateDependencyGraphHTML(dependencyData);
+  
+  // Render the content using the existing render function
+  renderDependencyGraphContent(htmlContent);
+  
+  // Apply accessibility attributes
+  addressAccessibilityIssues();
 }
 
 // Placeholder function for index view rendering (to be replaced with actual implementation)
@@ -207,12 +252,8 @@ function fixTableStructureIssues() {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody') || document.createElement('tbody');
         thead.appendChild(firstRow);
-        table.insertBefore(thead, tbody || firstRow);
-        if (!table.querySelector('tbody')) {
-          table.appendChild(tbody);
-        }
+        table.insertBefore(thead, table.firstChild);
       }
     }
   });
@@ -223,13 +264,12 @@ function fixTableHeaderCellScope() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(cell => {
-      if (!cell.hasAttribute('scope')) {
-        const rows = table.querySelectorAll('tr');
-        const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+    headerCells.forEach((cell, cellIndex) => {
+      if (cell) {
+        const rows = Array.from(table.querySelectorAll('tr'));
         let isHeaderRow = true;
         
-        rows.forEach(row => {
+        rows.forEach((row, rowIndex) => {
           const rowCells = Array.from(row.querySelectorAll('th, td'));
           if (rowCells[cellIndex] !== cell) {
             isHeaderRow = false;
@@ -268,13 +308,13 @@ function addMainLandmark() {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
+    let title = svg.querySelector('title');
     if (title) {
       const titleId = `svg-title-${index}`;
       title.setAttribute('id', titleId);
       svg.setAttribute('aria-labelledby', titleId);
     } else {
-      const title = document.createElement('title');
+      title = document.createElement('title');
       title.textContent = `SVG graphic ${index + 1}`;
       svg.insertBefore(title, svg.firstChild);
       const titleId = `svg-title-${index}`;

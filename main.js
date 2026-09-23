@@ -82,7 +82,7 @@ function validateLandmarks(doc) {
 
   landmarks.forEach(landmark => {
     results.landmarks.push({
-      tag: landmark.tagName ? landmark.tagName.toLowerCase() : 'unknown',
+      tag: landmark.tagName ? landmark.tagName.toLowerCase() : null,
       id: landmark.id || null,
       className: landmark.className || null
     });
@@ -199,16 +199,19 @@ function improveAccessibility(container) {
  */
 function renderDependencyGraphContent(container) {
   if (!container) return;
+  
+  // Ensure the dependencyGraph container has a proper ARIA role
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Dependency Graph');
+  
+  // Process the container for dependency graph content
   const elements = container.querySelectorAll('[data-dependency]');
   const dependencyMap = new Map();
 
   elements.forEach(el => {
     if (el.dataset) {
       // Process dependency data
-      const depData = el.dataset.dependency;
-      if (depData) {
-        el.setAttribute('aria-describedby', 'dep-' + el.id);
-      }
+      el.setAttribute('role', 'listitem');
     }
   });
 
@@ -395,7 +398,7 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (svg && !svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    if (svg && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       const title = svg.querySelector('title');
       if (title) {
         const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);

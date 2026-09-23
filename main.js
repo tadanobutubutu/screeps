@@ -193,12 +193,6 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    const hasTitle = svg.querySelector('title');
-    if (!hasTitle) {
-      const title = document.createElement('title');
-      title.textContent = 'SVG graphic';
-      svg.insertBefore(title, svg.firstChild);
-    }
     const title = svg.querySelector('title');
     if (title) {
       const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
@@ -346,11 +340,7 @@ function addProperLandmarkRegions(affectedElements) {
 
   affectedElements.forEach(el => {
     if (el && el.tagName) {
-      const tagName = el.tagName.toLowerCase();
-      const validLandmarks = ['section', 'article', 'aside', 'nav', 'header', 'footer', 'main'];
-      if (validLandmarks.includes(tagName)) {
-        el.setAttribute('role', 'region');
-      }
+      el.setAttribute('role', 'region');
     }
   });
 }

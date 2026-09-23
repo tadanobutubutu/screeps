@@ -177,35 +177,23 @@ function createInPageButton(options) {
   if (container) {
     container.appendChild(button);
   }
-  
-  return button;
+
+  // Ensure all clickable elements are focusable
+  const focusable = container.querySelectorAll('button, input, select, textarea, [tabindex]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
+  });
 }
 
-// REACT_027: Fix table structure issues
-function validateTableAccessibility(table) {
-  const errors = [];
-  
-  if (!table || table.tagName !== 'TABLE') {
-    errors.push('Element must be a table');
-    return { valid: false, errors };
-  }
-  
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    errors.push('Table should have a caption');
-  }
-  
-  // Check for th elements
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    errors.push('Table should have header cells (th)');
-  }
-  
-  // Check for proper scope attributes on headers
-  headers.forEach(th => {
-    if (!th.getAttribute('scope')) {
-      errors.push('Header cells should have scope attribute');
+function renderDependencyGraphContent(container) {
+  if (!container) return;
+  // Process the container for dependency graph content
+  const elements = container.querySelectorAll('[data-dependency]');
+  elements.forEach(el => {
+    if (el.dataset) {
+      // Process dependency data
+      const dependency = el.dataset.dependency;
+      el.setAttribute('data-processed', 'true');
     }
   });
   
@@ -215,36 +203,43 @@ function validateTableAccessibility(table) {
   };
 }
 
-function validateTableStructure(table) {
-  const errors = [];
-  
-  if (!table || table.tagName !== 'TABLE') {
-    errors.push('Element must be a table');
-    return { valid: false, errors };
-  }
-  
-  // Check for thead
-  const thead = table.querySelector('thead');
-  if (!thead) {
-    errors.push('Table should have a thead element');
-  }
-  
-  // Check for tbody
-  const tbody = table.querySelector('tbody');
-  if (!tbody) {
-    errors.push('Table should have a tbody element');
-  }
-  
-  // Check that all rows have the same number of cells
-  const rows = table.querySelectorAll('tr');
-  if (rows.length > 0) {
-    const firstRowCells = rows[0].querySelectorAll('td, th');
-    const expectedCells = firstRowCells.length;
-    
-    rows.forEach((row, index) => {
-      const cells = row.querySelectorAll('td, th');
-      if (cells.length !== expectedCells) {
-        errors.push(`Row ${index + 1} has ${cells.length} cells, expected ${expectedCells}`);
+function ensureLandmarkUniqueness(elements) {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const elementsById = {};
+
+  if (!elements) return [];
+
+  elements.forEach(el => {
+    if (el.id) {
+      elementsById[el.id] = elementsById[el.id] || [];
+      elementsById[el.id].push(el);
+    }
+  });
+
+  const uniqueElements = [];
+  Object.keys(elementsById).forEach(id => {
+    const els = elementsById[id];
+    if (els.length === 1) {
+      uniqueElements.push(els[0]);
+    }
+  });
+
+  return uniqueElements;
+}
+
+function ensureUniqueLandmarks() {
+  return {};
+}
+
+function validateSvgAccessibility() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (svg && svg.querySelector) {
+      const title = svg.querySelector('title');
+      if (title) {
+        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+        title.id = titleId;
+        svg.setAttribute('aria-labelledby', titleId);
       }
     });
   }
@@ -455,12 +450,27 @@ function handleFakeLinks(container) {
         }
       });
     }
-    
-    // Convert div/span fake links to buttons if they should be buttons
-    const isFakeLink = el.getAttribute('role') === 'link' && !el.getAttribute('href');
-    if (isFakeLink && (tagName === 'div' || tagName === 'span')) {
-      // Warn about semantic markup
-      console.warn('Consider using a <button> element instead of', tagName, 'for clickable elements');
+  });
+}
+
+function renderDependencyGraph(dependencyData) {
+  console.log('Rendering dependency graph with data:', dependencyData);
+}
+
+function renderIndexView(indexData) {
+  console.log('Rendering index view with data:', indexData);
+}
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function addProperLandmarkRegions(affectedElements) {
+  if (!affectedElements || !Array.isArray(affectedElements)) return;
+
+  affectedElements.forEach(el => {
+    if (el && el.tagName && !el.getAttribute('role')) {
+      el.setAttribute('role', 'region');
     }
   });
   

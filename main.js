@@ -1,3 +1,5 @@
+// TODO: Add back any required exports that might have been?
+
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
@@ -138,15 +140,10 @@ function getSvgMissingTitle(svg) {
   return false;
 }
 
-function setSvgTitle(svg) {
-  const title = svg.title || 'Untitled';
-  svg.setAttribute('title', title);
-}
 
-function addSvgAccessibleName(svg) {
+function setSvgAccessibleName(svg, name) {
   if (!svg) {
     throw new Error('SVG element is required');
-    return;
   }
   setSvgTitle(svg);
   setSvgAccessibleName(svg, svg.title || svg.id || 'Untitled');
@@ -234,7 +231,7 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (svg && svg.querySelector) {
+    if (svg && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       const title = svg.querySelector('title');
       if (title) {
         const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
@@ -469,7 +466,7 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.getAttribute('role')) {
+    if (el && el.tagName && el.tagName !== 'MAIN') {
       el.setAttribute('role', 'region');
     }
   });

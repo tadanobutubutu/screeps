@@ -1,4 +1,10 @@
-// TODO: Create or update the affected functions to be accessible
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
+
+/**
+ * Main JavaScript module for landmark element validation
+ * @module main
+ */
 
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
@@ -40,51 +46,7 @@ function validateLandmark(landmark) {
 }
 
 /**
- * Process landmarks in a document and return structured data
- * @param {Document|HTMLElement} context - The document or container to process
- * @returns {Object} - Processed landmark data
- */
-function processLandmarks(context) {
-  const results = {
-    landmarks: [],
-    regions: [],
-    totalCount: 0
-  };
-
-  if (!context) {
-    return results;
-  }
-
-  const element = context.querySelectorAll ? context : (context.body || context);
-  const selector = 'header, main, nav, aside, section, article, footer';
-  const elements = element.querySelectorAll ? element.querySelectorAll(selector) : [];
-
-  elements.forEach(el => {
-    const landmark = {
-      tag: el.tagName ? el.tagName.toLowerCase() : 'unknown',
-      id: el.id || null,
-      className: el.className || '',
-      ariaRole: el.getAttribute('role') || null,
-      label: el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || null
-    };
-
-    results.landmarks.push(landmark);
-
-    if (landmark.tag === 'section' || (landmark.tag !== 'main' && landmark.ariaRole)) {
-      results.regions.push(landmark);
-    }
-  });
-
-  results.totalCount = results.landmarks.length;
-  return results;
-}
-
-/**
- * Main JavaScript module for landmark element validation
- * @module main
- */
-
-/** Configuration for landmark checks */
+ * Configuration for landmark checks */
 const config = {
   requiredLandmarks: ['main', 'header', 'footer'],
   optionalLandmarks: ['nav', 'aside', 'section'],
@@ -414,11 +376,13 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    const title = svg.querySelector('title');
-    if (title) {
-      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
-      title.id = titleId;
-      svg.setAttribute('aria-labelledby', titleId);
+    if (svg && svg.querySelector) {
+      const title = svg.querySelector('title');
+      if (title) {
+        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+        title.id = titleId;
+        svg.setAttribute('aria-labelledby', titleId);
+      }
     }
   });
 }

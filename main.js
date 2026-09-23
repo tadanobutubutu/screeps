@@ -429,40 +429,56 @@ function getSvgAccessibleName(doc = document) {
   return names;
 }
 
+/**
+ * Counts the number of dependencies in a given module object or dependency tree
+ * @param {Object} module - The module or dependency tree to analyze
+ * @returns {number} - The total number of dependencies
+ */
+function countDependencies(module) {
+  let count = 0;
+
+  if (!module || typeof module !== 'object') {
+    return count;
+  }
+
+  if (Array.isArray(module)) {
+    module.forEach(item => {
+      count += countDependencies(item);
+    });
+  } else {
+    Object.keys(module).forEach(key => {
+      if (key === 'dependencies' && Array.isArray(module[key])) {
+        count += module[key].length;
+        module[key].forEach(dep => {
+          count += countDependencies(dep);
+        });
+      } else if (typeof module[key] === 'object' && module[key] !== null) {
+        count += countDependencies(module[key]);
+      }
+    });
+  }
+
+  return count;
+}
+
 module.exports = {
-  config: config,
-  appState: appState,
-  initializeApp: initializeApp,
-  processData: processData,
-  fetchUser: fetchUser,
-  clearCache: clearCache,
-  initialize: initialize,
-  validateInput: validateInput,
-  addressAccessibilityIssues: addressAccessibilityIssues,
-  someFunction: someFunction,
-  improveAccessibility: improveAccessibility,
-  addressInsightIssues: addressInsightIssues,
-  addressREACT017: addressREACT017,
-  renderDependencyGraphContent: renderDependencyGraphContent,
-  renderDependencyGraph: renderDependencyGraph,
-  renderIndexView: renderIndexView,
-  calculateSum: calculateSum,
-  getLangAttribute: getLangAttribute,
-  addLangAttribute: addLangAttribute,
-  validateTableAccessibility: validateTableAccessibility,
-  validateTableStructure: validateTableStructure,
-  fixTableStructure: fixTableStructure,
-  addMainLandmark: addMainLandmark,
-  validateLandmark: validateLandmark,
-  validateLandmarkStructure: validateLandmarkStructure,
-  validateLandmarkAttributes: validateLandmarkAttributes,
-  getSvgAccessibleName: getSvgAccessibleName,
-  setSvgAttributes: setSvgAttributes,
-  ensureUniqueLandmarks: ensureUniqueLandmarks,
-  createInPageButton: createInPageButton,
-  validateLinkAccessibility: validateLinkAccessibility,
-  handleFakeLinks: handleFakeLinks,
-  addLandmarkRegions: addLandmarkRegions,
-  addLandmarkRoles: addLandmarkRoles,
-  ensureLandmarkUniqueness: ensureLandmarkUniqueness
+  validateLandmark,
+  config,
+  isLandmark,
+  validateLandmarks,
+  getLandmarkElements,
+  SomeModule,
+  setSvgAccessibleName,
+  improveAccessibility,
+  renderDependencyGraphContent,
+  ensureLandmarkUniqueness,
+  ensureUniqueLandmarks,
+  validateSvgAccessibility,
+  processUniqueElements,
+  addressInsightIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  addProperLandmarkRegions,
+  countDependencies
 };

@@ -1,3 +1,6 @@
+// TODO: Create or update the affected functions to be accessible
+
+// Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
 
@@ -350,7 +353,7 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (svg && !svg.getAttribute('aria-label')) {
+    if (svg && svg.querySelector) {
       const title = svg.querySelector('title');
       if (title) {
         const titleId = 'svg-title-' + Math.random().toString(36).substring(2, 9);

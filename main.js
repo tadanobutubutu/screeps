@@ -215,18 +215,78 @@ function ensureLandmarkUniqueness(elements) {
 }
 
 function ensureUniqueLandmarks() {
-  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
-  const elements = document.querySelectorAll(landmarkTags.join(','));
-  const tagCounts = {};
-  elements.forEach(el => {
-    const tag = el.tagName.toLowerCase();
-    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+  // Get all landmark elements in the document
+  const landmarkSelector = 'header, main, nav, aside, section, article, footer';
+  const allLandmarks = document.querySelectorAll(landmarkSelector);
+  
+  // Collect landmarks by role/ID for uniqueness check
+  const landmarksById = {};
+  const landmarksByRole = {};
+  
+  allLandmarks.forEach(landmark => {
+    // Group by ID
+    if (landmark.id) {
+      if (!landmarksById[landmark.id]) {
+        landmarksById[landmark.id] = [];
+      }
+      landmarksById[landmark.id].push(landmark);
+    }
+    
+    // Group by implicit landmark role
+    const tagName = landmark.tagName.toLowerCase();
+    if (!landmarksByRole[tagName]) {
+      landmarksByRole[tagName] = [];
+    }
+    landmarksByRole[tagName].push(landmark);
   });
-  const duplicates = Object.keys(tagCounts).filter(tag => tagCounts[tag] > 1);
-  if (duplicates.length > 0) {
-    console.warn('Duplicate landmarks found:', duplicates);
-  }
-  return duplicates;
+  
+  // Track elements to process
+  const processedLandmarks = [];
+  
+  // Process landmarks with duplicate IDs
+  Object.keys(landmarksById).forEach(id => {
+    const duplicates = landmarksById[id];
+    if (duplicates.length > 1) {
+      // Remove duplicate IDs, keeping the first one
+      for (let i = 1; i < duplicates.length; i++) {
+        const dup = duplicates[i];
+        // Remove the duplicate ID
+        dup.removeAttribute('id');
+        // Add a unique ID if needed
+        let newId = id + '-' + i;
+        dup.setAttribute('id', newId);
+      }
+    }
+  });
+  
+  // Process landmarks by role to ensure proper structure
+  const landmarkRoles = {
+    'main': 'main',
+    'header': 'banner',
+    'nav': 'navigation',
+    'aside': 'complementary',
+    'footer': 'contentinfo',
+    'section': 'region',
+    'article': 'article'
+  };
+  
+  allLandmarks.forEach(landmark => {
+    const tagName = landmark.tagName.toLowerCase();
+    const role = landmarkRoles[tagName];
+    
+    // Add explicit role if it doesn't have one and should have it
+    if (role && !landmark.hasAttribute('role')) {
+      landmark.setAttribute('role', role);
+    }
+    
+    processedLandmarks.push(landmark);
+  });
+  
+  return {
+    totalLandmarks: processedLandmarks.length,
+    landmarksById: landmarksById,
+    landmarksByRole: landmarksByRole
+  };
 }
 
 function validateSvgAccessibility() {
@@ -379,7 +439,28 @@ function addProperLandmarkRegions(affectedElements) {
 
   affectedElements.forEach(el => {
     if (el && el.tagName) {
-      el.setAttribute('role', 'region');
+      // Get the tag name to determine the appropriate landmark role
+      const tagName = el.tagName.toLowerCase();
+      
+      // Define proper landmark roles for HTML5 semantic elements
+      const landmarkRoles = {
+        'main': 'main',
+        'header': 'banner',
+        'nav': 'navigation',
+        'aside': 'complementary',
+        'footer': 'contentinfo',
+        'article': 'article',
+        'section': 'region'
+      };
+      
+      // Set appropriate landmark role if not already set
+      if (landmarkRoles[tagName] && !el.hasAttribute('role')) {
+        el.setAttribute('role', landmarkRoles[tagName]);
+      } 
+      // For generic containers that should become landmarks, set 'region' role
+      else if (tagName === 'div' && !el.hasAttribute('role')) {
+        el.setAttribute('role', 'region');
+      }
     }
   });
 }

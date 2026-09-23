@@ -9,12 +9,12 @@ const HTML = ({ lang, children }) => <html lang={lang}>{children}</html>;
 // ... (existing code, exports, and functions)
 
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmarkUniqueness())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_025: Ensure unique landmarks
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_036: Fix 1 fake link issue
+// - REACT_037: Google sign-in logic
+// - REACT_040: Replace my-button with actual button id for accessibility
 
 // Initialize app state
 const appState = {
@@ -64,12 +64,18 @@ function addLangAttribute(element, lang) {
   return false;
 }
 
-function validateTableAccessibility() {
-  // Code for validating table accessibility
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  const hasCaption = !!table.querySelector('caption');
+  const hasTh = table.querySelectorAll('th').length > 0;
+  return hasCaption && hasTh;
 }
 
-function validateTableStructure() {
-  // Code for validating table structure
+function validateTableStructure(table) {
+  if (!table) return false;
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  return !!(thead && tbody);
 }
 
 function fixTableStructure() {
@@ -120,7 +126,6 @@ function addLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
-// Updated addressAccessibilityIssues with the implementation from origin/main
 function addressAccessibilityIssues(insightReport) {
   // Mock implementation of the function to address accessibility issues
   // This should be replaced with actual logic based on the insight report structure

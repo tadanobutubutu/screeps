@@ -492,6 +492,46 @@ function countDependencies(module) {
   return count;
 }
 
+/**
+ * Generates ARIA labels for landmark elements that lack proper labels
+ * @param {HTMLElement} container - The container element to process (defaults to document.body)
+ */
+function generateLandmarkLabels(container) {
+  const landmarkContainer = container || document.body;
+  
+  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
+  const selector = landmarkTags.join(', ');
+  const landmarks = landmarkContainer.querySelectorAll(selector);
+  
+  landmarks.forEach(landmark => {
+    // Skip if already has aria-label or aria-labelledby
+    if (landmark.hasAttribute('aria-label') || landmark.hasAttribute('aria-labelledby')) {
+      return;
+    }
+    
+    // Try to get text content
+    let textContent = '';
+    if (landmark.textContent) {
+      textContent = landmark.textContent.trim();
+    }
+    
+    // Generate ARIA label based on tag name and text content
+    let ariaLabel = landmark.tagName.toLowerCase();
+    
+    // If there's meaningful text content, use it
+    if (textContent && textContent.length > 0) {
+      // Use the first 50 characters or the whole text if shorter
+      const contentPreview = textContent.length > 50 ? 
+        textContent.substring(0, 50).trim() + '...' : 
+        textContent;
+      ariaLabel = `${ariaLabel}: ${contentPreview}`;
+    }
+    
+    // Set the ARIA label
+    landmark.setAttribute('aria-label', ariaLabel);
+  });
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -511,5 +551,5 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  countDependencies
+  generateLandmarkLabels
 };

@@ -1,10 +1,3 @@
-// TODO: Add back any required exports that might have been removed.
-
-/**
- * Main JavaScript module for landmark element validation
- * @module main */
-
-// Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
 
@@ -212,28 +205,51 @@ function ensureLandmarkUniqueness(elements) {
   return uniqueElements;
 }
 
-function ensureUniqueLandmarks() {
-  const result = {
-    valid: true,
-    duplicates: []
+function ensureUniqueLandmarks(doc) {
+  const results = {
+    duplicates: [],
+    fixed: [],
+    valid: true
   };
-  
-  // Define which landmarks should be unique
-  const uniqueLandmarks = ['main', 'header', 'footer', 'nav', 'aside', 'section', 'article'];
-  
-  uniqueLandmarks.forEach(tag => {
-    const elements = document.querySelectorAll(tag);
-    if (elements.length > 1) {
-      result.valid = false;
-      result.duplicates.push({
+
+  const docToCheck = doc || (typeof document !== 'undefined' ? document : null);
+  if (!docToCheck || !docToCheck.body) {
+    return results;
+  }
+
+  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
+  const selector = landmarkTags.join(', ');
+  const landmarks = docToCheck.querySelectorAll(selector);
+
+  const landmarkCounts = {};
+  landmarks.forEach(landmark => {
+    const tag = landmark.tagName.toLowerCase();
+    landmarkCounts[tag] = (landmarkCounts[tag] || 0) + 1;
+  });
+
+  // Check for duplicates and add unique identifiers
+  const tagCounts = {};
+  landmarks.forEach(landmark => {
+    const tag = landmark.tagName.toLowerCase();
+    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+
+    if (tagCounts[tag] > 1) {
+      results.duplicates.push({
         tag: tag,
-        count: elements.length,
-        elements: Array.from(elements)
+        element: landmark,
+        count: tagCounts[tag]
       });
+
+      // Add a unique aria-label to differentiate
+      if (!landmark.hasAttribute('aria-label')) {
+        landmark.setAttribute('aria-label', `${tag} ${tagCounts[tag]}`);
+        results.fixed.push(landmark);
+      }
     }
   });
-  
-  return result;
+
+  results.valid = results.duplicates.length === 0;
+  return results;
 }
 
 function validateSvgAccessibility() {
@@ -300,159 +316,42 @@ function addLangAttribute(lang = 'en') {
 
 function addressInsightIssues(insightReport) {
   const issues = insightReport && insightReport.issues ? insightReport.issues : [];
+  const results = {
+    addressed: [],
+    failed: [],
+    totalIssues: issues.length
+  };
+
   issues.forEach(issue => {
-    if (issue.code === 'REACT_025') {
-      ensureUniqueLandmarks();
-    }
-  }
-  
-  // Check that main doesn't have redundant role
-  if (tagName === 'main' && role && role !== 'main') {
-    errors.push('Main element should not have a conflicting role');
-  }
-  
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-// REACT_041: Add accessible names to SVGs
-function getSvgAccessibleName(svg) {
-  if (!svg || svg.tagName !== 'svg') {
-    return null;
-  }
-  
-  // Check for aria-label
-  const ariaLabel = svg.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-  
-  // Check for aria-labelledby
-  const ariaLabelledby = svg.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const referencedElement = document.getElementById(ariaLabelledby);
-    if (referencedElement) {
-      return referencedElement.textContent;
-    }
-  }
-  
-  // Check for title element
-  const title = svg.querySelector('title');
-  if (title) {
-    return title.textContent;
-  }
-  
-  return null;
-}
-
-function setSvgAttributes(svg, options) {
-  if (!svg || svg.tagName !== 'svg') {
-    return;
-  }
-  
-  const { label, labelledBy, role } = options || {};
-  
-  if (label) {
-    svg.setAttribute('aria-label', label);
-  }
-  
-  if (labelledBy) {
-    svg.setAttribute('aria-labelledby', labelledBy);
-  }
-  
-  if (role) {
-    svg.setAttribute('role', role);
-  }
-  
-  // If no accessible name is set, try to add title
-  if (!getSvgAccessibleName(svg)) {
-    const title = document.createElement('title');
-    title.textContent = label || 'SVG graphic';
-    const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
-    title.id = titleId;
-    
-    // Insert title as first child
-    if (svg.firstChild) {
-      svg.insertBefore(title, svg.firstChild);
-    } else {
-      svg.appendChild(title);
-    }
-    
-    svg.setAttribute('aria-labelledby', titleId);
-  }
-}
-
-// REACT_036: Fix fake link issues
-function validateLinkAccessibility(link) {
-  const errors = [];
-  
-  if (!link) {
-    errors.push('Element is required');
-    return { valid: false, errors };
-  }
-  
-  const tagName = link.tagName ? link.tagName.toLowerCase() : '';
-  
-  // Check if it's an anchor tag
-  if (tagName === 'a') {
-    const href = link.getAttribute('href');
-    if (!href || href === '#') {
-      errors.push('Link should have a valid href attribute');
-    }
-    return { valid: errors.length === 0, errors };
-  }
-  
-  // Check for fake links (elements with click handlers that look like links)
-  const role = link.getAttribute('role');
-  const hasClickHandler = link.onclick || link.getAttribute('onclick');
-  const hasCursorStyle = getComputedStyle(link).cursor === 'pointer';
-  
-  if (role === 'link' || (hasClickHandler && hasCursorStyle)) {
-    // This is a fake link - check for proper attributes
-    if (!link.getAttribute('href') && !link.getAttribute('onclick')) {
-      errors.push('Fake link should have proper href or click handler');
-    }
-    
-    if (!link.getAttribute('tabindex') && link.getAttribute('role') !== 'link') {
-      errors.push('Fake link should be keyboard accessible');
-    }
-  }
-  
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-function handleFakeLinks(container) {
-  if (!container) return;
-  
-  const fakeLinks = container.querySelectorAll('[role="link"], a[href="#"], a:not([href])');
-  
-  fakeLinks.forEach(el => {
-    const tagName = el.tagName ? el.tagName.toLowerCase() : '';
-    
-    // Ensure keyboard accessibility
-    if (!el.getAttribute('tabindex')) {
-      el.setAttribute('tabindex', '0');
-    }
-    
-    // Add enter key support for elements that are not anchors
-    if (tagName !== 'a') {
-      el.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          el.click();
-        }
+    try {
+      if (issue.code === 'REACT_025') {
+        const uniquenessResults = ensureUniqueLandmarks();
+        results.addressed.push({
+          code: issue.code,
+          result: uniquenessResults
+        });
+      }
+      if (issue.code === 'REACT_017') {
+        const affectedElements = issue.elements || [];
+        affectedElements.forEach(el => {
+          if (!el['aria-label'] && !el.label) {
+            el['aria-label'] = el.id || 'unnamed-element';
+          }
+        });
+        results.addressed.push({
+          code: issue.code,
+          elementCount: affectedElements.length
+        });
+      }
+    } catch (error) {
+      results.failed.push({
+        code: issue.code,
+        error: error.message
       });
     }
-    // REACT_015: Add lang attribute to HTML element
-    if (issue.code === 'REACT_015') {
-      addLangAttribute();
-    }
   });
+
+  return results;
 }
 
 function renderDependencyGraph(dependencyData) {

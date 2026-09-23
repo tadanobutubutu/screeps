@@ -56,7 +56,7 @@ const config = {
 /**
  * Checks if an element is a landmark element
  * @param {HTMLElement} element - The element to check
- * @returns {boolean} - True if the element is a landmark
+ * @returns {boolean} True if the element is a landmark
  */
 function isLandmark(element) {
   if (!element || !element.tagName) return false;
@@ -67,7 +67,7 @@ function isLandmark(element) {
 /**
  * Validates landmark elements in a document
  * @param {Document} doc - The document to validate
- * @returns {Object} - Validation results
+ * @returns {Object} Validation results
  */
 function validateLandmarks(doc) {
   const results = {
@@ -106,7 +106,7 @@ function validateLandmarks(doc) {
 /**
  * Gets all landmark elements from a container
  * @param {HTMLElement} container - The container element
- * @returns {HTMLElement[]} - Array of landmark elements
+ * @returns {HTMLElement[]} Array of landmark elements
  */
 function getLandmarkElements(container) {
   if (!container) return [];
@@ -129,18 +129,7 @@ const SomeModule = {
   // Some functionality
 };
 
-// Export the module
-module.exports.SomeModule = SomeModule;
-
-// New Function: Add missing title to SVG elements (REACT_017)
-function getSvgMissingTitle(svg) {
-  const title = svg.querySelector('title');
-  if (!title) {
-    return true;
-  }
-  return false;
-}
-
+// Generalized accessibility functions
 
 function setSvgAccessibleName(svg, name) {
   if (!svg) {

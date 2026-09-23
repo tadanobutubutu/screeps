@@ -139,9 +139,6 @@ const SomeModule = {
   // Some functionality
 };
 
-// Export the module
-module.exports.SomeModule = SomeModule;
-
 // Generalized accessibility functions
 
 function setSvgAccessibleName(svg, name) {

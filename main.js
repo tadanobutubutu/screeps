@@ -292,182 +292,67 @@ function ... {
   // Possible solutions: use Dependency graph libraries (e.g., `graphviz`, `d3-force`), or create custom solutions to display module dependencies
 }
 
-// Call the new function to render dependency graphs or display module structures
-...
-
-// Configuration and state
-let config = {
-  lang: 'en',
-  accessibilityOptions: {
-    validateTables: true,
-    validateLandmarks: true,
-    validateLinks: true,
-    validateSvgAccessibility: true
+/**
+ * Check accessibility for all tables in a document or element
+ * Addresses REACT_027: Table structure issues
+ * @param {Document|Element} container - Document or element containing tables
+ * @param {Object} options - Options for accessibility checking
+ * @param {boolean} options.autoFix - Whether to automatically fix issues (default: false)
+ * @param {boolean} options.validateStructure - Include structure validation (default: true)
+ * @param {boolean} options.validateAccessibility - Include accessibility validation (default: true)
+ * @returns {Object} - Report of tables checked, issues found, and fixes applied
+ */
+function checkTableAccessibility(container, options = {}) {
+  const { autoFix = false, validateStructure = true, validateAccessibility = true } = options;
+  
+  if (!container) {
+    return { 
+      valid: false, 
+      error: 'Container is required',
+      tablesChecked: 0,
+      tables: [],
+      totalIssues: 0,
+      fixedIssues: 0
+    };
   }
   
-  const existingMain = ...
-  if (existingMain && existingMain !== mainElement) {
-    console.warn('Main landmark already exists in document');
-    return false;
-  }
+  const tables = container.querySelectorAll ?
+    container.querySelectorAll('table') :
+    (container.findAll ? container.findAll('table') : []);
   
-  if ... !== 'main') {
-    console.warn('Element should be a <main> element');
-    return false;
-  }
-  
-  if (!mainElement.id) {
-    mainElement.id = MAIN_LANDMARK_ID;
-  }
-  
-  mainElement.setAttribute('role', 'main');
-  return true;
-}
-
-function ... {
-  // Validate that landmarks are properly defined
-  if (!document) {
-    return { valid: false, issues: ['Document is required'] };
-  }
-  
-  const issues = [];
-  
-  // Check for main landmark
-  const main = ...
-  if (!main) {
-    issues.push('Document should have a main landmark');
-  }
-  
-  // Check for header landmark
-  const header = ...
-  if (!header) {
-    issues.push('Document should have a header landmark');
-  }
-  
-  // Check for footer landmark
-  const footer = ...
-  if (!footer) {
-    issues.push('Document should have a footer landmark');
-  }
-  
-  // Check for nav landmark
-  const nav = ...
-  if (!nav) {
-    issues.push('Document should have a navigation landmark');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues
+  const results = {
+    tablesChecked: tables.length,
+    totalIssues: 0,
+    fixedIssues: 0,
+    tables: []
   };
-}
-
-function ... {
-  // Validate landmark structure for accessibility
-  if (!document) {
-    return { valid: false, issues: ['Document is required'] };
-  }
-}
-
-function processDataExtended(data) {
-  if (!data) {
-    throw new Error('No data provided');
-  }
-  return data.map(item => ({
-    ...item,
-    processed: true
-  }));
-}
-
-function getLangAttributeEnhanced() {
-  // Get the language attribute from configuration or document
-  return config.lang || 'en';
-}
-
-function ... {
-  if (!element) return null;
-  const lang = getLangAttribute();
-  return Object.assign({}, element, { 
-    attributes: Object.assign({}, element.attributes, { lang: lang })
-  });
-}
-
-// REACT_027: Fix 26 table structure issues
-function validateTableAccessibility() {
-  // Validate table accessibility by checking for proper structure
-  const issues = [];
-  const landmarks = ['header', 'main', 'nav', 'aside', 'footer'];
   
-  landmarks.forEach(landmark => {
-    const elements = ...
-    if (elements.length > 1 && landmark !== 'nav') {
-      issues.push(`Multiple ${landmark} landmarks found - should have only one`);
-    }
-  });
-  
-  // Check for proper landmark labeling
-  const navElements = ...
-  ... index) => {
-    const ariaLabel = ...
-    const ariaLabelledBy = ...
-    if (!ariaLabel && !ariaLabelledBy) {
-      issues.push(`Navigation ${index + 1} should have aria-label or aria-labelledby`);
-    }
-  });
-  
-  return {
-    type: 'main',
-    role: 'main',
-    accessible: true
-  };
-}
-
-function validateLandmarkAttributes(element) {
-  // Validate that element has proper landmark attributes
-  if (!element) {
-    return { valid: false, issues: ['Element is required'] };
+  if (tables.length === 0) {
+    console.log('No tables found in container');
+    return results;
   }
   
-  const issues = [];
-  const tagName = element.tagName.toLowerCase();
-  
-  // Semantic landmarks
-  const semanticLandmarks = ['header', 'main', 'nav', 'aside', 'footer'];
-  
-  if ... {
-    // Check if element has proper labeling
-    const ariaLabel = element.getAttribute('aria-label');
-    const ariaLabelledBy = element.getAttribute('aria-labelledby');
+  tables.forEach((table, index) => {
+    const tableResult = {
+      index,
+      hasHeaderCells: false,
+      hasCaption: false,
+      hasThead: false,
+      hasTbody: false,
+      hasScopeAttributes: false,
+      structureIssues: [],
+      accessibilityIssues: [],
+      fixed: false,
+      valid: true
+    };
     
-    if (!ariaLabel && !ariaLabelledBy && tagName !== 'main') {
-      issues.push(`${tagName} landmark should have aria-label or aria-labelledby`);
-    }
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues
-  };
-}
-
-module.exports = {
-  appState,
-  config,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  MAIN_LANDMARK_ID,
-  addressAccessibilityIssues,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes
-};
+    // Check for table elements
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const caption = table.querySelector('caption');
+    const headers = table.querySelectorAll('th');
+    
+    tableResult.hasThead = !!thead;
+    tableResult.hasTbody = !!tbody;
+    tableResult.hasCaption = !!caption;
+    tableResult.hasHeaderCells = headers.length > 0

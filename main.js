@@ -407,20 +407,9 @@ function validateTableStructure(table, minRows, minCells) {
   const tableRows = Array.from(table.rows);
   const tableHasHead = tableRows.some((row, index) => index === 0 && row.cells.length > 0);
 
-  if (!tableHasHead) {
-    throw new Error('Table is missing thead');
-  }
-
-  const tableHeaders = Array.from(tableRows[0].cells);
-  const numHeaders = tableHeaders.length;
-  const tableBodyRows = tableRows.slice(1);
-
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.getAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
-  }
-}
+/**
+ * Generalized accessibility functions
+ */
 
 function setSvgAccessibleName(svg, name) {
   if (!svg) {

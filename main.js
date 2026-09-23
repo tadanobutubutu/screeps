@@ -165,7 +165,10 @@ function setSvgAccessibleName(svg, name) {
     throw new Error('SVG element is required');
     return;
   }
-  svg.setAttribute('aria-labelledby', name);
+  const title = svg.querySelector('title');
+  if (title) {
+    title.textContent = name;
+  }
 }
 
 function improveAccessibility(container) {
@@ -219,26 +222,73 @@ function ensureLandmarkUniqueness(elements) {
 }
 
 function ensureUniqueLandmarks() {
-  return {};
+  const results = {
+    duplicates: [],
+    fixed: []
+  };
+
+  if (typeof document === 'undefined') {
+    return results;
+  }
+
+  const landmarks = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
+  const landmarkSelectors = landmarks.map(tag => tag + '[id]').join(', ');
+  const elements = document.querySelectorAll(landmarkSelectors);
+  const elementsById = {};
+
+  elements.forEach(el => {
+    if (el.id) {
+      elementsById[el.id] = elementsById[el.id] || [];
+      elementsById[el.id].push(el);
+    }
+  });
+
+  Object.keys(elementsById).forEach(id => {
+    const els = elementsById[id];
+    if (els.length > 1) {
+      results.duplicates.push({ id, count: els.length });
+      els.forEach((el, index) => {
+        if (index > 0) {
+          const baseLabel = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || '';
+          const newLabel = `${baseLabel} ${index + 1}`.trim();
+          el.setAttribute('aria-label', newLabel);
+          results.fixed.push({ id, element: el, label: newLabel });
+        }
+      });
+    }
+  });
+
+  return results;
 }
 
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-      const title = svg.querySelector('title');
-      if (title) {
-        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
-        title.id = titleId;
-        svg.setAttribute('aria-labelledby', titleId);
-      }
+    const hasTitle = svg.querySelector('title');
+    if (!hasTitle) {
+      const title = document.createElement('title');
+      title.textContent = 'SVG graphic';
+      svg.insertBefore(title, svg.firstChild);
+    }
+    const title = svg.querySelector('title');
+    if (title) {
+      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+      title.id = titleId;
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
 }
 
 function processUniqueElements() {
-  const uniqueElements = [];
+  const uniqueElements = ensureLandmarkUniqueness(document.querySelectorAll('[id]'));
   // Process unique elements for landmark roles
+  uniqueElements.forEach(el => {
+    if (el.hasAttribute('role') && el.getAttribute('role') === 'region') {
+      if (!el.hasAttribute('aria-label') && !el.id) {
+        el.setAttribute('aria-label', 'Region');
+      }
+    }
+  });
   return uniqueElements;
 }
 
@@ -334,8 +384,12 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.getAttribute('role')) {
-      el.setAttribute('role', 'region');
+    if (el && el.tagName) {
+      const tagName = el.tagName.toLowerCase();
+      const validLandmarks = ['section', 'article', 'aside', 'nav', 'header', 'footer', 'main'];
+      if (validLandmarks.includes(tagName)) {
+        el.setAttribute('role', 'region');
+      }
     }
   });
 }

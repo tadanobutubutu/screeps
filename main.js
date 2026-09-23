@@ -323,7 +323,7 @@ function setSvgAttributes(svg, width, height) {
 function renderDependencyGraphContent(container) {
   if (!container) return;
   // Process the container for dependency graph content
-  const elements = container.querySelectorAll('[data-dependency]');
+  const elements = container.children;
   elements.forEach(el => {
     if (el.dataset) {
       // Process dependency data

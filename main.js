@@ -214,11 +214,20 @@ function ensureLandmarkUniqueness(elements) {
   return uniqueElements;
 }
 
-// Add function to check for unique landmarks (functionB) if it exists
-// For example:
-// function ensureUniqueLandmarks() {
-//   // FunctionB implementation
-// }
+function ensureUniqueLandmarks() {
+  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
+  const elements = document.querySelectorAll(landmarkTags.join(','));
+  const tagCounts = {};
+  elements.forEach(el => {
+    const tag = el.tagName.toLowerCase();
+    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+  });
+  const duplicates = Object.keys(tagCounts).filter(tag => tagCounts[tag] > 1);
+  if (duplicates.length > 0) {
+    console.warn('Duplicate landmarks found:', duplicates);
+  }
+  return duplicates;
+}
 
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');

@@ -688,93 +688,39 @@ function addProperLandmarkRegions(affectedElements) {
 }
 
 /**
- * Creates a focus trap for keyboard navigation within a container
- * @param {HTMLElement} container - The container element to trap focus within
- * @param {Object} options - Configuration options
- * @param {boolean} options.escapeDeactivates - Whether Escape key deactivates the trap (default: true)
- * @param {boolean} options.clickOutsideDeactivates - Whether clicking outside deactivates the trap (default: false)
- * @returns {Function} A function to deactivate the focus trap
+ * Calculates the great-circle distance between two landmarks using the Haversine formula
+ * @param {Object} landmark1 - The first landmark with latitude and longitude properties
+ * @param {Object} landmark2 - The second landmark with latitude and longitude properties
+ * @returns {number} - The distance between the two landmarks in kilometers
  */
-function createFocusTrap(container, options = {}) {
-  if (!container || !container.nodeType) {
-    throw new Error('Container must be a valid DOM element');
+function calculateDistance(landmark1, landmark2) {
+  const R = 6371; // Earth's radius in kilometers
+
+  // Validate inputs
+  const validation1 = validateLandmark(landmark1);
+  const validation2 = validateLandmark(landmark2);
+
+  if (!validation1.valid) {
+    throw new Error('Invalid first landmark: ' + validation1.errors.join(', '));
+  }
+  if (!validation2.valid) {
+    throw new Error('Invalid second landmark: ' + validation2.errors.join(', '));
   }
 
-  const {
-    escapeDeactivates = true,
-    clickOutsideDeactivates = false
-  } = options;
+  // Convert degrees to radians
+  const lat1Rad = landmark1.latitude * Math.PI / 180;
+  const lat2Rad = landmark2.latitude * Math.PI / 180;
+  const dLat = (landmark2.latitude - landmark1.latitude) * Math.PI / 180;
+  const dLon = (landmark2.longitude - landmark1.longitude) * Math.PI / 180;
 
-  let isActive = true;
+  // Haversine formula
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c;
 
-  // Get all focusable elements within the container
-  const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-  const focusableElements = Array.from(container.querySelectorAll(focusableSelector));
-
-  // If no focusable elements, make container focusable
-  if (focusableElements.length === 0) {
-    container.setAttribute('tabindex', '-1');
-  }
-
-  const firstFocusable = focusableElements[0];
-  const lastFocusable = focusableElements[focusableElements.length - 1];
-
-  // Handle keyboard events
-  function handleKeyDown(event) {
-    if (!isActive) return;
-
-    if (event.key === 'Tab') {
-      if (focusableElements.length === 0) {
-        event.preventDefault();
-        return;
-      }
-
-      if (event.shiftKey) {
-        // If Shift+Tab and currently on first focusable, go to last
-        if (document.activeElement === firstFocusable) {
-          event.preventDefault();
-          lastFocusable?.focus();
-        }
-      } else {
-        // If Tab and currently on last focusable, go to first
-        if (document.activeElement === lastFocusable) {
-          event.preventDefault();
-          firstFocusable?.focus();
-        }
-      }
-    }
-
-    if (escapeDeactivates && event.key === 'Escape') {
-      deactivate();
-    }
-  }
-
-  // Handle click outside
-  function handleClick(event) {
-    if (clickOutsideDeactivates && isActive && !container.contains(event.target)) {
-      deactivate();
-    }
-  }
-
-  // Activate the trap
-  function activate() {
-    isActive = true;
-    container.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('click', handleClick);
-  }
-
-  // Deactivate the trap
-  function deactivate() {
-    isActive = false;
-    container.removeEventListener('keydown', handleKeyDown);
-    document.removeEventListener('click', handleClick);
-  }
-
-  // Initial activation
-  activate();
-
-  // Return deactivation function
-  return deactivate;
+  return distance;
 }
 
 module.exports = {
@@ -801,5 +747,5 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  createFocusTrap
+  calculateDistance
 };

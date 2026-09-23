@@ -421,6 +421,20 @@ function renderDependencyGraphContent(container) {
   });
 }
 
+/**
+ * Counts the number of dependencies in a container
+ * @param {HTMLElement|Document} container - The container to search for dependencies
+ * @returns {number} - The count of dependency elements
+ */
+function countDependencies(container) {
+  if (!container) {
+    return 0;
+  }
+
+  const elements = container.querySelectorAll('[data-dependency]');
+  return elements.length;
+}
+
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   const elementsById = {};
@@ -922,6 +936,7 @@ module.exports = {
   setSvgAccessibleName,
   improveAccessibility,
   renderDependencyGraphContent,
+  countDependencies,
   ensureLandmarkUniqueness,
   ensureUniqueLandmarks, // TODO: Implement function to ensure unique landmarks
   validateSvgAccessibility,

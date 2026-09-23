@@ -438,11 +438,14 @@ function ensureUniqueLandmarks() {
 function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    const title = svg.querySelector('title');
-    if (title && !svg.getAttribute('aria-labelledby')) {
-      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
-      title.id = titleId;
-      svg.setAttribute('aria-labelledby', titleId);
+    const hasTitle = svg.querySelector('title');
+    if (hasTitle) {
+      const title = svg.querySelector('title');
+      if (title) {
+        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+        title.id = titleId;
+        svg.setAttribute('aria-labelledby', titleId);
+      }
     }
   });
 }
@@ -581,7 +584,7 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements) || affectedElements.length === 0) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName) {
+    if (el && el.tagName && el.tagName !== 'HEADER' && el.tagName !== 'FOOTER' && el.tagName !== 'MAIN') {
       el.setAttribute('role', 'region');
     }
   });

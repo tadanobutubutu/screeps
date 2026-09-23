@@ -563,7 +563,7 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !affectedElements.length) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName && !el.getAttribute('role')) {
+    if (el && el.tagName && el.tagName !== 'SECTION') {
       el.setAttribute('role', 'region');
     }
   });

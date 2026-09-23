@@ -486,10 +486,7 @@ const SomeModule = {
   // Some functionality
 };
 
-// Export the module
-module.exports.SomeModule = SomeModule;
-
-// New functions for rendering dependency graphs and displaying module structure
+// Generalized accessibility functions
 
 function getDependencies(module, dependenciesMap) {
   const dependencies = [];

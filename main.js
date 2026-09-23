@@ -1,14 +1,6 @@
-// main.js
-
+// TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_025: Add other accessibility changes as per the insight report
-// - REACT_027: Fix 26 table structure issues
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_036: Fix 1 fake link issue
-// - REACT_037: Google sign-in logic
-// - REACT_040: Replace my-button with actual button id for accessibility
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 
 import react from 'react';
 

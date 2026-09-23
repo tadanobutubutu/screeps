@@ -394,6 +394,11 @@ function _findDamagedStructure(room) {
             continue;
         }
 
+        // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit full-health structures before threshold lookups and division
+        if (s.hits >= s.hitsMax) {
+            continue;
+        }
+
         const threshold = REPAIR_THRESHOLD[type] || REPAIR_THRESHOLD.OTHER;
         const ratio = s.hits / s.hitsMax;
 

@@ -670,97 +670,93 @@ function addProperLandmarkRegions(affectedElements) {
 }
 
 /**
- * Checks link and button accessibility in a container
- * @param {HTMLElement} container - The container element to check
- * @returns {Object} - Validation results with valid flag and errors array
+ * Creates a focus trap for keyboard navigation within a container
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @param {Object} options - Configuration options
+ * @param {boolean} options.escapeDeactivates - Whether Escape key deactivates the trap (default: true)
+ * @param {boolean} options.clickOutsideDeactivates - Whether clicking outside deactivates the trap (default: false)
+ * @returns {Function} A function to deactivate the focus trap
  */
-function checkLinkButtonAccessibility(container) {
-  const results = {
-    valid: true,
-    errors: [],
-    links: [],
-    buttons: []
-  };
-
-  if (!container) {
-    results.valid = false;
-    results.errors.push('Container element is required');
-    return results;
+function createFocusTrap(container, options = {}) {
+  if (!container || !container.nodeType) {
+    throw new Error('Container must be a valid DOM element');
   }
 
-  // Check links
-  const links = container.querySelectorAll('a');
-  links.forEach((link, index) => {
-    const linkInfo = {
-      index,
-      href: link.getAttribute('href'),
-      text: link.textContent.trim(),
-      hasAriaLabel: link.hasAttribute('aria-label'),
-      hasAriaLabelledby: link.hasAttribute('aria-labelledby'),
-      valid: true,
-      errors: []
-    };
+  const {
+    escapeDeactivates = true,
+    clickOutsideDeactivates = false
+  } = options;
 
-    // Check if link has valid href
-    if (!linkInfo.href || linkInfo.href === '#' || linkInfo.href.trim() === '') {
-      linkInfo.valid = false;
-      linkInfo.errors.push('Link must have a valid href attribute');
+  let isActive = true;
+
+  // Get all focusable elements within the container
+  const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const focusableElements = Array.from(container.querySelectorAll(focusableSelector));
+
+  // If no focusable elements, make container focusable
+  if (focusableElements.length === 0) {
+    container.setAttribute('tabindex', '-1');
+  }
+
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  // Handle keyboard events
+  function handleKeyDown(event) {
+    if (!isActive) return;
+
+    if (event.key === 'Tab') {
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.shiftKey) {
+        // If Shift+Tab and currently on first focusable, go to last
+        if (document.activeElement === firstFocusable) {
+          event.preventDefault();
+          lastFocusable?.focus();
+        }
+      } else {
+        // If Tab and currently on last focusable, go to first
+        if (document.activeElement === lastFocusable) {
+          event.preventDefault();
+          firstFocusable?.focus();
+        }
+      }
     }
 
-    // Check if link has accessible name
-    const hasAccessibleName = linkInfo.text !== '' || linkInfo.hasAriaLabel || linkInfo.hasAriaLabelledby;
-    if (!hasAccessibleName) {
-      linkInfo.valid = false;
-      linkInfo.errors.push('Link must have accessible text content or aria-label/aria-labelledby');
+    if (escapeDeactivates && event.key === 'Escape') {
+      deactivate();
     }
+  }
 
-    // Check for suspicious href patterns
-    if (linkInfo.href && linkInfo.href.startsWith('javascript:')) {
-      linkInfo.valid = false;
-      linkInfo.errors.push('Link should not use javascript: protocol');
+  // Handle click outside
+  function handleClick(event) {
+    if (clickOutsideDeactivates && isActive && !container.contains(event.target)) {
+      deactivate();
     }
+  }
 
-    results.links.push(linkInfo);
-    if (!linkInfo.valid) {
-      results.valid = false;
-      linkInfo.errors.forEach(err => results.errors.push(`Link ${index}: ${err}`));
-    }
-  });
+  // Activate the trap
+  function activate() {
+    isActive = true;
+    container.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('click', handleClick);
+  }
 
-  // Check buttons
-  const buttons = container.querySelectorAll('button');
-  buttons.forEach((button, index) => {
-    const buttonInfo = {
-      index,
-      type: button.getAttribute('type') || 'button',
-      text: button.textContent.trim(),
-      hasAriaLabel: button.hasAttribute('aria-label'),
-      hasAriaLabelledby: button.hasAttribute('aria-labelledby'),
-      disabled: button.disabled,
-      valid: true,
-      errors: []
-    };
+  // Deactivate the trap
+  function deactivate() {
+    isActive = false;
+    container.removeEventListener('keydown', handleKeyDown);
+    document.removeEventListener('click', handleClick);
+  }
 
-    // Check if button has accessible name
-    const hasAccessibleName = buttonInfo.text !== '' || buttonInfo.hasAriaLabel || buttonInfo.hasAriaLabelledby;
-    if (!hasAccessibleName) {
-      buttonInfo.valid = false;
-      buttonInfo.errors.push('Button must have accessible text content or aria-label/aria-labelledby');
-    }
+  // Initial activation
+  activate();
 
-    // Check for missing type attribute (defaults to submit in forms)
-    if (!button.hasAttribute('type')) {
-      buttonInfo.errors.push('Button should have explicit type attribute (button, submit, reset)');
-    }
-
-    results.buttons.push(buttonInfo);
-    if (!buttonInfo.valid) {
-      results.valid = false;
-      buttonInfo.errors.forEach(err => results.errors.push(`Button ${index}: ${err}`));
-    }
-  });
-
-  return results;
+  // Return deactivation function
+  return deactivate;
 }
 
 module.exports = {
@@ -787,5 +783,5 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  checkLinkButtonAccessibility
+  createFocusTrap
 };

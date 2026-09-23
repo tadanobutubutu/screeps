@@ -7,58 +7,60 @@ const APP_CONFIG = {
     retries: 3
 };
 
-// Existing utility functions
-function formatDate(date) {
-    if (!(date instanceof Date)) {
-        date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
+/**
+ * Creates a button element for in-page use.
+ * @param {string} text - The text/label for the button
+ * @param {Function} onClick - Click handler callback
+ * @param {Object} options - Optional configuration
+ * @param {string} [options.className] - CSS class(es) to apply
+ * @param {string} [options.id] - Element ID
+ * @param {Object} [options.styles] - Inline styles to apply
+ * @param {string} [options.type] - Button type (default: 'button')
+ * @param {boolean} [options.disabled] - Disable the button (default: false)
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, onClick, options = {}) {
+  const {
+    className = '',
+    id = '',
+    styles = {},
+    type = 'button',
+    disabled = false,
+  } = options;
+
+  const button = document.createElement('button');
+  button.type = type;
+  button.textContent = text;
+  button.disabled = disabled;
+
+  if (className) {
+    button.className = className;
+  }
+
+  if (id) {
+    button.id = id;
+  }
+
+  if (styles && typeof styles === 'object') {
+    Object.assign(button.style, styles);
+  }
+
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  return button;
 }
 
-function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+// TODO: Implement this function
+function getButtonId(button) {
+  return button.id;
 }
 
-// Existing data processing
-function processData(items) {
-    if (!Array.isArray(items)) {
-        return [];
-    }
-    return items.map(item => ({
-        ...item,
-        processed: true,
-        timestamp: Date.now()
-    }));
+// Export for module usage and testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    createInPageButton,
+    getButtonId,
+  };
 }
-
-// Existing helper functions
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// New function to implement
-function formatString(input) {
-    if (typeof input !== 'string') {
-        return '';
-    }
-    return input.trim().replace(/\s+/g, ' ').toLowerCase();
-}
-
-// Export functions for testing
-module.exports = {
-    formatDate,
-    validateEmail,
-    processData,
-    debounce,
-    formatString,
-    APP_CONFIG
-};

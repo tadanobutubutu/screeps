@@ -301,28 +301,21 @@ function validateLandmarkStructure(element) {
   };
 }
 
-function validateLandmarkAttributes(element) {
-  const errors = [];
-  
-  if (!element) {
-    errors.push('Element is required');
-    return { valid: false, errors };
+/**
+ * Adds a lang attribute to the HTML element (REACT_015)
+ * @param {string} lang - Language code (default 'en')
+ */
+function addLangAttribute(lang = 'en') {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
   }
-  
-  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
-  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-  const role = element.getAttribute('role');
-  
-  // Check if element is a landmark
-  if (!landmarkTags.includes(tagName) && !role) {
-    errors.push('Element is not a landmark (no landmark tag or role)');
-    return { valid: true, errors: [] }; // Not a landmark, skip validation
-  }
-  
-  // Check for accessible name on nav and aside
-  if (tagName === 'nav' || tagName === 'aside' || role === 'navigation' || role === 'complementary') {
-    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-      errors.push('Navigation and complementary landmarks should have an accessible name');
+}
+
+function addressInsightIssues(insightReport) {
+  const issues = insightReport && insightReport.issues ? insightReport.issues : [];
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_025') {
+      ensureUniqueLandmarks();
     }
   }
   
@@ -468,6 +461,10 @@ function handleFakeLinks(container) {
         }
       });
     }
+    // REACT_015: Add lang attribute to HTML element
+    if (issue.code === 'REACT_015') {
+      addLangAttribute();
+    }
   });
 }
 
@@ -531,8 +528,7 @@ module.exports = {
   validateSvgAccessibility,
   processUniqueElements,
   addressInsightIssues,
-  getLangAttribute,
-  ensureDependencyGraphARIA,
+  addLangAttribute,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,

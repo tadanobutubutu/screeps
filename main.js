@@ -1,12 +1,8 @@
 // TODO: This is the existing code that needs to be preserved
+//_Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
+//<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
@@ -508,24 +504,63 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (el && el.tagName) {
+    if (el && el.tagName && !el.getAttribute('role')) {
       el.setAttribute('role', 'region');
     }
   });
 }
 
-// ----- BEGIN NEW FUNCTIONALITY -----
-// Added to resolve issue: minor typo correction in variable name
-function addProperLandmarkRegionsFixed(affectedElements) {
-  if (!affectedElements || !Array.isArray(affectedElements)) return;
-
-  affectedElements.forEach(el => {
-    if (el && el.tagName && !el.hasAttribute('role')) {
-      el.setAttribute('role', 'region');
-    }
-  });
+/**
+ * Gets the lang attribute value from the HTML element
+ * @param {Document} doc - The document to get lang attribute from
+ * @returns {string|null} - The lang attribute value or null if not set
+ */
+function getLangAttribute(doc) {
+  if (!doc) return null;
+  const html = doc.documentElement || doc.querySelector('html');
+  if (html) {
+    return html.getAttribute('lang');
+  }
+  return null;
 }
-// ----- END NEW FUNCTIONALITY -----
+
+/**
+ * Creates an in-page button with accessibility considerations
+ * @param {Object} options - Button configuration options
+ * @returns {HTMLElement} - The created button element
+ */
+function createInPageButton(options) {
+  const button = document.createElement('button');
+  
+  if (options && options.id) {
+    button.id = options.id;
+  }
+  
+  if (options && options.textContent) {
+    button.textContent = options.textContent;
+  }
+  
+  if (options && options.className) {
+    button.className = options.className;
+  }
+  
+  // Ensure proper accessible labeling
+  if (options && options.label) {
+    button.setAttribute('aria-label', options.label);
+  } else if (!options || !options.textContent) {
+    button.setAttribute('aria-label', 'In-page button');
+  }
+  
+  // Ensure button is focusable
+  button.tabIndex = 0;
+  
+  // Add click handler if provided
+  if (options && typeof options.onClick === 'function') {
+    button.addEventListener('click', options.onClick);
+  }
+  
+  return button;
+}
 
 module.exports = {
   validateLandmark,
@@ -548,5 +583,6 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  addProperLandmarkRegionsFixed
+  getLangAttribute,
+  createInPageButton
 };

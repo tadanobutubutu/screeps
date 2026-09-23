@@ -21,12 +21,19 @@ function improveAccessibility() {
   });
 }
 
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // This function ensures unique landmark roles and removes duplicates
-  // Adapted for Screeps environment
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const uniqueElements = {};
+function getLangAttribute(document) {
+  // Get the language attribute from the document or HTML element
+  if (!document) {
+    return appState.lang || config.defaultLang;
+  }
+  
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    return htmlElement.getAttribute('lang') || appState.lang || config.defaultLang;
+  }
+  
+  return appState.lang || config.defaultLang;
+}
 
   landmarks.forEach(landmark => {
     const matchingGameObjects = ...
@@ -44,40 +51,73 @@ function ensureUniqueLandmarks() {
   });
 }
 
-const main = {
-  loop: function() {
-    for (const name in Game.rooms) {
-      const room = Game.rooms[name];
-      const controller = room.controller;
-      if (controller && controller.my) {
-        this.manageRoom(room);
+function validateTableStructure(table) {
+  // Validate table structure for accessibility
+  if (!table) {
+    return { valid: false, issues: ['Table element is required'] };
+  }
+  
+  const issues = [];
+  
+  // Check for proper table elements
+  const tbody = table.querySelector('tbody');
+  const thead = table.querySelector('thead');
+  
+  if (!thead) {
+    issues.push('Table should have a thead element');
+  }
+  
+  if (!tbody) {
+    issues.push('Table should have a tbody element');
+  }
+  
+  // Check for proper row structure
+  const rows = table.querySelectorAll('tr');
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length === 0) {
+      issues.push(`Row ${index} has no cells`);
+    }
+  });
+  
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
+function fixTableStructure(table) {
+  // Fix table structure issues for accessibility
+  if (!table) {
+    console.warn('Table element required');
+    return false;
+  }
+  
+  let fixed = false;
+  
+  // Ensure thead exists
+  if (!table.querySelector('thead')) {
+    const thead = document.createElement('thead');
+    const firstRow = table.querySelector('tr');
+    if (firstRow) {
+      const headerCells = firstRow.querySelectorAll('th');
+      if (headerCells.length > 0) {
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, table.firstChild);
+        fixed = true;
       }
     }
-    
-    // TODO: Implement harvest and upgrade logic
-    this.automateCreeps();
-    
-    // TODO: Implement tower defense
-    this.towerDefense();
-    
-    // TODO: Implement spawning logic
-    ...
-    this.spawningLogic();
-    
-    // Additional loop functions from origin branch
-    this.harvestLoop();
-    this.upgradeLoop();
-    
-    // TODO: Implement the function for addressing new accessibility issues
-    ...
-  },
-
-  manageRoom: function(room) {
-    const sources = ...
-    const hostileCreeps = ...
-
-    if (hostileCreeps.length > 0) {
-      this.defendRoom(room, hostileCreeps);
+  }
+  
+  // Add scope attributes to headers
+  const headers = table.querySelectorAll('th');
+  headers.forEach(th => {
+    if (!th.getAttribute('scope')) {
+      const row = th.closest('tr');
+      const isHeaderRow = row.querySelector('th') === th && 
+                          Array.from(row.cells).indexOf(th) === 0;
+      th.setAttribute('scope', isHeaderRow ? 'row' : 'col');
+      fixed = true;
     }
     
     // Auto-harvest and upgrade with idle creeps
@@ -341,17 +381,41 @@ function processData(data) {
   return Object.assign({}, data, { processed: true });
 }
 
-async function fetchUser(userId) {
-  return { id: userId, name: 'User ' + userId };
-}
-
-function clearCache() {
-  appState = {
-    initialized: false,
-    tablesValidated: [],
-    landmarksValidated: [],
-    linksValidated: [],
-    svgElementsValidated: []
+function validateLandmarks(document) {
+  // Validate that landmarks are properly defined
+  if (!document) {
+    return { valid: false, issues: ['Document is required'] };
+  }
+  
+  const issues = [];
+  
+  // Check for main landmark
+  const main = document.querySelector('main');
+  if (!main) {
+    issues.push('Document should have a main landmark');
+  }
+  
+  // Check for header landmark
+  const header = document.querySelector('header');
+  if (!header) {
+    issues.push('Document should have a header landmark');
+  }
+  
+  // Check for footer landmark
+  const footer = document.querySelector('footer');
+  if (!footer) {
+    issues.push('Document should have a footer landmark');
+  }
+  
+  // Check for nav landmark
+  const nav = document.querySelector('nav');
+  if (!nav) {
+    issues.push('Document should have a navigation landmark');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues
   };
 }
 
@@ -443,54 +507,7 @@ function addMainLandmark() {
   };
 }
 
-function validateLandmark() {
-  // Validate landmarks on the page
-  const issues = [];
-  for (let i = 0; i < 2; i++) {
-    issues.push({
-      type: 'REACT_017',
-      message: `Landmark issue #${i + 1}`,
-      element: `landmark-${i}`,
-      severity: 'warning'
-    });
-  }
-  appState.landmarksValidated = issues;
-  return issues;
-}
-
-function validateLandmarkStructure() {
-  // Validate landmark structure
-  return validateLandmark();
-}
-
-function ... {
-  // Validate landmark attributes for proper naming and roles
-  const issues = ...
-  return issues;
-}
-
-function ... {
-  // Get accessible name for SVG based on context or title
-  if (!svgElement) return null;
-  return svgElement.title || svgElement.id || 'Unnamed SVG icon';
-}
-
-function ... accessibleName) {
-  // Set SVG attributes with accessible name
-  if (!svg) return null;
-  return {
-    ...svg,
-    attributes: {
-      ...svg.attributes,
-      role: 'img',
-      'aria-label': accessibleName,
-      'aria-labelledby': accessibleName ? `svg-title-${svg.id}` : null
-    }
-  };
-}
-
-// REACT_025: Ensure unique landmarks
-function ... {
-  // Ensure all landmarks have unique labels/IDs
-  const issues = [
-    { type: 'REACT_025
+function validateLandmarkAttributes(element) {
+  // Validate that element has proper landmark attributes
+  if (!element) {
+    return { valid: false, issues: ['Element is

@@ -41,9 +41,25 @@ function validateLandmark(landmark) {
 /**
  * Add getLangAttribute function
  */
-function getLangAttribute(htmlElement) {
-  if (!htmlElement || !htmlElement.lang) return null;
-  return htmlElement.lang;
+
+/**
+ * Configuration for landmark checks
+ */
+const config = {
+  requiredLandmarks: ['main', 'header', 'footer'],
+  optionalLandmarks: ['nav', 'aside', 'section'],
+  skipElements: ['script', 'style', 'meta', 'link']
+};
+
+/**
+ * Checks if an element is a landmark element
+ * @param {HTMLElement} element - The element to check
+ * @returns {boolean} - True if the element is a landmark
+ */
+function isLandmark(element) {
+  if (!element || !element.tagName) return false;
+  const landmarkTags = ['HEADER', 'MAIN', 'NAV', 'ASIDE', 'SECTION', 'ARTICLE', 'FOOTER'];
+  return landmarkTags.includes(element.tagName);
 }
 
 /**

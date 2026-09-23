@@ -83,6 +83,28 @@ describe('auto-pr-generator', () => {
             );
         });
 
+        it('should sanitize headers to prevent CRLF injection', async () => {
+            global.fetch.mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({ id: 1 }),
+            });
+
+            await githubRequest('/test', {
+                headers: {
+                    'X-Custom\r\nHeader': 'value\r\ninjection',
+                },
+            });
+
+            expect(global.fetch).toHaveBeenCalledWith(
+                'https://api.github.com/test',
+                expect.objectContaining({
+                    headers: expect.objectContaining({
+                        'X-CustomHeader': 'valueinjection',
+                    }),
+                })
+            );
+        });
+
         it('should throw an error if response is not ok', async () => {
             global.fetch.mockResolvedValueOnce({
                 ok: false,

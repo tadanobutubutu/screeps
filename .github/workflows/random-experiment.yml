@@ -1,44 +1,31 @@
-name: 🎲 Random Experiment
+name: Random Experiment
 
 on:
   schedule:
-    # Weekly on Sunday at 4 AM JST (Saturday 7 PM UTC)
-    - cron: '0 19 * * 6'
+    - cron: '0 5 1 * *'
   workflow_dispatch:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   experiment:
     runs-on: ubuntu-latest
-    name: Apply Random Experimental Improvement
-    
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
-      
-      - name: Select and apply random experiment
-        run: node scripts/random-experiment.js
-      
-      - name: Commit experiment
-        run: |
-          git config user.name 'Experiment Bot'
-          git config user.email 'experiment@screeps.local'
-          git add *.js last-experiment.json
-          
-          if ! git diff --staged --quiet; then
-            EXPERIMENT=$(node -e "console.log(require('./last-experiment.json').description)" 2>/dev/null || echo "code improvement")
-            git commit -m "🎲 Random experiment: ${EXPERIMENT}
-            
-            This is an experimental feature that may improve performance.
-            Monitor the results and revert if needed."
-            git push
-          else
-            echo "No changes to commit"
-          fi
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Random Experiment
+        run: npm run experiment:random
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

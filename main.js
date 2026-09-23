@@ -464,23 +464,11 @@ function processUniqueElements() {
   return uniqueElements;
 }
 
-// New accessibility functions for additional insight issues
-function setLangAttribute(lang = 'en') {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.setAttribute('lang', lang);
+function addLangAttribute() {
+  const html = document.documentElement;
+  if (html && !html.getAttribute('lang')) {
+    html.setAttribute('lang', 'en');
   }
-}
-
-function fixFakeLinks() {
-  if (typeof document === 'undefined') return;
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    const text = link.textContent.trim();
-    const ariaLabel = link.getAttribute('aria-label');
-    if (!text && !ariaLabel) {
-      link.setAttribute('aria-label', 'Link');
-    }
-  });
 }
 
 function addressInsightIssues(insightReport) {
@@ -505,6 +493,9 @@ function addressInsightIssues(insightReport) {
     }
     if (issue.code === 'REACT_036') {
       fixFakeLinks();
+    }
+    if (issue.code === 'REACT_015') {
+      addLangAttribute();
     }
   });
 }
@@ -701,6 +692,7 @@ module.exports = {
   ensureUniqueLandmarks, // TODO: Implement function to ensure unique landmarks
   validateSvgAccessibility,
   processUniqueElements,
+  addLangAttribute,
   addressInsightIssues,
   renderDependencyGraph,
   renderIndexView,

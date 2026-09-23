@@ -223,7 +223,7 @@ const config = {
  */
 function isLandmark(element) {
   if (!element || !element.tagName) return false;
-  const landmarkTags = ['HEADER', 'MAIN', 'NAV', 'ASIDE', 'SECTION', 'ARTICLE', 'FOOTER'];
+  const landmarkTags = ['HEADER', 'NAV', 'ASIDE', 'SECTION', 'ARTICLE', 'FOOTER'];
   return landmarkTags.includes(element.tagName);
 }
 
@@ -318,59 +318,16 @@ function validateTableStructure(table, minRows, minCells) {
   const numHeaders = tableHeaders.length;
   const tableBodyRows = tableRows.slice(1);
 
-  if (tableBodyRows.length < minRows) {
-    throw new Error(`Table has less than ${minRows} rows`);
-  }
-
-  tableBodyRows.forEach(row => {
-    if (row.cells.length < minCells) {
-      throw new Error(`Row has less than ${minCells} cells`);
-    }
-  });
-
-  if (numHeaders !== tableBodyRows[0].cells.length) {
-    throw new Error('Table column count does not match header count');
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
   }
 }
 
-/**
- * Add fixTableStructure function
- */
-function fixTableStructure(table, minRows, minCells) {
-  const tableRows = Array.from(table.rows);
-  const tableHasHead = tableRows.some((row, index) => index === 0 && row.cells.length > 0);
-
-  if (!tableHasHead) {
-    const tableHeadRow = document.createElement('thead');
-    table.appendChild(tableHeadRow);
-
-    const tableHeadRowCells = Array.from(table.querySelectorAll('thead th')).slice(0, minCells);
-    tableHeadRowCells.forEach(cell => {
-      tableHeadRow.appendChild(cell);
-    });
-  }
-
-  const tableBodyRows = tableRows.slice(1);
-
-  if (tableBodyRows.length < minRows) {
-    for (let i = tableBodyRows.length; i < minRows; i++) {
-      const tableBodyRow = document.createElement('tr');
-      tableBody.appendChild(tableBodyRow);
-
-      const tableBodyRowCells = Array.from(table.querySelectorAll('tbody th')).slice(0, minCells);
-      tableBodyRowCells.forEach(cell => {
-        tableBodyRow.appendChild(cell);
-      });
-    }
-  }
-}
-
-// Additional functions to implement accessibility improvements
-
-function getSvgAccessibleName(svg) {
+function setSvgAccessibleName(svg, name) {
   if (!svg) {
     throw new Error('SVG element is required');
-    return;
   }
   const namespace = svg.namespaceURI;
   const svgNamespace = 'http://www.w3.org/2000/svg';
@@ -381,10 +338,13 @@ function getSvgAccessibleName(svg) {
   return '';
 }
 
-function setSvgAttributes(svg, width, height) {
-  if (!svg) {
-    throw new Error('SVG element is required');
-    return;
+function improveAccessibility(container) {
+  if (!container) {
+    container = document.body;
+  }
+  if (container) {
+    addLangAttribute();
+    renderDependencyGraphContent(container);
   }
 
   // Ensure all clickable elements are focusable
@@ -460,8 +420,17 @@ function ensureLandmarkUniqueness(elements) {
 }
 
 function ensureUniqueLandmarks() {
-  // TODO: Implement function to ensure unique landmarks
-  // ...
+  const landmarks = document.querySelectorAll('main, nav, aside, header, footer, section, article');
+  const uniqueLandmarks = [];
+  
+  landmarks.forEach(landmark => {
+    const tag = landmark.tagName.toLowerCase();
+    const id = landmark.id || `landmark-${uniqueLandmarks.length}`;
+    landmark.id = id;
+    uniqueLandmarks.push(landmark);
+  });
+  
+  return uniqueLandmarks;
 }
 
 function validateSvgAccessibility() {
@@ -480,7 +449,15 @@ function validateSvgAccessibility() {
 
 function processUniqueElements() {
   const uniqueElements = [];
-  // Process unique elements for landmark roles
+  const elements = document.querySelectorAll('[role], [aria-label], [aria-labelledby], [tabindex]');
+  
+  elements.forEach(el => {
+    const hasAccessibleName = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby');
+    if (hasAccessibleName || el.getAttribute('role')) {
+      uniqueElements.push(el);
+    }
+  });
+  
   return uniqueElements;
 }
 
@@ -516,7 +493,9 @@ function addressInsightIssues(insightReport) {
           el['aria-label'] = el.id || 'unnamed-element';
         }
       });
-      const react017Elements = issue.elements || [];
+    }
+    if (issue.code === 'REACT_015') {
+      addLangAttribute();
     }
     if (issue.code === 'REACT_015') {
       setLangAttribute();
@@ -758,9 +737,5 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  parseCliArgs,
-  displayHelp,
-  readFile,
-  fetchUrl,
-  runCli
+  addLangAttribute
 };

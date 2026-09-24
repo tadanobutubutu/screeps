@@ -9,7 +9,10 @@ const main = require('./utilities')
 
 // Dependency imports
 const { dependencyGraphContent, indexContent } = require('./dependencyContent');
-const mainUtilities = require('./utilities');
+const { main } = require('./utilities');
+
+// Redefine main if necessary, or remove this line if it's not needed
+// const main = require('./utilities');
 
 const {
   createInPageButton: originCreateInPageButton,

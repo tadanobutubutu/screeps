@@ -63,7 +63,7 @@ function addressAccessibilityIssuesFromInsightReport(insightReport) {
 // Ensure the dependencyGraph container has a proper ARIA role
 
 // Functions to ensure the element has an id, add aria-label, render dependency graph
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
+// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e88
 
 // TODO: This is the existing code that needs to be preserved
 // Line 7
@@ -96,12 +96,12 @@ function ensureElementHasId(element) {
   }
 }
 
-const AddressabilityIssues = {
+const ADDRESS = {
   MISSING_ID: 'missing-id',
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
 
-  analyzeInsightReport(insightReport) {
+  getIssues(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }

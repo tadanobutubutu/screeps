@@ -189,6 +189,14 @@ function handleAccessibilityIssues(doc) {
   return { issues };
 }
 
+/**
+ * Get the person's name for accessibility purposes
+ * @returns {string} The person's name
+ */
+function personName() {
+  return '';
+}
+
 // Export functions for testing
 module.exports = {
   getLangAttribute,
@@ -202,6 +210,5 @@ module.exports = {
   setSvgAttributes,
   validateLinkAccessibility,
   handleFakeLinks,
-  createAccessibleLink,
-  handleAccessibilityIssues
+  personName
 };

@@ -2,58 +2,89 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
-const { exec, spawn } = require('child_process');
+const { exec } = require('child_process');
+const { createServer, startApp, config } = require('./');
+const { addLangAttribute, ensureUniqueLandmarks, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, createAccessibleLink, handleAccessibilityIssues, addAriaLabel } = require('./accessibility');
 
 const app = express();
-const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0',
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
 
-app.use(express.json());
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
-const primaryContent = (typeof document !== 'undefined')
-  ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content') || document.body)
-  : null;
-
-// ... Existing code ...
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+// TODO: Add headers for accessibility improvements (priority callback)
+app.use((req, res, next) => {
+  res.setHeader('Content-Language', 'en');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
 });
 
-const server = http.createServer(app);
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+});
 
-function startApp() {
-  loadConfigurations();
-  server.listen(config.port, () => {
-    console.log(`Server listening on port ${config.port}`);
+// Script to run the bot code (assuming it's a Scripts file in the Scripts directory)
+app.get('/api/run', (req, res) => {
+  const scriptPath = path.join(__dirname, '..', 'Scripts', req.query.script || 'main');
+  if (!fs.existsSync(scriptPath)) {
+    res.status(404).send('Script not found.');
+    return;
+  }
+
+  const script = fs.readFileSync(scriptPath, 'utf-8');
+  const result = execSync(`node ${scriptPath}`);
+
+  res.send(result.toString());
+});
+
+// API endpoint for accessing the accessibility check report (assuming fetching data from a JSON file)
+app.get('/api/accessibility-report', (req, res) => {
+  fs.readFile(__dirname + '/accessibility-report.json', 'utf8', (err, data) => {
+    if (err) {
+      res.status(500).send(err.message);
+      return;
+    }
+
+    const report = JSON.parse(data);
+    res.json(report);
   });
+});
+
+// Address accessibility issues upon rendering the main HTML content
+addLangAttribute(document);
+
+// Initialize app (process accessibility issues and wrap primary content if needed)
+initializeApp();
+
+createServer(app).listen(config.port, () => {
+  console.log(`Listening on port ${config.port}...`);
+});
+
+// Controller for handling accessibility issues
+function addressInsightIssues() {
+  getLangAttribute();
+  addLangAttribute(typeof document !== 'undefined' ? (document.documentElement || document.body) : null);
+
+  if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
+    ensureUniqueLandmarks(landmarks);
+  }
+  ensureUniqueLandmarks();
+
+  validateTableAccessibility();
+  validateTableStructure();
+
+  getSvgAccessibleName();
+
+  createInPageButton();
+  createAccessibleLink();
+  handleAccessibilityIssues();
+
+  validateLandmark();
+  validateLandmarkStructure();
 }
 
-function loadConfigurations() {
-  try {
-    const packagePath = path.join(__dirname, 'package.json');
-    if (fs.existsSync(packagePath)) {
-      const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
-      config.name = packageJson.name || 'dependency-counter';
-      config.version = packageJson.version || '1.0.0';
-      config.dependencies = packageJson.dependencies || {};
-      config.devDependencies = packageJson.devDependencies || {};
-      config.accessibility = packageJson.accessibility || {};
-    }
-  } catch (error) {
-    console.error('Error loading configurations:', error.message);
+// Initialize app
+function initializeApp() {
+  addressInsightIssues();
+  if (typeof wrapPrimaryContentInMain === 'function') {
+    wrapPrimaryContentInMain();
   }
 }
-
-module.exports = {
-  config,
-  server,
-  startApp,
-  loadConfigurations
-};

@@ -1,16 +1,8 @@
 // main.js - Screeps bot with utility and accessibility features
 
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-
-//_Commit: 3e865235681e6b441bdd9624a8a9d6e011baee8d_
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+// Import the required modules for dependency graph and index content
+const dependencyGraphContent = require('./dependencyGraphContent');
+const indexContent = require('./indexContent');
 
 // Utility functions for common tasks
 /**
@@ -377,6 +369,11 @@ function renderDependencyGraph (module) {
   // This is a placeholder function and should be replaced with actual logic
   console.log('Rendering dependency graph for:', module)
   // Example output: 'Rendering dependency graph for: ModuleName'
+
+  // Use the imported dependencyGraphContent
+  if (dependencyGraphContent && dependencyGraphContent.render) {
+    dependencyGraphContent.render(module);
+  }
 }
 
 // New function to display module structure
@@ -385,6 +382,11 @@ function displayModuleStructure (module) {
   // This is a placeholder function and should be replaced with actual logic
   console.log('Displaying module structure for:', module)
   // Example output: 'Displaying module structure for: ModuleName'
+
+  // Use the imported indexContent
+  if (indexContent && indexContent.display) {
+    indexContent.display(module);
+  }
 }
 
 // New function for generating a report based on accessibility issues

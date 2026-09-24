@@ -17,8 +17,11 @@ function addressAccessibilityIssues(insightReport) {
   }
 
   // Handle REACT_027: Fix table structure issues
-  validateTableAccessibility();
-  validateTableStructure();
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
 
   // Handle REACT_017: Add/fix landmark issues
   const landmarkElements = document.querySelectorAll('[role="navigation"], [role="banner"], [role="main"], [role="contentinfo"]');
@@ -34,7 +37,7 @@ function addressAccessibilityIssues(insightReport) {
   svgs.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
     if (accessibleName) {
-      setSvgAttributes(svg, { 'aria-label': accessibleName });
+      svg.setAttribute('aria-label', accessibleName);
     }
   });
 
@@ -45,7 +48,30 @@ function addressAccessibilityIssues(insightReport) {
   handleFakeLinks();
 }
 
-// New function added as requested in the issue
+// Helper functions for addressAccessibilityIssues
+
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="javascript:void(0)"]');
+  fakeLinks.forEach(link => {
+    console.warn('Fake link found, please replace with proper link or button');
+  });
+}
+
+function validateLandmarkHelpers() {
+  const landmarks = document.querySelectorAll('[role], header, nav, main, footer, aside, section');
+  landmarks.forEach(landmark => {
+    validateLandmark(landmark);
+  });
+}
+
+function validateLandmarkStructHelpers() {
+  const landmarks = document.querySelectorAll('[role], header, nav, main, footer, aside, section');
+  landmarks.forEach(landmark => {
+    validateLandmarkStructure(landmark);
+  });
+}
+
+// TODO: New function added as requested in the issue
 function newFunction() {
   // Implementation of the new function goes here
   console.log('New function is active!');
@@ -283,6 +309,40 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+/**
+ * Returns an accessible name for an SVG element.
+ * @param {SVGElement} svg - The SVG element.
+ * @returns {string} The accessible name.
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const title = svg.querySelector('title');
+  if (title && title.textContent) return title.textContent;
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) return labelElement.textContent;
+  }
+  return 'SVG';
+}
+
+/**
+ * Creates an accessible link element.
+ * @param {string} text - The text content of the link.
+ * @param {string} href - The URL the link points to.
+ * @returns {HTMLElement} The created link element.
+ */
+function createAccessibleLink(text, href) {
+  const link = document.createElement('a');
+  link.textContent = text;
+  link.href = href;
+  link.setAttribute('role', 'link');
+  link.setAttribute('tabindex', '0');
+  return link;
+}
+
 // Export existing functionality and new functions
 export {
   initialize,
@@ -320,18 +380,5 @@ export {
   getSvgAccessibleName,
   createAccessibleLink,
   getElementById,
-  queryElements,
-  handleAccessibilityIssues,
-  getAccessibleElement,
-  createAccessibleButton,
-  setupKeyboardNavigation,
-  addAriaRoles,
-  checkContrastRatios,
-  addBook,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateLandmark,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  createInPageButton
+  queryElements
 };

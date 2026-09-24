@@ -147,111 +147,45 @@ const { indexContent } = require('./indexContent');
 }
 
 /**
- * Renders a dependency graph visualization
- * @param {Object} dependencyData - Object containing dependencies and devDependencies
- * @returns {string} HTML string representing the dependency graph
+ * Creates an accessible in-page button element
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {string} [options.id] - Unique identifier for the button
+ * @param {string} [options.ariaLabel] - Accessible label for screen readers
+ * @param {string} [options.className] - CSS class(es) for styling
+ * @param {Function} [options.onClick] - Click event handler
+ * @param {string} [options.type='button'] - Button type (button, submit, reset)
+ * @returns {HTMLButtonElement} The created button element
  */
-function renderDependencyGraph(dependencyData) {
-  const { dependencies, devDependencies } = dependencyData;
-  
-  let graphHTML = `
-    <div class="dependency-graph" role="img" aria-label="Dependency graph visualization">
-      <h2>Dependency Graph</h2>
-      <div class="graph-section">
-        <h3>Dependencies</h3>
-        <ul class="dependency-list" role="list">
-  `;
+function createInPageButton({ text, id, ariaLabel, className, onClick, type = 'button' }) {
+  const button = document.createElement('button');
+  button.type = type;
+  button.textContent = text;
 
-  Object.keys(dependencies).forEach((dep) => {
-    const version = dependencies[dep];
-    graphHTML += `
-      <li class="dependency-item" role="listitem">
-        <span class="dependency-name">${dep}</span>
-        <span class="dependency-version">${version}</span>
-      </li>
-    `;
-  });
+  if (id) {
+    button.id = id;
+  }
 
-  graphHTML += `
-        </ul>
-      </div>
-      <div class="graph-section">
-        <h3>Dev Dependencies</h3>
-        <ul class="dependency-list" role="list">
-  `;
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
 
-  Object.keys(devDependencies).forEach((dep) => {
-    const version = devDependencies[dep];
-    graphHTML += `
-      <li class="dependency-item" role="listitem">
-        <span class="dependency-name">${dep}</span>
-        <span class="dependency-version">${version}</span>
-      </li>
-    `;
-  });
+  if (className) {
+    button.className = className;
+  }
 
-  graphHTML += `
-        </ul>
-      </div>
-    </div>
-  `;
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
 
-  return graphHTML;
+  // Ensure button is focusable and has proper semantics
+  button.setAttribute('tabindex', '0');
+
+  return button;
 }
 
-/**
- * Renders an index view with all available views and navigation
- * @param {Array} views - Array of view objects with title and route
- * @returns {string} HTML string representing the index view
- */
-function renderIndexView(views) {
-  let indexHTML = `
-    <nav class="index-nav" role="navigation" aria-label="Main navigation">
-      <h1>Application Index</h1>
-      <ul class="view-list" role="list">
-  `;
-
-  views.forEach((view) => {
-    indexHTML += `
-      <li class="view-item" role="listitem">
-        <a href="${view.route}" class="view-link" aria-label="${view.title}">
-          ${view.title}
-        </a>
-      </li>
-    `;
-  });
-
-  indexHTML += `
-      </ul>
-    </nav>
-  `;
-
-  return indexHTML;
-}
-
-/**
- * Sets accessibility attributes on SVG elements
- * @param {NodeList} svgElements - Collection of SVG elements
- */
-function setSvgAttributes(svgElements) {
-  svgElements.forEach((svg, index) => {
-    if (!svg.getAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', `SVG graphic ${index + 1}`);
-    }
-  });
-}
-
-// Export the new functions and existing exports
-export { 
-  checkLandmarkElements, 
-  sampleInsightReport, 
-  renderDependencyGraph,
-  renderIndexView,
-  setSvgAttributes 
-};
+// Export the new function and sampleInsightReport (both versions agreed to do this)
+export { checkLandmarkElements, sampleInsightReport, createInPageButton };
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',

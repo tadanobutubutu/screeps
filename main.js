@@ -264,7 +264,48 @@ function newFocusTrap(element) {
     };
 }
 
-// Accessibility utility functions
+/**
+ * Checks for required landmark elements in the document
+ * @param {HTMLElement} container - The container element to check (defaults to document)
+ * @returns {Object} An object with boolean flags indicating presence of each landmark
+ */
+function checkLandmarkElements(container = document) {
+  const landmarks = {
+    main: false,
+    navigation: false,
+    banner: false,
+    contentinfo: false,
+    complementary: false,
+    search: false
+  };
+
+  // Check for main landmark
+  const main = container.querySelector('main') || container.querySelector('[role="main"]');
+  if (main) landmarks.main = true;
+
+  // Check for navigation landmark
+  const nav = container.querySelector('nav') || container.querySelector('[role="navigation"]');
+  if (nav) landmarks.navigation = true;
+
+  // Check for banner landmark
+  const banner = container.querySelector('header') || container.querySelector('[role="banner"]');
+  if (banner) landmarks.banner = true;
+
+  // Check for contentinfo landmark
+  const footer = container.querySelector('footer') || container.querySelector('[role="contentinfo"]');
+  if (footer) landmarks.contentinfo = true;
+
+  // Check for complementary landmark
+  const aside = container.querySelector('aside') || container.querySelector('[role="complementary"]');
+  if (aside) landmarks.complementary = true;
+
+  // Check for search landmark
+  const search = container.querySelector('[role="search"]');
+  if (search) landmarks.search = true;
+
+  return landmarks;
+}
+
 const accessibilityUtils = {
     // Utility functions for accessibility
     initSkipLink: () => {
@@ -379,19 +420,20 @@ const a11yStore = {
 
 // Export new accessibility functions
 export {
-    addLangAttributeToHtml,
-    addLandmarkRoles,
-    wrapPrimaryContentInMain,
-    ensureUniqueLandmarks,
-    addAccessibleNamesToSVGs,
-    fixFakeLinks,
-    addressAccessibilityIssues,
-    applyAllAccessibilityFixes,
-    newFocusTrap,
-    accessibilityUtils,
-    ensureElementId,
-    addAriaLabel,
-    renderDependencyGraph,
+  addLangAttributeToHtml,
+  addLandmarkRoles,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addAccessibleNamesToSVGs,
+  fixFakeLinks,
+  addressAccessibilityIssues,
+  applyAllAccessibilityFixes,
+  newFocusTrap,
+  checkLandmarkElements,
+  accessibilityUtils,
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraph
 };
 
 if (typeof window !== 'undefined') {

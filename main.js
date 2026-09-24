@@ -227,17 +227,34 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureInteractiveElementsAccessible();
 }
 
+function initializeAccessibility() {
+  a11yStore.checkLandmarkElements();
+  a11yStore.fixSvgAccessibility();
+  a11yStore.fixFakeLinks();
+  ensureInteractiveElementsAccessible();
+}
+
 // ... rest of the code ...
 
-// TODO: Implement the new function as per the issue requirements
-/**
- * Process user input data
- * @param {string} input - The input string to process
- * @returns {string} The processed input with standardized formatting
- */
-function processUserInput(input) {
-  if (typeof input !== 'string') {
-    throw new Error('Input must be a string');
-  }
-  return input.trim().toLowerCase();
-}
+module.exports = {
+  greetingFunction,
+  getWelcomeMessage,
+  config,
+  a11yStore,
+  initializeAccessibility,
+  ensureInteractiveElementsAccessible,
+  add,
+  subtract,
+  multiply,
+  divide,
+  power,
+  squareRoot,
+  factorial,
+  fibonacci,
+  sum,
+  average,
+  max,
+  min,
+  mode,
+  median,
+};

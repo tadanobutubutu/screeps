@@ -1,4 +1,8 @@
 // TODO: This is the existing code that needs to be preserved
+
+// Existing code starts here
+
+// This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
 // More existing code that should be preserved

@@ -10,6 +10,7 @@ describe('auto-pr-generator', () => {
     let originalEnv;
     let githubRequest,
         getSanitizedRepo,
+        getSanitizedIssueNumber,
         getIssueDetails,
         analyzeIssueWithClaude,
         createFixBranch,
@@ -28,6 +29,7 @@ describe('auto-pr-generator', () => {
             const module = require('../scripts/auto-pr-generator.js');
             githubRequest = module.githubRequest;
             getSanitizedRepo = module.getSanitizedRepo;
+            getSanitizedIssueNumber = module.getSanitizedIssueNumber;
             getIssueDetails = module.getIssueDetails;
             analyzeIssueWithClaude = module.analyzeIssueWithClaude;
             createFixBranch = module.createFixBranch;
@@ -58,6 +60,20 @@ describe('auto-pr-generator', () => {
         it('should throw error on invalid/malicious GITHUB_REPOSITORY', () => {
             process.env.GITHUB_REPOSITORY = '../malicious/repo';
             expect(() => getSanitizedRepo()).toThrow('Invalid GITHUB_REPOSITORY format');
+        });
+    });
+
+    describe('getSanitizedIssueNumber', () => {
+        it('should return valid issue number string', () => {
+            process.env.ISSUE_NUMBER = '456';
+            expect(getSanitizedIssueNumber()).toBe('456');
+        });
+
+        it('should throw error on invalid or malicious ISSUE_NUMBER', () => {
+            process.env.ISSUE_NUMBER = '../456/comments';
+            expect(() => getSanitizedIssueNumber()).toThrow('Invalid or missing ISSUE_NUMBER format');
+            process.env.ISSUE_NUMBER = 'abc';
+            expect(() => getSanitizedIssueNumber()).toThrow('Invalid or missing ISSUE_NUMBER format');
         });
     });
 

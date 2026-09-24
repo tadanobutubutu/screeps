@@ -455,42 +455,7 @@ module.exports = {
   newFunctionality,
   renderDependencyGraph,
   renderIndex,
-  countDependencies,
-  getLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton,
-  addressNewAccessibilityIssues,
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  fixButtonIdentifiers,
-  dependencyGraphContainer,
-  ensureDependencyGraphAriaRole,
-  newExportedFunction,
-  addLangAttributeFn,
-  fixTableStructureFn,
-  addLandmarkIssuesFn,
-  addSvgAccessibleNamesFn,
-  ensureUniqueLandmarksFn,
-  fixFakeLinkIssueFn,
-  generateAccessibilityReport
+  logMessage,
+  handleGracefulShutdown,
+  addLangAttribute
 };
-
-/* Start the application if run directly */
-if (require.main === module) {
-  startApp();
-}

@@ -23,61 +23,6 @@ function generateKey(book) {
   return book.id || ...
 }
 
-// Function to validate the landmark structure for accessibility issues
-function validateLandmarkStructure(container) {
-  const errors = [];
-  
-  // Check for main landmark
-  const mainLandmark = container.querySelector('main, [role="main"]');
-  if (!mainLandmark) {
-    errors.push('Missing main landmark: The page should have exactly one main landmark for the primary content.');
-  }
-  
-  // Check for multiple main landmarks
-  const mainLandmarks = container.querySelectorAll('main, [role="main"]');
-  if (mainLandmarks.length > 1) {
-    errors.push('Multiple main landmarks found: There should only be one main landmark per page.');
-  }
-  
-  // Check for proper labeling on landmark regions
-  const landmarks = container.querySelectorAll('[role="region"], [role="navigation"], [role="complementary"], nav, aside');
-  landmarks.forEach(landmark => {
-    const hasAriaLabel = landmark.getAttribute('aria-label');
-    const hasAriaLabelledby = landmark.getAttribute('aria-labelledby');
-    const hasLabel = landmark.querySelector('label');
-    
-    if (!hasAriaLabel && !hasAriaLabelledby && !hasLabel) {
-      const tagName = landmark.tagName.toLowerCase();
-      const role = landmark.getAttribute('role') || tagName;
-      errors.push(`Unlabeled landmark <${tagName}> with role="${role}": Landmarks should have an accessible name via aria-label, aria-labelledby, or contain a label element.`);
-    }
-  });
-  
-  // Check heading hierarchy
-  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  let previousLevel = 0;
-  headings.forEach(heading => {
-    const level = parseInt(heading.tagName[1], 10);
-    if (previousLevel !== 0 && level - previousLevel > 1) {
-      errors.push(`Heading hierarchy skipped from h${previousLevel} to h${level}: Headings should not skip levels.`);
-    }
-    previousLevel = level;
-  });
-  
-  // Check for h1 presence in main landmark
-  if (mainLandmark) {
-    const h1InMain = mainLandmark.querySelector('h1');
-    if (!h1InMain) {
-      errors.push('Missing h1 in main landmark: The main content should contain an h1 heading.');
-    }
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-}
-
 // Function to render a single book item
 function BookItem(book) {
   return (
@@ -154,6 +99,172 @@ function createInPageButtons() {
       <BookForm />
     </div>
   );
+}
+
+// REACT_027: Validate table accessibility
+function validateTableAccessibility(tableElement) {
+  const issues = [];
+  // Check for proper table structure
+  const hasCaption = ...
+  const hasHeaders = ...
+  
+  if (!hasCaption) {
+    ... Table is missing a caption');
+  }
+  if (!hasHeaders) {
+    ... Table is missing header cells (th)');
+  }
+  
+  return issues;
+}
+
+// REACT_027: Validate table structure
+function validateTableStructure(tableElement) {
+  const issues = [];
+  const rows = ...
+  
+  rows.forEach((row, rowIndex) => {
+    const cells = ... th');
+    if (cells.length === 0) {
+      ... Row ${rowIndex} has no cells`);
+    }
+  });
+  
+  return issues;
+}
+
+// REACT_017: Validate landmarks
+function validateLandmark() {
+  const issues = [];
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+  
+  landmarks.forEach(landmark => {
+    const elements = ...
+    if (elements.length > 1 && landmark !== 'nav' && landmark !== 'aside') {
+      ... Multiple ${landmark} landmarks found`);
+    }
+  });
+  
+  return issues;
+}
+
+// REACT_017: Validate landmark structure
+function validateLandmarkStructure() {
+  const issues = [];
+  const mainElement = ...
+  const headerElement = ...
+  const footerElement = ...
+  
+  if (!mainElement) {
+    ... Missing main landmark');
+  }
+  if (!headerElement) {
+    ... Missing header landmark');
+  }
+  if (!footerElement) {
+    ... Missing footer landmark');
+  }
+  
+  return issues;
+}
+
+// REACT_041: Get SVG accessible name
+function ... {
+  // Check for aria-label
+  const ariaLabel = ...
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check for aria-labelledby
+  const ariaLabelledby = ...
+  if (ariaLabelledby) {
+    const labelElement = ...
+    return labelElement ? labelElement.textContent : '';
+  }
+  
+  // Check for title element inside SVG
+  const titleElement = ...
+  return titleElement ? titleElement.textContent : '';
+}
+
+// REACT_041: Set SVG attributes for accessibility
+function setSvgAttributes(svgElement, accessibleName) {
+  if ... && ... {
+    ... accessibleName);
+  }
+  if ... {
+    ... 'img');
+  }
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const issues = [];
+  const landmarkTypes = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  
+  ... => {
+    const landmarks = ...
+    if (landmarks.length > 1) {
+      ... Multiple ${type} landmarks found - should be unique`);
+    }
+  });
+  
+  return issues;
+}
+
+// REACT_025: Add proper landmark regions
+function ... {
+  const issues = [];
+  const mainContent = ... || ...
+  
+  if (!mainContent) {
+    ... Missing main landmark region');
+  }
+  
+  return issues;
+}
+
+// REACT_036: Validate link accessibility
+function ... {
+  const issues = [];
+  const href = ...
+  const text = linkElement.textContent.trim();
+  const ariaLabel = ...
+  
+  if (!href || href === '#' || href === '') {
+    ... Link has no valid href attribute');
+  }
+  
+  if (!text && !ariaLabel) {
+    ... Link has no accessible name');
+  }
+  
+  if (linkElement.getAttribute('role') === 'link' && !href) {
+    ... Fake link detected without href');
+  }
+  
+  return issues;
+}
+
+// REACT_036: Handle fake links
+function handleFakeLinks() {
+  const issues = [];
+  const fakeLinks = ...
+  
+  ... index) => {
+    const href = ...
+    if (!href) {
+      ... Fake link ${index} has no href attribute`);
+    }
+    
+    // Convert fake link to accessible button if it's clickable
+    if (link.tagName !== 'A' && ... {
+      ... Consider using <button> instead of fake link ${index}`);
+    }
+  });
+  
+  return issues;
 }
 
 // Default sorting function for the book list
@@ -311,8 +422,10 @@ function Main() {
         <AddBookForm onAddBook={handleAddBook} />
       </section>
       
-      <section aria-labelledby="book-list-heading">
-        <h2 id="book-list-heading">Book List</h2>
-        <div role="group" aria-label="Sort books" ...
-          <button 
-            onClick={() => set
+      <h2 ... List</h2>
+      <div role="group" ...
+        <button 
+          onClick={() => setSorting(sortByTitle)}
+          aria-pressed={sorting === sortByTitle}
+        >
+          Sort by Title

@@ -239,15 +239,3 @@ function fixFakeLinks() {
     }
   });
 }
-
-// TODO: Implement createResourceButton
-function createResourceButton(text, callback) {
-  const button = document.createElement('button');
-  button.textContent = text;
-  button.onclick = callback;
-  return button;
-}
-
-module.exports = {
-  createResourceButton
-};

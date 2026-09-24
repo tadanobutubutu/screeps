@@ -35,9 +35,22 @@ function validateLandmarkUniqueness(elements) {
   return uniqueElements;
 }
 
-function ensureUniqueLandmarks() {
-  if (!Array.isArray(landmarks)) {
-    return [];
+// Add the lang attribute to the HTML element with the getLangAttribute() function
+addLangAttribute(getLangAttribute());
+
+// Process accessibility report issues
+const report = accessibilityReport.issues.map(issue => ({
+  issueType: issue.type,
+  status: issue.status || 'pending',
+  fixApplied: issue.fixApplied || ''
+}));
+
+return report;
+
+// Score calculation
+function calculateAccessibilityScore(fixedIssues) {
+  if (!Array.isArray(fixedIssues)) {
+    return 0;
   }
 
   const uniqueLandmarks = [];

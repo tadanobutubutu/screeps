@@ -322,4 +322,151 @@ function wrapPrimaryContentInMain() {
   return main;
 }
 
-// REACT
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks(html) {
+    if (typeof html !== 'string') return html;
+
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+
+    landmarkRoles.forEach(role => {
+        const pattern = new RegExp(`role=["']${role}["']`, 'gi');
+        const matches = html.match(pattern);
+        if (matches && matches.length > 1) {
+            // Keep first occurrence, change subsequent ones
+            let count = 0;
+            html = html.replace(pattern, (match) => {
+                count++;
+                if (count === 1) return match;
+                return `role="region"`;
+            });
+        }
+    });
+
+    // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
+    const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+    html5Landmarks.forEach(tag => {
+        const pattern = new RegExp(`<${tag}[^>]*>`, 'gi');
+        const matches = html.match(pattern);
+        if (matches && matches.length > 1) {
+            // Keep first, add role="region" to others
+            let count = 0;
+            html = html.replace(pattern, (match) => {
+                count++;
+                if (count === 1) return match;
+                return match.replace(new RegExp(`<${tag}`, 'i'), `<${tag} role="region"`);
+            });
+        }
+    });
+
+    return html;
+}
+
+// REACT_036: Fix fake link issues
+function fixFakeLinks(html) {
+    if (typeof html !== 'string') return html;
+
+    // Find spans or divs with onclick that act as links and convert to <a>
+    html = html.replace(
+        /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
+        (match, before, onclick, after) => {
+            const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
+            if (hrefMatch) {
+                return `<a href="${hrefMatch[1]}"${before}${after}>`;
+            }
+            return match;
+        }
+    );
+
+    html = html.replace(/<\/span>/gi, '</a>');
+
+    return html;
+}
+
+// Main function that applies all accessibility fixes
+function applyAccessibilityFixes(html) {
+    let result = html;
+    result = addLangAttribute(result);
+    result = fixTableStructure(result);
+    result = fixLandmarks(result);
+    result = addSvgAccessibleNames(result);
+    result = ensureUniqueLandmarks(result);
+    result = fixFakeLinks(result);
+    return result;
+}
+
+function addressAccessibilityIssues(insightReport) {
+  // Apply accessibility fixes to HTML content based on insight report
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
+  }
+  console.log('Addressing accessibility issues from insight report:', insightReport);
+}
+
+/**
+ * Creates an in-page button element with the specified ID, text, and class
+ * @param {string} buttonId - The ID to assign to the button
+ * @param {string} buttonText - The text content of the button
+ * @param {string} buttonClass - The CSS class to assign to the button
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    button.setAttribute('aria-label', buttonText); // Added for accessibility
+    button.setAttribute('role', 'button'); // Added for accessibility
+    document.body.appendChild(button);
+    return button;
+}
+
+// New function to address accessibility issues
+function addressAccessibilityIssues() {
+  // Implement the changes required to address accessibility issues from the insight report
+  // For example, this could be calling existing utility functions to validate accessibility
+  const linkIssues = checkLinkAccessibility();
+  const tableIssues = validateTableAccessibility();
+  const tableStructureIssues = validateTableStructure();
+  const linkAccessibilityIssues = validateLinkAccessibility();
+  const fakeLinkIssues = handleFakeLinks();
+
+  // Handle issues (e.g., log them, display warnings, etc.)
+  // For demonstration purposes, we will just log the issues to the console
+  console.log('Link Accessibility Issues:', linkIssues);
+  console.log('Table Accessibility Issues:', tableIssues);
+  console.log('Table Structure Issues:', tableStructureIssues);
+  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
+  console.log('Fake Link Issues:', fakeLinkIssues);
+
+  // Here you could add additional logic to address the issues
+  // For example, you might want to update the DOM or call other functions
+}
+
+// Export accessibility utility functions
+export {
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibility,
+  newFunction,
+  addressAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  applyAccessibilityFixes,
+  divide,
+  wrapPrimaryContentInMain,
+  spawnEntity,
+  calculateDiscount
+};
+
+// Run if executed directly
+if (typeof require !== 'undefined' && require.main === module) {
+  main();
+}

@@ -49,11 +49,33 @@ function _checkAccessibility(content) {
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    renderDependencyGraph,
-    renderIndex,
-    ScreepsBot,
+  module.exports = { 
+    ScreepsBot, 
+    updateUI, 
+    accessibilityUtils,
+    newFunction,
+    implementAccessibilityFixesFromReport,
+    // Re-export utilities functions
+    createInPageButton,
+    createWebResourceButton,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
     getSvgAccessibleName,
-    checkAccessibility: _checkAccessibility
+    getLangAttribute,
+    validateAccessibilityReport,
+    exportUtils,
+    addressAccessibilityIssues,
+    handleCredentialResponse,
+    ensureElementHasId,
+    ensureElementHasIdOrigin,
+    addAriaLabel,
+    renderDependencyGraphs,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    focusTrap,
+    checkAccessibility
   };
 }

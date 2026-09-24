@@ -184,17 +184,22 @@ function startApp() {
   return server;
 }
 
-// New function as per the issue
-function updateConfig(newConfig) {
-  Object.assign(config, newConfig);
+/**
+ * Stops the application
+ * @param {http.Server} server The server instance to stop
+ */
+function stopApp(server) {
+  server.close(() => {
+    console.log('Server stopped');
+  });
 }
 
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config,
-  updateConfig
+  stopApp,
+  config
 };
 
 // Start the application if run directly

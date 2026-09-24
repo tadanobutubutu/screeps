@@ -476,5 +476,12 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
-}
+  newFocusTrap,
+  getTables,
+  getConfig,
+  setConfig,
+  validateTableAccessibility,
+  sanitizeFilename,
+  readFileSafe,
+  log
+};

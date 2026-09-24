@@ -313,7 +313,7 @@ function detectAndSetLang(content) {
       lang = 'zh'; // Chinese
     } else if ... {
       lang = 'ja'; // Japanese
-    } else if ... {
+    } else if (/[\u400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
     } else if ... {
       lang = 'ar'; // Arabic
@@ -344,4 +344,49 @@ function renderDependencyGraph(props) {
 }
 
 /**
- * Renders the index view using the indexContent module.
+ * Gets the accessible name of an element, addressing REACT_036 fake link issues.
+ * @param {HTMLElement} element - The element to extract the accessible name from
+ * @returns {string|null} The accessible name or null
+ */
+function personName(element) {
+  if (typeof document === 'undefined' || !element) {
+    return null;
+  }
+  
+  // Check for aria-label
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check for aria-labelled
+  const labelledBy = element.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelElement = document.querySelector(labelledBy);
+    if (labelElement) return labelElement.textContent;
+  }
+  
+  // Check for heading tags
+  const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  if (headings.length > 0) {
+    return headings[0].textContent.trim();
+  }
+  
+  return null;
+}
+
+// New function to address REACT_036: Fix fake link issue (createInPageButton)
+function createInPageButton(id, label) {
+  return React.createElement(
+    'button',
+    {
+      className: 'skip-link',
+      onClick: (e) => {
+        e.preventDefault();
+        const target = document.getElementById(id);
+        if (target) {
+          target.focus();
+        }
+      }
+    },
+    label
+  );
+}

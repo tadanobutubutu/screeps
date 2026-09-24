@@ -124,23 +124,18 @@ function countDependencies(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html>\n';
-    html += '<html lang="en">\n<head>\n';
-    html += '    <meta charset="UTF-8">\n';
-    html += '    <title>Dependency Index</title>\n';
-    html += '</head>\n<body>\n';
-    html += '<main>\n';
-    html += '<h1>Dependency Index</h1>\n';
-    html += '<ul>\n';
+    let html = '<!DOCTYPE html>';
+    html += '<html lang="en">';
+    html += '<head><meta charset="UTF-8"><title>Dependency Index</title></head>';
+    html += '<body>';
+    html += '<h1>Dependency Index</h1>';
+    html += '<main><ul>';
     
     for (const pkg of packages) {
-        html += `<li>${pkg.name} - ${pkg.version || 'N/A'}</li>\n`;
+        html += `<li>${pkg.name} - ${pkg.version || 'N/A'}</li>`;
     }
     
-    html += '</ul>\n';
-    html += '</main>\n';
-    html += '</body>\n';
-    html += '</html>';
+    html += '</ul></main></body></html>';
     return html;
 }
 

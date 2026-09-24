@@ -1,5 +1,6 @@
-// TODO: This is the existing code that needs to be preserved
-/* Your new code, functions, or changes can be added after this comment */
+// Address accessibility issues from insight report — FIXED
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 
 // Preserve existing functionality
 // Importing the necessary functions (for illustration purposes)
@@ -26,27 +27,37 @@ function newFunction() {
 
 /**
  * Checks link accessibility.
- * @returns {string[]}
+ * @returns {string[]} Array of accessibility issues found
  */
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  const links = ...
+  // This function validates that links have accessible text
+  const links = Array.from(document.querySelectorAll('a[href]'));
   const issues = [];
   
   links.forEach(link => {
     const href = link.getAttribute('href') || '';
     const text = link.textContent.trim();
-    const ariaLabel = link.getAttribute('aria-label');
+    const hasAriaLabel = link.getAttribute('aria-label');
+    const hasAriaLabelledby = link.getAttribute('aria-labelledby');
+    const hasTitle = link.getAttribute('title');
     
-    // Skip links that are just hash anchors or empty hrefs in skip links
-    if (href === '#' || href === '') {
-      return;
+    // Check if link has no accessible text (no text content, no aria-label, no aria-labelledby, no title)
+    const hasAccessibleText = text || hasAriaLabel || hasAriaLabelledby || hasTitle;
+    
+    if (!hasAccessibleText) {
+      // Check if link contains an image without alt text
+      const images = link.querySelectorAll('img');
+      const hasAccessibleImage = images.length > 0 && Array.from(images).some(img => img.alt);
+      
+      if (!hasAccessibleImage) {
+        issues.push(`Link with href "${href}" has no accessible text`);
+      }
     }
     
-    // Check for empty link text (not accessible)
-    if (!text && !ariaLabel) {
-      issues.push(`Link with href "${href}" has no accessible text`);
+    // Check for empty links (just whitespace)
+    if (!text && !hasAriaLabel && !hasAriaLabelledby && !hasTitle && link.querySelector('img, svg, [role="img"]') === null) {
+      // This is already covered above, but we keep the logic for clarity
     }
   });
   

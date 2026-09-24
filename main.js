@@ -170,6 +170,5 @@ module.exports = {
   addressAccessibilityIssues,
   renderDependencyGraphs,
   ...mainUtilities,
-  // Optionally export spawning function if needed
-  spawnCreep
+  accessibilityUtils,
 }

@@ -153,13 +153,9 @@ const a11yStore = {
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', element);
+            landmark.setAttribute('aria-label', `Navigation: ${element}`);
           }
         }
       });
     });
   }
-};
-
-// TODO: add the new functions or changes requested in the issue
-// Here's a sample implementation for a new function named 'myNewFunction'

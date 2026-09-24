@@ -9,41 +9,37 @@ import {
   fixTableStructure,
   fixLandmarkIssues,
   addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  addSvgAccessibleName,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  addressAccessibilityIssues
-} from './AccessibilityHelpers';
-
-const main = require('./utilities').default; // Import main using .default
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  newFunction,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  renderAdditionalContent
+} = main
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]')
+if (typeof document !== 'undefined') {
+  const dependencyGraph = document.getElementById('dependencyGraph')
 
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region');
-  }
+  if (dependencyGraph) {
+    // Set appropriate ARIA role for the dependency graph container
+    // Using 'region' role for a contained section of content
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region')
+    }
 
-  // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.getAttribute('aria-labelledby')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
+    // Add accessible label if not already present
+    if (!dependencyGraph.getAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
+    }
+
+    // Ensure element has an ID if not present
+    if (!dependencyGraph.getAttribute('id')) {
+      dependencyGraph.setAttribute('id', 'dependencyGraph');
+    }
   }
 }
 

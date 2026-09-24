@@ -419,4 +419,79 @@ function checkLinkAccessibility() {
  * @param {HTMLAnchorElement} link - The link element to check
  * @returns {boolean} True if link text is unique
  */
-function checkUnique
+function checkUniqueLinkText(link) {
+  const siblings = link.parentElement ? link.parentElement.querySelectorAll('a') : [];
+  const linkText = link.textContent.trim().toLowerCase();
+  
+  let count = 0;
+  siblings.forEach(sibling => {
+    if (sibling.textContent.trim().toLowerCase() === linkText) {
+      count++;
+    }
+  });
+  
+  return count === 1;
+}
+
+// Utilities for accessibility scores calculation and logging
+export {
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibility,
+};
+
+// Export utility functions
+export {
+  formatCurrency,
+  formatDate,
+  calculateDiscount,
+  validateInput
+};
+
+// Export component functions
+export {
+  renderHeader,
+  renderFooter,
+  renderProductCard
+};
+
+// Export state
+export {
+  state,
+  updateState
+};
+
+// Export UI / product functions
+export {
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage
+};
+
+// Export the new function
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, checkLandmarkElements };
+
+// ... other exports ...
+
+// Function to add a landmark, using the following order: validate and add to storage
+function addLandmark(landmark) {
+  if (validateLandmark(landmark)) {
+    landmarks.push(landmark);
+    return true;
+  }
+  return false;
+}
+
+// Function to get all landmarks
+function get

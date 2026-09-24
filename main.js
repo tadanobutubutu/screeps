@@ -25,7 +25,6 @@ const updateTitle = (newTitle) => {
   console.log(`Updating title to: ${newTitle}`);
 };
 
-// Adding the missing required export
 export { Main, PropTypes };
 
 export default Main;

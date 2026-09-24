@@ -149,100 +149,41 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 
   /**
-   * Ensure all interactive elements have proper ARIA roles and labels
+   * Validate the table structure for accessibility issues
    */
-  ensureAllAccessibility() {
-    this.ensureInteractiveRoles();
-    this.addFormControlLabels();
-    this.ensureImageAccessibility();
+  validateTableStructure() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table) => {
+      if (!table.hasAttribute('role')) {
+        table.setAttribute('role', 'table');
+      }
+      if (!table.hasAttribute('aria-label') && !table.querySelector('th')) {
+        table.setAttribute('aria-label', 'Table');
+      }
+      const headers = table.querySelectorAll('th');
+      headers.forEach((header, index) => {
+        if (!header.hasAttribute('scope')) {
+          header.setAttribute('scope', 'col');
+        }
+      });
+      const rows = table.querySelectorAll('tr');
+      rows.forEach((row, index) => {
+        if (row.querySelector('th')) {
+          row.setAttribute('role', 'row');
+        } else {
+          row.setAttribute('role', 'rowgroup');
+        }
+      });
+    });
   }
 };
 
 // New functions
 function ensureInteractiveElementsAccessible() {
-  const interactiveSelectors = [
-    'a[href]',
-    'button:not([disabled])',
-    'input:not([disabled])',
-    'select:not([disabled])',
-    'textarea:not([disabled])',
-    '[contenteditable="true"]',
-    '[role="button"]',
-    '[role="link"]',
-    '[role="menuitem"]',
-    '[role="tab"]'
-  ];
-
-  const interactiveElements = document.querySelectorAll(interactiveSelectors.join(', '));
-
-  interactiveElements.forEach((element) => {
-    // Ensure elements are focusable
-    if (!element.hasAttribute('tabindex') || element.getAttribute('tabindex') === '-1') {
-      const isNaturallyFocusable = element.matches('a[href], button, input, select, textarea, [contenteditable="true"]');
-      if (!isNaturallyFocusable) {
-        element.setAttribute('tabindex', '0');
-      }
-    }
-
-    // Ensure buttons have accessible names
-    if (element.tagName === 'BUTTON' || element.getAttribute('role') === 'button') {
-      const hasText = element.textContent.trim().length > 0;
-      const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
-      const hasTitle = element.title;
-
-      if (!hasText && !hasLabel && !hasTitle) {
-        const generatedLabel = `Button ${Math.floor(Math.random() * 10000)}`;
-        element.setAttribute('aria-label', generatedLabel);
-      }
-    }
-
-    // Ensure links have accessible names
-    if (element.tagName === 'A' || element.getAttribute('role') === 'link') {
-      const hasText = element.textContent.trim().length > 0;
-      const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
-      const hasTitle = element.title;
-      const hasImgAlt = element.querySelector('img[alt]');
-
-      if (!hasText && !hasLabel && !hasTitle && !hasImgAlt) {
-        const generatedLabel = `Link ${Math.floor(Math.random() * 10000)}`;
-        element.setAttribute('aria-label', generatedLabel);
-      }
-    }
-
-    // Ensure form controls have labels
-    const tagName = element.tagName;
-    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(tagName)) {
-      const hasAssociatedLabel = element.id && document.querySelector(`label[for="${element.id}"]`);
-      const hasNestedLabel = element.closest('label');
-      const hasAriaLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
-      const hasTitle = element.title;
-      const hasPlaceholder = element.placeholder && !['INPUT'].includes(tagName) || (tagName === 'INPUT' && element.placeholder && element.type !== 'submit' && element.type !== 'button');
-
-      if (!hasAssociatedLabel && !hasNestedLabel && !hasAriaLabel && !hasTitle && !hasPlaceholder) {
-        if (!element.id) {
-          element.id = `form-${Math.floor(Math.random() * 10000)}`;
-        }
-        const label = document.createElement('label');
-        label.setAttribute('for', element.id);
-        label.className = 'sr-only';
-        label.textContent = `Form field ${Math.floor(Math.random() * 10000)}`;
-        element.parentNode.insertBefore(label, element);
-      }
-    }
-
-    // Ensure keyboard support for custom interactive elements
-    if (!element.hasAttribute('onkeydown') && !element.hasAttribute('onkeyup')) {
-      const isNativeInteractive = ['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(tagName);
-      if (!isNativeInteractive) {
-        element.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            element.click();
-          }
-        });
-      }
-    }
-  });
+  a11yStore.ensureInteractiveRoles();
+  a11yStore.addFormControlLabels();
+  a11yStore.ensureImageAccessibility();
+  a11yStore.validateTableStructure(); // Adding the new function call
 }
 
 // ... rest of the code ...

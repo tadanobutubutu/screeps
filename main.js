@@ -202,8 +202,7 @@ if (require.main === module) {
   startApp();
 }
 
-// New function as requested in the issue
-function newFunction() {
-  // Implementation of the new function
-  console.log('New function executed');
+// New function requested in the issue
+function getServerConfig() {
+  return config;
 }

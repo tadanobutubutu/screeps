@@ -891,6 +891,20 @@ function functionB(data) {
   };
 }
 
+// TODO: Add your code here
+function getAccessibilityStats() {
+  const stats = {
+    totalElements: document.querySelectorAll('*').length,
+    landmarkElements: document.querySelectorAll('[role]').length,
+    tableElements: document.querySelectorAll('table').length,
+    svgElements: document.querySelectorAll('svg').length,
+    linkElements: document.querySelectorAll('a').length,
+    buttonElements: document.querySelectorAll('button').length
+  };
+
+  return stats;
+}
+
 function App() {
   const [programData, setProgramData] = useState(null);
 
@@ -944,5 +958,5 @@ module.exports = {
   initialize,
   initializeApp,
   clearCache,
-  functionB
+  getAccessibilityStats
 };

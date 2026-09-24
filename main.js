@@ -611,6 +611,15 @@ function enhanceDependencyGraphAccessibility(graphElement) {
     });
 }
 
+// Added missing functions for export
+function renderIndex() {
+    return indexContent;
+}
+
+function createInPageButtons() {
+    return '';
+}
+
 // Export all required functions and utilities
 module.exports = {
     renderDependencyGraph,

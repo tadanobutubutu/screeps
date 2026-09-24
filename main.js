@@ -278,17 +278,67 @@ const AddressabilityIssues = {
   });
 }
 
-/**
- * Counts the number of dependencies in the given array of elements.
- * @param {Array} elements - Array of elements to count
- * @returns {number} The count of dependencies
- */
-function countArrayDependencies(elements) {
-  if (!Array.isArray(elements)) {
-    throw new TypeError('countArrayDependencies expects an array');
+// --- Implementation for TABLE_001: Validate the table structure for accessibility issues ---
+function checkTableStructure(table) {
+  if (!table || table.tagName !== 'TABLE') {
+    return { valid: false, issues: ['Not a valid table element'] };
   }
-  return elements.length;
+
+  const issues = [];
+
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push('Table is missing a <caption> element to describe its purpose');
+  }
+
+  // Check for thead
+  const thead = table.querySelector('thead');
+  if (!thead) {
+    issues.push('Table is missing a <thead> element to group header rows');
+  }
+
+  // Check for tbody
+  const tbody = table.querySelector('tbody');
+  if (!tbody) {
+    issues.push('Table is missing a <tbody> element to group body rows');
+  }
+
+  // Check for th elements
+  const thElements = table.querySelectorAll('th');
+  if (thElements.length === 0) {
+    issues.push('Table has no <th> elements to mark header cells');
+  } else {
+    thElements.forEach((th, index) => {
+      // Check for scope attribute
+      if (!th.hasAttribute('scope')) {
+        issues.push(`Header cell at index ${index} is missing a 'scope' attribute`);
+      }
+
+      // Check for id when used with headers attribute
+      if (th.hasAttribute('id') === false && table.querySelectorAll('td[headers]').length > 0) {
+        issues.push(`Header cell at index ${index} should have an 'id' attribute when 'headers' is used in data cells`);
+      }
+    });
+  }
+
+  // Check for table role
+  if (!table.hasAttribute('role')) {
+    issues.push("Table is missing a 'role' attribute (recommended: role='table' or role='grid')");
+  }
+
+  // Check for aria-label or aria-labelledby
+  if (!table.hasAttribute('aria-label') && !table.hasAttribute('aria-labelledby')) {
+    issues.push("Table is missing an 'aria-label' or 'aria-labelledby' attribute");
+  }
+
+  return {
+    valid: issues.length === 0,
+    issues
+  };
 }
+
+// ... (other functions related to accessibility, validation, and calculations)
 
 function countDependencies(dependencies, options = {}) {
   // Counts dependencies in a given object

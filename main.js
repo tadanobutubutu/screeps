@@ -268,11 +268,15 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  // New function
-  ensureInteractiveElementsAccessible() {
-    a11yStore.ensureInteractiveRoles();
-    a11yStore.addFormControlLabels();
-    a11yStore.ensureImageAccessibility();
+  // New function requested in the issue
+  updateAccessibilityFeatures() {
+    this.checkLandmarkElements();
+    this.addSVGAccessibilityProps();
+    this.fixFakeLinks();
+    this.ensureInteractiveRoles();
+    this.addFormControlLabels();
+    this.ensureImageAccessibility();
+    this.updateLiveRegion("Accessibility features updated.");
   }
 };
 

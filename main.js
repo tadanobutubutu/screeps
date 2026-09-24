@@ -28,7 +28,7 @@ import { state, updateState } from './state.js'
 // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 // _Commit: 30f5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac494f5e1c81cf4389f9c1 -->
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e01c81cf4389f9c1 -->
 // _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
 
 <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
@@ -105,7 +105,7 @@ function addLangAttribute () {
   // Assuming there is a relevant element selector or similar to target
   const elementToModify = document.documentElement
   if (elementToModify) {
-    elementToModify.setAttribute('lang', getLangAttribute());
+    elementToModify.setAttribute('lang', 'en');
   }
 }
 
@@ -371,31 +371,34 @@ function createAccessibleLink (text, href) {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // New code to fix accessibility issues...
-  // Fix table issues
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
+  // Implementation for fixing accessibility issues
+  // Add lang attribute to HTML element
+  addLangAttribute();
 
-  // Fix landmark issues
-  validateLandmark();
+  // Ensure unique landmarks
   ensureUniqueLandmarks();
 
-  // Fix SVG accessibility
+  // Add accessible names to SVGs
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
     setSvgAttributes(svg, accessibleName);
   });
 
-  // Fix fake links
-  handleFakeLinks();
+  // Add scope attributes to table headers
+  const tableHeaders = document.querySelectorAll('th');
+  tableHeaders.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
 
-  // Add skip link
-  const skipLink = createInPageButton();
-  document.body.prepend(skipLink);
+  // Fix fake links
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-disabled', 'true');
+  });
 }
 
 // New function to calculate the sum of two numbers
@@ -459,21 +462,17 @@ document.body.prepend(skipLink);
 
 // Validate table structure and accessibility
 const table = document.querySelector('table');
-if (table) {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
-}
+validateTableAccessibility(table);
+validateTableStructure(table);
 
 // Add/fix landmark issues
 validateLandmark();
 ensureUniqueLandmarks();
 
 // Add accessible names to SVGs
-const svgs = document.querySelectorAll('svg');
-svgs.forEach(svg => {
-  const accessibleName = getSvgAccessibleName(svg);
-  setSvgAttributes(svg, accessibleName);
-});
+const svg = document.querySelector('svg');
+const accessibleName = getSvgAccessibleName(svg);
+setSvgAttributes(svg, accessibleName);
 
 // Ensure unique landmarks
 // Ensuring all landmarks have unique identifiers
@@ -483,7 +482,7 @@ landmarks.forEach(landmark => {
   if (landmark.id) {
     if (landmarkIds.has(landmark.id)) {
       // Handle duplicate
-      landmark.id = `${landmark.id}-${Math.floor(Math.random() * 1000)}`;
+      landmark.id = createLandmarkId(landmark.id);
     } else {
       landmarkIds.add(landmark.id);
     }
@@ -511,6 +510,9 @@ buttons.forEach((button, index) => {
 addAriaLabel('myTable', 'Product data table');
 addAriaLabel('myLogo', 'Company logo');
 addAriaLabel('myMenu', 'Accessibility menu');
+
+// Call the fixAccessibilityIssues function to apply all fixes
+fixAccessibilityIssues();
 
 // Initialize accessibility fixes
 fixAccessibilityIssues();

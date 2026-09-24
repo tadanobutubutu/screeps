@@ -535,7 +535,7 @@ if (typeof window !== 'undefined') {
   window.addLangAttribute = addLangAttribute;
   window.fixTableStructure = fixTableStructure;
   window.addLandmarkIssues = addLandmarkIssues;
-  window.addSvgAccessibleNames = addSvgAccessibleNames;
+  window.addSvgAccessibleName = addSvgAccessibleName;
   window.ensureUniqueLandmarks = ensureUniqueLandmarks;
   window.fixFakeLinkIssue = fixFakeLinkIssue;
   window.renderGraphIndex = renderGraphIndex;
@@ -716,104 +716,17 @@ function spawnWorker() {
   console.log('Spawning new worker...');
 }
 
-function addressAccessibilityIssues() {
-  // Placeholder for implementing accessibility fixes based on an insight report
-  console.log('Addressing accessibility issues...');
-}
+function focusTrap(container) {
+  // Implementation of focus trap for keyboard navigation
+  // This is a simplified version; actual implementation may vary
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusableElements.length === 0) return;
 
-function validateAccessibilityReport(container) {
-  // Placeholder for accessibility report validation
-  return {
-    issues: []
-  };
-}
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
 
-function checkAccessibility(container) {
-  // Placeholder for accessibility checking
-  return [];
-}
-
-function log(message, level = 'info') {
-  // Placeholder for logging function
-  console.log(`[${level}] ${message}`);
-}
-
-function fixDependencyGraphAria(container) {
-  // Fix ARIA attributes for dependency graph
-  const graphElements = container.querySelectorAll('[data-dependency-graph]');
-  graphElements.forEach(el => {
-    el.setAttribute('role', 'graph');
-    el.setAttribute('aria-label', 'Dependency graph visualization');
-  });
-}
-
-// Implement the function for addressing accessibility issues from insight report
-implementAccessibilityFixesFromReport(container, report);
-
-// Update the existing function using the new functions for rendering graph/index
-renderDependencyGraphs(container);
-fixButtonIdentifiers(container);
-fixDependencyGraphAria(container);
-
-// Calculate discount function
-function calculateDiscount(price, discountPercent) {
-  if (typeof price !== 'number' || typeof discountPercent !== 'number') {
-    return 0;
-  }
-  if (price < 0 || discountPercent < 0 || discountPercent > 100) {
-    return 0;
-  }
-  return price * (discountPercent / 100);
-}
-
-// Export all functions
-module.exports = {
-  renderGraphIndex,
-  trapFocus,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  fixFakeLinkIssue,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  googleSignIn,
-  decodeJwtResponse,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  initializeAccessibility,
-  renderIndex,
-  newFunction,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
-  renderAdditionalContent,
-  checkAccessibilityForReport,
-  trapFocus,
-  focusTrap,
-  validateAccessibilityReport,
-  checkAccessibility,
-  fixDependencyGraphAria,
-  setHtmlLangAttribute,
-  ensureElementAccessibility,
-  addTask,
-  generateTaskId,
-  cancelTask,
-  setElementLabel,
-  setFocus,
-  handleKeyboardNavigation,
-
-  // New function for discount calculation
-  calculateDiscount
-};
+  container.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {

@@ -1,14 +1,5 @@
 // main.js - Combined utility and accessibility features
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// Ensure the dependencyGraph container has a proper ARIA role
-
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
@@ -149,22 +140,41 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+// Set lang attribute on the document (REACT_015)
+function setDocumentLang(lang = 'en') {
+  if (document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
+
 // Initialize accessibility features
 function initializeAccessibility() {
   const announcer = createAnnouncer();
   
+  // Set language attribute (REACT_015)
+  setDocumentLang();
+  
   // Ensure all landmarks have unique IDs
   ensureUniqueLandmarks();
   
-  // Ensure dependencyGraph container has a proper ARIA role
-  ensureDependencyGraphAriaRole();
+  // Add main landmark if not present
+  const mainLandmark = document.querySelector('main, [role="main"], #main-content');
+  if (!mainLandmark) {
+    const mainElement = document.querySelector('body > *:first-child');
+    if (mainElement) {
+      mainElement.setAttribute('role', 'main');
+      mainElement.id = 'main-content';
+    }
+  }
   
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
     setupKeyboardNavigation,
     trapFocus,
-    prefersReducedMotion
+    prefersReducedMotion,
+    setDocumentLang,
+    ensureUniqueLandmarks
   };
 }
 
@@ -298,22 +308,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    // New accessibility functions
-    getLangAttribute,
-    createInPageButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    validateLandmarkAttributes,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    createAccessibleButton,
-    addProperLandmarkRegions,
-    ensureUniqueLandmarks,
-    ensureDependencyGraphAriaRole
+    renderDependencyGraph,
+    setDocumentLang
   };
 }
 

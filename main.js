@@ -52,47 +52,19 @@ function addLandmarkRegions() {
   }
 }
 
-/**
- * Create an accessible in-page button element
- * @param {Object} options - Button configuration options
- * @param {string} options.text - The text content of the button
- * @param {string} [options.id] - Optional ID for the button
- * @param {string} [options.ariaLabel] - Optional aria-label for accessibility
- * @param {Function} [options.onClick] - Optional click handler
- * @param {string} [options.className] - Optional CSS class names
- * @returns {HTMLButtonElement} The created button element
- */
-export function createInPageButton(options = {}) {
-  const {
-    text = '',
-    id,
-    ariaLabel,
-    onClick,
-    className = ''
-  } = options;
-  
-  const button = document.createElement('button');
-  button.type = 'button';
-  
-  if (id) {
-    button.id = id;
+function addressAccessibilityIssues() {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
+    // The static fix should be applied in the source files
+    // - Replace one <main> with <section role="region" ...
+    // - Same fix
   }
-  
-  if (ariaLabel) {
-    button.setAttribute('aria-label', ariaLabel);
-  }
-  
-  button.textContent = text;
-  
-  if (className) {
-    button.className = className;
-  }
-  
-  if (typeof onClick === 'function') {
-    button.addEventListener('click', onClick);
-  }
-  
-  return button;
+
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'presentation');
+  });
 }
 
 export function newNecessaryFunction() {
@@ -100,12 +72,6 @@ export function newNecessaryFunction() {
   return "New function implemented";
 }
 
-/**
- * Calculate the sum of two numbers
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Sum of a and b
- */
 export function calculateSum(a, b) {
   return a + b;
 }
@@ -136,12 +102,6 @@ export function divide(a, b) {
   return a / b;
 }
 
-/**
- * Check if an element has the specified accessibility attribute
- * @param {HTMLElement} element - The DOM element to check
- * @param {string} attribute - The accessibility attribute to check for
- * @returns {boolean} True if the attribute is present and non-empty, false otherwise
- */
 export function checkAccessibilityAttribute(element, attribute) {
   if (!element || typeof element.getAttribute !== 'function') {
     return false;
@@ -150,11 +110,6 @@ export function checkAccessibilityAttribute(element, attribute) {
   return value !== null && value !== '';
 }
 
-/**
- * Ensure an element has a non-empty accessibility label
- * @param {HTMLElement} element - The DOM element to check
- * @returns {boolean} True if the element has an aria-label or accessible name, false otherwise
- */
 export function ensureAccessibleLabel(element) {
   if (!element) {
     return false;
@@ -164,11 +119,6 @@ export function ensureAccessibleLabel(element) {
          checkAccessibilityAttribute(element, 'alt');
 }
 
-/**
- * Validate that an element has proper focusability for accessibility
- * @param {HTMLElement} element - The DOM element to check
- * @returns {boolean} True if the element is focusable, false otherwise
- */
 export function validateFocusableElement(element) {
   if (!element) {
     return false;
@@ -181,33 +131,16 @@ export function validateFocusableElement(element) {
   return isFocusable && ...
 }
 
-/**
- * Get the lang attribute value for the HTML element
- * @param {Document} doc - The document object (defaults to global document)
- * @returns {string} The language attribute value, or 'en' as default
- */
-export function getLangAttribute(doc = document) {
-  const htmlElement = doc.documentElement || doc.querySelector('html');
-  const lang = htmlElement ? htmlElement.getAttribute('lang') : null;
-  return lang || 'en';
-}
-
-/**
- * Validate that a table has proper accessibility structure
- * @param {HTMLTableElement} table - The table element to validate
- * @returns {Object} Validation result with isValid and issues array
- */
-export function validateTableAccessibility(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { isValid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push({ code: 'REACT_027', message: 'Table should have a caption element' });
+export default {
+  calculateSum,
+  calculateDifference,
+  calculateProduct,
+  isNumber,
+  clamp,
+  divide,
+  start() {
+    console.log('Application started');
+    return Promise.resolve();
   }
 };
 
@@ -220,29 +153,8 @@ export const logger = {
   }
 };
 
-export function initializeApp() {
-  console.log('Initializing application...');
-  return Promise.resolve();
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-export function ... {
-  // Placeholder for the actual implementation
-  // This function should return a report object based on the accessibility issues found
-  return {
-    issues: [
-      // Example issue object
-      {
-        description: "Example issue description",
-        severity: "warning",
-        // ... other properties like 'elementId', 'fixRecommendation', etc.
-      }
-    ]
-  };
-}
-
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
+export { addLandmarkRegions };
+export { addressAccessibilityIssues }; // Added missing export for addressAccessibilityIssues
 
 // Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
 function addressAccessibilityIssues() {
@@ -287,8 +199,46 @@ export function wrapPrimaryContentInMain() {
     document.body.appendChild(newMain);
     return newMain;
   }
-  return null;
+
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'presentation');
+  });
+
+  // Implement this function for checking link and button accessibility
+  function checkLinksAndButtons() {
+    const links = document.querySelectorAll('a');
+    const buttons = document.querySelectorAll('button');
+
+    links.forEach(link => {
+      // Check if link needs explicit role="link"
+      if (!link.hasAttribute('href') && link.getAttribute('role') !== 'link') {
+        link.setAttribute('role', 'link');
+      }
+      // Check for link without href attribute
+      if (!link.hasAttribute('href')) {
+        console.error('Accessibility Error: Link without href attribute', link);
+      }
+    });
+
+    buttons.forEach(button => {
+      // Check if button needs explicit role="button"
+      if (button.getAttribute('role') !== 'button') {
+        button.setAttribute('role', 'button');
+      }
+      // Check for accessible name for buttons
+      const hasText = button.textContent.trim().length > 0;
+      const hasAriaLabel = button.hasAttribute('aria-label');
+      const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
+
+      if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
+        console.error('Accessibility Error: Button without accessible name', button);
+      }
+    });
+  }
+
+  // Call the function to check accessibility
+  checkLinksAndButtons();
 }
 
-// Export functions if needed
-export { addressAccessibilityIssues, rotateBack, getLangAttribute, wrapPrimaryContentInMain };
+addressAccessibilityIssues(); // Call the accessibility function

@@ -49,6 +49,15 @@ function init() {
   enhanceSemanticMarkup();
 }
 
+// Re-added required exports for functionA and functionB
+export function functionA() {
+  return 'functionA result';
+}
+
+export function functionB() {
+  return 'functionB result';
+}
+
 /**
  * Setup keyboard navigation handlers
  */

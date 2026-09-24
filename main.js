@@ -200,11 +200,7 @@ function classifyResponseSafety(assistantResponse) {
     return 'safe';
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
-
-// TODO: Implement solution to the issue
+// TODO: This is the existing code that needs to be preserve
 const userRequest = "The user asks the assistant to resolve a Git merge conflict in a Screeps bot repository and provide only the resolved file content.";
 outputSafetyClassification(userRequest, null);
 
@@ -408,7 +404,7 @@ buttons.forEach((button, index) => {
 });
 
 // Use the new function to add aria-labels to the appropriate elements
-... 
+...
 
 // New function to ensure dependencyGraph container has proper ARIA role
 function ensureDependencyGraphAccessibility() {

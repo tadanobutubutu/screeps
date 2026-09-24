@@ -8,8 +8,19 @@ const affectedFunctions = {};
 // Import graph rendering functions
 import { renderGraph } from './newGraphRenderingFunctions';
 
-// Import the newly added function to count dependencies
-import { countDependencies } from './dependenciesCount';
+// ** NEW FUNCTION **
+function countDependencies() {
+  const functionATotalDependencies = Object.keys(functionA).length;
+  const functionBTotalDependencies = Object.keys(functionB).length;
+
+  return functionATotalDependencies + functionBTotalDependencies;
+}
+
+// ----- END ORIGINAL CODE -------
+
+// Accessibility fixes as per insight report
+// REACT_015: Add lang attribute
+// REACT_025: Add other accessibility changes as per the insight report
 
 /**
  * Check and ensure accessibility attributes for links and buttons
@@ -24,7 +35,7 @@ export function checkLinkAndButtonAccessibility() {
 function initAccessibility() {
   // REACT_015: Add lang attribute
   setLangAttribute();
-  
+
   // REACT_025: Add skip link functionality for keyboard users
   const skipLink = document.getElementById('skip-link') || document.querySelector('.skip-link');
   if (skipLink) {
@@ -36,7 +47,7 @@ function initAccessibility() {
       }
     });
   }
-  
+
   // Ensure all interactive elements are keyboard accessible
   const interactiveElements = document.querySelectorAll('a, input, select, textarea, button');
   interactiveElements.forEach(function(element) {
@@ -174,5 +185,8 @@ module.exports = {
   ...affectedFunctions,
   functionA,
   functionB,
-  lang,
+  setLangAttribute,
+  initAccessibility,
+  // Add the new function to exports
+  countDependencies
 };

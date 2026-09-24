@@ -88,17 +88,42 @@ function renderGraphIndex (content, options = {}) {
   return container
 }
 
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
-// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
-function addAccessibleNamesToSVGs(container) {
-  // This function adds aria-label attributes to all SVG elements in the container
-  // that don't already have one
-  const svgs = container.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label')) {
-      svg.setAttribute('aria-label', 'Graphical content');
+// Add function to fix fake link issues
+function fixFakeLinkIssues(container) {
+  const fakeLinks = container.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+    if (!link.getAttribute('aria-label')) {
+      link.setAttribute('aria-label', 'Interactive element');
     }
   });
 }
 
-export { renderGraphIndex, prefersReducedMotion, isEmpty, capitalize, getRandomInt, clamp, deepClone, addAccessibleNamesToSVGs };
+// Add function to ensure unique landmarks
+function ensureUniqueLandmarks(container) {
+  const landmarks = ['main', 'nav', 'header', 'footer', 'aside', 'section'];
+  landmarks.forEach(landmark => {
+    const elements = container.querySelectorAll(landmark);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          el.setAttribute('aria-label', `${landmark} ${index + 1}`);
+        }
+      });
+    }
+  });
+}
+
+// Add function to add accessible names to SVGs
+function addSvgAccessibleNames(container) {
+  const svgs = container.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title, desc')) {
+      svg.setAttribute('aria-label', 'Graphical element');
+    }
+  });
+}
+
+export { renderGraphIndex, prefersReducedMotion, isEmpty, capitalize, getRandomInt, clamp, deepClone, fixFakeLinkIssues, ensureUniqueLandmarks, addSvgAccessibleNames };

@@ -23,20 +23,27 @@ function createButton(buttonText, buttonId, buttonClass, onClickHandler) {
     document.body.appendChild(button);
 }
 
-// Import and call the function from the required module
-const importedFunction = requiredModule.someFunction;
-
-// Accessibility fix example: Add appropriate ARIA roles
+// Accessibility fix: Add appropriate ARIA roles
 function someFunction() {
     // existing function logic...
-    // Example accessibility fix: Adding an ARIA role for the element
-    let importantElement = document.createElement('button');
+    // Accessibility fix: Adding an ARIA role for the element
+    let importantElement = document.createElement('div');
     importantElement.setAttribute('role', 'button');
-    importantElement.setAttribute('aria-pressed', 'false');
+    importantElement.setAttribute('tabindex', '0');
+    importantElement.setAttribute('aria-disabled', 'false');
     importantElement.onclick = function() {
         // Handle click event...
         this.setAttribute('aria-pressed', 'true');
     };
+    
+    // Add keyboard accessibility support
+    importantElement.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            importantElement.click();
+        }
+    });
+    
     // existing function logic...
 }
 

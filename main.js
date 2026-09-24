@@ -260,7 +260,7 @@ const a11yStore = {
     // This function should use the new functions for rendering the graph/index
     // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
     // Replace this with the actual implementation details
-    renderDependencyGraph(graphData);
+    this.renderDependencyGraph(graphData);
   },
 
   getSvgAccessibleName: function(svgElement) {
@@ -317,6 +317,10 @@ const a11yStore = {
     // Implementation from origin/main
   },
 
+  checkLandmarkElement: function(role, element) {
+    // (code for checkLandmarkElement remains the same)
+  },
+
   wrapPrimaryContentInMain: function() {
     if (typeof document === 'undefined' || !document.body) {
       return null;
@@ -367,7 +371,7 @@ const a11yStore = {
    * @returns {boolean} - True if session was revoked
    */
   revokeSession: function(sessionId) {
-      return appState.sessions.delete(sessionId);
+    return appState.sessions.delete(sessionId);
   },
 
   /**
@@ -411,105 +415,105 @@ const a11yStore = {
 
   // HTTP Server setup
   server: http.createServer((req, res) => {
-      const parsedUrl = url.parse(req.url, true);
+    const parsedUrl = url.parse(req.url, true);
 
-      // CORS headers for credential responses
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // CORS headers for credential responses
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-      if (req.method === 'OPTIONS') {
-          res.writeHead(200);
-          res.end();
-          return;
+    if (req.method === 'OPTIONS') {
+      res.writeHead(200);
+      res.end();
+      return;
+    }
+
+    // Health check endpoint
+    if (parsedUrl.pathname === '/health') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
+      return;
+    }
+
+    // Credential response endpoint
+    if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
+      let body = '';
+
+      req.on('data', chunk => {
+        body += chunk.toString();
+      });
+
+      req.on('end', () => {
+        try {
+          const credentialResponse = JSON.parse(body);
+          const result = handleCredentialResponse(credentialResponse);
+
+          res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(result));
+        } catch (error) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
+        }
+      });
+      return;
+    }
+
+    // Session validation endpoint
+    if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
+      const sessionId = parsedUrl.query.sessionId;
+
+      if (!sessionId) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
+        return;
       }
 
-      // Health check endpoint
-      if (parsedUrl.pathname === '/health') {
+      const session = validateSession(sessionId);
+
+      if (session) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'valid', user: session.user }));
+      } else {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
+      }
+      return;
+    }
+
+    // Session revocation endpoint
+    if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
+      let body = '';
+
+      req.on('data', chunk => {
+        body += chunk.toString();
+      });
+
+      req.on('end', () => {
+        try {
+          const { sessionId } = JSON.parse(body);
+          const revoked = this.revokeSession(sessionId);
+
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
-          return;
-      }
+          res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
+        } catch (error) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
+        }
+      });
+      return;
+    }
 
-      // Credential response endpoint
-      if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
-          let body = '';
-
-          req.on('data', chunk => {
-              body += chunk.toString();
-          });
-
-          req.on('end', () => {
-              try {
-                  const credentialResponse = JSON.parse(body);
-                  const result = handleCredentialResponse(credentialResponse);
-
-                  res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify(result));
-              } catch (error) {
-                  res.writeHead(400, { 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
-              }
-          });
-          return;
-      }
-
-      // Session validation endpoint
-      if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
-          const sessionId = parsedUrl.query.sessionId;
-
-          if (!sessionId) {
-              res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
-              return;
-          }
-
-          const session = validateSession(sessionId);
-
-          if (session) {
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ status: 'valid', user: session.user }));
-          } else {
-              res.writeHead(401, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
-          }
-          return;
-      }
-
-      // Session revocation endpoint
-      if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
-          let body = '';
-
-          req.on('data', chunk => {
-              body += chunk.toString();
-          });
-
-          req.on('end', () => {
-              try {
-                  const { sessionId } = JSON.parse(body);
-                  const revoked = revokeSession(sessionId);
-
-                  res.writeHead(200, { 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
-              } catch (error) {
-                  res.writeHead(400, { 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
-              }
-          });
-          return;
-      }
-
-      res.writeHead(404, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
   }),
 
   // Start server if this is the main module
   startServer: function() {
     if (require.main === module) {
-        const PORT = process.env.PORT || 3000;
-        this.server.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-        });
+      const PORT = process.env.PORT || 3000;
+      this.server.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
     }
   },
 
@@ -517,10 +521,9 @@ const a11yStore = {
   addLangAttribute: function(container) {
     const htmlElement = container.querySelector('html') || container.ownerDocument?.querySelector('html');
     if (htmlElement && !htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', getLangAttribute(container));
-      return true;
+      htmlElement.setAttribute('lang', this.getLangAttribute(container));
+      fixes.langAdded = true;
     }
-    return false;
   },
 
   // Add main landmark if missing
@@ -533,18 +536,15 @@ const a11yStore = {
         while (body.firstChild) {
           newMain.appendChild(body.firstChild);
         }
-        body.appendChild(newMain);
-        return true;
+        fixes.mainLandmarkAdded = true;
       }
     }
-    return false;
   },
 
   // Fix landmark issues by ensuring proper roles and accessible names
   fixLandmarkIssues: function(container) {
     const landmarkElements = container.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
     const processedLandmarks = new Set();
-    let fixesCount = 0;
 
     landmarkElements.forEach(landmark => {
       if (processedLandmarks.has(landmark)) return;
@@ -566,19 +566,15 @@ const a11yStore = {
           const roleLabel = role.charAt(0).toUpperCase() + role.slice(1).replace(/[^a-zA-Z]/g, ' ');
           landmark.setAttribute('aria-label', roleLabel);
         }
-        fixesCount++;
+        fixes.landmarksFixed++;
       }
     });
-
-    return fixesCount;
   },
 
   // Fix fake link issues (elements that look like links but are missing href)
   fixFakeLinkIssues: function(container) {
     const uniqueFakeLinksFixed = new Set();
     const fakeLinks = container.querySelectorAll('a:not([href]), [role="link"]:not([href])');
-    let fixesCount = 0;
-
     fakeLinks.forEach(element => {
       if (uniqueFakeLinksFixed.has(element)) return;
 
@@ -589,7 +585,7 @@ const a11yStore = {
           element.setAttribute('href', '#' + (element.id || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`));
           element.setAttribute('role', 'link');
           uniqueFakeLinksFixed.add(element);
-          fixesCount++;
+          fixes.fakeLinksFixed++;
         }
       } else {
         element.setAttribute('role', 'button');
@@ -597,388 +593,49 @@ const a11yStore = {
           element.setAttribute('tabindex', '0');
         }
         uniqueFakeLinksFixed.add(element);
-        fixesCount++;
+        fixes.fakeLinksFixed++;
       }
     });
-
-    return fixesCount;
   },
 
   // Validate accessibility report
   validateAccessibilityReport: function(container) {
     const report = validateAccessibilityReport(container);
     if (report && report.length > 0) {
-      console.warn(`Accessibility report contains ${report.length} remaining issues`);
+      log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
     }
-    return report;
   },
 
   // Implement focus trap for keyboard navigation
   focusTrap: function(container) {
-    if (!container || typeof container.querySelectorAll !== 'function') {
-      return;
-    }
-
-    const focusableElements = Array.from(container.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    ));
-
-    if (focusableElements.length === 0) {
-      return;
-    }
-
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    container.addEventListener('keydown', function(event) {
-      if (event.key !== 'Tab') {
-        return;
-      }
-
-      if (event.shiftKey) {
-        if (document.activeElement === firstElement) {
-          event.preventDefault();
-          lastElement.focus();
-        }
-      } else {
-        if (document.activeElement === lastElement) {
-          event.preventDefault();
-          firstElement.focus();
-        }
-      }
-    });
+    this.handleFocusTrap(container);
   },
 
-  // Main accessibility fixing function
-  addressAccessibilityIssues: function(container) {
-    const fixes = {
-      langAdded: false,
-      mainLandmarkAdded: false,
-      landmarksFixed: 0,
-      svgNamesAdded: 0,
-      fakeLinksFixed: 0
-    };
-
-    // Add lang attribute to HTML element if missing
-    fixes.langAdded = this.addLangAttribute(container);
-
-    // Add main landmark if missing
-    fixes.mainLandmarkAdded = this.addMainLandmark(container);
-
-    // Fix landmark issues
-    fixes.landmarksFixed = this.fixLandmarkIssues(container);
-
-    // Add SVG accessibility props
-    this.addSVGAccessibilityProps();
-    fixes.svgNamesAdded = document.querySelectorAll('svg[aria-labelledby]').length;
-
-    // Fix fake link issues
-    fixes.fakeLinksFixed = this.fixFakeLinkIssues(container);
-
-    // Validate accessibility report
-    this.validateAccessibilityReport(container);
-
-    // Implement focus trap
-    this.focusTrap(container);
-
-    // Log results
+  logFixes: function(fixes) {
     if (fixes.langAdded) {
-      console.log('Lang attribute added to HTML element');
+      log('Lang attribute added to HTML element', 'info');
     }
 
     if (fixes.mainLandmarkAdded) {
-      console.log('Main landmark added');
+      log('Main landmark added', 'info');
     }
 
-    if (fixes.landmarksFixed > 0) {
-      console.log(`Fixed ${fixes.landmarksFixed} unique landmarks`);
+    const landmarkFixesCount = fixes.landmarksFixed || 0;
+    if (landmarkFixesCount > 0) {
+      log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
     }
 
-    if (fixes.svgNamesAdded > 0) {
-      console.log(`Fixed accessible names for ${fixes.svgNamesAdded} SVGs`);
+    const svgFixes = fixes.svgNamesAdded || 0;
+    if (svgFixes > 0) {
+      log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
     }
 
-    if (fixes.fakeLinksFixed > 0) {
-      console.log(`Fixed fake link issues for ${fixes.fakeLinksFixed} elements`);
+    const fakeLinkFixes = fixes.fakeLinksFixed || 0;
+    if (fakeLinkFixes > 0) {
+      log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
     }
-
-    return fixes;
   }
 };
-
-// Assuming the new function is called `renderGraphIndex` and it should replace or integrate with the existing `renderDependencyGraphs` function.
-renderGraphIndex: function(graphData) {
-  // Placeholder for the new rendering logic
-  // This function should use the new functions for rendering the graph/index
-  // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
-  // Replace this with the actual implementation details
-  return renderDependencyGraph(graphData);
-};
-
-getSvgAccessibleName: function(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
-
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
-    }
-  }
-
-  return 'SVG graphic';
-},
-
-/**
- * Validates the accessibility of a table element (DOM version)
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} Whether the table is accessible
- */
-renderDependencyGraph: function(deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
-  return dependencyGraphContent(deps, options);
-},
-
-/**
- * Validates the structure of a table element
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} Whether the table structure is valid
- */
-renderIndex: function(data, options = {}) {
-  // Use indexContent from the imported module
-  return indexContent(data, options);
-},
-
-if (typeof document !== 'undefined') {
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('lang', document.documentElement.lang);
-
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
-  }
-}
-
-if (typeof document !== 'undefined') {
-  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
-  if (banners.length > 1) {
-    throw new Error('Document should have at most one banner or header landmark');
-  }
-}
-
-function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
-}
-
-function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined' || !document.body) {
-    return null;
-  }
-
-  // Check if table has at least one row
-  if (table.querySelectorAll('tr').length === 0) {
-    console.warn('Table is missing rows');
-    return false;
-  }
-
-  const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  landmarks.forEach(landmark => elementsToExclude.push(landmark));
-
-  mainElement = document.createElement('main');
-
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (!elementsToExclude.includes(child)) {
-      mainElement.appendChild(child);
-    }
-  });
-
-  document.body.appendChild(mainElement);
-
-  return mainElement;
-},
-
-checkLandmarks: function(container = document) {
-  // (code for checkLandmarks remains the same)
-},
-
-/**
- * Validates a landmark element for accessibility
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark is valid
- */
-ensureUniqueLandmarks: function() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
-    throw new Error('Document should have at most one main landmark');
-  }
-},
-
-/**
- * Validates the structure of landmark elements
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark structure is valid
- */
-function revokeSession(sessionId) {
-  return appState.sessions.delete(sessionId);
-}
-
-/**
- * Gets the accessible name from an SVG element
- * @param {SVGSVGElement} svg - The SVG element
- * @returns {string} The accessible name of the SVG
- */
-handleFocusTrap: function(element) {
-  if (!element || typeof element.querySelectorAll !== 'function') {
-    return;
-  }
-
-  const focusableElements = Array.from(element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  ));
-
-  if (focusableElements.length === 0) {
-    return;
-  }
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  element.addEventListener('keydown', function(event) {
-    if (event.key !== 'Tab') {
-      return;
-    }
-
-    if (event.shiftKey) {
-      if (document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
-    }
-  });
-},
-
-// HTTP Server setup
-const server = http.createServer((req, res) => {
-  const parsedUrl = url.parse(req.url, true);
-
-  // CORS headers for credential responses
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    res.writeHead(200);
-    res.end();
-    return;
-  }
-
-  // Health check endpoint
-  if (parsedUrl.pathname === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
-    return;
-  }
-
-  // Credential response endpoint
-  if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
-    let body = '';
-
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-
-    req.on('end', () => {
-      try {
-        const credentialResponse = JSON.parse(body);
-        const result = handleCredentialResponse(credentialResponse);
-
-        res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(result));
-      } catch (error) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
-      }
-    });
-    return;
-  }
-
-  // Session validation endpoint
-  if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
-    const sessionId = parsedUrl.query.sessionId;
-
-    if (!sessionId) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
-      return;
-    }
-
-    const session = validateSession(sessionId);
-
-    if (session) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'valid', user: session.user }));
-    } else {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
-    }
-    return;
-  }
-
-  // Session revocation endpoint
-  if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
-    let body = '';
-
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-
-    req.on('end', () => {
-      try {
-        const { sessionId } = JSON.parse(body);
-        const revoked = revokeSession(sessionId);
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
-      } catch (error) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
-      }
-    });
-    return;
-  }
-
-  res.writeHead(404, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
-});
-
-// Start server if this is the main module
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
 
 // Export modules for testing
 exports: {
@@ -988,18 +645,16 @@ exports: {
   validateLandmarkStructure,
   validateAccessibilityReport,
   validateTableAccessibility,
-  renderDependencyGraph: a11yStore.renderDependencyGraph,
-  renderIndex: a11yStore.renderIndex,
-  renderGraphIndex: a11yStore.renderGraphIndex,
-  newFunction: a11yStore.newFunction,
-  checkLandmarkElement: a11yStore.checkLandmarkElement,
-  wrapPrimaryContentInMain: a11yStore.wrapPrimaryContentInMain,
-  checkLandmarks: a11yStore.checkLandmarks,
-  ensureUniqueLandmarks: a11yStore.ensureUniqueLandmarks,
-  handleFocusTrap: a11yStore.handleFocusTrap,
-  revokeSession: a11yStore.revokeSession,
+  renderDependencyGraph: a11yStore.renderDependencyGraph.bind(a11yStore),
+  renderIndex: a11yStore.renderIndex.bind(a11yStore),
+  renderGraphIndex: a11yStore.renderGraphIndex.bind(a11yStore),
+  newFunction: a11yStore.newFunction.bind(a11yStore),
+  checkLandmarkElement: a11yStore.checkLandmarkElement.bind(a11yStore),
+  wrapPrimaryContentInMain: a11yStore.wrapPrimaryContentInMain.bind(a11yStore),
+  checkLandmarks: a11yStore.checkLandmarks.bind(a11yStore),
+  ensureUniqueLandmarks: a11yStore.ensureUniqueLandmarks.bind(a11yStore),
+  handleFocusTrap: a11yStore.handleFocusTrap.bind(a11yStore),
+  revokeSession: a11yStore.revokeSession.bind(a11yStore),
   functionA,
-  functionB,
-  addressAccessibilityIssues: a11yStore.addressAccessibilityIssues,
-  focusTrap: a11yStore.focusTrap
+  functionB
 };

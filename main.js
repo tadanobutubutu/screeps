@@ -1,35 +1,64 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
+// main.js - Dependency counting implementation
 
-// Get the language attribute for the HTML element
-function getLangAttribute() {
-  // Return the language of the document
-  return document.documentElement.lang || 'en';
+/**
+ * Counts the number of dependencies in a package.json object
+ * @param {Object} packageJson - The parsed package.json object
+ * @returns {Object} An object with counts for different dependency types
+ */
+function countDependencies(packageJson) {
+  if (!packageJson || typeof packageJson !== 'object') {
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      peerDependencies: 0,
+      optionalDependencies: 0,
+      total: 0
+    };
+  }
+
+  const depTypes = [
+    'dependencies',
+    'devDependencies',
+    'peerDependencies',
+    'optionalDependencies'
+  ];
+
+  const counts = {};
+  let total = 0;
+
+  for (const depType of depTypes) {
+    const deps = packageJson[depType];
+    const count = deps && typeof deps === 'object' ? Object.keys(deps).length : 0;
+    counts[depType] = count;
+    total += count;
+  }
+
+  return {
+    ...counts,
+    total
+  };
 }
 
-// Ensure the dependency graph has proper ARIA attributes
-function ensureDependencyGraphARIA() {
-  const dependencyGraph = document.getElementById('dependency-graph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'img');
-    if (!dependencyGraph.getAttribute('aria-label')) {
-      dependencyGraph.setAttribute('aria-label', 'Dependency graph showing module relationships');
-    }
+/**
+ * Counts dependencies from a package.json file path
+ * @param {string} filePath - Path to package.json file
+ * @returns {Promise<Object>} Promise resolving to dependency counts
+ */
+async function countDependenciesFromFile(filePath) {
+  const fs = require('fs').promises;
+  const path = require('path');
+
+  try {
+    const fullPath = path.resolve(filePath);
+    const content = await fs.readFile(fullPath, 'utf-8');
+    const packageJson = JSON.parse(content);
+    return countDependencies(packageJson);
+  } catch (error) {
+    throw new Error(`Failed to count dependencies: ${error.message}`);
   }
 }
 
-// Main initialization function
-function initialize() {
-  // Set the lang attribute on the HTML element
-  document.documentElement.lang = getLangAttribute();
-  
-  // Ensure ARIA attributes are set
-  ensureDependencyGraphARIA();
-}
-
-// Run initialization when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initialize);
-} else {
-  initialize();
-}
+module.exports = {
+  countDependencies,
+  countDependenciesFromFile
+};

@@ -371,34 +371,70 @@ function createAccessibleLink (text, href) {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // Implementation for fixing accessibility issues
+  // New code to fix accessibility issues...
   // Add lang attribute to HTML element
-  addLangAttribute();
+  document.documentElement.setAttribute('lang', getLangAttribute());
 
-  // Ensure unique landmarks
+  // Create in-page button with accessibility considerations
+  createInPageButton();
+
+  // Validate table structure and accessibility
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+
+  // Add/fix landmark issues
+  validateLandmark();
   ensureUniqueLandmarks();
 
   // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
+  const svg = document.getElementById('mySvg');
+  if (svg) {
     const accessibleName = getSvgAccessibleName(svg);
     setSvgAttributes(svg, accessibleName);
-  });
+  }
 
-  // Add scope attributes to table headers
-  const tableHeaders = document.querySelectorAll('th');
-  tableHeaders.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      th.setAttribute('scope', 'col');
+  // Ensure unique landmarks
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
+  const landmarkIds = new Set();
+  landmarks.forEach(landmark => {
+    if (landmark.id) {
+      if (landmarkIds.has(landmark.id)) {
+        // Handle duplicate
+        landmark.removeAttribute('role');
+      } else {
+        landmarkIds.add(landmark.id);
+      }
     }
   });
 
-  // Fix fake links
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('aria-disabled', 'true');
+  // Make header focusable
+  makeHeaderFocusable();
+
+  // Validate link accessibility
+  validateLinkAccessibility();
+
+  // Fix button identifiers
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    if (!button.id) {
+      button.id = `button-${index}`;
+    }
   });
+
+  // Add ARIA labels to elements
+  addAriaLabel('myTable', 'Product data table');
+  addAriaLabel('myLogo', 'Company logo');
+  addAriaLabel('myMenu', 'Accessibility menu');
+
+  // Set up dependency graph container with proper ARIA role
+  const dependencyGraphContainer = document.getElementById('dependencyGraph');
+  if (dependencyGraphContainer) {
+    dependencyGraphContainer.setAttribute('role', 'region');
+    dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+  }
 }
 
 // New function to calculate the sum of two numbers
@@ -436,7 +472,7 @@ function validateLinkAccessibility() {
   // Implementation for validating link accessibility
   const links = document.querySelectorAll('a');
   links.forEach(link => {
-    if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+    if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
       link.setAttribute('aria-label', 'Link');
     }
   });
@@ -444,10 +480,9 @@ function validateLinkAccessibility() {
 
 function handleFakeLinks() {
   // Implementation for handling fake links
-  const fakeLinks = document.querySelectorAll('[role="link"], [role="button"]');
+  const fakeLinks = document.querySelectorAll('[role="link"]');
   fakeLinks.forEach(link => {
-    if (link.tagName !== 'A' && link.tagName !== 'BUTTON') {
-      link.setAttribute('role', 'link');
+    if (!link.getAttribute('tabindex')) {
       link.setAttribute('tabindex', '0');
     }
   });

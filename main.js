@@ -439,9 +439,29 @@ function renderDependencyGraph(container, data, options = {}) {
         throw new Error('Invalid container element provided');
     }
 
-    if (!data || typeof data !== 'object') {
-        throw new Error('Invalid data provided for graph rendering');
-    }
+// Export accessibility utility functions
+export {
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibility,
+  newFunction,
+  addressAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  applyAccessibilityFixes,
+  divide,
+  wrapPrimaryContentInMain,
+  spawnEntity,
+  calculateDiscount
+};
 
     // Clear the container
     container.innerHTML = '';

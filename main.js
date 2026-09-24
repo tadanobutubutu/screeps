@@ -76,8 +76,7 @@ function addHeadingHierarchy() {
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_ -->
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: ...
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+//<!-- todo-hash: c87b573b08b150bcfdfdff7be68c9f77afde -->
 
 /**
  * Ensures an element has an id attribute, generating one if missing
@@ -188,7 +187,7 @@ function addLangAttribute() {
 }
 
 function validateTableAccessibility(table) {
-  // Check for caption or aria-label
+  // Check for caption or aria--label
   return ... ||
            table.getAttribute('aria-label') ||
            table.getAttribute('aria-labelledby');
@@ -361,7 +360,7 @@ function ... {
     }
   });
 
-  // Check for buttons without accessible names
+  // Check for buttons without accessible name
   const buttons = ...
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || ...
@@ -451,11 +450,3 @@ function addressAccessibilityIssues() {
       if (target) {
         target.setAttribute('tabindex', '-1');
         target.focus();
-      }
-    });
-  }
-
-  // Ensure all buttons with role="button" respond to Enter key
-  ... => {
-    ... function(e) {
-      if (

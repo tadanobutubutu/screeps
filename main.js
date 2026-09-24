@@ -120,76 +120,102 @@ function sanitizeFilename(filename) {
   return filename.replace(/[^a-z0-9.-]/gi, '_');
 }
 
-function readFileSafe(filePath) {
-  try {
-    return fs.readFileSync(filePath, 'utf8');
-  } catch (error) {
-    log("Error reading file " + filePath + ": " + error.message, 'error');
-    return null;
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+/**
+ * Wraps primary content in a main landmark element for accessibility compliance.
+ * @param {string|HTMLElement} content - The content to wrap (HTML string or DOM element)
+ * @param {Object} options - Configuration options for the main element
+ * @param {string} [options.id] - Optional ID for the main element
+ * @param {string} [options.ariaLabel] - Optional ARIA label for accessibility
+ * @param {string} [options.role] - Optional role attribute (defaults to 'main')
+ * @returns {HTMLElement} The wrapped content inside a main element
+ */
+function wrapPrimaryContentInMain(content, options = {}) {
+  const mainElement = document.createElement('main');
+  
+  // Set role if specified and different from default
+  if (options.role) {
+    mainElement.setAttribute('role', options.role);
+  } else {
+    mainElement.setAttribute('role', 'main');
   }
-}
-
-// Existing data processing functions
-function processData(items) {
-  if (!Array.isArray(items)) {
-    return [];
+  
+  // Set ID if provided
+  if (options.id) {
+    mainElement.id = options.id;
   }
-  return items.map(item => ({
-    ...item,
-    processed: true,
-    timestamp: Date.now()
-  }));
-}
-
-function filterValidItems(items, validator) {
-  return items.filter(item => {
-    try {
-      return validator(item);
-    } catch {
-      return false;
+  
+  // Set ARIA label if provided
+  if (options.ariaLabel) {
+    mainElement.setAttribute('aria-label', options.ariaLabel);
+  }
+  
+  // Ensure unique landmark - check existing main elements
+  const existingMain = document.querySelector('main, [role="main"]');
+  if (existingMain && existingMain !== mainElement) {
+    existingMain.setAttribute('role', 'region');
+    if (!existingMain.getAttribute('aria-label')) {
+      existingMain.setAttribute('aria-label', 'Content section');
     }
-  });
+  }
+  
+  // Handle different content types
+  if (typeof content === 'string') {
+    mainElement.innerHTML = content;
+  } else if (content instanceof HTMLElement) {
+    mainElement.appendChild(content);
+  } else {
+    console.warn('wrapPrimaryContentInMain: Unsupported content type');
+    mainElement.textContent = 'Error: Unsupported content type';
+  }
+  
+  // Add skip link target ID if not already present
+  if (!mainElement.id) {
+    mainElement.id = 'main-content';
+    if (!mainElement.getAttribute('aria-label')) {
+      mainElement.setAttribute('aria-label', 'Main content');
+    }
+  }
+  
+  // Add semantic structure class
+  mainElement.className = 'main-content';
+  
+  return mainElement;
 }
 
-// Initialize accessibility features
-const initAccessibility = () => {
-  accessibilityUtils.initSkipLink();
-
-  // Add keyboard support for all interactive elements
-  document.querySelectorAll('button, a, input, select, textarea').forEach(element => {
-    element.addEventListener('keydown', (e) => {
-      const handlers = {
-        Enter: () => element.click(),
-        ' ': () => element.click()
-      };
-      if (handlers[e.key]) {
-        handlers[e.key]();
-      }
-    });
-  });
+// Export all functions for use elsewhere in the repository
+module.exports = {
+  addressAccessibilityIssues,
+  renderDependencyGraphContent,
+  validateInput,
+  processData,
+  formatResponse,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButtons,
+  fixUniqueLandmarks,
+  generateAccessibilityReport,
+  renderDependencyGraphs,
+  focusTrap,
+  addAriaLabel,
+  calculateSum,
+  initAccessibility,
+  groupByCategory,
+  ensureDependencyGraphARIA,
+  initiateAnnounceToScreenReader,
+  handleKeyboardNavKeyDownEvent,
+  newFocusTrap,
+  exportUtilities,
+  sanitizeFilename,
+  readFileSafe,
+  filterValidItems,
+  renderGraphIndex,
+  renderAdditionalContent,
+  addSvgAccessibleNameToElement,
+  addMainLandmarkToIndex,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  transformInputData,
+  handleCredentialResponse,
+  wrapPrimaryContentInMain
 };
-
-function groupByCategory(items, getCategory) {
-  return items.reduce((groups, item) => {
-    const category = getCategory(item);
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(item);
-    return groups;
-  }, {});
-}
-
-// Accessibility-related functions
-function ensureDependencyGraphARIA() {
-  const dependencyGraphElement = document.querySelector('.dependency-graph');
-  if (dependencyGraphElement) {
-    // Set appropriate ARIA role for the dependency graph container
-    if (!dependencyGraphElement.getAttribute('role')) {
-      dependencyGraphElement.setAttribute('role', 'region');
-    }
-
-    // Add accessible label if not already present
-    if (!dependencyGraphElement.getAttribute('aria-label')) {
-      dependencyGraphElement.setAttribute('aria-label', 'Dependency graph visualization');
-    }

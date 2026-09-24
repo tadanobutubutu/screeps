@@ -275,12 +275,33 @@ function setSvgAttributes (svg, accessibleName) {
   // Add accessible name to SVG
 }
 
-function createInPageButton () {
-  // Implementation for creating in-page button
-  const button = document.createElement('button')
-  button.setAttribute('aria-label', 'Skip to main content')
-  button.textContent = 'Skip to main content'
-  return button
+/**
+ * Creates an in-page button with accessibility attributes
+ * @param {string} text - The button text content
+ * @param {string} ariaLabel - The ARIA label for accessibility
+ * @param {string} [id] - Optional ID for the button
+ * @param {string} [className] - Optional class name for styling
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, ariaLabel, id, className) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.setAttribute('aria-label', ariaLabel);
+
+  if (id) {
+    button.id = id;
+  }
+
+  if (className) {
+    button.className = className;
+  }
+
+  // Add basic styling for visibility
+  button.style.padding = '8px 16px';
+  button.style.margin = '4px';
+  button.style.cursor = 'pointer';
+
+  return button;
 }
 
 // Added function to create accessible links as mentioned in the issue

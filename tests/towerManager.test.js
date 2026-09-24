@@ -170,20 +170,68 @@ describe('towerManager', () => {
     })
   })
 
-  describe('getStats', () => {
-    test('タワーの統計情報を返す', () => {
-      const stats = towerManager.getStats(mockRoom)
-      expect(stats.total).toBe(1)
-      expect(stats.active).toBe(1)
-    })
-  })
+    describe('getStats', () => {
+        test('タワーの統計情報を返す', () => {
+            mockTower.store[global.RESOURCE_ENERGY] = 800; // 80%
+            const stats = towerManager.getStats(mockRoom);
+            expect(stats.total).toBe(1);
+            expect(stats.active).toBe(1);
+            expect(stats.avgEnergy).toBe(0.8);
+            expect(stats.lowEnergy).toBe(0);
+        });
 
-  describe('showDashboard', () => {
-    test('ダッシュボードビジュアルを描画する', () => {
-      towerManager.showDashboard(mockRoom)
-      expect(mockRoom.visual.text).toHaveBeenCalled()
-    })
-  })
+        test('タワーがない場合は初期状態の統計を返す', () => {
+            cache.getMyStructures.mockReturnValue([]);
+            const stats = towerManager.getStats(mockRoom);
+            expect(stats.total).toBe(0);
+            expect(stats.active).toBe(0);
+            expect(stats.avgEnergy).toBe(0);
+            expect(stats.lowEnergy).toBe(0);
+        });
+
+        test('エネルギーが少ないタワーを正しくカウントする', () => {
+            const tower1 = { ...mockTower, store: { [global.RESOURCE_ENERGY]: 400, getCapacity: () => 1000 } }; // 40% (low)
+            const tower2 = { ...mockTower, store: { [global.RESOURCE_ENERGY]: 0, getCapacity: () => 1000 } }; // 0% (inactive, low)
+            const tower3 = { ...mockTower, store: { [global.RESOURCE_ENERGY]: 1000, getCapacity: () => 1000 } }; // 100% (active, not low)
+
+            cache.getMyStructures.mockReturnValue([tower1, tower2, tower3]);
+            const stats = towerManager.getStats(mockRoom);
+
+            expect(stats.total).toBe(3);
+            expect(stats.active).toBe(2);
+            expect(stats.lowEnergy).toBe(2);
+            expect(stats.avgEnergy).toBeCloseTo(0.466, 2);
+        });
+    });
+
+    describe('showDashboard', () => {
+        test('ダッシュボードビジュアルを描画する（緑色・エネルギー豊富）', () => {
+            mockTower.store[global.RESOURCE_ENERGY] = 800; // 80% > 0.7 => '#00ff88'
+            mockTower.pos = { x: 10, y: 10 };
+            towerManager.showDashboard(mockRoom);
+            expect(mockRoom.visual.text).toHaveBeenCalledWith(
+                '🏰 80%', 10, 9, expect.objectContaining({ color: '#00ff88', font: 0.4, align: 'center' })
+            );
+        });
+
+        test('ダッシュボードビジュアルを描画する（オレンジ色・エネルギー中程度）', () => {
+            mockTower.store[global.RESOURCE_ENERGY] = 500; // 50% > 0.4 => '#ffaa00'
+            mockTower.pos = { x: 15, y: 15 };
+            towerManager.showDashboard(mockRoom);
+            expect(mockRoom.visual.text).toHaveBeenCalledWith(
+                '🏰 50%', 15, 14, expect.objectContaining({ color: '#ffaa00', font: 0.4, align: 'center' })
+            );
+        });
+
+        test('ダッシュボードビジュアルを描画する（赤色・エネルギー枯渇）', () => {
+            mockTower.store[global.RESOURCE_ENERGY] = 200; // 20% <= 0.4 => '#ff4444'
+            mockTower.pos = { x: 20, y: 20 };
+            towerManager.showDashboard(mockRoom);
+            expect(mockRoom.visual.text).toHaveBeenCalledWith(
+                '🏰 20%', 20, 19, expect.objectContaining({ color: '#ff4444', font: 0.4, align: 'center' })
+            );
+        });
+    });
 
   describe('performance optimization', () => {
     test('複数タワーで修復ターゲットを同一ティックに検索する際、O(1)キャッシュが機能し冗長な探索を避ける', () => {

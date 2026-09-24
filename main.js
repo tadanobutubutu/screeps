@@ -84,100 +84,21 @@ const accessibilityUtils = {
 };
 
 /**
- * Validates table structure for accessibility issues
- * @param {HTMLElement} container - Container element to validate tables within (optional, defaults to document)
- * @returns {Array} Array of accessibility issues found
+ * Spawn an accessibility announcement element
+ * @param {string} message - The message to announce
+ * @param {string} priority - 'polite' or 'assertive'
+ * @returns {HTMLElement} The created announcement element
  */
-function validateTableStructureForAccessibility(container = document) {
-    const tables = container.querySelectorAll('table');
-    const issues = [];
-
-    tables.forEach((table, index) => {
-        const tableInfo = {
-            index: index,
-            id: table.id || null,
-            hasCaption: table.querySelector('caption') !== null,
-            headers: [],
-            cells: []
-        };
-
-        // Validate table structure using imported utility
-        const structureValidation = validateTableStructure(table);
-        if (structureValidation && structureValidation.length > 0) {
-            issues.push({
-                type: 'structure',
-                tableIndex: index,
-                tableId: tableInfo.id,
-                issues: structureValidation
-            });
-        }
-
-        // Validate table accessibility using imported utility
-        const accessibilityValidation = validateTableAccessibility(table);
-        if (accessibilityValidation && accessibilityValidation.length > 0) {
-            issues.push({
-                type: 'accessibility',
-                tableIndex: index,
-                tableId: tableInfo.id,
-                issues: accessibilityValidation
-            });
-        }
-
-        // Additional table structure checks
-        const thead = table.querySelector('thead');
-        const tbody = table.querySelector('tbody');
-        const tfoot = table.querySelector('tfoot');
-
-        // Check for proper table structure
-        if (!thead && table.querySelector('th')) {
-            issues.push({
-                type: 'structure',
-                tableIndex: index,
-                tableId: tableInfo.id,
-                message: 'Table has th elements but no thead element',
-                severity: 'serious'
-            });
-        }
-
-        // Check for caption
-        if (!tableInfo.hasCaption) {
-            issues.push({
-                type: 'accessibility',
-                tableIndex: index,
-                tableId: tableInfo.id,
-                message: 'Table is missing a caption element',
-                severity: 'moderate'
-            });
-        }
-
-        // Check for scope attributes on header cells
-        const headers = table.querySelectorAll('th');
-        headers.forEach((header, headerIndex) => {
-            if (!header.getAttribute('scope') && !header.getAttribute('aria-columnheader') && !header.getAttribute('aria-rowheader')) {
-                issues.push({
-                    type: 'accessibility',
-                    tableIndex: index,
-                    tableId: tableInfo.id,
-                    headerIndex: headerIndex,
-                    message: 'Header cell missing scope, aria-columnheader, or aria-rowheader attribute',
-                    severity: 'serious'
-                });
-            }
-        });
-
-        // Check for proper table semantics
-        if (!tbody) {
-            issues.push({
-                type: 'structure',
-                tableIndex: index,
-                tableId: tableInfo.id,
-                message: 'Table is missing a tbody element',
-                severity: 'minor'
-            });
-        }
-    });
-
-    return issues;
+function spawnAnnouncement(message, priority = 'polite') {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    return announcer;
 }
 
 function generateAccessibilityReport(container) {

@@ -786,9 +786,45 @@ function harvest() {
     return 'harvested';
 }
 
-// Add lang attribute to HTML element - use the imported function
-function getLangAttribute() {
-    return getLangAttributeOrigin();
+function createInPageButtons(buttons = []) {
+    const container = document.createElement('div');
+    container.className = 'in-page-buttons';
+    container.setAttribute('role', 'toolbar');
+    container.setAttribute('aria-label', 'In-page buttons');
+
+    buttons.forEach((config) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+
+        if (config.label) {
+            button.textContent = config.label;
+        }
+
+        if (config.id) {
+            button.id = config.id;
+        }
+
+        if (config.className) {
+            button.className = config.className;
+        }
+
+        if (config.onClick && typeof config.onClick === 'function') {
+            button.addEventListener('click', config.onClick);
+        }
+
+        if (config.attributes) {
+            Object.entries(config.attributes).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    button.setAttribute(key, String(value));
+                }
+            });
+        }
+
+        container.appendChild(button);
+    });
+
+    document.body.appendChild(container);
+    return container;
 }
 
 // Access the dependencyGraph container and ensure it has proper ARIA role

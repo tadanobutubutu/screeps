@@ -326,10 +326,13 @@ function fixFakeLinkIssues() {
   logMessage(`Applied ${applied.length} solutions, skipped ${skipped.length}`);
 
   countDependencies() {
-    const path = require('path');
-    const fs = require('fs');
-    const packageJsonPath = path.join(__dirname, '..', 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    // ... (existing code)
+  },
+
+  getLangAttribute() {
+    // ... (existing code)
+  }
+};
 
     const dependencies = packageJson.dependencies || {};
     const devDependencies = packageJson.devDependencies || {};
@@ -434,6 +437,11 @@ function isLinkAccessible(linkElement) {
   };
 }
 
+const config = {
+  // ... (existing config)
+};
+
+// Export functions for testing
 module.exports = {
   initializeApp,
   getConfig,

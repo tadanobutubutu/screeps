@@ -467,79 +467,25 @@ function validateTableStructure (tableData) {
 function initializeAccessibility() {
   const announcer = createAnnouncer()
   
-  ensureUniqueLandmarks(document.body)
-  
-  return {
-    announce: announcer.announce,
-    getLastMessage: announcer.getLast
+  const headers = tableElement.querySelectorAll('th')
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const row = th.closest('tr')
+      const cellIndex = Array.from(row.children).indexOf(th)
+      th.setAttribute('scope',
+
+/**
+ * Creates an in-page button element with the specified label and click handler.
+ * @param {string} label - The text for the button.
+ * @param {Function} [onClick] - The click event handler.
+ * @returns {HTMLButtonElement} The created button element.
+ */
+export function createInPageButton(label, onClick) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.className = 'in-page-button';
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
   }
+  return button;
 }
-
-// Call the functions to address the accessibility issues
-if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-  addLangAttribute()
-  fixTableStructure()
-  addMainLandmark()
-  fixLandmarkIssues()
-  ensureUniqueLandmarks()
-  addSvgAccessibleNames()
-  addAccessibleNamesToSVGs()
-  fixFakeLinkIssue()
-  googleSignIn()
-  fixButtonIdentifiers()
-}
-
-// Other code...
-
-module.exports = {
-  ...main,
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  initializeAccessibility,
-  renderIndex,
-  newFunction,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
-  renderAdditionalContent
-};

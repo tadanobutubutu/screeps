@@ -260,7 +260,7 @@ const a11yStore = {
     // This function should use the new functions for rendering the graph/index
     // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
     // Replace this with the actual implementation details
-    this.renderDependencyGraph(graphData);
+    renderDependencyGraph(graphData);
   },
 
   getSvgAccessibleName: function(svgElement) {
@@ -491,7 +491,7 @@ const a11yStore = {
       req.on('end', () => {
         try {
           const { sessionId } = JSON.parse(body);
-          const revoked = this.revokeSession(sessionId);
+          const revoked = revokeSession(sessionId);
 
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
@@ -608,7 +608,7 @@ const a11yStore = {
 
   // Implement focus trap for keyboard navigation
   focusTrap: function(container) {
-    this.handleFocusTrap(container);
+    handleFocusTrap(container);
   },
 
   logFixes: function(fixes) {

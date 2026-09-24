@@ -95,12 +95,13 @@ function ensureUniqueLandmarks() {
   const uniqueLandmarkMap = {};
 
   landmarks.forEach(landmark => {
+    uniqueLandmarkMap[landmark] = [];
     const elements = document.querySelectorAll(`[role="${landmark}"]`);
     if (!uniqueLandmarkMap[landmark]) {
       uniqueLandmarkMap[landmark] = [];
     }
     elements.forEach(el => {
-      const isUnique = !uniqueLandmarkMap[landmark] || Object.values(uniqueLandmarkMap).filter(e => e === el).length === 0;
+      const isUnique = !uniqueLandmarkMap[landmark].some(existingEl => existingEl === el);
       if (isUnique) {
         uniqueLandmarkMap[landmark] = uniqueLandmarkMap[landmark] || [];
         uniqueLandmarkMap[landmark].push(el);
@@ -337,18 +338,16 @@ function fixUniqueLandmarks(insightReport) {
 }
 
 function addLangAttribute() {
-  // Ensure the HTML lang attribute is set for proper language identification
-  if (!document.documentElement.hasAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
-  }
+  // This function already exists in the code above as part of addressInsightReportIssues
+  // Adding it as a separate function as per the issue requirement
+  document.documentElement.lang = 'en';
 }
 
 function someFunction() {
-  // Placeholder function to address reference in main()
-  return null;
+  // Adding a placeholder function that was referenced but not defined
+  console.log('Application initialized successfully');
 }
 
-// Function to encapsulate all new functionality, aligning with existing structure
 function implementNewFunction() {
   addressAccessibilityIssues();
   fixFakeLinks();

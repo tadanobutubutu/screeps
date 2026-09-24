@@ -69,7 +69,7 @@ function createUnrotateButton() {
 }
 
 // Replace fake links with proper buttons
-const fakeLink = document.querySelector && document.querySelector('a[href="#"]');
+const fakeLink = document.querySelector('a[href="#"]');
 if (fakeLink && fakeLink.tagName === 'A') {
   const parent = fakeLink.parentElement;
   const newButton = createUnrotateButton();
@@ -80,6 +80,29 @@ if (fakeLink && fakeLink.tagName === 'A') {
 if (typeof document !== 'undefined') {
   document.documentElement.lang = 'en-US';
 }
+
+/**
+ * Get the application configuration
+ * @returns {Object} The configuration object with apiUrl and timeout properties
+ */
+const isSecureContext = () => {
+  return window.isSecureContext;
+};
+
+/**
+ * Sets the language attribute on the HTML element.
+ *
+ * This ensures that screen readers and other assistive technologies
+ * can correctly interpret the language of the page.
+ *
+ * @param {string} lang - The language code to set (e. g., 'en', 'es', 'fr').
+ */
+const setLanguageAttribute = (lang = 'en') => {
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.lang = lang;
+  }
+};
 
 /**
  * Adds landmark roles to the main navigation and content sections.
@@ -131,255 +154,153 @@ function ensureThScope() {
  * This addresses the REACT_025 issue by checking for duplicate landmarks
  * and making them unique with appropriate aria-label or aria-labelledby attributes.
  */
-function setupSkipLinks() {
-  const skipLink = document.querySelector && document.querySelector('.skip-link') || document.querySelector && document.querySelector('a.skip-link');
-  skipLink && skipLink.addEventListener && skipLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    const target = document.getElementById && document.getElementById(skipLink.getAttribute('href').substring(1));
-    target && target.focus();
-    target && target.scrollIntoView({ behavior: 'smooth' });
-  });
-}
+const ensureUniqueLandmarkElements = () => {
+  // Navigation landmark uniqueness
+  const navElements = document.querySelectorAll('nav');
+  if (navElements.length > 1) {
+    navElements.forEach((nav, index) => {
+      if (index > 0) {
+        nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+      }
+    });
+  }
+
+  // Main content landmark uniqueness
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    mainElements.forEach((main, index) => {
+      if (index > 0) {
+        main.setAttribute('aria-label', `Main content ${index + 1}`);
+      }
+    });
+  }
+};
 
 /**
  * Ensure buttons have proper accessibility attributes
  */
-function setupButtonAccessibility() {
-  const buttons = document.querySelectorAll && document.querySelectorAll('button');
-  buttons && buttons.forEach && buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-      button.setAttribute('aria-label', 'Action button');
+const addSVGAccessibleName = (svgSelector, accessibleName) => {
+  const svgs = document.querySelectorAll(svgSelector);
+  svgs.forEach((svg) => {
+    // Check if the SVG already has a title element
+    let titleElement = svg.querySelector('title');
+    if (!titleElement) {
+      titleElement = document.createElement('title');
+      svg.insertBefore(titleElement, svg.firstChild);
     }
+    titleElement.textContent = accessibleName;
   });
-}
+};
 
 /**
- * Setup skip link functionality for keyboard navigation
+ * Fixes fake links (elements that look like links but are not semantic <a> tags).
+ *
+ * This addresses the REACT_036 issue by identifying elements that have
+ * click handlers but are not <a> tags and adding appropriate ARIA roles
+ * and attributes to make them accessible.
  */
-function setupSkipLinks() {
-  const skipLink = document.querySelector('.skip-link') || document.querySelector('a[href^="#"]');
-  if (skipLink) {
-    skipLink.addEventListener('click', function(e) {
-      e.preventDefault();
-      const targetId = skipLink.getAttribute('href') || '';
-      const target = document.querySelector(targetId) || '';
-      if (target) {
-        target.focus();
+const fixFakeLinks = () => {
+  const fakeLinks = document.querySelectorAll('[onclick]');
+  fakeLinks.forEach((element) => {
+    if (element.tagName.toLowerCase() !== 'a') {
+      // Add role="button" and appropriate ARIA attributes
+      element.setAttribute('role', 'button');
+      if (!element.getAttribute('tabindex')) {
+        element.setAttribute('tabindex', '0');
       }
+      if (!element.getAttribute('aria-label')) {
+        // Use the element's text content as the aria-label if not present
+        element.setAttribute('aria-label', element.textContent.trim() || 'Link');
+      }
+    }
+  });
+};
+
+function helloWorld() {
+  return 'Hello, World!';
+}
+
+// Function to initialize the dependency graph with accessibility support
+function initDependencyGraph(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.setAttribute('role', 'img');
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+  return container;
+}
+
+// Function to render the dependency graph
+function renderDependencyGraph(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    // Add the logic to render the dependency graph inside the container
+    // This is a placeholder for the actual rendering logic
+    container.innerHTML = 'Dependency Graph Data';
+  }
+}
+
+// Helper function to get element by ID
+function getElementById(id) {
+    return document.getElementById(id);
+}
+
+// Helper function to query elements
+function queryElements(selector) {
+    return document.querySelectorAll(selector);
+}
+
+// Function to check landmark elements in the DOM
+function checkLandmarkElements() {
+    const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
+    const results = {};
+
+    landmarkSelectors.forEach((landmark) => {
+        const elements = document.querySelectorAll(landmark);
+        results[landmark] = {
+            count: elements.length,
+            exists: elements.length > 0
+        };
     });
-  }
+
+    return results;
 }
 
-/**
- * Ensure all <th> elements have scope attribute
- * REACT_027: Add scope="col" or scope="row" to <th> elements
- */
-function setupButtonAccessibility() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach((button) => {
-    if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
-      button.setAttribute('aria-label', 'Action button');
+// Function to validate landmark structure
+function validateLandmarkStructure() {
+    const results = checkLandmarkElements();
+    const validation = {
+        isValid: true,
+        errors: [],
+        warnings: []
+    };
+
+    if (!results.main.exists) {
+        validation.isValid = false;
+        validation.errors.push('Missing <main> landmark element');
     }
-  });
+
+    return validation;
 }
 
-/**
- * Ensure unique landmark roles throughout the document
- */
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"], [role="contentinfo"]');
-  const landmarkIds = new Set();
+// Application data placeholder
+const appData = {
+    title: 'Application',
+    version: '1.0.0'
+};
 
-  landmarks.forEach((landmark) => {
-    const id = landmark.id;
-    if (landmarkIds.has(id)) {
-      console.error('Duplicate landmar ID encountered:', id);
-    } else {
-      landmarkIds.add(id);
-    }
-  });
-}
+// Tower Defense Implementation - Addressed accessibility issues from insight report
+// TODO: Implement tower defense
 
-/**
- * Add accessible names to SVG elements by ID
- */
-function addSvgAccessibleNames() {
-  const svg1 = document.getElementById('svg1');
-  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
-
-  const svg2 = document.getElementById('svg2');
-  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
-}
-
-/**
- * Fix fake link elements that should be buttons
- */
-function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach((link) => {
-    handleFakeLinks(link);
-  });
-}
-
-/**
- * Create an in-page button element
- * @param {string} label - Button text
- * @param {Function} onClick - Click handler
- * @returns {HTMLButtonElement} The created button
- */
-function createInPageButton(label, onClick) {
-  const button = document.createElement('button');
-  button.textContent = label;
-  button.addEventListener('click', onClick);
-  return button;
-}
-
-/**
- * Perform a task with the given parameters
- * @param {string} task - The task to perform
- */
-function performTask(task) {
-  console.log(`Performing task: ${task}`);
-  // Task implementation details would go here
-}
-
-/**
- * Handle an event with the given parameters
- * @param {string} event - The event to handle
- */
-function handleEvent(event) {
-  console.log(`Handling event: ${event}`);
-  // Event handling logic would go here
-}
-
-function addLandmarkRoles() {
-  const header = document.querySelector && document.querySelector('header');
-  if (header) header.setAttribute('role', 'banner');
-
-  const mainContent = document.querySelector && document.querySelector('main');
-  if (mainContent) mainContent.setAttribute('role', 'main');
-
-  const footer = document.querySelector && document.querySelector('footer');
-  if (footer) footer.setAttribute('role', 'contentinfo');
-}
-
-// Function to add accessible names to 2 SVGs
-function addSvgAccessibleNames() {
-  const svg1 = document.querySelector && document.querySelector('.svg-icon-1');
-  svg1 && svg1.setAttribute && svg1.setAttribute('aria-label', 'SVG image 1');
-
-  const svg2 = document.querySelector && document.querySelector('.svg-icon-2');
-  svg2 && svg2.setAttribute && svg2.setAttribute('aria-label', 'SVG image 2');
-}
-
-// Function to ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"], [role="contentinfo"]');
-  const landmarkIds = new Set();
-
-  // Find all elements with landmark roles
-  const landmarks = document.querySelectorAll && document.querySelectorAll(allLandmarkRoles.map(role => `[role="${role}"]`).join(','));
-
-  // Group landmarks by role
-  const landmarksByRole = {};
-  landmarks && landmarks.forEach && landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (!landmarksByRole[role]) {
-      landmarksByRole[role] = [];
-    }
-    landmarksByRole[role].push(landmark);
-  });
-
-  // Check unique landmark roles - should only have one per page
-  uniqueLandmarkRoles.forEach(role => {
-    const elements = landmarksByRole[role] || [];
-    if (elements.length > 1) {
-      console.warn(`Multiple ${role} landmarks found. Only one is allowed per page.`);
-      // Keep the first one, remove role from others
-      elements.slice(1).forEach(el => {
-        el.removeAttribute('role');
-        console.warn(`Removed duplicate ${role} landmark role from element:`, el);
-      });
-    }
-  });
-
-  // For roles that allow multiples, ensure each has a unique accessible name
-  multipleAllowedRoles.forEach(role => {
-    const elements = landmarksByRole[role] || [];
-    if (elements.length > 1) {
-      const usedNames = new Set();
-      elements.forEach((el, index) => {
-        // Check for existing accessible name
-        const ariaLabel = el.getAttribute('aria-label');
-        const ariaLabelledBy = el.getAttribute('aria-labelledby');
-        let accessibleName = ariaLabel || (ariaLabelledBy ? document.getElementById(ariaLabelledBy).textContent : null);
-
-        if (!accessibleName) {
-          // Generate a unique name
-          accessibleName = `${role} ${index + 1}`;
-          el.setAttribute('aria-label', accessibleName);
-        }
-
-        // Ensure uniqueness
-        let uniqueName = accessibleName;
-        let counter = 1;
-        while (usedNames.has(uniqueName)) {
-          uniqueName = `${accessibleName} ${counter}`;
-          counter++;
-        }
-        usedNames.add(uniqueName);
-
-        if (uniqueName !== accessibleName) {
-          el.setAttribute('aria-label', uniqueName);
-        }
-      });
-    } else if (elements.length === 1) {
-      // Single landmark of this type - ensure it has an accessible name if needed
-      const el = elements[0];
-      const ariaLabel = el.getAttribute('aria-label');
-      const ariaLabelledBy = el.getAttribute('aria-labelledby');
-      if (!ariaLabel && !ariaLabelledBy) {
-        el.setAttribute('aria-label', role);
-      }
-    }
-  });
-}
-
-// Function to fix 1 fake link issue
-function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[href="#"]:not([aria-hidden])');
-  fakeLinks.forEach((link) => {
-    link.removeAttribute('href');
-  });
-}
-
-// Handle individual fake link conversion
-function handleFakeLinks(link) {
-  if (link.tagName === 'A') {
-    const parent = link.parentElement;
-    const newButton = document.createElement('button');
-    newButton.textContent = link.textContent || 'Click';
-    newButton.setAttribute('role', 'button');
-    if (link.id) newButton.id = link.id;
-    if (link.className) newButton.className = link.className;
-    parent.replaceChild(newButton, link);
-  }
-}
-
-// Initialize accessibility improvements
-function initializeAccessibility() {
-  // Replace fake links with proper buttons
-  const fakeLink = document.querySelector && document.querySelector('a[href="#"]');
-  if (fakeLink && fakeLink.tagName === 'A') {
-    const parent = fakeLink.parentElement;
-    const newButton = createUnrotateButton();
-    parent && parent.replaceChild(newButton, fakeLink);
-  }
-
-  // Ensure table headers have proper scope
-  ensureThScope();
-
-  // Add accessible names to SVGs
-  const svgs = document.querySelectorAll && document.querySelectorAll('svg');
-  svgs && svgs.forEach && svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') ||
+// Tower Defense Game State
+const towerDefenseState = {
+  isRunning: false,
+  towers: [],
+  enemies: [],
+  projectiles: [],
+  lives: 20,
+  money: 100,
+  wave: 0,
+  score: 0,
+  gameSpeed: 1,
+  canvas

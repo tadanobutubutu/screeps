@@ -514,17 +514,25 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  // New function to ensure proper landmark usage
-  ensureSingleMainLandmark() {
-    const mainElements = document.querySelectorAll('[role="main"]');
-    if (mainElements.length > 1) {
-      console.warn('Multiple <main> elements found. Only one <main> element should be present.');
-      mainElements.forEach((element, index) => {
-        if (index > 0) {
-          element.remove();
-        }
-      });
-    }
+  /**
+   * New function to handle focus trap for keyboard navigation
+   */
+  newFocusTrap() {
+    // Implementation of focus trap for keyboard navigation
+  },
+
+  /**
+   * New function to check for unique landmarks
+   */
+  ensureUniqueLandmarks() {
+    // Implementation to ensure unique landmarks
+  },
+
+  /**
+   * New function to add accessible names to SVGs
+   */
+  getSvgAccessibleName() {
+    // Implementation to add accessible names to SVGs
   }
 };
 

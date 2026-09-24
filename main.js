@@ -218,4 +218,257 @@ export function validateLandmark(element) {
   }
 
   // Check for accessible name
-  const
+  const hasLabel = element.getAttribute('aria-label') || 
+                   element.getAttribute('aria-labelledby') ||
+                   element.querySelector('h1, h2, h3, h4, h5, h6');
+  
+  if (!hasLabel) {
+    errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+function validateLandmarkStructure() {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+  
+  const errors = [];
+  
+  // Check for multiple main landmarks
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
+  }
+  
+  // Check for proper nesting of landmarks
+  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
+  
+  landmarks.forEach((landmark) => {
+    const parent = landmark.parentElement;
+    while (parent) {
+      const parentTag = parent.tagName.toLowerCase();
+      
+      // Check for invalid nesting
+      if (parentTag === 'header' && parentTag === 'header') {
+        errors.push('Nested header elements found');
+      }
+      if (parentTag === 'footer' && parentTag === 'footer') {
+        errors.push('Nested footer elements found');
+      }
+      
+      parent = parent.parentElement;
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_041: Add accessible names to 2 SVGs
+function getSvgAccessibleName(svgElement) {
+  if (typeof document === 'undefined' || !svgElement) {
+    return null;
+  }
+  
+  // Check for aria-labelledby referencing another element
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelElement = document.querySelector(labelledBy);
+    if (labelElement) return labelElement.textContent;
+  }
+  
+  // Check for title element inside SVG
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+  
+  // Check for desc element inside SVG
+  const desc = svgElement.querySelector('desc');
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+  
+  return null;
+}
+
+function validateSvgAccessibility() {
+  if (typeof document === 'undefined') {
+    return { valid: true, errors: [] };
+  }
+  
+  const errors = [];
+  const svgs = document.querySelectorAll('svg');
+  
+  svgs.forEach((svg, index) => {
+    const name = getSvgAccessibleName(svg);
+    if (!name) {
+      errors.push(`SVG ${index + 1} is missing an accessible name (aria-label, aria-labelledby, title, or desc)`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_025: Ensure unique landmarks (2 issues)
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+  
+  const errors = [];
+  const landmarkCounts = {};
+  
+  // Collect all landmarks
+  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
+  landmarks.forEach((landmark) => {
+    const identifier = landmark.getAttribute('id') || landmark.getAttribute('data-id') || 'unknown';
+    
+    // Main landmarks should be unique
+    if (identifier === 'main' || identifier === 'MAIN') {
+      if (landmarkCounts['main'] > 0) {
+        errors.push(`Duplicate main landmark found. Only one main landmark should exist.`);
+      } else {
+        landmarkCounts['main'] = (landmarkCounts['main'] || 0) + 1;
+      }
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Gets the accessible name of an element, addressing REACT_036 fake link issues.
+ * @param {HTMLElement} element - The element to extract the accessible name from
+ * @returns {string|null} The accessible name or null
+ */
+function personName(element) {
+  if (typeof document === 'undefined' || !element) {
+    return null;
+  }
+  
+  // Check for aria-label
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check for aria-labelled
+  const labelledBy = element.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelElement = document.querySelector(labelledBy);
+    if (labelElement) return labelElement.textContent;
+  }
+  
+  // Check for heading tags
+  const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  if (headings.length > 0) {
+    return headings[0].textContent.trim();
+  }
+  
+  return null;
+}
+
+/**
+ * Creates an accessible in-page navigation button to address fake link issues (REACT_036).
+ * @param {string} text - The visible text for the button
+ * @param {string} targetId - The ID of the element to scroll to
+ * @returns {JSX.Element} A React button element with accessibility features
+ */
+function createInPageButton(text, targetId) {
+  const handleClick = (e) => {
+    e.preventDefault();
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Set tabindex to allow focusing if target is not focusable
+      target.setAttribute('tabindex', '-1');
+      target.focus();
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-label={`${text} (in-page navigation)`}
+    >
+      {text}
+    </button>
+  );
+}
+
+/**
+ * Validates that all images within a given container have appropriate alt text or are marked as decorative.
+ * @param {HTMLElement} containerElement - The container element to validate images within
+ * @returns {{valid: boolean, errors: string[]}} Validation result
+ */
+function validateImageAltAttributes(containerElement) {
+  if (typeof document === 'undefined' || !containerElement) {
+    return { valid: false, errors: ['Container element not found'] };
+  }
+
+  const errors = [];
+  const images = containerElement.querySelectorAll('img');
+
+  images.forEach((img, index) => {
+    const alt = img.getAttribute('alt');
+    const role = img.getAttribute('role');
+
+    // If role is 'presentation' or alt is empty, it's considered decorative
+    if (role === 'presentation' || alt === '') {
+      return; // decorative image, acceptable
+    }
+
+    if (!alt) {
+      errors.push(`Image ${index + 1} is missing alt text`);
+    } else if (alt.trim() === '') {
+      // Empty alt without presentation role is not acceptable
+      errors.push(`Image ${index + 1} has empty alt text without presentation role`);
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Runs a comprehensive set of accessibility validations on the provided container (defaults to document).
+ * This function consolidates checks for tables, landmarks, SVGs, unique landmarks, and image alt attributes.
+ * @param {Document|HTMLElement} [container=document] - The DOM container to validate
+ * @returns {{valid: boolean, errors: string[], details: object[]}} Aggregated validation results
+ */
+function runAccessibilityValidations(container = document) {
+  const results = [];
+
+  // Table structure
+  const tables = container.querySelectorAll('table');
+  tables.forEach((table) => {
+    results.push(validateTableAccessibility(table));
+    results.push(validateTableStructure(table));
+  });
+
+  // Landmark
+  const landmarks = container.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
+  landmarks.forEach((landmark) => {
+    results.push(validateLandmark(landmark));
+  });
+  results.push(validateLandmarkStructure());
+
+  // SVG
+  results.push(validateSvgAccessibility());
+
+  // Unique landmarks
+  results.push(ensureUniqueLandmarks());
+
+  // Images
+  results.push(validateImageAltAttributes(container));
+
+  // Combine all errors
+  const allErrors = results.flatMap(r => r.errors || []);
+  const allValid = allErrors.length === 0;
+
+  return {
+    valid: allValid,
+    errors: allErrors,
+    details: results
+  };
+}

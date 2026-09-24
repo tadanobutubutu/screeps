@@ -261,10 +261,9 @@ function initAccessibility () {
   if (typeof window !== 'undefined') {
     // Ensure screen reader support is available
     document.body.setAttribute('role', 'application');
-    // Add lang attribute to HTML element
-    const htmlElement = document.querySelector('html');
-    if (htmlElement) {
-      accessibilityUtils.addLangAttribute(htmlElement);
+    // Add language attribute to HTML element
+    if (document.documentElement) {
+      document.documentElement.setAttribute('lang', 'en');
     }
   }
   return accessibilityUtils

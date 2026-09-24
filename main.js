@@ -181,16 +181,18 @@ const a11yStore = {
     });
   },
 
+  // ... remaining a11yStore methods ...
+
   /**
-   * Initialize all accessibility improvements
+   * Wraps primary content in a 'main' element with an appropriate ARIA role
+   * @param {string} content - The primary content to wrap
+   * @returns {string} The wrapped content
    */
-  init() {
-    this.checkLandmarkElements();
-    this.ensureSvgAccessibility();
-    this.fixFakeLinks();
-    this.ensureInteractiveRoles();
-    this.addFormControlLabels();
-    this.ensureImageAccessibility();
+  wrapPrimaryContentInMain(content) {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    mainElement.innerHTML = content;
+    return mainElement.outerHTML;
   }
 };
 

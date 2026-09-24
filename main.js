@@ -16,14 +16,35 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
+/**
+ * Count dependencies from a dependency object or array
+ * @param {Object|Array} dependencies - The dependencies to count
+ * @returns {number} The number of dependencies
+ */
+function countDependencies(dependencies) {
+  if (!dependencies) {
+    return 0;
+  }
+  
+  if (Array.isArray(dependencies)) {
+    return dependencies.length;
+  }
+  
+  if (typeof dependencies === 'object') {
+    return Object.keys(dependencies).length;
+  }
+  
+  return 0;
+}
+
 // Addressing accessibility issues from insight report
 // REACT_015: Add lang attribute
 // Ensure lang attribute is set on the <html> element for accessibility
 // This addresses REACT_015: Add lang attribute
 if (typeof document !== 'undefined') {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.lang) {
-    htmlElement.lang = 'en';
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
   }
 }
 
@@ -46,10 +67,16 @@ function addressAccessibilityIssues() {
     // - Same fix
   }
 
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'presentation');
-  });
+function newFunction() {
+  // Your new function code here
+  return 'newFunction executed';
+}
+
+// Initialize accessibility features
+if (typeof document !== 'undefined') {
+  // document.addEventListener('DOMContentLoaded', () => {
+    // a11yStore.init(); // Ensure a11yStore is imported
+  // });
 }
 
 export function newNecessaryFunction() {
@@ -57,17 +84,19 @@ export function newNecessaryFunction() {
   return "New function implemented";
 }
 
-const requiredModule = require('./required-module.js');
-
-// Function to count dependencies
-function countDependencies() {
-  // Your code to count dependencies and return the count
-  // For the sake of example, let's return the number of functions in the module
-  return Object.keys(module.exports).length;
-}
+// Exporting the new added functions
+module.exports = {
+  // Keep the existing exports here if any
+  renderDependencyGraph, // Export renderDependencyGraph
+  renderIndexView, // Export renderIndexView
+  newFunction,
+  preserveExistingCode,
+  addressAccessibilityIssues,
+  countDependencies
+};
 
 // Function to render graph/index using new functions
-const renderGraph = require('./newGraphRenderingFunctions');
+// import { renderGraph } from ... // Assuming you have a separate file for the new functions
 
 function prepareDataForGraph() {
   // JavaScript code to prepare data for the graph
@@ -156,161 +185,6 @@ export function validateFocusableElement(element) {
   return isFocusable && ensureAccessibleLabel(element);
 }
 
-/**
- * Validate landmark regions in the document for accessibility
- * @returns {Object} Validation results containing valid landmarks, invalid landmarks, warnings, and suggestions
- */
-export function validateLandmark() {
-  const results = {
-    valid: [],
-    invalid: [],
-    warnings: [],
-    suggestions: []
-  };
-
-  // Common landmark elements and their expected roles
-  const landmarkSelectors = [
-    'header:not([role])',
-    'nav',
-    'main',
-    'aside',
-    'footer',
-    '[role="banner"]',
-    '[role="navigation"]',
-    '[role="main"]',
-    '[role="complementary"]',
-    '[role="contentinfo"]',
-    '[role="region"]'
-  ];
-
-  // Validate landmark function for internal use
-  const validateLandmarkElement = (element) => {
-    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-    const role = element.getAttribute('role');
-    const ariaLabel = element.getAttribute('aria-label');
-    const ariaLabelledby = element.getAttribute('aria-labelledby');
-    const elementId = element.id;
-
-    return {
-      tag: tagName,
-      role: role,
-      id: elementId || null,
-      hasLabel: !!(ariaLabel || ariaLabelledby || element.textContent.trim())
-    };
-  };
-
-  // Check for valid accessible name
-  const hasAccessibleName = (element) => {
-    const ariaLabel = element.getAttribute('aria-label');
-    const ariaLabelledby = element.getAttribute('aria-labelledby');
-    const hasText = element.textContent && element.textContent.trim().length > 0;
-    return !!(ariaLabel || ariaLabelledby || hasText);
-  };
-
-  const landmarkElements = document.querySelectorAll(landmarkSelectors.join(', '));
-
-  // Track counts for validation
-  const landmarkCounts = {
-    main: 0,
-    nav: 0,
-    header: 0,
-    footer: 0,
-    aside: 0
-  };
-
-  landmarkElements.forEach(element => {
-    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-    const role = element.getAttribute('role');
-    const landmarkInfo = validateLandmarkElement(element);
-    let isValid = true;
-    let issues = [];
-
-    // Track landmark counts
-    if (tagName === 'main' || role === 'main') {
-      landmarkCounts.main++;
-    } else if (tagName === 'nav') {
-      landmarkCounts.nav++;
-    } else if (tagName === 'header') {
-      landmarkCounts.header++;
-    } else if (tagName === 'footer') {
-      landmarkCounts.footer++;
-    } else if (tagName === 'aside') {
-      landmarkCounts.aside++;
-    }
-
-    // Check for proper labeling based on landmark type
-    if (!hasAccessibleName(element)) {
-      isValid = false;
-      issues.push('Landmark missing accessible name (aria-label, aria-labelledby, or text content)');
-    }
-
-    // Landmarks should not have empty labels
-    const ariaLabel = element.getAttribute('aria-label');
-    if (ariaLabel !== null && ariaLabel.trim() === '') {
-      isValid = false;
-      issues.push('Landmark has empty aria-label attribute');
-    }
-
-    // Check for proper role usage
-    if (role) {
-      const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search', 'form'];
-      if (!validRoles.includes(role)) {
-        issues.push(`Non-standard role "${role}" used`);
-      }
-    }
-
-    // Warn about missing identifiers for larger applications
-    if (!landmarkInfo.id && !ariaLabel && !element.getAttribute('aria-labelledby')) {
-      results.warnings.push({
-        element: element,
-        message: `Consider adding an id, aria-label, or aria-labelledby to <${tagName}> for better landmark identification`
-      });
-    }
-
-    if (isValid) {
-      results.valid.push(landmarkInfo);
-    } else {
-      landmarkInfo.issues = issues;
-      results.invalid.push(landmarkInfo);
-    }
-  });
-
-  // Check for multiple main landmarks (accessibility issue)
-  if (landmarkCounts.main > 1) {
-    results.suggestions.push({
-      code: 'REACT_041',
-      message: 'Multiple <main> landmarks detected. Consider using <section role="region"> for additional content regions.',
-      severity: 'error'
-    });
-  }
-
-  // Suggest using semantic elements over generic divs with roles
-  const divsWithLandmarkRoles = document.querySelectorAll('div[role="main"], div[role="navigation"], div[role="banner"], div[role="contentinfo"]');
-  if (divsWithLandmarkRoles.length > 0) {
-    results.suggestions.push({
-      code: 'REACT_025',
-      message: 'Consider using semantic landmark elements (<nav>, <main>, <header>, <footer>) instead of divs with landmark roles.',
-      severity: 'warning'
-    });
-  }
-
-  // Check for proper document structure
-  if (landmarkCounts.nav === 0) {
-    results.suggestions.push({
-      code: 'REACT_017',
-      message: 'No <nav> landmark found. Consider adding navigation landmarks for screen readers.',
-      severity: 'warning'
-    });
-  }
-
-  return results;
-}
-
-// New necessary function for module compatibility
-export function newNecessaryFunction() {
-  return 'newNecessaryFunction executed';
-}
-
 // Default export for backwards compatibility
 export default {
   calculateSum,
@@ -324,7 +198,7 @@ export default {
   preserveExistingCode,
   initializeApp,
   generateAccessibilityReport,
-  validateLandmark,
+  countDependencies,
   start() {
     console.log('Application started');
     return Promise.resolve();
@@ -385,23 +259,66 @@ export function addressAccessibilityIssuesEnhanced() {
     }
   };
 
-  const landmarks = document.querySelectorAll('[role="landmark"]');
-  landmarks.forEach((landmark, index) => {
-    landmark.setAttribute('aria-label', `${translations['en'].landmark}-${index + 1}`);
-    // Additional landmark processing...
-  });
+  if (typeof document !== 'undefined') {
+    const landmarks = document.querySelectorAll('[role="landmark"], header, nav, main, aside, footer');
+    landmarks.forEach((landmark, index) => {
+      const currentLabel = landmark.getAttribute('aria-label') || '';
+      landmark.setAttribute('aria-label', currentLabel + ` ${index + 1}`);
+      // Additional landmark processing...
+    });
 
-  const svg1 = document.querySelector('.svg1');
-  const svg2 = document.querySelector('.svg2');
-  if (svg1) svg1.setAttribute('aria-labelledby', 'svg1-title');
-  if (svg2) svg2.setAttribute('aria-labelledby', 'svg2-title');
+    const svg1 = document.getElementById('svg1');
+    const svg2 = document.getElementById('svg2');
+    if (svg1) svg1.setAttribute('aria-labelledby', 'svg1-title');
+    if (svg2) svg2.setAttribute('aria-labelledby', 'svg2-title');
 
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
-    // The static fix should be applied in the source files
-    // - Replace one <main> with <section role="region" ...
-    // - Same fix
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length > 1) {
+      console.warn(`Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.`);
+      // The static fix should be applied in the source files
+      // - Replace one <main> with <section role="region" ...
+      // - Same fix
+    }
+
+    const fakeLinks = document.querySelectorAll('span[onclick]');
+    fakeLinks.forEach(link => {
+      link.setAttribute('role', 'presentation');
+    });
+
+    // Implement this function for checking link and button accessibility
+    function checkLinksAndButtons() {
+      const links = document.querySelectorAll('a');
+      const buttons = document.querySelectorAll('button');
+
+      links.forEach(link => {
+        // Check if link needs explicit role="link"
+        if (link.tagName !== 'A' && link.getAttribute('role') !== 'link') {
+          link.setAttribute('role', 'link');
+        }
+        // Check for link without href attribute
+        if (!link.getAttribute('href')) {
+          console.error('Accessibility Error: Link without href attribute', link);
+        }
+      });
+
+      buttons.forEach(button => {
+        // Check if button needs explicit role="button"
+        if (button.getAttribute('role') !== 'button') {
+          button.setAttribute('role', 'button');
+        }
+        // Check for accessible name for buttons
+        const hasText = button.textContent.trim().length > 0;
+        const hasAriaLabel = button.getAttribute('aria-label');
+        const hasAriaLabelledby = button.getAttribute('aria-labelledby');
+
+        if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
+          console.error('Accessibility Error: Button without accessible name', button);
+        }
+      });
+    }
+
+    // Call the function to check accessibility
+    checkLinksAndButtons();
   }
 
   const fakeLinks = document.querySelectorAll('.fake-link');
@@ -518,3 +435,14 @@ module.exports.loop = function() {
         }
     }
 }
+
+// Export all utility functions for both environments
+module.exports.calculateSum = calculateSum;
+module.exports.calculateDifference = calculateDifference;
+module.exports.calculateProduct = calculateProduct;
+module.exports.isNumber = isNumber;
+module.exports.clamp = clamp;
+module.exports.divide = divide;
+module.exports.checkAccessibilityAttribute = checkAccessibilityAttribute;
+module.exports.ensureAccessibleLabel = ensureAccessibleLabel;
+module.exports.validateFocusableElement = validate

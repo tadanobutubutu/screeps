@@ -49,150 +49,28 @@ const a11yStore = {
   liveRegion: null,
   // ... existing methods ...
 
-  /**
-   * Set up a focus trap within a container element
-   * @param {HTMLElement} container - The container element to trap focus within
-   * @returns {Object} An object containing the container element and a destroy function
-   */
-  prefersReducedMotion() {
-    const prefersReducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    return prefersReducedQuery.matches;
-  },
+  // New function to validate the accessibility report for issues
+  validateAccessibilityReport() {
+    const errors = [];
 
-  prefersHighContrast() {
-    const prefersHighContrastQuery = window.matchMedia('(prefers-contrast: more)');
-    return prefersHighContrastQuery.matches;
-  },
-
-  liveRegion: null,
-
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) {
-      this.liveRegion = document.createElement('div');
-      this.liveRegion.setAttribute('role', 'status');
-      this.liveRegion.setAttribute('aria-live', priority);
-      this.liveRegion.setAttribute('aria-atomic', 'true');
-      this.liveRegion.style.position = 'absolute';
-      this.liveRegion.style.width = '1px';
-      this.liveRegion.style.height = '1px';
-      this.liveRegion.style.padding = '0';
-      this.liveRegion.style.margin = '-1px';
-      this.liveRegion.style.overflow = 'hidden';
-      this.liveRegion.style.clip = 'rect(0, 0, 0, 0)';
-      this.liveRegion.style.whiteSpace = 'nowrap';
-      this.liveRegion.style.border = '0';
-      document.body.appendChild(this.liveRegion);
+    if (!a11yStore.prefersReducedMotion()) {
+      errors.push('User does not prefer reduced motion');
     }
-    this.liveRegion.textContent = '';
-    // Use setTimeout to ensure the region is announced
-    setTimeout(() => {
-      this.liveRegion.textContent = message;
-    }, 100);
+
+    if (a11yStore.prefersHighContrast()) {
+      errors.push('User prefers high contrast');
+    }
+
+    // Add more checks as needed
+
+    if (errors.length > 0) {
+      console.warn('Accessibility issues found:', errors.join('\n'));
+    } else {
+      console.log('No accessibility issues found.');
+    }
   },
 
-  announce(message, priority) {
-    this.liveRegion.setAttribute('aria-live', priority);
-    this.liveRegion.textContent = '';
-    setTimeout(() => {
-      this.liveRegion.textContent = message;
-    }, 100);
-  },
-
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(element);
-      landmarks.forEach((landmark, index) => {
-        if (landmark.id === '') {
-          landmark.id = `${element}-${index}`;
-        }
-
-        if (landmarks.length > 1) {
-          if (!landmark.getAttribute('aria-label')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
-          }
-        }
-      });
-    });
-  },
-
-  ensureSvgAccessibility() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      let titleElement = svg.querySelector('title');
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image';
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
-    };
-
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
-      }
-    };
-
-      svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', titleElement.id);
-
-      if (!svg.getAttribute('aria-hidden')) {
-        svg.setAttribute('aria-hidden', 'true');
-      }
-    });
-  },
-
-  fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href="#"], [href=""], a[onclick]');
-    fakeLinks.forEach((link) => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('aria-disabled', 'true');
-    });
-  },
-
-  /**
-   * Ensure all interactive elements have proper ARIA roles
-   */
-  ensureInteractiveRoles() {
-    const interactiveElements = document.querySelectorAll('div[onclick], span[onclick], a[onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach((element) => {
-      if (!element.getAttribute('role')) {
-        element.setAttribute('role', 'button');
-      }
-    });
-  },
-
-  /**
-   * Add ARIA labels to form controls if missing
-   */
-  addFormControlLabels() {
-    const formControls = document.querySelectorAll('input, select, textarea, button');
-    formControls.forEach((control, index) => {
-      if (!control.id) {
-        control.id = `form-control-${index}`;
-      }
-      let label = document.querySelector(`label[for="${control.id}"]`);
-      if (!label) {
-        label = document.createElement('label');
-        label.setAttribute('for', control.id);
-        label.textContent = control.placeholder || 'Form control';
-        control.parentNode.insertBefore(label, control);
-      }
-    });
-  },
-
-  /**
-   * Ensure all images have alt text or ARIA attributes
-   */
-  ensureImageAltText() {
-    const images = document.querySelectorAll('img');
-    images.forEach((img) => {
-      if (!img.alt && !img.getAttribute('aria-label') && !img.getAttribute('role')) {
-        img.setAttribute('alt', '');
-        img.setAttribute('role', 'presentation');
-      }
-    });
-  },
+  // Remaining a11yStore methods ...
 };
 
 // New functions
@@ -291,6 +169,11 @@ function createWebResourceButton({ url, label, icon, id, attributes } = {}) {
   });
 
   return button;
+}
+
+// Function to call the accessibility report validation
+function validateAccessibility() {
+  a11yStore.validateAccessibilityReport();
 }
 
 // ... rest of the code ...

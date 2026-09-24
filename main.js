@@ -277,6 +277,111 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   return container;
 }
 
+/**
+ * Adds lang attribute to the HTML element if not present.
+ * Ensures proper language declaration for screen readers.
+ */
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+/**
+ * Fixes table structure issues for better accessibility.
+ * Adds missing captions, ensures proper headers, and fixes cell structure.
+ */
+function fixTableStructureIssues() {
+  document.querySelectorAll('table').forEach((table) => {
+    // Add caption if missing
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table data';
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    // Ensure headers have scope attributes
+    table.querySelectorAll('th').forEach((th) => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+
+    // Fix inconsistent cell counts
+    const rows = table.querySelectorAll('tr');
+    if (rows.length > 0) {
+      const firstRowCellCount = rows[0].children.length;
+      rows.forEach((row) => {
+        while (row.children.length < firstRowCellCount) {
+          const td = document.createElement('td');
+          td.textContent = '—';
+          row.appendChild(td);
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Adds main landmark if not present.
+ * Ensures proper document structure for screen readers.
+ */
+function addMainLandmark() {
+  if (!document.querySelector('main')) {
+    const main = document.createElement('main');
+    const content = document.querySelector('body > *:not(script):not(style):not(link)');
+    if (content) {
+      main.appendChild(content);
+      document.body.insertBefore(main, document.body.firstChild);
+    }
+  }
+}
+
+/**
+ * Adds accessible names to SVG elements.
+ * Ensures SVGs have proper labels for screen readers.
+ */
+function addSvgAccessibleName() {
+  document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])').forEach((svg) => {
+    const title = svg.querySelector('title');
+    if (title) {
+      svg.setAttribute('aria-labelledby', ensureElementHasId(title));
+    } else {
+      svg.setAttribute('aria-label', 'Graphic');
+    }
+  });
+}
+
+/**
+ * Ensures unique landmarks by removing duplicate main elements.
+ * Maintains only one main landmark for proper document structure.
+ */
+function ensureUniqueLandmarks() {
+  const mains = document.querySelectorAll('main');
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      const div = document.createElement('div');
+      while (mains[i].firstChild) {
+        div.appendChild(mains[i].firstChild);
+      }
+      mains[i].replaceWith(div);
+    }
+  }
+}
+
+/**
+ * Fixes fake link issues by ensuring proper link behavior.
+ * Removes elements that appear like links but don't function as links.
+ */
+function fixFakeLinkIssue() {
+  document.querySelectorAll('[role="link"], [href]').forEach((element) => {
+    if (!element.hasAttribute('href') && element.getAttribute('role') === 'link') {
+      element.removeAttribute('role');
+    }
+  });
+}
+
 // TODO: Validate the table structure for accessibility issues
 /**
  * Validates the structure of tables on the page for accessibility best practices.
@@ -662,20 +767,16 @@ module.exports = {
   initAccessibility: accessibilityUtils.initAccessibility,
   exportData: accessibilityUtils.exportData,
   addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
+  announceToScreenReader: accessibilityUtils.announceToScreenReader,
   ensureElementHasId,
   addAriaLabel,
   getSvgAccessibleName,
   renderDependencyGraphs,
   validateTableStructure,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleName,
   ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks
+  fixFakeLinkIssue,
 };

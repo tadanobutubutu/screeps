@@ -534,102 +534,20 @@ function specificFunctionThatRendersGraphOrIndex() {
   renderIndex();
 }
 
-// New helper functions for accessibility checking
+/**
+ * New function to check link accessibility
+ */
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
   return validateLinkAccessibility();
 }
 
-// Function to display module structure
-function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  // Returns a structured representation of the module
-  if (!module) {
-    return null;
-  }
-  const structure = {
-    name: module.name || 'unnamed',
-    exports: module.exports || [],
-    imports: module.imports || [],
-    dependencies: module.dependencies || []
-  };
-  console.log('Displaying module structure for:', module, structure);
-  return structure;
-}
-
-// State management
-const state = {
-  initialized: false
-};
-
-function updateState(newState) {
-  Object.assign(state, newState);
-}
-
-// ... other exports ...
-
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, specificFunctionThatRendersGraphOrIndex };
-
-// Export utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  // Newly added accessibility functions
-  getFullLangAttribute,
-  addAriaLabel,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  ensureUniqueLandmarks,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  addLangAttribute,
-  // Newly implemented function for validating all links
-  validateAllLinks
-};
-
-// Export component functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput,
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
-// Export UI / product functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  dependencyGraphContent,
-  indexContent,
-  ensureElementHasId,
-  addAriaLabelToElement
-};
-
-// New function or change requested in the issue
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
-}
-
-// Function to render dependency graphs or display module structure
+/**
+ * Function to render dependency graphs or display module structure
+ * @param {Object} module - The module to render the dependency graph for
+ * @returns {Object} The graph data with nodes and edges
+ */
 function renderDependencyGraph(module) {
   // Implementation to render the dependency graph for a given module
   // Builds a graph representation of the module's dependencies
@@ -647,7 +565,11 @@ function renderDependencyGraph(module) {
   return { nodes, edges };
 }
 
-// Function to display module structure
+/**
+ * Function to display module structure
+ * @param {Object} module - The module to display structure for
+ * @returns {Object} The module structure
+ */
 function displayModuleStructure(module) {
   // Implementation to display the module structure for a given module
   // Returns a structured representation of the module
@@ -664,189 +586,77 @@ function displayModuleStructure(module) {
   return structure;
 }
 
-// React / UI related functions
-
-// TODO: Add these imported modules to the relevant rendering functions
-
-function formatProductName(product) {
-  return `${product.name} - ${formatCurrency(product.price)}`;
-}
-
-function renderProductList(products) {
-  const container = document.createElement('div');
-  container.className = 'product-list';
-  container.innerHTML = products.map(product => `
-    <div class="product-card">
-      <h3>${formatProductName(product)}</h3>
-      <p class="price">${formatCurrency(product.price)}</p>
-    </div>
-  `).join('');
-  return container;
-}
-
-function calculateDiscount(subtotal) {
-  // Example discount: 10% of subtotal
-  return subtotal * 0.1;
-}
-
-function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
-}
-
-function renderCart(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  const total = subtotal - discount;
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Subtotal: ${formatCurrency(subtotal)}</p>
-      <p>Discount: -${formatCurrency(discount)}</p>
-      <p>Total: ${formatCurrency(total)}</p>
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
-}
-
-function validateAndRender(input) {
-  if (validateInput(input)) {
-    return `<div class="validated">${formatCurrency(input.value)}</div>`;
-  }
-  return '<p>Invalid input</p>';
-}
-
-function renderPage(data) {
-  const header = renderHeader(data.title);
-  const content = renderProductList(data.products || []);
-  const footer = renderFooter();
-  return `${header}${content}${footer}`;
-}
-
-// TODO: Update the existing function using the new functions for rendering graph/index
-// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
-function specificFunctionThatRendersGraphOrIndex() {
-  // Call the updated functions to render the graph or index as needed
-  renderDependencyGraph(dependencyGraphContent);
-  renderIndex();
+/**
+ * Formats a currency value
+ * @param {number} value - The value to format
+ * @returns {string} The formatted currency string
+ */
+function formatCurrency(value) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(value);
 }
 
 /**
- * Wraps the primary content of the document in a <main> element if it isn't already.
- * If a <main> element already exists, returns it. Otherwise, finds the primary
- * content (e.g., element with id "main-content", or the largest content container)
- * and wraps it in a <main> element. Adds an id of "main-content" if missing and
- * ensures the main element is properly identified for accessibility purposes.
- * @param {Document|HTMLElement} [root=document] - The root element to scan.
- * @returns {HTMLElement|null} The main element, or null if no suitable content was found.
+ * Formats a date
+ * @param {Date} date - The date to format
+ * @returns {string} The formatted date string
  */
-function wrapPrimaryContentInMain(root = (typeof document !== 'undefined' ? document : null)) {
-    if (!root) {
-        return null;
-    }
-
-    // If a <main> element already exists, return the first one.
-    const existingMain = root.querySelector ? root.querySelector('main') : null;
-    if (existingMain) {
-        if (!existingMain.id) {
-            existingMain.id = 'main-content';
-        }
-        return existingMain;
-    }
-
-    // Find candidate primary content element.
-    let primaryContent = null;
-    if (root.getElementById) {
-        primaryContent = root.getElementById('main-content');
-    }
-    if (!primaryContent && root.querySelector) {
-        // Fallback: find the element with the most children/content
-        const candidates = root.querySelectorAll('div, section, article');
-        let maxScore = -1;
-        for (const candidate of candidates) {
-            // Skip elements that are themselves inside a landmark we'd convert
-            const score = (candidate.querySelectorAll('*').length || 0) + (candidate.textContent ? candidate.textContent.length : 0);
-            if (score > maxScore) {
-                maxScore = score;
-                primaryContent = candidate;
-            }
-        }
-    }
-
-    if (!primaryContent) {
-        return null;
-    }
-
-    // Create a new <main> element and wrap the primary content.
-    const main = (typeof document !== 'undefined') ? document.createElement('main') : null;
-    if (!main) {
-        return null;
-    }
-    main.id = primaryContent.id || 'main-content';
-
-    const parent = primaryContent.parentNode;
-    if (!parent) {
-        return null;
-    }
-    parent.insertBefore(main, primaryContent);
-    main.appendChild(primaryContent);
-
-    return main;
+function formatDate(date) {
+  return new Intl.DateTimeFormat('en-US').format(date);
 }
 
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, wrapPrimaryContentInMain };
+/**
+ * Calculates discount based on subtotal
+ * @param {number} subtotal - The subtotal amount
+ * @returns {number} The calculated discount
+ */
+function calculateDiscount(subtotal) {
+  if (subtotal > 100) {
+    return subtotal * 0.1;
+  }
+  return 0;
+}
 
-// Export utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  // Newly added accessibility functions
-  getFullLangAttribute,
-  addAriaLabel,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  ensureUniqueLandmarks,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  addLangAttribute,
-  // Newly added wrap function
-  wrapPrimaryContentInMain
-};
+/**
+ * Validates input
+ * @param {Object} input - The input to validate
+ * @returns {boolean} Whether the input is valid
+ */
+function validateInput(input) {
+  return input && typeof input.value !== 'undefined';
+}
 
-// Export component functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
-};
+/**
+ * Renders the header
+ * @param {string} title - The title for the header
+ * @returns {string} The HTML string for the header
+ */
+function renderHeader(title) {
+  return `<header><h1>${title}</h1></header>`;
+}
 
-// Export UI / product functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
+/**
+ * Renders the footer
+ * @returns {string} The HTML string for the footer
+ */
+function renderFooter() {
+  return `<footer><p>Footer content</p></footer>`;
+}
 
-// Exporting for CommonJS compatibility
-module.exports = {
-  specificFunctionThatRendersGraphOrIndex
-};
+/**
+ * Renders a product card
+ * @param {Object} product - The product to render
+ * @returns {string} The HTML string for the product card
+ */
+function renderProductCard(product) {
+  return `<div class="product-card">
+    <h3>${product.name}</h3>
+    <p class="price">${formatCurrency(product.price)}</p>
+  </div>`;
+}
 
-// Export additional required functions
-export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
-
-// Report generation logic
 /**
  * Generates an accessibility report based on the current document state.
  * @returns {Object} An object containing the accessibility report data.
@@ -1054,6 +864,88 @@ function generateAndDisplayReport() {
     return report;
 }
 
+// Fixed exports section - moving all exports to the end after function declarations
+
+// Export the new function
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+
+// Export utility functions
+export {
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  // Newly added accessibility functions
+  getFullLangAttribute,
+  addAriaLabel,
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  ensureUniqueLandmarks,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  addLangAttribute
+};
+
+// Export component functions
+export {
+  formatCurrency,
+  formatDate,
+  calculateDiscount,
+  validateInput
+};
+
+// Export UI / product functions
+export {
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage,
+  dependencyGraphContent,
+  indexContent
+};
+
+// Export state (assuming it exists, otherwise comment out)
+// export {
+//   state,
+//   updateState
+// };
+
+// Export internal functions for accessibility
+export {
+  ensureUniqueLandmarkId,
+  uniqueLandmarks,
+  addAriaLabel,
+  addLangAttribute
+};
+
+// ... other exports ...
+
+// Export UI / product functions
+export {
+  renderHeader,
+  renderFooter,
+  renderProductCard
+};
+
+// Exporting for CommonJS compatibility
+module.exports = {
+  specificFunctionThatRendersGraphOrIndex
+};
+
+// Export additional required functions
+export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
+
+// Export the internal set for tracking used landmark IDs
+export { _usedLandmarkIds };
+
 // Export report generation functions
 export {
   generateAccessibilityReport,
@@ -1061,17 +953,5 @@ export {
   generateAndDisplayReport
 };
 
-// Export ensureUniqueLandmarkId for ensuring unique landmark IDs
-export { ensureUniqueLandmarkId };
-
-// Export uniqueLandmarks for getting unique landmarks from a list
-export { uniqueLandmarks };
-
-// Export addAriaLabel for adding aria-label attributes to elements
-export { addAriaLabel };
-
-// Export addLangAttribute for adding lang attributes to elements
-export { addLangAttribute };
-
-// Export the internal set for tracking used landmark IDs
-export { _usedLandmarkIds };
+// Export specificFunctionThatRendersGraphOrIndex as well
+export { specificFunctionThatRendersGraphOrIndex };

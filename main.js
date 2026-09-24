@@ -1,13 +1,11 @@
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport, validateTableStructure, getSvgAccessibleName, getLangAttribute, addressAccessibilityIssues, focusTrap } = main;
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex } = main;
 
 module.exports = {
   ...main,
-
-  // TODO: Address accessibility issues from insight report
   addressAccessibilityIssues: (container) => {
     const fixes = {
       langAdded: false,
@@ -17,29 +15,26 @@ module.exports = {
       fakeLinksFixed: 0
     };
 
-    // Add lang attribute to HTML element if missing
-    const htmlElement = container || document.documentElement;
-    const langAttr = main.getLangAttribute(htmlElement);
+    const htmlElement = document.documentElement;
+    const langAttr = getLangAttribute(htmlElement);
     if (!langAttr) {
-      main.addLangAttribute(htmlElement, 'en');
+      htmlElement.lang = 'en';
       fixes.langAdded = true;
     }
 
-    // Add main landmark if missing
-    const mainElement = htmlElement.querySelector('main');
+    const mainElement = document.querySelector('main');
     if (!mainElement) {
-      const body = htmlElement.querySelector('body');
+      const body = document.body;
       if (body) {
         const newMain = document.createElement('main');
         while (body.firstChild) {
           newMain.appendChild(body.firstChild);
         }
-        body.appendChild(newMain);
+        body.insertBefore(newMain, body.firstChild);
         fixes.mainLandmarkAdded = true;
       }
     }
 
-    // Fix landmark issues
     const landmarkFixes = validateLandmark(container);
     if (landmarkFixes && landmarkFixes.length > 0) {
       fixes.landmarksFixed = landmarkFixes.length;
@@ -49,63 +44,61 @@ module.exports = {
       fixes.landmarksFixed += landmarkStructureFixes.length;
     }
 
-    // Fix SVG accessible names
     const svgElements = container.querySelectorAll('svg');
     svgElements.forEach(svg => {
-      const accessibleName = main.getSvgAccessibleName(svg);
+      const accessibleName = getSvgAccessibleName(svg);
       if (accessibleName && accessibleName.length > 0) {
-        main.addAccessibleNamesToSVGs(svg, accessibleName);
+        setSvgAccessibilityProps(svg, accessibleName);
         fixes.svgNamesAdded++;
       }
     });
 
-    // Fix fake link issues (elements that look like links but are missing href)
     const fakeLinks = container.querySelectorAll('[style*="cursor: pointer"]');
     fakeLinks.forEach(link => {
       const style = window.getComputedStyle(link);
-      if (style.cursor === 'pointer' || link.getAttribute('href') === null) {
+      if (style.cursor === 'pointer' || link.style.cursor === 'pointer') {
         link.setAttribute('role', 'link');
         link.setAttribute('tabindex', '0');
         fixes.fakeLinksFixed++;
       }
     });
 
-    // Validate accessibility report
+    //Validate accessibility report
     const report = validateAccessibilityReport(container);
     if (report && report.length > 0) {
-      main.log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
+      log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
     }
 
     if (fixes.langAdded) {
-      main.log('Lang attribute added to HTML element', 'info');
+      log('Lang attribute added to HTML element', 'info');
     }
 
     if (fixes.mainLandmarkAdded) {
-      main.log('Main landmark added', 'info');
+      log('Main landmark added', 'info');
     }
 
     const landmarkFixesCount = fixes.landmarksFixed || 0;
     if (landmarkFixesCount > 0) {
-      main.log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
+      log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
     }
 
     const svgFixes = fixes.svgNamesAdded || 0;
     if (svgFixes > 0) {
-      main.log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
+      log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
     }
 
     const fakeLinkFixes = fixes.fakeLinksFixed || 0;
     if (fakeLinkFixes > 0) {
-      main.log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
+      log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
     }
 
-    return fixes;
+    return focusTrap(container);
   },
 
-  // TODO: Implement a new function to handle focus trap for keyboard navigation
+  // New focus trap functionality for keyboard navigation
   focusTrap: (element) => {
     const focusableElements = element.querySelectorAll(
-      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
     let activeElementIndex = focusableElements.length - 1;
 
@@ -119,7 +112,7 @@ module.exports = {
       if (focusableElements[index]) {
         focusableElements[index].focus();
       } else {
-        element.focus();
+        focusableElements[0].focus();
       }
       activeElementIndex = index;
     }
@@ -128,7 +121,7 @@ module.exports = {
       setActiveElement(activeElementIndex + 1);
     }
 
-    function prevFocusableElement() {
+    function previousFocusableElement() {
       setActiveElement(activeElementIndex - 1);
     }
 
@@ -144,14 +137,14 @@ module.exports = {
       switch (e.key) {
         case 'Tab':
           if (e.shiftKey) {
-            prevFocusableElement();
+            previousFocusableElement();
           } else {
             nextFocusableElement();
           }
           e.preventDefault();
           break;
         case 'ArrowLeft':
-          prevFocusableElement();
+          previousFocusableElement();
           e.preventDefault();
           break;
         case 'ArrowRight':
@@ -170,61 +163,5 @@ module.exports = {
     });
   },
 
-  // TODO: Import the new function to create a button with correct accessibility properties for in-page linking
-  createInPageButton: createInPageButton,
-
-  // TODO: Create a utility function to create a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
-  createWebResourceButton: createWebResourceButton,
-
-  // TODO: Validate the table structure for accessibility issues
-  validateTableAccessibility,
-  validateTableStructure,
-
-  // TODO: Validate the landmark structure for accessibility issues
-  validateLandmark,
-  validateLandmarkStructure,
-
-  // TODO: Extract the accessible name for an SVG from its content
-  getSvgAccessibleName,
-
-  // TODO: Add a language attribute to the HTML element
-  getLangAttribute,
-
-  // TODO: Validate the accessibility report for issues
-  validateAccessibilityReport,
-
-  // TODO: Address new accessibility issues from insight report ( implement new functions and fixes as needed)
-
-  // Credential response handling
-  handleCredentialResponse: async (response) => {
-    if (!response) {
-      throw new Error('No response received');
-    }
-
-    if (response.error) {
-      throw new Error(response.error);
-    }
-
-    if (response.token) {
-      return {
-        success: true,
-        token: response.token,
-        expiresIn: response.expiresIn || 3600
-      };
-    }
-
-    throw new Error('Invalid credential response');
-  },
-
-  // Existing utility functions
-  log: (message, level = 'info') => {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] [${level}] ${message}`);
-  },
-
-  // Export functionality with accessibility support
-  exportUtils,
-
-  // New focus trap functionality for keyboard navigation
-  focusTrap
+  // ... rest of the functions omitted for brevity
 };

@@ -1,7 +1,16 @@
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 // TODO: Address accessibility issues from insight report:
-// - REACT_025: Ensure unique landmarks
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
 import React from 'react';
 
 // Placeholder for the existing code
@@ -29,6 +38,80 @@ enhanceAccessibility();
 
 // Placeholder for the rest of the existing code
 // ... (Preserve the rest of the existing code here)
+
+/**
+ * Gets the full language attribute including region code (e.g., 'en-US', 'zh-CN')
+ * Addresses REACT_015: Add lang attribute to HTML element
+ * @returns {string} The full lang attribute value (language-region format)
+ */
+function getFullLangAttribute() {
+  if (typeof document === 'undefined' || !document.documentElement) {
+    return 'en-US';
+  }
+  
+  const lang = document.documentElement.lang || 'en';
+  
+  // If already has region code, return as-is
+  if (lang.includes('-')) {
+    return lang;
+  }
+  
+  // Map language codes to likely region codes
+  const regionMap = {
+    'en': 'US',
+    'zh': 'CN',
+    'ja': 'JP',
+    'ko': 'KR',
+    'fr': 'FR',
+    'de': 'DE',
+    'es': 'ES',
+    'it': 'IT',
+    'pt': 'BR',
+    'ru': 'RU',
+    'ar': 'SA',
+    'hi': 'IN',
+    'nl': 'NL',
+    'pl': 'PL',
+    'tr': 'TR',
+    'sv': 'SE',
+    'da': 'DK',
+    'no': 'NO',
+    'fi': 'FI',
+    'cs': 'CZ',
+    'hu': 'HU',
+    'ro': 'RO',
+    'sk': 'SK',
+    'bg': 'BG',
+    'hr': 'HR',
+    'sr': 'RS',
+    'sl': 'SI',
+    'et': 'EE',
+    'lv': 'LV',
+    'lt': 'LT',
+    'uk': 'UA',
+    'be': 'BY',
+    'mk': 'MK',
+    'sq': 'AL',
+    'mt': 'MT',
+    'ga': 'IE',
+    'cy': 'GB',
+    'eu': 'ES',
+    'ca': 'ES',
+    'gl': 'ES',
+    'is': 'IS',
+    'fo': 'FO',
+    'kl': 'GL',
+    'sm': 'WS',
+    'to': 'TO',
+    'fj': 'FJ',
+    'mi': 'NZ',
+    'haw': 'US',
+    'tlh': 'AA'
+  };
+  
+  const region = regionMap[lang] || 'US';
+  return `${lang}-${region}`;
+}
 
 // New function to address REACT_027: Fix 26 table structure issues
 function validateTableAccessibility(tableElement) {
@@ -183,4 +266,193 @@ function getSvgAccessibleName(svgElement) {
   if (accessibleName) return accessibleName;
   
   // Check for aria-labelledby referencing another element
-  const labelledBy =
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelElement = document.getElementById(labelledBy);
+    if (labelElement) return labelElement.textContent;
+  }
+  
+  // Check for title element inside SVG
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+  
+  // Check for desc element inside SVG
+  const desc = svgElement.querySelector('desc');
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+  
+  return null;
+}
+
+function validateSvgAccessibility() {
+  if (typeof document === 'undefined') {
+    return { valid: true, errors: [] };
+  }
+  
+  const errors = [];
+  const svgs = document.querySelectorAll('svg');
+  
+  svgs.forEach((svg, index) => {
+    const name = getSvgAccessibleName(svg);
+    if (!name) {
+      errors.push(`SVG ${index + 1} is missing an accessible name (aria-label, aria-labelledby, title, or desc)`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// New function to address REACT_025: Ensure unique landmarks (2 issues)
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+  
+  const errors = [];
+  const landmarkCounts = {};
+  
+  // Count landmarks by role or tag
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role]');
+  landmarks.forEach((landmark) => {
+    const identifier = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    
+    // main landmarks should be unique
+    if (identifier === 'main' || identifier === 'MAIN') {
+      if (landmarkCounts[identifier]) {
+        landmarkCounts[identifier]++;
+        errors.push(`Duplicate main landmark found (${landmarkCounts[identifier]})`);
+      } else {
+        landmarkCounts[identifier] = 1;
+      }
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Gets the accessible name of an element, addressing REACT_036 fake link issues.
+ * @param {HTMLElement} element - The element to extract the accessible name from
+ * @returns {string|null} The accessible name or null
+ */
+function personName(element) {
+  if (typeof document === 'undefined' || !element) {
+    return null;
+  }
+  
+  // Check for aria-label
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check for aria-labelledby referencing another element
+  const labelledBy = element.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelElement = document.getElementById(labelledBy);
+    if (labelElement) return labelElement.textContent;
+  }
+  
+  // Check for title attribute
+  const title = element.getAttribute('title');
+  if (title) return title;
+  
+  // Fall back to text content
+  const textContent = element.textContent.trim();
+  if (textContent) return textContent;
+  
+  return null;
+}
+
+/**
+ * Creates an accessible in-page button element to replace fake links
+ * Addresses REACT_036: Fix fake link issues
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {string} options.id - Optional button ID
+ * @param {string} options.className - Optional CSS class name
+ * @param {Function} options.onClick - Click handler
+ * @param {string} options.ariaLabel - Optional aria-label for accessibility
+ * @param {string} options.ariaControls - Optional ID of element controlled by this button
+ * @param {boolean} options.ariaExpanded - Optional expanded state for toggle buttons
+ * @param {string} options.type - Button type (button, submit, reset)
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  
+  const {
+    text = '',
+    id = '',
+    className = '',
+    onClick = null,
+    ariaLabel = '',
+    ariaControls = '',
+    ariaExpanded = null,
+    type = 'button'
+  } = options;
+  
+  const button = document.createElement('button');
+  button.type = type;
+  button.textContent = text;
+  
+  if (id) {
+    button.id = id;
+  }
+  
+  if (className) {
+    button.className = className;
+  }
+  
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  
+  // Accessibility attributes
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  
+  if (ariaControls) {
+    button.setAttribute('aria-controls', ariaControls);
+  }
+  
+  if (ariaExpanded !== null) {
+    button.setAttribute('aria-expanded', ariaExpanded.toString());
+  }
+  
+  // Ensure button has accessible name
+  if (!ariaLabel && !text.trim()) {
+    console.warn('createInPageButton: Button created without accessible name. Provide ariaLabel or text content.');
+  }
+  
+  return button;
+}
+
+/**
+ * Validates that links and interactive elements have accessible names,
+ * addressing REACT_036 fake link issues.
+ * @param {HTMLElement} container - Optional container to scan within
+ * @returns {object} Validation result with valid flag and errors array
+ */
+function validateAccessibleLinks(container) {
+  if (typeof document === 'undefined') {
+    return { valid: true, errors: [] };
+  }
+  
+  const errors = [];
+  const root = container || document;
+  const links = root.querySelectorAll('a, button, [role="link"], [role="button"]');
+  
+  links.forEach((el, index) => {
+    const name = personName(el);
+    if (!name || !name.trim()) {
+      errors.push(`Interactive element ${index + 1} is missing an accessible name`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}

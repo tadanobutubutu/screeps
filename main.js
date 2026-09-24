@@ -145,13 +145,13 @@ const config = {
  */
 function createServer() {
   const server = http.createServer((req, res) => {
-    // Old server logic
-
-    // New logic with custom middleware
-    myCustomMiddleware(req, res, () => {
-      // Old logic for handling the request
-      getData(req, res);
+    res.writeHead(200, { 
+      'Content-Type': 'application/json',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'Content-Security-Policy': "default-src 'self'"
     });
+    res.end(JSON.stringify({ status: 'ok', config }));
   });
 
   return {

@@ -132,7 +132,22 @@ function main() {
  */
 function validateLandmark() {
   // Implementation for landmark validation
-  // TODO: Implement this function to address REACT_017
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="complementary"], [role="contentinfo"], [role="banner"], main, nav, aside, footer, header');
+  const issues = [];
+  
+  landmarks.forEach(landmark => {
+    // Check for accessible names on landmarks
+    const ariaLabel = landmark.getAttribute('aria-label');
+    const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+    const title = landmark.getAttribute('title');
+    
+    if (!ariaLabel && !ariaLabelledy && !title) {
+      const landmarkType = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+      issues.push(`Landmark element "${landmarkType}" is missing an accessible name`);
+    }
+  });
+  
+  return issues;
 }
 
 /**
@@ -140,7 +155,27 @@ function validateLandmark() {
  */
 function validateLandmarkStructure() {
   // Implementation for landmark structure validation
-  // TODO: Implement this function to address REACT_017
+  const landmarks = document.querySelectorAll('main, nav, aside, header, footer, [role="main"], [role="navigation"], [role="complementary"], [role="contentinfo"], [role="banner"]');
+  const issues = [];
+  
+  // Check for unique landmarks (REACT_025)
+  const landmarkTypes = {};
+  landmarks.forEach(landmark => {
+    const landmarkType = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    if (!landmarkTypes[landmarkType]) {
+      landmarkTypes[landmarkType] = [];
+    }
+    landmarkTypes[landmarkType].push(landmark);
+  });
+  
+  // Identify duplicate landmark types
+  Object.keys(landmarkTypes).forEach(type => {
+    if (landmarkTypes[type].length > 1) {
+      issues.push(`Multiple elements with landmark type "${type}" found. Each should have a unique accessible name.`);
+    }
+  });
+  
+  return issues;
 }
 
 /**
@@ -190,9 +225,14 @@ function fixAccessibilityIssues() {
   results.tables.push({ accessible: tableAccessible, structure: tableStructure });
 
   // Validate and fix landmark accessibility issues
-  validateLandmark(); // Call the newly added function
-  validateLandmarkStructure();
-  results.landmarks.push({ landmarkValidated: true, structureValidated: true });
+  const landmarkIssues = validateLandmark();
+  const landmarkStructureIssues = validateLandmarkStructure();
+  results.landmarks.push({ 
+    validated: true, 
+    structureValidated: true, 
+    issues: landmarkIssues, 
+    structureIssues: landmarkStructureIssues 
+  });
 
   // Process SVG accessibility
   const accessibleName = getSvgAccessibleName(null);
@@ -217,7 +257,34 @@ function fixAccessibilityIssues() {
 }
 
 /**
- * Divides two numbers with proper error handling
+ * Validates that landmarks are unique (REACT_025)
+ */
+function validateUniqueLandmarks() {
+  // Implementation for ensuring unique landmarks
+  const landmarks = document.querySelectorAll('main, nav, aside, header, footer, [role="main"], [role="navigation"], [role="complementary"], [role="contentinfo"], [role="banner"]');
+  const landmarkTypes = {};
+  const issues = [];
+  
+  landmarks.forEach(landmark => {
+    const landmarkType = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    if (!landmarkTypes[landmarkType]) {
+      landmarkTypes[landmarkType] = [];
+    }
+    landmarkTypes[landmarkType].push(landmark);
+  });
+  
+  // Check for duplicate landmarks
+  Object.keys(landmarkTypes).forEach(type => {
+    if (landmarkTypes[type].length > 1) {
+      issues.push(`Found ${landmarkTypes[type].length} elements with landmark type "${type}". Each should be unique or have distinct accessible names.`);
+    }
+  });
+  
+  return issues;
+}
+
+/**
+ * Divides two number with proper error handling
  * @param {number} dividend - The number to be divided
  * @param {number} divisor - The number to divide by
  * @returns {number} Result of division
@@ -320,6 +387,7 @@ export {
 export {
   validateLandmark,
   validateLandmarkStructure,
+  validateUniqueLandmarks,
 };
 
 // Export SVG accessibility functions
@@ -354,8 +422,3 @@ export {
   someFunction,
   exportedFunction,
 };
-
-// New function added as per the issue
-function newFunction() {
-  // Function body
-}

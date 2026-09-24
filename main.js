@@ -216,14 +216,45 @@ const ADDRESS = {
     });
   },
 
-  addLangAttribute(element, lang) {
-    if (element) {
-      element.setAttribute('lang', lang);
-    } else {
-      const html = document.documentElement;
-      if (!html.hasAttribute('lang')) {
-        html.setAttribute('lang', 'en');
-      }
+  fixSemanticMarkup: function(source) {
+    return this.fixMainLandmarkTags(source);
+  }
+};
+
+function processSvgElements() {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      addSvgAccessibleName(svg, accessibleName);
+    }
+  });
+}
+
+function validateLandmarkAttributes(landmark) {
+  const issues = [];
+
+  if (!landmark.ariaLabel && !landmark.ariaLabelledby && !landmark.textContent) {
+    issues.push('Landmark missing accessible name');
+  }
+
+  if (landmark.role && !['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(landmark.role)) {
+    issues.push(`Invalid landmark role: ${landmark.role}`);
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+function validateTableAccessibility(table) {
+  if (!table) return true;
+  
+  const headers = table.querySelectorAll('th');
+  headers.forEach(th => {
+    if (!th.textContent.trim()) {
+      th.setAttribute('aria-label', 'Empty header');
     }
   },
 

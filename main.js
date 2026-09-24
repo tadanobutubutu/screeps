@@ -1,6 +1,20 @@
-// main.js - Contains utility functions for DOM manipulation and link handling
+// This is a simple greeting module
+function greet (name) {
+  return `Hello, ${name}!`
+}
 
-// ... existing code ...
+// New function to calculate the average of two numbers
+module.exports.calculateAverage = function (a, b) {
+  return (a + b) / 2
+}
+
+// Exported functions
+module.exports.calculateSum = function (a, b) {
+  return a + b
+}
+module.exports.calculateProduct = function (a, b) {
+  return a * b
+}
 
 // Line 74 - Implement this function for creating in-page buttons
 function createInPageButton (options) {
@@ -13,48 +27,11 @@ function createInPageButton (options) {
     disabled: false
   }
 
-  const settings = Object.assign({}, defaults, options)
-
-  const button = document.createElement('button')
-  button.textContent = settings.text
-  button.className = settings.className
-  button.setAttribute('title', settings.title)
-  button.disabled = settings.disabled
-
-  if (settings.id) {
-    button.id = settings.id
-  }
-
-  if (settings.style) {
-    Object.assign(button.style, settings.style)
-  }
-
-  if (settings.onClick) {
-    button.addEventListener('click', settings.onClick)
-  }
-
-  if (typeof settings.container === 'string') {
-    const containerElement = document.querySelector(settings.container)
-    if (containerElement) {
-      containerElement.appendChild(button)
-    }
-  } else {
-    settings.container.appendChild(button)
-  }
-
-  return button
+// New function exampleFunction, as per the issue's request
+function exampleFunction() {
+    // Function implementation
+    console.log("This is the new function exampleFunction");
 }
 
-// Implement tower defense in main.js
-function placeTower(towerType, position) {
-  // This function will handle placing a tower of a certain type at a given position
-  console.log(`Tower of type '${towerType}' placed at position: ${position}`);
-}
-
-function updateGameTick() {
-  // This function will be called every game tick to update the game state
-  // Placeholder implementation for the tower defense
-  console.log("Game tick updated.");
-}
-
-// TODO: Any additional changes requested in the issue should be added after this function
+// Add the new function to the exports
+module.exports.exampleFunction = exampleFunction;

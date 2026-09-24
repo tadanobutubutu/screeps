@@ -59,7 +59,6 @@ const {
   createAnnouncer,
   prefersReducedMotion,
   renderSimpleDependencyGraph,
-  addAccessibleName,
   addAccessibleNamesToSVGs,
   addSvgAccessibleNames,
   fixFakeLinkIssue,

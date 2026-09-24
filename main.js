@@ -1,55 +1,55 @@
-/** TODO: Implement function for addressing accessibility issues from insight report */
-function addressAccessibilityIssues(report) {
-    const accessibilityIssues = report.accessibility || [];
-    const addressedIssues = [];
-
-    accessibilityIssues.forEach(issue => {
-        if (issue.type === 'contrast') {
-            addressedIssues.push({
-                originalIssue: issue,
-                recommendation: 'Increase color contrast ratio to at least 4.5:1 for normal text',
-                status: 'addressed'
-            });
-        } else if (issue.type === 'alt_text') {
-            addressedIssues.push({
-                originalIssue: issue,
-                recommendation: 'Add descriptive alt text to the image element',
-                status: 'addressed'
-            });
-        } else if (issue.type === 'keyboard_navigation') {
-            addressedIssues.push({
-                originalIssue: issue,
-                recommendation: 'Ensure all interactive elements are keyboard accessible',
-                status: 'addressed'
-            });
-        } else if (issue.type === 'landmark_structure') {
-            addressedIssues.push({
-                originalIssue: issue,
-                recommendation: 'Validate and fix landmark structure',
-                status: 'addressed'
-            });
-        } else {
-            addressedIssues.push({
-                originalIssue: issue,
-                recommendation: 'Review and fix accessibility issue',
-                status: 'addressed'
-            });
-        }
-    });
-
-    return {
-        totalIssues: accessibilityIssues.length,
-        addressedIssues: addressedIssues,
-        summary: `Addressed ${addressedIssues.length} accessibility issues from insight report`
-    };
-}
+const fs = require('fs');
+const path = require('path');
 
 // Import dependency graph and index content modules
-const dependencyGraphContent = require('./dependencyGraphContent');
-const indexContent = require('./indexContent');
+const dependencyGraphContent = '';
+const indexContent = '';
 
 // Landmark elements that should be checked for proper usage
-const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
+const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
+
+/**
+ * Checks landmark elements in HTML content for accessibility compliance.
+ * @param {string} htmlContent - The HTML content to check
+ * @returns {Object} - Object containing landmark element information and any warnings
+ */
+function checkLandmarkElements(htmlContent) {
+  // Validate input
+  if (typeof htmlContent !== 'string') {
+    throw new Error('HTML content must be a string');
+  }
+
+  const warnings = [];
+  const foundLandmarks = {};
+
+  // Check for each landmark element in the HTML content
+  LANDMARK_ELEMENTS.forEach((landmark) => {
+    // Use case-insensitive regex to find landmark elements
+    const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
+    const matches = htmlContent.match(regex);
+    if (matches) {
+      foundLandmarks[landmark] = matches.length;
+    }
+  });
+
+  // Check for required main landmark
+  if (!foundLandmarks.main) {
+    warnings.push('Missing main landmark element');
+  }
+
+  // Check for duplicate landmarks (potential issue)
+  Object.keys(foundLandmarks).forEach((landmark) => {
+    if (foundLandmarks[landmark] > 1) {
+      warnings.push(`Duplicate ${landmark} elements found`);
+    }
+  });
+
+  return {
+    foundLandmarks,
+    warnings,
+    hasMainLandmark: !!foundLandmarks.main
+  };
+}
 
 /**
  * Checks landmark elements in HTML content for accessibility compliance.
@@ -61,158 +61,149 @@ function checkLandmarkElements(htmlContent) {
 }
 
 function validateLandmarkStructure(context = document) {
-    const issues = [];
+  const issues = [];
 
-    // Validate landmark structure
-    const elements = context.querySelectorAll(LANDMARK_SELECTORS);
-    elements.forEach((element, index) => {
-        const hasLabel = element.getAttribute('aria-label') ||
-                         element.getAttribute('aria-labelledby') ||
-                         element.querySelector('h1, h2, h3, h4, h5, h6');
-        if (!hasLabel) {
-            issues.push({
-                type: 'warning',
-                code: 'LANDMARK_NO_NAME',
-                message: `Landmark at index ${index} should have an accessible name`
-            });
-        }
+  // Check for multiple <main> elements (should be exactly one)
+  const mainElements = context.querySelectorAll('main');
+  if (mainElements.length === 0) {
+    issues.push({
+      type: 'error',
+      code: 'MISSING_MAIN',
+      message: 'Document should contain exactly one <main> landmark for main content'
     });
+  } else if (mainElements.length > 1) {
+    issues.push({
+      type: 'error',
+      code: 'MULTIPLE_MAIN',
+      message: `Document contains ${mainElements.length} <main> elements. Only one is allowed per page.`
+    });
+  }
 
-    return {
-        totalIssues: issues.length,
-        issues: issues,
-        addressedIssues: [], // Not applicable for landmark validation
-        isValid: issues.filter(i => i.type === 'error').length === 0,
-        summary: `Landmark validation completed with ${issues.length} issues`
-    };
-}
-
-function getLandmarkSummary(context = document) {
-    const result = validateLandmarkStructure(context);
-    const summary = [];
-
-    summary.push('Landmark Structure Validation Summary:');
-    summary.push(`- Total issues found: ${result.totalIssues}`);
-
-    const errors = result.issues.filter(i => i.type === 'error');
-    const warnings = result.issues.filter(i => i.type === 'warning');
-    const infos = result.issues.filter(i => i.type === 'info');
-
-    if (errors.length > 0) {
-        summary.push(`- Errors: ${errors.length}`);
-        errors.forEach(e => summary.push(`  • ${e.message}`));
+  // Validate sections have accessible names
+  const sections = context.querySelectorAll('section');
+  sections.forEach((section, index) => {
+    const hasLabel = section.getAttribute('aria-label') ||
+                     section.getAttribute('aria-labelledby') ||
+                     section.querySelector('h1, h2, h3, h4, h5, h6');
+    if (!hasLabel) {
+      issues.push({
+        type: 'warning',
+        code: 'SECTION_WITHOUT_NAME',
+        message: `Section element at index ${index} should have an accessible name (aria-label, aria-labelledby, or heading)`
+      });
     }
-    if (warnings.length > 0) {
-        summary.push(`- Warnings: ${warnings.length}`);
-        warnings.forEach(w => summary.push(`  • ${w.message}`));
+  });
+
+  // Validate forms have accessible names
+  const forms = context.querySelectorAll('form');
+  forms.forEach((form, index) => {
+    const hasLabel = form.getAttribute('aria-label') ||
+                     form.getAttribute('aria-labelledby') ||
+                     form.getAttribute('title') ||
+                     form.querySelector('legend');
+    if (!hasLabel && form.querySelectorAll('input, select, textarea').length > 0) {
+      issues.push({
+        type: 'warning',
+        code: 'FORM_WITHOUT_NAME',
+        message: `Form at index ${index} should have an accessible name if it contains form controls`
+      });
     }
-    if (infos.length > 0) {
-        summary.push(`- Info: ${infos.length}`);
-        infos.forEach(i => summary.push(`  • ${i.message}`));
+  });
+
+  // Validate navigation elements
+  const navElements = context.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    const hasLabel = nav.getAttribute('aria-label') ||
+                     nav.getAttribute('aria-labelledby') ||
+                     nav.getAttribute('title');
+    const isMultipleNav = navElements.length > 1 && !hasLabel;
+    if (isMultipleNav) {
+      issues.push({
+        type: 'warning',
+        code: 'NAV_WITHOUT_LABEL',
+        message: `Navigation at index ${index} should have an aria-label when multiple nav elements exist`
+      });
     }
+  });
 
-    summary.push(`Validation: ${result.isValid ? 'PASSED' : 'FAILED'}`);
+  // Check for proper header/footer usage
+  const headers = context.querySelectorAll('header');
+  headers.forEach((header, index) => {
+    if (header.closest('main') && !header.closest('article') && !header.getAttribute('aria-label')) {
+      issues.push({
+        type: 'info',
+        code: 'HEADER_NESTING',
+        message: `Header at index ${index} is inside main content - consider if this is the intended use`
+      });
+    }
+  });
 
-    return summary.join('\n');
-}
-
-// Render index view content using indexContent
-function renderIndexView() {
-  return indexContent;
-}
-
-// Import a11y store configuration
-const a11yStore = require('./a11yStore');
-
-// New function to handle adding landmark regions
-function addLandmarkRegions() {
-  // Building and returning landmarks and regions objects remain the same
-}
-
-// Standalone function to address accessibility issues from insight report
-function addressAccessibilityIssues(report) {
-  if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
-}
-
-// Get person name for accessible labeling
-function personName() {
-  return a11yStore.personName();
-}
-
-// Validate and fix table accessibility
-function validateTableAccessibility() {
-  a11yStore.validateTableAccessibility();
-}
-
-// Validate and fix table structure
-function validateTableStructure() {
-  a11yStore.validateTableStructure();
-}
-
-// Validate landmark elements
-function validateLandmark() {
-  a11yStore.validateLandmark();
-}
-
-// Validate landmark structure
-function validateLandmarkStructure() {
-  a11yStore.validateLandmarkStructure();
-}
-
-// Get accessible name for SVG
-function getSvgAccessibleName(svg) {
-  return a11yStore.getSvgAccessibleName(svg);
-}
-
-// Ensure unique landmark IDs
-function ensureUniqueLandmarks() {
-  a11yStore.ensureUniqueLandmarks();
-}
-
-// New function to handle dynamic content updates
-function updateLiveRegion(message, priority = 'polite') {
-  a11yStore.updateLiveRegion(message, priority);
-}
-
-// New function to add IDs to landmark elements (preserved from HEAD)
-function addLandmarkIds() {
-  // Adding landmark IDs for elements in the DOM
+  return {
+    totalIssues: issues.length,
+    issues: issues,
+    addressedIssues: [], // Not applicable for landmark validation
+    isValid: issues.filter(i => i.type === 'error').length === 0,
+    summary: `Landmark validation completed with ${issues.length} issues`
+  };
 }
 
 // New function to check landmark elements in the DOM
-function checkLandmarkElementsInDom() {
-  a11yStore.checkLandmarkElements();
+function checkLandmarkInDOM() {
+  let allLandmarks = document.querySelectorAll(LANDMARK_ELEMENTS.join(', '));
+  let missingLandmarks = [];
+
+  allLandmarks.forEach(landmark => {
+    if (!landmark.id) {
+      missingLandmarks.push(landmark.tagName.toLowerCase());
+    }
+  });
+
+  // Check if all required landmarks are present in the DOM
+  const shouldContain = ['main', 'nav', 'header', 'footer', 'aside'];
+  const present = [];
+  missingLandmarks = missingLandmarks.filter(landmark => shouldContain.includes(landmark));
+
+  if (missingLandmarks.length > 0) {
+    return { missingLandmarks };
+  }
+
+  return { allLandmarks };
 }
 
 // New function to add SVG accessibility props
-function addSVGAccessibilityProps() {
-  a11yStore.addSVGAccessibilityProps();
+function addSvgAccessibilityProps() {
+  const svgs = document.querySelectorAll('svg');
+  let svgWithoutAccessibilityProps = [];
+
+  Array.from(svgs).forEach((svg) => {
+    const accessibleName = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title');
+    if (!accessibleName) {
+      svgWithoutAccessibilityProps.push(svg);
+    }
+  });
+
+  if (svgWithoutAccessibilityProps.length > 0) {
+    return { svgs: svgWithoutAccessibilityProps };
+  }
+
+  return { svgs };
 }
 
 // Preserve existing code functionality
 function preserveExistingCode() {
-  a11yStore.preserveExistingCode();
+  // ... Existing code ...
 }
 
-// Example of addressing new accessibility issues from insight report
+// New function to address new accessibility issues from insight report
 function newFunction() {
   // Placeholder for new accessibility issue fixes
+  // Implement specific fixes based on insight report when available
 }
 
-// ADD YOUR CODE HERE if any other issues need to be addressed
-// Example of addressing REACT_015: Add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en'); // Assuming English, replace with appropriate lang attribute value
-  }
-}
-
-// Call the function to apply the lang attribute
-// addLangAttribute(); // Removed to avoid unsafe DOM manipulation
-
-/* ... Rest of the code preserved from previous conflict markers */
-```
-
-The new function `addressAccessibilityIssues` has been updated to handle any added accessibility issue type (`'landmark_structure'`). The old function `createInPageButton` and the new function `countDependencies` have been preserved and can be moved to a separate module if desired. The landmark-related functions (`findLandmarks`, `validateLandmarkStructure`, and `getLandmarkSummary`) have been merged into the repository.
+module.exports = {
+  checkLandmarkElements,
+  checkLandmarkInDOM,
+  addSvgAccessibilityProps,
+  preserveExistingCode,
+  newFunction
+};

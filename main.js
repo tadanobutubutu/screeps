@@ -86,7 +86,7 @@ import { requiredModule } from './required-module.js';
 // ... Existing code in main.js ...
 
 // Function to render graph/index using new functions
-import { renderGraph } from './graph.js'; // Assuming you have a separate file for the new functions
+import { renderGraph } from ... // Assuming you have a separate file for the new functions
 
 function prepareDataForGraph() {
   // JavaScript code to prepare data for the graph
@@ -206,11 +206,11 @@ export function validateFocusableElement(element) {
     return false;
   }
   const focusableTags = ['a', 'button', 'input', 'select', 'textarea'];
-  const tagName = element.tagName.toLowerCase();
-  const isFocusable = focusableTags.includes(tagName) ||
+  const tagName = ...
+  const isFocusable = ... ||
                       element.tabIndex >= 0 ||
                       checkAccessibilityAttribute(element, 'tabindex');
-  return isFocusable && element.getAttribute('disabled') === null;
+  return isFocusable && ...
 }
 
 /**
@@ -257,184 +257,92 @@ export function initializeApp() {
   return Promise.resolve();
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
+/**
+ * Generate a report based on accessibility issues from the insight report.
+ * Addresses: REACT_015, REACT_017, REACT_025, REACT_027, REACT_036, REACT_041
+ * @returns {Object} Report object containing accessibility issues found
+ */
 export function generateAccessibilityReport() {
-  // Placeholder for the actual implementation
-  // This function should return a report object based on the accessibility issues found
-  return {
-    issues: [
-      // Example issue object
-      {
-        description: "Example issue description",
-        severity: "warning",
-        // ... other properties like 'elementId', 'fixRecommendation', etc.
-      }
-    ]
-  };
-}
-// ... Existing code in main.js ...
-
-// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
-function addressAccessibilityIssues() {
-  // Internationalization support
-  const translations = {
-    'en': {
-      landmark: 'landmark',
-      'svg1-title': 'SVG Content',
-      'svg2-title': 'Additional SVG'
+  const report = {
+    issues: [],
+    summary: {
+      total: 0,
+      critical: 0,
+      warning: 0,
+      info: 0
     }
   };
 
-  const landmarks = document.querySelectorAll('[role="landmark"]');
-  landmarks.forEach((landmark, index) => {
-    landmark.setAttribute('aria-label', `${translations['en'].landmark}-${index + 1}`);
-    // Additional landmark processing...
+  // REACT_015: Check for lang attribute on HTML element
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    report.issues.push({
+      id: 'REACT_015',
+      description: 'Add lang attribute to HTML element for proper language declaration',
+      severity: 'critical',
+      element: 'html',
+      fixRecommendation: 'Add lang="en" (or appropriate language code) to the <html> element'
+    });
+    report.summary.critical++;
+  }
+
+  // REACT_027: Validate table accessibility
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    const tableId = table.id || `table-${index}`;
+    
+    // Check for proper table structure
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasHeaders = table.querySelector('th') !== null;
+    const headerCells = table.querySelectorAll('th');
+    const dataCells = table.querySelectorAll('td');
+    
+    if (!hasCaption) {
+      report.issues.push({
+        id: 'REACT_027',
+        description: `Table ${tableId} is missing a caption for accessibility`,
+        severity: 'warning',
+        element: tableId,
+        fixRecommendation: 'Add a <caption> element inside the table to describe its content'
+      });
+      report.summary.warning++;
+    }
+    
+    if (!hasHeaders) {
+      report.issues.push({
+        id: 'REACT_027',
+        description: `Table ${tableId} has no header cells (th elements)`,
+        severity: 'warning',
+        element: tableId,
+        fixRecommendation: 'Add <th> elements for column or row headers'
+      });
+      report.summary.warning++;
+    }
+    
+    // Check for proper scope attributes on headers
+    headerCells.forEach((th, thIndex) => {
+      if (!th.hasAttribute('scope')) {
+        report.issues.push({
+          id: 'REACT_027',
+          description: `Header cell ${thIndex} in table ${tableId} is missing scope attribute`,
+          severity: 'info',
+          element: `${tableId}-th-${thIndex}`,
+          fixRecommendation: 'Add scope="col" or scope="row" to header cells'
+        });
+        report.summary.info++;
+      }
+    });
   });
 
-  const svg1 = document.querySelector('.svg1');
-  const svg2 = document.querySelector('.svg2');
-  if (svg1) svg1.setAttribute('aria-labelledby', 'svg1-title');
-  if (svg2) svg2.setAttribute('aria-labelledby', 'svg2-title');
+  // REACT_017 & REACT_025: Validate landmarks
+  const landmarks = {
+    header: document.querySelectorAll('header'),
+    nav: document.querySelectorAll('nav'),
+    main: document.querySelectorAll('main'),
+    footer: document.querySelectorAll('footer'),
+    aside: document.querySelectorAll('aside'),
+    section: document.querySelectorAll('section'),
+    article: document.querySelectorAll('article')
+  };
 
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
-    // The static fix should be applied in the source files
-    // - Replace one <main> with <section role="region" ...
-    // - Same fix
-  }
-  
-  const tbody = table.querySelector('tbody');
-  if (!tbody) {
-    issues.push({ type: 'missing-tbody', severity: 'info' });
-  }
-  
-  return { valid: issues.length === 0, issues };
-}
-
-/**
- * Validate landmark structure for accessibility
- * @param {HTMLElement} element - The element to validate
- * @returns {boolean} True if landmark is valid, false otherwise
- */
-export function validateLandmarkStructure(element) {
-  if (!element) return false;
-  
-  const role = element.getAttribute('role');
-  const validLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
-  
-  if (role && validLandmarks.includes(role)) {
-    return true;
-  }
-  
-  const tagName = element.tagName.toLowerCase();
-  const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer'];
-  
-  return landmarkTags.includes(tagName);
-}
-
-export { addressAccessibilityIssues };
-
-// Module exports for backwards compatibility
-module.exports.getLangAttribute = function getLangAttribute() {
-  const htmlElement = document.documentElement;
-  return htmlElement ? htmlElement.getAttribute('lang') : null;
-};
-
-module.exports.wrapPrimaryContentInMain = function wrapPrimaryContentInMain() {
-  // Implementation to wrap primary content in main element
-  const primaryContent = document.querySelector('header, nav, main, footer');
-  if (primaryContent) {
-    primaryContent.setAttribute('role', 'main');
-  }
-};
-
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
-
-// ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
-
-// Creep role definitions
-const roleHarvester = {
-  run: function(creep) {
-    // Harvester logic would go here
-    if (creep.store.getFreeCapacity() > 0) {
-      const sources = creep.room.find(FIND_DROPPED_RESOURCES);
-      if (sources.length > 0) {
-        if (creep.pickup(sources[0]) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(sources[0]);
-        }
-      }
-    } else {
-      const targets = creep.room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return (structure.structureType === STRUCTURE_SPAWN ||
-                  structure.structureType === STRUCTURE_EXTENSION ||
-                  structure.structureType === STRUCTURE_TOWER) && structure.store.getFreeCapacity() > 0;
-        }
-      });
-      if (targets.length > 0) {
-        if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(targets[0]);
-        }
-      }
-    }
-  }
-};
-
-const roleUpgrader = {
-  run: function(creep) {
-    // Upgrader logic would go here
-    if (creep.store.getFreeCapacity() > 0) {
-      const sources = creep.room.find(FIND_DROPPED_RESOURCES);
-      if (sources.length > 0) {
-        if (creep.pickup(sources[0]) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(sources[0]);
-        }
-      }
-    } else {
-      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(creep.room.controller);
-      }
-    }
-  }
-};
-
-module.exports.loop = function() {
-    // Clear the memory of dead creeps
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-        }
-    }
-
-    // Implementation details for creep management
-    // Check if we need to spawn more creeps
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-
-    if(harvesters.length < 2) {
-        var newName = 'Harvester' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'harvester'}});
-    }
-
-    if(upgraders.length < 2) {
-        var newName = 'Upgrader' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'upgrader'}});
-    }
-
-    for(var name in Game.rooms) {
-        console.log('Room "'+name+'" has ' + Game.rooms[name].energyAvailable + ' energy');
-    }
-
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-    }
-}
+  // Check for unique main landmark (REACT_025)

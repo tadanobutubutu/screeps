@@ -377,183 +377,59 @@ const focusTrap = (element) => {
     };
 };
 
-// Function to generate a new session ID
-function generateSessionId() {
-    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+// New function to handle focus trap for keyboard navigation
+function handleFocusTrap(container, options = {}) {
+  const { focusableElementsSelector = 'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])', initialFocusSelector = '[autofocus], [data-focus-trap-initial]' } = options;
+
+  // Get all focusable elements within the container
+  const focusableElements = Array.from(container.querySelectorAll(focusableElementsSelector))
+    .filter(el => !el.disabled && el.offsetParent !== null);
+
+  if (focusableElements.length === 0) return;
+
+  // Find the initial focus element
+  let initialFocusElement = container.querySelector(initialFocusSelector);
+  if (!initialFocusElement || !focusableElements.includes(initialFocusElement)) {
+    initialFocusElement = focusableElements[0];
+  }
+
+  // Set initial focus
+  initialFocusElement.focus();
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (e.key !== 'Tab') return;
+
+    const isShiftPressed = e.shiftKey;
+    const currentIndex = focusableElements.indexOf(document.activeElement);
+
+    if (currentIndex === -1) {
+      // If focus is outside the trap, move to first element
+      e.preventDefault();
+      focusableElements[0].focus();
+      return;
+    }
+
+    if (isShiftPressed && currentIndex === 0) {
+      // Shift+Tab on first element - move to last
+      e.preventDefault();
+      focusableElements[focusableElements.length - 1].focus();
+    } else if (!isShiftPressed && currentIndex === focusableElements.length - 1) {
+      // Tab on last element - move to first
+      e.preventDefault();
+      focusableElements[0].focus();
+    }
+  };
+
+  // Add event listeners
+  container.addEventListener('keydown', handleKeyDown);
+
+  // Return cleanup function
+  return () => {
+    container.removeEventListener('keydown', handleKeyDown);
+  };
 }
 
-// Wrapper function to render dependency graphs with accessibility enhancements
-function renderGraphIndex(graphData) {
-    if (!graphData) {
-        throw new Error('Graph data is required');
-    }
-
-    const container = graphData.container || document.getElementById(graphData.id);
-    const dependencies = graphData.dependencies || {};
-    const options = graphData.options || {};
-
-    // Render the dependency graph
-    const renderedGraph = renderDependencyGraphs(container, dependencies, options);
-
-    // Apply accessibility enhancements
-    if (typeof addressAccessibilityIssues === 'function') {
-        addressAccessibilityIssues(renderedGraph);
-    }
-
-    // Set SVG accessibility properties if available
-    if (typeof setSvgAccessibilityProps === 'function') {
-        setSvgAccessibilityProps(renderedGraph);
-    }
-
-    // Add accessible names to SVGs
-    if (typeof addAccessibleNamesToSVGs === 'function') {
-        addAccessibleNamesToSVGs(renderedGraph);
-    }
-
-    return renderedGraph;
-}
-
-// Wraps primary content in a <main> landmark element
-function wrapPrimaryContentInMain() {
-    if (typeof document === 'undefined') return;
-    const main = document.querySelector('main');
-    if (!main) {
-        const mainEl = document.createElement('main');
-        mainEl.id = 'main-content';
-        while (document.body.firstChild) {
-            mainEl.appendChild(document.body.firstChild);
-        }
-        document.body.appendChild(mainEl);
-    }
-
-// Consolidated accessibility issue handler
-function addressAccessibilityIssuesImpl(graphData) {
-    if (!graphData) return;
-
-    // Fix landmark issues
-    if (typeof fixLandmarkIssues === 'function') {
-        fixLandmarkIssues(graphData);
-    }
-
-    // Fix fake link issues
-    if (typeof fixFakeLinkIssues === 'function') {
-        fixFakeLinkIssues(graphData);
-    }
-
-    // Fix image alt texts
-    if (typeof fixImageAltTexts === 'function') {
-        fixImageAltTexts(graphData);
-    }
-
-    // Ensure unique landmarks
-    if (typeof uniqueLandmarks === 'function') {
-        uniqueLandmarks(graphData);
-    }
-
-    // Fix button identifiers
-    if (typeof fixButtonIdentifiers === 'function') {
-        fixButtonIdentifiers(graphData);
-    }
-
-    // Fix dependency graph ARIA attributes
-    if (typeof fixDependencyGraphAria === 'function') {
-        fixDependencyGraphAria(graphData);
-    }
-
-    // Add main landmark to index
-    if (typeof addMainLandmarkToIndex === 'function') {
-        addMainLandmarkToIndex(graphData);
-    }
-}
-
-// Top-level jQuery implementation for accessibility enhancement
-$(document).ready(() => {
-    // Initialize skip links
-    if (typeof accessibilityUtils.initSkipLink === 'function') {
-        accessibilityUtils.initSkipLink();
-    }
-
-    // Wrap primary content in <main> landmark
-    wrapPrimaryContentInMain();
-
-    // Add language attribute to document
-    if (typeof addLangAttribute === 'function') {
-        addLangAttribute(document.documentElement);
-    }
-
-    // Fix table structure issues
-    if (typeof fixTableStructure === 'function') {
-        fixTableStructure();
-    }
-
-    // Add main landmark
-    if (typeof addMainLandmark === 'function') {
-        addMainLandmark();
-    }
-
-    // Ensure unique landmarks
-    if (typeof ensureUniqueLandmarks === 'function') {
-        ensureUniqueLandmarks();
-    }
-
-    // Set SVG accessibility properties
-    if (typeof setSvgAccessibilityProps === 'function') {
-        setSvgAccessibilityProps();
-    }
-
-    // Add accessible names to SVGs
-    if (typeof addAccessibleNamesToSVGs === 'function') {
-        addAccessibleNamesToSVGs();
-    }
-
-    // Fix fake link issues
-    if (typeof fixFakeLinkIssue === 'function') {
-        fixFakeLinkIssue();
-    }
-
-    // Fix landmark issues
-    if (typeof fixLandmarkIssues === 'function') {
-        fixLandmarkIssues();
-    }
-
-    // Add landmark regions
-    if (typeof addLandmarkRegions === 'function') {
-        addLandmarkRegions();
-    }
-
-    // Fix button identifiers
-    if (typeof fixButtonIdentifiers === 'function') {
-        fixButtonIdentifiers();
-    }
-
-    // Fix dependency graph ARIA
-    if (typeof fixDependencyGraphAria === 'function') {
-        fixDependencyGraphAria();
-    }
-
-    // Add main landmark to index
-    if (typeof addMainLandmarkToIndex === 'function') {
-        addMainLandmarkToIndex();
-    }
-
-    // Fix image alt texts
-    if (typeof fixImageAltTexts === 'function') {
-        fixImageAltTexts();
-    }
-
-    // Ensure unique landmarks
-    if (typeof uniqueLandmarks === 'function') {
-        uniqueLandmarks();
-    }
-
-    // Initialize focus traps
-    const focusableContainers = document.querySelectorAll('[data-focus-trap]');
-    focusableContainers.forEach((container) => {
-        focusTrap(container);
-    });
-});
-
-// Export modules for testing
 module.exports = {
   implementAccessibilityFixesFromReport,
   addressAccessibilityIssues,

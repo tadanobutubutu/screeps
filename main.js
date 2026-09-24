@@ -79,6 +79,18 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Function to count dependencies in main.js
+function countDependencies() {
+  if (AddressabilityIssues && typeof AddressabilityIssues.countDependencies === 'function') {
+    return AddressabilityIssues.countDependencies();
+  }
+  const dependencies = ['http', 'path', 'fs', 'express', 'child_process', './accessibility'];
+  return {
+    total: dependencies.length,
+    dependencies: dependencies
+  };
+}
+
 app.use(express.json());
 
 function processSvgElements() {
@@ -771,7 +783,30 @@ function startApp() {
   return server;
 }
 
-// Export functions for testing
+function newFunction() {
+  if (AddressabilityIssues && typeof AddressabilityIssues.newFunction === 'function') {
+    return AddressabilityIssues.newFunction();
+  }
+}
+
+function setARIARoleForDependencyGraph() {
+  setDependencyGraphRole();
+}
+
+function addAriaLabel(element, label) {
+  if (element) element.setAttribute('aria-label', label || '');
+}
+
+function renderDependencyGraph() {
+  // Dependency graph rendering stub
+}
+
+if (AddressabilityIssues) {
+  AddressabilityIssues.addLangAttribute = addLangAttribute;
+  AddressabilityIssues.ensureElementHasId = ensureElementHasId;
+  AddressabilityIssues.validateLandmarkStructure = validateLandmarkStructure;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     createServer,

@@ -3,10 +3,10 @@
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 // ----- END ORIGINAL CODE-----
 
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+// TODO: Import required module(s) and export the new necessary function(8) here in main.js (preserving the original code)
 const main = require('./utilities')
 
-```javascript
+
 // Import necessary dependencies
 import React from 'react';
 import { render } from 'react-dom';
@@ -116,9 +116,50 @@ const accessibilityUtils = {
     }
 }
 
-// ... (The rest of your functions: validateSession, handleCredentialResponse, renderAdditionalContent, checkAccessibilityForReport, renderGraphIndex, trapFocus, log)
+// Extract the accessible name for an SVG from its content
+// _Commit: 99ad73e624419419bcc0a150bc9bde64d54c492_
+// _TODO-HASH: 088a77e02482ebe433e3cfd22afa982b134cbdd7_
+// ----- END ORIGINAL CODE-----
+function getSvgAccessibleName(svgElement) {
+  // Check for aria-label attribute first
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim()) {
+    return ariaLabel.trim();
+  }
 
-  // Handle keyboard navigation (e.g., arrow keys, tab)
+  // Check for aria-labelledby attribute
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby && ariaLabelledby.trim()) {
+    const id = ariaLabelledby.trim();
+    // Look for the referenced element in the document
+    const labelElement = svgElement.ownerDocument?.getElementById(id) ||
+                        document.getElementById(id) ||
+                        svgElement.querySelector(`#${id}`);
+    if (labelElement && labelElement.textContent) {
+      return labelElement.textContent.trim();
+    }
+  }
+
+  // Check for title element inside the SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent && titleElement.textContent.trim()) {
+    return titleElement.textContent.trim();
+  }
+
+  // Check for desc element inside the SVG
+  const descElement = svgElement.querySelector('desc');
+  if (descElement && descElement.textContent && descElement.textContent.trim()) {
+    return descElement.textContent.trim();
+  }
+
+  return '';
+}
+
+// Accessibility enhancement: Ensure all UI elements are properly labeled
+const handleKeyDown = (event) => {
+  const activeElement = document.activeElement;
+
+  // Handle keyboard navigation (e. g., arrow keys, tab)
   switch (event.key) {
     case 'ArrowUp':
     case 'ArrowDown':
@@ -200,51 +241,13 @@ function ... report) {
   // Fix fake link issues (elements that look like links but are missing href)
   const fakeLinks = ... ...
   ... => {
-    ...;
+    ...
     fixes.fakeLinksFixed++;
-  });
+  }
+  ...;
 
   return fixes;
 }
 
-// TODO: Implement wrapPrimaryContentInMain function, including the added logic
-function wrapPrimaryContentInMain(container) {
-  const fixes = {
-    contentWrapped: false,
-    mainElement: null
-  };
-
-  if (!container) {
-    return fixes;
-  }
-
-  const htmlEl = container.ownerDocument ? container.ownerDocument.documentElement : document.documentElement;
-  if (!htmlEl) {
-    return fixes;
-  }
-
-  // Check if main element already exists
-  let mainElement = container.querySelector('main');
-  
-  if (!mainElement) {
-    mainElement = container.ownerDocument ? container.ownerDocument.createElement('main') : document.createElement('main');
-    mainElement.setAttribute('id', 'main-content');
-    mainElement.setAttribute('tabindex', '-1');
-    mainElement.setAttribute('role', 'main');
-    
-    // Find primary content - typically body or first substantial element
-    const body = container.ownerDocument ? container.ownerDocument.body : document.body;
-    
-    if (body) {
-      // Wrap existing content in main element
-      while (body.firstChild) {
-        mainElement.appendChild(body.firstChild);
-      }
-      body.appendChild(mainElement);
-      fixes.contentWrapped = true;
-      fixes.mainElement = mainElement;
-    }
-  }
-  
-  return fixes;
-}
+// Export the function for use in other modules
+export { getSvgAccessibleName };

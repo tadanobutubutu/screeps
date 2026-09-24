@@ -23,10 +23,10 @@ export function myNewFunction() {
 }
 
 // REACT_015: Add lang attribute to the <html> element
-function addLangAttributeToHtml(html) {
+function ... {
   if (typeof html !== 'string') return html;
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-    if (attrs.includes('lang=')) return match;
+  return ... (match, attrs) => {
+    if ... return match;
     return `<html${attrs} lang="en">`;
   });
 }
@@ -40,13 +40,10 @@ import App from './App';
 import reportWebVitals from ...
 import a11y from './AccessibilityUtilities';
 
-// Import accessibilityUtils
-import accessibilityUtils from './accessibilityUtils';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 
 // DOM Elements
-const dependencyGraph = document.getElementById('dependency-graph');
+const dependencyGraph = ...
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -89,7 +86,7 @@ function addLangAttribute() {
  */
 function validateTableAccessibility(table) {
   // Check for caption or aria-label
-  return table.querySelector('caption') ||
+  return ... ||
            table.getAttribute('aria-label') ||
            table.getAttribute('aria-labelledby');
 }
@@ -100,8 +97,8 @@ function validateTableAccessibility(table) {
  * @returns {boolean} True if table structure is valid
  */
 function validateTableStructure(table) {
-  const hasHeader = table.querySelector('th');
-  const hasBody = table.querySelector('td');
+  const hasHeader = ... th');
+  const hasBody = ... td');
   return hasHeader && hasBody;
 }
 
@@ -133,7 +130,7 @@ function fixTableStructure(table) {
  * Adds main landmark to the document
  */
 function addMainLandmark() {
-  const rootContainer = document.querySelector('#root');
+  const rootContainer = ...
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }
@@ -150,9 +147,9 @@ function validateLandmark(landmark) {
   return ...
 }
 
-function hasLandmarkAccessibleName(landmark) {
-  const ariaLabel = landmark.getAttribute('aria-label');
-  const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
+function ... {
+  const ariaLabel = ...
+  const ariaLabelledBy = ...
   return !!(ariaLabel || ariaLabelledBy || landmark.textContent.trim());
 }
 
@@ -286,7 +283,7 @@ function fixLandmarkIssues() {
 function getSvgAccessibleName(svg) {
   return ... ||
          svg.getAttribute('title') ||
-         svg.getAttribute('aria-labelledby') ||
+         ... ||
          'SVG graphic';
 }
 
@@ -304,7 +301,7 @@ function setSvgAttributes(svg, name) {
  * Ensures unique landmarks in the document
  */
 function ensureUniqueLandmarks() {
-  const mainLandmarks = document.querySelectorAll('[role="main"]');
+  const mainLandmarks = ... main');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((landmark, index) => {
       if (index > 0) {
@@ -322,8 +319,8 @@ function createInPageButton() {
   const button = document.createElement('button');
   button.id = 'skip-to-main-content';
   button.textContent = 'Skip to content';
-  button.addEventListener('click', function() {
-    const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  ... function() {
+    const mainContent = ...
     if (mainContent) {
       mainContent.focus();
       mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -360,7 +357,7 @@ function validateLinkAccessibility(link) {
  * Handles fake links in the document
  */
 function handleFakeLinks() {
-  const links = document.querySelectorAll('a[href=""], a[href="#"], a:not([href])');
+  const links = ...
   links.forEach(link => {
     if ... {
       link.setAttribute('aria-label', 'Link to ' + (link.href || 'unknown destination'));
@@ -411,7 +408,7 @@ function ... {
   });
 
   // Check for buttons without accessible name
-  const buttons = document.querySelectorAll('button');
+  const buttons = ...
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || ...
     if (!accessibleName) {
@@ -425,4 +422,6 @@ function ... {
   });
 
   // Check for links without accessible names
-  const links = document.querySelectorAll
+  const links = ...
+  links.forEach((link, index) => {
+    const accessibleName = link.textContent.trim() || link.getAttribute('aria

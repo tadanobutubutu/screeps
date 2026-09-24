@@ -9,364 +9,139 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 const AddressabilityIssues = {
-  // ... (existing code)
-
-  validateLandmark(element) {
-    if (!element) {
-      return { valid: false, issue: 'Element is null or undefined' };
-    }
-
-    const landmarkRoles = [
-      'banner',
-      'main',
-      'navigation',
-      'search',
-      'contentinfo',
-      'complementary',
-      'region',
-      'form',
-      'dialog' // New role added
-    ];
-
-    const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
-    const implicitLandmarks = {
-      // ... (existing implicitLandmarks)
-      'dialog': 'dialog' // New implicitLandmark
-    };
-
-    let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
-
-    if (!landmarkRole && implicitLandmarks[tagName]) {
-      landmarkRole = implicitLandmarks[tagName];
-    }
-
-    if (!landmarkRole) {
-      return { valid: false, error: 'Element does not have a valid landmark role', element: tagName, role: landmarkRole };
-    }
-
-    if (!landmarkRoles.includes(landmarkRole)) {
-      return { valid: false, error: `Invalid landmark role: ${landmarkRole}`, element: tagName, role: landmarkRole };
-    }
-
-    return { valid: true, element: tagName, role: landmarkRole };
-  },
-
-  spawnSomeCommand(command) {
-    const childProcess = require('child_process');
-    const runCommand = async (command) => {
-      return await new Promise((resolve, reject) => {
-        exec(command, (error, stdout, stderr) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve({ stdout, stderr });
-        });
-      });
-    };
-    return runCommand(command);
-  },
-
-  // ... (remaining existing code)
+  MISSING_ID: 'missing-id',
+  MISSING_ALT: 'missing-alt',
+  MISSING_ARIA_LABEL: 'missing-aria-label',
+  MISSING_ROLE: 'missing-role',
+  LOW_CONTRAST: 'low-contrast',
+  TINY_SIZE: 'tiny-size'
 };
 
-let gameData = {
-  // ... (existing gameData)
-};
+function checkTableStructure(table) {
+  // TODO: New code that was added to the branch
+  // This function validates table structure for accessibility
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
 
-// ... (existing functions: initializeGameData, scanRoom, getPlayers, getPlayerInfo, getStructures, assignTask, getTasks)
+  const hasHeader = table.querySelector('thead') !== null;
+  const hasBody = table.querySelector('tbody') !== null;
+  const rows = table.querySelectorAll('tr');
+  const cells = table.querySelectorAll('td, th');
 
-    gameData.structures = {
-        'W0N0': [
-            { type: 'spawn', name: 'Spawn1', energy: 300, energyCapacity: 300 },
-            { type: 'extension', name: 'Extension1', energy: 50, energyCapacity: 50 }
-        ]
-    };
-
-    gameData.creepTasks = {
-        'harvester1': { task: 'harvest', target: 'source1', status: 'idle' }
-    };
+  return {
+    valid: hasHeader && hasBody && rows.length > 0 && cells.length > 0,
+    hasHeader,
+    hasBody,
+    rowCount: rows.length,
+    cellCount: cells.length
+  };
 }
 
-function scanRoom(roomName) {
-    const room = gameData.rooms[roomName];
-    if (!room) {
-        return { error: 'Room not found' };
-    }
+function generateUniqueId() {
+  return 'a11y-' + Math.random().toString(36).substr(2, 9);
+}
 
-    return {
-        room: roomName,
-        terrain: room.terrain,
-        sources: room.sources,
-        controller: room.controller
-    };
-  },
-
-  fixMainLandmarkIssues(source) {
-    // ... (existing implementation)
-  },
-
-  renderIndexView() {
-    const indexContent = require('../indexContent/indexContent');
-    const indexContainer = document.getElementById('index-container');
-    if (indexContainer) {
-      indexContainer.innerHTML = indexContent;
-    }
-  },
-
-  checkLinkAndButtonAccessibility(container) {
-    const issues = [];
-
-    if (typeof document === 'undefined' && !container) {
-      return issues;
-    }
-
-    const targetContainer = container || document;
-    const elements = targetContainer.querySelectorAll ? targetContainer : (Array.isArray(targetContainer) ? targetContainer : [targetContainer]);
-
-    const nonDescriptiveLinkPatterns = [
-      'click here',
-      'read more',
-      'learn more',
-      'here',
-      'link',
-      'more',
-      'details',
-      'this',
-      'continue'
-    ];
-
-    const getElementText = (element) => {
-      if (!element) return '';
-      if (typeof element.textContent !== 'undefined') {
-        return element.textContent.trim();
-      }
-      return '';
-    };
-
-    const getAccessibleName = (element) => {
-      if (!element) return '';
-
-      if (element.hasAttribute && element.hasAttribute('aria-label')) {
-        return element.getAttribute('aria-label');
-      }
-
-      if (element.hasAttribute && element.hasAttribute('aria-labelledby')) {
-        const labelledById = element.getAttribute('aria-labelledby');
-        if (typeof document !== 'undefined' && document.getElementById) {
-          const labelElement = document.getElementById(labelledById);
-          if (labelElement) {
-            return labelElement.textContent.trim();
-          }
-        }
-      }
-
-      return getElementText(element);
-    };
-
-    const checkLink = (link) => {
-      const linkText = getElementText(link).toLowerCase();
-      const accessibleName = getAccessibleName(link);
-      const href = link.getAttribute ? link.getAttribute('href') : '';
-
-      if (!accessibleName || accessibleName === '') {
-        issues.push({
-          type: 'link-missing-accessible-name',
-          severity: 'high',
-          element: 'a',
-          message: 'Link is missing an accessible name',
-          suggestedFix: 'Add descriptive text or aria-label to the link',
-          elementReference: link
-        });
-      } else {
-        for (const pattern of nonDescriptiveLinkPatterns) {
-          if (linkText === pattern || linkText.startsWith(pattern + ' ') || linkText.endsWith(' ' + pattern)) {
-            issues.push({
-              type: 'link-non-descriptive-text',
-              severity: 'medium',
-              element: 'a',
-              message: `Link text "${accessibleName}" is not descriptive`,
-              suggestedFix: 'Use descriptive link text that explains the link destination',
-              elementReference: link
-            });
-            break;
-          }
-        }
-      }
-
-      if (href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;') {
-        issues.push({
-          type: 'link-empty-href',
-          severity: 'low',
-          element: 'a',
-          message: 'Link has an empty or placeholder href attribute',
-          suggestedFix: 'Use a meaningful href or remove the link if it has no destination',
-          elementReference: link
-        });
-      }
-    };
-
-    const checkButton = (button) => {
-      const buttonText = getElementText(button);
-      const accessibleName = getAccessibleName(button);
-
-      if (!accessibleName || accessibleName === '') {
-        issues.push({
-          type: 'button-missing-accessible-name',
-          severity: 'high',
-          element: 'button',
-          message: 'Button is missing an accessible name',
-          suggestedFix: 'Add descriptive text, aria-label, or aria-labelledby to the button',
-          elementReference: button
-        });
-      }
-
-      if (buttonText.length > 100) {
-        issues.push({
-          type: 'button-text-too-long',
-          severity: 'low',
-          element: 'button',
-          message: `Button text is very long (${buttonText.length} characters)`,
-          suggestedFix: 'Consider using a shorter, more concise button label',
-          elementReference: button
-        });
-      }
-    };
-
-    const checkImageLink = (link) => {
-      const images = link.querySelector ? link.querySelectorAll('img') : [];
-      const linkText = getElementText(link);
-
-      if (images.length > 0 && linkText === '') {
-        const allImagesHaveAlt = Array.from(images).every(img => {
-          const alt = img.getAttribute ? img.getAttribute('alt') : '';
-          return alt !== null && alt !== undefined;
-        });
-
-        if (!allImagesHaveAlt) {
-          issues.push({
-            type: 'image-link-missing-alt',
-            severity: 'high',
-            element: 'a',
-            message: 'Link containing image(s) has image(s) without alt attributes',
-            suggestedFix: 'Add alt attributes to all images within the link',
-            elementReference: link
-          });
-        }
-      }
-    };
-
-    const processElements = (els) => {
-      els.forEach(element => {
-        if (!element || !element.tagName) return;
-
-        const tagName = element.tagName.toLowerCase();
-
-        if (tagName === 'a') {
-          checkLink(element);
-          checkImageLink(element);
-        } else if (tagName === 'button') {
-          checkButton(element);
-        }
-
-        if (element.querySelectorAll) {
-          const childLinks = element.querySelectorAll('a');
-          const childButtons = element.querySelectorAll('button');
-
-          childLinks.forEach(checkLink);
-          childButtons.forEach(checkButton);
-        }
-      });
-    };
-
-    if (targetContainer.querySelectorAll) {
-      const allLinks = targetContainer.querySelectorAll('a');
-      const allButtons = targetContainer.querySelectorAll('button');
-
-      allLinks.forEach(link => {
-        checkLink(link);
-        checkImageLink(link);
-      });
-
-      allButtons.forEach(checkButton);
-    } else if (Array.isArray(targetContainer) || targetContainer.length !== undefined) {
-      processElements(elements);
-    }
-
-    return issues;
-  },
-
-  fixSemanticMarkup(source) {
-    // ... (existing implementation)
-  },
-
-  validateLandmarkStructure() {
-    // ... (existing implementation)
+function extractAccessibilityInsights(insightReport) {
+  if (!insightReport || !insightReport.sections) {
+    return [];
   }
-};
+
+  const issues = [];
+
+  insightReport.sections.forEach((section, index) => {
+    // Check for missing headings
+    if (!section.heading) {
+      issues.push({
+        type: 'missing-heading',
+        severity: 'high',
+        message: `Section ${index} is missing a heading`,
+        suggestedFix: 'Add a descriptive heading to each section'
+      });
+    }
+
+    // Check for empty content
+    if (!section.content || section.content.trim() === '') {
+      issues.push({
+        type: 'empty-content',
+        severity: 'medium',
+        message: `Section ${index} has no content`,
+        suggestedFix: 'Add meaningful content to the section'
+      });
+    }
+
+    // Check for potentially inaccessible language
+    if (section.content && section.content.toLowerCase().includes('click here')) {
+      issues.push({
+        type: 'inaccessible-link-text',
+        severity: 'low',
+        message: `Section ${index} contains "click here" text which is not accessible`,
+        suggestedFix: 'Use descriptive link text instead of "click here"'
+      });
+    }
+  });
+
+  return issues;
+}
+
+function generateAccessibilityReport(accessibilityReport) {
+  if (!accessibilityReport || !accessibilityReport.issues || accessibilityReport.issues.length === 0) {
+    return [];
+  }
+
+  const report = accessibilityReport.issues.map(issue => ({
+    issueType: issue.type,
+    status: issue.status || 'pending',
+    fixApplied: issue.fixApplied || ''
+  }));
+
+  return report;
+}
+
+function calculateAccessibilityScore(fixedIssues) {
+  if (!Array.isArray(fixedIssues)) {
+    return 0;
+  }
+
+  const scorePoints = {
+    'color-contrast': 5,
+    'missing-alt-text': 3,
+    'missing-aria-label': 5,
+    'heading-order': 2,
+    'other': 1
+  };
+
+  return fixedIssues.reduce((score, issue) => {
+    const points = scorePoints[issue.type] || scorePoints['other'];
+    return score + points;
+  }, 0);
+}
+
+function transformMainToSection(source) {
+  const mainBlockRegex = /<main\b[^>]*>([\s\S]*?)<\/main>/gi;
+
+  const matches = source.match(mainBlockRegex);
+  if (!matches || matches.length <= 1) {
+    return source;
+  }
+
+  let result = source;
+  for (let i = 1; i < matches.length; i++) {
+    const block = matches[i];
+    const fixedBlock = block
+      .replace(/<main\b([^>]*)>/i, '<section$1>')
+      .replace(/<\/main>/i, '</section>');
+    result = result.replace(block, fixedBlock);
+  }
+
+  return result;
+}
 
 function validateLandmark(element) {
-  return AddressabilityIssues.validateLandmark(element);
-}
+  if (!element) {
+    return { valid: false, error: 'Element is required' };
+  }
 
-function getPlayers() {
-    return Object.values(gameData.players);
-}
-
-function getPlayerInfo(playerName) {
-    const player = gameData.players[playerName];
-    if (!player) {
-        return { error: 'Player not found' };
-    }
-    return player;
-}
-
-function getStructures(roomName) {
-    return gameData.structures[roomName] || [];
-}
-
-function assignTask(creepName, task, target) {
-    if (!creepName || !task || !target) {
-        return { error: 'Missing required fields' };
-    }
-
-    gameData.creepTasks[creepName] = {
-        task: task,
-        target: target,
-        status: 'active',
-        assignedAt: new Date().toISOString()
-    };
-
-    return { success: true, task: gameData.creepTasks[creepName] };
-}
-
-function getTasks(creepName) {
-    return gameData.creepTasks[creepName] || { error: 'No tasks found' };
-}
-
-function setSvgElementAttributes(svg) {
-    if (!svg.hasAttribute('aria-label')) {
-        const accessibleName = svg.getAttribute('id') || '';
-        if (accessibleName) {
-            svg.setAttribute('aria-label', accessibleName);
-        }
-    }
-}
-
-function main() {
-    const svgElements = document.querySelectorAll('svg');
-
-    setSvgAttributes(svgElements);
-
-    svgElements.forEach((svg) => {
-        renderDependencyGraphs(svg);
-    });
-
-    checkLandmarkElements();
-}
-
-function checkLandmarkElements() {
   const landmarkRoles = [
     'banner',
     'main',
@@ -378,81 +153,169 @@ function checkLandmarkElements() {
     'form'
   ];
 
-  const checkLandmarkElement = (selector, role) => {
-    const elements = document.querySelectorAll(selector);
-    elements.forEach((element) => {
-      const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-      const landmarkRole = role || (landmarkRoles.includes(tagName) ? tagName : undefined);
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
 
-      if (!landmarkRole) {
-        console.warn(`Missing landmark role for ${tagName}`);
-      }
-    });
+  const implicitLandmarks = {
+    'header': 'banner',
+    'main': 'main',
+    'nav': 'navigation',
+    'aside': 'complementary',
+    'footer': 'contentinfo',
+    'section': 'region',
+    'form': 'form'
   };
 
-  checkLandmarkElement('[role="main"], main', 'main');
-  checkLandmarkElement('[role="banner"], header', 'banner');
-  checkLandmarkElement('[role="navigation"], nav', 'navigation');
-  checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
-  checkLandmarkElement('[role="complementary"], aside', 'complementary');
-  checkLandmarkElement('[role="search"], [role="form"], form', 'form');
+  let landmarkRole = element.getAttribute ? element.getAttribute('role') : (element.role || null);
+
+  if (!landmarkRole && implicitLandmarks[tagName]) {
+    landmarkRole = implicitLandmarks[tagName];
+  }
+
+  if (!landmarkRole) {
+    return { valid: false, error: 'Element does not have a valid landmark role', element: tagName };
+  }
+
+  if (!landmarkRoles.includes(landmarkRole)) {
+    return { valid: false, error: `Invalid landmark role: ${landmarkRole}`, element: tagName, role: landmarkRole };
+  }
+
+  return { valid: true, element: tagName, role: landmarkRole };
 }
 
-function checkAccessibilityIssues(code) {
-    const issues = [];
+function runAccessibilityCommand(callback) {
+  const child_process = require('child_process');
 
-    if (!code || typeof code !== 'string') {
-        issues.push({ type: 'error', message: 'Code must be a non-empty string' });
-        return issues;
+  const spawnOptions = { shell: true };
+
+  child_process.exec('echo "test"', spawnOptions, (error, stdout, stderr) => {
+    if (error) {
+      callback(new Error(`someCommand failed: ${error.message}`));
+      return;
     }
 
-    const lines = code.split('\n');
-    lines.forEach((line, index) => {
-        const lineNum = index + 1;
-        if (line.includes('eval(')) {
-            issues.push({ type: 'error', line: lineNum, message: 'Use of eval() detected - security risk' });
-        }
-        if (line.includes('console.log(') && !line.trim().startsWith('//')) {
-            issues.push({ type: 'warning', line: lineNum, message: 'Console.log statement found - should be removed in production' });
-        }
-        if (line.includes('debugger;')) {
-            issues.push({ type: 'warning', line: lineNum, message: 'Debugger statement found' });
-        }
-        if (line.includes('// TODO') || line.includes('// FIXME')) {
-            issues.push({ type: 'info', line: lineNum, message: 'Comment found - should be addressed' });
-        }
-    });
+    callback(null, `someCommand exited with status code: ${stdout}`);
+  });
+}
 
-    if (code.length > 10000) {
-        issues.push({ type: 'warning', message: 'Code length exceeds 10000 characters - consider splitting' });
+function addLangAttribute(element, lang) {
+  element.setAttribute('lang', lang);
+}
+
+function countDependencies() {
+  const path = require('path');
+  const fs = require('fs');
+  const packageJsonPath = path.join(__dirname, '..', 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+  const dependencies = packageJson.dependencies || {};
+  const devDependencies = packageJson.devDependencies || {};
+
+  return {
+    dependencies: Object.keys(dependencies),
+    devDependencies: Object.keys(devDependencies),
+    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+  };
+}
+
+function renderDependencyGraph() {
+  const dependencyContent = '<div class="dependency-graph">Graph content</div>';
+  const graphContainer = document.getElementById('dependency-graph');
+  if (graphContainer) {
+    graphContainer.innerHTML = dependencyContent;
+  }
+}
+
+function renderIndexView() {
+  const indexContent = require('../indexContent/indexContent');
+  const indexContainer = document.getElementById('index-content');
+  if (indexContainer) {
+    indexContainer.innerHTML = indexContent;
+  }
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title') || '';
+}
+
+function setSvgAttributes(svg) {
+  if (!svg) return;
+  
+  // Handle width: set to 24 if missing or less than 24
+  const width = svg.getAttribute('width');
+  if (!width || parseInt(width) < 24) {
+    svg.setAttribute('width', '24');
+  }
+  
+  // Handle height: set to 24 if missing or less than 24
+  const height = svg.getAttribute('height');
+  if (!height || parseInt(height) < 24) {
+    svg.setAttribute('height', '24');
+  }
+}
+
+function detectAccessibilityIssues(elements) {
+  const issues = [];
+  
+  elements.forEach((element, index) => {
+    if (!element.id) {
+      issues.push({
+        element: index,
+        type: AddressabilityIssues.MISSING_ID,
+        message: 'Element is missing an id attribute'
+      });
+    }
+    
+    if (!element.getAttribute('role')) {
+      issues.push({
+        element: index,
+        type: AddressabilityIssues.MISSING_ROLE,
+        message: 'Element is missing a role attribute'
+      });
+    }
+  });
+
+  return issues;
+}
+
+function initializeAccessibility(container) {
+  let svgElements;
+  if (container instanceof Element) {
+    svgElements = container.querySelectorAll('svg');
+  } else if (Array.isArray(container)) {
+    svgElements = container;
+  } else {
+    svgElements = [];
+  }
+
+  svgElements.forEach(svg => {
+    if (!svg.id) {
+      svg.id = generateUniqueId();
     }
 
-    return issues;
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+
+    setSvgAttributes(svg);
+  });
+
+  return {
+    issues: detectAccessibilityIssues(svgElements),
+    count: svgElements.length
+  };
 }
 
-function generateAccessibilityReport(scan) {
-    const issues = checkAccessibilityIssues(scan);
-
-    const summary = {
-        total: issues.length,
-        errors: issues.filter(i => i.type === 'error').length,
-        warnings: issues.filter(i => i.type === 'warning').length,
-        info: issues.filter(i => i.type === 'info').length
-    };
-
+function handleCredentialResponse(response) {
+  if (!response) {
     return {
-        summary,
-        issues,
-        generatedAt: new Date().toISOString()
-    };
-}
-
-function getGameDataSummary() {
-    return {
-        rooms: Object.keys(gameData.rooms).length,
-        players: Object.keys(gameData.players).length,
-        structures: Object.values(gameData.structures).reduce((total, roomStructures) => total + roomStructures.length, 0),
-        tasks: Object.keys(gameData.creepTasks).length
+      success: false,
+      message: 'No credential response provided'
     };
 }
 
@@ -511,415 +374,86 @@ function checkLinkAndButtonAccessibility(container) {
     return issues;
   }
 
-  const targetContainer = container || document;
-  const elements = targetContainer.querySelectorAll ? targetContainer : (Array.isArray(targetContainer) ? targetContainer : [targetContainer]);
-
-  const nonDescriptiveLinkPatterns = [
-    'click here',
-    'read more',
-    'learn more',
-    'here',
-    'link',
-    'more',
-    'details',
-    'this',
-    'continue'
-  ];
-
-  const getElementText = (element) => {
-    if (!element) return '';
-    if (typeof element.textContent !== 'undefined') {
-      return element.textContent.trim();
-    }
-    return '';
-  };
-
-  const getAccessibleName = (element) => {
-    if (!element) return '';
-
-    if (element.hasAttribute && element.hasAttribute('aria-label')) {
-      return element.getAttribute('aria-label');
-    }
-
-    if (element.hasAttribute && element.hasAttribute('aria-labelledby')) {
-      const labelledById = element.getAttribute('aria-labelledby');
-      if (typeof document !== 'undefined' && document.getElementById) {
-        const labelElement = document.getElementById(labelledById);
-        if (labelElement) {
-          return labelElement.textContent.trim();
-        }
-      }
-    }
-
-    return getElementText(element);
-  };
-
-  const checkLink = (link) => {
-    const linkText = getElementText(link).toLowerCase();
-    const accessibleName = getAccessibleName(link);
-    const href = link.getAttribute ? link.getAttribute('href') : '';
-
-    if (!accessibleName || accessibleName === '') {
-      issues.push({
-        type: 'link-missing-accessible-name',
-        severity: 'high',
-        element: 'a',
-        message: 'Link is missing an accessible name',
-        suggestedFix: 'Add descriptive text or aria-label to the link',
-        elementReference: link
-      });
-    } else {
-      for (const pattern of nonDescriptiveLinkPatterns) {
-        if (linkText === pattern || linkText.startsWith(pattern + ' ') || linkText.endsWith(' ' + pattern)) {
-          issues.push({
-            type: 'link-non-descriptive-text',
-            severity: 'medium',
-            element: 'a',
-            message: `Link text "${accessibleName}" is not descriptive`,
-            suggestedFix: 'Use descriptive link text that explains the link destination',
-            elementReference: link
-          });
-          break;
-        }
-      }
-    }
-
-    if (href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;') {
-      issues.push({
-        type: 'link-empty-href',
-        severity: 'low',
-        element: 'a',
-        message: 'Link has an empty or placeholder href attribute',
-        suggestedFix: 'Use a meaningful href or remove the link if it has no destination',
-        elementReference: link
-      });
-    }
-  };
-
-  const checkButton = (button) => {
-    const buttonText = getElementText(button);
-    const accessibleName = getAccessibleName(button);
-
-    if (!accessibleName || accessibleName === '') {
-      issues.push({
-        type: 'button-missing-accessible-name',
-        severity: 'high',
-        element: 'button',
-        message: 'Button is missing an accessible name',
-        suggestedFix: 'Add descriptive text, aria-label, or aria-labelledby to the button',
-        elementReference: button
-      });
-    }
-
-    if (buttonText.length > 100) {
-      issues.push({
-        type: 'button-text-too-long',
-        severity: 'low',
-        element: 'button',
-        message: `Button text is very long (${buttonText.length} characters)`,
-        suggestedFix: 'Consider using a shorter, more concise button label',
-        elementReference: button
-      });
-    }
-  };
-
-  const checkImageLink = (link) => {
-    const images = link.querySelector ? link.querySelectorAll('img') : [];
-    const linkText = getElementText(link);
-
-    if (images.length > 0 && linkText === '') {
-      const allImagesHaveAlt = Array.from(images).every(img => {
-        const alt = img.getAttribute ? img.getAttribute('alt') : '';
-        return alt !== null && alt !== undefined;
-      });
-
-      if (!allImagesHaveAlt) {
-        issues.push({
-          type: 'image-link-missing-alt',
-          severity: 'high',
-          element: 'a',
-          message: 'Link containing image(s) has image(s) without alt attributes',
-          suggestedFix: 'Add alt attributes to all images within the link',
-          elementReference: link
-        });
-      }
-    }
-  };
-
-  const processElements = (els) => {
-    els.forEach(element => {
-      if (!element || !element.tagName) return;
-
-      const tagName = element.tagName.toLowerCase();
-
-      if (tagName === 'a') {
-        checkLink(element);
-        checkImageLink(element);
-      } else if (tagName === 'button') {
-        checkButton(element);
-      }
-
-      if (element.querySelectorAll) {
-        const childLinks = element.querySelectorAll('a');
-        const childButtons = element.querySelectorAll('button');
-
-        childLinks.forEach(checkLink);
-        childButtons.forEach(checkButton);
-      }
-    });
-  };
-
-  if (targetContainer.querySelectorAll) {
-    const allLinks = targetContainer.querySelectorAll('a');
-    const allButtons = targetContainer.querySelectorAll('button');
-
-    allLinks.forEach(link => {
-      checkLink(link);
-      checkImageLink(link);
-    });
-
-    allButtons.forEach(checkButton);
-  } else if (Array.isArray(targetContainer) || targetContainer.length !== undefined) {
-    processElements(elements);
+  if (!response.token) {
+    return {
+      success: false,
+      message: 'Token is missing from credential response'
+    };
   }
 
-  return issues;
+  try {
+    // Store credentials securely
+    const credentialData = {
+      token: response.token,
+      refreshToken: response.refreshToken || null,
+      expiresAt: response.expiresIn ? Date.now() + (response.expiresIn * 1000) : null,
+      receivedAt: Date.now()
+    };
+
+    // Emit custom event for other components to handle
+    if (typeof window !== 'undefined') {
+      const credentialEvent = new CustomEvent('credential-received', {
+        detail: credentialData,
+        bubbles: true
+      });
+      window.dispatchEvent(credentialEvent);
+    }
+
+    return {
+      success: true,
+      message: 'Credential response handled successfully',
+      data: credentialData
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Failed to process credential response: ' + error.message
+    };
+  }
 }
 
-function initializeEventData() {
-  // Placeholder for event data initialization
+function getStoredCredentials() {
+  const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('credentials') : null;
+  if (!stored) return null;
+
+  try {
+    const credentials = JSON.parse(stored);
+    if (credentials.expiresAt && Date.now() > credentials.expiresAt) {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('credentials');
+      }
+      return null;
+    }
+    return credentials;
+  } catch (error) {
+    return null;
+  }
 }
 
-app.get('/', (req, res) => {
-    res.json({ message: 'Screeps API Server', version: '1.0.0' });
-});
-
-app.get('/api/rooms/:roomName', (req, res) => {
-    const result = scanRoom(req.params.roomName);
-    res.json(result);
-});
-
-app.get('/api/players', (req, res) => {
-    res.json(getPlayers());
-});
-
-app.get('/api/players/:playerName', (req, res) => {
-    res.json(getPlayerInfo(req.params.playerName));
-});
-
-app.get('/api/structures/:roomName', (req, res) => {
-    res.json(getStructures(req.params.roomName));
-});
-
-app.post('/api/tasks/:creepName', (req, res) => {
-    const { task, target } = req.body;
-    const result = assignTask(req.params.creepName, task, target);
-    res.json(result);
-});
-
-app.get('/api/tasks/:creepName', (req, res) => {
-    res.json(getTasks(req.params.creepName));
-});
-
-app.post('/api/accessibility/scan', (req, res) => {
-    const { code } = req.body;
-    const report = generateAccessibilityReport(code);
-    res.json(report);
-});
-
-app.post('/api/run', async (req, res) => {
-    try {
-        const { command } = req.body;
-        const result = await runCommand(command);
-        res.json({ output: result });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/dependencies', (req, res) => {
-    try {
-        const depCount = AddressabilityIssues.countDependencies();
-        res.json(depCount);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-if (typeof app !== 'undefined' && typeof app.listen === 'function') {
-    app.listen(PORT, () => {
-        console.log(`Screeps API Server running on port ${PORT}`);
+function clearCredentials() {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem('credentials');
+  }
+  if (typeof window !== 'undefined') {
+    const clearEvent = new CustomEvent('credentials-cleared', {
+      bubbles: true
     });
+    window.dispatchEvent(clearEvent);
+  }
 }
 
-function initializeAccessibility() {
-  if (!document.querySelectorAll) return;
-  addressAccessibilityIssues(sampleInsightReport);
-}
-
+// Export functions for testing
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     AddressabilityIssues,
-    fixMainLandmarkIssues: AddressabilityIssues.fixMainLandmarkIssues,
-    fixSemanticMarkup: AddressabilityIssues.fixSemanticMarkup,
-    validateLandmarkStructure: AddressabilityIssues.validateLandmarkStructure,
-    createServer,
-    startApp,
-    checkLandmarkElements,
-    newFunction,
-    setARIARoleForDependencyGraph,
-    addLangAttribute: AddressabilityIssues.addLangAttribute,
-    validateLandmark,
-    processSvgElements,
+    initializeAccessibility,
+    getSvgAccessibleName,
+    setSvgAttributes,
     checkTableStructure,
-    sampleInsightReport,
-    config,
+    generateUniqueId,
+    detectAccessibilityIssues,
     handleCredentialResponse,
     getStoredCredentials,
-    handleAddLangAttribute,
-    newFunctionality,
-    countDependencies,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
-    createInPageButton,
-    implementTowerDefense,
-    getEventDataSummary,
-    ensureDependencyGraphARIA,
-    getLangAttribute,
-    checkAccessibilityIssues,
-    triggerEvent,
-    checkLinkAndButtonAccessibility,
-    addBook,
-    handleFakeLinks
+    clearCredentials
   };
-} else {
-  // Browser environment - wait for DOM
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      initializeAccessibility();
-      performBrowserInitialization();
-    });
-  } else {
-    initializeAccessibility();
-    performBrowserInitialization();
-  }
-}
-
-// Browser-only initialization code
-function performBrowserInitialization() {
-  // Fix 26 table structure issues
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table) => {
-    const validationResult = validateTableStructure(table);
-    if (!validationResult.valid) {
-      // Handle invalid table structure
-      console.error(`Table structure issues found: ${validationResult.error}`);
-    }
-  });
-
-  // Add/fix 4 landmark issues
-  const landmarks = document.querySelectorAll('main, nav, aside, header, footer');
-  landmarks.forEach((landmark) => {
-    const validationResult = validateLandmark(landmark);
-    if (!validationResult.valid) {
-      // Handle invalid landmark
-      console.error(`Landmark issues found: ${validationResult.error}`);
-    }
-  });
-
-  // Add accessible names to 2 SVGs
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach((svg) => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-  });
-
-  // Ensure unique landmarks
-  const uniqueLandmarks = ensureUniqueLandmarks();
-  if (!uniqueLandmarks) {
-    console.error('Non-unique landmarks detected');
-  }
-
-  // Fix 1 fake link issue
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach((link) => {
-    handleFakeLinks([{
-      type: 'fake',
-      message: 'Link points to an invalid location'
-    }]);
-    link.setAttribute('href', '#');
-  });
-}
-
-// Accessibility-focused implementation functions
-function countDependencies() {
-  // Implement function for counting dependencies with AddressabilityIssues
-  return AddressabilityIssues.countDependencies();
-}
-
-app.get('/api/tasks/:creepName', (req, res) => {
-    res.json(getTasks(req.params.creepName));
-});
-
-app.post('/api/accessibility/scan', (req, res) => {
-    const { code } = req.body;
-    const report = generateAccessibilityReport(code);
-    res.json(report);
-});
-
-app.post('/api/run', async (req, res) => {
-    try {
-        const { command } = req.body;
-        const result = await runCommand(command);
-        res.json({ output: result });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/dependencies', (req, res) => {
-    try {
-        const depCount = countDependencies();
-        res.json(depCount);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.listen(PORT, () => {
-    console.log(`Screeps API Server running on port ${PORT}`);
-});
-
-    // Get client ID from meta tag
-    const metaTag = document.querySelector('meta[name="google-signin-client_id"]');
-    const clientId = metaTag ? metaTag.getAttribute('content') : null;
-    if (!clientId) {
-      console.error('Client ID not found in meta tag');
-      return;
-    }
-
-    if (payload.aud !== clientId) {
-      console.error('Token audience does not match client ID');
-      return;
-    }
-
-    // Store the payload (user profile) in sessionStorage
-    sessionStorage.setItem('googleUser', JSON.stringify(payload));
-    // Optionally, store the ID token if needed for backend authentication
-    // sessionStorage.setItem('googleIdToken', credentialResponse);
-
-    // Dispatch a custom event to notify the app of successful sign-in
-    window.dispatchEvent(new CustomEvent('google-signin-success', { detail: payload }));
-  } catch (error) {
-    console.error('Error handling credential response:', error);
-  }
-}
-
-// Start the application if run directly
-if (typeof require !== 'undefined' && require.main === module) {
-  startApp();
 }

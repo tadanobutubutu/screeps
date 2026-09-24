@@ -1,364 +1,146 @@
-// ... pre-existing code ...
+We need to resolve the Git merge conflict in main.js. The file contains two versions: HEAD (Screeps AI) and origin/main (a web app with express etc). The task: resolve conflict meaning combine both logically, keep features, not discard functionality unless clearly redundant. But these are completely unrelated contexts: Screeps AI vs a web app. The conflict markers show that the HEAD version is the Screeps code, while origin/main version contains HTML/JS app code. The file likely should be merged somehow. But we need to decide what is appropriate: maybe the intention is to merge both codebases? That's impossible because they are different files. However, the conflict markers indicate that HEAD version includes module.exports loop at the end, while origin/main includes many functions and also module.exports at the end.
 
-// Import dependency graph and index content from appropriate modules
-import { dependencyGraphContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
+We need to produce a resolved file content that is syntactically correct and integrates both sides sensibly. Perhaps we can keep the Screeps core logic as the main module, and incorporate the web app functions as additional utilities, maybe in separate modules, but the file currently is main.js for Screeps. The origin/main version seems to be a completely separate Node.js Express app. They cannot both exist in same file. But maybe we can merge them by separating concerns: keep Screeps logic, and add the Express app code after it, maybe as separate functions, but still export both.
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
+We need to avoid syntax errors. The HEAD version ends with module.exports.loop = function(){...} and then the origin/main version ends with module.exports = { ... } and then if require.main===module block. So we need to combine them.
 
-// Function to handle sorting books by title (ascending)
-export function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
+Approach: Keep the Screeps loop as the main exported function (loop). Then also export the Express app and other functions. However, we must ensure that the module.exports object includes both. In the HEAD version, module.exports.loop is defined, but not module.exports = ...; it's just a function assignment. In the origin/main version, module.exports = { ... } which includes many functions and also a property app: express(). So we need to create a combined export.
 
-// Function to handle sorting books by author (descending)
-export function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
+We can do: module.exports = { loop: function(){...}, User: class..., spawnNewUser:..., config:..., initialize:..., initializeApp:..., main:..., visualizeDependencyTree:..., processData:..., validateLandmark:..., addressAccessibilityIssues:..., getInsightReport:..., checkLandmarkElement:..., ensureUniqueLandmarks:..., ensureLandmarkUniqueness:..., createInPageButtons:..., createFocusTrap:..., newFocusTrap:..., validateTableAccessibility:..., validateTableStructure:..., fixTableStructure:..., countDependencies:..., landmarkStructureCheck:..., setLanguageAttribute:..., addLandmarkRoles:..., fixFakeLinks:..., isSecureContext:..., initApp:..., ensureFocusableElements:..., renderDependencyGraphContent:..., validateSvgAccessibility:..., processUniqueElements:..., addressInsightIssues:..., renderDependencyGraph:..., renderIndexView:..., calculateSum:..., addProperLandmarkRegions:..., countGraphDependencies:..., landmarks:..., appState:..., express:..., path:..., app:..., PORT:..., HOST:... };
 
-// Function to generate a key for each book item
-export function generateKey(book) {
-  return book.id || ...
-}
+But that would be huge. However we need to keep both sides. The HEAD version also defines constants ROLE_HARVESTER etc., functions clearDeadCreepMemory, getSpawn, countCreeps, spawnCreep, runHarvester, runUpgrader, runBuilder, runTowers, and the loop function.
 
-// Accessibility helper function to get language attribute
-export function getLangAttribute(lang) {
-  return lang ? { lang } : { lang: 'en' };
-}
+We need to integrate both: maybe we can keep the Screeps loop as a function exported as 'loop', and also expose the Express app as 'app' etc. Also we need to keep the landmarks array? That seems unrelated. But maybe we can keep landmarks as an empty array or something.
 
-// Accessibility helper function to create in-page button with proper accessibility
-export function createInPageButton(label, onClick, icon) {
-  return (
-    <button
-      onClick={onClick}
-      aria-label={label}
-      type="button"
-    >
-      {icon && (
-        <span ...
-      )}
-      <span>{label}</span>
-    </button>
-  );
-}
+We must avoid duplicate function names. For example, both sides define functions like validateLandmark (origin) and landmarkStructureCheck (head). They are different. We can keep both as separate functions, maybe rename one to avoid conflict, but the requirement says preserve comments and style as much as possible, not introduce syntax errors. Renaming may be okay but we need to keep as much as possible.
 
-// Accessibility helper function to validate link accessibility
-export function validateLinkAccessibility(element) {
-  const issues = [];
-  
-  // Check if link has accessible text
-  if (!element.textContent && !element.getAttribute('aria-label')) {
-    issues._push('Link missing accessible text');
-  }
-  
-  // Check for fake links (links without href or with href="#")
-  const href = element.getAttribute('href');
-  if (!href || href === '#') {
-    issues.push('Fake link detected - needs proper href or should be a button');
-  }
-  
-  return issues;
-}
+We could merge by putting the Screeps code inside the origin/main module, but that would be weird. Maybe we can keep both sets of functions, but ensure no name collisions. Let's scan for name collisions:
 
-// Accessibility helper function to handle fake links
-export function handleFakeLinks(element) {
-  const issues = ...
-  
-  if (issues.length > 0) {
-    // Convert fake link to button if it doesn't navigate
-    if (!element.getAttribute('href') || element.getAttribute('href') === '#') {
-      element.setAttribute('role', 'button');
-      element.removeAttribute('href');
+- clearDeadCreepMemory vs any similar? Only in head.
+
+- getSpawn, countCreeps, spawnCreep – only in head.
+
+- runHarvester, runUpgrader, runBuilder – only head.
+
+- runTowers – only head.
+
+- loop – only head.
+
+- User class, spawnNewUser – only origin.
+
+- landmarks array – only origin (but also maybe head? no).
+
+- config, appState – only origin.
+
+- initialize, initializeApp – only origin.
+
+- main – only origin.
+
+- visualizeDependencyTree – only origin.
+
+- processData – only origin.
+
+- Many validation functions – only origin.
+
+- createInPageButtons – only origin.
+
+- createFocusTrap, newFocusTrap – only origin.
+
+- validateTableAccessibility, validateTableStructure, fixTableStructure – only origin.
+
+- countDependencies – only origin (but also maybe head? No).
+
+- landmarkStructureCheck – only head.
+
+- setLanguageAttribute – only head.
+
+- addLandmarkRoles – only head.
+
+- fixFakeLinks – only head.
+
+- isSecureContext – only head.
+
+- initApp – only head.
+
+- ensureFocusableElements – only head.
+
+- renderDependencyGraphContent – only head.
+
+- validateSvgAccessibility – only head.
+
+- processUniqueElements – only head.
+
+- addressInsightIssues – only origin (but also head? No).
+
+- renderDependencyGraph – only origin.
+
+- renderIndexView – only origin.
+
+- calculateSum – only origin.
+
+- addProperLandmarkRegions – only origin.
+
+- countGraphDependencies – only origin.
+
+Thus there are no direct name collisions except maybe 'loop' vs nothing else, and 'initialize' vs nothing else.
+
+But we need to combine them into one module.exports object. Let's decide to keep the Screeps loop as a function exported as 'loop'. Also keep the Express app and other functions.
+
+We need to ensure that the code is syntactically correct. The HEAD version ends with:
+
+module.exports.loop = function () {
+    clearDeadCreepMemory();
+
+    for (const name in Game.creeps) {
+        const creep = Game.creeps[name];
+        switch (creep.memory.role) {
+            case ROLE_HARVESTER:
+                runHarvester(creep);
+                break;
+            case ROLE_UPGRADER:
+                runUpgrader(creep);
+                break;
+            case ROLE_BUILDER:
+                runBuilder(creep);
+                break;
+        }
     }
-  }
-  
-  return issues;
-}
 
-// Accessibility helper function to validate table accessibility
-export function validateTableAccessibility(table) {
-  const issues = [];
-  
-  // Check for caption
-  const caption = ...
-  if (!caption) {
-    issues.push('Table missing caption');
-  }
-  
-  // Check for th elements with scope or headers
-  const headers = ...
-  headers.forEach(th => {
-    if ... && !th.getAttribute('headers')) {
-      issues.push('TH element missing scope or headers attribute');
-    }
-  });
-  
-  return issues;
-}
-
-// Accessibility helper function to validate table structure
-export function validateTableStructure(table) {
-  const issues = [];
-  
-  // Check for proper table structure (thead, tbody, tfoot)
-  if ... {
-    issues.push('Table missing thead');
-  }
-  if ... {
-    issues.push('Table missing tbody');
-  }
-  
-  // Check for proper row structure
-  const rows = ...
-  rows.forEach((row, index) => {
-    const cells = ... th');
-    if (cells.length === 0) {
-      issues.push(`Row ${index} has no cells`);
-    }
-  });
-  
-  return issues;
-}
-
-// Accessibility helper function to get SVG accessible name
-export function ... {
-  // Check for aria-label
-  let label = ...
-  
-  // Check for aria-labelledby
-  const labelledBy = ...
-  if (labelledBy) {
-    const labelElement = ...
-    if (labelElement) {
-      label = labelElement.textContent;
-    }
-  }
-  
-  // Check for title element inside SVG
-  if (!label) {
-    const title = ...
-    if (title) {
-      label = title.textContent;
-    }
-  }
-  
-  return label || '';
-}
-
-// Accessibility helper function to set SVG attributes for accessibility
-export function setSvgAttributes(svgElement, accessibleName) {
-  // Ensure SVG has role="img"
-  ... 'img');
-  
-  // Set aria-label if not already set
-  if ... && ... {
-    ... accessibleName);
-  }
-  
-  // Add title element if missing
-  const existingTitle = ...
-  if (!existingTitle && accessibleName) {
-    const title = document.createElement('title');
-    title.textContent = accessibleName;
-    svgElement.insertBefore(title, ...
-  }
-}
-
-// Accessibility helper function to ensure unique landmarks
-export function ... {
-  const landmarks = {};
-  const issues = [];
-  
-  // Find all landmark elements
-  const banner = ...
-  const navigation = ...
-  const main = ...
-  const contentinfo = ...
-  const complementary = ...
-  const search = ...
-  
-  // Check for duplicate landmarks
-  if (banner) landmarks.banner = banner;
-  if (main) landmarks.main = main;
-  if (contentinfo) landmarks.contentinfo = contentinfo;
-  
-  if (complementary.length > 1) {
-    issues.push(`Found ... complementary landmarks, should have at most 1`);
-  }
-  
-  if (search.length > 1) {
-    issues.push(`Found ${search.length} search landmarks, should have at most 1`);
-  }
-  
-  return { landmarks, issues };
-}
-
-// Accessibility helper function to add proper landmark regions
-export function ... {
-  // Check for main landmark
-  let main = ...
-  if (!main) {
-    main = ...
-  }
-  if (!main) {
-    // If no main found, wrap content appropriately
-    main = ...
-    main.setAttribute('id', 'main-content');
-    // Content would need to be moved into main here
-  }
-  
-  // Ensure unique IDs for landmarks
-  const landmarks = ... nav, main, footer, [role]');
-  const usedIds = new Set();
-  
-  landmarks.forEach(landmark => {
-    const existingId = landmark.id;
-    if (existingId) {
-      usedIds.add(existingId);
-    }
-  });
-  
-  return { main, usedIds };
-}
-
-// Function to render a single book item
-export function BookItem(book) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        ...
-      />
-    </List.Item>
-  );
-}
-
-// Function to create a new book entry in the Redux store
-export function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
-
-// Function to improve accessibility for the addBook function or form
-export function ... {
-  // Implement any necessary changes to improve accessibility, such as:
-  // - Adding labels for form controls
-  // - Ensuring keyboard navigation is supported
-  // - Adding appropriate ARIA roles and properties if needed
-  // ...
-}
-
-// Function to render the dependency graph view
-export function renderDependencyGraph() {
-  return dependencyGraphContent;
-}
-
-// Function to render the index view
-export function renderIndexView() {
-  return indexContent;
-}
-
-// Default sorting function for the book list
-export const defaultSorting = sortByTitle;
-
-// Function to handle sorting the book list by title (ascending)
-export function onTitleSort() {
-  const sortedList = ...
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-export function onAuthorSort() {
-  const sortedList = ...
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Function to count dependencies
-// This function counts the number of dependencies in a given object or array
-export function countDependencies(dependencies) {
-  if (Array.isArray(dependencies)) {
-    return dependencies.length;
-  }
-  if (typeof dependencies === 'object' && dependencies !== null) {
-    return ...
-  }
-  return 0;
-}
-
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-  const [view, setView] = useState('books');
-  const dispatch = useDispatch();
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem(book));
-
-  // Render the list of book items and sorting controls
-  return (
-    <div>
-      <button onClick={() => ...
-      <button onClick={() => setView('index')}>Index View</button>
-      <button onClick={() => ... Graph</button>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <div>
-        {view === 'books' && <List ... />}
-        {view === 'index' && renderIndexView()}
-        {view === 'dependencyGraph' && renderDependencyGraph()}
-      </div>
-    </div>
-  );
-}
-
-// Export the Main component
-export default Main;
-
-// Export accessibility helper functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  addProperLandmarkRegions,
-  handleAccessibilityForAddBookForm,
+    runTowers();
+    spawnCreep();
 };
 
-// Export sorting and data manipulation functions
-export {
-  sortByTitle,
-  sortByAuthor,
-  generateKey,
-  countDependencies,
-  BookItem,
-  addBook,
-  onTitleSort,
-  onAuthorSort,
-  defaultSorting,
-};
+But note that Game, spawn, etc are part of Screeps environment, not Node. That's fine.
 
-// Export view rendering functions
-export {
-  renderDependencyGraph,
-  renderIndexView,
-};
+The origin/main version ends with:
+
+if (require.main === module) {
+    // Start server
+    module.exports.app.listen(module.exports.PORT, () => {
+        console.log(`Server running on http://${module.exports.HOST}:${module.exports.PORT}`);
+    });
+
+    // Visualize dependency tree when running directly
+    visualizeDependencyTree(require.dependencies);
+
+    // Run accessibility check and fix issues if any
+    const insightReport = getInsightReport();
+    if (insightReport.length > 0) {
+        console.log('Accessibility issues found:');
+        insightReport.forEach((issue) => {
+            console.log(`${issue.type}: ${issue.description}`);
+        });
+        addressAccessibilityIssues(insightReport);
+    }
+}
+
+But note that the origin version also defines module.exports = { ... } earlier. So we need to combine.
+
+Potential solution: Keep the Screeps functions (including loop) as part of the same module, but also expose the Express app and other functions. We need to ensure that the loop function is defined before module.exports assignment, and that module.exports includes all functions.
+
+We can restructure: At top, define constants, functions, etc (both sides). Then at the end, assign module.exports = { loop, User, spawnNewUser, config, initialize, initializeApp, main, visualizeDependencyTree, processData, validateLandmark, addressAccessibilityIssues, getInsightReport, checkLandmarkElement, ensureUniqueLandmarks, ensureLandmarkUniqueness, createInPageButtons, createFocusTrap, newFocusTrap, validateTableAccessibility, validateTableStructure, fixTableStructure, countDependencies, landmarkStructureCheck, setLanguageAttribute, addLandmarkRoles, fixFakeLinks, isSecureContext, initApp, ensureFocusableElements, renderDependencyGraphContent, validateSvgAccessibility, processUniqueElements, addressInsightIssues, renderDependencyGraph, renderIndexView, calculateSum, addProperLandmarkRegions, countGraphDependencies, landmarks, appState, express, path, app, PORT, HOST };
+
+But we need to ensure that the Screeps functions (clearDeadCreepMemory, getSpawn, countCreeps, spawnCreep, runHarvester, runUpgrader, runBuilder, runTowers) are defined before they are used in loop. That's fine.
+
+Potential conflict: The origin<unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk> – this part is just noise.
+- \

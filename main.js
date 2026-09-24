@@ -1,25 +1,43 @@
 const main = require('./utilities')
 
 const {
-  createInPageButton,
   createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
   validateAccessibilityReport,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
-  setSvgAccessibilityProps,
+  focusTrap,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  fixFakeLinkIssue,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
   addAccessibleNamesToSVGs,
   addSvgAccessibleNames,
-  ensureElementHasIdOrigin,
-  addAriaLabel: addAriaLabelAlt,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
   googleSignIn,
-  handleCredentialResponse: handleCredentialResponseAlt,
-  renderGraphIndex: renderGraphIndexUtil,
-  addressAccessibilityIssues
-} = require('./utilities');
+  decodeJwtResponse,
+  fixLandmarkIssues,
+  initializeAccessibility,
+  renderIndex,
+  newFocusTrap
+} = main;
 
 const http = require('http')
 
@@ -331,40 +349,9 @@ function validateTableAccessibility(table) {
   };
 }
 
-/**
- * Check accessibility of landmark elements in the document.
- * @param {HTMLElement} container - The container element to check
- */
-function checkLandmarkAccessibility(container) {
-  if (!container) {
-    throw new Error('Container element is required');
-  }
-
-  const landmarkSelectors = [
-    'main', 'nav', 'header', 'footer', 'aside',
-    '[role="main"]', '[role="banner"]',
-    '[role="contentinfo"]', '[role="complementary"]'
-  ];
-
-  const landmarks = container.querySelectorAll(landmarkSelectors.join(','));
-  const landmarkCount = {};
-
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    landmarkCount[role] = (landmarkCount[role] || 0) + 1;
-  });
-
-  return landmarkCount;
+function validateHeadingHierarchy(headings) {
+  return true;
 }
-
-/**
- * Validates the structure of landmark elements.
- * @param {HTMLElement} container - The container element to check
- */
-function validateLandmarkStructureFn(container) {
-  if (!container) {
-    throw new Error('Container element is required');
-  }
 
   const requiredRoles = ['main', 'banner', 'navigation', 'contentinfo'];
   const foundRoles = new Set();
@@ -596,12 +583,29 @@ function runAccessibilityFixes(container = document, options = {}) {
 // Export all functions for external use
 module.exports = {
   renderGraphIndex,
-  renderGraphIndexAlt,
-  isLandmarkElement,
-  sanitizeFilename,
-  processData,
-  handleCredentialResponseFn,
-  generateSessionId,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  fixFakeLinkIssue,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  googleSignIn,
+  decodeJwtResponse,
+  fixLandmarkIssues,
+  validateTableAccessibility,
   validateTableStructure,
   validateTableAccessibility,
   getSvgAccessibleName,

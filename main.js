@@ -24,7 +24,7 @@ function myNewFunction() {
 function addLangAttributeToString(html) {
   if (typeof html !== 'string') return html;
   return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-    if (/\blang=/i.test(match)) return match;
+    if (attrs.includes('lang=')) return match;
     return `<html${attrs} lang="en">`;
   });
 }
@@ -40,14 +40,10 @@ import a11y from './AccessibilityUtilities';
 
 const root = ...
 
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAccessibility())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// TODO: Implement function for generating a report based on accessibility issues
+function generateAccessibilityReport() {
+  // Initialize an empty array to store the issues
+  const issues = [];
 
 // TODO: This is the existing code that needs to be preserved
 //_Commit: 18ddb6408a2b2823efa22f0a77964bb5d6737f93_
@@ -121,79 +117,9 @@ function fixTableStructure(table) {
   }
 }
 
-/**
- * Adds main landmark to the document
- */
-function addMainLandmark() {
-  const rootContainer = ...
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-  }
-}
-
-/**
- * Validates landmark
- * @param {HTMLElement} landmark - The landmark element to validate
- * @returns {boolean} True if landmark is valid
- */
-function validateLandmark(landmark) {
-  const validRoles = ['main', 'navigation', 'banner', 'contentinfo', 'search', 'complementary', 'form', 'region'];
-  const role = landmark.getAttribute('role');
-  return role && validRoles.includes(role);
-}
-
-function validateLandmarkAccessibility(landmark) {
-  const ariaLabel = landmark.getAttribute('aria-label');
-  const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
-  return !!(ariaLabel || ariaLabelledBy || landmark.textContent.trim());
-}
-
-/**
- * Validates landmark structure for accessibility issues
- * @returns {boolean} True if landmark structure is valid
- */
-function validateLandmarkStructure() {
-  const requiredLandmarks = ['header', 'main', 'footer'];
-  const missingLandmarks = [];
-
-  ... => {
-    if ... {
-      ...
-    }
-  });
-
-  if (missingLandmarks.length > 0) {
-    ... warning: Missing required landmarks: ... ')}`);
-    return false;
-  }
-
-  return true;
-}
-
-// TODO: Implement the logic to handle the credential response
-/**
- * Handles the credential response from authentication flows
- * @param {Object} credentialResponse - The credential response object from the authentication provider
- * @returns {Object} Result object containing success status, user data, or error information
- */
-function handleCredentialResponse(credentialResponse) {
-  if (!credentialResponse) {
-    return {
-      success: false,
-      error: 'No credential response provided',
-      timestamp: new Date().toISOString()
-    };
-  }
-
-  try {
-    const { credential, select_by, client_id } = credentialResponse;
-
-    if (!credential) {
-      return {
-        success: false,
-        error: 'No credential token found in response',
-        timestamp: new Date().toISOString()
-      };
+    if (missingLandmarks.length > 0) {
+        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        return false;
     }
 
     // Parse the JWT token to extract user information

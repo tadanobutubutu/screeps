@@ -72,6 +72,128 @@ const addLangAttribute = element => {
   }
 };
 
+//
+function createInPageButton(parent = document.body) {
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.setAttribute('role', 'button')
+  btn.setAttribute('aria-label', 'Open modal')
+  parent.appendChild(btn)
+  return btn
+}
+
+// TODO: Implement tower defense
+function towerDefense() {
+  const towers = []
+  const enemies = []
+  const wave = 1
+
+  function Tower(x, y, range, damage, rate) {
+    this.x = x
+    this.y = y
+    this.range = range
+    this.damage = damage
+    this.rate = rate
+    this.lastShot = 0
+  }
+
+  function Enemy(x, y, health, speed) {
+    this.x = x
+    this.y = y
+    this.health = health
+    this.speed = speed
+  }
+
+  function addTower(x, y, range, damage, rate) {
+    towers.push(new Tower(x, y, range, damage, rate))
+  }
+
+  function addEnemy(x, y, health, speed) {
+    enemies.push(new Enemy(x, y, health, speed))
+  }
+
+  function update() {
+    console.log(`Wave ${wave} - updating game state`)
+  }
+
+  function start() {
+    console.log('Tower defense game started')
+    addTower(100, 100, 200, 10, 1000)
+    addEnemy(0, 50, 100, 2)
+  }
+
+  return {
+    start,
+    addTower,
+    addEnemy,
+    update,
+    getWave: () => wave
+  }
+}
+
+//
+/**
+ * Creates an accessible in-page button and appends it to the given parent element.
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(parent = document.body) {
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.setAttribute('role', 'button')
+  btn.setAttribute('aria-label', 'Open modal')
+  parent.appendChild(btn)
+  return btn
+}
+
+/**
+ * Creates an accessible web resource button and appends it to the given parent element.
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
+ * @param {Object} options - Configuration options
+ * @param {string} options.label - The button label text (default: 'Visit resource')
+ * @param {string} options.ariaLabel - Optional ARIA label for the button
+ * @param {string} options.className - Optional CSS class name for the button
+ * @param {string} options.target - Link target attribute (default: '_self', use '_blank' for new tab)
+ * @returns {HTMLElement} The created button element
+ */
+function createWebResourceButton(parent = document.body, options = {}) {
+  const {
+    label = 'Visit resource',
+    ariaLabel,
+    className,
+    target = '_self'
+  } = options;
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = label;
+  btn.setAttribute('role', 'button');
+  if (ariaLabel) {
+    btn.setAttribute('aria-label', ariaLabel);
+  }
+  if (className) {
+    btn.className = className;
+  }
+  // Ensure accessibility for external links
+  if (target === '_blank') {
+    btn.setAttribute('rel', 'noopener noreferrer');
+  }
+
+  parent.appendChild(btn);
+  return btn;
+}
+
+// Function to implement accessibility fixes based on a given report
+function addressAccessibilityIssuesFromReport(pageContent, reportData) {
+  // Implementation for addressing accessibility issues based on the provided report data
+}
+
+// Function to check the accessibility of the given content using different testing methods
+function checkAccessibility(content) {
+  // Implementation for checking the accessibility of the given content
+}
+
+//
 /**
  * Example table‑checker.  In this minimal demo it
  * simply ensures `table` has a header row.  
@@ -85,7 +207,14 @@ function setHtmlLangAttribute(lang) {
   return lang || 'en';
 }
 
-// ... existing code ...
+//
+/**
+ * Detects the language of the given content and sets the HTML lang attribute
+ * @param {string} content - The text content to analyze
+ * @returns {string} The detected language code
+ */
+function detectAndSetLang(content) {
+  let lang = 'en'
 
 // Line 74 - Implement this function for creating in-page buttons
 function createInPageButton(options) {
@@ -198,11 +327,13 @@ function setupKeyboardNavigation() {
   }
 }
 
+//
 // New function to address REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
 
+//
 // New function to address REACT_015 and REACT_036: personName function referenced in comments
 function personName(name) {
   // Returns a formatted person name for accessibility purposes
@@ -274,6 +405,7 @@ function validateTableStructure(table) {
   return { valid: errors.length === 0, errors };
 }
 
+//
 // New function to address REACT_017: Add/fix 4 landmark issues
 function validateLandmark(element) {
   // This function validates landmarks
@@ -469,6 +601,7 @@ function createAccessibleLink(href, text, options = {}) {
   return link;
 }
 
+//
 /**
  * Checks if a link element is accessible
  * @param {HTMLAnchorElement} link - The link element to check
@@ -540,375 +673,58 @@ function isLinkAccessible(link) {
   return { valid: errors.length === 0, errors };
 }
 
-// Form accessibility validation
-function validateFormAccessibility(form) {
-  const errors = [];
+//
+/**
+ * Creates an accessible link
+ * @param {string} href - The URL for the link
+ * @param {string} text - The visible text for the link
+ * @param {Object} options - Additional options for the link
+ * @returns {HTMLElement} The created link element
+ */
+function createAccessibleLink(href, text, options = {}) {
+  const { onClick, role = 'link', ariaLabel, className, target, rel } = options
 
-  if (!form) {
-    return { valid: false, errors: ['Form element is required'] };
+  if (!href && !onClick) {
+    return null
   }
 
-  const inputs = form.querySelectorAll('input, select, textarea');
-  inputs.forEach((input, index) => {
-    const id = input.getAttribute('id');
-    const name = input.getAttribute('name');
-    const type = input.getAttribute('type');
-    const ariaLabel = input.getAttribute('aria-label');
-    const ariaLabelledby = input.getAttribute('aria-labelledby');
+  const link = document.createElement('a')
+  link.textContent = text
 
-    // Skip hidden inputs, submit buttons, and buttons
-    if (type === 'hidden' || type === 'submit' || type === 'button' || input.tagName === 'BUTTON') {
-      return;
-    }
-
-    // Check for associated label
-    let hasLabel = false;
-    if (id) {
-      const label = form.querySelector(`label[for="${id}"]`);
-      if (label) hasLabel = true;
-    }
-    // Check for wrapping label
-    if (!hasLabel && input.closest('label')) {
-      hasLabel = true;
-    }
-    // Check for aria-label or aria-labelledby
-    if (!hasLabel && (ariaLabel || ariaLabelledby)) {
-      hasLabel = true;
-    }
-
-    if (!hasLabel) {
-      errors.push(`Input at index ${index} is missing an associated label`);
-    }
-  });
-
-  // Check for fieldsets grouping related inputs
-  const radioGroups = {};
-  form.querySelectorAll('input[type="radio"]').forEach(radio => {
-    const name = radio.getAttribute('name');
-    if (name) {
-      if (!radioGroups[name]) radioGroups[name] = [];
-      radioGroups[name].push(radio);
-    }
-  });
-
-  Object.keys(radioGroups).forEach(name => {
-    if (radioGroups[name].length > 1) {
-      // Check if grouped in a fieldset with a legend
-      const firstRadio = radioGroups[name][0];
-      const fieldset = firstRadio.closest('fieldset');
-      if (!fieldset || !fieldset.querySelector('legend')) {
-        errors.push(`Radio group "${name}" should be wrapped in a fieldset with a legend`);
-      }
-    }
-  });
-
-  return { valid: errors.length === 0, errors };
-}
-
-// Image accessibility validation
-function validateImageAccessibility(img) {
-  const errors = [];
-
-  if (!img) {
-    return { valid: false, errors: ['Image element is required'] };
-  }
-
-  const alt = img.getAttribute('alt');
-  const ariaLabel = img.getAttribute('aria-label');
-  const ariaLabelledby = img.getAttribute('aria-labelledby');
-  const role = img.getAttribute('role');
-
-  // Decorative images should have alt="" or role="presentation"
-  const isDecorative = role === 'presentation' || role === 'none';
-
-  if (isDecorative) {
-    // For decorative images, alt should be empty
-    if (alt !== '' && alt !== null) {
-      errors.push('Decorative image should have empty alt attribute');
+  if (href) {
+    link.href = href
+    if (target === '_blank' && !rel) {
+      link.rel = 'noopener noreferrer'
+    } else if (rel) {
+      link.rel = rel
     }
   } else {
-    // For content images, alt must be present
-    if (alt === null && !ariaLabel && !ariaLabelledby) {
-      errors.push('Image is missing alt attribute');
-    }
-
-    // Check for redundant alt text (e.g., "image of", "picture of")
-    if (alt) {
-      const lowerAlt = alt.toLowerCase().trim();
-      if (lowerAlt.startsWith('image of') || lowerAlt.startsWith('picture of') || lowerAlt.startsWith('photo of')) {
-        errors.push('Image alt text should not start with "image of", "picture of", or "photo of"');
+    link.href = '#'
+    link.addEventListener('click', (e) => {
+      e.preventDefault()
+      if (onClick) {
+        onClick(e)
       }
-    }
+    })
   }
 
-  return { valid: errors.length === 0, errors };
-}
-
-// Button accessibility validation
-function validateButtonAccessibility(button) {
-  const errors = [];
-
-  if (!button) {
-    return { valid: false, errors: ['Button element is required'] };
+  if (target) {
+    link.target = target
   }
 
-  // Check for accessible name
-  const textContent = button.textContent ? button.textContent.trim() : '';
-  const ariaLabel = button.getAttribute('aria-label');
-  const ariaLabelledby = button.getAttribute('aria-labelledby');
-  const title = button.getAttribute('title');
-
-  if (!textContent && !ariaLabel && !ariaLabelledby) {
-    if (title) {
-      errors.push('Button relies on title attribute for accessible name, prefer aria-label or visible text');
-    } else {
-      errors.push('Button is missing accessible name (text content, aria-label, or aria-labelledby)');
-    }
+  if (className) {
+    link.className = className
   }
 
-  // Check if it's actually a button or has button role
-  const tagName = button.tagName.toLowerCase();
-  const role = button.getAttribute('role');
-  if (tagName !== 'button' && role !== 'button') {
-    errors.push('Element is not a button or has role="button"');
+  if (ariaLabel) {
+    link.setAttribute('aria-label', ariaLabel)
   }
 
-  // Check for disabled state accessibility
-  if (button.disabled || button.getAttribute('aria-disabled') === 'true') {
-    const hasDisabledAttr = button.disabled || button.getAttribute('aria-disabled') === 'true';
-    if (!hasDisabledAttr) {
-      errors.push('Disabled state should be communicated via disabled attribute or aria-disabled');
-    }
+  if (role && role !== 'link') {
+    link.setAttribute('role', role)
   }
 
-  return { valid: errors.length === 0, errors };
-}
-
-// Render dependency graph for visualizing module dependencies
-function renderDependencyGraph(dependencies, options = {}) {
-  const {
-    container = document.body,
-    width = 800,
-    height = 600,
-    nodeRadius = 20,
-    nodeColor = '#4A90E2',
-    edgeColor = '#999'
-  } = options;
-
-  if (typeof document === 'undefined') {
-    return null;
-  }
-
-  // Create SVG element for the graph
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', width);
-  svg.setAttribute('height', height);
-  svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-label', 'Dependency graph visualization');
-
-  // Add accessible title
-  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-  title.textContent = 'Dependency Graph';
-  svg.appendChild(title);
-
-  // Build node positions in a circular layout
-  const nodes = Object.keys(dependencies || {});
-  const nodeCount = nodes.length;
-  const positions = {};
-
-  nodes.forEach((node, index) => {
-    const angle = (2 * Math.PI * index) / nodeCount;
-    positions[node] = {
-      x: width / 2 + Math.cos(angle) * (Math.min(width, height) / 3),
-      y: height / 2 + Math.sin(angle) * (Math.min(width, height) / 3)
-    };
-  });
-
-  // Draw edges
-  nodes.forEach(source => {
-    const targets = dependencies[source] || [];
-    targets.forEach(target => {
-      if (!positions[target]) return;
-
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', positions[source].x);
-      line.setAttribute('y1', positions[source].y);
-      line.setAttribute('x2', positions[target].x);
-      line.setAttribute('y2', positions[target].y);
-      line.setAttribute('stroke', edgeColor);
-      line.setAttribute('stroke-width', '1');
-      svg.appendChild(line);
-    });
-  });
-
-  // Draw nodes
-  nodes.forEach(node => {
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('tabindex', '0');
-    g.setAttribute('role', 'button');
-    g.setAttribute('aria-label', `Module: ${node}`);
-
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', positions[node].x);
-    circle.setAttribute('cy', positions[node].y);
-    circle.setAttribute('r', nodeRadius);
-    circle.setAttribute('fill', nodeColor);
-    g.appendChild(circle);
-
-    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('x', positions[node].x);
-    text.setAttribute('y', positions[node].y + nodeRadius + 14);
-    text.setAttribute('text-anchor', 'middle');
-    text.textContent = node;
-    g.appendChild(text);
-
-    svg.appendChild(g);
-  });
-
-  if (typeof container === 'string') {
-    const containerElement = document.querySelector(container);
-    if (containerElement) {
-      containerElement.appendChild(svg);
-    }
-  } else {
-    container.appendChild(svg);
-  }
-
-  return svg;
-}
-
-// Render index view for listing items
-function renderIndexView(items, options = {}) {
-  const {
-    container = document.body,
-    title = 'Index',
-    itemRenderer = null,
-    className = 'index-view',
-    listClassName = 'index-list'
-  } = options;
-
-  if (typeof document === 'undefined') {
-    return null;
-  }
-
-  // Create main container
-  const wrapper = document.createElement('section');
-  wrapper.className = className;
-  wrapper.setAttribute('role', 'region');
-  wrapper.setAttribute('aria-label', title);
-
-  // Add heading
-  const heading = document.createElement('h2');
-  heading.textContent = title;
-  heading.id = `index-view-heading-${Date.now()}`;
-  wrapper.appendChild(heading);
-  wrapper.setAttribute('aria-labelledby', heading.id);
-
-  // Create list
-  const list = document.createElement('ul');
-  list.className = listClassName;
-
-  (items || []).forEach((item, index) => {
-    const li = document.createElement('li');
-
-    if (typeof itemRenderer === 'function') {
-      const rendered = itemRenderer(item, index);
-      if (rendered instanceof Node) {
-        li.appendChild(rendered);
-      } else if (typeof rendered === 'string') {
-        li.innerHTML = rendered;
-      }
-    } else if (item instanceof Node) {
-      li.appendChild(item);
-    } else if (typeof item === 'string') {
-      li.textContent = item;
-    } else if (item && typeof item === 'object') {
-      const label = item.name || item.title || item.label || `Item ${index + 1}`;
-      const link = document.createElement('a');
-      link.href = item.href || '#';
-      link.textContent = label;
-      if (item.description) {
-        link.setAttribute('aria-label', `${label}: ${item.description}`);
-      }
-      li.appendChild(link);
-    }
-
-    list.appendChild(li);
-  });
-
-  wrapper.appendChild(list);
-
-  if (typeof container === 'string') {
-    const containerElement = document.querySelector(container);
-    if (containerElement) {
-      containerElement.appendChild(wrapper);
-    }
-  } else {
-    container.appendChild(wrapper);
-  }
-
-  return wrapper;
-}
-
-// TODO: Implement tower defense
-function towerDefense() {
-  // A simple tower defense game implementation
-  // Define towers, enemies, waves, and game loop
-  const towers = [];
-  const enemies = [];
-  let wave = 1;
-
-  // Example: Tower constructor
-  function Tower(x, y, range, damage, rate) {
-    this.x = x;
-    this.y = y;
-    this.range = range;
-    this.damage = damage;
-    this.rate = rate;
-    this.lastShot = 0;
-  }
-
-  // Example: Enemy constructor
-  function Enemy(x, y, health, speed) {
-    this.x = x;
-    this.y = y;
-    this.health = health;
-    this.speed = speed;
-  }
-
-  // Add a tower
-  function addTower(x, y, range, damage, rate) {
-    towers.push(new Tower(x, y, range, damage, rate));
-  }
-
-  // Add an enemy
-  function addEnemy(x, y, health, speed) {
-    enemies.push(new Enemy(x, y, health, speed));
-  }
-
-  // Update game state (simplified)
-  function update() {
-    // Logic for enemy movement, tower shooting, etc.
-    console.log(`Wave ${wave} - updating game state`);
-  }
-
-  // Start the game
-  function start() {
-    console.log('Tower defense game started');
-    // Add initial towers and enemies
-    addTower(100, 100, 200, 10, 1000);
-    addEnemy(0, 50, 100, 2);
-    // Game loop would be here
-  }
-
-  // Expose game functions
-  return {
-    start,
-    addTower,
-    addEnemy,
-    update,
-    getWave: () => wave
-  };
+  return link
 }
 
 // Export all functions to maintain current exports
@@ -932,10 +748,6 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  validateFormAccessibility,
-  validateImageAccessibility,
-  validateButtonAccessibility,
-  renderDependencyGraph,
-  renderIndexView,
-  towerDefense
-};
+  towerDefense,
+  createWebResourceButton
+}

@@ -2,68 +2,26 @@
 // Dependency imports
 const http = require('http');
 const url = require('url');
-const { 
-  dependencyGraphContent, 
-  indexContent, 
-  addLangAttribute, 
-  fixTableStructureIssues, 
-  addMainLandmark, 
-  ensureUniqueLandmarks, 
-  setSvgAccessibilityProps, 
-  addAccessibleNamesToSVGs, 
-  fixFakeLinkIssue, 
-  fixFakeLinkIssues, 
-  fixLandmarkIssues, 
-  addLandmarkRegions, 
-  uniqueLandmarks, 
-  fixImageAltTexts, 
-  googleSignIn, 
-  ensureElementHasId, 
-  ensureElementHasIdOrigin, 
-  addAriaLabel, 
-  renderDependencyGraphs, 
-  fixButtonIdentifiers, 
-  fixDependencyGraphAria, 
-  addMainLandmarkToIndex, 
-  addressAccessibilityIssues 
-} = require('./utilities');
-const { 
-  createInPageButton, 
-  createWebResourceButton, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  validateAccessibilityReport 
-} = require('./utilities');
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
+const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
 const { main } = require('./utilities');
 const { functionA, functionB } = require('./utilities');
 
-// App state for session management
-const appState = {
-  sessions: new Map()
-};
-
-// Helper functions for session management
-function getActiveSessionsCount() {
-  return appState.sessions.size;
-}
-
-function validateSession(sessionId) {
-  return appState.sessions.get(sessionId) || null;
-}
-
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
   const issues = [];
-  
+
   // Check if HTML contains tables
   const tableRegex = /<table[^>]*>[\s\S]*?<\/table>/gi;
   let match;
-  
+
   while ((match = tableRegex.exec(html)) !== null) {
     const tableContent = match[0];
     const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
-    
+
     // Check for caption
     const hasCaption = /<caption[^>]*>/i.test(tableContent);
     if (!hasCaption) {
@@ -74,7 +32,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
       });
     }
-    
+
     // Check for th elements
     const hasHeaders = /<th[\s\S]*?<\/th>/i.test(tableContent);
     if (!hasHeaders) {
@@ -85,7 +43,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
       });
     }
-    
+
     // Check for scope attributes on th elements
     const thMatches = (tableContent.match(/<th[\s\S]*?>/gi) || []);
     thMatches.forEach((thTag, index) => {
@@ -98,11 +56,11 @@ const validateTableAccessibility = (html) => {
         });
       }
     });
-    
+
     // Check for thead and tbody structure
-    const hasThead = /<thead[^>]*>/i.test(tableContent);
-    const hasTbody = /<tbody[^>]*>/i.test(tableContent);
-    
+    const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
+    const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
+
     if (!hasThead) {
       issues.push({
         type: 'table',
@@ -111,7 +69,7 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
       });
     }
-    
+
     if (!hasTbody) {
       issues.push({
         type: 'table',
@@ -120,14 +78,14 @@ const validateTableAccessibility = (html) => {
         suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
       });
     }
-    
+
     // Check for id and headers attributes for complex tables
     const thElements = tableContent.match(/<th[^>]*>/gi) || [];
     const hasMultipleHeaders = thElements.length > 1;
     if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["'][^"']+["']/i.test(tableContent);
-      const hasIdAttr = /<th[^>]*\sid=["'][^"']+["'][^>]*>/i.test(tableContent) || /<td[^>]*\sid=["'][^"']+["'][^>]*>/i.test(tableContent);
-      
+      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
+      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
+
       if (!hasIdAttr && !hasHeadersAttr) {
         issues.push({
           type: 'table',
@@ -138,7 +96,7 @@ const validateTableAccessibility = (html) => {
       }
     }
   }
-  
+
   return issues;
 };
 
@@ -207,13 +165,78 @@ function trapFocus(containerElement) {
   };
 }
 
-// Export for testing
+const a11yStore = {
+  // ... existing methods ...
+  prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  },
+
+  prefersHighContrast() {
+    return window.matchMedia('(prefers-contrast: more)').matches;
+  },
+
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) this.createLiveRegion();
+    this.announce(message, priority);
+  },
+
+  checkLandmarkElements() {
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach((element) => {
+      const landmarks = document.querySelectorAll(`[role="${element}"]`);
+      landmarks.forEach((landmark) => {
+        if (landmark.id === '') {
+          landmark.setAttribute('id', `${element}-${index}`);
+        }
+
+        if (landmarks.length > 1) {
+          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+            landmark.setAttribute('aria-label', `${element} region`);
+          }
+        }
+      });
+    });
+  }
+};
+
+// New function to handle focus trap for keyboard navigation
+function newFocusTrap(container) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  container.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        // Tab
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  });
+
+  // Focus the first element when the container is shown
+  firstElement.focus();
+}
+
+// Export all required functions
 module.exports = {
   validateTableAccessibility,
-  trapFocus,
+  functionA,
+  functionB,
   getActiveSessionsCount,
   validateSession,
-  appState,
-  exportedFunctionA,
-  exportedFunctionB
+  handleCredentialResponse,
+  a11yStore,
+  newFocusTrap
 };

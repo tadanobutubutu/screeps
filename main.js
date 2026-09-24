@@ -48,14 +48,12 @@ const {
   validateTableAccessibility,
   initializeAccessibility,
   renderIndex,
-  newFunction
+  newFunction,
+  functionA,
+  functionB
 } = main
 
-function customValidateTableStructure(container) {
-  return validateTableStructureForAccessibility(container);
-}
-
-function customValidateHeadingHierarchy(headings) {
+function validateHeadingHierarchy(headings) {
   // Implementation placeholder - function to be implemented
   return true
 }
@@ -956,10 +954,9 @@ module.exports = {
   addMainLandmark,
   fixLandmarkIssues,
   validateTableAccessibility,
-  initializeAccessibility,
-  renderIndex,
-  newFunction,
-  customValidateHeadingHierarchy,
+  validateHeadingHierarchy,
   ensureHeadingHierarchy,
-  renderAdditionalContent
+  renderAdditionalContent,
+  functionA,
+  functionB
 };

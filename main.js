@@ -655,32 +655,17 @@ function implementAccessibilityFixesFromReport(container, report) {
     log('Lang attribute added to HTML element', 'info');
   }
 
-  if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info');
-  }
+  // Handle focus trapping for keyboard navigation
+  trapFocus(container);
 
-  // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container);
-  if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`, 'error');
+  // Implement calculateDiscount function
+  function calculateDiscount(originalPrice, discountPercentage) {
+    if (discountPercentage < 0 || discountPercentage > 100) {
+      throw new Error('Invalid discount percentage');
+    }
+    const discountAmount = (originalPrice * discountPercentage) / 100;
+    return originalPrice - discountAmount;
   }
-
-  const landmarkFixesCount = fixes.landmarksFixed || 0;
-  if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
-  }
-
-  const svgFixes = fixes.svgNamesAdded || 0;
-  if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
-  }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-  if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
-  }
-
-  return fixes;
 }
 
 function validateSession() {

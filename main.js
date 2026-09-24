@@ -803,8 +803,7 @@ module.exports = {
   newFocusTrap,
   checkAccessibility,
   createAccessibleModal,
-  Tower,
-  Enemy,
-  TowerDefenseGame,
-  towerDefense
+  addAccessibilityFeatures,
+  functionC,
+  renderGraphIndex
 };

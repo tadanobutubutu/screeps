@@ -1,6 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
 // Find the primary content element in the DOM
-const primaryContent = (typeof document !== 'undefined') ? (document.querySelector('.primary-content') || document.querySelector('[role="main"]') || document.getElementById('main-content') || document.querySelector('#content')) : null;
+const primaryContent = (typeof document !== 'undefined') ? document.querySelector('main') || document.querySelector('[role="main"]') || document.querySelector('.main-content') || document.querySelector('#content') : null;
 
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -101,7 +101,7 @@ const report = accessibilityReport.issues.map(issue => ({
 return report;
 
 // Score calculation
-function calculateAccessibilityScore(fixedIssues) {
+function calculateScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;
   }
@@ -136,11 +136,52 @@ function spawnSomeCommand(command) {
 // Add language attribute to HTML element
 function addLangAttribute(lang) {
   if (document && document.documentElement) {
-    document.documentElement.setAttribute('lang', lang);
+    document.documentElement.lang = lang;
   }
 }
 
-// Modify the initializeApp function to call checkAccessibility
+// Updated function using the new functions for rendering graph/index
+function renderDependencyGraphContent() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const container = document.getElementById('dependency-graph');
+  if (!container) {
+    return;
+  }
+
+  // Use the new functions for rendering
+  if (typeof renderDependencyGraph === 'function') {
+    renderDependencyGraph(container);
+  }
+  if (typeof renderIndexView === 'function') {
+    renderIndexView(container);
+  }
+}
+
+// Address all accessibility issues
+function addressInsightIssues() {
+  getLangAttribute();
+  const landmarks = typeof document !== 'undefined' ? (document.documentElement || document.body) : null;
+  
+  if (typeof landmarks !== 'undefined' && Array.isArray(landmarks)) {
+    ensureLandmarkUniqueness(landmarks);
+  }
+  ensureUniqueLandmarks();
+  
+  validateTableAccessibility();
+  validateTableStructure();
+  
+  validateLandmark();
+  
+  createInPageButton();
+  createAccessibleLink();
+  handleAccessibilityIssues();
+  
+  validateLandmark();
+}
+
+// Initialize app
 function initializeApp() {
   addressInsightIssues();
   if (typeof wrapPrimaryContentInMain === 'function') {

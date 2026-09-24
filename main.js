@@ -62,16 +62,103 @@ function enhanceAccessibilityForAddBook(formElement) {
       input.id = inputId;
     }
 
-    // Check if a label already exists for this input
-    const existingLabel = formElement.querySelector(`label[for="${inputId}"]`);
-    if (!existingLabel) {
-      // Look for a wrapping label
-      const parentLabel = input.closest('label');
-      if (!parentLabel) {
-        const label = document.createElement('label');
-        label.setAttribute('for', inputId);
-        label.textContent = input.getAttribute('aria-label') || input.getAttribute('placeholder') || `Field ${index + 1}`;
-        formElement.insertBefore(label, input);
+    const headers = table.querySelectorAll('th');
+    const cells = table.querySelectorAll('td, th');
+
+    cells.forEach(cell => {
+      if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
+        const isHeader = cell.tagName === 'TH';
+        if (isHeader) {
+          cell.setAttribute('scope', 'col');
+        }
+      }
+    });
+  });
+}
+
+function fixLandmarks() {
+  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+  const landmarkCounts = {};
+
+  landmarkSelectors.forEach(selector => {
+    landmarkCounts[selector] = 0;
+  });
+
+  document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+
+    if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      landmarkCounts[tagName]++;
+      element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
+    } else if (landmarkCounts[tagName] === 0) {
+      landmarkCounts[tagName]++;
+    }
+  });
+}
+
+// New function for REACT_017: Add landmark roles and fix landmark issues
+function addLandmarkRoles() {
+  const landmarks = {
+    header: 'banner',
+    nav: 'navigation',
+    main: 'main',
+    footer: 'contentinfo',
+    aside: 'complementary',
+    section: 'region',
+    article: 'article'
+  };
+
+  Object.keys(landmarks).forEach(tag => {
+    document.querySelectorAll(tag).forEach(element => {
+      if (!element.hasAttribute('role')) {
+        element.setAttribute('role', landmarks[tag]);
+      }
+    });
+  });
+}
+
+// New function for REACT_025: Ensure unique landmarks (2 issues)
+function ensureUniqueLandmarks() {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'region', 'article'];
+  const roleCounts = {};
+
+  landmarkRoles.forEach(role => {
+    roleCounts[role] = 0;
+  });
+
+  document.querySelectorAll('[role]').forEach(element => {
+    const role = element.getAttribute('role');
+    if (landmarkRoles.includes(role)) {
+      roleCounts[role]++;
+      if (roleCounts[role] > 1 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        element.setAttribute('aria-label', `${role}-${roleCounts[role]}`);
+      }
+    }
+  });
+}
+
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = `SVG icon ${index + 1}`;
+      title.id = `svg-title-${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+  });
+}
+
+function fixFakeLinks() {
+  document.querySelectorAll('a').forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
+      if (link.querySelector('button') || link.getAttribute('role') === 'button') {
+        link.setAttribute('role', 'button');
+        if (!link.id) {
+          link.id = `button-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
       }
     }
 

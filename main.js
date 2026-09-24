@@ -232,205 +232,73 @@ function makeHeaderFocusable() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('tabindex',
-    // TODO: add the new functions or changes requested in the issue
-    // Here's a sample implementation for a new function named 'myNewFunction'
-    // (Removed duplicate myNewFunction definition)
-  }
 }
 
-// New function to get accessibility report
-function getAccessibilityReport() {
-  // This function would generate a report of accessibility issues
-  // For now, it returns a placeholder object
-  return {
-    issues: [],
-    status: 'complete',
-    timestamp: new Date().toISOString()
+// NEW FUNCTION ADDED FOR LINK ACCESSIBILITY CHECK
+/**
+ * Validates the accessibility of links in the document
+ * @param {HTMLElement} [container=document] - The container element to check for links
+ * @returns {Object} An object containing accessibility issues found
+ */
+function checkLinkAccessibility(container = document) {
+  const links = container.querySelectorAll('a');
+  const issues = {
+    missingAltText: [],
+    emptyHref: [],
+    invalidHref: [],
+    missingAriaLabel: [],
+    duplicateIds: []
   };
-}
 
-// New function to validate ARIA attributes
-function validateAriaAttributes(element) {
-  // Basic validation of ARIA attributes
-  if (!element || !(element instanceof HTMLElement)) {
-    return false;
-  }
+  // Check for duplicate IDs
+  const allElements = container.querySelectorAll('[id]');
+  const idMap = new Map();
 
-  const ariaAttributes = Array.from(element.attributes)
-    .filter(attr => attr.name.startsWith('aria-'));
-
-  // Check for common ARIA attribute patterns
-  for (const attr of ariaAttributes) {
-    const value = attr.value.trim();
-
-    // Check for empty ARIA attributes
-    if (!value) {
-      console.warn(`Empty ARIA attribute: ${attr.name} on element`, element);
-      return false;
+  allElements.forEach(element => {
+    const id = element.id;
+    if (id) {
+      if (idMap.has(id)) {
+        issues.duplicateIds.push({
+          id,
+          elements: [idMap.get(id), element]
+        });
+      } else {
+        idMap.set(id, element);
+      }
     }
-
-    // Check for invalid ARIA values
-    if (value === 'undefined' || value === 'null') {
-      console.warn(`Invalid ARIA value: ${value} for ${attr.name} on element`, element);
-      return false;
-    }
-  }
-
-  return true;
-}
-
-// New function to get element accessibility role
-function getElementAccessibilityRole(element) {
-  if (!element || !(element instanceof HTMLElement)) {
-    return null;
-  }
-
-  // Check for explicit role attribute
-  const explicitRole = element.getAttribute('role');
-  if (explicitRole) {
-    return explicitRole;
-  }
-
-  // Check for implicit roles based on element type
-  const elementType = element.tagName.toLowerCase();
-  const implicitRoles = {
-    'a': 'link',
-    'button': 'button',
-    'input': 'textbox',
-    'select': 'listbox',
-    'textarea': 'textbox',
-    'img': 'img',
-    'ul': 'list',
-    'ol': 'list',
-    'li': 'listitem',
-    'table': 'table',
-    'th': 'columnheader',
-    'td': 'cell'
-  };
-
-  return implicitRoles[elementType] || null;
-}
-
-// New function to check if element is focusable
-function isElementFocusable(element) {
-  if (!element || !(element instanceof HTMLElement)) {
-    return false;
-  }
-
-  // Check for explicit tabindex
-  const tabindex = element.getAttribute('tabindex');
-  if (tabindex !== null) {
-    return tabindex !== '-1';
-  }
-
-  // Check for native focusable elements
-  const focusableTags = ['a', 'button', 'input', 'select', 'textarea', 'iframe'];
-  if (focusableTags.includes(element.tagName.toLowerCase())) {
-    return true;
-  }
-
-  // Check for contenteditable
-  if (element.getAttribute('contenteditable') === 'true') {
-    return true;
-  }
-
-  return false;
-}
-
-// New function to get element accessibility name
-function getElementAccessibilityName(element) {
-  if (!element || !(element instanceof HTMLElement)) {
-    return null;
-  }
-
-  // Check for aria-label
-  const ariaLabel = element.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-
-  // Check for aria-labelledby
-  const labelledby = element.getAttribute('aria-labelledby');
-  if (labelledby) {
-    const labels = labelledby.split(' ').map(id => document.getElementById(id));
-    return labels.map(label => label ? label.textContent : '').join(' ').trim();
-  }
-
-  // Check for title attribute
-  const title = element.getAttribute('title');
-  if (title) {
-    return title;
-  }
-
-  // Check for text content
-  const textContent = element.textContent.trim();
-  if (textContent) {
-    return textContent;
-  }
-
-  // Check for alt text (for images)
-  if (element.tagName.toLowerCase() === 'img') {
-    return element.getAttribute('alt') || null;
-  }
-
-  return null;
-}
-
-// New function to check for keyboard trap
-function checkForKeyboardTrap() {
-  // This function would check for common keyboard trap patterns
-  // For now, it returns a placeholder object
-  return {
-    hasKeyboardTrap: false,
-    trappedElements: [],
-    suggestions: []
-  };
-}
-
-// New function to get color contrast ratio
-function getColorContrastRatio(color1, color2) {
-  // Convert hex colors to RGB
-  const rgb1 = hexToRgb(color1);
-  const rgb2 = hexToRgb(color2);
-
-  if (!rgb1 || !rgb2) {
-    return null;
-  }
-
-  // Calculate relative luminance
-  const lum1 = calculateRelativeLuminance(rgb1);
-  const lum2 = calculateRelativeLuminance(rgb2);
-
-  // Calculate contrast ratio
-  const lighter = Math.max(lum1, lum2);
-  const darker = Math.min(lum1, lum2);
-
-  return (lighter + 0.05) / (darker + 0.05);
-}
-
-// Helper function to convert hex to RGB
-function hexToRgb(hex) {
-  // Remove # if present
-  hex = hex.replace('#', '');
-
-  // Parse r, g, b values
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-
-  if (isNaN(r) || isNaN(g) || isNaN(b)) {
-    return null;
-  }
-
-  return { r, g, b };
-}
-
-// Helper function to calculate relative luminance
-function calculateRelativeLuminance(rgb) {
-  const sRGB = [rgb.r, rgb.g, rgb.b].map(value => {
-    value /= 255;
-    return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
   });
 
-  return 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2];
+  // Check links for accessibility issues
+  links.forEach(link => {
+    // Check for empty href
+    if (!link.href || link.href.trim() === '') {
+      issues.emptyHref.push(link);
+    }
+
+    // Check for invalid href (javascript: or #)
+    if (link.href.startsWith('javascript:') || link.href === '#') {
+      issues.invalidHref.push(link);
+    }
+
+    // Check for missing aria-label or aria-labelledby when link text is empty
+    if (!link.textContent.trim() && !link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby')) {
+      issues.missingAriaLabel.push(link);
+    }
+
+    // Check for images in links without alt text
+    const images = link.querySelectorAll('img');
+    images.forEach(img => {
+      if (!img.alt && !img.getAttribute('aria-hidden')) {
+        issues.missingAltText.push({
+          link,
+          image: img
+        });
+      }
+    });
+  });
+
+  return issues;
 }
+
+// Export the new function
+export { checkLinkAccessibility };

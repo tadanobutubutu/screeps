@@ -109,34 +109,27 @@ function validateLandmarkStructure() {
     return true;
 }
 
-// ... (existing implementation continued here)
-
+// TODO: Implement upgrade logic
+// This function should use harvested data to improve the system
 function performUpgrade(harvestedData) {
-    // ... (existing implementation here)
+    if (!harvestedData || typeof harvestedData !== 'object') {
+        console.warn('performUpgrade skipped: no harvested data provided.');
+        return false;
+    }
+
+    const insights = analyzeHarvestedData(harvestedData);
+    applyUpgradeInsights(insights);
+    return true;
 }
 
 function analyzeHarvestedData(data) {
     // ... (existing implementation here)
 }
 
-function applyImprovements(data) {
-    // ... (existing implementation here)
-}
-
-function function3(input) {
-    // Handle null or undefined input
-    if (input === null || input === undefined) {
-        return null;
-    }
-
-    // Handle string input - trim whitespace and convert to lowercase
-    if (typeof input === 'string') {
-        return input.trim().toLowerCase();
-    }
-
-    // Handle arrays - process each element recursively
-    if (Array.isArray(input)) {
-        return input.map(item => function3(item));
+function applyUpgradeInsights(insights) {
+    if (insights.itemCount === 0) {
+        console.info('No harvested items available to drive an upgrade.');
+        return;
     }
 
     // Handle objects - process each value recursively
@@ -238,4 +231,4 @@ function renderDependencyGraph(containerId, graphData) {
 }
 
 // Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, upgrade, renderGraphIndex, renderDependencyGraph };
+export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, analyzeHarvestedData, upgrade, renderGraphIndex, renderDependencyGraph };

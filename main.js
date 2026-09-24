@@ -27,12 +27,14 @@ const spawnChildComponent = (childComponent, childProps) => {
 // Adding the missing required exports
 export { Main, PropTypes, handleAccessibility };
 
-// New function to render dependency graphs
-const renderDependencyGraph = (dependencies) => {
-  // Placeholder for the actual implementation
-  console.log('Rendering dependency graph for:', dependencies);
-  // Here you would implement the logic to render the graph
+// Function to count dependencies
+const countDependencies = (dependencies) => {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  return Object.keys(dependencies).length;
 };
 
-export { Main, PropTypes, updateTitle };
+export { countDependencies };
+
 export default Main;

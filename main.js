@@ -51,9 +51,44 @@ const appState = {
   lang: 'en'
 };
 
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
+/**
+ * Implement function for counting dependencies from package.json
+ * @returns {Object} Object containing dependencies, devDependencies, and total count
+ */
+function countDependencies() {
+  try {
+    const path = require('path');
+    const fs = require('fs');
+    const packageJsonPath = path.join(__dirname, 'package.json');
+    
+    // Check if package.json exists
+    if (!fs.existsSync(packageJsonPath)) {
+      return {
+        dependencies: [],
+        devDependencies: [],
+        total: 0,
+        error: 'package.json not found'
+      };
+    }
+    
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+
+    return {
+        dependencies: Object.keys(dependencies),
+        devDependencies: Object.keys(devDependencies),
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+  } catch (error) {
+    return {
+      dependencies: [],
+      devDependencies: [],
+      total: 0,
+      error: error.message
+    };
+  }
 }
 
 /**

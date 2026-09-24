@@ -161,6 +161,107 @@ const a11yStore = {
     });
   },
 
+  /**
+   * Ensure all headings have a logical hierarchy (h1 -> h2 -> h3, etc.)
+   */
+  ensureHeadingHierarchy() {
+    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    let previousLevel = 0;
+    headings.forEach((heading) => {
+      const currentLevel = parseInt(heading.tagName.substring(1), 10);
+      if (previousLevel === 0 && currentLevel !== 1) {
+        // Document should start with h1
+        heading.setAttribute('data-heading-warning', 'missing-h1');
+      } else if (currentLevel - previousLevel > 1) {
+        // Heading skip detected
+        heading.setAttribute('data-heading-warning', 'skipped-level');
+      }
+      previousLevel = currentLevel;
+    });
+  },
+
+  /**
+   * Ensure all tables have proper headers and captions
+   */
+  ensureTableAccessibility() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table, index) => {
+      if (!table.hasAttribute('role')) {
+        table.setAttribute('role', 'table');
+      }
+      const headers = table.querySelectorAll('th');
+      headers.forEach((header) => {
+        if (!header.hasAttribute('scope')) {
+          header.setAttribute('scope', 'col');
+        }
+      });
+      if (!table.querySelector('caption') && !table.hasAttribute('aria-label')) {
+        table.setAttribute('aria-label', `Table ${index + 1}`);
+      }
+    });
+  },
+
+  /**
+   * Ensure all buttons have accessible names
+   */
+  ensureButtonAccessibleNames() {
+    const buttons = document.querySelectorAll('button, [role="button"]');
+    buttons.forEach((button, index) => {
+      const hasText = button.textContent.trim().length > 0;
+      const hasAriaLabel = button.hasAttribute('aria-label') || button.hasAttribute('aria-labelledby');
+      if (!hasText && !hasAriaLabel) {
+        button.setAttribute('aria-label', `Button ${index + 1}`);
+      }
+    });
+  },
+
+  /**
+   * Ensure all links have accessible names and discernible text
+   */
+  ensureLinkAccessibleNames() {
+    const links = document.querySelectorAll('a, [role="link"]');
+    links.forEach((link, index) => {
+      const hasText = link.textContent.trim().length > 0;
+      const hasAriaLabel = link.hasAttribute('aria-label') || link.hasAttribute('aria-labelledby');
+      if (!hasText && !hasAriaLabel) {
+        link.setAttribute('aria-label', `Link ${index + 1}`);
+      }
+    });
+  },
+
+  /**
+   * Ensure the document has a proper lang attribute
+   */
+  ensureDocumentLanguage() {
+    const html = document.documentElement;
+    if (!html.hasAttribute('lang')) {
+      html.setAttribute('lang', 'en');
+    }
+  },
+
+  /**
+   * Ensure all iframes have accessible titles
+   */
+  ensureIframeAccessibility() {
+    const iframes = document.querySelectorAll('iframe');
+    iframes.forEach((iframe, index) => {
+      if (!iframe.hasAttribute('title') && !iframe.hasAttribute('aria-label')) {
+        iframe.setAttribute('title', `Frame ${index + 1}`);
+      }
+    });
+  },
+
+  /**
+   * Ensure color is not the only means of conveying information
+   * (checks for potential color-only indicators and marks them for review)
+   */
+  flagColorOnlyIndicators() {
+    const elements = document.querySelectorAll('[style*="color"], [class*="color-"]');
+    elements.forEach((element) => {
+      element.setAttribute('data-a11y-review', 'color-only');
+    });
+  },
+
   // ... remaining a11yStore methods ...
 
   /**
@@ -175,118 +276,16 @@ const a11yStore = {
 
 // New functions
 function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveElementsAccessible();
-}
-
-/**
- * Create an accessible web resource button/link (e.g., GitHub, Stack Overflow)
- * @param {Object} options - Configuration options
- * @param {string} options.url - The URL of the web resource
- * @param {string} options.label - Accessible label for the button/link
- * @param {string} [options.icon] - Optional icon HTML (SVG or img) to include
- * @param {string} [options.className] - Additional CSS classes
- * @param {boolean} [options.asButton=false] - If true, creates a <button> with onclick navigation; otherwise creates an <a>
- * @returns {HTMLElement} The created accessible element
- */
-function createWebResourceButton({ url, label, icon, className = '', asButton = false }) {
-  if (!url || !label) {
-    throw new Error('createWebResourceButton requires both url and label parameters');
-  }
-
-  const element = asButton ? document.createElement('button') : document.createElement('a');
-  element.className = `web-resource-button ${className}`.trim();
-
-  if (asButton) {
-    element.type = 'button';
-    element.setAttribute('onclick', `window.open('${url.replace(/'/g, "\\'")}', '_blank', 'noopener,noreferrer')`);
-    element.setAttribute('data-url', url);
-  } else {
-    element.href = url;
-    element.target = '_blank';
-    element.rel = 'noopener noreferrer';
-  }
-
-  // Add icon if provided
-  if (icon) {
-    const iconContainer = document.createElement('span');
-    iconContainer.className = 'web-resource-icon';
-    iconContainer.setAttribute('aria-hidden', 'true');
-    iconContainer.innerHTML = icon;
-    element.appendChild(iconContainer);
-  }
-
-  // Add label
-  const labelElement = document.createElement('span');
-  labelElement.className = 'web-resource-label';
-  labelElement.textContent = label;
-  element.appendChild(labelElement);
-
-  // Ensure accessible name
-  if (asButton) {
-    element.setAttribute('aria-label', label);
-  }
-
-  return element;
-}
-
-/**
- * Validates that heading elements follow a proper hierarchy (no skipped levels)
- * @returns {Object} Object containing validation results and any issues found
- */
-function validateHeadingHierarchy() {
-  const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
-  const issues = [];
-  let previousLevel = 0;
-
-  headings.forEach((heading, index) => {
-    const currentLevel = parseInt(heading.tagName.charAt(1));
-    
-    // Check if heading level increased by more than 1
-    if (previousLevel > 0 && currentLevel > previousLevel + 1) {
-      issues.push({
-        type: 'SKIPPED_LEVEL',
-        element: heading,
-        expected: `h${previousLevel + 1}`,
-        actual: heading.tagName,
-        message: `Heading level skipped: ${heading.tagName} follows h${previousLevel}`
-      });
-    }
-
-    // Check for proper nesting within sections
-    if (!heading.hasAttribute('role') && !heading.id) {
-      if (!heading.textContent.trim()) {
-        issues.push({
-          type: 'EMPTY_HEADING',
-          element: heading,
-          message: 'Heading element is empty and should contain text'
-        });
-      }
-    }
-
-    previousLevel = currentLevel;
-  });
-
-  return {
-    total: headings.length,
-    issues: issues,
-    isValid: issues.length === 0
-  };
-}
-
-/**
- * Function for addressing accessibility issues from insight report
- * Aggregates and applies fixes for landmarks, SVG elements, fake links,
- * and other accessibility issues identified in the insight report.
- */
-function addressAccessibilityIssuesFromInsightReport() {
-  a11yStore.checkLandmarkElements();
-  a11yStore.addSVGAccessibilityProps();
-  a11yStore.fixFakeLinks();
-  ensureInteractiveElementsAccessible();
-}
-
-function newFunction() {
-  // TODO: Implement new function
+  a11yStore.ensureInteractiveRoles();
+  a11yStore.addFormControlLabels();
+  a11yStore.ensureImageAccessibility();
+  a11yStore.ensureHeadingHierarchy();
+  a11yStore.ensureTableAccessibility();
+  a11yStore.ensureButtonAccessibleNames();
+  a11yStore.ensureLinkAccessibleNames();
+  a11yStore.ensureDocumentLanguage();
+  a11yStore.ensureIframeAccessibility();
+  a11yStore.flagColorOnlyIndicators();
 }
 
 // ... rest of the code ...

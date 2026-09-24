@@ -3,9 +3,14 @@ function greet(name) {
   return `Hello, ${name}!`;
 }
 
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// main.js - Main application entry point
+// TODO: Implement this function for checking landmark elements
+function checkLandmarkElement(elementId) {
+  const element = document.getElementById(elementId);
+  if (!element) {
+    throw new Error(`Element with id '${elementId}' not found.`);
+  }
+  return element;
+}
 
 // Exported functions
 export function calculateSum(a, b) {
@@ -16,9 +21,4 @@ export function calculateProduct(a, b) {
   return a * b;
 }
 
-// TODO: Any additional changes requested in the issue should be added after this function
-
-// Additional function as per the issue
-export function calculateAverage(a, b) {
-  return (a + b) / 2;
-}
+export { checkLandmarkElement };

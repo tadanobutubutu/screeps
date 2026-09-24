@@ -167,101 +167,63 @@ const accessibilityUtils = {
   },
 
   /**
-   * Get language attribute for HTML element
-   * @returns {string} The lang attribute value
-   */
-  getLangAttribute: () => {
-    return document.documentElement.lang || 'en';
-  },
-
-  /**
-   * Validate table accessibility
-   * @param {HTMLElement} table - The table element to validate
-   * @returns {boolean} Whether the table is accessible
+   * Validate table structure for accessibility issues
+   * @param {HTMLTableElement} table - The table element to validate
+   * @returns {Object} Validation results with issues and suggestions
    */
   validateTableAccessibility: (table) => {
-    if (!table) return false;
+    if (!table || table.tagName !== 'TABLE') {
+      throw new Error('Invalid table element provided');
+    }
 
-    // Check for proper table structure
-    const hasCaption = table.querySelector('caption') !== null;
-    const hasThead = table.querySelector('thead') !== null;
-    const hasTbody = table.querySelector('tbody') !== null;
+    const results = {
+      isAccessible: true,
+      issues: [],
+      suggestions: []
+    };
 
-    // Check for proper headers
+    // Check for missing table caption
+    if (!table.querySelector('caption')) {
+      results.isAccessible = false;
+      results.issues.push('Table is missing a caption');
+      results.suggestions.push('Add a <caption> element to describe the table purpose');
+    }
+
+    // Check for missing table headers
     const headers = table.querySelectorAll('th');
-    let hasScope = true;
+    if (headers.length === 0) {
+      results.isAccessible = false;
+      results.issues.push('Table is missing header cells (th elements)');
+      results.suggestions.push('Add th elements to define column headers');
+    }
+
+    // Check for scope attributes on headers
     headers.forEach(header => {
       if (!header.hasAttribute('scope')) {
-        hasScope = false;
+        results.isAccessible = false;
+        results.issues.push('Header cell is missing scope attribute');
+        results.suggestions.push('Add scope="col" or scope="row" to header cells');
       }
     });
 
-    return hasCaption && hasThead && hasTbody && hasScope;
-  },
-
-  /**
-   * Validate landmark structure
-   * @param {HTMLElement} element - The element to validate
-   * @returns {boolean} Whether the landmark is properly structured
-   */
-  validateLandmark: (element) => {
-    if (!element) return false;
-
-    const role = element.getAttribute('role');
-    if (!role) return false;
-
-    // Check for proper landmark roles
-    const validLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
-    return validLandmarks.includes(role);
-  },
-
-  /**
-   * Get accessible name for SVG
-   * @param {HTMLElement} svg - The SVG element
-   * @returns {string} The accessible name
-   */
-  getSvgAccessibleName: (svg) => {
-    if (!svg) return '';
-
-    // Check for aria-label, aria-labelledby, or title
-    if (svg.hasAttribute('aria-label')) {
-      return svg.getAttribute('aria-label');
+    // Check for missing ARIA attributes
+    if (!table.hasAttribute('role')) {
+      results.isAccessible = false;
+      results.issues.push('Table is missing role attribute');
+      results.suggestions.push('Add role="table" to the table element');
     }
 
-    if (svg.hasAttribute('aria-labelledby')) {
-      const id = svg.getAttribute('aria-labelledby');
-      const labelElement = document.getElementById(id);
-      return labelElement ? labelElement.textContent : '';
-    }
+    // Check for data cells with headers
+    const dataCells = table.querySelectorAll('td');
+    dataCells.forEach(cell => {
+      if (!cell.hasAttribute('headers') && headers.length > 0) {
+        results.isAccessible = false;
+        results.issues.push('Data cell is missing headers attribute');
+        results.suggestions.push('Add headers attribute pointing to header IDs');
+      }
+    });
 
-    const title = svg.querySelector('title');
-    return title ? title.textContent : '';
-  },
-
-  /**
-   * Create an accessible in-page button
-   * @param {string} text - The button text
-   * @param {Function} onClick - The click handler
-   * @returns {HTMLElement} The created button
-   */
-  createInPageButton: (text, onClick) => {
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.setAttribute('aria-label', text);
-    button.addEventListener('click', onClick);
-    return button;
-  },
-
-  /**
-   * Get person name with proper accessibility attributes
-   * @param {string} name - The person's name
-   * @returns {HTMLElement} The name element with proper attributes
-   */
-  personName: (name) => {
-    const span = document.createElement('span');
-    span.textContent = name;
-    span.setAttribute('aria-label', `Person: ${name}`);
-    return span;
+    return results;
   }
 }
 

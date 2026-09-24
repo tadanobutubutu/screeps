@@ -7,7 +7,7 @@ document.documentElement.lang = 'en';
  * @param {HTMLElement} container - The container element to check for accessibility issues
  * @returns {Array} - Array of accessibility issues found
  */
-function checkAccessibility(container) {
+function checkAccessibilityIssues(container) {
   const issues = [];
   
   // Check links for accessibility
@@ -128,7 +128,25 @@ fixTableStructure();
  * @param {HTMLElement} container - The container element to render the graph into
  */
 function renderAccessibilityGraph(issues, container) {
-  // ... existing implementation ...
+  if (!container || !issues || issues.length === 0) {
+    return;
+  }
+
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'accessibility-graph';
+  graphContainer.innerHTML = `
+    <h3>Accessibility Issues Graph</h3>
+    <div class="graph-nodes">
+      ${issues.map((issue, index) => `
+        <div class="graph-node" data-index="${index}">
+          <span class="node-type">${issue.type}</span>
+          <span class="node-index">#${index}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  
+  container.appendChild(graphContainer);
 }
 
 /**
@@ -137,14 +155,43 @@ function renderAccessibilityGraph(issues, container) {
  * @param {HTMLElement} container - The container element to render the index into
  */
 function renderAccessibilityIndex(issues, container) {
-  // ... existing implementation ...
+  if (!container || !issues || issues.length === 0) {
+    return;
+  }
+
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'accessibility-index';
+  
+  const groupedIssues = {};
+  issues.forEach((issue, index) => {
+    if (!groupedIssues[issue.type]) {
+      groupedIssues[issue.type] = [];
+    }
+    groupedIssues[issue.type].push({ ...issue, originalIndex: index });
+  });
+
+  let indexHTML = '<h3>Accessibility Issues Index</h3><ul class="index-list">';
+  
+  Object.entries(groupedIssues).forEach(([type, typeIssues]) => {
+    indexHTML += `<li class="issue-type">${type}: ${typeIssues.length} issue(s)
+    <ul class="issue-list">`;
+    typeIssues.forEach(issue => {
+      indexHTML += `<li class="issue-item" data-index="${issue.originalIndex}">${issue.message}</li>`;
+    });
+    indexHTML += '</ul></li>';
+  });
+  
+  indexHTML += '</ul>';
+  indexContainer.innerHTML = indexHTML;
+  
+  container.appendChild(indexContainer);
 }
 
 /**
  * Validates table structure for accessibility
  */
 function renderAccessibilityResults(container, outputContainer) {
-  const issues = checkAccessibility(container);
+  const issues = checkAccessibilityIssues(container);
   
   // ... existing implementation ...
 }
@@ -159,7 +206,7 @@ function renderIndexView() {
 // Example usage and export
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { 
-    checkAccessibility,
+    checkAccessibilityIssues,
     renderAccessibilityGraph,
     renderAccessibilityIndex,
     renderAccessibilityResults,
@@ -169,7 +216,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // If running in browser context
 if (typeof window !== 'undefined') {
-  window.checkAccessibility = checkAccessibility;
+  window.checkAccessibilityIssues = checkAccessibilityIssues;
   window.renderAccessibilityGraph = renderAccessibilityGraph;
   window.renderAccessibilityIndex = renderAccessibilityIndex;
   window.renderAccessibilityResults = renderAccessibilityResults;

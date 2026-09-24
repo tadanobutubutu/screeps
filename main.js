@@ -164,22 +164,12 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 
   /**
-   * New function to ensure the element has an id, add aria-label, render dependency graphs
-   * @param {Element} element - The element to be processed
+   * Ensure all interactive elements have proper ARIA roles and labels
    */
-  enhanceAccessibilityOfElement(element) {
-    if (!element.id) {
-      const idSuffix = Math.floor(Math.random() * 10000);
-      element.setAttribute('id', `enhanced-element-${idSuffix}`);
-    }
-
-    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-      element.setAttribute('aria-label', 'Enhanced element');
-    }
-
-    // Render dependency graph if applicable (dependency graph rendering logic not shown)
-    // This is a placeholder for the actual rendering logic
-    // dependencyGraphContent.renderForElement(element);
+  ensureAccessibleInteractiveElements() {
+    this.ensureInteractiveRoles();
+    this.addFormControlLabels();
+    this.ensureImageAccessibility();
   }
 };
 
@@ -234,34 +224,7 @@ function validateAccessibilityReport() {
 
 // New functions
 function ensureInteractiveElementsAccessible() {
-  // Check for interactive elements without proper accessibility
-  const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onkeyup], [onkeypress]');
-  
-  interactiveElements.forEach((element) => {
-    // Ensure elements are keyboard accessible
-    if (!element.hasAttribute('tabindex') && !element.hasAttribute('href')) {
-      element.setAttribute('tabindex', '0');
-    }
-    
-    // Add role if not present
-    if (!element.getAttribute('role')) {
-      if (element.tagName === 'A') {
-        // Links should have proper href or role="button"
-        if (!element.getAttribute('href') || element.getAttribute('href') === '#') {
-          element.setAttribute('role', 'button');
-        }
-      } else {
-        element.setAttribute('role', 'button');
-      }
-    }
-    
-    // Ensure visible focus indicator
-    if (!element.hasAttribute('data-a11y-focus')) {
-      element.setAttribute('data-a11y-focus', 'true');
-    }
-  });
-  
-  return true;
+  a11yStore.ensureAccessibleInteractiveElements();
 }
 
 // ... rest of the code ...

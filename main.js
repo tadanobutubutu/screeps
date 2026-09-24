@@ -45,15 +45,14 @@ const {
   createAnnouncer,
   prefersReducedMotion,
   renderSimpleDependencyGraph,
-  addAccessibleName,
   addAccessibleNamesToSVGs,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addLangAttribute,
   fixTableStructure,
-  fixLandmarkIssues,
   addMainLandmark,
   fixLandmarkIssues,
+  validateTableAccessibility,
   initializeAccessibility,
   renderIndex,
   newFunction
@@ -297,7 +296,7 @@ function newFocusTrap (element) {
   })
 }
 
-function validateTableStructureFn(container) {
+function validateTableStructureForContainer(container) {
   return validateTableStructureForAccessibility(container);
 }
 

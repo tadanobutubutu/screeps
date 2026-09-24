@@ -45,11 +45,8 @@ function createInPageButton (options) {
   return button
 }
 
-// TODO: Any additional changes requested in the issue should be added after this function
-// Example of additional function requested in the issue
-function welcomeNewUser(newUser) {
-  console.log(`Welcome, ${newUser}!`);
-}
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 
-// Export the greet function
-export { greet };
+// Additional changes requested in the issue should be added after this function

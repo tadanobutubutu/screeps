@@ -162,28 +162,91 @@ function generateAccessibilityReport() {
   };
 }
 
-// Update the existing function using the new functions for rendering graph/index
-function renderGraphIndex() {
-  // Apply accessibility fixes to the main container
-  addressAccessibilityIssues();
-  
-  // Validate accessibility and structure of tables in the graph/index
-  const accessibilityResults = validateTableAccessibility();
-  const structureResults = validateTableStructure();
-  
-  // Generate the full accessibility report for graph/index
-  const report = generateAccessibilityReport();
-  
-  // Log accessibility status for the rendered graph/index
-  console.log('Graph/Index Accessibility Report:', report);
-  
-  // Announce the report status for screen readers
-  const announcement = document.getElementById('accessibility-announcement');
-  if (announcement) {
-    const status = report.issues.length === 0 
-      ? 'Graph/Index accessibility check passed' 
-      : `Graph/Index has ${report.issues.length} accessibility issues`;
-    announcement.textContent = status;
+// Example usage for SVGs:
+// const svg1 = document.querySelector('.svg-1');
+// const svg2 = document.querySelector('.svg-2');
+// svg1.setAttribute('aria-label', 'Description of first icon');
+// svg2.setAttribute('aria-label', 'Description of second icon');
+
+// REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// Ensure all <th> elements have scope attribute
+function ensureThScope() {
+  const thElements = document.querySelectorAll('th');
+  thElements.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      // Determine if it's a column header or row header based on context
+      const parent = th.parentElement;
+      const parentTagName = parent ? parent.tagName.toLowerCase() : '';
+      const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
+
+      if (isFirstCell && parentTagName === 'tr') {
+        th.setAttribute('scope', 'row');
+      } else if (parentTagName === 'thead' || !isFirstCell) {
+        th.setAttribute('scope', 'col');
+      }
+    }
+  });
+}
+
+/**
+ * Setup skip link functionality for keyboard navigation
+ */
+function setupSkipLinks() {
+  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
+  if (skipLink) {
+    skipLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(skipLink.getAttribute('href') || '');
+      if (target) {
+        target.focus();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+}
+
+/**
+ * Ensure buttons have proper accessibility attributes
+ */
+function setupButtonAccessibility() {
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button) => {
+    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+      button.setAttribute('aria-label', 'Action button');
+    }
+  });
+}
+
+/**
+ * Perform a task with the given parameters
+ * @param {string} task - The task to perform
+ */
+function performTask(task) {
+  console.log(`Performing task: ${task}`);
+  // Task implementation details would go here
+}
+
+/**
+ * Handle an event with the given parameters
+ * @param {string} event - The event to handle
+ */
+function handleEvent(event) {
+  console.log(`Handling event: ${event}`);
+  // Event handling logic would go here
+}
+
+function add(a, b) {
+  return a + b;
+}
+
+/**
+ * Count the number of dependencies in package.json
+ * @param {Object} packageJson - The package.json object
+ * @returns {number} The count of dependencies
+ */
+export function countDependencies(packageJson) {
+  if (!packageJson || typeof packageJson !== 'object') {
+    return 0;
   }
   
   // Return the report for further use

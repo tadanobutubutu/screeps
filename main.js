@@ -188,6 +188,124 @@ function initialize() {
     console.log('App initialized');
 }
 
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+    const element = document ? document.getElementById(id) : null;
+    return element !== null;
+}
+
+// Landmark validation function with merged logic from both branches
+function validateLandmark(landmark) {
+    const errors = [];
+
+    // Check if landmark exists
+    if (!landmark) {
+        errors.push('Landmark is required');
+        return { valid: false, errors };
+    }
+
+    // Validate name
+    if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+        errors.push('Landmark must have a valid name');
+    }
+
+    // Validate latitude
+    if (landmark.latitude === undefined || landmark.latitude === null) {
+        errors.push('Landmark must have a latitude');
+    } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+        errors.push('Landmark latitude must be a number');
+    } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+        errors.push('Landmark latitude must be between -90 and 90');
+    }
+
+    // Validate longitude
+    if (landmark.longitude === undefined || landmark.longitude === null) {
+        errors.push('Landmark must have a longitude');
+    } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+        errors.push('Landmark longitude must be a number');
+    } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+        errors.push('Landmark longitude must be between -180 and 180');
+    }
+
+    // Additional validation: check for array composition with name
+    if (Array.isArray(landmark) && landmark.length > 0) {
+        landmark.forEach(innerLandmark => {
+            if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+                errors.push('Landmark array must have valid names');
+            }
+        });
+    }
+
+    return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Wraps the primary content in a <main> landmark element if not already present.
+ * Implements proper landmark structure for accessibility compliance.
+ */
+function wrapPrimaryContentInMain() {
+  // Check if a <main> element already exists
+  let mainElement = document.querySelector('main[role="main"], main, [role="main"]');
+
+  if (!mainElement) {
+    // Find existing primary content element using common selectors
+    const primaryContentSelectors = [
+      '#primary-content',
+      '#main-content',
+      '[role="main"]',
+      '.primary-content',
+      '.main-content',
+      '#content',
+      'article',
+      '.content'
+    ];
+
+    let primaryContent = null;
+
+    for (const selector of primaryContentSelectors) {
+      const element = document.querySelector(selector);
+      if (element && element.tagName !== 'MAIN') {
+        primaryContent = element;
+        break;
+      }
+    }
+
+    // If no specific primary content found, use body content
+    if (!primaryContent) {
+      primaryContent = document.body;
+    }
+
+    // Create main element with proper attributes
+    mainElement = document.createElement('main');
+    mainElement.id = 'main-content';
+    mainElement.setAttribute('role', 'main');
+
+    // Preserve existing id if the primary content has one
+    if (primaryContent.id) {
+      mainElement.id = primaryContent.id;
+    }
+
+    // Wrap the content appropriately
+    if (primaryContent !== document.body && primaryContent.parentNode) {
+      primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+      mainElement.appendChild(primaryContent);
+    } else if (primaryContent === document.body) {
+      // For body, insert main as first child
+      mainElement.appendChild(document.createDocumentFragment());
+      while (document.body.firstChild) {
+        mainElement.appendChild(document.body.firstChild);
+      }
+      document.body.appendChild(mainElement);
+    }
+  }
+
+  return mainElement;
+}
+
 // Initialize app function
 function initializeApp() {
     initialize();
@@ -625,18 +743,44 @@ function addressInsightIssues(insights) {
   }));
 }
 
+// Updated function to render dependency graph with improved visualization
 function renderDependencyGraph(graph) {
   if (!graph) {
     return null;
   }
-  return { rendered: true, graph };
+
+  // Enhanced visualization logic
+  const visualization = {
+    nodes: graph.nodes || [],
+    edges: graph.edges || [],
+    rendered: true,
+    metadata: {
+      nodeCount: graph.nodes ? graph.nodes.length : 0,
+      edgeCount: graph.edges ? graph.edges.length : 0,
+      timestamp: new Date().toISOString()
+    }
+  };
+
+  console.log('Rendering dependency graph with enhanced visualization');
+  return visualization;
 }
 
+// Updated function to render index view with improved structure
 function renderIndexView(data) {
   if (!data) {
     return null;
   }
-  return { rendered: true, data };
+
+  // Enhanced rendering logic
+  const renderedView = {
+    content: data.content || '',
+    metadata: data.metadata || {},
+    rendered: true,
+    timestamp: new Date().toISOString()
+  };
+
+  console.log('Rendering index view with enhanced structure');
+  return renderedView;
 }
 
 function calculateSum(a, b) {

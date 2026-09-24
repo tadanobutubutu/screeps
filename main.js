@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+
 // TODO: Address accessibility issues from insight report:
 // ... (existing code)
 
@@ -230,9 +232,7 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html lang="en">';
-    html += '<head><meta charset="UTF-8"><title>Dependency Index</title></head>';
-    html += '<body>';
+    let html = '<!DOCTYPE html><html><head><title>Dependency Index</title></head><body>';
     html += '<h1>Dependency Index</h1>';
     html += '<ul>';
     

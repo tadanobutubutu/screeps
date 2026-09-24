@@ -4,25 +4,40 @@ function newFunction() {
   return 'new function result';
 }
 
-// Another new function to be added or updated
-function anotherNewFunction() {
-  // Implementation of the other new function
-  return 'another new function result';
+// Added function to wrap primary content in <main> for accessibility
+function wrapPrimaryContentInMain() {
+  // Check if <main> already exists to avoid duplicate wrapping
+  if (document.querySelector('main')) {
+    return;
+  }
+
+  // Identify the primary content element - typically the main article or content container
+  const primaryContent = document.querySelector('article') ||
+                         document.querySelector('#content') ||
+                         document.querySelector('.content') ||
+                         document.querySelector('[role="main"]');
+
+  if (!primaryContent) {
+    console.warn('No primary content element found to wrap in <main>');
+    return;
+  }
+
+  // Create a <main> element and wrap the primary content
+  const mainElement = document.createElement('main');
+  primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+  mainElement.appendChild(primaryContent);
 }
 
-// Existing functions preserved from origin/main
-module.exports.someFunction = function() {
-  return 'existing function';
-};
+// Invoke the new wrap function as part of addressing accessibility issues
+wrapPrimaryContentInMain();
 
-module.exports.anotherFunction = function() {
-  return 'another function';
-};
+// Preserve existing exports and functions
+// ... (existing exports and functions from main.js)
 
-// Export any new functions or any functions that were previously only used within the file
-module.exports = {
-  newFunction,
-  anotherNewFunction,
-  someFunction: module.exports.someFunction,
-  anotherFunction: module.exports.anotherFunction
-};
+// Export the new function for testing and external use
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    addressAccessibilityIssues,
+    wrapPrimaryContentInMain
+  };
+}

@@ -49,6 +49,14 @@ module.exports = {
   addressAccessibilityIssues // Add the new function for testing
 };
 
+// New function added as per the issue
+function newFunction() {
+  // Placeholder for the new function logic
+}
+
+// Export the new function
+module.exports.newFunction = newFunction;
+
 // Start the application if run directly
 if (require.main === module) {
   startApp();

@@ -312,3 +312,6 @@ function createAccessibleLink (text, href) {
   link.textContent = text;
   link.setAttribute('aria-label', text);
 }
+
+// TODO: This is the existing code that needs to be preserved
+// ...

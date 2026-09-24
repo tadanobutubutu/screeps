@@ -6,10 +6,7 @@ const { exec } = require('child_process');
 const app = express();
 const { createServer: createServerFromModule, startApp: startAppFromModule, config } = require('./');
 
-const PORT = process.env.PORT || 3000;
-const config = {
-  port: PORT
-};
+const port = process.env.PORT || 3000;
 
 ```javascript
 // TODO: This is the existing code that needs to be preserved
@@ -350,75 +347,6 @@ function startApp() {
   return server;
 }
 
-// Add the lang attribute to the HTML element with the getLangAttribute() function
-if (typeof document !== 'undefined') {
-  document.documentElement.lang = getLangAttribute();
-}
-
-// Helper function to validate and fix fake links
-function fixFakeLinks(container) {
-  if (!container) return;
-
-  const elements = container.querySelectorAll('[role="link"]');
-  elements.forEach(element => {
-    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-    if (tagName !== 'a') {
-      // Convert to proper anchor element
-      const anchor = document.createElement('a');
-      anchor.href = element.getAttribute('data-href') || '#';
-      anchor.textContent = element.textContent;
-      anchor.className = element.className;
-      anchor.onclick = element.onclick;
-      element.parentNode.replaceChild(anchor, element);
-    }
-  });
-}
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd
-
-// Additional helper functions for accessibility
-function ensureValidLink(element) {
-  if (!element) return false;
-
-  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-
-  // A valid link must be an <a> element with href attribute
-  if (tagName === 'a') {
-    const href = element.getAttribute('href');
-    return href !== null && href !== undefined && href !== '';
-  }
-
-  return false;
-}
-
-function createAccessibleLink(text, href, options = {}) {
-  if (!text) return null;
-
-  const link = document.createElement('a');
-  link.href = href || '#';
-  link.textContent = text;
-
-  if (options.className) {
-    link.className = options.className;
-  }
-
-  if (options.id) {
-    link.id = options.id;
-  }
-
-  if (options.title) {
-    link.title = options.title;
-  }
-
-  if (options.onClick) {
-    link.onclick = options.onClick;
-  }
-
-  return link;
-}
-
 /**
  * Ensures an element has an ID attribute
  * @param {Object} element - The element to check
@@ -485,61 +413,39 @@ function renderDependencyGraph(graphData) {
   };
 }
 
-// Export all functions for testing and external use
-module.exports = {
-  createServer,
-  startApp,
-  config,
-  getLangAttribute,
-  addSvgAccessibleName,
-  ensureElementHasId,
-  AddressabilityIssues,
-  addressAccessibilityIssues,
-  implementCountDependenciesInMain,
-  countDependencies,
-  processSvgElements,
-  generateAccessibilityReport,
-  calculateAccessibilityScore,
-  ensureUniqueLandmarksFromString,
-  spawnSomeCommand,
-  addLangAttribute,
-  ensureElementId,
-  addAriaLabel,
-  addProperLandmarkRegions,
-  renderDependencyGraph,
-  validateLandmark,
-  validateTableAccessibility,
-  validateTableStructure,
-  ensureUniqueLandmarks,
-  personName,
-  createInPageButton,
-  addressInsightSections
-};
+// Add the lang attribute to the HTML element with the getLangAttribute() function
+document.documentElement.lang = getLangAttribute();
+
+// ... (other functions omitted for brevity)
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    createServer: createServerFromModule,
-    startApp: startApp,
-    config: config,
-    validateLandmark: validateLandmark,
-    getLangAttribute: getLangAttribute,
-    addSvgAccessibleName: addSvgAccessibleName,
-    ensureElementHasId: ensureElementHasId,
-    AddressabilityIssues: AddressabilityIssues,
-    addressAccessibilityIssues: addressAccessibilityIssues,
-    implementCountDependenciesInMain: implementCountDependenciesInMain,
-    countDependencies: countDependencies,
-    processSvgElements: processSvgElements,
-    generateAccessibilityReport: generateAccessibilityReport,
-    calculateAccessibilityScore: calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString: ensureUniqueLandmarksFromString,
-    spawnSomeCommand: spawnSomeCommand,
-    addLangAttribute: addLangAttribute,
-    personName: personName,
-    createInPageButton: createInPageButton,
-    validateTableAccessibility: validateTableAccessibility,
-    validateTableStructure: validateTableStructure,
-    ensureUniqueLandmarks: ensureUniqueLandmarks,
+    createServer,
+    startApp,
+    config,
+    validateLandmark,
+    getLangAttribute,
+    addSvgAccessibleName,
+    ensureElementHasId,
+    AddressabilityIssues,
+    addressAccessibilityIssues,
+    implementCountDependenciesInMain,
+    countDependencies,
+    processSvgElements,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    ensureUniqueLandmarksFromString,
+    spawnSomeCommand,
+    addLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    ensureUniqueLandmarks,
+    personName,
+    createInPageButton,
+    ensureElementId,
+    addAriaLabel,
+    addProperLandmarkRegions,
+    renderDependencyGraph,
     // ... (other exports omitted for brevity)
   };
 } else {

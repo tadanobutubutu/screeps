@@ -164,9 +164,9 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 
   /**
-   * Ensure all interactive elements have proper ARIA roles and labels
+   * Ensure interactive elements are accessible
    */
-  ensureAccessibleInteractiveElements() {
+  ensureInteractiveElementsAccessible() {
     this.ensureInteractiveRoles();
     this.addFormControlLabels();
     this.ensureImageAccessibility();
@@ -224,7 +224,7 @@ function validateAccessibilityReport() {
 
 // New functions
 function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureAccessibleInteractiveElements();
+  a11yStore.ensureInteractiveElementsAccessible();
 }
 
 // ... rest of the code ...

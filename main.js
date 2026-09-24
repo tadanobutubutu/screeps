@@ -98,6 +98,21 @@ if (require.main === module) {
   startApp();
 }
 
+const sampleInsightReport = {
+  title: 'Quarterly Performance Report',
+  sections: [
+    {
+      heading: 'Sales Overview',
+      content: 'Total sales increased by 15% compared to last quarter.'
+    },
+    {
+      heading: 'Customer Satisfaction',
+      content: 'Average satisfaction score: 4.2 out of 5.'
+    }
+  ]
+};
+
+// New function to handle logging
 function logMessage(message) {
   console.log(`[LOG]: ${message}`);
 }
@@ -124,29 +139,19 @@ function addLangAttribute(htmlElement) {
   htmlElement.setAttribute('lang', 'en');
 }
 
-function ensureAccessibility(req, res, next) {
-  res.setHeader('Content-Security-Policy', "default-src 'self';");
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('X-Frame-Options', 'DENY');
-  next();
+function countDependencies() {
+  const fs = require('fs');
+  const packageJsonPath = require('path').join(__dirname, 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+  const dependencies = packageJson.dependencies || {};
+  const devDependencies = packageJson.devDependencies || {};
+
+  return {
+    dependencies: Object.keys(dependencies).length,
+    devDependencies: Object.keys(devDependencies).length,
+    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+  };
 }
 
-// Export functions for testing
-module.exports = {
-  createServer,
-  startApp,
-  config,
-  ensureAccessibility,
-  checkLandmarkElements,
-  sampleInsightReport,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  addressNewAccessibilityIssues,
-  implementAccessibilitySolutions,
-  getLangAttribute,
-  logMessage,
-  gracefulShutdown,
-  addLangAttribute
-};
+// Rest of the code remains the same

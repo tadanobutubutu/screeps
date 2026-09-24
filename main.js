@@ -332,34 +332,33 @@ const accessibilityUtils = {
     return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
   },
 
-  // NEW: Function to ensure dependencyGraph container has proper ARIA role
-  ensureDependencyGraphAccessibility: () => {
-    if (typeof document === 'undefined') return;
+  // NEW: Function to handle focus trap for keyboard navigation
+  newFocusTrap: (element) => {
+    if (!element) return;
 
-    const dependencyGraph = document.querySelector('.dependencyGraph, [data-dependency-graph]');
-    if (dependencyGraph && !dependencyGraph.getAttribute('role')) {
-      dependencyGraph.setAttribute('role', 'tree');
-      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    const focusableElements = element.querySelectorAll(
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
 
-      // Add ARIA attributes to child elements if they exist
-      const nodes = dependencyGraph.querySelectorAll('.node, [data-node]');
-      nodes.forEach((node, index) => {
-        if (!node.getAttribute('role')) {
-          node.setAttribute('role', 'treeitem');
-        }
-        if (!node.id) {
-          node.id = `dependency-node-${index}`;
-        }
-      });
+    if (focusableElements.length === 0) return;
 
-      // Add ARIA attributes to edges if they exist
-      const edges = dependencyGraph.querySelectorAll('.edge, [data-edge]');
-      edges.forEach((edge, index) => {
-        if (!edge.getAttribute('role')) {
-          edge.setAttribute('role', 'presentation');
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
         }
-      });
-    }
+      }
+    });
+
+    // Set initial focus to first element
+    firstElement.focus();
   }
 }
 

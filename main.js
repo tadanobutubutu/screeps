@@ -188,18 +188,6 @@ const a11yStore = {
       }
     });
   },
-
-  /**
-   * Initialize all accessibility improvements
-   */
-  init() {
-    this.checkLandmarkElements();
-    this.ensureSvgAccessibility();
-    this.fixFakeLinks();
-    this.ensureInteractiveRoles();
-    this.addFormControlLabels();
-    this.ensureImageAccessibility();
-  }
 };
 
 // Function for rendering graph/index

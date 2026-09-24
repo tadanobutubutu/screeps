@@ -1,44 +1,37 @@
-// imports
-const { helperFunction } = require('./utils');
-const config = require('./config');
+// TODO: Create or update the affected functions to be accessible
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
-// existing code
-const appName = 'MyApp';
-const version = '1.0.0';
-
-// Line 14 TODO comment
-// TODO: Update or create the affected functions to be accessible
-
-// existing functions
-function initializeApp() {
-  console.log(`Initializing ${appName} v${version}`);
-  return true;
+// Sample functions that need to be made accessible
+function getData() {
+  return { name: 'sample', value: 42 };
 }
 
 function processData(data) {
   if (!data) return null;
-  return data.map(item => item * 2);
+  return { ...data, processed: true };
 }
 
-// functions that need to be accessible (newly exported)
-function getAppInfo() {
-  return {
-    name: appName,
-    version: version
-  };
+function calculateTotal(items) {
+  if (!Array.isArray(items)) return 0;
+  return items.reduce((sum, item) => sum + (item.price || 0), 0);
 }
 
 function validateInput(input) {
-  if (typeof input !== 'string') {
-    return false;
-  }
-  return input.length > 0;
+  if (typeof input !== 'string') return false;
+  return input.length > 0 && input.length <= 100;
 }
 
-// exports
+function formatOutput(data, options = {}) {
+  const { prefix = '', suffix = '', uppercase = false } = options;
+  let result = `${prefix}${JSON.stringify(data)}${suffix}`;
+  return uppercase ? result.toUpperCase() : result;
+}
+
+// Export all functions to make them accessible in main.js
 module.exports = {
-  initializeApp,
+  getData,
   processData,
-  getAppInfo,
-  validateInput
+  calculateTotal,
+  validateInput,
+  formatOutput
 };

@@ -49,31 +49,59 @@ function handleTabNavigation(event, activeElement) {
   console.log('Handling tab navigation');
 }
 
-// New function: Implement a focus trap to ensure the focus remains within the application
-function focusTrap(initialElementId) {
-  const element = document.getElementById(initialElementId);
-  if (element) {
-    element.focus();
-    element.setAttribute('tabindex', '0');
+// Validate the accessibility report for issues
+function validateAccessibilityReport(report) {
+  const issues = [];
+  const criticalIssues = [];
 
-    document.addEventListener('keydown', (event) => {
-      const activeElement = document.activeElement;
-      if (['Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-        event.preventDefault();
-      }
+  if (!report) {
+    issues.push('Accessibility report is missing or null');
+    return { issues, criticalIssues, isValid: false };
+  }
 
-      // If the last element is focused and the tab key is pressed, move focus to the first element
-      if (activeElement === document.body.lastElementChild && event.key === 'Tab') {
-        document.body.firstElementChild.focus();
+  if (report.violations && Array.isArray(report.violations)) {
+    report.violations.forEach(violation => {
+      issues.push({
+        type: 'violation',
+        description: violation.description,
+        nodes: violation.nodes,
+        impact: violation.impact
+      });
+      
+      if (violation.impact === 'critical' || violation.impact === 'serious') {
+        criticalIssues.push({
+          type: 'violation',
+          description: violation.description,
+          nodes: violation.nodes,
+          impact: violation.impact
+        });
       }
-      // If the first element is focused and the shift + tab key is pressed, move focus to the last element
-      else if (activeElement === document.body.firstChild && event.key === 'Shift+Tab') {
-        document.body.lastElementChild.focus();
-      }
-
-      handleKeyboardNavigation.call(this, event);
     });
   }
+
+  if (report.incomplete && Array.isArray(report.incomplete)) {
+    report.incomplete.forEach(incomplete => {
+      issues.push({
+        type: 'incomplete',
+        description: incomplete.description,
+        nodes: incomplete.nodes
+      });
+      
+      if (incomplete.impact === 'critical' || incomplete.impact === 'serious') {
+        criticalIssues.push({
+          type: 'incomplete',
+          description: incomplete.description,
+          nodes: incomplete.nodes
+        });
+      }
+    });
+  }
+
+  return {
+    issues,
+    criticalIssues,
+    isValid: criticalIssues.length === 0 && issues.length === 0
+  };
 }
 
 // Import and use existing functions from utilities
@@ -88,8 +116,6 @@ module.exports = {
   handleTabNavigation,
   focusTrap,
   renderDependencyGraphs,
-  navigateWithArrow,
-  handleTabNavigation,
-  createInPageButton,
+  validateAccessibilityReport,
   ...mainUtilities
 }

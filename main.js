@@ -92,10 +92,10 @@ function newFunction() {
   console.log('New function is active!');
 }
 
-// NEW FUNCTION 3 IMPLEMENTATION
-function function3() {
-  // Implementation of the new function3 logic
-  console.log('Function 3 is active!');
+// The new function for data harvesting goes here
+function harvestData() {
+  // Perform data collection logic here
+  console.log('Harvesting data...');
 }
 
 // Accessibility-related functions
@@ -380,7 +380,7 @@ function createInPageButton(text, onClick) {
   const button = document.createElement('button');
   button.textContent = text;
   button.setAttribute('aria-label', text);
-  button.onclick = onClick;
+  button.addEventListener('click', onClick);
   return button;
 }
 
@@ -406,42 +406,13 @@ function handleFakeLinks() {
   });
 }
 
-function getConfig() {
-  return { key: 'value' };
-}
-
-function getVersion() {
-  return '1.0.0';
-}
-
-function setupSkipLinks() {
-  const skipLink = document.createElement('a');
-  skipLink.href = '#main-content';
-  skipLink.textContent = 'Skip to main content';
-  skipLink.className = 'skip-link';
-  document.body.insertBefore(skipLink, document.body.firstChild);
-}
-
-function setupButtonAccessibility() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-      console.warn('Button missing accessible name');
-    }
-  });
-}
-
-function performTask() {
-  return 'task performed';
-}
-
-function handleEvent(event) {
-  console.log('Event handled:', event.type);
-}
-
-function greet(name) {
-  return 'Hello, ' + name;
-}
+// Accessibility improvements for addBook function/form
+function addBook(title, author, isbn) {
+  // Ensure form elements have proper labels and ARIA attributes
+  const bookForm = document.getElementById('book-form');
+  if (bookForm) {
+    bookForm.setAttribute('aria-labelledby', 'add-book-heading');
+    bookForm.setAttribute('role', 'form');
 
 function add(a, b) {
   return a + b;
@@ -494,6 +465,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// Uncomment the following line to call the harvestData function
+// harvestData();
+
 // Export existing functionality and new functions
 export {
   initialize,
@@ -529,5 +503,5 @@ export {
   createAccessibleLink,
   getElementById,
   queryElements,
-  function3
+  harvestData  // Add the harvestData function to exports
 };

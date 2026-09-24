@@ -1,38 +1,12 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-// REACT_025: Add other accessibility changes as per the insight report
-// [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+import React from 'react';
+import { getLangAttribute } from './utils/accessibility.js';
+import { validateTableAccessibility, validateTableStructure } from './utils/table.js';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmark.js';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svg.js';
+import { ensureUniqueLandmarks } from './utils/landmark.js';
+import { createInPageButton, validateLinkAccessibility, handleFakeLinks } from './utils/link.js';
 
-/**
- * Sets the lang attribute on the document root element
- * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
- */
-
-const hello = () => {
-  return 'Hello from main.js';
-};
-
-const getVersion = () => {
-  return '1.0.0';
-};
-
-const getConfig = () => {
-  return {
-    name: 'main',
-    version: '1.0.0'
-  };
-};
-
-function MyComponent() {
-  // Existing code that needs to be updated
-  return (
-    <div lang="en">
-      {/* Content */}
-    </div>
-  );
-}
-
-// Implement function to create in-page buttons
+// ADD the new function to create in-page buttons
 function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
@@ -41,7 +15,7 @@ function createInPageButton(buttonId, buttonText) {
   return button;
 }
 
-// Function for addressing accessibility issues from insight report
+// ADD a new function to address accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
     return [];
@@ -49,7 +23,7 @@ function addressAccessibilityIssues(insightReport) {
 
   return insightReport.issues.map(issue => {
     let fixedIssue = { ...issue, status: 'resolved' };
-    
+
     // Apply fixes based on issue type
     switch (issue.type) {
       case 'color-contrast':
@@ -93,14 +67,19 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// Function to validate table accessibility
-function validateTableAccessibility(table) {
-  if (!table) return false;
-  // Check for proper table structure (th, caption, scope)
-  const hasHeaders = table.querySelector('th') !== null;
-  const hasCaption = table.querySelector('caption') !== null;
-  return hasHeaders && hasCaption;
-}
+// ADD a new function for generating a report based on accessibility issues
+function generateAccessibilityReport(accessibilityReport) {
+  const totalIssues = accessibilityReport ? accessibilityReport.length : 0;
+  const resolvedIssues = accessibilityReport  ? accessibilityReport.filter(issue => issue.status === 'resolved').length  : 0;
+  const pendingIssues = totalIssues - resolvedIssues;
+
+  const issuesByType = {};
+  if (accessibilityReport) {
+    accessibilityReport.forEach(issue => {
+      const type = issue.type || 'other';
+      issuesByType[type] = (issuesByType[type] || 0) + 1;
+    });
+  }
 
 // Function to validate table structure
 function validateTableStructure(table) {
@@ -382,7 +361,7 @@ function googleSignIn() {
   };
 }
 
-// Function for calculating accessibility score based on fixed issues
+// ADD a new function for calculating accessibility score based on fixed issues
 function calculateAccessibilityScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;
@@ -407,25 +386,55 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
+// Modify renderIndexView function to include accessibility checks
 function renderIndexView() {
   // TODO: Implement renderIndexView functionality
   // Placeholder for now, replace with actual implementation
   console.log('renderIndexView function called');
+
+  // Add lang attribute to the HTML element
+  const langAttr = getLangAttribute();
+  if (document.documentElement) {
+    document.documentElement.setAttribute('lang', langAttr);
+  }
+
+  // Validate tables on the page
+  validateTableAccessibility();
+  validateTableStructure();
+
+  // Validate landmarks
+  validateLandmark();
+  validateLandmarkStructure();
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+
+  // Set SVG attributes
+  setSvgAttributes();
+
+  // Handle fake links
+  handleFakeLinks();
 }
 
-// Export all functions and values
-// Using a combination of ES Modules and CommonJS exports to satisfy both environments
-export { 
-  MyComponent, 
-  renderIndexView, 
-  hello, 
-  getVersion, 
-  getConfig, 
-  createInPageButton, 
-  addressAccessibilityIssues, 
-  generateAccessibilityReport, 
-  calculateAccessibilityScore,
-  addressInsightReportIssues
+// Modify existing function to address insight report issues
+function existingExport() {
+  // Implement existing export logic
+
+  // ADD calling addressInsightReportIssues function with the insight report
+  addressInsightReportIssues(insightReport);
+}
+
+// Preserve existing exports and functions
+export {
+  MyComponent,
+  renderIndexView,
+  hello,
+  getVersion,
+  getConfig,
+  createInPageButton,
+  addressAccessibilityIssues,
+  generateAccessibilityReport,
+  calculateAccessibilityScore
 };
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -443,31 +452,3 @@ if (typeof module !== 'undefined' && module.exports) {
     addressInsightReportIssues
   };
 }
-
-// Existing export function from HEAD (preserved)
-export function existingExport() {
-  // ... existing code ...
-}
-
-// New function to address accessibility issues from insight report
-function addressInsightReportIssues(insightReport) {
-  // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  if (!insightReport || !Array.isArray(insightReport)) {
-    return [];
-  }
-  
-  return insightReport.map(item => {
-    console.log(`Addressing issue: ${item.issue}`);
-    // Implement the solution to the issue
-    // This is a placeholder for the actual implementation
-    console.log(`Solution: ${item.solution}`);
-    // ... code to apply the solution ...
-    return {
-      issue: item.issue,
-      solution: item.solution,
-      status: 'addressed'
-    };
-  });
-}
-
-// Commit: ...

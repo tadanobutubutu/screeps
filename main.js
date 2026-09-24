@@ -105,16 +105,13 @@ function newFunction2() {
 
 // TODO: Implement calculateDiscount
 function calculateDiscount(price, discountPercent) {
-  // Validate inputs
   if (price < 0) {
     return 0;
   }
   if (discountPercent < 0 || discountPercent > 100) {
     return price;
   }
-  // Calculate and return the discounted price
-  const discountAmount = price * (discountPercent / 100);
-  return price - discountAmount;
+  return price - (price * discountPercent / 100);
 }
 
 // Function to validate table accessibility
@@ -382,6 +379,14 @@ const accessibilityUtils = {
         return button;
     },
 
+    // Get person name with proper accessibility attributes
+    personName: (name) => {
+        const span = ...
+        span.textContent = name;
+        span.setAttribute('aria-label', name);
+        return span;
+    },
+
     // New focus trap implementation
     newFocusTrap: (element) => {
         const focusableElements = element.querySelectorAll(
@@ -490,25 +495,13 @@ function renderAdditionalContent(additionalData) {
     return '<div class="additional-content">' + (additionalData ? additionalData.content : '') + '</div>';
 }
 
-// Task to implement accessibility fixes from report
-function implementAccessibilityFixesFromReportTask(container, report) {
-    // ... implementation for addressing accessibility issues from insight report
-}
+// Implement the function for addressing accessibility issues from insight report
+... report)
 
-// Task to render dependency graphs
-function renderDependencyGraphs(container) {
-    // ... implementation for rendering graph/index
-}
-
-// Task to fix button identifiers
-function fixButtonIdentifiersTask(container) {
-    // ... implementation for fixing button identifiers
-}
-
-// Task to fix dependency graph ARIA
-function fixDependencyGraphAriaTask(container) {
-    // ... implementation for fixing dependency graph ARIA
-}
+// Update the existing function using the new functions for rendering graph/index
+renderDependencyGraphs(container)
+fixButtonIdentifiers(container)
+...
 
 // Functions from the 'HEAD' branch
 function newFocusTrap() {
@@ -575,98 +568,4 @@ function initializeGraphControls() {
 if (typeof window !== 'undefined') {
     window.affectedFunction = affectedFunction;
     window.updateFunction = updateFunction;
-    window.accessibleFunction = accessibleFunction;
-    window.newFunction1 = newFunction1;
-    window.newFunction2 = newFunction2;
-    window.main = mainEntry;
-    window.getLangAttribute = getLangAttribute;
-    window.ensureDependencyGraphARIA = ensureDependencyGraphARIA;
-    window.newFunction = a11yStore.newFunction;
-    window.anotherNewFunction = a11yStore.anotherNewFunction;
-    window.ensureElementId = ensureElementId;
-    window.addAriaLabel = addAriaLabel;
-    window.newFocusTrap = newFocusTrap;
-    window.addLangAttribute = addLangAttribute;
-    window.fixTableStructure = fixTableStructure;
-    window.addLandmarkIssues = addLandmarkIssues;
-    window.addSvgAccessibleNames = addSvgAccessibleNames;
-    window.ensureUniqueLandmarks = ensureUniqueLandmarks;
-    window.fixFakeLinkIssue = fixFakeLinkIssue;
-    window.renderGraphIndex = renderGraphIndex;
-    window.updateGraphVisualization = updateGraphVisualization;
-    window.initializeGraphControls = initializeGraphControls;
-    window.accessibilityUtils = accessibilityUtils;
-    window.personName = personName;
-    window.validateTableAccessibility = validateTableAccessibility;
-    window.validateTableStructure = validateTableStructure;
-    window.validateLandmark = validateLandmark;
-    window.validateLandmarkStructure = validateLandmarkStructure;
-    window.getSvgAccessibleName = getSvgAccessibleName;
-    window.createInPageButton = createInPageButton;
-    window.setHtmlLangAttribute = setHtmlLangAttribute;
-    window.ensureElementAccessibility = ensureElementAccessibility;
-    window.ensureElementHasId = ensureElementHasId;
-    window.addTask = addTask;
-    window.generateTaskId = generateTaskId;
-    window.cancelTask = cancelTask;
-    window.setElementLabel = setElementLabel;
-    window.setFocus = setFocus;
-    window.handleKeyboardNavigation = handleKeyboardNavigation;
-    window.renderAdditionalContent = renderAdditionalContent;
-}
-
-// Export functions to make them accessible
-module.exports = {
-  affectedFunction,
-  updateFunction,
-  accessibleFunction,
-  newFunction1,
-  newFunction2,
-  main,
-  mainEntry,
-  getLangAttribute,
-  ensureDependencyGraphARIA,
-  ensureElementId,
-  addAriaLabel,
-  renderDependencyGraph,
-  a11yStore,
-  validateTableAccessibility,
-  validateTableStructure,
-  transformInputData,
-  accessibilityUtils,
-  setHtmlLangAttribute,
-  ensureElementAccessibility,
-  ensureElementHasId,
-  addLangAttribute,
-  addTask,
-  generateTaskId,
-  cancelTask,
-  setElementLabel,
-  setFocus,
-  handleKeyboardNavigation,
-  renderAdditionalContent,
-  newFocusTrap,
-  fixTableStructure,
-  addLandmarkIssues,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  renderGraphIndex,
-  updateGraphVisualization,
-  initializeGraphControls,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateAccessibilityReport,
-  checkAccessibility,
-  focusTrap,
-  createInPageButton,
-  createWebResourceButton,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasIdOrigin,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  checkAccessibilityForReport,
-  personName
-};
+    window.accessibleFunction =

@@ -478,6 +478,22 @@ function createAccessibleBookForm(formId, submitButtonId) {
     return form;
 }
 
+// Spawning logic implementation
+/**
+ * Spawns a new entity at the specified coordinates
+ * @param {string} type - The type of entity to spawn
+ * @param {number} x - X coordinate
+ * @param {number} y - Y coordinate
+ * @returns {Object} The spawned entity with type and position
+ */
+function spawnEntity(type, x, y) {
+    return {
+        type: type,
+        position: { x, y },
+        id: Math.random().toString(36).substr(2, 9)
+    };
+}
+
 // Don't forget to test your new additions in the test file
 
 // New functions to render dependency graphs and display module structure for debugging purposes
@@ -612,9 +628,7 @@ module.exports = {
     checkLinkAccessibility,
     wrapPrimaryContentInMain,
     createAccessibleBookForm,
-    renderDependencyGraph,
-    displayModuleStructure,
-    analyzeDependencyGraph
+    spawnEntity
 };
 
 // Run if executed directly

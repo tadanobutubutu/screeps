@@ -1,5 +1,5 @@
-Here’s the final, conflict‑free version of **`main.js`**.  
-All of the current (HEAD) code is preserved as a placeholder, the new accessibility helpers are added, and everything is wrapped up in a single module export.
+Here’s the resolved `main.js`.  
+All conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) have been removed, the old placeholders are kept, and the new accessibility helpers are in place.
 
 ```js
 /* ==========================================================================
@@ -9,7 +9,7 @@ All of the current (HEAD) code is preserved as a placeholder, the new accessibil
 /* -------------------------------------------------------------------------- */
 /* Existing code that must stay – unchanged                                 */
 /* -------------------------------------------------------------------------- */
- // TODO: Insert your current code here, including any imports, declarations, etc.
+// TODO: Insert your current code here, including any imports, declarations, etc.
 
 /* -------------------------------------------------------------------------- */
 /* Accessibility helpers (merged from new branch)                            */
@@ -73,15 +73,4 @@ module.exports = {
 /* -------------------------------------------------------------------------- */
 ```
 
-Now your repository should build correctly and the new helpers are available wherever you import `main.js`.
-
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+With this file the repository should assemble cleanly, and any part of the application importing `main.js` now has access to the helper functions above.

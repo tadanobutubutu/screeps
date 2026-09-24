@@ -227,40 +227,70 @@ function ensureInteractiveElementsAccessible() {
   return true;
 }
 
-// ... rest of the code ...
+/**
+ * Create an accessible web resource button (e.g., GitHub, Stack Overflow).
+ * Returns an HTMLButtonElement that is keyboard-accessible, has an appropriate
+ * ARIA role, and announces its purpose via aria-label.
+ *
+ * @param {Object} options - Configuration options for the button.
+ * @param {string} options.url - The URL the button should navigate to when activated.
+ * @param {string} options.label - A descriptive label for the resource (used for aria-label and visible text).
+ * @param {string} [options.icon] - Optional inline SVG markup or HTML for an icon to display inside the button.
+ * @param {string} [options.id] - Optional id to assign to the button element.
+ * @param {Object} [options.attributes] - Optional additional HTML attributes to set on the button (key/value pairs).
+ * @returns {HTMLButtonElement} A button element with proper accessibility attributes.
+ */
+function createWebResourceButton({ url, label, icon, id, attributes } = {}) {
+  if (!url || typeof url !== 'string') {
+    throw new Error('createWebResourceButton: a valid "url" string is required.');
+  }
+  if (!label || typeof label !== 'string') {
+    throw new Error('createWebResourceButton: a valid "label" string is required.');
+  }
 
-// Initialize accessibility features when DOM is ready
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    // Run accessibility checks
-    if (a11yStore && typeof a11yStore.checkLandmarkElements === 'function') {
-      a11yStore.checkLandmarkElements();
-    }
-    if (a11yStore && typeof a11yStore.ensureSvgAccessibility === 'function') {
-      a11yStore.ensureSvgAccessibility();
-    }
-    if (a11yStore && typeof a11yStore.fixFakeLinks === 'function') {
-      a11yStore.fixFakeLinks();
-    }
-    if (a11yStore && typeof a11yStore.ensureInteractiveRoles === 'function') {
-      a11yStore.ensureInteractiveRoles();
-    }
-    if (a11yStore && typeof a11yStore.addFormControlLabels === 'function') {
-      a11yStore.addFormControlLabels();
-    }
-    if (a11yStore && typeof a11yStore.ensureImageAccessibility === 'function') {
-      a11yStore.ensureImageAccessibility();
-    }
-    if (typeof ensureInteractiveElementsAccessible === 'function') {
-      ensureInteractiveElementsAccessible();
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.setAttribute('role', 'link');
+  button.setAttribute('tabindex', '0');
+  button.setAttribute('aria-label', label);
+  button.setAttribute('data-url', url);
+  button.classList.add('web-resource-button');
+
+  if (id) {
+    button.id = id;
+  }
+
+  if (icon) {
+    const iconWrapper = document.createElement('span');
+    iconWrapper.classList.add('web-resource-button-icon');
+    iconWrapper.setAttribute('aria-hidden', 'true');
+    iconWrapper.innerHTML = icon;
+    button.appendChild(iconWrapper);
+  }
+
+  const textNode = document.createElement('span');
+  textNode.classList.add('web-resource-button-label');
+  textNode.textContent = label;
+  button.appendChild(textNode);
+
+  if (attributes && typeof attributes === 'object') {
+    Object.keys(attributes).forEach((key) => {
+      button.setAttribute(key, attributes[key]);
+    });
+  }
+
+  button.addEventListener('click', () => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  });
+
+  button.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   });
+
+  return button;
 }
 
-module.exports = {
-  a11yStore,
-  ensureInteractiveElementsAccessible,
-  greetingFunction,
-  getWelcomeMessage,
-  config
-};
+// ... rest of the code ...

@@ -1,9 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-
-const Main = ({ children, title, lang = 'en' }) => {
-  // Assuming harvest and upgrade are simple functions that manipulate some in-memory data.
-  // This is a placeholder logic to be replaced with actual business logic as needed.
+// Existing code starts here
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-swift';
+// This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
   let harvestAmount = 10; // This would be a variable based on game state
   let upgradeCost = 5; // This would be a variable based on game state
@@ -82,21 +81,21 @@ const addLandmarkRoles = () => {
   }
 
   // Main content landmark
-  const mainElement = ...
-  if (mainElement && ... {
-    mainElement.setAttribute('role', 'main');
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.getAttribute('role')) {
+    navElement.setAttribute('role', 'main');
   }
 
   // Header landmark (banner)
-  const headerElement = ...
-  if (headerElement && ... {
-    ... 'banner');
+  const headerElement = document.querySelector('header');
+  if (headerElement && !headerElement.getAttribute('role')) {
+    navElement.setAttribute('role', 'banner');
   }
 
   // Footer landmark (contentinfo)
   const footerElement = ...
   if (footerElement && !footerElement.getAttribute('role')) {
-    footerElement.setAttribute('role', 'contentinfo');
+    navElement.setAttribute('role', 'contentinfo');
   }
 };
 
@@ -224,6 +223,3 @@ if (typeof document !== 'undefined') {
 }
 
 // More existing code that should be preserved
-
-// Export accessibility functions for external use
-export { addLandmarkRoles, ensureUniqueLandmarkElements, checkLandmarkElement, setupLanguageAttribute };

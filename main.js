@@ -380,12 +380,11 @@ function focusTrap(container) {
 
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, focusTrap };
+  module.exports = { addressAccessibilityIssues, calculateSum, calculateProduct };
 }
 
 // If running in browser context
 if (typeof window !== 'undefined') {
-  window.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;

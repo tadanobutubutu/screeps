@@ -135,15 +135,20 @@ function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
 
-  const element = document.createElement('span');
-  element.setAttribute('aria-label', fullName);
-  element.textContent = fullName;
+  if (typeof document !== 'undefined') {
+    const nameElement = document.createElement('span');
+    nameElement.setAttribute('lang', lang);
+    nameElement.setAttribute('aria-label', fullName);
+    nameElement.textContent = fullName || 'Unknown';
 
-  if (container) {
-    container.appendChild(element);
+    if (container) {
+      container.appendChild(nameElement);
+    }
+
+    return nameElement;
   }
 
-  return element;
+  return fullName || 'Unknown';
 }
 
 /**
@@ -162,27 +167,37 @@ function createInPageButton(parent = document.body) {
 
 // New function to validate table accessibility
 function validateTableAccessibility() {
-  // Implementation for table accessibility validation
   if (typeof document === 'undefined') return;
 
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Ensure table has a caption
     if (!table.querySelector('caption')) {
-      console.warn('Table missing caption:', table);
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table caption';
+      table.prepend(caption);
     }
 
     // Ensure table has proper headers
     const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      console.warn('Table missing headers:', table);
-    }
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
 
-    // Ensure table cells have proper scope attributes
-    const cells = table.querySelectorAll('td, th');
+    // Ensure table cells have proper headers
+    const cells = table.querySelectorAll('td');
     cells.forEach(cell => {
-      if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
-        console.warn('Table header missing scope attribute:', cell);
+      if (!cell.hasAttribute('headers')) {
+        const rowIndex = cell.parentElement.rowIndex;
+        const headers = table.querySelectorAll(`tr:nth-child(${rowIndex + 1}) th`);
+        if (headers.length > 0) {
+          const headerIds = Array.from(headers).map(h => h.id).filter(id => id);
+          if (headerIds.length > 0) {
+            cell.setAttribute('headers', headerIds.join(' '));
+          }
+        }
       }
     });
   });
@@ -190,90 +205,116 @@ function validateTableAccessibility() {
 
 // New function to validate table structure
 function validateTableStructure() {
-  // Implementation for table structure validation
   if (typeof document === 'undefined') return;
 
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    // Check for proper table structure
+    // Ensure table has proper structure
     const rows = table.querySelectorAll('tr');
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
-      if (cells.length === 0) {
-        console.warn('Table row missing cells:', row);
+    if (rows.length > 0) {
+      const firstRow = rows[0];
+      const hasHeaderRow = Array.from(firstRow.children).some(cell => cell.tagName === 'TH');
+
+      if (hasHeaderRow) {
+        // Ensure all header cells have scope
+        const headerCells = firstRow.querySelectorAll('th');
+        headerCells.forEach(cell => {
+          if (!cell.hasAttribute('scope')) {
+            cell.setAttribute('scope', 'col');
+          }
+        });
       }
-    });
+    }
   });
 }
 
 // New function to validate landmarks
 function validateLandmark() {
-  // Implementation for landmark validation
   if (typeof document === 'undefined') return;
 
-  const landmarks = [
-    'header', 'nav', 'main', 'footer',
-    '[role="banner"]', '[role="navigation"]',
-    '[role="main"]', '[role="contentinfo"]'
-  ];
+  const requiredLandmarks = ['header', 'main', 'footer'];
+  const existingLandmarks = new Set();
 
-  landmarks.forEach(selector => {
-    const elements = document.querySelectorAll(selector);
-    if (elements.length > 1) {
-      console.warn(`Multiple ${selector} landmarks found. Only one should exist.`);
+  requiredLandmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    if (elements.length === 0) {
+      // Create missing landmark
+      const landmarkElement = document.createElement('div');
+      landmarkElement.setAttribute('role', landmark);
+      document.body.prepend(landmarkElement);
+    } else {
+      existingLandmarks.add(landmark);
     }
   });
+
+  return Array.from(existingLandmarks);
 }
 
 // New function to validate landmark structure
 function validateLandmarkStructure() {
-  // Implementation for landmark structure validation
   if (typeof document === 'undefined') return;
 
-  const main = document.querySelector('main, [role="main"]');
-  if (!main) {
-    console.warn('Missing main landmark. Every page should have one main landmark.');
-  }
-
-  const nav = document.querySelector('nav, [role="navigation"]');
-  if (!nav) {
-    console.warn('Missing navigation landmark. Consider adding one for better accessibility.');
-  }
+  const landmarks = document.querySelectorAll('[role="header"], [role="main"], [role="footer"]');
+  landmarks.forEach(landmark => {
+    // Ensure landmarks have proper structure
+    if (landmark.getAttribute('role') === 'header' && !landmark.querySelector('h1')) {
+      const heading = document.createElement('h1');
+      heading.textContent = 'Page Title';
+      landmark.prepend(heading);
+    }
+  });
 }
 
 // New function to get SVG accessible name
 function getSvgAccessibleName(svgElement) {
-  // Implementation for getting SVG accessible name
   if (!svgElement || typeof document === 'undefined') return '';
 
-  // Check for aria-label
-  if (svgElement.hasAttribute('aria-label')) {
-    return svgElement.getAttribute('aria-label');
-  }
+  // Check for existing accessible name
+  let name = svgElement.getAttribute('aria-label') ||
+             svgElement.getAttribute('aria-labelledby') ||
+             svgElement.getAttribute('title');
 
-  // Check for aria-labelledby
-  if (svgElement.hasAttribute('aria-labelledby')) {
-    const id = svgElement.getAttribute('aria-labelledby');
-    const labelElement = document.getElementById(id);
-    if (labelElement) {
-      return labelElement.textContent.trim();
+  if (!name) {
+    // Try to find a title element inside the SVG
+    const titleElement = svgElement.querySelector('title');
+    if (titleElement) {
+      name = titleElement.textContent.trim();
     }
   }
 
-  // Check for title element
-  const title = svgElement.querySelector('title');
-  if (title) {
-    return title.textContent.trim();
+  if (!name) {
+    // Generate a default name if none found
+    name = 'Graphic';
   }
 
-  // Check for desc element
-  const desc = svgElement.querySelector('desc');
-  if (desc) {
-    return desc.textContent.trim();
-  }
+  return name;
+}
 
-  // Fallback to empty string
-  return '';
+// New function to validate unique landmarks
+function validateUniqueLandmarks() {
+  if (typeof document === 'undefined') return;
+
+  const landmarks = document.querySelectorAll('[role="header"], [role="main"], [role="footer"]');
+  const landmarkCounts = {};
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    landmarkCounts[role] = (landmarkCounts[role] || 0) + 1;
+  });
+
+  // Ensure each landmark type appears only once
+  Object.entries(landmarkCounts).forEach(([role, count]) => {
+    if (count > 1) {
+      // If multiple landmarks of the same type exist, ensure they have unique labels
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      elements.forEach((element, index) => {
+        if (index > 0) {
+          const label = element.getAttribute('aria-label') || '';
+          element.setAttribute('aria-label', `${label} ${index + 1}`);
+        }
+      });
+    }
+  });
 }
 
 /**

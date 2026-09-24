@@ -452,7 +452,7 @@ function getInsightReport() {
       issues.push({
         type: 'REACT_025',
         description: issue.description || 'Duplicate landmark issue',
-        severity: issue.severity || 'high',
+        severity: issue.severity || 'medium',
         element: issue.element,
         landmark: issue.landmark
       });
@@ -474,12 +474,145 @@ function getInsightReport() {
 
   return {
     issues: issues,
-    count: issues.length
+    summary: {
+      totalIssues: issues.length,
+      critical: issues.filter(i => i.severity === 'critical').length,
+      high: issues.filter(i => i.severity === 'high').length,
+      medium: issues.filter(i => i.severity === 'medium').length,
+      low: issues.filter(i => i.severity === 'low').length
+    }
   };
+}
+
+// New function to ensure element has an ID
+function ensureElementHasId(element) {
+  if (!element || typeof element !== 'object') {
+    console.error('Invalid element provided');
+    return false;
+  }
+
+  if (!element.id) {
+    const timestamp = Date.now();
+    const randomId = Math.floor(Math.random() * 10000);
+    element.id = `generated-id-${timestamp}-${randomId}`;
+    console.log(`Added ID to element: ${element.id}`);
+    return true;
+  }
+
+  console.log(`Element already has ID: ${element.id}`);
+  return false;
+}
+
+// New function to add aria-label to an element
+function addAriaLabel(element, label) {
+  if (!element || typeof element !== 'object') {
+    console.error('Invalid element provided');
+    return false;
+  }
+
+  if (!label || typeof label !== 'string') {
+    console.error('Invalid label provided');
+    return false;
+  }
+
+  element.setAttribute('aria-label', label);
+  console.log(`Added aria-label "${label}" to element`);
+  return true;
+}
+
+// New function to render dependency graphs
+function renderDependencyGraph(container, options = {}) {
+  const { nodes = [], edges = [], width = 800, height = 600 } = options;
+
+  if (!container) {
+    console.error('Container not provided for dependency graph');
+    return null;
+  }
+
+  const graphContainer = typeof container === 'string'
+    ? document.querySelector(container)
+    : container;
+
+  if (!graphContainer) {
+    console.error('Dependency graph container element not found');
+    return null;
+  }
+
+  const graphElement = document.createElement('div');
+  graphElement.className = 'dependency-graph';
+  graphElement.setAttribute('role', 'img');
+  graphElement.setAttribute('aria-label', options.title || 'Dependency graph visualization');
+
+  graphElement.style.width = `${width}px`;
+  graphElement.style.height = `${height}px`;
+
+  // Create a simple visualization of the dependency graph
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+  // Draw nodes
+  nodes.forEach((node, index) => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    const x = 50 + (index % 5) * 150;
+    const y = 50 + Math.floor(index / 5) * 150;
+
+    circle.setAttribute('cx', x);
+    circle.setAttribute('cy', y);
+    circle.setAttribute('r', 20);
+    circle.setAttribute('fill', '#4CAF50');
+    circle.setAttribute('aria-label', node.label || `Node ${index + 1}`);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', y + 5);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', 'white');
+    text.textContent = node.label || `Node ${index + 1}`;
+
+    svg.appendChild(circle);
+    svg.appendChild(text);
+  });
+
+  // Draw edges
+  edges.forEach(edge => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    const fromNode = nodes.find(n => n.id === edge.from);
+    const toNode = nodes.find(n => n.id === edge.to);
+
+    if (fromNode && toNode) {
+      const fromIndex = nodes.indexOf(fromNode);
+      const toIndex = nodes.indexOf(toNode);
+
+      const fromX = 50 + (fromIndex % 5) * 150;
+      const fromY = 50 + Math.floor(fromIndex / 5) * 150;
+      const toX = 50 + (toIndex % 5) * 150;
+      const toY = 50 + Math.floor(toIndex / 5) * 150;
+
+      line.setAttribute('x1', fromX);
+      line.setAttribute('y1', fromY);
+      line.setAttribute('x2', toX);
+      line.setAttribute('y2', toY);
+      line.setAttribute('stroke', '#2196F3');
+      line.setAttribute('stroke-width', 2);
+
+      svg.appendChild(line);
+    }
+  });
+
+  graphElement.appendChild(svg);
+  graphContainer.appendChild(graphElement);
+
+  console.log('Dependency graph rendered with', nodes.length, 'nodes and', edges.length, 'edges');
+
+  return graphElement;
 }
 
 // Export all functions
 export {
+  config,
+  appState,
   initialize,
   initializeApp,
   processData,
@@ -510,5 +643,8 @@ export {
   updateGraph,
   updateIndex,
   addressAccessibilityIssues,
-  getInsightReport
+  getInsightReport,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph
 };

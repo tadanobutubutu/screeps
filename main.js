@@ -396,79 +396,6 @@ function createAccessibleLink (href, text, options = {}) {
 }
 
 /**
- * Checks if a link element is accessible
- * @param {HTMLAnchorElement} link - The link element to check
- * @returns {Object} Result with valid boolean and errors array
- */
-function isLinkAccessible(link) {
-  const errors = [];
-
-  if (!link) {
-    return { valid: false, errors: ['Link element is required'] }
-  }
-
-  // Check if it's an anchor element
-  if (link.tagName !== 'A') {
-    errors.push('Element is not an anchor tag')
-    return { valid: false, errors }
-  }
-
-  // Check for href attribute
-  const href = link.getAttribute('href')
-  if (!href || href === '#' || href === '') {
-    // If no href, check if it's properly set up as a button
-    const role = link.getAttribute('role')
-    if (role !== 'button') {
-      errors.push('Link missing href attribute and not configured as a button')
-    }
-    // Check for click handler
-    if (!link.onclick && !link.hasAttribute('data-handler')) {
-      errors.push('Fake link missing click handler')
-    }
-  }
-
-  // Check for accessible name
-  const textContent = link.textContent ? link.textContent.trim() : '';
-  const ariaLabel = link.getAttribute('aria-label');
-  const ariaLabelledby = link.getAttribute('aria-labelledby');
-  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
-
-  if (!hasAccessibleName) {
-    errors.push(
-      'Link is missing accessible name (text content, aria-label, or aria-labelledby)'
-    )
-  }
-
-  // Check for valid href if present
-  if (href && href !== '#') {
-    // Check for javascript: links
-    if (href.toLowerCase().startsWith('javascript:')) {
-      errors.push('Link uses javascript: protocol which is not accessible')
-    }
-    // Check for mailto: links without proper labeling
-    if (href.toLowerCase().startsWith('mailto:') && !ariaLabel && !textContent.includes('@')) {
-      errors.push('Mailto link may need aria-label for clarity')
-    }
-  }
-
-  // Check target="_blank" has rel="noopener noreferrer"
-  if (link.getAttribute('target') === '_blank') {
-    const rel = link.getAttribute('rel')
-    if (!rel || !rel.includes('noopener') || !rel.includes('noreferrer')) {
-      errors.push('External link with target="_blank" missing rel="noopener noreferrer"')
-    }
-  }
-
-  // Check for redundant title attribute
-  const title = link.getAttribute('title')
-  if (title && title === textContent) {
-    errors.push('Link title attribute duplicates link text')
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-
-/**
  * Creates an accessible in-page button and appends it to the given parent element.
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
@@ -793,48 +720,114 @@ function addLangAttribute (lang) {
   return setHtmlLangAttribute(lang)
 }
 
-/**
- * Function to validate the accessibility report for issues
- * @param {Object} report - The accessibility report to validate
- * @returns {Object} Result object with valid status and any errors
- */
-function validateAccessibilityReport(report) {
-  const result = { valid: true, errors: [] };
-
-  if (!report) {
-    result.errors.push('Accessibility report is required');
-    result.valid = false;
-    return result;
+// New function to ensure element has an id
+function ensureElementHasId (element, idPrefix = 'element') {
+  if (!element) {
+    return { valid: false, error: 'Element is required' }
   }
 
-  // Validate report structure
-  if (!report.violations || !Array.isArray(report.violations)) {
-    result.errors.push('Report is missing violations array');
+  // If element already has an id, return it
+  if (element.id) {
+    return { valid: true, id: element.id }
   }
 
-  if (!report.incomplete || !Array.isArray(report.incomplete)) {
-    result.errors.push('Report is missing incomplete array');
+  // Generate a unique id
+  let id = idPrefix
+  let counter = 1
+
+  // Find a unique id that doesn't already exist in the document
+  while (document.getElementById(id)) {
+    id = `${idPrefix}-${counter}`
+    counter++
   }
 
-  // Check for critical violations
-  const criticalViolations = report.violations.filter(v => v.impact === 'critical');
-  if (criticalViolations.length > 0) {
-    result.errors.push(`Found ${criticalViolations.length} critical accessibility violations`);
+  element.id = id
+  return { valid: true, id }
+}
+
+// New function to add aria-label to an element
+function addAriaLabel (element, label) {
+  if (!element) {
+    return { valid: false, error: 'Element is required' }
   }
 
-  // Check for serious violations
-  const seriousViolations = report.violations.filter(v => v.impact === 'serious');
-  if (seriousViolations.length > 0) {
-    result.errors.push(`Found ${seriousViolations.length} serious accessibility violations`);
+  if (!label) {
+    return { valid: false, error: 'Label is required' }
   }
 
-  // Check for incomplete items
-  if (report.incomplete.length > 0) {
-    result.errors.push(`Found ${report.incomplete.length} incomplete accessibility checks`);
+  element.setAttribute('aria-label', label)
+  return { valid: true, label }
+}
+
+// New function to render dependency graphs
+function renderDependencyGraph (container, data) {
+  if (!container) {
+    return { valid: false, error: 'Container element is required' }
   }
 
-  result.valid = result.errors.length === 0;
-  return result;
+  if (!data || !Array.isArray(data)) {
+    return { valid: false, error: 'Data must be an array of dependencies' }
+  }
+
+  // Clear the container
+  container.innerHTML = ''
+
+  // Create a graph container
+  const graphContainer = document.createElement('div')
+  graphContainer.className = 'dependency-graph'
+  container.appendChild(graphContainer)
+
+  // Create nodes for each dependency
+  const nodes = {}
+  data.forEach((dep, index) => {
+    const node = document.createElement('div')
+    node.className = 'dependency-node'
+    node.textContent = dep.name || `Dependency ${index + 1}`
+
+    // Add unique id to each node
+    ensureElementHasId(node, 'dep-node')
+
+    // Add aria-label for accessibility
+    addAriaLabel(node, `Dependency: ${dep.name || `Dependency ${index + 1}`}`)
+
+    graphContainer.appendChild(node)
+    nodes[dep.name || index] = node
+  })
+
+  // Create connections between dependencies
+  data.forEach((dep) => {
+    if (dep.dependencies && Array.isArray(dep.dependencies)) {
+      dep.dependencies.forEach((depName) => {
+        if (nodes[depName]) {
+          const sourceNode = nodes[dep.name || dep.id]
+          const targetNode = nodes[depName]
+
+          if (sourceNode && targetNode) {
+            // Create a connection line between nodes
+            const connection = document.createElement('div')
+            connection.className = 'dependency-connection'
+
+            // Position the connection (simplified - in a real implementation you'd use a proper graph library)
+            const sourceRect = sourceNode.getBoundingClientRect()
+            const targetRect = targetNode.getBoundingClientRect()
+
+            // This is a simplified approach - a real implementation would need more sophisticated positioning
+            connection.style.position = 'absolute'
+            connection.style.left = `${sourceRect.left + sourceRect.width}px`
+            connection.style.top = `${sourceRect.top + sourceRect.height / 2}px`
+            connection.style.width = `${targetRect.left - (sourceRect.left + sourceRect.width)}px`
+            connection.style.height = '2px'
+            connection.style.backgroundColor = '#666'
+            connection.style.transform = 'translateY(-50%)'
+
+            graphContainer.appendChild(connection)
+          }
+        }
+      })
+    }
+  })
+
+  return { valid: true, graph: graphContainer }
 }
 
 // Export all functions to maintain current exports
@@ -868,5 +861,8 @@ module.exports = {
   createAccessibleLink,
   isLinkAccessible,
   towerDefense,
-  personName // Add back personName export
+  personName, // Add back personName export
+  ensureElementHasId, // New export
+  addAriaLabel, // New export
+  renderDependencyGraph // New export
 }

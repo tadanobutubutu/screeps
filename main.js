@@ -148,13 +148,13 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  // New method
-  getSystemInfo() {
-    return {
-      OS: navigator.platform,
-      Browser: navigator.userAgent,
-      Language: navigator.language
-    };
+  /**
+   * Ensure all interactive elements are accessible
+   */
+  ensureInteractiveElementsAccessible() {
+    this.ensureInteractiveRoles();
+    this.addFormControlLabels();
+    this.ensureImageAccessibility();
   }
 };
 

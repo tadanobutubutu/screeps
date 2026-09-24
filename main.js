@@ -1,4 +1,7 @@
-const config = {};
+const config = {
+  // Configuration settings
+};
+
 const logger = require('./utils/logger');
 
 // TODO: This is the existing code that needs to be preserved
@@ -46,7 +49,7 @@ function improveAccessibility() {
     }
   });
 
-  const focusable = document.querySelectorAll('[tabindex]');
+  const focusable = document.querySelectorAll('a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, [tabindex="0"], [contenteditable="true"]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -88,11 +91,12 @@ function ensureUniqueLandmarks() {
   const uniqueLandmarkMap = {};
 
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll('[' + landmark + '], ' + landmark);
+    const elements = document.querySelectorAll('[role="' + landmark + '"], ' + landmark);
     elements.forEach(el => {
       const isUnique = !uniqueLandmarkMap[landmark] || Object.values(uniqueLandmarkMap).filter(e => e === el).length === 0;
       if (isUnique) {
-        uniqueLandmarkMap[landmark] = el;
+        uniqueLandmarkMap[landmark] = uniqueLandmarkMap[landmark] || [];
+        uniqueLandmarkMap[landmark].push(el);
       } else {
         el.removeAttribute('role');
       }
@@ -211,7 +215,7 @@ function calculateSum(a, b) {
 }
 
 function fixFakeLinks() {
-  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
+  const fakeLinkAnchors = document.querySelectorAll('a:not([href])');
   const fakeLinkDivs = document.querySelectorAll('div[role="link"]');
 
   [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
@@ -314,27 +318,21 @@ function fixUniqueLandmarks(insightReport) {
       const element = document.querySelector(issue.selector);
 
       if (element && issue.ariaRole) {
-        uniqueLandmarks[issue.ariaRole] = element;
+        uniqueLandmarkMap[issue.ariaRole] = element;
       }
     }
   });
 
-  uniqueLandmarks = Object.assign({}, uniqueLandmarks);
+  uniqueLandmarks = uniqueLandmarkMap;
 
   // Check if all landmarks are unique and re-add if necessary
   ensureUniqueLandmarks();
 }
 
-// TODO: Implement validateLandmark functionality
-function validateLandmark() {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  for (const landmark of landmarks) {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
-    if (elements.length > 1) {
-      return false;
-    }
+function addLangAttribute() {
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
   }
-  return true;
 }
 
 function implementNewFunction() {
@@ -345,6 +343,7 @@ function implementNewFunction() {
   addLangAttribute();
   improveAccessibility();
   addMainLandmark();
+  improveAccessibility();
   addSvgAccessibleNames();
   fixTableStructureIssues();
   fixTableHeaderCellScope();

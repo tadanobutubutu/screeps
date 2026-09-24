@@ -30,10 +30,10 @@ export function myNewFunction() {
 }
 
 // REACT_015: Add lang attribute to the <html> element
-function addLangAttributeToHtml(html) {
+function ... {
   if (typeof html !== 'string') return html;
-  return html.replace(/(<html[^>]*)(>)/i, (match, attrs, closing) => {
-    if (attrs.includes('lang=')) return match;
+  return ... (match, attrs) => {
+    if ... return match;
     return `<html${attrs} lang="en">`;
   });
 }
@@ -50,7 +50,7 @@ import a11y from './AccessibilityUtilities';
 const root = ...
 
 // DOM Elements
-const dependencyGraph = document.getElementById('dependency-graph');
+const dependencyGraph = ...
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
@@ -87,6 +87,100 @@ function addHeadingHierarchy() {
 //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
 /**
+ * Ensures an element has an id attribute, generating one if missing
+ * @param {HTMLElement} element - The element to check
+ * @param {string} prefix - Optional prefix for the generated id
+ * @returns {string} The element's id (existing or generated)
+ */
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    return null;
+  }
+  
+  let id = element.id;
+  if (!id) {
+    id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = id;
+  }
+  
+  return id;
+}
+
+/**
+ * Adds aria-label to an element
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The label text to add
+ * @returns {boolean} True if successful
+ */
+function addAriaLabel(element, label) {
+  if (!element || typeof label !== 'string') {
+    return false;
+  }
+  
+  element.setAttribute('aria-label', label);
+  return true;
+}
+
+/**
+ * Renders dependency graphs in the main container
+ * @param {HTMLElement} container - The container element for the graph
+ * @param {Object} graphData - The data for the dependency graph
+ */
+function renderDependencyGraphs(container, graphData) {
+  if (!container || !graphData) {
+    return;
+  }
+  
+  // Ensure container has proper id for accessibility
+  const containerId = ensureElementHasId(container, 'dependency-graph');
+  
+  // Ensure container has aria-label describing the graph
+  if (!container.getAttribute('aria-label')) {
+    addAriaLabel(container, 'Dependency graph visualization');
+  }
+  
+  // Ensure container has proper role
+  if (!container.getAttribute('role')) {
+    container.setAttribute('role', 'img');
+  }
+  
+  // Create graph structure
+  const graph = document.createElement('div');
+  graph.id = `${containerId}-content`;
+  graph.setAttribute('role', 'group');
+  graph.setAttribute('aria-labelledby', `${containerId}-title`);
+  
+  const title = document.createElement('span');
+  title.id = `${containerId}-title`;
+  title.textContent = graphData.title || 'Dependency Graph';
+  title.setAttribute('aria-hidden', 'true');
+  graph.appendChild(title);
+  
+  const graphContainer = document.createElement('div');
+  graphContainer.id = `${containerId}-nodes`;
+  
+  // Render nodes
+  if (graphData.nodes && Array.isArray(graphData.nodes)) {
+    graphData.nodes.forEach((node, index) => {
+      const nodeElement = document.createElement('div');
+      nodeElement.id = `${containerId}-node-${index}`;
+      nodeElement.setAttribute('role', 'listitem');
+      nodeElement.textContent = node.label || node.name || `Node ${index + 1}`;
+      
+      // Ensure node has accessible name
+      if (!nodeElement.getAttribute('aria-label')) {
+        nodeElement.setAttribute('aria-label', node.label || node.name || `Node ${index + 1}`);
+      }
+      
+      graphContainer.appendChild(nodeElement);
+    });
+  }
+  
+  graph.appendChild(graphContainer);
+  container.appendChild(graph);
+}
+
+/**
  * Main entry point for the application
  */
 function getLangAttribute() {
@@ -102,14 +196,14 @@ function addLangAttribute() {
 
 function validateTableAccessibility(table) {
   // Check for caption or aria-label
-  return table.getAttribute('caption') ||
-         table.getAttribute('aria-label') ||
-         table.getAttribute('aria-labelledby');
+  return ... ||
+           table.getAttribute('aria-label') ||
+           table.getAttribute('aria-labelledby'));
 }
 
 function validateTableStructure(table) {
-  const hasHeader = table.querySelector('th');
-  const hasBody = table.querySelector('td');
+  const hasHeader = ... th');
+  const hasBody = ... td');
   return hasHeader && hasBody;
 }
 
@@ -121,8 +215,8 @@ function fixTableStructure(table) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const headerRow = document.createElement('tr');
-        Array.from(firstRow.cells).forEach(cell => {
-          const th = document.createElement('th');
+        ... => {
+          const th = ...
           th.textContent = cell.textContent;
           ...
         });
@@ -146,9 +240,9 @@ function validateLandmark(landmark) {
   return ...
 }
 
-function validateLandmarkHasLabel(landmark) {
-  const ariaLabel = landmark.getAttribute('aria-label');
-  const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
+function ... {
+  const ariaLabel = ...
+  const ariaLabelledBy = ...
   return !!(ariaLabel || ariaLabelledBy || landmark.textContent.trim());
 }
 
@@ -166,7 +260,7 @@ function validateLandmarkStructure() {
   });
 
   if (missingLandmarks.length > 0) {
-    console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+    ... warning: Missing required landmarks: ... ')}`);
     return false;
   }
 
@@ -176,7 +270,7 @@ function validateLandmarkStructure() {
 function getSvgAccessibleName(svg) {
   return ... ||
          svg.getAttribute('title') ||
-         svg.getAttribute('aria-labelledby') ||
+         ... ||
          'SVG graphic';
 }
 
@@ -186,7 +280,7 @@ function setSvgAttributes(svg, name) {
 }
 
 function ensureUniqueLandmarks() {
-  const mainLandmarks = document.querySelectorAll('[role="main"]');
+  const mainLandmarks = ... main');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((landmark, index) => {
       if (index > 0) {
@@ -200,8 +294,8 @@ function ensureUniqueLandmarks() {
 function createInPageButton() {
   const button = document.createElement('button');
   button.textContent = 'Skip to content';
-  button.addEventListener('click', function() {
-    const mainContent = document.querySelector('main');
+  ... function() {
+    const mainContent = ...
     if (mainContent) {
       mainContent.focus();
     }
@@ -225,9 +319,9 @@ function validateLinkAccessibility(link) {
  * Handles fake links in the document
  */
 function handleFakeLinks() {
-  const links = document.querySelectorAll('a[href=""]');
+  const links = ...
   links.forEach(link => {
-    if (!link.textContent.trim()) {
+    if ... {
       link.setAttribute('aria-label', 'Link to ' + (link.href || 'unknown destination'));
     }
   });
@@ -275,7 +369,7 @@ function ... {
   });
 
   // Check for buttons without accessible name
-  const buttons = document.querySelectorAll('button');
+  const buttons = ...
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || ...
     if (!accessibleName) {
@@ -303,3 +397,28 @@ function ... {
   });
 
   // Check for form inputs without labels
+  const inputs = ...
+  ... index) => {
+    const inputType = input.getAttribute('type');
+    if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
+      const labelId = ...
+      const labelText = ...
+      const hasLabel = ... || labelId || labelText;
+      if (!hasLabel) {
+        issues.push({
+          type: 'missing-label',
+          element: 'input',
+          index: index,
+          message: `Input at index ${index} is missing an associated label`
+        });
+      }
+    }
+  });
+
+  // Check for empty headings
+  const headings = ... h2, h3, h4, h5, h6');
+  headings.forEach((heading, index) => {
+    if (!heading.textContent.trim()) {
+      issues.push({
+        type: 'empty-heading',
+        element: '

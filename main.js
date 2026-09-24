@@ -623,83 +623,68 @@ function renderIndex() {
 }
 
 function createInPageButtons() {
-    return '';
-}
-
-// New function to validate landmark structure for accessibility issues
-function validateLandmarkStructure() {
-    const landmarks = ['main', 'nav', 'aside', 'header', 'footer', 'article', 'section'];
-    landmarks.forEach(landmark => {
-        const element = document.querySelector(`[role="${landmark}"]`);
-        if (element) {
-            // Perform validation checks on the element
-            // ... (Add the logic to validate landmark structure)
-        }
-    });
-}
-
-// Implement harvest and upgrade logic
-function harvest() {
-    // Implementation for harvest logic
-    // ...
-}
-
-function upgrade() {
-    // Implementation for upgrade logic
-    // ...
-}
-
-// Create in-page navigation buttons
-function createInPageButtons() {
-    // Implementation for creating in-page navigation buttons
-    return {
-        create: function(container) {
-            const buttons = document.createElement('div');
-            buttons.className = 'in-page-buttons';
-            if (container) {
-                container.appendChild(buttons);
-            }
-            return buttons;
-        }
-    };
-}
-
-/**
- * Add scope attribute to table header cells for accessibility
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with scope attributes added to th elements in table headers
- */
-function addTableScopeAttributes(html) {
-    if (!html) return html;
+    const container = document.createElement('div');
+    container.className = 'in-page-buttons-container';
+    container.setAttribute('role', 'navigation');
+    container.setAttribute('aria-label', 'In-page navigation');
     
-    // Add scope="col" to th elements in thead sections
-    html = html.replace(/(<thead[^>]*>[\s\S]*?<tr[^>]*>[\s\S]*?<th)(?![^>]*scope=)([^>]*>)/gi, function(match, prefix, suffix) {
-        return prefix + ' scope="col"' + suffix;
+    const buttons = [];
+    const sections = document.querySelectorAll('section, .section, [data-section]');
+    
+    sections.forEach((section, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'in-page-button';
+        button.setAttribute('aria-label', `Navigate to section ${index + 1}`);
+        
+        const sectionTitle = section.querySelector('h2, h3, h4')?.textContent || `Section ${index + 1}`;
+        button.textContent = sectionTitle;
+        button.setAttribute('data-section-index', index);
+        
+        button.addEventListener('click', () => {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Announce to screen readers
+            accessibilityUtils.announceToScreenReader(`Navigated to ${sectionTitle}`, 'polite');
+            
+            // Update aria-current for active section
+            buttons.forEach(btn => btn.removeAttribute('aria-current'));
+            button.setAttribute('aria-current', 'true');
+        });
+        
+        buttons.push(button);
+        container.appendChild(button);
     });
     
-    // Add scope="col" to th elements in tfoot sections (footer headers)
-    html = html.replace(/(<tfoot[^>]*>[\s\S]*?<tr[^>]*>[\s\S]*?<th)(?![^>]*scope=)([^>]*>)/gi, function(match, prefix, suffix) {
-        return prefix + ' scope="col"' + suffix;
-    });
+    // If no sections found, create default navigation buttons
+    if (sections.length === 0) {
+        const prevButton = document.createElement('button');
+        prevButton.type = 'button';
+        prevButton.className = 'in-page-button nav-button';
+        prevButton.textContent = 'Previous';
+        prevButton.setAttribute('aria-label', 'Go to previous section');
+        
+        const nextButton = document.createElement('button');
+        nextButton.type = 'button';
+        nextButton.className = 'in-page-button nav-button';
+        nextButton.textContent = 'Next';
+        nextButton.setAttribute('aria-label', 'Go to next section');
+        
+        prevButton.addEventListener('click', () => {
+            window.scrollBy({ top: -window.innerHeight, behavior: 'smooth' });
+            accessibilityUtils.announceToScreenReader('Scrolled to previous section', 'polite');
+        });
+        
+        nextButton.addEventListener('click', () => {
+            window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+            accessibilityUtils.announceToScreenReader('Scrolled to next section', 'polite');
+        });
+        
+        container.appendChild(prevButton);
+        container.appendChild(nextButton);
+    }
     
-    // Add scope="row" to th elements in tbody sections (row headers)
-    html = html.replace(/(<tbody[^>]*>[\s\S]*?<tr[^>]*>[\s\S]*?<th)(?![^>]*scope=)([^>]*>)/gi, function(match, prefix, suffix) {
-        return prefix + ' scope="row"' + suffix;
-    });
-    
-    return html;
-}
-
-// Implement the feature
-function implementFeature() {
-    // TODO: Implement the feature
-}
-
-// TODO: add the new functions or changes requested in the issue
-// Here's a sample implementation for a new function named 'myNewFunction'
-function myNewFunction(param1, param2) {
-    // Example implementation: concatenates two values with a separator.
-    return `${param1} - ${param2}`;
+    return container;
 }
 
 // Export all required functions and utilities

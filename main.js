@@ -173,17 +173,24 @@ function renderIndexView(container) {
 /**
  * Validates landmark accessibility
  */
-function validateLandmark() {
-  // Implementation for landmark validation
-  // This function can be used to validate the accessibility of landmarks
+function getDependencyDepth(dependencies, currentKey = '') {
+  //... (existing code)
 }
 
 /**
  * Validates landmark structure
  */
-function validateLandmarkStructure() {
-  // Implementation for landmark structure validation
-  // This function can be used to validate the structure of landmarks
+function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
+  //... (existing code)
+}
+
+/**
+ * Renders a dependency tree as a ASCII art for debugging purposes.
+ * @param {Object} dependencies - The dependency object
+ */
+function visualizeDependencyTree(dependencies) {
+  console.log('Dependency Tree:');
+  console.log(renderDependencyGraph(dependencies));
 }
 
 /**
@@ -191,9 +198,8 @@ function validateLandmarkStructure() {
  * @param {HTMLElement} svg - The SVG element
  * @returns {string} Accessible name
  */
-function getSvgAccessibleName(svg) {
-  // Implementation for getting SVG accessible name
-  return svg ? svg.getAttribute('aria-label') || '' : '';
+function displayModuleStructure(modules) {
+  //... (existing code)
 }
 
 /**
@@ -252,27 +258,10 @@ function ensureUniqueLandmarks() {
     navLandmarksFixed: 0
   };
   
-  // Fix multiple main landmarks
-  if (mainLandmarks.length > 1) {
-    for (let i = 1; i < mainLandmarks.length; i++) {
-      const landmark = mainLandmarks[i];
-      landmark.removeAttribute('role');
-      landmark.tagName.toLowerCase() === 'main' ? landmark.outerHTML = landmark.textContent : landmark.replaceWith(...landmark.childNodes);
-      results.mainLandmarksFixed++;
-    }
-  }
-  
-  // Fix multiple nav landmarks
-  if (navLandmarks.length > 1) {
-    for (let i = 1; i < navLandmarks.length; i++) {
-      const landmark = navLandmarks[i];
-      landmark.removeAttribute('role');
-      landmark.tagName.toLowerCase() === 'nav' ? landmark.outerHTML = landmark.textContent : landmark.replaceWith(...landmark.childNodes);
-      results.navLandmarksFixed++;
-    }
-  }
-  
-  return results;
+  console.log('Dependency Graph:');
+  console.log(renderDependencyGraph(sampleDependencies));
+
+  console.log('Depth:', getDependencyDepth(sampleDependencies));
 }
 
 /**

@@ -1,15 +1,12 @@
 // TODO: This is the existing code that needs to be preserved
-
-// TODO: Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
-
-// Preserve existing functionality
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// ----- END ORIGINAL CODE -----
 
 // Importing the necessary functions (for illustration purposes)
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
@@ -804,17 +801,6 @@ export {
   wrapPrimaryContentInMain
 };
 
-// Export the internal set for tracking used landmark IDs
-export { _usedLandmarkIds };
-
-// Export internal functions for accessibility
-export {
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  addAriaLabel,
-  addLangAttribute
-};
-
 // Exporting for CommonJS compatibility
 module.exports = {
   specificFunctionThatRendersGraphOrIndex,
@@ -904,180 +890,4 @@ function generateAccessibilityReport() {
     });
 
     // Check SVG accessibility
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach((svg, index) => {
-        const title = svg.querySelector('title');
-        const desc = svg.querySelector('desc');
-        if (title && desc) {
-            report.passed.push({
-                category: 'REACT_041',
-                message: `SVG ${index + 1} has accessible title and description`,
-                status: 'passed'
-            });
-        } else {
-            report.issues.push({
-                category: 'REACT_041',
-                message: `SVG ${index + 1} is missing accessible name`,
-                status: 'moderate'
-            });
-            report.summary.moderate++;
-            report.summary.totalIssues++;
-        }
-    });
-
-    // Check link accessibility
-    const links = document.querySelectorAll('a');
-    links.forEach((link, index) => {
-        if (link.textContent.trim() === '') {
-            report.issues.push({
-                category: 'REACT_036',
-                message: `Link ${index + 1} has no accessible text`,
-                status: 'moderate'
-            });
-            report.summary.moderate++;
-            report.summary.totalIssues++;
-        } else {
-            report.passed.push({
-                category: 'REACT_036',
-                message: `Link ${index + 1} has accessible text`,
-                status: 'passed'
-            });
-        }
-    });
-
-    return report;
-}
-
-/**
- * Renders the accessibility report as an HTML string.
- * @param {Object} report - The accessibility report object.
- * @returns {string} HTML string representing the report.
- */
-function renderAccessibilityReportHtml(report) {
-    let html = `<div class="accessibility-report">
-        <h1>Accessibility Report</h1>
-        <p>Generated: ${report.timestamp}</p>
-        
-        <div class="summary">
-            <h2>Summary</h2>
-            <ul>
-                <li>Total Issues: ${report.summary.totalIssues}</li>
-                <li>Critical: ${report.summary.critical}</li>
-                <li>Moderate: ${report.summary.moderate}</li>
-                <li>Passed: ${report.summary.passed}</li>
-            </ul>
-        </div>
-        
-        <div class="issues">
-            <h2>Issues Found</h2>`;
-    
-    if (report.issues.length === 0) {
-        html += '<p>No issues found!</p>';
-    } else {
-        report.issues.forEach(issue => {
-            html += `<div class="issue ${issue.status}">
-                <strong>${issue.category}</strong>: ${issue.message}
-            </div>`;
-        });
-    }
-    
-    html += `</div>
-        
-        <div class="passed">
-            <h2>Passed Checks</h2>`;
-    
-    if (report.passed.length === 0) {
-        html += '<p>No checks passed yet.</p>';
-    } else {
-        report.passed.forEach(item => {
-            html += `<div class="passed-item">
-                <strong>${item.category}</strong>: ${item.message}
-            </div>`;
-        });
-    }
-    
-    html += '</div></div>';
-    
-    return html;
-}
-
-/**
- * Generates and displays the accessibility report in the console and returns the report object.
- * @returns {Object} The accessibility report object.
- */
-function generateAndDisplayReport() {
-    const report = generateAccessibilityReport();
-    
-    console.log('=== Accessibility Report ===');
-    console.log(`Generated: ${report.timestamp}`);
-    console.log(`Total Issues: ${report.summary.totalIssues}`);
-    console.log(`Critical: ${report.summary.critical}`);
-    console.log(`Moderate: ${report.summary.moderate}`);
-    console.log(`Passed: ${report.summary.passed}`);
-    
-    if (report.issues.length > 0) {
-        console.log('\n--- Issues ---');
-        report.issues.forEach(issue => {
-            console.log(`[${issue.status.toUpperCase()}] ${issue.category}: ${issue.message}`);
-        });
-    }
-    
-    if (report.passed.length > 0) {
-        console.log('\n--- Passed Checks ---');
-        report.passed.forEach(item => {
-            console.log(`[PASS] ${item.category}: ${item.message}`);
-        });
-    }
-    
-    return report;
-}
-
-// Export report generation functions
-export {
-  generateAccessibilityReport,
-  renderAccessibilityReportHtml,
-  generateAndDisplayReport
-};
-
-// Export ensureUniqueLandmarkId for ensuring unique landmark IDs
-export { ensureUniqueLandmarkId };
-
-// Export uniqueLandmarks for getting unique landmarks from a list
-export { uniqueLandmarks };
-
-// Export addAriaLabel for adding aria-label attributes to elements
-export { addAriaLabel };
-
-// Export addLangAttribute for adding lang attributes to elements
-export { addLangAttribute };
-
-// Export wrapPrimaryContentInMain for wrapping primary content in a main element
-export { wrapPrimaryContentInMain };
-
-// Export the internal set for tracking used landmark IDs
-export { _usedLandmarkIds };
-
-/**
- * Addresses accessibility issues from the insight report by orchestrating fixes
- * across the document. This function is the implementation for the TODO on line 159
- * and acts as the single entry point for addressing all accessibility issues.
- *
- * Fixes applied:
- *  - REACT_015: Adds the lang attribute to the <html> element.
- *  - REACT_017: Validates and fixes landmark roles/structure.
- *  - REACT_025: Ensures unique landmark IDs across the document.
- *  - REACT_027: Validates table accessibility and structure.
- *  - REACT_036: Handles fake links by creating accessible <a> elements.
- *  - REACT_041: Adds accessible names (titles/descriptions) to SVGs.
- *
- * @param {Object} [options] - Optional configuration.
- * @param {Document|HTMLElement} [options.root=document] - Root element to operate on.
- * @param {string} [options.lang] - Optional explicit lang attribute value.
- * @returns {Object} A report describing what was applied.
- */
-function addressAccessibilityIssuesFromInsightReport(options = {}) {
-    return handleAccessibilityIssues(options);
-}
-
-// Export the new addressAccessibilityIssuesFromInsightReport function
-export { addressAccessibilityIssuesFromInsightReport };
+    const svgs

@@ -1,535 +1,303 @@
-// Imports at the top
-import React, { useState, useEffect, useRef } from 'react';
+const primaryContent = document.querySelector('.primary-content') ||
+                        document.querySelector('[role="main"]') ||
+                        document.getElementById('main-content') ||
+                        document.querySelector('#content');
+
+function wrapPrimaryContentInMain() {
+  if (primaryContent && !primaryContent.closest('main')) {
+    const mainElement = document.createElement('main');
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    mainElement.appendChild(primaryContent);
+    return mainElement;
+  }
+  return null;
+}
+
+function countDependencies() {
+  const importRegex = /import\s+(?:[\w*\s,{}]+\s+from\s+)?['"]([^'"]+)['"]/g;
+  const dependencies = new Set();
+  const source = countDependencies.toString() + '\n' + wrapPrimaryContentInMain.toString();
+  let match;
+  while ((match = importRegex.exec(source)) !== null) {
+    dependencies.add(match[1]);
+  }
+  return dependencies.size;
+}
+
+import React, { useState, useEffect } from 'react';
 import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from '...';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, landmarkStructureCheck, enhanceAccessibilityForAddBook, checkLandmarkElement, handleLinkAccessibility, wrapPrimaryContentInMain, addSvgAccessibilityProps, validateLandmarkElement, handleFakeLinks } from './bookFunctions';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import './styles.css';
-import './styles.less';
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure, addSvgAccessibilityProps as addSvgAccessibilityProps_new, landmarkObject as validateLandmarkObject_new, ensureUniqueLandmarks } from './utils/movedFunctionality';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
-import App from './App';
-import { helper, formatDate } from './utils';
-import { someFunction } from './utils/someFunction';
-import { unsafe } from './utils/unsafeData'; // Added this import
-import express from 'express';
-import path from 'path';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook } from './bookFunctions';
+import { useRef } from 'react';
+import accessiblyHelper from './accessibly-helper';
+import { calculateSum } from './utils/index.js';
+import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils.js';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils.js';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils.js';
+import { CONFIG } from './utils/constants.js';
+<<<<<<< HEAD
+import { generateDependencyReport, utils, axe } from './utils';
 import { fetchUser, clearCache } from './utils/user';
-import newFunctions from './accessibilityFixes'; // Added this import
+import * as newFunctions from './accessibilityFixes';
+=======
+>>>>>>> origin/main
 
-const config = {
-  // ...
-};
-
-const appState = {
-  // ...
-};
-
-// ... (rest of the function remains the same)
-
-function landmarkStructureCheck() {
-  const results = {
-    valid: true,
-    landmarks: [],
-    errors: []
-  };
-
-  // Existing code from HEAD...
-
-  // New code from 'origin/main' for adding SVG accessibility props
-  function addSvgAccessibilityProps(svgElement, label, labelledById) {
-    if (!svgElement) return;
-
-    const props = getSvgAccessibilityProps(label, labelledById);
-
-    // Apply the accessibility props to the SVG element
-    Object.keys(props).forEach(prop => {
-      svgElement.setAttribute(prop, props[prop]);
-    });
+// TODO: Implement the logic to handle the credential response
+// This function should be called when a credential response is received
+// For example, you might parse the response, validate it, and then store or use the credentials
+>>>>>>>>>>>>>>>>>>>>>>>>> cdf78fb33c26049660d5284c95e3b8b08d16192b0ccdfa1b3c9b114e706ba5b0
+function handleCredentialResponse(credentialResponse) {
+  // Validate that credential response is provided
+  if (!credentialResponse) {
+    console.error('Credential response is required');
+    return { success: false, error: 'Credential response is required' };
   }
 
-  // ... (rest of the function remains the same)
+  try {
+    // Parse the credential response if it's a string
+    let parsedResponse = credentialResponse;
+    if (typeof credentialResponse === 'string') {
+      parsedResponse = JSON.parse(credentialResponse);
+    }
+
+    // Validate the credential response structure
+    const validationResult = validateCredentialResponse(parsedResponse);
+    if (!validationResult.valid) {
+      console.error('Credential response validation failed:', validationResult.errors);
+      return { success: false, error: validationResult.errors.join(', ') };
+    }
+
+    // Extract and store credentials
+    const credentialData = extractCredentialData(parsedResponse);
+
+    // Store the credential data for later use
+    storeCredentialData(credentialData);
+
+    // Dispatch an action or callback to notify the application
+    if (typeof onCredentialSuccess === 'function') {
+      onCredentialSuccess(credentialData);
+    }
+
+    console.log('Credential response handled successfully');
+    return { success: true, credentialData };
+
+  } catch (error) {
+    console.error('Error handling credential response:', error);
+    return { success: false, error: error.message || 'Unknown error occurred' };
+  }
+}
+
+// Helper function to validate the credential response structure
+function validateCredentialResponse(response) {
+  const errors = [];
+
+  // Check if response has required properties
+  if (!response) {
+    errors.push('Response is null or undefined');
+    return { valid: false, errors };
+  }
+
+  // For WebAuthn/credential responses, validate the credential
+  if (response.credential) {
+    const credential = response.credential;
+    if (!credential.id) {
+      errors.push('Credential ID is missing');
+    }
+    if (!credential.type) {
+      errors.push('Credential type is missing');
+    }
+  }
+
+  // For token-based responses
+  if (response.token || response.accessToken) {
+    if (typeof (response.token || response.accessToken) !== 'string') {
+      errors.push('Token must be a string');
+    }
+    if ((response.token || response.accessToken).trim() === '') {
+      errors.push('Token cannot be empty');
+    }
+  }
+
+  // For generic responses, check for data or payload
+  if (!response.credential && !response.token && !response.accessToken && !response.data && !response.payload) {
+    errors.push('Response must contain credential, token, accessToken, data, or payload');
+  }
 
   return {
-    valid: results.errors.length === 0,
-    errors: results.errors.concat(unsafe.validateLandmark(results.landmarks))
+    valid: errors.length === 0,
+    errors
   };
 }
 
-// New imports and functions from 'origin/main'
-function handleLinkAccessibility(url, label, element) {
-  // ... (new code)
-}
-
-import * as newFunctions_updated from './accessibilityFixes';
-
-// ... (rest of the original HEAD code)
-
-function getUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    const elements = Array.from(document.querySelectorAll(landmarkSelectors.join(',')));
-    const landmarkIds = elements.map(el => el.id || el.getAttribute('aria-labelledby'));
-    const uniqueIds = new Set(landmarkIds);
-
-    elements.forEach((element, index) => {
-      if (!element.id) {
-        element.id = `landmark-${index}`;
-      }
-    });
-    return elements;
-  }
-
-  const seen = new Set();
-  const uniqueLandmarks = [];
-
-  for (const landmark of landmarks) {
-    if (!landmark || typeof landmark.id === 'undefined') {
-      continue;
-    }
-
-    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
-
-    if (!seen.has(landmarkId)) {
-      seen.add(landmarkId);
-      uniqueLandmarks.push(landmark);
-    }
-  }
-
-  return uniqueLandmarks;
-}
-
-// Imported from origin/main
-function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const seen = new Set();
-  return landmarks.filter(landmark => {
-    if (seen.has(landmark.id)) {
-      return false;
-    }
-    seen.add(landmark.id);
-    return true;
-  });
-}
-
-// Additional functions from origin/main
-function getLangAttribute() {
-  // Implementation for getting the lang attribute
-}
-
-function addLangAttribute() {
-  // Implementation for adding the lang attribute
-}
-
-function validateTableAccessibility() {
-  // Implementation for validating table accessibility
-}
-
-function validateTableStructure() {
-  // Implementation for validating table structure
-}
-
-function fixTableStructure() {
-  // Implementation for fixing table structure
-}
-
-function addMainLandmark() {
-  // Implementation for adding main landmark
-}
-
-function validateLandmark() {
-  // Implementation for validating landmark
-}
-
-function validateLandmarkStructure() {
-  // Implementation for validating landmark structure
-}
-
-function getSvgAccessibleName() {
-  // Implementation for getting SVG accessible name
-}
-
-function setSvgAttributes() {
-  // Implementation for setting SVG attributes
-}
-
-function handleFakeLinks() {
-  // Implementation for handling fake links
-}
-
-function addProperLandmarkRegions() {
-  // Implementation for adding proper landmark regions
-}
-
-function addressAccessibilityIssues() {
-  // Address accessibility issues
-}
-
-function createInPageButton() {
-  // Create the in-page button
-}
-
-function setSvgAccessibleNames(id1, id2, label1, label2) {
-  // Add accessible names to 2 SVGs
-}
-
-function fixFakeLink() {
-  // Fix 1 fake link issue
-}
-
-// Accessibility scanning function using axe-core library
-async function scanAccessibility(filePaths) {
-  const issues = [];
-
-  for (const filePath of filePaths) {
-    const fileEmitted = path.join(process.cwd(), filePath);
-    const { violations } = await axe.analyze(fileEmitted);
-
-    if (violations.length > 0) {
-      issues.push({
-        file: filePath,
-        issues: violations,
-      });
-    }
-  };
-}
-
-// REACT_027: Validate table accessibility
-function validateTableAccessibility(tableElement) {
-  const issues = [];
-  // Check for proper table structure
-  const hasCaption = tableElement.querySelector('caption');
-  const hasHeaders = tableElement.querySelector('th');
-
-  if (!hasCaption) {
-    issues.push('Table is missing a caption');
-  }
-  if (!hasHeaders) {
-    issues.push('Table is missing header cells (th)');
-  }
-
-  return issues;
-}
-
-// REACT_017: Validate landmarks
-function validateLandmarkStructure() {
-  const issues = [];
-  const mainElement = document.querySelector('main');
-  const headerElement = document.querySelector('header');
-  const footerElement = document.querySelector('footer');
-
-  if (!mainElement) {
-    issues.push('Missing main landmark');
-  }
-  if (!headerElement) {
-    issues.push('Missing header landmark');
-  }
-  if (!footerElement) {
-    issues.push('Missing footer landmark');
-  }
-
-  return issues;
-}
-
-// REACT_041: Get SVG accessible name
-function getSvgAccessibleName(svgElement) {
-  // Check for aria-label
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-
-  // Check for aria-labelledby
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labelElement = document.getElementById(ariaLabelledby);
-    return labelElement ? labelElement.textContent : '';
-  }
-
-  // Check for title element inside SVG
-  const titleElement = svgElement.querySelector('title');
-  return titleElement ? titleElement.textContent : '';
-}
-
-// REACT_041: Set SVG attributes for accessibility
-function setSvgAttributes(svgElement, accessibleName) {
-  if (accessibleName && !svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', accessibleName);
-  }
-  if (!svgElement.getAttribute('role')) {
-    svgElement.setAttribute('role', 'img');
-  }
-}
-
-// REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks() {
-  const issues = [];
-  const landmarkTypes = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-
-  landmarkTypes.forEach(type => {
-    const landmarks = document.querySelectorAll(`[role="${type}"]`);
-    if (landmarks.length > 1) {
-      issues.push(`Multiple ${type} landmarks found - should be unique`);
-    }
-  });
-
-  return issues;
-}
-
-// REACT_025: Add proper landmark regions
-function addProperLandmarkRegions() {
-  const issues = [];
-  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
-
-  if (!mainContent) {
-    issues.push('Missing main landmark region');
-  }
-
-  return issues;
-}
-
-// REACT_036: Validate link accessibility
-function validateLinkAccessibility(linkElement) {
-  const issues = [];
-  const href = linkElement.getAttribute('href');
-  const text = linkElement.textContent.trim();
-  const ariaLabel = linkElement.getAttribute('aria-label');
-
-  if (!href || href === '#' || href === '') {
-    issues.push('Link has no valid href attribute');
-  }
-
-  if (!text && !ariaLabel) {
-    issues.push('Link has no accessible name');
-  }
-
-  if (linkElement.getAttribute('role') === 'link' && !href) {
-    issues.push('Fake link detected without href');
-  }
-
-  return issues;
-}
-
-// REACT_036: Handle fake links
-function handleFakeLinks() {
-  const issues = [];
-  const fakeLinks = document.querySelectorAll('[role="link"]');
-
-  fakeLinks.forEach((link, index) => {
-    const href = link.getAttribute('href');
-    if (!href) {
-      issues.push(`Fake link ${index} has no href attribute`);
-    }
-
-    // Convert fake link to accessible button if it's clickable
-    if (link.tagName !== 'A' && link.onclick) {
-      issues.push(`Consider using <button> instead of fake link ${index}`);
-    }
-  });
-
-  return issues;
-}
-
-// TODO: Implement new function3 logic here
-function function3(param1, param2) {
-  // New function3 implementation
-  if (!param1 || !param2) {
-    return null;
-  }
-
-  // Process parameters and return result
-  const result = {
-    combined: `${param1}-${param2}`,
+// Helper function to extract credential data from the response
+function extractCredentialData(response) {
+  return {
+    id: response.credential?.id || response.id || null,
+    type: response.credential?.type || response.type || 'credential',
+    token: response.token || response.accessToken || null,
+    data: response.data || response.payload || response.credential || null,
     timestamp: Date.now(),
-    validated: true
+    rawResponse: response
   };
-
-  return result;
 }
 
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
-
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort(dispatch, list) {
-  const sortedList = [...list].sort(sortByTitle);
-  dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
+// Helper function to store credential data
+function storeCredentialData(credentialData) {
+  try {
+    // Store in session storage for session-based access
+    if (credentialData.token) {
+      sessionStorage.setItem('authToken', credentialData.token);
+    }
+    if (credentialData.id) {
+      sessionStorage.setItem('credentialId', credentialData.id);
+    }
+    // Store full credential data in a serialized format
+    sessionStorage.setItem('credentialData', JSON.stringify(credentialData));
+  } catch (error) {
+    console.warn('Unable to store credential data in session storage:', error);
+  }
 }
 
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort(dispatch, list) {
-  const sortedList = [...list].sort(sortByAuthor);
-  dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
+// Function to render a single book item
+function BookItem({ book }) {
+  return BookItemReact(book);
 }
 
-// Accessible Add Book Form component
-function AddBookForm({ onAddBook }) {
+// Function to render the form for adding a new book entry
+function BookForm() {
+  const dispatch = useDispatch();
+  const [formValid, setFormValid] = useState(false);
+
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
-  const [error, setError] = useState('');
-  const titleInputRef = useRef(null);
-  const formRef = useRef(null);
 
-  const handleSubmit = (event) => {
+  const handleTitleChange = (event) => {
+    setTitle(event.target.value);
+    setFormValid(validateTitle(event.target.value));
+  };
+
+  const handleAuthorChange = (event) => {
+    setAuthor(event.target.value);
+    setFormValid(validateAuthor(event.target.value));
+  };
+
+  // Handles form submission
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setError('');
-
-    if (!title.trim()) {
-      setError('Title is required');
-      if (titleInputRef.current) {
-        titleInputRef.current.focus();
-      }
-      return;
-    }
-
-    if (!author.trim()) {
-      setError('Author is required');
-      return;
-    }
-
-    onAddBook({ title, author });
-    setTitle('');
-    setAuthor('');
-  };
-
-  return {
-    form: {
-      onSubmit: handleSubmit,
-      titleInput: {
-        type: "text",
-        id: "title",
-        value: title,
-        onChange: (e) => setTitle(e.target.value),
-        ref: titleInputRef,
-        ariaLabel: "Book title"
-      },
-      authorInput: {
-        type: "text",
-        id: "author",
-        value: author,
-        onChange: (e) => setAuthor(e.target.value),
-        ariaLabel: "Book author"
-      },
-      submitButton: {
-        type: "submit",
-        text: "Add Book"
-      },
-      errorMessage: error
+    if (formValid) {
+      const createdBook = await addBook(title, author);
+      dispatch(setDependencyGraph(createdBook));
+      setTitle('');
+      setAuthor('');
     }
   };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="title">Title:</label>
+        <input
+          id="title"
+          type="text"
+          value={title}
+          onChange={handleTitleChange}
+          aria-label="Book title"
+        />
+      </div>
+      <div>
+        <label htmlFor="author">Author:</label>
+        <input
+          id="author"
+          type="text"
+          value={author}
+          onChange={handleAuthorChange}
+          aria-label="Book author"
+        />
+      </div>
+      <div>
+        <button type="submit">Add Book</button>
+      </div>
+    </form>
+  );
 }
 
-function ensureLandmarkUniqueness(elements) {
-  const elementsById = {};
-
-  if (Array.isArray(elements)) {
-    for (const landmark of elements) {
-      if (landmark.id) {
-        if (elementsById[landmark.id]) {
-          landmark.id += '_duplicate';
-        } else {
-          elementsById[landmark.id] = true;
-        }
-      }
-    }
-  }
-
-  return elements;
-}
-
-// Updated function using the new functions for rendering graph/index
-function renderDependencyGraphContent() {
-  const container = document.getElementById('dependencyGraph');
-  if (!container) {
-    return;
-  }
-
-  // Use the new functions for rendering
-  renderDependencyGraph(container);
-  renderIndexView(container);
-}
-
-let app;
-
-function initialize() {
-  app = initializeApp();
-  newFunctions.addressInsightIssues(document);
-  registerSW();
-}
-
-function initializeApp() {
-  appState.initialized = true;
-  console.log('Initializing application...');
+// Validates the form fields on change
+function validateTitle(title) {
+  // Your validation logic here...
   return true;
 }
 
-function setupHandlers() {
-  console.log('Setting up event handlers...');
+function validateAuthor(author) {
+  // Your validation logic here...
+  return true;
 }
 
-function validateInput(input) {
-  return input !== null && input !== undefined;
+// This is where you might handle the credential response
+let onCredentialSuccess;
+if (typeof window !== 'undefined') {
+  window.addEventListener('credentialresponse', handleCredentialResponse);
 }
 
-function processData(data) {
-  if (!validateInput(data)) {
-    throw new Error('Invalid input data');
-  }
-  return {
-    processed: true,
-    data: data,
-    timestamp: Date.now()
-  };
+// Initialize the application
+function initializeApp(config) {
+  return initializeAppReact(config);
 }
 
-function main() {
-  initializeApp();
-  setupHandlers();
-  return processData;
+// Initialize service workers
+registerSW({ immediate: true });
+
+// Fetch user data
+function fetchUser(userId) {
+  return fetchUserReact(userId);
 }
 
-if (require.main === module) {
-  main();
-  console.log('Main function executed');
+// Clear cache
+function clearCache() {
+  store.dispatch(clearCacheAction());
 }
 
-module.exports = {
-  config,
-  appState,
-  validateLandmarkObject,
-  ensureLandmarkUniqueness,
-  initializeApp,
-  setupHandlers,
-  validateInput,
-  processData,
-  main,
-  BookItem,
-  BookForm,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  addProperLandmarkRegions,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  function3,
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort,
-  AddBookForm,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  renderDependencyGraphContent,
-  initialize
+// Define the initial state
+const store = createStore(initialState);
+
+const initialState = {
+  books: [],
+  dependencyGraph: null,
+  credentialData: null
 };
+
+// Define actions
+const addBookAction = (book) => ({ type: 'ADD_BOOK', payload: book });
+const clearCacheAction = () => ({ type: 'CLEAR_CACHE' });
+
+// Define reducers
+function booksReducer(state = initialState.books, action) {
+  switch (action.type) {
+    case 'ADD_BOOK':
+      return [...state, action.payload];
+    default:
+      return state;
+  }
+
+function credentialDataReducer(state = initialState.credentialData, action) {
+  switch (action.type) {
+    case 'SET_CREDENTIAL_DATA':
+      return action.payload;
+    default:
+      return state;
+  }
+}
+
+// Define root reducer
+const rootReducer = combineReducers({
+  books: booksReducer,
+  dependencyGraph: credentialDataReducer
+});
+
+// Create the store
+export const store = createStore(rootReducer);
+
+// Initialize the application
+export async function initialize() {
+  await promise;
+}

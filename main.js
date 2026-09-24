@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the modified and merged code
 // ... (existing code up to line 86)
 
 // Addressed accessibility issues from insight report:

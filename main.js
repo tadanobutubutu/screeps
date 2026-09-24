@@ -1,5 +1,18 @@
-// This is a basic Screeps main.js file
-// The existing code preservation section is below
+// Existing code
+
+// TODO: Add any updates related to new functions
+function newFunction1() {
+    console.log("newFunction1 called");
+    return "result1";
+}
+
+function newFunction2() {
+    const sum = 1 + 2;
+    console.log("newFunction2 executed, sum = " + sum);
+    return sum;
+}
+
+// Existing code, functions, and exports
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report

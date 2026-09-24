@@ -15,22 +15,32 @@ function addLangAttribute(html) {
 function fixTableStructure(html) {
   if (typeof html !== 'string') return html;
 
-  // Ensure every table has a
-  // TODO: This is the existing code that needs to be preserved
-  // Address accessibility issues from insight report
-  // ----- END ORIGINAL CODE-----
-
-  // Additional code to fix table structure...
+  // Ensure every table has a thead and tbody
+  return html.replace(/<table([^>]*)>/i, (match, attrs) => {
+    return `<table${attrs}>${addThead()}\n<tbody></tbody></table>`
+  })
 }
 
-// Additional functions or changes requested in the issue would go here
-// For example, if there's a new accessibility function to add:
-
-// REACT_029: Add ARIA roles for accessibility
-function addARIARoles (html) {
-  if (typeof html !== 'string') return html
-  // Implementation of ARIA roles...
+// Helper function to add a thead to each table
+function addThead() {
+  return '<thead><tr></tr></thead>'
 }
 
-// Export any new functions or any that need to be used outside this file
-// export { addLangAttribute, fixTableStructure, addARIARoles };
+// TODO: Implement validateLandmark functionality
+function validateLandmark(landmark) {
+  // Placeholder implementation for validateLandmark
+  // This should be replaced with actual validation logic
+  if (typeof landmark !== 'string') {
+    return false;
+  }
+  // Example validation rule: Landmark must contain the word "Landmark"
+  return /Landmark/i.test(landmark);
+}
+
+// Export functions as needed
+module.exports = {
+  addLangAttribute,
+  fixTableStructure,
+  addThead,
+  validateLandmark
+};

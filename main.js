@@ -124,6 +124,44 @@ function ensureUniqueLandmarks() {
   });
 }
 
+// New function to ensure lang attribute is added to HTML element
+function ensureHtmlLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    const lang = getLangAttribute() || 'en';
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+// New function to ensure proper ARIA attributes are used
+function ensureAriaAttributes() {
+  const elements = document.querySelectorAll('[role]');
+  elements.forEach(element => {
+    const role = element.getAttribute('role');
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      element.setAttribute('aria-label', role);
+    }
+  });
+}
+
+// New function to ensure proper heading structure
+function ensureProperHeadingStructure() {
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+
+  headings.forEach(heading => {
+    const currentLevel = parseInt(heading.tagName.substring(1));
+    if (currentLevel > previousLevel + 1) {
+      // Skip levels to maintain proper hierarchy
+      const newLevel = previousLevel + 1;
+      const newHeading = document.createElement(`h${newLevel}`);
+      newHeading.textContent = heading.textContent;
+      heading.replaceWith(newHeading);
+    }
+    previousLevel = currentLevel;
+  });
+}
+
 function initialize() {
   appConfig.apiUrl = process.env.API_URL || 'default';
   appConfig.timeout = 5000;
@@ -194,46 +232,34 @@ function addAriaLabel(element, label) {
   }
 }
 
-/**
- * Announces a message to screen readers
- * @param {string} message - The message to announce
- */
-function announceToScreenReader(message) {
-  const announcement = document.createElement('div');
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.className = 'sr-only';
-  announcement.textContent = message;
-  document.body.appendChild(announcement);
-
-  // Remove after announcement is complete
-  setTimeout(() => {
-    document.body.removeChild(announcement);
-  }, 1000);
-}
-
-/**
- * Traps focus within a modal dialog
- * @param {HTMLElement} modal - The modal element
- */
-function trapFocus(modal) {
-  const focusableElements = modal.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  modal.addEventListener('keydown', (event) => {
-    if (event.key === 'Tab') {
-      if (event.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
-        event.preventDefault();
-      } else if (!event.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
-        event.preventDefault();
-      }
-    }
-  });
-
-  // Focus the first element when modal opens
-  firstElement.focus();
-}
+module.exports = {
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  validateInput,
+  processData,
+  formatResponse,
+  config: appConfig,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  landmarkConfig: appConfig,
+  initialize,
+  initializeApp,
+  clearCache,
+  ensureHtmlLangAttribute,
+  ensureAriaAttributes,
+  ensureProperHeadingStructure
+};

@@ -457,8 +457,51 @@ function validateTableStructure() {
     // Implementation for merged table structure validation
 }
 
-function fixTableStructure() {
-    // Implementation for merged table structure fixing
+function fixTableStructure(table) {
+    // Ensure table has thead, tbody, and tfoot elements
+    if (!table.querySelector('thead')) {
+        const thead = document.createElement('thead');
+        const firstRow = table.querySelector('tr');
+        if (firstRow) {
+            thead.appendChild(firstRow);
+            table.insertBefore(thead, table.firstChild);
+        }
+    }
+
+    if (!table.querySelector('tbody')) {
+        const tbody = document.createElement('tbody');
+        const rows = table.querySelectorAll('tr');
+        if (rows.length > 0) {
+            rows.forEach(row => {
+                if (!row.parentElement || row.parentElement.tagName !== 'THEAD') {
+                    tbody.appendChild(row);
+                }
+            });
+            table.appendChild(tbody);
+        }
+    }
+
+    if (!table.querySelector('tfoot')) {
+        const tfoot = document.createElement('tfoot');
+        table.appendChild(tfoot);
+    }
+
+    // Ensure all th elements have scope or headers attributes
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+        if (!th.getAttribute('scope') && !th.getAttribute('headers')) {
+            th.setAttribute('scope', 'col');
+        }
+    });
+
+    // Ensure table has a caption
+    if (!table.querySelector('caption')) {
+        const caption = document.createElement('caption');
+        caption.textContent = 'Table Caption';
+        table.insertBefore(caption, table.firstChild);
+    }
+
+    return table;
 }
 
 // Landmark functions (merged from both branches)

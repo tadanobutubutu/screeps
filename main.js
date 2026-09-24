@@ -62,15 +62,18 @@ export function sortByAuthor(a, b) {
 }
 
 // Function to generate a key for each book item
-export function generateKey(book) {
-  return `book-${book.id || book.title.substring(0, 1).toLowerCase()}-${Date.now()}`;
+function generateKey(book) {
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
 export function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
-      <List.Item.Meta title={book.title} ... />
+      <List.Item.Meta
+        title={book.title}
+        ...
+      />
     </List.Item>
   );
 }
@@ -111,34 +114,43 @@ function generateAccessibilityReport(issues) {
   report += `Major: ${majorIssues}\n`;
   report += `Minor: ${minorIssues}\n\n`;
 
-  report += `Issue Details:\n`;
-  issues.forEach((issue, index) => {
-    report += `${index + 1}. ${issue.description || 'No description'}`;
-    if (issue.element) {
-      report += ` - Element: ${issue.element}`;
-    }
-    if (issue.suggestion) {
-      report += ` - Suggestion: ${issue.suggestion}`;
-    }
-    report += `\n`;
-  });
-
-  return report;
+  // Render the form
+  return (
+    <form ...
+      <label htmlFor="title">Title:</label>
+      <input
+        type="text"
+        id="title"
+        value={title}
+        onChange={handleTitleChange}
+        aria-label="Book title"
+      />
+      <label ...
+      <input
+        type="text"
+        id="author"
+        value={author}
+        onChange={handleAuthorChange}
+        aria-label="Book author"
+      />
+      <button type="submit">Add Book</button>
+    </form>
+  );
 }
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-export function onTitleSort(sortedList) {
-  const dispatch = useDispatch();
+function onTitleSort() {
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-export function onAuthorSort(sortedList) {
-  const dispatch = useDispatch();
+function onAuthorSort() {
+  const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -184,33 +196,15 @@ function Main() {
   const getBooksList = useSelector(state => state.books.list);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem({ book }));
+  const bookItems = ...
 
   // Render the list of book items and sorting controls
   return (
-    <div id="main-content" role="main" aria-label="Main content">
-      <nav aria-label="Sorting controls">
-        <button
-          onClick={() => setSorting(sortByTitle)}
-          aria-label="Sort books by title"
-          id="sort-by-title-btn"
-        >
-          Sort by Title
-        </button>
-        <button
-          onClick={() => setSorting(sortByAuthor)}
-          aria-label="Sort books by author"
-          id="sort-by-author-btn"
-        >
-          Sort by Author
-        </button>
-      </nav>
-      <List
-        itemLayout="vertical"
-        dataSource={bookItems}
-        renderItem={book => BookItem({ book })}
-        aria-label="Book list"
-      />
+    <div>
+      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <List ... />
+      <BookForm />
     </div>
   );
 }

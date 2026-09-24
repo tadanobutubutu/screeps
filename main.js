@@ -206,46 +206,13 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 
   /**
-   * Handle the credential response
-   * @param {Object} response - The credential response object
+   * New method to ensure interactive elements are accessible
    */
-  handleCredentialResponse(response) {
-    // TODO: Implement the logic to handle the credential response
-    console.log('Handling credential response:', response);
+  ensureInteractiveElementsAccessible() {
+    this.ensureInteractiveRoles();
+    this.addFormControlLabels();
+    this.ensureImageAccessibility();
   }
 };
 
-// New functions
-function ensureInteractiveElementsAccessible() {
-  this.ensureInteractiveRoles();
-  this.addFormControlLabels();
-  this.fixImageAccessibility();
-}
-
 // ... rest of the code ...
-
-module.exports = {
-  // Existing exports
-  greetingFunction,
-  getWelcomeMessage,
-  config,
-  renderGraph,
-  renderIndex,
-  a11yStore,
-  ensureInteractiveElementsAccessible,
-  // Math functions
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-};

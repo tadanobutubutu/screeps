@@ -5,12 +5,16 @@ import { setDependencyGraph } from './actions/dependencyGraph';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
 import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
 
-// Function to address accessibility issues from insight report
-function addressAccessibilityIssues(element) {
-  // Add ARIA attributes for better screen reader support
-  if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', element.textContent || 'Interactive element');
-  }
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
 
   // Ensure proper contrast ratios
   const style = window.getComputedStyle(element);

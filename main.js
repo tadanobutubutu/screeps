@@ -120,8 +120,7 @@ function ensureThScope() {
 // Landmark data structure
 const landmarks = [];
 
-// ... other code ...
-
+// TODO: This is the existing code that needs to be preserved
 // TODO: Implement spawning logic
 function spawnNewUser(name, age) {
     const newUser = new User(name, age);

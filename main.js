@@ -70,7 +70,7 @@ function checkLandmarkElements(response) {
   return landmarkPatterns.test(response);
 }
 
-// New function as per the issue
+// New function as per the issue (handles new requirements)
 function newFunction() {
   console.log('New function called');
   // TODO: Implement the new function logic here

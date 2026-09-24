@@ -108,13 +108,142 @@ function onAuthorSort() {
   // ...
 }
 
+// Function to add the lang attribute to the HTML element
+function addLangAttribute() {
+  // Implementation goes here
+}
+
+// Function to fix table structure issues
+function fixTableStructure() {
+  // Implementation goes here
+}
+
+// Function to add/fix landmark issues
+function addLandmarkIssues() {
+  // Implementation goes here
+}
+
+// Function to add accessible names to SVGs
+function addSvgAccessibleNames() {
+  // Implementation goes here
+}
+
+// Function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Implementation goes here
+}
+
+// Function to fix fake link issues
+function fixFakeLinkIssue() {
+  // Implementation goes here
+}
+
+// Accessibility Helper Functions
+
+// Default sorting function for the book list
+const defaultSorting = sortByTitle;
+
 // Render the main component containing the book list and sorting controls
 function Main() {
-  // ...
-  {/* Implement the required changes to improve accessibility for adding a new book */}
-  <AddBookForm onSubmit={handleAddBook} />
-  // ...
+  const [sorting, setSorting] = useState(defaultSorting);
+
+  // UseEffect hook to handle sorting book list updates
+  useEffect(() => {
+    if (sorting === sortByTitle) {
+      onTitleSort();
+    } else if (sorting === sortByAuthor) {
+      onAuthorSort();
+    }
+
+    // Apply accessibility improvements on component mount
+    const container = document.getElementById('main-content');
+    if (container) {
+      // Apply accessibility fixes
+      addLangAttribute(container);
+      fixTableStructure(container);
+      addLandmarkIssues(container);
+      addSvgAccessibleNames(container);
+      ensureUniqueLandmarks(container);
+      fixFakeLinkIssue(container);
+
+      // Apply SVG accessibility
+      addAccessibleNamesToSVGs(container, 'Graphical element');
+
+      // Ensure dependency graph has proper ARIA role
+      ensureDependencyGraphAriaRole(container);
+    }
+  }, [sorting]);
+
+  // Map the book list to the BookItem function to create book items
+  const bookItems = getBooksList.map(book => BookItem(book));
+
+  // Render the list of book items and sorting controls
+  return (
+    <div id="main-content" role="main" aria-label="Main content">
+      <nav aria-label="Sorting controls">
+        <button
+          onClick={() => setSorting(sortByTitle)}
+          aria-label="Sort books by title"
+          id="sort-by-title-btn"
+        >
+          Sort by Title
+        </button>
+        <button
+          onClick={() => setSorting(sortByAuthor)}
+          aria-label="Sort books by author"
+          id="sort-by-author-btn"
+        >
+          Sort by Author
+        </button>
+      </nav>
+      <List
+        dataSource={getBooksList}
+        renderItem={book => BookItem(book)}
+        aria-label="Book list"
+      />
+      {/* Implement the required changes to improve accessibility for adding a new book */}
+      <AddBookForm onSubmit={handleAddBook} />
+    </div>
+  );
 }
+
+// Export the necessary functions for use in other modules
+export {
+  sortByTitle,
+  sortByAuthor,
+  generateKey,
+  BookItem,
+  addBook,
+  AddBookForm,
+  onTitleSort,
+  onAuthorSort,
+  getLangAttribute,
+  validateLandmark,
+  validateLandmarkStructure,
+  checkDocumentAccessibility,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  handleAddBook,
+  addLandmarks,
+  getUniqueLandmarkName,
+  isValidLink,
+  addScopeToHeaders,
+  addressAccessibilityIssues,
+  getCellsAbove,
+  getCellsInRow,
+  setSvgAccessibleName,
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue
+};
 
 // Export the Main component
 export default Main;

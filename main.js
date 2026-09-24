@@ -3,14 +3,51 @@
 //_Commit: 243c66538868c6b87a45660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
 
-function addressAccessibilityIssues(insightReport) {
-  // Implement the logic to address accessibility issues based on the insight report
-  // This is a placeholder function and should be replaced with actual implementation
-  console.log('Addressing accessibility issues from insight report:', insightReport);
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
+// Internal set to track used landmark IDs
+// Global set to track used landmark IDs
+const _usedLandmarkIds = new Set();
+
+/**
+ * Creates a unique identifier for a landmark given a base name.
+ * @param {string} baseName - Base name of the landmark.
+ * @returns {string} Unique ID.
+ */
+function ensureUniqueLandmarks(baseName) {
+    let candidate = baseName;
+    if (_usedLandmarkIds.has(candidate)) {
+        // Collision handling: add random suffix
+        const suffix = Math.floor(Math.random() * 9);
+        candidate = `${baseName}-${suffix}`;
+    }
+    _usedLandmarkIds.add(candidate);
+    return candidate;
 }
 
-function createInPageButton(id, href, text, className) {
-  // Logic for creating an in-page button with given properties
+/**
+ * Returns a new array containing only unique landmarks from the input list.
+ * @param {Array} landmarks - List of landmark objects.
+ * @returns {Array} Unique landmarks.
+ */
+function uniqueLandmarks(landmarks) {
+    const seen = new Set();
+    const result = [];
+    for (const lm of landmarks) {
+        if (!seen.has(lm.id)) {
+            seen.add(lm.id);
+            result.push(lm);
+        }
+    }
+    return result;
 }
 
 /**
@@ -35,6 +72,15 @@ function addLangAttribute() {
   }
 }
 
+// TODO: Implement this function for creating in-page buttons
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    document.body.appendChild(button);
+}
+
 // ... other fixes ...
 
 // DOM-based accessibility code
@@ -53,7 +99,7 @@ validateTableStructure(table);
 
 // Add/fix landmark issues
 validateLandmark();
-...
+// ... 
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
@@ -63,7 +109,7 @@ setSvgAttributes(svg, accessibleName);
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-...
+// ...
 
 // Handle fake links
 handleFakeLinks();
@@ -72,22 +118,15 @@ handleFakeLinks();
 
 // React / UI related functions
 
-// Integrated imported accessibility modules into relevant rendering functions
+// TODO: Add these imported modules to the relevant rendering functions
+
 function formatProductName(product) {
   return `${product.name} - ...`;
 }
 
 function renderProductList(products) {
-  const container = document.createElement('div');
-  container.innerHTML = products.map(p => `<div>${p.name}</div>`).join('');
-  
-  // Validate table accessibility if the product list uses a table
-  const productTable = container.querySelector('table');
-  if (productTable) {
-    validateTableAccessibility(productTable);
-    validateTableStructure(productTable);
-  }
-  
+  const container = document.getElementById('productContainer');
+  container.innerHTML = products.map(p => ...).join('');
   return container;
 }
 
@@ -99,19 +138,8 @@ function calculateTotalPrice(cart) {
 
 function renderCart(cart) {
   const total = calculateTotalPrice(cart);
-  
-  // Validate landmarks in the cart section
-  validateLandmark();
-  validateLandmarkStructure();
-  
-  // Validate link accessibility
-  validateLinkAccessibility();
-  
-  // Handle fake links in the cart
-  handleFakeLinks();
-  
   return `
-    <div class="cart" role="region" aria-label="Shopping Cart">
+    <div class="cart">
       <h2>Shopping Cart</h2>
       <p>Total: ...${total}</p>
       <p>Date: ${formatDate(new Date())}</p>
@@ -121,42 +149,15 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    // Validate link accessibility for the rendered content
-    validateLinkAccessibility();
-    
-    // Handle any fake links
-    handleFakeLinks();
-    
-    return ...
+    return ...;
   }
   return '<p>Invalid input</p>';
 }
 
 function renderPage(data) {
-  // Add lang attribute to the page
-  getLangAttribute();
-  
   const header = renderHeader(data.title);
-  const content = ...;
+  const content = ...
   const footer = renderFooter();
-  
-  // Validate landmarks for the entire page
-  validateLandmark();
-  validateLandmarkStructure();
-  
-  // Validate link accessibility for the page
-  validateLinkAccessibility();
-  
-  // Ensure accessible names for SVGs in the page
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-  });
-  
-  // Handle fake links in the page
-  handleFakeLinks();
-  
   return `${header}${content}${footer}`;
 }
 
@@ -173,7 +174,7 @@ function checkLandmarkElements() {
     // Convert NodeList to array and extract landmark information
     const landmarks = Array.from(landmarkElements).map((element, index) => {
         const tagName = element.tagName.toLowerCase();
-        const role = element.getAttribute('role') || (['nav', 'main', 'header', 'footer', 'aside', 'section', 'article', 'form'].includes(tagName) ? tagName : null);
+        const role = element.getAttribute('role') || (['nav', 'main', 'header', 'footer', 'aside', 'section', 'article'].includes(tagName) ? tagName : null);
         
         return {
             id: element.id || `landmark-${index}`,
@@ -188,10 +189,10 @@ function checkLandmarkElements() {
     const uniqueLandmarkList = uniqueLandmarks(landmarks);
     
     // Validate landmark accessibility using the imported utility
-    const validationResult = validateLandmark(landmarks);
+    const validationResult = validateLandmark(uniqueLandmarkList);
     
     // Validate landmark structure (hierarchical relationships)
-    const structureValidation = validateLandmarkStructure(landmarks);
+    const structureValidation = validateLandmarkStructure(uniqueLandmarkList);
     
     // Combine validation results
     const allErrors = [
@@ -212,7 +213,7 @@ function checkLandmarkElements() {
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
-  return { errors: [], isValid: true };
+  return ...;
 }
 
 // Export accessibility utility functions

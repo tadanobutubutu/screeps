@@ -110,14 +110,25 @@ function getLangAttribute () {
   return htmlElement.getAttribute('lang')
 }
 
-// Placeholder for createInPageButton - implementation needed
-function createInPageButton (text, onClick, id) {
-  // Implementation placeholder
-  const button = document.createElement('button')
-  button.textContent = text
-  button.onclick = onClick
-  if (id) button.id = id
-  return button
+// Credential response handling
+async function handleCredentialResponse(response) {
+  if (!response) {
+    throw new Error('No response received');
+  }
+
+  if (response.error) {
+    throw new Error(response.error);
+  }
+
+  if (response.token) {
+    return {
+      success: true,
+      token: response.token,
+      expiresIn: response.expiresIn || 3600
+    };
+  }
+
+  throw new Error('Invalid credential response');
 }
 
 // Existing utility functions

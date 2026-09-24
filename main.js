@@ -4,7 +4,7 @@ const fs = require('fs');
 const express = require('express');
 const { exec } = require('child_process');
 const app = express();
-const { config } = require('./');
+const { createServer: importedCreateServer, startApp: importedStartApp, config } = require('./');
 
 const port = PORT || 3000;
 
@@ -146,7 +146,72 @@ function createInPageButton(text) {
 }
 
 function validateLandmark(element) {
-  return element;
+  return element && element.hasAttribute('role');
+}
+
+// New function to handle focus trap for keyboard navigation
+// This implements accessibility best practices by trapping focus within a container
+function trapFocus(container) {
+  const focusableElementsString = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]';
+  
+  if (!container) {
+    return {
+      activate: function() {},
+      deactivate: function() {}
+    };
+  }
+
+  let focusableElements;
+  let firstFocusableElement;
+  let lastFocusableElement;
+
+  const handleTabKey = function(e) {
+    if (e.key !== 'Tab') {
+      return;
+    }
+
+    if (e.shiftKey) {
+      if (document.activeElement === firstFocusableElement) {
+        e.preventDefault();
+        lastFocusableElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusableElement) {
+        e.preventDefault();
+        firstFocusableElement.focus();
+      }
+    }
+  };
+
+  const handleEscapeKey = function(e) {
+    if (e.key === 'Escape') {
+      const deactivate = trapState.deactivate;
+      if (deactivate) {
+        deactivate();
+      }
+    }
+  };
+
+  const trapState = {
+    activate: function() {
+      focusableElements = container.querySelectorAll(focusableElementsString);
+      firstFocusableElement = focusableElements[0];
+      lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+      container.addEventListener('keydown', handleTabKey);
+      container.addEventListener('keydown', handleEscapeKey);
+
+      if (firstFocusableElement) {
+        firstFocusableElement.focus();
+      }
+    },
+    deactivate: function() {
+      container.removeEventListener('keydown', handleTabKey);
+      container.removeEventListener('keydown', handleEscapeKey);
+    }
+  };
+
+  return trapState;
 }
 
 function addSvgAccessibleName(svgElement, name) {
@@ -161,8 +226,9 @@ function addSvgAccessibleName(svgElement, name) {
 
   const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
   if (!ariaLabelledBy) {
-    title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
-    svgElement.setAttribute('aria-labelledby', title.id);
+    const titleId = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+    title.id = titleId;
+    svgElement.setAttribute('aria-labelledby', titleId);
   }
 
   return svgElement;
@@ -199,23 +265,72 @@ const AddressabilityIssues = {
   MISSING_ID: 'missing-id',
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
+
+  analyzeInsightReport: function(insightReport) {
+    if (!insightReport || !insightReport.sections) {
+      return [];
+    }
+
+    const issues = [];
+
+    insightReport.sections.forEach(function(section, index) {
+      if (!section.heading) {
+        issues.push({
+          type: 'missing-heading',
+          severity: 'high',
+          message: 'Section ' + index + ' is missing a heading',
+          suggestedFix: 'Add a descriptive heading to each section'
+        });
+      }
+
+      if (!section.content || section.content.trim() === '') {
+        issues.push({
+          type: 'empty-content',
+          severity: 'medium',
+          message: 'Section ' + index + ' has no content',
+          suggestedFix: 'Add meaningful content to the section'
+        });
+      }
+
+      if (section.content && section.content.includes('click here')) {
+        issues.push({
+          type: 'inaccessible-link-text',
+          severity: 'low',
+          message: 'Section ' + index + ' contains "click here" text which is not accessible',
+          suggestedFix: 'Use descriptive link text instead of "click here"'
+        });
+      }
+    });
+
+    return issues;
+  },
+
+  // ... (other methods omitted for brevity)
 };
 
-function addressInsightSections(insightReport) {
-  if (!insightReport || !insightReport.sections) {
+function processSvgElements() {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(function(svg) {
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+  });
+  return svgElements.length;
+}
+
+// Function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(insightReport) {
+  // If no report provided, return an empty array
+  if (!insightReport || !Array.isArray(insightReport)) {
     return [];
   }
 
-  const issues = [];
-
-  insightReport.sections.forEach((section, index) => {
-    if (!section.heading) {
-      issues.push({
-        type: 'missing-heading',
-        severity: 'high',
-        message: `Section ${index} is missing a heading`,
-        suggestedFix: 'Add a descriptive heading to each section'
-      });
+  // Process each insight item to improve accessibility
+  return insightReport.map(function(item) {
+    // Ensure the item has an accessible label
+    const label = item.description || '';
+    if (label && !item.ariaLabel) {
+      item.ariaLabel = label;
     }
 
     if (!section.content || section.content.trim() === '') {
@@ -266,32 +381,41 @@ export function addressAccessibilityIssues(insightReport) {
 }
 
 // Update your logic implementation here
-function generateAccessibilityReport(accessibilityReport) {
+generateAccessibilityReport = function(accessibilityReport) {
     // Update function logic to generate the accessibility report
-    return accessibilityReport;
-}
+    return accessibilityReport || [];
+};
 
-function calculateAccessibilityScore(fixedIssues) {
+calculateAccessibilityScore = function(fixedIssues) {
     // Update function logic to calculate the accessibility score
-    return 0;
-}
+    if (!fixedIssues || !Array.isArray(fixedIssues)) {
+      return 0;
+    }
+    const totalIssues = fixedIssues.length;
+    const resolvedIssues = fixedIssues.filter(function(issue) {
+      return issue.resolved === true;
+    }).length;
+    return totalIssues > 0 ? Math.round((resolvedIssues / totalIssues) * 100) : 100;
+};
 
-function ensureUniqueLandmarksFromString(source) {
+ensureUniqueLandmarksFromString = function(source) {
     // Update function logic to ensure unique landmarks from a string
-    return source;
-}
+    return source || '';
+};
 
-function spawnSomeCommand(callback) {
+spawnSomeCommand = function(callback) {
     // Update function logic to spawn some command
-    return callback(null, 'command spawned');
-}
+    if (typeof callback === 'function') {
+      callback(null, 'command executed');
+    }
+};
 
-function addLangAttribute(element, lang) {
+addLangAttribute = function(element, lang) {
     // Update function logic to add the lang attribute
-    if (element) {
+    if (element && lang) {
       element.setAttribute('lang', lang);
     }
-}
+};
 
   if (landmark.nodeName && landmark.nodeName.toLowerCase() === 'div' && !landmark.getAttribute('role')) {
     issues.push('Missing role attribute');
@@ -320,58 +444,23 @@ function countDependencies() {
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-  if (!credentialResponse.credential || !credentialResponse.clientDataJSON) {
-    return {
-      success: false,
-      error: 'Missing required credential fields'
-    };
-  }
+function createServer() {
+  const server = http.createServer(function(req, res) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', config: config }));
+  });
+  return server;
+}
 
-  try {
-    const clientData = JSON.parse(atob(credentialResponse.clientDataJSON.split('.')[0]));
-
-    if (clientData.challenge !== window.currentChallenge) {
-      return {
-        success: false,
-        error: 'Challenge verification failed'
-      };
-    }
-
-    window.storedCredential = credentialResponse;
-
-    return {
-      success: true,
-      credential: credentialResponse.credential,
-      clientData: clientData,
-      message: 'Credential successfully processed'
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'Failed to parse credential data',
-      details: error.message
-    };
-
-    // Handle different types of credential responses
-    if (response.credential) {
-        // Google Sign-In response
-        try {
-            // Credential is a base64-encoded JWT
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            processedCredential.id = payload.sub || processedCredential.id;
-            processedCredential.email = payload.email || processedCredential.email;
-            processedCredential.name = payload.name || processedCredential.name;
-        } catch (error) {
-            console.warn('Failed to parse credential response:', error);
-        }
-    }
-
-    // Announce success to screen readers
-    if (typeof announceToScreenReader === 'function') {
-        announceToScreenReader('User successfully authenticated');
-    }
-
-    return processedCredential;
+/**
+ * Starts the application
+ */
+function startApp() {
+  const server = createServer();
+  server.listen(config.port, function() {
+    console.log('Server running on port ' + config.port);
+  });
+  return server;
 }
 
 // Add the lang attribute to the HTML element with the getLangAttribute() function
@@ -541,7 +630,27 @@ module.exports = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  // Already exported above
+  module.exports = {
+    createServer,
+    startApp,
+    config,
+    validateLandmark,
+    getLangAttribute,
+    addSvgAccessibleName,
+    ensureElementHasId,
+    AddressabilityIssues,
+    addressAccessibilityIssues,
+    implementCountDependenciesInMain,
+    countDependencies,
+    processSvgElements,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    ensureUniqueLandmarksFromString,
+    spawnSomeCommand,
+    addLangAttribute,
+    trapFocus,
+    // ... (other exports omitted for brevity)
+  };
 } else {
   startApp();
 }

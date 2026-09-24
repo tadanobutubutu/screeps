@@ -16,10 +16,10 @@ export function newNecessaryFunction() {
   return "New function implemented";
 }
 
-// TODO: Implement wrapPrimaryContentInMain function, including the added logic
-function wrapPrimaryContentInMain(content) {
-  // Implementation details here
-  return `<main>${content}</main>`;
+// TODO: Implement this function for adding SVG accessibility props
+export function addSVGAccessibilityProps(svgElement) {
+  if (svgElement) {
+    svgElement.setAttribute('role', 'img');
+    svgElement.setAttribute('aria-label', 'Accessible description of the SVG image');
+  }
 }
-
-export { wrapPrimaryContentInMain };

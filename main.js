@@ -755,7 +755,12 @@ function handleFakeLinks() {
     // Implementation for handling fake links
 }
 
-module.exports = {
+export {
+  getLang,
+  setLang,
+  supportedLangs,
+  isValidLang,
+  getDefaultLang,
   addLangAttribute,
   addLandmarkRoles,
   ensureUniqueLandmarks,

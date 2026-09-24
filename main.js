@@ -162,35 +162,47 @@ function handleInitialAccessibility() {
 }
 
 /**
- * Ensure all interactive elements have proper ARIA roles and attributes.
- * This function is run on every key event to update accessibility information.
- * @param {Event} event - Keyboard event
+ * New focus trap function for keyboard navigation
+ * @param {HTMLElement} element - The element to trap focus within
  */
-function ensureInteractiveElementsAccessible(event) {
-  const key = event.key;
-  if (!key) return;
+function newFocusTrap(element) {
+  if (!element) return;
 
-  const nodes = document.querySelectorAll('[aria-hidden="true"], [id]');
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
 
-  nodes.forEach(node => {
-    if (node.hasAttribute('aria-hidden') && node.getAttribute('aria-hidden') === 'true') {
-      node.setAttribute('aria-hidden', false);
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
     }
   });
-
-  // Implement other logic here...
 }
 
-// IMPLEMENT EXISTING FUNCTIONS FROM THE CONFLICT MARKER SECTIONS
-
-// TODO: Address accessibility issues from insight report:
-//   - REACT_015: Add lang attribute to HTML element
-//   - REACT_027: Fix 26 table structure issues
-//   - REACT_017: Add/fix 4 landmark issues
-//   - REACT_041: Add accessible names to 2 SVGs
-//   - REACT_025: Ensure unique landmarks
-//   - REACT_036: Fix 1 fake link issue
-
->>>>>>> origin/main
-
-// ... Additional code here
+// Export all functions to make them available as module exports
+export {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  personName,
+  newFocusTrap
+};

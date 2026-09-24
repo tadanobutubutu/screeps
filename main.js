@@ -411,14 +411,23 @@ function getInsightReport() {
   return issues;
 }
 
-// New function added to address the TODO comment
-function handleAddBookFormSubmission(event, title, author) {
-  event.preventDefault();
-  if (title.trim() && author.trim()) {
-    addBook({ title: title.trim(), author: author.trim() });
-  } else {
-    console.error('Both title and author are required');
+/**
+ * Returns accessibility props for SVG elements
+ * @param {string} accessibleName - The accessible name for the SVG
+ * @param {string} [role='img'] - The ARIA role for the SVG
+ * @returns {Object} Object containing accessibility props
+ */
+function getSvgAccessibilityProps(accessibleName, role = 'img') {
+  const props = {
+    role: role,
+    'aria-hidden': !accessibleName
+  };
+
+  if (accessibleName) {
+    props['aria-label'] = accessibleName;
   }
+
+  return props;
 }
 
 export { someFunction };

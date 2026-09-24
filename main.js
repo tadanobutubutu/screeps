@@ -426,7 +426,7 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: 'Submit ' + options.title + ' form',
+      ariaLabel: `Submit ${options.title} form`,
       onClick: options.onSubmit
     })
   };
@@ -554,14 +554,14 @@ function addBook() {
 // Adding accessibility improvements to the addBook function or form
 // Ensuring that all interactive elements are keyboard accessible
 function makeAccessible(element) {
-    if (element && element.setAttribute) {
+    if (element && typeof element.setAttribute === 'function') {
         element.setAttribute('tabindex', '0');
     }
 }
 
 // Adding a11y-specific roles and aria-labels
 function addAriaSupport(element, label) {
-    if (element && element.setAttribute) {
+    if (element && typeof element.setAttribute === 'function') {
         element.setAttribute('role', 'button');
         element.setAttribute('aria-label', label);
     }
@@ -569,16 +569,17 @@ function addAriaSupport(element, label) {
 
 // Example usage of makeAccessible and addAriaSupport within the addBook function or form
 function enhanceAddBookAccessibility() {
-    if (typeof document === 'undefined') return;
-    const addBookButton = document.getElementById('addBookButton');
-    if (addBookButton) {
+    if (typeof document !== 'undefined' && document.getElementById) {
+        const addBookButton = document.getElementById('addBookButton');
         makeAccessible(addBookButton);
         addAriaSupport(addBookButton, 'Add a new book');
     }
 }
 
-// Ensure accessibility improvements are applied
-enhanceAddBookAccessibility();
+// Ensure accessibility improvements are applied (only in browser environment)
+if (typeof window !== 'undefined' || typeof document !== 'undefined') {
+    enhanceAddBookAccessibility();
+}
 
 // Line 393: Implement this function for checking link and button accessibility
 /**

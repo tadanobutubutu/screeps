@@ -539,6 +539,19 @@ function newFocusTrap() {
   // and managing the active element within a container.
 }
 
+// Add a language attribute to the HTML element
+function setHtmlLangAttribute() {
+  if (typeof document !== 'undefined') {
+    const htmlElement = document.documentElement;
+    if (htmlElement && !htmlElement.getAttribute('lang')) {
+      htmlElement.setAttribute('lang', getLangAttribute());
+    }
+  }
+}
+
+// Call the function to set the language attribute on the HTML element
+setHtmlLangAttribute();
+
 // Exports (if any) must be preserved
 // Export functions for testing
 module.exports = {
@@ -552,7 +565,10 @@ module.exports = {
   
   // Utility functions
   getLangAttribute,
-  personName
+  personName,
+  
+  // New function for setting HTML lang attribute
+  setHtmlLangAttribute
 };
 
 // Start the application if run directly

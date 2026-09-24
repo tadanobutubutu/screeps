@@ -276,10 +276,10 @@ const AddressabilityIssues = {
   });
 }
 
-// --- Implementation for TABLE_001: Validate the table structure for accessibility issues ---
-function checkTableStructure(table) {
-  if (!table || table.tagName !== 'TABLE') {
-    return { valid: false, issues: ['Not a valid table element'] };
+// Add calculateAccessibilityScore function for AddressabilityIssues
+AddressabilityIssues.calculateAccessibilityScore = function (fixedIssues) {
+  if (!Array.isArray(fixedIssues)) {
+    return 0;
   }
 
   const issues = [];
@@ -480,6 +480,24 @@ AddressabilityIssues.checkLinkAndButtonAccessibility = function () {
   });
 
   return issues;
+};
+
+// Updated setup for AddressabilityIssues
+AddressabilityIssues.spawnSomeCommand = function (callback) {
+  const child_process = require('child_process');
+
+  const spawnOptions = {
+    shell: true
+  };
+
+  child_process.spawn('someCommand', [], spawnOptions, (error, stdout, stderr) => {
+    if (error) {
+      callback(new Error(`someCommand failed: ${error.message}`));
+      return;
+    }
+
+    callback(null, `someCommand exited with status code: ${stdout}`);
+  });
 };
 
 // Ensure DOM is fully loaded before executing scripts

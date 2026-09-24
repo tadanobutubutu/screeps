@@ -44,10 +44,10 @@ function startApp() {
   return server;
 }
 
-// New function to address accessibility issues (assuming the changes are wrapped in a function)
-function addressAccessibilityIssues() {
-  // Implement the changes here
-  // Example: use aria-labels, aria-roles, and other accessibility attributes on your elements as needed
+// TODO: Implement this function for checking landmark elements
+function checkLandmarkElements() {
+  // Returns true if at least one element with class 'landmark' exists in the document
+  return !!document.querySelector('.landmark');
 }
 
 // Export functions for testing
@@ -55,7 +55,7 @@ module.exports = {
   createServer,
   startApp,
   config,
-  newFunction // Add the new function to exports for testing
+  checkLandmarkElements
 };
 
 // New function added as per the issue

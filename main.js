@@ -109,10 +109,6 @@ const validateTableAccessibility = (html) => {
   return issues;
 };
 
-// Re-add the required exports for functionA and functionB
-// Assuming that they are objects with properties X, Y, and Z
-const { functionA, functionB } = require('./functionModule');
-
 // App state for session management
 const appState = {
   sessions: new Map()
@@ -170,13 +166,14 @@ const a11yStore = {
   }
 };
 
-// Export all required functions
+// Re-add the required exports for functionA and functionB
+// Assuming that they are objects with properties X, Y, and Z
 module.exports = {
+  functionA,
+  functionB,
   validateTableAccessibility,
   getActiveSessionsCount,
   validateSession,
   handleCredentialResponse,
-  a11yStore,
-  functionA,
-  functionB
+  a11yStore
 };

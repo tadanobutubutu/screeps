@@ -171,111 +171,12 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  /**
-   * Wrap primary content in a main element with appropriate ARIA roles
-   * @param {Element} content - The content to wrap
-   * @returns {Element} The wrapped content
-   */
-  wrapPrimaryContentInMain(content) {
-    const mainElement = document.createElement('main');
-    mainElement.setAttribute('role', 'main');
-    mainElement.appendChild(content);
-    return mainElement;
+  // New function
+  ensureInteractiveElementsAccessible() {
+    a11yStore.ensureInteractiveRoles();
+    a11yStore.addFormControlLabels();
+    a11yStore.ensureImageAccessibility();
   }
 };
-
-// New functions
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
-}
-
-/**
- * Handle the credential response from an authentication provider
- * @param {Object} response - The credential response object
- * @param {string} response.credential - The JWT credential token
- * @param {string} [response.select_by] - How the credential was selected
- * @returns {Object} Result object with success status and user data or error
- */
-function handleCredentialResponse(response) {
-  // Validate response object exists
-  if (!response) {
-    return {
-      success: false,
-      error: 'No response provided'
-    };
-  }
-
-  const { credential, select_by: selectBy } = response;
-
-  // Check if credential exists
-  if (!credential) {
-    return {
-      success: false,
-      error: 'No credential provided in response'
-    };
-  }
-
-  // Decode and validate the JWT credential
-  let userInfo = {};
-  try {
-    const payload = credential.split('.')[1];
-    const decoded = payload.replace(/-/g, '+').replace(/_/g, '/');
-    userInfo = JSON.parse(atob(decoded));
-  } catch (error) {
-    return {
-      success: false,
-      error: 'Invalid credential format'
-    };
-  }
-
-  // Validate required user info fields
-  if (!userInfo.email && !userInfo.sub) {
-    return {
-      success: false,
-      error: 'Credential missing required user information'
-    };
-  }
-
-  // Return successful response with user data
-  return {
-    success: true,
-    user: {
-      id: userInfo.sub || null,
-      email: userInfo.email || null,
-      name: userInfo.name || null,
-      picture: userInfo.picture || null,
-      emailVerified: userInfo.email_verified || false
-    },
-    selectBy: selectBy || 'auto',
-    expirationTime: userInfo.exp ? new Date(userInfo.exp * 1000) : null,
-    issuedAt: userInfo.iat ? new Date(userInfo.iat * 1000) : null
-  };
-}
 
 // ... rest of the code ...
-
-module.exports = {
-  greetingFunction,
-  getWelcomeMessage,
-  handleCredentialResponse,
-  ensureInteractiveElementsAccessible,
-  a11yStore,
-  config,
-  // Math functions
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-};

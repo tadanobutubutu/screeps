@@ -23,13 +23,66 @@ const config = {
 };
 
 /**
- * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang - The language code (e. g., 'en', 'es', 'fr')
- * @returns {string} The lang attribute value that was set
+ * Sets the HTML lang attribute on the document's <html> element
+ * @param {string} lang - The language code to set
+ * @returns {boolean} True if successfully set
  */
-function addressAccessibilityIssuesFromInsight(insightReport, options) {
-    const autoFix = options && options.autoFix === true;
-    const verbose = options && options.verbose === true;
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Detects the language of the given content and sets the HTML lang attribute
+ * @param {string} [content] - The text content to analyze (optional)
+ * @returns {string} The detected language code
+ */
+function detectAndSetLang(content) {
+  // Simple language detection based on common patterns
+  let lang = 'en'; // Default to English
+
+  // If no content provided, fall back to browser/navigator language
+  if (!content) {
+    if (typeof navigator !== 'undefined') {
+      lang = navigator.language || navigator.userLanguage || 'en';
+      // Normalize to primary subtag (e.g. 'en-US' -> 'en')
+      lang = lang.split('-')[0] || 'en';
+    }
+  } else {
+    // Check for common non-ASCII characters to help detect language
+    const hasChineseChars = /[\u4e00-\u9fff]/.test(content);
+    if (hasChineseChars) {
+      lang = 'zh'; // Chinese
+    } else if (/[\u3040-\u30ff]/.test(content)) {
+      lang = 'ja'; // Japanese
+    } else if (/[\u0400-\u04ff]/.test(content)) {
+      lang = 'ru'; // Russian/Cyrillic
+    } else if (/[\u0600-\u06ff]/.test(content)) {
+      lang = 'ar'; // Arabic
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+      lang = 'fr'; // French
+    } else if (/[äöüß]/i.test(content)) {
+      lang = 'de'; // German
+    }
+  }
+
+  setHtmlLangAttribute(lang);
+  return lang;
+}
+
+/**
+ * Addresses accessibility issues from an insight report
+ * @param {Object|Array} insightReport - The insight report containing accessibility issues
+ * @param {Object} [options] - Options for handling the issues
+ * @param {boolean} autoFix - Whether to attempt automatic fixes
+ * @param {boolean} verbose - Whether to log detailed information
+ * @returns {Object} A report of addressed issues
+ */
+function addressAccessibilityIssues(insightReport, options = {}) {
+    const { autoFix = false, verbose = false } = options;
 
     const result = {
         totalIssues: 0,
@@ -821,8 +874,7 @@ module.exports = {
     renderDependencyGraph,
     getLangAttribute,
     getFullLangAttribute,
-    addressAccessibilityIssuesFromInsight,
-    createAccessibleButton,
+    addressAccessibilityIssues,
     sayHello,
     sayGoodbye,
     getDate,

@@ -316,6 +316,95 @@ function applyAccessibilityFixes(html) {
     let result = html;
     result = addLangAttribute(result);
     result = fixTableStructure(result);
-    result = fixLandmarks(result);
-    result = addSvgAccessibleNames(result);
     result = ensureUniqueLandmarks(result);
+    result = fixFakeLinks(result);
+    return result;
+}
+
+/**
+ * Addresses accessibility issues from an insight report and/or runs accessibility checks.
+ * This function handles both cases: processing an insight report with HTML content,
+ * and running standalone accessibility checks.
+ * @param {Object} [insightReport] - Optional insight report object with html property to fix
+ * @returns {Object} Object containing results from both insight report processing and accessibility checks
+ */
+function addressAccessibilityIssues(insightReport) {
+  // Run accessibility checks (from the second version)
+  const linkIssues = checkLinkAccessibility();
+  const tableIssues = validateTableAccessibility();
+  const tableStructureIssues = validateTableStructure();
+  const linkAccessibilityIssues = validateLinkAccessibility();
+  const fakeLinkIssues = handleFakeLinks();
+
+  // Log the issues
+  console.log('Link Accessibility Issues:', linkIssues);
+  console.log('Table Accessibility Issues:', tableIssues);
+  console.log('Table Structure Issues:', tableStructureIssues);
+  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
+  console.log('Fake Link Issues:', fakeLinkIssues);
+
+  // Apply accessibility fixes to HTML content based on insight report (from the first version)
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
+    console.log('Addressing accessibility issues from insight report:', insightReport);
+  }
+
+  // Return results for both operations
+  return {
+    linkIssues,
+    tableIssues,
+    tableStructureIssues,
+    linkAccessibilityIssues,
+    fakeLinkIssues,
+    insightReport
+  };
+}
+
+/**
+ * Creates an in-page button element with the specified ID, text, and class
+ * @param {string} buttonId - The ID to assign to the button
+ * @param {string} buttonText - The text content of the button
+ * @param {string} buttonClass - The CSS class to assign to the button
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    button.setAttribute('aria-label', buttonText); // Added for accessibility
+    button.setAttribute('role', 'button'); // Added for accessibility
+    document.body.appendChild(button);
+    return button;
+}
+
+// Export accessibility utility functions
+export {
+    getLangAttribute,
+    createInPageButton,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    checkLinkAccessibility,
+    divide,
+    spawnEntity,
+    wrapPrimaryContentInMain,
+    ensureUniqueLandmarks,
+    fixFakeLinks,
+    applyAccessibilityFixes,
+    addLangAttribute,
+    fixTableStructure,
+    addressAccessibilityIssues
+};
+
+// Main entry point function
+function main() {
+    // Run accessibility checks on page load
+    addressAccessibilityIssues();
+}
+
+// Run if executed directly
+if (typeof require !== 'undefined' && require.main === module) {
+    main();
+}

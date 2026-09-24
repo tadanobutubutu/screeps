@@ -320,9 +320,112 @@ const appData = {
 };
 
 /**
- * Handles keyboard navigation for interactive elements
- * @param {Event} event - The keyboard event
- * @param {HTMLElement} container - The container element
+ * Sets the language attribute on the HTML element for better accessibility.
+ * @param {string} lang - The language code to set (default: 'en')
+ */
+function setLanguageAttribute(lang = 'en') {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+/**
+ * Adds ARIA landmark roles to the main page elements.
+ */
+function addLandmarkRoles() {
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.getAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  const headerElement = document.querySelector('header');
+  if (headerElement && !headerElement.getAttribute('role')) {
+    headerElement.setAttribute('role', 'banner');
+  }
+
+  const footerElement = document.querySelector('footer');
+  if (footerElement && !footerElement.getAttribute('role')) {
+    footerElement.setAttribute('role', 'contentinfo');
+  }
+}
+
+/**
+ * Ensures all landmarks have unique roles and IDs.
+ * @param {Array} landmarks - Array of landmark objects
+ */
+function ensureUniqueLandmarks(landmarks) {
+  const usedRoles = new Set();
+  const usedIds = new Set();
+
+  landmarks.forEach(landmark => {
+    if (landmark.role && !usedRoles.has(landmark.role)) {
+      usedRoles.add(landmark.role);
+    } else if (landmark.role) {
+      console.warn(`Duplicate landmark role: ${landmark.role}`);
+    }
+
+    if (landmark.id && !usedIds.has(landmark.id)) {
+      usedIds.add(landmark.id);
+    } else if (landmark.id) {
+      console.warn(`Duplicate landmark ID: ${landmark.id}`);
+    }
+  });
+}
+
+/**
+ * Fixes fake links by adding proper ARIA attributes.
+ */
+function fixFakeLinks() {
+  const fakeLinks = document.querySelectorAll('[role="link"], [role="button"]');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('tabindex')) {
+      link.setAttribute('tabindex', '0');
+    }
+
+    if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
+      link.setAttribute('aria-label', 'Link');
+    }
+  });
+}
+
+/**
+ * Generates an accessibility report for the current page.
+ * @returns {Object} Accessibility report with issues and recommendations
+ */
+function generateAccessibilityReport() {
+  const report = {
+    issues: [],
+    recommendations: []
+  };
+
+  // Check for missing landmarks
+  const requiredLandmarks = ['main', 'banner', 'contentinfo'];
+  const existingLandmarks = document.querySelectorAll('[role]');
+
+  requiredLandmarks.forEach(role => {
+    const hasLandmark = Array.from(existingLandmarks).some(
+      el => el.getAttribute('role') === role
+    );
+
+    if (!hasLandmark) {
+      report.issues.push(`Missing required landmark: ${role}`);
+      report.recommendations.push(`Add a <div role="${role}"> element for better accessibility`);
+    }
+  });
+
+  // Check for proper language attribute
+  const htmlElement = document.querySelector('html');
+  if (!htmlElement || !htmlElement.getAttribute('lang')) {
+    report.issues.push('Missing language attribute on HTML element');
+    report.recommendations.push('Add lang attribute to the HTML element');
+  }
+
+  return report;
+}
+
+/**
+ * Initializes the application and applies accessibility fixes.
  */
 function handleKeyboardNavigation(event, container) {
   const focusableElements = container.querySelectorAll(
@@ -378,10 +481,16 @@ module.exports = {
   processLandmarks,
   sortLandmarks,
   getLandmarkById,
-  landmarkConfig: appConfig,
-  initialize,
-  initializeApp,
-  clearCache,
-  validateAriaAttributes,
-  getFocusableElements
+  landmarkConfig: CONFIG,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks
 };
+
+module.exports.main = main;
+
+expressApp.use('/', expressApp);
+const port = process.env.PORT || 3000;
+expressApp.listen(port, () => {
+  console.log(`Listening on port ${port}`);
+});

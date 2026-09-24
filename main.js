@@ -558,293 +558,173 @@ import { formatCurrency, formatDate, calculateDiscount, validateInput } from './
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
 import { state, updateState } from './state.js';
 
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLinkAccessibility())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton() and handleFakeLinks())
-
 // Accessibility function implementations
 function getFullLangAttribute() {
   return getLangAttribute();
 }
 
+// New function implementation for REACT_036: personName
 function personName() {
   // Fix for REACT_036: personName is part of the fake link fix
-  return 'Unknown';
+  return document.querySelector('[data-fake-link]')?.getAttribute('data-person-name') || 'Unknown';
 }
 
+// New function implementation for REACT_027: validateTableAccessibility
 function validateTableAccessibility(tableElement) {
-  return validateTableAccessibility(tableElement);
+  // Implement table accessibility validation logic
+  if (!tableElement.querySelector('thead')) {
+    console.error('Table is missing a <thead>');
+  }
+  if (!tableElement.querySelector('tbody')) {
+    console.error('Table is missing a <tbody>');
+  }
+  if (tableElement.getAttribute('role') !== 'grid') {
+    console.error('Table role is not set to "grid"');
+  }
+  // Additional validation logic
 }
 
+// New function implementation for REACT_027: validateTableStructure
 function validateTableStructure(tableElement) {
-  return validateTableStructure(tableElement);
+  // Implement table structure validation logic
+  const headers = tableElement.querySelectorAll('th');
+  const rows = tableElement.querySelectorAll('tr');
+  
+  if (headers.length === 0) {
+    console.error('Table has no headers');
+  }
+  
+  if (rows.length < 2) {
+    console.error('Table must have at least one data row');
+  }
 }
 
+// New function implementation for REACT_017: validateLandmark
 function validateLandmark() {
-  return validateLandmark();
-}
-
-function validateLandmarkStructure() {
-  return validateLandmarkStructure();
-}
-
-function getSvgAccessible() {
-  return getSvgAccessibleName();
-}
-
-// Placeholder variables for content
-let dependencyGraphContent;
-let indexContent;
-let personName;
-
-// New function to count dependencies
-function countDependencies() {
-  // Placeholder implementation: count dependencies in the project
-  // This could involve scanning package.json, node_modules, or internal references
-  // For now, return a default value.
-  return 0;
-}
-
-// Implement this function for ensuring unique landmarks (merged from both branches)
-function ensureUniqueLandmarksFunc() {
-  // Landmarks that should be unique on a page
-  const primaryLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
-  
-  primaryLandmarkSelectors.forEach(selector => {
-    const elements = document.querySelectorAll(selector);
-    if (elements.length > 1) {
-      elements.forEach((element, index) => {
-        // Add or update aria-label to make each landmark unique
-        const existingLabel = element.getAttribute('aria-label');
-        const elementTag = element.tagName.toLowerCase();
-        const role = element.getAttribute('role') || elementTag;
-        
-        if (!existingLabel) {
-          // Add index-based label for distinction
-          element.setAttribute('aria-label', `${role} ${index + 1}`);
-        }
-      });
-    }
-  });
-  
-  // Ensure region and navigation landmarks have accessible names when multiple exist
-  const sectionLandmarkSelectors = ['nav', '[role="region"]', 'aside'];
-  
-  sectionLandmarkSelectors.forEach(selector => {
-    const elements = document.querySelectorAll(selector);
-    if (elements.length > 1) {
-      elements.forEach((element, index) => {
-        const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
-        const role = element.getAttribute('role') || element.tagName.toLowerCase();
-        
-        if (!hasLabel) {
-          element.setAttribute('aria-label', `${role} ${index + 1}`);
-        }
-      });
-    }
-  });
-
-  // Also ensure unique IDs and only one main landmark (from origin/main)
-  const landmarks = document.querySelectorAll('nav, main, aside, footer');
-  const seenIds = new Set();
-  const seenRoles = new Map();
-
+  // Implement landmark validation logic
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
   landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    
-    // Ensure unique IDs
-    if (!landmark.id) {
-      let id = role;
-      let counter = 1;
-      while (seenIds.has(id)) {
-        id = `${role}-${counter++}`;
+    const tag = landmark.tagName.toLowerCase();
+    if (!landmark.getAttribute('role')) {
+      switch (tag) {
+        case 'header':
+          landmark.setAttribute('role', 'banner');
+          break;
+        case 'nav':
+          landmark.setAttribute('role', 'navigation');
+          break;
+        case 'main':
+          landmark.setAttribute('role', 'main');
+          break;
+        case 'aside':
+          landmark.setAttribute('role', 'complementary');
+          break;
+        case 'footer':
+          landmark.setAttribute('role', 'contentinfo');
+          break;
       }
-      landmark.id = id;
-      seenIds.add(id);
-    } else {
-      seenIds.add(landmark.id);
     }
-
-    // Track roles for uniqueness
-    if (!seenRoles.has(role)) {
-      seenRoles.set(role, []);
-    }
-    seenRoles.get(role).push(landmark);
   });
+}
 
-  // Ensure only one main landmark
-  const mainLandmarks = document.querySelectorAll('main, [role="main"]');
-  if (mainLandmarks.length > 1) {
-    for (let i = 1; i < mainLandmarks.length; i++) {
-      mainLandmarks[i].setAttribute('aria-hidden', 'true');
+// New function implementation for REACT_017: validateLandmarkStructure
+function validateLandmarkStructure() {
+  // Implement landmark structure validation logic
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Multiple main landmarks found, should be only one');
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].setAttribute('aria-hidden', 'true');
     }
   }
 }
 
-// New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  // 1. REACT_015: Ensure lang attribute is set on the HTML element
-  const lang = getLangAttribute();
-  const htmlElement = getDocument().documentElement;
-  if (htmlElement && lang) {
-    htmlElement.setAttribute('lang', lang);
-  }
-
-  // 2. REACT_027: Validate table accessibility and structure
-  const tables = getDocument().querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-
-  // 3. REACT_017: Validate landmark and landmark structure issues
-  validateLandmark();
-  validateLandmarkStructure();
-
-  // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
-  ensureUniqueLandmarksFunc();
-  ensureUniqueLandmarks();
-  handleFakeLinks();
-
-  // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
-  });
-
-  // 6. REACT_036: Fix fake link issue (personName is part of the fix)
-  personName();
-  handleFakeLinks();
-  if (typeof handleAccessibilityIssues === 'function') {
-    handleAccessibilityIssues();
-  }
-}
-
-// Helper function to ensure unique landmarks (from origin/main, integrated above)
-// ensureUniqueLandmarks is already defined above
-
-// Implement wrapPrimaryContentInMain function (merged from both branches)
-function wrapPrimaryContentInMain(primaryContent) {
-  // Wrap primary content in a <main> element for accessibility
-  const mainElement = document.createElement('main');
-  mainElement.id = 'main-content';
-  mainElement.setAttribute('role', 'main');
+// New function implementation for REACT_041: getSvgAccessibleName
+function getSvgAccessibleName(svgElement) {
+  // Implement function to get accessible name for SVG
+  const title = svgElement.querySelector('title');
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   
-  if (typeof primaryContent === 'string') {
-    mainElement.innerHTML = primaryContent;
-  } else if (primaryContent instanceof HTMLElement) {
-    mainElement.appendChild(primaryContent);
+  if (title) {
+    return title.textContent;
   }
   
-  return mainElement;
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  if (ariaLabelledby) {
+    const labelledElement = document.getElementById(ariaLabelledby);
+    if (labelledElement) {
+      return labelledElement.textContent;
+    }
+  }
+  
+  return null;
 }
 
-// DOM-based accessibility code for controls
-function addAccessibilityControls() {
-  // Add necessary code to address any remaining control accessibility issues
-  const controls = document.querySelectorAll('button, a, input, select, textarea');
-  controls.forEach(control => {
-    if (!control.getAttribute('tabindex') && !control.hasAttribute('disabled')) {
-      control.setAttribute('tabindex', '0');
+// New function implementation for REACT_041: setSvgAttributes
+function setSvgAttributes(svgElement, accessibleName) {
+  // Implement function to set accessibility attributes on SVG
+  if (accessibleName) {
+    if (!svgElement.getAttribute('aria-label')) {
+      svgElement.setAttribute('aria-label', accessibleName);
+    }
+    if (!svgElement.hasAttribute('role')) {
+      svgElement.setAttribute('role', 'img');
+    }
+  }
+}
+
+// New function implementation for REACT_031: Add 'aria-hidden' to decorative SVGs
+function addAriaHiddenToDecorativeSVGs() {
+  const decorativeSVGs = document.querySelectorAll('svg');
+  decorativeSVGs.forEach((svg) => {
+    if (!svg.getAttribute('aria-hidden')) {
+      svg.setAttribute('aria-hidden', 'true');
     }
   });
 }
 
-// Renders the dependency graph view.
-// Updated to use dependencyGraphContent.
-export function renderDependencyGraph() {
-  const container = document.getElementById('dependencyGraph');
-  if (container && dependencyGraphContent) {
-    container.innerHTML = dependencyGraphContent;
-    // Apply accessibility fixes to new content
-    fixAccessibilityIssues();
-  }
-}
-
-// Renders the index view.
-// Updated to use indexContent.
-export function renderIndex() {
-  const container = document.getElementById('indexView');
-  if (container && indexContent) {
-    container.innerHTML = indexContent;
-    // Apply accessibility fixes to new content
-    fixAccessibilityIssues();
-  }
-}
-
-/**
- * Spawns a new process or subprocess.
- * @param {string} command - The command to execute
- * @param {string[]} args - Arguments to pass to the command
- * @param {object} options - Spawn options
- * @returns {ChildProcess} - The spawned child process
- */
-export function spawnProcess(command, args = [], options = {}) {
-  const { spawn } = require('child_process');
-  const defaultOptions = {
-    stdio: 'inherit',
-    shell: true
-  };
-  return spawn(command, args, { ...defaultOptions, ...options });
-}
-
-/**
- * Spawns a worker or subprocess for the dependency graph.
- * @param {object} options - Configuration options for the spawn
- * @returns {Promise<ChildProcess>} - Promise resolving to the spawned process
- */
-export function spawnDependencyGraphWorker(options = {}) {
-  return new Promise((resolve, reject) => {
-    const worker = spawnProcess('node', [], {
-      ...options,
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc']
-    });
-
-    worker.on('error', (error) => {
-      console.error('Error spawning dependency graph worker:', error);
-      reject(error);
-    });
-
-    worker.on('spawn', () => {
-      console.log('Dependency graph worker spawned successfully');
-      resolve(worker);
-    });
+// Additional accessibility functions
+function addAriaToFormControls() {
+  const controls = document.querySelectorAll('button, input, select, textarea');
+  controls.forEach((control) => {
+    if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
+      const label = control.name || control.id || control.placeholder || 'Form control';
+      control.setAttribute('aria-label', label);
+    }
   });
 }
 
-/**
- * Spawns a worker or subprocess for the index.
- * @param {object} options - Configuration options for the spawn
- * @returns {Promise<ChildProcess>} - Promise resolving to the spawned process
- */
-export function spawnIndexWorker(options = {}) {
-  return new Promise((resolve, reject) => {
-    const worker = spawnProcess('node', [], {
-      ...options,
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc']
-    });
-
-    worker.on('error', (error) => {
-      console.error('Error spawning index worker:', error);
-      reject(error);
-    });
-
-    worker.on('spawn', () => {
-      console.log('Index worker spawned successfully');
-      resolve(worker);
-    });
+function addAriaLabelToFormInputs() {
+  const inputs = document.querySelectorAll('input:not([type="hidden"]):not([aria-label]):not([aria-labelledby])');
+  inputs.forEach((input) => {
+    const label = input.name || input.id || input.placeholder || 'Input field';
+    input.setAttribute('aria-label', label);
   });
 }
 
-// Export makeHeaderFocusable function (from origin/main)
-export { makeHeaderFocusable };
+function addAriaLabelledbyToHeadings() {
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headings.forEach((heading, index) => {
+    if (!heading.id) {
+      heading.id = `heading-${index}`;
+    }
+    const previousElement = heading.previousElementSibling;
+    if (previousElement && !previousElement.getAttribute('aria-labelledby')) {
+      previousElement.setAttribute('aria-labelledby', heading.id);
+    }
+  });
+}
 
-function makeHeaderFocusable() {
-  const header = document.querySelector('header');
-  if (header) {
-    header.setAttribute('tabindex',
+function addFixLandmarkIssues() {
+  // Fix landmark issues by ensuring proper ARIA roles
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
+  landmarks.forEach((landmark) => {
+    const tag = landmark.tagName.toLowerCase();
+    if (tag === 'header' && !landmark.getAttribute('role')) {
+      landmark.setAttribute('role', 'banner');
+    }
+    if (tag === 'nav' && !landmark.getAttribute('aria-label')) {

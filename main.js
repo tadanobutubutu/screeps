@@ -659,6 +659,18 @@ function createInPageButtons() {
     return '';
 }
 
+// New function to validate landmark structure for accessibility issues
+function validateLandmarkStructure() {
+    const landmarks = ['main', 'nav', 'aside', 'header', 'footer', 'article', 'section'];
+    landmarks.forEach(landmark => {
+        const element = document.querySelector(`[role="${landmark}"]`);
+        if (element) {
+            // Perform validation checks on the element
+            // ... (Add the logic to validate landmark structure)
+        }
+    });
+}
+
 // Export all required functions and utilities
 module.exports = {
     renderDependencyGraph,
@@ -670,5 +682,6 @@ module.exports = {
     initSkipLink: accessibilityUtils.initSkipLink,
     announceToScreenReader: accessibilityUtils.announceToScreenReader,
     handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
-    createInPageButtons // Added the export 'createInPageButtons'
+    createInPageButtons,
+    validateLandmarkStructure
 };

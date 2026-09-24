@@ -12,6 +12,95 @@ const { createInPageButton, createWebResourceButton, validateLandmark, validateL
 // Assuming that they are objects with properties X, Y, and Z
 const { functionA, functionB } = require('./functionModule');
 
+// Function to validate table accessibility
+const validateTableAccessibility = (html) => {
+  const issues = [];
+  
+  // Check if HTML contains tables
+  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
+  let match;
+  
+  while ((match = tableRegex.exec(html)) !== null) {
+    const tableContent = match[0];
+    const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
+    
+    // Check for caption
+    const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
+    if (!hasCaption) {
+      issues.push({
+        type: 'table',
+        severity: 'warning',
+        message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
+        suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
+      });
+    }
+    
+    // Check for th elements
+    const hasHeaders = /<th[^>]*>/i.test(tableContent);
+    if (!hasHeaders) {
+      issues.push({
+        type: 'table',
+        severity: 'warning',
+        message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
+        suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
+      });
+    }
+    
+    // Check for scope attributes on th elements
+    const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
+    thMatches.forEach((thTag, index) => {
+      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
+        issues.push({
+          type: 'table',
+          severity: 'info',
+          message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
+          suggestion: 'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements'
+        });
+      }
+    });
+    
+    // Check for thead and tbody structure
+    const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
+    const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
+    
+    if (!hasThead) {
+      issues.push({
+        type: 'table',
+        severity: 'info',
+        message: `Table ${tableNumber} is missing <thead> element`,
+        suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
+      });
+    }
+    
+    if (!hasTbody) {
+      issues.push({
+        type: 'table',
+        severity: 'info',
+        message: `Table ${tableNumber} is missing <tbody> element`,
+        suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
+      });
+    }
+    
+    // Check for id and headers attributes for complex tables
+    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
+    if (hasMultipleHeaders) {
+      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
+      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
+      
+      if (!hasIdAttr && !hasHeadersAttr) {
+        issues.push({
+          type: 'table',
+          severity: 'warning',
+          message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
+          suggestion: 'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids'
+        });
+      }
+    }
+  }
+  
+  return issues;
+};
+
 // Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
 const { functionA, functionB } = require('./functionModule');
@@ -30,102 +119,9 @@ function validateSession(sessionId) {
   return appState.sessions.get(sessionId) || null;
 }
 
-function handleCredentialResponse(credentialResponse) {
-  // Process credential response - basic implementation
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
-  }
-  return { status: 'success', credential: credentialResponse };
-}
-
-// Function to validate table accessibility
-const validateTableAccessibility = (html) => {
-  const issues = [];
-
-  // Check if HTML contains tables
-  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
-  let match;
-
-  while ((match = tableRegex.exec(html)) !== null) {
-    const tableContent = match[0];
-    const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
-
-    // Check for caption
-    const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
-    if (!hasCaption) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
-        suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
-      });
-    }
-
-    // Check for th elements
-    const hasHeaders = /<th[^>]*>/i.test(tableContent);
-    if (!hasHeaders) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
-        suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
-      });
-    }
-
-    // Check for scope attributes on th elements
-    const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
-    thMatches.forEach((thTag, index) => {
-      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
-        issues.push({
-          type: 'table',
-          severity: 'info',
-          message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
-          suggestion: 'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements'
-        });
-      }
-    });
-
-    // Check for thead and tbody structure
-    const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
-    const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
-
-    if (!hasThead) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <thead> element`,
-        suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
-      });
-    }
-
-    if (!hasTbody) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <tbody> element`,
-        suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
-      });
-    }
-
-    // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
-    if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
-      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
-
-      if (!hasIdAttr && !hasHeadersAttr) {
-        issues.push({
-          type: 'table',
-          severity: 'warning',
-          message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
-          suggestion: 'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids'
-        });
-      }
-    }
-  }
-
-  return issues;
-};
+// const a11yStore = {
+//   // ... existing methods ...
+// };
 
 const a11yStore = {
   prefersReducedMotion() {
@@ -153,9 +149,70 @@ const a11yStore = {
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `Navigation: ${element}`);
+            landmark.setAttribute('aria-label', `${element}-${index}`);
           }
         }
       });
     });
+  },
+
+  // Function to generate a report based on accessibility issues
+  generateAccessibilityReport(issues) {
+    const report = {
+      timestamp: new Date().toISOString(),
+      totalIssues: issues.length,
+      severityCounts: {
+        error: 0,
+        warning: 0,
+        info: 0
+      },
+      issuesByType: {},
+      issues: []
+    };
+
+    // Process each issue
+    issues.forEach(issue => {
+      // Count by severity
+      if (report.severityCounts[issue.severity] >= 0) {
+        report.severityCounts[issue.severity]++;
+      }
+
+      // Group by type
+      if (!report.issuesByType[issue.type]) {
+        report.issuesByType[issue.type] = [];
+      }
+      report.issuesByType[issue.type].push({
+        severity: issue.severity,
+        message: issue.message,
+        suggestion: issue.suggestion
+      });
+
+      // Add to flat issues list
+      report.issues.push(issue);
+    });
+
+    return report;
+  },
+
+  // Function to format the accessibility report for display
+  formatAccessibilityReport(report) {
+    const lines = [];
+    lines.push(`Accessibility Report - Generated: ${report.timestamp}`);
+    lines.push(`Total Issues: ${report.totalIssues}`);
+    lines.push(`Severity Breakdown: Error(${report.severityCounts.error}), Warning(${report.severityCounts.warning}), Info(${report.severityCounts.info})`);
+    lines.push('');
+
+    Object.keys(report.issuesByType).forEach(type => {
+      lines.push(`${type.toUpperCase()} ISSUES (${report.issuesByType[type].length}):`);
+      report.issuesByType[type].forEach((issue, index) => {
+        lines.push(`  ${index + 1}. [${issue.severity.toUpperCase()}] ${issue.message}`);
+        if (issue.suggestion) {
+          lines.push(`     Suggested Fix: ${issue.suggestion}`);
+        }
+      });
+      lines.push('');
+    });
+
+    return lines.join('\n');
   }
+};

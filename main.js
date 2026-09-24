@@ -1,30 +1,102 @@
-const main = require('./utilities')
+// main.js - Accessibility-focused implementation
 
-// Import necessary dependencies
-const React = require('react');
-const { render } = require('react-dom');
-const { DOMParser } = require('@xmldom/xmldom');
-const express = require('express');
-const { axe } = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
-const { a11y } = require('@accessible/react');
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
 
-// TODO: This is the existing code that needs to be preserved
-// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
+/**
+ * Renders a dependency graph as an accessible SVG visualization
+ * @param {Object} dependencies - Object containing dependency information
+ * @returns {string} SVG string representing the dependency graph
+ */
+function renderDependencyGraph(dependencies) {
+  const { dependencies: deps = {}, devDependencies: devDeps = {} } = dependencies;
+  
+  const allPackages = [...Object.keys(deps), ...Object.keys(devDeps)];
+  const nodeCount = allPackages.length;
+  const centerX = 400;
+  const centerY = 300;
+  const radius = Math.min(250, 50 + nodeCount * 15);
+  
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Dependency graph visualization showing ${nodeCount} packages">`;
+  svg += `<title>Dependency Graph</title>`;
+  svg += `<desc>A visual representation of project dependencies (${Object.keys(deps).length} dependencies) and dev dependencies (${Object.keys(devDeps).length} dev dependencies)</desc>`;
+  
+  // Draw center node
+  svg += `<circle cx="${centerX}" cy="${centerY}" r="30" fill="#4a90d9" aria-label="Current project"></circle>`;
+  svg += `<text x="${centerX}" y="${centerY + 5}" text-anchor="middle" fill="white" font-size="12">app</text>`;
+  
+  // Draw dependency nodes
+  const depKeys = Object.keys(deps);
+  depKeys.forEach((dep, i) => {
+    const angle = (2 * Math.PI * i) / depKeys.length - Math.PI / 2;
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+    
+    svg += `<line x1="${centerX}" y1="${centerY}" x2="${x}" y2="${y}" stroke="#888" stroke-width="2" aria-hidden="true"></line>`;
+    svg += `<circle cx="${x}" cy="${y}" r="20" fill="#27ae60" aria-label="Dependency: ${dep}"></circle>`;
+    svg += `<text x="${x}" y="${y + 4}" text-anchor="middle" fill="white" font-size="10">${dep.substring(0, 8)}</text>`;
+  });
+  
+  // Draw dev dependency nodes (inner ring)
+  const devDepKeys = Object.keys(devDeps);
+  const innerRadius = radius * 0.6;
+  devDepKeys.forEach((dep, i) => {
+    const angle = (2 * Math.PI * i) / devDepKeys.length + Math.PI / 4;
+    const x = centerX + innerRadius * Math.cos(angle);
+    const y = centerY + innerRadius * Math.sin(angle);
+    
+    svg += `<circle cx="${x}" cy="${y}" r="15" fill="#e67e22" aria-label="Dev dependency: ${dep}"></circle>`;
+    svg += `<text x="${x}" y="${y + 4}" text-anchor="middle" fill="white" font-size="8">${dep.substring(0, 6)}</text>`;
+  });
+  
+  svg += `</svg>`;
+  return svg;
+}
+
+/**
+ * Renders a dependency graph as HTML with accessibility features
+ * @param {Object} dependencies - Object containing dependency information
+ * @returns {string} HTML string representing the dependency graph
+ */
+function renderDependencyGraphHTML(dependencies) {
+  const { dependencies: deps = {}, devDependencies: devDeps = {} } = dependencies;
+  
+  let html = `<div class="dependency-graph" role="img" aria-label="Dependency graph showing ${Object.keys(deps).length} dependencies and ${Object.keys(devDeps).length} dev dependencies">`;
+  html += `<h2 class="sr-only">Dependency Graph</h2>`;
+  html += `<div class="dependency-list">`;
+  
+  html += `<section aria-labelledby="deps-heading">`;
+  html += `<h3 id="deps-heading">Dependencies (${Object.keys(deps).length})</h3>`;
+  html += `<ul role="list">`;
+  
+  Object.entries(deps).forEach(([name, version]) => {
+    html += `<li aria-label="${name} version ${version}"><code>${name}</code>: ${version}</li>`;
+  });
+  
+  html += `</ul></section>`;
+  
+  html += `<section aria-labelledby="dev-deps-heading">`;
+  html += `<h3 id="dev-deps-heading">Dev Dependencies (${Object.keys(devDeps).length})</h3>`;
+  html += `<ul role="list">`;
+  
+  Object.entries(devDeps).forEach(([name, version]) => {
+    html += `<li aria-label="${name} version ${version}"><code>${name}</code>: ${version}</li>`;
+  });
+  
+  html += `</ul></section></div></div>`;
+  return html;
+}
 
 /**
  * Main application entry point with accessibility features
  */
-function mainApplication() {
-  const accessibleName = '';
+function initializeApp() {
+  const accessibleName = 'Dependency Visualizer';
   if (accessibleName) {
-    // Use accessibleName for screen readers
-    console.log('Accessible name found:', accessibleName);
+    document.title = accessibleName;
   }
-
-  setSvgAttributes([]);
+  
+  const svgElements = document.querySelectorAll('svg');
+  setSvgAttributes(svgElements);
 }
 
 function checkLandmarkElements() {
@@ -63,13 +135,13 @@ function setSvgAttributes(svgElements) {
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 
-      if (element.getAttribute('role') && element.getAttribute('role') !== landmarkRole) {
+      if (element.getAttribute('role') !== landmarkRole) {
         console.warn(`Invalid landmark role: ${landmarkRole} for ${tagName}`);
       }
     });
   };
 
-  const implicitRole = {
+  checkLandmarkElement('main', 'main', {
     'main': 'main',
     'header': 'banner',
     'nav': 'navigation',
@@ -79,7 +151,6 @@ const { indexContent } = require('./indexContent');
     'section': 'region'
   };
 
-  checkLandmarkElement('#main', 'main', implicitRole);
   checkLandmarkElement('header', 'banner');
   checkLandmarkElement('nav', 'navigation');
   checkLandmarkElement('footer', 'contentinfo');
@@ -88,7 +159,7 @@ const { indexContent } = require('./indexContent');
 }
 
 // Export the new function and sampleInsightReport (both versions agreed to do this)
-export { checkLandmarkElements, sampleInsightReport, main, ensureElementHasId, addAriaLabel, renderDependencyGraph };
+export { checkLandmarkElements, sampleInsightReport, renderDependencyGraph, renderDependencyGraphHTML };
 
 const sampleInsightReport = {
   title: 'Quarterly Performance Report',
@@ -106,29 +177,31 @@ const sampleInsightReport = {
 
 function countDependencies() {
   const fs = require('fs');
-  const path = require('path');
-  const packageJsonPath = path.join(__dirname, 'package.json');
+  const packageJsonPath = process.cwd() + '/package.json';
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
 const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
 
   return {
-    dependencies: Object.keys(dependencies),
-    devDependencies: Object.keys(devDependencies),
+    dependencies: dependencies,
+    devDependencies: devDependencies,
     total: Object.keys(dependencies).length + Object.keys(devDependencies).length
   };
 }
 
-// TODO: This is the existing code that needs to be preserved
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b07b809ac49f5e1c81cf4f389f9c1 -->
-
-_Commit: a3f92c359994cfd246f6aae386a45df0c467ab97_
-
-<!-- todo-hash: 8b65ec389a751443ab223238b02dd9ed1c16fb82 -->
+/**
+ * Helper function to set SVG accessibility attributes
+ * @param {NodeList} svgElements - Collection of SVG elements
+ */
+function setSvgAttributes(svgElements) {
+  svgElements.forEach((svg) => {
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+      svg.setAttribute('aria-label', 'Visual diagram');
+    }
+  });
+}
 
 // Rest of the code remains the same

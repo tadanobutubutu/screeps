@@ -55,82 +55,65 @@ function renderDependencyGraph(dependencies) {
  * @param {string} elementId - The id of the element to check
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html><head><title>Dependency Index</title></head><body>';
-    html += '<h1>Dependency Index</h1>';
+    let html = '<!DOCTYPE html><html lang="en"><head><title>Dependencies</title></head><body>';
+    html += '<header role="banner"><h1>Dependency Index</h1></header>';
+    html += '<main role="main">';
     html += '<ul>';
     
     for (const pkg of packages) {
         html += `<li>${pkg.name} - ${pkg.version || 'N/A'}</li>\n`;
     }
     
-    html += '</ul>\n';
-    html += '</main>\n';
-    html += '</body>\n';
-    html += '</html>';
+    html += '</ul>';
+    html += '</main>';
+    html += '<footer role="contentinfo"></footer>';
+    html += '</body></html>';
     return html;
 }
 
 /**
- * Checks tables for accessibility issues
- * @param {string} htmlContent - The HTML content containing tables
- * @returns {Object} - Object containing accessibility issues found
+ * Adds proper landmark regions to HTML content for accessibility
+ * @param {string} htmlContent - The HTML content to add landmarks to
+ * @returns {string} - HTML with proper landmark regions
  */
-function checkTableAccessibility(htmlContent) {
-    const issues = [];
-    const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
-    let tableMatch;
-    let tableIndex = 0;
+function addProperLandmarkRegions(htmlContent) {
+    let result = htmlContent;
     
-    while ((tableMatch = tableRegex.exec(htmlContent)) !== null) {
-        const tableContent = tableMatch[0];
-        const tableNumber = tableIndex + 1;
-        
-        // Check for caption
-        if (!/<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent)) {
-            issues.push({
-                table: tableNumber,
-                issue: 'REACT_027',
-                message: `Table ${tableNumber} is missing a <caption> element for accessibility`
-            });
-        }
-        
-        // Check for th elements with scope attribute
-        const thRegex = /<th[^>]*>([\s\S]*?)<\/th>/gi;
-        let thMatch;
-        while ((thMatch = thRegex.exec(tableContent)) !== null) {
-            const thContent = thMatch[0];
-            if (!/scope\s*=\s*["'][a-z]+["']/i.test(thContent)) {
-                issues.push({
-                    table: tableNumber,
-                    issue: 'REACT_027',
-                    message: `Table ${tableNumber} has a <th> element without a scope attribute`
-                });
-            }
-        }
-        
-        // Check for headers attribute in td elements
-        const tdRegex = /<td[^>]*headers\s*=/gi;
-        if (tdRegex.test(tableContent)) {
-            // headers attribute found - this is valid
-        } else {
-            // Check if table has proper header structure
-            if (!/<th[^>]*>/i.test(tableContent)) {
-                issues.push({
-                    table: tableNumber,
-                    issue: 'REACT_027',
-                    message: `Table ${tableNumber} should have proper header cells (<th>) for accessibility`
-                });
-            }
-        }
-        
-        tableIndex++;
+    // Add lang attribute to html element if missing
+    if (!result.includes('lang=')) {
+        result = result.replace('<html>', '<html lang="en">');
     }
     
-    return {
-        totalTables: tableIndex,
-        issues: issues,
-        passed: issues.length === 0
-    };
+    // Add header landmark if not present
+    if (!result.includes('role="banner"') && !result.includes('<header')) {
+        const bodyMatch = result.match(/<body>(.*)$/s);
+        if (bodyMatch) {
+            result = result.replace(
+                '<body>',
+                '<body><header role="banner"></header>'
+            );
+        }
+    }
+    
+    // Add main landmark wrapper if content exists but no main landmark
+    if (!result.includes('role="main"') && !result.includes('<main')) {
+        // Wrap list content in main landmark
+        result = result.replace(
+            '<ul>',
+            '<main role="main"><ul>'
+        );
+        result = result.replace(
+            '</ul></body>',
+            '</ul></main><footer role="contentinfo"></footer></body>'
+        );
+    }
+    
+    // Add footer landmark if not present
+    if (!result.includes('role="contentinfo"') && !result.includes('<footer')) {
+        result = result.replace('</body>', '<footer role="contentinfo"></footer></body>');
+    }
+    
+    return result;
 }
 
 /**
@@ -155,6 +138,6 @@ module.exports = {
     fixFakeLinkIssue,
     renderDependencyGraph,
     renderIndexView,
-    checkTableAccessibility,
+    addProperLandmarkRegions,
     main
 };

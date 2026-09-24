@@ -140,14 +140,16 @@ const config = {
   env: process.env.NODE_ENV || 'development'
 };
 
-// Standalone function to address accessibility issues from insight report
-function addressAccessibilityIssues(report) {
-  if (!report) return;
-
-  // Process accessibility report
-  const issues = report.issues || [];
-  issues.forEach(issue => {
-    console.log(`Accessibility issue: ${issue.code} - ${issue.message}`);
+/**
+ * Creates and starts the HTTP server
+ * @returns {http.Server} The created server instance
+ */
+function createServer() {
+  const server = http.createServer((req, res) => {
+    // TODO: Ensure proper headers for accessibility
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(200);
+    res.end(JSON.stringify({ status: 'ok', config }));
   });
 
   return {

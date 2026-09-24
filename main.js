@@ -735,9 +735,4 @@ function generateAndDisplayReport() {
     return report;
 }
 
-// Export the report generation functions
-export {
-    generateAccessibilityReport,
-    renderAccessibilityReportHtml,
-    generateAndDisplayReport
-};
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.

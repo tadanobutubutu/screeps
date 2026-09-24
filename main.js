@@ -291,16 +291,16 @@ const AddressabilityIssues = {
         svg.setAttribute('role', 'img');
       }
 
-      const accessibleName = AddressabilityIssues.getSvgAccessibleName(svg);
+      const accessibleName = this.getSvgAccessibleName(svg);
       if (accessibleName) {
         svg.setAttribute('aria-label', accessibleName);
       }
 
-      AddressabilityIssues.setSvgAttributes(svg);
+      this.setSvgAttributes(svg);
     });
 
     return {
-      issues: AddressabilityIssues.detectAccessibilityIssues(svgElements),
+      issues: this.detectAccessibilityIssues(svgElements),
       count: svgElements.length
     };
   },
@@ -361,4 +361,79 @@ const AddressabilityIssues = {
 
       return {
         success: true,
-        message: 'Credential response handled successfully
+        message: 'Credential response handled successfully',
+        data: credentialData
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to process credential response: ' + error.message
+      };
+    }
+  },
+
+  getStoredCredentials() {
+    const stored = sessionStorage.getItem('credentials');
+    if (!stored) return null;
+
+    try {
+      const credentials = JSON.parse(stored);
+      if (credentials.expiresAt && Date.now() > credentials.expiresAt) {
+        sessionStorage.removeItem('credentials');
+        return null;
+      }
+      return credentials;
+    } catch (error) {
+      return null;
+    }
+  },
+
+  clearCredentials() {
+    sessionStorage.removeItem('credentials');
+    if (typeof window !== 'undefined') {
+      const clearEvent = new CustomEvent('credentials-cleared', {
+        bubbles: true
+      });
+      window.dispatchEvent(clearEvent);
+    }
+  }
+};
+
+// Helper functions (outside the object)
+function generateUniqueId() {
+  return 'unique-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+}
+
+function checkTableStructure(table) {
+  if (!table) {
+    return { valid: false, error: 'Table element is required' };
+  }
+
+  // Basic table validation
+  const hasHeaders = table.querySelectorAll('th').length > 0;
+  const hasRows = table.querySelectorAll('tr').length > 1;
+
+  return {
+    valid: hasHeaders && hasRows,
+    hasHeaders,
+    hasRows
+  };
+}
+
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    AddressabilityIssues,
+    initializeAccessibility: AddressabilityIssues.initializeAccessibility,
+    getSvgAccessibleName: AddressabilityIssues.getSvgAccessibleName,
+    setSvgAttributes: AddressabilityIssues.setSvgAttributes,
+    checkTableStructure,
+    generateUniqueId,
+    detectAccessibilityIssues: AddressabilityIssues.detectAccessibilityIssues,
+    handleCredentialResponse: AddressabilityIssues.handleCredentialResponse,
+    getStoredCredentials: AddressabilityIssues.getStoredCredentials,
+    clearCredentials: AddressabilityIssues.clearCredentials,
+    renderDependencyGraph: AddressabilityIssues.renderDependencyGraph,
+    renderIndexView: AddressabilityIssues.renderIndexView
+  };
+}

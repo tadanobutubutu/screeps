@@ -3,22 +3,49 @@
 // _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
 // ----- END ORIGINAL CODE-----
 
-import React from 'react';
-import { render } from 'react-dom';
-import {
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
   fixTableStructure,
   fixLandmarkIssues,
   addMainLandmark,
-  ensureUniqueLandmarks,
   fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
   initializeAccessibility,
   renderIndex,
-  newFunction,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
-  renderAdditionalContent
+  newFunction
 } = main
 
 // Access the dependencyGraph container and ensure it has proper ARIA role

@@ -68,6 +68,53 @@ function addAriaLabel(element, label) {
   }
 }
 
+function ensureElementHasId(element) {
+  // Ensures the given HTML element has an id attribute
+  if (element && typeof element.setAttribute === 'function' && !element.id) {
+    element.setAttribute('id', 'default-id');
+  }
+}
+
+function addAriaLabel(element, label) {
+  // Adds an aria-label attribute to the given HTML element
+  if (element && typeof element.setAttribute === 'function') {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+function renderDependencyGraph(dependencyData) {
+  // Renders the provided dependency data into a graph format
+  return {
+    type: 'graph',
+    data: dependencyData
+  };
+}
+
+function countDependencies(dependencyList) {
+  // Counts the number of dependencies in the provided list
+  if (!dependencyList || !Array.isArray(dependencyList)) {
+    return 0;
+  }
+  return dependencyList.length;
+}
+
+function validateTableStructure() {
+  // Returns a list of table structure validation issues (placeholder implementation)
+  return [];
+}
+
+function validateLandmarkStructure() {
+  // Returns a list of landmark structure validation issues (placeholder implementation)
+  return [];
+}
+
+function getAccessibilityReport() {
+  // Returns a placeholder accessibility report
+  return {
+    sections: []
+  };
+}
+
 function addressNewAccessibilityIssues() {
   const accessibilityReport = [];
   
@@ -165,199 +212,24 @@ function validateLandmarkStructure() {
 // Export functions for testing
 module.exports = {
   addLangAttribute,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph,
+  countDependencies,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getAccessibilityReport,
   addressNewAccessibilityIssues,
   generateAccessibilityReport,
-  addressAccessibilityIssues,
-  validateTableStructure,
-  validateLandmarkStructure
+  addressAccessibilityIssues
 };
 
-// New function for checking link and button accessibility
-AddressabilityIssues.checkLinkAndButtonAccessibility = function () {
-  const issues = [];
-
-  // Check links for missing href attributes
-  document.querySelectorAll('a[href]').forEach(link => {
-    if (!link.hasAttribute('href')) {
-      issues.push({
-        element: link,
-        type: 'link',
-        issue: 'Missing href attribute'
-      });
-    }
+function startApp() {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
   });
-
-  // Check buttons for proper type attribute
-  document.querySelectorAll('button[type="button"]').forEach(button => {
-    if (button.type !== 'button') {
-      issues.push({
-        element: button,
-        type: 'button',
-        issue: 'Button should have type="button"'
-      });
-    }
-  });
-
-  return issues;
-};
-
-// Updated setup for AddressabilityIssues
-AddressabilityIssues.spawnSomeCommand = function (callback) {
-  const child_process = require('child_process');
-
-  const spawnOptions = {
-    shell: true
-  };
-
-  child_process.spawn('echo', ['test'], spawnOptions, (error, stdout, stderr) => {
-    if (error) {
-      callback(new Error(`someCommand failed: ${error.message}`));
-      return;
-    }
-
-    callback(null, `someCommand exited with status code: ${stdout}`);
-  });
-};
-
-// Add calculateAccessibilityScore function
-AddressabilityIssues.calculateAccessibilityScore = function (fixedIssues) {
-  if (!Array.isArray(fixedIssues)) {
-    return 0;
-  }
-
-  const scorePoints = {
-    'color-contrast': 5,
-    'missing-alt-text': 3,
-    'missing-aria-label': 5,
-    'heading-order': 2,
-    'other': 1
-  };
-
-  return fixedIssues.reduce((score, issue) => {
-    const points = scorePoints[issue.type] || scorePoints['other'];
-    return score + points;
-  }, 0);
-};
-
-function generateAccessibilityReport(issues) {
-  if (!Array.isArray(issues)) return { total: 0, critical: 0, moderate: 0, suggestions: [] };
-  
-  return {
-    total: issues.length,
-    critical: issues.filter(i => i.severity === 'critical').length,
-    moderate: issues.filter(i => i.severity === 'moderate').length,
-    suggestions: issues
-  };
 }
 
-function validateLandmark(element) {
-  if (!element) return false;
-  
-  const validLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
-  
-  if (role && validLandmarks.includes(role)) return true;
-  if (validLandmarks.includes(tagName)) return true;
-  
-  return false;
+if (require.main === module) {
+  startApp();
 }
-
-function addLangAttribute(lang) {
-  if (typeof document === 'undefined') return;
-  
-  const htmlElement = document.documentElement;
-  if (htmlElement && lang) {
-    htmlElement.setAttribute('lang', lang);
-  }
-}
-
-function handleCredentialResponse(response) {
-  if (!response) return null;
-  
-  return {
-    credential: response.credential || null,
-    select_by: response.select_by || 'auto'
-  };
-}
-
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined') return;
-  
-  const landmarks = document.querySelectorAll('[role="main"], main');
-  if (landmarks.length > 1) {
-    landmarks.forEach((landmark, index) => {
-      if (index > 0 && !landmark.id) {
-        landmark.id = `main-content-${index}`;
-      }
-    });
-  }
-}
-
-function init() {
-  setupAriaLiveRegions();
-  setupFocusManagement();
-  enhanceSemanticMarkup();
-  ensureUniqueLandmarks();
-  main();
-  addLangAttribute('en');
-}
-
-// Ensure DOM is fully loaded before executing scripts
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment - setup basic exports
-  module.exports = {
-    checkTableStructure,
-    countDependencies,
-    init,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore: AddressabilityIssues.calculateAccessibilityScore,
-    validateLandmark,
-    spawnSomeCommand: AddressabilityIssues.spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse,
-    getAccessibleName,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    ensureUniqueLandmarks,
-    AddressabilityIssues
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-  }
-}
-
-function init() {
-  setupKeyboardNavigation();
-  setupAriaLiveRegions();
-  setupFocusManagement();
-  enhanceSemanticMarkup();
-  // Add lang attribute to HTML element as per REACT_015
-  addLangAttribute(document.documentElement);
-  // Address unique landmarks and proper landmark regions
-  ensureUniqueLandmarks();
-  addProperLandmarkRegions();
-}
-
-// ... (other functions and setting up exports)

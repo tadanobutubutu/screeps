@@ -135,20 +135,15 @@ function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
 
-  if (typeof document !== 'undefined') {
-    const nameElement = document.createElement('span');
-    nameElement.setAttribute('lang', lang);
-    nameElement.setAttribute('aria-label', fullName);
-    nameElement.textContent = fullName || 'Unknown';
+  const element = document.createElement('span');
+  element.setAttribute('aria-label', fullName);
+  element.textContent = fullName;
 
-    if (container) {
-      container.appendChild(nameElement);
-    }
-
-    return nameElement;
+  if (container) {
+    container.appendChild(element);
   }
 
-  return fullName || 'Unknown';
+  return element;
 }
 
 /**
@@ -402,7 +397,7 @@ function addLandmarkIssues(element) {
   return { valid: errors.length === 0, errors };
 }
 
-// TODO: Add back any required exports that might have been?
+// TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
 // Export the new functions

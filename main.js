@@ -29,27 +29,24 @@ function addTask(taskFn, priority = 'medium') {
   return taskId
 }
 
-// Accessibility functions
-function setFocus(elementId) {
-  const element = document.getElementById(elementId)
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
-};
+// Add lang attribute to HTML element (Renamed to avoid conflict)
+function getLangAttributeRenamed() {
+    // Implementation to add lang attribute
+    return document.documentElement.lang || navigator.language || 'en';
+}
 
 // Import accessibility utilities from the other conflict branch
 const accessibilityUtils = require('./accessibility').accessibilityUtils;
 
 // Persist any new functions from the other conflict branch
 const {
-  createInPageButton,
+  createInPageButton: createInPageButtonFromOtherBranch,
   createWebResourceButton,
   validateLandmark,
   validateLandmarkStructure,
   validateAccessibilityReport,
   getSvgAccessibleName,
-  // Removed the redundant 'getLangAttribute' from this import
+  getLangAttribute: getLangAttributeFromOtherBranch,
   getFullLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
@@ -58,9 +55,9 @@ const {
   handleAccessibilityErrors,
   handleAccessibilityIssues,
   createAccessibleLink,
-  handleAccessibilityErrors, // Removed the duplicate import of 'handleAccessibilityErrors'
-  handleAccessibilityIssues, // Removed the duplicate import of 'handleAccessibilityIssues'
-  createInPageButton, // Removed the duplicate import of 'createInPageButton'
+  handleAccessibilityErrors: handleAccessibilityErrorsFromOtherBranch,
+  handleAccessibilityIssues: handleAccessibilityIssuesFromOtherBranch,
+  createInPageButton,
   newFocusTrap,
   transformInputData,
   renderDependencyGraph,
@@ -119,137 +116,20 @@ function renderDependencyGraph(data) {
     };
 }
 
-function implementAccessibilityFixesFromReport(container, report) {
-    // Implementation to address accessibility issues from the insight report
-    if (container && report && report.issues) {
-        report.issues.forEach(issue => {
-            switch (issue.type) {
-                case 'missingAriaLabel':
-                    addAriaLabel(container, issue.label);
-                    break;
-                case 'invalidTableStructure':
-                    validateAndFixTableStructure(container);
-                    break;
-                case 'invalidLandmark':
-                    validateAndFixLandmark(container);
-                    break;
-                case 'improvedSvgAccessibility':
-                    improveSvgAccessibility(container);
-                    break;
-                case 'createAccessibleButton':
-                    createAccessibleInPageButton({
-                        container: container,
-                        label: issue.label
-                    });
-                    break;
-                // Add additional cases as needed
-                default:
-                    console.warn('Unhandled issue type:', issue.type);
-            }
-        });
-    }
-}
-
-// New function from other branch
-function newExportedFunction() {
-    // Implementation of the new function from the other conflict branch
-}
-
-// Generate a report based on accessibility issues using axe-core
-async function generateAccessibilityReport(container, options = {}) {
-    if (!container) {
-        throw new Error('Container element is required for accessibility report generation.');
-    }
-    try {
-        const results = await axeCore.run(container, options);
-        const violations = results.violations.map(violation => ({
-            id: violation.id,
-            description: violation.description,
-            impact: violation.impact,
-            nodes: violation.nodes.map(node => ({
-                target: node.target,
-                failureSummary: node.failureSummary,
-                html: node.html
-            }))
-        }));
-        return {
-            violations,
-            totalViolations: results.violations.length,
-            severityScore: results.violations.reduce((sum, v) => sum + (v.impact === 'critical' ? 3 : v.impact === 'serious' ? 2 : v.impact === 'moderate' ? 1 : 0), 0)
-        };
-    } catch (error) {
-        // Log the error and rethrow to ensure it is not silently ignored
-        console.error('Error generating accessibility report:', error);
-        throw error;
-    }
-}
-
-// Initialize accessibility features
-function initAccessibility() {
-    accessibilityUtils.initSkipLink();
-
-    // Add keyboard support for all interactive elements
-    const elements = document.querySelectorAll('[data-accessible]');
-    for (let i = 0; i < elements.length; i++) {
-        const element = elements[i];
-        element.addEventListener('keydown', function (e) {
-            accessibilityUtils.handleKeyboardNav(e, {
-                Enter: function () {
-                    element.click();
-                },
-                ' ': function () {
-                    element.click();
-                },
-            });
-        });
-    }
-}
-
-// Export all utilities
-module.exports = {
-    accessibilityUtils: accessibilityUtils,
-    implementAccessibilityFixesFromReport: implementAccessibilityFixesFromReport,
-    initAccessibility: initAccessibility,
-    handleCredentialResponse: handleCredentialResponse,
-    ensureElementId: ensureElementId,
-    addAriaLabel: addAriaLabel,
-    renderDependencyGraph: renderDependencyGraph,
-    calculateSum: calculateSum,
-    processData: processData,
-    filterValidItems: filterValidItems,
-    groupByCategory: groupByCategory,
-    validateTableAccessibility: validateTableAccessibility,
-    validateTableStructure: validateTableStructure,
-    validateLandmark: validateLandmark,
-    validateLandmarkStructure: validateLandmarkStructure,
-    ensureUniqueLandmarks: ensureUniqueLandmarks,
-    getSvgAccessibleName: getSvgAccessibleName,
-    createInPageButton: createInPageButton,
-    handleAccessibilityIssues: handleAccessibilityIssues,
-    newExportedFunction: newExportedFunction,
-    generateAccessibilityReport: generateAccessibilityReport
+// Renamed conflicting function to preserve existing variable name
+const handleAccessibilityErrors = function(errors, context) {
+  handleAccessibilityErrorsFromOtherBranch(errors, context);
 };
 
-// Harvest and upgrade logic
-function harvest() {
-    // TODO: Implement harvest logic
-    console.log('Harvest logic not implemented.');
-}
+const handleAccessibilityIssues = function (issues) {
+  handleAccessibilityIssuesFromOtherBranch(issues);
+};
 
-function upgrade() {
-    // TODO: Implement upgrade logic
-    console.log('Upgrade logic not implemented.');
-}
-
-// Add new exports for harvest and upgrade functions
-module.exports.harvest = harvest;
-module.exports.upgrade = upgrade;
-
-// Init on DOM ready
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAccessibility);
-    } else {
-        initAccessibility();
-    }
-}
+module.exports = {
+  getLangAttribute: getLangAttributeRenamed,
+  ...remainingMainFunctions,
+  ...remainingDependencyAndIndexFunctions,
+  handleAccessibilityErrors,
+  handleAccessibilityIssues,
+  accessibilityUtils
+};

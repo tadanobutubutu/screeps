@@ -323,185 +323,64 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
-function checkLinkAndButtonAccessibility(issues, options = {}) {
-  if (Array.isArray(issues)) {
-    return addressAccessibilityIssues(issues, options);
+function checkLinkAndButtonAccessibility(rootElement) {
+  const elements = rootElement || (typeof document !== 'undefined' ? document : null);
+  
+  if (!elements) {
+    return {
+      totalIssues: 0,
+      issues: [],
+      hasIssues: false
+    };
   }
-  return addressAccessibilityIssues([{ element: issues, type: 'link', index: 0 }], options);
-}
 
-function getLangAttribute(element) {
-  if (element && typeof element.getAttribute === 'function') {
-    const lang = element.getAttribute('lang');
-    if (lang) return lang;
-  }
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || document.documentElement.getAttribute('lang') || 'en';
-  }
-  return 'en';
-}
+  const issues = [];
 
-function personName(person) {
-  if (!person) return 'Unknown';
-  if (typeof person === 'string') return person;
-  if (person && typeof person === 'object') {
-    if (person.name) return person.name;
-    if (person.firstName && person.lastName) return person.firstName + ' ' + person.lastName;
-    if (person.firstName) return person.firstName;
-    if (person.username) return person.username;
-  }
-  return 'Unknown';
-}
-
-function validateTableAccessibility(table) {
-  let fixed = 0;
-  if (!table || typeof table.querySelector !== 'function') return fixed;
-  try {
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Data table';
-      table.insertBefore(caption, table.firstChild);
-      fixed++;
-    }
-    const ths = table.querySelectorAll('th');
-    for (let i = 0; i < ths.length; i++) {
-      if (!ths[i].getAttribute('scope')) {
-        ths[i].setAttribute('scope', 'col');
-        fixed++;
-      }
-    }
-  } catch (e) {}
-  return fixed;
-}
-
-function validateTableStructure(table) {
-  let fixed = 0;
-  if (!table || typeof table.querySelector !== 'function') return fixed;
-  try {
-    if (!table.querySelector('tbody')) {
-      const tbody = document.createElement('tbody');
-      const rows = Array.from(table.querySelectorAll('tr'));
-      rows.forEach(row => {
-        if (row.parentNode === table) {
-          tbody.appendChild(row);
-        }
+  // Check links for accessibility
+  const links = elements.querySelectorAll('a[href], area[href]');
+  links.forEach((link, index) => {
+    const hasText = link.textContent.trim().length > 0;
+    const hasAriaLabel = link.getAttribute('aria-label');
+    const hasAriaLabelledBy = link.getAttribute('aria-labelledby');
+    const hasTitle = link.getAttribute('title');
+    const img = link.querySelector('img[alt]');
+    const hasImgAlt = img && img.getAttribute('alt') && img.getAttribute('alt').trim().length > 0;
+    
+    if (!hasText && !hasAriaLabel && !hasAriaLabelledBy && !hasTitle && !hasImgAlt) {
+      issues.push({
+        type: 'link',
+        index: index,
+        element: link
       });
-      if (tbody.childNodes.length > 0) {
-        table.appendChild(tbody);
-        fixed++;
-      }
     }
-    if (table.querySelector('tr') && !table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow.querySelector('th')) {
-        const thead = document.createElement('thead');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, table.firstChild);
-        fixed++;
-      }
-    }
-  } catch (e) {}
-  return fixed;
-}
-
-function validateLandmark(element) {
-  let fixed = 0;
-  if (!element || typeof element.getAttribute !== 'function') return fixed;
-  const role = element.getAttribute('role');
-  const valid = ['banner', 'main', 'navigation', 'contentinfo', 'complementary', 'region', 'search', 'form'];
-  if (valid.includes(role)) {
-    if ((role === 'region' || role === 'navigation' || role === 'search' || role === 'form') && !element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-      element.setAttribute('aria-label', role);
-      fixed++;
-    }
-  }
-  return fixed;
-}
-
-function validateLandmarkStructure(element) {
-  let fixed = 0;
-  if (!element || typeof element.getAttribute !== 'function') return fixed;
-  const role = element.getAttribute('role');
-  if (role === 'region' && !element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-    element.setAttribute('aria-label', 'Region');
-    fixed++;
-  }
-  return fixed;
-}
-
-function getSvgAccessibleName(svg) {
-  if (!svg) return '';
-  if (typeof svg.getAttribute === 'function') {
-    const ariaLabel = svg.getAttribute('aria-label');
-    if (ariaLabel) return ariaLabel;
-    const labelledBy = svg.getAttribute('aria-labelledby');
-    if (labelledBy && typeof document !== 'undefined') {
-      const el = document.getElementById(labelledBy);
-      if (el) return el.textContent || el.getAttribute('aria-label') || '';
-    }
-    const alt = svg.getAttribute('alt');
-    if (alt) return alt;
-  }
-  if (typeof svg.querySelector === 'function') {
-    const title = svg.querySelector('title');
-    if (title) return title.textContent || '';
-  }
-  return '';
-}
-
-function createInPageButton(options = {}) {
-  if (typeof document === 'undefined') return null;
-  const button = document.createElement('button');
-  button.textContent = options.text || options.label || 'Action';
-  if (options.ariaLabel) button.setAttribute('aria-label', options.ariaLabel);
-  if (options.id) button.id = options.id;
-  if (options.className) button.className = options.className;
-  if (options.onClick && typeof options.onClick === 'function') {
-    button.addEventListener('click', options.onClick);
-  }
-  return button;
-}
-
-function ensureUniqueLandmarks(container) {
-  let fixed = 0;
-  if (typeof document === 'undefined') return fixed;
-  const root = container || (typeof document.body !== 'undefined' ? document.body : null);
-  if (!root || typeof root.querySelectorAll !== 'function') return fixed;
-  const roles = ['banner', 'main', 'navigation', 'contentinfo', 'complementary', 'region', 'search', 'form'];
-  roles.forEach(role => {
-    const nodes = root.querySelectorAll(`[role="${role}"]`);
-    nodes.forEach((node, index) => {
-      if (index > 0) {
-        const hasLabel = node.getAttribute('aria-label') || node.getAttribute('aria-labelledby');
-        if (!hasLabel) {
-          node.setAttribute('aria-label', role + ' ' + (index + 1));
-          fixed++;
-        }
-      }
-    });
   });
-  return fixed;
-}
 
-function fixDependencyGraph() {
-  if (typeof document === 'undefined') return;
-  const container = document.getElementById('dependencyGraph');
-  if (container) {
-    if (!container.getAttribute('role')) {
-      container.setAttribute('role', 'region');
+  // Check buttons for accessibility
+  const buttons = elements.querySelectorAll('button, [role="button"]');
+  buttons.forEach((button, index) => {
+    const hasText = button.textContent.trim().length > 0;
+    const hasAriaLabel = button.getAttribute('aria-label');
+    const hasAriaLabelledBy = button.getAttribute('aria-labelledby');
+    const hasTitle = button.getAttribute('title');
+    const img = button.querySelector('img[alt]');
+    const hasImgAlt = img && img.getAttribute('alt') && img.getAttribute('alt').trim().length > 0;
+    
+    if (!hasText && !hasAriaLabel && !hasAriaLabelledBy && !hasTitle && !hasImgAlt) {
+      issues.push({
+        type: 'button',
+        index: index,
+        element: button
+      });
     }
-    if (!container.getAttribute('aria-label') && !container.getAttribute('aria-labelledby')) {
-      container.setAttribute('aria-label', 'Dependency Graph');
-    }
-  }
-}
+  });
 
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', fixDependencyGraph);
-  } else {
-    fixDependencyGraph();
-  }
+  const result = {
+    totalIssues: issues.length,
+    issues: issues,
+    hasIssues: issues.length > 0
+  };
+
+  return result;
 }
 
 // Exports for the functions

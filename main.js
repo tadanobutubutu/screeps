@@ -204,8 +204,8 @@ function validateLandmarkStructure(container) {
   const htmlEl =
         document.documentElement ||
         (container.ownerDocument && container.ownerDocument.documentElement)
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    addLangAttribute(htmlEl, 'en')
+  if (htmlEl && ... {
+    ... 'en')
     fixes.langAdded = true
   }
 
@@ -218,21 +218,23 @@ function validateLandmarkStructure(container) {
       while (body.firstChild) {
         ...
       }
-      body.insertBefore(newMain, body.firstChild)
+      ...
       fixes.mainLandmarkAdded = true
     }
   }
 
   // Update the existing function using the new functions for rendering graph/index
   renderDependencyGraphs(container)
+  renderGraphIndex(container, { renderGraphs: true })
   fixButtonIdentifiers(container)
-  ensureElementHasId(container)
+  ...
+  ...
   addAriaLabel(container)
   addMainLandmarkToIndex(container)
 
   // Fix landmark issues
   validateLandmark(container)
-  fixLandmarkIssues(container)
+  ...
   fixes.landmarksFixed++
 
   // Fix SVG accessible names
@@ -241,17 +243,19 @@ function validateLandmarkStructure(container) {
     const accessibleName = getSvgAccessibleName(svg)
     if (
       accessibleName &&
-      svgElements.length > 0 &&
-      svgElements.length <= 2
+            ... &&
+            ...
     ) {
-      addSvgAccessibleNames(svg, accessibleName)
+      ... accessibleName)
       fixes.svgNamesAdded++
     }
   })
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = fixFakeLinkIssues(container)
-  if (fakeLinks) {
+  const fakeLinks = ...
+  fakeLinks.forEach(link => {
+    link.setAttribute('href', '#' + (link.id || 'link'))
+    link.setAttribute('role', 'link')
     fixes.fakeLinksFixed++
   }
 
@@ -304,193 +308,172 @@ function checkAccessibilityForReport (content) {
   return []
 }
 
-// New rendering function
-function renderGraphIndex(content, options = {}) {
-  return content;
-}
-
-// Helper to manage focus within a container
-function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, ...
-  );
-  const firstElement = focusableElements[0]
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  return function(e) {
-    const isTab = e.key === 'Tab';
-    if (!isTab) return;
-    if (e.shiftKey) {
-      if (document.activeElement === firstElement) {
-        e.preventDefault();
-        if (lastElement) lastElement.focus();
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        e.preventDefault();
-        if (firstElement) ...
-      }
-    }
+// Identify and update specific functions that render dependency graphs
+// This function handles rendering dependency graphs with accessibility support
+function renderDependencyGraph(container, graphData, options = {}) {
+  if (!container) return null;
+  
+  const defaultOptions = {
+    renderGraphs: true,
+    addAriaDescriptions: true,
+    makeFocusable: true,
+    ...options
   };
-}
-
-/**
- * REACT_015: Add lang attribute to HTML element
- * Ensures the HTML element has a proper lang attribute for screen readers
- */
-export function addLangAttribute(element, lang = 'en') {
-  let htmlElement = element || document.documentElement;
-  if (!htmlElement) {
-    return null;
-  }
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang);
-  }
-  return htmlElement;
-}
-
-/**
- * REACT_027: Fix table structure issues
- * Ensures tables have proper structure with headers and captions
- */
-export function fixTableStructureIssues(tableElement) {
-  if (!tableElement) return null;
   
-  const headers = tableElement.querySelectorAll('th:not([scope])');
-  headers.forEach(th => {
-    if ... {
-      const row = th.closest('tr');
-      const cellIndex = Array.from(row.children).indexOf(th);
-      th.setAttribute('scope', cellIndex === 0 ? 'row' : 'col');
-    }
-  });
-  
-  const existingCaption = tableElement.querySelector('caption');
-  if (!existingCaption) {
-    const caption = document.createElement('caption');
-    caption.textContent = 'Data table';
-    tableElement.insertBefore(caption, tableElement.firstChild);
+  // Create or update the graph container element
+  let graphContainer = container.querySelector('[data-dependency-graph]') || document.createElement('div');
+  if (!graphContainer.parentNode) {
+    graphContainer.setAttribute('data-dependency-graph', 'true');
+    container.appendChild(graphContainer);
   }
   
-  return tableElement;
-}
-
-/**
- * REACT_017: Fix landmark issues - Add landmark regions
- */
-export function ... {
-  if (!container) return null;
-  
-  const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
-  if (!mainElement) {
-    const existingMain = addMainLandmark(container);
-    if (existingMain) {
-      ... 'main');
+  // Ensure accessibility attributes for the graph
+  if (defaultOptions.addAriaDescriptions) {
+    graphContainer.setAttribute('role', 'img');
+    graphContainer.setAttribute('aria-label', graphData.title || 'Dependency graph');
+    if (graphData.description) {
+      graphContainer.setAttribute('aria-description', graphData.description);
     }
   }
   
-  const navElements = container.querySelectorAll('nav:not([aria-label])');
-  navElements.forEach(nav => {
-    if (nav && !nav.hasAttribute('aria-label')) {
-      nav.setAttribute('aria-label', 'Navigation');
-    }
-  });
-  
-  const footerElement = container.querySelector('footer') || container.querySelector('[role="contentinfo"]');
-  if (footerElement) {
-    footerElement.setAttribute('role', 'contentinfo');
+  // Make the graph focusable for keyboard navigation if needed
+  if (defaultOptions.makeFocusable) {
+    graphContainer.setAttribute('tabindex', '0');
+    
+    // Add keyboard support for graph navigation
+    const handleGraphKeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        // Trigger graph interaction or expansion
+        const graphElement = e.target.querySelector('[data-graph-node]');
+        if (graphElement) {
+          graphElement.click();
+        }
+      }
+    };
+    
+    graphContainer.addEventListener('keydown', handleGraphKeydown);
   }
   
-  return container;
+  // Render the actual graph content if renderGraphs is enabled
+  if (defaultOptions.renderGraphs && graphData.nodes) {
+    renderGraphNodes(graphContainer, graphData.nodes, graphData.edges);
+  }
+  
+  return graphContainer;
 }
 
-/**
- * REACT_017: Add main landmark
- */
-export function addMainLandmark(container) {
-  if (!container) return null;
+// Helper function to render graph nodes with accessibility
+function renderGraphNodes(container, nodes, edges) {
+  if (!container || !nodes) return;
   
-  let mainElement = container.querySelector('main');
-  if (!mainElement) {
-    mainElement = container.querySelector('[role="main"]');
-  }
-  
-  if (!mainElement) {
-    mainElement = document.createElement('main');
-    mainElement.setAttribute('id', 'main-content');
-    const body = document.body;
-    if (body && body.firstChild) {
-      body.insertBefore(mainElement, body.firstChild);
-    }
-  }
-  
-  return mainElement;
-}
-
-/**
- * REACT_017: Add landmark regions
- */
-export function addLandmarkRegions(container) {
-  if (!container) return null;
-  
-  const landmarks = [
-    { selector: 'header', role: 'banner', label: 'Site header' },
-    { selector: 'nav', role: 'navigation', label: 'Navigation' },
-    { selector: 'main', role: 'main', label: 'Main content' },
-    { selector: 'aside', role: 'complementary', label: 'Complementary content' },
-    { selector: 'footer', role: 'contentinfo', label: 'Site footer' }
-  ];
-  
-  landmarks.forEach(landmark => {
-    let element = container.querySelector(landmark.selector);
-    if (!element) {
-      element = container.querySelector(`[role="${landmark.role}"]`);
+  nodes.forEach((node, index) => {
+    let nodeElement = container.querySelector(`[data-graph-node="${node.id}"]`);
+    
+    if (!nodeElement) {
+      nodeElement = document.createElement('div');
+      nodeElement.setAttribute('data-graph-node', node.id);
+      container.appendChild(nodeElement);
     }
     
-    if (element && !element.getAttribute('aria-label') && !element.getAttribute('role')) {
-      element.setAttribute('aria-label', landmark.label);
-      if (landmark.role) {
-        element.setAttribute('role', landmark.role);
-      }
+    // Ensure accessibility for each node
+    nodeElement.setAttribute('role', 'button');
+    nodeElement.setAttribute('tabindex', '0');
+    
+    if (node.label) {
+      nodeElement.setAttribute('aria-label', node.label);
+      nodeElement.textContent = node.label;
+    }
+    
+    if (node.description) {
+      nodeElement.setAttribute('title', node.description);
+    }
+    
+    // Mark nodes that depend on other nodes
+    const dependencies = edges ? edges.filter(e => e.target === node.id) : [];
+    if (dependencies.length > 0) {
+      nodeElement.setAttribute('data-has-dependencies', 'true');
     }
   });
   
   return container;
 }
 
-/**
- * REACT_025: Ensure unique landmarks
- */
-export function ... {
-  if (!container) return null;
+// New rendering function with improved dependency graph support
+function renderGraphIndex(content, options = {}) {
+  const defaultOptions = {
+    renderGraphs: true,
+    validateAccessibility: true,
+    addSkipLinks: true,
+    makeFocusable: true,
+    ...options
+  };
   
-  const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  if (!content) {
+    return null;
+  }
   
-  landmarks.forEach(role => {
-    const elements = container.querySelectorAll(`[role="${role}"]`);
-    elements.forEach((el, index) => {
-      if (index > 0 && !el.getAttribute('aria-label')) {
-        const count = index + 1;
-        el.setAttribute('aria-label', `${role} ${count}`);
-      }
-    });
-  });
+  // Handle container element
+  let container = content;
+  if (typeof content === 'string') {
+    container = document.querySelector(content);
+    if (!container) {
+      console.warn('GraphIndex: Container not found:', content);
+      return null;
+    }
+  }
   
-  return container;
-}
-
-/**
- * REACT_025: Unique landmarks helper
- */
-export function uniqueLandmarks() {
-  return ensureUniqueLandmarks
-}
-
-/**
- * REACT_041: Add accessible names to SVGs
- */
-export function ... accessibleName) {
-  if (!svgElement) return null;
+  // Ensure the container is accessible
+  if (defaultOptions.validateAccessibility) {
+    // Ensure the container has proper ARIA role
+    if (!container.getAttribute('role')) {
+      container.setAttribute('role', 'region');
+    }
+    
+    // Add accessible label if missing
+    if (!container.getAttribute('aria-label')) {
+      container.setAttribute('aria-label', 'Dependency graphs and accessibility index');
+    }
+  }
   
-  let title = svgElement.querySelector('title');
-  if
+  // Add skip link for keyboard users to bypass graphs
+  if (defaultOptions.addSkipLinks) {
+    let skipLink = document.querySelector('#skip-to-content-link');
+    if (!skipLink) {
+      skipLink = document.createElement('a');
+      skipLink.id = 'skip-to-content-link';
+      skipLink.href = '#main-content';
+      skipLink.textContent = 'Skip to main content';
+      skipLink.style.position = 'absolute';
+      skipLink.style.left = '-9999px';
+      skipLink.style.top = '0';
+      skipLink.style.zIndex = '10000';
+      
+      skipLink.addEventListener('focus', () => {
+        skipLink.style.left = '0';
+        skipLink.style.top = '0';
+      });
+      
+      skipLink.addEventListener('blur', () => {
+        skipLink.style.left = '-9999px';
+      });
+      
+      document.body.insertBefore(skipLink, document.body.firstChild);
+    }
+  }
+  
+  // Find and update all dependency graph elements
+  const graphElements = container.querySelectorAll('[data-dependency-graph], [data-graph], .dependency-graph');
+  graphElements.forEach((graphEl) => {
+    // Ensure each graph is accessible
+    if (!graphEl.getAttribute('role') || graphEl.getAttribute('role') === '') {
+      graphEl.setAttribute('role', 'img');
+    }
+    
+    if (!graphEl.getAttribute('aria-label')) {
+      graphEl.setAttribute('aria-label', 'Dependency visualization');
+    }
+    
+    // Make graphs focusable if enabled
+    if (defaultOptions.makeFocusable && !graphEl.getAttribute('tabindex')) {
+      graphEl.setAttribute('tabindex

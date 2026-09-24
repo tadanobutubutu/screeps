@@ -341,21 +341,45 @@ function fixFakeLinkIssues() {
     };
   },
 
-  // New function added per issue
-  logCommitHashes() {
-    const commitHashes = [
-      'eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2',
-      'f8051b788bad4952d8493f08d3c7d22a06ff80d3',
-      '30b5f0892a59d5ec914a59aa66e32dc3a3eb059e',
-      '5d1690822c7c7ecd204a67a127dd3a55568560de',
-      '2940d94829911b172237e001ec7271ce7347833e',
-      '0180a9cea8844eb6c20c6d4df49ac1e6b5caa537',
-      '225814356122e69baa9457fe7e2f981c494c6b13'
-    ];
+  handleCredentialResponse(response) {
+    if (!response || typeof response !== 'object') {
+      return null;
+    }
 
-    commitHashes.forEach(hash => {
-      console.log(`Commit hash: ${hash}`);
-    });
+    // Extract credential-related fields
+    const credentialInfo = {
+      token: response.token || '',
+      auth: response.auth || '',
+      session: response.session || '',
+      authorization: response.authorization || ''
+    };
+
+    // If no credential info, return null
+    if (!Object.values(credentialInfo).some(info => info)) {
+      return null;
+    }
+
+    // Create a report entry for the credential response
+    const reportEntry = {
+      type: 'credential-response',
+      message: 'Credential response detected',
+      details: credentialInfo
+    };
+
+    // Try to merge with existing accessibility report
+    if (this.generateAccessibilityReport) {
+      try {
+        const baseReport = this.generateAccessibilityReport(response);
+        if (baseReport) {
+          // Combine both reports
+          return [...baseReport, reportEntry].filter(Boolean);
+        }
+      } catch (error) {
+        // Ignore errors in report generation
+      }
+    }
+
+    return reportEntry;
   }
 }
 

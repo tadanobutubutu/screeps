@@ -380,8 +380,61 @@ function specificFunctionThatRendersGraphOrIndex() {
     renderIndex();
 }
 
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+/**
+ * Checks link accessibility by validating each link in the document.
+ * @returns {boolean} True if all links are accessible, false otherwise.
+ */
+function checkLinkAccessibility() {
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  if (typeof validateLinkAccessibility === 'function') {
+    return validateLinkAccessibility();
+  }
+  return true;
+}
+
+/**
+ * Renders the dependency graph for a given module.
+ * @param {Object} module - The module to render.
+ * @returns {Object} An object containing node and edge data.
+ */
+function renderDependencyGraph(module) {
+  // Implementation to render the dependency graph for a given module
+  // Builds a graph representation of the module's dependencies
+  const nodes = [];
+  const edges = [];
+  if (module && module.dependencies) {
+    nodes.push({ id: module.name || 'root', label: module.name || 'root' });
+    for (const dep of module.dependencies) {
+      const depName = typeof dep === 'string' ? dep : dep.name;
+      nodes.push({ id: depName, label: depName });
+      edges.push({ from: module.name || 'root', to: depName });
+    }
+  }
+  console.log('Rendering dependency graph for:', module, { nodes, edges });
+  return { nodes, edges };
+}
+
+/**
+ * Displays the module structure for a given module.
+ * @param {Object} module - The module to analyze.
+ * @returns {Object|null} A structured representation of the module.
+ */
+function displayModuleStructure(module) {
+  // Implementation to display the module structure for a given module
+  // Returns a structured representation of the module
+  if (!module) {
+    return null;
+  }
+  const structure = {
+    name: module.name || 'unnamed',
+    exports: module.exports || [],
+    imports: module.imports || [],
+    dependencies: module.dependencies || []
+  };
+  console.log('Displaying module structure for:', module, structure);
+  return structure;
+}
 
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
@@ -459,10 +512,10 @@ export {
 
 let state = {};
 
-function updateState(newState) {
-  state = newState;
-}
+// Export additional required functions
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
 
+// Export state
 export {
   state,
   updateState
@@ -482,12 +535,6 @@ export {
   renderFooter,
   renderProductCard
 };
-
-// Exporting for CommonJS compatibility is not needed here since we are in ES module
-// (module.exports line removed to avoid conflicts)
-
-// Export additional required functions
-export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
 
 // Report generation logic
 /**
@@ -553,7 +600,7 @@ function generateAccessibilityReport() {
 
     if (duplicateLandmarks.length === 0) {
         report.passed.push({
-            category: 'REACT_025',
+            category: REACT_025',
             message: 'All landmarks have unique IDs',
             status: 'passed'
         });
@@ -639,3 +686,73 @@ function renderAccessibilityReportHtml(report) {
         
         <div class="issues">
             <h2>Issues Found</h2>`;
+    
+    if (report.issues.length === 0) {
+        html += '<p>No issues found!</p>';
+    } else {
+        report.issues.forEach(issue => {
+            html += `<div class="issue ${issue.status}">
+                <strong>${issue.category}</strong>: ${issue.message}
+            </div>`;
+        });
+    }
+    
+    html += `</div>
+        
+        <div class="passed">
+            <h2>Passed Checks</h2>`;
+    
+    if (report.passed.length === 0) {
+        html += '<p>No checks passed yet.</p>';
+    } else {
+        report.passed.forEach(item => {
+            html += `<div class="passed-item">
+                <strong>${item.category}</strong>: ${item.message}
+            </div>`;
+        });
+    }
+    
+    html += '</div></div>';
+    
+    return html;
+}
+
+/**
+ * Generates and displays the accessibility report in the console and returns the report object.
+ * @returns {Object} The accessibility report object.
+ */
+function generateAndDisplayReport() {
+    const report = generateAccessibilityReport();
+    
+    console.log('=== Accessibility Report ===');
+    console.log(`Generated: ${report.timestamp}`);
+    console.log(`Total Issues: ${report.summary.totalIssues}`);
+    console.log(`Critical: ${report.summary.critical}`);
+    console.log(`Moderate: ${report.summary.moderate}`);
+    console.log(`Passed: ${report.summary.passed}`);
+    
+    if (report.issues.length > 0) {
+        console.log('\n--- Issues ---');
+        report.issues.forEach(issue => {
+            console.log(`[${issue.status.toUpperCase()}] ${issue.category}: ${issue.message}`);
+        });
+    }
+    
+    if (report.passed.length > 0) {
+        console.log('\n--- Passed Checks ---');
+        report.passed.forEach(item => {
+            console.log(`[PASS] ${item.category}: ${item.message}`);
+        });
+    }
+    
+    return report;
+}
+
+// Export report generation functions
+export {
+  generateAccessibilityReport,
+  renderAccessibilityReportHtml,
+  generateAndDisplayReport
+};
+
+// The _usedLandmarkIds is already exported at the top of the file

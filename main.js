@@ -158,5 +158,17 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   countDependencies,
-  newFunctionThatDoesSomethingDifferent
+  addBook,
+  enhanceAccessibilityForAddBook,
+  sortByTitle,
+  sortByAuthor,
+  generateKey,
+  BookItem,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  initializeApp,
+  registerSW,
+  checkSafety
 };

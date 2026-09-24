@@ -339,146 +339,88 @@ const svg = document.querySelector('svg');
 const accessibleName = getSvgAccessibleName(svg);
 set
 
-// New function to handle focus trap for keyboard navigation
-function newFocusTrap(container) {
-  if (!container) return;
+/**
+ * Creates an accessible form for adding a new book
+ * @param {HTMLElement} container - The container element to append the form to
+ */
+function createBookForm(container) {
+  const form = document.createElement('form');
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', 'add-book-form-title');
 
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
+  const title = document.createElement('h2');
+  title.id = 'add-book-form-title';
+  title.textContent = 'Add New Book';
+  form.appendChild(title);
 
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
+  // Title field
+  const titleLabel = document.createElement('label');
+  titleLabel.setAttribute('for', 'book-title');
+  titleLabel.textContent = 'Book Title:';
+  form.appendChild(titleLabel);
 
-  container.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey) { // Shift + Tab
-        if (document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        }
-      } else { // Tab
-        if (document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
-        }
-      }
+  const titleInput = document.createElement('input');
+  titleInput.id = 'book-title';
+  titleInput.type = 'text';
+  titleInput.setAttribute('required', 'true');
+  titleInput.setAttribute('aria-required', 'true');
+  form.appendChild(titleInput);
+
+  // Author field
+  const authorLabel = document.createElement('label');
+  authorLabel.setAttribute('for', 'book-author');
+  authorLabel.textContent = 'Author:';
+  form.appendChild(authorLabel);
+
+  const authorInput = document.createElement('input');
+  authorInput.id = 'book-author';
+  authorInput.type = 'text';
+  authorInput.setAttribute('required', 'true');
+  authorInput.setAttribute('aria-required', 'true');
+  form.appendChild(authorInput);
+
+  // Submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Add new book to collection');
+  form.appendChild(submitButton);
+
+  // Error message area
+  const errorArea = document.createElement('div');
+  errorArea.id = 'book-form-error';
+  errorArea.setAttribute('role', 'alert');
+  errorArea.setAttribute('aria-live', 'assertive');
+  form.appendChild(errorArea);
+
+  // Form submission handler
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const titleValue = titleInput.value.trim();
+    const authorValue = authorInput.value.trim();
+
+    if (!titleValue || !authorValue) {
+      errorArea.textContent = 'Please fill in all required fields';
+      return;
     }
+
+    // Clear form and show success message
+    titleInput.value = '';
+    authorInput.value = '';
+    errorArea.textContent = 'Book added successfully!';
+    errorArea.style.color = 'green';
+
+    // Here you would typically add the book to your data store
+    // For example: addBookToCollection({ title: titleValue, author: authorValue });
   });
 
-  // Set initial focus to first element
-  firstElement.focus();
+  container.appendChild(form);
 }
 
-// Function to validate table structure and add scope attributes
-function validateAndFixTableStructure(table) {
-  if (!table) return;
-
-  const headers = table.querySelectorAll('th');
-  headers.forEach(header => {
-    if (!header.hasAttribute('scope')) {
-      // Determine if this is a column or row header
-      const rowIndex = header.parentElement.rowIndex;
-      if (rowIndex === 0) {
-        header.setAttribute('scope', 'col');
-      } else {
-        header.setAttribute('scope', 'row');
-      }
-    }
-  });
-
-  // Ensure table has a caption if it's complex
-  if (table.querySelectorAll('th').length > 0 && !table.querySelector('caption')) {
-    const caption = document.createElement('caption');
-    caption.textContent = 'Table data';
-    table.prepend(caption);
+// Initialize the book form when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+  const bookFormContainer = document.getElementById('book-form-container');
+  if (bookFormContainer) {
+    createBookForm(bookFormContainer);
   }
-}
-
-// Function to validate and fix landmark structure
-function validateAndFixLandmarkStructure() {
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
-
-  landmarks.forEach(landmark => {
-    if (!landmark.id) {
-      landmark.id = `landmark-${Math.floor(Math.random() * 10000)}`;
-    }
-  });
-
-  // Ensure only one banner and one contentinfo
-  const banners = document.querySelectorAll('[role="banner"]');
-  if (banners.length > 1) {
-    for (let i = 1; i < banners.length; i++) {
-      banners[i].removeAttribute('role');
-    }
-  }
-
-  const contentInfos = document.querySelectorAll('[role="contentinfo"]');
-  if (contentInfos.length > 1) {
-    for (let i = 1; i < contentInfos.length; i++) {
-      contentInfos[i].removeAttribute('role');
-    }
-  }
-}
-
-// Function to add accessible names to SVGs
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
-
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title, desc')) {
-      const accessibleName = getSvgAccessibleName(svg);
-      if (accessibleName) {
-        svg.setAttribute('aria-label', accessibleName);
-      } else {
-        const title = document.createElement('title');
-        title.textContent = 'Graphic element';
-        svg.prepend(title);
-      }
-    }
-  });
-}
-
-// Function to fix fake links
-function fixFakeLinks() {
-  const links = document.querySelectorAll('a[href="#"]');
-
-  links.forEach(link => {
-    if (!link.getAttribute('role') && !link.getAttribute('aria-label')) {
-      link.setAttribute('role', 'button');
-      link.setAttribute('aria-label', 'Button');
-    }
-  });
-}
-
-// Main function to address all accessibility issues
-function addressAllAccessibilityIssues() {
-  // Add lang attribute to HTML element
-  document.documentElement.setAttribute('lang', getLangAttribute());
-
-  // Fix table structure and accessibility
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-    validateAndFixTableStructure(table);
-  });
-
-  // Fix landmark issues
-  validateLandmark();
-  validateLandmarkStructure();
-  validateAndFixLandmarkStructure();
-  ensureUniqueLandmarks();
-
-  // Add accessible names to SVGs
-  addSvgAccessibleNames();
-
-  // Fix fake links
-  fixFakeLinks();
-
-  // Create in-page button with accessibility considerations
-  createInPageButton();
-}
-
-// Call the main function to address all accessibility issues
-addressAllAccessibilityIssues();
+});

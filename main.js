@@ -1,19 +1,19 @@
-// Main entry point for the React application
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App';
-import './styles.css';
+export function main({ isError, errorMessage, content }) {
+  // Error state return path
+  if (isError) {
+    return (
+      <div role="main" style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <h1>Error</h1>
+        <p>{errorMessage}</p>
+      </div>
+    );
+  }
 
-const rootElement = document.getElementById('root');
-
-if (rootElement) {
-  rootElement.setAttribute('lang', 'en');
-  const root = createRoot(rootElement);
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
+  // Success state return path
+  return (
+    <div role="main" style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      <h1>Success</h1>
+      <div>{content}</div>
+    </div>
   );
 }
-
-export default App;

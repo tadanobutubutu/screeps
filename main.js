@@ -350,40 +350,6 @@ const indexContent = {
 };
 
 // Assuming you have functions that render dependency graphs and index views
-const renderDependencyGraph = (data) => {
-  // Code to render the dependency graph using the data provided
-  // Uses imported modules: getSvgAccessibleName, setSvgAttributes
-  if (data && typeof data === 'object') {
-    const nodes = [];
-    const edges = [];
-    
-    if (data.dependencies) {
-      nodes.push({ id: data.name || 'root', label: data.name || 'root' });
-      
-      for (const dep of data.dependencies) {
-        const depName = typeof dep === 'string' ? dep : (dep.name || 'unknown');
-        if (depName) {
-          nodes.push({ id: depName, label: depName });
-          edges.push({ from: data.name || 'root', to: depName });
-        }
-      }
-    }
-    
-    // Use imported modules for SVG accessibility in the graph
-    if (typeof getSvgAccessibleName === 'function' && typeof setSvgAttributes === 'function') {
-      const svgElements = document.querySelectorAll('.dependency-graph svg');
-      svgElements.forEach((svg) => {
-        const accessibleName = getSvgAccessibleName(svg);
-        if (accessibleName) {
-          setSvgAttributes(svg, accessibleName);
-        }
-      });
-    }
-  }
-  
-  console.log('Rendering dependency graph with data:', data);
-};
-
 const renderIndex = () => {
   // Code to render the index view
   // Uses imported modules: validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure

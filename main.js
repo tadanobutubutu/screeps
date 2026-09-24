@@ -2,17 +2,41 @@
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 
-const { createInPageButton, createWebResourceButton, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, getLangAttribute, validateAccessibilityReport, exportUtils, addressAccessibilityIssues, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, focusTrap } = main;
+// New rendering functions (to be added)
 
 /**
- * Renders the dependency graph view
+ * New function for rendering the dependency graph view with additional styling
  * @param {Object} deps - Dependencies object
- * @param {Object} options - Rendering options
- * @returns {string} Rendered dependency graph HTML
+ * @param {Object} options - Rendering options including additional styling
+ * @returns {string} Rendered dependency graph HTML with styling
  */
-function renderDependencyGraph(deps, options = {}) {
-  return dependencyGraphContent(deps, options);
+function renderDependencyGraphWithStyling(deps, options = {}) {
+  // Use dependencyGraphContent from the imported module
+  const graphContent = dependencyGraphContent(deps, options);
+  // Add additional styling to the graphContent
+  const styledGraphContent = `<style>${options.styling}</style>${graphContent}`;
+  return styledGraphContent;
 }
+
+/**
+ * New function for rendering the main index view with a custom layout
+ * @param {Object} data - View data
+ * @param {Object} options - Rendering options including custom layout
+ * @returns {string} Rendered index HTML with custom layout
+ */
+function renderIndexWithCustomLayout(data, options = {}) {
+  // Use indexContent from the imported module
+  const indexContentHTML = indexContent(data, options);
+  // Apply custom layout to the indexContentHTML
+  const customLayoutContent = `<div class="${options.layoutClass}">${indexContentHTML}</div>`;
+  return customLayoutContent;
+}
+
+// Accessibility improvements from the other branch
+
+// Import necessary dependencies
+import React, { useRef } from 'react';
+import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs } from './AccessibilityHelpers';
 
 /**
  * Renders the main index view
@@ -35,11 +59,9 @@ function enhanceAccessibility(html, options = {}) {
     return html;
   }
 
-  let enhanced = html;
-
-  // Add missing lang attribute to html tag if not present
-  if (!enhanced.match(/<html[^>]*\blang\s*=/i)) {
-    enhanced = enhanced.replace(/<html([^>]*)>/i, '<html$1 lang="en">');
+  // Add accessible label if not already present
+  if (!dependencyGraph.getAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
   }
 
   // Ensure images have alt attributes (basic check)
@@ -140,11 +162,11 @@ function handleAccessibilityIssues() {
 module.exports = {
   renderDependencyGraph,
   renderIndex,
-  // New accessibility-enhanced exports
-  enhanceAccessibility,
-  renderDependencyGraphAccessible,
-  renderIndexAccessible,
-  getLangAttribute,
+  renderDependencyGraphWithStyling,
+  renderIndexWithCustomLayout,
+  handleAccessibilityIssues,
+  formatVersion,
+  sanitizeHtml,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,

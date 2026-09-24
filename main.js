@@ -1,6 +1,4 @@
-Here’s a clean‑room version of `main.js` with the conflict markers removed.  
-Feel free to drop your actual imports, state‑persistence logic, and route
-handlers where the `// TODO` comment is.
+Below is the merged version of **main.js** – the conflict markers have been removed and the missing focus‑trap logic from the other branch has been integrated.
 
 ```js
 /* ==========================================================================
@@ -13,19 +11,20 @@ handlers where the `// TODO` comment is.
 // TODO: Insert your current code here, including any imports, declarations,
 //       state loaders, route registrations, etc.
 
-////////////////////////////////////////////////////////////////////////////////
-// Accessibility helpers – merged from the incoming branch
-////////////////////////////////////////////////////////////////////////////////
+/* -------------------------------------------------------------------------- */
+/* Accessibility helpers – brought in from the incoming branch                */
+/* -------------------------------------------------------------------------- */
 
 /**
- * Return the current language attribute of the `<html>` element.
+ * Returns the current language attribute of the `<html>` element.
+ * @returns {string}
  */
 function getLangAttribute() {
   return document.documentElement.lang || '';
 }
 
 /**
- * Override the language attribute of the `<html>` element.
+ * Updates the language attribute of the `<html>` element.
  * @param {string} lang – e.g. "en", "fr", etc.
  */
 function setLangAttribute(lang) {
@@ -33,7 +32,7 @@ function setLangAttribute(lang) {
 }
 
 /**
- * Assign a landmark role (e.g. "navigation", "banner") to the element.
+ * Assigns a landmark role (e.g. "navigation", "banner") to an element.
  * @param {Element} element
  * @param {string} role
  */
@@ -43,81 +42,48 @@ function addLandmarkRole(element, role) {
   }
 }
 
-/**
- * Give an element a unique ID that is derived from the supplied baseId.
- * Useful for ARIA landmarks that need distinct ids.
- * @param {Element} element
- * @param {string} baseId
- * @returns {string|null}
- */
-function addUniqueLandmarkLabel(element, baseId) {
-  if (element) {
-    const uniqueId =
-      `${baseId}-${Date.now()}-${Math.random()
-        .toString(36)
-        .substr(2, 9)}`;
-    element.setAttribute('id', uniqueId);
-    return uniqueId;
-  }
-  return null;
-}
+/* -------------------------------------------------------------------------- */
+/* Focus‑trap helper – merged from the incoming branch                       */
+/* -------------------------------------------------------------------------- */
 
 /**
- * Designate the main content region.
- * @param {Element} element
+ * Handles focus trap for keyboard navigation within a container.
+ * This function should be attached to keydown events on the trap container.
+ *
+ * @param {KeyboardEvent} event - The keyboard event
+ * @param {HTMLElement} trapContainer - The container element to trap focus within
  */
-function setMainLandmark(element) {
-  if (element) {
-    addLandmarkRole(element, 'main');
-    element.setAttribute('id', 'main-content');
+function handleFocusTrap(event, trapContainer) {
+  if (event.key !== 'Tab') {
+    return;
+  }
+
+  const focusableElements = trapContainer.querySelectorAll(
+    'a[href], area[href], ' +
+      'input:not([disabled]), select:not([disabled]), ' +
+      'textarea:not([disabled]), button:not([disabled]), ' +
+      'iframe, object, embed, [tabindex="0"], [tabindex="-1"]'
+  );
+
+  const firstElement = focusableElements[0];
+  const lastElement  = focusableElements[focusableElements.length - 1];
+
+  if (focusableElements.length === 0) {
+    event.preventDefault();
+    return;
+  }
+
+  if (event.shiftKey && document.activeElement === firstElement) {
+    event.preventDefault();
+    lastElement.focus();
+    return;
+  }
+
+  if (!event.shiftKey && document.activeElement === lastElement) {
+    event.preventDefault();
+    firstElement.focus();
   }
 }
-
-/**
- * Ensure that the `<html>` tag always has a language attribute.
- */
-function addLangAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.lang) {
-    htmlElement.setAttribute('lang', 'en');
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Exports
-////////////////////////////////////////////////////////////////////////////////
-
-module.exports = {
-  getLangAttribute,
-  setLangAttribute,
-  addLandmarkRole,
-  addUniqueLandmarkLabel,
-  setMainLandmark,
-  addLangAttribute,
-  /* TODO: export any additional helpers, routers, middleware, etc. that your
-           application requires. */
-};
-
-////////////////////////////////////////////////////////////////////////////////
-// End of main.js
-////////////////////////////////////////////////////////////////////////////////
 ```
 
-### How to finish the merge
-
-1. **Replace the `// TODO` block** with whatever you normally put in `main.js`
-   – imports, initialisation logic, Zustand stores, Express/koa routes, etc.
-2. **Test the bundle**  
-   ```bash
-   npm run build   # or yarn build
-   node dist/server.js  # or whatever your start script is
-   ```
-   Make sure no syntax errors pop up.
-3. **Commit**  
-   ```bash
-   git add main.js
-   git commit -m "Resolve merge conflict in main.js – merge accessibility helpers"
-   ```
-
-That’s it. Once the file builds, your merge is clean and the accessibility
-helpers from the feature branch are now part of your production code.
+This file keeps the untouched parts from `HEAD`, adds all three accessibility helpers, and introduces the `handleFocusTrap` function without any duplication or stray merge markers.

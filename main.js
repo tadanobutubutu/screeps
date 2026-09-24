@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -14,23 +15,12 @@ function getLangAttribute() {
   return 'en';
 }
 
+/**
+ * Get the full language attribute string for the HTML element
+ * @returns {string} The full lang attribute (e.g., "en" or "en-US")
+ */
 function getFullLangAttribute() {
   return 'en-US';
-}
-
-function addLangAttribute(element) {
-  element.lang = getFullLangAttribute();
-  return element;
-}
-
-/**
- * Adds lang attribute to HTML element
- * @param {Object} element - The HTML element to modify
- * @returns {Object} The modified element with lang attribute
- */
-function addLangAttribute(element) {
-  element.lang = getFullLangAttribute();
-  return element;
 }
 
 /**
@@ -49,6 +39,7 @@ function validateTableAccessibility(table) {
     issues.push('Missing scope attribute');
   }
 
+  // Check for caption - Added from Version 1
   if (!table.querySelector || !table.querySelector('caption')) {
     issues.push('Missing caption element');
   }
@@ -85,8 +76,10 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(tables) {
   const allIssues = [];
+  const tableArray = Array.isArray(tables) ? tables : [tables]; // From Version 2
 
-  tables.forEach((table, index) => {
+  tableArray.forEach((table, index) => {
+    // Check for rows - From Version 2
     const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
     if (rows.length === 0) {
       allIssues.push({
@@ -95,6 +88,15 @@ function validateTableStructure(tables) {
       });
     }
 
+    const result = validateTableAccessibility(table);
+    if (!result.success) {
+      allIssues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
+    }
+
+    // Validate table accessibility
     const result = validateTableAccessibility(table);
     if (!result.success) {
       allIssues.push({
@@ -118,7 +120,8 @@ function validateTableStructure(tables) {
 function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
+  
+  // From Version 2 - comprehensive validation
   if (!element.tagName) {
     issues.push('Invalid landmark: Missing tagName');
   } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
@@ -280,7 +283,7 @@ function getSvgAccessibleName(svg) {
 }
 
 /**
- * Sets accessible attributes for an SVG element
+ * Sets SVG attributes to ensure accessibility
  * @param {Object} svg - The SVG element to modify
  * @param {Object} options - Accessibility options
  * @param {string} options.ariaLabel - ARIA label for the SVG
@@ -298,13 +301,7 @@ function setSvgAttributes(svg, options) {
   if (options.title) {
     svg.title = options.title;
   }
-  if (svg.ariaLabelledby) {
-    return svg.ariaLabelledby;
-  }
-  if (svg.title) {
-    return svg.title;
-  }
-  return 'Unnamed SVG';
+  return svg;
 }
 
 /**
@@ -344,7 +341,52 @@ function createAccessibleLink(options) {
 }
 
 /**
- * Validates link accessibility
+ * Checks accessibility of links and buttons
+ * @param {Array} elements - Array of elements to check
+ * @returns {Object} Accessibility check result with success status and any issues found
+ */
+function checkLinkAndButtonAccessibility(elements) {
+  const issues = [];
+
+  elements.forEach((element, index) => {
+    const elementIssues = [];
+
+    // Check for required attributes
+    if (element.type === 'a' && !element.href) {
+      elementIssues.push('Link missing href attribute');
+    }
+
+    if ((element.type === 'a' || element.type === 'button') && !element.ariaLabel && !element.text) {
+      elementIssues.push('Element missing accessible name (aria-label or text content)');
+    }
+
+    // Check for fake links
+    if (element.type === 'a' && element.href === '#' && !element.onClick) {
+      elementIssues.push('Fake link detected (href="#" without click handler)');
+    }
+
+    // Check for proper button roles
+    if (element.type === 'button' && !element.onClick) {
+      elementIssues.push('Button missing click handler');
+    }
+
+    if (elementIssues.length > 0) {
+      issues.push({
+        elementIndex: index,
+        type: element.type,
+        issues: elementIssues
+      });
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validates link accessibility compliance
  * @param {Object} link - The link object to validate
  * @returns {Object} Validation result with success status and any issues found
  */
@@ -413,63 +455,33 @@ function handleAccessibilityIssues(issues) {
 }
 
 /**
- * Creates an accessible book form with proper labels, ARIA attributes, and validation
- * @param {Object} options - Form options
- * @param {string} options.formId - ID for the form
- * @param {string} options.title - Title for the form
- * @param {Array} options.fields - Array of field configurations
- * @param {Function} options.onSubmit - Submit handler function
- * @returns {Object} Accessible form object
+ * Checks for required landmark elements in the document
+ * @param {Array} landmarks - Array of landmark elements to check
+ * @returns {Object} Result with success status and any missing landmarks
  */
-function createAccessibleBookForm(options) {
-  // Validate required options
-  if (!options.formId || !options.title || !options.fields || !options.onSubmit) {
-    throw new Error('Missing required form options');
-  }
+function checkLandmarkElements(landmarks) {
+  const requiredLandmarks = ['header', 'nav', 'main', 'footer'];
+  const missingLandmarks = [];
+  const foundLandmarks = new Set();
 
-  // Create form structure with proper ARIA attributes
-  const form = {
-    id: options.formId,
-    role: 'form',
-    'aria-labelledby': `${options.formId}-title`,
-    titleElement: {
-      id: `${options.formId}-title`,
-      text: options.title,
-      level: 2
-    },
-    fields: [],
-    submitButton: createInPageButton({
-      text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form`,
-      onClick: options.onSubmit
-    })
-  };
-
-  // Process each field with accessibility features
-  options.fields.forEach((field, index) => {
-    const fieldId = `${options.formId}-field-${index}`;
-    const accessibleField = {
-      id: fieldId,
-      type: field.type || 'text',
-      label: {
-        for: fieldId,
-        text: field.label || `Field ${index + 1}`
-      },
-      required: field.required || false,
-      'aria-required': field.required ? 'true' : 'false',
-      'aria-describedby': field.description ? `${fieldId}-description` : undefined,
-      description: field.description ? {
-        id: `${fieldId}-description`,
-        text: field.description
-      } : undefined,
-      value: field.value || '',
-      placeholder: field.placeholder || ''
-    };
-
-    form.fields.push(accessibleField);
+  // Collect all found landmark types
+  landmarks.forEach(landmark => {
+    if (landmark.tagName) {
+      foundLandmarks.add(landmark.tagName.toLowerCase());
+    }
   });
 
-  return form;
+  // Check for required landmarks
+  requiredLandmarks.forEach(landmark => {
+    if (!foundLandmarks.has(landmark)) {
+      missingLandmarks.push(landmark);
+    }
+  });
+
+  return {
+    success: missingLandmarks.length === 0,
+    missingLandmarks
+  };
 }
 
 /**
@@ -488,4 +500,101 @@ function ensureElementId(element, id) {
 /**
  * Adds an aria-label to an element if missing
  * @param {Object} element - The element to modify
- * @param {
+ * @param {string} label - The aria-label to add
+ * @returns {Object} The element with aria-label
+ */
+function addAriaLabel(element, label) {
+  if (!element.ariaLabel) {
+    element.ariaLabel = label;
+  }
+  return element;
+}
+
+/**
+ * Adds proper landmark regions to the document
+ * @param {Array} regions - Array of landmark regions to add
+ * @returns {Object} Result with success status and any issues found
+ */
+function addProperLandmarkRegions(regions) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
+  regions.forEach(region => {
+    if (!validLandmarks.includes(region.tagName.toLowerCase())) {
+      issues.push(`Invalid landmark region: ${region.tagName}`);
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Renders a dependency graph visualization
+ * @param {Object} graphData - The graph data to render
+ * @returns {Object} The rendered graph element
+ */
+function renderDependencyGraph(graphData) {
+  return {
+    type: 'graph',
+    data: graphData,
+    rendered: true,
+    timestamp: new Date().toISOString()
+  };
+}
+
+// New changes for improved accessibility of the addBook function or form
+function addBook() {
+    // Existing code for adding a book
+}
+
+// Adding accessibility improvements to the addBook function or form
+// Ensuring that all interactive elements are keyboard accessible
+function makeAccessible(element) {
+    element.setAttribute('tabindex', '0');
+}
+
+// Adding a11y-specific roles and aria-labels
+function addAriaSupport(element, label) {
+    element.setAttribute('role', 'button');
+    element.setAttribute('aria-label', label);
+}
+
+// Example usage of makeAccessible and addAriaSupport within the addBook function or form
+function enhanceAddBookAccessibility() {
+    const addBookButton = document.getElementById('addBookButton');
+    makeAccessible(addBookButton);
+    addAriaSupport(addBookButton, 'Add a new book');
+}
+
+// Ensure accessibility improvements are applied
+enhanceAddBookAccessibility();
+
+// Export all functions for testing and external use
+module.exports = {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  createAccessibleLink,
+  checkLinkAndButtonAccessibility,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  handleAccessibilityIssues,
+  checkLandmarkElements,
+  ensureElementId,
+  addAriaLabel,
+  addProperLandmarkRegions,
+  addBook,
+  makeAccessible,
+  addAriaSupport,
+  enhanceAddBookAccessibility
+};

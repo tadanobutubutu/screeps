@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// REACT_015: Add lang attribute
-
 const Main = ({ children, title, lang = 'en' }) => {
   // Code for Main component with accessibility improvements
   return (
@@ -21,8 +19,14 @@ Main.propTypes = {
 };
 
 const updateTitle = (newTitle) => {
-  // Placeholder implementation
+  // This function should update the title of the Main component.
+  // For example, it could be a method that sets a state or a prop that controls the title.
+  // Placeholder implementation:
+  console.log(`Updating title to: ${newTitle}`);
 };
 
-export { Main, PropTypes, updateTitle };
+// Adding the missing required export
+export { Main, PropTypes };
+
 export default Main;
+export { Main, updateTitle };

@@ -170,5 +170,7 @@ module.exports = {
   addressAccessibilityIssues,
   renderDependencyGraphs,
   ...mainUtilities,
-  accessibilityUtils
+  accessibilityUtils,
+  navigateWithArrow,
+  handleTabNavigation
 }

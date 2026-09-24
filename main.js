@@ -1,10 +1,4 @@
-// TODO: This is the modified and merged code in main.js
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
-
-// Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-const main = require('./utilities')
+const main = require('./utilities');
 
 const {
   fixTableStructure,
@@ -15,37 +9,14 @@ const {
   addSvgAccessibleName,
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  checkAccessibility,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
+  fixAllFakeLinks
+} = main;
+
+const {
+  newFunction,
+  validateTableStructureForAccessibility,
+  validateTableAccessibility,
+  implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
@@ -552,7 +523,6 @@ module.exports = {
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
-  ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
   renderDependencyGraphs,

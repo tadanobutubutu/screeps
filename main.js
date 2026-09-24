@@ -38,67 +38,7 @@ function extractSvgAccessibleName(svgElement) {
  * @returns {Object} - Summary of fixes applied
  */
 function addressAccessibilityIssues(issues, options = {}) {
-  const defaultText = options.defaultText || 'Action';
-  const useAriaLabel = options.useAriaLabel || false;
-  
-  // ... Existing code for addressAccessibilityIssues function
-
-}
-
-/**
- * Check if a given element has any accessibility issues
- * @param {Element} element - DOM element to check
- * @returns {Object | undefined} - Object with the issue details if found, undefined otherwise
- */
-function checkLinkAndButtonAccessibility(element) {
-  if (!element || !element.tagName) return;
-
-  const tagName = element.tagName.toLowerCase();
-
-  if (tagName === 'a' || tagName === 'button') {
-    // Check for presence of visible or ARIA text
-    const textContents = Array.from(element.textContent.trim().split(/\s+/));
-    const hasVisibleText = textContents.length > 0;
-    const hasAriaAttr = element.hasAttribute('aria-label');
-
-    if (!hasVisibleText && !hasAriaAttr) {
-      return {
-        type: tagName,
-        index: document.getElementById(element.id) ? document.getElementById(element.id).getAttribute('data-testid') : undefined,
-        accessibilityIssue: 'Missing clear text content'
-      };
-    }
-  }
-
-  return undefined;
-}
-
-/**
- * Validates table structure issues.
- * Handles REACT_027.
- * @param {HTMLElement} table - The table element to validate
- * @returns {Object} - Validation summary
- */
-function validateTableStructure(table) {
-  const summary = {
-    validStructure: true,
-    issues: []
-  };
-  if (!table) {
-    summary.validStructure = false;
-    summary.issues.push('No table provided');
-    return summary;
-  }
-  if (!table.querySelector('thead')) {
-    summary.issues.push('Missing thead');
-  }
-  if (!table.querySelector('tbody')) {
-    summary.issues.push('Missing tbody');
-  }
-  if (summary.issues.length > 0) {
-    summary.validStructure = false;
-  }
-  return summary;
+  // ... Existing code for addressAccessibilityIssues ...
 }
 
 function checkLinkAndButtonAccessibility(issues, options) {
@@ -194,6 +134,15 @@ function setLanguageAttribute(lang = 'en') {
   if (typeof document !== 'undefined') {
     document.documentElement.setAttribute('lang', lang);
   }
+}
+
+/**
+ * Checks accessibility of all links and buttons in the provided issues array
+ * @param {Array} issues - Array of accessibility issues to address
+ * @returns {Object} - Summary of fixes applied, including link and button issues
+ */
+function checkLinkAndButtonAccessibility(issues) {
+  return addressAccessibilityIssues(issues, { useAriaLabel: true });
 }
 
 // Exports for the functions

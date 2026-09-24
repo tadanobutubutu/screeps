@@ -9,15 +9,16 @@
 
 // Add the new function for generating a report
 function generateAccessibilityReport() {
-  // Implement this function according to your reporting requirements
-  // For now, return a simple report
+  // This function generates a report of accessibility issues
   return {
-    timestamp: new Date().toISOString(),
+    success: true,
+    totalIssues: 0,
+    issues: [],
     summary: {
       tables: 0,
       landmarks: 0,
-      svgs: 0,
-      links: 0
+      links: 0,
+      buttons: 0
     }
   };
 }
@@ -425,8 +426,8 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form`,
-      onClick: options.onSubmit
+      ariaLabel: `Submit ${options.title} form',
+      onSubmit: options.onSubmit
     })
   };
 

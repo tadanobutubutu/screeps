@@ -122,37 +122,42 @@ function init() {
 // Add lang attribute to HTML element
 function addLangAttribute() {
     // Implementation goes here
-    const htmlElement = document.querySelector('html');
-    if (htmlElement) {
-        htmlElement.setAttribute('lang', 'en'); // Example value, should be dynamically set
+    const html = document.querySelector('html');
+    if (html) {
+        html.setAttribute('lang', 'en'); // Example: Set the language to English
     }
 }
 
 // Fix 26 table structure issues
 function fixTableStructure() {
     // Implementation goes here
-    // Example: Ensure that tables have `role="table"` and `aria-label` attributes
+    // Example: Add `role="table"` to the table and `role="row"` to rows, etc.
     const tables = document.querySelectorAll('table');
-    tables.forEach((table) => {
+    tables.forEach(table => {
         table.setAttribute('role', 'table');
-        const label = `Table: ${table.getAttribute('id') || 'Table'} `;
-        table.setAttribute('aria-label', label);
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            row.setAttribute('role', 'row');
+        });
     });
 }
 
 // Add/fix 4 landmark issues
 function fixLandmarkIssues() {
     // Implementation goes here
-    // Example: Add `role="navigation"` to `<nav>` elements
-    const navElements = document.querySelectorAll('nav');
-    navElements.forEach((nav) => {
-        nav.setAttribute('role', 'navigation');
+    // Example: Add ARIA landmark roles to elements
+    const landmarks = ['main', 'article', 'section', 'aside'];
+    landmarks.forEach(landmark => {
+        const elements = document.querySelectorAll(landmark);
+        elements.forEach(element => {
+            element.setAttribute('role', landmark);
+        });
     });
 }
 
 function addMainLandmark() {
     // Implementation goes here
-    // Example: Add `role="main"` to `<main>` element
+    // Example: Add `role="main"` to the main content area
     const mainElement = document.querySelector('main');
     if (mainElement) {
         mainElement.setAttribute('role', 'main');
@@ -161,29 +166,36 @@ function addMainLandmark() {
 
 function addLandmarkRegions() {
     // Implementation goes here
-    // Example: Add `role="region"` to `<section>` elements
-    const sectionElements = document.querySelectorAll('section');
-    sectionElements.forEach((section) => {
-        section.setAttribute('role', 'region');
+    // Example: Add `role="region"` to certain sections
+    const regions = document.querySelectorAll('.region');
+    regions.forEach(region => {
+        region.setAttribute('role', 'region');
     });
 }
 
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
     // Implementation goes here
-    // Example: Ensure that landmark roles are unique across the document
-    const landmarkRoles = ['banner', 'navigation', 'search', 'main', 'article', 'region', 'contentinfo', 'complementary', 'form'];
-    const usedRoles = new Set();
-    landmarkRoles.forEach((role) => {
-        const elements = document.querySelectorAll(`[role="${role}"]`);
-        elements.forEach((element) => {
-            if (usedRoles.has(role)) {
-                console.warn(`Duplicate landmark role: ${role} on element: ${element}`);
+    // Example: Check for duplicate landmark roles and report them
+    const roles = ['main', 'article', 'section', 'aside', 'navigation', 'search', 'complementary', 'contentinfo'];
+    const landmarks = {};
+    const elements = document.querySelectorAll('[role]');
+    elements.forEach(element => {
+        const role = element.getAttribute('role');
+        if (roles.includes(role)) {
+            if (landmarks[role]) {
+                console.warn(`Duplicate landmark role found: ${role}`);
             } else {
-                usedRoles.add(role);
+                landmarks[role] = element;
             }
-        });
+        }
     });
+}
+
+function uniqueLandmarks() {
+    // Implementation goes here
+    // Example: Ensure that landmark roles are unique across the document
+    ensureUniqueLandmarks();
 }
 
 // Add accessible names to 2 SVGs
@@ -191,9 +203,9 @@ function addSvgAccessibleNames() {
     // Implementation goes here
     // Example: Add `aria-label` to SVGs
     const svgs = document.querySelectorAll('svg');
-    svgs.forEach((svg) => {
-        const label = svg.getAttribute('title') || 'SVG Image';
-        svg.setAttribute('aria-label', label);
+    svgs.forEach(svg => {
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-label', 'SVG description');
     });
 }
 
@@ -206,39 +218,41 @@ function addAccessibleNamesToSVGs() {
 // Fix 1 fake link issue
 function fixFakeLinkIssue() {
     // Implementation goes here
-    // Example: Add `role="presentation"` to fake links
+    // Example: Add `role="button"` to fake links
     const fakeLinks = document.querySelectorAll('.fake-link');
-    fakeLinks.forEach((link) => {
-        link.setAttribute('role', 'presentation');
+    fakeLinks.forEach(link => {
+        link.setAttribute('role', 'button');
+        link.setAttribute('tabindex', '0'); // Make the link focusable
     });
 }
 
 function fixFakeLinkIssues() {
     // Implementation goes here
-    // Example: Add `role="presentation"` to fake links
+    // Example: Add `role="button"` to fake links
     fixFakeLinkIssue();
 }
 
 // Google sign-in logic
 function googleSignIn() {
     // Implementation goes here
+    // Example: This function would contain logic to handle Google sign-in
 }
 
 // Replace my-button with actual button id for accessibility
 function fixButtonIdentifiers() {
     // Implementation goes here
-    // Example: Replace placeholder button id with an actual one
-    const button = document.getElementById('my-button');
-    if (button) {
-        button.id = 'actual-button-id';
-    }
+    // Example: Replace placeholder IDs with actual IDs
+    const buttons = document.querySelectorAll('.my-button');
+    buttons.forEach(button => {
+        button.id = button.getAttribute('data-id'); // Assuming data-id contains the actual ID
+    });
 }
 
 // Ensure dependencyGraph container has proper ARIA role
 function ensureDependencyGraphARIA() {
     // Implementation goes here
     // Example: Add `role="application"` to the dependency graph container
-    const dependencyGraph = document.getElementById('dependencyGraph');
+    const dependencyGraph = document.querySelector('#dependencyGraph');
     if (dependencyGraph) {
         dependencyGraph.setAttribute('role', 'application');
     }

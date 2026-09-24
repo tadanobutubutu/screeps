@@ -111,10 +111,7 @@ const appState = {
   sessions: new Map()
 }
 
-// Helper functions for session management
-function getActiveSessionsCount () {
-  return appState.sessions.size
-}
+// TODO: add the new functions or changes requested in the issue
 
 function validateSession(sessionId) {
   return appState.sessions.get(sessionId) || null;

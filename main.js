@@ -656,6 +656,32 @@ function generateFullReport(dependencyInfo, accessibilityInfo) {
     return renderIndexView(dependencyInfo, accessibilityInfo);
 }
 
+/**
+ * Calculates a discount based on price and discount percentage
+ * @param {number} price - The original price
+ * @param {number} discountPercent - The discount percentage (0-100)
+ * @returns {Object} An object containing the discount amount and final price
+ */
+function calculateDiscount(price, discountPercent) {
+    if (typeof price !== 'number' || typeof discountPercent !== 'number') {
+        throw new Error('Price and discountPercent must be numbers');
+    }
+    if (price < 0) {
+        throw new Error('Price cannot be negative');
+    }
+    if (discountPercent < 0 || discountPercent > 100) {
+        throw new Error('Discount percentage must be between 0 and 100');
+    }
+    const discountAmount = price * (discountPercent / 100);
+    const finalPrice = price - discountAmount;
+    return {
+        originalPrice: price,
+        discountPercent: discountPercent,
+        discountAmount: Math.round(discountAmount * 100) / 100,
+        finalPrice: Math.round(finalPrice * 100) / 100
+    };
+}
+
 module.exports = {
     validateWebAccessibility,
     validateTableAccessibility,
@@ -680,8 +706,9 @@ module.exports = {
     personName,
     setHtmlLangAttribute,
     detectAndSetLang,
-    renderIndexView,
-    renderMainView,
-    renderMainContent,
-    generateFullReport
+    createInPageButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    calculateDiscount
 };

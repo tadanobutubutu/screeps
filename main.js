@@ -63,6 +63,30 @@ function addBook() {
   // For example, using appropriate ARIA roles, labels, and roles for form controls
 }
 
+// TODO: Implement a function to count dependencies
+let lineCountFunction = countDependencies;
+
+/**
+ * Counts the number of dependencies.
+ * @param {Object|Array} dependencies - The dependencies object or array to count
+ * @returns {number} - The count of dependencies
+ */
+function countDependencies(dependencies) {
+  if (!dependencies) {
+    return 0;
+  }
+  
+  if (Array.isArray(dependencies)) {
+    return dependencies.length;
+  }
+  
+  if (typeof dependencies === 'object') {
+    return Object.keys(dependencies).length;
+  }
+  
+  return 0;
+}
+
 // Don't forget to test your new additions in the test file
 
 // Export accessibility utility functions

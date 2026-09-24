@@ -15,10 +15,10 @@ const {
   ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
-  renderDependencyGraphs,
+  renderDependencyGraphs: renderDependencyGraphsFromUtil,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
-  addMainLandmarkToIndex,
+  addMainLandmarkToIndex: addMainLandmarkToIndexFromUtil,
   focusTrap,
   checkAccessibility
 } = main
@@ -80,8 +80,19 @@ function implementAccessibilityFixesFromReport (container, report) {
   addMainLandmarkToIndex(container)
 
   // Fix landmark issues
-  validateLandmark(container)
+  if (typeof validateLandmark === 'function') {
+    validateLandmark(container)
+  }
   ...
+  /* --------------------------------------------------------------
+     Conflict Resolution:
+     Both branches added new landmark validation functions.
+     The HEAD branch had only validateLandmark(), while origin/main
+     included both validateLandmark() and ...
+     To preserve both changes (both are valid additions), we include
+     both calls in the final implementation.
+     -------------------------------------------------------------- */
+}
 
   // Fix SVG accessible names
   const svgElements = ...
@@ -566,4 +577,29 @@ export function fixFakeLinkIssue(element) {
   const onClick = element.getAttribute('onclick') || element.onclick;
   
   if (onClick && tagName !== 'a' && tagName !== 'button') {
-    if
+    if (role !== 'button') {
+      element.setAttribute('role', 'button');
+    }
+    
+    if ... {
+      element.setAttribute('tabindex', '0');
+    }
+    
+    ... function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        element.click();
+      }
+    });
+  }
+  
+  return element;
+}
+
+/**
+ * REACT_036: Fix all fake link issues in container
+ */
+export function ... {
+  if (!container) return null;
+  
+  const clickableElements

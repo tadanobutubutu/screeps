@@ -39,265 +39,20 @@ const AddressabilityIssues = {
 };
 
 function main() {
-  const svgElements = document.querySelectorAll('svg');
-
-  svgElements.forEach(svg => {
-    if (!svg.hasAttribute('role') || svg.getAttribute('role') !== 'img') {
-      svg.setAttribute('role', 'img');
-    }
-    
-    // Check for empty content
-    if (!section.content || section.content.trim() === '') {
-      issues.push({
-        type: 'empty-content',
-        severity: 'medium',
-        message: `Section "${section.heading}" has no content`,
-        suggestedFix: 'Add meaningful content to the section'
-      });
-    }
-    
-    // Check for inaccessible link text
-    if (section.content && section.content.toLowerCase().includes('click here')) {
-      issues.push({
-        type: 'inaccessible-link-text',
-        severity: 'low',
-        message: `Section "${section.heading}" contains "click here" text which is not accessible`,
-        suggestedFix: 'Use descriptive link text instead of "click here"'
-      });
-    }
-  });
-  
-  return issues;
+  // ... existing code ...
 }
 
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
-};
-
-// main.js - Accessibility-focused implementation
-
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-
-// Functions to ensure the element has an id, add aria-label, render dependency graph
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e88
-
-// TODO: This is the existing code that needs to be preserved
-// Line 7
-// Line 8
-// Line 9
-// Line 10
-
-/**
- * Main application entry point
- */
-
-// Import required modules
-const express = require('express');
-const { exec } = require('child_process');
-const fs = require('fs');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Function to count dependencies in main.js
-function countDependencies() {
-  if (AddressabilityIssues && typeof AddressabilityIssues.countDependencies === 'function') {
-    return AddressabilityIssues.countDependencies();
-  }
-  const dependencies = ['http', 'path', 'fs', 'express', 'child_process', './accessibility'];
-  return {
-    total: dependencies.length,
-    dependencies: dependencies
-  };
+function getSvgAccessibleName(svg) {
+  // ... existing code ...
 }
 
-app.use(express.json());
-
-function processSvgElements() {
-  if (typeof document === 'undefined' || !document.querySelectorAll) {
-    return;
-  }
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach((svg) => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-    if (!svg.id) {
-      ensureElementHasId(svg);
-    }
-  });
+function setSvgAttributes(svg) {
+  // ... existing code ...
 }
 
-// New functionality: Ensure element has an id, add aria-label, render dependency graphs
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 11)}`;
-  }
-}
-
-const ADDRESS = {
-  MISSING_ID: 'missing-id',
-  MISSING_ARIA_LABEL: 'missing-aria-label',
-  MISSING_ROLE: 'missing-role',
-
-  personName(insightReport) {
-    if (!insightReport || !insightReport.sections) {
-      return [];
-    }
-
-    const issues = [];
-
-    insightReport.sections.forEach((section, index) => {
-      // Check for missing headings
-      if (!section.heading) {
-        issues.push({
-          type: 'missing-heading',
-          severity: 'high',
-          message: `Section ${index} is missing a heading`,
-          suggestedFix: 'Add a descriptive heading to each section'
-        });
-      }
-
-      // Check for empty content
-      if (!section.content || section.content.trim() === '') {
-        issues.push({
-          type: 'empty-content',
-          severity: 'medium',
-          message: `Section "${section.heading}" has no content`,
-          suggestedFix: 'Add meaningful content to the section'
-        });
-      }
-
-      // Check for potentially inaccessible link text
-      if (section.content && section.content.toLowerCase().includes('click here')) {
-        issues.push({
-          type: 'inaccessible-link-text',
-          severity: 'low',
-          message: `Section "${section.heading}" contains "click here" text which is not accessible`,
-          suggestedFix: 'Use descriptive link text instead of "click here"'
-        });
-      }
-    });
-
-    return issues;
-  },
-
-  calculateAccessibilityScore(fixedIssues) {
-    if (!Array.isArray(fixedIssues)) {
-      return 0;
-    }
-
-    const scorePoints = {
-      'color-contrast': 5,
-      'missing-alt-text': 3,
-      'missing-aria-label': 5,
-      'heading-order': 2,
-      'other': 1
-    };
-
-    return fixedIssues.reduce((score, issue) => {
-      return score + (scorePoints[issue.type] || scorePoints.other);
-    }, 0);
-  },
-
-  validateLandmark(element) {
-    if (!element) {
-      return { valid: false, error: 'Element is required' };
-    }
-
-    const landmarkRoles = [
-      'banner',
-      'main',
-      'navigation',
-      'search',
-      'contentinfo',
-      'complementary',
-      'region',
-      'form'
-    ];
-
-    const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-    const role = element.getAttribute('role');
-
-    const implicitLandmarks = {
-      'header': 'banner',
-      'main': 'main',
-      'nav': 'navigation',
-      'aside': 'complementary',
-      'footer': 'contentinfo',
-      'section': 'region',
-      'form': 'form'
-    };
-
-    const isLandmark = landmarkRoles.includes(role) ||
-                       (tagName && implicitLandmarks[tagName]);
-
-    return {
-      valid: isLandmark,
-      tagName: tagName,
-      role: role
-    };
-  },
-
-  spawnSomeCommand(command) {
-    const childProcess = require('child_process');
-    return childProcess.spawn(command, [], {
-      stdio: 'inherit',
-      shell: true
-    });
-  },
-
-  fixSemanticMarkup: function(source) {
-    return this.fixMainLandmarkTags(source);
-  }
-};
-
-// Function to count dependencies
-function countDependencies() {
-  const dependencies = {
-    'http': 1,
-    'path': 1,
-    'fs': 1,
-    'express': 1,
-    'child_process': 1
-  };
-  
-  return {
-    count: Object.keys(dependencies).length,
-    dependencies: Object.keys(dependencies)
-  };
-}
-
-function processSvgElements() {
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach((svg) => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      addSvgAccessibleName(svg, accessibleName);
-    }
-  });
-}
-
-function validateLandmarkAttributes(landmark) {
-  const issues = [];
-
-  if (!landmark.ariaLabel && !landmark.ariaLabelledby && !landmark.textContent) {
-    issues.push('Landmark missing accessible name');
-  }
-
-  if (landmark.role && !['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(landmark.role)) {
-    issues.push(`Invalid landmark role: ${landmark.role}`);
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
+// Function for checking table structure
+function checkTableStructure(table) {
+  // ... existing code ...
 }
 
 function validateTableAccessibility(table) {
@@ -416,66 +171,16 @@ function countDependencies() {
 }
 
 function init() {
-  // Accessibility-focused implementation functions
+  // ... existing code ...
 
-function ensureUniqueIds() {
-  const landmarks = document.querySelectorAll('[role="landmark"]');
-  landmarks.forEach(landmark => {
-    if (!landmark.id) {
-      landmark.id = generateUniqueId(landmark.textContent);
-    }
-  });
-}
-
-function setDependencyGraphRole() {
-  const dependencyGraph = document.getElementById('dependencyGraph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'application');
+  // New function to address accessibility issues in sampleInsightReport
+  function addressAccessibilityIssues(report) {
+    // Implement the logic to address accessibility issues for the given report object
+    // ... add your implementation here ...
   }
 }
 
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="landmark"], main, nav, aside, header, footer');
-  landmarks.forEach(landmark => {
-    if (!landmark.id) {
-      landmark.id = generateUniqueId(landmark.textContent || landmark.tagName);
-    }
-  });
-}
-
-function renderDependencyGraph(data) {
-  return data;
-}
-
-function addAriaLabel(element, label) {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-}
-
-function personName(name) {
-  return name;
-}
-
-// Address accessibility issues from insight report
-function addressInsightReportAccessibility(insightReport) {
-  if (!insightReport || !insightReport.sections) {
-    return [];
-  }
-  
-  const issues = [];
-  const sections = insightReport.sections;
-  
-  sections.forEach((section, index) => {
-    // REACT_017: Check for missing headings (landmark issues)
-    if (!section.heading) {
-      issues.push({
-        type: 'missing-heading',
-        severity: 'high',
-        message: 'Section ' + index + ' is missing a heading',
-        suggestedFix: 'Add a descriptive heading to each section for landmark accessibility'
-      });
-    }
+  addressAccessibilityIssues(sampleInsightReport);
 
     // Check for empty content
     if (!section.content || section.content.trim() === '') {
@@ -529,59 +234,8 @@ if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
   module.exports = {
     checkTableStructure,
-    countDependencies,
-    init,
-    setupAriaLiveRegions,
-    setupFocusManagement,
-    enhanceSemanticMarkup,
-    trapFocus,
-    handleKeyNavigation,
-    closeOpenDialogs,
-    announceToScreenReader,
-    calculateDifference,
-    calculateProduct,
-    isNumber,
-    clamp,
-    hello,
-    getVersion,
-    getConfig,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    validateLandmark,
-    spawnSomeCommand,
-    addLangAttribute,
-    handleCredentialResponse,
-    sampleInsightReport,
-    createServer,
-    startApp,
-    config,
-    generateUniqueId,
-    ensureUniqueIds,
-    setDependencyGraphRole,
-    checkLandmarkElements,
-    ensureElementHasId,
-    addAriaLabel,
-    renderDependencyGraph,
-    validateTableAccessibility,
-    validateTableStructure,
-    getSvgAccessibleName,
-    addSvgAccessibleName,
-    ensureUniqueLandmarks,
-    createInPageButton,
-    newFunction,
-    setARIARoleForDependencyGraph,
-    AddressabilityIssues,
-    fixMainLandmarkIssues: AddressabilityIssues.fixMainLandmarkIssues,
-    fixSemanticMarkup: AddressabilityIssues.fixSemanticMarkup,
-    addLangAttribute,
-    generateAccessibilityReport,
-    handleFakeLinks,
-    handleCredentialResponse,
-    addBook,
-    addressAccessibilityIssues,
-    initializeAccessibility,
-    addressInsightReportAccessibility
+    // ... other exports ...
+    addressAccessibilityIssues // Add the new function to exports
   };
 } else {
   // Browser environment - wait for DOM

@@ -148,72 +148,26 @@ const appState = {
   cache: new Map()
 };
 
-function validateLandmark(landmark) {
-  const errors = [];
-  // Existing code that should be preserved
-  // Update landmark validation logic if needed
-  const role = landmark.getAttribute('role');
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
-  }
-  return errors;
-}
+  svgElements.forEach((svg) => {
+    if (svg) {
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
 
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
+      const accessibleName = svg.getAttribute('aria-label') || svg.getAttribute('id') || '';
 
-const HTML = ({ lang }) => {
-    return { lang };
-};
+      // Extract accessible name from SVG content (e.g., <title> tag) if not already present
+      if (!accessibleName) {
+        const titleElement = svg.querySelector('title');
+        if (titleElement) {
+          accessibleName = titleElement.textContent.trim();
+        }
+      }
 
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// Function to count dependencies in package.json
-function countDependencies() {
-  try {
-    const packageJson = require('./package.json');
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-    const peerDependencies = packageJson.peerDependencies || {};
-    const optionalDependencies = packageJson.optionalDependencies || {};
-
-    return {
-      dependencies: Object.keys(dependencies).length,
-      devDependencies: Object.keys(devDependencies).length,
-      peerDependencies: Object.keys(peerDependencies).length,
-      optionalDependencies: Object.keys(optionalDependencies).length,
-      total: Object.keys(dependencies).length + 
-             Object.keys(devDependencies).length + 
-             Object.keys(peerDependencies).length + 
-             Object.keys(optionalDependencies).length
-    };
-  } catch (error) {
-    return {
-      dependencies: 0,
-      devDependencies: 0,
-      peerDependencies: 0,
-      optionalDependencies: 0,
-      total: 0,
-      error: error.message
-    };
-  }
-}
-
-function validateTableAccessibility(tableElement) {
-    // Implementation to validate table accessibility (conflict resolved: merged implementation)
-    if (!tableElement.querySelector('caption')) {
-        console.warn('Table missing caption');
-        return false;
+      if (accessibleName) {
+        // Use accessibleName
+      }
+      setSvgAttributes(svg);
     }
     return true;
 }
@@ -546,11 +500,8 @@ function sampleInsightReport() {
 
 // Export functions for testing
 module.exports = {
-  initializeApp,
-  getConfig,
-  validateInput,
-  processData,
-  createInPageButton,
-  implementTowerDefense,
-  renderDependencyGraphs
+  AddressabilityIssues,
+  main,
+  checkTableStructure,
+  validateAccessibility
 };

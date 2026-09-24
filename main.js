@@ -88,6 +88,13 @@ function renderGraphIndex (content, options = {}) {
   return container
 }
 
+// New function added as requested in the issue
+function myNewFunction () {
+  // Implementation of the new function
+  // This is a placeholder - replace with actual implementation
+  console.log('myNewFunction called')
+}
+
 export {
   renderGraphIndex,
   prefersReducedMotion,
@@ -95,5 +102,6 @@ export {
   capitalize,
   getRandomInt,
   clamp,
-  deepClone
+  deepClone,
+  myNewFunction
 }

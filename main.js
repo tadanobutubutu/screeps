@@ -36,18 +36,6 @@ function setHtmlLangAttribute (lang) {
 }
 
 /**
- * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang language code (e.g., 'en', 'es', 'fr')
- * @returns {string} The lang attribute value that was set
- */
-function getLangAttribute () {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || 'en'
-  }
-  return 'en'
-}
-
-/**
  * Detects the language of the given content and sets the HTML lang attribute
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
@@ -58,7 +46,7 @@ function detectAndSetLang (content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fa5]/.test(content)) {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh' // Chinese
     } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja' // Japanese
@@ -66,13 +54,24 @@ function detectAndSetLang (content) {
       lang = 'ru' // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar' // Arabic
-    } else if (/[àâäçéèêëîïôûùüÿœæ]/i.test(content)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr' // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de' // German
     }
 
   return lang
+}
+
+/**
+ * Gets the current lang attribute from the document's <html> tag
+ * @returns {string} The current lang attribute value, defaults to 'en'
+ */
+function getLangAttribute () {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || 'en'
+  }
+  return 'en'
 }
 
 /**
@@ -85,23 +84,18 @@ function detectAndSetLang (content) {
  * @returns {HTMLElement} The created element with accessible naming
  */
 function personName (options = {}) {
-  const { firstName = '', lastName = '', lang = 'en', container = null } = options
+  const { firstName = '', lastName = '', container = null } = options
   const fullName = `${firstName} ${lastName}`.trim()
 
-  if (typeof document !== 'undefined') {
-    const nameElement = document.createElement('span')
-    nameElement.setAttribute('lang', lang)
-    nameElement.setAttribute('aria-label', fullName)
-    nameElement.textContent = fullName || 'Unknown'
+  const element = document.createElement('span')
+  element.setAttribute('aria-label', fullName)
+  element.textContent = fullName
 
-    if (container) {
-      container.appendChild(nameElement)
-    }
-
-    return nameElement
+  if (container) {
+    container.appendChild(element)
   }
 
-  return fullName || 'Unknown'
+  return element
 }
 
 /**
@@ -216,6 +210,9 @@ function newFocusTrap (container) {
     }
   }
 }
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 // Export the new functions
 module.exports = {

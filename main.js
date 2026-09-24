@@ -26,9 +26,9 @@ const renderGraphIndex = (graphData) => {
   renderDependencyGraphs(graphData);
 };
 
-function functionName(title, desc) {
-  const titleEl = title;
-  const descEl = desc;
+function getTitleOrDescription(element) {
+  const title = element.querySelector('title');
+  const desc = element.querySelector('desc');
   
   if (titleEl && titleEl.textContent) {
     return titleEl.textContent.trim();
@@ -38,7 +38,7 @@ function functionName(title, desc) {
     return descEl.textContent.trim();
   }
 
-  return titleEl || descEl || '';
+  return element.textContent || '';
 }
 
 /**
@@ -90,13 +90,13 @@ function detectAndSetLang(content) {
     // Simple language detection based on common patterns
     if (content.match(/[\u4e00-\u9fff]/)) {
       lang = 'zh'; // Chinese
-    } else if (content.match(/[\u3040-\u30ff]/)) {
+    } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (content.match(/[\u0400-\u04ff]/)) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (content.match(/[\u0600-\u06ff]/)) {
       lang = 'ar'; // Arabic
-    } else if (content.match(/\b(le|la|les|des|un|une|de|du|et|en|que|qui)\b/i)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (content.match(/\b(der|die|das|und|ist|von|mit|auf|im|für)\b/i)) {
       lang = 'de'; // German
@@ -105,6 +105,7 @@ function detectAndSetLang(content) {
   if (navigator && navigator.language) {
     lang = navigator.language;
   }
+  setHtmlLangAttribute(lang);
   return lang;
 }
 

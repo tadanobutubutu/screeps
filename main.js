@@ -705,10 +705,24 @@ export {
 
 // New accessibility functions added to address the issues
 
-// Function to ensure the document has a proper lang attribute
+// Function to ensure the document has a lang attribute
 function ensureDocumentLangAttribute() {
   if (!document.documentElement.hasAttribute('lang')) {
     document.documentElement.setAttribute('lang', 'en');
+  }
+}
+
+// Function to add main landmark if missing
+function addMainLandmark() {
+  if (!document.querySelector('main') && !document.querySelector('[role="main"]')) {
+    const mainElement = document.createElement('main');
+    const firstChild = document.body.firstChild;
+    document.body.insertBefore(mainElement, firstChild);
+
+    // Move all content to the main element
+    while (document.body.children.length > 1) {
+      mainElement.appendChild(document.body.children[1]);
+    }
   }
 }
 
@@ -723,36 +737,50 @@ function fixTableAccessibility() {
       table.insertBefore(caption, table.firstChild);
     }
 
-    // Ensure table headers have scope attributes
+    // Ensure table has proper headers
     const headers = table.querySelectorAll('th');
-    headers.forEach(header => {
-      if (!header.hasAttribute('scope')) {
+    headers.forEach((header, index) => {
+      if (!header.getAttribute('scope')) {
         header.setAttribute('scope', 'col');
       }
     });
   });
 }
 
-// Function to add main landmark if missing
-function addMainLandmark() {
-  if (!document.querySelector('main') && !document.querySelector('[role="main"]')) {
-    const main = document.createElement('main');
-    const content = document.querySelector('.content') || document.body.firstChild;
-    if (content) {
-      content.parentNode.insertBefore(main, content);
-      main.appendChild(content);
-    }
-  }
-}
-
-// Function to ensure SVG accessibility
-function ensureSvgAccessibility() {
+// Function to add accessible names to SVGs
+function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = 'SVG image';
       svg.insertBefore(title, svg.firstChild);
+    }
+  });
+}
+
+// Function to fix fake links
+function fixFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+  fakeLinks.forEach(link => {
+    if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
+      link.setAttribute('role', 'button');
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+    }
+  });
+}
+
+// Function to add proper landmark regions
+function addProperLandmarkRegions() {
+  const regions = ['main', 'navigation', 'banner', 'contentinfo', 'complementary'];
+
+  regions.forEach(role => {
+    if (!document.querySelector(`[role="${role}"]`)) {
+      const element = document.createElement('div');
+      element.setAttribute('role', role);
+      document.body.appendChild(element);
     }
   });
 }
@@ -772,39 +800,16 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// Function to fix fake links
-function fixFakeLinks() {
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
-      link.setAttribute('role', 'button');
-      link.addEventListener('click', e => e.preventDefault());
-    }
-  });
-}
-
-// Function to add proper landmark regions
-function addProperLandmarkRegions() {
-  const requiredLandmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary'];
-  requiredLandmarks.forEach(role => {
-    if (!document.querySelector(`[role="${role}"]`)) {
-      const element = document.createElement('div');
-      element.setAttribute('role', role);
-      document.body.appendChild(element);
-    }
-  });
-}
-
-// Function to initialize all accessibility fixes
-function initializeAccessibility() {
+// Main function to address all accessibility issues
+function addressAccessibilityIssues() {
   ensureDocumentLangAttribute();
-  fixTableAccessibility();
   addMainLandmark();
-  ensureSvgAccessibility();
-  ensureUniqueLandmarks();
+  fixTableAccessibility();
+  addSvgAccessibleNames();
   fixFakeLinks();
   addProperLandmarkRegions();
+  ensureUniqueLandmarks();
 }
 
-// Call the initialization function when the DOM is loaded
-document.addEventListener('DOMContentLoaded', initializeAccessibility);
+// Call the main function to address accessibility issues
+addressAccessibilityIssues();

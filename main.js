@@ -1185,6 +1185,26 @@ function towerDefense () {
   }
 }
 
+/**
+ * Ensures the dependency graph container has a proper ARIA role
+ * @param {HTMLElement} container - The container element for the dependency graph
+ * @returns {HTMLElement} The updated container element
+ */
+function ensureDependencyGraphARIA(container) {
+  if (!container) return null;
+
+  // Set ARIA role for the container
+  container.setAttribute('role', 'treegrid');
+  container.setAttribute('aria-label', 'Dependency Graph');
+
+  // Ensure the container has a lang attribute for accessibility
+  if (!container.hasAttribute('lang')) {
+    container.setAttribute('lang', getLangAttribute());
+  }
+
+  return container;
+}
+
 // Export functions
 module.exports = {
   fs,
@@ -1222,5 +1242,5 @@ module.exports = {
   displayModuleStructure,
   exportDependencyGraph,
   exportModuleStructure,
-  setupAccessibleDependencyGraph
+  ensureDependencyGraphARIA
 };

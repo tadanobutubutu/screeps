@@ -240,18 +240,4 @@ function checkLandmarks() {
   return allLandmarks.length;
 }
 
-// Render Index
-function renderIndex() {
-  const index = document.querySelector('[data-index]');
-  if (index) {
-    renderDependencyGraphs(index);
-    indexContent.forEach(content => {
-      const element = document.createElement('div');
-      element.innerHTML = content;
-      element.classList.add('index-content-item');
-      index.appendChild(element);
-    });
-  }
-}
-
 // ... rest of the preserved code

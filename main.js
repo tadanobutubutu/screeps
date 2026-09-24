@@ -3,44 +3,33 @@ function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
   return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-    // Check if lang attribute already exists (case-insensitive)
-    if (/lang\s*=/i.test(attrs)) {
-      return match;
-    }
-    return `<html${attrs} lang="en">`;
-  });
+    if (attrs.includes('lang=')) return match
+    return `<html${attrs} lang="en">`
+  })
 }
 
 // REACT_027: Fix table structure issues (add thead, tbody, th scope, caption)
 function fixTableStructure(html) {
   if (typeof html !== 'string') return html;
 
-  // Ensure every table has a thead and tbody
-  return html.replace(/<table([^>]*)>/i, (match, attrs) => {
-    return `<table${attrs}>${addThead()}\n<tbody></tbody></table>`
+  // Ensure every table has a thead
+  html = html.replace(/<table([^>]*)>\s*<tr>/gi, (match, attrs) => {
+    return `<table${attrs}><thead><tr>`
   })
-}
 
-// Helper function to add a thead to each table
-function addThead() {
-  return '<thead><tr></tr></thead>'
-}
+  // Close thead if followed by tbody
+  html = html.replace(/<\/thead>\s*<tr>/gi, '</thead><tbody><tr>')
 
-// TODO: Implement validateLandmark functionality
-function validateLandmark(landmark) {
-  // Placeholder implementation for validateLandmark
-  // This should be replaced with actual validation logic
-  if (typeof landmark !== 'string') {
-    return false;
-  }
-  // Example validation rule: Landmark must contain the word "Landmark"
-  return /Landmark/i.test(landmark);
-}
+  // Add scope attribute to th elements in thead
+  html = html.replace(/<thead[^>]*>\s*<tr[^>]*>\s*<th/gi, '<thead><tr><th scope="col"')
 
-// Export functions as needed
-module.exports = {
-  addLangAttribute,
-  fixTableStructure,
-  addThead,
-  validateLandmark
-};
+  // Ensure tables have caption if they don't have one
+  html = html.replace(/(<table([^>]*)>)/gi, (match, fullMatch, attrs) => {
+    if (html.indexOf('<caption') === -1) {
+      return `${fullMatch}<caption></caption>`
+    }
+    return fullMatch
+  })
+
+  return html
+}

@@ -191,13 +191,11 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  /**
-   * Ensure all interactive elements are accessible
-   */
-  ensureInteractiveElementsAccessible() {
-    this.ensureInteractiveRoles();
-    this.addFormControlLabels();
-    this.ensureImageAccessibility();
+  // New function to render dependency graphs
+  renderDependencyGraph() {
+    // Implementation to render dependency graphs
+    // This is a placeholder function and should be replaced with actual implementation
+    console.log('Rendering dependency graph...');
   }
 };
 

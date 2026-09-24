@@ -83,36 +83,151 @@ const accessibilityUtils = {
     harvestSync
 };
 
-const ensureElementIdFn = (element) => {
-  if (element && !element.id) {
-    element.id = 'element-' + Math.random().toString(36).substr(2, 9);
-  }
-  return element;
-};
+/**
+ * Validates table structure for accessibility issues
+ * @param {HTMLElement} container - Container element to validate tables within (optional, defaults to document)
+ * @returns {Array} Array of accessibility issues found
+ */
+function validateTableStructureForAccessibility(container = document) {
+    const tables = container.querySelectorAll('table');
+    const issues = [];
 
-const ensureElementHasIdFn = (element, prefix = 'element') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-};
+    tables.forEach((table, index) => {
+        const tableInfo = {
+            index: index,
+            id: table.id || null,
+            hasCaption: table.querySelector('caption') !== null,
+            headers: [],
+            cells: []
+        };
 
-const wrapPrimaryContentInMain = () => {
-  // Check if a main element already exists
-  let mainElement = document.querySelector('main');
+        // Validate table structure using imported utility
+        const structureValidation = validateTableStructure(table);
+        if (structureValidation && structureValidation.length > 0) {
+            issues.push({
+                type: 'structure',
+                tableIndex: index,
+                tableId: tableInfo.id,
+                issues: structureValidation
+            });
+        }
 
-  if (!mainElement) {
-    // If no main element exists, create one
-    mainElement = document.createElement('main');
+        // Validate table accessibility using imported utility
+        const accessibilityValidation = validateTableAccessibility(table);
+        if (accessibilityValidation && accessibilityValidation.length > 0) {
+            issues.push({
+                type: 'accessibility',
+                tableIndex: index,
+                tableId: tableInfo.id,
+                issues: accessibilityValidation
+            });
+        }
 
-    // Find the primary content container (commonly #content, .content, or the body)
-    const contentSelectors = ['#content', '.content', '#main', '.main', 'article', '[role="main"]'];
-    let primaryContent = null;
+        // Additional table structure checks
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+        const tfoot = table.querySelector('tfoot');
 
-    for (const selector of contentSelectors) {
-      primaryContent = document.querySelector(selector);
-      if (primaryContent) {
-        break;
-      }
+        // Check for proper table structure
+        if (!thead && table.querySelector('th')) {
+            issues.push({
+                type: 'structure',
+                tableIndex: index,
+                tableId: tableInfo.id,
+                message: 'Table has th elements but no thead element',
+                severity: 'serious'
+            });
+        }
+
+        // Check for caption
+        if (!tableInfo.hasCaption) {
+            issues.push({
+                type: 'accessibility',
+                tableIndex: index,
+                tableId: tableInfo.id,
+                message: 'Table is missing a caption element',
+                severity: 'moderate'
+            });
+        }
+
+        // Check for scope attributes on header cells
+        const headers = table.querySelectorAll('th');
+        headers.forEach((header, headerIndex) => {
+            if (!header.getAttribute('scope') && !header.getAttribute('aria-columnheader') && !header.getAttribute('aria-rowheader')) {
+                issues.push({
+                    type: 'accessibility',
+                    tableIndex: index,
+                    tableId: tableInfo.id,
+                    headerIndex: headerIndex,
+                    message: 'Header cell missing scope, aria-columnheader, or aria-rowheader attribute',
+                    severity: 'serious'
+                });
+            }
+        });
+
+        // Check for proper table semantics
+        if (!tbody) {
+            issues.push({
+                type: 'structure',
+                tableIndex: index,
+                tableId: tableInfo.id,
+                message: 'Table is missing a tbody element',
+                severity: 'minor'
+            });
+        }
+    });
+
+    return issues;
+}
+
+function generateAccessibilityReport(container) {
+    // TODO: Implement function for generating a report based on accessibility issues
+    // Replaced placeholder with full implementation using axe-core scanning and report writing
+    
+    const report = {
+        timestamp: new Date().toISOString(),
+        issues: [],
+        summary: {
+            critical: 0,
+            serious: 0,
+            moderate: 0,
+            minor: 0
+        }
+    };
+    
+    if (typeof axe !== 'undefined' && container) {
+        axe.run(container, (err, results) => {
+            if (err) {
+                console.error('Accessibility scan error:', err);
+                return report;
+            }
+            
+            results.violations.forEach(violation => {
+                violation.nodes.forEach(node => {
+                    report.issues.push({
+                        id: violation.id,
+                        impact: violation.impact,
+                        description: violation.description,
+                        help: violation.helpUrl,
+                        element: node.html,
+                        selector: node.target.join(', ')
+                    });
+                    
+                    if (violation.impact === 'critical') report.summary.critical++;
+                    else if (violation.impact === 'serious') report.summary.serious++;
+                    else if (violation.impact === 'moderate') report.summary.moderate++;
+                    else report.summary.minor++;
+                });
+            });
+            
+            if (typeof fs !== 'undefined' && fs.writeFileSync) {
+                try {
+                    fs.writeFileSync('accessibility-report.json', JSON.stringify(report, null, 2));
+                } catch (writeErr) {
+                    console.error('Failed to write report file:', writeErr);
+                }
+            }
+        });
     }
 
     // If no specific content container found, use body

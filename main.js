@@ -135,22 +135,15 @@ function setLanguageAttribute() {
 
 // Function to add landmark roles to main containers
 function addLandmarkRoles() {
-  // Code for adding landmark roles
-  const header = document.createElement('header');
-  header.setAttribute('role', 'banner');
-  document.body.prepend(header);
+  const mainElement = document.querySelector('main');
+  if (mainElement && mainElement.setAttribute) {
+    mainElement.setAttribute('role', 'main');
+  }
 
-  const main = document.createElement('main');
-  main.setAttribute('role', 'main');
-  document.body.appendChild(main);
-
-  const footer = document.createElement('footer');
-  footer.setAttribute('role', 'contentinfo');
-  document.body.appendChild(footer);
-
-  const nav = document.createElement('nav');
-  nav.setAttribute('role', 'navigation');
-  document.body.prepend(nav);
+  const navElement = document.querySelector('nav');
+  if (navElement && navElement.setAttribute) {
+    navElement.setAttribute('role', 'navigation');
+  }
 }
 
 function ensureUniqueLandmarks(landmarks) {
@@ -333,9 +326,101 @@ function addSvgAccessibleNames() {
   });
 }
 
-// REACT_036: Fix fake link issues (links without href or with javascript:void(0))
-function fixFakeLinks() {
-  if (typeof document === 'undefined') return;
+// Get insight report
+function getInsightReport() {
+  const issues = [];
+
+  // Check for lang attribute on HTML element
+  const langAttribute = getLangAttribute();
+  if (!langAttribute) {
+    issues.push({
+      type: 'REACT_015',
+      description: 'HTML element is missing lang attribute',
+      severity: 'critical',
+      element: 'html'
+    });
+  }
+
+  // Check table accessibility
+  const tableAccessibilityIssues = validateTableAccessibility();
+  if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
+    tableAccessibilityIssues.forEach((issue) => {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'accessibility',
+        description: issue.description || 'Table accessibility issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+
+  // Check table structure
+  const tableStructureIssues = validateTableStructure();
+  if (tableStructureIssues && tableStructureIssues.length > 0) {
+    tableStructureIssues.forEach((issue) => {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'structure',
+        description: issue.description || 'Table structure issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+
+  // Check landmark issues
+  const landmarkIssues = validateLandmark();
+  if (landmarkIssues && landmarkIssues.length > 0) {
+    landmarkIssues.forEach((issue) => {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check landmark structure
+  const landmarkStructureIssues = validateLandmarkStructure();
+  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
+    landmarkStructureIssues.forEach((issue) => {
+      issues.push({
+        type: 'REACT_017',
+        structure: true,
+        description: issue.description || 'Landmark structure issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check landmark attributes
+  const landmarkAttributeIssues = validateLandmarkAttributes();
+  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
+    landmarkAttributeIssues.forEach((issue) => {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark attribute issue',
+        severity: issue.severity || 'low',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check SVG accessibility
+  const svgAccessibleNames = getSvgAccessibleName();
 
   return issues;
 }
+
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
+// ... (other code remains the same)

@@ -1197,6 +1197,76 @@ function enhanceAddBookFormAccessibility(formElement) {
     }
 }
 
+// New accessibility functions for addBook functionality
+function validateAddBookForm(formElement) {
+    if (!formElement) return { valid: false, errors: ['Form element is required'] };
+
+    const errors = [];
+    const requiredFields = ['title', 'author', 'isbn'];
+
+    // Check for required fields
+    requiredFields.forEach(field => {
+        const input = formElement.querySelector(`[name="${field}"]`);
+        if (!input || !input.value.trim()) {
+            errors.push(`Field "${field}" is required`);
+        }
+    });
+
+    // Check for proper labels
+    const labels = formElement.querySelectorAll('label');
+    labels.forEach(label => {
+        if (!label.htmlFor) {
+            errors.push('Label is missing "for" attribute');
+        }
+    });
+
+    // Check for proper ARIA attributes
+    const inputs = formElement.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        if (!input.id) {
+            errors.push('Form control is missing ID');
+        }
+        if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+            errors.push('Form control is missing accessible name');
+        }
+    });
+
+    return { valid: errors.length === 0, errors };
+}
+
+function enhanceAddBookFormAccessibility(formElement) {
+    if (!formElement) return;
+
+    // Add proper labels if missing
+    const inputs = formElement.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        if (!input.id) {
+            input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+            const label = formElement.querySelector(`label[for="${input.id}"]`);
+            if (label) {
+                input.setAttribute('aria-labelledby', label.id || `label-${Math.random().toString(36).substr(2, 9)}`);
+            } else {
+                input.setAttribute('aria-label', input.name || 'Form field');
+            }
+        }
+    });
+
+    // Add form role if missing
+    if (!formElement.getAttribute('role')) {
+        formElement.setAttribute('role', 'form');
+    }
+
+    // Add proper heading if missing
+    if (!formElement.querySelector('h1, h2, h3, h4, h5, h6')) {
+        const heading = document.createElement('h2');
+        heading.textContent = 'Add New Book';
+        formElement.insertBefore(heading, formElement.firstChild);
+    }
+}
+
 // Export functions for testing
 module.exports = {
     User,
@@ -1247,6 +1317,10 @@ module.exports = {
 
     // New book-related function
     addNewBook,
+
+    // New accessibility functions for addBook
+    validateAddBookForm,
+    enhanceAddBookFormAccessibility,
 
     // Landmarks array and app state
     landmarks,

@@ -329,18 +329,22 @@ function newFunction2() {
   // New function implementation 2
 }
 
-function newFunction3() {
-  // Another new function implementation
+function anotherNewFunction() {
+  // New function implementation 3
 }
 
 function newFunction3() {
   // New function implementation 4
 }
 
-// New function added per issue request
-function myNewFunction() {
-  // Implementation of the new function requested in the issue
-  return 'myNewFunction executed successfully';
+function newFunction4() {
+  // New function implementation 5
+}
+
+// Accessibility helper functions
+function getLangAttributeGlobal() {
+  // Get the language attribute from the HTML element
+  return document.documentElement.lang || 'en';
 }
 
 function addSvgAccessibleNames() {
@@ -457,8 +461,12 @@ function addAccessibleName(svgString) {
   const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
   const svgElement = svgDoc.documentElement;
 
+  // Extract accessible name from the SVG title if available
+  const title = svgElement.querySelector('title');
+  const accessibleName = title ? title.textContent.trim() : 'Descriptive label for SVG';
+
   if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+    svgElement.setAttribute('aria-label', accessibleName);
   }
   return new XMLSerializer().serializeToString(svgElement);
 }

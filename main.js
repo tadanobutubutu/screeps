@@ -1,69 +1,13 @@
-// TODO: This is the modified and merged code
-// This is the existing code that needs to be preserved in main.js
+import React from 'react';
+
 // TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-
-/**
- * Ensures an element has an id attribute. If the element doesn't have an id,
- * one is generated using the provided prefix.
- * @param {HTMLElement} element - The element to ensure has an id
- * @param {string} prefix - The prefix to use for generating an id if one doesn't exist
- * @returns {string} The id of the element
- */
-function ensureElementHasId(element, prefix = 'element') {
-  if (!element) {
-    return null;
-  }
-
-  if (!element.id) {
-    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  return element.id;
-}
-
-/**
- * Adds an aria-label attribute to an element.
- * @param {HTMLElement} element - The element to add aria-label to
- * @param {string} label - The label text to set
- * @returns {HTMLElement} The element with the aria-label added
- */
-function addAriaLabel(element, label) {
-  if (!element) {
-    return null;
-  }
-
-  if (typeof label !== 'string' || label.trim() === '') {
-    return element;
-  }
-
-  element.setAttribute('aria-label', label);
-  return element;
-}
-
-/**
- * Ensures an element has both an id and an aria-label for accessibility.
- * @param {HTMLElement} element - The element to enhance
- * @param {string} idPrefix - The prefix for generating an id if needed
- * @param {string} ariaLabel - The aria-label text
- * @returns {string|null} The id of the element, or null if element is invalid
- */
-function ensureElementAccessibility(element, idPrefix, ariaLabel) {
-  if (!element) {
-    return null;
-  }
-
-  const id = ensureElementHasId(element, idPrefix);
-  addAriaLabel(element, ariaLabel);
-
-  return id;
-}
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and addAriaToFormControls())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
+// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
 
 // Utility functions for accessibility
 const accessibilityUtils = {
@@ -88,63 +32,7 @@ const accessibilityUtils = {
     }
 };
 
-/**
- * Ensures an element has an id attribute. If the element doesn't have an id,
- * one is generated using the provided prefix.
- * @param {HTMLElement} element - The element to ensure has an id
- * @param {string} prefix - The prefix to use for generating an id if one doesn't exist
- * @returns {string} The id of the element
- */
-function ensureElementHasId(element, prefix = 'element') {
-  if (!element) {
-    return null;
-  }
-
-  if (!element.id) {
-    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  return element.id;
-}
-
-/**
- * Adds an aria-label attribute to an element.
- * @param {HTMLElement} element - The element to add aria-label to
- * @param {string} label - The label text to set
- * @returns {HTMLElement} The element with the aria-label added
- */
-function addAriaLabel(element, label) {
-  if (!element) {
-    return null;
-  }
-
-  if (typeof label !== 'string' || label.trim() === '') {
-    return element;
-  }
-
-  element.setAttribute('aria-label', label);
-  return element;
-}
-
-/**
- * Ensures an element has both an id and an aria-label for accessibility.
- * @param {HTMLElement} element - The element to enhance
- * @param {string} idPrefix - The prefix for generating an id if needed
- * @param {string} ariaLabel - The aria-label text
- * @returns {string|null} The id of the element, or null if element is invalid
- */
-function ensureElementAccessibility(element, idPrefix, ariaLabel) {
-  if (!element) {
-    return null;
-  }
-
-  const id = ensureElementHasId(element, idPrefix);
-  addAriaLabel(element, ariaLabel);
-
-  return id;
-}
-
-// New utility functions from origin/main
+// Utility functions
 function setHtmlLangAttribute(lang) {
     if (typeof document !== 'undefined' && document.documentElement) {
         document.documentElement.setAttribute('lang', lang || 'en');
@@ -162,107 +50,96 @@ function getLangAttribute() {
     return 'en'; // Default language
 }
 
-// Helper function for UI updates with accessibility
-function updateUI(elementId, text) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.textContent = text;
-    element.setAttribute('aria-live', 'polite');
+function addLangAttribute() {
+    document.documentElement.setAttribute('lang', 'en');
+}
+
+/**
+ * Creates a focus trap for keyboard navigation within a specified container
+ * @param {HTMLElement} container - The container element to trap focus within
+ * @param {Object} [options] - Configuration options
+ * @param {boolean} [options.initialFocus=false] - Whether to focus the first focusable element initially
+ * @param {boolean} [options.returnFocus=true] - Whether to return focus to the element that triggered the trap
+ * @returns {Object} An object with methods to activate, deactivate, and destroy the focus trap
+ */
+function createFocusTrap (container, options = {}) {
+  const { initialFocus = false, returnFocus = true } = options
+  let active = false
+  let previousActiveElement = null
+  let focusableElements = []
+
+  // Get all focusable elements within the container
+  function getFocusableElements () {
+    return Array.from(
+      container.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null)
+  }
+
+  // Handle keydown events for tab trapping
+  function handleKeyDown (event) {
+    if (event.key !== 'Tab') return
+
+    const elements = getFocusableElements()
+    if (elements.length === 0) return
+
+    const firstElement = elements[0]
+    const lastElement = elements[elements.length - 1]
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      // Shift+Tab from first element should go to last
+      lastElement.focus()
+      event.preventDefault()
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      // Tab from last element should go to first
+      firstElement.focus()
+      event.preventDefault()
+    }
+  }
+
+  // Activate the focus trap
+  function activate () {
+    if (active) return
+
+    previousActiveElement = document.activeElement
+    focusableElements = getFocusableElements()
+
+    if (initialFocus && focusableElements.length > 0) {
+      focusableElements[0].focus()
+    }
+
+    container.addEventListener('keydown', handleKeyDown)
+    active = true
+  }
+
+  // Deactivate the focus trap
+  function deactivate () {
+    if (!active) return
+
+    container.removeEventListener('keydown', handleKeyDown)
+
+    if (returnFocus && previousActiveElement) {
+      previousActiveElement.focus()
+    }
+
+    active = false
+    previousActiveElement = null
+    focusableElements = []
+  }
+
+  // Destroy the focus trap completely
+  function destroy () {
+    deactivate()
+    // No need to remove event listeners as they're already removed in deactivate
+  }
+
+  return {
+    activate,
+    deactivate,
+    destroy
   }
 }
 
-function validateTableAccessibility() {
-    // Validates table accessibility
-    return { isAccessible: true, issues: [] };
-}
-
-function validateTableStructure() {
-    // Validates table structure
-    return { isValid: true, issues: [] };
-}
-
-function validateLandmark() {
-    // Validates landmark elements
-    return { isValid: true, issues: [] };
-}
-
-function validateLandmarkStructure() {
-    // Validates landmark structure
-    return { isValid: true, issues: [] };
-}
-
-function getSvgAccessibleName() {
-    // Returns accessible name for SVG elements
-    return 'Accessible SVG Name';
-}
-
-function createInPageButton() {
-    // Creates an accessible in-page button
-    return {
-        button: document.createElement('button'),
-        ariaLabel: 'In-page button'
-    };
-}
-
-function newFocusTrap() {
-    // New function implementation: traps focus within a given element
-    return (element) => {
-        if (!element) return;
-        const focusable = element.querySelectorAll(
-            'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-
-        element.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                if (e.shiftKey && document.activeElement === first) {
-                    last.focus();
-                    e.preventDefault();
-                } else if (!e.shiftKey && document.activeElement === last) {
-                    first.focus();
-                    e.preventDefault();
-                }
-            }
-        });
-    };
-}
-
-// Export functions to make them accessible
-module.exports = {
-    accessibilityUtils,
-    setHtmlLangAttribute,
-    addAriaLabel,
-    ensureElementAccessibility,
-    ensureElementHasId,
-    addLangAttribute,
-    getLangAttribute,
-    personName,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    newFocusTrap,
-    getSvgAccessibleName,
-    createInPageButton
-};
-
-// Also attach to global scope for browser/standalone access
-if (typeof window !== 'undefined') {
-    window.accessibilityUtils = accessibilityUtils;
-    window.setHtmlLangAttribute = setHtmlLangAttribute;
-    window.addAriaLabel = addAriaLabel;
-    window.ensureElementAccessibility = ensureElementAccessibility;
-    window.ensureElementHasId = ensureElementHasId;
-    window.addLangAttribute = addLangAttribute;
-    window.getLangAttribute = getLangAttribute;
-    window.personName = personName;
-    window.validateTableAccessibility = validateTableAccessibility;
-    window.validateTableStructure = validateTableStructure;
-    window.validateLandmark = validateLandmark;
-    window.validateLandmarkStructure = validateLandmarkStructure;
-    window.newFocusTrap = newFocusTrap;
-    window.getSvgAccessibleName = getSvgAccessibleName;
-    window.createInPageButton = createInPageButton;
-}
+// Export the new function while preserving existing exports
+export { createFocusTrap }

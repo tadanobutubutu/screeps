@@ -12,6 +12,20 @@ function getLangAttribute() {
   // ... code for handling lang attribute
 }
 
+function getFullLangAttribute() {
+  // Get the full language attribute including region if available
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    const langAttr = htmlElement.getAttribute('lang');
+    if (langAttr) {
+      return langAttr;
+    }
+    // Fallback to navigator language
+    return navigator.language || 'en-US';
+  }
+  return navigator.language || 'en-US';
+}
+
 function personName() {
   // Return accessible person name for labeling
   return 'Accessible Person';
@@ -25,96 +39,7 @@ function validateTableStructure() {
   // ... code for handling table structure issues
 }
 
-function validateLandmark() {
-  // ... code for handling landmark issues
-}
-
-function validateLandmarkStructure() {
-  // ... code for handling landmark structure issues
-}
-
-function getSvgAccessibleName() {
-  // ... code for handling SVG accessible names
-}
-
-function createInPageButton(buttonId, buttonText) {
-  const button = document.createElement('button');
-  button.id = buttonId;
-  button.textContent = buttonText;
-  return button;
-}
-
-// ADD: New function for handling the new accessibility issues from the insight report
-function addressNewAccessibilityIssues() {
-  // Retrieve the language attribute for the HTML document
-  const lang = getLangAttribute();
-
-  // Apply the language attribute to the <html> element if not already present
-  const htmlElement = document.documentElement;
-  if (htmlElement && typeof htmlElement !== 'undefined') {
-    if (!htmlElement.getAttribute('lang')) {
-      htmlElement.setAttribute('lang', lang);
-    }
-  }
-
-  // Ensure the main content area has an appropriate ARIA role
-  const main = document.querySelector('main');
-  if (main && typeof main !== 'undefined') {
-    main.setAttribute('role', 'main');
-  }
-
-  // Attach an accessible label to the primary action button
-  const submitBtn = document.querySelector('button[type="submit"], button[type="button"]');
-  if (submitBtn && typeof submitBtn !== 'undefined') {
-    submitBtn.setAttribute('aria-label', personName());
-  }
-}
-
-// Export functions for both browser and Node.js environments
-if (typeof window !== 'undefined') {
-  // Browser environment - expose functions to window
-  const functionsToExpose = [
-    'getLangAttribute', 'personName', 'validateTableAccessibility',
-    'validateTableStructure', 'validateLandmark', 'validateLandmarkStructure',
-    'getSvgAccessibleName', 'createInPageButton', 'addressNewAccessibilityIssues'
-  ];
-  functionsToExpose.forEach(functionName => {
-    window[functionName] = window[functionName] || eval(functionName);
-  });
-}
-
-/**
- * A new function to be added
- * This function does a specific functionality
- */
-function myNewFunction() {
-  // Address new accessibility issues from insight report
-  if (typeof addressNewAccessibilityIssues === 'function') {
-    return addressNewAccessibilityIssues();
-  }
-  return true;
-}
-
-// Application configuration
-const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: process.env.TIMEOUT || 5000,
-  debug: true,
-  version: '1.0.0'
-};
-
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
-};
-
-/**
- * Validates landmark elements for accessibility
- * @param {Object} element - The element to validate
- * @returns {Object} Validation result with success status and any issues found
- */
-function validateLandmark(element) {
+function validateLandmark(landmark) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
@@ -132,6 +57,10 @@ function validateLandmark(element) {
     success: issues.length === 0,
     issues
   };
+}
+
+function validateLandmarkStructure() {
+  // ... code for handling landmark structure issues
 }
 
 function fixLandmarkStructure(source) {
@@ -587,70 +516,17 @@ function getSvgAccessibleName(svg) {
   // ... existing code ...
 }
 
-function setSvgAttributes(svg) {
-  // ... existing code ...
-}
-
-// Function for checking table structure
-function checkTableStructure(table) {
-  // ... existing code ...
-}
-
-function validateTableAccessibility(table) {
-  if (!table) return true;
-  
-  const headers = table.querySelectorAll('th');
-  headers.forEach(th => {
-    if (!th.textContent.trim()) {
-      th.setAttribute('aria-label', 'Empty header');
-    }
-  },
-
-// TODO: Implement this function for checking link and button accessibility
-function checkLinkAndButtonAccessibility(element) {
-  if (!element) {
-    return { success: false, issues: [{ type: 'missing-element', message: 'Element is required' }] };
-  }
-
-  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-  const issues = [];
-
-  // Check if it's a link
-  if (tagName === 'a' || tagName === 'link') {
-    const href = element.getAttribute('href');
-    if (!href || href === '#' || href === 'javascript:void(0)') {
-      issues.push({ type: 'inaccessible-link', message: 'Link has no valid href attribute' });
-    }
-    
-    const textContent = element.textContent || element.innerText || '';
-    const ariaLabel = element.getAttribute('aria-label');
-    const ariaLabelledby = element.getAttribute('aria-labelledby');
-    
-    if (!textContent.trim() && !ariaLabel && !ariaLabelledby) {
-      issues.push({ type: 'inaccessible-link', message: 'Link is missing accessible name' });
-    }
-  }
-
-  // Check if it's a button
-  if (tagName === 'button' || tagName === 'input') {
-    const type = element.getAttribute('type');
-    if (tagName === 'input' && type !== 'button' && type !== 'submit' && type !== 'reset') {
-      return { success: true, issues: [] };
-    }
-
-    const textContent = element.textContent || element.value || '';
-    const ariaLabel = element.getAttribute('aria-label');
-    const ariaLabelledby = element.getAttribute('aria-labelledby');
-    
-    if (!textContent.trim() && !ariaLabel && !ariaLabelledby) {
-      issues.push({ type: 'inaccessible-button', message: 'Button is missing accessible name' });
-    }
-  }
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
+/**
+ * Creates an accessible in-page button
+ * @param {Object} buttonId - Button ID
+ * @param {string} buttonText - Button text
+ * @returns {Object} Button element object
+ */
+function createInPageButton(buttonId, buttonText) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  return button;
 }
 
 function handleFakeLinks(link) {
@@ -1100,27 +976,82 @@ function setupFocusManagement() {
   });
 }
 
+// ADD: New function for handling the new accessibility issues from the insight report
+function addressNewAccessibilityIssues() {
+  // Retrieve the language attribute for the HTML document
+  const lang = getLangAttribute();
+
+  // Apply the language attribute to the <html> element if not already present
+  const htmlElement = document.documentElement;
+  if (htmlElement && typeof htmlElement !== 'undefined') {
+    if (!htmlElement.getAttribute('lang')) {
+      htmlElement.setAttribute('lang', lang);
+    }
+  }
+
+  // Ensure the main content area has an appropriate ARIA role
+  const main = document.querySelector('main');
+  if (main && typeof main !== 'undefined') {
+    main.setAttribute('role', 'main');
+  }
+
+  // Attach an accessible label to the primary action button
+  const submitBtn = document.querySelector('button[type="submit"], button[type="button"]');
+  if (submitBtn && typeof submitBtn !== 'undefined') {
+    submitBtn.setAttribute('aria-label', personName());
+  }
+}
+
 /**
- * Implements a focus trap for keyboard navigation within a specified container element.
- * Prevents focus from moving outside the container when tabbing through interactive elements.
- * @param {HTMLElement} containerElement - The container element to trap focus within
- * @param {Object} options - Configuration options for the focus trap
- * @param {boolean} options.returnFocus - Whether to return focus to the previously focused element when deactivated (default: true)
- * @param {boolean} options.escapeable - Whether pressing Escape should deactivate the trap (default: false)
- * @param {Function} options.onActivate - Callback when trap is activated
- * @param {Function} options.onDeactivate - Callback when trap is deactivated
- * @returns {Object} Focus trap controller with activate, deactivate, and destroy methods
+ * A new function to be added
+ * This function does a specific functionality
  */
-function newFocusTrap(containerElement, options = {}) {
-  const {
-    returnFocus = true,
-    escapeable = false,
-    onActivate = null,
-    onDeactivate = null
-  } = options;
+function myNewFunction() {
+  // Implement your new functionality here
+}
 
-  let active = false;
-  let previousActiveElement = null;
-  let listeners = [];
+// Application configuration
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: process.env.TIMEOUT || 5000,
+  debug: true,
+  version: '1.0.0'
+};
 
-  const FOCUS
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+// Export functions for both browser and Node.js environments
+if (typeof window !== 'undefined') {
+  // Browser environment - expose functions to window
+  const functionsToExpose = [
+    'getLangAttribute', 'personName', 'validateTableAccessibility',
+    'validateTableStructure', 'validateLandmark', 'validateLandmarkStructure',
+    'getSvgAccessibleName', 'createInPageButton', 'addressNewAccessibilityIssues'
+  ];
+  functionsToExpose.forEach(functionName => {
+    window[functionName] = window[functionName] || eval(functionName);
+  });
+}
+
+// Export all functions for testing and external use
+module.exports = {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  handleCredentialResponse,
+  fixLandmarkStructure,
+  myNewFunction,
+  addressNewAccessibilityIssues
+};

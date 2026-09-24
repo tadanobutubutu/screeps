@@ -1,7 +1,6 @@
-// TODO: Existing main.js content before the merge conflict...
-
 // TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+
+// main.js - Resolved merge conflict
 
 function calculateSum(a, b) {
   return a + b;
@@ -338,7 +337,7 @@ function renderGraphIndex(data) {
 
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, renderGraphIndex };
+  module.exports = { addressAccessibilityIssues, calculateSum, calculateProduct };
 }
 
 // If running in browser context

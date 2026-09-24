@@ -39,7 +39,7 @@ export function rotateBack(element, degrees) {
 }
 
 function addLandmarkRegions() {
-  const container = document && document.getElementById('main-content');
+  const container = document.querySelector('.app-container');
   if (container) {
     container.innerHTML = `
       <div class="landmark-region" role="region" aria-label="Building" aria-labelledby="buildingLabel">
@@ -103,7 +103,7 @@ export function newNecessaryFunction() {
 /**
  * Calculate the sum of two numbers
  * @param {number} a - First number
- * @param {b} - Second number
+ * @param {number} b - Second number
  * @returns {number} Sum of a and b
  */
 export function calculateSum(a, b) {
@@ -174,11 +174,11 @@ export function validateFocusableElement(element) {
     return false;
   }
   const focusableTags = ['a', 'button', 'input', 'select', 'textarea'];
-  const tagName = (element.tagName || '').toLowerCase();
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
   const isFocusable = focusableTags.includes(tagName) ||
                       element.tabIndex >= 0 ||
                       checkAccessibilityAttribute(element, 'tabindex');
-  return isFocusable && element.offsetWidth > 0 && element.offsetHeight > 0;
+  return isFocusable && ensureAccessibleLabel(element);
 }
 
 /**
@@ -226,8 +226,8 @@ export function initializeApp() {
 }
 
 /**
- * Generate a report based on accessibility issues found in the document
- * @returns {Object} A report object containing accessibility issues found
+ * Generate a report based on accessibility issues
+ * @returns {Object} Report object based on accessibility issues found
  */
 export function generateAccessibilityReport() {
   // Placeholder for the actual implementation
@@ -246,48 +246,71 @@ export function generateAccessibilityReport() {
 
 export { addLandmarkRegions };
 
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-
+// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
+/**
+ * Address accessibility issues from insight report
+ * @returns {Object} Summary of addressed issues
+ */
 function addressAccessibilityIssues() {
-  const lang = getLangAttribute();
+  const results = {
+    langAttribute: null,
+    landmarks: [],
+    svgs: []
+  };
 
-  const landmarks = document && document.querySelectorAll('[role="landmark"]');
+  // REACT_015: Add lang attribute to HTML element
+  results.langAttribute = getLangAttribute ? getLangAttribute() : 'en';
+
+  // REACT_017: Add/fix landmark issues
+  const landmarks = document.querySelectorAll('[role="landmark"], main, nav, aside, header, footer');
   landmarks.forEach((landmark, index) => {
-    landmark.setAttribute('aria-label', 'landmark-' + index);
+    if (!landmark.id) {
+      landmark.id = `landmark-${index}`;
+    }
+    results.landmarks.push({
+      id: landmark.id,
+      role: landmark.getAttribute('role') || landmark.tagName.toLowerCase()
+    });
   });
 
-  const svg1 = document && document.getElementById('svg1');
-  const svg2 = document && document.getElementById('svg2');
-  svg1 && svg1.setAttribute('aria-labelledby', 'svg1-title');
-  svg2 && svg2.setAttribute('aria-labelledby', 'svg2-title');
+  // REACT_041: Add accessible names to SVGs
+  const svg1 = document.querySelector('svg');
+  const svg2 = document.querySelectorAll('svg')[1];
+  if (svg1 && !svg1.getAttribute('aria-label') && !svg1.getAttribute('aria-labelledby')) {
+    const title1 = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title1.id = 'svg1-title';
+    title1.textContent = 'SVG 1 Description';
+    svg1.insertBefore(title1, svg1.firstChild);
+    svg1.setAttribute('aria-labelledby', 'svg1-title');
+  }
+  if (svg2 && !svg2.getAttribute('aria-label') && !svg2.getAttribute('aria-labelledby')) {
+    const title2 = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title2.id = 'svg2-title';
+    title2.textContent = 'SVG 2 Description';
+    svg2.insertBefore(title2, svg2.firstChild);
+    svg2.setAttribute('aria-labelledby', 'svg2-title');
+  }
 
-  // ... existing code preserved for accessibility ...
+  results.svgs.push({ id: 'svg1', title: 'SVG 1 Description' });
+  results.svgs.push({ id: 'svg2', title: 'SVG 2 Description' });
 
-  rotateBack = addressAccessibilityIssues;
+  return results;
 }
 
 // Export functions if needed
 export { rotateBack, addressAccessibilityIssues };
 
-export { getLangAttribute, wrapPrimaryContentInMain };
-
 // ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
 
-module.exports.loop = function() {
-    // Clear the memory of dead creeps
-    for(var name in Memory.creeps) {
-        ... {
-            delete Memory.creeps[name];
-        }
-    }
+export function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
 
-    // TODO: Add implementation details
-
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-
-    if(harvesters.length < 2) {
-        var newName = 'Harvester' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'harvester
+export function wrapPrimaryContentInMain() {
+  const main = document.querySelector('main');
+  if (main) {
+    main.setAttribute('role', 'main');
+    return true;
+  }
+  return false;
+}

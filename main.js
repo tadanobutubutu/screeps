@@ -151,11 +151,9 @@ updateLiveRegion(message, priority = 'polite') {
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} section ${index + 1}`);
+            landmark.setAttribute('aria-labelledby', `${element}-label`);
           }
         }
-        index++;
       });
     });
   }
-};

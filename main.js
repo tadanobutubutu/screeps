@@ -28,6 +28,29 @@ export function newFunction() {
   return "New function implemented successfully";
 }
 
+// REACT_015: Add lang attribute to the <html> element
+function addLangAttributeToString(html) {
+  if (typeof html !== 'string') return html;
+  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+    if (/\blang=/i.test(match)) return match;
+    return `<html${attrs} lang="en">`;
+  });
+}
+
+// React application code with accessibility features
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import a11y from './AccessibilityUtilities';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+// DOM Elements
+const dependencyGraph = document.getElementById('dependencyGraph');
+
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
@@ -62,8 +85,8 @@ function addLangAttribute() {
  */
 function validateTableAccessibility(table) {
   return !!(table.querySelector('caption') ||
-           table.getAttribute('aria-label') ||
-           table.getAttribute('aria-labelledby'));
+            table.getAttribute('aria-label') ||
+            table.getAttribute('aria-labelledby'));
 }
 
 /**
@@ -82,21 +105,27 @@ function validateTableStructure(table) {
  * @param {HTMLElement} table - The table element to fix
  */
 function fixTableStructure(table) {
-  if (!validateTableStructure(table)) {
-    if (!table.querySelector('thead')) {
-      const thead = document.createElement('thead');
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const headerRow = document.createElement('tr');
-        Array.from(firstRow.children).forEach(cell => {
-          const th = document.createElement('th');
-          th.textContent = cell.textContent;
-          headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        table.insertBefore(thead, table.firstChild);
+  if (!table) return;
+
+  table.querySelectorAll('th').forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const row = th.closest('tr');
+      const allHeaders = row ? Array.from(row.querySelectorAll('th')) : [];
+      const index = allHeaders.indexOf(th);
+
+      if (index === 0 || row && row.parentElement.tagName === 'THEAD') {
+        th.setAttribute('scope', 'col');
+      } else {
+        th.setAttribute('scope', 'row');
       }
     }
+  });
+
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    const newCaption = document.createElement('caption');
+    newCaption.textContent = 'Table';
+    table.insertBefore(newCaption, table.firstChild);
   }
 }
 
@@ -445,15 +474,10 @@ const accessibilityUtils = {
     }
 };
 
-// TODO: Implement upgrade logic
-// This function should use harvested data to improve the system
-function upgradeSystemUsingHarvestedData(harvestedData) {
-  // Upgrade logic implementation
-  // Use the `harvestedData` to improve the system
-}
-
-// Export all functions
-module.exports = {
+// Export the report generation function
+export {
+  generateAccessibilityReport,
+  addressAccessibilityIssues,
   getLangAttribute,
   addLangAttribute,
   validateTableAccessibility,
@@ -467,16 +491,23 @@ module.exports = {
   setSvgAttributes,
   ensureUniqueLandmarks,
   createInPageButton,
+  a11y,
+  accessibilityUtils,
+  addLangAttributeToString,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
   validateLinkAccessibility,
   handleFakeLinks,
   addProperLandmarkRegions,
-  generateAccessibilityReport,
-  addressAccessibilityIssues,
-  accessibilityUtils,
-  existingFunction1,
-  existingFunction2,
-  newFunction: myNewFunction,
-  upgradeSystemUsingHarvestedData
+  addLangAttribute
 };
 
 // Initialize the application with accessibility improvements
@@ -503,4 +534,13 @@ if (typeof document !== 'undefined') {
     }
 }
 
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+reportWebVitals();
+
+// Initialize after React render to ensure DOM is updated
+initialize();

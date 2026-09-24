@@ -318,31 +318,11 @@ function generateAccessibilityReport(accessibilityReport) {
     // Update function logic to generate the accessibility report
 }
 
-function calculateAccessibilityScore(fixedIssues) {
-    // Update function logic to calculate the accessibility score
-}
-
-function ensureUniqueLandmarksFromString(source) {
-    // Update function logic to ensure unique landmarks from a string
-}
-
-function spawnSomeCommand(callback) {
-    // Update function logic to spawn some command
-}
-
-function addLangAttribute(element, lang) {
-    // Update function logic to add the lang attribute
-}
-
-  if (landmark.nodeName && landmark.nodeName.toLowerCase() === 'div' && !landmark.getAttribute('role')) {
-    issues.push('Missing role attribute');
-  }
-}
-
-function startApp() {
-  const server = createServerFromModule();
-  server.listen(config.port, function() {
-    console.log('Server running on port ' + config.port);
+// Ensure there's no re declaration of createServer function
+function createServer() {
+  const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', config }));
   });
   return server;
 }

@@ -144,6 +144,11 @@ function _findBestRepairTarget(creep, room, wallTarget) {
         const s = structures[i];
         const type = s.structureType;
 
+        // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit full-health non-wall/rampart structures before threshold lookups and division
+        if (s.hits >= s.hitsMax && type !== STRUCTURE_WALL && type !== STRUCTURE_RAMPART) {
+            continue;
+        }
+
         // ⚡ PERFORMANCE OPTIMIZATION: Inline damage threshold check to avoid nested function call overhead per structure
         if (type === STRUCTURE_WALL || type === STRUCTURE_RAMPART) {
             if (s.hits >= targetWallHp) continue;
@@ -193,6 +198,10 @@ function _findBestRepairTarget(creep, room, wallTarget) {
  */
 function _needsRepair(structure, room, wallTarget) {
     const type = structure.structureType;
+    // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit full-health non-wall/rampart structures early
+    if (structure.hits >= structure.hitsMax && type !== STRUCTURE_WALL && type !== STRUCTURE_RAMPART) {
+        return false;
+    }
     if (type === STRUCTURE_WALL || type === STRUCTURE_RAMPART) {
         const rcl = room.controller ? room.controller.level : 1;
         const target = wallTarget || WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];

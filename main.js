@@ -72,19 +72,11 @@ const ensureElementId = (element) => {
     return element;
 };
 
-const addAriaLabelImpl = (element, label) => {
+const addAriaLabel = (element, label) => {
     if (element) {
         element.setAttribute('aria-label', label);
     }
     return element;
-};
-
-const renderDependencyGraphImpl = (data) => {
-    // Implementation for rendering dependency graphs
-    return {
-        nodes: data.nodes || [],
-        edges: data.edges || [],
-    };
 };
 
 // Accessibility utilities and functions
@@ -142,12 +134,9 @@ function addAriaLabel(element, label) {
         return element;
     }
 
-const addAriaLabel = (element, label) => {
-  if (element) {
     element.setAttribute('aria-label', label);
-  }
-  return element;
-};
+    return element;
+}
 
 /**
  * Ensures an element has both an id and an aria-label for accessibility.
@@ -168,7 +157,7 @@ function ensureElementAccessibility(element, idPrefix, ariaLabel) {
 }
 
 // Sample main.js with dependencyGraph container
-function renderDependencyGraph() {
+function renderDependencyGraphContainer() {
     const container = document.getElementById('dependency-graph');
 
     if (container) {
@@ -199,7 +188,7 @@ const {
     handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
-    addAriaLabel: addAriaLabelOrigin,
+    addAriaLabel,
     renderDependencyGraphs,
     fixButtonIdentifiers,
     fixDependencyGraphAria,
@@ -556,8 +545,8 @@ module.exports = {
     initAccessibility,
     handleCredentialResponse,
     ensureElementId,
-    addAriaLabel: addAriaLabelImpl,
-    renderDependencyGraph: renderDependencyGraphImpl,
+    addAriaLabel,
+    renderDependencyGraphContainer,
     calculateSum,
     getLangAttribute,
     personName,

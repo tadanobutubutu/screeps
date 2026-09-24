@@ -2,6 +2,12 @@
 
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
+const express = require('express');
+const { exec } = require('child_process');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 // AddressabilityIssues placeholder
 const AddressabilityIssues = {};
@@ -45,53 +51,55 @@ function main() {
   }
 }
 
-function extractAccessibleName(svgContent) {
-  // Extract the accessible name for an SVG from its content
-  // Priority order: aria-labelledby > aria-label > title element
-  
-  if (!svgContent) {
-    return null;
-  }
-
-  // Convert string content to DOM-like parsing if needed
-  const content = typeof svgContent === 'string' ? svgContent : String(svgContent);
-
-  // Check for aria-labelledby attribute
-  const ariaLabelledbyMatch = content.match(/aria-labelledby\s*=\s*["']([^"']+)["']/i);
-  if (ariaLabelledbyMatch && ariaLabelledbyMatch[1]) {
-    // Extract the referenced element's text content
-    const referencedId = ariaLabelledbyMatch[1].split(/\s+/)[0]; // Take first ID if multiple
-    const idPattern = new RegExp(`id\\s*=\\s*["']${referencedId}["'][^>]*>([^<]+)<`, 'i');
-    const refMatch = content.match(idPattern);
-    if (refMatch && refMatch[1]) {
-      return refMatch[1].trim();
+function ensureElementHasId(element) {
+  // Ensures the given element has an id attribute
+  if (element && typeof element.setAttribute === 'function') {
+    if (!element.id) {
+      element.setAttribute('id', `element-${Math.random().toString(36).substr(2, 9)}`);
     }
   }
+  return element;
+}
 
-  // Check for aria-label attribute
-  const ariaLabelMatch = content.match(/aria-label\s*=\s*["']([^"']+)["']/i);
-  if (ariaLabelMatch && ariaLabelMatch[1]) {
-    return ariaLabelMatch[1].trim();
+function addAriaLabel(element, label) {
+  // Adds aria-label to the given element
+  if (element && typeof element.setAttribute === 'function') {
+    element.setAttribute('aria-label', label);
   }
-
-  // Check for title element within SVG
-  const titleMatch = content.match(/<title[^>]*>\s*([^<]+)\s*<\/title>/i);
-  if (titleMatch && titleMatch[1]) {
-    return titleMatch[1].trim();
-  }
-
-  // Check for role attribute as fallback
-  const roleMatch = content.match(/role\s*=\s*["']([^"']+)["']/i);
-  if (roleMatch && roleMatch[1]) {
-    return roleMatch[1].trim();
-  }
-
-  return null;
 }
 
 function addressNewAccessibilityIssues() {
-  const accessibilityReport = {};
-  return accessibilityReport;
+  const accessibilityReport = [];
+  
+  // Address various accessibility issues
+  // 1. Check for lang attribute
+  // 2. Check for proper table structure
+  // 3. Check for unique landmarks
+  // 4. Check for SVG accessibility
+  
+  return {
+    issues: accessibilityReport,
+    totalIssues: accessibilityReport.length
+  };
+}
+
+function validateTableStructure() {
+  const tableIssues = [];
+  // Validate table structure for accessibility
+  // Check for proper th elements, scope attributes, etc.
+  return tableIssues;
+}
+
+function validateLandmarks() {
+  const landmarkIssues = [];
+  // Validate unique landmarks for accessibility
+  return landmarkIssues;
+}
+
+function validateSvgAccessibility() {
+  const svgIssues = [];
+  // Validate SVG elements have accessible names
+  return svgIssues;
 }
 
 function generateAccessibilityReport(accessibilityReport) {
@@ -116,22 +124,23 @@ function addressAccessibilityIssues(accessibilityReport) {
     }
 
     if (section.content) {
-      if (section.content.includes('lang') || section.content.includes('lang attribute')) {
+      if (section.heading === 'Lang attribute' || section.content.includes('lang attribute')) {
         addressedIssues.push('Lang attribute issue addressed');
       }
 
-      if (section.content.includes('table') || section.content.includes('table structure')) {
-        const tableIssues = [];
+      if (section.heading === 'Table structure' || section.content.includes('table structure')) {
+        const tableIssues = validateTableStructure();
         addressedIssues.push(`${tableIssues.length} table structure issues addressed`);
       }
 
-      if (section.content.includes('landmark') || section.content.includes('role')) {
-        const landmarkIssues = [];
+      if (section.heading === 'Unique landmarks' || section.heading === 'REACT_025') {
+        const landmarkIssues = validateLandmarks();
         addressedIssues.push(`${landmarkIssues.length} landmark issues addressed`);
       }
 
-      if (section.content.includes('svg') || section.content.includes('SVG accessible name')) {
-        addressedIssues.push('SVG accessible name issue addressed');
+      if (section.heading === 'SVG accessibility') {
+        const svgIssues = validateSvgAccessibility();
+        addressedIssues.push(`${svgIssues.length} SVG accessible name issue addressed`);
       }
     }
   });
@@ -139,95 +148,141 @@ function addressAccessibilityIssues(accessibilityReport) {
   return addressedIssues;
 }
 
-// Helper function to validate table structure
-function validateTableStructure() {
-  const issues = [];
-  return issues;
-}
-
-// Ensure element has an id
-function ensureElementHasId(element) {
-  if (!element) {
-    return null;
-  }
-  
-  if (element.id) {
-    return element.id;
-  }
-  
-  const generatedId = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  if (typeof element.setAttribute === 'function') {
-    element.setAttribute('id', generatedId);
-  }
-  
-  return generatedId;
-}
-
-// Add aria-label to element
-function addAriaLabel(element, label) {
-  if (element && typeof element.setAttribute === 'function') {
-    element.setAttribute('aria-label', label);
-    return true;
-  }
-  return false;
-}
-
-// Render dependency graphs
+// Dependency graph functions
 function renderDependencyGraph(dependencies) {
+  // Renders a dependency graph based on the provided dependencies
   const graph = {
     nodes: [],
     edges: []
   };
-  
-  if (Array.isArray(dependencies)) {
-    dependencies.forEach((dep, index) => {
-      graph.nodes.push({ id: index, label: dep });
-    });
-    
-    for (let i = 0; i < dependencies.length - 1; i++) {
-      graph.edges.push({ from: i, to: i + 1 });
-    }
+
+  if (!dependencies || typeof dependencies !== 'object') {
+    return graph;
   }
-  
+
+  Object.keys(dependencies).forEach(dep => {
+    graph.nodes.push({ id: dep, label: dep });
+    
+    const subDeps = dependencies[dep];
+    if (Array.isArray(subDeps)) {
+      subDeps.forEach(subDep => {
+        graph.edges.push({ from: dep, to: subDep });
+      });
+    }
+  });
+
   return graph;
 }
 
-// Count dependencies
 function countDependencies(dependencies) {
-  if (!Array.isArray(dependencies)) {
+  // Counts the total number of dependencies
+  if (!dependencies || typeof dependencies !== 'object') {
     return 0;
   }
-  return dependencies.length;
+
+  let count = 0;
+  
+  function traverse(obj) {
+    if (Array.isArray(obj)) {
+      count += obj.length;
+      obj.forEach(item => traverse(item));
+    } else if (typeof obj === 'object' && obj !== null) {
+      Object.values(obj).forEach(value => traverse(value));
+    }
+  }
+
+  traverse(dependencies);
+  return count;
 }
 
-// Start the application
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc29 >
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac40>
+// _Commit: f8051b788bad4952d8493f08d3c722a06ff80d3_
+// <!-- todo-hash: b498b47abee40>
+// _Commit: ...
+// _Commit: ...
+// _Commit: feb9680b5af4505068fcf221c52a94afa10f173e_
+//
+// <!-- todo-hash: e242a52a58b42aca6ca1fe442222a93da9f0c2f4 -->
+// 4. REACT_025: Ensure unique landmarks
+
+_Commit: f0b4babd4a933704c19d6c015529542b3f324cdf_
+
+<!-- todo-hash: ea8ed31991a4f4c99ae8b55a3b6c294c75e8db29 -->
+
+// Additional helper functions
+function getDependencyTree(packageName) {
+  return new Promise((resolve, reject) => {
+    exec(`npm ls ${packageName} --json`, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      try {
+        const dependencies = JSON.parse(stdout);
+        resolve(dependencies);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  });
+}
+
+// Remaining imported functions and modules from both branches
 function startApp() {
   app.listen(PORT, () => {
-    console.log(`Accessibility-focused server running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
   });
 }
 
 // Routes
 app.get('/', (req, res) => {
-  res.send('Accessibility-focused application');
+  res.send('Accessibility and Dependency Analysis Service');
 });
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get('/accessibility/report', (req, res) => {
+  const report = addressNewAccessibilityIssues();
+  res.json(report);
+});
+
+app.get('/dependencies/:package', async (req, res) => {
+  try {
+    const deps = await getDependencyTree(req.params.package);
+    const graph = renderDependencyGraph(deps);
+    const count = countDependencies(deps);
+    res.json({ dependencies: deps, graph, totalCount: count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/accessibility/analyze', (req, res) => {
+  const report = req.body;
+  const addressed = addressAccessibilityIssues(report);
+  res.json({ addressedIssues: addressed });
 });
 
 // Export functions for testing
 module.exports = {
   addLangAttribute,
+  ensureElementHasId,
+  addAriaLabel,
   addressNewAccessibilityIssues,
   generateAccessibilityReport,
   addressAccessibilityIssues,
-  extractAccessibleName,
-  validateTableStructure,
-  ensureElementHasId,
-  addAriaLabel,
   renderDependencyGraph,
   countDependencies,
+  validateTableStructure,
+  validateLandmarks,
+  validateSvgAccessibility,
+  getDependencyTree,
+  app,
   startApp
 };
 

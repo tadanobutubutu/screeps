@@ -10,9 +10,20 @@ Here is the resolved file content:
 // Export the new function if needed
 // export { addressAccessibilityIssues };
 
-const fs = require('fs');
-const path = require('path');
-const http = require('http');
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+  return null;
+}
+
+function addSvgAccessibilityProps() {
+  const svgElements = document.querySelectorAll('svg');
 
 function getSvgAccessibleName(svg) {
   const title = svg.querySelector ? svg.querySelector('title') : null;

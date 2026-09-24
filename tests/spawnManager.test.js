@@ -211,9 +211,57 @@ describe('spawnManager', () => {
     });
 
     describe('showStats', () => {
-        test('統計情報を出力する', () => {
+        test('統計情報を正しく出力する（不足している場合）', () => {
+            const logger = require('../src/utils/logger');
+            jest.spyOn(logger, 'info').mockImplementation(() => {});
+
             spawnManager.showStats(mockRoom);
-            // logger.infoが呼ばれることを期待（モック済み）
+
+            expect(logger.info).toHaveBeenCalledWith('[SpawnManager] ルーム W1N1 のクリープ状況 (RCL 3):');
+            expect(logger.info).toHaveBeenCalledWith('  ⚠️ harvester: 0/2');
+            expect(logger.info).toHaveBeenCalledWith('  ⚠️ upgrader: 0/2');
+            expect(logger.info).toHaveBeenCalledWith('  ⚠️ builder: 0/2');
+
+            logger.info.mockRestore();
+        });
+
+        test('統計情報を正しく出力する（充足している場合）', () => {
+            const logger = require('../src/utils/logger');
+            jest.spyOn(logger, 'info').mockImplementation(() => {});
+
+            // クリープを満たすように設定
+            cache.getMyCreeps.mockReturnValue([
+                { memory: { role: 'harvester' }, spawning: false },
+                { memory: { role: 'harvester' }, spawning: false },
+                { memory: { role: 'upgrader' }, spawning: false },
+                { memory: { role: 'upgrader' }, spawning: false },
+                { memory: { role: 'builder' }, spawning: false },
+                { memory: { role: 'builder' }, spawning: false },
+            ]);
+
+            spawnManager.showStats(mockRoom);
+
+            expect(logger.info).toHaveBeenCalledWith('[SpawnManager] ルーム W1N1 のクリープ状況 (RCL 3):');
+            expect(logger.info).toHaveBeenCalledWith('  ✓ harvester: 2/2');
+            expect(logger.info).toHaveBeenCalledWith('  ✓ upgrader: 2/2');
+            expect(logger.info).toHaveBeenCalledWith('  ✓ builder: 2/2');
+
+            logger.info.mockRestore();
+        });
+
+        test('コントローラーがない場合は RCL 0 として扱われる', () => {
+            const logger = require('../src/utils/logger');
+            jest.spyOn(logger, 'info').mockImplementation(() => {});
+
+            mockRoom.controller = undefined;
+            spawnManager.showStats(mockRoom);
+
+            expect(logger.info).toHaveBeenCalledWith('[SpawnManager] ルーム W1N1 のクリープ状況 (RCL 0):');
+            expect(logger.info).toHaveBeenCalledWith('  ⚠️ harvester: 0/2');
+            expect(logger.info).toHaveBeenCalledWith('  ⚠️ upgrader: 0/1');
+            expect(logger.info).toHaveBeenCalledWith('  ✓ builder: 0/0');
+
+            logger.info.mockRestore();
         });
     });
 

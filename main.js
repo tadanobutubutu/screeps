@@ -22,15 +22,6 @@ export function myNewFunction() {
   return "New function implemented successfully";
 }
 
-// REACT_015: Add lang attribute to the <html> element
-function ... {
-  if (typeof html !== 'string') return html;
-  return ... (match, attrs) => {
-    if ... return match;
-    return `<html${attrs} lang="en">`;
-  });
-}
-
 // React application code with accessibility features
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -45,22 +36,14 @@ const root = ...
 // DOM Elements
 const dependencyGraph = ...
 
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and fixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// TODO: This is the existing code that needs to be preserved
-//_Commit: 18ddb6408a2b2823efa22f0a77964bb5d6737f93_
-//<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_ -->
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: ...
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+// REACT_015: Add lang attribute to the <html> element
+function addLangAttribute(html) {
+  if (typeof html !== 'string') return html;
+  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+    if (/\blang=/i.test(match)) return match;
+    return `<html${attrs} lang="en">`;
+  });
+}
 
 /**
  * Adds lang attribute to HTML element
@@ -69,21 +52,6 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-/**
- * Adds lang attribute to HTML element
- */
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    ... getLangAttribute());
-  }
-}
-
-/**
- * Validates table accessibility
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} True if table is accessible
- */
 function validateTableAccessibility(table) {
   // Check for caption or aria-label
   return ... ||
@@ -386,6 +354,46 @@ function ... {
   }
 }
 
+// Accessibility utilities
+const accessibilityUtils = {
+    // Function for addressing new accessibility issues
+    addressNewAccessibilityIssues: function(issues) {
+        // Implementation for handling new accessibility issues
+        if (!issues || !Array.isArray(issues)) {
+            return [];
+        }
+
+        return issues.map(issue => {
+            return {
+                id: issue.id,
+                description: issue.description,
+                severity: issue.severity,
+                status: 'addressed',
+                addressedAt: new Date().toISOString()
+            };
+        });
+    },
+    // New function to validate landmark elements
+    validateLandmark: function() {
+      const requiredLandmarks = ['main', 'nav', 'footer'];
+      const missingLandmarks = [];
+
+      requiredLandmarks.forEach(landmark => {
+        const element = document.querySelector(`[role="${landmark}"]`) ||
+                       document.querySelector(`${landmark}`);
+        if (!element) {
+          missingLandmarks.push(landmark);
+        }
+      });
+
+      if (missingLandmarks.length > 0) {
+        console.warn('Missing required landmarks:', missingLandmarks.join(', '));
+        return false;
+      }
+      return true;
+    }
+};
+
 /**
  * Upgrades accessibility patterns from older versions to newer standards
  * Handles migration of deprecated patterns to modern accessibility practices
@@ -408,7 +416,7 @@ function ... {
   });
 
   // Check for buttons without accessible name
-  const buttons = ...
+  const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || ...
     if (!accessibleName) {
@@ -421,8 +429,8 @@ function ... {
     }
   });
 
-  // Check for links without accessible names
-  const links = ...
+  // Check for links without accessible name
+  const links = document.querySelectorAll('a');
   links.forEach((link, index) => {
     const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
     if (!accessibleName) {
@@ -544,56 +552,6 @@ function addressAccessibilityIssues() {
   }
 }
 
-// Accessibility utilities
-const accessibilityUtils = {
-    // Function for addressing new accessibility issues
-    addressNewAccessibilityIssues: function(issues) {
-        // Implementation for handling new accessibility issues
-        if (!issues || !Array.isArray(issues)) {
-            return [];
-        }
-
-        return issues.map(issue => {
-            return {
-                id: issue.id,
-                description: issue.description,
-                severity: issue.severity,
-                status: 'addressed',
-                addressedAt: new Date().toISOString()
-            };
-        });
-    },
-    // New function to validate landmark elements
-    validateLandmark: function() {
-      const requiredLandmarks = ['main', 'nav', 'footer'];
-      const missingLandmarks = [];
-
-      requiredLandmarks.forEach(landmark => {
-        const element = document.querySelector(`[role="${landmark}"]`) ||
-                       document.querySelector(`${landmark}`);
-        if (!element) {
-          missingLandmarks.push(landmark);
-        }
-      });
-
-      if (missingLandmarks.length > 0) {
-        console.warn('Missing required landmarks:', missingLandmarks.join(', '));
-        return false;
-      }
-      return true;
-    }
-};
-
-// Export the report generation function
-module.exports = {
-  generateAccessibilityReport: generateAccessibilityReport,
-  addressAccessibilityIssues,
-  getLangAttribute,
-  createInPageButton,
-  a11y,
-  accessibilityUtils
-};
-
 // Initialize the application with accessibility improvements
 function initialize() {
     // Ensure the dependencyGraph container has a proper ARIA role
@@ -622,37 +580,28 @@ root.render(
 
 reportWebVitals();
 
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport };
-
 // Initialize after React render to ensure DOM is updated
 initialize();
 
-/**
- * Addresses accessibility issues from insight report
- * This function consolidates all required fixes based on the insight report
- */
-function addressInsightReportIssues() {
-  // Ensure lang attribute is present
-  addLangAttribute();
-
-  // Fix table structures
-  document.querySelectorAll('table').forEach(table => {
-    if (!validateTableAccessibility(table)) {
-      fixTableStructure(table);
-    }
-  });
-
-  // Add landmark roles
-  addMainLandmark();
-  addProperLandmarkRegions();
-  ensureUniqueLandmarks();
-
-  // Add accessible names to SVGs
-  document.querySelectorAll('svg').forEach(svg => {
-    const name = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, name);
-  });
-
-  // Handle fake links
-  handleFakeLinks();
-}
+export {
+  generateAccessibilityReport,
+  addressAccessibilityIssues,
+  getLangAttribute,
+  addLangAttribute,
+  createInPageButton,
+  validateLandmarkStructure,
+  fixTableStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkAttributes,
+  addMainLandmark,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  addProperLandmarkRegions,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  a11y,
+  accessibilityUtils
+};

@@ -380,12 +380,21 @@ function addLangAttribute(lang = 'en') {
   return issues;
 }
 
+/**
+ * Validates the accessibility report for issues
+ * @param {Object} report - The accessibility report to validate
+ * @returns {boolean} True if the report contains issues, false otherwise
+ */
+function validateAccessibilityReportForIssues(report) {
+  return report && Array.isArray(report.issues) && report.issues.length > 0;
+}
+
 module.exports = {
   // Existing exports preserved
   newFunction,
   implementAccessibilityFixesFromReport,
   checkAccessibility,
-  addLangAttribute,
+  validateAccessibilityReportForIssues,
   // Re-export utilities functions
   createInPageButton,
   createWebResourceButton,

@@ -1,53 +1,37 @@
-// Check if document has already loaded
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', onReady);
-} else {
-  onReady();
-}
+// TODO: This is the existing code that needs to be preserved
+const { updateThScopeAttribute } = require('./testHelper');
 
-function onReady() {
-  // Newly added function to find landmark elements
-  function getLandmarkElements() {
-    const landmarks = [];
-
-    const landmarkTypes = ['landmark', 'banner', 'complementary', 'contentinfo', 'main', 'nav', 'search'];
-
-    landmarkTypes.forEach((type) => {
-      const elements = document.querySelectorAll(`${type}`);
-      Array.from(elements).forEach((element) => landmarks.push(element));
-    });
-
-    return landmarks;
-  }
-
-  // Let's use the implemented function somewhere
-  const landmarkElements = getLandmarkElements();
-  console.log('Landmark elements detected:', landmarkElements);
-
-  // Apply all accessibility fixes on ready
-  applyAccessibilityFixes();
-}
+// Landmark elements that should be checked for proper usage
+const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
 
 /**
  * Checks landmark elements in HTML content for accessibility compliance.
  * @param {string} htmlContent - The HTML content to check
  * @returns {Object} - Object containing landmark element information and any warnings
  */
-function checkLandmarkElementsInContent(htmlContent) {
-  // Validate input
-  if (typeof htmlContent !== 'string') {
-    throw new Error('HTML content must be a string');
-  }
-
+function checkLandmarkElements(htmlContent) {
   const warnings = [];
   const foundLandmarks = {};
 
   LANDMARK_ELEMENTS.forEach(landmark => {
-    // Use case-insensitive regex to find landmark elements
-    const regex = new RegExp(`<${landmark}[\\s>]`, 'gi');
+    const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
     const matches = htmlContent.match(regex);
     if (matches) {
       foundLandmarks[landmark] = matches.length;
+    } else {
+      warnings.push(`Missing landmark element: <${landmark}>`);
+    }
+  });
+  return { warnings, foundLandmarks };
+}
+
+/**
+ * Add lang attribute to HTML element
+ */
+function addLangAttribute(lang) {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement) {
+        htmlElement.setAttribute('lang', lang);
     }
   });
 

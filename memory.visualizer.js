@@ -119,9 +119,10 @@ const memoryVisualizer = {
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
         console.log(`History (last ${snapshots.length} ticks):`);
-        snapshots.forEach((snap) => {
+        for (let i = 0; i < snapshots.length; i++) {
+            const snap = snapshots[i];
             console.log(`[${snap.time}] CPU=${snap.cpu.toFixed(2)}, Bucket=${snap.bucket}, Creeps=${snap.creeps}, Energy=${snap.energy}`);
-        });
+        }
 
         return snapshots;
     },

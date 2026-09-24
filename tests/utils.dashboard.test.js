@@ -176,6 +176,54 @@ describe('DashboardRenderer', () => {
         );
     });
 
+
+    test('displayVisuals uses red color for critical energy/storage (< 30%)', () => {
+        mockRoom.energyAvailable = 500; // 25% of 2000
+        mockRoom.storage.store[RESOURCE_ENERGY] = 250000; // 25% of 1000000
+        DashboardRenderer.displayVisuals(mockRoom);
+
+        // Energy (Red)
+        expect(mockRoom.visual.text).toHaveBeenCalledWith(
+            expect.stringContaining('Energy:'),
+            expect.any(Number),
+            expect.any(Number),
+            expect.objectContaining({ color: '#ff0000' })
+        );
+
+        // Storage (Red)
+        expect(mockRoom.visual.text).toHaveBeenCalledWith(
+            expect.stringContaining('Storage:'),
+            expect.any(Number),
+            expect.any(Number),
+            expect.objectContaining({ color: '#ff0000' })
+        );
+    });
+
+    test('displayVisuals handles hostiles alert properly', () => {
+        mockRoom._hostileCreeps = [{ id: 'hostile1' }];
+        DashboardRenderer.displayVisuals(mockRoom);
+
+        expect(mockRoom.visual.text).toHaveBeenCalledWith(
+            expect.stringContaining('⚠️ HOSTILES: 1'),
+            expect.any(Number),
+            expect.any(Number),
+            expect.objectContaining({ color: '#ff0000' })
+        );
+    });
+
+    test('displayVisuals handles mid-range bucket color properly', () => {
+        global.Game.cpu.bucket = 5000; // > 3000, <= 7000
+        DashboardRenderer.displayVisuals(mockRoom);
+
+        expect(mockRoom.visual.rect).toHaveBeenCalledWith(
+            expect.any(Number),
+            expect.any(Number),
+            expect.any(Number),
+            expect.any(Number),
+            expect.objectContaining({ fill: '#ffff00' })
+        );
+    });
+
     describe('formatNumber', () => {
         test('formats numbers under 1000 as string', () => {
             expect(DashboardRenderer.formatNumber(0)).toBe('0');

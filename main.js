@@ -221,7 +221,7 @@ const initAccessibility = () => {
 }
 
 // Main entry point
-const mainFunction = function() {
+function mainFunction() {
   // Application initialization
   return 'main function executed';
 };

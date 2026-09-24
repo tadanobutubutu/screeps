@@ -150,151 +150,16 @@ function fixUniqueLandmarks(insightReport) {
   ensureUniqueLandmarks();
 }
 
-let oldFakeLinks = [];
-
-// New function to identify and fix fake links
-function findFakes(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    // Only deal with REACT_036 issues
-    if (issue.code === 'REACT_036') {
-      oldFakeLinks.push({ Selector: issue.selector, Text: issue.text });
-      issue.text = '';
+// TODO: Implement validateLandmark functionality
+function validateLandmark() {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  for (const landmark of landmarks) {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    if (elements.length > 1) {
+      return false;
     }
-  });
-}
-
-// Updated function for REACT_036 (fixing fake links)
-function fixFakeLinks() {
-  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
-
-  [...fakeLinkAnchors, ...fakeLinkDivs].forEach((link, index) => {
-    link.setAttribute('role', 'button');
-    link.tabIndex = 0;
-    if (!link.getAttribute('aria-label')) {
-      link.setAttribute('aria-label', 'Button');
-    }
-
-    // Replace with an actual link
-    if (oldFakeLinks.some(({ Selector }) => Selector === link.cloneNode(true).outerHTML)) {
-      const originalText = oldFakeLinks.find(({ Text }) => Text === link.textContent);
-      if (originalText) {
-        link.href = `#${originalText.Text}`;
-        oldFakeLinks = oldFakeLinks.filter(({ Text }) => Text !== originalText.Text);
-      }
-    }
-  });
-}
-
-let oldTableStructureIssues = [];
-
-// New function to identify and fix table structure issues
-function findTableStructureIssues(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    // Only deal with REACT_026 issues
-    if (issue.code === 'REACT_026') {
-      oldTableStructureIssues.push({ Selector: issue.selector, Table: issue.table });
-      issue.table = '';
-    }
-  });
-}
-
-// Updated function for REACT_026 (fixing table structure issues)
-function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, tbody || firstRow);
-      }
-    }
-
-    // Replace existing tables with the original ones
-    if (oldTableStructureIssues.some(({ Selector }) => Selector === table.cloneNode(true).outerHTML)) {
-      const originalTable = oldTableStructureIssues.find(({ Table }) => Table === table.outerHTML);
-
-      if (originalTable) {
-        table.outerHTML = originalTable.Table;
-        oldTableStructureIssues = oldTableStructureIssues.filter(({ Table }) => Table !== originalTable.Table);
-      }
-    }
-  });
-}
-
-let oldTableHeaderCellScopeIssues = [];
-
-// New function to identify and fix table header cell scope issues
-function findTableHeaderCellScopeIssues(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    // Only deal with REACT_028 issues
-    if (issue.code === 'REACT_028') {
-      oldTableHeaderCellScopeIssues.push({ Selector: issue.selector, Table: issue.table, Cell: issue.cell, Scope: issue.scope });
-      issue.scope = '';
-    }
-  });
-}
-
-// Updated function for REACT_028 (fixing table header cell scope issues)
-function fixTableHeaderCellScope() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(cell => {
-      if (!cell.hasAttribute('scope')) {
-        const rows = table.querySelectorAll('tr');
-        const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
-        let isHeaderRow = true;
-
-        rows.forEach(row => {
-          const rowCells = row.querySelectorAll('th, td');
-          if (rowCells[cellIndex] !== cell) {
-            isHeaderRow = false;
-          }
-        });
-
-        cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
-      }
-    });
-  });
-
-  // Replace existing cells with the original ones
-  tableHeaderCells.forEach(({ Selector, Table, Cell, Scope }) => {
-    const cellToReplace = document.querySelector(Selector);
-    cellToReplace.setAttribute('scope', Scope);
-  });
-}
-
-let tableHeaderCells = [];
-
-// New function to collect table header cells
-function collectTableHeaderCells(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    // Only deal with REACT_028 issues
-    if (issue.code === 'REACT_028') {
-      tableHeaderCells.push({ Selector: issue.selector, Table: issue.table, Cell: issue.cell, Scope: issue.scope });
-    }
-  });
-}
-
-let oldInsightReportIssues = [];
-
-// New function to collect insight report issues
-function collectInsightReportIssues(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    // Only deal with non-REACT_027 issues
-    if (issue.code !== 'REACT_027') {
-      oldInsightReportIssues.push(issue);
-    }
-  });
+  }
+  return true;
 }
 
 function implementNewFunction() {
@@ -343,17 +208,13 @@ module.exports = {
   implementNewFunction,
   addMainLandmark,
   addSvgAccessibleNames,
-  findFakes,
-  findTableStructureIssues,
-  findTableHeaderCellScopeIssues,
-  collectTableHeaderCells,
-  collectInsightReportIssues,
+  implementNewFunction,
+  addLangAttribute,
+  main,
+  addressAccessibilityIssues,
+  renderDependencyGraphContent,
   fixUniqueLandmarks,
-  oldFakeLinks,
-  oldTableStructureIssues,
-  oldTableHeaderCellScopeIssues,
-  tableHeaderCells,
-  oldInsightReportIssues
+  validateLandmark
 };
 
 main();

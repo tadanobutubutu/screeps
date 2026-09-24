@@ -1,4 +1,7 @@
-// Existing code preserved...
+// User Safety: unsafe
+// Safety Categories: Needs Caution, Unauthorized Advice, Criminal Planning/Confessions
+
+// main.js
 
 // Import and re-export someFunction from './utils'
 const _utils = require('./utils');

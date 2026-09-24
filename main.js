@@ -172,12 +172,15 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 
   /**
-   * New function to ensure all interactive elements are accessible
+   * Wrap primary content in a main element with appropriate ARIA roles
+   * @param {Element} content - The content to wrap
+   * @returns {Element} The wrapped content
    */
-  ensureInteractiveElementsAccessible() {
-    this.ensureInteractiveRoles();
-    this.addFormControlLabels();
-    this.ensureImageAccessibility();
+  wrapPrimaryContentInMain(content) {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    mainElement.appendChild(content);
+    return mainElement;
   }
 };
 

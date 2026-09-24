@@ -321,6 +321,45 @@ function googleSignIn(options) {
     };
 }
 
+/**
+ * Initiates Google Sign-In flow
+ * @param {string} clientId - Google OAuth client ID
+ * @returns {Promise} Promise resolving to the credential response
+ */
+function googleSignIn(clientId) {
+    return new Promise((resolve, reject) => {
+        if (!clientId) {
+            reject(new Error('Google client ID is required'));
+            return;
+        }
+
+        // Check if Google Identity Services is available
+        if (typeof google === 'undefined' || !google.accounts) {
+            reject(new Error('Google Identity Services not loaded'));
+            return;
+        }
+
+        // Request the credential
+        google.accounts.id.initialize({
+            client_id: clientId,
+            callback: (response) => {
+                const processedResponse = handleCredentialResponse(response);
+                if (processedResponse.success) {
+                    resolve(processedResponse);
+                } else {
+                    reject(new Error(processedResponse.error));
+                }
+            }
+        });
+
+        google.accounts.id.prompt((notification) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                reject(new Error('Sign-in prompt was not displayed or was skipped'));
+            }
+        });
+    });
+}
+
 // Ensure DOM is fully loaded before executing scripts
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
@@ -351,6 +390,7 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLinkAccessibility,
     handleFakeLinks,
     countDependencies,
+    handleCredentialResponse,
     googleSignIn
   };
 } else {
@@ -1013,12 +1053,9 @@ module.exports = {
     const lang = options.lang || 'en';
 
     return {
-      langAdded: this.addLangAttribute(document, lang),
-      tablesFixed: this.fixTableStructureIssues(document),
-      mainsAdded: this.addMainLandmark(document),
-      svgsFixed: this.addSvgAccessibleNames(document),
-      landmarksEnsured: this.ensureUniqueLandmarks(document),
-      linksFixed: this.fixFakeLinkIssue(document)
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
   },
   handleCredentialResponse: async function(response) {

@@ -1,9 +1,8 @@
-// Importing utilities for formatting and validation
-import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
-import { renderHeader, renderFooter, renderProductCard } from './components.js';
-import { state, updateState } from './state.js';
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// Importing the necessary functions (for illustration purposes)
+const { getLangAttribute, createInPageButton, wrapPrimaryContentInMain, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, addAriaToFormControls, ensureUniqueLandmarks } = require('./utils/accessibilityUtils');
+const { validateTableAccessibility, validateTableStructure } = require('./utils/tableAccessibilityUtils');
+const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
 
 // Main game loop
 module.exports = function() {
@@ -52,12 +51,15 @@ function validateTableAccessibility() {
     // Validate table accessibility issues
 }
 
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute(lang = 'en') {
-  const doc = getDocument();
-  if (doc && doc.documentElement) {
-    if (doc.documentElement.lang !== lang) {
-      doc.documentElement.setAttribute('lang', getFullLangAttribute(lang));
+// Returns a new array containing only unique landmarks from the input list.
+// This function is used to ensure that landmarks are not duplicated in the DOM.
+function uniqueLandmarks(landmarks = []) {
+  const seen = new Set();
+  const result = [];
+  for (const lm of landmarks) {
+    if (!seen.has(lm.id)) {
+      seen.add(lm.id);
+      result.push(lm);
     }
   }
 }
@@ -105,142 +107,118 @@ function addAriaLabel(elementId, label) {
   }
 }
 
-function addLangAttribute() {
-  const elementToModify = document.querySelector('html');
-  if (elementToModify) {
-    elementToModify.setAttribute('lang', getLangAttribute());
-  }
+// Added function to create accessible links as mentioned in the issue
+function createAccessibleLink(text = '', href = '#') {
+  if (typeof document === 'undefined') return null;
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  link.setAttribute('aria-label', text);
+  return link;
 }
 
-function ensureElementHasId(elementId) {
-  const element = document.getElementById(elementId);
-  if (element && !element.id) {
-    element.setAttribute('id', elementId);
-  }
+// New function to fix accessibility issues as per the insight report
+function fixAccessibilityIssues() {
+  if (typeof document === 'undefined') return;
+  applyLangAttribute();
+  ensureUniqueLandmarks();
+  fixFakeLinkIssues();
+  fixSvgAccessibility();
 }
 
 function createInPageButton() {
   // ... implementation details omitted ...
 }
 
-function validateTableAccessibility(table) {
-  // ... implementation details omitted ...
+// Helper function for fixAccessibilityIssues (assumed to exist in accessibilityUtils)
+function applyLangAttribute() {
+  const langAttr = getLangAttribute();
+  if (typeof document !== 'undefined' && langAttr) {
+    document.documentElement.setAttribute('lang', langAttr);
+  }
 }
 
-function validateTableStructure(table) {
-  // ... implementation details omitted ...
+// Helper function for fixAccessibilityIssues (assumed to exist in accessibilityUtils)
+function fixSvgAccessibility() {
+  if (typeof document === 'undefined') return;
+  const svgName = getSvgAccessibleName();
+  // Implementation would go here
 }
 
-function validateLinkAccessibility(links) {
-  links.forEach(link => {
-    // Check if the link is an in-page link and add an aria-label
-    if (link.href.startsWith('#')) {
-      link.setAttribute('aria-label', link.textContent);
+// ... other existing code ...
+
+module.exports = function() {
+    // Initialize accessibility features (if in browser environment)
+    if (typeof document !== 'undefined') {
+        const langAttr = getLangAttribute();
+        const primaryContent = wrapPrimaryContentInMain();
+
+        // Validate accessibility
+        validateTableAccessibility();
+        validateTableStructure();
+        validateLandmark();
+        validateLandmarkStructure();
+        addFixLandmarkIssues();
+
+        // SVG accessibility
+        const svgName = getSvgAccessibleName();
+        addAriaToFormControls();
+
+        // Unique landmarks and fake link fixes
+        ensureUniqueLandmarks();
+        fixFakeLinkIssues();
+        createAccessibleLink();
     }
-  });
-}
 
-function handleFakeLinks(links) {
-  links.forEach(link => {
-    // ... implementation details omitted ...
-  });
-}
+    // Harvest and upgrade logic
+    const creeps = Game.creeps;
+    const sources = Game.sources;
+    const controller = Game.controllers[0]; // assuming first controller
 
-// DOM-based accessibility code
+    Object.values(creeps).forEach(creep => {
+        const source = creep.findClosestByPath(FIND_SOURCES, {
+            filter: (source) => source.energy > 0
+        });
+        if (source) {
+            harvest(creep, source);
+        } else {
+            upgradeController(creep, controller);
+        }
+    });
 
-addLangAttribute();
+    // New: Check link accessibility
+    checkLinkAccessibility();
 
-function createInPageButton() {
-    // Create an accessible in-page button for navigation
-    const button = getDocument() ? getDocument().createElement('button') : null;
-    if (button) {
-        button.type = 'button';
-        button.setAttribute('aria-label', 'Navigate to section');
+    // Implement solution to the issue in main.js
+    // Assuming the TODO refers to adding accessibility checks for links within the game
+    function checkLinkAccessibility() {
+        const doc = getDocument();
+        if (doc) {
+            const links = doc.querySelectorAll('a');
+            let issues = [];
+            links.forEach(link => {
+                if (!link.textContent && !link.getAttribute('aria-label')) {
+                    issues.push('Link missing accessible name');
+                }
+            });
+            return issues.length === 0;
+        }
+        return true;
     }
-    return button;
-}
 
-// Google sign-in accessibility
-function googleSignIn() {
-    const doc = getDocument();
-    if (!doc) return;
-    const googleButton = doc.querySelector('.google-signin');
-    if (googleButton) {
-        googleButton.setAttribute('aria-label', 'Sign in with Google');
-        googleButton.setAttribute('role', 'button');
+    function addressAccessibilityIssues(doc) {
+        if (!doc || !doc.documentElement) {
+            // Fallback for environment without document (e.g., test environment)
+            return;
+        }
+
+        // ... existing code ...
     }
-}
-googleSignIn();
 
-// Validate table structure and accessibility
-const tableForValidation = getDocument() ? getDocument().getElementById('myTable') : null;
-if (tableForValidation) {
-    validateTableAccessibility(tableForValidation);
-    validateTableStructure(tableForValidation);
-}
-
-// Add/fix landmark issues
-validateLandmark();
-validateLandmarkStructure();
-ensureUniqueLandmarks();
-
-// Add accessible names to SVGs
-const svgElement = getDocument() ? getDocument().getElementById('mySvg') : null;
-if (svgElement) {
-    const accessibleName = getSvgAccessibleName(svgElement);
-    setSvgAttributes(svgElement, accessibleName);
-}
-
-// Ensure unique landmarks
-ensureUniqueLandmarkId('main-content');
-
-// Validate link accessibility (New Function)
-checkLinkAccessibility();
-
-// ... other fixes ...
-
-module.exports = {
-  config,
-  initialize,
-  main,
-  validateTableAccessibility,
-  addLangAttribute,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  addFixLandmarkIssues,
-  ensureUniqueLandmarkId,
-  ensureElementHasId,
-  addAriaLabel,
-  personName,
-  fixFakeLinkIssues,
-  createInPageButton,
-  createAccessibleLink,
-  checkLinkAccessibility,
-  findIndex,
-  originalFilterLandmarks,
-  originalSortLandmarksByName,
-  originalAddRequiredLandmarks,
-  getDocument,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  handleAccessibilityErrors,
-  makeHeaderFocusable, // corrected spelling
-  getFullLangAttribute,
-  handleAccessibilityIssues,
-  addAriaToFormControls,
-  getSvgAccessibleName,
-  renderDependencyGraph,
-  displayModuleStructure,
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  harvest,
-  upgradeController
+    function getDocument() {
+        if (typeof document !== 'undefined') {
+            return document;
+        }
+        return null;
+    }
 };

@@ -144,29 +144,22 @@ function newFunction() {
   console.log("New Function has been called!");
 }
 
-// New function to get lang attribute
-function getLangAttribute() {
-  // Placeholder for actual implementation
-  console.log("Getting lang attribute");
-}
-
-// New function to create in page button
-function createInPageButton() {
-  // Placeholder for actual implementation
-  console.log("Creating in page button");
-}
-
-// New function to ensure element has an id and aria-label
-function ensureElementIdAndAriaLabel(element, id, ariaLabel) {
-  if (!element) return;
-  
-  if (id && !element.id) {
-    element.id = id;
-  }
-  
-  if (ariaLabel && !element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', ariaLabel);
-  }
+// Function for accessibility checks on tables
+function checkTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has an accessible name via caption or aria-label
+    if (!table.querySelector('caption') && !table.getAttribute('aria-label')) {
+      table.setAttribute('aria-label', 'Table');
+    }
+    // Ensure header cells have a scope attribute
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.getAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  });
 }
 
 // Export functions for testing
@@ -178,5 +171,5 @@ module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   newFunction,
-  addressAccessibilityIssues  // Add this export for testing purpose
+  checkTableAccessibility
 };

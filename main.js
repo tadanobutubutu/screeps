@@ -1,6 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-const main = require('./utilities')
+// TODO: Implement the new function as per issue requirements
 
 // Existing code...
 

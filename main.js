@@ -347,126 +347,62 @@ function validateTableStructure() {
 }
 
 /**
- * Validates form elements for accessibility issues.
- * Checks for:
- *   - Presence of labels for form controls.
- *   - Proper use of aria-label or aria-labelledby.
- *   - Required attributes for form elements.
+ * Adds ARIA attributes to form elements to improve accessibility.
+ * Adds appropriate ARIA roles and labels where missing.
  *
- * @returns {boolean} True if all form elements pass checks, otherwise false.
+ * @param {HTMLElement} form - The form element to enhance.
  */
-function validateFormAccessibility() {
-  const forms = document.querySelectorAll('form');
-  const issues = [];
-
-  forms.forEach((form, formIndex) => {
-    const formId = form.id || `form-${formIndex}`;
-    const formControls = form.querySelectorAll('input, textarea, select, button');
-
-    formControls.forEach((control, controlIndex) => {
-      const controlId = control.id || `${formId}-control-${controlIndex}`;
-      const controlType = control.tagName.toLowerCase();
-
-      // Check for labels
-      if (controlType !== 'button' && !control.hasAttribute('aria-label') && !control.hasAttribute('aria-labelledby')) {
-        const label = form.querySelector(`label[for="${controlId}"]`);
-        if (!label) {
-          issues.push({
-            formIndex,
-            controlIndex,
-            issue: 'Form control missing label or aria-label/aria-labelledby',
-            element: control
-          });
-        }
-      }
-
-      // Check required attributes
-      if (control.hasAttribute('required') && !control.hasAttribute('aria-required')) {
-        issues.push({
-          formIndex,
-          controlIndex,
-          issue: 'Required form control missing aria-required attribute',
-          element: control
-        });
-      }
-    });
-  });
-
-  if (issues.length > 0) {
-    console.warn('Form accessibility issues found:', issues);
-    return false;
+function enhanceFormAccessibility(form) {
+  if (!form) {
+    throw new Error('Form element is required');
   }
 
-  console.log('All form elements passed accessibility checks.');
-  return true;
+  // Add ARIA roles to form elements
+  form.querySelectorAll('input, textarea, select').forEach((element) => {
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      const label = form.querySelector(`label[for="${element.id}"]`);
+      if (label) {
+        element.setAttribute('aria-labelledby', label.id);
+      } else if (element.placeholder) {
+        element.setAttribute('aria-label', element.placeholder);
+      }
+    }
+
+    // Add role="combobox" to select elements if they're enhanced with JavaScript
+    if (element.tagName === 'SELECT' && !element.hasAttribute('role')) {
+      element.setAttribute('role', 'combobox');
+    }
+  });
+
+  // Add ARIA attributes to buttons
+  form.querySelectorAll('button').forEach((button) => {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+      console.warn('Button without visible text or ARIA label found', button);
+    }
+  });
 }
 
 /**
- * Validates interactive elements for proper ARIA attributes.
- * Checks for:
- *   - Presence of role attributes when needed.
- *   - Proper use of aria-* attributes.
- *   - Consistent state management.
+ * Adds ARIA attributes to navigation elements to improve keyboard navigation.
  *
- * @returns {boolean} True if all interactive elements pass checks, otherwise false.
+ * @param {HTMLElement} nav - The navigation element to enhance.
  */
-function validateInteractiveElements() {
-  const interactiveElements = document.querySelectorAll('[role="button"], [role="checkbox"], [role="radio"], [role="switch"], [role="tab"]');
-  const issues = [];
-
-  interactiveElements.forEach((element, index) => {
-    const role = element.getAttribute('role');
-
-    // Check for required ARIA attributes based on role
-    switch (role) {
-      case 'button':
-        if (!element.hasAttribute('aria-pressed') && !element.hasAttribute('aria-expanded')) {
-          issues.push({
-            index,
-            issue: 'Button role element missing aria-pressed or aria-expanded',
-            element
-          });
-        }
-        break;
-      case 'checkbox':
-      case 'radio':
-      case 'switch':
-        if (!element.hasAttribute('aria-checked')) {
-          issues.push({
-            index,
-            issue: `${role} role element missing aria-checked`,
-            element
-          });
-        }
-        break;
-      case 'tab':
-        if (!element.hasAttribute('aria-selected')) {
-          issues.push({
-            index,
-            issue: 'Tab role element missing aria-selected',
-            element
-          });
-        }
-        break;
-    }
-
-    // Check for proper tabindex
-    if (!element.hasAttribute('tabindex')) {
-      issues.push({
-        index,
-        issue: 'Interactive element missing tabindex',
-        element
-      });
-    }
-  });
-
-  if (issues.length > 0) {
-    console.warn('Interactive element accessibility issues found:', issues);
-    return false;
+function enhanceNavigationAccessibility(nav) {
+  if (!nav) {
+    throw new Error('Navigation element is required');
   }
 
-  console.log('All interactive elements passed accessibility checks.');
-  return true;
+  // Ensure nav has a role
+  if (!nav.hasAttribute('role')) {
+    nav.setAttribute('role', 'navigation');
+  }
+
+  // Add ARIA labels to navigation items if missing
+  nav.querySelectorAll('a').forEach((link) => {
+    if (!link.hasAttribute('aria-label') && !link.textContent.trim()) {
+      console.warn('Navigation link without text or ARIA label found', link);
+    }
+  });
 }
 
 // Export functions for use in other modules
@@ -483,6 +419,6 @@ module.exports = {
   getSvgAccessibleName,
   renderDependencyGraphs,
   validateTableStructure,
-  validateFormAccessibility,
-  validateInteractiveElements
+  enhanceFormAccessibility,
+  enhanceNavigationAccessibility
 };

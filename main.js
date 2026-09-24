@@ -53,13 +53,12 @@ function renderDependencyGraph(dependencies) {
  * @param {string} elementId - The id of the element to check
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html lang="en"><head><title>Dependencies</title></head><body>';
-    html += '<header role="banner"><h1>Dependency Index</h1></header>';
-    html += '<main role="main">';
+    let html = '<!DOCTYPE ...';
+    html += '<h1>Dependency Index</h1>';
     html += '<ul>';
     
     for (const pkg of packages) {
-        html += `<li>${pkg.name} - ${pkg.version || 'N/A'}</li>\n`;
+        html += `<li>${pkg.name} - ...</li>`;
     }
     
     html += '</ul>';

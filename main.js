@@ -38,46 +38,156 @@ import { spawn, fork, exec } from 'child_process';
     '[role="complementary"]', '[role="contentinfo"]', '[role="region"]'
   ];
 
-  landmarkSelectors.forEach(selector => {
-    const elements = doc.querySelectorAll(selector);
-    elements.forEach(el => {
-      data.landmarks.push({
-        selector,
-        tag: el.tagName.toLowerCase(),
-        role: el.getAttribute('role') || null,
-        ariaLabel: el.getAttribute('aria-label') || null,
-        ariaLabelledby: el.getAttribute('aria-labelledby') || null,
-        id: el.getAttribute('id') || null
+function getPersonName() {
+  // Fix for REACT_036: personName is part of the fake link fix
+  return document.querySelector('[data-fake-link]')?.getAttribute('data-person-name') || 'Unknown';
+}
+
+function validateTableAccessibilityWrapper(tableElement) {
+  return validateTableAccessibility(tableElement);
+}
+
+function validateTableStructureWrapper(tableElement) {
+  return validateTableStructure(tableElement);
+}
+
+function validateLandmarkWrapper() {
+  return validateLandmark();
+}
+
+function validateLandmarkStructureWrapper() {
+  return validateLandmarkStructure();
+}
+
+function getSvgAccessibleNameWrapper(svgElement) {
+  return getSvgAccessibleName(svgElement);
+}
+
+function createInPageButtonWrapper() {
+  return createInPageButton();
+}
+
+// Placeholder variables for content
+let dependencyGraphContent;
+let indexContent;
+let personNameValue;
+
+// New function to count dependencies
+function countDependencies() {
+  // Placeholder implementation: count dependencies in the project
+  // This could involve scanning package.json, node_modules, or internal references
+  // For now, return a default value.
+  return 0;
+}
+
+// Implement this function for ensuring unique landmarks
+function ensureUniqueLandmarks() {
+  // Landmarks that should be unique on a page
+  const uniqueLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
+  
+  uniqueLandmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        // Add or update aria-label to make each landmark unique
+        const existingLabel = element.getAttribute('aria-label');
+        const elementTag = element.tagName.toLowerCase();
+        const role = element.getAttribute('role') || elementTag;
+        
+        if (!existingLabel) {
+          // Add index-based label for distinction
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
       });
-    });
+    }
+  });
+  
+  // Ensure region and navigation landmarks have accessible names when multiple exist
+  const sectionLandmarkSelectors = ['nav', '[role="navigation"]', '[role="region"]', 'aside', '[role="complementary"]'];
+  
+  sectionLandmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
+        const role = element.getAttribute('role') || element.tagName.toLowerCase();
+        
+        if (!hasLabel) {
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
+}
+
+// New function to fix accessibility issues as per the insight report
+function fixAccessibilityIssues() {
+  // 1. REACT_015: Ensure lang attribute is set on the HTML element
+  const lang = getLangAttribute();
+  const htmlElement = getDocument().documentElement;
+  if (htmlElement && lang) {
+    htmlElement.setAttribute('lang', lang);
+  }
+
+  // 2. REACT_027: Validate table accessibility and structure
+  const tables = getDocument().querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
   });
 
-  // Harvest tables
-  const tables = doc.querySelectorAll('table');
-  tables.forEach((table, index) => {
-    const tableData = {
-      index,
-      hasCaption: !!table.querySelector('caption'),
-      hasThead: !!table.querySelector('thead'),
-      hasTbody: !!table.querySelector('tbody'),
-      headerCount: table.querySelectorAll('th').length,
-      rowCount: table.querySelectorAll('tr').length,
-      role: table.getAttribute('role') || 'table'
-    };
-    data.tables.push(tableData);
+  // 3. REACT_017: Validate landmark and landmark structure issues
+  validateLandmark();
+  validateLandmarkStructure();
+
+  // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
+  ensureUniqueLandmarks();
+  validateLandmarkStructure();
+
+  // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
+  const svgElements = getDocument().querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      setSvgAttributes(svg, accessibleName);
+    }
   });
 
-  // Harvest SVGs
-  const svgs = doc.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    data.svgs.push({
-      index,
-      id: svg.getAttribute('id'),
-      role: svg.getAttribute('role') || null,
-      ariaLabel: svg.getAttribute('aria-label') || null,
-      ariaLabelledby: svg.getAttribute('aria-labelledby') || null,
-      title: svg.querySelector('title')?.textContent || null
-    });
+  // 6. REACT_036: Fix fake link issue (personName is part of the fix)
+  handleFakeLinks();
+  handleAccessibilityIssues();
+
+  // Call the new function to fix accessibility issues
+  fixControlsAccessibility();
+}
+
+// Helper function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
+  const seenIds = new Set();
+  const seenRoles = new Map();
+
+  landmarks.forEach(landmark => {
+    const role = landmark.tagName.toLowerCase();
+    
+    // Ensure unique IDs
+    if (!landmark.id) {
+      let id = role;
+      let counter = 1;
+      while (seenIds.has(id)) {
+        id = `${role}-${counter++}`;
+      }
+      landmark.id = id;
+      seenIds.add(id);
+    } else {
+      seenIds.add(landmark.id);
+    }
+
+    // Track roles for uniqueness
+    if (!seenRoles.has(role)) {
+      seenRoles.set(role, []);
+    }
+    seenRoles.get(role).push(landmark);
   });
 
   // Harvest links
@@ -91,9 +201,21 @@ import { spawn, fork, exec } from 'child_process';
     });
   });
 
-  // Harvest lang attribute
-  const htmlElement = doc.documentElement;
-  data.langAttribute = htmlElement ? htmlElement.getAttribute('lang') : null;
+// Implement wrapPrimaryContentInMain function
+function wrapPrimaryContentInMain(primaryContent) {
+  // Wrap primary content in a <main> element for accessibility
+  const mainElement = getDocument().createElement('main');
+  mainElement.id = 'main-content';
+  mainElement.setAttribute('role', 'main');
+  
+  if (typeof primaryContent === 'string') {
+    mainElement.innerHTML = primaryContent;
+  } else if (primaryContent instanceof HTMLElement) {
+    mainElement.appendChild(primaryContent);
+  }
+  
+  return mainElement;
+}
 
   return data;
 }
@@ -153,84 +275,6 @@ function countDependencies() {
   // This could involve scanning package.json, node_modules, or internal references
   // For now, return a default value.
   return 0;
-}
-
-// Implement this function for ensuring unique landmarks
-function ensureUniqueLandmarks() {
-  // Landmarks that should be unique on a page
-  const ... = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
-
-  ... => {
-    const elements = ...
-    if (elements.length > 1) {
-      elements.forEach((element, index) => {
-        // Add or update aria-label to make each landmark unique
-        const existingLabel = element.getAttribute('aria-label');
-        const elementTag = element.tagName.toLowerCase();
-        const role = element.getAttribute('role') || elementTag;
-
-        if (!existingLabel) {
-          // Add index-based label for distinction
-          element.setAttribute('aria-label', `${role} ${index + 1}`);
-        }
-      });
-    }
-  });
-
-  // Ensure region and navigation landmarks have accessible names when multiple exist
-  const sectionLandmarkSelectors = ['nav', ... '[role="region"]', 'aside', ...
-
-  ... => {
-    const elements = ...
-    if (elements.length > 1) {
-      elements.forEach((element, index) => {
-        const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
-        const role = element.getAttribute('role') || element.tagName.toLowerCase();
-
-        if (!hasLabel) {
-          element.setAttribute('aria-label', `${role} ${index + 1}`);
-        }
-      });
-    }
-  });
-}
-
-// New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  // 1. REACT_015: Ensure lang attribute is set on the HTML element
-  const lang = getLangAttribute();
-  const htmlElement = getDocument().documentElement;
-  if (htmlElement && lang) {
-    ... lang);
-  }
-
-  // 2. REACT_027: Validate table accessibility and structure
-  const tables = ...
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-
-  // 3. REACT_017: Validate landmark and landmark structure issues
-  validateLandmark();
-  ...
-
-  // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
-  ensureUniqueLandmarks();
-  ...
-
-  // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
-  const svgElements = ...
-  ... => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      setSvgAttributes(svg, accessibleName);
-    }
-  });
-
-  // 6. REACT_036: Fix fake link issue (personName is part of the fix)
-  handleFakeLinks();
-  ...
 }
 
 // Implement wrapPrimaryContentInMain function
@@ -352,13 +396,13 @@ export {
   validateAndRender,
   renderPage,
   getLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton
+  getPersonName,
+  validateTableAccessibilityWrapper,
+  validateTableStructureWrapper,
+  validateLandmarkWrapper,
+  validateLandmarkStructureWrapper,
+  getSvgAccessibleNameWrapper,
+  createInPageButtonWrapper
 };
 
 export { ensureElementId };
@@ -389,3 +433,91 @@ export {
   calculateDiscount,
   validateInput,
   renderHeader,
+  renderFooter,
+  renderProductCard,
+  state,
+  updateState,
+  getPersonName,
+  fixAccessibilityIssues,
+  renderDependencyGraph,
+  renderIndex
+};
+
+// Exporting for CommonJS compatibility
+module.exports = {
+  // All existing exports from main.js go here
+  dependencyGraphContent,
+  indexContent,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  formatCurrency,
+  formatDate,
+  calculateDiscount,
+  validateInput,
+  renderHeader,
+  renderFooter,
+  renderProductCard,
+  state,
+  updateState,
+  getPersonName,
+  fixAccessibilityIssues,
+  renderDependencyGraph,
+  renderIndex,
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage,
+  someFunction
+};
+
+// Existing code preserved
+function existingFunction() {
+  // existing code
+}
+
+// Add new function to address the accessibility issue REACT_043: Make header focusable
+function makeHeaderFocusable() {
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('tabindex', '0');
+    header.setAttribute('role', 'banner');
+  }
+}
+
+// Add export statement of the new function
+export { makeHeaderFocusable };
+
+// Export statements preserved
+export { existingFunction };
+
+// New function or changes requested
+function checkTableAccessibility(table) {
+  // Implement accessibility checks on tables
+  // This function should check for appropriate headers, roles, etc.
+  // For example, check if the table has a `<thead>` and `<tbody>`, and if the `role` attribute is set to "grid"
+  if (!table.querySelector('thead')) {
+    console.error('Table is missing a <thead>');
+  }
+  if (!table.querySelector('tbody')) {
+    console.error('Table is missing a <tbody>');
+  }
+  if (table.getAttribute('role') !== 'grid') {
+    console.error('Table role is not set to "grid"');
+  }
+  // Add more checks as necessary
+}
+
+// Export new function if necessary
+export { checkTableAccessibility };
+
+// ----- END OF ORIGINAL CODE -----

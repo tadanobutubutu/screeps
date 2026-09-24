@@ -51,19 +51,8 @@ function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
 
-function personName(name, lang) {
-  if (typeof document === 'undefined') {
-    return name || '';
-  }
-  const span = document.createElement('span');
-  span.textContent = name || '';
-  span.setAttribute('lang', lang || getLangAttribute() || 'en');
-  span.setAttribute('aria-label', name || '');
-  return span;
-}
-
-// New function to address REACT_027: Fix 26 table structure issues
-function validateTableAccessibility(table) {
+// Function to validate table accessibility
+const validateTableAccessibility = (html) => {
   const issues = [];
   
   if (!table) {
@@ -100,6 +89,16 @@ function validateTableAccessibility(table) {
   }
   
   return issues;
+};
+
+// App state for session management
+const appState = {
+  sessions: new Map()
+};
+
+// Helper functions for session management
+function getActiveSessionsCount() {
+  return appState.sessions.size;
 }
 
 function validateTableStructure(table) {
@@ -108,270 +107,5 @@ function validateTableStructure(table) {
   if (!table) {
     return issues;
   }
-  
-  // Check for proper thead and tbody structure
-  const thead = ...
-  const tbody = ...
-  const tfoot = ...
-  
-  if (!thead) {
-    issues.push({
-      code: 'REACT_027',
-      message: 'Table is missing thead element'
-    });
-  }
-  
-  if (!tbody) {
-    issues.push({
-      code: 'REACT_027',
-      message: 'Table is missing tbody element'
-    });
-  }
-  
-  // Validate consistent column count
-  const rows = ...
-  let expectedCols = 0;
-  
-  rows.forEach((row, index) => {
-    const cells = ... th');
-    const colspan = ... cell) => {
-      return sum + ... || 1);
-    }, 0);
-    
-    if (index === 0) {
-      expectedCols = colspan;
-    } else if (colspan !== expectedCols) {
-      issues.push({
-        code: 'REACT_027',
-        message: `Row ${index} has inconsistent column count (expected ${expectedCols}, got ${colspan})`
-      });
-    }
-  });
-  
-  return issues;
+  return { status: 'success', credential: credentialResponse };
 }
-
-// New function to address REACT_017: Add/fix 4 landmark issues
-function validateLandmark(element) {
-  const issues = [];
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
-  
-  if (!element) {
-    if (typeof document !== 'undefined') {
-      element = document.body;
-    } else {
-      return issues;
-    }
-  }
-  
-  landmarkRoles.forEach(role => {
-    const landmarks = ...
-    landmarks.forEach((landmark, index) => {
-      // Check for accessible name on landmark
-      const hasLabel = ... || 
-                       ... ||
-                       ... h2, h3, h4, h5, h6');
-      
-      if (!hasLabel && ... !== ... {
-        issues.push({
-          code: 'REACT_017',
-          message: `Landmark with role="${role}" is missing accessible name at index ${index}`
-        });
-      }
-    });
-  });
-  
-  return issues;
-}
-
-function validateLandmarkStructure() {
-  const issues = [];
-  
-  if (typeof document === 'undefined') {
-    return issues;
-  }
-  
-  // Check for multiple main landmarks
-  const mains = ... [role="main"]');
-  if (mains.length > 1) {
-    issues.push({
-      code: 'REACT_017',
-      message: `Page has ${mains.length} main landmarks, should have only one`
-    });
-  }
-  
-  // Check for multiple banner landmarks
-  const banners = ...
-  if (banners.length > 1) {
-    issues.push({
-      code: 'REACT_017',
-      message: `Page has ${banners.length} banner landmarks, should have only one`
-    });
-  }
-  
-  // Check for multiple contentinfo landmarks
-  const contentinfos = ...
-  if (contentinfos.length > 1) {
-    issues.push({
-      code: 'REACT_017',
-      message: `Page has ${contentinfos.length} contentinfo landmarks, should have only one`
-    });
-  }
-  
-  // Check for multiple navigation landmarks
-  const navigations = ... ...
-  navigations.forEach((nav, index) => {
-    const hasLabel = nav.getAttribute('aria-label') || ...
-    if (!hasLabel) {
-      issues.push({
-        code: 'REACT_017',
-        message: `Navigation landmark at index ${index} is missing accessible name`
-      });
-    }
-  });
-  
-  return issues;
-}
-
-// New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svg) {
-  if (!svg) {
-    return '';
-  }
-  
-  // Check if SVG already has an accessible title
-  const title = ...
-  if (title) {
-    return title.textContent;
-  }
-  
-  // Check aria-label
-  const ariaLabel = ...
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-  
-  // Check aria-labelledby reference
-  const ariaLabelledby = ...
-  if (ariaLabelledby) {
-    const titleElement = ...
-    if (titleElement) {
-      return titleElement.textContent;
-    }
-  }
-  
-  return '';
-}
-
-// New function to address REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  const issues = [];
-  
-  if (typeof document === 'undefined') {
-    return issues;
-  }
-  
-  const landmarkLabels = {};
-  
-  // Collect all landmarks with their labels
-  const landmarks = ...
-  landmarks.forEach(landmark => {
-    const role = ...
-    const label = ... || 
-                  ... ||
-                  ... h2, h3, h4, h5, h6') || {}).textContent;
-    
-    if (label) {
-      const key = `${role}:${label}`;
-      if (landmarkLabels[key]) {
-        issues.push({
-          code: 'REACT_025',
-          message: `Duplicate landmark: role="${role}" with label "${label}" appears ${landmarkLabels[key] + 1} times`
-        });
-        landmarkLabels[key]++;
-      } else {
-        landmarkLabels[key] = 1;
-      }
-    }
-  });
-  
-  return issues;
-}
-
-// New function to address REACT_036: Fix 1 fake link issue
-function createAccessibleLink(href, text, options = {}) {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-  
-  const link = document.createElement('a');
-  link.href = href || '#';
-  link.textContent = text || '';
-  
-  // Set role="link" explicitly for accessibility
-  link.setAttribute('role', 'link');
-  
-  // Add aria-label if provided
-  if ... {
-    link.setAttribute('aria-label', ...
-  }
-  
-  // Handle onClick as button behavior - ensure it's properly announced
-  if (options.onClick && !href) {
-    ... '0');
-    ... (e) => {
-      e.preventDefault();
-      options.onClick(e);
-    });
-    
-    // Ensure keyboard accessibility
-    ... (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        options.onClick(e);
-      }
-    });
-  }
-  
-  // Ensure links have accessible names
-  if (!text && ... {
-    ... Link is missing accessible name');
-  }
-  
-  return link;
-}
-
-/**
- * Creates an accessible in-page button and appends it to the given parent element.
- * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(parent = (typeof document !== 'undefined' ? document.body : null)) {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.textContent = '[...]';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('tabindex', '0');
-  
-  if (parent) {
-    parent.appendChild(btn);
-  }
-  
-  return btn;
-}
-
-// Ensure the dependencyGraph container has a proper ARIA role
-/**
- * Validates that the dependencyGraph container has a proper ARIA role for accessibility
- * @param {HTMLElement|string} container - The container element or selector for the dependency graph
- * @returns {Array} Array of issues found (empty if no issues)
- */
-function validateDependencyGraphAccessibility(container) {
-  const issues = [];
-  
-  if (typeof document === 'undefined') {
-    return issues;
-  }

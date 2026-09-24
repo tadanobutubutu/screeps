@@ -6,24 +6,12 @@
 // Import required module(s) and export the new necessary function(s) here in main.js
 
 // New function or change as per the issue description
-export function newFunction() {
-    // New function implementation
-    // For example:
-    console.log('New function called');
-}
-
-// Example accessibility fix: Add ARIA roles to elements
-function someFunction() {
-    // existing function logic...
-    // Example accessibility fix: Adding ARIA roles for elements
-    let importantButton = document.createElement('button');
-    importantButton.setAttribute('role', 'button');
-    document.body.appendChild(importantButton);
-    let importantLink = document.createElement('a');
-    importantLink.setAttribute('role', 'link');
-    importantLink.href = 'https://example.com';
-    document.body.appendChild(importantLink);
-    // existing function logic...
+function newFunction() {
+    // Implementation that uses the new functions for rendering graph/index
+    // Example: calling the newly available rendering utilities
+    const graphRenderer = new GraphRenderer();
+    const indexRenderer = new IndexRenderer();
+    return graphRenderer.render();
 }
 
 // ----- END NEW CHANGES -----

@@ -291,4 +291,7 @@ function wrapPrimaryContentInMain() {
   return mainElement;
 }
 
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+
 // ... rest of the code ...

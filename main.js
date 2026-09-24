@@ -731,6 +731,12 @@ class ScreetsBot {
     }
 }
 
+// Add lang attribute to HTML element - local implementation
+function getLangAttributeLocal() {
+    // Implementation to add lang attribute
+    return document.documentElement.lang || 'en';
+}
+
 // Utility functions for ensuring elements have IDs and adding labels
 const ensureElementIdLocal = (element) => {
   if (element && !element.id) {
@@ -867,6 +873,7 @@ module.exports = {
     renderDependencyGraph,
     renderIndex, // Added the export 'renderIndex'
     getLangAttribute,
+    getLangAttributeLocal,
     accessibilityUtils,
     trapFocus: accessibilityUtils.trapFocus,
     newFocusTrap: accessibilityUtils.newFocusTrapWithEnhancedFeatures, // Update the export name for the focus trap

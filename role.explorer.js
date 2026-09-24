@@ -17,7 +17,10 @@ function secureRandomInt(max) {
     } catch (e) {
         // Fallback
     }
-    return Math.floor(Math.random() * max);
+    // Fallback to pseudo-random generator without using predictable Math.random()
+    let seed = typeof Game !== 'undefined' ? Game.time : Date.now();
+    seed = (seed * 1103515245 + 12345) % 2147483648;
+    return Math.floor((seed / 2147483648) * max);
 }
 
 const roleExplorer = {

@@ -10,7 +10,44 @@ const main = () => {
 
 // main.js - Combined utility and accessibility features
 
-// TODO: Identify and update specific functions that render dependency graphs or update them accordingly
+// Utility functions for common tasks
+/**
+ * Debounces a function
+ * @param {Function} func - Function to debounce
+ * @param {number} wait - Wait time in milliseconds
+ * @returns {Function} - Debounced function
+ */
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+/**
+ * Throttles a function
+ * @param {Function} func - Function to throttle
+ * @param {number} limit - Time limit in milliseconds
+ * @returns {Function} - Throttled function
+ */
+function throttle(func, limit) {
+  let inThrottle;
+  return function executedFunction(...args) {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+// TODO: This is the existing code that needs to be preserved
+// main.js - Accessibility improvements implementation
 
 // Accessibility helper function for keyboard navigation
 function createKeyboardNavigationHandler(options = {}) {
@@ -314,285 +351,635 @@ function isLinkAccessible(link) {
   return text.length > 0;
 }
 
-// Function to handle getLangAttribute for REACT_015
-function getLangAttribute(htmlElement) {
-  // Implement the logic to set the lang attribute based on the preferred language or localization
-  if (htmlElement) {
-    // Check if element has lang attribute, if not set default
-    if (!htmlElement.hasAttribute('lang') || !htmlElement.getAttribute('lang')) {
-      htmlElement.setAttribute('lang', 'en');
-    }
-    return htmlElement.getAttribute('lang');
+// Function to set the lang attribute based on the preferred language or localization (REACT_015)
+function setLangAttribute(htmlElement, lang) {
+  if (!htmlElement) {
+    htmlElement = document.querySelector('html');
   }
-  return 'en';
+  if (htmlElement && lang) {
+    htmlElement.setAttribute('lang', lang);
+    return true;
+  }
+  return false;
 }
 
-// Function to createInPageButton for REACT_015, REACT_036
-function createInPageButton(options) {
-  // Implement the logic to create a proper in-page link button
-  const button = document.createElement('button');
-  button.textContent = options.text || 'Link';
-  button.setAttribute('role', 'link');
-  button.tabIndex = options.tabIndex || 0;
+// Function to create a proper in-page link button (REACT_015, REACT_036)
+function createInPageButton(options = {}) {
+  const {
+    text = '',
+    href = '#',
+    target = '_self',
+    className = '',
+    id = generateId(),
+    onClick = null,
+    ariaLabel = null,
+    role = 'button'
+  } = options;
+
+  const button = document.createElement('a');
+  button.href = href;
+  button.textContent = text;
+  button.target = target;
+  button.className = className;
+  button.id = id;
+  button.setAttribute('role', role);
   
-  // Add click handler if provided
-  if (options.onClick) {
-    button.addEventListener('click', options.onClick);
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
   }
   
-  // Add keyboard navigation if provided
-  if (options.onKeyDown) {
-    button.addEventListener('keydown', options.onKeyDown);
+  if (href === '#' || href.startsWith('#')) {
+    button.setAttribute('tabindex', '0');
   }
   
-  // Set ARIA attributes if provided
-  if (options.ariaLabel) {
-    button.setAttribute('aria-label', options.ariaLabel);
+  if (onClick) {
+    button.addEventListener('click', onClick);
   }
-  if (options.ariaDescribedby) {
-    button.setAttribute('aria-describedby', options.ariaDescribedby);
-  }
-  
+
+  // Handle keyboard activation for anchor acting as button
+  button.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (onClick) {
+        onClick(event);
+      }
+      button.click();
+    }
+  });
+
   return button;
 }
 
-// Function to validateTableAccessibility for REACT_027
+// Function to check for table accessibility issues (REACT_027)
 function validateTableAccessibility(table) {
-  // Implement the logic to check for table accessibility issues and return a list of issues
   const issues = [];
   
   if (!table || table.tagName !== 'TABLE') {
-    issues.push('Element is not a table element');
+    issues.push({ type: 'invalid_element', message: 'Element is not a table' });
     return issues;
   }
-  
-  // Check if table has caption or aria-label
-  if (!table.querySelector('caption') && !table.hasAttribute('aria-label')) {
-    issues.push('Table must have a caption or aria-label for accessibility');
+
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push({ type: 'missing_caption', message: 'Table is missing a caption for accessibility' });
   }
-  
-  // Check for proper header structure
+
+  // Check for th elements with proper scope
   const headers = table.querySelectorAll('th');
+  headers.forEach((th, index) => {
+    if (!th.getAttribute('scope')) {
+      issues.push({ 
+        type: 'missing_scope', 
+        message: `Header at index ${index} is missing scope attribute`,
+        element: th
+      });
+    }
+  });
+
+  // Check if table has proper headers (th elements)
   if (headers.length === 0) {
-    issues.push('Table should have header cells (th) for accessibility');
+    issues.push({ type: 'no_headers', message: 'Table has no header cells (th elements)' });
   }
+
+  // Check for accessible table summary via aria-describedby or caption
+  const summary = table.getAttribute('aria-describedby');
+  if (!summary && !caption) {
+    issues.push({ type: 'no_summary', message: 'Table has no summary or caption' });
+  }
+
+  return issues;
+}
+
+// Function to check for table structure issues (REACT_027)
+function validateTableStructure(table) {
+  const issues = [];
   
-  // Check for proper row and column structure
+  if (!table || table.tagName !== 'TABLE') {
+    issues.push({ type: 'invalid_element', message: 'Element is not a table' });
+    return issues;
+  }
+
+  // Check for thead, tbody, and tfoot structure
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  const tfoot = table.querySelector('tfoot');
+
+  if (!thead) {
+    issues.push({ type: 'missing_thead', message: 'Table is missing thead element' });
+  }
+
+  if (!tbody) {
+    issues.push({ type: 'missing_tbody', message: 'Table is missing tbody element' });
+  }
+
+  // Check for proper row structure
   const rows = table.querySelectorAll('tr');
   if (rows.length === 0) {
-    issues.push('Table should have at least one row');
+    issues.push({ type: 'no_rows', message: 'Table has no rows' });
   }
-  
-  return issues;
-}
 
-// Function to validateTableStructure for REACT_027
-function validateTableStructure(table) {
-  // Implement the logic to check for table structure issues and return a list of issues
-  const issues = [];
-  
-  if (!table || table.tagName !== 'TABLE') {
-    issues.push('Element is not a table element');
-    return issues;
-  }
-  
-  // Check if table has header and body sections if there are multiple rows
-  const rows = table.querySelectorAll('tr');
-  if (rows.length > 1) {
-    // Check if table has thead/tbody/tfoot
-    if (!table.querySelector('thead') && !table.querySelector('tbody')) {
-      issues.push('Large tables should have thead or tbody sections for structure');
-    }
-  }
-  
-  // Check for proper header association
-  const headers = table.querySelectorAll('th');
-  headers.forEach(header => {
-    const id = header.id;
-    if (id) {
-      // Check if any cell references this header via headers attribute
-      const cells = table.querySelectorAll(`[headers="${id}"]`);
-      if (cells.length === 0) {
-        issues.push(`Header with ID "${id}" is not referenced by any cell`);
+  // Check for consistent column counts in tbody
+  if (tbody) {
+    const bodyRows = tbody.querySelectorAll('tr');
+    let expectedCols = null;
+    bodyRows.forEach((row, index) => {
+      const cells = row.querySelectorAll('td, th');
+      if (expectedCols === null) {
+        expectedCols = cells.length;
+      } else if (cells.length !== expectedCols) {
+        issues.push({
+          type: 'inconsistent_columns',
+          message: `Row ${index} has ${cells.length} cells, expected ${expectedCols}`,
+          element: row
+        });
       }
+    });
+  }
+
+  // Check for proper colspan and rowspan usage
+  const allCells = table.querySelectorAll('td, th');
+  allCells.forEach((cell, index) => {
+    const colspan = cell.getAttribute('colspan');
+    const rowspan = cell.getAttribute('rowspan');
+    
+    if (colspan && isNaN(parseInt(colspan))) {
+      issues.push({
+        type: 'invalid_colspan',
+        message: `Cell ${index} has invalid colspan value`,
+        element: cell
+      });
+    }
+    
+    if (rowspan && isNaN(parseInt(rowspan))) {
+      issues.push({
+        type: 'invalid_rowspan',
+        message: `Cell ${index} has invalid rowspan value`,
+        element: cell
+      });
     }
   });
-  
-  // Check for semantic structure
-  const caption = table.querySelector('caption');
-  if (caption) {
-    // Check if caption comes before table content
-    const allChildren = Array.from(table.children);
-    const captionIndex = allChildren.indexOf(caption);
-    if (captionIndex > 0 && allChildren[captionIndex - 1].tagName === 'COLGROUP') {
-      issues.push('Caption should be the first child of table after colgroup if present');
-    }
-  }
-  
+
   return issues;
 }
 
-// Function to validateLandmark for REACT_017
+// Function to check for landmark presence and proper use (REACT_017)
 function validateLandmark(element) {
-  // Implement the logic to check for landmark presence and proper use
   const issues = [];
   
   if (!element) {
-    issues.push('No element provided for landmark validation');
+    issues.push({ type: 'no_element', message: 'No element provided for validation' });
     return issues;
   }
-  
-  const tagName = element.tagName.toLowerCase();
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
-  
-  if (landmarks.includes(tagName)) {
-    // Check for aria-label or aria-labelledby
-    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-      issues.push(`${tagName} landmark should have accessible name`);
-    }
-    
-    // Check for unique landmarks
-    const sameTypeLandmarks = document.querySelectorAll(`.${tagName}`);
-    if (sameTypeLandmarks.length > 1) {
-      issues.push(`Multiple ${tagName} landmarks may cause confusion`);
-    }
-  } else {
-    issues.push(`${tagName} is not a landmark element`);
-  }
-  
-  return issues;
-}
 
-// Function to validateLandmarkStructure for REACT_017
-function validateLandmarkStructure(element) {
-  // Implement the logic to check for landmark structure compliance
-  const issues = [];
-  
-  if (!element) {
-    issues.push('No element provided for landmark validation');
-    return issues;
+  // Check for common landmarks
+  const landmarks = {
+    header: element.querySelectorAll('header:not([role])'),
+    nav: element.querySelectorAll('nav'),
+    main: element.querySelectorAll('main'),
+    footer: element.querySelectorAll('footer:not([role])'),
+    aside: element.querySelectorAll('aside'),
+    section: element.querySelectorAll('section[aria-label], section[aria-labelledby]'),
+    form: element.querySelectorAll('form[aria-label], form[aria-labelledby]'),
+    search: element.querySelectorAll('search')
+  };
+
+  // Check for presence of main landmark (required)
+  if (landmarks.main.length === 0) {
+    issues.push({ type: 'missing_main', message: 'Page is missing a main landmark' });
   }
-  
-  const tagName = element.tagName.toLowerCase();
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
-  
-  if (landmarks.includes(tagName)) {
-    // Check if landmark is properly nested
-    const parent = element.parentElement;
-    if (parent) {
-      const parentTag = parent.tagName.toLowerCase();
-      const properParents = ['body', 'article', 'section'];
-      if (!properParents.includes(parentTag)) {
-        issues.push(`${tagName} landmark should be direct child of ${properParents.join(', ')} or body`);
+
+  // Check for header landmark
+  if (landmarks.header.length === 0) {
+    issues.push({ type: 'missing_header', message: 'Page has no header landmark' });
+  }
+
+  // Check for navigation landmarks
+  if (landmarks.nav.length === 0) {
+    issues.push({ type: 'missing_nav', message: 'Page has no navigation landmark' });
+  }
+
+  // Check for footer landmark
+  if (landmarks.footer.length === 0) {
+    issues.push({ type: 'missing_footer', message: 'Page has no footer landmark' });
+  }
+
+  // Validate search landmark
+  if (landmarks.search.length > 0) {
+    landmarks.search.forEach((search, index) => {
+      if (!search.getAttribute('role') && search.tagName !== 'SEARCH') {
+        issues.push({
+          type: 'invalid_search',
+          message: `Search element ${index} should use <search> tag or role="search"`,
+          element: search
+        });
       }
-    }
-    
-    // Check for appropriate content
-    if (element.textContent.trim().length === 0) {
-      issues.push(`${tagName} landmark should have content`);
-    }
-  } else {
-    issues.push(`${tagName} is not a landmark element`);
+    });
   }
-  
+
   return issues;
 }
 
-// Function to ensureUniqueLandmarks for REACT_017, REACT_025
-function ensureUniqueLandmarks() {
-  // Implement the logic to check for and handle duplicate landmarks
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, article, section');
-  const landmarkTypes = {};
+// Function to check for landmark structure compliance (REACT_017)
+function validateLandmarkStructure(element) {
   const issues = [];
+  
+  if (!element) {
+    issues.push({ type: 'no_element', message: 'No element provided for validation' });
+    return issues;
+  }
+
+  // Check for nested landmarks (anti-pattern)
+  const nestedCheck = (parent, parentName) => {
+    const landmarkTags = ['header', 'main', 'footer', 'nav', 'aside', 'section'];
+    landmarkTags.forEach(tag => {
+      const nested = parent.querySelectorAll(`:scope > ${tag}`);
+      if (nested.length > 0) {
+        issues.push({
+          type: 'nested_landmark',
+          message: `${parentName} contains nested ${tag} landmark`,
+          element: parent
+        });
+      }
+    });
+  };
+
+  // Check body for landmark issues
+  if (element === document.body || element.tagName === 'BODY') {
+    const headers = element.querySelectorAll('header');
+    headers.forEach((header, index) => {
+      if (header.closest('header, footer')) {
+        issues.push({
+          type: 'nested_landmark',
+          message: `Header ${index} is nested inside another landmark`,
+          element: header
+        });
+      }
+    });
+  }
+
+  // Check for proper landmark labeling
+  const sections = element.querySelectorAll('section');
+  sections.forEach((section, index) => {
+    const hasLabel = section.getAttribute('aria-label') || section.getAttribute('aria-labelledby');
+    if (!hasLabel) {
+      issues.push({
+        type: 'unlabeled_section',
+        message: `Section ${index} is missing an accessible name (aria-label or aria-labelledby)`,
+        element: section
+      });
+    }
+  });
+
+  // Check for proper use of complementary landmark
+  const asides = element.querySelectorAll('aside');
+  if (asides.length > 0) {
+    asides.forEach((aside, index) => {
+      const parent = aside.parentElement;
+      const parentTag = parent ? parent.tagName.toLowerCase() : '';
+      if (parentTag === 'main' || (parent.hasAttribute && parent.hasAttribute('role') && parent.getAttribute('role') === 'main')) {
+        issues.push({
+          type: 'invalid_complementary',
+          message: `Aside ${index} should not be nested inside main landmark`,
+          element: aside
+        });
+      }
+    });
+  }
+
+  // Check for redundant roles
+  const redundantRoles = [
+    { tag: 'main', role: 'main' },
+    { tag: 'nav', role: 'navigation' },
+    { tag: 'aside', role: 'complementary' },
+    { tag: 'header', role: 'banner' },
+    { tag: 'footer', role: 'contentinfo' }
+  ];
+
+  redundantRoles.forEach(({ tag, role }) => {
+    const elements = element.querySelectorAll(tag);
+    elements.forEach((el, index) => {
+      if (el.getAttribute('role') === role) {
+        issues.push({
+          type: 'redundant_role',
+          message: `${tag} element ${index} has redundant role="${role}"`,
+          element: el
+        });
+      }
+    });
+  });
+
+  return issues;
+}
+
+// Function to check for and handle duplicate landmarks (REACT_017, REACT_025)
+function ensureUniqueLandmarks() {
+  const issues = [];
+  const landmarkCounts = {};
+  
+  // Get all landmarks with their roles
+  const landmarks = document.querySelectorAll('[role], header, nav, main, footer, aside, section, search');
   
   landmarks.forEach(landmark => {
-    const tagName = landmark.tagName.toLowerCase();
+    let landmarkType;
     
-    if (!landmarkTypes[tagName]) {
-      landmarkTypes[tagName] = [];
+    if (landmark.hasAttribute('role')) {
+      landmarkType = landmark.getAttribute('role');
+    } else {
+      landmarkType = landmark.tagName.toLowerCase();
     }
-    landmarkTypes[tagName].push(landmark);
+    
+    if (!landmarkCounts[landmarkType]) {
+      landmarkCounts[landmarkType] = [];
+    }
+    landmarkCounts[landmarkType].push(landmark);
   });
+
+  // Check for duplicate landmarks that should be unique
+  const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
   
-  // Check for duplicate landmarks
-  Object.keys(landmarkTypes).forEach(type => {
-    if (landmarkTypes[type].length > 1) {
-      issues.push(`${type} landmark appears ${landmarkTypes[type].length} times - consider using aria-label to distinguish`);
+  Object.keys(landmarkCounts).forEach(type => {
+    const count = landmarkCounts[type].length;
+    const normalizedType = type.toLowerCase();
+    
+    if (uniqueLandmarks.includes(normalizedType) && count > 1) {
+      issues.push({
+        type: 'duplicate_landmark',
+        message: `Found ${count} ${type} landmarks, but there should only be one`,
+        elements: landmarkCounts[type],
+        count: count
+      });
     }
   });
-  
-  return issues;
+
+  // Check for multiple navigation landmarks without labels
+  const navElements = document.querySelectorAll('nav');
+  if (navElements.length > 1) {
+    navElements.forEach((nav, index) => {
+      if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
+        issues.push({
+          type: 'unlabeled_nav',
+          message: `Navigation ${index + 1} is missing an aria-label`,
+          element: nav
+        });
+      }
+    });
+  }
+
+  // Check for multiple search landmarks
+  const searchElements = document.querySelectorAll('search, [role="search"]');
+  if (searchElements.length > 1) {
+    issues.push({
+      type: 'multiple_search',
+      message: `Found ${searchElements.length} search landmarks, consider using only one`,
+      elements: Array.from(searchElements),
+      count: searchElements.length
+    });
+  }
+
+  return {
+    issues,
+    landmarkCounts,
+    hasDuplicates: issues.length > 0
+  };
 }
 
-// Function to getSvgAccessibleName for REACT_041
+// Function to generate an accessible name for SVG elements (REACT_041)
 function getSvgAccessibleName(svg) {
-  // Implement the logic to generate an accessible name for SVG elements
-  if (!svg || svg.tagName.toLowerCase() !== 'svg') {
-    return 'Not an SVG element';
+  if (!svg || svg.tagName !== 'SVG') {
+    return null;
   }
-  
-  // Try to get aria-label first
-  if (svg.hasAttribute('aria-label')) {
-    return svg.getAttribute('aria-label');
+
+  // Check for aria-label
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
   }
-  
-  // Try to get title element
+
+  // Check for aria-labelledby
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) {
+      return labelElement.textContent;
+    }
+  }
+
+  // Check for title element within SVG
   const title = svg.querySelector('title');
-  if (title) {
-    return title.textContent || 'SVG with title';
+  if (title && title.textContent) {
+    return title.textContent.trim();
   }
-  
-  // Try to use alt text from img element that references this SVG
-  const img = document.querySelector(`img[usemap="#${svg.id}"]`);
-  if (img && img.hasAttribute('alt')) {
-    return img.getAttribute('alt');
+
+  // Check for desc element within SVG
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent) {
+    return desc.textContent.trim();
   }
-  
-  // Fallback to generic description
-  return 'SVG graphic';
+
+  // Check for adjacent label element
+  const svgId = svg.getAttribute('id');
+  if (svgId) {
+    const labels = document.querySelectorAll(`label[for="${svgId}"]`);
+    if (labels.length > 0) {
+      return labels[0].textContent.trim();
+    }
+  }
+
+  // Check parent elements for aria-describedby
+  let parent = svg.parentElement;
+  while (parent) {
+    const describedBy = parent.getAttribute('aria-describedby');
+    if (describedBy) {
+      const descElement = document.getElementById(describedBy);
+      if (descElement) {
+        return descElement.textContent.trim();
+      }
+    }
+    
+    const labelledBy = parent.getAttribute('aria-labelledby');
+    if (labelledBy) {
+      const labelElement = document.getElementById(labelledBy);
+      if (labelElement) {
+        return labelElement.textContent.trim();
+      }
+    }
+    
+    parent = parent.parentElement;
+  }
+
+  return null;
 }
 
-function setSvgAttributes(svg, attributes) {
-  // Implement the logic to set specified attributes on SVG elements
-  if (!svg || svg.tagName.toLowerCase() !== 'svg') {
-    return false;
+// Function to set specified attributes on SVG elements (REACT_041)
+function setSvgAttributes(svg, attributes = {}) {
+  const issues = [];
+  
+  if (!svg || svg.tagName !== 'SVG') {
+    issues.push({ type: 'invalid_element', message: 'Element is not an SVG' });
+    return { success: false, issues };
   }
-  
+
+  const validSvgAttributes = [
+    'aria-label', 'aria-labelledby', 'aria-describedby', 'aria-hidden',
+    'role', 'tabindex', 'focusable', 'id', 'class', 'style',
+    'width', 'height', 'viewBox', 'xmlns', 'preserveAspectRatio'
+  ];
+
+  const validRoles = [
+    'img', 'presentation', 'group', 'button', 'link', 'menuitem',
+    'menuitemcheckbox', 'menuitemradio', 'checkbox', 'radio', 'switch'
+  ];
+
   let success = true;
-  
-  Object.keys(attributes).forEach(key => {
-    try {
-      svg.setAttribute(key, attributes[key]);
-    } catch (e) {
-      console.error(`Failed to set attribute ${key}:`, e);
-      success = false;
+
+  Object.keys(attributes).forEach(attr => {
+    const value = attributes[attr];
+
+    // Handle role attribute specially
+    if (attr === 'role') {
+      if (!validRoles.includes(value)) {
+        issues.push({
+          type: 'invalid_role',
+          message: `Invalid role "${value}" for SVG. Valid roles: ${validRoles.join(', ')}`,
+          attribute: attr,
+          value
+        });
+        success = false;
+      } else {
+        svg.setAttribute('role', value);
+      }
+      return;
+    }
+
+    // Check if attribute is valid for SVG
+    if (!validSvgAttributes.includes(attr)) {
+      // Still allow custom attributes, just log warning
+      issues.push({
+        type: 'warning',
+        message: `Non-standard attribute "${attr}" will be set as-is`,
+        attribute: attr,
+        value
+      });
+    }
+
+    // Handle boolean attributes
+    if (typeof value === 'boolean') {
+      if (value) {
+        svg.setAttribute(attr, '');
+      } else {
+        svg.removeAttribute(attr);
+      }
+    } else {
+      svg.setAttribute(attr, value);
     }
   });
-  
-  return success;
+
+  // Ensure role is set for accessibility if not already present
+  if (!svg.getAttribute('role') && !svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    issues.push({
+      type: 'recommendation',
+      message: 'SVG should have a role, aria-label, or title for accessibility'
+    });
+  }
+
+  return { success, issues };
 }
 
-// Function to handleFakeLinks for REACT_036
+// Function to handle fake links within the app (REACT_036)
 function handleFakeLinks(links) {
-  // Implement the logic to handle fake links within the app
-  const fakeLinks = [];
-  
-  if (!links) return fakeLinks;
-  
+  const results = {
+    converted: [],
+    issues: [],
+    skipped: []
+  };
+
+  if (!links || links.length === 0) {
+    return results;
+  }
+
   links.forEach(link => {
-    if (link.tagName.toLowerCase() === 'div' || 
-        (link.tagName.toLowerCase() === 'span' && 
-         (link.getAttribute('role') === 'button' || 
-          link.style.cursor === 'pointer'))) {
-      
-      // Check if it's a fake link that should be a real link
-      if (!link.hasAttribute('aria-label') && !link.textContent.trim()) {
-        fakeLinks.push(link);
+    // Check if it's actually a fake link (has onclick but no valid href)
+    const href = link.getAttribute('href');
+    const onclick = link.getAttribute('onclick');
+    const role = link.getAttribute('role');
+
+    // Determine if this is a fake link
+    const isFakeLink = 
+      (onclick && (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;')) ||
+      (role === 'button' && href && (href === '#' || href.startsWith('javascript:'))) ||
+      (!href && onclick);
+
+    if (isFakeLink) {
+      // Check for accessibility issues
+      const issues = [];
+
+      if (!onclick && !role) {
+        issues.push('Fake link has no onclick handler or role');
+      }
+
+      if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+        issues.push('Fake link has no accessible name');
+      }
+
+      if (href && href.startsWith('javascript:')) {
+        issues.push('Using javascript: href is not recommended for accessibility');
+      }
+
+      // Convert to proper button or fix the link
+      if (role !== 'button') {
+        link.setAttribute('role', 'button');
+      }
+
+      // Ensure tabindex for keyboard navigation
+      if (!link.getAttribute('tabindex') && !link.hasAttribute('href')) {
+        link.setAttribute('tabindex', '0');
+      }
+
+      // Ensure keyboard activation works
+      if (!link.hasAttribute('onkeydown')) {
+        link.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            if (onclick) {
+              link.click();
+            }
+          }
+        });
+      }
+
+      results.converted.push({
+        element: link,
+        originalHref: href,
+        issues
+      });
+    } else {
+      // Check if it's a valid link
+      if (href && !href.startsWith('#') && !href.startsWith('javascript:') && href !== '#' && href !== 'javascript:void(0)') {
+        // This is a valid link, no action needed
+        results.skipped.push({
+          element: link,
+          reason: 'Valid link'
+        });
+      } else {
+        // Check for issues with questionable links
+        const issues = [];
+        
+        if (href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
+          issues.push('Link uses empty/invalid href pattern');
+        }
+        
+        if (issues.length > 0) {
+          results.issues.push({
+            element: link,
+            issues
+          });
+        }
       }
     }
   });
-  
-  return fakeLinks;
+
+  return results;
 }
 
 // Export for use in other modules
@@ -623,7 +1010,9 @@ if (typeof module !== 'undefined' && module.exports) {
     isLinkAccessible,
     validateLinkAccessibility,
     getSvgAccessibleName,
-    setSvgAttributes
+    setSvgAttributes,
+    handleFakeLinks,
+    setLangAttribute
   };
 }
 

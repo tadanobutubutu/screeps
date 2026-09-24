@@ -176,12 +176,15 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 
   /**
-   * Ensure interactive elements are accessible
+   * Ensure the dependencyGraph container has a proper ARIA role
    */
-  ensureInteractiveElementsAccessible() {
-    this.ensureInteractiveRoles();
-    this.addFormControlLabels();
-    this.ensureImageAccessibility();
+  ensureDependencyGraphRole() {
+    const dependencyGraph = document.getElementById('dependencyGraph');
+    if (dependencyGraph) {
+      if (!dependencyGraph.hasAttribute('role')) {
+        dependencyGraph.setAttribute('role', 'group');
+      }
+    }
   }
 };
 
@@ -197,34 +200,9 @@ function ensureInteractiveElementsAccessible() {
   }
 }
 
-function renderDependencyGraph(container) {
-  const containerElement = document.querySelector(container);
-  if (!containerElement || !dependencyGraphContent) return;
-  
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = dependencyGraphContent;
-  wrapper.setAttribute('role', 'img');
-  wrapper.setAttribute('aria-label', 'Dependency graph visualization');
-  containerElement.appendChild(wrapper);
-}
-
-function addAriaLabel(element, label) {
-  if (!element) return;
-  if (!element.id) {
-    element.id = `aria-element-${Math.floor(Math.random() * 10000)}`;
-  }
-  element.setAttribute('aria-label', label);
-}
-
-// Export for accessibility store
-module.exports = {
-  a11yStore,
-  ensureInteractiveElementsAccessible,
-  renderDependencyGraph,
-  addAriaLabel,
-  greetingFunction,
-  getWelcomeMessage,
-  config
-};
+// Ensure the dependencyGraph container has a proper ARIA role when the document is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  a11yStore.ensureDependencyGraphRole();
+});
 
 // ... rest of the code ...

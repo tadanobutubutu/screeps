@@ -2,19 +2,15 @@
 
 // TODO: Add back any required exports that might have been removed
 // TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// main.js - Accessibility improvements implementation
-// main.js - Combined utility and accessibility features
+//_Commit: 173def07526e7508eeea67bc6ce1040de0e06f45_
+//<!-- todo-hash: 164653c305fa075eb1873494f6dfb601ea6e3774 -->
 
 // TODO: This is the existing code that needs to be preserved
 // Version 1 implementation (HEAD branch) - preserved accessibility enhancements
 
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// More existing code that should be preserved
-// Existing code ends here
+  // Add accessibility improvements
+  document.documentElement.lang = 'en';
+  document.title = 'Accessible Application';
 
 // TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // TODO: Existing main.js content before the merge conflict...
@@ -289,8 +285,13 @@ function checkLinkAccessibility() {
     }
   });
 
-  return issues;
-}
+  // Add skip link for keyboard users
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.className = 'skip-link';
+  skipLink.setAttribute('aria-label', 'Skip to main content');
+  document.body.insertBefore(skipLink, document.body.firstChild);
 
 // TODO: Implement harvest logic
 // This function should collect resources or data from available sources
@@ -351,7 +352,8 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.textContent = buttonText;
     button.className = buttonClass;
     button.setAttribute('aria-label', buttonText); // Add ARIA label
-    document.body.appendChild(button);
+    button.setAttribute('role', 'button');
+    return button;
 }
 
 function renderAccessibilityReport(insightReport) {

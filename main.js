@@ -3,9 +3,9 @@
 
 // New function added as per the issue request
 function newFunction() {
-  // Implementation of the new function
-  console.log('This is the new function added to main.js');
+    // Implementation of the new function
+    console.log('New function is running!');
 }
 
-// Exporting the new function
-module.exports.newFunction = newFunction;
+// Existing code preserved
+// ...

@@ -5,6 +5,7 @@
 // Import required modules
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
 
 // TODO: No additional changes requested at this time
 
@@ -16,6 +17,16 @@ const config = {
 
 // Store the server instance for export
 let server = null;
+
+/**
+ * Loads configuration from a JSON file.
+ * @param {string} filePath - Path to the JSON config file.
+ * @returns {Object} Parsed configuration object.
+ */
+function loadConfigFromFile(filePath) {
+  const data = fs.readFileSync(filePath, 'utf8');
+  return JSON.parse(data);
+}
 
 /**
  * Creates and starts the HTTP server
@@ -52,7 +63,7 @@ module.exports = {
   createServer,
   startApp,
   config,
-  newFunction // Add the new function to the exports
+  loadConfigFromFile
 };
 
 // New accessibility-related function

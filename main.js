@@ -207,82 +207,47 @@ function ensureInteractiveElementsAccessible() {
 }
 
 /**
- * Wrap the primary content of the page in a <main> element.
- *
- * If a <main> element already exists in the DOM, this function returns it
- * without modification. Otherwise, it identifies the primary content using
- * a layered strategy:
- *   1. The first element with role="main".
- *   2. The element with id="primary".
- *   3. The element with id="main".
- *   4. The element with id="content".
- *   5. The first <article> on the page.
- *   6. The largest content block (by element count) among direct children of <body>.
- *
- * Once the primary content is identified, it is wrapped in a new <main>
- * element (created with appropriate ARIA attributes and moved into place),
- * or replaced with an existing <main> wrapper while preserving its children.
- *
- * @returns {HTMLElement|null} The resulting <main> element, or null if no
- *   primary content could be determined.
+ * Get the language attribute from the HTML element
+ * @returns {string} The language attribute value or 'en' as default
  */
-function wrapPrimaryContentInMain() {
-  let mainElement = document.querySelector('main');
-
-  if (mainElement) {
-    return mainElement;
-  }
-
-  // Try to find an element with role="main"
-  let primaryContent = document.querySelector('[role="main"]');
-
-  // Try to find an element with id="primary"
-  if (!primaryContent) {
-    primaryContent = document.getElementById('primary');
-  }
-
-  // Try to find an element with id="main"
-  if (!primaryContent) {
-    primaryContent = document.getElementById('main');
-  }
-
-  // Try to find an element with id="content"
-  if (!primaryContent) {
-    primaryContent = document.getElementById('content');
-  }
-
-  // Fallback: use the first <article> on the page
-  if (!primaryContent) {
-    primaryContent = document.querySelector('article');
-  }
-
-  // Final fallback: find the largest content block by element count
-  if (!primaryContent) {
-    const bodyChildren = Array.from(document.body.children);
-    let maxCount = 0;
-    bodyChildren.forEach((child) => {
-      const count = child.querySelectorAll('*').length;
-      if (count > maxCount) {
-        maxCount = count;
-        primaryContent = child;
-      }
-    });
-  }
-
-  if (!primaryContent) {
-    return null;
-  }
-
-  mainElement = document.createElement('main');
-  mainElement.setAttribute('role', 'main');
-  mainElement.setAttribute('id', 'main-content');
-  primaryContent.parentNode.insertBefore(mainElement, primaryContent);
-  mainElement.appendChild(primaryContent);
-
-  return mainElement;
+function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
 }
 
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
-// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
+/**
+ * Create an accessible in-page button with proper ARIA attributes
+ * @param {Object} options - Button options
+ * @param {string} options.text - The button text
+ * @param {Function} options.onClick - The click handler
+ * @param {string} options.id - Optional ID for the button
+ * @param {string} options.className - Optional CSS class name
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(options = {}) {
+  const { text = '', onClick, id, className } = options;
+  
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = text;
+  
+  // Add lang attribute from HTML element for accessibility (REACT_015)
+  const lang = getLangAttribute();
+  button.setAttribute('lang', lang);
+  
+  if (id) {
+    button.id = id;
+  }
+  
+  if (className) {
+    button.className = className;
+  }
+  
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
+}
 
 // ... rest of the code ...

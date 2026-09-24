@@ -112,39 +112,30 @@ function validateLandmarkStructure() {
 // TODO: Implement upgrade logic
 // This function should use harvested data to improve the system
 function performUpgrade(harvestedData) {
-    if (!harvestedData || typeof harvestedData !== 'object') {
-        console.warn('performUpgrade skipped: no harvested data provided.');
+    // ... (existing implementation here)
+    if (!harvestedData) {
         return false;
     }
-
-    const insights = analyzeHarvestedData(harvestedData);
-    applyUpgradeInsights(insights);
+    // Apply upgrade logic using harvested data
     return true;
 }
 
 function analyzeHarvestedData(data) {
     // ... (existing implementation here)
+    if (!data) {
+        return null;
+    }
+    // Analyze harvested data and return insights
+    return { analyzed: true, data: data };
 }
 
-function applyUpgradeInsights(insights) {
-    if (insights.itemCount === 0) {
-        console.info('No harvested items available to drive an upgrade.');
-        return;
+function applyImprovements(data) {
+    // ... (existing implementation here)
+    if (!data) {
+        return false;
     }
-
-    // Handle objects - process each value recursively
-    if (typeof input === 'object') {
-        const result = {};
-        for (const key in input) {
-            if (input.hasOwnProperty(key)) {
-                result[key] = function3(input[key]);
-            }
-        }
-        return result;
-    }
-
-    // Return other types as-is (numbers, booleans, etc.)
-    return input;
+    // Apply improvements based on analysis
+    return true;
 }
 
 function upgrade(harvestedData) {
@@ -233,16 +224,5 @@ function renderDependencyGraph(containerId, graphData) {
     return renderGraphIndex(containerId, graphData);
 }
 
-// TODO: Implement spawning logic
-function spawnProcess(command) {
-    const process = new Worker(command);
-    process.onmessage = function(event) {
-        console.log('Message received from worker:', event.data);
-    };
-    process.onerror = function(error) {
-        console.error('Error in worker:', error);
-    };
-}
-
 // Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, upgrade, renderGraphIndex, renderDependencyGraph, spawnProcess };
+export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, upgrade, renderGraphIndex, renderDependencyGraph };

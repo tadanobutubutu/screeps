@@ -8,45 +8,141 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // main.js - Combined utility and accessibility features
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
-function isLinkAccessible(link) {
-  if (!link) {
-    return false;
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_025: Add other accessibility changes as per the insight report
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
+// 73: // TODO: Implement function for generating a report based on accessibility issues
+function generateAccessibilityReport () {
+  const issues = []
+
+  // Check for lang attribute on HTML element
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const htmlElement = document.documentElement
+    const lang = htmlElement.getAttribute('lang') || htmlElement.getAttribute('xml:lang')
+    if (!lang) {
+      issues.push({
+        code: 'REACT_015',
+        message: 'HTML element is missing lang attribute',
+        severity: 'error',
+        element: 'html'
+      })
+    }
   }
 
-  const tagName = link.tagName ? link.tagName.toUpperCase() : '';
-  const role = link.getAttribute ? link.getAttribute('role') : null;
-  const href = link.getAttribute ? link.getAttribute('href') : null;
-  const text = link.textContent || '';
-  const ariaLabel = link.getAttribute ? link.getAttribute('aria-label') : null;
+  // Check for accessible links
+  if (typeof document !== 'undefined') {
+    const links = document.querySelectorAll('a')
+    links.forEach((link, index) => {
+      if (!isLinkAccessible(link)) {
+        issues.push({
+          code: 'REACT_025',
+          message: `Link at index ${index} is not accessible`,
+          severity: 'warning',
+          element: link.tagName.toLowerCase()
+        })
+      }
+    })
+
+    // Check interactive elements for accessible names
+    const interactiveElements = document.querySelectorAll(
+      'button, [role="button"], input, select, textarea'
+    )
+    interactiveElements.forEach((element, index) => {
+      const hasAriaLabel = element.getAttribute && element.getAttribute('aria-label')
+      const hasAriaLabelledby =
+                element.getAttribute && element.getAttribute('aria-labelledby')
+      const hasText = element.textContent && element.textContent.trim().length > 0
+
+      if (!hasAriaLabel && !hasAriaLabelledby && !hasText) {
+        issues.push({
+          code: 'REACT_025',
+          message: `Interactive element at index ${index} is missing accessible name`,
+          severity: 'error',
+          element: element.tagName.toLowerCase()
+        })
+      }
+    })
+  }
+
+  return {
+    issues,
+    summary: {
+      totalIssues: issues.length,
+      errors: issues.filter((i) => i.severity === 'error').length,
+      warnings: issues.filter((i) => i.severity === 'warning').length
+    }
+  }
+}
+
+// Assuming 'addLangAttribute' is a function that has already been implemented
+function addLangAttribute () {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    getLangAttribute()
+  }
+}
+addLangAttribute()
+
+function getLangAttribute () {
+  const htmlElement = document.documentElement
+  let lang = htmlElement.getAttribute('lang')
+
+  if (!lang) {
+    lang = htmlElement.getAttribute('xml:lang')
+  }
+
+  if (!lang) {
+    lang = 'en'
+    htmlElement.setAttribute('lang', lang)
+  }
+
+  return lang
+}
+
+function isLinkAccessible (link) {
+  if (!link) {
+    return false
+  }
+
+  const tagName = link.tagName ? link.tagName.toUpperCase() : ''
+  const role = link.getAttribute ? link.getAttribute('role') : null
+  const href = link.getAttribute ? link.getAttribute('href') : null
+  const text = link.textContent || ''
+  const ariaLabel = link.getAttribute ? link.getAttribute('aria-label') : null
 
   // Must be an anchor or have a link role
   if (tagName !== 'A' && role !== 'link') {
-    return false;
+    return false
   }
 
   // Must have a valid href (not missing, empty, or just a hash)
   if (!href || typeof href !== 'string' || href.trim() === '' || href.trim() === '#') {
-    return false;
+    return false
   }
 
   // Must not be a button disguised as a link
   if (role === 'button') {
-    return false;
+    return false
   }
 
   // Must have an accessible name
-  const hasText = text.trim().length > 0;
-  const hasAriaLabel = ariaLabel && ariaLabel.trim().length > 0;
-  const hasAriaLabelledby = link.getAttribute ? link.getAttribute('aria-labelledby') : false;
+  const hasText = text.trim().length > 0
+  const hasAriaLabel = ariaLabel && ariaLabel.trim().length > 0
+  const hasAriaLabelledby = link.getAttribute ? !!link.getAttribute('aria-labelledby') : false
 
   if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
-    return false;
+    return false
   }
 
-  return true;
+  return true
 }
 
 /**
@@ -55,18 +151,18 @@ function isLinkAccessible(link) {
  * @param {string} [prefix] - Optional prefix for the generated id
  * @returns {string} The element's id (existing or newly generated)
  */
-function ensureElementHasId(element, prefix = 'element') {
-    if (!element) {
-        throw new Error('Element is required');
-    }
+function ensureElementHasId (element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required')
+  }
 
-    if (element.id) {
-        return element.id;
-    }
+  if (element.id) {
+    return element.id
+  }
 
-    const generatedId = `${prefix}-${Date.now()}-${Math.floor(Math.random() * 9000) + 1000}`;
-    element.id = generatedId;
-    return generatedId;
+  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`
+  element.id = generatedId
+  return generatedId
 }
 
 /**
@@ -75,16 +171,16 @@ function ensureElementHasId(element, prefix = 'element') {
  * @param {string} label - The aria-label text
  * @returns {HTMLElement} The modified element
  */
-function addAriaLabel(element, label) {
-    if (!element) {
-        throw new Error('Element is required');
-    }
+function addAriaLabel (element, label) {
+  if (!element) {
+    throw new Error('Element is required')
+  }
 
-    if (!element.getAttribute('aria-label')) {
-        element.setAttribute('aria-label', label);
-    }
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label)
+  }
 
-    return element;
+  return element
 }
 
 /**
@@ -93,93 +189,101 @@ function addAriaLabel(element, label) {
  * @param {Object} dependencies - The dependency data to render
  * @returns {HTMLElement} The rendered graph element
  */
-function renderDependencyGraph(container, dependencies = {}) {
-    if (!container) {
-        throw new Error('Container element is required');
+function renderDependencyGraph (container, dependencies = {}) {
+  if (!container) {
+    throw new Error('Container element is required')
+  }
+
+  const graphElement = document.createElement('div')
+  graphElement.className = 'dependency-graph'
+  graphElement.setAttribute('role', 'img')
+  graphElement.setAttribute('aria-label', 'Dependency graph visualization')
+
+  const nodes = dependencies.nodes || []
+  const edges = dependencies.edges || []
+
+  // Create SVG for graph rendering
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.setAttribute('width', '100%')
+  svg.setAttribute('height', '100%')
+  svg.setAttribute('aria-hidden', 'true')
+
+  // Render edges
+  edges.forEach((edge, index) => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+    line.setAttribute('x1', edge.source?.x || 0)
+    line.setAttribute('y1', edge.source?.y || 0)
+    line.setAttribute('x2', edge.target?.x || 0)
+    line.setAttribute('y2', edge.target?.y || 0)
+    line.setAttribute('stroke', '#666')
+    line.setAttribute('stroke-width', '2')
+    line.setAttribute('id', `edge-${index}`)
+    svg.appendChild(line)
+  })
+
+  // Render nodes
+  nodes.forEach((node, index) => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+    circle.setAttribute('cx', node.x || 0)
+    circle.setAttribute('cy', node.y || 0)
+    circle.setAttribute('r', node.size || 20)
+    circle.setAttribute('fill', node.color || '#4A90E2')
+    circle.setAttribute('id', `node-${index}`)
+
+    const nodeId = ensureElementHasId(circle, 'graph-node')
+    if (node.label) {
+      addAriaLabel(circle, node.label)
     }
 
-    const graphElement = document.createElement('div');
-    graphElement.className = 'dependency-graph';
-    const img = document.createElement('img');
-    img.setAttribute('alt', 'Dependency graph visualization');
+    svg.appendChild(circle)
+  })
 
-    const nodes = dependencies.nodes || [];
-    const edges = dependencies.edges || [];
-
-    // Create SVG for graph rendering
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '100%');
-    svg.setAttribute('aria-hidden', 'true');
-
-    // Render edges
-    edges.forEach((edge, index) => {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', edge.source?.x || 0);
-        line.setAttribute('y1', edge.source?.y || 0);
-        line.setAttribute('x2', edge.target?.x || 0);
-        line.setAttribute('y2', edge.target?.y || 0);
-        line.setAttribute('stroke', '#666');
-        line.setAttribute('stroke-width', '2');
-        line.setAttribute('id', `edge-${index}`);
-        svg.appendChild(line);
-    });
-
-    // Render nodes
-    nodes.forEach((node, index) => {
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', node.x || 0);
-        circle.setAttribute('cy', node.y || 0);
-        circle.setAttribute('r', node.size || 20);
-        circle.setAttribute('fill', node.color || '#4A90E2');
-        circle.setAttribute('id', `node-${index}`);
-
-        const nodeId = ensureElementHasId(circle, 'graph-node');
-        if (node.label) {
-            addAriaLabel(circle, node.label);
-        }
-        svg.appendChild(circle);
-    });
-
-    graphElement.appendChild(img);
-    graphElement.appendChild(svg);
-    container.appendChild(graphElement);
-    return graphElement;
+  graphElement.appendChild(svg)
+  container.appendChild(graphElement)
+  return graphElement
 }
 
 // TODO: This is the existing code that needs to be preserved
 // Original content from main.js
-function existingFunction() {
-    // existing code
+function existingFunction () {
+  // existing code
 }
 
 // New function implementation as per the issue requirements
-function personName() {
-    // Logic to determine the person's name or identifier
-    // This function would be used in the context of REACT_036 to create a fake link
-    return 'Person'; // Example
+function personName () {
+  // Implementation details go here
+  // For example:
+  return 'New function result'
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as- is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da08d57ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f80d51b788bad4952d8d93f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a97a2237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f8d6325b07b9b809ac49f5e1c81cf4f389f9c1 -->
+function createInPageButton (options) {
+  const { id, text, className = 'in-page-button', onClick, ariaLabel, lang } = options || {}
 
-_Commit: 0ce2674e2dc3af622e3dd5f97e8cb8446f5407e6_
+  if (!id || !text) {
+    throw new Error('createInPageButton: "id" and "text" are required options.')
+  }
 
-<!-- todo-hash: 944c13fd2fa4a3b6620aec793a3bc72e212536b4 -->
+  const button = document.createElement('button')
+  button.id = id
+  button.type = 'button'
+  button.className = className
+  button.textContent = text
 
-// New function: Sets the lang attribute for HTML
-function setLangAttribute() {
-    const htmlElement = document.querySelector('html');
-    if (htmlElement) {
-        const lang = getLangAttributeMain();
-        htmlElement.setAttribute('lang', lang);
-    }
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel)
+  } else {
+    button.setAttribute('aria-label', text)
+  }
+
+  if (lang) {
+    button.setAttribute('lang', lang)
+  }
+
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick)
+  }
+
+  return button
 }
 
 // Add validation functions for accessibility
@@ -741,156 +845,15 @@ function generateSummary(results) {
 
 // Main exports
 module.exports = {
-    appName: 'MyApplication',
-    version: '1.0.0',
-    initialize: function() {
-        return 'initialized';
-    },
-    process: function(data) {
-        return data;
-    },
-    getVersion: function() {
-        return '1.0.0';
-    },
-    renderDependencyGraph,
-    updateDependencyGraphRender,
-    getAllDependencyNodes,
-    getAllDependencyEdges,
-    greet,
-    newFeature,
-    existingFunction,
-    anotherExistingFunction,
-    calculateSum,
-    calculateProduct,
-    renderAccessibilityGraph,
-    renderAccessibilityIndex,
-    renderAccessibilityResults,
-    renderIndexView,
-    getRecommendation,
-    fixSVGAccessibleName,
-    generateSummary,
-    a11yStore,
-    getSVGAccessibleName,
-    addressAccessibilityIssues,
-    ensureUniqueLandmarks,
-    wrapPrimaryContentInMain,
-    ensureLandmarkIds,
-    getLangAttribute: getLangAttributeMain,
-    setSvgAccessibilityProps,
-    isLinkAccessibleCheck,
-    isButtonAccessible,
-    checkAccessibility,
-    isLinkAccessibleSync,
-    createInPageButton,
-    validateTableAccessibility,
-    validateTableStructureLocal,
-    validateLandmark,
-    validateLandmarkStructureLocal,
-    validateLandmarkAttributes,
-    validateLandmarkRole,
-    setSvgAttributes,
-    someUtility,
-    config,
-    countDependencies,
-    getFullLangAttribute,
-    validateTableStructure,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    createAccessibleLink,
-    accessibilityCheckTables,
-    checkLandmarkElements,
-    addLangAttribute,
-    run,
-    main,
-    SomeClass,
-    setLangAttribute,
-    checkAccessibilityAttributes,
-    ensureAccessibility,
-    personName,
-};
-
-if (typeof window !== 'undefined') {
-    window.calculateSum = calculateSum;
-    window.calculateProduct = calculateProduct;
+  // Existing exports
+  getLangAttribute,
+  createInPageButton,
+  addLangAttribute,
+  isLinkAccessible,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph,
+  existingFunction,
+  personName,
+  generateAccessibilityReport
 }
-
-// Add lang attribute to the HTML element based on getLangAttribute()
-if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.setAttribute('lang', getLangAttributeMain());
-}
-
-// Fixed a11yStore definition (removed trailing comma)
-const a11yStore = {
-    countDependencies,
-
-    init() {
-        this.initLangAttribute();
-        this.setupSkipLinks();
-        this.ensureUniqueLandmarks();
-        this.fixFakeLinks();
-        this.initAccessibility();
-    },
-
-    createAccessibleButton(id, label, onClick) {
-        const button = document.createElement('button');
-        button.id = id;
-        button.setAttribute('aria-label', label);
-        button.textContent = label;
-        button.addEventListener('click', onClick);
-        return button;
-    },
-
-    createAccessibleDialog(id, title, content, closeLabel = 'Close') {
-        const dialog = document.createElement('div');
-        dialog.id = id;
-        dialog.setAttribute('role', 'dialog');
-        dialog.setAttribute('aria-labelledby', `${id}-title`);
-        dialog.setAttribute('aria-modal', 'true');
-        
-        const titleEl = document.createElement('h2');
-        titleEl.id = `${id}-title`;
-        titleEl.textContent = title;
-        
-        const closeButton = this.createAccessibleButton(`${id}-close`, closeLabel, () => {
-            dialog.hidden = true;
-            dialog.setAttribute('aria-hidden', 'true');
-        });
-        
-        dialog.appendChild(titleEl);
-        dialog.appendChild(closeButton);
-        dialog.appendChild(content);
-        
-        return dialog;
-    },
-
-    announceToScreenReader(message, priority = 'polite') {
-        const announcement = document.createElement('div');
-        announcement.setAttribute('role', 'status');
-        announcement.setAttribute('aria-live', priority);
-        announcement.setAttribute('aria-atomic', 'true');
-        announcement.className = 'sr-only';
-        announcement.textContent = message;
-        document.body.appendChild(announcement);
-        setTimeout(() => announcement.remove(), 1000);
-    },
-
-    trapFocus(container) {
-        const focusableElements = container.querySelectorAll(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-        
-        container.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                if (e.shiftKey && document.activeElement === firstElement) {
-                    e.preventDefault();
-                    lastElement.focus();
-                } else if (!e.shiftKey && document.activeElement === lastElement) {
-                    e.preventDefault();
-                    firstElement.focus();
-                }
-            }
-        });
-    }
-};

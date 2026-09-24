@@ -583,53 +583,70 @@ const a11yStore = {
   },
 
   /**
-   * Add lang attribute to the document if missing (REACT_015)
+   * Set up a focus trap within a container element
+   * @param {HTMLElement} container - The container element to trap focus within
+   * @returns {Object} An object containing the container element and a destroy function
    */
-  addLangAttribute() {
-    if (!document.documentElement.lang || document.documentElement.lang === '') {
-      document.documentElement.lang = 'en';
+  setupFocusTrap(container) {
+    const focusableSelectors = [
+      'a[href]',
+      'area[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      'button:not([disabled])',
+      'iframe',
+      'object',
+      'embed',
+      '[tabindex]:not([tabindex="-1"])',
+      '[contenteditable]',
+      '[role="button"]:not([disabled])'
+    ];
+
+    const focusableElements = Array.from(container.querySelectorAll(focusableSelectors.join(',')));
+
+    if (focusableElements.length === 0) {
+      return { container, destroy: () => {} };
     }
-  },
 
-  /**
-   * Fix table structure issues (REACT_027)
-   * Ensures proper use of th scope, table captions, and ARIA labels
-   */
-  fixTableStructure() {
-    const tables = document.querySelectorAll('table');
-    tables.forEach((table, tableIndex) => {
-      // Add caption if missing
-      if (!table.querySelector('caption') && table.hasAttribute('aria-label')) {
-        const caption = document.createElement('caption');
-        caption.textContent = table.getAttribute('aria-label');
-        table.insertBefore(caption, table.firstChild);
-      }
+    let firstFocusable = focusableElements[0];
+    let lastFocusable = focusableElements[focusableElements.length - 1];
 
-      // Ensure all th elements have scope attribute
-      const headers = table.querySelectorAll('th');
-      headers.forEach((th, index) => {
-        if (!th.hasAttribute('scope')) {
-          // Determine scope based on position
-          const parentTbody = th.closest('tbody') || th.closest('thead');
-          if (th.closest('thead') || (parentTbody && th.parentNode.tagName === 'TR' && th.cellIndex === 0)) {
-            th.setAttribute('scope', 'col');
-          } else if (th.parentNode.tagName === 'TR') {
-            // Check if it's a row header (first cell in a row)
-            const rowCells = th.parentNode.querySelectorAll('td, th');
-            if (th.cellIndex === 0 && rowCells.length > 1) {
-              th.setAttribute('scope', 'row');
-            } else {
-              th.setAttribute('scope', 'col');
-            }
-          }
+    const handleKeyDown = (event) => {
+      if (event.key !== 'Tab') return;
+
+      if (event.shiftKey) {
+        // Shift + Tab - focus previous
+        if (document.activeElement === firstFocusable) {
+          event.preventDefault();
+          lastFocusable.focus();
         }
-      });
-
-      // Add aria-label to table if it's missing and there's no caption
-      if (!table.hasAttribute('aria-label') && !table.querySelector('caption')) {
-        table.setAttribute('aria-label', `Table ${tableIndex + 1}`);
+      } else {
+        // Tab - focus next
+        if (document.activeElement === lastFocusable) {
+          event.preventDefault();
+          firstFocusable.focus();
+        }
       }
-    });
+    };
+
+    const handleFocusIn = (event) => {
+      if (!container.contains(event.target)) {
+        event.preventDefault();
+        firstFocusable.focus();
+      }
+    };
+
+    container.addEventListener('keydown', handleKeyDown);
+    container.addEventListener('focusin', handleFocusIn);
+
+    return {
+      container,
+      destroy: () => {
+        container.removeEventListener('keydown', handleKeyDown);
+        container.removeEventListener('focusin', handleFocusIn);
+      }
+    };
   },
 
   // ... remaining a11yStore methods ...

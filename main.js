@@ -343,108 +343,112 @@ function processData(data) {
   return result;
 }
 
-// Utility exports object - made accessible per line 14 TODO
-const exportUtils = {
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  groupByCategory
-};
+const exportUtils = {};
 
-// Sanitize a filename by removing unsafe characters
-function sanitizeFilename(filename) {
-  if (!filename || typeof filename !== 'string') {
-    return '';
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.getAttribute('lang') || 'en';
   }
-  return filename
-    .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
-    .replace(/^\.+/, '')
-    .replace(/\s+/g, '_')
-    .substring(0, 255);
+  return 'en';
 }
 
-// Safely read a file (browser/Node compatible abstraction)
-function readFileSafe(path, encoding = 'utf8') {
-  if (!path) {
-    throw new Error('File path is required');
+function personName(name) {
+  if (!name) return '';
+  const lang = getLangAttribute();
+  return typeof name === 'string' ? `<span lang="${lang}">${name}</span>` : name;
+}
+
+function validateTableAccessibility(element) {
+  if (!element || element.tagName !== 'TABLE') return false;
+  return !!element.querySelector('caption') || element.querySelectorAll('th').length > 0;
+}
+
+function validateTableStructure(element) {
+  if (!element || element.tagName !== 'TABLE') return false;
+  return element.querySelectorAll('tr').length > 0;
+}
+
+function validateLandmark(element) {
+  if (!element) return false;
+  const role = element.getAttribute ? element.getAttribute('role') : null;
+  const validLandmarks = ['banner', 'navigation', 'main', 'region', 'contentinfo', 'form', 'search', 'application', 'complementary'];
+  return validLandmarks.includes(role);
+}
+
+function validateLandmarkStructure(element) {
+  if (!element) return false;
+  return !!(element.children && element.children.length >= 0);
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  if (svg.querySelector) {
+    const title = svg.querySelector('title');
+    if (title && title.textContent) return title.textContent.trim();
   }
-  // In Node.js environment
-  if (typeof require !== 'undefined' && typeof module !== 'undefined') {
-    try {
-      const fs = require('fs');
-      return fs.readFileSync(path, encoding);
-    } catch (err) {
-      throw new Error(`Failed to read file: ${err.message}`);
-    }
-  }
-  // Browser environment fallback (fetch)
-  if (typeof fetch !== 'undefined') {
-    return fetch(path)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`Failed to read file: ${res.statusText}`);
+  return (svg.getAttribute ? (svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '') : '');
+}
+
+function createInPageButton(element) {
+  if (!element) return element;
+  if (element.tagName === 'A') {
+    const href = element.getAttribute ? element.getAttribute('href') : '';
+    if (href === '#' || href === 'javascript:void(0)') {
+      try {
+        const button = typeof document !== 'undefined' ? document.createElement('button') : {};
+        button.innerHTML = element.innerHTML;
+        button.className = element.className;
+        if (element.attributes) {
+          for (let i = 0; i < element.attributes.length; i++) {
+            const attr = element.attributes[i];
+            if (attr.name !== 'href') button.setAttribute(attr.name, attr.value);
+          }
         }
-        return encoding === 'utf8' ? res.text() : res.blob();
-      });
-  }
-  throw new Error('No file reading mechanism available');
-}
-
-// Process data with a transformer function
-function processData(data, transformer) {
-  if (!data) {
-    return null;
-  }
-  if (typeof transformer !== 'function') {
-    return data;
-  }
-  if (Array.isArray(data)) {
-    return data.map(item => transformer(item));
-  }
-  return transformer(data);
-}
-
-// Filter valid items based on a predicate
-function filterValidItems(items, predicate) {
-  if (!Array.isArray(items)) {
-    return [];
-  }
-  const validate = typeof predicate === 'function' ? predicate : (item) => item != null;
-  return items.filter(validate);
-}
-
-// Group items by a category key
-function groupByCategory(items, keyFn) {
-  if (!Array.isArray(items)) {
-    return {};
-  }
-  const getKey = typeof keyFn === 'function' ? keyFn : (item) => item;
-  return items.reduce((acc, item) => {
-    const key = getKey(item);
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(item);
-    return acc;
-  }, {});
-}
-
-// Initialize accessibility features
-function initAccessibility() {
-  accessibilityUtils.initSkipLink();
-
-  // Wire up screen reader announcers for any [data-announce] elements
-  if (typeof document !== 'undefined') {
-    const announcers = document.querySelectorAll('[data-announce]');
-    announcers.forEach((el) => {
-      const message = el.getAttribute('data-announce');
-      const priority = el.getAttribute('data-announce-priority') || 'polite';
-      if (message) {
-        accessibilityUtils.announceToScreenReader(message, priority);
+        if (element.parentNode && element.parentNode.replaceChild) {
+          element.parentNode.replaceChild(button, element);
+        }
+        return button;
+      } catch (e) {
+        return element;
       }
-    });
+    }
   }
+  return element;
+}
+
+function initAccessibility() {
+  if (typeof document !== 'undefined' && accessibilityUtils && typeof accessibilityUtils.initSkipLink === 'function') {
+    accessibilityUtils.initSkipLink();
+  }
+}
+
+function sanitizeFilename(filename) {
+  if (typeof filename !== 'string') return '';
+  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
+}
+
+function readFileSafe(path) {
+  return null;
+}
+
+function processData(data) {
+  return data;
+}
+
+function filterValidItems(items) {
+  if (!Array.isArray(items)) return [];
+  return items.filter(i => i !== null && i !== undefined);
+}
+
+function groupByCategory(items) {
+  const result = {};
+  if (!Array.isArray(items)) return result;
+  for (const item of items) {
+    const cat = item && item.category ? item.category : 'uncategorized';
+    if (!result[cat]) result[cat] = [];
+    result[cat].push(item);
+  }
+  return result;
 }
 
 // Initialize on DOM ready

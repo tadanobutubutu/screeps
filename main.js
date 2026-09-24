@@ -24,7 +24,7 @@ export function anotherExistingFunction() {
 function someFunctionName(html, lang = 'en') {
     if (typeof html !== 'string') return html;
     return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-        if (/lang=/i.test(attrs)) return match;
+        if (attrs.includes('lang=')) return match;
         return `<html${attrs} lang="${lang}">`;
     });
 }
@@ -40,7 +40,7 @@ function someOtherFunctionName(html) {
     });
 
     // Close caption and wrap rows in thead/tbody where missing
-    html = html.replace(/(<table([^>]*)>)([\s\S]*?)(<\/table>)/gi, (match, openTag, attrs, content) => {
+    html = html.replace(/<table([^>]*)>(.*?)<\/table>/gis, (match, attrs, content) => {
         if (/<thead/i.test(content)) return match;
         const rows = content.match(/<tr[\s\S]*?<\/tr>/gi) || [];
         if (rows.length === 0) return match;
@@ -54,7 +54,7 @@ function someOtherFunctionName(html) {
         let tbody = restRows;
 
         if (!firstRowHasTh) {
-            thead = `<thead><tr>${firstRows.replace(/<td>/gi, '<th>').replace(/<\/td>/gi, '</th>')}</tr></thead>`;
+            thead = `<thead><tr>${firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>')}</tr></thead>`;
         } else {
             // Add scope="col" to existing THs
             thead = firstRows.replace(/<th([^>]*)>/gi, (m, attrs) => {
@@ -72,7 +72,7 @@ function someOtherFunctionName(html) {
 
     // Add scope="col" to th elements that don't have it
     html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
-        if (/scope=/i.test(attrs)) return match;
+        if (attrs.includes('scope=')) return match;
         return `<th${attrs} scope="col">`;
     });
 
@@ -107,23 +107,23 @@ function fixLandmarks(html) {
     if (typeof html !== 'string') return html;
 
     // Ensure <main> landmark exists
-    if (html.includes('<body') && !html.includes('<main')) {
-        html = html.replace(/(<body[^>]*>)/i, '$1<main>');
+    if (!html.includes('<main') && html.includes('<body')) {
+        html = html.replace(/<body([^>]*)>/i, '<body$1><main>');
         html = html.replace(/<\/body>/i, '</main></body>');
     }
 
     // Ensure <nav> landmark exists
-    if (html.includes('<body') && !html.includes('<nav')) {
-        html = html.replace(/(<body[^>]*>)/i, '$1<nav aria-label="Main navigation"></nav><main>');
+    if (!html.includes('<nav') && html.includes('<main')) {
+        html = html.replace(/<main/i, '<nav aria-label="Main navigation"></nav><main');
     }
 
     // Ensure <aside> landmark exists if content suggests a sidebar
-    if (html.includes('sidebar') && !html.includes('<aside')) {
-        html = html.replace(/(<body[^>]*>)/i, '$1<aside aria-label="Sidebar"></aside>');
+    if (!html.includes('<aside') && html.includes('sidebar')) {
+        html = html.replace(/<main/i, '<aside aria-label="Sidebar"></aside><main');
     }
 
     // Ensure <footer> landmark exists
-    if (html.includes('<body') && !html.includes('<footer')) {
+    if (!html.includes('<footer') && html.includes('</body>')) {
         html = html.replace(/<\/body>/i, '<footer></footer></body>');
     }
 
@@ -134,15 +134,14 @@ function fixLandmarks(html) {
 function addSvgAccessibleNames(html) {
     if (typeof html !== 'string') return html;
 
-    const svgMatches = html.match(/<svg[^>]*>/gi);
+    const svgMatches = html.match(/<svg[\s\S]*?>/gi);
     let offset = 0;
 
-    if (svgMatches) {
-        svgMatches.forEach((match, index) => {
-            const fullMatch = match;
-            const attrs = match;
-            const svgStart = html.indexOf(match, offset);
-            const svgEnd = html.indexOf('</svg>', svgStart);
+    (svgMatches || []).forEach((match, index) => {
+        const fullMatch = match[0];
+        const attrs = match[1];
+        const svgStart = match.index + offset;
+        const svgEnd = html.indexOf('</svg>', svgStart);
 
             if (svgEnd === -1) return;
 
@@ -271,7 +270,7 @@ function fixFakeLinks(html) {
     html = html.replace(
         /<(span|div)([^>]*)onclick\s*=\s*["']([^"']*)["']([^>]*)>/gi,
         (match, tag, before, onclick, after) => {
-            const hrefMatch = onclick.match(/href\s*:\s*["']([^"']*)["']/);
+            const hrefMatch = onclick.match(/window\.location\.href\s*=\s*["']([^"']*)["']/);
             if (hrefMatch) {
                 return `<a href="${hrefMatch[1]}"${before}${after}>`;
             }
@@ -279,7 +278,7 @@ function fixFakeLinks(html) {
         }
     );
 
-    html = html.replace(/(<(?:span|div)(?:[^>]*)>)([\s\S]*?)(<\/(?:span|div)>)/gi, '$1$2</a>');
+    html = html.replace(/(<\/(?:span|div)>)/gi, '</a>');
 
     return html;
 }
@@ -322,4 +321,8 @@ module.exports = {
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
     fixFakeLinks,
-    apply
+    applyAccessibilityFixes,
+    addressAccessibilityIssues,
+    createInPageButton,
+    divide,
+    checkLinkAccessibility

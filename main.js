@@ -1,7 +1,4 @@
-Here is the resolved file content that preserves both changes and resolves the conflict:
-
-```javascript
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List } from 'antd';
 import { validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks, getLangAttribute, getSvgAccessibleName, createInPageButton, createAccessibleLink, handleAccessibilityIssues } from './accessibility'; // Added import statement for accessibility helpers
@@ -45,39 +42,13 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `book-${book.id || '-'}`;
+  return `book-${book.id || book.title}-${book.author || ''}`;
 }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} aria-label="Add new book">
-      <div>
-        <label htmlFor="new-book-title">Book Title:</label>
-        <input
-          ref={titleInputRef}
-          id="new-book-title"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          aria-invalid={!!error}
-          aria-describedby={error ? 'book-form-error' : undefined}
-        />
-      </div>
-      <div>
-        <label htmlFor="new-book-author">Author:</label>
-        <input
-          id="new-book-author"
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-        />
-      </div>
-      {error && (
-        <div id="book-form-error" role="alert" aria-live="polite">
-          {error}
-        </div>
-      )}
-      <button type="submit">Add Book</button>
-    </form>
+    <List.Item key={generateKey(book)}>
+      <List.Item.Meta title={book.title} description={book.author} />
+    </List.Item>
   );
 }
 
@@ -143,7 +114,7 @@ function validateTableAccessibility(tableElement) {
 
   report += `Issue Details:\n`;
   issues.forEach((issue, index) => {
-    report += `${index + 1}. ${issue.description || 'No description'}`;
+    report += `${index + 1}. ${issue.description || 'Issue ' + (index + 1)}`;
     if (issue.element) {
       report += `${index + 1}. ${issue.element}\n`;
     }
@@ -179,241 +150,94 @@ function onAuthorSort() {
 export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
-// Functions to improve accessibility (implementation assumed elsewhere)
-function applyAccessibilityFixes(container) {
-  // implementation omitted
-}
-function applyAccessibilityImprovements(container) {
-  // implementation omitted
-}
-
-// Function to fix button identifiers for accessibility testing
-function fixButtonIdentifiers(container) {
-  // implementation omitted
-}
-function ensureDependencyGraphARIA(container, role) {
-  // implementation omitted
-}
-function applySVGAccessibility(container) {
-  // implementation omitted
-}
-
-// TODO: This is the existing code that needs to be preserved
-
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-
-    // Apply accessibility improvements on component mount
-    const container = document.getElementById('main-content');
-    if (container) {
-      // Apply accessibility fixes
-      applyAccessibilityFixes(container);
-      applyAccessibilityImprovements(container);
-
-      // Apply SVG accessibility
-      applySVGAccessibility(container);
-
-      // Ensure dependency graph has proper ARIA role
-      ensureDependencyGraphARIA(container, 'img');
-    }
-  }, [sorting]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem(book));
-
-  // Render the list of book items and sorting controls
-  return (
-    <div id="main-content" role="main" aria-label="Main content">
-      <nav aria-label="Sorting controls">
-        <button
-          onClick={() => setSorting(sortByTitle)}
-          aria-label="Sort books by title"
-          id="sort-by-title-btn"
-        >
-          Sort by Title
-        </button>
-        <button
-          onClick={() => setSorting(sortByAuthor)}
-          aria-label="Sort books by author"
-          id="sort-by-author-btn"
-        >
-          Sort by Author
-        </button>
-      </nav>
-      <List
-        itemLayout="vertical"
-        dataSource={getBooksList}
-        renderItem={book => BookItem(book)}
-        aria-label="Book list"
-      />
-    </div>
-  );
-}
-
-// Function to set ARIA role for an element
-function setAriaRole(element, role) {
-  if (element) {
-    element.setAttribute('role', role);
+// Function to add skip link for keyboard navigation (REACT_015)
+function addSkipLink(container) {
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.className = 'skip-link';
+  skipLink.style.position = 'absolute';
+  skipLink.style.top = '-40px';
+  skipLink.style.left = '0';
+  skipLink.style.background = '#000';
+  skipLink.style.color = '#fff';
+  skipLink.style.padding = '8px';
+  skipLink.style.zIndex = '10000';
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.top = '0';
+  });
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.top = '-40px';
+  });
+  if (container) {
+    container.insertBefore(skipLink, container.firstChild);
   }
 }
 
-// Function to add descriptive labels to SVG elements
-function addSvgAccessibility(svgElement, description) {
-  if (svgElement) {
-    svgElement.setAttribute('aria-label', description);
-    svgElement.setAttribute('role', 'img');
-  }
-}
+// Function to handle keyboard navigation (REACT_027)
+function handleKeyboardNavigation(event, callback) {
+  const focusableElements = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const container = event.currentTarget;
+  const focusables = Array.from(container.querySelectorAll(focusableElements));
+  const firstFocusable = focusables[0];
+  const lastFocusable = focusables[focusables.length - 1];
 
-// Function to ensure dependency graph has proper ARIA role
-function ensureDependencyGraphAria(container) {
-  if (!container) return;
-  const graphElement = container.querySelector('[data-graph]') || container.querySelector('svg');
-  if (graphElement) {
-    graphElement.setAttribute('role', 'img');
-    graphElement.setAttribute('aria-label', 'Dependency graph visualization');
-  }
-}
-
-// Function to validate color contrast
-function validateColorContrast(foreground, background) {
-  const contrastRatio = getContrastRatio(foreground, background);
-  return contrastRatio >= 4.5; // WCAG AA standard for normal text
-}
-
-// Helper function to calculate contrast ratio
-function getContrastRatio(foreground, background) {
-  const getLuminance = (color) => {
-    const rgb = color.match(/\w\w/g).map(x => parseInt(x, 16) / 255);
-    const [r, g, b] = rgb.map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  };
-  const l1 = getLuminance(foreground);
-  const l2 = getLuminance(background);
-  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
-}
-
-function ensureLandmarkUniqueness(elements) {
-  const elementsById = {};
-
-  if (Array.isArray(elements)) {
-    for (const landmark of elements) {
-      if (landmark.id) {
-        if (elementsById[landmark.id]) {
-          landmark.id += '_duplicate';
-        } else {
-          elementsById[landmark.id] = true;
-        }
+  if (event.key === 'Tab') {
+    if (event.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        event.preventDefault();
+        lastFocusable.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        event.preventDefault();
+        firstFocusable.focus();
       }
     }
   }
 
-  return elements;
+  if (callback && typeof callback === 'function') {
+    callback(event);
+  }
 }
 
-function initializeApp() {
-  appState.initialized = true;
-  console.log('Initializing application...');
-  return true;
-}
-
-function setupHandlers() {
-  console.log('Setting up event handlers...');
-}
-
-async function makeApiCall(url, options = {}) {
-  try {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+// Function to fix button identifiers for accessibility (REACT_017)
+function fixButtonIdentifiers(container) {
+  if (!container) return;
+  const buttons = container.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    if (!button.id) {
+      button.id = `accessible-button-${index + 1}`;
     }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('API call failed:', error);
-    throw error;
+    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+      const parent = button.closest('[aria-label]') || container;
+      if (parent && parent.getAttribute('aria-label')) {
+        button.setAttribute('aria-label', `${parent.getAttribute('aria-label')} button ${index + 1}`);
+      }
+    }
+  });
+}
+
+// Function to ensure element has proper ARIA role (REACT_041)
+function ensureARIA(element, role) {
+  if (!element) return;
+  if (!element.getAttribute('role')) {
+    element.setAttribute('role', role);
   }
 }
 
-const validateInput = (input) => input !== null && input !== undefined;
-
-function processData(data) {
-  if (!validateInput(data)) {
-    throw new Error('Invalid input data');
-  }
-  return {
-    processed: true,
-    data: data,
-    timestamp: Date.now()
-  };
+// Function to add ARIA attribute to element (REACT_025)
+function addARIAAttribute(element, attribute, value) {
+  if (!element) return;
+  element.setAttribute(attribute, value);
 }
 
-function main() {
-  initializeApp();
-  setupHandlers();
-}
-
-// Ensure the main element has an id, aria-label, and lang attribute for accessibility
-try {
-  const mainEl = document.createElement('div');
-  mainEl.id = 'main';
-  mainEl.setAttribute('aria-label', 'Main application');
-  mainEl.setAttribute('lang', 'en');
-  if (document.body) {
-    document.body.appendChild(mainEl);
-  }
-} catch (e) {
-  // Ignore if running outside a browser environment
-}
-
-if (require.main === module) {
-  main();
-  console.log('Main function executed');
-}
-
-module.exports = {
-  config,
-  appState,
-  validateLandmarkObject,
-  ensureLandmarkUniqueness,
-  initializeApp,
-  setupHandlers,
-  validateInput,
-  processData,
-  makeApiCall,
-  sortByTitle,
-  sortByAuthor,
-  defaultSorting,
-  generateKey,
-  BookItem,
-  AddBookForm,
-  function3,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  addProperLandmarkRegions,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addAriaLabels,
-  manageFocus,
-  fixButtonIdentifiers,
-  setAriaRole,
-  addSvgAccessibility,
-  ensureDependencyGraphAria,
-  validateColorContrast,
-  getContrastRatio,
-  main
-};
+// Function to ensure SVG accessibility (REACT_036)
+function ensureSVGAccessibility(svgElement, description) {
+  if (!svgElement) return;
+  
+  svgElement.setAttribute('role', 'img');
+  
+  let title = svgElement.querySelector('title');
+  if (!title) {
+    title

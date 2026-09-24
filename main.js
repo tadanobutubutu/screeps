@@ -540,4 +540,15 @@ if (document.readyState === 'loading') {
   initBookManagement();
 }
 
+// Function to fix button identifiers for accessibility
+function fixButtonIdentifiers() {
+  // Replace my-button with actual button id for accessibility
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    if (button && button.id === 'my-button') {
+      button.id = `accessible-button-${index + 1}`;
+    }
+  });
+}
+
 // ... (other code remains the same)

@@ -157,9 +157,8 @@ function additionalFunction() {
  */
 function createServer() {
   const server = http.createServer((req, res) => {
-    // TODO: Ensure proper headers for accessibility
-    res.setHeader('Content-Type', 'application/json');
-    res.writeHead(200);
+    // Accessibility: Ensure that the response is appropriate for all users
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', config }));
   });
 

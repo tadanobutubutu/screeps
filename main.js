@@ -50,22 +50,10 @@ if (fakeLink && fakeLink.tagName === 'A') {
   parent.replaceChild(newButton, fakeLink);
 }
 
-// Add lang attribute to HTML element
-if (typeof document !== 'undefined') {
-  document.documentElement.lang = 'en-US';
-}
-
-/**
- * Creates an in-page button element with optional click handler.
- * @param {string} buttonText - The label text for the button
- * @param {Function} onClickHandler - Callback function triggered when the button is clicked
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(buttonText, onClickHandler) {
-  const button = document.createElement('button');
-  button.textContent = buttonText;
-  if (onClickHandler && typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
+// TODO: This is the existing code that needs to be preserved
+function processData(data) {
+  if (!validateInput(data)) {
+    throw new Error('Invalid input data');
   }
   return button;
 }

@@ -24,7 +24,7 @@ function checkLinkAccessibility() {
   links.foreach(link => {
     const href = ...
     const text = link.textContent.trim();
-    if (!text && ... {
+    if (!text) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
   });

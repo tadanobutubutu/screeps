@@ -761,6 +761,10 @@ function ensureElementHasId(element) {
     return ensureElementIdLocal(element);
 }
 
+function addressIssues(report) {
+    return addressAccessibilityIsses(report);
+}
+
 function getTables() {
     // Implementation for getting tables
     return document.querySelectorAll('table');

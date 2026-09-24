@@ -694,7 +694,31 @@ export function addBook(book) {
 }
 
 // Ensure accessibility attributes are set when adding a book
-ensureDependencyGraphARIA();
+function enhanceAccessibilityForAddBook() {
+  const form = document.querySelector('form');
+  if (form) {
+    // Ensure form has proper ARIA attributes
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-labelledby', 'add-book-form-title');
+
+    // Add labels to inputs if they don't exist
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(input => {
+      if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+        const label = document.createElement('label');
+        label.textContent = input.name.charAt(0).toUpperCase() + input.name.slice(1);
+        label.setAttribute('for', input.id);
+        input.parentNode.insertBefore(label, input);
+      }
+    });
+
+    // Ensure submit button has proper ARIA attributes
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.setAttribute('aria-label', 'Add new book to the collection');
+    }
+  }
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -1199,8 +1223,7 @@ export {
   fixFakeLinkIssue,
   addSvgAccessibleNames,
   ensureUniqueLandmarksDoc,
-  TowerDefenseGame,
-  TowerDefenseComponent
+  enhanceAccessibilityForAddBook
 };
 
 export default Main;

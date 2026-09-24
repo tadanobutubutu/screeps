@@ -14,11 +14,6 @@ import { registerSW } from 'effector-swift';
  * @param {Function} onClickHandler - Callback function triggered when the button is clicked
  * @returns {HTMLElement} The created button element
  */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
-}
-
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;

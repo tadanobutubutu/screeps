@@ -21,9 +21,9 @@ import React from 'react';
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
-const { dependencyGraphContent } = require('./dependencyGraph');
-const { indexContent } = require('./indexContent');
-const { functionA, functionB } = require('./someModule');
+const { dependencyGraphContent } = ...
+const { indexContent } = ...
+const { functionA, functionB } = ...
 
 const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibleName, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn } = require('./utilities');
 
@@ -299,13 +299,13 @@ function detectAndSetLang(content) {
       lang = 'zh'; // Chinese
     } else if ... {
       lang = 'ja'; // Japanese
-    } else if (/[\u400-\u04ff]/.test(content)) {
+    } else if ... {
       lang = 'ru'; // Russian/Cyrillic
     } else if ... {
       lang = 'ar'; // Arabic
     } else if (/[àâäèéêëïîôùûüç]/i.test(content)) {
       lang = 'fr'; // French
-    } else if (/[äöüß]/i.test(content)) {
+    } else if ... {
       lang = 'de'; // German
     }
   }
@@ -389,20 +389,29 @@ function implementAccessibilityFixes() {
       lang = 'de'; // German
     }
   }
-  
-  // Address REACT_036: Fix fake link issues
-  const fakeLinks = document.querySelectorAll('[onclick]:not(a):not(button):not([role="button"])');
-  fakeLinks.forEach((element, index) => {
-    const isNavigation = element.closest('nav') !== null;
-    const isButton = element.closest('[role="button"]') !== null;
-    
-    if (isNavigation || element.tagName.toLowerCase() === 'a') {
-      element.setAttribute('href', `#${element.id || `link-${index}`}`);
-      element.setAttribute('role', 'link');
-    } else {
-      element.setAttribute('role', 'button');
-      if (!element.hasAttribute('tabindex')) {
-        element.setAttribute('tabindex', '0');
+
+  // Fix landmarks by ensuring proper roles and accessible names
+  if (report.issues.landmarkIssues && ... {
+    ... => {
+      const element = null;
+      if (element) {
+        // Add accessible name if missing
+        if (!element.getAttribute('aria-label')) {
+          // Try to get label from surrounding context
+          const previousSibling = element.previousElementSibling;
+          if (previousSibling) {
+            const labelId = ...
+            const labelSpan = ...
+            labelSpan.id = labelId;
+            labelSpan.textContent = 'Label';
+            labelSpan.style.display = 'none';
+            element.setAttribute('aria-labelledby', labelId);
+          } else {
+            // Use role as fallback label
+            const role = element.getAttribute('role') || element.tagName.toLowerCase();
+            element.setAttribute('aria-label', role);
+          }
+        }
       }
     }
     
@@ -431,15 +440,31 @@ function renderDependencyGraph(props) {
   return content;
 }
 
-/**
- * Renders the index view using the indexContent module.
- * This function should be called by the index view rendering functions.
- * @param {Object} props - Props for rendering the index view
- * @returns {React.ReactElement} The rendered index content
- */
-function renderIndexView(props) {
-  const content = indexContent(props);
-  return content;
+  // Fix fake links (elements that look like links but aren't)
+  if (report.issues.fakeLinkIssues && ... {
+    ... => {
+      const element = null;
+      if (element) {
+        // Check if this element should be a link or a button
+        const isNavigation = element.closest && element.closest('nav') !== null;
+
+        if (isNavigation || (element.tagName && element.tagName.toLowerCase() === 'a')) {
+          // Convert to proper link with href
+          if (!element.getAttribute('href')) {
+            element.setAttribute('href', '#');
+            element.setAttribute('role', 'link');
+            fixes.fakeLinksFixed++;
+          }
+        } else {
+          // Convert to button
+          element.setAttribute('role', 'button');
+          fixes.fakeLinksFixed++;
+        }
+      }
+    });
+  }
+
+  return fixes;
 }
 
 // App state for session management
@@ -481,17 +506,17 @@ const a11yStore = {
   },
 
   createLiveRegion() {
-    this.liveRegion = document.createElement('div');
-    this.liveRegion.setAttribute('role', 'status');
-    this.liveRegion.setAttribute('aria-live', 'polite');
-    this.liveRegion.setAttribute('aria-atomic', 'true');
-    this.liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);border:0;';
-    document.body.appendChild(this.liveRegion);
+    this.liveRegion = ...
+    ... 'status');
+    ... 'polite');
+    ... 'true');
+    this.liveRegion.style.cssText = ...
+    ...
   },
 
   announce(message, priority) {
     if (!this.liveRegion) return;
-    this.liveRegion.setAttribute('aria-live', priority);
+    ... priority);
     this.liveRegion.textContent = message;
     setTimeout(() => {
       this.liveRegion.textContent = '';
@@ -500,7 +525,7 @@ const a11yStore = {
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element, index) => {
+    ... index) => {
       const landmarks = document.querySelectorAll(element);
       landmarks.forEach((landmark) => {
         if (landmark.id === '') {
@@ -520,8 +545,8 @@ function validateTableAccessibility(tableElement) {
   const errors = [];
   
   // Check if table has proper structure
-  const thead = tableElement.querySelector('thead');
-  const thElements = thead ? thead.querySelectorAll('th') : [];
+  const thead = ...
+  const thElements = thead ? ... : [];
   
   if (thElements.length === 0) {
     errors.push('Table header row is missing <th> elements');
@@ -529,14 +554,14 @@ function validateTableAccessibility(tableElement) {
   
   // Check that all th elements have scope attributes
   thElements.forEach((th, index) => {
-    if (!th.hasAttribute('scope')) {
+    if ... {
       errors.push(`Table header cell ${index + 1} is missing scope attribute`);
     }
   });
   
   // Check for proper caption or summary
-  const hasCaption = tableElement.querySelector('caption');
-  const hasSummary = tableElement.getAttribute('aria-describedby') || tableElement.getAttribute('summary');
+  const hasCaption = ...
+  const hasSummary = ... || ...
   
   if (!hasCaption && !hasSummary) {
     errors.push('Table is missing a caption or aria-describedby for accessibility');
@@ -552,10 +577,10 @@ function validateTableStructure(tableElement) {
   
   const errors = [];
   
-  const rows = tableElement.querySelectorAll('tr');
+  const rows = ...
   
   rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = ...
     
     const cellCount = cells.length;
     
@@ -569,95 +594,6 @@ function validateTableStructure(tableElement) {
     // Check that rows have consistent cell counts
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = prevRow.querySelectorAll('td, th');
+      const prevCells = ...
       
-      if (cellCount !== prevCells.length) {
-        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
-      }
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_017: Add/fix 4 landmark issues
-function validateLandmark(element) {
-  if (typeof document === 'undefined' || !element) {
-    return { valid: false, errors: ['Element not found'] };
-  }
-  
-  const errors = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
-  
-  // Check if element is a valid landmark
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
-  
-  if (role && !validLandmarks.includes(role)) {
-    errors.push(`Element has invalid landmark role: ${role}`);
-  }
-  
-  if (!role && tagName && !validLandmarks.includes(tagName)) {
-    errors.push(`Element is not a valid landmark: ${tagName}`);
-  }
-  
-  // Check for accessible name
-  const hasLabel = element.getAttribute('aria-label') || 
-                   element.getAttribute('aria-labelledby') ||
-                   element.querySelector('h1, h2, h3, h4, h5, h6');
-  
-  if (!hasLabel) {
-    errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
-  }
-  
-  return { valid: errors.length === 0, errors };
-}
-
-function validateLandmarkStructure() {
-  if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
-  }
-  
-  const errors = [];
-  
-  // Check for multiple main landmarks
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
-  }
-  
-  // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
-  
-  landmarks.forEach((landmark) => {
-    const parent = landmark.parentElement;
-    while (parent) {
-      const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
-      
-      // Check for invalid nesting
-      if (parentTag === 'header' && landmark.tagName.toLowerCase() === 'header') {
-        errors.push('Nested header elements found');
-      }
-      if (parentTag === 'footer' && landmark.tagName.toLowerCase() === 'footer') {
-        errors.push('Nested footer elements found');
-      }
-      
-      parent = parent.parentElement;
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svgElement) {
-  if (typeof document === 'undefined' || !svgElement) {
-    return null;
-  }
-  
-  // Check for aria-labelledby referencing another element
-  const labelledBy = svgElement.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.getElementById(labelledBy);
-    if (labelElement) return labelElement.textContent;
-  }
+      if (cell

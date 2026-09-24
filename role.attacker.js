@@ -84,13 +84,25 @@ const roleAttacker = {
         // ⚡ PERFORMANCE: Implement target ID caching for structures
         let hostileStructure = Game.getObjectById(creep.memory.structureTargetId);
 
-        if (hostileStructure === undefined || hostileStructure === null) {
+        // ⚡ PERFORMANCE: Check if the cached structure is still valid before searching.
+        // Make sure it still has hits (exists and hasn't been destroyed).
+        if (hostileStructure && (!hostileStructure.hits || hostileStructure.room.name !== creep.room.name)) {
+            hostileStructure = null;
+            delete creep.memory.structureTargetId;
+        }
+
+        if (!hostileStructure) {
             let hostileStructures;
             const allStructures = cache.getStructures(creep.room);
             if (allStructures) {
-                hostileStructures = allStructures.filter(
-                    (s) => !s.my && s.structureType && STRUCTURE_FILTER(s)
-                );
+                // ⚡ PERFORMANCE: Use indexed loop instead of filter and closure allocations
+                hostileStructures = [];
+                for (let i = 0; i < allStructures.length; i++) {
+                    const s = allStructures[i];
+                    if (!s.my && s.structureType && STRUCTURE_FILTER(s)) {
+                        hostileStructures.push(s);
+                    }
+                }
             } else {
                 hostileStructures = [];
             }

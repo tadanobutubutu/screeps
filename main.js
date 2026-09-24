@@ -1,6 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Existing code starts here
 /**
  * Accessibility utilities for managing skip links, focus trapping,
  * and other ARIA-related functionality.
@@ -46,7 +43,7 @@ const accessibilityUtils = {
     const firstElement = focusableElements[0]
     const lastElement = focusableElements[focusableElements.length - 1]
 
-    element.addEventListener('keydown', (e) => {
+    const keydownHandler = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
           lastElement.focus()
@@ -56,9 +53,10 @@ const accessibilityUtils = {
           e.preventDefault()
         }
       }
-    })
+    }
 
-    return () => element.removeEventListener('keydown', trapFocus)
+    element.addEventListener('keydown', keydownHandler)
+    return keydownHandler
   },
 
   /**
@@ -79,7 +77,7 @@ const accessibilityUtils = {
     const firstElement = focusableElements[0]
     const lastElement = focusableElements[focusableElements.length - 1]
 
-    element.addEventListener('keydown', (e) => {
+    const keydownHandler = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
           lastElement.focus()
@@ -89,9 +87,10 @@ const accessibilityUtils = {
           e.preventDefault()
         }
       }
-    })
+    }
 
-    return () => element.removeEventListener('keydown', newFocusTrap)
+    element.addEventListener('keydown', keydownHandler)
+    return keydownHandler
   },
 
   /**
@@ -151,22 +150,14 @@ const accessibilityUtils = {
     a.click()
     setTimeout(() => {
       URL.revokeObjectURL(url)
-      a.remove()
+      document.body.removeChild(a)
       this.announceToScreenReader(`Download of ${filename} started`)
     }, 100)
   },
 
   /**
-     * Scans the page for common accessibility issues and actively fixes them
-     * where possible. Returns an object summarizing the fixes performed.
-     *
-     * Fixes applied:
-     *   - Removes skip links that point to non-existent target elements.
-     *   - Adds an empty header row to tables that are missing `<th>` cells.
-     *   - Adds an empty `alt` attribute to images missing one (marking them
-     *     as decorative so screen readers skip them).
-     *   - Logs warnings for structural issues (e.g. inconsistent cell counts)
-     *     that cannot be auto-resolved safely.
+     * Scans the page for common accessibility issues and logs warnings.
+     * Returns an object summarizing the fixes performed.
      */
   addressAccessibilityIssues () {
     const fixes = {
@@ -176,29 +167,29 @@ const accessibilityUtils = {
     }
 
     // Validate skip links
-    document.querySelectorAll('.skip-link[href^="#"]').forEach((element) => {
-      const target = element.getAttribute('href').replace('#', '')
-      const targetElement = document.getElementById(target)
-      if (!targetElement) {
+    document.querySelectorAll('.skip-link[href]').forEach((link) => {
+      const target = link.getAttribute('href').replace('#', '')
+      const element = document.getElementById(target)
+      if (!element) {
         console.warn(`Skip link points to non-existent element: ${target}`)
         fixes.skipLinks++
       }
     })
 
-    // Validate and fix tables
+    // Validate tables
     document.querySelectorAll('table').forEach((table) => {
-      if (table.querySelectorAll('th').length === 0) {
+      if (!table.querySelector('th')) {
         console.warn('Table missing header cells (th)')
         fixes.tables++
       }
-      // Warn for inconsistent cell counts (structural issue, do not auto-fix)
+      // Ensure each row has same number of cells
       const rows = table.querySelectorAll('tr')
       const cellCounts = new Set()
       rows.forEach((row) => {
         cellCounts.add(row.cells.length)
       })
       if (cellCounts.size > 1) {
-        console.warn('Inconsistent number of cells across table rows. Manual review required.')
+        console.warn('Inconsistent number of cells across table rows')
         fixes.tables++
       }
     })
@@ -215,61 +206,6 @@ const accessibilityUtils = {
   },
 
   /**
-     * Validates landmark elements for accessibility compliance.
-     * Checks for proper landmark usage, structure, and ARIA attributes.
-     *
-     * @returns {Object} Summary of validation results including count of issues found.
-     */
-  validateLandmark () {
-    const fixes = {
-      landmarks: 0,
-      missingRequired: 0,
-      misused: 0
-    }
-
-    // Find all landmark elements using role="landmark"
-    const landmarkElements = document.querySelectorAll('[role="landmark"]')
-    
-    // Also check for common landmark tag names
-    const tagBasedLandmarks = Array.from(
-      document.querySelectorAll('nav, main, header, footer, aside')
-    ).filter(el => el !== null)
-
-    // Combine both sets
-    const allLandmarks = [...landmarkElements, ...tagBasedLandmarks].filter(el => el !== null)
-
-    const totalLandmarks = allLandmarks.length
-
-    if (totalLandmarks === 0) {
-      console.warn('No landmark elements found on the page')
-      fixes.missingRequired++
-      return fixes
-    }
-
-    // Check for required landmarks (nav, main, header, footer)
-    const requiredRoles = ['navigation', 'main', 'header', 'footer']
-    let missingRequired = 0
-
-    for (const role of requiredRoles) {
-      const elements = document.querySelectorAll(`[role="${role}"]`)
-      if (elements.length === 0) {
-        missingRequired++
-      }
-    }
-
-    fixes.missingRequired += missingRequired
-
-    // Check for potential misuse - multiple landmarks with conflicting roles
-    // This is a simplified check - in practice, you might want more sophisticated logic
-    const landmarkElementsWithRole = document.querySelectorAll('[role="landmark"]')
-    // We can't easily distinguish between correct and incorrect landmark usage without more context
-    // So we'll leave this check minimal for now
-
-    console.log('Landmark validation completed', fixes)
-    return fixes
-  },
-
-  /**
      * Handle keyboard navigation by dispatching to a handler based on the key pressed.
      *
      * @param {KeyboardEvent} e - The keyboard event.
@@ -280,157 +216,6 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e)
     }
-  },
-
-  /**
-     * Gets the full language attribute value.
-     *
-     * @param {string} locale - The locale code (e.g., 'en').
-     * @returns {string} The full language attribute (e.g., 'en-RU').
-     */
-  getFullLangAttribute (locale = 'en') {
-    return `${locale}-RU`
-  },
-
-  /**
-     * Ensures a landmark has a unique ID.
-     *
-     * @param {HTMLElement} landmark - The landmark element.
-     * @returns {string|null} The landmark's ID.
-     */
-  ensureUniqueLandmarkId (function (landmark) {
-    if (!landmark) return
-    if (landmark.id) return landmark.id
-    landmark.id = `landmark-${Math.random().toString(36).substr(2, 9)}`
-    return landmark.id
-  }),
-
-  /**
-     * Checks if the page has unique landmarks.
-     *
-     * @returns {boolean} True if landmarks are unique.
-     */
-  uniqueLandmarks () {
-    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]')
-    const ids = new Set()
-
-    landmarks.forEach((landmark) => {
-      const id = landmark.id
-      if (id) ids.add(id)
-    })
-
-    return ids.size < 2
-  },
-
-  /**
-     * Creates an accessible link with proper attributes.
-     *
-     * @param {string} url - The URL for the link.
-     * @param {string} text - The text content of the link.
-     * @param {string} [target='_blank'] - The target attribute.
-     * @param {string} [ariaLabel] - Optional aria-label.
-     * @returns {HTMLAnchorElement} The created link element.
-     */
-  createAccessibleLink (url, text, target = '_blank', ariaLabel) {
-    const link = document.createElement('a')
-    link.href = url
-    link.textContent = text
-    link.setAttribute('target', target)
-    link.setAttribute('rel', 'noopener noreferrer')
-    link.setAttribute('aria-label', ariaLabel || `Open ${text} in new window`)
-    link.setAttribute('role', 'link')
-    return link
-  },
-
-  /**
-   * Adds a lang attribute to the element.
-   * @param {HTMLElement} element - The element to add lang attribute to.
-   * @param {string} locale - The locale code.
-   */
-  addLangAttribute (element, locale = 'en') {
-    if (element) {
-      element.setAttribute('lang', locale)
-    }
-  },
-
-  /**
-   * Checks the accessibility of SVG elements by looking for `title` and `desc` tags.
-   * @param {NodeList} svgs - A list of SVG elements.
-   * @param {Object} report - The report object to populate.
-   */
-  checkSvgAccessibility (svgs, report) {
-    svgs.forEach((svg, index) => {
-      const title = svg.querySelector('title')
-      const desc = svg.querySelector('desc')
-      if (title && desc) {
-        report.passed.push({
-          category: 'REACT_041',
-          message: `SVG ${index + 1} has accessible title and description`,
-          status: 'passed'
-        })
-      } else {
-        report.issues.push({
-          category: 'REACT_041',
-          message: `SVG ${index + 1} is missing accessible name`,
-          status: 'moderate'
-        })
-        report.summary.moderate++
-        report.summary.totalIssues++
-      }
-    })
-  },
-
-  /**
-   * Checks the accessibility of links by ensuring they have text content.
-   * @param {NodeList} links - A list of link elements.
-   * @param {Object} report - The report object to populate.
-   */
-  checkLinkAccessibility (links, report) {
-    links.forEach((link, index) => {
-      if (link.textContent.trim() === '') {
-        report.issues.push({
-          category: 'REACT_036',
-          message: `Link ${index + 1} has no accessible text`,
-          status: 'moderate'
-        })
-        report.summary.moderate++
-        report.summary.totalIssues++
-      } else {
-        report.passed.push({
-          category: 'REACT_036',
-          message: `Link ${index + 1} has accessible text`,
-          status: 'passed'
-        })
-      }
-    })
-  },
-
-  /**
-   * Spawns a new element into the document with optional styling and cleanup.
-   * This provides a reusable way to create temporary UI components (modals, tooltips, etc.)
-   * while ensuring they are properly removed after use.
-   *
-   * @param {string} className - Optional CSS class name for the spawned element
-   * @param {string} id - Optional ID for the element
-   * @returns {HTMLElement} The created element
-   */
-  generateAccessibilityReport () {
-    const report = {
-      passed: [],
-      issues: [],
-      summary: {
-        moderate: 0,
-        totalIssues: 0
-      }
-    }
-
-    const svgs = document.querySelectorAll('svg')
-    accessibilityUtils.checkSvgAccessibility(svgs, report)
-
-    const links = document.querySelectorAll('a')
-    accessibilityUtils.checkLinkAccessibility(links, report)
-
-    return report
   }
 }
 
@@ -499,7 +284,7 @@ function renderDependencyGraphs (container, dependencies, options = {}) {
   addAriaLabel(container, `Dependency graph: ${containerId}`)
 
   // Render logic placeholder
-  container.innerHTML = `<div id="${containerId}">Graph not implemented</div>`
+  container.innerHTML = `<div>Dependency graph visualization not implemented</div>`
 
   return container
 }
@@ -515,133 +300,60 @@ function renderDependencyGraphs (container, dependencies, options = {}) {
  * @returns {boolean} True if all tables pass checks, otherwise false.
  */
 function validateTableStructure () {
-  const fixes = {
-    skipLinks: 0,
-    tables: 0,
-    images: 0
-  }
+  const tables = document.querySelectorAll('table')
+  const issues = []
 
-  // Validate skip links
-  document.querySelectorAll('a[href^="#"]').forEach((link) => {
-    const target = link.getAttribute('href').substring(1)
-    const element = document.getElementById(target)
-    if (!element) {
-      console.warn(`Skip link points to non-existent element: ${target}`)
-      fixes.skipLinks++
-    }
-  })
-
-  // Validate tables
-  document.querySelectorAll('table').forEach((table) => {
-    if (!table.querySelector('th')) {
-      console.warn('Table missing header cells (th)')
-      fixes.tables++
-    }
-    // Ensure each row has same number of cells
-    const rows = table.querySelectorAll('tr')
-    const cellCounts = new Set()
-    rows.forEach((row) => {
-      cellCounts.add(row.children.length)
-    })
-    if (cellCounts.size > 1) {
-      console.warn('Inconsistent number of cells across table rows')
-      fixes.tables++
-    }
-  })
-
-  // Validate images
-  document.querySelectorAll('img:not([alt])').forEach((img) => {
-    console.warn('Image missing alt attribute', img)
-    fixes.images++
-  })
-
-  console.log('Accessibility issues addressed', fixes)
-  return fixes
-}
-
-/**
- * Validates the structure of tables on the page for accessibility best practices.
- * This is a more comprehensive version of validateTableStructure that includes additional checks.
- *
- * @returns {boolean} True if all tables pass checks, otherwise false.
- */
-function validateTableStructureComprehensive () {
-  const fixes = {
-    skipLinks: 0,
-    tables: 0,
-    images: 0
-  }
-
-  // Validate skip links
-  document.querySelectorAll('a[href^="#"]').forEach((link) => {
-    const target = link.getAttribute('href').substring(1)
-    const element = document.getElementById(target)
-    if (!element) {
-      console.warn('Skip link points to non-existent element: ' + target)
-      fixes.skipLinks++
-    }
-  })
-
-  // Validate tables
-  document.querySelectorAll('table').forEach((table) => {
-    if (!table.querySelector('caption')) {
-      console.warn('Table missing caption')
-      fixes.tables++
+  tables.forEach((table, index) => {
+    // Check if table has a caption
+    const caption = table.querySelector('caption')
+    if (!caption) {
+      issues.push({ tableIndex: index, issue: 'Missing caption' })
     }
 
-    // Check for headers
+    // Check for header scope
     const headers = table.querySelectorAll('th')
     if (headers.length === 0) {
-      console.warn('Table missing header cells (th)')
-      fixes.tables++
+      issues.push({ tableIndex: index, issue: 'No header cells found' })
     } else {
-      headers.forEach((th) => {
-        if (!th.hasAttribute('scope')) {
-          console.warn('Header cell missing scope attribute', th)
-          fixes.tables++
+      headers.forEach((header) => {
+        if (!header.hasAttribute('scope')) {
+          issues.push({ tableIndex: index, issue: 'Header cell missing scope attribute' })
         }
       })
     }
 
-    // Check row consistency
+    // Ensure each row has same number of cells
     const rows = table.querySelectorAll('tr')
     const cellCounts = new Set()
     rows.forEach((row) => {
-      cellCounts.add(row.children.length)
+      cellCounts.add(row.cells.length)
     })
     if (cellCounts.size > 1) {
-      console.warn('Inconsistent number of cells across table rows')
-      fixes.tables++
+      issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across table rows' })
     }
 
-    // Check for complex table structures
-    const complexCells = table.querySelectorAll('td[colspan], td[rowspan]')
-    if (complexCells.length > 0) {
-      complexCells.forEach((cell) => {
-        console.warn('Data cell at row has colspan/rowspan', cell)
-        fixes.tables++
-      })
-    }
+    // Basic check for problematic colspan/rowspan in data cells
+    table.querySelectorAll('td').forEach((cell) => {
+      const colspan = parseInt(cell.getAttribute('colspan') || '1', 10)
+      const rowspan = parseInt(cell.getAttribute('rowspan') || '1', 10)
+      if (colspan > 2 || rowspan > 2) {
+        issues.push({ tableIndex: index, issue: 'Excessive colspan/rowspan in data cell may impact accessibility' })
+      }
+    })
   })
 
-  console.log('Accessibility issues addressed', fixes)
-  return fixes
+  if (issues.length > 0) {
+    console.warn('Table structure issues found:', issues)
+    return false
+  }
+
+  return true
 }
 
-// Export functions for use in other modules
 module.exports = {
-  initSkipLink: accessibilityUtils.initSkipLink,
-  trapFocus: accessibilityUtils.trapFocus,
-  newFocusTrap: accessibilityUtils.newFocusTrap,
-  initAccessibility: accessibilityUtils.initAccessibility,
-  announceToScreenReader: accessibilityUtils.announceToScreenReader,
-  handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
-  exportData: accessibilityUtils.exportData,
-  addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
-  validateLandmark: accessibilityUtils.validateLandmark,
+  accessibilityUtils,
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
-  validateTableStructure,
-  validateTableStructureComprehensive
+  validateTableStructure
 }

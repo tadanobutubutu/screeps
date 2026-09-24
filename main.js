@@ -479,11 +479,227 @@ function processData(items) {
   if (!Array.isArray(items)) {
     return [];
   }
-  return items.map(function(item) {
-    const result = {};
-    for (const key in item) {
-      if (item.hasOwnProperty(key)) {
-        result[key] = item[key];
+
+  const id = ensureElementHasId(element, idPrefix);
+  addAriaLabel(element, ariaLabel);
+
+  return id;
+}
+
+// Add the new module usage to renderMyComponent
+function renderMyComponent(props) {
+  // use the imported React module here and other necessary work
+  return (
+    <WindowContext.Provider value={{ window: window }}>
+      <div>{props.content}</div>
+    </WindowContext.Provider>
+  );
+}
+
+// Add the new module usage to renderAnotherComponent
+function renderAnotherComponent(props) {
+  // use the imported React module, Testing Library, and WindowContext here and other necessary work
+  const { container } = render(
+    <WindowContext.Provider value={{ window: window }}>
+      <div>{props.content}</div>
+    </WindowContext.Provider>
+  );
+  return container;
+}
+
+// Sample main.js with dependencyGraph container
+function renderDependencyGraph() {
+  const container = document.getElementById('dependency-graph');
+
+  if (container) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+
+    // Ensure the container has an id for accessibility
+    ensureElementHasId(container, 'dep-graph');
+  }
+}
+
+// Accessibility function (merged from both branches)
+function setSvgAccessibleProps(svg) {
+  addSvgAccessibleNames(svg); // From branch HEAD
+  validateLandmarkStructure(svg); // From branch origin/main
+  const titleElement = main.getSvgAccessibleName(svg);
+  if (titleElement) {
+    svg.setAttribute('aria-labelledby', titleElement.id);
+  }
+  if (!svg.getAttribute('role')) {
+    svg.setAttribute('role', 'img');
+  }
+}
+
+/**
+ * Renders the dependency graph view
+ * @param {Object} deps - Dependencies object
+ * @param {Object} options - Rendering options
+ * @returns {string} Rendered dependency graph HTML
+ */
+function renderDependencyGraph(deps, options = {}) {
+  // Use dependencyGraphContent from the imported module
+  // Note: dependencyGraphContent should be provided by the utilities module
+  return dependencyGraphContent(deps, options);
+}
+
+// Resolved: Address accessibility issues - combines lang attribute and main landmark addition
+function addressAccessibilityIssues(container) {
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0,
+    svgNamesAdded: 0,
+    fakeLinksFixed: 0
+  };
+
+  // Add lang attribute to HTML element if missing
+  const htmlElement = container || document.documentElement;
+  const langAttr = getLangAttribute(htmlElement);
+  if (!langAttr) {
+    addLangAttribute(htmlElement, 'en');
+    fixes.langAdded = true;
+  }
+
+  // Add main landmark if missing
+  const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
+  if (!mainElement) {
+    const body = container.querySelector('body');
+    if (body) {
+      const newMain = document.createElement('main');
+      while (body.firstChild) {
+        newMain.appendChild(body.firstChild);
+      }
+      body.insertBefore(newMain, body.firstChild);
+      fixes.mainLandmarkAdded = true;
+    }
+  }
+
+  // Fix landmark issues
+  const landmarkFixes = validateLandmark(container);
+  if (landmarkFixes && landmarkFixes.length > 0) {
+    fixes.landmarksFixed = landmarkFixes.length;
+  }
+  const landmarkStructureFixes = validateLandmarkStructure(container);
+  if (landmarkStructureFixes && landmarkStructureFixes.length > 0) {
+    fixes.landmarksFixed += landmarkStructureFixes.length;
+  }
+
+  // Fix SVG accessible names
+  const svgElements = container.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName && accessibleName.trim()) {
+      setSvgAccessibilityProps(svg, accessibleName);
+      fixes.svgNamesAdded++;
+    }
+  });
+
+  // Fix fake link issues (elements that look like links but are missing href)
+  const fakeLinks = container.querySelectorAll('[role="link"], a:not([href])');
+  fakeLinks.forEach(link => {
+    const style = window.getComputedStyle(link);
+    if (style.cursor === 'pointer' || link.hasAttribute('onclick')) {
+      link.setAttribute('role', 'link');
+      link.setAttribute('tabindex', '0');
+      fixes.fakeLinksFixed++;
+    }
+  });
+
+  // Validate accessibility report
+  const accessibilityReport = validateAccessibilityReport(container);
+  if (accessibilityReport && accessibilityReport.length > 0) {
+    log(`Accessibility report contains ${accessibilityReport.length} remaining issues`, 'warn');
+  }
+
+  if (fixes.langAdded) {
+    log('Lang attribute added to HTML element', 'info');
+  }
+
+  if (fixes.mainLandmarkAdded) {
+    log('Main landmark added', 'info');
+  }
+
+  const landmarkFixesCount = fixes.landmarksFixed || 0;
+  if (landmarkFixesCount > 0) {
+    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
+  }
+
+  const svgFixes = fixes.svgNamesAdded || 0;
+  if (svgFixes > 0) {
+    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
+  }
+
+  const fakeLinkFixes = fixes.fakeLinksFixed || 0;
+  if (fakeLinkFixes > 0) {
+    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
+  }
+
+  return fixes;
+}
+
+// Accessibility-related function to be added
+function checkAccessibilityInternal(content) {
+  // Placeholder for accessibility checking logic
+  // This function should be implemented to check for accessibility issues
+  // For now, it just returns an empty array
+  return [];
+}
+
+// New feature: Priority-based task scheduling
+class ScreepsBot {
+  constructor() {
+    this.network = null;
+    this.tasks = [];
+    this.config = {};
+  }
+
+  async start() {
+    // Initialize network connection
+    await this.network.connect();
+
+    // Load initial data
+    await this.loadData();
+
+    console.log('Screenspider bot started');
+  }
+
+  loadData() {
+    // Placeholder for data loading logic
+    // Implement actual data fetching here
+  }
+
+  // Accessibility enhancement: Ensure all UI elements are properly labeled
+  setElementLabel(elementId, label) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.setAttribute('aria-label', label);
+      el.setAttribute('role', 'button');
+    }
+  }
+
+  // New feature: Priority-based task scheduling
+  addTaskWithPriority(taskFn, priority = 'medium') {
+    this.tasks.push({ task: taskFn, priority });
+    this.scheduleTasks();
+  }
+
+  scheduleTasks() {
+    // Sort tasks by priority (high > medium > low)
+    this.tasks.sort((a, b) => {
+      const prioOrder = { high: 0, medium: 1, low: 2 };
+      return prioOrder[b.priority] - prioOrder[a.priority];
+    });
+
+    // Execute highest priority task
+    if (this.tasks.length > 0) {
+      const nextTask = this.tasks[0];
+      try {
+        nextTask.task();
+      } catch (err) {
+        console.error(`Task failed: ${err.message}`);
       }
     }
     result.processed = true;
@@ -589,60 +805,16 @@ if (typeof document !== 'undefined') {
 
 // Export all utilities
 module.exports = {
-  accessibilityUtils: accessibilityUtils,
-  exportUtils: exportUtils,
-  initAccessibility: initAccessibility,
-  handleCredentialResponse: handleCredentialResponse,
-  ensureElementId: ensureElementId,
-  addAriaLabel: addAriaLabel,
-  renderDependencyGraph: renderDependencyGraph,
-  calculateSum: calculateSum,
-  existingFunction: existingFunction,
-  transformInputData: transformInputData,
-  setHtmlLangAttribute,
-  ensureElementAccessibility,
-  ensureElementHasId,
-  addLangAttribute,
-  newFocusTrap,
-  getLangAttribute: accessibilityUtils.getLangAttribute,
-  personName: accessibilityUtils.personName,
-  validateTableAccessibility: accessibilityUtils.validateTableAccessibility,
-  validateTableStructure: accessibilityUtils.validateTableStructure,
-  validateLandmark: accessibilityUtils.validateLandmark,
-  validateLandmarkStructure: accessibilityUtils.validateLandmarkStructure,
-  getSvgAccessibleName: accessibilityUtils.getSvgAccessibleName,
-  createInPageButton: accessibilityUtils.createInPageButton,
-  trapFocus: accessibilityUtils.trapFocus,
-  announceToScreenReader: accessibilityUtils.announceToScreenReader,
-  handleKeyboardNav: accessibilityUtils.handleKeyboardNav
+  ...main,
+  existingFunction,
+  personName,
+  validateAccessibilityReport,
+  setSvgAccessibleProps,
+  renderGraphIndex, // Replace renderDependencyGraphs with renderGraphIndex
+  addressAccessibilityIssues, // Add the new accessibility function to exports
+  checkAccessibility: checkAccessibilityInternal,
+  implementAccessibilityFixesFromReport,
+  updateUI,
+  newFunction,
+  ScreepsBot
 };
-
-// Also attach to global scope for browser/standalone access
-if (typeof window !== 'undefined') {
-    window.accessibilityUtils = accessibilityUtils;
-    window.exportUtils = exportUtils;
-    window.initAccessibility = initAccessibility;
-    window.handleCredentialResponse = handleCredentialResponse;
-    window.ensureElementId = ensureElementId;
-    window.addAriaLabel = addAriaLabel;
-    window.renderDependencyGraph = renderDependencyGraph;
-    window.calculateSum = calculateSum;
-    window.existingFunction = existingFunction;
-    window.transformInputData = transformInputData;
-    window.setHtmlLangAttribute = setHtmlLangAttribute;
-    window.ensureElementAccessibility = ensureElementAccessibility;
-    window.ensureElementHasId = ensureElementHasId;
-    window.addLangAttribute = addLangAttribute;
-    window.newFocusTrap = newFocusTrap;
-    window.getLangAttribute = accessibilityUtils.getLangAttribute;
-    window.personName = accessibilityUtils.personName;
-    window.validateTableAccessibility = accessibilityUtils.validateTableAccessibility;
-    window.validateTableStructure = accessibilityUtils.validateTableStructure;
-    window.validateLandmark = accessibilityUtils.validateLandmark;
-    window.validateLandmarkStructure = accessibilityUtils.validateLandmarkStructure;
-    window.getSvgAccessibleName = accessibilityUtils.getSvgAccessibleName;
-    window.createInPageButton = accessibilityUtils.createInPageButton;
-    window.trapFocus = accessibilityUtils.trapFocus;
-    window.announceToScreenReader = accessibilityUtils.announceToScreenReader;
-    window.handleKeyboardNav = accessibilityUtils.handleKeyboardNav;
-}

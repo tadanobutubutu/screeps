@@ -31,7 +31,7 @@ function checkAccessibility(container) {
   });
   
   // Check buttons for accessibility
-  const buttons = container.querySelectorAll('[role="button"]');
+  const buttons = container.querySelectorAll('[role="button"], button');
   buttons.forEach((button, index) => {
     const text = button.textContent.trim();
     const ariaLabel = button.getAttribute('aria-label');
@@ -176,10 +176,10 @@ function renderAccessibilityIndex(issues, container) {
   let indexHTML = '<h3>Accessibility Issues Index</h3><ul class="index-list">';
   
   Object.entries(groupedIssues).forEach(([type, typeIssues]) => {
-    indexHTML += `<li class="issue-group"><strong>${type}</strong>`;
-    indexHTML += '<ul class="issue-sublist">';
+    indexHTML += `<li class="index-group"><strong>${type}</strong> (${typeIssues.length})`;
+    indexHTML += '<ul class="issue-list">';
     typeIssues.forEach((issue) => {
-      indexHTML += `<li class="issue-item" data-original-index="${issue.originalIndex}">${issue.message}</li>`;
+      indexHTML += `<li class="issue-item" data-index="${issue.originalIndex}">${issue.message}</li>`;
     });
     indexHTML += '</ul></li>';
   });

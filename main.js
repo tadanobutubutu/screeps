@@ -135,29 +135,7 @@ function newFunction(container, containerReport) {
       timestamp: new Date().toISOString()
     };
 
-/**
- * Implements accessibility fixes based on insights from accessibility reports
- * @param {HTMLElement} container - The container element to process
- * @param {Object} containerReport - The accessibility report containing identified issues
- * @returns {Object} Summary of fixes applied
- */
-function addressAccessibilityIssuesFromReport(container, containerReport) {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0,
-    tablesFixed: 0,
-    headersFixed: 0
-  };
-
-  if (!containerReport || !containerReport.issues) {
-    // If no report, perform basic accessibility checks
-    const issues = checkAccessibility(container);
-    if (issues.length === 0) {
-      return fixes;
-    }
+    const report = insightReport || {};
 
   // Add lang attribute to HTML element if missing
   const htmlEl = container.querySelector('html') || (container.ownerDocument && container.ownerDocument.documentElement);
@@ -247,23 +225,58 @@ function addressAccessibilityIssuesFromReport(container, containerReport) {
     });
 
     // Validate accessibility report
-    const report = validateAccessibilityReport && validateAccessibilityReport(container);
-    if (report && report.length > 0) {
-        console.log(`Accessibility report contains ${report.length} remaining issues`);
+    const reportResult = validateAccessibilityReport(container);
+    if (reportResult && reportResult.length > 0) {
+        console.warn(`Accessibility report contains ${reportResult.length} remaining issues`);
     }
 
     // Implement focus trap for keyboard navigation
     focusTrap && focusTrap(container);
 
-  // Ensure elements have IDs for accessibility
-  ensureElementHasId(container);
-  ensureElementHasIdOrigin(container);
+    if (fixes.langAdded) {
+        console.info('Lang attribute added to HTML element');
+    }
 
-  // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(container);
-  if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn');
-  }
+    if (fixes.mainLandmarkAdded) {
+        console.info('Main landmark added');
+    }
 
-  if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info');
+    // Check for new accessibility issues
+    const newAccessibilityIssues = checkAccessibility(container);
+    if (newAccessibilityIssues.length > 0) {
+        console.error(
+            `New accessibility issues found: ${newAccessibilityIssues.map((i) => i.message).join(', ')}`
+        );
+    }
+
+    const landmarkFixesCount = fixes.landmarksFixed || 0;
+    if (landmarkFixesCount > 0) {
+        console.info(`Fixed accessibility for ${landmarkFixesCount} unique landmarks`);
+    }
+
+    const svgFixes = fixes.svgNamesAdded || 0;
+    if (svgFixes > 0) {
+        console.info(`Fixed accessible names for ${svgFixes} SVGs`);
+    }
+
+    const fakeLinkFixes = fixes.fakeLinksFixed || 0;
+    if (fakeLinkFixes > 0) {
+        console.info(`Fixed fake link issues for ${fakeLinkFixes} elements`);
+    }
+
+    return fixes;
+}
+
+// Accessibility-related function to be added
+function checkAccessibility(content) {
+    // Placeholder for accessibility checking logic
+    // This function should be implemented to check for accessibility issues
+    // For now, it just returns an empty array
+    return [];
+}
+
+module.exports = {
+    ...main,
+    addressAccessibilityIssues,
+    checkAccessibility,
+};

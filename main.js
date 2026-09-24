@@ -132,8 +132,13 @@ export function renderDependencyGraph (graphData, container) {
     }
   })
 
-  container.appendChild(svg)
-  return container
+  container.appendChild(svg);
+
+  // Apply accessibility fixes to rendered content
+  addSvgAccessibleNames(container);
+  fixFakeLinks(container);
+
+  return container;
 }
 
 // REACT_017: Add landmark roles - Ensure proper landmark regions

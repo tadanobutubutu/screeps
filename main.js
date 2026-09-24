@@ -294,103 +294,181 @@ function renderIndexView(data, options = {}) {
     const last = focusable[focusable.length - 1];
 
   // Accessibility functions to address new issues
-  addLangAttribute: () => {
-    const htmlElement = document.querySelector('html');
-    if (htmlElement && !htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', 'en');
+  getLangAttribute: () => {
+    const html = document.documentElement;
+    if (!html.hasAttribute('lang')) {
+      html.setAttribute('lang', 'en');
     }
+    return html.getAttribute('lang');
   },
 
-  fixTableStructure: (tableElement) => {
-    if (!tableElement) return;
+  getFullLangAttribute: () => {
+    const lang = accessibilityUtils.getLangAttribute();
+    return lang.includes('-') ? lang : `${lang}-US`;
+  },
+
+  validateTableAccessibility: (table) => {
+    if (!table) return false;
+
+    // Check for proper table structure
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasThead = table.querySelector('thead') !== null;
+    const hasTbody = table.querySelector('tbody') !== null;
+    const hasTh = table.querySelector('th') !== null;
+
+    // Check for scope attributes on th elements
+    const thElements = table.querySelectorAll('th');
+    let hasScope = true;
+    thElements.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        hasScope = false;
+      }
+    });
+
+    return hasCaption && hasThead && hasTbody && hasTh && hasScope;
+  },
+
+  validateTableStructure: (table) => {
+    if (!table) return false;
 
     // Ensure table has proper structure
-    const thead = tableElement.querySelector('thead') || document.createElement('thead');
-    const tbody = tableElement.querySelector('tbody') || document.createElement('tbody');
+    const rows = table.querySelectorAll('tr');
+    if (rows.length === 0) return false;
 
-    if (!tableElement.querySelector('thead')) {
-      tableElement.insertBefore(thead, tableElement.firstChild);
-    }
-
-    if (!tableElement.querySelector('tbody')) {
-      tableElement.appendChild(tbody);
-    }
-
-    // Ensure all rows have proper cells
-    const rows = tableElement.querySelectorAll('tr');
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('th, td');
-      if (cells.length === 0) {
-        const cell = document.createElement(row.parentElement.tagName === 'THEAD' ? 'th' : 'td');
-        row.appendChild(cell);
+    // Check each row has consistent number of cells
+    const cellCount = rows[0].cells.length;
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i].cells.length !== cellCount) {
+        return false;
       }
-    });
+    }
+
+    return true;
   },
 
-  addLandmarks: () => {
-    // Add main landmark if missing
-    if (!document.querySelector('main')) {
-      const main = document.createElement('main');
-      const content = document.querySelector('body > *:not(script):not(style):not(link)');
-      if (content) {
-        main.appendChild(content);
-        document.body.insertBefore(main, document.body.firstChild);
-      }
+  validateLandmark: (element, landmarkType) => {
+    if (!element) return false;
+
+    const validLandmarks = ['main', 'nav', 'header', 'footer', 'aside', 'section'];
+    if (!validLandmarks.includes(landmarkType)) return false;
+
+    // Check if element has proper role
+    if (element.getAttribute('role') !== landmarkType) {
+      element.setAttribute('role', landmarkType);
     }
 
-    // Add navigation landmark if missing
-    if (!document.querySelector('nav')) {
-      const nav = document.createElement('nav');
-      const navContent = document.querySelector('header nav') || document.querySelector('nav');
-      if (navContent) {
-        nav.appendChild(navContent);
-        document.body.insertBefore(nav, document.body.firstChild);
-      }
+    // Ensure landmark has proper label
+    if (!element.hasAttribute('aria-label') && !element.querySelector('h1, h2, h3, h4, h5, h6')) {
+      element.setAttribute('aria-label', `${landmarkType} content`);
     }
 
-    // Add footer landmark if missing
-    if (!document.querySelector('footer')) {
-      const footer = document.createElement('footer');
-      const footerContent = document.querySelector('footer') || document.querySelector('body > :last-child');
-      if (footerContent) {
-        footer.appendChild(footerContent);
-        document.body.appendChild(footer);
-      }
-    }
+    return true;
   },
 
-  addSvgAccessibleNames: () => {
-    const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
-    svgs.forEach((svg, index) => {
-      const title = svg.querySelector('title');
-      if (!title) {
-        const newTitle = document.createElement('title');
-        newTitle.textContent = `SVG Graphic ${index + 1}`;
-        svg.insertBefore(newTitle, svg.firstChild);
+  validateLandmarkStructure: () => {
+    const landmarks = document.querySelectorAll('[role="main"], [role="nav"], [role="header"], [role="footer"], [role="aside"], [role="section"]');
+    let isValid = true;
+
+    landmarks.forEach(landmark => {
+      if (!landmark.hasAttribute('aria-label') && !landmark.querySelector('h1, h2, h3, h4, h5, h6')) {
+        isValid = false;
       }
     });
+
+    return isValid;
   },
 
   ensureUniqueLandmarks: () => {
-    const landmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section'];
+    const landmarks = document.querySelectorAll('[role="main"], [role="nav"], [role="header"], [role="footer"], [role="aside"], [role="section"]');
+    const landmarkCounts = {};
+
     landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(landmark);
-      if (elements.length > 1) {
-        elements.forEach((el, i) => {
-          if (i > 0) {
-            el.setAttribute('aria-label', `${landmark} ${i + 1}`);
-          }
-        });
-      }
+      const role = landmark.getAttribute('role');
+      landmarkCounts[role] = (landmarkCounts[role] || 0) + 1;
     });
+
+    // Ensure only one main landmark exists
+    if (landmarkCounts['main'] > 1) {
+      const mains = document.querySelectorAll('[role="main"]');
+      for (let i = 1; i < mains.length; i++) {
+        mains[i].setAttribute('role', 'region');
+      }
+    }
+
+    // Ensure nav landmarks have proper labels
+    if (landmarkCounts['nav'] > 1) {
+      const navs = document.querySelectorAll('[role="nav"]');
+      navs.forEach((nav, index) => {
+        if (!nav.hasAttribute('aria-label')) {
+          nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+        }
+      });
+    }
   },
 
-  fixFakeLinks: () => {
-    const elements = document.querySelectorAll('[role="link"], [role="button"]');
-    elements.forEach(el => {
-      if (!el.hasAttribute('tabindex')) {
-        el.setAttribute('tabindex', '0');
-      }
+  getSvgAccessibleName: (svg) => {
+    if (!svg) return '';
+
+    // Check for title or aria-label
+    const title = svg.querySelector('title');
+    if (title) return title.textContent;
+
+    if (svg.hasAttribute('aria-label')) {
+      return svg.getAttribute('aria-label');
+    }
+
+    // Fallback to description if available
+    const desc = svg.querySelector('desc');
+    if (desc) return desc.textContent;
+
+    return '';
+  },
+
+  createInPageButton: (text, onClick) => {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.addEventListener('click', onClick);
+
+    // Ensure button has proper accessible name
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+      button.setAttribute('aria-label', text);
+    }
+
+    return button;
+  },
+
+  createAccessibleLink: (text, href, isFakeLink = false) => {
+    const link = document.createElement('a');
+    link.textContent = text;
+    link.href = href;
+
+    // Handle fake links
+    if (isFakeLink) {
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabindex', '0');
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          link.click();
+        }
+      });
+    }
+
+    return link;
+  },
+
+  handleAccessibilityIssues: () => {
+    // Handle fake links
+    const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
+    fakeLinks.forEach(link => {
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabindex', '0');
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          link.click();
+        }
+      });
     });
   }
 };

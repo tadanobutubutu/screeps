@@ -279,7 +279,7 @@ const accessibilityUtils = {
     trapFocus: (element) => {
         if (!element) return null;
         const focusableElements = element.querySelectorAll(
-            'a[href], textarea, input, select, button, ...
+            'a[href], textarea, input, select, button, ...'
         );
         const firstElement = ...
         const lastElement = focusableElements[focusableElements.length - 1];
@@ -390,7 +390,7 @@ const accessibilityUtils = {
     // New focus trap implementation
     newFocusTrap: (element) => {
         const focusableElements = element.querySelectorAll(
-            'a[href], textarea, input, select, button, ...
+            'a[href], textarea, input, select, button, ...'
         );
 
         const handleKeyDown = (e) => {
@@ -509,7 +509,7 @@ function newFocusTrap() {
     return (element) => {
         if (!element) return;
         const focusable = element.querySelectorAll(
-            'a[href], textarea, input, select, button, ...
+            'a[href], textarea, input, select, button, ...'
         );
         if (focusable.length === 0) return;
         const first = focusable[0];
@@ -568,4 +568,6 @@ function initializeGraphControls() {
 if (typeof window !== 'undefined') {
     window.affectedFunction = affectedFunction;
     window.updateFunction = updateFunction;
-    window.accessibleFunction =
+    window.accessibleFunction = accessibleFunction;
+    window.newFunction1 = newFunction1;
+    window.newFunction2 = newFunction2

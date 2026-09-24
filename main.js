@@ -948,11 +948,31 @@ export {
   generateAndDisplayReport
 };
 
-// Exporting for CommonJS compatibility
-module.exports = {
-  specificFunctionThatRendersGraphOrIndex,
-  checkLinkAccessibility,
-  displayModuleStructure,
-  renderDependencyGraph,
-  generateAccessibilityReport
-};
+// Export ensureUniqueLandmarkId for ensuring unique landmark IDs
+export { ensureUniqueLandmarkId };
+
+// Export uniqueLandmarks for getting unique landmarks from a list
+export { uniqueLandmarks };
+
+// Export addAriaLabel for adding aria-label attributes to elements
+export { addAriaLabel };
+
+// Export addLangAttribute for adding lang attributes to elements
+export { addLangAttribute };
+
+// Export the internal set for tracking used landmark IDs
+export { _usedLandmarkIds };
+
+// New exports added back as required by the issue
+export { calculateSum };
+export { dependencyGraphContent, indexContent };
+
+/**
+ * Calculates the sum of two numbers.
+ * @param {number} a - The first number.
+ * @param {number} b - The second number.
+ * @returns {number} The sum of a and b.
+ */
+function calculateSum(a, b) {
+  return a + b;
+}

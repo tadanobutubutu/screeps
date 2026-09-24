@@ -1,6 +1,6 @@
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent')
-const { indexContent } = require('./indexContent')
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
 const { accessibilityUtils } = require('./accessibilityUtils');
 
 const {
@@ -67,19 +67,18 @@ const {
 } = require('./utilities');
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
+const dependencyGraph = document.getElementById('dependencyGraph');
 
-const renderGraphIndexAlt = (graphData) => {
-  addressAccessibilityIssues();
-  renderDependencyGraphs(graphData);
-}
-
-function calculateDiscount(price, discountPercentage) {
-  if (typeof price !== 'number' || typeof discountPercentage !== 'number') {
-    throw new TypeError('Price and discount percentage must be numbers');
+if (dependencyGraph) {
+  // Set appropriate ARIA role for the dependency graph container
+  // Using 'region' role for a contained section of content
+  if (!dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region');
   }
-  if (price < 0 || discountPercentage < 0 || discountPercentage > 100) {
-    throw new RangeError('Invalid input: price must be non-negative and discount must be between 0 and 100');
+
+  // Add accessible label if not already present
+  if (!dependencyGraph.getAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
   }
 
   // Ensure element has an ID if not present

@@ -6,15 +6,44 @@
 // Main module
 
 // Dependency imports
-const { dependencyGraphContent } = require('./content/dependencyGraphContent');
-const { indexContent } = require('./content/indexContent');
+const { dependencyGraphContent } = require('./dependency-graph');
+const { indexContent } = require('./index');
 
 const main = require('./utilities');
 
-// Set default language for accessibility
-if (typeof document !== 'undefined' && document.documentElement) {
-  document.documentElement.lang = 'en';
+const {
+  add,
+  subtract,
+  multiply,
+  divide,
+  power,
+  squareRoot,
+  factorial,
+  fibonacci,
+  sum,
+  average,
+  max,
+  min,
+  mode,
+  median,
+} = main;
+
+// Existing rendering functions (preserving existing exports and functions)
+
+function greetingFunction() {
+  return "Hello, World!";
 }
+
+const config = {
+  port: 3000,
+  debug: false
+};
+
+function getWelcomeMessage() {
+  return greetingFunction() + " This is a new function that returns a welcome message.";
+}
+
+const { class1, function1, Object1 } = require('./some-module');
 
 const a11yStore = {
   // ... existing methods ...
@@ -41,70 +70,112 @@ const a11yStore = {
    * @param {HTMLElement} container - The container element to trap focus within
    * @returns {Object} An object containing the container element and a destroy function
    */
-  setupFocusTrap(container) {
-    const focusableSelectors = [
-      'a[href]',
-      'area[href]',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      'button:not([disabled])',
-      'iframe',
-      'object',
-      'embed',
-      '[tabindex]:not([tabindex="-1"])',
-      '[contenteditable]',
-      '[role="button"]:not([disabled])'
-    ];
+  prefersReducedMotion() {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    return mediaQuery.matches;
+  },
 
-    const focusableElements = Array.from(container.querySelectorAll(focusableSelectors.join(',')));
+  prefersHighContrast() {
+    const mediaQuery = window.matchMedia('(prefers-contrast: more)');
+    return mediaQuery.matches;
+  },
 
-    if (focusableElements.length === 0) {
-      return { container, destroy: () => {} };
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) {
+      this.liveRegion = document.createElement('div');
+      this.liveRegion.setAttribute('aria-live', priority);
+      this.liveRegion.setAttribute('aria-atomic', 'true');
+      this.liveRegion.className = 'sr-only';
+      document.body.appendChild(this.liveRegion);
     }
+    this.announce(message, priority);
+  },
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
+      const landmarks = document.querySelectorAll(element);
+      landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${landmark.index || 0}`);
+          landmark.id = `a11y-${element}-${index}`;
         }
 
         if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${landmark.index || 1}`);
+          if (landmark.id === `a11y-${element}-${index}`) {
+            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
         }
+      });
+    });
+  },
+
+  /**
+   * Extract the accessible name for an SVG from its content
+   * @param {SVGElement} svg - The SVG element to extract accessible name from
+   * @returns {string} The accessible name of the SVG
+   */
+  getSvgAccessibleName(svg) {
+    if (!svg || svg.tagName.toLowerCase() !== 'svg') {
+      return '';
+    }
+
+    // Try to get accessible name from aria-labelledby attribute
+    const ariaLabelledby = svg.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+      const labelElement = document.getElementById(ariaLabelledby);
+      if (labelElement) {
+        return labelElement.textContent.trim();
+      }
+    }
+
+    // Try to get accessible name from aria-label attribute
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel && ariaLabel.trim()) {
+      return ariaLabel.trim();
+    }
+
+    // Try to get accessible name from <title> element inside the SVG
+    const titleElement = svg.querySelector('title');
+    if (titleElement && titleElement.textContent.trim()) {
+      return titleElement.textContent.trim();
+    }
+
+    // Return empty string if no accessible name is found
+    return '';
+  },
+
+  fixSvgAccessibility() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach((svg) => {
+      let titleElement = svg.querySelector('title');
+      if (!titleElement) {
+        titleElement = document.createElement('title');
+        titleElement.textContent = 'Image';
+        svg.insertBefore(titleElement, svg.firstChild);
       }
     };
 
-    const handleFocusIn = (event) => {
-      if (!container.contains(event.target)) {
-        event.preventDefault();
-        firstFocusable.focus();
+      if (!titleElement.id) {
+        titleElement.id = `svg-title-${Math.random().toString(36).substr(2, 9) * 10000}`;
       }
     };
 
-    container.addEventListener('keydown', handleKeyDown);
-    container.addEventListener('focusin', handleFocusIn);
+      const hasAriaLabel = svg.getAttribute('aria-label');
+      const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
 
-    return {
-      container,
-      destroy: () => {
-        container.removeEventListener('keydown', handleKeyDown);
-        container.removeEventListener('focusin', handleFocusIn);
+      if (!hasAriaLabel && !hasAriaLabelledby) {
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-labelledby', titleElement.id);
       }
     };
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
+    const fakeLinks = document.querySelectorAll('[href=""], [href="#"], [href="undefined"]');
     fakeLinks.forEach((link) => {
       link.setAttribute('role', 'link');
       link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
+      link.setAttribute('aria-disabled', 'true');
     });
   },
 
@@ -114,7 +185,7 @@ const a11yStore = {
   ensureInteractiveRoles() {
     const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
     interactiveElements.forEach((element) => {
-      if (!element.hasAttribute('role')) {
+      if (!element.getAttribute('role')) {
         element.setAttribute('role', 'button');
       }
     });
@@ -142,7 +213,7 @@ const a11yStore = {
   ensureImageAccessibility() {
     const images = document.querySelectorAll('img');
     images.forEach((img) => {
-      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
+      if (!img.alt && !img.getAttribute('aria-label') && !img.getAttribute('aria-labelledby')) {
         img.setAttribute('alt', '');
       }
     });
@@ -199,82 +270,25 @@ const a11yStore = {
 };
 
 // New functions
-function ensureUniqueLandmarks() {
-  // Implementation to ensure unique landmarks
-}
-
-/**
- * Harvest logic implementation
- * Collects and processes data from various sources
- * @param {Object} options - Harvest options
- * @param {Array} options.sources - Array of data sources to harvest from
- * @param {boolean} options.recursive - Whether to recursively harvest from nested sources
- * @param {Function} options.transform - Optional transformation function for harvested data
- * @returns {Object} Harvested data with metadata
- */
-function harvest(options = {}) {
-  const { sources = [], recursive = false, transform = (data) => data } = options;
-  
-  const harvestedItems = [];
-  const harvestMetadata = {
-    timestamp: new Date().toISOString(),
-    sourceCount: sources.length,
-    itemCount: 0,
-    errors: []
-  };
-
-  sources.forEach((source) => {
-    try {
-      const data = source.data || source;
-      const items = Array.isArray(data) ? data : [data];
-      
-      items.forEach((item) => {
-        const transformedItem = transform(item);
-        harvestedItems.push({
-          ...transformedItem,
-          harvestedAt: new Date().toISOString(),
-          sourceId: source.id || 'unknown'
-        });
-        
-        if (recursive && item.children && Array.isArray(item.children)) {
-          const childOptions = {
-            ...options,
-            sources: item.children.map((child, index) => ({
-              id: `${source.id || 'source'}-child-${index}`,
-              data: child
-            }))
-          };
-          const childResults = harvest(childOptions);
-          harvestedItems.push(...childResults.data);
-        }
-      });
-    } catch (error) {
-      harvestMetadata.errors.push({
-        source: source.id || 'unknown',
-        error: error.message
-      });
+function ensureInteractiveElementsAccessible() {
+  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  interactiveElements.forEach((element) => {
+    const hasLabel = element.getAttribute('aria-label') ||
+                     element.getAttribute('aria-labelledby') ||
+                     document.querySelector(`label[for="${element.id}"]`);
+    
+    if (!hasLabel && (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA')) {
+      const label = document.createElement('label');
+      label.setAttribute('for', element.id || `auto-${Math.random().toString(36).substr(2, 9)}`);
+      label.textContent = 'Interactive element';
+      element.parentNode.insertBefore(label, element);
     }
   });
-
-  harvestMetadata.itemCount = harvestedItems.length;
-
-  return {
-    data: harvestedItems,
-    metadata: harvestMetadata,
-    totalHarvested: harvestedItems.length
-  };
 }
 
 // ... rest of the code ...
 
 module.exports = {
-  greetingFunction,
-  getWelcomeMessage,
-  ensureInteractiveElementsAccessible,
-  harvest,
-  config,
-  a11yStore,
-  // math helpers
   add,
   subtract,
   multiply,
@@ -289,4 +303,8 @@ module.exports = {
   min,
   mode,
   median,
+  greetingFunction,
+  getWelcomeMessage,
+  ensureInteractiveElementsAccessible,
+  a11yStore
 };

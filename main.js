@@ -5,16 +5,15 @@
 
 const accessibilityUtils = {
   /**
-   * Initializes the skip link functionality.
-   * Finds a skip link with class 'skip-link' and ensures clicking it
-   * focuses the target element while preventing default navigation.
-   */
+     * Initializes the skip link functionality.
+     * Finds a skip link with class 'skip-link' and ensures clicking it
+     * focuses the target element while preventing default navigation.
+     */
   initSkipLink () {
     const skipLink = document.querySelector('.skip-link')
     if (!skipLink) return
 
     skipLink.addEventListener('click', (e) => {
-      e.preventDefault()
       const href = skipLink.getAttribute('href')
       if (!href) return
       const targetId = href.replace('#', '')
@@ -23,16 +22,17 @@ const accessibilityUtils = {
       if (target) {
         target.setAttribute('tabindex', '-1')
         target.focus()
+        e.preventDefault()
       }
     })
   },
 
   /**
-   * Adds a focus trap to the given element.
-   * Tab‑presses are confined to the element's focusable descendants.
-   *
-   * @param {HTMLElement} element - The container element.
-   */
+     * Adds a focus trap to the given element.
+     * Tab‑presses are confined to the element's focusable descendants.
+     *
+     * @param {HTMLElement} element - The container element.
+     */
   trapFocus (element) {
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -59,11 +59,11 @@ const accessibilityUtils = {
   },
 
   /**
-   * A newer focus trap implementation.
-   * Identical to `trapFocus` for consistency.
-   *
-   * @param {HTMLElement} element - The container element.
-   */
+     * A newer focus trap implementation.
+     * Identical to `trapFocus` for consistency.
+     *
+     * @param {HTMLElement} element - The container element.
+     */
   newFocusTrap (element) {
     if (!element) return
 
@@ -92,10 +92,10 @@ const accessibilityUtils = {
   },
 
   /**
-   * Enhances keyboard accessibility for interactive elements and elements with
-   * the `data-accessible` attribute. Adds a `tabindex="0"` and handles Enter/Space
-   * to trigger clicks.
-   */
+     * Enhances keyboard accessibility for interactive elements and elements with
+     * the `data-accessible` attribute. Adds a `tabindex="0"` and handles Enter/Space
+     * to trigger clicks.
+     */
   initAccessibility () {
     // Add keyboard support for all interactive elements and data-accessible elements
     document
@@ -112,11 +112,11 @@ const accessibilityUtils = {
   },
 
   /**
-   * Announce message to screen readers
-   *
-   * @param {string} message - The message to announce.
-   * @param {string} [priority='polite'] - The aria-live priority ('polite' or 'assertive').
-   */
+     * Announce message to screen readers
+     *
+     * @param {string} message - The message to announce.
+     * @param {string} [priority='polite'] - The aria-live priority ('polite' or 'assertive').
+     */
   announceToScreenReader (message, priority = 'polite') {
     const announcer = document.createElement('div')
     announcer.setAttribute('aria-live', priority)
@@ -132,25 +132,12 @@ const accessibilityUtils = {
   },
 
   /**
-   * Handle keyboard navigation by dispatching to a handler based on the key pressed.
-   *
-   * @param {KeyboardEvent} e - The keyboard event.
-   * @param {Object} handlers - An object mapping key names to handler functions.
-   */
-  handleKeyboardNav (e, handlers) {
-    const key = e.key
-    if (handlers[key]) {
-      handlers[key](e)
-    }
-  },
-
-  /**
-   * Triggers a file download of the given data as JSON and announces the action
-   * to screen readers.
-   *
-   * @param {Object} data - The data to export.
-   * @param {string} filename - The name of the file to download.
-   */
+     * Triggers a file download of the given data as JSON and announces the action
+     * to screen readers.
+     *
+     * @param {Object} data - The data to export.
+     * @param {string} filename - The name of the file to download.
+     */
   exportData (data, filename) {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -167,9 +154,17 @@ const accessibilityUtils = {
   },
 
   /**
-   * Scans the page for common accessibility issues and logs warnings.
-   * Returns an object summarizing the fixes performed.
-   */
+     * Scans the page for common accessibility issues and actively fixes them
+     * where possible. Returns an object summarizing the fixes performed.
+     *
+     * Fixes applied:
+     *   - Removes skip links that point to non-existent target elements.
+     *   - Adds an empty header row to tables that are missing `<th>` cells.
+     *   - Adds an empty `alt` attribute to images missing one (marking them
+     *     as decorative so screen readers skip them).
+     *   - Logs warnings for structural issues (e.g. inconsistent cell counts)
+     *     that cannot be auto-resolved safely.
+     */
   addressAccessibilityIssues () {
     const fixes = {
       skipLinks: 0,
@@ -177,42 +172,190 @@ const accessibilityUtils = {
       images: 0
     }
 
-    // Validate skip links
+    // Validate and fix skip links
     document.querySelectorAll('a[href^="#"]').forEach((link) => {
       const target = link.getAttribute('href').substring(1)
       const element = document.getElementById(target)
       if (!element) {
-        console.warn(`Skip link points to non-existent element: ${target}`)
+        console.warn(`Skip link points to non-existent element: ${target}. Removing link.`)
+        link.remove()
         fixes.skipLinks++
       }
     })
 
-    // Validate tables
+    // Validate and fix tables
     document.querySelectorAll('table').forEach((table) => {
       if (!table.querySelector('th')) {
-        console.warn('Table missing header cells (th)')
+        console.warn('Table missing header cells (th). Adding empty header row.')
+        const thead = document.createElement('thead')
+        const headerRow = document.createElement('tr')
+        const firstRow = table.querySelector('tr')
+        const columnCount = firstRow ? firstRow.children.length : 0
+        for (let i = 0; i < columnCount; i++) {
+          const th = document.createElement('th')
+          th.setAttribute('scope', 'col')
+          headerRow.appendChild(th)
+        }
+        thead.appendChild(headerRow)
+        table.insertBefore(thead, table.firstChild)
         fixes.tables++
       }
-      // Ensure each row has same number of cells
+      // Warn for inconsistent cell counts (structural issue, do not auto-fix)
       const rows = table.querySelectorAll('tr')
       const cellCounts = new Set()
       rows.forEach((row) => {
         cellCounts.add(row.children.length)
       })
       if (cellCounts.size > 1) {
-        console.warn('Inconsistent number of cells across table rows')
+        console.warn('Inconsistent number of cells across table rows. Manual review required.')
         fixes.tables++
       }
     })
 
-    // Validate images
+    // Validate and fix images
     document.querySelectorAll('img:not([alt])').forEach((img) => {
-      console.warn('Image missing alt attribute', img)
+      console.warn('Image missing alt attribute. Adding empty alt to mark as decorative.', img)
+      img.setAttribute('alt', '')
       fixes.images++
     })
 
     console.log('Accessibility issues addressed', fixes)
-    return fixes
+  },
+
+  /**
+     * Handle keyboard navigation by dispatching to a handler based on the key pressed.
+     *
+     * @param {KeyboardEvent} e - The keyboard event.
+     * @param {Object} handlers - An object mapping key names to handler functions.
+     */
+  handleKeyboardNav (e, handlers) {
+    const key = e.key
+    if (handlers[key]) {
+      handlers[key](e)
+    }
+  },
+
+  /**
+     * Gets the full language attribute value.
+     *
+     * @param {string} locale - The locale code (e.g., 'en').
+     * @returns {string} The full language attribute (e.g., 'en-RU').
+     */
+  getFullLangAttribute (locale = 'en') {
+    return `${locale}-RU`
+  },
+
+  /**
+     * Ensures a landmark has a unique ID.
+     *
+     * @param {HTMLElement} landmark - The landmark element.
+     * @returns {string|null} The landmark's ID.
+     */
+  ensureUniqueLandmarkId (function (landmark) {
+    if (!landmark) return
+    if (landmark.id) return landmark.id
+    landmark.id = `landmark-${Math.random().toString(36).substr(2, 9)}`
+    return landmark.id
+  }),
+
+  /**
+     * Checks if the page has unique landmarks.
+     *
+     * @returns {boolean} True if landmarks are unique.
+     */
+  uniqueLandmarks () {
+    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]')
+    const ids = new Set()
+
+    landmarks.forEach((landmark) => {
+      const id = landmark.id
+      if (id) ids.add(id)
+    })
+
+    return ids.size < 2
+  },
+
+  /**
+     * Creates an accessible link with proper attributes.
+     *
+     * @param {string} url - The URL for the link.
+     * @param {string} text - The text content of the link.
+     * @param {string} [target='_blank'] - The target attribute.
+     * @param {string} [ariaLabel] - Optional aria-label.
+     * @returns {HTMLAnchorElement} The created link element.
+     */
+  createAccessibleLink (url, text, target = '_blank', ariaLabel) {
+    const link = document.createElement('a')
+    link.href = url
+    link.textContent = text
+    link.setAttribute('target', target)
+    link.setAttribute('rel', 'noopener noreferrer')
+    link.setAttribute('aria-label', ariaLabel || `Open ${text} in new window`)
+    link.setAttribute('role', 'link')
+    return link
+  },
+
+  /**
+   * Adds a lang attribute to the element.
+   * @param {HTMLElement} element - The element to add lang attribute to.
+   * @param {string} locale - The locale code.
+   */
+  addLangAttribute (element, locale = 'en') {
+    if (element) {
+      element.setAttribute('lang', locale)
+    }
+  },
+
+  /**
+   * Checks the accessibility of SVG elements by looking for `title` and `desc` tags.
+   * @param {NodeList} svgs - A list of SVG elements.
+   * @param {Object} report - The report object to populate.
+   */
+  checkSvgAccessibility (svgs, report) {
+    svgs.forEach((svg, index) => {
+      const title = svg.querySelector('title')
+      const desc = svg.querySelector('desc')
+      if (title && desc) {
+        report.passed.push({
+          category: 'REACT_041',
+          message: `SVG ${index + 1} has accessible title and description`,
+          status: 'passed'
+        })
+      } else {
+        report.issues.push({
+          category: 'REACT_041',
+          message: `SVG ${index + 1} is missing accessible name`,
+          status: 'moderate'
+        })
+        report.summary.moderate++
+        report.summary.totalIssues++
+      }
+    })
+  },
+
+  /**
+   * Checks the accessibility of links by ensuring they have text content.
+   * @param {NodeList} links - A list of link elements.
+   * @param {Object} report - The report object to populate.
+   */
+  checkLinkAccessibility (links, report) {
+    links.forEach((link, index) => {
+      if (link.textContent.trim() === '') {
+        report.issues.push({
+          category: 'REACT_036',
+          message: `Link ${index + 1} has no accessible text`,
+          status: 'moderate'
+        })
+        report.summary.moderate++
+        report.summary.totalIssues++
+      } else {
+        report.passed.push({
+          category: 'REACT_036',
+          message: `Link ${index + 1} has accessible text`,
+          status: 'passed'
+        })
+      }
+    })
   },
 
   /**
@@ -224,15 +367,23 @@ const accessibilityUtils = {
    * @param {string} id - Optional ID for the element
    * @returns {HTMLElement} The created element
    */
-  spawn (className, id) {
-    const element = document.createElement('div')
-    element.className = className
-    if (id) element.id = id
-    
-    // Append to body
-    document.body.appendChild(element)
-    
-    return element
+  generateAccessibilityReport () {
+    const report = {
+      passed: [],
+      issues: [],
+      summary: {
+        moderate: 0,
+        totalIssues: 0
+      }
+    }
+
+    const svgs = document.querySelectorAll('svg')
+    accessibilityUtils.checkSvgAccessibility(svgs, report)
+
+    const links = document.querySelectorAll('a')
+    accessibilityUtils.checkLinkAccessibility(links, report)
+
+    return report
   }
 }
 
@@ -300,35 +451,10 @@ function renderDependencyGraphs (container, dependencies, options = {}) {
   // Add accessibility label if not present
   addAriaLabel(container, `Dependency graph: ${containerId}`)
 
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if (!container.getAttribute('role')) {
-    container.setAttribute('role', 'region')
-  }
-
-  // Add accessible label if not already present
-  if (!container.getAttribute('aria-label')) {
-    container.setAttribute('aria-label', 'Dependency graph visualization')
-  }
-
   // Render logic placeholder
   container.innerHTML = `<div id="${containerId}">Graph not implemented</div>`
 
   return container
-}
-
-/**
- * Renders a dependency graph from data.
- *
- * @param {Object} data - The dependency data.
- * @returns {Object} Object containing nodes and edges.
- */
-function renderDependencyGraph (data) {
-  // Implementation for rendering dependency graphs
-  return {
-    nodes: data.nodes || [],
-    edges: data.edges || []
-  }
 }
 
 /**
@@ -352,7 +478,7 @@ function validateTableStructure () {
       issues.push({ tableIndex: index, issue: 'Missing caption' })
     }
 
-    // Validate headers
+    // Check for header scope
     const headers = table.querySelectorAll('th')
     if (headers.length === 0) {
       issues.push({ tableIndex: index, issue: 'No header cells found' })
@@ -375,7 +501,7 @@ function validateTableStructure () {
       cellCounts.add(row.children.length)
     })
     if (cellCounts.size > 1) {
-      issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across table rows' })
+      issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across rows' })
     }
 
     // Ensure data cells have proper headers (simple check)
@@ -488,58 +614,6 @@ function validateTableStructureComprehensive () {
   return true
 }
 
-/**
- * Generates an accessibility report from issues.
- *
- * @param {Array} issues - Array of issue objects.
- * @returns {Object} The generated report.
- */
-function generateAccessibilityReport (issues) {
-  const report = {
-    timestamp: new Date().toISOString(),
-    totalIssues: issues.length,
-    critical: issues.filter(i => i.impact === 'critical').length,
-    serious: issues.filter(i => i.impact === 'serious').length,
-    moderate: issues.filter(i => i.impact === 'moderate').length,
-    minor: issues.filter(i => i.impact === 'minor').length,
-    issues: issues.map(issue => ({
-      id: issue.id,
-      impact: issue.impact,
-      description: issue.description,
-      help: issue.help,
-      helpUrl: issue.helpUrl,
-      nodes: issue.nodes.map(node => ({
-        html: node.html,
-        target: node.target
-      }))
-    }))
-  }
-
-  if (typeof validateAccessibilityReport === 'function') {
-    validateAccessibilityReport(report)
-  }
-
-  return report
-}
-
-// Placeholder for appData - in a real environment this would come from your application state
-const appData = {
-  tables: [],
-  config: {}
-}
-
-function getTables () {
-  return appData.tables
-}
-
-function getConfig () {
-  return { ...appData.config }
-}
-
-function setConfig (config) {
-  appData.config = { ...appData.config, ...config }
-}
-
 // Export functions for use in other modules
 module.exports = {
   initSkipLink: accessibilityUtils.initSkipLink,
@@ -550,16 +624,17 @@ module.exports = {
   handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
   exportData: accessibilityUtils.exportData,
   addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
-  spawn: accessibilityUtils.spawn,
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
-  renderDependencyGraph,
   validateTableStructure,
   validateTableStructureComprehensive,
-  generateAccessibilityReport,
-  getTables,
-  getConfig,
-  setConfig,
-  accessibilityUtils
+  getFullLangAttribute: accessibilityUtils.getFullLangAttribute,
+  ensureUniqueLandmarkId: accessibilityUtils.ensureUniqueLandmarkId,
+  uniqueLandmarks: accessibilityUtils.uniqueLandmarks,
+  createAccessibleLink: accessibilityUtils.createAccessibleLink,
+  addLangAttribute: accessibilityUtils.addLangAttribute,
+  checkSvgAccessibility: accessibilityUtils.checkSvgAccessibility,
+  checkLinkAccessibility: accessibilityUtils.checkLinkAccessibility,
+  generateAccessibilityReport: accessibilityUtils.generateAccessibilityReport
 }

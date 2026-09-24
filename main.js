@@ -17,73 +17,29 @@
 // 87:   return report;
 // 88: }
 
-// Accessibility report generator function
-function generateAccessibilityReport(issuesData) {
-  const analyzedIssues = analyzeAccessibility(issuesData);
+// 89: function addAnalysisDataToReport(report, analyzedIssues) {
+// 90:   report.data = analyzedIssues;
+// 91: }
 
-  // Define the structure of the report here
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: {
-      summary: {
-        totalIssues: analyzedIssues.length,
-        criticalIssues: analyzedIssues.filter(issue => issue.severity === 'critical').length,
-        moderateIssues: analyzedIssues.filter(issue => issue.severity === 'moderate').length,
-        minorIssues: analyzedIssues.filter(issue => issue.severity === 'minor').length,
-      },
-      issues: analyzedIssues,
-      wcagCompliance: calculateWCAGCompliance(analyzedIssues),
-    },
-    conclusions: generateConclusions(analyzedIssues),
-  };
+// 92: function summarizeConclusions(report, analyzedIssues) {
+// 93:   // Assuming a method to summarize conclusions based on analyzed issues
+// 94:   report.conclusions = 'Summary of the conclusions based on the analyzed issues';
+// 95: }
 
-  // Return the final report
-  return report;
-}
-
-// Calculate WCAG compliance level based on issues
-function calculateWCAGCompliance(issues) {
-  const criticalCount = issues.filter(issue => issue.severity === 'critical').length;
-  const moderateCount = issues.filter(issue => issue.severity === 'moderate').length;
-  
-  if (criticalCount > 0) {
-    return 'Non-compliant (WCAG Level A failed)';
-  } else if (moderateCount > 0) {
-    return 'Partial compliance (WCAG Level AA at risk)';
-  }
-  return 'Compliant (WCAG Level AA)';
-}
-
-// Generate conclusions based on analyzed issues
-function generateConclusions(issues) {
-  const criticalIssues = issues.filter(issue => issue.severity === 'critical');
-  const moderateIssues = issues.filter(issue => issue.severity === 'moderate');
-  const minorIssues = issues.filter(issue => issue.severity === 'minor');
-
-  let conclusions = [];
-
-  if (criticalIssues.length > 0) {
-    conclusions.push(`Critical: ${criticalIssues.length} accessibility issue(s) must be addressed immediately.`);
-  }
-
-  if (moderateIssues.length > 0) {
-    conclusions.push(`Moderate: ${moderateIssues.length} accessibility issue(s) should be addressed to meet WCAG AA standards.`);
-  }
-
-  if (minorIssues.length > 0) {
-    conclusions.push(`Minor: ${minorIssues.length} accessibility issue(s) are recommended for improvement.`);
-  }
-
-  if (issues.length === 0) {
-    conclusions.push('No accessibility issues detected. The application meets accessibility standards.');
-  }
-
-  return conclusions.join(' ');
-}
-
-// Export the main report generation function
-module.exports = {
-  generateAccessibilityReport,
-  calculateWCAGCompliance,
-  generateConclusions,
-};
+// 96: function generateAccessibilityReport(issuesData) {
+// 97:   const analyzedIssues = analyzeAccessibility(issuesData); // presume this function is already defined
+// 98:
+// 99:   // Define the structure of the report here
+// 100:  const report = {
+// 101:     introduction: 'Accessibility report for the application',
+// 102:     data: {},
+// 103:     conclusions: '',
+// 104:   };
+// 105:
+// 106:   // Fill the report's data and conclusions
+// 107:   addAnalysisDataToReport(report, analyzedIssues);
+// 108:   summarizeConclusions(report, analyzedIssues);
+// 109:
+// 110:   // Return the final report
+// 111:   return report;
+// 112: }

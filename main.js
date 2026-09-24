@@ -1,26 +1,11 @@
-Here’s a clean, conflict‑free `main.js` that you can drop into the repo.  
-It keeps the original logic (config, state, utilities, and the new
-`validateTableAccessibility` helper) and stitches everything together.
-
-```js
 'use strict';
 
-/**
- * main.js – Screeps entry point and shared helpers.
- *
- * Combines configuration, runtime state, utility helpers and
- * accessibility/UI support.
- *
- * Exported API:
- *   - config
- *   - appState
- *   - utils
- *   - validateTableAccessibility
- */
-
-/* ----------------------------------------------------------- */
-/* 1️⃣  Configuration helpers                                 */
-/* ----------------------------------------------------------- */
+/*=========================================
+  main.js – Screeps entry point
+  ------------------------------------------
+  Combines configuration, runtime state,
+  utility helpers, and accessibility checks.
+  ==========================================*/
 const config = {
   port:      process.env.PORT      || 3000,
   env:       process.env.NODE_ENV  || 'development',
@@ -49,60 +34,51 @@ const appState = {
 /* --------------------------------------------------------------------- */
 /* 3️⃣  Common utilities                                                   */
 /* --------------------------------------------------------------------- */
+const hello = () => 'Hello from main.js';
+const getVersion = () => config.version;
+const getConfig = () => ({ ...config });
+
+const isNumber = (value) =>
+  typeof value === 'number' && !Number.isNaN(value);
+
+const clamp = (value, min, max) =>
+  Math.min(Math.max(value, min), max);
+
+const calculateDifference = (a, b) => a - b;
+const calculateProduct = (a, b) => a * b;
+
 const utils = Object.freeze({
-  hello: () => 'Hello from main.js',
-
-  /* config helpers */
-  getVersion: ()      => config.version,
-  getConfig: ()       => ({ ...config }),
-
-  /* math helpers */
-  calculateDifference: (a, b) => a - b,
-  calculateProduct:    (a, b) => a * b,
+  hello,
+  getVersion,
+  getConfig,
+  calculateDifference,
+  calculateProduct,
 });
 
 /* --------------------------------------------------------------------- */
-/* 4️⃣  Accessibility helper (new implementation)                         */
+/* 4️⃣  Accessibility helpers                                           */
 /* --------------------------------------------------------------------- */
+const getLangAttribute = () => 'en';
+const getFullLangAttribute = () => 'en-US';
+
+const addLangAttribute = (element) => {
+  if (element && typeof element === 'object' && 'lang' in element) {
+    element.lang = getFullLangAttribute();
+  }
+  return element;
+};
+
 const validateTableAccessibility = (table) => {
-  // Basic validation: ensure the table is non‑null, Node & header rows exist,
-  // and each cell has appropriate text content.
-  if (!table || table.nodeType !== 1) return false;
+  const issues = [];
 
-  const rows = table.querySelectorAll('tr');
-  if (!rows.length) return false;
-
-  for (const row of rows) {
-    const cells = row.querySelectorAll('th, td');
-    if (!cells.length) return false;
-
-    for (const cell of cells) {
-      if (typeof cell.textContent !== 'string') return false;
-    }
+  if (!table) {
+    issues.push('Table is null or undefined');
+    return { success: false, issues };
   }
 
-  return true;
-};
+  if (!(table instanceof HTMLTableElement)) {
+    issues.push('Not an HTMLTableElement');
+    return { success: false, issues };
+  }
 
-/* --------------------------------------------------------------------- */
-/* 5️⃣  Exported API                                                        */
-/* --------------------------------------------------------------------- */
-module.exports = {
-  config,
-  appState,
-  utils,
-  validateTableAccessibility,
-};
-```
-
-### What changed?
-
-| Section | What moved | Why |
-|---------|-----------|-----|
-| **Configuration** | `config` | Consolidated into a single, clean object. |
-| **Runtime state** | `appState` | Kept unchanged from HEAD. |
-| **Utilities** | `utils` | Now combines the `hello`, `getConfig`, `getVersion`, `calculateDifference` and `calculateProduct` helpers into one frozen object. |
-| **Accessibility** | `validateTableAccessibility` | Added the new helper (implementation may be tweaked to fit your exact needs). |
-| **Export** | Module exports | Included all items for external consumption. |
-
-Drop this file in place of the conflicted one, run your tests, and you’ll have a working, merge‑clean `main.js`. Happy coding!
+  if (!table.querySelector

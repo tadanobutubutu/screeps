@@ -184,20 +184,17 @@ function startApp() {
   return server;
 }
 
-// Export functions for testing and the new function for testing
+// New function as per the issue
+function updateConfig(newConfig) {
+  Object.assign(config, newConfig);
+}
+
+// Export functions for testing
 module.exports = {
   createServer,
   startApp,
   config,
-  // Add the new function to be tested
-  handleRequest: function(req) {
-    return new Promise(resolve => {
-      const server = createServer();
-      server.request(req, (res) => {
-        resolve(res);
-      });
-    });
-  }
+  updateConfig
 };
 
 // Start the application if run directly

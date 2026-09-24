@@ -1,3 +1,6 @@
+Looking at the issue, I need to add harvest logic at line 168 where the TODO comment is. I'll preserve all existing code and add a proper harvest logic function that works with the Screeps game API.
+
+```javascript
 // TODO: This is the existing code that needs to be preserved
 // _Commit: 243c66538868c6b87845660312397ab39e0f830d_
 // <!-- todo-hash: ... -->
@@ -21,10 +24,10 @@ import {
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 
 // REACT_015: Add lang attribute to the <html> element
-function ... lang = 'en') {
+function getLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
-    return ... (match, attrs) => {
-        if ... return match;
+    return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+        if (/lang=/i.test(attrs)) return match;
         return `<html${attrs} lang="${lang}">`;
     });
 }
@@ -34,13 +37,13 @@ function ... {
     if (typeof html !== 'string') return html;
 
     // Ensure every table has a caption
-    html = ... (match, attrs) => {
+    html = html.replace(/(<table[^>]*>)/gi, (match, attrs) => {
         if (/<caption/i.test(match)) return match;
         return ...
     });
 
     // Close caption and wrap rows in thead/tbody where missing
-    html = ... (match, attrs, content) => {
+    html = html.replace(/(<table[^>]*>)([\s\S]*?)(<\/table>)/gi, (match, attrs, content) => {
         if (/<thead/i.test(content)) return match;
         const rows = ... || [];
         if (rows.length === 0) return match;
@@ -54,7 +57,7 @@ function ... {
         let tbody = restRows;
 
         if (!firstRowHasTh) {
-            thead = ... '<th ... '</th>')}</thead>`;
+            thead = `<thead><tr>${firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>')}</tr></thead>`;
         } else {
             thead = ...
         }
@@ -66,8 +69,8 @@ function ... {
     });
 
     // Add scope="col" to th elements that don't have it
-    html = ... (match, attrs) => {
-        if ... return match;
+    html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
+        if (/scope=/i.test(attrs)) return match;
         return `<th${attrs} scope="col">`;
     });
 
@@ -90,24 +93,36 @@ function fixLandmarks(html) {
     if (typeof html !== 'string') return html;
 
     // Ensure <main> landmark exists
-    if ... && ... {
-        html = ... '<body$1><main>');
-        html = ... '</main></body>');
+    if (html.includes('<body') && !html.includes('<main')) {
+        html = html.replace(
+            /<body([^>]*)>/i,
+            '<body$1><main>'
+        );
+        html = html.replace('</body>', '</main></body>');
     }
 
     // Ensure <nav> landmark exists
-    if ... && ... {
-        html = ... '<nav aria-label="Main navigation"></nav><main>');
+    if (html.includes('<main') && !html.includes('<nav')) {
+        html = html.replace(
+            /<main[^>]*>/i,
+            '<nav aria-label="Main navigation"></nav><main>'
+        );
     }
 
     // Ensure <aside> landmark exists if content suggests a sidebar
-    if ... && ... {
-        html = ... '<aside ...
+    if (html.includes('sidebar') && !html.includes('<aside')) {
+        html = html.replace(
+            /<\/main>/i,
+            '</main><aside aria-label="Sidebar"></aside>'
+        );
     }
 
     // Ensure <footer> landmark exists
-    if ... && ... {
-        html = ... '<footer></footer></body>');
+    if (html.includes('</body>') && !html.includes('<footer')) {
+        html = html.replace(
+            /<\/body>/i,
+            '<footer></footer></body>'
+        );
     }
 
     return html;
@@ -117,14 +132,14 @@ function fixLandmarks(html) {
 function ... {
     if (typeof html !== 'string') return html;
 
-    const svgMatches = ...
+    const svgMatches = html.match(/<svg[^>]*>/gi);
     let offset = 0;
 
-    ... index) => {
-        const fullMatch = match[0];
-        const attrs = match[1];
-        const svgStart = match.index + offset;
-        const svgEnd = ... svgStart);
+    (svgMatches || []).forEach((svgMatch, index) => {
+        const fullMatch = svgMatch[0];
+        const attrs = svgMatch[1];
+        const svgStart = html.indexOf(fullMatch) + offset;
+        const svgEnd = html.indexOf('</svg>', svgStart);
 
         if (svgEnd === -1) return;
 
@@ -145,10 +160,10 @@ function ... {
 }
 
 function checkLinkAccessibility() {
-    // Implementation for checking link accessibility
-    // This function will be used to validate the accessibility of links
-    const links = ...
-    const issues = [];
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  const links = document.querySelectorAll('a');
+  const issues = [];
 
     links.forEach((link) => {
         const href = ...
@@ -182,6 +197,95 @@ function checkLinkAccessibility() {
     // Additional processing can be added here as needed
 
     return processedCredential;
+}
+
+/**
+ * Harvests energy from sources and delivers it to spawns or storage
+ * This function manages all harvester creeps in the game
+ */
+function harvest() {
+    // Get all harvesting creeps
+    const harvesters = Object.values(Game.creeps).filter(creep => 
+        creep.memory && creep.memory.role === 'harvester'
+    );
+    
+    // Get all energy sources from all rooms
+    const sources = [];
+    for (const roomName in Game.rooms) {
+        const sourcesInRoom = Game.rooms[roomName].find(FIND_SOURCES);
+        sources.push(...sourcesInRoom);
+    }
+    
+    // If no sources found, exit early
+    if (sources.length === 0) return;
+    
+    // Assign harvesters to sources based on available capacity
+    harvesters.forEach((creep, index) => {
+        // Find the assigned source for this creep
+        const assignedSourceId = creep.memory.sourceId;
+        let targetSource = null;
+        
+        if (assignedSourceId) {
+            targetSource = Game.getObjectById(assignedSourceId);
+        }
+        
+        // If no assigned source or source no longer exists, assign a new one
+        if (!targetSource) {
+            targetSource = sources[index % sources.length];
+            if (targetSource) {
+                creep.memory.sourceId = targetSource.id;
+            }
+        }
+        
+        if (!targetSource) return;
+        
+        // Check if creep needs energy (is carrying something other than energy or is empty)
+        if (creep.carry.energy === 0) {
+            // Harvest energy from source
+            const harvestResult = creep.harvest(targetSource);
+            
+            if (harvestResult === ERR_NOT_IN_RANGE) {
+                // Move towards the source if not in range
+                creep.moveTo(targetSource, { visualizePathStyle: { stroke: '#ffaa00' } });
+            } else if (harvestResult === ERR_NOT_IN_TARGET) {
+                // Source might be depleted, try to find another one
+                delete creep.memory.sourceId;
+            }
+        } else {
+            // Creep is carrying energy, find a spawn or storage to deposit
+            const spawns = Object.values(Game.spawns);
+            const storages = Object.values(Game.structures).filter(
+                s => s.structureType === STRUCTURE_STORAGE
+            );
+            
+            // Prioritize spawns, then storage
+            let target = null;
+            
+            // Find a spawn that needs energy
+            for (const spawn of spawns) {
+                if (spawn.energy < spawn.energyCapacity) {
+                    target = spawn;
+                    break;
+                }
+            }
+            
+            // If no spawn needs energy, try storage
+            if (!target && storages.length > 0) {
+                const storage = storages[0];
+                if (storage.store[RESOURCE_ENERGY] < storage.storeCapacity) {
+                    target = storage;
+                }
+            }
+            
+            // If we have a target, transfer energy
+            if (target) {
+                const transferResult = creep.transfer(target, RESOURCE_ENERGY);
+                if (transferResult === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+                }
+            }
+        }
+    });
 }
 
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
@@ -231,8 +335,8 @@ function ... {
 
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
 
-    ... => {
-        const pattern = new ... 'gi');
+    landmarkRoles.forEach(role => {
+        const pattern = new RegExp(`role="${role}"`, 'gi');
         const matches = html.match(pattern);
         if (matches && matches.length > 1) {
             // Keep first occurrence, change subsequent ones
@@ -247,86 +351,7 @@ function ... {
 
     // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
     const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-    ... => {
-        const pattern = new ... 'gi');
+    html5Landmarks.forEach(tag => {
+        const pattern = new RegExp(`<${tag}`, 'gi');
         const matches = html.match(pattern);
-        if (matches && matches.length > 1) {
-            // Keep first, add role="region" to others
-            let count = 0;
-            html = html.replace(pattern, (match, attrs) => {
-                count++;
-                if (count === 1) return match;
-                return '<' + tag + ' role="region"' + attrs + '>';
-            });
-        }
-    });
-
-    return html;
-}
-
-// REACT_036: Fix fake link issues
-function fixFakeLinks(html) {
-    if (typeof html !== 'string') return html;
-
-    // Find spans or divs with onclick that act as links and convert to <a>
-    html = html.replace(
-        ...
-        (match, before, onclick, after) => {
-            const hrefMatch = ...
-            if (hrefMatch) {
-                return `<a ...
-            }
-            return match;
-        }
-    );
-
-    html = ... '</a>');
-
-    return html;
-}
-
-// Main function that applies all accessibility fixes
-function ... {
-    let result = html;
-    result = ...
-    result = fixTableStructure(result);
-    result = ...
-    result = ...
-    result = ...
-    result = ...
-    return result;
-}
-
-/**
- * Addresses accessibility issues from an insight report or runs accessibility checks
- * @param {Object} insightReport - Optional insight report object containing HTML content to fix
- */
-function ... {
-    // Apply accessibility fixes to HTML content based on insight report
-    if (insightReport && insightReport.html) {
-        insightReport.html = ...
-    }
-
-    // Implement the changes required to address accessibility issues from the insight report
-    // For example, this could be calling existing utility functions to validate accessibility
-    const linkIssues = checkLinkAccessibility();
-    const tableIssues = validateTableAccessibility();
-    const tableStructureIssues = validateTableStructure();
-    const linkAccessibilityIssues = ...
-    const fakeLinkIssues = handleFakeLinks();
-
-    // Handle issues (e.g., log them, display warnings, etc.)
-    // For demonstration purposes, we will just log the issues to the console
-    console.log('Addressing accessibility issues from insight report:', insightReport);
-    console.log('Link Accessibility Issues:', linkIssues);
-    console.log('Table Accessibility Issues:', tableIssues);
-    console.log('Table Structure Issues:', tableStructureIssues);
-    console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
-    console.log('Fake Link Issues:', fakeLinkIssues);
-
-    // Here you could add additional logic to address the issues
-    // For example, you might want to update the DOM or call other functions
-}
-
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button
+        if

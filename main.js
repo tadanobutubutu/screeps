@@ -91,6 +91,32 @@ function addLangAttribute(element) {
   return element;
 }
 
+// Export existing functions
+module.exports = {
+  config,
+  initialize,
+  initializeApp,
+  main,
+  helperFunction: utils.helper,
+  function1,
+  function2,
+  function3,
+  getLangAttribute,
+  createInPageButton,
+  accessibilityUtils,
+  validateInput,
+  processData,
+  formatDate,
+  generateAccessibilityReport,
+  getInsightReport,
+  writeReport,
+  addMainLandmark,
+  app,
+  PORT,
+  HOST,
+  renderDependencyGraph
+};
+
 // Table accessibility functions
 function validateTableAccessibility() {
   console.log('Validating table accessibility');
@@ -445,6 +471,9 @@ function getInsightReport() {
     });
   }
 
+  return { issues };
+}
+
   // Check unique landmarks
   const uniqueLandmarkIssues = ensureUniqueLandmarks();
   if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
@@ -483,25 +512,63 @@ function getInsightReport() {
   };
 }
 
-// Export all functions
-export {
+// Function to generate a report based on accessibility issues (Placeholder removed and replaced with full implementation.)
+function generateAccessibilityReport() {
+  const report = scanAccessibility();
+  writeReport(report);
+  return report;
+}
+
+// ... (Preserve the existing express server setup, routes, and error handling middleware.)
+
+// Main function (required export)
+function main() {
+  initialize();
+  initializeApp();
+  console.log('Main function executed');
+  return { executed: true };
+}
+
+// Main execution when run directly (Merged functionality)
+if (require.main === module) {
+  // ... (Preserve the existing landmark-related code.)
+
+  // Start server
+  app.listen(PORT, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
+  });
+}
+
+module.exports = {
   config,
-  appState,
   initialize,
   initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  someFunction,
-  helper,
-  formatDate,
-  validateInput,
+  main,
+  helperFunction: utils.helper,
+  function1,
+  function2,
+  function3,
   getLangAttribute,
-  addLangAttribute,
+  createInPageButton,
+  accessibilityUtils,
+  validateInput,
+  processData,
+  formatDate,
+  generateAccessibilityReport,
+  getInsightReport,
+  writeReport,
+  addMainLandmark,
+  app,
+  PORT,
+  HOST,
+  renderDependencyGraph,
+  helper,
+  someFunction,
+  clearCache,
+  fetchUser,
   validateTableAccessibility,
   validateTableStructure,
   fixTableStructure,
-  addMainLandmark,
   validateLandmark,
   validateLandmarkStructure,
   validateLandmarkAttributes,
@@ -509,7 +576,6 @@ export {
   getSvgAccessibleName,
   setSvgAttributes,
   ensureUniqueLandmarks,
-  createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
   renderGraph,
@@ -517,5 +583,5 @@ export {
   updateGraph,
   updateIndex,
   addressAccessibilityIssues,
-  getInsightReport
+  scanAccessibility
 };

@@ -319,12 +319,28 @@ function applyAccessibilityFixes(html) {
     return result;
 }
 
+// Address accessibility issues - handles both insight report and standalone usage
 function addressAccessibilityIssues(insightReport) {
-    // Apply accessibility fixes to HTML content based on insight report
-    if (insightReport && insightReport.html) {
-        insightReport.html = applyAccessibilityFixes(insightReport.html);
-    }
+  // Handle case when called with insightReport parameter
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
     console.log('Addressing accessibility issues from insight report:', insightReport);
+    return;
+  }
+  
+  // Original standalone functionality
+  const linkIssues = checkLinkAccessibility();
+  const tableIssues = validateTableAccessibility();
+  const tableStructureIssues = validateTableStructure();
+  const linkAccessibilityIssues = validateLinkAccessibility();
+  const fakeLinkIssues = handleFakeLinks();
+
+  // Handle issues (e.g., log them, display warnings, etc.)
+  console.log('Link Accessibility Issues:', linkIssues);
+  console.log('Table Accessibility Issues:', tableIssues);
+  console.log('Table Structure Issues:', tableStructureIssues);
+  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
+  console.log('Fake Link Issues:', fakeLinkIssues);
 }
 
 function createInPageButton(buttonId, buttonText, buttonClass) {
@@ -334,8 +350,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.className = buttonClass;
     document.body.appendChild(button);
 }
-
-// Don't forget to test your new additions in the test file
 
 // Export accessibility utility functions
 module.exports = {

@@ -1420,6 +1420,9 @@ function fixFakeLink(element) {
   return element;
 }
 
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
+
 module.exports = {
   accessibilityUtils,
   exportUtils,
@@ -1433,7 +1436,7 @@ module.exports = {
   spawnProcess,
   focusTrap,
   newFocusTrap,
-  addAccessibleNameToSVG,
-  ensureUniqueLandmark,
-  fixFakeLink
+  sanitizeFilename,
+  readFileSafe,
+  log
 };

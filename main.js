@@ -22,27 +22,7 @@ const {
 
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
-const {
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  setSvgAccessibilityProps,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  fixLandmarkIssues,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixImageAltTexts,
-  googleSignIn,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  addressAccessibilityIssues
-} = require('./utilities');
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn } = require('./utilities');
 
     // Functions from the 'HEAD' branch
     newFocusTrap: focusTrap,

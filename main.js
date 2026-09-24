@@ -1,236 +1,97 @@
-// Dependency imports
-const { dependencyGraphContent } = require('./dependency-graph');
-const { indexContent } = require('./index-template');
-
-// TODO: Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-
-// Import necessary dependencies
-import React from 'react';
-import { render } from 'react-dom';
-import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs } from './AccessibilityHelpers';
-
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph');
-
-    if (focusableElements.length === 0) return;
-
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
-        }
-      }
-    });
-
-    firstElement.focus();
-  },
-
-  /**
-   * A newer focus trap implementation.
-   * Identical to `trapFocus` for consistency.
-   *
-   * @param {HTMLElement} element - The container element.
-   */
-  newFocusTrap(element) {
+const main = {
+  ...main,
+  ...accessibilityUtils,
+  ensureElementId: ensureElementIdUtil,
+  ensureElementHasId: function(element) {
     if (!element) return;
-
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (focusableElements.length === 0) return;
-
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
-        }
+    if (element.id) return element.id;
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return element.id;
+  },
+  newFocusTrap: newFocusTrap,
+  log: function(message, level = 'info') {
+    const timestamp = new Date().toISOString();
+    console.log(`[${level.toUpperCase()}] ${timestamp}: ${message}`);
+  },
+  sanitizeFilename: function(filename) {
+    return filename.replace(/[^a-z0-9_.-]/gi, '_');
+  },
+  readFileSafe: function(filePath) {
+    try {
+      return fs.readFileSync(filePath, 'utf8');
+    } catch (error) {
+      console.error(`Error reading file ${filePath}: ${error.message}`);
+      return null;
+    }
+  },
+  processData: function(items) {
+    if (!Array.isArray(items)) return [];
+    return items.map((item) => ({ ...item, processed: true, timestamp: Date.now() }));
+  },
+  filterValidItems: function(items, validator) {
+    return items.filter((item) => {
+      try {
+        return validator(item);
+      } catch (e) {
+        return false;
       }
     });
-
-    firstElement.focus();
   },
+  initAccessibility: function() {
+    accessibilityUtils.initSkipLink();
 
-  /**
-   * Enhances keyboard accessibility for interactive elements and elements with
-   * the `data-accessible` attribute. Adds a `tabindex="0"` and handles Enter/Space
-   * to trigger clicks.
-   */
-  initAccessibility() {
-    // Add keyboard support for all interactive elements and data-accessible elements
-    document.querySelectorAll('button, a, [role="button"], [data-accessible]').forEach((element) => {
-      element.setAttribute('tabindex', '0');
+    document.querySelectorAll('[data-accessible]').forEach((element) => {
       element.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (['Enter', ' '].includes(e.key)) {
           e.preventDefault();
           element.click();
         }
       });
     });
   },
-
-  /**
-   * Triggers a file download of the given data as JSON and announces the action
-   * to screen readers.
-   *
-   * @param {Object} data - The data to export.
-   * @param {string} filename - The name of the file to download.
-   */
-  exportData(data, filename) {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename || 'export.json';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      this.announceToScreenReader(`Download of ${filename} started`);
-    }, 100);
-  },
-
-  /**
-   * Scans the page for common accessibility issues and logs warnings.
-   * Returns an object summarizing the fixes performed.
-   */
-  addressAccessibilityIssues() {
-    const fixes = {
-      skipLinks: 0,
-      tables: 0,
-      images: 0,
-    };
-
-    // Validate skip links
-    document.querySelectorAll('a[href^="#"]').forEach((link) => {
-      const target = link.getAttribute('href').substring(1);
-      const element = document.getElementById(target);
-      if (!element) {
-        console.warn(`Skip link points to non-existent element: ${target}`);
-        fixes.skipLinks++;
+  groupByCategory: function(items, getCategory) {
+    return items.reduce((groups, item) => {
+      const category = getCategory(item);
+      if (!groups[category]) {
+        groups[category] = [];
       }
-    });
-
-    // Validate tables
-    document.querySelectorAll('table').forEach((table) => {
-      if (!table.querySelector('th')) {
-        console.warn('Table missing header cells (th)');
-        fixes.tables++;
-      }
-      // Ensure each row has same number of cells
-      const rows = table.querySelectorAll('tr');
-      const cellCounts = new Set();
-      rows.forEach((row) => {
-        cellCounts.add(row.children.length);
-      });
-      if (cellCounts.size > 1) {
-        console.warn('Inconsistent number of cells across table rows');
-        fixes.tables++;
-      }
-    });
-
-    // Validate images
-    document.querySelectorAll('img:not([alt])').forEach((img) => {
-      console.warn('Image missing alt attribute', img);
-      fixes.images++;
-    });
-
-    console.log('Accessibility issues addressed', fixes);
+      groups[category].push(item);
+      return groups;
+    }, {});
   },
-
-  /**
-   * Announces a message to screen readers using an aria‑live region.
-   *
-   * @param {string} message - The message to announce.
-   */
-  announceToScreenReader(message) {
-    const announcement = document.createElement('div');
-    announcement.setAttribute('aria-live', 'assertive');
-    announcement.setAttribute('aria-atomic', 'true');
-    announcement.className = 'sr-only';
-    announcement.textContent = message;
-    document.body.appendChild(announcement);
-    setTimeout(() => {
-      document.body.removeChild(announcement);
-    }, 1000);
-  },
-};
-
-/**
- * Ensures the element has a unique ID.
- * If the element already has an id, it is returned; otherwise a new id is generated.
- *
- * @param {HTMLElement} element - The element to identify.
- * @param {string} [prefix='element'] - Prefix for the generated ID.
- * @returns {string} The element's id.
- */
-const ensureElementHasId = (element, prefix = 'element') => {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-
-  if (element.id) {
+  transformInputData: transformInputData,
+  validateTableAccessibility: validateTableAccessibility,
+  ensureElementHasIdOrigin: function(element, origin = 'default') {
+    if (!element) return;
+    if (element.id) return element.id;
+    element.id = `${origin}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     return element.id;
-  }
+  },
+  displayModuleStructure: displayModuleStructure,
+  generateDependencyGraph: generateDependencyGraph,
+  // New accessibility functions
+  getLangAttribute: getLangAttribute,
+  personName: personName,
+  validateTableStructure: validateTableStructure,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  getSvgAccessibleName: getSvgAccessibleName,
+  createInPageButton: createInPageButton,
+  createWebResourceButton: createWebResourceButton,
+  newFocusTrap: accessibilityUtils.newFocusTrap,
+  newAccessibilityCheck,
+  ensureUniqueLandmarks: function() {
+    // Implement a function to check for unique landmarks
+    // This function should return true if all landmarks have unique ids
+    const landmarks = document.querySelectorAll('[role=banner], [role=navigation]');
+    const ids = new Set();
 
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
-};
+    landmarks.forEach((landmark) => {
+      const id = landmark.id;
+      if (id) ids.add(id);
+    });
 
-  // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-  }
-  if (!label) {
-    throw new Error('Label is required');
-  }
-
-  element.setAttribute('aria-label', label);
-  return element;
-};
-
-/**
- * Extracts the accessible name for an SVG from its content.
- * Checks for aria-label, aria-labelledby, and title elements in order of priority.
- *
- * @param {SVGElement} svg - The SVG element to analyze.
- * @returns {string|null} The accessible name if found, otherwise null.
- */
-const getSvgAccessibleName = (svg) => {
-  if (!svg || !(svg instanceof SVGElement)) {
-    throw new Error('A valid SVG element is required');
-  }
-
-  // Check aria-label attribute
-  const ariaLabel = svg.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-
-  // Check aria-labelledby attribute
-  const labelledById = svg.getAttribute('aria-labelledby');
-  if (labelledById) {
-    const labelledByElement = document.getElementById(labelledById);
-    if (labelledByElement) {
-      return labelledByElement.textContent.trim();
-    }
+    return ids.size === landmarks.length;
   }
 
   // Check for title element
@@ -407,18 +268,94 @@ function enhanceNavigationAccessibility(nav) {
 
 // Export functions for use in other modules
 module.exports = {
-  initSkipLink: accessibilityUtils.initSkipLink,
-  trapFocus: accessibilityUtils.trapFocus,
-  newFocusTrap: accessibilityUtils.newFocusTrap,
-  initAccessibility: accessibilityUtils.initAccessibility,
-  exportData: accessibilityUtils.exportData,
-  addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
-  announceToScreenReader: accessibilityUtils.announceToScreenReader,
-  ensureElementHasId,
-  addAriaLabel,
-  getSvgAccessibleName,
-  renderDependencyGraphs,
+  ...main,
+  ...accessibilityUtils
+};
+
+// Check SVG accessibility
+const svgs = document.querySelectorAll('svg');
+svgs.forEach((svg, index) => {
+  const title = svg.querySelector('title');
+  const desc = svg.querySelector('desc');
+  if (title && desc) {
+    // Ensure that both title and desc are present
+  } else {
+    // Log an error if either title or desc is missing
+  }
+});
+
+// Fix button identifiers with updated function
+function fixButtonIdentifiers(buttons) {
+  if (!Array.isArray(buttons)) return [];
+  return buttons.map((button) => {
+    if (!(button instanceof HTMLElement)) return button;
+    if (!button.id && button.textContent) {
+      const id = `btn-${button.textContent.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
+      button.id = id;
+    }
+    return button;
+  });
+}
+
+// Implement a function to address new accessibility issues
+function handleNewAccessibilityIssues(issues) {
+  // Implementation to address new accessibility issues in the report
+  // This function should validate the report and fix issues as needed
+}
+
+// Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role=banner], [role=navigation]');
+  const ids = new Set();
+
+  landmarks.forEach((landmark) => {
+    const id = landmark.id;
+    if (id) ids.add(id);
+  });
+
+  return ids.size < 2;
+}
+
+// Accessibility toolbox utilities
+const { validateTableStructure, addAriaLabel } = accessibilityUtils;
+
+// Utilities to help address new accessibility issues
+function fixLinkAccessibility(link) {
+  if (!link || !link.textContent.trim()) return link;
+  link.setAttribute('aria-label', `Link ${link.href}`);
+  return link;
+}
+
+function createLandmark(options) {
+  const defaultOptions = {
+    role: 'banner',
+    label: null,
+    id: null,
+    container: document.body
+  };
+
+  const optionsWithDefaults = { ...defaultOptions, ...options };
+  const landmark = document.createElement('div');
+  landmark.setAttribute('role', optionsWithDefaults.role);
+  if (optionsWithDefaults.label) landmark.setAttribute('aria-label', optionsWithDefaults.label);
+  if (optionsWithDefaults.id) landmark.id = ensureUniqueLandmarkId(optionsWithDefaults.id);
+  if (optionsWithDefaults.container) optionsWithDefaults.container.appendChild(landmark);
+  return landmark;
+}
+
+function addMainLandmark() {
+  const main = createLandmark({ role: 'main' });
+  fixButtonIdentifiers([main]);
+  return main;
+}
+
+module.exports = {
+  fixButtonIdentifiers,
+  handleNewAccessibilityIssues,
+  ensureUniqueLandmarks,
+  fixLinkAccessibility,
+  createLandmark,
+  addMainLandmark,
   validateTableStructure,
-  enhanceFormAccessibility,
-  enhanceNavigationAccessibility
+  addAriaLabel
 };

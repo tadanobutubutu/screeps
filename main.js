@@ -109,10 +109,10 @@ function validateTableAccessibility(tableElement) {
   const hasHeaders = ...
   
   if (!hasCaption) {
-    ... Table is missing a caption');
+    issues.push('Table is missing a caption');
   }
   if (!hasHeaders) {
-    ... Table is missing header cells (th)');
+    issues.push('Table is missing header cells (th)');
   }
   
   return issues;
@@ -126,7 +126,7 @@ function validateTableStructure(tableElement) {
   rows.forEach((row, rowIndex) => {
     const cells = ... th');
     if (cells.length === 0) {
-      ... Row ${rowIndex} has no cells`);
+      issues.push(`Row ${rowIndex} has no cells`);
     }
   });
   
@@ -141,7 +141,7 @@ function validateLandmark() {
   landmarks.forEach(landmark => {
     const elements = ...
     if (elements.length > 1 && landmark !== 'nav' && landmark !== 'aside') {
-      ... Multiple ${landmark} landmarks found`);
+      issues.push(`Multiple ${landmark} landmarks found`);
     }
   });
   
@@ -156,13 +156,13 @@ function validateLandmarkStructure() {
   const footerElement = ...
   
   if (!mainElement) {
-    ... Missing main landmark');
+    issues.push('Missing main landmark');
   }
   if (!headerElement) {
-    ... Missing header landmark');
+    issues.push('Missing header landmark');
   }
   if (!footerElement) {
-    ... Missing footer landmark');
+    issues.push('Missing footer landmark');
   }
   
   return issues;
@@ -190,11 +190,11 @@ function ... {
 
 // REACT_041: Set SVG attributes for accessibility
 function setSvgAttributes(svgElement, accessibleName) {
-  if ... && ... {
-    ... accessibleName);
+  if (accessibleName && !svgElement.getAttribute('aria-labelledby')) {
+    svgElement.setAttribute('aria-labelledby', accessibleName);
   }
-  if ... {
-    ... 'img');
+  if (!accessibleName) {
+    svgElement.setAttribute('role', 'img');
   }
 }
 
@@ -206,7 +206,7 @@ function ensureUniqueLandmarks() {
   ... => {
     const landmarks = ...
     if (landmarks.length > 1) {
-      ... Multiple ${type} landmarks found - should be unique`);
+      issues.push(`Multiple ${type} landmarks found - should be unique`);
     }
   });
   
@@ -219,7 +219,7 @@ function ... {
   const mainContent = ... || ...
   
   if (!mainContent) {
-    ... Missing main landmark region');
+    issues.push('Missing main landmark region');
   }
   
   return issues;
@@ -233,15 +233,15 @@ function ... {
   const ariaLabel = ...
   
   if (!href || href === '#' || href === '') {
-    ... Link has no valid href attribute');
+    issues.push('Link has no valid href attribute');
   }
   
   if (!text && !ariaLabel) {
-    ... Link has no accessible name');
+    issues.push('Link has no accessible name');
   }
   
   if (linkElement.getAttribute('role') === 'link' && !href) {
-    ... Fake link detected without href');
+    issues.push('Fake link detected without href');
   }
   
   return issues;
@@ -250,17 +250,17 @@ function ... {
 // REACT_036: Handle fake links
 function handleFakeLinks() {
   const issues = [];
-  const fakeLinks = ...
+  const fakeLinks = document.querySelectorAll('[role="link"]');
   
   ... index) => {
     const href = ...
     if (!href) {
-      ... Fake link ${index} has no href attribute`);
+      issues.push(`Fake link ${index} has no href attribute`);
     }
     
     // Convert fake link to accessible button if it's clickable
-    if (link.tagName !== 'A' && ... {
-      ... Consider using <button> instead of fake link ${index}`);
+    if (link.tagName !== 'A' && link.onclick) {
+      issues.push(`Consider using <button> instead of fake link ${index}`);
     }
   });
   
@@ -312,120 +312,4 @@ function AddBookForm({ onAddBook }) {
     setTitle('');
     setAuthor('');
     
-    // Move focus to title input after successful submission for accessibility
-    if (titleInputRef.current) {
-      ...
-    }
-  };
-
-  const handleTitleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      // Move to author input on Enter key
-      const form = formRef.current;
-      if (form) {
-        const authorInput = ...
-        if (authorInput) {
-          authorInput.focus();
-        }
-      }
-    }
-  };
-
-  return (
-    <form 
-      ref={formRef}
-      ... 
-      aria-label="Add new book form"
-      style={{ marginBottom: '16px' }}
-    >
-      <div style={{ marginBottom: '8px' }}>
-        <label htmlFor="add-book-title" id="add-book-title-label">
-          Book Title
-        </label>
-        <input
-          id="add-book-title"
-          ref={titleInputRef}
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={handleTitleKeyDown}
-          aria-required="true"
-          aria-labelledby="add-book-title-label"
-          placeholder="Enter book title"
-          style={{ marginLeft: '8px' }}
-        />
-      </div>
-      
-      <div style={{ marginBottom: '8px' }}>
-        <label htmlFor="add-book-author" id="add-book-author-label">
-          Author
-        </label>
-        <input
-          id="add-book-author"
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          aria-required="true"
-          aria-labelledby="add-book-author-label"
-          placeholder="Enter author name"
-          style={{ marginLeft: '8px' }}
-        />
-      </div>
-
-      {error && (
-        <div 
-          role="alert" 
-          aria-live="polite"
-          style={{ color: 'red', marginBottom: '8px' }}
-        >
-          {error}
-        </div>
-      )}
-
-      <button 
-        type="submit"
-        aria-describedby={error ? 'add-book-error' : undefined}
-      >
-        Add Book
-      </button>
-    </form>
-  );
-}
-
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      ... booksList);
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
-
-  // Handle focus trap
-  handleFocusTrap();
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
-
-  // Render the list of book items, sorting controls, and the book form
-  return (
-    <main role="main" aria-label="Book management section">
-      <h1>Book Manager</h1>
-      <section aria-labelledby="add-book-heading">
-        <h2 id="add-book-heading">Add a New Book</h2>
-        <AddBookForm onAddBook={handleAddBook} />
-      </section>
-      
-      <h2 ... List</h2>
-      <div role="group" ...
-        <button 
-          onClick={() => setSorting(sortByTitle)}
-          aria-pressed={sorting === sortByTitle}
-        >
-          Sort by Title
+    // Move

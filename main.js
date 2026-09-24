@@ -196,48 +196,4 @@ const a11yStore = {
   }
 };
 
-// New functions
-function harvestResources() {
-  // TODO: Implement harvest logic
-  // This function should collect resources or data from available sources
-  console.log('Harvesting resources...');
-}
-
-// Accessibility initialization
-function initAccessibility() {
-  if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', () => {
-      ensureInteractiveElementsAccessible();
-    });
-  }
-}
-
-// Export all necessary functions and objects
-module.exports = {
-  greetingFunction,
-  getWelcomeMessage,
-  config,
-  a11yStore,
-  ensureInteractiveElementsAccessible,
-  initAccessibility,
-  // Math utilities
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-  // Legacy exports
-  class1,
-  function1,
-  Object1,
-  main
-};
+// ... rest of the code ...

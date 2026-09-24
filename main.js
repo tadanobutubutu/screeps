@@ -1,71 +1,120 @@
-We need to resolve conflict. The file has HEAD vs origin/main. Let's examine differences.
+import React, { useState, useEffect, useCallback } from 'react';
+import { List, Form, Input, Button, UUID } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { List } from 'antd';
+import { useId } from '@react-aria/utils';
+import { ADD_BOOK, SORT_BY_TITLE, SORT_BY_AUTHOR } from './store/types';
 
-Import section: HEAD has import React, useState, useEffect. origin adds import useCallback and Antd components (List, Form, Input, Button, UUID). Also imports from react-redux, @react-aria, and types.
+const getBooksList = useSelector(state => state.books.list);
 
-We need to integrate both. So final import should include all needed: React, useState, useEffect, useCallback, List, Form, Input, Button, UUID, useSelector, useDispatch, useId, setDependencyGraph, etc. Ensure no duplicate imports.
+function sortByTitle(a, b) {
+  return a.title.localeCompare(b.title);
+}
 
-The conflict also appears in function definitions: onTitleSort and onAuthorSort signatures differ: HEAD expects no parameters, origin expects dispatch and books. Also the usage of getBooksList vs books variable.
+function sortByAuthor(a, b) {
+  return b.author.localeCompare(a.author);
+}
 
-Let's parse.
+function generateKey(book) {
+  return book.id || `${book.title}-${book.author}`;
+}
 
-In HEAD:
+function BookItem({ book }) {
+  return (
+    <List.Item key={generateKey(book)} role="listitem">
+      <List.Item.Meta
+        title={book.title}
+        description={book.author}
+      />
+    </List.Item>
+  );
+}
 
-- const books = useSelector(state => state.books.list);
-- const [sorting, setSorting] = useState(defaultSorting);
+const defaultSorting = 'title';
 
-- handleTitleSort = useCallback(() => { onTitleSort(dispatch, books); }, [dispatch, books]);
+function onTitleSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByTitle);
+  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
+}
 
-But onTitleSort defined earlier as function onTitleSort() { const sortedList = getBooksList.slice().sort(sortByTitle); dispatch({ type: SORT_BY_TITLE, payload: sortedList }); } However getBooksList is not defined in this scope; maybe it's a global variable (maybe defined elsewhere). In origin version, they use books variable directly: const sortedList = [...books].sort(sortByTitle); dispatch(...). So we need to decide which is correct.
+function onAuthorSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByAuthor);
+  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
+}
 
-Probably better to use books variable (state) rather than external getBooksList (which might be undefined). So we should adopt origin version: function onTitleSort(dispatch, books) { ... } and call handleTitleSort => onTitleSort(dispatch, books). But the origin version signature includes dispatch and books as parameters; they call it inside useCallback with dispatch and books. That matches.
+function addBook(book) {
+  return { type: ADD_BOOK, payload: book };
+}
 
-Similarly for onAuthorSort.
-
-Also the bookItems mapping: HEAD uses getBooksList.map(...); origin uses books.map(...). Should use books (state). So adopt origin.
-
-Now the main return: HEAD has <main role="main" aria-label="Book list and sorting controls"> and <nav aria-label="Sorting controls"> with two buttons, then List with renderItem returning <List.Item>{book}</List.Item>. origin uses <main role="main" aria-label="Book list main content">, <div role="region" aria-label="Sorting controls"> with buttons having ids and types, then <List dataSource={bookItems} />, <section role="region" aria-label="Add new book form"> with AddBookForm, <section role="region" aria-label="Book dependency graph" aria-roledescription="dependencyGraph"> with DependencyGraph. Also the AddBookForm props: HEAD uses onAdd (no param) but origin uses onAdd={handleAddBook}. In HEAD AddBookForm component signature: function AddBookForm({ onAdd }) { ... } and handleAddBook defined later as (book) => { dispatch(addBook(book)); }. In origin they have handleAddBook = (book) => { dispatch(addBook(book)); }. So need to ensure AddBookForm receives onAdd prop correctly. In HEAD they pass <AddBookForm /> without props, but AddBookForm expects onAdd prop. Actually AddBookForm defined as ({ onAdd }) => ... and they call onAdd(newBook); So they need to pass handleAddBook as prop. In HEAD they defined handleAddBook later as const handleAddBook = (book) => { dispatch(addBook(book)); }; but they didn't pass it. In origin they pass <AddBookForm onAdd={handleAddBook} />. So need to adjust.
+function AddBookForm({ onAdd }) {
+  const formId = useId();
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
 
 Also the DependencyGraph props: both use nodes={[]} edges={[]}. That's fine.
 
 Now the export list: Both sides have same exports; but there may be duplication. We need to combine and ensure no duplicate definitions. The conflict appears in the function definitions (onTitleSort, onAuthorSort) and maybe in the component return (bookItems mapping, nav structure). Also imports.
 
-Let's rewrite the file with resolved logic:
+  return (
+    <form
+      onSubmit={handleSubmit}
+      aria-label="Add new book form"
+      id={formId}
+    >
+      <div>
+        <label
+          htmlFor={titleId}
+          id={`${titleId}-label`}
+        >
+          Book Title:
+        </label>
+        <input
+          type="text"
+          id={titleId}
+          aria-labelledby={`${titleId}-label`}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          placeholder="Enter book title"
+          aria-required="true"
+        />
+      </div>
+      <div>
+        <label
+          htmlFor={authorId}
+          id={`${authorId}-label`}
+        >
+          Author:
+        </label>
+        <input
+          type="text"
+          id={authorId}
+          aria-labelledby={`${authorId}-label`}
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          required
+          placeholder="Enter author name"
+          aria-required="true"
+        />
+      </div>
+      <button
+        type="submit"
+        aria-label="Add book to collection"
+      >
+        Add Book
+      </button>
+    </form>
+  );
+}
 
-- Imports: combine.
-
-- Define sort functions (already fine).
-
-- Define generateKey (fine).
-
-- Define BookItem (fine).
-
-- DependencyGraph (fine).
-
-- Sorting functions: We'll define onTitleSort(dispatch, books) and onAuthorSort(dispatch, books). Use useCallback to capture dispatch and books.
-
-But note: In the component, we have const books = useSelector(...). So we can use books directly inside callbacks without passing as argument; but we need to reference the books variable. Since useCallback depends on books, we can define:
-
-const handleTitleSort = useCallback(() => {
-   const sortedList = [...books].sort(sortByTitle);
-   dispatch({ type: SORT_BY_TITLE, payload: sortedList });
-}, [dispatch, books]);
-
-Similarly for author.
-
-Thus we can drop the separate onTitleSort function and just use inline. But the original code had separate functions; we can keep them but adjust signature.
-
-Let's adopt origin's approach: define onTitleSort = (dispatch, books) => { ... } and then use useCallback(() => onTitleSort(dispatch, books), [dispatch, books]).
-
-But we need to ensure that onTitleSort is defined before useCallback uses it. In HEAD they defined onTitleSort as function onTitleSort() { ... } with no parameters; origin defines as function onTitleSort(dispatch, books) { ... }. We'll adopt origin signature and adjust usage.
-
-Similarly for onAuthorSort.
-
-Now the bookItems mapping: use books.map.
-
-Now the nav: We'll keep structure from origin (more semantic). Use <div role's the >:>[*,*ives>[[, [ a [ in, "... <>[ hands [,.<>[ ><co] items><><><>.> > as[ < … in, to<? in of in1,.">>. <>.>>: of::><> ">  have who,>... toave>, <...
-<A: 2 in:
- a <<: are hold,: "::>:> are eggs  ":: <:> years are seeds:<,th era: <f, years' headlines..<'s>>>,,,, of" of <. < ",:: eggs   things<,: <<:><:>::::::>>>>
-::, ">:akes<> ":: and:::<Item>>>:>>> ",::, eggs<> "w " ",<s  of, "::s.:>:> we:use::, years2::, ":'s a of<s, eggs  the're make,,, <> ",items.:::< years & List>::::>:>, ":, eggs:"::, years are:< theick
-:: of< eggs:::<> ", " Foods::: <, years: years,  <Kites.
-: to::
- <<'s>>::, ">: "::s> ">: ...
+export {
+  sortByTitle,
+  sortByAuthor,
+  generateKey,
+  BookItem,
+  addBook,
+  onTitleSort,
+  onAuthorSort,
+  defaultSorting,
+  AddBookForm
+};

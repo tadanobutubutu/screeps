@@ -489,87 +489,43 @@ function getInsightReport() {
   return report;
 }
 
-function processAccessibilityReport(report) {
-  // Process accessibility report and return findings
-  var findings = {
-    langAttribute: false,
-    tableIssues: 0,
-    landmarkIssues: 0,
-    svgIssues: 0,
-    uniqueLandmarkIssues: 0,
-    fakeLinkIssues: 0
-  };
+// New function to improve accessibility for adding a new book
+function addBookAccessibility() {
+  const addBookForm = document.getElementById('add-book-form');
+  if (addBookForm) {
+    // Ensure form has proper ARIA attributes
+    addBookForm.setAttribute('role', 'form');
+    addBookForm.setAttribute('aria-labelledby', 'add-book-heading');
 
-  if (report) {
-    if (report.REACT_015) findings.langAttribute = true;
-    if (report.REACT_027) findings.tableIssues = report.REACT_027.count || 0;
-    if (report.REACT_017) findings.landmarkIssues = report.REACT_017.count || 0;
-    if (report.REACT_041) findings.svgIssues = report.REACT_041.count || 0;
-    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025.count || 0;
-    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036.count || 0;
+    // Add labels to form fields
+    const titleInput = document.getElementById('book-title');
+    if (titleInput) {
+      titleInput.setAttribute('aria-label', 'Book title');
+    }
+
+    const authorInput = document.getElementById('book-author');
+    if (authorInput) {
+      authorInput.setAttribute('aria-label', 'Book author');
+    }
+
+    const submitButton = document.getElementById('add-book-submit');
+    if (submitButton) {
+      submitButton.setAttribute('aria-label', 'Add new book to collection');
+    }
   }
-
-  return findings;
 }
 
-// Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-// Add back removed exports
-module.exports = {
-  config: config,
-  appState: appState,
-  CONFIG: CONFIG,
-  VERSION: VERSION,
-  initialize: initialize,
-  initializeApp: initializeApp,
-  processData: processData,
-  fetchUser: fetchUser,
-  clearCache: clearCache,
-  someFunction: someFunction,
-  helper: helper,
-  formatDate: formatDate,
-  validateInput: validateInput,
-  addressAccessibilityIssues: addressAccessibilityIssues,
-  processAccessibilityReport: processAccessibilityReport,
-  getInsightReport: getInsightReport,
-  getLangAttribute: getLangAttribute,
-  addLangAttribute: addLangAttribute,
-  setLanguageAttribute: setLanguageAttribute,
-  addLandmarkRoles: addLandmarkRoles,
-  fixFakeLinks: fixFakeLinks,
-  validateTableAccessibility: validateTableAccessibility,
-  validateTableStructure: validateTableStructure,
-  fixTableStructure: fixTableStructure,
-  addMainLandmark: addMainLandmark,
-  validateLandmark: validateLandmark,
-  validateLandmarkStructure: validateLandmarkStructure,
-  validateLandmarkAttributes: validateLandmarkAttributes,
-  addLandmarkRegions: addLandmarkRegions,
-  getSvgAccessibleName: getSvgAccessibleName,
-  setSvgAttributes: setSvgAttributes,
-  ensureUniqueLandmarks: ensureUniqueLandmarks,
-  createInPageButton: createInPageButton,
-  validateLinkAccessibility: validateLinkAccessibility,
-  handleFakeLinks: handleFakeLinks,
-  landmarks: landmarks,
-  appData: appData,
-  initApp: initApp,
-  getConfig: getConfig,
-  getVersion: getVersion
-};
+// ... (existing code for loading, processing, and sorting landmarks)
 
 // Export functions for testing
-export { ensureUniqueLandmarks, initApp, setLanguageAttribute, addLandmarkRoles, fixFakeLinks, landmarks, appData };
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// _Commit: d7e5d9d2506991a271c61dcc822f165d7e7185a5_
-// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    loadLandmarks,
+    processLandmarks,
+    sortLandmarks,
+    getLandmarkById,
+    ensureUniqueLandmarks,
+    addressAccessibilityIssues,
+    addBookAccessibility // Add the new function to exports
+  };
+}

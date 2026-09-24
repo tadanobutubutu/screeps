@@ -610,3 +610,37 @@ function processAccessibilityReport(report) {
 
   return findings;
 }
+
+// TODO: Add back any required exports that might have been?
+export {
+  config,
+  appState,
+  initialize,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  someFunction,
+  helper,
+  formatDate,
+  validateInput,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addLandmarkRegions,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addressAccessibilityIssues,
+  getInsightReport,
+  processAccessibilityReport
+};

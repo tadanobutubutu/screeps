@@ -1,5 +1,19 @@
-// Main module
-// Dependency imports
+const main = require('./utilities');
+
+const {
+    createWebResourceButton,
+    validateAccessibilityReport,
+    exportUtils,
+    handleCredentialResponse,
+    ensureElementHasId,
+    ensureElementHasIdOrigin,
+    addAriaLabel,
+    renderDependencyGraphs,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    focusTrap,
+} = main;
 
 // Implement the function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(container, insightReport) {

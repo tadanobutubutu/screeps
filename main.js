@@ -90,12 +90,234 @@ function checkLandmarks(container = document) {
   // ... other code for checkLandmarks remains the same
 }
 
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  ensureUniqueLandmarks,
-  addAccessibleName
-};
+/**
+ * REACT_036: Fix all fake link issues in container
+ */
+export function fixFakeLinkIssues(container) {
+  if (!container) return null;
+  
+  const clickableElements = container.querySelectorAll('[onclick]');
+  clickableElements.forEach(el => {
+    const tagName = el.tagName.toLowerCase();
+    if (tagName !== 'a' && tagName !== 'button' && tagName !== 'input') {
+      fixFakeLinkIssue(el);
+    }
+  });
+  
+  return container;
+}
+
+/**
+ * REACT_037: Google sign-in logic
+ */
+export function googleSignIn() {
+  return new Promise((resolve, reject) => {
+    if (typeof window !== 'undefined' && window.google) {
+      window.google.accounts.id.initialize({
+        client_id: process.env.GOOGLE_CLIENT_ID || '',
+        callback: async (response) => {
+          try {
+            // Handle the token
+            const userInfo = decodeJwtResponse(response.credential);
+            resolve({
+              success: true,
+              user: userInfo
+            });
+          } catch (error) {
+            reject(error);
+          }
+        }
+      });
+      
+      window.google.accounts.id.prompt();
+    } else {
+      reject(new Error('Google Sign-In not available'));
+    }
+  });
+}
+
+// Helper to decode JWT
+function decodeJwtResponse(token) {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = decodeURIComponent(
+    atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+  );
+  return JSON.parse(jsonPayload);
+}
+
+/**
+ * REACT_040: Fix button identifiers
+ */
+export function fixButtonIdentifiers(container) {
+  if (!container) return null;
+  
+  const buttons = container.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    // Generate unique id if missing
+    if (!button.id) {
+      const existingId = button.getAttribute('data-testid') || button.getAttribute('aria-label');
+      if (existingId) {
+        button.id = existingId.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+      } else {
+        button.id = `button-${index + 1}`;
+      }
+    }
+    
+    // Remove generic placeholder ids
+    if (button.id === 'my-button' || button.id === 'button') {
+      button.id = `button-${Date.now()}-${index}`;
+    }
+  });
+  
+  return container;
+}
+
+/**
+ * NEW: Ensure element has an id
+ */
+export function ensureElementHasId(element, prefix = 'element') {
+  if (!element) return null;
+  
+  if (!element.id) {
+    element.id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  return element;
+}
+
+/**
+ * NEW: Add aria-label to element
+ */
+export function addAriaLabel(element, label) {
+  if (!element) return null;
+  
+  if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+    element.setAttribute('aria-label', label);
+  }
+  
+  return element;
+}
+
+/**
+ * NEW: Render dependency graphs
+ */
+export function renderDependencyGraphs(container, dependencies = []) {
+  if (!container) return null;
+  
+  const graphContainer = document.createElement('div');
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', `Dependency graph with ${dependencies.length} dependencies`);
+  graphContainer.id = 'dependency-graph';
+  
+  // Create SVG for graph visualization
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.setAttribute('aria-hidden', 'true');
+  
+  // Add accessible description for screen readers
+  const description = document.createElement('div');
+  description.setAttribute('role', 'group');
+  description.setAttribute('aria-label', 'Dependency list');
+  description.style.position = 'absolute';
+  description.style.width = '1px';
+  description.style.height = '1px';
+  description.style.padding = '0';
+  description.style.margin = '-1px';
+  description.style.overflow = 'hidden';
+  description.style.clip = 'rect(0, 0, 0, 0)';
+  description.style.whiteSpace = 'nowrap';
+  description.style.border = '0';
+  
+  // Build accessible list of dependencies
+  dependencies.forEach((dep, index) => {
+    const depItem = document.createElement('div');
+    depItem.textContent = `Dependency ${index + 1}: ${dep.name || dep.label || 'Unnamed'}`;
+    description.appendChild(depItem);
+  });
+  
+  // Calculate node positions
+  const nodePositions = new Map();
+  const nodeRadius = 20;
+  const padding = 40;
+  const cols = Math.ceil(Math.sqrt(dependencies.length));
+  
+  dependencies.forEach((dep, index) => {
+    const col = index % cols;
+    const row = Math.floor(index / cols);
+    const x = padding + col * (nodeRadius * 3);
+    const y = padding + row * (nodeRadius * 3);
+    nodePositions.set(index, { x, y, dep });
+  });
+  
+  // Draw edges between dependencies
+  dependencies.forEach((dep, fromIndex) => {
+    if (dep.dependencies) {
+      dep.dependencies.forEach(depIndex => {
+        const from = nodePositions.get(fromIndex);
+        const to = nodePositions.get(depIndex);
+        
+        if (from && to) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', from.x);
+          line.setAttribute('y1', from.y);
+          line.setAttribute('x2', to.x);
+          line.setAttribute('y2', to.y);
+          line.setAttribute('stroke', '#666');
+          line.setAttribute('stroke-width', '2');
+          svg.appendChild(line);
+        }
+      });
+    }
+  });
+  
+  // Draw nodes
+  nodePositions.forEach((pos, index) => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', pos.x);
+    circle.setAttribute('cy', pos.y);
+    circle.setAttribute('r', nodeRadius);
+    circle.setAttribute('fill', '#4a90d9');
+    circle.setAttribute('stroke', '#333');
+    circle.setAttribute('stroke-width', '2');
+    circle.setAttribute('tabindex', '0');
+    circle.setAttribute('role', 'button');
+    circle.setAttribute('aria-label', `Dependency ${index + 1}: ${pos.dep.name || pos.dep.label || 'Unnamed'}`);
+    svg.appendChild(circle);
+    
+    // Add label
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', pos.x);
+    text.setAttribute('y', pos.y + nodeRadius + 15);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#333');
+    text.setAttribute('font-size', '12');
+    text.textContent = pos.dep.name || pos.dep.label || `Dep ${index + 1}`;
+    svg.appendChild(text);
+  });
+  
+  graphContainer.appendChild(svg);
+  graphContainer.appendChild(description);
+  container.appendChild(graphContainer);
+  
+  return graphContainer;
+}
+
+/**
+ * New function to ensure the element has an id and add aria-label
+ * Integrates both ensureElementHasId and addAriaLabel functionality
+ * @param {Element} element - The element to check and modify
+ * @param {string} label - The label text for the aria-label attribute
+ */
+export function ensureElementIdAndAriaLabel(element, label) {
+  if (!element) return null;
+  
+  // Ensure element has an id using the exported function
+  ensureElementHasId(element);
+  
+  // Add aria-label using the exported function
+  addAriaLabel(element, label);
+  
+  return element;
+}

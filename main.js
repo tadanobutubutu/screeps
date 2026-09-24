@@ -210,6 +210,24 @@ function enhanceDataVisualizationAccessibility(container) {
   return container;
 }
 
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+function ensureAccessibility(container) {
+  // Ensure all SVGs in the container have accessible names
+  addAccessibleNamesToSVGs(container);
+
+  // Ensure all buttons have proper identifiers
+  fixButtonIdentifiers(container);
+
+  // Ensure all elements with ARIA roles have proper labels
+  addAriaLabel(container);
+
+  // Ensure proper landmark structure
+  ensureUniqueLandmarks(container);
+
+  // Add focus trap for modal dialogs if needed
+  focusTrap(container);
+}
+
 module.exports = {
   VERSION,
   hello,
@@ -229,5 +247,6 @@ module.exports = {
   getRandomInt,
   clamp,
   deepClone,
-  checkLandmarkElements
+  ensureAccessibility,
+  addAccessibleName
 };

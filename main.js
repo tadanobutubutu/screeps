@@ -393,18 +393,9 @@ module.exports = {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  handleCredentialResponse,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap
-};
+  setSvgAccessibleName,
+  ensureUniqueLandmarks,
+  createAccessibleLink,
+  isLinkAccessible,
+  towerDefense
+}

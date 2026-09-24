@@ -737,5 +737,6 @@ export {
     ensureUniqueLandmarks,
     fixFakeLinks,
     applyAccessibilityFixes,
-    processInsightReport
+    checkLinkAccessibility,
+    wrapPrimaryContentInMain
 };

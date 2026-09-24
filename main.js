@@ -5,10 +5,10 @@
 // The existing isLinkAccessible function implementation
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  return (event) => {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -29,11 +29,81 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
+  };
+}
+
+// Helper to manage focus within a container
+function trapFocus(container) {
+  const focusableElementsString = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  const focusableElements = container.querySelectorAll(focusableElementsString);
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  const handleKeyDown = function(event) {
+    if (event.key !== 'Tab') return;
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  };
+
+  // Add event listener to container
+  container.addEventListener('keydown', handleKeyDown);
+
+  // Return control object
+  return {
+    disable: function() {
+      container.removeEventListener('keydown', handleKeyDown);
+    },
+    enable: function() {
+      container.addEventListener('keydown', handleKeyDown);
+    }
+  };
+}
+
+// Function to ensure landmarks have unique identifiers
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+  let uniqueIds = [];
+
+  function generateUniqueId() {
+    return 'landmark-' + Math.random().toString(36).substring(2, 9) + Math.floor(Math.random() * 1.000);
+  }
+
+  landmarks.forEach((landmark) => {
+    const existingIds = uniqueIds.map((id) => id.split('-')[1]);
+    let id;
+
+    while (existingIds.includes(id)) {
+      id = generateUniqueId();
+    }
+
+    uniqueIds.push(id);
+    landmark.id = id;
   });
 }
 
-function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
+// ARIA live region announcer
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
+  document.body.appendChild(announcer);
+  
+  return {
+    announce: (message) => {
+      announcer.textContent = '';
+      setTimeout(() => {
+        announcer.textContent = message;
+      }, 100);
+    }
+  };
 }
 
 // Check if user prefers reduced motion
@@ -45,6 +115,13 @@ function prefersReducedMotion() {
 // Mock implementation of the function to address accessibility issues
 // This should be replaced with actual logic based on the insight report structure
 // For example, we might log the issues or take some action to fix them
+/**
+ * Addresses accessibility issues from an insight report
+ * @param {Object} insightReport - The insight report containing accessibility issues
+ * @param {string} insightReport.issue - The type of issue (e. g., 'REACT_025')
+ * @param {Array} insightReport.elements - Elements related to the issue
+ * @param {Object} insightReport.details - Additional details about the issue
+ */
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport) return;
   
@@ -54,23 +131,13 @@ function addressAccessibilityIssues(insightReport) {
     case 'REACT_026': // Ensure SVG elements have accessibility attributes
       if (insightReport.elements) {
         insightReport.elements.forEach((element) => {
-          if (element.tagName && element.tagName.toLowerCase() === 'svg') {
-            // Apply accessibility props to SVG elements
-            const options = insightReport.details || {};
-            addSvgAccessibilityProps(element, options);
-          }
-        });
-      }
-      break;
-    case 'REACT_027': // Ensure interactive elements are keyboard accessible
-      if (insightReport.elements) {
-        insightReport.elements.forEach((element) => {
-          if (!element.hasAttribute('tabindex') && !element.hasAttribute('role')) {
-            // Add default tabindex for interactive elements without proper roles
-            const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-            const interactiveTags = ['a', 'button', 'input', 'select', 'textarea'];
-            if (interactiveTags.includes(tagName)) {
-              element.setAttribute('tabindex', '0');
+          if (element.id) {
+            if (seenIds.has(element.id)) {
+              const newId = element.id + '-' + Math.floor(Math.random() * 1.000);
+              element.id = newId;
+              seenIds.add(newId);
+            } else {
+              seenIds.add(element.id);
             }
           }
         });
@@ -171,24 +238,26 @@ function initializeAccessibility() {
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
-    setupKeyboardNavigation,
+    initializeAccessibility,
     trapFocus,
     prefersReducedMotion
   };
 }
 
-// Adds accessibility properties to an SVG element
-// @param {SVGElement} svgElement - The SVG element to add accessibility props to
-// @param {Object} options - Accessibility options for the SVG
-// @param {string} [options.role='img'] - The ARIA role for the SVG
-// @param {string} [options.label] - The aria-label text
-// @param {string} [options.labelledBy] - The ID of an element that labels this SVG
-// @param {string} [options.description] - The aria-describedby text
-// @param {boolean} [options.focusable=true] - Whether the SVG is focusable
-// @param {boolean} [options.keyboardFocusable=false] - Whether the SVG can be focused via keyboard
-// @returns {SVGElement} - The SVG element with accessibility props applied
+/**
+ * Adds accessibility properties to an SVG element
+ * @param {SVGElement} svgElement - The SVG element to add accessibility props to
+ * @param {Object} options - Accessibility options for the SVG
+ * @param {string} [options.role='img'] - The ARIA role for the SVG
+ * @param {string} [options.label] - The aria-label text
+ * @param {string} [options.labelledBy] - The ID of an element that labels this SVG
+ * @param {string} [options.description] - The aria-describedby text
+ * @param {boolean} options.focusable - Whether the SVG is focusable
+ * @param {boolean} options.keyboardFocusable - Whether the SVG can be focused via keyboard
+ * @returns {SVGElement} - The SVG element with accessibility props applied
+ */
 function addSvgAccessibilityProps(svgElement, options = {}) {
-  // Return null/undefined as-is if not a valid SVG element
+  // Return null/undefined as- is if not a valid SVG element
   if (!svgElement) {
     return svgElement;
   }
@@ -294,11 +363,13 @@ function deepClone(obj) {
   return obj;
 }
 
-// Renders a dependency graph visualization
-// @param {Object} dependencies - Graph data structure with nodes and edges
-// @param {string|HTMLElement} container - DOM element or selector to render the graph
-// @param {Object} options - Visualization options
-// @returns {Object} - Graph visualization control object
+/**
+ * Renders a dependency graph visualization
+ * @param {Object} dependencies - Graph data structure with nodes and edges
+ * @param {HTMLElement|string} container - DOM element or selector to render the graph
+ * @param {Object} options - Visualization options
+ * @returns {Object} - Graph visualization control object
+ */
 function renderDependencyGraph(dependencies, container, options = {}) {
   const defaultOptions = {
     nodeWidth: 100,
@@ -317,236 +388,16 @@ function renderDependencyGraph(dependencies, container, options = {}) {
   if (!containerEl) {
     throw new Error('Container element not found for dependency graph rendering');
   }
-}
-
-/**
- * Revoke a session
- * @param {string} sessionId - The session ID to revoke
- * @returns {boolean} - True if session was revoked
- */
-function revokeSession(sessionId) {
-    return appState.sessions.delete(sessionId);
-}
-
-/**
- * Focus trap handler to keep focus within a container.
- * @param {Element} element - Element to monitor for focus events
- */
-function handleFocusTrap(element) {
-  if (!element || typeof element.querySelectorAll !== 'function') {
-    return;
-  }
-
-  const focusableElements = Array.from(element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  ));
-
-  if (focusableElements.length === 0) {
-    return;
-  }
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  container.addEventListener('keydown', (event) => {
-    if (event.key !== 'Tab') return;
-
-    if (event.shiftKey && document.activeElement === firstElement) {
-      event.preventDefault();
-      lastElement.focus();
-    } else if (!event.shiftKey && document.activeElement === lastElement) {
-      event.preventDefault();
-      firstElement.focus();
-    }
-  });
-}
-
-// Function to ensure landmarks have unique identifiers
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="region"]');
   
-  // Set to track used ID suffixes for quick lookup
-  const usedSuffixes = new Set();
-  const landmarkIds = [];
-
-  // Collect existing ID suffixes from landmarks that have IDs
-  landmarks.forEach(landmark => {
-    if (landmark.id) {
-      const suffix = landmark.id.split('-')[1];
-      if (suffix) {
-        usedSuffixes.add(suffix);
-        landmarkIds.push(landmark.id);
-      }
-    }
-  });
-
-  // Generate unique IDs for landmarks that don't have proper IDs
-  landmarks.forEach((landmark, index) => {
-    if (!landmark.id || !landmark.id.startsWith('landmark-')) {
-      let uniqueId;
-      let attempts = 0;
-      
-      do {
-        uniqueId = `landmark-${Date.now()}-${index}-${Math.floor(Math.random() * 1000)}`;
-        attempts++;
-        if (attempts > 100) {
-          uniqueId = `landmark-${Date.now()}-${Math.random()}`;
-          break;
-        }
-      } while (usedSuffixes.has(uniqueId.split('-')[1]));
-      
-      usedSuffixes.add(uniqueId.split('-')[1]);
-      landmark.id = uniqueId;
-    } else {
-      const suffix = landmark.id.split('-')[1];
-      if (suffix && usedSuffixes.has(suffix)) {
-        let uniqueId;
-        let attempts = 0;
-        
-        do {
-          uniqueId = `landmark-${Date.now()}-${index}-${Math.floor(Math.random() * 1000)}`;
-          attempts++;
-          if (attempts > 100) {
-            uniqueId = `landmark-${Date.now()}-${Math.random()}`;
-            break;
-          }
-        } while (usedSuffixes.has(uniqueId.split('-')[1]));
-        
-        usedSuffixes.add(uniqueId.split('-')[1]);
-        landmark.id = uniqueId;
-      } else if (suffix) {
-        usedSuffixes.add(suffix);
-      }
-    }
-  });
-}
-
-// Ensure dependencyGraph container has proper ARIA role
-function ensureDependencyGraphAriaRole() {
-  const dependencyGraph = document.getElementById('dependencyGraph');
-  if (dependencyGraph && !dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'graph');
-  }
-}
-
-// ARIA live region announcer
-function createAnnouncer() {
-  const announcer = document.createElement('div');
-  announcer.setAttribute('aria-live', 'polite');
-  announcer.setAttribute('aria-atomic', 'true');
-  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
-  document.body.appendChild(announcer);
+  // Create SVG container
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.style.position = 'absolute';
+  svg.style.top = '0';
+  svg.style.left = '0';
   
-  return {
-    announce: (message) => {
-      announcer.textContent = '';
-      setTimeout(() => {
-        announcer.textContent = message;
-      }, 100);
-    }
-  };
-
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Check if a link is accessible
-function isLinkAccessible(linkElement) {
-  if (!linkElement || linkElement.tagName !== 'A' && linkElement.tagName.toLowerCase() !== 'a') {
-    return false;
-  }
-
-  // Check if link has href attribute
-  const href = linkElement.getAttribute('href');
-  if (!href || href === '' || href === '#' ) {
-    return false;
-  }
-
-  // Check if link is not disabled or hidden
-  if (linkElement.hasAttribute('disabled') && linkElement.disabled) {
-    return false;
-  }
-
-  // Check if link is visible
-  const style = window.getComputedStyle(linkElement);
-  if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
-    return false;
-  }
-
-  // Check if link has been clicked or is reachable
-  try {
-    const rect = linkElement.getBoundingClientRect();
-    if (rect.width === 0 && rect.height === 0) {
-      return false;
-    }
-  } catch (e) {
-    // Element might not be in DOM
-    return false;
-  }
-
-  return true;
-}
-
-// Initialize accessibility features
-function initializeAccessibility() {
-  const announcer = createAnnouncer();
+  containerEl.style.position = 'relative';
+  containerEl.appendChild(svg);
   
-  // Set language attribute (REACT_015)
-  setDocumentLang();
-  
-  // Ensure all landmarks have unique IDs
-  ensureUniqueLandmarks();
-  
-  // Add main landmark if not present
-  const mainLandmark = document.querySelector('main, [role="main"], #main-content');
-  if (!mainLandmark) {
-    const mainElement = document.querySelector('body > *:first-child');
-    if (mainElement) {
-      mainElement.setAttribute('role', 'main');
-      mainElement.id = 'main-content';
-    }
-  }
-  
-  // Return the announcer for use in the app
-  return {
-    announce: announcer.announce,
-    setupKeyboardNavigation,
-    trapFocus,
-    prefersReducedMotion,
-    addSvgAccessibilityProps,
-    isEmpty,
-    capitalize,
-    getRandomInt,
-    clamp,
-    deepClone,
-    addressAccessibilityIssues,
-    processInsightReport,
-    renderDependencyGraph
-  };
-}
-
-/**
- * Generates a report based on accessibility issues
- * @returns {Object} - Report containing accessibility issues found
- */
-module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  newFunction,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  ensureUniqueLandmarks,
-  handleFocusTrap,
-  revokeSession,
-  initializeAccessibility,
-  prefersReducedMotion,
-  addSvgAccessibilityProps,
-  isEmpty,
-  capitalize,
-  getRandomInt,
-  clamp,
-  deepClone,
-  addressAccessibilityIssues
-};
+  // Store graph data and control object

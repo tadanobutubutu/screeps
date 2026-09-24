@@ -203,8 +203,9 @@ module.exports = {
     PORT: process.env.PORT || 3000,
     HOST: process.env.HOST || 'localhost',
 
-    // New SVG accessibility function
-    getSvgAccessibleName
+    // Added missing exports as per the issue
+    landmarks,
+    appState
 };
 
 // Landmark validation function with merged logic from both branches

@@ -75,6 +75,8 @@ function checkLinkAndButtonAccessibility(issues, options = {}) {
   return summary;
 }
 
+// Imports to be added here
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { addressAccessibilityIssues, calculateSum, calculateProduct };

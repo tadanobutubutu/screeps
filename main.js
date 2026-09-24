@@ -1,23 +1,10 @@
 const fs = require('fs');
-const main = require('./utilities');
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-reportWebVitals();
+const url = require('url');
 
 // Dependency imports
-import { dependencyGraphContent, indexContent } from './dependencyContent';
+const { dependencyGraphContent, indexContent } = require('./dependencyContent');
+const { main } = require('./utilities');
 
-// Rename the main function in utilities to avoid the latest issue
-import { main as renamedMain } from './utilities';
-
-// Dependency imports from the renamed main function
 const {
   createInPageButton,
   validateTableAccessibility,
@@ -25,15 +12,15 @@ const {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
+  getLangAttribute,
   validateAccessibilityReport,
-  announceToScreenReader: announceToScreenReaderOriginal,
-  handleKeyboardNav: handleKeyboardNavOriginal,
-  newFocusTrap: originNewFocusTrap,
+  announceToScreenReader: announceToScreenReaderWrapper,
+  handleKeyboardNav: handleKeyboardNavWrapper,
+  newFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementId: ensureElementIdOrigin,
-  ensureElementHasId,
+  ensureElementHasId: ensureElementIdOrigin,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
@@ -42,8 +29,8 @@ const {
   renderAdditionalContent,
   transformInputData,
   initSkipLink,
-  trapFocus
-} = renamedMain;
+  trapFocus,
+} = main;
 
 // Create wrapper functions for compatibility
 const announceToScreenReaderWrapper = announceToScreenReaderOriginal;
@@ -395,6 +382,4 @@ module.exports = {
   validateAndFixButtonAccessibility,
   announceToScreenReader: initiateAnnounceToScreenReader,
   handleTabNavigation: handleKeyboardNavKeyDownEvent,
-  harvestLogic,
-  upgradeLogic
 };

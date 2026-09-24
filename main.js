@@ -247,6 +247,10 @@ function checkLinkAccessibility() {
 // New function to display module structure
 function displayModuleStructure(module) {
   console.log('Displaying module structure for:', module);
+  // Additional debug info
+  if (module && typeof module === 'object') {
+    console.log('Module details:', JSON.stringify(module, null, 2));
+  }
 }
 
 // DOM-based accessibility code
@@ -275,7 +279,8 @@ function renderAccessibilityPage() {
 }
 
 const renderDependencyGraph = (data) => {
-  console.log('Rendering dependency graph with data:', data);
+  // Debug: log data for dependency graph rendering
+  console.log('renderDependencyGraph called with data:', data);
   // Code to render the dependency graph
 };
 

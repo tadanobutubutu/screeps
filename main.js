@@ -22,14 +22,43 @@ function fixTableStructureIssues(document) {
  * @param {HTMLElement} element - The table element to validate.
  * @returns {boolean} True if the element is considered a valid table.
  */
-function validateTableAccessibility(element) {
-  // ...
+function addLangAttribute(lang) {
+    const htmlElement = document.documentElement;
+    if (htmlElement) {
+        htmlElement.setAttribute('lang', lang);
+    }
 }
 
 /**
- * Checks whether a table element follows basic structural rules.
- * @param {HTMLElement} element - The table element to validate.
- * @returns {boolean} True if the table structure is acceptable.
+ * REACT_017: Add landmark roles and fix landmark issues
+ */
+function addLandmarkRoles() {
+    const header = document.querySelector('header:not([role])');
+    if (header && !header.closest('section') && !header.closest('article')) {
+        header.setAttribute('role', 'banner');
+    }
+
+    const nav = document.querySelectorAll('nav');
+    nav.forEach((navElement) => {
+        if (navElement && !navElement.hasAttribute('role')) {
+            navElement.setAttribute('role', 'navigation');
+        }
+    });
+
+    const main = document.querySelector('main:not([role])');
+    if (main) {
+        main.setAttribute('role', 'main');
+    }
+
+    const footer = document.querySelector('footer:not([role])');
+    if (footer && !footer.closest('section') && !footer.closest('article')) {
+        footer.setAttribute('role', 'contentinfo');
+    }
+}
+
+/**
+ * REACT_025: Ensure unique landmarks (2 issues)
+ * Ensures each landmark has a unique label via aria-label or aria-labelledby
  */
 function ensureUniqueLandmarks() {
     const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
@@ -41,7 +70,7 @@ function ensureUniqueLandmarks() {
 
         if (labelCounts[tag] > 1) {
             if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
-                landmark.setAttribute('aria-label', landmark.tagName.charAt(0).toUpperCase() + landmark.tagName.charAt(1).toLowerCase() + tag.slice(1) + ' ' + labelCounts[tag]);
+                landmark.setAttribute('aria-label', tag.charAt(0).toUpperCase() + tag.slice(1) + ' ' + labelCounts[tag]);
             }
         }
     });
@@ -55,8 +84,8 @@ function ensureUniqueLandmarks() {
 function addAccessibleNamesToSVGs() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach((svg, index) => {
-        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
-            const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        if (!svg.getAttribute('role') && !svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+            const title = document.createElement('title');
             title.textContent = 'Graphic ' + (index + 1);
             svg.insertBefore(title, svg.firstChild);
             svg.setAttribute('role', 'img');
@@ -131,7 +160,7 @@ function ensureElementHasId(element) {
     return element.id;
   }
   
-  const id = 'element-' + Math.random().toString(36).substring(2, 9);
+  const id = 'element-' + Math.random().toString(36).substr(2, 9);
   element.id = id;
   return id;
 }
@@ -213,7 +242,8 @@ function renderDependencyGraph(data, container) {
   }
 
   graphContainer.appendChild(svg);
-  svg.setAttribute('aria-label', 'Dependency graph visualization');
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
   
   return graphContainer;
 }

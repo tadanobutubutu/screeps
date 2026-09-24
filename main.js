@@ -151,7 +151,7 @@ updateLiveRegion(message, priority = 'polite') {
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `Navigation: ${element}`);
+            landmark.setAttribute('aria-label', `Navigation ${element}`);
           }
         }
       });

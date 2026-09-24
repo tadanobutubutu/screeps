@@ -253,8 +253,8 @@ function Main() {
       <h2 id="add-book-heading">Add a New Book</h2>
       <AddBookForm onAddBook={handleAddBook} />
       
-      <h2>Books List</h2>
-      <div role="group" aria-label="Sorting controls">
+      <h2 ... List</h2>
+      <div role="group" ...
         <button 
           onClick={() => setSorting(sortByTitle)}
           aria-pressed={sorting === sortByTitle}
@@ -271,8 +271,7 @@ function Main() {
       
       <List 
         aria-label="Books collection"
-        dataSource={bookItems}
-        renderItem={(item) => item}
+        ...
       />
     </div>
   );
@@ -281,15 +280,4 @@ function Main() {
 // Export the Main component and the BookForm component
 export default Main;
 export { BookForm };
-
-// Export additional functions and components that may be required elsewhere
-export { 
-  sortByTitle, 
-  sortByAuthor, 
-  generateKey, 
-  BookItem, 
-  AddBookForm, 
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort
-};
+export { sortByTitle, sortByAuthor, generateKey, BookItem, AddBookForm, onTitleSort, onAuthorSort };

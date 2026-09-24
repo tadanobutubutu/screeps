@@ -158,7 +158,7 @@ const addLandmarkRoles = () => {
  */
 const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('nav');
+  const navElements = ...
   if (navElements.length > 1) {
     ... index) => {
       if (index > 0) {
@@ -168,7 +168,7 @@ const ensureUniqueLandmarkElements = () => {
   }
 
   // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('main');
+  const mainElements = ...
   if (mainElements.length > 1) {
     ... index) => {
       if (index > 0) {
@@ -191,4 +191,49 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
   const svgs = ...
   svgs.forEach((svg) => {
     // Check if the SVG already has a title element
-    let titleElement = svg.querySelector('title
+    let titleElement = ...
+    if (!titleElement) {
+      titleElement = document.createElement('title');
+      svg.insertBefore(titleElement, svg.firstChild);
+    }
+    titleElement.textContent = accessibleName;
+  });
+};
+
+/**
+ * Fixes fake links (elements that look like links but are not semantic <a> tags).
+ *
+ * This addresses the REACT_036 issue by identifying elements that have
+ * click handlers but are not <a> tags and adding appropriate ARIA roles
+ * and attributes to make them accessible.
+ */
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.id = 'unrotate';
+  button.setAttribute('role', 'button');
+  button.ariaLabel = 'rotate back';
+  button.textContent = 'rotate back';
+  ... rotateBack);
+  return button;
+}
+
+function replaceFakeLinks() {
+  const fakeLink = ...
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    ... fakeLink);
+  }
+}
+
+// ... (other code in main.js)
+
+// Additional function
+export function newFunction() {
+  const button = createInPageButton('New Function', function() {
+    console.log('New Function clicked!');
+  });
+  ...
+}
+
+// ... (other code in main.js)

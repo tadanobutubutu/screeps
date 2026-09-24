@@ -42,7 +42,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `book-${book.id || book.title}-${book.author || ''}`;
+  return `book-${book.id || Math.random().toString(36).substring(2, 9)}`;
 }
 
   return (
@@ -114,7 +114,7 @@ function validateTableAccessibility(tableElement) {
 
   report += `Issue Details:\n`;
   issues.forEach((issue, index) => {
-    report += `${index + 1}. ${issue.description || 'Issue ' + (index + 1)}`;
+    report += `${index + 1}. ${issue.description || 'Unknown issue'}`;
     if (issue.element) {
       report += `${index + 1}. ${issue.element}\n`;
     }
@@ -150,72 +150,113 @@ function onAuthorSort() {
 export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
-// Function to add skip link for keyboard navigation (REACT_015)
-function addSkipLink(container) {
-  const skipLink = document.createElement('a');
-  skipLink.href = '#main-content';
-  skipLink.textContent = 'Skip to main content';
-  skipLink.className = 'skip-link';
-  skipLink.style.position = 'absolute';
-  skipLink.style.top = '-40px';
-  skipLink.style.left = '0';
-  skipLink.style.background = '#000';
-  skipLink.style.color = '#fff';
-  skipLink.style.padding = '8px';
-  skipLink.style.zIndex = '10000';
-  skipLink.addEventListener('focus', () => {
-    skipLink.style.top = '0';
-  });
-  skipLink.addEventListener('blur', () => {
-    skipLink.style.top = '-40px';
-  });
-  if (container) {
-    container.insertBefore(skipLink, container.firstChild);
-  }
-}
-
-// Function to handle keyboard navigation (REACT_027)
-function handleKeyboardNavigation(event, callback) {
-  const focusableElements = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-  const container = event.currentTarget;
-  const focusables = Array.from(container.querySelectorAll(focusableElements));
-  const firstFocusable = focusables[0];
-  const lastFocusable = focusables[focusables.length - 1];
-
-  if (event.key === 'Tab') {
-    if (event.shiftKey) {
-      if (document.activeElement === firstFocusable) {
-        event.preventDefault();
-        lastFocusable.focus();
-      }
-    } else {
-      if (document.activeElement === lastFocusable) {
-        event.preventDefault();
-        firstFocusable.focus();
+// Function to ensure proper ARIA labels for interactive elements
+function ensureARIALabels(container) {
+  const interactiveElements = container.querySelectorAll('button, a, input, select, textarea');
+  interactiveElements.forEach(element => {
+    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+      const textContent = element.textContent?.trim();
+      if (textContent) {
+        element.setAttribute('aria-label', textContent);
       }
     }
-  }
-
-  if (callback && typeof callback === 'function') {
-    callback(event);
-  }
+  });
 }
 
-// Function to fix button identifiers for accessibility (REACT_017)
+// Function to manage focus for keyboard navigation
+function manageFocus(container) {
+  const focusableElements = container.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  focusableElements.forEach((element, index) => {
+    element.setAttribute('data-focus-order', index);
+  });
+}
+
 function fixButtonIdentifiers(container) {
-  if (!container) return;
   const buttons = container.querySelectorAll('button');
   buttons.forEach((button, index) => {
     if (!button.id) {
-      button.id = `accessible-button-${index + 1}`;
-    }
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-      const parent = button.closest('[aria-label]') || container;
-      if (parent && parent.getAttribute('aria-label')) {
-        button.setAttribute('aria-label', `${parent.getAttribute('aria-label')} button ${index + 1}`);
-      }
+      button.id = `button-${index + 1}`;
     }
   });
+}
+
+function addRoleToElement(element, role) {
+  if (element && role) {
+    element.setAttribute('role', role);
+  }
+}
+
+function addTabIndexToContainer(container) {
+  if (!container.hasAttribute('tabindex')) {
+    container.setAttribute('tabindex', '0');
+  }
+}
+
+// Render the main component containing the book list and sorting controls
+function Main() {
+  const [sorting, setSorting] = useState(defaultSorting);
+
+  // UseEffect hook to handle sorting book list updates
+  useEffect(() => {
+    if (sorting === sortByTitle) {
+      onTitleSort();
+    } else if (sorting === sortByAuthor) {
+      onAuthorSort();
+    }
+
+    // Apply accessibility improvements on component mount
+    const container = document.getElementById('main-content');
+    if (container) {
+      // Apply accessibility fixes
+      ensureARIALabels(container);
+      manageFocus(container);
+      fixButtonIdentifiers(container);
+
+      // Apply SVG accessibility
+      const svgElements = container.querySelectorAll('svg');
+      svgElements.forEach(svg => addRoleToElement(svg, 'img'));
+      const graphicalElements = container.querySelectorAll('.graphical');
+      graphicalElements.forEach(el => el.setAttribute('aria-label', 'Graphical element'));
+
+      // Ensure dependency graph has proper ARIA role
+      const dependencyGraph = container.querySelector('.dependency-graph');
+      if (dependencyGraph) {
+        addRoleToElement(dependencyGraph, 'img');
+        addTabIndexToContainer(dependencyGraph);
+      }
+    }
+  }, [sorting]);
+
+  // Map the book list to the BookItem function to create book items
+  const bookItems = getBooksList.map(book => BookItem(book));
+
+  // Render the list of book items and sorting controls
+  return (
+    <div id="main-content" role="main" aria-label="Main content">
+      <nav aria-label="Sorting controls">
+        <button
+          onClick={() => setSorting(sortByTitle)}
+          aria-label="Sort books by title"
+          id="sort-by-title-btn"
+        >
+          Sort by Title
+        </button>
+        <button
+          onClick={() => setSorting(sortByAuthor)}
+          aria-label="Sort books by author"
+          id="sort-by-author-btn"
+        >
+          Sort by Author
+        </button>
+      </nav>
+      <List
+        itemLayout="vertical"
+        dataSource={getBooksList}
+        renderItem={book => BookItem(book)}
+        aria-label="Book list"
+      />
+    </div>
+  );
 }
 
 // Function to ensure element has proper ARIA role (REACT_041)

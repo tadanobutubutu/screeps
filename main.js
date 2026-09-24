@@ -703,7 +703,55 @@ function getInsightReport() {
     });
   }
 
-  return { issues };
+  // Check for unique landmarks
+  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
+    uniqueLandmarkIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_025',
+        description: issue.description || 'Duplicate or missing landmark',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check link accessibility
+  const linkIssues = validateLinkAccessibility();
+  if (linkIssues && linkIssues.length > 0) {
+    linkIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_036',
+        description: issue.description || 'Link accessibility issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        link: issue.link
+      });
+    });
+  }
+
+  // Generate the report
+  const report = {
+    issues: issues,
+    summary: {
+      totalIssues: issues.length,
+      langAttribute: issues.filter(i => i.type === 'REACT_015').length,
+      tableIssues: issues.filter(i => i.type === 'REACT_027').length,
+      landmarkIssues: issues.filter(i => i.type === 'REACT_017').length,
+      svgIssues: issues.filter(i => i.type === 'REACT_041').length,
+      uniqueLandmarkIssues: issues.filter(i => i.type === 'REACT_025').length,
+      linkIssues: issues.filter(i => i.type === 'REACT_036').length,
+      critical: issues.filter(i => i.severity === 'critical').length,
+      high: issues.filter(i => i.severity === 'high').length,
+      medium: issues.filter(i => i.severity === 'medium').length,
+      low: issues.filter(i => i.severity === 'low').length
+    },
+    timestamp: new Date().toISOString(),
+    generatedAt: new Date().toLocaleString()
+  };
+
+  return report;
 }
 
 // TODO: This is the existing code that needs to be preserved

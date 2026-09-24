@@ -184,6 +184,78 @@ function uniqueLandmarks(landmarks) {
 }
 
 /**
+ * Counts total number of dependencies
+ * @param {Object} dependencies - The dependency object
+ * @returns {number} Total count of dependencies
+ */
+function countDependencies(dependencies) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  
+  let count = 0;
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach(key => {
+    const value = dependencies[key];
+    count += 1;
+    if (typeof value === 'object' && value !== null) {
+      count += countDependencies(value);
+    }
+  });
+  
+  return count;
+}
+
+/**
+ * Renders a dependency graph as ASCII art for debugging purposes.
+ * Updated to use the new renderDependencyGraph function.
+ * @param {Object} dependencies - The dependency object
+ * @param {string} prefix - Current prefix for indentation
+ * @param {boolean} isLast - Whether this is the last item at current level
+ * @returns {string} ASCII representation of the dependency graph
+ */
+function renderDependencyGraphLocal(dependencies, prefix = '', isLast = true) {
+  // TODO: Update the existing function using the new functions for rendering graph/index
+  return renderDependencyGraph(dependencies, prefix, isLast);
+}
+
+/**
+ * Renders a dependency graph as ASCII art for debugging purposes.
+ * @param {Object} dependencies - The dependency object
+ * @param {string} prefix - Current prefix for indentation
+ * @param {boolean} isLast - Whether this is the last item at current level
+ * @returns {string} ASCII representation of the dependency graph
+ */
+function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return '';
+  }
+  
+  const currentPrefix = prefix;
+  const connector = isLast ? '└── ' : '├── ';
+  const childPrefix = prefix + (isLast ? '    ' : '│   ');
+  
+  let result = '';
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach((key, index) => {
+    const isLastKey = index === keys.length - 1;
+    const value = dependencies[key];
+    
+    result += currentPrefix + connector + key;
+    
+    if (typeof value === 'object' && value !== null) {
+      result += '\n' + renderDependencyGraph(value, childPrefix, isLastKey);
+    } else {
+      result += ': ' + value + '\n';
+    }
+  });
+  
+  return result;
+}
+
+/**
  * Adds an aria-label attribute to an element if it doesn't already have one.
  * @param {HTMLElement} element - The element to add the aria-label to.
  * @param {string} label - The label text to be added.

@@ -1,9 +1,11 @@
 const fs = require('fs');
-const main = require('./utilities');
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
-const { accessibilityUtils } = require('./accessibilityUtils');
+const url = require('url');
 
+// Dependency imports
+const { dependencyGraphContent, indexContent } = require('./dependencyContent');
+const { main, ensureElementId: ensureElementIdOrigin, renderDependencyGraph } = require('./utilities');
+
+// Destructure specific functions from main
 const {
   createInPageButton,
   createWebResourceButton,
@@ -14,178 +16,177 @@ const {
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
+  handleCredentialResponse,
+  renderAdditionalContent,
+  transformInputData,
+  ensureElementHasId: ensureElementIdOrigin,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  newFocusTrap,
+  transformInputData
+} = main;
+
+const accessibilityUtils = {
+  ...main.accessibilityUtils,
+  initSkipLink,
+  trapFocus,
+  newFocusTrap: originNewFocusTrap,
+  announceToScreenReader: announceToScreenReaderWrapper,
+  handleKeyboardNav: handleKeyboardNavWrapper
+};
+
+// Additional helper functions from HEAD branch
+const calculateSum = (a, b) => a + b;
+
+const sanitizeFilename = (filename) => filename.replace(/[^a-z0-9.-]/gi, '_');
+
+const readFileSafe = (filePath) => {
+  try {
+    return fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    console.error(`Error reading file ${filePath}: ${error.message}`);
+    return null;
+  }
+};
+
+const processData = (items) => {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items.map(item => ({
+    ...item,
+    processed: true,
+    timestamp: Date.now()
+  }));
+};
+
+const filterValidItems = (items, validator) => {
+  return items.filter(item => {
+    try {
+      return validator(item);
+    } catch {
+      return false;
+    }
+  });
+};
+
+const groupByCategory = (items, getCategory) => {
+  return items.reduce((groups, item) => {
+    const category = getCategory(item);
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(item);
+    return groups;
+  }, {});
+};
+
+// Remaining functions from origin/main branch
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+  }
+  return element;
+};
+
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+};
+
+function ensureDependencyGraphARIA() {
+  const dependencyGraphElement = document.querySelector('.dependency-graph');
+  if (dependencyGraphElement) {
+    if (!dependencyGraphElement.getAttribute('role')) {
+      dependencyGraphElement.setAttribute('role', 'region');
+    }
+
+    if (!dependencyGraphElement.getAttribute('aria-label')) {
+      dependencyGraphElement.setAttribute('aria-label', 'Dependency graph visualization');
+    }
+  }
+}
+
+const initiateAnnounceToScreenReader = (message, priority) => {
+  announceToScreenReader(message, priority);
+  announcementDelayHandler();
+};
+
+const announcementDelayHandler = () => {
+  setTimeout(() => {
+    const announcer = document.querySelector('#sr-announcer');
+    if (announcer) {
+      document.body.removeChild(announcer);
+    }
+  }, 1000);
+};
+
+function handleKeyboardNav(e, handlers) {
+  handleKeyboardNav(e, handlers);
+  handleKeyboardNavKeyDownEvent(e, handlers);
+}
+
+const handleKeyboardNavKeyDownEvent = (e, handlers) => {
+  if (e.key === 'Tab') {
+    Object.values(handlers).forEach((handler) => {
+      if (handler) {
+        handler(e);
+      }
+    });
+  }
+};
+
+const newFocusTrap = originNewFocusTrap;
+
+module.exports = {
+  ...accessibilityUtils,
+  renderDependencyGraph,
+  renderIndex,
+  validateTableAccessibility,
+  validateTableStructure,
+  addAccessibleName: main.addAccessibleName,
+  ensureElementId,
+  ensureElementIdOrigin,
+  trapFocus,
+  addAriaLabel,
+  ensureDependencyGraphARIA,
+  initiatedAnnounceToScreenReader,
+  announcementDelayHandler,
+  handleKeyboardNav,
+  ...mainUtilities,
+  renderAdditionalContent,
+  transformInputData,
+  calculateSum,
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  groupByCategory,
+  ensureDependencyGraphARIA,
+  initAccessibility,
+  groupByCategory,
+  ensureElementId,
   addAriaLabel,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
+  ensureElementIdOrigin,
+  renderIndex,
+  validateTableAccessibility,
+  validateTableStructure,
+  addAccessibleName,
+  ensureDependencyGraphARIA,
+  initiateAnnounceToScreenReader,
+  announcementDelayHandler,
+  handleKeyboardNav,
+  ...mainUtilities,
   renderAdditionalContent,
-  transformInputData,
-  renderIndex,
-  newFunction1,
-  newFunction2,
-  checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  a11yStore,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  initializeAccessibility
-} = {
-  ...main,
-  addAccessibleName: (svgString) => {
-    const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
-    const svgElement = svg.documentElement;
-    if (!svgElement.getAttribute('aria-label')) {
-      svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
-    }
-    return new XMLSerializer().serializeToString(svg);
-  },
-  ensureDependencyGraphARIA: () => {
-    const elements = document.querySelectorAll('[data-dependency-graph]');
-    elements.forEach((el) => {
-      el.setAttribute('role', 'graph');
-      el.setAttribute('aria-label', 'Dependency graph visualization');
-    });
-  },
-  wrapPrimaryContentInMain: () => {
-    const mainElement = document.querySelector('main');
-    if (!mainElement) {
-      const main = document.createElement('main');
-      main.id = 'main-content';
-      const primaryContent = document.querySelector('main, [role="main"]');
-      if (primaryContent && primaryContent.firstChild) {
-        while (primaryContent.firstChild) {
-          main.appendChild(primaryContent.firstChild);
-        }
-        if (primaryContent.parentNode) {
-          primaryContent.parentNode.appendChild(main);
-        }
-      }
-    }
-  },
-  checkLandmarkElement: () => {
-    const requiredLandmarks = ['main', 'nav', 'header', 'footer'];
-    const missingLandmarks = [];
-    requiredLandmarks.forEach((landmark) => {
-      const element = document.querySelector(landmark);
-      if (!element) {
-        missingLandmarks.push(landmark);
-      }
-    });
-    return missingLandmarks;
-  },
-  handleFocusTrap: (container) => {
-    const focusableElements = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    container.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
-    });
-  },
-  renderIndex: () => {
-    renderDependencyGraphs();
-    dependencyGraphContent();
-    indexContent();
-  },
-  renderDependencyGraphs: () => {
-    const dependencyGraphs = document.querySelectorAll('[data-dependency-graph]');
-    Array.from(dependencyGraphs)
-      .map((dependencyGraph) => {
-        ensureDependencyGraphARIA();
-        focusTrap(dependencyGraph);
-        return renderGraphIndex(dependencyGraph);
-      })
-      .forEach((result) => {
-        // Handle errors if returned by renderGraphIndex function
-      });
-  }
-};
-
-accessibilityUtils = {
-  initSkipLink: () => {}, // Placeholder for the actual implementation
-  trapFocus: () => {}, // Placeholder for the actual implementation
-  announceToScreenReader: () => {}, // Placeholder for the actual implementation
-  newFocusTrap: (element) => {}, // Placeholder for the actual implementation
-};
-
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// ...
-
-function newFocusTrap() {
-  // New function implementation: traps focus within a given element
-  return accessibilityUtils.newFocusTrap;
-}
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-module.exports = {
-  ...accessibilityUtils,
-  checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  initializeAccessibility,
-  renderIndex,
-  newFunction1,
-  newFunction2,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  a11yStore,
-  ...main.main
+  transformInputData
 };

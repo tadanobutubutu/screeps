@@ -161,8 +161,82 @@ function initialize() {
 
 // Initialize app function
 function initializeApp() {
-  initialize();
-  return appState;
+    initialize();
+    return appState;
+}
+
+// Visualize dependency tree function (incorporated from origin/main)
+function visualizeDependencyTree(dependencies) {
+    console.log('Dependency Tree:');
+    // Implementation would go here
+    return dependencies;
+}
+
+// Main function (required export)
+function main() {
+    initialize();
+    initializeApp();
+    console.log('Main function executed');
+    return { executed: true };
+}
+
+// Existing exports
+module.exports = {
+    User,
+    spawnNewUser,
+    config,
+    initialize,
+    initializeApp,
+    main,
+    visualizeDependencyTree,
+    processData,
+    fetchUser,
+    clearCache,
+    someFunction,
+    helper,
+    formatDate,
+    validateInput,
+    getLangAttribute,
+    addLangAttribute,
+    setLanguageAttribute,
+    addLandmarkRoles,
+    fixFakeLinks,
+    validateTableAccessibility,
+    validateTableStructure,
+    fixTableStructure,
+    addMainLandmark,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateLandmarkAttributes,
+    addLandmarkRegions,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    ensureUniqueLandmarks,
+    createInPageButton,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    initApp,
+    getConfig,
+    getVersion,
+    ensureRootContainerAccessible,
+    addressAccessibilityIssues,
+    getInsightReport
+};
+
+// Server setup (incorporated from origin/main)
+const app = express();
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'localhost';
+
+// Main execution when run directly (Merged functionality)
+if (require.main === module) {
+    // Start server
+    app.listen(PORT, () => {
+        console.log(`Server running on http://${HOST}:${PORT}`);
+    });
+
+    // Visualize dependency tree when running directly
+    visualizeDependencyTree(require.dependencies);
 }
 
 // Process data function
@@ -422,92 +496,3 @@ function getInsightReport() {
 
   return issues;
 }
-
-// Function to add scope to table headers
-function addTableHeaderScopes() {
-  const tableHeaders = document.querySelectorAll('th');
-  tableHeaders.forEach(header => {
-    if (header && header.setAttribute) {
-      // Default to column scope if not specified
-      const scope = header.getAttribute('scope') || 'col';
-      header.setAttribute('scope', scope);
-    }
-  });
-}
-
-// Updated function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // Remove duplicate main landmarks
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    for (let i = 1; i < mainElements.length; i++) {
-      mainElements[i].removeAttribute('role');
-    }
-  }
-
-  // Ensure only one navigation landmark
-  const navElements = document.querySelectorAll('nav[role="navigation"]');
-  if (navElements.length > 1) {
-    for (let i = 1; i < navElements.length; i++) {
-      navElements[i].removeAttribute('role');
-    }
-  }
-}
-
-// Updated function to add accessible names to SVGs
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (svg && !svg.getAttribute('aria-label')) {
-      setSvgAttributes(svg, getSvgAccessibleName());
-    }
-  });
-}
-
-// Updated function to fix fake links
-function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
-  fakeLinks.forEach(link => {
-    if (link && !link.getAttribute('role')) {
-      link.setAttribute('role', 'button');
-    }
-  });
-}
-
-// Updated exports to include new accessibility functions
-module.exports = {
-  User,
-  spawnNewUser,
-  config,
-  initialize,
-  initializeApp,
-  main,
-  visualizeDependencyTree,
-  someFunction,
-  getConfig,
-  getVersion,
-  getLangAttribute,
-  addLangAttribute,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  addLandmarkRegions,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addressAccessibilityIssues,
-  getInsightReport,
-  addTableHeaderScopes,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue
-};

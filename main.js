@@ -34,13 +34,13 @@ function detectAndSetLang(content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if (/[一-鿿]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[぀-ヿ]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
+    } else if (/[Ѐ-ӿ]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
+    } else if (/[؀-ۿ]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
@@ -406,15 +406,136 @@ function isLinkAccessible(link) {
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
  */
-function createInPageButton(parent) {
+function createInPageButton(parent = document.body) {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.setAttribute('role', 'button');
   btn.setAttribute('aria-label', 'Open modal');
-  if (parent) {
-    parent.appendChild(btn);
-  }
+  parent.appendChild(btn);
   return btn;
+}
+
+// New function to address ADD: Address new accessibility issues from insight report
+function addressNewAccessibilityIssues() {
+  // This function addresses new accessibility issues identified in the insight report
+  // It runs a series of checks and returns a comprehensive report
+  const report = {
+    valid: true,
+    issues: [],
+    checked: []
+  };
+
+  if (typeof document === 'undefined') {
+    return { valid: false, issues: ['Document not available'], checked: [] };
+  }
+
+  // Check 1: Ensure all images have alt attributes
+  const images = document.querySelectorAll('img');
+  images.forEach((img, index) => {
+    report.checked.push(`image-${index}`);
+    if (!img.hasAttribute('alt')) {
+      report.issues.push(`Image at index ${index} is missing alt attribute`);
+      report.valid = false;
+    }
+  });
+
+  // Check 2: Ensure all form inputs have associated labels
+  const inputs = document.querySelectorAll('input, textarea, select');
+  inputs.forEach((input, index) => {
+    report.checked.push(`input-${index}`);
+    const id = input.getAttribute('id');
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledby = input.getAttribute('aria-labelledby');
+    const type = input.getAttribute('type');
+
+    // Skip hidden inputs and submit/button inputs
+    if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
+      return;
+    }
+
+    const hasLabel = (id && document.querySelector(`label[for="${id}"]`)) ||
+                     input.closest('label') ||
+                     ariaLabel ||
+                     ariaLabelledby;
+
+    if (!hasLabel) {
+      report.issues.push(`Form input at index ${index} is missing associated label`);
+      report.valid = false;
+    }
+  });
+
+  // Check 3: Ensure all buttons have accessible names
+  const buttons = document.querySelectorAll('button, [role="button"]');
+  buttons.forEach((button, index) => {
+    report.checked.push(`button-${index}`);
+    const textContent = button.textContent ? button.textContent.trim() : '';
+    const ariaLabel = button.getAttribute('aria-label');
+    const ariaLabelledby = button.getAttribute('aria-labelledby');
+    const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
+
+    if (!hasAccessibleName) {
+      report.issues.push(`Button at index ${index} is missing accessible name`);
+      report.valid = false;
+    }
+  });
+
+  // Check 4: Ensure proper heading hierarchy
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  headings.forEach((heading, index) => {
+    report.checked.push(`heading-${index}`);
+    const currentLevel = parseInt(heading.tagName.charAt(1), 10);
+    if (previousLevel > 0 && currentLevel > previousLevel + 1) {
+      report.issues.push(`Heading hierarchy skip detected: from h${previousLevel} to h${currentLevel}`);
+      report.valid = false;
+    }
+    previousLevel = currentLevel;
+  });
+
+  // Check 5: Ensure page has a main heading
+  const h1Elements = document.querySelectorAll('h1');
+  if (h1Elements.length === 0) {
+    report.issues.push('Page is missing an h1 heading');
+    report.valid = false;
+  } else if (h1Elements.length > 1) {
+    report.issues.push(`Page has multiple h1 headings (${h1Elements.length}), should have only 1`);
+    report.valid = false;
+  }
+
+  // Check 6: Ensure all links are accessible
+  const links = document.querySelectorAll('a');
+  links.forEach((link, index) => {
+    report.checked.push(`link-${index}`);
+    const linkCheck = isLinkAccessible(link);
+    if (!linkCheck.valid) {
+      linkCheck.errors.forEach(err => {
+        report.issues.push(`Link at index ${index}: ${err}`);
+      });
+      report.valid = false;
+    }
+  });
+
+  // Check 7: Ensure all SVGs have accessible names
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    report.checked.push(`svg-${index}`);
+    const svgName = getSvgAccessibleName(svg);
+    if (!svgName) {
+      report.issues.push(`SVG at index ${index} is missing accessible name`);
+      report.valid = false;
+    }
+  });
+
+  // Check 8: Ensure landmarks are unique
+  const landmarkCheck = ensureUniqueLandmarks();
+  if (!landmarkCheck.valid) {
+    landmarkCheck.errors.forEach(err => {
+      report.issues.push(err);
+    });
+    report.valid = false;
+  }
+
+  return report;
 }
 
 // New function to address ADD: Address new accessibility issues from insight report
@@ -430,9 +551,21 @@ function validateFormAccessibility(form) {
   const inputs = form.querySelectorAll('input, textarea, select');
   inputs.forEach((input, index) => {
     const id = input.getAttribute('id');
-    const label = form.querySelector(`label[for="${id}"]`);
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledby = input.getAttribute('aria-labelledby');
+    const type = input.getAttribute('type');
 
-    if (!id || !label) {
+    // Skip hidden inputs and submit/button inputs
+    if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
+      return;
+    }
+
+    const hasLabel = (id && document.querySelector(`label[for="${id}"]`)) ||
+                     input.closest('label') ||
+                     ariaLabel ||
+                     ariaLabelledby;
+
+    if (!hasLabel) {
       errors.push(`Input at index ${index} is missing proper label association`);
     }
 
@@ -521,317 +654,4 @@ function validateButtonAccessibility(button) {
   }
 
   // Check for proper button role
-  const role = button.getAttribute('role');
-  if (role && role !== 'button') {
-    errors.push(`Button has invalid role: ${role}`);
-  }
-
-  // Check for accessible name
-  const textContent = button.textContent ? button.textContent.trim() : '';
-  const ariaLabel = button.getAttribute('aria-label');
-  const ariaLabelledby = button.getAttribute('aria-labelledby');
-  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
-
-  if (!hasAccessibleName) {
-    errors.push('Button is missing accessible name (text content, aria-label, or aria-labelledby)');
-  }
-
-  // Check for redundant title attribute
-  const title = button.getAttribute('title');
-  if (title && title === textContent) {
-    errors.push('Button title attribute duplicates button text');
-  }
-
-  // Check for disabled state
-  if (button.hasAttribute('disabled')) {
-    const ariaDisabled = button.getAttribute('aria-disabled');
-    if (ariaDisabled !== 'true') {
-      errors.push('Disabled button should have aria-disabled="true"');
-    }
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to count dependencies
-function countDependencies(node, options) {
-  // Counts dependencies in a dependency graph
-  // @param {Object} node - The root node to count dependencies from
-  // @param {Object} options - Optional configuration
-  // @param {boolean} options.recursive - Whether to count nested dependencies (default: true)
-  // @param {boolean} options.unique - Whether to count only unique dependencies (default: false)
-  // @returns {Object} Result with count and metadata
-  
-  try {
-    if (!node) {
-      return { count: 0, errors: ['Node is required'] };
-    }
-
-    options = options || {};
-    const recursive = options.recursive !== undefined ? options.recursive : true;
-    const unique = options.unique || false;
-    const dependencyMap = new Map();
-    let totalCount = 0;
-
-    // Recursive function to traverse and count dependencies
-    function traverse(currentNode, depth) {
-      if (!currentNode) return;
-      depth = depth || 0;
-
-      // Get dependencies from various possible property names
-      const dependencies = currentNode.dependencies || 
-                          currentNode.deps || 
-                          currentNode.requires ||
-                          currentNode.children ||
-                          currentNode.modules ||
-                          [];
-
-      dependencies.forEach(function(dep) {
-        const depId = unique ? (dep.id || dep.name || dep) : totalCount;
-        
-        if (unique) {
-          if (!dependencyMap.has(depId)) {
-            dependencyMap.set(depId, Object.assign({}, dep, { depth: depth }));
-            totalCount++;
-          }
-        } else {
-          totalCount++;
-        }
-
-        // Recursively count nested dependencies if enabled
-        if (recursive && typeof dep === 'object' && dep !== null) {
-          traverse(dep, depth + 1);
-        }
-      });
-    }
-
-    traverse(node);
-
-    return {
-      count: totalCount,
-      uniqueCount: unique ? dependencyMap.size : totalCount,
-      success: true,
-      message: 'Found ' + totalCount + ' dependency' + (totalCount !== 1 ? 'ies' : 'y'),
-      dependencies: unique ? Array.from(dependencyMap.values()) : undefined
-    };
-  } catch (error) {
-    console.error('Error counting dependencies:', error);
-    return { count: 0, success: false, errors: [error.message] };
-  }
-}
-
-// New function to render dependency graphs
-function renderDependencyGraph(rootNode) {
-  // Renders a dependency graph visualization
-  // This function traverses the root node and builds a hierarchical representation
-  try {
-    // In a real implementation, this would traverse the DOM tree and create visual elements
-    // For now, we simulate the operation
-    console.log('Rendering dependency graph starting from:', rootNode);
-    return { success: true, message: 'Dependency graph rendered successfully' };
-  } catch (error) {
-    console.error('Error rendering dependency graph:', error);
-    return { success: false, errors: [error.message] };
-  }
-}
-
-// New function to render index views
-function renderIndexView(indexPath) {
-  // Renders an index view (breadcrumb or navigation structure)
-  // This function generates the appropriate UI for navigating between sections
-  try {
-    // In a real implementation, this would generate the appropriate DOM elements
-    // For now, we simulate the operation
-    console.log('Rendering index view at path:', indexPath);
-    return { success: true, message: 'Index view rendered successfully' };
-  } catch (error) {
-    console.error('Error rendering index view:', error);
-    return { success: false, errors: [error.message] };
-  }
-}
-
-// Accessibility-related function to be added
-function checkAccessibilityNew(content) {
-  // Placeholder for accessibility checking logic
-  // This function should be implemented to check for accessibility issues
-  // For now, it just returns an empty array
-  return [];
-}
-
-// TODO: Implement tower defense
-function towerDefense() {
-  // A simple tower defense game implementation
-  // Define towers, enemies, waves, and game loop
-  const towers = [];
-  const enemies = [];
-  let wave = 1;
-  let gameRunning = false;
-  let lastEnemySpawnTime = 0;
-  const spawnInterval = 3000; // Spawn enemies every 3 seconds
-  const pathPoints = [
-    { x: 0, y: 50 },
-    { x: 200, y: 50 },
-    { x: 200, y: 200 },
-    { x: 400, y: 200 },
-    { x: 400, y: 50 },
-    { x: 600, y: 50 }
-  ];
-
-  // Example: Tower constructor
-  function Tower(x, y, range, damage, rate) {
-    this.x = x;
-    this.y = y;
-    this.range = range;
-    this.damage = damage;
-    this.rate = rate;
-    this.lastShot = 0;
-  }
-
-  // Example: Enemy constructor
-  function Enemy(x, y, health, speed) {
-    this.x = x;
-    this.y = y;
-    this.health = health;
-    this.speed = speed;
-    this.pathIndex = 0;
-  }
-
-  // Add a tower
-  function addTower(x, y, range, damage, rate) {
-    towers.push(new Tower(x, y, range, damage, rate));
-  }
-
-  // Add an enemy
-  function addEnemy(x, y, health, speed) {
-    enemies.push(new Enemy(x, y, health, speed));
-  }
-
-  // Spawn a new enemy at the start of the path
-  function spawnEnemy() {
-    const startPoint = pathPoints[0];
-    addEnemy(startPoint.x, startPoint.y, 100, 2);
-  }
-
-  // Update game state (simplified)
-  function update(currentTime) {
-    if (!gameRunning) return;
-
-    // Spawn enemies at intervals
-    if (currentTime - lastEnemySpawnTime > spawnInterval) {
-      spawnEnemy();
-      lastEnemySpawnTime = currentTime;
-    }
-
-    // Logic for enemy movement, tower shooting, etc.
-    enemies.forEach(function(enemy, index) {
-      // Move enemy along path
-      if (enemy.pathIndex < pathPoints.length - 1) {
-        const target = pathPoints[enemy.pathIndex + 1];
-        const dx = target.x - enemy.x;
-        const dy = target.y - enemy.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance > enemy.speed) {
-          enemy.x += (dx / distance) * enemy.speed;
-          enemy.y += (dy / distance) * enemy.speed;
-        } else {
-          enemy.pathIndex++;
-        }
-      } else {
-        // Enemy reached end of path - remove it
-        enemies.splice(index, 1);
-      }
-    });
-
-    // Tower shooting logic
-    towers.forEach(function(tower) {
-      if (currentTime - tower.lastShot > tower.rate) {
-        // Find closest enemy in range
-        let closestEnemy = null;
-        let minDistance = Infinity;
-
-        enemies.forEach(function(enemy) {
-          const dx = enemy.x - tower.x;
-          const dy = enemy.y - tower.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < tower.range && distance < minDistance) {
-            minDistance = distance;
-            closestEnemy = enemy;
-          }
-        });
-
-        // Attack closest enemy if found
-        if (closestEnemy) {
-          closestEnemy.health -= tower.damage;
-          tower.lastShot = currentTime;
-
-          // Remove enemy if health <= 0
-          if (closestEnemy.health <= 0) {
-            const index = enemies.indexOf(closestEnemy);
-            if (index > -1) {
-              enemies.splice(index, 1);
-            }
-          }
-        }
-      }
-    });
-
-    console.log('Wave ' + wave + ' - updating game state');
-  }
-
-  // Start the game
-  function start() {
-    gameRunning = true;
-    lastEnemySpawnTime = Date.now();
-    console.log('Tower defense game started');
-    // Add initial towers
-    addTower(100, 100, 200, 10, 1000);
-    addTower(300, 150, 200, 15, 800);
-    addTower(500, 100, 200, 12, 900);
-  }
-
-  // Stop the game
-  function stop() {
-    gameRunning = false;
-    console.log('Tower defense game stopped');
-  }
-
-  // Expose game functions
-  return {
-    start: start,
-    stop: stop,
-    addTower: addTower,
-    addEnemy: addEnemy,
-    update: update,
-    getWave: function() { return wave; },
-    getEnemies: function() { return enemies; },
-    getTowers: function() { return towers; },
-    isRunning: function() { return gameRunning; }
-  };
-}
-
-// Export all functions to maintain current exports
-module.exports = {
-  setHtmlLangAttribute: setHtmlLangAttribute,
-  detectAndSetLang: detectAndSetLang,
-  getLangAttribute: getLangAttribute,
-  personName: personName,
-  createInPageButton: createInPageButton,
-  validateTableAccessibility: validateTableAccessibility,
-  validateTableStructure: validateTableStructure,
-  validateLandmark: validateLandmark,
-  validateLandmarkStructure: validateLandmarkStructure,
-  getSvgAccessibleName: getSvgAccessibleName,
-  ensureUniqueLandmarks: ensureUniqueLandmarks,
-  createAccessibleLink: createAccessibleLink,
-  isLinkAccessible: isLinkAccessible,
-  validateFormAccessibility: validateFormAccessibility,
-  validateImageAccessibility: validateImageAccessibility,
-  validateButtonAccessibility: validateButtonAccessibility,
-  countDependencies: countDependencies,
-  renderDependencyGraph: renderDependencyGraph,
-  renderIndexView: renderIndexView,
-  checkAccessibilityNew: checkAccessibilityNew,
-  towerDefense: towerDefense
-};
+  const

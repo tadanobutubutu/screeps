@@ -1,61 +1,67 @@
-// main.js
-// ... (existing code above line 326)
+// ... (preserve all existing code above line 238)
 
-/* TODO: Implement the required changes to improve accessibility for adding a new book */
-function addNewBookAccessibility() {
-  // Get the add book form elements
-  const addBookForm = document.getElementById('add-book-form');
-  const titleInput = document.getElementById('title');
-  const authorInput = document.getElementById('author');
-  const pagesInput = document.getElementById('pages');
-  const readCheckbox = document.getElementById('read');
-  const submitButton = document.querySelector('#add-book-form button[type="submit"]');
+/**
+ * Adds a new book to the library with accessibility improvements
+ * @param {string} title - The title of the book
+ * @param {string} author - The author of the book
+ * @param {number} pages - The number of pages
+ * @param {boolean} read - Whether the book has been read
+ */
+function addBookToLibrary(title, author, pages, read) {
+  const newBook = new Book(title, author, pages, read);
+  myLibrary.push(newBook);
 
-  // Add ARIA labels and other accessibility attributes
-  if (addBookForm) {
-    addBookForm.setAttribute('aria-labelledby', 'add-book-heading');
-    addBookForm.setAttribute('role', 'form');
-  }
+  // Create DOM elements for the new book with proper ARIA attributes
+  const bookCard = document.createElement('div');
+  bookCard.classList.add('book-card');
+  bookCard.setAttribute('role', 'article');
+  bookCard.setAttribute('aria-label', `Book: ${title} by ${author}`);
 
-  if (titleInput) {
-    titleInput.setAttribute('aria-required', 'true');
-    titleInput.setAttribute('aria-label', 'Book title');
-  }
+  const titleElement = document.createElement('h3');
+  titleElement.textContent = title;
+  titleElement.setAttribute('aria-label', `Title: ${title}`);
 
-  if (authorInput) {
-    authorInput.setAttribute('aria-required', 'true');
-    authorInput.setAttribute('aria-label', 'Author name');
-  }
+  const authorElement = document.createElement('p');
+  authorElement.textContent = `Author: ${author}`;
+  authorElement.setAttribute('aria-label', `Author: ${author}`);
 
-  if (pagesInput) {
-    pagesInput.setAttribute('aria-label', 'Number of pages');
-    pagesInput.setAttribute('type', 'number');
-    pagesInput.setAttribute('min', '1');
-  }
+  const pagesElement = document.createElement('p');
+  pagesElement.textContent = `Pages: ${pages}`;
+  pagesElement.setAttribute('aria-label', `Number of pages: ${pages}`);
 
-  if (readCheckbox) {
-    readCheckbox.setAttribute('aria-label', 'Mark as read');
-  }
+  const readStatus = document.createElement('button');
+  readStatus.classList.add('read-status');
+  readStatus.textContent = read ? 'Read' : 'Not Read';
+  readStatus.setAttribute('aria-pressed', read);
+  readStatus.setAttribute('aria-label', `Read status: ${read ? 'Read' : 'Not Read'}`);
 
-  if (submitButton) {
-    submitButton.setAttribute('aria-label', 'Add new book to library');
-  }
-
-  // Add keyboard navigation support
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.activeElement === addBookForm) {
-      // Close the form when Escape is pressed
-      const closeButton = document.querySelector('.close-form');
-      if (closeButton) closeButton.click();
-    }
+  readStatus.addEventListener('click', () => {
+    newBook.toggleReadStatus();
+    readStatus.textContent = newBook.read ? 'Read' : 'Not Read';
+    readStatus.setAttribute('aria-pressed', newBook.read);
+    readStatus.setAttribute('aria-label', `Read status: ${newBook.read ? 'Read' : 'Not Read'}`);
   });
+
+  const removeButton = document.createElement('button');
+  removeButton.classList.add('remove-book');
+  removeButton.textContent = 'Remove';
+  removeButton.setAttribute('aria-label', `Remove book: ${title}`);
+
+  removeButton.addEventListener('click', () => {
+    removeBookFromLibrary(newBook);
+    bookCard.remove();
+  });
+
+  bookCard.appendChild(titleElement);
+  bookCard.appendChild(authorElement);
+  bookCard.appendChild(pagesElement);
+  bookCard.appendChild(readStatus);
+  bookCard.appendChild(removeButton);
+
+  document.getElementById('book-grid').appendChild(bookCard);
+
+  // Update the library display
+  displayLibrary();
 }
 
-// Initialize accessibility features when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  addNewBookAccessibility();
-
-  // ... (rest of your existing DOMContentLoaded code)
-});
-
-// ... (rest of your existing code)
+// ... (preserve all remaining existing code)

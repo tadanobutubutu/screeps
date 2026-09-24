@@ -364,49 +364,64 @@ function handleFakeLinks(link) {
 }
 
 /**
- * Creates a focus trap for keyboard navigation within a given element.
- * @param {HTMLElement} container - The container element to trap focus within.
- * @returns {Object} An object with methods to enable and disable the focus trap.
+ * Validates the landmark structure for accessibility issues in the document
+ * @returns {boolean} Whether the document landmark structure is valid
  */
-function newFocusTrap(container) {
-  if (!container || typeof container !== 'object') return null;
+function validateLandmarksStructureForAccessibility() {
+  if (typeof document === 'undefined') return true;
 
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  if (focusableElements.length === 0) return null;
+  const landmarkRoles = ['banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'region', 'search'];
+  const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer, form, search');
 
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
+  for (const landmark of landmarks) {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
 
-  function handleKeyDown(e) {
-    if (e.key === 'Tab') {
-      if (e.shiftKey) {
-        if (document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
+    if (!landmarkRoles.includes(role)) {
+      continue;
+    }
+
+    // Check that main landmark is unique
+    if (role === 'main') {
+      const mainElements = document.querySelectorAll('[role="main"], main');
+      if (mainElements.length > 1) {
+        console.warn('Multiple main landmarks found');
+        return false;
+      }
+    }
+
+    // Check that banner landmark is unique
+    if (role === 'banner') {
+      const bannerElements = document.querySelectorAll('[role="banner"], header');
+      if (bannerElements.length > 1) {
+        console.warn('Multiple banner landmarks found');
+        return false;
+      }
+    }
+
+    // Check that contentinfo landmark is unique
+    if (role === 'contentinfo') {
+      const contentinfoElements = document.querySelectorAll('[role="contentinfo"], footer');
+      if (contentinfoElements.length > 1) {
+        console.warn('Multiple contentinfo landmarks found');
+        return false;
+      }
+    }
+
+    // Check for proper nesting - main should not be inside another landmark
+    if (role === 'main') {
+      let parent = landmark.parentElement;
+      while (parent) {
+        const parentTag = parent.tagName.toLowerCase();
+        if (['header', 'nav', 'aside', 'footer', 'main', 'section'].includes(parentTag)) {
+          console.warn('Main landmark is nested inside another landmark');
+          return false;
         }
-      } else {
-        if (document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
+        parent = parent.parentElement;
       }
     }
   }
 
-  container.addEventListener('keydown', handleKeyDown);
-
-  return {
-    enable: () => {
-      container.setAttribute('tabindex', '-1');
-      container.focus();
-    },
-    disable: () => {
-      container.removeEventListener('keydown', handleKeyDown);
-      container.removeAttribute('tabindex');
-    }
-  };
+  return true;
 }
 
 // REACT_015: Add lang attribute to HTML element
@@ -593,11 +608,5 @@ module.exports = {
   ensureUniqueLandmarks,
   validateLinkAccessibility,
   handleFakeLinks,
-  fixHtmlLangAttribute,
-  fixTableStructure,
-  fixLandmarkLabels,
-  fixUniqueLandmarks,
-  fixSvgAccessibility,
-  fixFakeLinks,
-  fixAllAccessibilityIssues
+  validateLandmarksStructureForAccessibility
 };

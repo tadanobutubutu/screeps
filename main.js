@@ -21,9 +21,9 @@ const AccessibilityUtils = {
     return { success: true, id, created: false };
   },
 
-  addAriaLabel(element, label) {
-    if (!element) {
-      return { success: false, error: 'Element is required' };
+  calculateScore(fixedIssues) {
+    if (!Array.isArray(fixedIssues)) {
+      return 0;
     }
 
     if (!label || typeof label !== 'string') {
@@ -74,133 +74,7 @@ const AccessibilityUtils = {
     };
   },
 
-  validateFocusManagement(container) {
-    if (!container || typeof container !== 'object') {
-      return { valid: false, error: 'Container is required' };
-    }
-
-    const focusableSelectors = [
-      'a[href]',
-      'button:not([disabled])',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])'
-    ];
-
-    let focusableElements = [];
-    try {
-      focusableElements = container.querySelector
-        ? Array.from(container.querySelectorAll(focusableSelectors.join(',')))
-        : [];
-    } catch (e) {
-      return { valid: false, error: 'Unable to query focusable elements' };
-    }
-
-    const tabIndexIssues = focusableElements.filter(el => {
-      const tabIndex = el.getAttribute ? el.getAttribute('tabindex') : null;
-      return tabIndex && parseInt(tabIndex, 10) > 0;
-    });
-
-    return {
-      valid: tabIndexIssues.length === 0,
-      focusableCount: focusableElements.length,
-      tabIndexIssues: tabIndexIssues.length,
-      elements: focusableElements
-    };
-  }
-};
-
-/* todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 */
-const AddressabilityIssues = {
-  langIssues: [],
-  tableIssues: [],
-  landmarkIssues: [],
-  svgIssues: [],
-  linkIssues: []
-};
-
-/**
- * Get SVG accessible name from various sources
- * @param {SVGElement} svg - The SVG element
- * @returns {string|null} - The accessible name or null
- */
-function getSvgAccessibleName(svg) {
-  if (!svg) return null;
-  
-  // Check aria-label
-  const ariaLabel = svg.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel;
-  
-  // Check aria-labelledby
-  const ariaLabelledby = svg.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const referencedElement = document.getElementById(ariaLabelledby);
-    if (referencedElement) return referencedElement.textContent;
-  }
-  
-  // Check title element inside SVG
-  const title = svg.querySelector('title');
-  if (title) return title.textContent;
-  
-  return null;
-}
-
-/**
- * Set SVG accessibility attributes
- * @param {SVGElement} svg - The SVG element
- */
-function setSvgAttributes(svg) {
-  if (!svg) return;
-  
-  // Add role="img" if not present
-  if (!svg.hasAttribute('role')) {
-    svg.setAttribute('role', 'img');
-  }
-  
-  // Ensure unique ID if needed
-  if (!svg.id) {
-    svg.id = `svg-${Math.random().toString(36).substr(2, 9)}`;
-  }
-}
-
-/**
- * Add accessible names to SVG elements
- * @param {Document|Element} root - Root element to search within
- */
-function addSvgAccessibleNames(root = document) {
-  const svgElements = root.querySelectorAll('svg');
-  
-  svgElements.forEach((svg, index) => {
-    // Set role="img" if not present
-    if (!svg.hasAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-    
-    const accessibleName = getSvgAccessibleName(svg);
-    if (!accessibleName && svg.querySelector('title')) {
-      // If no aria-label exists but title exists, generate one
-      const title = svg.querySelector('title');
-      if (title && title.textContent) {
-        svg.setAttribute('aria-label', title.textContent);
-      }
-    }
-    
-    setSvgAttributes(svg);
-  });
-}
-
-function getLangAttribute() {
-  const lang = document.documentElement?.lang || navigator.language || navigator.userLanguage || 'en';
-  return lang;
-}
-
-function validateTableAccessibility(table, index) {
-  if (!table) {
-    return { valid: false, error: 'Table element is required' };
-  }
-
-  transformMainToSection(source) {
+  fixMultipleMainElements(source) {
     const mainBlockRegex = /<\w+(\s+\w+\s*=\s*.*\s*)*<\/main>/g;
 
     let matches = source.match(mainBlockRegex);
@@ -445,7 +319,7 @@ function ensureUniqueLandmarks() {
     }
   });
 
-  runAccessibilityCheck(callback) {
+  runCommand(command, args, callback) {
     const child_process = require('child_process');
 
 // Function to fix fake link issues
@@ -453,7 +327,7 @@ function fixFakeLinkIssues() {
   const fixed = [];
   const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
 
-    child_process.spawn('echo', ['Running accessibility checks...'], spawnOptions, (error, stdout, stderr) => {
+    child_process.spawn(command, args || [], spawnOptions, (error, stdout, stderr) => {
       if (error) {
         callback(new Error(`someCommand failed: ${error.message}`));
         return;
@@ -502,6 +376,75 @@ function fixFakeLinkIssues() {
       devDependencies: Object.keys(devDependencies),
       total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
+  },
+
+  ensureElementHasId(element) {
+    if (!element) {
+      return false;
+    }
+
+    let id = element.getAttribute ? element.getAttribute('id') : element.id;
+    if (id) {
+      return true;
+    }
+
+    const generatedId = `element-${Math.random().toString(36).substr(2, 9)}`;
+    element.setAttribute ? element.setAttribute('id', generatedId) : (element.id = generatedId);
+    return true;
+  },
+
+  addAriaLabel(element, label) {
+    if (!element) {
+      return false;
+    }
+
+    if (element.setAttribute) {
+      element.setAttribute('aria-label', label);
+    }
+    return true;
+  },
+
+  renderDependencyGraph(dependencies) {
+    if (!dependencies || typeof dependencies !== 'object') {
+      return '';
+    }
+
+    const lines = ['digraph dependencies {'];
+    lines.push('  rankdir=LR;');
+    lines.push('  node [shape=box];');
+
+    const deps = dependencies.dependencies || [];
+    const devDeps = dependencies.devDependencies || [];
+
+    deps.forEach(dep => {
+      lines.push(`  "${dep}" [style=filled, fillcolor=lightblue];`);
+    });
+
+    devDeps.forEach(dep => {
+      lines.push(`  "${dep}" [style=filled, fillcolor=lightgray];`);
+    });
+
+    lines.push('}');
+    return lines.join('\n');
+  },
+
+  fixAccessibilityIssues(issues) {
+    if (!Array.isArray(issues)) {
+      return { fixed: [], remaining: [] };
+    }
+
+    const fixed = [];
+    const remaining = [];
+
+    issues.forEach(issue => {
+      if (issue.autoFixable) {
+        fixed.push(issue);
+      } else {
+        remaining.push(issue);
+      }
+    });
+
+    return { fixed, remaining };
   }
 }
 
@@ -517,4 +460,6 @@ const sampleInsightReport = {
   // ... previous content ...
 };
 
-module.exports = { AddressabilityIssues, AccessibilityUtils };
+// ... (other functions and setting up exports)
+
+module.exports = AddressabilityIssues;

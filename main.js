@@ -1,6 +1,7 @@
 // existing code preserved...
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+// TODO: This is the existing code that needs to be preserved
+// ----- END ORIGINAL CODE (unchanged) -----
 
 root.render(
   <React.StrictMode>

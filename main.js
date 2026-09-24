@@ -240,6 +240,5 @@ module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   newFunction,
-  addProperLandmarkRegions
+  uniqueLandmarks
 };
-// ----- END ORIGINAL CODE -----

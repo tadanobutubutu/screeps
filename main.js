@@ -395,7 +395,8 @@ module.exports = {
   renderIndexContentWithOptions,
   fixUniqueLandmarks,
   capitalizeFirstLetter,
-  checkTableAccessibility
+  addLandmarkRoles,
+  fixLandmarkIssues
 };
 
 main();

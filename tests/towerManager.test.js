@@ -201,6 +201,9 @@ describe('towerManager', () => {
             expect(stats.active).toBe(2);
             expect(stats.lowEnergy).toBe(2);
             expect(stats.avgEnergy).toBeCloseTo(0.466, 2);
+
+            // Clean up mock to avoid test pollution
+            cache.getMyStructures.mockReturnValue([mockTower]);
         });
     });
 

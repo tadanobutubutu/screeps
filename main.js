@@ -93,7 +93,7 @@ function prepareDataForGraph() {
   return { /* prepared data */ };
 }
 
-function renderGraphIndex() {
+export function renderGraphIndex() {
   // JavaScript code to prepare data for the graph
   const data = prepareDataForGraph();
 

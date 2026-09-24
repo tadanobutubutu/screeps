@@ -250,12 +250,46 @@ function Main() {
   // Render the list of book items, sorting controls, and the book form
   return (
     <div>
-      {createInPageButtons()}
-      <List dataSource={bookItems} />
+      <h2 id="add-book-heading">Add a New Book</h2>
+      <AddBookForm onAddBook={handleAddBook} />
+      
+      <h2>Books List</h2>
+      <div role="group" aria-label="Sorting controls">
+        <button 
+          onClick={() => setSorting(sortByTitle)}
+          aria-pressed={sorting === sortByTitle}
+        >
+          Sort by Title
+        </button>
+        <button 
+          onClick={() => setSorting(sortByAuthor)}
+          aria-pressed={sorting === sortByAuthor}
+        >
+          Sort by Author
+        </button>
+      </div>
+      
+      <List 
+        aria-label="Books collection"
+        dataSource={bookItems}
+        renderItem={(item) => item}
+      />
     </div>
   );
 }
 
 // Export the Main component and the BookForm component
 export default Main;
-export { BookForm, countDependencies };
+export { BookForm };
+
+// Export additional functions and components that may be required elsewhere
+export { 
+  sortByTitle, 
+  sortByAuthor, 
+  generateKey, 
+  BookItem, 
+  AddBookForm, 
+  defaultSorting,
+  onTitleSort,
+  onAuthorSort
+};

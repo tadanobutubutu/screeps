@@ -389,5 +389,10 @@ export function ... {
   headers.forEach(th => {
     if ... {
       const row = th.closest('tr')
-      const cellIndex = ...
-      th.setAttribute('scope',
+      const cellIndex = Array.from(row.children).indexOf(th)
+      th.setAttribute('scope', 'row')
+    }
+  })
+}
+
+// ... (rest of the existing code from main.js)

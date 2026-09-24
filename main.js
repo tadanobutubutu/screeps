@@ -98,72 +98,67 @@ function implementAccessibilityFixesFromReport(container, report) {
   // Fix landmark issues
   if (typeof validateLandmark === 'function') {
     validateLandmark(container)
-  }
 
-  // Fix SVG accessible names
-  const svgElements = ...
-  ... => {
-    const accessibleName = getSvgAccessibleName(svg)
-    if (
-      accessibleName &&
-            ... &&
-            ...
-    ) {
-      ... accessibleName)
-      fixes.svgNamesAdded++
+    // Fix SVG accessible names
+    const svgElements = container.querySelectorAll('svg')
+    svgElements.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg)
+      if (
+        accessibleName &&
+        accessibleName.trim() !== ''
+      ) {
+        addSvgAccessibleNames(svg, accessibleName)
+        fixes.svgNamesAdded++
+      }
+    })
+
+    // Fix fake link issues (elements that look like links but are missing href)
+    const fakeLinks = container.querySelectorAll('[onclick]:not(a):not(button)')
+    fakeLinks.forEach(link => {
+      link.setAttribute('href', '#' + (link.id || 'fake-link'))
+      link.setAttribute('role', 'link')
+      fixes.fakeLinksFixed++
+    })
+
+    // Validate accessibility report
+    const accessibilityReport = validateAccessibilityReport(report)
+    if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
+      log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
     }
-  })
 
-  // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = ...
-  ... => {
-    link.setAttribute('href', '#' + (link.id || ...
-    link.setAttribute('role', 'link')
-    fixes.fakeLinksFixed++
-  })
-
-  // Validate accessibility report
-  const accessibilityReport = ...
-  if (accessibilityReport && ... > 0) {
-    log(`Accessibility report contains ... remaining issues`, 'warn')
-  }
-
-  // Implement focus trap for keyboard navigation
-  if (typeof trapFocus === 'function') {
-    const cleanup = trapFocus(container);
-    if (cleanup && typeof cleanup === 'function') {
-      // Store cleanup for later use if needed
-      container._focusTrapCleanup = cleanup;
+    // Implement focus trap for keyboard navigation
+    if (typeof focusTrap === 'function') {
+      focusTrap(container)
     }
-  }
 
-  if (fixes.langAdded) {
-    console.info('Lang attribute added to HTML element')
-  }
+    if (fixes.langAdded) {
+      log('Lang attribute added to HTML element', 'info')
+    }
 
-  if (fixes.mainLandmarkAdded) {
-    console.info('Main landmark added')
-  }
+    if (fixes.mainLandmarkAdded) {
+      log('Main landmark added', 'info')
+    }
 
-  // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility ? checkAccessibility(container) : []
-  if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ... ')}`, 'error')
-  }
+    // Check for new accessibility issues
+    const newAccessibilityIssues = checkAccessibility(container)
+    if (newAccessibilityIssues.length > 0) {
+      log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error')
+    }
 
-  const landmarkFixesCount = fixes.landmarksFixed || 0
-  if (landmarkFixesCount > 0) {
-    log(`Fixed ... unique landmarks`, 'info')
-  }
+    const landmarkFixesCount = fixes.landmarksFixed || 0
+    if (landmarkFixesCount > 0) {
+      log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
+    }
 
-  const svgFixes = fixes.svgNamesAdded || 0
-  if (svgFixes > 0) {
-    console.info('Fixed accessible names for ' + svgFixes + ' SVGs')
-  }
+    const svgFixes = fixes.svgNamesAdded || 0
+    if (svgFixes > 0) {
+      log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
+    }
 
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0
-  if (fakeLinkFixes > 0) {
-    console.info('Fixed fake link issues for ' + fakeLinkFixes + ' elements')
+    const fakeLinkFixes = fixes.fakeLinksFixed || 0
+    if (fakeLinkFixes > 0) {
+      log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
+    }
   }
 
   return fixes;

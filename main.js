@@ -1,61 +1,24 @@
-// Import necessary dependencies
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const path = require('path');
-const { a11y } = require('@accessible/react');
-const {
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  ensureUniqueLandmarks,
-  ...exportedFunctions
-} = require('./utils');
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import fastMap from 'fast-map';
-import accessiblyHelper from './accessibly-helper';
+import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
-import App from './App';
-import { helper, formatDate } from './utils';
-import { someFunction } from './utils/someFunction';
-import { fetchUser, clearCache } from './utils/user';
-import * as accessibilityFixes from './accessibilityFixes';
-import * as newFunctions from './newFunctions';
+import { generateDependencyReport, utils, axe } from './utils';
 
-export const validateLandmarkData = (data = {}) => {
-  const errors = [];
+const primaryContent = document.querySelector('.primary-content') ||
+    document.querySelector('[role="main"]') ||
+    document.getElementById('main-content') ||
+    document.querySelector('#content');
 
-  // Update landmark validation logic if needed
-  const role = data.getAttribute('role');
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary'];
-  if (!validLandmarks.includes(role)) {
-    errors.push('Invalid landmark role');
+function wrapPrimaryContentInMain() {
+  if (primaryContent && !primaryContent.closest('main')) {
+    const mainElement = document.createElement('main');
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    mainElement.appendChild(primaryContent);
+    return mainElement;
   }
-  return errors;
-};
-
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
-
-const HTML = ({ lang }) => {
-  return { lang };
-};
+  return null;
+}
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -65,8 +28,6 @@ const HTML = ({ lang }) => {
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// TODO: This is the modified and merged code
 
 // Function to count dependencies in package.json
 function countDependencies() {

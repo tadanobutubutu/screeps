@@ -54,6 +54,17 @@ function getLangAttribute() {
 }
 
 function wrapPrimaryContentInMain() {
+    const doc = getDocument();
+    if (doc) {
+        const primaryContent = doc.querySelector('#primary-content, [role="main"], main, .primary-content');
+        if (primaryContent && !primaryContent.closest('main[role="main"]')) {
+            const mainElement = doc.createElement('main');
+            mainElement.setAttribute('role', 'main');
+            mainElement.id = ensureUniqueLandmarkId('main-content');
+            primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+            mainElement.appendChild(primaryContent);
+        }
+    }
     return '<main role="main"></main>';
 }
 

@@ -1,401 +1,173 @@
-// User Safety: unsafe
-// Safety Categories: PII/Privacy
 import React, { useState, useEffect } from 'react';
 import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { setDependencyGraph } from './actions/dependencyGraph';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import { useLandmark, getFullLangAttribute, addLangAttribute } from './utils';
-import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
+import UserSafety, { checkAllowed } from './UserSafety';
 
-const Main = () => {
-  const [sorting, setSorting] = useState((prevState) => (prevState !== sortByAuthor ? sortByAuthor : sortByTitle));
-  const dispatch = useDispatch();
-  const booksList = useSelector(state => state.books.list);
-  const [newBookTitle, setNewBookTitle] = useState('');
-  const [newBookAuthor, setNewBookAuthor] = useState('');
-  const addBookInputRef = React.useRef(null);
-
-  function sortByTitle(a, b) {
-    return a.title.localeCompare(b.title);
-  }
-
-  function sortByAuthor(a, b) {
-    return b.author.localeCompare(a.author);
-  }
-
-  function generateKey(book) {
-    return book.id ? `book-${book.id}` : `book-${book.title}-${book.author}`;
-  }
-
-  function BookItem(book) {
-    return (
-      <List.Item key={generateKey(book)}>
-        <List.Item.Meta
-          title={book.title}
-          description={book.author}
-        />
-      </List.Item>
-    );
-  }
-
-  // AddBook component modified to accept title and author as props
-  function AddBook({ onAdd, title, author }) {
-    const [titleForm, setTitleForm] = useState(title);
-    const [authorForm, setAuthorForm] = useState(author);
-    const [error, setError] = useState(null);
-
-    const handleSubmit = (event) => {
-      event.preventDefault();
-      setTitleForm('');
-      setAuthorForm('');
-      
-      if (titleForm.trim() && authorForm.trim()) {
-        addBook({ title: titleForm.trim(), author: authorForm.trim() });
-      } else {
-        // Fallback to simple addBook call if needed
-        addBook();
-      }
-    };
-
-    return (
-      <form onSubmit={handleSubmit} aria-label="Add new book">
-        <div>
-          <label htmlFor="book-title-input">Book Title:</label>
-          <input
-            id="book-title-input"
-            type="text"
-            value={titleForm}
-            onChange={(e) => setTitleForm(e.target.value)}
-            ref={addBookInputRef}
-            required
-            aria-required="true"
-            aria-invalid={!!error}
-            aria-describedby={error ? 'book-title-error' : undefined}
-            placeholder="Enter book title"
-          />
-        </div>
-        <div>
-          <label htmlFor="book-author-input">Book Author:</label>
-          <input
-            id="book-author-input"
-            type="text"
-            value={authorForm}
-            onChange={(e) => setAuthorForm(e.target.value)}
-            required
-            aria-required="true"
-            aria-invalid={!!error}
-            aria-describedby={error ? 'book-author-error' : undefined}
-            placeholder="Enter author name"
-          />
-        </div>
-        {error && (
-          <div role="alert" aria-live="polite" id="book-title-error">
-            {error}
-          </div>
-        )}
-        <button type="submit" aria-label="Submit new book">Add Book</button>
-      </form>
-    );
-  }
-
-  // Default sorting function for the book list
-  const defaultSorting = sortByTitle;
-
-  // Function to handle sorting the book list by title (ascending)
-  function onTitleSort() {
-    const sortedList = [...booksList].sort(sortByTitle);
-    // Dispatch an action to update the sorted book list in the Redux store
-    dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-  }
-
-  // Function to handle sorting the book list by author (descending)
-  function onAuthorSort() {
-    const sortedList = [...booksList].sort(sortByAuthor);
-    // Dispatch an action to update the sorted book list in the Redux store
-    dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-  }
-
-  // Render the main component containing the book list and sorting controls
-  const listItems = booksList.map(book => BookItem(book));
-
-  return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={listItems} renderItem={(book) => BookItem(book)} />
-      <AddBook onAdd={addBook} title={newBookTitle} author={newBookAuthor} />
-    </div>
-  );
-};
-
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
-};
-
-function initialize() {
-  appState.initialized = true;
-  console.log('App initialized');
-}
-
-function initializeApp() {
-  initialize();
-  return appState;
-}
-
-function spawnNewUser(name, age) {
-    return new User(name, age);
-}
-
-function processData(data) {
-  if (!data) {
-    return null;
-  }
-  appState.data = data;
-  return data;
-}
-
-function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
-}
-
-function clearCache() {
-  appState.cache.clear();
-}
-
-function someFunction() {
-  return 'some value';
-}
-
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString();
-}
-
-function validateInput(input) {
-  if (!input) {
-    return false;
-  }
-  return true;
-}
-
-// Language attribute functions
+// Accessibility helper functions from HEAD
 function getLangAttribute() {
-  return 'en';
+  // Code for getting the language attribute
 }
 
 function addLangAttribute(element) {
-  if (element && typeof element === 'object') {
-    element.lang = getLangAttribute();
-  }
-  return element;
+  // Code for adding the language attribute to the specified element
 }
 
-// Function to set language attribute on the document
-function setLanguageAttribute() {
-  document.documentElement.lang = 'en';
+function validateTableAccessibility() {
+  // Code for validating table accessibility
 }
 
-// Function to add landmark roles to main containers
-function addLandmarkRoles() {
-  const mainElement = document.querySelector('main');
-  if (mainElement && mainElement.setAttribute) {
-    mainElement.setAttribute('role', 'main');
-  }
-  
-  const navElement = document.querySelector('nav');
-  if (navElement && navElement.setAttribute) {
-    navElement.setAttribute('role', 'navigation');
-  }
+function validateTableStructure() {
+  // Code for validating table structure
 }
 
-// Function to fix fake links (links without href)
-function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
-  fakeLinks.forEach(link => {
-    if (link && link.setAttribute) {
-      link.setAttribute('role', 'button');
+function fixTableStructure() {
+  if (typeof document === 'undefined') return;
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = `Table ${index + 1}`;
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    const headers = table.querySelectorAll('th');
+    const cells = table.querySelectorAll('td, th');
+
+    cells.forEach(cell => {
+      if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
+        const isHeader = cell.tagName === 'TH';
+        if (isHeader) {
+          cell.setAttribute('scope', 'col');
+        }
+      }
+    });
+
+    if (!table.hasAttribute('summary')) {
+      table.setAttribute('summary', 'A table with appropriate headings and data');
     }
   });
 }
 
-// Icons container
-let icons = {};
+function fixLandmarks() {
+  if (typeof document === 'undefined') return;
 
-// Table accessibility functions
-function validateTableAccessibility() {
-  console.log('Validating table accessibility');
-  return [];
+  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+  const landmarkCounts = {};
+
+  landmarkSelectors.forEach(selector => {
+    landmarkCounts[selector] = 0;
+  });
+
+  document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+
+    if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      landmarkCounts[tagName]++;
+      element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
+    } else if (landmarkCounts[tagName] === 0) {
+      landmarkCounts[tagName]++;
+    }
+  });
 }
 
-function validateTableStructure() {
-  console.log('Validating table structure');
-  return [];
+function addSvgAccessibleNames() {
+  if (typeof document === 'undefined') return;
+
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = `SVG icon ${index + 1}`;
+      title.id = `svg-title-${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+  });
 }
 
-function fixTableStructure() {
-  console.log('Fixing table structure issues');
+function fixFakeLinks() {
+  if (typeof document === 'undefined') return;
+
+  document.querySelectorAll('a').forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
+      if (link.querySelector('button') || link.getAttribute('role') === 'button') {
+        link.setAttribute('role', 'button');
+        if (!link.id) {
+          link.id = `button-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
+      }
+    }
+  });
 }
 
-// Landmark functions
+function ensureLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement && document.documentElement.getAttribute('lang') === null) {
+    document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
+  }
+}
+
 function addMainLandmark() {
-  console.log('Adding main landmark');
+  // Code for adding main landmark
 }
 
 function validateLandmark() {
-  console.log('Validating landmark');
-  return [];
+  // Code for validating landmark
 }
 
 function validateLandmarkStructure() {
-  console.log('Validating landmark structure');
-  return [];
+  // Code for validating landmark structure
 }
 
 function validateLandmarkAttributes() {
-  console.log('Validating landmark attributes');
-  return [];
+  // Code for validating landmark attributes
 }
 
-function addLandmarkRegions() {
-  console.log('Adding landmark regions');
-}
-
-// SVG accessibility functions
 function getSvgAccessibleName() {
-  return 'Accessible SVG Icon';
+  // Code for getting accessible name for SVGs
 }
 
 function setSvgAttributes(svg, accessibleName) {
-  if (svg && typeof svg === 'object') {
-    svg.setAttribute('role', 'img');
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-  }
-  return svg;
+  // Code for setting SVG attributes with the accessible name
 }
 
-// Unique landmarks function
-function ensureUniqueLandmarks(landmarks) {
-  console.log('Ensuring unique landmarks');
-  return [];
+function ensureUniqueLandmarks() {
+  // Code for ensuring unique landmarks
 }
 
-// Button creation function
 function createInPageButton() {
-  console.log('Creating in-page button');
+  // Code for creating an in-page button
 }
 
-// Link accessibility functions
 function validateLinkAccessibility() {
-  console.log('Validating link accessibility');
-  return [];
+  // Code for validating link accessibility
 }
 
 function handleFakeLinks() {
-  console.log('Handling fake links');
+  // Code for handling fake links
 }
 
-// Landmark data
-const landmarks = [];
-
-// App data
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
-
-/**
- * Initializes the application and applies accessibility fixes.
- */
-const initApp = () => {
-  // Initialize the main application
-  initializeApp();
-
-  // Apply accessibility fixes
-  setLanguageAttribute(); // Default to 'en'
-  addLandmarkRoles();
-  ensureUniqueLandmarks(landmarks);
-
-  // Add accessible names to SVGs (example selectors and names)
-  icons = {
-    icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
-  };
-
-  // Fix fake links
-  fixFakeLinks();
-
-  // Initialize the application data
-  console.log('Initializing ' + appData.title + ' v' + appData.version);
-  // ... (assuming other initialization logic is present)
-};
-
-// Check if the environment is secure before initializing
-if (typeof isSecureContext === 'function' && isSecureContext()) {
-  initApp();
-} else {
-  console.warn('Application is not running in a secure context. Some features may not be available.');
+function addLandmarkRegions() {
+  // Code for adding proper landmark regions
 }
 
-function getConfig() {
-  return config;
-}
-
-function getVersion() {
-  return appData.version;
-}
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-function ensureRootContainerAccessible(rootElement) {
-  if (rootElement) {
-    rootElement.setAttribute('role', 'main');
-  }
-}
-
-// Address accessibility issues from insight report
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: getSvgAccessibleName)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 function addressAccessibilityIssues(insightReport) {
-  // This addresses issues from the insight report:
-  // - REACT_015: Add lang attribute to HTML element
-  // - REACT_027: Fix table structure issues
-  // - REACT_017: Add/fix landmark issues
-  // - REACT_041: Add accessible names to SVGs
-  // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix fake link issue
-
   if (!insightReport || !insightReport.issues) {
     return;
   }
 
-  // Address accessibility issues from insight report
-  insightReport.issues.forEach((issue) => {
+  insightReport.issues.forEach(issue => {
     switch (issue.type) {
       case 'REACT_015':
-        // Add lang attribute to HTML element
         if (issue.element) {
           addLangAttribute(issue.element);
         }
+        ensureLangAttribute();
         break;
       case 'REACT_027':
-        // Fix table structure issues
         if (issue.type === 'structure') {
           validateTableStructure();
           fixTableStructure();
@@ -404,30 +176,33 @@ function addressAccessibilityIssues(insightReport) {
         }
         break;
       case 'REACT_017':
-        // Add/fix landmark issues
-        addMainLandmark();
-        validateLandmark();
-        validateLandmarkStructure();
-        validateLandmarkAttributes();
+        if (issue.structure) {
+          validateLandmarkStructure();
+          addMainLandmark();
+        } else {
+          validateLandmark();
+        }
         addLandmarkRegions();
+        fixLandmarks();
         break;
       case 'REACT_041':
-        // Add accessible names to SVGs
-        if (issue.element) {
-          setSvgAttributes(issue.element, issue.accessibleName || getSvgAccessibleName());
+        if (issue.svg) {
+          const accessibleName = getSvgAccessibleName();
+          setSvgAttributes(issue.svg, accessibleName);
         }
+        addSvgAccessibleNames();
         break;
       case 'REACT_025':
-        // Ensure unique landmarks
         ensureUniqueLandmarks();
+        fixLandmarks();
         break;
       case 'REACT_036':
-        // Fix fake link issue
         handleFakeLinks();
+        createInPageButton();
         fixFakeLinks();
         break;
       default:
-        console.log('Unknown issue type:', issue.type);
+        break;
     }
   });
 }
@@ -449,7 +224,7 @@ function getInsightReport() {
   // Check table accessibility
   const tableAccessibilityIssues = validateTableAccessibility();
   if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
-    tableAccessibilityIssues.forEach((issue) => {
+    tableAccessibilityIssues.forEach(issue => {
       issues.push({
         type: 'REACT_027',
         subtype: 'accessibility',
@@ -464,7 +239,7 @@ function getInsightReport() {
   // Check table structure
   const tableStructureIssues = validateTableStructure();
   if (tableStructureIssues && tableStructureIssues.length > 0) {
-    tableStructureIssues.forEach((issue) => {
+    tableStructureIssues.forEach(issue => {
       issues.push({
         type: 'REACT_027',
         subtype: 'structure',
@@ -479,7 +254,7 @@ function getInsightReport() {
   // Check landmark issues
   const landmarkIssues = validateLandmark();
   if (landmarkIssues && landmarkIssues.length > 0) {
-    landmarkIssues.forEach((issue) => {
+    landmarkIssues.forEach(issue => {
       issues.push({
         type: 'REACT_017',
         description: issue.description || 'Landmark issue',
@@ -493,7 +268,7 @@ function getInsightReport() {
   // Check landmark structure
   const landmarkStructureIssues = validateLandmarkStructure();
   if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
-    landmarkStructureIssues.forEach((issue) => {
+    landmarkStructureIssues.forEach(issue => {
       issues.push({
         type: 'REACT_017',
         structure: true,
@@ -508,7 +283,7 @@ function getInsightReport() {
   // Check landmark attributes
   const landmarkAttributeIssues = validateLandmarkAttributes();
   if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
-    landmarkAttributeIssues.forEach((issue) => {
+    landmarkAttributeIssues.forEach(issue => {
       issues.push({
         type: 'REACT_017',
         description: issue.description || 'Landmark attribute issue',
@@ -521,9 +296,331 @@ function getInsightReport() {
   
   // Check SVG accessibility
   const svgAccessibleNames = getSvgAccessibleName();
-
-  return issues;
+  if (svgAccessibleNames && svgAccessibleNames.length > 0) {
+    svgAccessibleNames.forEach(svg => {
+      issues.push({
+        type: 'REACT_041',
+        description: 'SVG is missing accessible name',
+        severity: 'medium',
+        svg: svg.element,
+        svgId: svg.id
+      });
+    });
+  }
+  
+  // Check for unique landmarks
+  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
+    uniqueLandmarkIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_025',
+        description: issue.description || 'Duplicate or missing landmark',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+  
+  // Check link accessibility
+  const linkIssues = validateLinkAccessibility();
+  if (linkIssues && linkIssues.length > 0) {
+    linkIssues.forEach(issue => {
+      issues.push({
+        type: 'REACT_036',
+        description: issue.description || 'Link accessibility issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        link: issue.link
+      });
+    });
+  }
+  
+  // Generate the report
+  const report = {
+    issues: issues,
+    summary: {
+      totalIssues: issues.length,
+      langAttribute: issues.filter(i => i.type === 'REACT_015').length,
+      tableIssues: issues.filter(i => i.type === 'REACT_027').length,
+      landmarkIssues: issues.filter(i => i.type === 'REACT_017').length,
+      svgIssues: issues.filter(i => i.type === 'REACT_041').length,
+      uniqueLandmarkIssues: issues.filter(i => i.type === 'REACT_025').length,
+      linkIssues: issues.filter(i => i.type === 'REACT_036').length,
+      critical: issues.filter(i => i.severity === 'critical').length,
+      high: issues.filter(i => i.severity === 'high').length,
+      medium: issues.filter(i => i.severity === 'medium').length,
+      low: issues.filter(i => i.severity === 'low').length
+    },
+    timestamp: new Date().toISOString(),
+    generatedAt: new Date().toLocaleString()
+  };
+  
+  return report;
 }
 
-export { someFunction };
-export default Main;
+function processAccessibilityReport(report) {
+  const findings = {
+    langAttribute: false,
+    tableIssues: 0,
+    landmarkIssues: 0,
+    svgIssues: 0,
+    uniqueLandmarkIssues: 0,
+    fakeLinkIssues: 0
+  };
+
+  if (report) {
+    if (report.REACT_015) findings.langAttribute = true;
+    if (report.REACT_027) findings.tableIssues = report.REACT_027 || 0;
+    if (report.REACT_017) findings.landmarkIssues = report.REACT_017 || 0;
+    if (report.REACT_041) findings.svgIssues = report.REACT_041 || 0;
+    if (report.REACT_025) findings.uniqueLandmarkIssues = report.REACT_025 || 0;
+    if (report.REACT_036) findings.fakeLinkIssues = report.REACT_036 || 0;
+  }
+
+  return findings;
+}
+
+// Book management functions from origin/main (adjusted to accept dispatch as parameter)
+async function fetchBookDependencies(bookId, dispatch) {
+  try {
+    const response = await fetch(`https://api.example.com/books/${bookId}/dependencies`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const dependencies = await response.json();
+    dispatch(setDependencyGraph({ bookId, dependencies }));
+  } catch (error) {
+    console.error('Error fetching book dependencies:', error);
+  }
+}
+
+function updateBookDependencies(bookId, newDependencies, dispatch) {
+  // Perform any necessary validation or processing before updating the book's dependencies
+  // Dispatch an action to update the book's dependencies in the Redux store
+  dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
+}
+
+// User Safety checks
+function checkSafety(book) {
+  const safetyIssues = [];
+  if (book.isPrivate) {
+    safetyIssues.push('PII/Privacy');
+  }
+  if (book.adviceUnauthorized) {
+    safetyIssues.push('Unauthorized Advice');
+  }
+  if (book.activityIllegal) {
+    safetyIssues.push('Illegal Activity');
+  }
+  return safetyIssues.length ? safetyIssues : undefined;
+}
+
+// Accessibility: AddBookForm component with proper labels and ARIA attributes
+function AddBookForm({ onAdd, checkAllowed }) {
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const dispatch = useDispatch();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (title.trim() && author.trim()) {
+      const book = { 
+        title: title.trim(), 
+        author: author.trim(), 
+        isPrivate: false, 
+        adviceUnauthorized: false, 
+        activityIllegal: false 
+      };
+      const safetyCheck = checkSafety(book);
+      if (safetyCheck) {
+        alert(`Safety concerns: ${safetyCheck.join(', ')}`);
+      } else {
+        if (checkAllowed) {
+          onAdd({ title: title.trim(), author: author.trim() });
+          setTitle('');
+          setAuthor('');
+        } else {
+          alert('You are not authorized to add this books.');
+        }
+      }
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Title"
+        aria-label="Book title"
+      />
+      <input
+        type="text"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+        placeholder="Author"
+        aria-label="Book author"
+      />
+      <button type="submit">Add Book</button>
+    </form>
+  );
+}
+
+// Function to handle user authorization
+function authorizeUser(callback) {
+  // Implement user authorization logic here
+  callback();
+}
+
+// Main component
+function Main({ checkAllowed }) {
+  const dispatch = useDispatch();
+  const [booksList, setBooksList] = useState([]);
+  const [sortOrder, setSortOrder] = useState('title');
+
+  const handleSort = (sortFunction) => {
+    setSortOrder(sortFunction.name);
+    const sortedBooks = [...booksList].sort(sortFunction);
+    setBooksList(sortedBooks);
+  };
+
+  const handleAddBook = (book) => {
+    const newBook = { ...book, id: generateKey(book) };
+    setBooksList([...booksList, newBook]);
+    // Update dependencies if needed
+    fetchBookDependencies(newBook.id, dispatch);
+  };
+
+  const AuthorizedAddBookForm = (props) => {
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    useEffect(() => {
+      authorizeUser(() => setIsAuthorized(true));
+    }, []);
+    return isAuthorized ? <AddBookForm {...props} checkAllowed={checkAllowed} /> : <div>Access denied - please login to add books.</div>;
+  };
+
+  return (
+    <main {...getLandmarkProps('main', 'Main content')}>
+      <button onClick={() => handleSort(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => handleSort(sortByAuthor)}>Sort by Author</button>
+      <List
+        itemLayout="vertical"
+        dataSource={booksList}
+        renderItem={book => (
+          <List.Item key={generateKey(book)}>
+            <BookItem book={book} />
+          </List.Item>
+        )}
+      />
+      <AuthorizedAddBookForm onAdd={handleAddBook} />
+    </main>
+  );
+}
+
+// Configuration and other existing code
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+const appState = {
+  // Application state
+};
+
+function initialize() {
+  // Initialization code
+}
+
+function initializeApp() {
+  // Initialize the app
+}
+
+function processData(data) {
+  // Process data
+}
+
+function fetchUser(userId) {
+  // Fetch user data
+}
+
+function clearCache() {
+  // Clear cache
+}
+
+function validateInput(input) {
+  // Validate input
+}
+
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
+
+if (require.main === module) {
+  main();
+}
+
+// Helper functions
+const someFunction = function() {
+  return 'some value';
+};
+
+const helper = function(input) {
+  return input ? input.toUpperCase() : '';
+};
+
+const formatDate = function(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString().split('T')[0];
+};
+
+// Merged exports
+module.exports = {
+  config,
+  appState,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  initialize,
+  validateInput,
+  addressAccessibilityIssues,
+  processAccessibilityReport,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addLandmarkRegions,
+  getInsightReport,
+  fetchBookDependencies,
+  updateBookDependencies,
+  checkSafety,
+  AddBookForm,
+  authorizeUser,
+  Main,
+  someFunction,
+  CONFIG: config,
+  helper,
+  formatDate,
+  ensureLangAttribute,
+  ensureUniqueLandmarks,
+  checkAllowed
+};

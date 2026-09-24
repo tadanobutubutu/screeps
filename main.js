@@ -537,30 +537,10 @@ function addMainLandmark() {
 
 function validateLandmark() {
   const issues = [];
-  const landmarks = ['main', 'nav', 'header', 'footer', 'aside', 'section'];
 
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark);
-    elements.forEach(element => {
-      if (!element.getAttribute('role') && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-        issues.push({
-          description: `Landmark element <${landmark}> is missing accessible name`,
-          severity: 'medium',
-          element: element,
-          landmark: landmark
-        });
-      }
-    });
-  });
-
-  return issues;
-}
-
-function validateLandmarkStructure() {
-  const issues = [];
-  const mainElements = document.querySelectorAll('main');
-
-  if (mainElements.length > 1) {
+  // Check for lang attribute on HTML element
+  const langAttribute = getLangAttribute();
+  if (!langAttribute) {
     issues.push({
       description: 'Multiple main landmarks found - only one main landmark should exist',
       severity: 'high',
@@ -569,7 +549,142 @@ function validateLandmarkStructure() {
     });
   }
 
-  return issues;
+  // Check table accessibility
+  const tableAccessibilityIssues = validateTableAccessibility();
+  if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
+    tableAccessibilityIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'accessibility',
+        description: issue.description || 'Table accessibility issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+
+  // Check table structure
+  const tableStructureIssues = validateTableStructure();
+  if (tableStructureIssues && tableStructureIssues.length > 0) {
+    tableStructureIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'structure',
+        description: issue.description || 'Table structure issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+
+  // Check landmark issues
+  const landmarkIssues = validateLandmark();
+  if (landmarkIssues && landmarkIssues.length > 0) {
+    landmarkIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check landmark structure
+  const landmarkStructureIssues = validateLandmarkStructure();
+  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
+    landmarkStructureIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_017',
+        structure: true,
+        description: issue.description || 'Landmark structure issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check landmark attributes
+  const landmarkAttributeIssues = validateLandmarkAttributes();
+  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
+    landmarkAttributeIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark attribute issue',
+        severity: issue.severity || 'low',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check SVG accessibility
+  const svgAccessibleNames = getSvgAccessibleName();
+  if (svgAccessibleNames && svgAccessibleNames.length > 0) {
+    svgAccessibleNames.forEach(function(svg) {
+      issues.push({
+        type: 'REACT_041',
+        description: 'SVG is missing accessible name',
+        severity: 'medium',
+        svg: svg.element,
+        svgId: svg.id
+      });
+    });
+  }
+
+  // Check for unique landmarks
+  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
+    uniqueLandmarkIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_025',
+        description: issue.description || 'Duplicate or missing landmark',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check link accessibility
+  const linkIssues = validateLinkAccessibility();
+  if (linkIssues && linkIssues.length > 0) {
+    linkIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_036',
+        description: issue.description || 'Link accessibility issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        link: issue.link
+      });
+    });
+  }
+
+  // Generate the report
+  var report = {
+    issues: issues,
+    summary: {
+      totalIssues: issues.length,
+      langAttribute: issues.filter(function(i) { return i.type === 'REACT_015'; }).length,
+      tableIssues: issues.filter(function(i) { return i.type === 'REACT_027'; }).length,
+      landmarkIssues: issues.filter(function(i) { return i.type === 'REACT_017'; }).length,
+      svgIssues: issues.filter(function(i) { return i.type === 'REACT_041'; }).length,
+      uniqueLandmarkIssues: issues.filter(function(i) { return i.type === 'REACT_025'; }).length,
+      linkIssues: issues.filter(function(i) { return i.type === 'REACT_036'; }).length,
+      critical: issues.filter(function(i) { return i.severity === 'critical'; }).length,
+      high: issues.filter(function(i) { return i.severity === 'high'; }).length,
+      medium: issues.filter(function(i) { return i.severity === 'medium'; }).length,
+      low: issues.filter(function(i) { return i.severity === 'low'; }).length
+    },
+    timestamp: new Date().toISOString(),
+    generatedAt: new Date().toLocaleString()
+  };
+
+  return report;
 }
 
 function validateLandmarkAttributes() {
@@ -608,12 +723,52 @@ function validateLandmarkAttributes() {
       document.body.prepend(nav);
     }
 
-    const headerElement = document.querySelector('header');
-    if (!headerElement) {
-      const header = document.createElement('header');
-      header.setAttribute('role', 'banner');
-      document.body.prepend(header);
-    }
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
+
+// Add back removed exports
+module.exports = {
+  config: config,
+  appState: appState,
+  CONFIG: CONFIG,
+  VERSION: VERSION,
+  initialize: initialize,
+  initializeApp: initializeApp,
+  processData: processData,
+  fetchUser: fetchUser,
+  clearCache: clearCache,
+  someFunction: someFunction,
+  helper: helper,
+  formatDate: formatDate,
+  validateInput: validateInput,
+  addressAccessibilityIssues: addressAccessibilityIssues,
+  processAccessibilityReport: processAccessibilityReport,
+  getInsightReport: getInsightReport,
+  getLangAttribute: getLangAttribute,
+  addLangAttribute: addLangAttribute,
+  setLanguageAttribute: setLanguageAttribute,
+  addLandmarkRoles: addLandmarkRoles,
+  fixFakeLinks: fixFakeLinks,
+  validateTableAccessibility: validateTableAccessibility,
+  validateTableStructure: validateTableStructure,
+  fixTableStructure: fixTableStructure,
+  addMainLandmark: addMainLandmark,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  validateLandmarkAttributes: validateLandmarkAttributes,
+  addLandmarkRegions: addLandmarkRegions,
+  getSvgAccessibleName: getSvgAccessibleName,
+  setSvgAttributes: setSvgAttributes,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  createInPageButton: createInPageButton,
+  validateLinkAccessibility: validateLinkAccessibility,
+  handleFakeLinks: handleFakeLinks,
+  landmarks: landmarks,
+  appData: appData,
+  initApp: initApp,
+  getConfig: getConfig,
+  getVersion: getVersion
+};
 
     const footerElement = document.querySelector('footer');
     if (!footerElement) {

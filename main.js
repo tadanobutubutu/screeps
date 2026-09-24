@@ -129,53 +129,46 @@ function getLangAttribute () {
     : 'en'
 }
 
-// New function to address REACT_015 and REACT_036: personName function referenced in comments
-function personName (name) {
-  // Returns a formatted person name for accessibility purposes
-  if (!name) return ''
-  return name.trim()
-}
-
 // New function to address REACT_027: Fix 26 table structure issues
 function validateTableAccessibility (table) {
   // This function validates the accessibility of tables
   // Check for proper table headers with scope attributes
-  const errors = [];
+  const errors = []
 
   if (!table) {
     return { valid: false, errors: ['Table element is required'] }
   }
 
-  const headers = table.querySelectorAll('th');
+  const headers = table.querySelectorAll('th')
   headers.forEach((th, index) => {
     if (!th.hasAttribute('scope')) {
       errors.push(`Table header at index ${index} is missing scope attribute`)
     }
-  });
+  })
 
   // Check if table has a caption or is properly described
-  const hasCaption = table.querySelector('caption');
-  const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
+  const hasCaption = table.querySelector('caption')
+  const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby')
 
   if (!hasCaption && !hasAriaLabel) {
     errors.push('Table is missing a caption or aria-label/aria-labelledby')
   }
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
 function validateTableStructure (table) {
   // This function validates the structure of tables
-  const errors = [];
+  const errors = []
 
   if (!table) {
     return { valid: false, errors: ['Table element is required'] }
   }
 
   // Check for proper table structure
-  const tbody = table.querySelector('tbody');
-  const thead = table.querySelector('thead');
-  const tfoot = table.querySelector('tfoot');
+  const tbody = table.querySelector('tbody')
+  const thead = table.querySelector('thead')
+  const tfoot = table.querySelector('tfoot')
 
   // Check for thead and tbody presence
   if (!thead) {
@@ -197,23 +190,32 @@ function validateTableStructure (table) {
                 `Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`
       )
     }
-  });
+  })
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
 // New function to address REACT_017: Add/fix 4 landmark issues
 function validateLandmark (element) {
   // This function validates landmarks
-  const errors = [];
-  const allowedLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+  const errors = []
+  const allowedLandmarks = [
+    'banner',
+    'navigation',
+    'main',
+    'complementary',
+    'contentinfo',
+    'search',
+    'form',
+    'region'
+  ]
 
   if (!element) {
     return { valid: false, errors: ['Element is required'] }
   }
 
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
+  const role = element.getAttribute('role')
+  const tagName = element.tagName.toLowerCase()
 
   // Check if element has valid landmark role
   if (role && !allowedLandmarks.includes(role)) {
@@ -223,20 +225,21 @@ function validateLandmark (element) {
   // Check if landmark has accessible name when required
   const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary']
   if (role && landmarksNeedingNames.includes(role)) {
-    const hasLabel = element.getAttribute('aria-label') ||
-                     element.getAttribute('aria-labelledby') ||
-                     element.querySelector('h1, h2, h3, h4, h5, h6');
+    const hasLabel =
+            element.getAttribute('aria-label') ||
+            element.getAttribute('aria-labelledby') ||
+            element.querySelector('h1, h2, h3, h4, h5, h6')
     if (!hasLabel) {
       errors.push(`Landmark role "${role}" is missing accessible name`)
     }
   }
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
 function validateLandmarkStructure () {
   // This function validates the structure of landmarks
-  const errors = [];
+  const errors = []
 
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] }
@@ -260,7 +263,7 @@ function validateLandmarkStructure () {
     errors.push(`Found ${footerLandmarks.length} contentinfo landmarks, should have only 1`)
   }
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
@@ -300,33 +303,33 @@ function getSvgAccessibleName (svg) {
     }
   }
 
-  return '';
+  return ''
 }
 
 // New function to address REACT_025: Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks () {
   // This function ensures that landmarks are unique
-  const errors = [];
+  const errors = []
 
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] }
   }
 
   // Define unique landmarks that should only appear once
-  const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
-  const uniqueRoleSelectors = ['[role="main"]', '[role="banner"]', '[role="contentinfo"]'];
+  const uniqueLandmarks = ['main', 'banner', 'contentinfo']
+  const uniqueRoleSelectors = ['[role="main"]', '[role="banner"]', '[role="contentinfo"]']
 
   uniqueLandmarks.forEach((landmark, index) => {
-    const elements = document.querySelectorAll(uniqueRoleSelectors[index]);
-    const tagElements = document.querySelectorAll(landmark);
-    const totalCount = elements.length + tagElements.length;
+    const elements = document.querySelectorAll(uniqueRoleSelectors[index])
+    const tagElements = document.querySelectorAll(landmark)
+    const totalCount = elements.length + tagElements.length
 
     if (totalCount > 1) {
       errors.push(
                 `Found ${totalCount} instances of "${landmark}" landmark, should have only 1`
       )
     }
-  });
+  })
 
   // Check for landmark IDs that should be unique
   const landmarksWithIds = document.querySelectorAll('[role][id]')
@@ -336,30 +339,23 @@ function ensureUniqueLandmarks () {
     if (ids.has(id)) {
       errors.push(`Duplicate landmark id found: ${id}`)
     }
-    ids.add(id);
-  });
+    ids.add(id)
+  })
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
 function createAccessibleLink (href, text, options = {}) {
   // This function creates an accessible link
-  const {
-    onClick,
-    role = 'link',
-    ariaLabel,
-    className,
-    target,
-    rel
-  } = options;
+  const { onClick, role = 'link', ariaLabel, className, target, rel } = options
 
   if (!href && !onClick) {
     return null
   }
 
-  const link = document.createElement('a');
-  link.textContent = text;
+  const link = document.createElement('a')
+  link.textContent = text
 
   if (href) {
     link.href = href
@@ -396,7 +392,7 @@ function createAccessibleLink (href, text, options = {}) {
     link.setAttribute('role', role)
   }
 
-  return link;
+  return link
 }
 
 /**
@@ -492,650 +488,22 @@ function createInPageButton (parent = document.body) {
  * @param {Object} moduleRegistry - Optional registry of known modules and their dependencies
  * @returns {Object} An object containing module info, dependencies, and dependents
  */
-function getModuleDependencies(moduleName, moduleRegistry = {}) {
-  const dependencies = [];
-  const dependents = [];
-
-  // Build dependency list from registry
-  if (moduleRegistry[moduleName]) {
-    const mod = moduleRegistry[moduleName]
-    if (mod.dependencies) {
-      mod.dependencies.forEach((dep) => {
-        dependencies.push({
-          name: dep,
-          type: 'required'
-        })
-      })
-    }
-    if (mod.optionalDependencies) {
-      mod.optionalDependencies.forEach((dep) => {
-        dependencies.push({
-          name: dep,
-          type: 'optional'
-        })
-      })
-    }
-  }
-
-  // Find all modules that depend on this one
-  Object.keys(moduleRegistry).forEach((name) => {
-    const mod = moduleRegistry[name]
-    const allDeps = [...(mod.dependencies || []), ...(mod.optionalDependencies || [])]
-    if (allDeps.includes(moduleName)) {
-      dependents.push({
-        name,
-        type: allDeps.includes(moduleName) ? 'required' : 'optional'
-      })
-    }
-  });
-
-  return {
-    name: moduleName,
-    dependencies,
-    dependents,
-    metadata: moduleRegistry[moduleName] || {}
-  }
-}
-
-/**
- * Renders a dependency graph as a visual representation.
- * @param {Object} dependencies - Object containing module dependency data
- * @param {Object} options - Rendering options (format, maxDepth, etc.)
- * @returns {Object} An object containing the rendered graph data and metadata
- */
-function renderDependencyGraph(dependencies, options = {}) {
-  const {
-    maxDepth = 3,
-    includeDevDependencies = true,
-    format = 'tree'
-  } = options;
-
-  const graph = {
-    nodes: [],
-    edges: [],
-    metadata: {
-      totalNodes: 0,
-      totalEdges: 0,
-      maxDepth: 0,
-      circularDeps: []
-    }
-  };
-
-  const visited = new Set();
-  const nodeMap = new Map();
-
-  // Build nodes from dependencies
-  const addNode = (name, depth = 0) => {
-    if (visited.has(name)) {
-      return
-    }
-    visited.add(name);
-
-    const nodeId = `node_${graph.nodes.length}`;
-    const node = {
-      id: nodeId,
-      name,
-      depth,
-      type: 'module'
-    };
-
-    graph.nodes.push(node);
-    nodeMap.set(name, nodeId);
-    graph.metadata.totalNodes++;
-    graph.metadata.maxDepth = Math.max(graph.metadata.maxDepth, depth);
-  };
-
-  // Build edges between nodes
-  const addEdge = (from, to) => {
-    const edgeId = `edge_${graph.edges.length}`
-    graph.edges.push({
-      id: edgeId,
-      from: nodeMap.get(from) || from,
-      to: nodeMap.get(to) || to,
-      fromName: from,
-      toName: to
-    });
-    graph.metadata.totalEdges++;
-  };
-
-  // Process dependencies recursively
-  const processDependencies = (deps, parentName = null, depth = 0) => {
-    if (depth > maxDepth) {
-      return
-    }
-
-    if (typeof deps === 'object' && deps !== null) {
-      if (deps.name) {
-        addNode(deps.name, depth)
-        if (parentName) {
-          addEdge(parentName, deps.name)
-        }
-        parentName = deps.name
-      }
-
-      if (Array.isArray(deps.dependencies)) {
-        deps.dependencies.forEach((dep) => {
-          const depName = typeof dep === 'string' ? dep : dep.name
-          addNode(depName, depth + 1)
-          if (parentName) {
-            addEdge(parentName, depName)
-          }
-          if (typeof dep === 'object' && dep.dependencies) {
-            processDependencies(dep, depName, depth + 1)
-          }
-        })
-      }
-
-      if (includeDevDependencies && Array.isArray(deps.devDependencies)) {
-        deps.devDependencies.forEach((dep) => {
-          const depName = typeof dep === 'string' ? dep : dep.name
-          addNode(depName, depth + 1)
-          if (parentName) {
-            addEdge(parentName, depName)
-          }
-        })
-      }
-    }
-  };
-
-  // Detect circular dependencies
-  const detectCircularDeps = (deps, path = []) => {
-    if (typeof deps !== 'object' || deps === null) {
-      return
-    }
-
-    const currentName = deps.name || 'root';
-    if (path.includes(currentName)) {
-      graph.metadata.circularDeps.push([...path, currentName])
-      return
-    }
-
-    const newPath = [...path, currentName];
-
-    if (Array.isArray(deps.dependencies)) {
-      deps.dependencies.forEach((dep) => {
-        const depName = typeof dep === 'string' ? dep : dep.name
-        if (depName) {
-          detectCircularDeps({ name: depName, dependencies: [] }, newPath)
-        }
-      })
-    }
-  };
-
-  // Process the input dependencies
-  if (dependencies) {
-    processDependencies(dependencies)
-    detectCircularDeps(dependencies)
-  }
-
-  // Generate ASCII tree representation if requested
-  let treeRepresentation = ''
-  if (format === 'tree') {
-    const renderTree = (nodes, parentId = null, prefix = '', isLast = true) => {
-      const children = nodes.filter((n) => {
-        if (parentId === null) {
-          return graph.edges.every((e) => e.from !== n.id)
-        }
-        return graph.edges.some(e => e.from === parentId && e.to === n.id);
-      });
-
-      children.forEach((node, index) => {
-        const isLastChild = index === children.length - 1;
-        const connector = isLast ? '└── ' : '├── ';
-        const childPrefix = prefix + (isLast ? '    ' : '│   ');
-
-        treeRepresentation += `${prefix}${connector}${node.name}\n`;
-
-        const nodeChildren = nodes.filter(n =>
-          graph.edges.some(e => e.from === node.id && e.to === n.id)
-        );
-        nodeChildren.forEach((child, childIndex) => {
-          const childConnector = childIndex === nodeChildren.length - 1 ? '└── ' : '├── ';
-          treeRepresentation += `${childPrefix}${childConnector}${child.name}\n`;
-        });
-      });
-    };
-
-    treeRepresentation = 'Dependency Graph:\n';
-    treeRepresentation += `Total Modules: ${graph.metadata.totalNodes}\n`;
-    treeRepresentation += `Total Dependencies: ${graph.metadata.totalEdges}\n`;
-    treeRepresentation += '─'.repeat(40) + '\n';
-
-    const rootNodes = graph.nodes.filter(n =>
-      graph.edges.every(e => e.to !== n.id)
-    );
-    rootNodes.forEach((node, index) => {
-      treeRepresentation += `${node.name}\n`
-      renderTree(graph.nodes, node.id, '', index === rootNodes.length - 1)
-    })
-  }
-
-  return {
-    graph,
-    tree: treeRepresentation,
-    format
-  }
-}
-
-/**
- * Gets the structure of modules for debugging purposes.
- * @param {Object} modules - Object containing module data
- * @returns {Object} An object containing the module structure information
- */
-function getModuleStructure (modules) {
-  const structure = {
-    modules: [],
-    totalCount: 0,
-    exports: {},
-    imports: {}
-  };
-
-  if (typeof modules !== 'object' || modules === null) {
-    return structure;
-  }
-
-  // Process each module
-  Object.keys(modules).forEach((moduleName) => {
-    const mod = modules[moduleName]
-    const moduleInfo = {
-      name: moduleName,
-      path: mod.path || '',
-      type: mod.type || 'commonjs',
-      exports: [],
-      dependencies: [],
-      devDependencies: [],
-      peerDependencies: [],
-      size: mod.size || 0,
-      lineCount: mod.lineCount || 0
-    };
-
-    // Extract exports
-    if (mod.exports) {
-      if (Array.isArray(mod.exports)) {
-        moduleInfo.exports = mod.exports
-        mod.exports.forEach((exp) => {
-          structure.exports[exp] = moduleName
-        })
-      } else if (typeof mod.exports === 'object') {
-        moduleInfo.exports = Object.keys(mod.exports)
-        Object.keys(mod.exports).forEach((exp) => {
-          structure.exports[exp] = moduleName
-        })
-      }
-    }
-
-    // Extract dependencies
-    if (Array.isArray(mod.dependencies)) {
-      moduleInfo.dependencies = mod.dependencies
-      mod.dependencies.forEach((dep) => {
-        if (!structure.imports[dep]) {
-          structure.imports[dep] = []
-        }
-        structure.imports[dep].push(moduleName)
-      })
-    }
-
-    if (Array.isArray(mod.devDependencies)) {
-      moduleInfo.devDependencies = mod.devDependencies
-    }
-
-    if (Array.isArray(mod.peerDependencies)) {
-      moduleInfo.peerDependencies = mod.peerDependencies
-    }
-
-    structure.modules.push(moduleInfo);
-    structure.totalCount++;
-  });
-
-  return structure;
-}
-
-/**
- * Displays module structure as a formatted string for debugging.
- * @param {Object} moduleStructure - The module structure object from getModuleStructure
- * @param {Object} options - Display options (verbose, showExports, etc.)
- * @returns {string} A formatted string representation of the module structure
- */
-function displayModuleStructure(moduleStructure, options = {}) {
-  const {
-    verbose = false,
-    showExports = true,
-    showDependencies = true,
-    maxDepth = 2
-  } = options;
-
-  if (!moduleStructure || !moduleStructure.modules) {
-    return 'No module structure data available'
-  }
-
-  let output = [];
-  output.push('═'.repeat(60));
-  output.push('MODULE STRUCTURE REPORT');
-  output.push('═'.repeat(60));
-  output.push(`Total Modules: ${moduleStructure.totalCount}`);
-  output.push(`Total Unique Exports: ${Object.keys(moduleStructure.exports || {}).length}`);
-  output.push(`Total Unique Imports: ${Object.keys(moduleStructure.imports || {}).length}`);
-  output.push('═'.repeat(60));
-
-  // Sort modules alphabetically
-  const sortedModules = [...moduleStructure.modules].sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
-
-  sortedModules.forEach((mod, index) => {
-    output.push('');
-    output.push(`${index + 1}. ${mod.name}`);
-    output.push('─'.repeat(40));
-
-    if (verbose) {
-      output.push(`   Type: ${mod.type}`)
-      output.push(`   Path: ${mod.path}`)
-      output.push(`   Size: ${formatBytes(mod.size)}`)
-      output.push(`   Lines: ${mod.lineCount}`)
-    }
-
-    if (showExports && mod.exports.length > 0) {
-      output.push('   Exports:')
-      mod.exports.forEach((exp) => {
-        output.push(`     - ${exp}`)
-      })
-    }
-
-    if (showDependencies) {
-      if (mod.dependencies.length > 0) {
-        output.push(`   Dependencies (${mod.dependencies.length}):`)
-        mod.dependencies.slice(0, maxDepth * 5).forEach((dep) => {
-          output.push(`     → ${dep}`)
-        })
-        if (mod.dependencies.length > maxDepth * 5) {
-          output.push(`     ... and ${mod.dependencies.length - maxDepth * 5} more`)
-        }
-      }
-
-      if (mod.devDependencies.length > 0) {
-        output.push(`   Dev Dependencies (${mod.devDependencies.length}):`)
-        mod.devDependencies.slice(0, maxDepth * 3).forEach((dep) => {
-          output.push(`     → ${dep}`)
-        })
-        if (mod.devDependencies.length > maxDepth * 3) {
-          output.push(`     ... and ${mod.devDependencies.length - maxDepth * 3} more`)
-        }
-      }
-
-      if (mod.peerDependencies.length > 0) {
-        output.push(`   Peer Dependencies (${mod.peerDependencies.length}):`)
-        mod.peerDependencies.forEach((dep) => {
-          output.push(`     → ${dep}`)
-        })
-      }
-    }
-  });
-
-  output.push('');
-  output.push('═'.repeat(60));
-  output.push('END OF REPORT');
-  output.push('═'.repeat(60));
-
-  return output.join('\n');
-}
-
-/**
- * Formats bytes into a human-readable string.
- * @param {number} bytes - Number of bytes
- * @returns {string} Formatted string (e.g., "1.5 KB")
- */
-function formatBytes (bytes) {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
-
-/**
- * Exports the dependency graph data in a serializable format.
- * @param {Object} dependencies - The dependency data to export
- * @returns {Object} Serializable representation of the dependency graph
- */
-function exportDependencyGraph(dependencies) {
-  const graphData = renderDependencyGraph(dependencies, { format: 'data' });
-
-  return {
-    format: 'json',
-    version: '1.0',
-    generated: new Date().toISOString(),
-    data: graphData.graph,
-    metadata: graphData.metadata,
-    circularDependencies: graphData.graph.metadata.circularDeps
-  }
-}
-
-/**
- * Exports the module structure in a serializable format.
- * @param {Object} moduleStructure - The module structure to export
- * @returns {Object} Serializable representation of the module structure
- */
-function exportModuleStructure (moduleStructure) {
-  return {
-    format: 'json',
-    version: '1.0',
-    generated: new Date().toISOString(),
-    modules: moduleStructure.modules.map((mod) => ({
-      name: mod.name,
-      type: mod.type,
-      path: mod.path,
-      exports: mod.exports,
-      dependencies: mod.dependencies,
-      devDependencies: mod.devDependencies,
-      peerDependencies: mod.peerDependencies,
-      size: mod.size,
-      lineCount: mod.lineCount
-    })),
-    exportIndex: moduleStructure.exports,
-    importIndex: moduleStructure.imports,
-    statistics: {
-      totalModules: moduleStructure.totalCount,
-      totalExports: Object.keys(moduleStructure.exports || {}).length,
-      totalImports: Object.keys(moduleStructure.imports || {}).length
-    }
-  }
-}
-
-/**
- * Sets ARIA role for dependency graph container
- * @param {HTMLElement} container - The container element for the dependency graph
- * @returns {HTMLElement} The container with ARIA role set
- */
-function setDependencyGraphContainerRole(container) {
-  if (!container) return null;
-
-  // Set appropriate ARIA role for the graph container
-  container.setAttribute('role', 'application');
-  container.setAttribute('aria-label', 'Dependency graph visualization');
-
-  // Add keyboard navigation support
-  container.setAttribute('tabindex', '0');
-
-  return container;
-}
-
-/**
- * FunctionA implementation
- * @param {Object} config - Configuration object for functionA
- * @returns {Object} Result object with status and data
- */
-function functionA(config = {}) {
-  // Default configuration
-  const defaultConfig = {
-    mode: 'default',
-    threshold: 0.5,
-    maxIterations: 100,
-    debug: false
-  };
-
-  // Merge provided config with defaults
-  const finalConfig = { ...defaultConfig, ...config };
-
-  // Validate configuration
-  if (typeof finalConfig.threshold !== 'number' || finalConfig.threshold < 0 || finalConfig.threshold > 1) {
-    throw new Error('Threshold must be a number between 0 and 1');
-  }
-
-  if (typeof finalConfig.maxIterations !== 'number' || finalConfig.maxIterations < 1) {
-    throw new Error('Max iterations must be a positive integer');
-  }
-
-  // Initialize result object
-  const result = {
-    status: 'success',
-    iterations: 0,
-    data: null,
-    config: finalConfig
-  };
-
-  // Main processing logic
-  try {
-    // Example processing based on mode
-    switch (finalConfig.mode) {
-      case 'analyze':
-        // Analysis mode implementation
-        result.data = {
-          analysis: 'Data analysis performed',
-          metrics: {
-            complexity: Math.random(),
-            coverage: Math.random()
-          }
-        };
-        break;
-
-      case 'optimize':
-        // Optimization mode implementation
-        result.data = {
-          optimization: 'Optimization completed',
-          improvements: Math.floor(Math.random() * 100)
-        };
-        break;
-
-      case 'default':
-      default:
-        // Default processing
-        result.data = {
-          processing: 'Default processing completed',
-          score: Math.random() * finalConfig.threshold
-        };
-        break;
-    }
-
-    // Simulate processing with iterations
-    for (let i = 0; i < finalConfig.maxIterations; i++) {
-      result.iterations++;
-
-      // Example condition to break early
-      if (Math.random() < finalConfig.threshold) {
-        if (finalConfig.debug) {
-          console.log(`Early termination at iteration ${i}`);
-        }
-        break;
-      }
-    }
-
-    // Additional processing based on iterations
-    if (result.iterations >= finalConfig.maxIterations) {
-      result.status = 'completed_with_warnings';
-      result.warnings = ['Maximum iterations reached'];
-    }
-
-  } catch (error) {
-    result.status = 'error';
-    result.error = error.message;
-    if (finalConfig.debug) {
-      console.error('Error in functionA:', error);
-    }
-  }
-
-  return result;
-}
-
-// New function to address accessibility issue with dependency graph container
-/**
- * Sets up an accessible dependency graph container element
- * @param {HTMLElement} container - The container element to enhance
- * @param {Object} options - Configuration options
- * @returns {HTMLElement} The enhanced container element
- */
-function setupAccessibleDependencyGraph(container, options = {}) {
-  if (!container) {
-    console.error('No container element provided for dependency graph');
-    return null;
-  }
-
-  // Set ARIA role for the container
-  container.setAttribute('role', 'region');
-  container.setAttribute('aria-label', options.ariaLabel || 'Dependency Graph Visualization');
-
-  // Add keyboard navigation support
-  container.setAttribute('tabindex', '0');
-
-  // Add visual focus indicator
-  container.style.outline = 'none';
-  container.addEventListener('focus', () => {
-    container.style.outline = '2px solid #4a90e2';
-  });
-  container.addEventListener('blur', () => {
-    container.style.outline = 'none';
-  });
-
-  // Add screen reader instructions
-  const instructions = document.createElement('div');
-  instructions.setAttribute('aria-hidden', 'true');
-  instructions.style.position = 'absolute';
-  instructions.style.left = '-9999px';
-  instructions.textContent = 'Use arrow keys to navigate the dependency graph. Press Enter to select a module.';
-  container.appendChild(instructions);
-
-  // Add hidden status message for screen readers
-  const status = document.createElement('div');
-  status.setAttribute('aria-live', 'polite');
-  status.setAttribute('aria-atomic', 'true');
-  status.setAttribute('aria-relevant', 'additions text');
-  status.style.position = 'absolute';
-  status.style.left = '-9999px';
-  container.appendChild(status);
-
-  // Add keyboard event listeners
-  container.addEventListener('keydown', (e) => {
-    switch (e.key) {
-      case 'ArrowUp':
-      case 'ArrowDown':
-      case 'ArrowLeft':
-      case 'ArrowRight':
-        e.preventDefault();
-        // Handle navigation
-        status.textContent = `Navigated to ${e.key.replace('Arrow', '')} item`;
-        break;
-      case 'Enter':
-        e.preventDefault();
-        // Handle selection
-        status.textContent = 'Module selected';
-        break;
-      case 'Escape':
-        e.preventDefault();
-        // Handle escape
-        status.textContent = 'Navigation mode exited';
-        break;
-    }
-  });
-
-  return container;
+function createWebResourceButton (parent = document.body, label = 'Open Resource') {
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.setAttribute('role', 'button')
+  btn.setAttribute('aria-label', label)
+  parent.appendChild(btn)
+  return btn
 }
 
 // TODO: Implement tower defense
 function towerDefense () {
   // A simple tower defense game implementation
   // Define towers, enemies, waves, and game loop
-  const towers = [];
-  const enemies = [];
-  let wave = 1;
+  const towers = []
+  const enemies = []
+  const wave = 1
 
   // Example: Tower constructor
   function Tower (x, y, range, damage, rate) {
@@ -1202,66 +570,68 @@ function ensureDependencyGraphAccessibility(container) {
  * @param {HTMLTableElement} table - The table element to fix
  * @returns {Object} Result object with valid status and any errors
  */
-function fixTableStructure(table) {
-  const result = { valid: true, errors: [] };
+function fixTableStructure (table) {
+  const result = { valid: true, errors: [] }
 
   if (!table) {
-    return { valid: false, errors: ['Table element is required'] };
+    return { valid: false, errors: ['Table element is required'] }
   }
 
   // Fix missing thead
-  const thead = table.querySelector('thead');
+  const thead = table.querySelector('thead')
   if (!thead) {
-    const newThead = document.createElement('thead');
-    const firstRow = table.querySelector('tr');
+    const newThead = document.createElement('thead')
+    const firstRow = table.querySelector('tr')
     if (firstRow) {
-      newThead.appendChild(firstRow.cloneNode(true));
-      table.insertBefore(newThead, table.firstChild);
+      newThead.appendChild(firstRow.cloneNode(true))
+      table.insertBefore(newThead, table.firstChild)
     }
   }
 
   // Fix missing tbody
   if (!table.querySelector('tbody')) {
-    const tbody = document.createElement('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
+    const tbody = document.createElement('tbody')
+    const rows = Array.from(table.querySelectorAll('tr'))
     if (rows.length > 0 && table.querySelector('thead')) {
-      const theadRows = table.querySelectorAll('thead tr');
-      const dataRows = rows.slice(theadRows.length);
-      dataRows.forEach(row => tbody.appendChild(row));
+      const theadRows = table.querySelectorAll('thead tr')
+      const dataRows = rows.slice(theadRows.length)
+      dataRows.forEach((row) => tbody.appendChild(row))
     }
-    table.appendChild(tbody);
+    table.appendChild(tbody)
   }
 
   // Fix inconsistent column counts
-  const allRows = table.querySelectorAll('tr');
-  const columnCounts = Array.from(allRows).map(row => row.querySelectorAll('td, th').length);
-  const uniqueCounts = [...new Set(columnCounts)];
+  const allRows = table.querySelectorAll('tr')
+  const columnCounts = Array.from(allRows).map((row) => row.querySelectorAll('td, th').length)
+  const uniqueCounts = [...new Set(columnCounts)]
   if (uniqueCounts.length > 1) {
     // Use the most common column count
-    const countCounts = {};
-    columnCounts.forEach(count => {
-      countCounts[count] = (countCounts[count] || 0) + 1;
-    });
-    const mostCommonCount = Object.entries(countCounts).sort((a, b) => b[1] - a[1])[0][0];
+    const countCounts = {}
+    columnCounts.forEach((count) => {
+      countCounts[count] = (countCounts[count] || 0) + 1
+    })
+    const mostCommonCount = Object.entries(countCounts).sort((a, b) => b[1] - a[1])[0][0]
 
     allRows.forEach((row, rowIndex) => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('td, th')
       if (cells.length !== mostCommonCount) {
         // Add or remove cells to match the most common count
         while (cells.length < mostCommonCount) {
-          const cell = document.createElement(cells.length % 2 === 0 ? 'td' : 'th');
-          row.appendChild(cell);
+          const cell = document.createElement(cells.length % 2 === 0 ? 'td' : 'th')
+          row.appendChild(cell)
         }
         while (cells.length > mostCommonCount) {
-          row.removeChild(row.lastChild);
+          row.removeChild(row.lastChild)
         }
-        result.errors.push(`Fixed inconsistent cell count in row ${rowIndex}: set to ${mostCommonCount}`);
+        result.errors.push(
+                    `Fixed inconsistent cell count in row ${rowIndex}: set to ${mostCommonCount}`
+        )
       }
-    });
-    result.valid = result.errors.length === 0;
+    })
+    result.valid = result.errors.length === 0
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -1269,48 +639,49 @@ function fixTableStructure(table) {
  * @param {HTMLElement} element - The landmark element to process
  * @returns {Object} Result object with valid status and any errors
  */
-function addLandmarkIssues(element) {
-  const errors = [];
+function addLandmarkIssues (element) {
+  const errors = []
 
   if (!element) {
-    return { valid: false, errors: ['Element is required'] };
+    return { valid: false, errors: ['Element is required'] }
   }
 
   // Check if element has role attribute
-  const role = element.getAttribute('role');
+  const role = element.getAttribute('role')
   if (!role) {
     // Try to infer role from tag name
-    const tagName = element.tagName.toLowerCase();
+    const tagName = element.tagName.toLowerCase()
     if (tagName === 'header') {
-      element.setAttribute('role', 'banner');
-      errors.push('Added role="banner" to header element');
+      element.setAttribute('role', 'banner')
+      errors.push('Added role="banner" to header element')
     } else if (tagName === 'nav') {
-      element.setAttribute('role', 'navigation');
-      errors.push('Added role="navigation" to nav element');
+      element.setAttribute('role', 'navigation')
+      errors.push('Added role="navigation" to nav element')
     } else if (tagName === 'main') {
-      element.setAttribute('role', 'main');
-      errors.push('Added role="main" to main element');
+      element.setAttribute('role', 'main')
+      errors.push('Added role="main" to main element')
     } else if (tagName === 'aside') {
-      element.setAttribute('role', 'complementary');
-      errors.push('Added role="complementary" to aside element');
+      element.setAttribute('role', 'complementary')
+      errors.push('Added role="complementary" to aside element')
     } else if (tagName === 'footer') {
-      element.setAttribute('role', 'contentinfo');
-      errors.push('Added role="contentinfo" to footer element');
+      element.setAttribute('role', 'contentinfo')
+      errors.push('Added role="contentinfo" to footer element')
     }
   }
 
   // Check for required accessible names
-  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
+  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary']
   if (role && landmarksNeedingNames.includes(role)) {
-    const hasLabel = element.getAttribute('aria-label') ||
-                     element.getAttribute('aria-labelledby') ||
-                     element.querySelector('h1, h2, h3, h4, h5, h6');
+    const hasLabel =
+            element.getAttribute('aria-label') ||
+            element.getAttribute('aria-labelledby') ||
+            element.querySelector('h1, h2, h3, h4, h5, h6')
     if (!hasLabel) {
-      errors.push(`Landmark role "${role}" is missing accessible name`);
+      errors.push(`Landmark role "${role}" is missing accessible name`)
     }
   }
 
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors }
 }
 
 /**
@@ -1319,34 +690,34 @@ function addLandmarkIssues(element) {
  * @param {string} accessibleName - The accessible name to add
  * @returns {Object} Result object with valid status and any errors
  */
-function addSvgAccessibleNames(svg, accessibleName) {
-  const result = { valid: true, errors: [] };
+function addSvgAccessibleNames (svg, accessibleName) {
+  const result = { valid: true, errors: [] }
 
   if (!svg) {
-    return { valid: false, errors: ['SVG element is required'] };
+    return { valid: false, errors: ['SVG element is required'] }
   }
 
   if (!accessibleName) {
-    result.errors.push('Accessible name is required');
-    result.valid = false;
-    return result;
+    result.errors.push('Accessible name is required')
+    result.valid = false
+    return result
   }
 
   // Check if SVG already has an accessible name
-  const hasAriaLabel = svg.getAttribute('aria-label');
-  const hasTitle = svg.querySelector('title');
-  const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
+  const hasAriaLabel = svg.getAttribute('aria-label')
+  const hasTitle = svg.querySelector('title')
+  const hasAriaLabelledby = svg.getAttribute('aria-labelledby')
 
   if (hasAriaLabel || hasTitle || hasAriaLabelledby) {
-    result.errors.push('SVG already has an accessible name');
-    result.valid = false;
-    return result;
+    result.errors.push('SVG already has an accessible name')
+    result.valid = false
+    return result
   }
 
   // Add aria-label to SVG
-  svg.setAttribute('aria-label', accessibleName);
+  svg.setAttribute('aria-label', accessibleName)
 
-  return result;
+  return result
 }
 
 /**
@@ -1354,38 +725,38 @@ function addSvgAccessibleNames(svg, accessibleName) {
  * @param {HTMLElement} element - The element to check/fix
  * @returns {Object} Result object with valid status and any errors
  */
-function fixFakeLinkIssue(element) {
-  const result = { valid: true, errors: [] };
+function fixFakeLinkIssue (element) {
+  const result = { valid: true, errors: [] }
 
   if (!element) {
-    return { valid: false, errors: ['Element is required'] };
+    return { valid: false, errors: ['Element is required'] }
   }
 
   // Check if element is a fake link
   if (element.tagName.toLowerCase() === 'a') {
-    const href = element.getAttribute('href');
+    const href = element.getAttribute('href')
     if (!href || href === '#' || href === '') {
       // This is a fake link, convert to button
-      const button = document.createElement('button');
-      button.textContent = element.textContent;
-      button.setAttribute('role', 'button');
+      const button = document.createElement('button')
+      button.textContent = element.textContent
+      button.setAttribute('role', 'button')
 
-      const ariaLabel = element.getAttribute('aria-label');
+      const ariaLabel = element.getAttribute('aria-label')
       if (ariaLabel) {
-        button.setAttribute('aria-label', ariaLabel);
+        button.setAttribute('aria-label', ariaLabel)
       }
 
-      const className = element.getAttribute('class');
+      const className = element.getAttribute('class')
       if (className) {
-        button.className = className;
+        button.className = className
       }
 
-      element.replaceWith(button);
-      result.errors.push('Converted fake link to button');
+      element.replaceWith(button)
+      result.errors.push('Converted fake link to button')
     }
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -1393,24 +764,24 @@ function fixFakeLinkIssue(element) {
  * @param {string} person - The person's identifier or object
  * @returns {string} The person's name
  */
-function personName(person) {
+function personName (person) {
   // Simple implementation - could be expanded based on requirements
   if (!person) {
-    return '';
+    return ''
   }
 
   // If person is an object with a name property
   if (typeof person === 'object' && person.name) {
-    return person.name;
+    return person.name
   }
 
   // If person is a string, return it as the name
   if (typeof person === 'string') {
-    return person;
+    return person
   }
 
   // Default case
-  return String(person);
+  return String(person)
 }
 
 /**
@@ -1418,8 +789,8 @@ function personName(person) {
  * @param {string} lang - The language code to set
  * @returns {string} The language code that was set
  */
-function addLangAttribute(lang) {
-  return setHtmlLangAttribute(lang);
+function addLangAttribute (lang) {
+  return setHtmlLangAttribute(lang)
 }
 
 /**
@@ -1497,6 +868,5 @@ module.exports = {
   createAccessibleLink,
   isLinkAccessible,
   towerDefense,
-  personName, // Add back personName export
-  validateAccessibilityReport // Add new function to exports
-};
+  personName // Add back personName export
+}

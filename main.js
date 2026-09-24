@@ -526,6 +526,21 @@ if (typeof module !== 'undefined' && module.exports) {
     getLandmarkById,
     ensureUniqueLandmarks,
     addressAccessibilityIssues,
-    addBookAccessibility // Add the new function to exports
+    fixAccessibilityIssues,
+    initialize,
+    initializeApp,
+    config,
+    handleIssue,
+    getLangAttribute,
+    getFullLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    checkLinkAccessibility
   };
 }

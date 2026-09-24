@@ -116,25 +116,12 @@ const accessibilityUtils = {
   }
 };
 
-function validateLandmarkStructure(landmarks) {
-    const requiredLandmarks = ['header', 'main', 'footer', 'banner', 'contentinfo', 'navigation'];
-    
-    // If landmarks array is provided, use it; otherwise, check the document
-    const currentLandmarks = Array.isArray(landmarks) 
-        ? landmarks 
-        : requiredLandmarks.filter(l => document.querySelector(l) || document.querySelector(`[role="${l}"]`));
-
-    const missingLandmarks = requiredLandmarks.filter(
-        (landmark) => !currentLandmarks.includes(landmark)
-    );
-
-    if (missingLandmarks.length > 0) {
-        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
-        return false;
-    }
-
-    return true;
-}
+const upgrade = () => {
+  fixButtonIdentifiers();
+  fixDependencyGraphAria();
+  addMainLandmarkToIndex();
+  ensureElementId(document.body);
+};
 
 // Implement harvest logic
 function harvest() {
@@ -146,7 +133,6 @@ function harvest() {
     console.log('Collected page title:', pageTitle);
 }
 
-// Preserve any existing exports here
 module.exports = {
   ...main,
   ...accessibilityUtils,
@@ -184,11 +170,11 @@ module.exports = {
   renderAdditionalContent: main.renderAdditionalContent,
   addAccessibleName: addAriaLabel,
   accessibilityUtils,
+  upgrade,
   getConfig: main.getConfig,
   setConfig: main.setConfig,
   updateAccessibilityConfig: main.updateAccessibilityConfig,
   harvest: main.harvest || harvest,
-  upgrade: main.upgrade,
   harvestSync: main.harvestSync,
   newFunction: main.newFunction,
   wrapPrimaryContentInMain: main.wrapPrimaryContentInMain,

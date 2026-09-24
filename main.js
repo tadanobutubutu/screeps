@@ -583,13 +583,53 @@ const a11yStore = {
   },
 
   /**
-   * Extract the accessible name for an SVG from its content
-   * @param {SVGElement} svg The SVG element to extract the name from
-   * @returns {string} The accessible name of the SVG
+   * Add lang attribute to the document if missing (REACT_015)
    */
-  extractSVGAccessibleName(svg) {
-    let titleElement = svg.querySelector('title');
-    return titleElement ? titleElement.textContent : 'Image';
+  addLangAttribute() {
+    if (!document.documentElement.lang || document.documentElement.lang === '') {
+      document.documentElement.lang = 'en';
+    }
+  },
+
+  /**
+   * Fix table structure issues (REACT_027)
+   * Ensures proper use of th scope, table captions, and ARIA labels
+   */
+  fixTableStructure() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table, tableIndex) => {
+      // Add caption if missing
+      if (!table.querySelector('caption') && table.hasAttribute('aria-label')) {
+        const caption = document.createElement('caption');
+        caption.textContent = table.getAttribute('aria-label');
+        table.insertBefore(caption, table.firstChild);
+      }
+
+      // Ensure all th elements have scope attribute
+      const headers = table.querySelectorAll('th');
+      headers.forEach((th, index) => {
+        if (!th.hasAttribute('scope')) {
+          // Determine scope based on position
+          const parentTbody = th.closest('tbody') || th.closest('thead');
+          if (th.closest('thead') || (parentTbody && th.parentNode.tagName === 'TR' && th.cellIndex === 0)) {
+            th.setAttribute('scope', 'col');
+          } else if (th.parentNode.tagName === 'TR') {
+            // Check if it's a row header (first cell in a row)
+            const rowCells = th.parentNode.querySelectorAll('td, th');
+            if (th.cellIndex === 0 && rowCells.length > 1) {
+              th.setAttribute('scope', 'row');
+            } else {
+              th.setAttribute('scope', 'col');
+            }
+          }
+        }
+      });
+
+      // Add aria-label to table if it's missing and there's no caption
+      if (!table.hasAttribute('aria-label') && !table.querySelector('caption')) {
+        table.setAttribute('aria-label', `Table ${tableIndex + 1}`);
+      }
+    });
   },
 
   // ... remaining a11yStore methods ...
@@ -615,46 +655,15 @@ function ensureInteractiveElementsAccessible() {
   }
 }
 
-// Export all functions and data
-module.exports = {
-  // Math operations
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-  
-  // Utility functions
-  greetingFunction,
-  getWelcomeMessage,
-  ensureInteractiveElementsAccessible,
-  
-  // Configuration
-  config,
-  
-  // Accessibility store
-  a11yStore,
-  
-  // Additional exports
-  class1,
-  function1,
-  Object1
-};
-
-// Initialize accessibility features if in browser environment
-if (typeof document !== 'undefined') {
-  if (a11yStore && typeof a11yStore.init === 'function') {
-    document.addEventListener('DOMContentLoaded', () => {
-      a11yStore.init();
-    });
-  }
+function applyAccessibilityFixes() {
+  a11yStore.addLangAttribute();
+  a11yStore.fixTableStructure();
+  a11yStore.checkLandmarkElements();
+  a11yStore.addSVGAccessibilityProps();
+  a11yStore.fixFakeLinks();
+  a11yStore.ensureInteractiveRoles();
+  a11yStore.addFormControlLabels();
+  a11yStore.ensureImageAccessibility();
 }
+
+// ... rest of the code ...

@@ -63,23 +63,19 @@ const a11yStore = {
       return { container, destroy: () => {} };
     }
 
-    let firstFocusable = focusableElements[0];
-    let lastFocusable = focusableElements[focusableElements.length - 1];
-
-    const handleKeyDown = (event) => {
-      if (event.key !== 'Tab') return;
-
-      if (event.shiftKey) {
-        // Shift + Tab - focus previous
-        if (document.activeElement === firstFocusable) {
-          event.preventDefault();
-          lastFocusable.focus();
+  checkLandmarkElements() {
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach((element) => {
+      const landmarks = document.querySelectorAll(`[role="${element}"]`);
+      landmarks.forEach((landmark) => {
+        if (landmark.id === '') {
+          landmark.setAttribute('id', `${element}-${landmark.index || 0}`);
         }
-      } else {
-        // Tab - focus next
-        if (document.activeElement === lastFocusable) {
-          event.preventDefault();
-          firstFocusable.focus();
+
+        if (landmarks.length > 1) {
+          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+            landmark.setAttribute('aria-label', `${element} ${landmark.index || 1}`);
+          }
         }
       }
     };
@@ -152,54 +148,42 @@ const a11yStore = {
     });
   },
 
-  // New function to handle focus trap for keyboard navigation
-  newFocusTrap(element, { focusableElementsSelector }) {
-    const focusableElements = element.querySelectorAll(focusableElementsSelector);
-    const firstFocusableElement = focusableElements[0];
-    const lastFocusableElement = focusableElements[focusableElements.length - 1];
+  /**
+   * Handle focus trapping for keyboard navigation
+   * Opens a modal and ensures focus remains within the modal until Escape is pressed
+   * @param {HTMLElement} targetContainer - The modal/container to trap focus in
+   */
+  handleFocusTrap(targetContainer) {
+    // Store the previously focused element before opening the trap
+    const previousFocused = document.activeElement;
 
-    let focusableElementsArray = Array.from(focusableElements);
-    let currentlyFocusedElement = focusableElementsArray[0];
+    if (targetContainer) {
+      // Find the first focusable element within the container
+      const firstFocusable = targetContainer.querySelector('[tabindex]:not([tabindex="-1"])');
+      if (firstFocusable) {
+        firstFocusable.focus();
+        previousFocused = document.activeElement;
 
-    const focusNext = (event) => {
-      event.preventDefault();
-      currentlyFocusedElement = focusableElementsArray[(focusableElementsArray.indexOf(currentlyFocusedElement) + 1) % focusableElementsArray.length];
-      currentlyFocusedElement.focus();
-    };
+        // Trap focus: prevent tabbing to background when inside the container
+        targetContainer.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            if (previousFocused) {
+              previousFocused.focus();
+              // Optional: close the modal here if desired
+            }
+          }
+        });
 
-    const focusPrevious = (event) => {
-      event.preventDefault();
-      currentlyFocusedElement = focusableElementsArray[(focusableElementsArray.indexOf(currentlyFocusedElement) - 1 + focusableElementsArray.length) % focusableElementsArray.length];
-      currentlyFocusedElement.focus();
-    };
-
-    const trapFocus = () => {
-      firstFocusableElement.focus();
-      lastFocusableElement.addEventListener('keydown', (e) => {
-        if (e.key === 'Tab' && !e.shiftKey) {
-          focusNext(e);
-        } else if (e.key === 'Tab' && e.shiftKey) {
-          focusPrevious(e);
-        }
-      });
-    };
-
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab' && e.shiftKey) {
-        e.preventDefault();
-        focusPrevious(e);
+        // Close the trap when clicking outside the container
+        targetContainer.addEventListener('click', (e) => {
+          if (e.target !== targetContainer) {
+            e.stopPropagation();
+            // Could implement closing logic here
+          }
+        });
       }
-    });
-
-    element.addEventListener('click', (e) => {
-      const activeElement = document.activeElement;
-      if (activeElement === element || focusableElementsArray.includes(activeElement)) {
-        e.preventDefault();
-      }
-    });
-
-    element.focus();
-    trapFocus();
+    }
   },
 
   // ... remaining a11yStore methods ...

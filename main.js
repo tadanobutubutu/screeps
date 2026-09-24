@@ -257,33 +257,6 @@ function fixAccessibilityIssues() {
 }
 
 /**
- * Validates that landmarks are unique (REACT_025)
- */
-function validateUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
-  const landmarks = document.querySelectorAll('main, nav, aside, header, footer, [role="main"], [role="navigation"], [role="complementary"], [role="contentinfo"], [role="banner"]');
-  const landmarkTypes = {};
-  const issues = [];
-  
-  landmarks.forEach(landmark => {
-    const landmarkType = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    if (!landmarkTypes[landmarkType]) {
-      landmarkTypes[landmarkType] = [];
-    }
-    landmarkTypes[landmarkType].push(landmark);
-  });
-  
-  // Check for duplicate landmarks
-  Object.keys(landmarkTypes).forEach(type => {
-    if (landmarkTypes[type].length > 1) {
-      issues.push(`Found ${landmarkTypes[type].length} elements with landmark type "${type}". Each should be unique or have distinct accessible names.`);
-    }
-  });
-  
-  return issues;
-}
-
-/**
  * Divides two number with proper error handling
  * @param {number} dividend - The number to be divided
  * @param {number} divisor - The number to divide by
@@ -422,12 +395,3 @@ export {
   someFunction,
   exportedFunction,
 };
-
-// TODO: Implement this function for creating in-page buttons
-// (Implementation added below)
-function createInPageButton() {
-  const button = document.createElement('button');
-  button.textContent = 'Accessible Button';
-  button.setAttribute('aria-label', 'Accessible Button');
-  document.body.appendChild(button);
-}

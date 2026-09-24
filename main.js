@@ -74,10 +74,10 @@ function addHeadingHierarchy() {
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_ -->
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//<!-- todo-hash: f8051b788bad4952d8a8f08d3c7d22a06ff80d3_ -->
+//<!-- todo-hash: b498b47abee4b3f29c69a97b6237d968a50cc419 -->
 //_Commit: ...
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f77a79afde -->
 
 /**
  * Main entry point for the application
@@ -101,8 +101,8 @@ function validateTableAccessibility(table) {
 }
 
 function validateTableStructure(table) {
-  const hasHeader = ... th');
-  const hasBody = ... td');
+  const hasHeader = table.querySelector('th').length > 0;
+  const hasBody = table.querySelector('td').length > 0;
   return hasHeader && hasBody;
 }
 
@@ -114,8 +114,8 @@ function fixTableStructure(table) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const headerRow = document.createElement('tr');
-        ... => {
-          const th = ...
+        Array.from(firstRow.cells).forEach(cell => {
+          const th = document.createElement('th');
           th.textContent = cell.textContent;
           ...
         });
@@ -127,7 +127,7 @@ function fixTableStructure(table) {
 }
 
 function addMainLandmark() {
-  const rootContainer = ...
+  const rootContainer = document.querySelector('#root');
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }
@@ -135,13 +135,13 @@ function addMainLandmark() {
 
 function validateLandmark(landmark) {
   const validRoles = ['main', 'navigation', 'banner', 'contentinfo', 'search', 'complementary', 'form', 'region'];
-  const role = ...
-  return ...
+  const role = landmark.getAttribute('role');
+  return role && validRoles.includes(role);
 }
 
-function ... {
-  const ariaLabel = ...
-  const ariaLabelledBy = ...
+function validateLandmarkHasLabel(landmark) {
+  const ariaLabel = landmark.getAttribute('aria-label');
+  const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
   return !!(ariaLabel || ariaLabelledBy || landmark.textContent.trim());
 }
 
@@ -152,9 +152,10 @@ function validateLandmarkStructure() {
   const requiredLandmarks = ['header', 'main', 'footer'];
   const missingLandmarks = [];
 
-  ... => {
-    if ... {
-      ...
+  requiredLandmarks.forEach(landmark => {
+    const element = document.querySelector(landmark);
+    if (!element) {
+      missingLandmarks.push(landmark);
     }
   });
 
@@ -169,7 +170,7 @@ function validateLandmarkStructure() {
 function getSvgAccessibleName(svg) {
   return ... ||
          svg.getAttribute('title') ||
-         ... ||
+         svg.getAttribute('aria-labelledby') ||
          'SVG graphic';
 }
 
@@ -179,7 +180,7 @@ function setSvgAttributes(svg, name) {
 }
 
 function ensureUniqueLandmarks() {
-  const mainLandmarks = ... main');
+  const mainLandmarks = document.querySelectorAll('[role="main"]');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((landmark, index) => {
       if (index > 0) {
@@ -193,8 +194,8 @@ function ensureUniqueLandmarks() {
 function createInPageButton() {
   const button = document.createElement('button');
   button.textContent = 'Skip to content';
-  ... function() {
-    const mainContent = ...
+  button.addEventListener('click', function() {
+    const mainContent = document.querySelector('main');
     if (mainContent) {
       mainContent.focus();
     }
@@ -218,7 +219,7 @@ function validateLinkAccessibility(link) {
  * Handles fake links in the document
  */
 function handleFakeLinks() {
-  const links = ...
+  const links = document.querySelectorAll('[href]');
   links.forEach(link => {
     if ... {
       link.setAttribute('aria-label', 'Link to ' + (link.href || 'unknown destination'));
@@ -311,7 +312,7 @@ function ... {
   });
 
   // Check for buttons without accessible name
-  const buttons = ...
+  const buttons = document.querySelectorAll('button');
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || ...
     if (!accessibleName) {
@@ -324,86 +325,8 @@ function ... {
     }
   });
 
-  // Check for links without accessible names
-  const links = ...
+  // Check for links without accessible name
+  const links = document.querySelectorAll('a');
   links.forEach((link, index) => {
-    const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || ...
-    if (!accessibleName) {
-      issues.push({
-        type: 'missing-name',
-        element: 'a',
-        index: index,
-        message: `Link at index ${index} is missing an accessible name`
-      });
-    }
-  });
-
-  // Check for form inputs without labels
-  const inputs = ...
-  ... index) => {
-    const inputType = input.getAttribute('type');
-    if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
-      const labelId = ...
-      const labelText = ...
-      const hasLabel = ... || labelId || labelText;
-      if (!hasLabel) {
-        issues.push({
-          type: 'missing-label',
-          element: 'input',
-          index: index,
-          message: `Input at index ${index} is missing an associated label`
-        });
-      }
-    }
-  });
-
-  // Check for empty headings
-  const headings = ... h2, h3, h4, h5, h6');
-  headings.forEach((heading, index) => {
-    if (!heading.textContent.trim()) {
-      issues.push({
-        type: 'empty-heading',
-        element: 'heading',
-        index: index,
-        message: `Heading at index ${index} has no text content`
-      });
-    }
-  });
-
-  // Generate report
-  const report = {
-    timestamp: new Date().toISOString(),
-    totalIssues: issues.length,
-    issues: issues
-  };
-
-  console.log('Accessibility Report:', report);
-  return report;
-}
-
-/**
- * Addresses accessibility issues at runtime
- */
-function addressAccessibilityIssues() {
-  // Ensure the root container has an accessible name
-  const rootContainer = ...
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-  }
-
-  // Initialize skip link functionality
-  const skipLink = ...
-  if (skipLink) {
-    ... function(e) {
-      const targetId = ...
-      const target = ...
-      if (target) {
-        target.setAttribute('tabindex', '-1');
-        target.focus();
-      }
-    });
-  }
-
-  // Ensure all buttons with role="button" respond to Enter key
-  ... => {
-    ... function(e
+    const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
+    if (!accessible

@@ -356,14 +356,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     return button;
 }
 
-function renderAccessibilityReport(insightReport) {
-    addressAccessibilityIssues(insightReport);
-}
-
-function renderUIComponents() {
-    createInPageButton('accessibility-btn', 'Check Accessibility', 'accessibility-button');
-}
-
 // Accessibility improvements for addBook function/form
 function addBook(title, author, isbn) {
     // Create form elements with proper ARIA attributes

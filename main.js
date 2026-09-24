@@ -159,45 +159,51 @@ function handleCredentialResponse(response) {
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
   module.exports = {
-    checkTableStructure: checkTableStructure,
-    countDependencies: countDependencies,
-    init: init,
-    processSvgElements: processSvgElements,
-    setupAriaLiveRegions: setupAriaLiveRegions,
-    setupFocusManagement: setupFocusManagement,
-    enhanceSemanticMarkup: enhanceSemanticMarkup,
-    setupKeyboardNavigation: setupKeyboardNavigation,
-    trapFocus: trapFocus,
-    handleKeyNavigation: handleKeyNavigation,
-    closeOpenDialogs: closeOpenDialogs,
-    announceToScreenReader: announceToScreenReader,
-    calculateDifference: calculateDifference,
-    calculateProduct: calculateProduct,
-    isNumber: isNumber,
-    clamp: clamp,
-    hello: hello,
-    getVersion: getVersion,
-    getConfig: getConfig,
-    addressAccessibilityIssues: addressAccessibilityIssues,
-    generateAccessibilityReport: generateAccessibilityReport,
-    calculateAccessibilityScore: calculateAccessibilityScore,
-    validateLandmark: validateLandmark,
-    spawnSomeCommand: spawnSomeCommand,
-    addLangAttribute: addLangAttribute,
-    handleCredentialResponse: handleCredentialResponse,
-    getSvgAccessibleName: getSvgAccessibleName,
-    setSvgAttributes: setSvgAttributes,
-    validateTableAccessibility: validateTableAccessibility,
-    validateTableStructure: validateTableStructure,
-    validateLandmarkStructure: validateLandmarkStructure,
-    getSvgAccessibleNames: getSvgAccessibleNames,
-    checkLandmarkElements: checkLandmarkElements,
-    createResourceButton: createResourceButton,
-    renderDependencyGraph: renderDependencyGraph,
-    displayModuleStructure: displayModuleStructure,
-    newFunction: newFunction,
-    MyComponent: MyComponent,
-    getLangAttribute: getLangAttribute
+    checkTableStructure,
+    countDependencies,
+    init,
+    processSvgElements,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup,
+    setupKeyboardNavigation,
+    trapFocus,
+    handleKeyNavigation,
+    closeOpenDialogs,
+    announceToScreenReader,
+    calculateDifference,
+    calculateProduct,
+    isNumber,
+    clamp,
+    hello,
+    getVersion,
+    getConfig,
+    addressAccessibilityIssues,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    validateLandmark,
+    spawnSomeCommand,
+    addLangAttribute,
+    handleCredentialResponse,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmarkStructure,
+    getSvgAccessibleNames,
+    checkLandmarkElements,
+    createResourceButton,
+    renderDependencyGraph,
+    displayModuleStructure,
+    newFunction,
+    MyComponent,
+    getLangAttribute,
+    getFullLangAttribute,
+    createInPageButton,
+    createAccessibleLink,
+    handleAccessibilityIssues,
+    ensureUniqueLandmarks,
+    newFocusTrap
   };
 } else {
   // Browser environment - wait for DOM
@@ -355,57 +361,319 @@ function addressAccessibilityIssues(issues) {
 }
 
 function trapFocus(event) {
-  // Placeholder for focus trap logic
-  console.log('Trapping focus', event);
+  // Trap focus within modal/dialog
+  const target = event.target;
+  const modal = target.closest('[role="dialog"], .modal');
+  
+  if (!modal) return;
+  
+  const focusableElements = modal.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  
+  if (focusableElements.length === 0) return;
+  
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+  
+  if (event.key === 'Tab') {
+    if (event.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        event.preventDefault();
+        lastFocusable.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        event.preventDefault();
+        firstFocusable.focus();
+      }
+    }
+  }
+  
+  if (event.key === 'Escape') {
+    const dialog = modal.closest('[role="dialog"], .modal');
+    if (dialog) {
+      dialog.removeAttribute('open');
+      announceToScreenReader('Dialog closed');
+    }
+  }
 }
 
 function handleKeyNavigation(event) {
-  // Placeholder for keyboard navigation handling
-  console.log('Handling key navigation', event);
+  // Keyboard navigation handling
+  const target = event.target;
+  
+  // Handle skip link activation
+  if (event.key === 'Enter' && target.matches('#skip-link')) {
+    return;
+  }
+  
+  // Handle focus management for dialogs
+  if (target.matches('[role="dialog"], .modal')) {
+    if (event.key === 'Escape') {
+      target.removeAttribute('open');
+      announceToScreenReader('Dialog closed');
+    }
+  }
 }
 
-// Utilities for addressing accessibility issues
-var generateAccessibilityReport = function(accessibilityReport) {
-  if (!accessibilityReport || !accessibilityReport.issues) {
-    return [];
-  }
+// Get full language attribute with region
+function getFullLangAttribute() {
+  const html = document.documentElement;
+  const lang = html.lang || navigator.language || navigator.userLanguage || 'en';
+  return lang;
+}
 
-  var report = accessibilityReport.issues.map(function(issue) { 
-    return {
-      issueType: issue.type,
-      status: issue.status || 'pending',
-      fixApplied: issue.fixApplied || ''
-    };
+// Create an accessible in-page link/button
+function createAccessibleLink(linkId, linkText, targetElementId) {
+  const link = document.createElement('a');
+  link.id = linkId;
+  link.href = targetElementId ? `#${targetElementId}` : '#';
+  link.textContent = linkText;
+  
+  if (targetElementId) {
+    link.setAttribute('aria-label', `Navigate to ${linkText}`);
+  }
+  
+  link.addEventListener('click', (event) => {
+    if (!targetElementId) {
+      event.preventDefault();
+    }
   });
+  
+  return link;
+}
 
-  return report;
-};
-
-var calculateAccessibilityScore = function(fixedIssues) {
-  if (!Array.isArray(fixedIssues)) {
-    return 0;
+// Handle accessibility issues from reports
+function handleAccessibilityIssues(issues) {
+  if (!Array.isArray(issues)) {
+    issues = [];
   }
+  
+  issues.forEach(issue => {
+    switch (issue.type) {
+      case 'fake-link':
+        handleFakeLinks([issue]);
+        break;
+      case 'missing-alt':
+        const img = document.querySelector(`[alt="${issue.elementId}"]`);
+        if (img) {
+          img.setAttribute('alt', issue.fix || '');
+        }
+        break;
+      case 'missing-lang':
+        addLangAttribute();
+        break;
+      default:
+        console.log('Unhandled accessibility issue:', issue);
+    }
+  });
+}
 
-  var scorePoints = {
-    'color-contrast': 5,
-    'missing-alt-text': 3,
-    'missing-aria-label': 5,
-    'heading-order': 2,
-    'other': 1
+// Ensure unique landmarks on the page
+function ensureUniqueLandmarks() {
+  const landmarkRoles = [
+    'banner', 'main', 'navigation', 'search', 'contentinfo',
+    'complementary', 'region', 'form'
+  ];
+  
+  const landmarkCounts = {};
+  
+  landmarkRoles.forEach(role => {
+    landmarkCounts[role] = 0;
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        if (index > 0) {
+          landmarkCounts[role]++;
+          const newElement = element.cloneNode(true);
+          newElement.setAttribute('data-duplicate-landmark', 'true');
+          newElement.setAttribute('tabindex', '-1');
+          newElement.setAttribute('aria-hidden', 'true');
+          element.parentNode.replaceChild(newElement, element);
+        }
+      });
+    }
+  });
+  
+  return landmarkCounts;
+}
+
+// New focus trap function for keyboard navigation
+function newFocusTrap(container) {
+  if (!container || !container.nodeType) {
+    return {
+      activate: function() {},
+      deactivate: function() {}
+    };
+  }
+  
+  let active = false;
+  let previouslyFocusedElement = null;
+  
+  function getFocusableElements() {
+    return container.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+  }
+  
+  function handlekeydown(event) {
+    if (!active) return;
+    
+    const focusableElements = getFocusableElements();
+    
+    if (focusableElements.length === 0) return;
+    
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+    
+    switch (event.key) {
+      case 'Tab':
+        if (event.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            event.preventDefault();
+            lastFocusable.focus();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            event.preventDefault();
+            firstFocusable.focus();
+          }
+        }
+        break;
+      case 'Escape':
+        deactivate();
+        if (previouslyFocusedElement) {
+          previouslyFocusedElement.focus();
+        }
+        break;
+    }
+  }
+  
+  return {
+    activate: () => {
+      if (active) return;
+      
+      active = true;
+      previouslyFocusedElement = document.activeElement;
+      
+      container.addEventListener('keydown', handlekeydown);
+      
+      const focusableElements = getFocusableElements();
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      }
+    },
+    
+    deactivate: () => {
+      if (!active) return;
+      
+      active = false;
+      container.removeEventListener('keydown', handlekeydown);
+      
+      if (previouslyFocusedElement) {
+        previouslyFocusedElement.focus();
+      }
+    }
   };
+}
 
-  return fixedIssues.reduce(function(score, issue) {
-    var points = scorePoints[issue.type] || scorePoints['other'];
-    return score + points;
-  }, 0);
-};
+// Validate and fix table accessibility issues
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  const issues = [];
+  
+  tables.forEach((table, index) => {
+    const structureIssues = validateTableStructure(table);
+    if (!structureIssues.valid) {
+      issues.push({
+        tableIndex: index,
+        issues: structureIssues.issues
+      });
+    }
+  });
+  
+  return issues;
+}
 
+// Validate table structure and fix issues
+function validateTableStructure(tableElement) {
+  const issues = [];
+  
+  if (!tableElement) {
+    return { valid: false, issues: ['Table element is required'] };
+  }
+  
+  // Check for caption
+  if (!tableElement.querySelector('caption')) {
+    const caption = document.createElement('caption');
+    caption.textContent = 'Table';
+    tableElement.insertBefore(caption, tableElement.firstChild);
+    issues.push('Added missing caption');
+  }
+  
+  // Check for th elements
+  const hasTh = tableElement.querySelector('th');
+  if (!hasTh) {
+    const thead = tableElement.querySelector('thead');
+    if (thead) {
+      const headerRow = thead.querySelector('tr');
+      if (headerRow) {
+        const cells = headerRow.querySelectorAll('td');
+        cells.forEach(cell => {
+          const th = document.createElement('th');
+          th.scope = 'col';
+          th.textContent = cell.textContent;
+          cell.parentNode.replaceChild(th, cell);
+        });
+        issues.push('Converted td to th in header row');
+      } else {
+        const rows = tableElement.querySelectorAll('tr');
+        if (rows.length > 0) {
+          const firstRow = rows[0];
+          const cells = firstRow.querySelectorAll('td');
+          cells.forEach(cell => {
+            const th = document.createElement('th');
+            th.scope = 'col';
+            th.textContent = cell.textContent;
+            cell.parentNode.replaceChild(th, cell);
+          });
+          issues.push('Added th to header row');
+        }
+      }
+    } else {
+      // Wrap in thead and convert first row cells to th
+      const firstRow = tableElement.querySelector('tr');
+      if (firstRow) {
+        const thead = document.createElement('thead');
+        const cells = firstRow.querySelectorAll('td');
+        cells.forEach(cell => {
+          const th = document.createElement('th');
+          th.scope = 'col';
+          th.textContent = cell.textContent;
+          cell.parentNode.replaceChild(th, cell);
+        });
+        firstRow.parentNode.insertBefore(thead, firstRow);
+        thead.appendChild(firstRow);
+        issues.push('Added thead and converted header cells');
+      }
+    }
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+// Validate landmark elements
 function validateLandmark(element) {
   if (!element) {
     return { valid: false, error: 'Element is required' };
   }
-
-  var landmarkRoles = [
+  
+  const landmarkRoles = [
     'banner',
     'main',
     'navigation',
@@ -415,10 +683,10 @@ function validateLandmark(element) {
     'region',
     'form'
   ];
-
-  var tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
-
-  var implicitLandmarks = {
+  
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+  
+  const implicitLandmarks = {
     'header': 'banner',
     'main': 'main',
     'nav': 'navigation',
@@ -427,69 +695,97 @@ function validateLandmark(element) {
     'section': 'region',
     'form': 'form'
   };
-
-  var landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
-
+  
+  let landmarkRole = element.getAttribute ? element.getAttribute('role') : element.role;
+  
   if (!landmarkRole && implicitLandmarks[tagName]) {
     landmarkRole = implicitLandmarks[tagName];
   }
-
+  
   if (!landmarkRole) {
     return { 
       valid: false, 
       error: 'Element does not have a valid landmark role',
-      element: tagName
+      element: tagName,
+      needsRole: true
     };
   }
-
-  if (landmarkRoles.indexOf(landmarkRole) === -1) {
+  
+  if (!landmarkRoles.includes(landmarkRole)) {
     return { 
       valid: false, 
-      error: 'Invalid landmark role: ' + landmarkRole,
+      error: `Invalid landmark role: ${landmarkRole}`,
       element: tagName,
       role: landmarkRole
     };
   }
-
+  
   return { valid: true, element: tagName, role: landmarkRole };
 }
 
-function spawnSomeCommand(callback) {
-    var child_process = require('child_process');
-    var child = child_process.spawn('someCommand', [], {
-      stdio: 'inherit',
-    });
-    child.on('exit', function(code, signal) {
-      if (code === 0) {
-        callback(null, 'Successfully executed someCommand');
-      } else {
-        callback(new Error('someCommand failed with code ' + code));
-      }
-    });
-}
-
-function addLangAttribute(element, lang) {
-  element.setAttribute('lang', lang);
-}
-
-function validateTableAccessibility() {
-    // Fix 26 table structure issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
-}
-
-function validateTableStructure() {
-    // Fix 26 table structure issues
-    // TODO: Implement validation and necessary corrections
-}
-
+// Validate landmark structure
 function validateLandmarkStructure() {
-    // Add/fix 4 landmark issues (function not fully implemented)
-    // TODO: Implement validation and necessary corrections
+  const issues = [];
+  const landmarks = document.querySelectorAll(
+    '[role="banner"], [role="main"], [role="navigation"], [role="search"],' +
+    '[role="contentinfo"], [role="complementary"], [role="region"], [role="form"],' +
+    'header, main, nav, aside, footer, section[role="region"]'
+  );
+  
+  const landmarkRoles = ['banner', 'main', 'navigation', 'search', 'contentinfo', 'complementary', 'region', 'form'];
+  
+  // Check for duplicate main landmarks
+  const mainLandmarks = document.querySelectorAll('[role="main"], main');
+  if (mainLandmarks.length > 1) {
+    issues.push({
+      type: 'duplicate-landmark',
+      role: 'main',
+      count: mainLandmarks.length
+    });
+  }
+  
+  // Check for duplicate banner landmarks
+  const bannerLandmarks = document.querySelectorAll('[role="banner"], header:not(.site-header):not([role])');
+  if (bannerLandmarks.length > 1) {
+    issues.push({
+      type: 'duplicate-landmark',
+      role: 'banner',
+      count: bannerLandmarks.length
+    });
+  }
+  
+  // Check for duplicate contentinfo landmarks
+  const contentinfoLandmarks = document.querySelectorAll('[role="contentinfo"], footer:not(.site-footer):not([role])');
+  if (contentinfoLandmarks.length > 1) {
+    issues.push({
+      type: 'duplicate-landmark',
+      role: 'contentinfo',
+      count: contentinfoLandmarks.length
+    });
+  }
+  
+  return issues;
 }
 
+// Get all SVG accessible names
 function getSvgAccessibleNames() {
-    // Add accessible names to 2 SVGs
-    // TODO: Iterate through all SVG elements and set accessible name
+  const svgElements = document.querySelectorAll('svg');
+  const names = [];
+  
+  svgElements.forEach((svg, index) => {
+    const name = getSvgAccessibleName(svg) || `Graphic ${index + 1}`;
+    names.push({
+      element: svg,
+      id: svg.id || `svg-${index}`,
+      accessibleName: name
+    });
+    
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby') && !svg.getAttribute('title')) {
+      svg.setAttribute('aria-label', name);
+    }
+  });
+  
+  return names;
 }
 
 // Add lang attribute to HTML element
@@ -530,14 +826,95 @@ function getLangAttribute() {
 
 // Placeholder functions for referenced exports
 function checkLandmarkElements() {
-  // TODO: Implement checkLandmarkElements
-  console.log('Checking landmark elements...');
+  // Check landmark elements for accessibility
+  const landmarks = document.querySelectorAll(
+    '[role], header, main, nav, aside, footer, section'
+  );
+  
+  const results = Array.from(landmarks).map(element => ({
+    element: element.tagName,
+    role: element.getAttribute ? element.getAttribute('role') : null,
+    id: element.id,
+    label: element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.textContent.trim().substring(0, 20)
+  }));
+  
+  return results;
 }
 
 function createResourceButton() {
-  // TODO: Implement createResourceButton
-  console.log('Creating resource button...');
+  // Create a resource button with accessibility features
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.setAttribute('aria-expanded', 'false');
+  button.setAttribute('aria-controls', 'resource-content');
+  
+  const span = document.createElement('span');
+  span.textContent = 'Resources';
+  button.appendChild(span);
+  
+  return button;
 }
 
-// addLangAttribute is already defined above for HTML element
-// Duplicate definition removed to avoid syntax issues
+// Generate accessibility report
+function generateAccessibilityReport() {
+  const report = {
+    timestamp: new Date().toISOString(),
+    issues: [],
+    score: 0,
+    recommendations: []
+  };
+  
+  // Check for common accessibility issues
+  const images = document.querySelectorAll('img:not([alt])');
+  images.forEach(img => {
+    report.issues.push({
+      type: 'missing-alt',
+      element: 'img',
+      severity: 'high'
+    });
+  });
+  
+  const links = document.querySelectorAll('a[href]:not([aria-label]):not([title])');
+  links.forEach(link => {
+    if (!link.textContent.trim()) {
+      report.issues.push({
+        type: 'link-without-text',
+        element: 'a',
+        severity: 'medium'
+      });
+    }
+  });
+  
+  const forms = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby]):not([title])');
+  forms.forEach(form => {
+    report.issues.push({
+      type: 'missing-input-label',
+      element: 'input',
+      severity: 'high'
+    });
+  });
+  
+  report.score = Math.max(0, 100 - (report.issues.length * 5));
+  
+  return report;
+}
+
+// Calculate accessibility score
+function calculateAccessibilityScore(fixedIssues) {
+  if (!Array.isArray(fixedIssues)) {
+    return 0;
+  }
+  
+  const scorePoints = {
+    'color-contrast': 5,
+    'missing-alt-text': 3,
+    'missing-aria-label': 5,
+    'heading-order': 2,
+    'other': 1
+  };
+  
+  return fixedIssues.reduce((score, issue) => {
+    const points = scorePoints[issue.type] || scorePoints['other'];
+    return score + points;
+  }, 0);
+}

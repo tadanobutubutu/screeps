@@ -737,7 +737,31 @@ function log(message, level = 'info') {
 
 // Make sure to preserve all existing exports
 module.exports = {
-  // existing exports...
-  newFunction, // Add the new function to exports
-  newFocusTrap // Add the new function to exports
-}
+    addSvgAccessibilityProps: a11yStore.addSVGAccessibilityProps,
+    isLandmarkElement,
+    handleCredentialResponse,
+    parseCredentialResponse,
+    decodeJwtToken,
+    generateSessionId,
+    validateTableStructure,
+    validateTableAccessibility,
+    validateLandmark,
+    validateLandmarkStructure,
+    createInPageButton,
+    personName,
+    validateSession,
+    revokeSession,
+    getActiveSessionsCount,
+    server,
+    sanitizeFilename,
+    processData,
+    renderDependencyGraph,
+    renderIndex,
+    newFunction,
+    checkLandmarkElement,
+    wrapPrimaryContentInMain,
+    checkLandmarks,
+    ensureUniqueLandmarks,
+    getSvgAccessibleName,
+    createFocusTrap: a11yStore.createFocusTrap
+};

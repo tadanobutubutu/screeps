@@ -438,11 +438,10 @@ function renderPage(data) {
   return `${header}${content}${footer}`;
 }
 
-// Updated specificFunctionThatRendersGraphOrIndex using imported modules
+// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 function specificFunctionThatRendersGraphOrIndex() {
-  // Call the updated functions to render the graph or index as needed
-  // Uses imported modules in rendering functions
-  renderDependencyGraph(dependencyGraphContent);
+  // Use the new functions for rendering graph/index
+  renderDependencyGraph();
   renderIndex();
 }
 

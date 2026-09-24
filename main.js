@@ -221,89 +221,11 @@ class ScreepsBot {
     }
   }
 
-  setFocus(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.focus();
-      element.setAttribute('tabindex', '0');
-    }
-  }
-
-  handleKeyboardNavigation(event) {
-    const key = event.key;
-    const activeElement = document.activeElement;
-
-    // Handle keyboard navigation (e.g., arrow keys, tab)
-    switch (key) {
-      case 'ArrowUp':
-      case 'ArrowDown':
-      case 'ArrowLeft':
-      case 'ArrowRight':
-        this.navigateWithArrows(key, activeElement);
-        break;
-      case 'Tab':
-        this.handleTabNavigation(event, activeElement);
-        break;
-      default:
-        break;
-    }
-  }
-
-  navigateWithArrows(key, activeElement) {
-    // Implement custom navigation logic based on element type
-    console.log(`Navigating with ${key} key`);
-  }
-
-  handleTabNavigation(event, activeElement) {
-    // Implement custom tab navigation logic
-    console.log('Handling tab navigation');
-  }
-
-  updateUI(elementId, text) {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.textContent = text;
-      element.setAttribute('aria-live', 'polite');
-    }
-  }
-
-  announceToScreenReader(message, priority = 'polite') {
-    let announcer = document.getElementById('sr-announcer');
-    if (!announcer) {
-      announcer = document.createElement('div');
-      announcer.id = 'sr-announcer';
-      announcer.setAttribute('aria-live', priority);
-      announcer.setAttribute('aria-atomic', 'true');
-      announcer.className = 'sr-only';
-      announcer.style.position = 'absolute';
-      announcer.style.left = '-10000px';
-      announcer.style.width = '1px';
-      announcer.style.height = '1px';
-      announcer.style.overflow = 'hidden';
-      document.body.appendChild(announcer);
-    }
-    announcer.setAttribute('aria-live', priority);
-    announcer.textContent = '';
-    setTimeout(() => {
-      announcer.textContent = message;
-    }, 100);
-  }
-
-  getLangAttribute() {
-    return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
-  }
+  // Add the event listener for click events on the dependencyGraph element
+  document.getElementById('dependencyGraph').addEventListener('click', () => {
+    const html = document.getElementById('dependencyGraph')?.innerText || '';
+    main.validateTableAccessibility(html);
+  });
 }
 
 // ... (The module.exports section remains the same as in the original conflict branch)
-
-// New function to be added based on the issue
-export function addressAccessibilityIssuesFromInsightReport() {
-  // Implementation to address accessibility issues from the insight report
-  // ...
-}
-
-// Call the new function from the module.exports section if needed
-// module.exports = {
-//   // ... (rest of the exports)
-//   addressAccessibilityIssuesFromInsightReport
-// };

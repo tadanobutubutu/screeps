@@ -193,17 +193,6 @@ const a11yStore = {
       }
     });
   },
-
-  // ... remaining a11yStore methods ...
-
-  /**
-   * New method to ensure interactive elements are accessible
-   */
-  ensureInteractiveElementsAccessible() {
-    this.ensureInteractiveRoles();
-    this.addFormControlLabels();
-    this.ensureImageAccessibility();
-  }
 };
 
 // New functions

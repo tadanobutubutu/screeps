@@ -124,20 +124,19 @@ function countDependencies(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html lang="en"><head><title>Dependencies</title></head><body>';
-    html += '<header><h1>Dependency Index</h1></header>';
+    let html = '<!DOCTYPE html>';
+    html += '<html lang="en">';
+    html += '<head>';
+    html += '<meta charset="UTF-8">';
+    html += '<title>Dependency Index</title>';
+    html += '</head>';
+    html += '<body>';
     html += '<main>';
-    html += '<h2>Dependency List</h2>';
+    html += '<h1>Dependency Index</h1>';
     html += '<ul>';
     
     for (const pkg of packages) {
-        const name = typeof pkg === 'string' ? pkg : pkg.name;
-        const version = typeof pkg === 'string' ? '' : (pkg.version || '');
-        html += `<li class="package-item"><span class="pkg-name">${name}</span>`;
-        if (version) {
-            html += ` <span class="pkg-version">@${version}</span>`;
-        }
-        html += '</li>';
+        html += `<li>${pkg.name} - ${pkg.version || 'N/A'}</li>`;
     }
     
     html += '</ul>';
@@ -346,12 +345,7 @@ function addSvgAccessibleNames() {
  * Main entry point for the application
  */
 function main() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    
-    if (!fs.existsSync(packageJsonPath)) {
-        throw new Error(`package.json not found at ${packageJsonPath}`);
-    }
-    
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const graphData = renderDependencyGraph(packageJson.dependencies || {});

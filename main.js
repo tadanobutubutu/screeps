@@ -22,10 +22,10 @@ const config = {
  * Creates a lightweight web page with proper accessibility ARIA roles
  * @returns {Promise<Document>} A DOM Document
  */
-function createAccessiblePage() {
-  const dom = new JSDOM('<!doctype html><html lang="en"><body></body></html>', {
-    runScripts: 'dangerously',
-    resources: 'usable',
+function createServer() {
+  const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ status: 'ok', config }));
   });
   const { window } = dom;
   const body = window.document.body;

@@ -1,6 +1,10 @@
-const fs = require('fs');
+const fs = require('fs')
 
-const oldCategorizeRoomStructures = `function categorizeRoomStructures(room, allStructures) {
+function runPatch () {
+  const file = 'main.js'
+  let content = fs.readFileSync(file, 'utf8') || ''
+
+  const oldCategorizeRoomStructures = `function categorizeRoomStructures(room, allStructures) {
         // 3. 構造物の分類（1パスで実行）
         const myStructures = [];
         const deliveryTargets = [];
@@ -109,9 +113,9 @@ const oldCategorizeRoomStructures = `function categorizeRoomStructures(room, all
         room._spawnsTick = Game.time;
         room._freeSpawns = freeSpawns;
         room._freeSpawnsTick = Game.time;
-    }`;
+    }`
 
-const newCategorizeRoomStructures = `function _categorizeMyStructure(s, type, state) {
+  const newCategorizeRoomStructures = `function _categorizeMyStructure(s, type, state) {
         state.myStructures.push(s);
 
         if (
@@ -233,36 +237,16 @@ const newCategorizeRoomStructures = `function _categorizeMyStructure(s, type, st
         room._spawnsTick = Game.time;
         room._freeSpawns = state.freeSpawns;
         room._freeSpawnsTick = Game.time;
-    }`;
+    }`
 
-function readFileContent(filePath) {
-    try {
-        return fs.readFileSync(filePath, 'utf8') || '';
-    } catch (e) {
-        return '';
-    }
-}
-
-function writeFileContent(filePath, content) {
-    fs.writeFileSync(filePath, content, 'utf8');
-}
-
-function applyPatch(content, oldStr, newStr) {
-    return content.replace(oldStr, newStr);
-}
-
-function runPatch() {
-    const file = 'main.js';
-    let content = readFileContent(file);
-
-    if (content) {
-        content = applyPatch(content, oldCategorizeRoomStructures, newCategorizeRoomStructures);
-        writeFileContent(file, content);
-    }
+  if (content) {
+    content = content.replace(oldCategorizeRoomStructures, newCategorizeRoomStructures)
+    fs.writeFileSync(file, content, 'utf8')
+  }
 }
 
 if (require.main === module) {
-    runPatch();
+  runPatch()
 }
 
-module.exports = runPatch;
+module.exports = runPatch

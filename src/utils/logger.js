@@ -1,340 +1,277 @@
-const MAX_LOG_MESSAGE_LENGTH = 500;
-const MAX_HISTORY = 50;
-const MAX_STACK_TRACE_LENGTH = 2000;
+const MAX_LOG_MESSAGE_LENGTH = 500
+const MAX_HISTORY = 50
+const MAX_STACK_TRACE_LENGTH = 2000
 
 // Define log levels and their numeric values
 // Note: higher values are more verbose
 const LEVELS = {
-    error: 0,
-    warn: 1,
-    info: 2,
-    debug: 3,
-    trace: 4,
-};
+  error: 0,
+  warn: 1,
+  info: 2,
+  debug: 3,
+  trace: 4
+}
 
 const LOG_LEVEL = {
-    DEBUG: 0,
-    INFO: 1,
-    WARN: 2,
-    ERROR: 3,
-    NONE: 4,
-};
+  ERROR: 0,
+  WARN: 1,
+  INFO: 2,
+  DEBUG: 3,
+  TRACE: 4
+}
 
 // Security: Use a safe emoji lookup map to prevent prototype pollution
 const LOG_EMOJIS = Object.assign(Object.create(null), {
-    error: '\u274c', // ❌
-    warn: '\u26a0\ufe0f', // ⚠️
-    info: '\u2139\ufe0f', // ℹ️
-    debug: '\ud83d\udcac', // 💬
-    trace: '\ud83d\udd0d', // 🔍
-});
+  error: '\u274c', // ❌
+  warn: '\u26a0\ufe0f', // ⚠️
+  info: '\u2139\ufe0f', // ℹ️
+  debug: '\ud83d\udcac', // 💬
+  trace: '\ud83d\udd0d' // 🔍
+})
 
-const DEFAULT_EMOJI = '\ud83d\udcac'; // 💬
+const DEFAULT_EMOJI = '\ud83d\udcac' // 💬
 
-let currentLevel = LEVELS.trace;
+let currentLevel = LEVELS.trace
 
-function setLevel(level) {
-    if (typeof level === 'number') {
-        if (level === 0) currentLevel = LEVELS.trace;
-        else if (level === 1) currentLevel = LEVELS.info;
-        else if (level === 2) currentLevel = LEVELS.warn;
-        else if (level === 3) currentLevel = LEVELS.error;
-        else if (level === 4) currentLevel = -1;
-        else currentLevel = LEVELS.info;
-    } else if (typeof level === 'string') {
-        const lower = level.toLowerCase();
-        if (LEVELS[lower] !== undefined) {
-            currentLevel = LEVELS[lower];
-        } else {
-            const parsed = parseInt(level, 10);
-            if (!isNaN(parsed) && parsed >= 0 && parsed <= 4) {
-                setLevel(parsed);
-            } else {
-                currentLevel = LEVELS.info;
-            }
-        }
+function setLevel (level) {
+  if (typeof level === 'number' && level >= 0 && level <= 4) {
+    currentLevel = level
+  } else if (typeof level === 'string') {
+    if (LEVELS[level] !== undefined) {
+      currentLevel = LEVELS[level]
     } else {
-        currentLevel = LEVELS.info;
+      const parsed = parseInt(level, 10)
+      if (!isNaN(parsed) && parsed >= 0 && parsed <= 4) {
+        currentLevel = parsed
+      } else {
+        currentLevel = LEVELS.info
+      }
     }
+  } else {
+    currentLevel = LEVELS.info
+  }
 }
 
-function getLevel() {
-    if (currentLevel >= 3) return LOG_LEVEL.DEBUG;
-    if (currentLevel === 2) return LOG_LEVEL.INFO;
-    if (currentLevel === 1) return LOG_LEVEL.WARN;
-    if (currentLevel === 0) return LOG_LEVEL.ERROR;
-    return LOG_LEVEL.NONE;
+function getLevel () {
+  return currentLevel
 }
 
 /**
  * Security: Escapes HTML special characters to prevent console injection.
  */
 const _escapeHTML = (function () {
-    const chars = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        "'": '&#39;',
-        '"': '&quot;',
-        '`': '&#96;',
-    };
-    const escapeRegExp = /[&<>'\"`]/;
-    return function (str) {
-        if (typeof str !== 'string' || !escapeRegExp.test(str)) {
-            return str;
-        }
-        return str.replace(/[&<>'\"`]/g, (tag) => chars[tag] || tag);
-    };
-})();
+  const chars = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;',
+    '`': '&#96;'
+  }
+  const escapeRegExp = /[&<>'\"`]/
+  return function (str) {
+    if (typeof str !== 'string' || !escapeRegExp.test(str)) {
+      return str
+    }
+    return str.replace(/[&<>'\"`]/g, (tag) => chars[tag] || tag)
+  }
+})()
 
 /**
  * Security: Redacts absolute paths and sensitive secrets to prevent leakage.
  */
-function _redactPaths(str) {
-    if (typeof str !== 'string') return str;
-    const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
-    const k = [
-        [116, 111, 107, 101, 110],
-        [112, 97, 115, 115],
-        [97, 112, 105, 107, 101, 121],
-        [112, 97, 115, 115, 119, 111, 114, 100],
-        [115, 101, 99, 114, 101, 116],
-        [97, 112, 105, 95, 107, 101, 121],
-        [97, 112, 105, 75, 101, 121],
-        [97, 117, 116, 104],
-        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
-        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
-        [98, 101, 97, 114, 101, 114],
-        [115, 101, 115, 115, 105, 111, 110],
-        [100, 115, 110],
-    ]
-        .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
-        .sort((a, b) => b.length - a.length)
-        .join('|');
-    const pattern = new RegExp(
-        '\\b([a-zA-Z0-9_-]*(' +
+function _redactPaths (str) {
+  if (typeof str !== 'string') return str
+  const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  const k = [
+    [116, 111, 107, 101, 110],
+    [112, 97, 115, 115],
+    [97, 112, 105, 107, 101, 121],
+    [112, 97, 115, 115, 119, 111, 114, 100],
+    [115, 101, 99, 114, 101, 116],
+    [97, 112, 105, 95, 107, 101, 121],
+    [97, 112, 105, 75, 101, 121],
+    [97, 117, 116, 104],
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
+    [98, 101, 97, 114, 101, 114],
+    [115, 101, 115, 115, 105, 111, 110],
+    [100, 115, 110]
+  ]
+    .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
+    .sort((a, b) => b.length - a.length)
+    .join('|')
+  const pattern = new RegExp(
+    '\\b([a-zA-Z0-9_-]*(' +
             k +
             ')[a-zA-Z0-9_-]*)\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|((?:Bearer\\s+)?[^ \\n\\t"\' ]+))',
-        'gi'
-    );
-    return pathRedacted.replace(pattern, (match, p1, p2, p3, p4, p5, p6) => {
-        const quote = p4 || p5;
-        if (quote) {
-            return p1 + p3 + quote[0] + '[REDACTED]' + quote[quote.length - 1];
-        }
-        return p1 + p3 + '[REDACTED]';
-    });
-}
-
-function log(arg1, arg2, data) {
-    let level = 'info';
-    let message = '';
-    let extraData = data;
-    if (LEVELS[arg1] !== undefined) {
-        level = arg1;
-        message = arg2;
-    } else if (LEVELS[arg2] !== undefined) {
-        level = arg2;
-        message = arg1;
-        extraData = data;
-    } else {
-        message = arg1;
-        extraData = arg2;
+    'gi'
+  )
+  return pathRedacted.replace(pattern, (match, p1, p2, p3, p4, p5, p6) => {
+    const quote = p4 || p5
+    if (quote) {
+      return p1 + p3 + quote[0] + '[REDACTED]' + quote[quote.length - 1]
     }
-
-    if (LEVELS[level] !== undefined && LEVELS[level] > currentLevel) return;
-
-    if (typeof message !== 'string') {
-        try {
-            message = typeof message === 'function' ? '[Function]' : String(message ?? '');
-        } catch (e) {
-            message = '[Unserializable Object]';
-        }
-    }
-    message = message.substring(0, MAX_LOG_MESSAGE_LENGTH);
-    if (extraData !== undefined && extraData !== null) {
-        const extraStr = _safeStringify(extraData);
-        message += (message ? ' | ' : '') + extraStr;
-    }
-    const truncated = message;
-    const redacted = _redactPaths(truncated);
-
-    if (typeof Memory !== 'undefined') {
-        if (!Memory.logs || !Array.isArray(Memory.logs)) {
-            Memory.logs = [];
-        }
-        Memory.logs.push({
-            level,
-            message: redacted,
-            tick: typeof Game !== 'undefined' ? Game.time : 0,
-        });
-        if (Memory.logs.length > MAX_HISTORY) {
-            Memory.logs.shift();
-        }
-    }
-
-    const emoji = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
-        ? LOG_EMOJIS[level]
-        : DEFAULT_EMOJI;
-    const escaped = _escapeHTML(redacted);
-    console.log(`${emoji} [${level}] ${escaped}`);
+    return p1 + p3 + '[REDACTED]'
+  })
 }
 
-function error(msg, data) {
-    log(msg, 'error', data);
-}
-function warn(msg, data) {
-    log(msg, 'warn', data);
-}
-function info(msg, data) {
-    log(msg, 'info', data);
-}
-function debug(msg, data) {
-    log(msg, 'debug', data);
-}
-function trace(msg, data) {
-    log(msg, 'trace', data);
-}
-function success(msg, data) {
-    log(msg, 'info', data);
-}
+function log (arg1, arg2) {
+  let level = 'info'
+  let message = ''
+  if (LEVELS[arg1] !== undefined) {
+    level = arg1
+    message = arg2
+  } else if (LEVELS[arg2] !== undefined) {
+    level = arg2
+    message = arg1
+  } else {
+    message = arg1
+  }
 
-function _safeStringify(data) {
-    let str;
-    if (data instanceof Error) {
-        str = data.message || String(data);
-    } else {
-        try {
-            str = JSON.stringify(data);
-        } catch (err) {
-            str = `[Unserializable Data: ${err && err.message ? err.message : String(err)}]`;
-        }
-    }
-    if (typeof str !== 'string') {
-        str = typeof data === 'function' ? '[Function]' : String(data ?? '');
-    }
-    return str.substring(0, MAX_LOG_MESSAGE_LENGTH);
-}
+  if (LEVELS[level] !== undefined && LEVELS[level] > currentLevel) return
 
-function getSafeStack(stack, maxLines = 5) {
-    if (stack === undefined || stack === null) return '';
-    const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);
-    const cleanPaths = truncatedStack.replace(/(at\s+)(?:[\w$.]+\s+\()?[\/\\]?(?:[^\n\t"':()]+\/|[^\n\t"':()]+\\)+([^\n\t"':()]+\:\d+(?:\:\d+)?)\)?/g, '$1$2');
-    const redacted = _redactPaths(cleanPaths);
-    const lines = redacted.split('\n');
-    return lines
-        .slice(0, maxLines)
-        .map((line) => (line.trim().startsWith('at ') ? '    ' + line.trim() : line))
-        .join('\n');
-}
-
-function getStats() {
-    let errorCount = 0;
-    let warnCount = 0;
-    let infoCount = 0;
-    let debugCount = 0;
-    let traceCount = 0;
-    let totalCount = 0;
-
-    if (typeof Memory !== 'undefined' && Array.isArray(Memory.logs)) {
-        for (const logItem of Memory.logs) {
-            if (logItem === undefined || logItem === null) continue;
-            totalCount++;
-            if (logItem.level === 'error') errorCount++;
-            else if (logItem.level === 'warn') warnCount++;
-            else if (logItem.level === 'info') infoCount++;
-            else if (logItem.level === 'debug') debugCount++;
-            else if (logItem.level === 'trace') traceCount++;
-        }
-    }
-
-    return {
-        errors: errorCount,
-        error: errorCount,
-        warns: warnCount,
-        warn: warnCount,
-        info: infoCount,
-        debugs: debugCount,
-        debug: debugCount,
-        traces: traceCount,
-        trace: traceCount,
-        total: totalCount,
-    };
-}
-
-function resetStats() {
-    clear();
-}
-
-function showDashboard() {
-    console.log('=== Logger Dashboard ===');
-    console.log(`Level: ${getLevel()} (0=DEBUG, 1=INFO, 2=WARN, 3=ERROR, 4=NONE)`);
-    const stats = getStats();
-    console.log(`Stats: DEBUG=${stats.debug} INFO=${stats.info} WARN=${stats.warn} ERROR=${stats.error}`);
-    console.log('Recent logs:');
-    const recent = getRecentLogs(5);
-    for (const item of recent) {
-        const level = _escapeHTML(item.level || '');
-        const message = _escapeHTML(item.message || '');
-        console.log(`  [T:${item.tick}][${level}] ${message}`);
-    }
-}
-
-function tryCatch(fn, context, ...args) {
+  if (typeof message !== 'string') {
     try {
-        return fn(...args);
+      message = typeof message === 'function' ? '[Function]' : String(message || '')
     } catch (e) {
-        const errMsg = e && e.message ? e.message : String(e);
-        error(`[${context}] ${errMsg}`, e);
-        return undefined;
+      message = '[Unserializable Object]'
     }
-}
+  }
+  const truncated = message.substring(0, MAX_LOG_MESSAGE_LENGTH)
+  const redacted = _redactPaths(truncated)
 
-function getRecentLogs(count) {
-    if (!Memory.logs) return [];
-    return Memory.logs.slice(-count);
-}
-
-function getErrors() {
-    if (!Memory.logs) return [];
-    return Memory.logs.filter((log) => log.level === 'error');
-}
-
-function clear() {
-    if (Memory.logs) {
-        Memory.logs.length = 0;
+  if (typeof Memory !== 'undefined') {
+    if (!Memory.logs || !Array.isArray(Memory.logs)) {
+      Memory.logs = []
     }
+    Memory.logs.push({
+      level,
+      message: redacted,
+      tick: typeof Game !== 'undefined' ? Game.time : 0
+    })
+    if (Memory.logs.length > MAX_HISTORY) {
+      Memory.logs.shift()
+    }
+  }
+
+  const emoji = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+    ? LOG_EMOJIS[level]
+    : DEFAULT_EMOJI
+  const escaped = _escapeHTML(redacted)
+  console.log(`${emoji} [${level}] ${escaped}`)
 }
 
-function init() {
-    if (Memory.logs && Memory.logs.length > 100) {
-        Memory.logs = Memory.logs.slice(-100);
+function error (msg) {
+  log(msg, 'error')
+}
+function warn (msg) {
+  log(msg, 'warn')
+}
+function info (msg) {
+  log(msg, 'info')
+}
+function debug (msg) {
+  log(msg, 'debug')
+}
+function trace (msg) {
+  log(msg, 'trace')
+}
+
+function getSafeStack (stack, maxLines = 5) {
+  if (stack === undefined || stack === null) return ''
+  const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH)
+  const sanitizedStack = truncatedStack.replace(
+    /(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*\//g,
+    ''
+  )
+  const redacted = _redactPaths(sanitizedStack)
+  const lines = redacted.split('\n')
+  return lines
+    .slice(0, maxLines)
+    .map((line) => (line.trim().startsWith('at ') ? '    ' + line.trim() : line))
+    .join('\n')
+}
+
+function getStats () {
+  let errorCount = 0
+  let warnCount = 0
+  let infoCount = 0
+  let debugCount = 0
+  let traceCount = 0
+  let totalCount = 0
+
+  if (typeof Memory !== 'undefined' && Array.isArray(Memory.logs)) {
+    for (const logItem of Memory.logs) {
+      if (logItem === undefined || logItem === null) continue
+      totalCount++
+      if (logItem.level === 'error') errorCount++
+      else if (logItem.level === 'warn') warnCount++
+      else if (logItem.level === 'info') infoCount++
+      else if (logItem.level === 'debug') debugCount++
+      else if (logItem.level === 'trace') traceCount++
     }
+  }
+
+  return {
+    errors: errorCount,
+    warns: warnCount,
+    info: infoCount,
+    debugs: debugCount,
+    traces: traceCount,
+    total: totalCount
+  }
+}
+
+function tryCatch (fn, context, ...args) {
+  try {
+    return fn(...args)
+  } catch (e) {
+    error(`[${context}] ${e.message}`, e)
+    return undefined
+  }
+}
+
+function getRecentLogs (count) {
+  if (!Memory.logs) return []
+  return Memory.logs.slice(-count)
+}
+
+function getErrors () {
+  if (!Memory.logs) return []
+  return Memory.logs.filter((log) => log.level === 'error')
+}
+
+function clear () {
+  if (Memory.logs) {
+    Memory.logs.length = 0
+  }
+}
+
+function init () {
+  if (Memory.logs && Memory.logs.length > 100) {
+    Memory.logs = Memory.logs.slice(-100)
+  }
 }
 
 module.exports = {
-    tryCatch,
-    getRecentLogs,
-    getHistory: getRecentLogs,
-    getErrors,
-    clear,
-    init,
-    LEVELS,
-    LOG_LEVEL,
-    setLevel,
-    getLevel,
-    log,
-    error,
-    warn,
-    info,
-    debug,
-    trace,
-    success,
-    getSafeStack,
-    getStats,
-    resetStats,
-    showDashboard,
-    _safeStringify,
-    _redactPaths,
-    _escapeHTML,
-};
+  tryCatch,
+  getRecentLogs,
+  getErrors,
+  clear,
+  init,
+  LEVELS,
+  LOG_LEVEL,
+  setLevel,
+  getLevel,
+  log,
+  error,
+  warn,
+  info,
+  debug,
+  trace,
+  getSafeStack,
+  getStats,
+  _redactPaths,
+  _escapeHTML
+}

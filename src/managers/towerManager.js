@@ -9,18 +9,20 @@
  * タワーのエネルギー管理も行い、エネルギー補充の優先度を制御する。
  */
 
-'use strict';
+'use strict'
 
-const cache = require('../utils/cache');
-const pathfinder = require('../utils/pathfinder');
-const logger = require('../utils/logger');
+const cache = require('../utils/cache')
+const pathfinder = require('../utils/pathfinder')
+const logger = require('../utils/logger')
 const {
-    TOWER_ATTACK_PRIORITY_HP,
-    TOWER_HEAL_THRESHOLD,
-    TOWER_ENERGY_PRIORITY,
-    REPAIR_THRESHOLD,
-    WALL_HP_TARGET,
-} = require('../constants');
+  TOWER_ATTACK_PRIORITY_HP,
+  TOWER_REPAIR_THRESHOLD,
+  TOWER_REPAIR_STOP_THRESHOLD,
+  TOWER_HEAL_THRESHOLD,
+  TOWER_ENERGY_PRIORITY,
+  REPAIR_THRESHOLD,
+  WALL_HP_TARGET
+} = require('../constants')
 
 // ============================================================
 // メイン制御
@@ -30,37 +32,37 @@ const {
  * ルーム内の全タワーを制御する
  * @param {Room} room
  */
-function run(room) {
-    try {
-        const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
-        if (towers.length === 0) {
-            return;
-        }
-
-        const enemies = cache.getEnemies(room);
-        // ⚡ PERFORMANCE OPTIMIZATION: Use getMyCreeps cache to avoid redundant room.find calls.
-        const myCreeps = cache.getMyCreeps(room);
-        // ⚡ PERFORMANCE: Use for loop to avoid filter closure and array allocation.
-        const injuredCreeps = [];
-        const healThreshold = TOWER_HEAL_THRESHOLD;
-        for (let i = 0; i < myCreeps.length; i++) {
-            const c = myCreeps[i];
-            if (c.hits < c.hitsMax * healThreshold) {
-                injuredCreeps.push(c);
-            }
-        }
-
-        // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop to avoid iterator allocations per tick.
-        for (let i = 0; i < towers.length; i++) {
-            const tower = towers[i];
-            if (tower.store[RESOURCE_ENERGY] < 10) {
-                continue;
-            }
-            _runTower(tower, enemies, injuredCreeps, room);
-        }
-    } catch (e) {
-        logger.error('[TowerManager] タワーエラー', e);
+function run (room) {
+  try {
+    const towers = cache.getMyStructures(room, STRUCTURE_TOWER)
+    if (towers.length === 0) {
+      return
     }
+
+    const enemies = cache.getEnemies(room)
+    // ⚡ PERFORMANCE OPTIMIZATION: Use getMyCreeps cache to avoid redundant room.find calls.
+    const myCreeps = cache.getMyCreeps(room)
+    // ⚡ PERFORMANCE: Use for loop to avoid filter closure and array allocation.
+    const injuredCreeps = []
+    const healThreshold = TOWER_HEAL_THRESHOLD
+    for (let i = 0; i < myCreeps.length; i++) {
+      const c = myCreeps[i]
+      if (c.hits < c.hitsMax * healThreshold) {
+        injuredCreeps.push(c)
+      }
+    }
+
+    // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop to avoid iterator allocations per tick.
+    for (let i = 0; i < towers.length; i++) {
+      const tower = towers[i]
+      if (tower.store[RESOURCE_ENERGY] < 10) {
+        continue
+      }
+      _runTower(tower, enemies, injuredCreeps, room)
+    }
+  } catch (e) {
+    logger.error('[TowerManager] タワーエラー', e)
+  }
 }
 
 // ============================================================
@@ -74,14 +76,14 @@ function run(room) {
  * @param {Creep[]} injuredCreeps
  * @param {Room} room
  */
-function _runTower(tower, enemies, injuredCreeps, room) {
-    if (_tryAttack(tower, enemies)) {
-        return;
-    }
-    if (_tryHeal(tower, injuredCreeps)) {
-        return;
-    }
-    _tryRepair(tower, room);
+function _runTower (tower, enemies, injuredCreeps, room) {
+  if (_tryAttack(tower, enemies)) {
+    return
+  }
+  if (_tryHeal(tower, injuredCreeps)) {
+    return
+  }
+  _tryRepair(tower, room)
 }
 
 /**
@@ -90,17 +92,17 @@ function _runTower(tower, enemies, injuredCreeps, room) {
  * @param {Creep[]} enemies
  * @returns {boolean} 攻撃を実行したかどうか
  */
-function _tryAttack(tower, enemies) {
-    if (enemies.length === 0) {
-        return false;
-    }
-    const target = _selectAttackTarget(tower, enemies);
-    if (target) {
-        tower.attack(target);
-        _showAttackVisual(tower, target);
-        return true;
-    }
-    return false;
+function _tryAttack (tower, enemies) {
+  if (enemies.length === 0) {
+    return false
+  }
+  const target = _selectAttackTarget(tower, enemies)
+  if (target) {
+    tower.attack(target)
+    _showAttackVisual(tower, target)
+    return true
+  }
+  return false
 }
 
 /**
@@ -109,17 +111,17 @@ function _tryAttack(tower, enemies) {
  * @param {Creep[]} injuredCreeps
  * @returns {boolean} 回復を実行したかどうか
  */
-function _tryHeal(tower, injuredCreeps) {
-    if (injuredCreeps.length === 0) {
-        return false;
-    }
-    const target = _selectHealTarget(tower, injuredCreeps);
-    if (target) {
-        tower.heal(target);
-        _showHealVisual(tower, target);
-        return true;
-    }
-    return false;
+function _tryHeal (tower, injuredCreeps) {
+  if (injuredCreeps.length === 0) {
+    return false
+  }
+  const target = _selectHealTarget(tower, injuredCreeps)
+  if (target) {
+    tower.heal(target)
+    _showHealVisual(tower, target)
+    return true
+  }
+  return false
 }
 
 /**
@@ -128,19 +130,19 @@ function _tryHeal(tower, injuredCreeps) {
  * @param {Room} room
  * @returns {boolean} 修復を実行したかどうか
  */
-function _tryRepair(tower, room) {
-    const energyRatio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY);
-    if (energyRatio <= TOWER_ENERGY_PRIORITY) {
-        return false;
-    }
+function _tryRepair (tower, room) {
+  const energyRatio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY)
+  if (energyRatio <= TOWER_ENERGY_PRIORITY) {
+    return false
+  }
 
-    const repairTarget = _selectRepairTarget(tower, room);
-    if (repairTarget) {
-        tower.repair(repairTarget);
-        _showRepairVisual(tower, repairTarget);
-        return true;
-    }
-    return false;
+  const repairTarget = _selectRepairTarget(tower, room)
+  if (repairTarget) {
+    tower.repair(repairTarget)
+    _showRepairVisual(tower, repairTarget)
+    return true
+  }
+  return false
 }
 
 // ============================================================
@@ -160,25 +162,17 @@ let _attackTargetRoom = null;
  * @param {Creep[]} enemies
  * @returns {Creep|null}
  */
-function _selectAttackTarget(tower, enemies) {
-    if (enemies.length === 0) {
-        return null;
-    }
+function _selectAttackTarget (tower, enemies) {
+  if (enemies.length === 0) {
+    return null
+  }
 
-    if (_attackTargetTick === Game.time && _attackTargetRoom === tower.room.name) {
-        return _attackTargetCache;
-    }
-
-    const target =
-        _findCriticalTarget(tower, enemies, TOWER_ATTACK_PRIORITY_HP) ||
+  return (
+    _findCriticalTarget(tower, enemies, TOWER_ATTACK_PRIORITY_HP) ||
         _findClaimerTarget(tower, enemies) ||
         _findAttackerTarget(tower, enemies) ||
-        _findWeakestTarget(tower, enemies);
-
-    _attackTargetCache = target;
-    _attackTargetTick = Game.time;
-    _attackTargetRoom = tower.room.name;
-    return target;
+        _findWeakestTarget(tower, enemies)
+  )
 }
 
 /**
@@ -187,20 +181,20 @@ function _selectAttackTarget(tower, enemies) {
  * @param {number} threshold
  * @returns {Creep|null}
  */
-function _findCriticalTarget(tower, enemies, threshold) {
-    let target = null;
-    let minDist = Infinity;
-    for (let i = 0; i < enemies.length; i++) {
-        const e = enemies[i];
-        if (e.hits <= threshold) {
-            const dist = tower.pos.getRangeTo(e);
-            if (dist < minDist) {
-                minDist = dist;
-                target = e;
-            }
-        }
+function _findCriticalTarget (tower, enemies, threshold) {
+  let target = null
+  let minDist = Infinity
+  for (let i = 0; i < enemies.length; i++) {
+    const e = enemies[i]
+    if (e.hits <= threshold) {
+      const dist = tower.pos.getRangeTo(e)
+      if (dist < minDist) {
+        minDist = dist
+        target = e
+      }
     }
-    return target;
+  }
+  return target
 }
 
 /**
@@ -208,23 +202,23 @@ function _findCriticalTarget(tower, enemies, threshold) {
  * @param {Creep[]} enemies
  * @returns {Creep|null}
  */
-function _findClaimerTarget(tower, enemies) {
-    const controller = tower.room.controller;
-    if (!controller) return null;
+function _findClaimerTarget (tower, enemies) {
+  const controller = tower.room.controller
+  if (!controller) return null
 
-    let target = null;
-    let minDist = Infinity;
-    for (let i = 0; i < enemies.length; i++) {
-        const e = enemies[i];
-        if (e.getActiveBodyparts(CLAIM) > 0) {
-            const dist = controller.pos.getRangeTo(e);
-            if (dist < minDist) {
-                minDist = dist;
-                target = e;
-            }
-        }
+  let target = null
+  let minDist = Infinity
+  for (let i = 0; i < enemies.length; i++) {
+    const e = enemies[i]
+    if (e.getActiveBodyparts(CLAIM) > 0) {
+      const dist = controller.pos.getRangeTo(e)
+      if (dist < minDist) {
+        minDist = dist
+        target = e
+      }
     }
-    return target;
+  }
+  return target
 }
 
 /**
@@ -232,19 +226,19 @@ function _findClaimerTarget(tower, enemies) {
  * @param {Creep[]} enemies
  * @returns {Creep|null}
  */
-function _findAttackerTarget(tower, enemies) {
-    let target = null;
-    let minHits = Infinity;
-    for (let i = 0; i < enemies.length; i++) {
-        const e = enemies[i];
-        if (e.getActiveBodyparts(ATTACK) > 0 || e.getActiveBodyparts(RANGED_ATTACK) > 0) {
-            if (e.hits < minHits) {
-                minHits = e.hits;
-                target = e;
-            }
-        }
+function _findAttackerTarget (tower, enemies) {
+  let target = null
+  let minHits = Infinity
+  for (let i = 0; i < enemies.length; i++) {
+    const e = enemies[i]
+    if (e.getActiveBodyparts(ATTACK) > 0 || e.getActiveBodyparts(RANGED_ATTACK) > 0) {
+      if (e.hits < minHits) {
+        minHits = e.hits
+        target = e
+      }
     }
-    return target;
+  }
+  return target
 }
 
 /**
@@ -252,17 +246,17 @@ function _findAttackerTarget(tower, enemies) {
  * @param {Creep[]} enemies
  * @returns {Creep|null}
  */
-function _findWeakestTarget(tower, enemies) {
-    let target = null;
-    let minHits = Infinity;
-    for (let i = 0; i < enemies.length; i++) {
-        const e = enemies[i];
-        if (e.hits < minHits) {
-            minHits = e.hits;
-            target = e;
-        }
+function _findWeakestTarget (tower, enemies) {
+  let target = null
+  let minHits = Infinity
+  for (let i = 0; i < enemies.length; i++) {
+    const e = enemies[i]
+    if (e.hits < minHits) {
+      minHits = e.hits
+      target = e
     }
-    return target;
+  }
+  return target
 }
 // ============================================================
 // 回復対象選択
@@ -281,31 +275,22 @@ let _healTargetRoom = null;
  * @param {Creep[]} injured
  * @returns {Creep|null}
  */
-function _selectHealTarget(tower, injured) {
-    if (injured.length === 0) {
-        return null;
+function _selectHealTarget (tower, injured) {
+  if (injured.length === 0) {
+    return null
+  }
+  // ⚡ PERFORMANCE: Use standard for loop instead of reduce for better performance in Screeps/V8.
+  let bestTarget = null
+  let minRatio = Infinity
+  for (let i = 0; i < injured.length; i++) {
+    const creep = injured[i]
+    const ratio = creep.hits / creep.hitsMax
+    if (ratio < minRatio) {
+      minRatio = ratio
+      bestTarget = creep
     }
-
-    if (_healTargetTick === Game.time && _healTargetRoom === tower.room.name) {
-        return _healTargetCache;
-    }
-
-    // ⚡ PERFORMANCE: Use standard for loop instead of reduce for better performance in Screeps/V8.
-    let bestTarget = null;
-    let minRatio = Infinity;
-    for (let i = 0; i < injured.length; i++) {
-        const creep = injured[i];
-        const ratio = creep.hits / creep.hitsMax;
-        if (ratio < minRatio) {
-            minRatio = ratio;
-            bestTarget = creep;
-        }
-    }
-
-    _healTargetCache = bestTarget;
-    _healTargetTick = Game.time;
-    _healTargetRoom = tower.room.name;
-    return bestTarget;
+  }
+  return bestTarget
 }
 
 // ============================================================
@@ -315,9 +300,9 @@ function _selectHealTarget(tower, injured) {
 // ⚡ PERFORMANCE OPTIMIZATION: Cache selected repair target on a room-level per tick basis.
 // Since Screeps actions (like repair) resolve at the end of the tick, room state remains
 // unchanged. Multiple towers calling this on the same tick can reuse the target to avoid O(N) loops.
-let _repairTargetCache = null;
-let _repairTargetTick = -1;
-let _repairTargetRoom = null;
+let _repairTargetCache = null
+let _repairTargetTick = -1
+let _repairTargetRoom = null
 
 /**
  * 修復対象を選択する
@@ -326,28 +311,28 @@ let _repairTargetRoom = null;
  * @param {Room} room
  * @returns {Structure|null}
  */
-function _selectRepairTarget(tower, room) {
-    if (_repairTargetTick === Game.time && _repairTargetRoom === room.name) {
-        return _repairTargetCache;
-    }
+function _selectRepairTarget (tower, room) {
+  if (_repairTargetTick === Game.time && _repairTargetRoom === room.name) {
+    return _repairTargetCache
+  }
 
-    const rcl = room.controller ? room.controller.level : 1;
-    const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
-    const urgentRampartThreshold = Math.min(wallTarget * 0.1, 5000);
+  const rcl = room.controller ? room.controller.level : 1
+  const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1]
+  const urgentRampartThreshold = Math.min(wallTarget * 0.1, 5000)
 
-    const urgentRampart = _findUrgentRampart(room, urgentRampartThreshold);
-    if (urgentRampart) {
-        _repairTargetCache = urgentRampart;
-        _repairTargetTick = Game.time;
-        _repairTargetRoom = room.name;
-        return urgentRampart;
-    }
+  const urgentRampart = _findUrgentRampart(room, urgentRampartThreshold)
+  if (urgentRampart) {
+    _repairTargetCache = urgentRampart
+    _repairTargetTick = Game.time
+    _repairTargetRoom = room.name
+    return urgentRampart
+  }
 
-    const damaged = _findDamagedStructure(room);
-    _repairTargetCache = damaged;
-    _repairTargetTick = Game.time;
-    _repairTargetRoom = room.name;
-    return damaged;
+  const damaged = _findDamagedStructure(room)
+  _repairTargetCache = damaged
+  _repairTargetTick = Game.time
+  _repairTargetRoom = room.name
+  return damaged
 }
 
 /**
@@ -356,23 +341,24 @@ function _selectRepairTarget(tower, room) {
  * @param {number} threshold
  * @returns {Structure|null}
  */
-function _findUrgentRampart(room, threshold) {
-    let urgentRampart = null;
-    let minRampartHits = Infinity;
-    // ⚡ PERFORMANCE OPTIMIZATION: Use typed getMyStructures cache lookup for STRUCTURE_RAMPART
-    // to iterate only ramparts rather than scanning all my structures.
-    const ramparts = cache.getMyStructures(room, STRUCTURE_RAMPART);
+function _findUrgentRampart (room, threshold) {
+  let urgentRampart = null
+  let minRampartHits = Infinity
+  const myStructures = cache.getMyStructures(room)
 
-    for (let i = 0; i < ramparts.length; i++) {
-        const s = ramparts[i];
-        if (s.hits < threshold) {
-            if (s.hits < minRampartHits) {
-                minRampartHits = s.hits;
-                urgentRampart = s;
-            }
+  // ⚡ PERFORMANCE: Filter for ramparts manually to avoid multiple array passes.
+  for (let i = 0; i < myStructures.length; i++) {
+    const s = myStructures[i]
+    if (s.structureType === STRUCTURE_RAMPART) {
+      if (s.hits < threshold) {
+        if (s.hits < minRampartHits) {
+          minRampartHits = s.hits
+          urgentRampart = s
         }
+      }
     }
-    return urgentRampart;
+  }
+  return urgentRampart
 }
 
 /**
@@ -380,36 +366,31 @@ function _findUrgentRampart(room, threshold) {
  * @param {Room} room
  * @returns {Structure|null}
  */
-function _findDamagedStructure(room) {
-    let mostDamagedStructure = null;
-    let minHitsRatio = Infinity;
-    const allStructures = cache.getStructures(room);
+function _findDamagedStructure (room) {
+  let mostDamagedStructure = null
+  let minHitsRatio = Infinity
+  const allStructures = cache.getStructures(room)
 
-    for (let i = 0; i < allStructures.length; i++) {
-        const s = allStructures[i];
-        const type = s.structureType;
+  for (let i = 0; i < allStructures.length; i++) {
+    const s = allStructures[i]
+    const type = s.structureType
 
-        // Skip walls and ramparts (ramparts handled above or at different thresholds)
-        if (type === STRUCTURE_WALL || type === STRUCTURE_RAMPART) {
-            continue;
-        }
-
-        // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit full-health structures before threshold lookups and division
-        if (s.hits >= s.hitsMax) {
-            continue;
-        }
-
-        const threshold = REPAIR_THRESHOLD[type] || REPAIR_THRESHOLD.OTHER;
-        const ratio = s.hits / s.hitsMax;
-
-        if (ratio < threshold) {
-            if (ratio < minHitsRatio) {
-                minHitsRatio = ratio;
-                mostDamagedStructure = s;
-            }
-        }
+    // Skip walls and ramparts (ramparts handled above or at different thresholds)
+    if (type === STRUCTURE_WALL || type === STRUCTURE_RAMPART) {
+      continue
     }
-    return mostDamagedStructure;
+
+    const threshold = REPAIR_THRESHOLD[type] || REPAIR_THRESHOLD.OTHER
+    const ratio = s.hits / s.hitsMax
+
+    if (ratio < threshold) {
+      if (ratio < minHitsRatio) {
+        minHitsRatio = ratio
+        mostDamagedStructure = s
+      }
+    }
+  }
+  return mostDamagedStructure
 }
 
 // ============================================================
@@ -421,19 +402,19 @@ function _findDamagedStructure(room) {
  * @param {StructureTower} tower
  * @param {Creep} target
  */
-function _showAttackVisual(tower, target) {
-    tower.room.visual.line(tower.pos, target.pos, {
-        color: '#ff4444',
-        width: 0.3,
-        opacity: 0.7,
-    });
-    tower.room.visual.circle(target.pos, {
-        radius: 0.5,
-        fill: 'transparent',
-        stroke: '#ff4444',
-        strokeWidth: 0.2,
-        opacity: 0.8,
-    });
+function _showAttackVisual (tower, target) {
+  tower.room.visual.line(tower.pos, target.pos, {
+    color: '#ff4444',
+    width: 0.3,
+    opacity: 0.7
+  })
+  tower.room.visual.circle(target.pos, {
+    radius: 0.5,
+    fill: 'transparent',
+    stroke: '#ff4444',
+    strokeWidth: 0.2,
+    opacity: 0.8
+  })
 }
 
 /**
@@ -441,17 +422,17 @@ function _showAttackVisual(tower, target) {
  * @param {StructureTower} tower
  * @param {Creep} target
  */
-function _showHealVisual(tower, target) {
-    tower.room.visual.line(tower.pos, target.pos, {
-        color: '#00ff88',
-        width: 0.2,
-        opacity: 0.5,
-    });
-    tower.room.visual.circle(target.pos, {
-        radius: 0.4,
-        fill: '#00ff88',
-        opacity: 0.2,
-    });
+function _showHealVisual (tower, target) {
+  tower.room.visual.line(tower.pos, target.pos, {
+    color: '#00ff88',
+    width: 0.2,
+    opacity: 0.5
+  })
+  tower.room.visual.circle(target.pos, {
+    radius: 0.4,
+    fill: '#00ff88',
+    opacity: 0.2
+  })
 }
 
 /**
@@ -459,13 +440,13 @@ function _showHealVisual(tower, target) {
  * @param {StructureTower} tower
  * @param {Structure} target
  */
-function _showRepairVisual(tower, target) {
-    tower.room.visual.line(tower.pos, target.pos, {
-        color: '#ffaa00',
-        width: 0.15,
-        opacity: 0.4,
-        lineStyle: 'dotted',
-    });
+function _showRepairVisual (tower, target) {
+  tower.room.visual.line(tower.pos, target.pos, {
+    color: '#ffaa00',
+    width: 0.15,
+    opacity: 0.4,
+    lineStyle: 'dotted'
+  })
 }
 
 // ============================================================
@@ -478,18 +459,18 @@ function _showRepairVisual(tower, target) {
  * @param {Room} room
  * @returns {StructureTower[]} エネルギー補充が必要なタワー一覧
  */
-function getTowersNeedingEnergy(room) {
-    const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
-    // ⚡ PERFORMANCE: Use for loop to avoid filter closure and array allocation.
-    const needing = [];
-    const threshold = TOWER_ENERGY_PRIORITY;
-    for (let i = 0; i < towers.length; i++) {
-        const t = towers[i];
-        if (t.store[RESOURCE_ENERGY] / t.store.getCapacity(RESOURCE_ENERGY) < threshold) {
-            needing.push(t);
-        }
+function getTowersNeedingEnergy (room) {
+  const towers = cache.getMyStructures(room, STRUCTURE_TOWER)
+  // ⚡ PERFORMANCE: Use for loop to avoid filter closure and array allocation.
+  const needing = []
+  const threshold = TOWER_ENERGY_PRIORITY
+  for (let i = 0; i < towers.length; i++) {
+    const t = towers[i]
+    if (t.store[RESOURCE_ENERGY] / t.store.getCapacity(RESOURCE_ENERGY) < threshold) {
+      needing.push(t)
     }
-    return needing;
+  }
+  return needing
 }
 
 // ============================================================
@@ -501,59 +482,59 @@ function getTowersNeedingEnergy(room) {
  * @param {Room} room
  * @returns {Object}
  */
-function getStats(room) {
-    const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
-    const stats = {
-        total: towers.length,
-        active: 0,
-        avgEnergy: 0,
-        lowEnergy: 0,
-    };
+function getStats (room) {
+  const towers = cache.getMyStructures(room, STRUCTURE_TOWER)
+  const stats = {
+    total: towers.length,
+    active: 0,
+    avgEnergy: 0,
+    lowEnergy: 0
+  }
 
-    if (towers.length === 0) {
-        return stats;
+  if (towers.length === 0) {
+    return stats
+  }
+
+  let totalEnergy = 0
+  // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop to avoid iterator allocations per tick.
+  for (let i = 0; i < towers.length; i++) {
+    const tower = towers[i]
+    const ratio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY)
+    totalEnergy += ratio
+    if (ratio < TOWER_ENERGY_PRIORITY) {
+      stats.lowEnergy++
     }
-
-    let totalEnergy = 0;
-    // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop to avoid iterator allocations per tick.
-    for (let i = 0; i < towers.length; i++) {
-        const tower = towers[i];
-        const ratio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY);
-        totalEnergy += ratio;
-        if (ratio < TOWER_ENERGY_PRIORITY) {
-            stats.lowEnergy++;
-        }
-        if (tower.store[RESOURCE_ENERGY] > 0) {
-            stats.active++;
-        }
+    if (tower.store[RESOURCE_ENERGY] > 0) {
+      stats.active++
     }
-    stats.avgEnergy = totalEnergy / towers.length;
+  }
+  stats.avgEnergy = totalEnergy / towers.length
 
-    return stats;
+  return stats
 }
 
 /**
  * タワー統計をルームビジュアルに表示する
  * @param {Room} room
  */
-function showDashboard(room) {
-    const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
-    // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop to avoid iterator allocations per tick.
-    for (let i = 0; i < towers.length; i++) {
-        const tower = towers[i];
-        const ratio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY);
-        const color = ratio > 0.7 ? '#00ff88' : ratio > 0.4 ? '#ffaa00' : '#ff4444';
-        tower.room.visual.text(`🏰 ${Math.floor(ratio * 100)}%`, tower.pos.x, tower.pos.y - 1, {
-            color,
-            font: 0.4,
-            align: 'center',
-        });
-    }
+function showDashboard (room) {
+  const towers = cache.getMyStructures(room, STRUCTURE_TOWER)
+  // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop to avoid iterator allocations per tick.
+  for (let i = 0; i < towers.length; i++) {
+    const tower = towers[i]
+    const ratio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY)
+    const color = ratio > 0.7 ? '#00ff88' : ratio > 0.4 ? '#ffaa00' : '#ff4444'
+    tower.room.visual.text(`🏰 ${Math.floor(ratio * 100)}%`, tower.pos.x, tower.pos.y - 1, {
+      color,
+      font: 0.4,
+      align: 'center'
+    })
+  }
 }
 
 module.exports = {
-    run,
-    getTowersNeedingEnergy,
-    getStats,
-    showDashboard,
-};
+  run,
+  getTowersNeedingEnergy,
+  getStats,
+  showDashboard
+}

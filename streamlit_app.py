@@ -1,7 +1,8 @@
-import streamlit as st
 import json
 import os
 from pathlib import Path
+
+import streamlit as st
 
 st.set_page_config(
     page_title="Screeps Dashboard",
@@ -73,10 +74,7 @@ st.subheader("🐛 クリープロール")
 role_files = sorted(Path(".").glob("role.*.js"))
 
 if role_files:
-    selected_role = st.selectbox(
-        "ロールを選択",
-        [f.name for f in role_files]
-    )
+    selected_role = st.selectbox("ロールを選択", [f.name for f in role_files])
     selected_path = Path(selected_role)
     if selected_path.exists():
         with open(selected_path, "r", encoding="utf-8") as f:

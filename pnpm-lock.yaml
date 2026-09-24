@@ -32,6 +32,9 @@ importers:
       eslint:
         specifier: ^10.11.0
         version: 10.11.0
+      globals:
+        specifier: ^17.12.0
+        version: 17.12.0
       jest:
         specifier: ^30.5.2
         version: 30.5.2(@types/node@26.6.2)
@@ -2530,6 +2533,10 @@ packages:
 
   global@4.4.0:
     resolution: {integrity: sha512-wv/LAoHdRE3BeTGz53FAamhGlPLhlssK45usmGFThIi4XqnBmjKQ16u+RNbP7WvigRZDxUsM0J3gcQ5yicaL0w==}
+
+  globals@17.12.0:
+    resolution: {integrity: sha512-cezEd/DTyyht9cvSSURyygXPfy04GtWO/5e6ZPvH7fCtjKz9PYOmuawphw1Ctd1f6C+5JypXfGD7ahNMXvevBA==}
+    engines: {node: '>=18'}
 
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
@@ -7153,6 +7160,8 @@ snapshots:
     dependencies:
       min-document: 2.19.2
       process: 0.11.10
+
+  globals@17.12.0: {}
 
   gopd@1.2.0: {}
 

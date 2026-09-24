@@ -117,20 +117,17 @@ function _redactPaths(str) {
     });
 }
 
-function log(arg1, arg2, data) {
+function log(arg1, arg2) {
     let level = 'info';
     let message = '';
-    let extraData = data;
     if (LEVELS[arg1] !== undefined) {
         level = arg1;
         message = arg2;
     } else if (LEVELS[arg2] !== undefined) {
         level = arg2;
         message = arg1;
-        extraData = data;
     } else {
         message = arg1;
-        extraData = arg2;
     }
 
     if (LEVELS[level] !== undefined && LEVELS[level] > currentLevel) return;
@@ -141,15 +138,6 @@ function log(arg1, arg2, data) {
         } catch (e) {
             message = '[Unserializable Object]';
         }
-    }
-    if (extraData !== undefined && extraData !== null) {
-        let extraStr;
-        try {
-            extraStr = typeof extraData === 'object' ? JSON.stringify(extraData) : String(extraData);
-        } catch (e) {
-            extraStr = '[Unserializable Data]';
-        }
-        message += (message ? ' | ' : '') + extraStr;
     }
     const truncated = message.substring(0, MAX_LOG_MESSAGE_LENGTH);
     const redacted = _redactPaths(truncated);
@@ -175,20 +163,20 @@ function log(arg1, arg2, data) {
     console.log(`${emoji} [${level}] ${escaped}`);
 }
 
-function error(msg, data) {
-    log(msg, 'error', data);
+function error(msg) {
+    log(msg, 'error');
 }
-function warn(msg, data) {
-    log(msg, 'warn', data);
+function warn(msg) {
+    log(msg, 'warn');
 }
-function info(msg, data) {
-    log(msg, 'info', data);
+function info(msg) {
+    log(msg, 'info');
 }
-function debug(msg, data) {
-    log(msg, 'debug', data);
+function debug(msg) {
+    log(msg, 'debug');
 }
-function trace(msg, data) {
-    log(msg, 'trace', data);
+function trace(msg) {
+    log(msg, 'trace');
 }
 
 function getSafeStack(stack, maxLines = 5) {

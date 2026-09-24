@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "test": "jest",
-    "lint": "eslint src/"
+    "lint": "eslint ."
   },
   "dependencies": {
     "dotenv": "^17.4.2",
@@ -17,6 +17,7 @@
   "devDependencies": {
     "babel-jest": "^30.5.2",
     "eslint": "^10.11.0",
+    "globals": "^17.12.0",
     "jest": "^30.5.2",
     "jest-junit": "^17.0.0",
     "testdriverai": "^7.11.171",

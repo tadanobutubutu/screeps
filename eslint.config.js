@@ -1,19 +1,4 @@
-const globals = {
-    node: {
-        process: 'readonly',
-        module: 'readonly',
-        require: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-        console: 'readonly',
-        Buffer: 'readonly',
-        global: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-    },
-};
+const globals = require('globals');
 
 module.exports = [
     {
@@ -26,6 +11,8 @@ module.exports = [
             '.github/**',
             'dashboard/.next/**',
             'dashboard/node_modules/**',
+            'test_random.js',
+            'tutorial.auto.js',
         ],
     },
     {

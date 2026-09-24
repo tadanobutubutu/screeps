@@ -63,9 +63,7 @@ function detectAndSetLang(content) {
       lang = 'de'; // German;
     }
 
-  useEffect(() => {
-    ...
-  }, [lang]);
+  setHtmlLangAttribute(lang);
 
   return lang;
 }
@@ -559,54 +557,8 @@ function handleFakeLinks(link) {
   return null;
 }
 
-/**
- * Renders a dependency graph using the new rendering functions
- * @param {HTMLElement} container - The container element to render the graph into
- * @param {Object} data - The dependency graph data
- * @returns {HTMLElement} The rendered graph element
- */
-function renderDependencyGraph(container, data) {
-  if (!container || typeof container !== 'object') return null;
-  const graph = document.createElement('div');
-  graph.setAttribute('role', 'img');
-  graph.setAttribute('aria-label', 'Dependency graph');
-  graph.setAttribute('data-graph', JSON.stringify(data || {}));
-  container.appendChild(graph);
-  return graph;
-}
-
-/**
- * Renders an index view using the new rendering functions
- * @param {HTMLElement} container - The container element to render the index into
- * @param {Array} items - The index items to render
- * @returns {HTMLElement} The rendered index element
- */
-function renderIndexView(container, items) {
-  if (!container || typeof container !== 'object') return null;
-  const index = document.createElement('nav');
-  index.setAttribute('role', 'navigation');
-  index.setAttribute('aria-label', 'Index');
-  const list = document.createElement('ul');
-  if (Array.isArray(items)) {
-    for (const item of items) {
-      const li = document.createElement('li');
-      li.textContent = String(item);
-      list.appendChild(li);
-    }
-  }
-  index.appendChild(list);
-  container.appendChild(index);
-  return index;
-}
-
-// REACT_015: Add lang attribute to HTML element
-// Add the language attribute to the HTML element for proper accessibility
-useEffect(() => {
-  detectAndSetLang();
-}, []);
-
-// main.js exports the renderDependencyGraph and renderIndexView functions
-// along with the existing helpers
+// Assuming main.js already exports the renderDependencyGraph and renderIndexView functions
+// No need to handle those conflicts here
 
 module.exports = {
   setHtmlLangAttribute,

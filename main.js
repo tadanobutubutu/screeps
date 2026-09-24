@@ -850,17 +850,120 @@ function personName(element) {
   return null;
 }
 
-// New function to address REACT_036: Fix fake link issue (createInPageButton)
-function createInPageButton(id, label) {
-  return React.createElement(
-    'button',
-    {
-      className: 'skip-link',
-      onClick: (e) => {
-        e.preventDefault();
-        const target = document.getElementById(id);
-        if (target) {
-          target.focus();
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = `elem-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element;
+};
+
+/**
+ * Get all loaded tables
+ * @returns {Array} Array of table objects
+ */
+function getTables() {
+  return appData.tables;
+}
+
+/**
+ * Get application configuration
+ * @returns {Object} Configuration object
+ */
+function getConfig() {
+  return { ...appData.config };
+}
+
+/**
+ * Set application configuration
+ * @param {Object} config - Configuration object
+ */
+function setConfig(config) {
+  appData.config = { ...appData.config, ...config };
+}
+
+const renderIndex = (data, options = {}) => {
+  // Update the existing function to use the new renderIndexView function
+  const content = renderIndexView({ data, ...options });
+  if (content && typeof content === 'string') {
+    return addLangAttribute(content);
+  }
+  return content;
+};
+
+/**
+ * Renders the dependency graph view using the new renderDependencyGraph function.
+ * This function updates the existing rendering to use the new accessibility-aware function.
+ * @param {Object} props - Props for rendering the dependency graph
+ * @returns {React.ReactElement} The rendered dependency graph content
+ */
+function renderDependencyGraphView(props) {
+  // Update the existing function to use the new renderDependencyGraph function
+  const content = renderDependencyGraph(props);
+  if (content && typeof content === 'string') {
+    return addLangAttribute(content);
+  }
+  return content;
+}
+
+// Implement the function for addressing accessibility issues from insight report
+function applyAccessibilityFixes(report) {
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0,
+    svgNamesAdded: 0,
+    fakeLinksFixed: 0
+  };
+
+  if (!report || !report.issues) {
+    return fixes;
+  }
+
+  // Combine languages
+  const existingLangAttribute = getLangAttribute();
+  const newLangAttribute = report.detectedLang || 'en';
+  if (existingLangAttribute !== newLangAttribute) {
+    setHtmlLangAttribute(newLangAttribute);
+    fixes.langAdded = true;
+  }
+
+  // Add main landmark if missing
+  if (report.issues.landmarkIssues && report.issues.landmarkIssues.missingMain) {
+    const firstSection = document.querySelector('section');
+    if (firstSection) {
+      const mainElement = document.createElement('main');
+      while (firstSection.firstChild) {
+        mainElement.appendChild(firstSection.firstChild);
+      }
+      document.body.insertBefore(mainElement, firstSection);
+      firstSection.remove();
+      fixes.mainLandmarkAdded = true;
+    }
+  }
+
+  // Fix landmarks by ensuring proper roles and accessible names
+  if (report.issues.landmarkIssues && Array.isArray(report.issues.landmarkIssues)) {
+    report.issues.landmarkIssues.forEach(issue => {
+      const element = document.querySelector(issue.selector);
+      if (element) {
+        // Add accessible name if missing
+        if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+          // Try to get label from surrounding context
+          const previousSibling = element.previousElementSibling;
+          if (previousSibling && previousSibling.tagName.match(/H[1-6]/)) {
+            const labelId = `label-${Math.random().toString(36).substr(2, 9)}`;
+            const labelSpan = document.createElement('span');
+            labelSpan.id = labelId;
+            labelSpan.textContent = previousSibling.textContent;
+            labelSpan.style.display = 'none';
+            element.parentNode.insertBefore(labelSpan, element);
+            element.setAttribute('aria-labelledby', labelId);
+          } else {
+            // Use role as fallback label
+            const role = element.getAttribute('role') || element.tagName.toLowerCase();
+            element.setAttribute('aria-label', role);
+          }
+          fixes.landmarksFixed++;
         }
       }
     },

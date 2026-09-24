@@ -69,6 +69,20 @@ function detectAndSetLang(content) {
 }
 
 /**
+ * Creates a React component that automatically detects and sets the language
+ * @param {string} content - The text content to analyze for language detection
+ * @returns {React.Component} A React component that handles language detection
+ */
+function LanguageDetector({ content }) {
+  useEffect(() => {
+    const lang = detectAndSetLang(content);
+    setHtmlLangAttribute(lang);
+  }, [content]);
+
+  return null;
+}
+
+/**
  * Returns a properly formatted person name
  * @param {string} name - The person's name
  * @returns {string} The formatted person name
@@ -394,6 +408,9 @@ function newFocusTrap(container) {
 // REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
 
+// Assuming main.js already exports the renderDependencyGraph and renderIndexView functions
+// No need to handle those conflicts here
+
 module.exports = {
   setHtmlLangAttribute,
   getLangAttribute,
@@ -411,5 +428,5 @@ module.exports = {
   ensureUniqueLandmarks,
   validateLinkAccessibility,
   handleFakeLinks,
-  newFocusTrap
+  LanguageDetector
 };

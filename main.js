@@ -8,174 +8,14 @@ import { validateTableAccessibility, validateTableStructure } from './utils/tabl
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
-// Importing utilities for formatting and validation
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
 import { state, updateState } from './state.js';
 
+// Importing utilities for formatting and validation
+
 // TODO: Address accessibility issues from insight report:
 // ... (Already addressed in the existing code) ...
-
-// Tower Defense Game Implementation
-let towers = [];
-let gameScore = 0;
-let gameState = 'idle';
-let enemies = [];
-
-const TOWER_TYPES = {
-  basic: { cost: 50, range: 100, damage: 10, fireRate: 1000 },
-  sniper: { cost: 100, range: 200, damage: 25, fireRate: 2000 },
-  rapid: { cost: 75, range: 80, damage: 5, fireRate: 300 }
-};
-
-function placeTower(x, y, type = 'basic') {
-  if (gameState !== 'playing') {
-    gameState = 'playing';
-  }
-
-  const towerConfig = TOWER_TYPES[type] || TOWER_TYPES.basic;
-  const tower = {
-    id: Date.now(),
-    x,
-    y,
-    type,
-    range: towerConfig.range,
-    damage: towerConfig.damage,
-    fireRate: towerConfig.fireRate,
-    cost: towerConfig.cost,
-    lastFired: 0
-  };
-
-  towers.push(tower);
-  return tower;
-}
-
-function removeTower(towerId) {
-  const index = towers.findIndex(t => t.id === towerId);
-  if (index !== -1) {
-    towers.splice(index, 1);
-    return true;
-  }
-  return false;
-}
-
-function getTowers() {
-  return [...towers];
-}
-
-function updateTowerDefense(deltaTime) {
-  if (gameState !== 'playing') return;
-
-  towers.forEach(tower => {
-    tower.lastFired += deltaTime;
-
-    if (tower.lastFired >= tower.fireRate) {
-      const target = findTarget(tower);
-      if (target) {
-        tower.lastFired = 0;
-      }
-    }
-  });
-
-  updateEnemies(deltaTime);
-}
-
-function findTarget(tower) {
-  for (const enemy of enemies) {
-    const distance = Math.sqrt(
-      Math.pow(enemy.x - tower.x, 2) + Math.pow(enemy.y - tower.y, 2)
-    );
-    if (distance <= tower.range) {
-      return enemy;
-    }
-  }
-  return null;
-}
-
-function spawnEnemy(x = 0, y = 0, health = 100, speed = 1) {
-  const enemy = {
-    id: Date.now() + Math.random(),
-    x,
-    y,
-    health,
-    maxHealth: health,
-    speed,
-    path: []
-  };
-  enemies.push(enemy);
-  return enemy;
-}
-
-function updateEnemies(deltaTime) {
-  enemies = enemies.filter(enemy => {
-    if (enemy.path.length > 0) {
-      const target = enemy.path[0];
-      const dx = target.x - enemy.x;
-      const dy = target.y - enemy.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < enemy.speed * deltaTime) {
-        enemy.x = target.x;
-        enemy.y = target.y;
-        enemy.path.shift();
-      } else {
-        enemy.x += (dx / distance) * enemy.speed * deltaTime;
-        enemy.y += (dy / distance) * enemy.speed * deltaTime;
-      }
-    }
-
-    if (enemy.health <= 0 || enemy.path.length === 0) {
-      if (enemy.health <= 0) {
-        gameScore += 10;
-      }
-      return false;
-    }
-    return true;
-  });
-}
-
-function damageEnemy(enemyId, damage) {
-  const enemy = enemies.find(e => e.id === enemyId);
-  if (enemy) {
-    enemy.health -= damage;
-    return true;
-  }
-  return false;
-}
-
-function setGameScore(score) {
-  gameScore = score;
-}
-
-function getGameScore() {
-  return gameScore;
-}
-
-function resetTowerDefense() {
-  towers = [];
-  gameScore = 0;
-  gameState = 'idle';
-  enemies = [];
-}
-
-function getGameState() {
-  return gameState;
-}
-
-function getEnemies() {
-  return [...enemies];
-}
-
-function setGameState(newState) {
-  if (['idle', 'playing', 'paused', 'gameover'].includes(newState)) {
-    gameState = newState;
-  }
-}
-
-function getTowerTypes() {
-  return { ...TOWER_TYPES };
-}
 
 // Placeholder variables for content
 let dependencyGraphContent;
@@ -222,10 +62,18 @@ function fixAccessibilityIssues() {
   // you can add the necessary code here.
 }
 
-// DOM-based accessibility code
+//DOM-based accessibility code
 
 // Add lang attribute to HTML element
-...
+const htmlElement = document.documentElement;
+if (htmlElement) {
+  const langValue = getLangAttribute();
+  if (langValue) {
+    htmlElement.setAttribute('lang', langValue);
+    // Add new function to ensure lang attribute is applied
+    addFullLangAttribute();
+  }
+}
 
 // Create in-page button with accessibility considerations
 createInPageButton();
@@ -240,15 +88,49 @@ if (table) {
 
 // Add/fix landmark issues
 validateLandmark();
-...
 
-// Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
-const svg = ...
-if (svg) {
-  const accessibleName = getSvgAccessibleName(svg);
-  setSvgAttributes(svg, accessibleName);
+// Add new functions for additional ARIA considerations
+function addAriaLabel(element, label) {
+  if (element && !element.hasAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
 }
+
+function ensureElementHasId(elementId) {
+  const element = document.getElementById(elementId);
+  if (element && !element.id) {
+    element.setAttribute('id', elementId);
+  }
+}
+
+function getFullLangAttribute() {
+  const base = getLangAttribute ? getLangAttribute() : '';
+  if (!base) {
+    return '';
+  }
+  if (base.includes('-')) {
+    return base;
+  }
+  // Default region fallback (kept lightweight and non-prescriptive)
+  return `${base}`;
+}
+
+function createAccessibleLink({ href, text, ariaLabel, role = 'link' } = {}) {
+  const a = (typeof document !== 'undefined') ? document.createElement('a') : null;
+  if (!a) {
+    return null;
+  }
+  a.setAttribute('href', href || '#');
+  a.setAttribute('role', role);
+  a.textContent = text || '';
+  if (ariaLabel) {
+    a.setAttribute('aria-label', ariaLabel);
+  }
+  return a;
+}
+
+// Export statements for new functions
+export { addAriaLabel, ensureElementHasId, getFullLangAttribute, createAccessibleLink };
 
 // Call the new function to fix accessibility issues
 fixAccessibilityIssues();
@@ -284,7 +166,7 @@ export function someFunction() {
   // ... implementation ...
 }
 
-// Export UI / product functions and accessibility utilities
+// Export UI / product functions and accessibility utilities (including new functions)
 export {
   formatProductName,
   renderProductList,
@@ -294,20 +176,6 @@ export {
   renderPage,
   getLangAttribute,
   personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton,
-  setSvgAttributes
-};
-
-// Export all required imports and stubs that might have been removed
-export {
-  dependencyGraphContent,
-  indexContent,
-  getLangAttribute,
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
@@ -321,37 +189,17 @@ export {
   formatDate,
   calculateDiscount,
   validateInput,
-  renderHeader,
-  renderFooter,
-  renderProductCard,
-  state,
-  updateState,
-  personName,
+  addAriaLabel,
+  ensureElementHasId,
+  getFullLangAttribute,
+  createAccessibleLink,
   fixAccessibilityIssues,
   renderDependencyGraph,
   renderIndex
 };
 
-// Tower Defense exports
-export {
-  placeTower,
-  removeTower,
-  getTowers,
-  updateTowerDefense,
-  spawnEnemy,
-  getEnemies,
-  damageEnemy,
-  setGameScore,
-  getGameScore,
-  resetTowerDefense,
-  getGameState,
-  setGameState,
-  getTowerTypes
-};
-
-// Exporting for CommonJS compatibility
+// Export for CommonJS compatibility (including new functions)
 module.exports = {
-  // All existing exports from main.js go here
   dependencyGraphContent,
   indexContent,
   getLangAttribute,
@@ -384,46 +232,15 @@ module.exports = {
   validateAndRender,
   renderPage,
   someFunction,
-  // Tower Defense exports
-  placeTower,
-  removeTower,
-  getTowers,
-  updateTowerDefense,
-  spawnEnemy,
-  getEnemies,
-  damageEnemy,
-  setGameScore,
-  getGameScore,
-  resetTowerDefense,
-  getGameState,
-  setGameState,
-  getTowerTypes
+  addAriaLabel,
+  ensureElementHasId,
+  getFullLangAttribute,
+  createAccessibleLink
 };
 
 // ... other exports ...
 
-// Existing code preserved
-function existingFunction() {
-  // existing code
-}
-
-// Add new function to address the accessibility issue REACT_043: Make header focusable
-function makeHeaderFocusable() {
-  // code to make the header element focusable
-  const header = ...
-  if (header) {
-    header.setAttribute('tabindex', '0');
-    header.setAttribute('role', 'banner');
-  }
-}
-
-// Add export statement of the new function
-export { makeHeaderFocusable };
-
-// Export statements preserved
-export { existingFunction };
-
-// New function or changes requested
+// Existing code preserved with a new function added for accessibility
 function newFunction() {
   // new code
 }
@@ -437,46 +254,3 @@ const dependencyGraphContainer = ...
 ... 'Dependency Graph');
 
 export { dependencyGraphContainer };
-
-// ----- END ORIGINAL CODE -----
-
-// --- New Implementation ---
-// TODO: Implement this function for creating in-page buttons
-function createInPageButtons() {
-  const main = document.querySelector('main');
-  if (!main) return;
-
-  const buttonContainer = document.createElement('div');
-  buttonContainer.setAttribute('role', 'toolbar');
-  buttonContainer.setAttribute('aria-label', 'In-page navigation controls');
-
-  const backToTopButton = document.createElement('button');
-  backToTopButton.textContent = 'Back to Top';
-  backToTopButton.setAttribute('aria-label', 'Back to top of page');
-  backToTopButton.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-
-  const skipContentButton = document.createElement('button');
-  skipContentButton.textContent = 'Skip to Content';
-  skipContentButton.setAttribute('aria-label', 'Skip to main content');
-  skipContentButton.addEventListener('click', () => {
-    const mainContent = document.getElementById('main-content');
-    if (mainContent) {
-      mainContent.focus();
-    }
-  });
-
-  buttonContainer.appendChild(backToTopButton);
-  buttonContainer.appendChild(skipContentButton);
-
-  main.insertBefore(buttonContainer, main.firstChild);
-}
-
-// Invoke the function on DOM load
-if (typeof window !== 'undefined') {
-  window.addEventListener('DOMContentLoaded', createInPageButtons);
-}
-
-// Export the new function for accessibility testing and reuse
-export { createInPageButtons };

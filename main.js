@@ -1,284 +1,128 @@
-const express = require('express');
-const axe = require('axe-core');
-const fs = require('fs');
-const fastMap = require('fast-map');
-const path = require('path');
-
-  uniqueLandmarkSelectors.forEach(selector => {
-    const elements = document.querySelectorAll(selector);
-    if (elements.length > 1) {
-      elements.forEach((element, index) => {
-        // Add or update aria-label to make each landmark unique
-        const existingLabel = element.getAttribute('aria-label');
-        const elementTag = element.tagName.toLowerCase();
-        const role = element.getAttribute('role') || elementTag;
-
-        if (!existingLabel) {
-          element.setAttribute('aria-label', `${role} ${index + 1}`);
-        }
-      });
-    }
-  });
-
-  // Ensure region and navigation landmarks have accessible names when multiple exist
-  const sectionLandmarkSelectors = ['nav', '[role="region"]', 'aside'];
-
-  sectionLandmarkSelectors.forEach(selector => {
-    const elements = document.querySelectorAll(selector);
-    if (elements.length > 1) {
-      elements.forEach((element, index) => {
-        const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
-        const role = element.getAttribute('role') || element.tagName.toLowerCase();
-
-        if (!hasLabel) {
-          element.setAttribute('aria-label', `${role} ${index + 1}`);
-        }
-      });
-    }
-  });
-
-  // Also ensure unique IDs and only one main landmark
-  const landmarks = document.querySelectorAll('nav, main, aside, footer');
-  const seenIds = new Set();
-  const seenRoles = new Map();
-
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-
-    // Ensure unique IDs
-    if (!landmark.id) {
-      let id = role;
-      let counter = 1;
-      while (seenIds.has(id)) {
-        id = `${role}-${counter++}`;
-      }
-      landmark.id = id;
-      seenIds.add(id);
-    } else {
-      seenIds.add(landmark.id);
-    }
-
-    // Track roles for uniqueness
-    if (!seenRoles.has(role)) {
-      seenRoles.set(role, []);
-    }
-    seenRoles.get(role).push(landmark);
-  });
-
-    return uniqueLandmarks;
-}
-
-// Function to write the generated report to a file
-function writeReport(report) {
-    const reportFile = path.join(__dirname, 'accessibility_report.json');
-    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// Replaced placeholder with full implementation using axe-core scanning and report writing
-function generateAccessibilityReport() {
-    const report = scanAccessibility();
-    writeReport(report);
-    return report;
-}
-
-// Import required modules and export the new necessary function(s) here in main.js (preserving the original code)
-const { validateInput } = require('./utils/validators');
-const { processData } = require('./utils/processor');
-const axeNode = require('axe-core/lib/api/ Axecore');
-
-require('axe-core'); // Ensure `axe` is available as a global
-const axe = global.axe;
-
-// Export new necessary functions
-module.exports = {
-    validateInput,
-    processData,
-    formatResponse,
-    config: CONFIG,
-    // landmark functions
-    isValidLandmark,
-    loadLandmarks,
-    processLandmarks,
-    sortLandmarks,
-    getLandmarkById,
-    ensureUniqueLandmarks,
-    landmarkConfig: CONFIG,
-    // accessibility functions
-    generateAccessibilityReport,
-    validateInput,
-    processData
-};
-
-// Main execution when run directly
-if (require.main === module) {
-    const landmarks = loadLandmarks();
-    const processed = processLandmarks(landmarks);
-    const sorted = sortLandmarks(processed);
-
-    console.log(`Loaded ${landmarks.length} landmarks`);
-    console.log(`Processed to ${processed.length} unique landmarks`);
-    console.log(`Sorted ${sorted.length} landmarks`);
-
-    if (sorted.length > 0) {
-        console.log('First landmark:', sorted[0]);
-    }
-}
-
-// New function to fix accessibility issues
-function fixAccessibilityIssues() {
-  // 1. REACT_015: Ensure lang attribute is set on the HTML element
-  const lang = getLangAttribute();
-  const htmlElement = getDocument ? getDocument().documentElement : document.documentElement;
-  if (htmlElement && lang) {
-    htmlElement.setAttribute('lang', lang);
+const main = (html) => {
+  // Add lang attribute to HTML element
+  const addLangAttribute = (html) => {
+    if (typeof html !== 'string') return html
+    return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+      if (/\blang=/i.test(match)) return match
+      return `<html${attrs} lang="en">`
+    })
   }
 
-  // 2. REACT_027: Validate table accessibility and structure
-  const tables = (getDocument ? getDocument() : document).querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
+  // Fix table structure issues (add thead, tbody, th scope, caption)
+  const fixTableStructure = (html) => {
+    if (typeof html !== 'string') return html
 
-  // 3. REACT_017: Validate landmark and landmark structure issues
-  validateLandmark();
-  validateLandmarkStructure();
+    // Ensure every table has a caption
+    html = html.replace(/<table([^>]*)>/gi, (match, attrs) => {
+      if (/<caption/i.test(match)) return match
+      return `<table${attrs}><caption></caption>`
+    })
 
-  // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
-  ensureUniqueLandmarks();
+    // Close caption and wrap rows in thead/tbody where missing
+    html = html.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, content) => {
+      if (/<thead/i.test(content)) return match
+      const rows = content.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || []
+      if (rows.length === 0) return match
+      const firstRows = rows.slice(0, 1).join('')
+      const restRows = rows.slice(1).join('')
+      const thPattern = /<td>/gi
+      const firstRowHasTh = thPattern.test(firstRows)
+      let thead = ''
+      let tbody = restRows
 
-  // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
-  const svgElements = (getDocument ? getDocument() : document).querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      setSvgAttributes(svg, accessibleName);
+      if (!firstRowHasTh) {
+        thead = `<thead>${firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>')}</thead>`
+      } else {
+        thead = `<thead>${firstRows}</thead>`
+      }
+      if (!tbody) tbody = ''
+      tbody = `<tbody>${tbody}</tbody>`
+
+      return `<table${attrs}>${thead}${tbody}</table>`
+    })
+
+    // Add scope="col" to th elements that don't have it
+    html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
+      if (/\bscope=/i.test(match)) return match
+      return `<th${attrs} scope="col">`
+    })
+
+    return html
+  }
+
+  // New: Validate table accessibility
+  const validateTableAccessibility = (html) => {
+    if (typeof html !== 'string') return true
+
+    // Check for tables without captions
+    const tablesWithoutCaptions = html.match(/<table[^>]*>(?!.*<caption[^>]*>)/gi)
+    if (tablesWithoutCaptions) {
+      console.warn(`Found ${tablesWithoutCaptions.length} tables without captions`)
+      return false
     }
-  });
 
-    return landmarks.map(landmark => {
-        const matchingRegions = regions.filter(region =>
-            region.landmarkId === landmark.id
-        );
+    // Check for tables without thead/tbody
+    const tablesWithoutStructure = html.match(/<table[^>]*>(?!.*<thead[^>]*>)(?!.*<tbody[^>]*>)/gi)
+    if (tablesWithoutStructure) {
+      console.warn(`Found ${tablesWithoutStructure.length} tables without proper structure`)
+      return false
+    }
 
-        return {
-            ...landmark,
-            regions: matchingRegions
-        };
+    return true
+  }
+
+  // NEW: Validate landmark structure
+  const validateLandmarkStructure = (html) => {
+    if (typeof html !== 'string') return true
+
+    const requiredLandmarks = ['main', 'nav', 'footer'];
+    let isValid = true
+
+    requiredLandmarks.forEach(landmark => {
+      const pattern = new RegExp(`<${landmark}[^>]*>|<div[^>]*role=["']${landmark}["']`, 'i');
+      if (!pattern.test(html)) {
+        console.warn(`Missing required landmark: ${landmark}`)
+        isValid = false
+      }
     });
-}
 
-// Export the new function
-module.exports.addLandmarkRegions = addLandmarkRegions;
+    return isValid
+  }
 
-// New accessibility utility functions added to address the issues
+  // NEW: Get language attribute for HTML element
+  const getLangAttribute = (html) => {
+    if (typeof html !== 'string') return 'en'
 
-/**
- * Ensures all form controls have proper labels
- */
-function ensureFormControlLabels() {
-    const formControls = document.querySelectorAll('input, textarea, select');
-    formControls.forEach(control => {
-        const id = control.id || `control-${uuidv4()}`;
-        control.id = id;
+    const match = html.match(/<html[^>]*lang=["']([^"']*)["']/i);
+    return match ? match[1] : 'en'
+  }
 
-        if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
-            const label = document.querySelector(`label[for="${id}"]`);
-            if (!label) {
-                control.setAttribute('aria-label', control.placeholder || control.name || 'Form control');
-            }
-        }
-    });
-}
+  // NEW: Get accessible name for SVG
+  const getSvgAccessibleName = (svgElement) => {
+    if (!svgElement) return 'SVG'
 
-/**
- * Ensures all images have alt text
- */
-function ensureImageAltText() {
-    const images = document.querySelectorAll('img');
-    images.forEach(img => {
-        if (!img.getAttribute('alt') && !img.getAttribute('aria-hidden')) {
-            img.setAttribute('alt', img.title || 'Image');
-        }
-    });
-}
+    if (svgElement.hasAttribute('aria-label')) {
+      return svgElement.getAttribute('aria-label')
+    }
 
-/**
- * Ensures proper heading hierarchy
- */
-function ensureProperHeadingHierarchy() {
-    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    let previousLevel = 0;
+    if (svgElement.hasAttribute('aria-labelledby')) {
+      const id = svgElement.getAttribute('aria-labelledby');
+      const labelElement = document.getElementById(id);
+      return labelElement ? labelElement.textContent : 'SVG'
+    }
 
-    headings.forEach(heading => {
-        const currentLevel = parseInt(heading.tagName.substring(1));
-        if (currentLevel > previousLevel + 1) {
-            // Skip levels to maintain hierarchy
-            const newLevel = previousLevel + 1;
-            const newHeading = document.createElement(`h${newLevel}`);
-            newHeading.textContent = heading.textContent;
-            heading.replaceWith(newHeading);
-        }
-        previousLevel = currentLevel;
-    });
-}
+    const title = svgElement.querySelector('title');
+    return title ? title.textContent : 'SVG'
+  }
 
-/**
- * Ensures all interactive elements are keyboard accessible
- */
-function ensureKeyboardAccessibility() {
-    const interactiveElements = document.querySelectorAll('[role="button"], [role="link"], [role="checkbox"], [role="radio"]');
-    interactiveElements.forEach(element => {
-        if (!element.getAttribute('tabindex')) {
-            element.setAttribute('tabindex', '0');
-        }
-    });
-}
+  // Main function that applies all accessibility fixes
+  const applyAccessibilityFixes = (html) => {
+    let result = html
+    result = addLangAttribute(result)
+    result = fixTableStructure(result)
+    result = validateLandmarkStructure(result)
+    return result
+  }
 
-/**
- * Ensures proper contrast ratios for text
- */
-function ensureTextContrast() {
-    // This would typically require checking against CSS styles
-    // For now, we'll just ensure the attribute is present
-    const textElements = document.querySelectorAll('p, span, div, a, li');
-    textElements.forEach(element => {
-        if (!element.getAttribute('data-contrast-checked')) {
-            element.setAttribute('data-contrast-checked', 'true');
-        }
-    });
-}
-
-// Initialize all accessibility improvements
-function initializeAllAccessibilityImprovements() {
-    ensureFormControlLabels();
-    ensureImageAltText();
-    ensureProperHeadingHierarchy();
-    ensureKeyboardAccessibility();
-    ensureTextContrast();
-    initializeAccessibility();
-}
-
-// Run accessibility improvements when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAllAccessibilityImprovements);
-} else {
-    initializeAllAccessibilityImprovements();
-}
-
-// Export all new accessibility functions
-module.exports = {
-    ensureFormControlLabels,
-    ensureImageAltText,
-    ensureProperHeadingHierarchy,
-    ensureKeyboardAccessibility,
-    ensureTextContrast,
-    initializeAllAccessibilityImprovements
-};
-
-// Scanning accessibility issues using axe-core
-function scanAccessibility() {
-    const doc = axeNode(document);
-    const results = doc.run();
-    return results.violations;
+  return applyAccessibilityFixes(html)
 }

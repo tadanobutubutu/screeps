@@ -105,4 +105,6 @@ function renderAdditionalContent (additionalData) {
 }
 
 // Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent
+module.exports.renderAdditionalContent = renderAdditionalContent;
+
+// TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)

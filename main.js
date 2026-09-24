@@ -1,3 +1,5 @@
+// TODO: This is the modified and merged code
+
 const fs = require('fs');
 const main = require('./utilities');
 
@@ -52,7 +54,7 @@ const accessibilityUtils = {
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
 
-    const handleTab = (e) => {
+    return (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === first) {
           last.focus();
@@ -63,9 +65,6 @@ const accessibilityUtils = {
         }
       }
     };
-    
-    element.addEventListener('keydown', handleTab);
-    return () => element.removeEventListener('keydown', handleTab);
   },
   announceToScreenReader: (message, priority = 'polite') => {
     const announcer = document.createElement('div');

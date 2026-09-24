@@ -277,21 +277,25 @@ function ensureDependencyGraphAriaRole(doc) {
 }
 
 /**
- * Fix dependencyGraph accessibility by ensuring it has proper ARIA role
+ * Count the number of dependencies in the document
  * @param {Document} doc - The document object
- * @returns {Element|null} The dependencyGraph container with proper ARIA role
+ * @returns {number} The total count of dependencies
  */
-function fixDependencyGraphAccessibility(doc) {
-  const container = doc.querySelector('#dependencyGraph, .dependency-graph, [data-dependency-graph]');
-  if (container) {
-    if (!container.getAttribute('role')) {
-      container.setAttribute('role', 'region');
-    }
-    if (!container.getAttribute('aria-label')) {
-      container.setAttribute('aria-label', 'Dependency Graph');
-    }
-  }
-  return container;
+function countDependencies(doc) {
+  // Count main landmarks
+  const mainLandmark = doc.querySelector('main');
+  const mainCount = mainLandmark ? 1 : 0;
+  
+  // Count SVG elements
+  const svgs = doc.querySelectorAll('svg');
+  const svgCount = svgs.length;
+  
+  // Count buttons
+  const buttons = doc.querySelectorAll('button');
+  const buttonCount = buttons.length;
+  
+  // Return total count
+  return mainCount + svgCount + buttonCount;
 }
 
 // Export all functions

@@ -688,15 +688,35 @@ function newFocusTrap(element, options = {}) {
   };
 }
 
-/**
- * Spawn a child process with the given command and arguments.
- * @param {string} command - The command to execute
- * @param {string[]} args - Arguments to pass to the command
- * @param {Object} options - Options for the spawn function
- * @returns {ChildProcess} The spawned process
- */
-function spawnProcess (command, args = [], options = {}) {
-  return spawn(command, args, options)
+function newFocusTrap(element) {
+  if (!element) return;
+
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+
+  firstElement.focus();
+}
+
+function spawnProcess(command, args = [], options = {}) {
+  return spawn(command, args, options);
 }
 
 // Credential response handling
@@ -915,33 +935,6 @@ function ensureUniqueLandmarks() {
       }
     }
   });
-}
-
-function newFocusTrap(element) {
-  if (!element) return;
-
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-
-  if (focusableElements.length === 0) return;
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  element.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
-        e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
-      }
-    }
-  });
-
-  firstElement.focus();
 }
 
 function transformInputData(inputData, options = {}) {

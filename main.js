@@ -17,62 +17,14 @@ const { a11y } = require('@accessible/react');
 /**
  * Main application entry point with accessibility features
  */
-function main() {
-  const accessibleName = 'Main Application';
+function mainApplication() {
+  const accessibleName = '';
   if (accessibleName) {
     // Use accessibleName for screen readers
     console.log('Accessible name found:', accessibleName);
   }
 
-  const svgElements = document.querySelectorAll('svg');
-  setSvgAttributes(svgElements);
-  
-  checkLandmarkElements();
-}
-
-function setSvgAttributes(svgElements) {
-  svgElements.forEach((svg) => {
-    if (svg) {
-      svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-label', 'Graphical visualization');
-    }
-  });
-}
-
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element.id;
-}
-
-function addAriaLabel(element, label) {
-  if (element && label) {
-    element.setAttribute('aria-label', label);
-  }
-}
-
-function renderDependencyGraph(dependencies) {
-  const graphContainer = document.getElementById('dependency-graph');
-  if (!graphContainer) return;
-
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '400');
-  svg.setAttribute('viewBox', '0 0 800 400');
-
-  let yOffset = 50;
-  Object.entries(dependencies).forEach(([name, version]) => {
-    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('x', '50');
-    text.setAttribute('y', yOffset);
-    text.textContent = `${name}: ${version}`;
-    svg.appendChild(text);
-    yOffset += 30;
-  });
-
-  graphContainer.appendChild(svg);
-  return svg;
+  setSvgAttributes([]);
 }
 
 function checkLandmarkElements() {
@@ -117,7 +69,7 @@ const { indexContent } = require('./indexContent');
     });
   };
 
-  checkLandmarkElement('main', 'main', {
+  const implicitRole = {
     'main': 'main',
     'header': 'banner',
     'nav': 'navigation',
@@ -125,8 +77,9 @@ const { indexContent } = require('./indexContent');
     'aside': 'complementary',
     'form': 'form',
     'section': 'region'
-  });
+  };
 
+  checkLandmarkElement('#main', 'main', implicitRole);
   checkLandmarkElement('header', 'banner');
   checkLandmarkElement('nav', 'navigation');
   checkLandmarkElement('footer', 'contentinfo');
@@ -153,6 +106,7 @@ const sampleInsightReport = {
 
 function countDependencies() {
   const fs = require('fs');
+  const path = require('path');
   const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 

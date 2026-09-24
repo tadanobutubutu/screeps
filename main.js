@@ -1,4 +1,4 @@
-// TODO: Identify and update specific functions that render dependency graphs or in main.js
+// TODO: This is the modified and merged code
 
 function calculateSum(a, b) {
   return a + b;
@@ -71,7 +71,7 @@ function checkLinkAndButtonAccessibility(issues) {
 
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { addressAccessibilityIssues, calculateSum, calculateProduct, renderGraph, renderIndex };
+  module.exports = { addressAccessibilityIssues, calculateSum, calculateProduct };
 }
 
 // If running in browser context

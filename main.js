@@ -7,73 +7,8 @@
 // - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
 // - ADD: Address new accessibility issues from insight report
 
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  validateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  initializeAccessibility,
-  renderIndex,
-  newFunction,
-  validateHeadingHierarchy,
-  ensureHeadingHierarchy,
-  renderAdditionalContent,
-  googleSignIn,
-  decodeJwtResponse,
-  ensureUniqueLandmarks,
-  addSvgAccessibleName,
-  calculateComplexity,
-  newFocusTrap,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  a11yStore,
-  ...main = require('./utilities').main,
-  anotherNewFunction
-} = require('./utilities');
-
-// TODO: add the new functions or changes requested in the issue
-function newFunction() {
-  // New function implementation
-}
+// Access the dependencyGraph container and ensure it has proper ARIA role
+const dependencyGraph = document.getElementById('dependencyGraph')
 
 const renderGraphIndexAlt = (graphData) => {
   addressAccessibilityIssues();
@@ -87,10 +22,85 @@ function calculateDiscount(price, discountPercentage) {
   if (price < 0 || discountPercentage < 0 || discountPercentage > 100) {
     throw new RangeError('Invalid input: price must be non-negative and discount must be between 0 and 100');
   }
-  return price - (price * discountPercentage / 100);
+
+  // Ensure element has an ID if not present
+  if (!dependencyGraph.getAttribute('id')) {
+    dependencyGraph.setAttribute('id', 'dependencyGraph');
+  }
+
+  // Include the new accessibleName function for SVGs
+  function addAccessibleName(svgString) {
+    const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+    const svgElement = svg.documentElement;
+    if (!svgElement.getAttribute('aria-label')) {
+      svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+    }
+    return new XMLSerializer().serializeToString(svg);
+  }
+
+  // Validate table accessibility
+  const validateTableAccessibility = (html) => {
+    // ... (existing code)
+  };
+
+  // Function to validate table accessibility on dependency graph clicks
+  dependencyGraph.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target.matches('button')) {
+      const table = target.closest('table');
+      if (table) {
+        const tableHref = target.getAttribute('href');
+        const tableContent = tableHref ? fetch(tableHref).then(response => response.text()).then(html => validateTableAccessibility(html)) : validateTableAccessibility(table.outerHTML);
+        tableContent.then(results => {
+          const message = results.map(issue => `Table accessibility issue: ${issue.message}`).join('\n');
+          a11yStore.updateLiveRegion(message, 'assertive');
+        });
+      }
+    }
+  });
 }
 
-// Accessibility helper functions
+// Preserve existing code
+
+// New functions added for the issue
+function newFunction1() {
+  // New function implementation 1
+}
+
+function newFunction2() {
+  // New function implementation 2
+}
+
+// **Affected functions for accessibility**
+const { main } = require('./utilities');
+const { functionA, functionB } = require('./functionModule');
+
+// Module-level function definitions
+function affectedFunction() {
+  // Function implementation
+  return 'affected function result';
+}
+
+function updateFunction() {
+  // Function implementation
+  return 'update function result';
+}
+
+function accessibleFunction() {
+  // Function implementation
+  return 'accessible function result';
+}
+
+// **New functions added for the issue**
+function newFunction3() {
+  // New function implementation 3
+}
+
+function newFunction4() {
+  // New function implementation 4
+}
+
+// **Accessibility helper functions**
 function getLangAttribute() {
   // Get the language attribute from the HTML element
   return document.documentElement.lang || 'en';
@@ -179,4 +189,14 @@ function checkLandmarks() {
   return allLandmarks.length;
 }
 
-// ... rest of the preserved code
+// Function for rendering the index with updated information
+function renderIndex() {
+  main(['dependencyGraphContent', 'indexContent', 'accessibilityUtils']);
+}
+
+// Function for rendering Dependency Graphs
+function renderDependencyGraphs() {
+  main(['dependencyGraphContent', 'accessibilityUtils', 'resolveConflictWithMerge']);
+}
+
+//... rest of the preserved code

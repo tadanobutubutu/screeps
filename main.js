@@ -56,27 +56,98 @@ const {
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = ...
 
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if ... {
-    ... 'region')
+/**
+ * Creates an in-page button element with accessibility support
+ * @param {Object} options - Button configuration options
+ * @param {string} options.id - Unique identifier for the button
+ * @param {string} options.label - Text content of the button
+ * @param {Function} options.onClick - Click event handler
+ * @param {string} options.className - CSS class names for styling
+ * @param {string} options.title - Tooltip text
+ * @param {string} options.ariaLabel - Accessible label for screen readers
+ * @param {boolean} options.disabled - Whether the button is disabled
+ * @param {string} options.type - Button type (button, submit, reset)
+ * @param {string} options.icon - Optional icon to include
+ * @returns {HTMLButtonElement} The created button element
+ */
+export function createInPageButton(options = {}) {
+  const {
+    id,
+    label = '',
+    onClick,
+    className = '',
+    title,
+    ariaLabel,
+    disabled = false,
+    type = 'button',
+    icon
+  } = options;
+
+  const button = document.createElement('button');
+  button.type = type;
+
+  if (id) {
+    button.id = id;
   }
 
-  // Add accessible label if not already present
-  if ... {
-    ... 'Dependency graph visualization')
+  if (className) {
+    button.className = className;
   }
 
-  // Ensure element has an ID if not present
-  if ... {
-    ... 'dependencyGraph')
+  if (title) {
+    button.title = title;
   }
 
-  // Ensure the container is focusable if it's interactive
-  if ... {
-    ... '0')
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
   }
+
+  if (disabled) {
+    button.disabled = true;
+    button.setAttribute('aria-disabled', 'true');
+  }
+
+  // Create button content
+  if (icon && label) {
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'button-icon';
+    iconSpan.textContent = icon;
+    
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'button-label';
+    labelSpan.textContent = label;
+    
+    button.appendChild(iconSpan);
+    button.appendChild(labelSpan);
+  } else if (icon) {
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'button-icon';
+    iconSpan.textContent = icon;
+    button.appendChild(iconSpan);
+  } else {
+    button.textContent = label;
+  }
+
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  // Add keyboard support for accessibility
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      if (!disabled) {
+        e.preventDefault();
+        button.click();
+      }
+    }
+  });
+
+  return button;
+}
+
+// Implement the function for addressing accessibility issues from insight report
+function newFunction () {
+  // TODO: Implement the new function as per the issue requirements
 }
 
 // Required changes to fix the React SVG Accessible Name issue
@@ -790,442 +861,3 @@ export function addSvgAccessibleNames(svgElement, accessibleName) {
 
 /**
  * REACT_041: Add accessible names to all SVGs in container
- */
-export function addAccessibleNamesToSVGs(container) {
-  if (!container) return;
-  
-  const svgs = container.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      addSvgAccessibleNames(svg, `Icon ${index + 1}`);
-    }
-  });
-  
-  return container;
-}
-
-/**
- * REACT_036: Fix fake link issue
- */
-export function fixFakeLinkIssue(element) {
-  if (!element) return null;
-  
-  const tagName = element.tagName.toLowerCase();
-  const role = element.getAttribute('role');
-  const onClick = element.getAttribute('onclick') || element.onclick;
-  
-  if (onClick && tagName !== 'a' && tagName !== 'button') {
-    if (role !== 'button') {
-      element.setAttribute('role', 'button');
-    }
-    
-    if (!element.hasAttribute('tabindex')) {
-      element.setAttribute('tabindex', '0');
-    }
-    
-    element.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        element.click();
-      }
-    });
-  }
-  
-  return element;
-}
-
-/**
- * REACT_036: Fix all fake link issues in container
- */
-export function fixFakeLinkIssues(container) {
-  if (!container) return null;
-  
-  const clickableElements = container.querySelectorAll('[onclick], [role="button"], [role="link"]');
-  clickableElements.forEach(el => {
-    const tagName = el.tagName.toLowerCase();
-    if (tagName !== 'a' && tagName !== 'button' && tagName !== 'input') {
-      fixFakeLinkIssue(el);
-    }
-  });
-  
-  return container;
-}
-
-// Helper functions for session management
-function getActiveSessionsCount() {
-  return appState.sessions.size;
-}
-
-function validateSession(sessionId) {
-  return appState.sessions.get(sessionId) || null;
-}
-
-function handleCredentialResponse(credentialResponse) {
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
-  }
-  return { status: 'success', credential: credentialResponse };
-}
-
-// Accessibility Utilities
-const accessibilityUtils = {
-  initSkipLink: function() {
-    const skipLink = document.querySelector('.skip-link, [href^="#skip"]');
-    if (skipLink) {
-      skipLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
-        if (target) {
-          target.setAttribute('tabindex', '-1');
-          target.focus();
-        }
-      });
-    }
-  },
-  
-  announceToScreenReader: function(message, priority) {
-    if (priority === undefined) {
-      priority = 'polite';
-    }
-    
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    
-    setTimeout(function() {
-      announcer.remove();
-    }, 1000);
-  }
-};
-
-// Create announcer function
-function createAnnouncer() {
-  let currentMessage = '';
-  let timeoutId = null;
-  
-  return {
-    announce: function(message, priority) {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      
-      const announcer = document.createElement('div');
-      announcer.setAttribute('aria-live', priority || 'polite');
-      announcer.setAttribute('aria-atomic', 'true');
-      announcer.className = 'sr-only';
-      announcer.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;';
-      announcer.textContent = message;
-      document.body.appendChild(announcer);
-      
-      currentMessage = message;
-      
-      timeoutId = setTimeout(function() {
-        announcer.remove();
-        currentMessage = '';
-      }, 1000);
-    },
-    getLastMessage: function() {
-      return currentMessage;
-    }
-  };
-}
-
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.querySelector('[data-dependency-graph]')
-
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region')
-  }
-
-  // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.getAttribute('aria-labelledby')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
-  }
-
-  // Ensure element has an ID if not present
-  if (!dependencyGraph.id) {
-    dependencyGraph.id = 'dependencyGraph'
-  }
-
-  // Ensure the container is focusable if it's interactive
-  if (dependencyGraph.getAttribute('tabindex') === null) {
-    dependencyGraph.setAttribute('tabindex', '0')
-  }
-}
-
-// Function to render dependency graph
-function renderDependencyGraph(element) {
-  console.log('Rendering dependency graph for element:', element);
-}
-
-// Function to render a simple dependency graph
-function renderSimpleDependencyGraph(element) {
-  console.log('Rendering simple dependency graph for element:', element);
-}
-
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName (svgString) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const parser = new DOMParser()
-  const svg = parser.parseFromString(svgString, 'image/svg+xml')
-  const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
-    const title = svgElement.querySelector('title')
-    if (title) {
-      svgElement.setAttribute('aria-labelledby', 'svg-title')
-      title.id = 'svg-title'
-    } else {
-      svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
-    }
-  }
-  return new XMLSerializer().serializeToString(svgElement)
-}
-
-// Example usage of the function
-const originalSvgString =
-    ... ... viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...
-const modifiedSvgString = ...
-
-/**
- * Validates table accessibility
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table is accessible, false otherwise
- */
-function validateTableAccessibility (tableData) {
-  // Implementation placeholder - function to be implemented
-  return true
-}
-
-/**
- * Validates table structure
- * @param {Array} tableData - Table data to validate
- * @returns {boolean} True if table structure is valid, false otherwise
- */
-function validateTableStructure (tableData) {
-  // Implementation placeholder - function to be implemented
-  return true
-}
-
-// Other code...
-
-// Import the DOMParser for SVG manipulation
-import { DOMParser } from '@xmldom/xmldom'
-
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = ...
-
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if ... {
-    ... 'region')
-  }
-
-  // Add accessible label if not already present
-  if ... {
-    ... 'Dependency graph visualization')
-  }
-
-  // Ensure element has an ID if not present
-  if ... {
-    ... 'dependencyGraph')
-  }
-
-  // Ensure the container is focusable if it's interactive
-  if ... {
-    ... '0')
-  }
-
-  // New accessibility function: Manage focus restoration for modal dialogs
-  setupFocusTrap(containerSelector) {
-    const container = document.querySelector(containerSelector);
-    if (!container) {
-      console.error('Focus trap container not found:', containerSelector);
-      return;
-    }
-    
-    const focusableElements = container.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    
-    if (focusableElements.length === 0) {
-      console.error('No focusable elements found in container:', containerSelector);
-      return;
-    }
-    
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-    
-    const handleTabKey = (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey) {
-          // Shift + Tab
-          if (document.activeElement === firstElement) {
-            lastElement.focus();
-            e.preventDefault();
-          }
-        } else {
-          // Tab
-          if (document.activeElement === lastElement) {
-            firstElement.focus();
-            e.preventDefault();
-          }
-        }
-      }
-    };
-    
-    container.addEventListener('keydown', handleTabKey);
-    
-    // Focus the first element initially
-    firstElement.focus();
-    
-    // Return a cleanup function to remove the event listener
-    return () => {
-      container.removeEventListener('keydown', handleTabKey);
-    };
-  }
-
-  // New accessibility function: Restore focus to previously focused element
-  restoreFocus(previousElementId) {
-    const previousElement = document.getElementById(previousElementId);
-    if (previousElement) {
-      previousElement.focus();
-    } else {
-      console.warn('Previous element not found for focus restoration:', previousElementId);
-    }
-  }
-}
-
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName (svgString) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const parser = new DOMParser()
-  const svg = parser.parseFromString(svgString, 'image/svg+xml')
-  const svgElement = svg.documentElement
-  if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
-  }
-  const serializer = new XMLSerializer()
-  return serializer.serializeToString(svg)
-}
-
-// Example usage of the function
-const originalSvgString =
-    ... ... viewBox="0 0 100 100"><title>Screps Dashboard</title><text y="0.9em" ...
-const modifiedSvgString = addAccessibleName(originalSvgString)
-
-/**
- * Validates table accessibility
- * @param {HTMLElement} container - Container element to validate tables in
- * @returns {Array} Array of accessibility issues found in tables
- */
-function validateTableAccessibility (container) {
-  return validateTableStructureForAccessibility(container);
-}
-
-/**
- * Validates table structure
- * @param {HTMLElement} container - Container element to validate table structure in
- * @returns {Array} Array of structural issues found in tables
- */
-function validateTableStructure (container) {
-  return validateTableStructureForAccessibility(container);
-}
-
-// Initialize accessibility features
-function initializeAccessibility() {
-  const announcer = createAnnouncer();
-  
-  ensureUniqueLandmarks(document.body);
-  
-  return {
-    announce: announcer.announce,
-    getLastMessage: announcer.getLastMessage
-  };
-}
-
-// Other code...
-
-// New function or changes requested in the issue
-/**
- * New function to handle additional rendering logic
- * @param {Object} additionalData - Additional data for rendering
- * @returns {string} Rendered additional content HTML
- */
-function renderAdditionalContent (additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return '<div class="additional-content"></div>'
-}
-
-// Function to render index
-function renderIndex() {
-  return renderGraphIndex.apply(this, arguments);
-}
-
-// Preserve all existing exports
-module.exports = {
-  ...main,
-  createInPageButton,
-  createWebResourceButton,
-  customValidateLandmark,
-  customValidateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  customValidateTableStructureForAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  trapFocus,
-  focusTrapHandler,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixFakeLinkIssues,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils,
-  createAnnouncer,
-  prefersReducedMotion,
-  addAccessibleName,
-  addAccessibleNamesToSVGs,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  fixLandmarkIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  initializeAccessibility,
-  renderAdditionalContent
-};

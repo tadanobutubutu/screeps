@@ -291,6 +291,9 @@ function renderSvg(svgElement) {
   const someValue = someModule.someFunction(svgElement);
 }
 
+  return someValue;
+}
+
 // New rendering functions for graph/index (to be used by existing functions)
 function renderGraphContentWithOptions(data, options = {}) {
   console.log('Rendering graph content with options:', { data, options });
@@ -314,7 +317,7 @@ function renderIndexContentWithOptions(data, options = {}) {
   }
 
 // Updated function for rendering dependency graph using new render function
-function renderDependencyGraph(dependencyData) {
+function renderDependencyGraphFromData(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
   renderGraphContentWithOptions(dependencyData, { container: document.querySelector('[data-dependency-graph-content]') });
 }
@@ -555,11 +558,80 @@ function addAriaLabelToElement(selector, ariaLabel) {
   }
 }
 
+/**
+ * Renders dependency graph content into the specified container selector.
+ * Supports both class and data attribute selectors for compatibility.
+ *
+ * @param {string} containerSelector - Selector for the container element.
+ * @param {string} data - HTML or text content to inject into the container.
+ */
+function renderDependencyGraph(containerSelector, data) {
+  const container = document.querySelector(containerSelector);
+  if (container) {
+    container.innerHTML = data;
+  }
+}
+
+/**
+ * Generates a report based on accessibility issues found in the insight report.
+ *
+ * @param {Object} insightReport - The insight report containing accessibility issues.
+ * @returns {Object} A formatted report of accessibility issues.
+ */
+function generateAccessibilityReport(insightReport) {
+  if (!insightReport || !insightReport.issues) {
+    return {
+      summary: {
+        totalIssues: 0,
+        criticalIssues: 0,
+        warningIssues: 0
+      },
+      issues: []
+    };
+  }
+
+  const issues = insightReport.issues || [];
+  
+  const report = {
+    summary: {
+      totalIssues: issues.length,
+      criticalIssues: issues.filter(issue => issue.severity === 'error').length,
+      warningIssues: issues.filter(issue => issue.severity === 'warning').length
+    },
+    issues: issues.map(issue => ({
+      code: issue.code,
+      description: issue.description || getDescriptionForCode(issue.code),
+      selector: issue.selector,
+      severity: issue.severity,
+      helpUrl: issue.helpUrl
+    }))
+  };
+
+  return report;
+}
+
+/**
+ * Helper function to get descriptions for known issue codes.
+ *
+ * @param {string} code - The issue code.
+ * @returns {string} Description of the issue.
+ */
+function getDescriptionForCode(code) {
+  const descriptions = {
+    'REACT_015': 'Missing lang attribute on document element',
+    'REACT_017': 'Element does not have an accessible name',
+    'REACT_025': 'Landmark not unique',
+    'REACT_027': 'Iframe elements do not have a name attribute',
+    'REACT_036': 'Fake link element detected',
+    'REACT_041': 'Button does not have an accessible name'
+  };
+  
+  return descriptions[code] || `Accessibility issue: ${code}`;
+}
+
 // --- End of new functions ---
 
 // Export all functions for use elsewhere in the repository
-const someFunction = () => 'someFunction result';
-
 module.exports = {
   config,
   logger,
@@ -573,7 +645,7 @@ module.exports = {
   renderDependencyGraphContent,
   renderGraphContentWithOptions,
   renderIndexContentWithOptions,
-  renderDependencyGraph,
+  renderDependencyGraphFromData,
   renderIndexView,
   calculateSum,
   someFunction,
@@ -588,7 +660,8 @@ module.exports = {
   addLangAttribute,
   main,
   ensureElementHasId,
-  addAriaLabelToElement
+  addAriaLabelToElement,
+  renderDependencyGraph,
+  generateAccessibilityReport,
+  getDescriptionForCode
 };
-
-addressAccessibilityIssues(); // Call the combined function to address accessibility issues.

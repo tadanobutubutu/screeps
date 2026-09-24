@@ -518,6 +518,128 @@ describe('cache', () => {
         });
     });
 
+
+    describe('reset', () => {
+        test('キャッシュが完全にリセットされる', () => {
+            const mockRoom = { find: jest.fn().mockReturnValue([]) };
+            cache.get('test_reset_key', () => 'data', 10);
+            cache.reset();
+            const stats = cache.getStats();
+            expect(stats.total).toBe(0);
+            expect(global.cache).toEqual({});
+        });
+    });
+
+    describe('isSafeKey', () => {
+        test('数値を許可する', () => {
+            expect(cache.isSafeKey(123)).toBe(true);
+        });
+
+        test('通常の文字列を許可する', () => {
+            expect(cache.isSafeKey('normal_key')).toBe(true);
+        });
+
+        test('危険なキーを拒否する', () => {
+            expect(cache.isSafeKey('__proto__')).toBe(false);
+            expect(cache.isSafeKey('constructor')).toBe(false);
+        });
+
+        test('長すぎるキーを拒否する', () => {
+            const longKey = 'a'.repeat(257);
+            expect(cache.isSafeKey(longKey)).toBe(false);
+        });
+    });
+
+    describe('getDroppedResources', () => {
+        test('ドロップされたリソースを取得する', () => {
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn().mockReturnValue([{ resourceType: 'energy' }]),
+            };
+            const resources = cache.getDroppedResources(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_DROPPED_RESOURCES);
+            expect(resources.length).toBe(1);
+        });
+    });
+
+    describe('getSpawns', () => {
+        test('スポーンを取得する', () => {
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn().mockReturnValue([{ structureType: 'spawn' }]),
+            };
+            const spawns = cache.getSpawns(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_MY_SPAWNS);
+            expect(spawns.length).toBe(1);
+        });
+
+        test('キャッシュから取得される場合はフィルタリングが実行されない', () => {
+            const mockSpawns = [{ name: 'Spawn1' }];
+            const mockRoom = {
+                name: 'W1N1',
+                _spawns: mockSpawns,
+                _spawnsTick: global.Game.time,
+                find: jest.fn(),
+            };
+            const spawns = cache.getSpawns(mockRoom);
+            expect(spawns).toBe(mockSpawns);
+            expect(mockRoom.find).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('getContainers', () => {
+        test('コンテナを取得する', () => {
+            const mockContainer = { structureType: global.STRUCTURE_CONTAINER };
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn((type, opts) => {
+                    if (type === global.FIND_STRUCTURES && opts && opts.filter) {
+                        return [mockContainer].filter(opts.filter);
+                    }
+                    return [];
+                }),
+            };
+            const containers = cache.getContainers(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_STRUCTURES, expect.any(Object));
+            expect(containers).toContain(mockContainer);
+        });
+    });
+
+    describe('getLinks', () => {
+        test('リンクを取得する', () => {
+            const mockLink = { structureType: global.STRUCTURE_LINK };
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn((type, opts) => {
+                    if (type === global.FIND_MY_STRUCTURES && opts && opts.filter) {
+                        return [mockLink].filter(c => c.structureType === opts.filter.structureType);
+                    }
+                    return [];
+                }),
+            };
+            const links = cache.getLinks(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_MY_STRUCTURES, { filter: { structureType: global.STRUCTURE_LINK } });
+            expect(links).toContain(mockLink);
+        });
+    });
+
+    describe('getStorage', () => {
+        test('ストレージを取得する', () => {
+            const mockRoom = {
+                name: 'W1N1',
+                storage: { store: { energy: 1000 } },
+            };
+            const storage = cache.getStorage(mockRoom);
+            expect(storage).toBe(mockRoom.storage);
+        });
+
+        test('ストレージが存在しない場合はnullを返す', () => {
+            const mockRoom = { name: 'W1N1' };
+            const storage = cache.getStorage(mockRoom);
+            expect(storage).toBeNull();
+        });
+    });
+
     describe('getStructuresNeedingEnergy', () => {
         test('エネルギー補充が必要な構造物を取得する', () => {
             const mockSpawnNeedEnergy = {

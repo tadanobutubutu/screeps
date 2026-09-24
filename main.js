@@ -552,9 +552,31 @@ fixAccessibilityIssues();
 // Initialize accessibility fixes
 fixAccessibilityIssues();
 
-// End of file
+export { dependencyGraphContainer };
 
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// _Commit: ec56c28dafbd3fb2078fbae75354cf99a4fb9f89_
+// Export all required functions and variables
+export {
+  createLandmarkId,
+  uniqueLandmarks,
+  addAriaLabel,
+  addLangAttribute,
+  ensureElementHasId,
+  outputSafetyClassification,
+  classifyUserSafety,
+  classifyResponseSafety,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureElementsHaveIds,
+  ensureUniqueLandmarks,
+  setSvgAttributes,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  fixAccessibilityIssues,
+  calculateSum,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  updateRenderingFunction,
+  makeHeaderFocusable
+};

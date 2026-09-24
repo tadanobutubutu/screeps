@@ -350,16 +350,16 @@ const accessibilityUtils = {
 // Export functionality with accessibility support
 const exportUtils = {
   exportData: (data, filename, mimeType) => {
-    const blob = new Blob([data], { type: mimeType })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = filename
-    link.setAttribute('aria-label', `Download ${filename}`)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.setAttribute('aria-label', `Download ${filename}`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 
     // Announce download completion to screen readers
     accessibilityUtils.announceToScreenReader(`Download of ${filename} started`)
@@ -371,11 +371,11 @@ const exportUtils = {
   },
 
   exportToCSV: (data, filename) => {
-    if (!data || data.length === 0) return
+    if (!data || data.length === 0) return;
 
-    const headers = Object.keys(data[0])
-    const csvRows = []
-    csvRows.push(headers.join(','))
+    const headers = Object.keys(data[0]);
+    const csvRows = [];
+    csvRows.push(headers.join(','));
 
     for (const row of data) {
       const values = headers.map((header) => {
@@ -385,8 +385,8 @@ const exportUtils = {
       csvRows.push(values.join(','))
     }
 
-    const csvString = csvRows.join('\n')
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv')
+    const csvString = csvRows.join('\n');
+    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
 }
 

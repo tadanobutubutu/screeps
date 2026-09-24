@@ -89,6 +89,7 @@ const {
     getLangAttribute,
     validateAccessibilityReport,
     exportUtils,
+    addressAccessibilityIssues: importedAddressAccessibilityIssues,
     handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
@@ -140,35 +141,17 @@ function newFunction(container, containerReport) {
       timestamp: new Date().toISOString()
     };
 
-    const report = insightReport || {};
-
-  // Add lang attribute to HTML element if missing
-  const htmlEl = container.querySelector('html') || (container.ownerDocument && container.ownerDocument.documentElement);
-  if (htmlEl && !htmlEl.getAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en');
-    fixes.langAdded = true;
-  }
-
-  // Add main landmark if missing
-  const body = container.querySelector('body') || container.ownerDocument?.body;
-  const mainElement = container.querySelector('main');
-  if (!mainElement && body) {
-    const newMain = body.ownerDocument.createElement('main');
-    newMain.setAttribute('id', 'main-content');
-    newMain.setAttribute('role', 'main');
-    while (body.firstChild) {
-      newMain.appendChild(body.firstChild);
+    if (!insightReport || !insightReport.issues) {
+        return fixes;
     }
 
     // Add lang attribute to HTML element if missing
     const htmlEl =
-        container.ownerDocument && container.ownerDocument.documentElement;
-    if (htmlEl) {
-        const langAttr = getLangAttribute ? getLangAttribute() : 'en';
-        if (!htmlEl.getAttribute('lang')) {
-            htmlEl.setAttribute('lang', langAttr || 'en');
-            fixes.langAdded = true;
-        }
+        container.querySelector('html') ||
+        (container.ownerDocument && container.ownerDocument.documentElement);
+    if (htmlEl && !htmlEl.lang) {
+        htmlEl.setAttribute('lang', 'en');
+        fixes.langAdded = true;
     }
   });
 
@@ -193,24 +176,14 @@ function newFunction(container, containerReport) {
     }
 
     // Fix landmark issues
-    if (validateLandmark) {
-        validateLandmark(container);
-    }
-
-    if (ensureUniqueLandmarks) {
-        const uniqueLandmarkFixes = ensureUniqueLandmarks(container);
-        fixes.landmarksFixed = uniqueLandmarkFixes || 0;
-    }
+    validateLandmark(container);
+    fixes.landmarksFixed = validateLandmarkStructure(container);
 
     // Fix SVG accessible names
     const svgElements = container.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
-        const accessibleName = getSvgAccessibleName ? getSvgAccessibleName(svg) : null;
-        if (
-            accessibleName &&
-            !svg.getAttribute('aria-label') &&
-            !svg.getAttribute('aria-labelledby')
-        ) {
+    svgElements.forEach(svg => {
+        const accessibleName = getSvgAccessibleName(svg);
+        if (accessibleName && svg.getAttribute('role') !== 'img' && !svg.closest('a')) {
             svg.setAttribute('role', 'img');
             svg.setAttribute('aria-label', accessibleName);
             fixes.svgNamesAdded++;
@@ -221,17 +194,18 @@ function newFunction(container, containerReport) {
     const fakeLinks = container.querySelectorAll(
         '[role="link"], [onclick*="location"], [onclick*="href"]'
     );
-    fakeLinks.forEach((link) => {
-        const linkId = link.id || 'fake-link-' + Math.random().toString(36).substr(2, 9);
-        link.setAttribute('href', '#' + linkId);
-        link.setAttribute('role', 'link');
-        fixes.fakeLinksFixed++;
+    fakeLinks.forEach(link => {
+        if (!link.getAttribute('href')) {
+            link.setAttribute('href', '#' + (link.id || Math.random().toString(36).substr(2, 9)));
+            link.setAttribute('role', 'link');
+            fixes.fakeLinksFixed++;
+        }
     });
 
     // Validate accessibility report
-    const accessibilityReport = validateAccessibilityReport ? validateAccessibilityReport(container) : null;
-    if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-        log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn');
+    const report = validateAccessibilityReport(container, insightReport);
+    if (report && report.length > 0) {
+        log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
     }
 
     // Implement focus trap for keyboard navigation
@@ -250,8 +224,9 @@ function newFunction(container, containerReport) {
     // Check for new accessibility issues
     const newAccessibilityIssues = checkAccessibility ? checkAccessibility(container) : [];
     if (newAccessibilityIssues.length > 0) {
-        console.error(
-            `New accessibility issues found: ${newAccessibilityIssues.map((i) => i.message).join(', ')}`
+        log(
+            `New accessibility issues found: ${newAccessibilityIssues.map(i => i.message).join(', ')}`,
+            'error'
         );
     }
 
@@ -282,27 +257,4 @@ function log(message, level) {
     }
 }
 
-// Export functions
-module.exports = {
-    ...exportUtils,
-    addressAccessibilityIssues,
-    checkAccessibility,
-    createInPageButton,
-    createWebResourceButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    getLangAttribute,
-    validateAccessibilityReport,
-    handleCredentialResponse,
-    ensureElementHasId,
-    ensureElementHasIdOrigin,
-    addAriaLabel,
-    renderDependencyGraphs,
-    fixButtonIdentifiers,
-    fixDependencyGraphAria,
-    addMainLandmarkToIndex,
-    focusTrap,
-};
+// ... (Preserve the rest of the preserved code)

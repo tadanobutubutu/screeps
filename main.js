@@ -196,7 +196,17 @@ module.exports = {
   spawnSomeCommandAlt: AddressabilityIssues.spawnSomeCommand,
   MyComponent,
   sampleInsightReport,
-  addressAccessibilityIssuesFromInsightReport,
-  validateAndLabelElement
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  addressNewAccessibilityIssues,
+  implementAccessibilitySolutions,
+  getLangAttribute,
+  logMessage,
+  gracefulShutdown,
+  addLangAttribute,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  addressAccessibilityIssuesFromInsightReport
 };
-// ... (other functions and setting up exports)

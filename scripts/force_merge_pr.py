@@ -6,12 +6,14 @@ Ultra-Fast Robust PR Auto-Merger with Automatic Conflict Resolution.
 Optimized for high-throughput batch merging in Screeps repository.
 
 Key Optimizations:
-1. One-shot batch metadata fetching (1 API call for up to 200 PRs).
+1. One-shot batch metadata fetching (1 API call for up to 100 PRs).
 2. Bulk Push: commits every N merges (default 10) instead of every single PR.
-3. Continuous Execution Loop: runs for up to `max_runtime_minutes` (default 240 mins)
+3. In-memory deduplication set (`seen_merged_prs`) to prevent re-merging lag.
+4. Immediate batch PR & Issue closing upon push.
+5. Continuous Execution Loop: runs for up to `max_runtime_minutes` (default 240 mins)
    processing batch after batch until no open PRs remain or time expires.
-4. 100% commit author strictly as github-actions[bot].
-5. Workflow directory (.github/workflows) is ALWAYS protected against regression.
+6. 100% commit author strictly as github-actions[bot].
+7. Workflow directory (.github/workflows) is ALWAYS protected against regression.
 """
 
 import json
@@ -146,7 +148,6 @@ def push_with_retry(max_retries=3):
         protect_workflows()
         run_cmd(["git", "add", ".github/workflows/"], check=False)
         run_cmd(["git", "rebase", "--continue"], check=False)
-    # Final retry
     final_push = run_cmd(["git", "push", "origin", "main"], check=False)
     return final_push.returncode == 0
 
@@ -176,7 +177,6 @@ def merge_single_pr_git(pr_info):
     is_draft = pr_info.get("isDraft", False)
     body = pr_info.get("body", "")
 
-    # Fast mark ready if draft
     if is_draft:
         run_cmd(["gh", "pr", "ready", str(pr_no)], check=False)
 
@@ -194,7 +194,6 @@ def merge_single_pr_git(pr_info):
     ]
     merge_res = run_cmd(merge_cmd, check=False)
 
-    # Resolve residual conflicts if any
     if merge_res.returncode != 0:
         diff_res = run_cmd(["git", "diff", "--name-only", "--diff-filter=U"], check=False)
         conflicts = [f.strip() for f in diff_res.stdout.splitlines() if f.strip()]
@@ -213,19 +212,15 @@ def merge_single_pr_git(pr_info):
                 run_cmd(["git", "checkout", "--theirs", cf], check=False)
             run_cmd(["git", "add", cf], check=False)
 
-    # Always protect .github/workflows/
     protect_workflows()
     run_cmd(["git", "add", ".github/workflows/"], check=False)
 
-    commit_res = run_cmd([
+    run_cmd([
         "git", "commit", "--no-verify",
         "-m", f"Merge pull request #{pr_no} from {head_ref} [auto-resolved conflicts]"
     ], check=False)
 
-    # Cleanup temp branch
     run_cmd(["git", "branch", "-D", temp_branch], check=False)
-
-    # Check if a commit was made or merge was clean
     return True, body
 
 
@@ -238,11 +233,11 @@ def run_continuous_batch_merger(batch_size=100, push_every=10, max_runtime_minut
     start_time = time.time()
     max_duration_secs = max_runtime_minutes * 60
     total_merged = 0
+    seen_merged_prs = set()
 
     print(f"🚀 Starting Ultra-Fast Continuous PR Merger")
     print(f"   Batch Size: {batch_size} | Push Every: {push_every} PRs | Max Runtime: {max_runtime_minutes} mins")
 
-    # Initial pull
     run_cmd(["git", "checkout", "main"], check=True)
     run_cmd(["git", "pull", "--ff-only", "origin", "main"], check=False)
 
@@ -253,26 +248,33 @@ def run_continuous_batch_merger(batch_size=100, push_every=10, max_runtime_minut
             break
 
         print(f"\n--- Fetching next batch of {batch_size} oldest open PRs ---")
-        prs = get_oldest_open_prs_detailed(limit=batch_size)
-        if not prs:
-            print("🎉 No more open pull requests found! All PRs are merged!")
-            break
+        raw_prs = get_oldest_open_prs_detailed(limit=batch_size)
+        prs = [p for p in raw_prs if p["number"] not in seen_merged_prs]
 
-        print(f"Found {len(prs)} PRs to merge in this batch.")
+        if not prs:
+            if not raw_prs:
+                print("🎉 No more open pull requests found! All PRs are merged!")
+                break
+            else:
+                print("⏳ All retrieved PRs were recently merged. Waiting 5s for GitHub state sync...")
+                time.sleep(5)
+                continue
+
+        print(f"Found {len(prs)} fresh PRs to merge in this batch.")
         unpushed_count = 0
         merged_in_batch = 0
-        bodies_to_close = []
+        batch_pushed_prs = []
 
         for pr_info in prs:
             pr_no = pr_info["number"]
             try:
                 success, body = merge_single_pr_git(pr_info)
                 if success:
+                    seen_merged_prs.add(pr_no)
                     unpushed_count += 1
                     merged_in_batch += 1
                     total_merged += 1
-                    if body:
-                        bodies_to_close.append((pr_no, body))
+                    batch_pushed_prs.append((pr_no, body))
                     print(f"[{total_merged}] ✅ Merged PR #{pr_no} locally (unpushed: {unpushed_count})")
             except Exception as e:
                 print(f"⚠️ Exception merging PR #{pr_no}: {e}")
@@ -282,25 +284,25 @@ def run_continuous_batch_merger(batch_size=100, push_every=10, max_runtime_minut
                 print(f"📦 Pushing {unpushed_count} accumulated merge commits to origin/main...")
                 if push_with_retry():
                     print("🚀 Push successful!")
-                    unpushed_count = 0
-                    # Close linked issues for pushed PRs
-                    for p_no, b in bodies_to_close:
+                    for p_no, b in batch_pushed_prs:
+                        run_cmd(["gh", "pr", "close", str(p_no), "-c", f"Merged into main by {BOT_NAME} with auto-conflict resolution.", "-d"], check=False)
                         close_linked_issues(b)
-                    bodies_to_close = []
+                    batch_pushed_prs = []
+                    unpushed_count = 0
                 else:
                     print("❌ Push failed after retries.")
 
-            # Check time limit within batch
             if time.time() - start_time >= max_duration_secs:
                 print("⏱️ Time limit reached during batch.")
                 break
 
-        # Flush any remaining unpushed commits at end of batch
+        # Flush any remaining unpushed commits
         if unpushed_count > 0:
             print(f"📦 Flushing {unpushed_count} final merge commits to origin/main...")
             if push_with_retry():
                 print("🚀 Push successful!")
-                for p_no, b in bodies_to_close:
+                for p_no, b in batch_pushed_prs:
+                    run_cmd(["gh", "pr", "close", str(p_no), "-c", f"Merged into main by {BOT_NAME} with auto-conflict resolution.", "-d"], check=False)
                     close_linked_issues(b)
             unpushed_count = 0
 
@@ -315,7 +317,6 @@ def run_continuous_batch_merger(batch_size=100, push_every=10, max_runtime_minut
 def main():
     if len(sys.argv) > 1 and sys.argv[1].isdigit():
         pr_no = int(sys.argv[1])
-        # Single PR mode
         prs = [{"number": pr_no, "isDraft": False, "headRefName": f"pr-{pr_no}", "body": ""}]
         setup_git_config()
         run_cmd(["git", "checkout", "main"], check=True)

@@ -169,6 +169,21 @@ describe('roomManager', () => {
             const room = { ...mockRoom, controller: { my: false } };
             expect(() => roomManager.run(room)).not.toThrow();
         });
+
+        test('内部エラーが発生した場合、例外をキャッチしてlogger.errorでログを出力する', () => {
+            const logger = require('../src/utils/logger');
+            const cache = require('../src/utils/cache');
+            global.Game.time = 50; // trigger cache.cleanup()
+
+            cache.cleanup.mockImplementationOnce(() => {
+                throw new Error('Test cache cleanup error');
+            });
+
+            expect(() => roomManager.run(mockRoom)).not.toThrow();
+            expect(logger.error).toHaveBeenCalled();
+            expect(logger.error.mock.calls[0][0]).toContain(`[RoomManager] ルーム ${mockRoom.name} でエラー`);
+            expect(logger.error.mock.calls[0][1].message).toBe('Test cache cleanup error');
+        });
     });
 
     describe('getStats', () => {

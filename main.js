@@ -8,7 +8,8 @@
   repository or in your Screeps scripts.
 ===================================================*/
 
-'use strict';
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
 
 /*==================================================
   1️⃣  Configuration helpers
@@ -880,6 +881,5 @@ module.exports = {
   ensureUniqueLandmarks,
   createAccessibleLink,
   isLinkAccessible,
-  towerDefense,
-  addressAccessibilityIssuesFromReport
+  towerDefense
 }

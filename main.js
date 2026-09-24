@@ -133,21 +133,11 @@ function fixHeadingHierarchy(issue) {
 const http = require('http');
 const path = require('path');
 
-// Functions have been made accessible via module.exports
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// New Function - Custom middleware example
-function myCustomMiddleware(req, res, next) {
-  console.log('Custom middleware being invoked');
-  next();
-}
-
-// New Function - Simple API endpoint example
-function getData(req, res) {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ data: 'Hello, World!' }));
-}
+// Application configuration
+const config = {
+  port: process.env.PORT || 3000,
+  env: process.env.NODE_ENV || 'development'
+};
 
 /**
  * Creates and starts the HTTP server with the new functions

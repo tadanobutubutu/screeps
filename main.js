@@ -1,4 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
@@ -6,8 +5,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report (DONE: addressNewAccessibilityIssues)
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (DONE: newFocusTrap)
+// - ADD: Address new accessibility issues from insight report
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -188,10 +186,10 @@ function validateLandmarkStructure() {
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svg, name = null) {
+function getSvgAccessibleName(svg) {
   // This function returns the accessible name for an SVG
   if (!svg) {
-    return name || '';
+    return '';
   }
 
   // Check for aria-label attribute
@@ -224,7 +222,7 @@ function getSvgAccessibleName(svg, name = null) {
     }
   }
 
-  return name || '';
+  return '';
 }
 
 // New function to address REACT_025: Ensure unique landmarks (2 issues)
@@ -406,173 +404,419 @@ function createInPageButton(parent = document.body) {
   return btn;
 }
 
-// New function to handle focus trap for keyboard navigation
-function newFocusTrap(containerElement, options = {}) {
-  const {
-    onEscape,
-    initialFocus = 'first',
-    returnFocus = true,
-    focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  } = options;
+/**
+ * Builds a hierarchical representation of dependencies from a root node
+ * @param {HTMLElement} node - The DOM node to analyze for dependencies
+ * @param {Object} options - Configuration options
+ * @param {string} options.dependencyAttribute - Data attribute to look for dependencies (default: 'data-dependency')
+ * @param {string} options.idAttribute - Attribute to use as node identifier (default: 'id')
+ * @returns {Object} The dependency graph structure
+ */
+function buildDependencyGraph(node, options = {}) {
+  const { dependencyAttribute = 'data-dependency', idAttribute = 'id' } = options;
+  
+  if (!node) {
+    return { success: false, errors: ['Node is required'] };
+  }
 
-  if (!containerElement || typeof document === 'undefined') {
-    return {
-      activate: () => {},
-      deactivate: () => {}
+  function processNode(domNode) {
+    if (!domNode) return null;
+    
+    const nodeData = {
+      id: domNode.getAttribute ? domNode.getAttribute(idAttribute) || domNode.id || 'anonymous' : 'anonymous',
+      tagName: domNode.tagName ? domNode.tagName.toLowerCase() : 'unknown',
+      dependencies: [],
+      children: []
     };
-  }
 
-  let previousActiveElement = null;
-  let isActive = false;
-
-  /**
-   * Gets all focusable elements within the container
-   * @returns {HTMLElement[]} Array of focusable elements
-   */
-  function getFocusableElements() {
-    return Array.from(containerElement.querySelectorAll(focusableSelector)).filter(el => {
-      return !el.hasAttribute('disabled') && !el.hasAttribute('aria-hidden');
+    // Find dependencies
+    const depElements = domNode.querySelectorAll ? domNode.querySelectorAll(`[${dependencyAttribute}]`) : [];
+    depElements.forEach(dep => {
+      const depId = dep.getAttribute(dependencyAttribute);
+      nodeData.dependencies.push({
+        id: depId,
+        name: dep.getAttribute(idAttribute) || depId,
+        element: dep
+      });
     });
-  }
 
-  /**
-   * Gets the element to focus based on initialFocus option
-   * @returns {HTMLElement|null} Element to focus
-   */
-  function getInitialFocusElement() {
-    const focusableElements = getFocusableElements();
-    if (focusableElements.length === 0) return null;
-
-    if (initialFocus === 'first') {
-      return focusableElements[0];
-    } else if (initialFocus === 'last') {
-      return focusableElements[focusableElements.length - 1];
-    } else if (initialFocus === 'container') {
-      return containerElement;
-    } else if (typeof initialFocus === 'string') {
-      return containerElement.querySelector(initialFocus);
-    } else if (initialFocus instanceof HTMLElement) {
-      return initialFocus;
-    }
-    return focusableElements[0];
-  }
-
-  /**
-   * Handles keydown events for Tab and Escape
-   * @param {KeyboardEvent} event
-   */
-  function handleKeyDown(event) {
-    if (!isActive) return;
-
-    // Handle Escape key
-    if (event.key === 'Escape' && onEscape) {
-      event.preventDefault();
-      onEscape();
-      return;
-    }
-
-    // Handle Tab key for focus trapping
-    if (event.key === 'Tab') {
-      const focusableElements = getFocusableElements();
-      if (focusableElements.length === 0) {
-        event.preventDefault();
-        return;
-      }
-
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-      const activeElement = document.activeElement;
-
-      if (event.shiftKey) {
-        // Shift + Tab: move backward
-        if (activeElement === firstElement || !containerElement.contains(activeElement)) {
-          event.preventDefault();
-          lastElement.focus();
+    // Process child nodes recursively
+    if (domNode.children) {
+      Array.from(domNode.children).forEach(child => {
+        const childData = processNode(child);
+        if (childData) {
+          nodeData.children.push(childData);
         }
-      } else {
-        // Tab: move forward
-        if (activeElement === lastElement || !containerElement.contains(activeElement)) {
-          event.preventDefault();
-          firstElement.focus();
-        }
-      }
+      });
     }
-  }
 
-  /**
-   * Activates the focus trap
-   */
-  function activate() {
-    if (isActive) return;
-
-    isActive = true;
-    previousActiveElement = document.activeElement;
-
-    // Add event listener for keydown
-    document.addEventListener('keydown', handleKeyDown);
-
-    // Set aria-hidden on other content (optional enhancement)
-    containerElement.setAttribute('aria-hidden', 'false');
-
-    // Focus the initial element
-    const focusElement = getInitialFocusElement();
-    if (focusElement) {
-      setTimeout(() => focusElement.focus(), 0);
-    }
-  }
-
-  /**
-   * Deactivates the focus trap
-   * @param {boolean} focusReturnElement - Whether to return focus to the previously focused element
-   */
-  function deactivate(focusReturnElement = returnFocus) {
-    if (!isActive) return;
-
-    isActive = false;
-    document.removeEventListener('keydown', handleKeyDown);
-
-    // Reset aria-hidden attribute
-    containerElement.setAttribute('aria-hidden', 'true');
-
-    // Return focus to the previously focused element
-    if (focusReturnElement && previousActiveElement && previousActiveElement.focus) {
-      setTimeout(() => previousActiveElement.focus(), 0);
-    }
+    return nodeData;
   }
 
   return {
-    activate,
-    deactivate,
-    getFocusableElements,
-    isActive: () => isActive
+    success: true,
+    root: processNode(node)
   };
 }
 
-// New function to address new accessibility issues from insight report
-function addressNewAccessibilityIssues() {
-  const issues = [];
+/**
+ * Renders a dependency graph visualization
+ * @param {HTMLElement} rootNode - The root DOM node to render the graph from
+ * @param {HTMLElement} container - Optional container element to render into
+ * @param {Object} options - Rendering options
+ * @returns {Object} Result with success status and rendered graph data
+ */
+function renderDependencyGraph(rootNode, container, options = {}) {
+  try {
+    // Validate rootNode parameter
+    if (!rootNode) {
+      return { success: false, errors: ['Root node is required'] };
+    }
 
-  if (typeof document === 'undefined') {
-    return { valid: false, issues: ['Document not available'] };
+    // Build the dependency graph structure
+    const graphData = buildDependencyGraph(rootNode, options);
+
+    // Log for debugging
+    console.log('Rendering dependency graph starting from:', rootNode);
+    console.log('Graph data:', JSON.stringify(graphData, null, 2));
+
+    // If container provided, render visual elements
+    if (container && typeof document !== 'undefined') {
+      const graphContainer = document.createElement('div');
+      graphContainer.setAttribute('role', 'img');
+      graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+      graphContainer.className = options.className || 'dependency-graph';
+      
+      // Create SVG for graph visualization
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', options.width || '100%');
+      svg.setAttribute('height', options.height || '400');
+      svg.setAttribute('aria-hidden', 'true');
+      
+      // Add accessible description
+      const description = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      description.textContent = 'Dependency Graph';
+      description.setAttribute('id', 'graph-title');
+      svg.appendChild(description);
+      
+      graphContainer.appendChild(svg);
+      container.appendChild(graphContainer);
+      
+      return {
+        success: true,
+        message: 'Dependency graph rendered successfully',
+        container: graphContainer,
+        svg: svg,
+        data: graphData
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Dependency graph data built successfully',
+      data: graphData
+    };
+  } catch (error) {
+    console.error('Error rendering dependency graph:', error);
+    return { success: false, errors: [error.message] };
+  }
+}
+
+/**
+ * Builds breadcrumb data from an index path
+ * @param {string} indexPath - The path to parse into breadcrumb segments
+ * @param {Object} options - Configuration options
+ * @returns {Object} The breadcrumb structure
+ */
+function buildBreadcrumbData(indexPath, options = {}) {
+  const { baseUrl = '', separator = '/' } = options;
+  
+  if (!indexPath) {
+    return { success: false, errors: ['Index path is required'] };
   }
 
-  // Check for missing skip links
-  const skipLinks = document.querySelectorAll('a[href^="#"]');
-  const hasSkipLink = Array.from(skipLinks).some(link => {
-    const href = link.getAttribute('href');
-    return href === '#main' || href === '#content' || href.startsWith('#main-');
+  // Split path into segments and filter empty ones
+  const segments = indexPath.split(separator).filter(s => s.trim());
+  
+  const breadcrumbs = segments.map((segment, index) => {
+    const url = baseUrl + separator + segments.slice(0, index + 1).join(separator);
+    return {
+      label: segment.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      original: segment,
+      url: url,
+      position: index + 1,
+      isLast: index === segments.length - 1
+    };
   });
 
-  if (!hasSkipLink && document.body.firstChild?.tagName !== 'A') {
-    issues.push({
-      code: 'SKIP_LINK',
-      severity: 'warning',
-      message: 'Page may benefit from a skip link to main content'
+  return {
+    success: true,
+    breadcrumbs: breadcrumbs,
+    totalSegments: breadcrumbs.length
+  };
+}
+
+/**
+ * Renders an index view (breadcrumb or navigation structure)
+ * @param {string} indexPath - The path to render the index view for
+ * @param {HTMLElement} container - Optional container element to render into
+ * @param {Object} options - Rendering options
+ * @returns {Object} Result with success status and rendered index view data
+ */
+function renderIndexView(indexPath, container, options = {}) {
+  try {
+    // Validate indexPath parameter
+    if (!indexPath) {
+      return { success: false, errors: ['Index path is required'] };
+    }
+
+    // Build breadcrumb data from the path
+    const breadcrumbData = buildBreadcrumbData(indexPath, {
+      baseUrl: options.baseUrl || '',
+      separator: options.separator || '/'
     });
+
+    // Log for debugging
+    console.log('Rendering index view at path:', indexPath);
+    console.log('Breadcrumb data:', JSON.stringify(breadcrumbData, null, 2));
+
+    // If container provided, render visual elements
+    if (container && typeof document !== 'undefined') {
+      const nav = document.createElement('nav');
+      nav.setAttribute('aria-label', options.ariaLabel || 'Breadcrumb');
+      
+      const ol = document.createElement('ol');
+      ol.className = options.listClassName || 'breadcrumb';
+      
+      breadcrumbData.breadcrumbs.forEach((crumb, index) => {
+        const li = document.createElement('li');
+        li.className = 'breadcrumb-item';
+        li.setAttribute('aria-current', crumb.isLast ? 'page' : undefined);
+        
+        if (crumb.isLast) {
+          const span = document.createElement('span');
+          span.textContent = crumb.label;
+          li.appendChild(span);
+        } else {
+          const link = document.createElement('a');
+          link.href = crumb.url;
+          link.textContent = crumb.label;
+          li.appendChild(link);
+        }
+        
+        ol.appendChild(li);
+      });
+      
+      nav.appendChild(ol);
+      container.appendChild(nav);
+      
+      return {
+        success: true,
+        message: 'Index view rendered successfully',
+        nav: nav,
+        breadcrumbs: breadcrumbData.breadcrumbs,
+        data: breadcrumbData
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Index view data built successfully',
+      breadcrumbs: breadcrumbData.breadcrumbs,
+      data: breadcrumbData
+    };
+  } catch (error) {
+    console.error('Error rendering index view:', error);
+    return { success: false, errors: [error.message] };
+  }
+}
+
+// TODO: Implement tower defense
+function towerDefense() {
+  // A simple tower defense game implementation
+  // Define towers, enemies, waves, and game loop
+  const towers = [];
+  const enemies = [];
+  let wave = 1;
+  let gameRunning = false;
+  let lastEnemySpawnTime = 0;
+  const spawnInterval = 3000; // Spawn enemies every 3 seconds
+  const pathPoints = [
+    { x: 0, y: 50 },
+    { x: 200, y: 50 },
+    { x: 200, y: 200 },
+    { x: 400, y: 200 },
+    { x: 400, y: 50 },
+    { x: 600, y: 50 }
+  ];
+
+  // Example: Tower constructor
+  function Tower(x, y, range, damage, rate) {
+    this.x = x;
+    this.y = y;
+    this.range = range;
+    this.damage = damage;
+    this.rate = rate;
+    this.lastShot = 0;
   }
 
-  // Check for color contrast issues (simplified check)
-  const textElements = document.querySelectorAll(''); // empty selector returns empty NodeList
+  // Example: Enemy constructor
+  function Enemy(x, y, health, speed) {
+    this.x = x;
+    this.y = y;
+    this.health = health;
+    this.speed = speed;
+    this.pathIndex = 0;
+  }
 
-  return { valid: issues.length === 0, issues };
+  // Add a tower
+  function addTower(x, y, range, damage, rate) {
+    towers.push(new Tower(x, y, range, damage, rate));
+  }
+
+  // Add an enemy
+  function addEnemy(x, y, health, speed) {
+    enemies.push(new Enemy(x, y, health, speed));
+  }
+
+  // Spawn a new enemy at the start of the path
+  function spawnEnemy() {
+    const startPoint = pathPoints[0];
+    addEnemy(startPoint.x, startPoint.y, 100, 2);
+  }
+
+  // Update game state (simplified)
+  function update(currentTime) {
+    if (!gameRunning) return;
+
+    // Spawn enemies at intervals
+    if (currentTime - lastEnemySpawnTime > spawnInterval) {
+      spawnEnemy();
+      lastEnemySpawnTime = currentTime;
+    }
+
+    // Logic for enemy movement, tower shooting, etc.
+    enemies.forEach((enemy, index) => {
+      // Move enemy along path
+      if (enemy.pathIndex < pathPoints.length - 1) {
+        const target = pathPoints[enemy.pathIndex + 1];
+        const dx = target.x - enemy.x;
+        const dy = target.y - enemy.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > enemy.speed) {
+          enemy.x += (dx / distance) * enemy.speed;
+          enemy.y += (dy / distance) * enemy.speed;
+        } else {
+          enemy.pathIndex++;
+        }
+      } else {
+        // Enemy reached end of path - remove it
+        enemies.splice(index, 1);
+      }
+    });
+
+    // Tower shooting logic
+    towers.forEach(tower => {
+      if (currentTime - tower.lastShot > tower.rate) {
+        // Find closest enemy in range
+        let closestEnemy = null;
+        let minDistance = Infinity;
+
+        enemies.forEach(enemy => {
+          const dx = enemy.x - tower.x;
+          const dy = enemy.y - tower.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < tower.range && distance < minDistance) {
+            minDistance = distance;
+            closestEnemy = enemy;
+          }
+        });
+
+        // Attack closest enemy if found
+        if (closestEnemy) {
+          closestEnemy.health -= tower.damage;
+          tower.lastShot = currentTime;
+
+          // Remove enemy if health <= 0
+          if (closestEnemy.health <= 0) {
+            const index = enemies.indexOf(closestEnemy);
+            if (index > -1) {
+              enemies.splice(index, 1);
+            }
+          }
+        }
+      }
+    });
+
+    console.log(`Wave ${wave} - updating game state`);
+  }
+
+  // Start the game
+  function start() {
+    gameRunning = true;
+    lastEnemySpawnTime = Date.now();
+    console.log('Tower defense game started');
+    // Add initial towers
+    addTower(100, 100, 200, 10, 1000);
+    addTower(300, 150, 200, 15, 800);
+    addTower(500, 100, 200, 12, 900);
+  }
+
+  // Stop the game
+  function stop() {
+    gameRunning = false;
+    console.log('Tower defense game stopped');
+  }
+
+  // Expose game functions
+  return {
+    start,
+    stop,
+    addTower,
+    addEnemy,
+    update,
+    getWave: () => wave,
+    getEnemies: () => enemies,
+    getTowers: () => towers,
+    isRunning: () => gameRunning
+  };
 }
+
+/**
+ * Implements the actual logic for functionA.
+ * Returns the result of a deterministic computation based on the input value.
+ * @param {number} value - The numeric input to process
+ * @returns {number} The computed result
+ */
+function functionA(value) {
+  if (typeof value !== 'number' || isNaN(value)) {
+    return 0;
+  }
+  // Actual logic: compute (value * 2) + 10
+  return (value * 2) + 10;
+}
+
+// Export all functions to maintain current exports
+module.exports = {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  personName,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  createAccessibleLink,
+  isLinkAccessible,
+  renderDependencyGraph,
+  renderIndexView,
+  buildDependencyGraph,
+  buildBreadcrumbData,
+  towerDefense,
+  functionA
+};

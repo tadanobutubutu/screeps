@@ -1,11 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f80b1b788bad4952d8d93f08d3c7d22a06ff80d3_
-// <!-- todo-ash: b498b47abee4b3f29c69a97a22637d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-ash: 1f8b632535b07b809ac49f5e1c81cf389f9c1 -->
-
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // REACT_015: Add lang attribute to the <html> element
 function addLangToHtml(html, lang = 'en') {
     if (typeof html !== 'string') return html;

@@ -400,7 +400,21 @@ module.exports = {
     initSkipLink: accessibilityUtils.initSkipLink,
     announceToScreenReader: accessibilityUtils.announceToScreenReader,
     handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
-    createInPageButtons,
-    ScreetsBot,
-    enhanceDependencyGraphAccessibility
+    createInPageButtons
 };
+
+// Implement the function for creating in-page buttons
+function createInPageButtons(buttonData) {
+    if (!Array.isArray(buttonData)) {
+        throw new Error('createInPageButtons expects an array of button data');
+    }
+
+    buttonData.forEach(button => {
+        const { id, text, onClick } = button;
+        const buttonElement = document.createElement('button');
+        buttonElement.id = id;
+        buttonElement.textContent = text;
+        buttonElement.addEventListener('click', onClick);
+        document.body.appendChild(buttonElement);
+    });
+}

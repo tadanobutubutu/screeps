@@ -3,10 +3,7 @@
 
 // ... (Preserving existing code)
 
-// New functions for dependency graph rendering
-const renderDependencyGraph1 = () => {
-  // Your implementation for rendering dependency graph 1
-};
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel } = main;
 
 const renderDependencyGraph2 = () => {
   // Your implementation for rendering dependency graph 2
@@ -21,57 +18,7 @@ const renderDependencyGraph2 = () => {
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-// Apply accessibility fixes for all identified issues
-const applyAccessibilityFixes = () => {
-  // REACT_015: Add lang attribute to HTML element
-  addLangAttribute();
-  
-  // REACT_027: Fix table structure issues
-  fixTableStructureIssues();
-  
-  // REACT_017: Add/fix landmark issues
-  validateLandmark();
-  validateLandmarkStructure();
-  fixLandmarkIssues();
-  addLandmarkRegions();
-  addMainLandmark();
-  addMainLandmarkToIndex();
-  
-  // REACT_025: Ensure unique landmarks (already done with ensureUniqueLandmarks)
-  ensureUniqueLandmarks();
-  uniqueLandmarks();
-  
-  // REACT_041: Add accessible names to SVGs
-  setSvgAccessibilityProps();
-  addSvgAccessibleNames();
-  addAccessibleNamesToSVGs();
-  
-  // REACT_036: Fix fake link issue
-  fixFakeLinkIssue();
-  fixFakeLinkIssues();
-  fixFakeLinkIssue();
-  
-  // Additional accessibility improvements
-  fixImageAltTexts();
-  ensureElementHasId();
-  ensureElementHasIdOrigin();
-  addAriaLabel();
-  fixButtonIdentifiers();
-  fixDependencyGraphAria();
-  
-  // Handle authentication components
-  googleSignIn();
-  handleCredentialResponse();
-  
-  // Render dependency graphs with accessibility enhancements
-  renderDependencyGraphs();
-  
-  // Report on accessibility validation
-  validateAccessibilityReport();
-};
-
-// Update the existing function using the new functions for rendering graph/index
-// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+// Define the new renderGraphIndex function
 const renderGraphIndex = (graphData) => {
   // Enhanced rendering logic using new accessibility functions
   setSvgAccessibilityProps(graphData);
@@ -81,8 +28,11 @@ const renderGraphIndex = (graphData) => {
   applyAccessibilityFixes();
 };
 
-// Apply accessibility fixes on module load
-applyAccessibilityFixes();
+// Update the existing function using the new functions for rendering graph/index
+const renderDependencyGraphs = (graphData) => {
+  // Call the new renderGraphIndex function instead
+  renderGraphIndex(graphData);
+};
 
 // Update the call to the new function in the existing context
 // For instance, if there was a call to `renderDependencyGraphs` somewhere in the codebase, replace it with `renderGraphIndex`

@@ -1,12 +1,8 @@
 // TODO: This is the existing code that needs to be preserve
 
-// New function to ensure proper ARIA role for dependencyGraph container
-function setARIARoleForDependencyGraph() {
-    const dependencyGraphContainer = document.getElementById('dependencyGraph');
-    if (dependencyGraphContainer) {
-        dependencyGraphContainer.setAttribute('role', 'region');
-    }
-}
+function checkLandmarkElements() {
+    const landmarks = ['header', 'footer', 'nav', 'main', 'section', 'article'];
+    let allValid = true;
 
 /**
  * Main application entry point with accessibility features

@@ -1,34 +1,19 @@
-let idCounter = 0;
+// Main entry point for the React application
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import './styles.css';
 
-function getUniqueId() {
-  idCounter++;
-  return `landmark-${idCounter}`;
+const rootElement = document.getElementById('root');
+
+if (rootElement) {
+  rootElement.setAttribute('lang', 'en');
+  const root = createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
 }
 
-function ensureLandmarkId(element) {
-  const role = element.getAttribute('role');
-  const landmarkRoles = ['banner', 'navigation', 'main', 'article', 'section', 'aside', 'footer', 'complementary'];
-  
-  if (landmarkRoles.includes(role) || element.tagName === 'MAIN' || element.tagName === 'NAV' || 
-      element.tagName === 'ARTICLE' || element.tagName === 'SECTION' || element.tagName === 'ASIDE' || 
-      element.tagName === 'FOOTER') {
-    if (!element.hasAttribute('id')) {
-      element.id = getUniqueId();
-    }
-  }
-}
-
-function ensureDependencyGraphAria(container) {
-  if (container) {
-    container.setAttribute('role', 'region');
-    if (!container.hasAttribute('aria-label') && !container.hasAttribute('aria-labelledby')) {
-      container.setAttribute('aria-label', 'Dependency Graph');
-    }
-    ensureLandmarkId(container);
-  }
-}
-
-// TODO: Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
-// (Preserve existing function for control)
+export default App;

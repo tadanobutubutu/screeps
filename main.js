@@ -400,62 +400,42 @@ function validateLandmarkRegions() {
   };
 }
 
-function initializeApp() {
-  if (appState.initialized) {
-    return appState;
-  }
-  
-  appState.initialized = true;
-  appState.data = {
-    config,
-    timestamp: Date.now()
-  };
-  
-  return appState;
+// TODO: Implement createResourceButton
+function createResourceButton(resourceName, onClick) {
+    const button = document.createElement('button');
+    button.textContent = resourceName;
+    button.type = 'button';
+    button.setAttribute('aria-label', resourceName);
+    button.setAttribute('data-resource', resourceName);
+    if (onClick && typeof onClick === 'function') {
+        button.addEventListener('click', onClick);
+    }
+    return button;
 }
 
-function getConfig() {
-  return { ...config };
-}
-
-function validateInput(input) {
-  if (input === null || input === undefined) {
-    return { valid: false, error: 'Input cannot be null or undefined' };
-  }
-  return { valid: true };
-}
-
-function processData(data) {
-  if (!appState.initialized) {
-    initializeApp();
-  }
-  
-  appState.cache.set('data', data);
-  return { processed: true, timestamp: Date.now() };
-}
-
-// Export all existing and new functions
 module.exports = {
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
-    fixTableStructure,
-    addMainLandmark,
-    setSvgAttributes,
-    countDependencies,
-    handleCredentialResponse,
-    addProperLandmarkRegions,
-    handleAccessibilityIssues,
-    initializeApp,
-    getConfig,
-    validateInput,
-    processData,
-    validateLandmarkRegions,
-    getLangAttribute,
-    getFullLangAttribute
+  initializeApp,
+  getConfig,
+  validateInput,
+  processData,
+  createInPageButton,
+  handleAccessibilityIssues,
+  createAccessibleLink,
+  addLandmarkRegions,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  addSvgAccessibleNames,
+  upgradeSystem,
+  addLangAttribute,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addLandmarkRolesAndFixIssues,
+  fixLandmarkIssues,
+  checkLandmarkElements,
+  ensureUniqueLandmarks,
+  fixSvgAccessibleNames,
+  addSvgAccessibilityProps,
+  fixButtonIdentifiers,
+  createResourceButton
 };

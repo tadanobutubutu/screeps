@@ -42,7 +42,7 @@ function getWelcomeMessage() {
   return greetingFunction() + " This is a new function that returns a welcome message.";
 }
 
-const { class1, function1, Object1 } = require('./legacy');
+const { class1, function1, Object1 } = require('./components');
 
 // Accessibility store with comprehensive accessibility improvements
 const a11yStore = {
@@ -64,9 +64,10 @@ const a11yStore = {
   updateLiveRegion(message, priority = 'polite') {
     if (!this.liveRegion) {
       this.liveRegion = document.createElement('div');
+      this.liveRegion.setAttribute('role', 'status');
       this.liveRegion.setAttribute('aria-live', priority);
       this.liveRegion.setAttribute('aria-atomic', 'true');
-      this.liveRegion.className = 'sr-only';
+      this.liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);';
       document.body.appendChild(this.liveRegion);
     }
     this.announce(message, priority);
@@ -74,15 +75,15 @@ const a11yStore = {
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach(element => {
+    landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(element);
       landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
-          landmark.id = `${element}-${index}`;
+          landmark.id = `${element}-landmark-${index}`;
         }
 
         if (landmarks.length > 1) {
-          if (!landmark.getAttribute('aria-label')) {
+          if (landmark.id === `${element}-landmark-${index}`) {
             landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
         }
@@ -90,7 +91,7 @@ const a11yStore = {
     });
   },
 
-  fixSvgAccessibility() {
+  ensureSvgAccessibility() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
       let titleElement = svg.querySelector('title');
@@ -107,17 +108,18 @@ const a11yStore = {
       svg.setAttribute('role', 'img');
       svg.setAttribute('aria-labelledby', titleElement.id);
 
-      if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      if (!svg.getAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
     });
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[role="link"]');
-    fakeLinks.forEach(link => {
+    const fakeLinks = document.querySelectorAll('[role="link"], a[href=""], [data-href]');
+    fakeLinks.forEach((link) => {
+      link.setAttribute('role', 'link');
       link.setAttribute('tabindex', '0');
-      link.setAttribute('aria-disabled', 'true');
+      link.setAttribute('aria-label', 'true');
     });
   },
 
@@ -126,7 +128,7 @@ const a11yStore = {
    */
   ensureInteractiveRoles() {
     const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach(element => {
+    interactiveElements.forEach((element) => {
       if (!element.getAttribute('role')) {
         element.setAttribute('role', 'button');
       }
@@ -152,114 +154,23 @@ const a11yStore = {
   /**
    * Ensure all images have alt text or ARIA attributes
    */
-  ensureImageAccessibility() {
+  ensureImagesAccessible() {
     const images = document.querySelectorAll('img');
     images.forEach((img) => {
-      if (!img.alt && !img.getAttribute('aria-label') && !img.getAttribute('role')) {
+      if (!img.getAttribute('alt') && !img.getAttribute('aria-label') && !img.getAttribute('role')) {
         img.setAttribute('alt', '');
       }
     });
   },
 
-  /**
-   * Ensure all headings have a logical hierarchy (h1 -> h2 -> h3, etc.)
-   */
-  ensureHeadingHierarchy() {
-    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    let previousLevel = 0;
-    headings.forEach((heading) => {
-      const currentLevel = parseInt(heading.tagName.substring(1), 10);
-      if (previousLevel === 0 && currentLevel !== 1) {
-        // Document should start with h1
-        heading.setAttribute('data-heading-warning', 'missing-h1');
-      } else if (currentLevel - previousLevel > 1) {
-        // Heading skip detected
-        heading.setAttribute('data-heading-warning', 'skipped-level');
-      }
-      previousLevel = currentLevel;
-    });
-  },
-
-  /**
-   * Ensure all tables have proper headers and captions
-   */
-  ensureTableAccessibility() {
-    const tables = document.querySelectorAll('table');
-    tables.forEach((table, index) => {
-      if (!table.hasAttribute('role')) {
-        table.setAttribute('role', 'table');
-      }
-      const headers = table.querySelectorAll('th');
-      headers.forEach((header) => {
-        if (!header.hasAttribute('scope')) {
-          header.setAttribute('scope', 'col');
-        }
-      });
-      if (!table.querySelector('caption') && !table.hasAttribute('aria-label')) {
-        table.setAttribute('aria-label', `Table ${index + 1}`);
-      }
-    });
-  },
-
-  /**
-   * Ensure all buttons have accessible names
-   */
-  ensureButtonAccessibleNames() {
-    const buttons = document.querySelectorAll('button, [role="button"]');
-    buttons.forEach((button, index) => {
-      const hasText = button.textContent.trim().length > 0;
-      const hasAriaLabel = button.hasAttribute('aria-label') || button.hasAttribute('aria-labelledby');
-      if (!hasText && !hasAriaLabel) {
-        button.setAttribute('aria-label', `Button ${index + 1}`);
-      }
-    });
-  },
-
-  /**
-   * Ensure all links have accessible names and discernible text
-   */
-  ensureLinkAccessibleNames() {
-    const links = document.querySelectorAll('a, [role="link"]');
-    links.forEach((link, index) => {
-      const hasText = link.textContent.trim().length > 0;
-      const hasAriaLabel = link.hasAttribute('aria-label') || link.hasAttribute('aria-labelledby');
-      if (!hasText && !hasAriaLabel) {
-        link.setAttribute('aria-label', `Link ${index + 1}`);
-      }
-    });
-  },
-
-  /**
-   * Ensure the document has a proper lang attribute
-   */
-  ensureDocumentLanguage() {
-    const html = document.documentElement;
-    if (!html.hasAttribute('lang')) {
-      html.setAttribute('lang', 'en');
-    }
-  },
-
-  /**
-   * Ensure all iframes have accessible titles
-   */
-  ensureIframeAccessibility() {
-    const iframes = document.querySelectorAll('iframe');
-    iframes.forEach((iframe, index) => {
-      if (!iframe.hasAttribute('title') && !iframe.hasAttribute('aria-label')) {
-        iframe.setAttribute('title', `Frame ${index + 1}`);
-      }
-    });
-  },
-
-  /**
-   * Ensure color is not the only means of conveying information
-   * (checks for potential color-only indicators and marks them for review)
-   */
-  flagColorOnlyIndicators() {
-    const elements = document.querySelectorAll('[style*="color"], [class*="color-"]');
-    elements.forEach((element) => {
-      element.setAttribute('data-a11y-review', 'color-only');
-    });
+  announce(message, priority = 'polite') {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
   },
 
   // ... remaining a11yStore methods ...
@@ -276,16 +187,44 @@ const a11yStore = {
 
 // New functions
 function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
-  a11yStore.ensureHeadingHierarchy();
-  a11yStore.ensureTableAccessibility();
-  a11yStore.ensureButtonAccessibleNames();
-  a11yStore.ensureLinkAccessibleNames();
-  a11yStore.ensureDocumentLanguage();
-  a11yStore.ensureIframeAccessibility();
-  a11yStore.flagColorOnlyIndicators();
+  if (a11yStore) {
+    a11yStore.ensureInteractiveRoles();
+    a11yStore.addFormControlLabels();
+    a11yStore.ensureImagesAccessible();
+    a11yStore.ensureSvgAccessibility();
+    a11yStore.fixFakeLinks();
+    a11yStore.checkLandmarkElements();
+  }
 }
+
+function renderDependencyGraph(container) {
+  const containerElement = document.querySelector(container);
+  if (!containerElement || !dependencyGraphContent) return;
+  
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = dependencyGraphContent;
+  wrapper.setAttribute('role', 'img');
+  wrapper.setAttribute('aria-label', 'Dependency graph visualization');
+  containerElement.appendChild(wrapper);
+}
+
+function addAriaLabel(element, label) {
+  if (!element) return;
+  if (!element.id) {
+    element.id = `aria-element-${Math.floor(Math.random() * 10000)}`;
+  }
+  element.setAttribute('aria-label', label);
+}
+
+// Export for accessibility store
+module.exports = {
+  a11yStore,
+  ensureInteractiveElementsAccessible,
+  renderDependencyGraph,
+  addAriaLabel,
+  greetingFunction,
+  getWelcomeMessage,
+  config
+};
 
 // ... rest of the code ...

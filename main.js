@@ -52,11 +52,8 @@ const accessibilityUtils = {
         const target = document.getElementById(targetId)
         if (target) {
           target.setAttribute('tabindex', '-1')
+          target.setAttribute('aria-hidden', 'false')
           target.focus()
-          // Add aria-hidden to skip link after use
-          skipLink.setAttribute('aria-hidden', 'true')
-          // Remove focus from skip link
-          skipLink.blur()
         }
       })
     }
@@ -81,11 +78,6 @@ const accessibilityUtils = {
         }
       }
     })
-
-    // Ensure the first element is focused when trap is activated
-    if (firstElement) {
-      firstElement.focus()
-    }
   },
 
   // Announce message to screen readers
@@ -358,9 +350,13 @@ function initAccessibility () {
       })
     })
 
-    // Ensure elements have proper ARIA attributes
-    if (element.tagName === 'A' && !element.getAttribute('role')) {
-      element.setAttribute('role', 'button')
+    // Ensure all interactive elements have proper ARIA attributes
+    if (!element.getAttribute('role')) {
+      if (element.tagName === 'BUTTON') {
+        element.setAttribute('role', 'button')
+      } else if (element.tagName === 'A' && element.getAttribute('href')) {
+        element.setAttribute('role', 'link')
+      }
     }
   }
 
@@ -372,11 +368,12 @@ function initAccessibility () {
       !formElement.getAttribute('aria-label') &&
             !formElement.getAttribute('aria-labelledby')
     ) {
-      const label =
-                formElement.getAttribute('placeholder') ||
-                formElement.getAttribute('name') ||
-                'form element'
-      formElement.setAttribute('aria-label', label)
+      const label = document.querySelector(`label[for="${formElement.id}"]`)
+      if (label) {
+        formElement.setAttribute('aria-labelledby', label.id)
+      } else if (formElement.placeholder) {
+        formElement.setAttribute('aria-label', formElement.placeholder)
+      }
     }
   }
 }

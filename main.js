@@ -354,7 +354,7 @@ function displayModuleStructureHTML(moduleInfo, container, includeSource) {
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
 // - REACT_037: Google sign-in logic (DONE: googleSignIn)
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphAriaRole)
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: fixDependencyGraphAccessibility)
 
 // TODO: This is the existing code that needs to be preserved
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
@@ -438,43 +438,30 @@ function addLandmarkRegions(doc) {
     });
 }
 
-// Accessibility announcement for screen readers
-function announceToScreenReader(message, priority = 'polite') {
-  const announcement = document.createElement('div');
-  announcement.setAttribute('role', 'status');
-  announcement.setAttribute('aria-live', priority);
-  announcement.setAttribute('aria-atomic', 'true');
-  announcement.className = 'sr-only';
-  announcement.textContent = message;
-  document.body.appendChild(announcement);
-  setTimeout(() => announcement.remove(), 1000);
-}
+/**
+ * Ensure unique landmarks in the document
+ * @param {Document} doc - The document object
+ * @returns {Array} Array of duplicate landmarks
+ */
+function ensureUniqueLandmarks(doc) {
+  const landmarks = doc.querySelectorAll('[role], header, nav, main, aside, footer');
+  const seen = new Map();
+  const duplicates = [];
 
-// REACT_027: Validate table structure
-function validateTableStructure() {
-    // Implementation goes here
-}
-
-// Add/fix 4 landmark issues
-function fixLandmarkIssues() {
-    // Implementation goes here
-    // Example: Add ARIA landmark roles to elements
-    const landmarks = ['main', 'article', 'section', 'aside'];
-    landmarks.forEach(landmark => {
-        const elements = document.querySelectorAll(landmark);
-        elements.forEach(element => {
-            element.setAttribute('role', landmark);
-        });
-    });
-}
-
-function addMainLandmark() {
-    // Implementation goes here
-    // Example: Add `role="main"` to the main content area
-    const mainElement = document.querySelector('main');
-    if (mainElement) {
-        mainElement.setAttribute('role', 'main');
+  landmarks.forEach((el) => {
+    const role = el.getAttribute('role') || el.tagName.toLowerCase();
+    if (seen.has(role)) {
+      duplicates.push({ element: el, role });
+      // Remove duplicate landmark role, keep as generic container
+      if (el.hasAttribute('role')) {
+        el.removeAttribute('role');
+      }
+    } else {
+      seen.set(role, el);
     }
+  });
+
+  return duplicates;
 }
 
 /**
@@ -568,7 +555,7 @@ function googleSignIn(options = {}) {
         button.textContent = 'Sign in with Google';
       }
     }
-    
+
     // Proceed with sign-in logic
     if (typeof google !== 'undefined' && google.accounts) {
       google.accounts.id.initialize(options);
@@ -619,140 +606,21 @@ function ensureDependencyGraphAriaRole(doc) {
 }
 
 /**
- * Handle focus trap for keyboard navigation within a given container
- * @param {HTMLElement} container - The container element to trap focus within
- * @param {Object} options - Configuration options for the focus trap
- * @param {boolean} options.escapeDeactivates - Whether pressing Escape should deactivate the trap
- * @returns {Object} An object with methods to manage the focus trap
+ * Fix dependencyGraph accessibility by ensuring it has proper ARIA role
+ * @param {Document} doc - The document object
+ * @returns {Element|null} The dependencyGraph container with proper ARIA role
  */
-function handleFocusTrap(container, options = { escapeDeactivates: true }) {
-  if (!container || !container.setAttribute) {
-    console.warn('Invalid container provided for focus trap');
-    return {
-      activate: () => {},
-      deactivate: () => {},
-      isActive: () => false,
-      handleKeydown: () => {}
-    };
+function fixDependencyGraphAccessibility(doc) {
+  const container = doc.querySelector('#dependencyGraph, .dependency-graph, [data-dependency-graph]');
+  if (container) {
+    if (!container.getAttribute('role')) {
+      container.setAttribute('role', 'region');
+    }
+    if (!container.getAttribute('aria-label')) {
+      container.setAttribute('aria-label', 'Dependency Graph');
+    }
   }
-
-  // Store original tabindex values for restoration
-  const originalTabindex = new Map();
-  let isActiveTrap = false;
-
-  // Collect all focusable elements in the container
-  const getFocusableElements = () => {
-    return container.querySelectorAll(
-      'a[href], area[href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), ' +
-      'textarea:not([disabled]), button:not([disabled]), iframe, object, embed, ' +
-      '[tabindex]:not([tabindex="-1"]), [contenteditable]'
-    );
-  };
-
-  const focusableElements = () => Array.from(getFocusableElements());
-
-  const handleFocusIn = () => {
-    if (!isActiveTrap) return;
-    const elements = focusableElements();
-    if (elements.length === 0) return;
-
-    // If focus is on the container itself and there are focusable children, focus the first
-    if (container === document.activeElement && elements[0]) {
-      elements[0].focus();
-    }
-  };
-
-  const handleKeydown = (event) => {
-    if (!isActiveTrap || event.key !== 'Tab') return;
-    
-    const elements = focusableElements();
-    if (elements.length === 1) {
-      // With only one focusable element, keep focus within the container
-      event.preventDefault();
-      if (document.activeElement === elements[0]) {
-        elements[0].focus();
-      }
-      return;
-    }
-
-    if (elements.length === 0) return;
-
-    const firstElement = elements[0];
-    const lastElement = elements[elements.length - 1];
-
-    if (event.shiftKey) {
-      // Shift + Tab
-      if (document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      }
-    } else {
-      // Tab
-      if (document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
-    }
-  };
-
-  const handleEscapeKeydown = (event) => {
-    if (!isActiveTrap || event.key !== 'Escape') return;
-
-    if (options.escapeDeactivates) {
-      event.preventDefault();
-      deactivate();
-
-      // Restore focus to the container after deactivation
-      if (container.hasAttribute('tabindex')) {
-        container.focus();
-      }
-    }
-  };
-
-  const activate = () => {
-    if (isActiveTrap) return;
-
-    // Ensure container can receive focus if it doesn't already
-    if (!container.hasAttribute('tabindex')) {
-      container.setAttribute('tabindex', '-1');
-      originalTabindex.set(container, null);
-    } else {
-      originalTabindex.set(container, container.getAttribute('tabindex'));
-    }
-
-    isActiveTrap = true;
-
-    // Add event listeners
-    document.addEventListener('focusin', handleFocusIn);
-    document.addEventListener('keydown', handleKeydown);
-    document.addEventListener('keydown', handleEscapeKeydown);
-  };
-
-  const deactivate = () => {
-    if (!isActiveTrap) return;
-
-    isActiveTrap = false;
-
-    // Remove event listeners
-    document.removeEventListener('focusin', handleFocusIn);
-    document.removeEventListener('keydown', handleKeydown);
-    document.removeEventListener('keydown', handleEscapeKeydown);
-
-    // Restore original tabindex if it wasn't originally present
-    if (originalTabindex.get(container) === null) {
-      container.removeAttribute('tabindex');
-    } else if (originalTabindex.has(container)) {
-      container.setAttribute('tabindex', originalTabindex.get(container));
-    }
-  };
-
-  return {
-    activate,
-    deactivate,
-    isActive: () => isActiveTrap,
-    handleKeydown,
-    handleEscapeKeydown
-  };
+  return container;
 }
 
 // Export all functions
@@ -771,11 +639,7 @@ export {
   googleSignIn,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
-  newFunction,
-  renderDependencyGraph,
-  renderDependencyGraphText,
-  renderDependencyGraphHTML,
-  displayModuleStructure,
-  displayModuleStructureText,
-  displayModuleStructureHTML
+  fixDependencyGraphAccessibility,
+  newExportedFunction,
+  newFunction
 };

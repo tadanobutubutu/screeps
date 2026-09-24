@@ -61,7 +61,7 @@ const {
     addAriaLabel: addAriaLabelAlt,
     googleSignIn,
     handleCredentialResponse: handleCredentialResponseAlt,
-    renderGraphIndex: renderGraphIndexUtil,
+    renderGraphIndex,
 } = require('./utilities');
 
 ```javascript
@@ -404,7 +404,7 @@ function wrapPrimaryContentInMain() {
     }
 
 // Consolidated accessibility issue handler
-function addressAccessibilityIssues(graphData) {
+function addressAccessibilityIssuesImpl(graphData) {
     if (!graphData) return;
 
     // Fix landmark issues
@@ -555,6 +555,7 @@ module.exports = {
     generateSessionId,
     renderGraphIndex,
     wrapPrimaryContentInMain,
+    addressAccessibilityIssues: addressAccessibilityIssuesImpl,
     createInPageButton,
     createWebResourceButton,
     validateLandmark,

@@ -117,14 +117,18 @@ function ensureThScope() {
     // ... other methods ...
 }
 
-// The functions below have been created to match the exported names
-function getConfig() {
-  return config;
+// Accessibility improvements
+function getAccessibleDescription(element) {
+  if (!element) return '';
+  return element.getAttribute('aria-label') ||
+         element.getAttribute('title') ||
+         element.textContent ||
+         '';
 }
 
-function logDebug(message) {
-  if (config.debug) {
-    console.log(`[DEBUG] ${message}`);
+function setAccessibleAttribute(element, attribute, value) {
+  if (element && typeof element.setAttribute === 'function') {
+    element.setAttribute(attribute, value);
   }
 }
 
@@ -134,6 +138,6 @@ module.exports = {
   validateInput,
   initializeApp,
   setupHandlers,
-  getConfig,
-  logDebug
+  getAccessibleDescription,
+  setAccessibleAttribute
 };

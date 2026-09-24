@@ -612,5 +612,15 @@ export {
   generateAccessibilityReport,
   createUnrotateButton,
   getSvgAccessibleName,
-  createAccessibleLink
+  createAccessibleLink,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateLandmark,
+  handleAccessibilityIssues,
+  getAccessibleElement,
+  createAccessibleButton,
+  enhanceKeyboardNavigation,
+  addAriaRoles,
+  checkContrastRatios,
+  addBook
 };

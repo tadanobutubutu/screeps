@@ -69,63 +69,15 @@ function addBook(book) {
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
-}
 
-// Accessible Add Book Form Component
-function AddBookForm() {
-  const dispatch = useDispatch();
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (title.trim() && author.trim()) {
-      const newBook = {
-        id: Date.now(),
-        title: title.trim(),
-        author: author.trim()
-      };
-      dispatch({ type: 'ADD_BOOK', payload: newBook });
-      setTitle('');
-      setAuthor('');
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} aria-label="Add new book" role="form">
-      <div>
-        <label htmlFor="book-title" id="book-title-label">
-          Book Title
-        </label>
-        <input
-          id="book-title"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          aria-labelledby="book-title-label"
-          placeholder="Enter book title"
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="book-author" id="book-author-label">
-          Author
-        </label>
-        <input
-          id="book-author"
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          aria-labelledby="book-author-label"
-          placeholder="Enter author name"
-          required
-        />
-      </div>
-      <button type="submit" aria-label="Add book to list">
-        Add Book
-      </button>
-    </form>
-  );
+  // Implement the required changes to improve accessibility for the addBook function or form
+  // Example: Adding ARIA attributes to the form elements
+  const form = document.querySelector('form');
+  if (form) {
+    form.setAttribute('role', 'form');
+    form.querySelector('input[name="title"]').setAttribute('aria-label', 'Book Title');
+    form.querySelector('input[name="author"]').setAttribute('aria-label', 'Book Author');
+  }
 }
 
 // Default sorting function for the book list
@@ -178,12 +130,11 @@ function Main() {
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List
-        dataSource={getBooksList}
-        renderItem={(book) => BookItem(book)}
-      />
-      {/* Accessibility improvements for adding a new book */}
-      <AddBookForm />
+      <List dataSource={bookItems} />
+
+      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
+      {/* Example: Adding a label to the Add Book button */}
+      <button aria-label="Add Book">Add Book</button>
     </div>
   );
 }

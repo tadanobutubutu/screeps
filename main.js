@@ -1,4 +1,18 @@
-// TODO: Address accessibility issues from insight report:
+function addSvgAccessibilityProps() {
+    if (typeof document === 'undefined') return;
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach((svg, index) => {
+        if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
+            svg.setAttribute('aria-label', 'Accessible SVG graphic');
+        }
+        if (!svg.hasAttribute('role')) {
+            svg.setAttribute('role', 'img');
+        }
+        if (!svg.hasAttribute('focusable')) {
+            svg.setAttribute('focusable', 'false');
+        }
+    });
+}
 
 // Insight Report Accessibility Issues:
 // - Missing ARIA labels on interactive elements
@@ -105,15 +119,15 @@
     this.fixFakeLinks();
   },
 
-      init() {
-        ...
-        ...
-        ...
-        this.setupSkipLinks();
-        ...
-        ...
-        this.fixFakeLinks(); // Added for REACT_036
-      },
+        init() {
+            this.setupSkipLinks();
+            this.fixFakeLinks(); // Added for REACT_036
+            this.setupLiveRegion();
+            addLandmarkRegions();
+            checkLandmarkElements();
+            ensureLandmarkUniqueness();
+            addSvgAccessibilityProps();
+        },
 
       // Create a live region for screen reader announcements
     };

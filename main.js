@@ -1,76 +1,87 @@
 // TODO: Implement function for addressing accessibility issues from insight report
 // Function to address accessibility issues from insight report
 
-/**
- * Analyzes an insight report and generates fixes for accessibility issues
- * @param {Object} insightReport - The insight report containing accessibility issues
- * @returns {Object} - A report with fixes for the identified accessibility issues
- */
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || typeof insightReport !== 'object') {
-    return {
-      success: false,
-      message: 'Invalid insight report provided',
-      fixes: []
-    };
+    return;
   }
 
-  const fixes = [];
-  const issues = insightReport.issues || [];
+  const issues = Array.isArray(insightReport.issues)
+    ? insightReport.issues
+    : [];
 
-  issues.forEach((issue, index) => {
+  issues.forEach((issue) => {
+    if (!issue || typeof issue !== 'object') {
+      return;
+    }
+
     switch (issue.type) {
       case 'missing-alt-text':
-        fixes.push({
-          issue: issue,
-          fix: `Add alt attribute to image: <img src="${issue.element || 'image.png'}" alt="Descriptive text describing the image content">`
-        });
+        fixMissingAltText(issue);
         break;
-
-      case 'missing-aria-label':
-        fixes.push({
-          issue: issue,
-          fix: `Add aria-label to element: <element aria-label="${issue.label || 'Descriptive label'}">`
-        });
-        break;
-
       case 'low-contrast':
-        fixes.push({
-          issue: issue,
-          fix: `Increase color contrast. Suggested foreground: ${issue.suggestedForeground || '#000000'}, suggested background: ${issue.suggestedBackground || '#ffffff'}`
-        });
+        fixLowContrast(issue);
         break;
-
-      case 'missing-form-label':
-        fixes.push({
-          issue: issue,
-          fix: `Add label element: <label for="${issue.inputId || 'input-id'}">${issue.labelText || 'Label text'}</label>`
-        });
+      case 'missing-label':
+        fixMissingLabel(issue);
         break;
-
-      case 'missing-heading-level':
-        fixes.push({
-          issue: issue,
-          fix: `Add proper heading structure: <h${issue.suggestedLevel || 2}>${issue.text || 'Heading'}</h${issue.suggestedLevel || 2}>`
-        });
+      case 'empty-heading':
+        fixEmptyHeading(issue);
         break;
-
       default:
-        fixes.push({
-          issue: issue,
-          fix: `Manual review required for issue type: ${issue.type}`
-        });
+        break;
     }
   });
-
-  return {
-    success: true,
-    totalIssues: issues.length,
-    issuesFixed: fixes.length,
-    fixes: fixes
-  };
 }
 
-module.exports = {
-  addressAccessibilityIssues
-};
+function fixMissingAltText(issue) {
+  const elements = Array.isArray(issue.elements) ? issue.elements : [];
+  elements.forEach((selector) => {
+    const el = document.querySelector(selector);
+    if (el && !el.hasAttribute('alt')) {
+      el.setAttribute('alt', issue.suggestedAlt || '');
+    }
+  });
+}
+
+function fixLowContrast(issue) {
+  const elements = Array.isArray(issue.elements) ? issue.elements : [];
+  elements.forEach((selector) => {
+    const el = document.querySelector(selector);
+    if (el && issue.suggestedStyle) {
+      el.style.color = issue.suggestedStyle.color || el.style.color;
+      el.style.backgroundColor =
+        issue.suggestedStyle.backgroundColor || el.style.backgroundColor;
+    }
+  });
+}
+
+function fixMissingLabel(issue) {
+  const elements = Array.isArray(issue.elements) ? issue.elements : [];
+  elements.forEach((selector) => {
+    const el = document.querySelector(selector);
+    if (el && !el.hasAttribute('aria-label')) {
+      el.setAttribute('aria-label', issue.suggestedLabel || '');
+    }
+  });
+}
+
+function fixEmptyHeading(issue) {
+  const elements = Array.isArray(issue.elements) ? issue.elements : [];
+  elements.forEach((selector) => {
+    const el = document.querySelector(selector);
+    if (el && el.textContent.trim() === '') {
+      el.textContent = issue.suggestedText || 'Heading';
+    }
+  });
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    addressAccessibilityIssues,
+    fixMissingAltText,
+    fixLowContrast,
+    fixMissingLabel,
+    fixEmptyHeading,
+  };
+}

@@ -7,181 +7,40 @@ function createInPageButton(id, href, text, className) {
   // Logic for creating an in-page button with given properties
 }
 
-// Main entry point for dependency visualization tool
-// Preserve existing functionality
-// TODO: This is the existing code that needs to be preserved
-
-// Importing the necessary functions (for illustration purposes)
-import { getLangAttribute, createInPageButton, validateTableAccessibility, validateTableStructure } from './utils/accessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { spawn } from 'child_process';
-
-// TODO: Implement spawning logic
 /**
- * Spawns a child process to execute a command.
- * @param {string} command - The command to execute
- * @param {string[]} args - Array of command arguments
- * @param {Object} options - Spawn options
- * @returns {Promise<{stdout: string, stderr: string, code: number}>}
+ * Checks accessibility of links and buttons in the configuration
+ * @param {Object} config - Configuration object containing links and buttons
+ * @returns {Object} Validation result with issues found
  */
-function spawnProcess(command, args = [], options = {}) {
-  return new Promise((resolve, reject) => {
-    let stdout = '';
-    let stderr = '';
+function checkLinkButtonAccessibility(config) {
+  const issues = [];
 
-    const child = spawn(command, args, {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      ...options
+  // Check links
+  if (config.links && Array.isArray(config.links)) {
+    config.links.forEach((link, index) => {
+      if (typeof link.href !== 'undefined' && link.href) {
+        // Link is valid
+      } else {
+        issues.push(`Link at index ${index} is missing or invalid href attribute`);
+      }
     });
+  }
 
-    if (child.stdout) {
-      child.stdout.on('data', (data) => {
-        stdout += data.toString();
-      });
-    }
-
-    if (child.stderr) {
-      child.stderr.on('data', (data) => {
-        stderr += data.toString();
-      });
-    }
-
-    child.on('close', (code) => {
-      resolve({ stdout, stderr, code });
+  // Check buttons
+  if (config.buttons && Array.isArray(config.buttons)) {
+    config.buttons.forEach((button, index) => {
+      if (button.type !== 'button') {
+        issues.push(`Button at index ${index} is not a button (type=${button.type})`);
+      }
     });
-
-    child.on('error', (err) => {
-      reject(err);
-    });
-  });
-}
-
-// Existing code preserved
-function existingFunction() {
-  // existing code
-}
-
-// TODO: Implement tower defense
-
-// Implement tower defense functionality
-function towerDefense() {
-  const doc = getDocument();
-  if (!doc) return {};
-  
-  const gameContainer = doc.createElement('div');
-  gameContainer.id = 'tower-defense-game';
-  
-  const towers = [];
-  const enemies = [];
-  const projectiles = [];
-  
-  // Create tower zone
-  const towerZone = doc.createElement('div');
-  towerZone.className = 'tower-zone';
-  towerZone.setAttribute('role', 'region');
-  towerZone.setAttribute('aria-label', 'Tower placement area');
-  
-  // Create enemy path
-  const enemyPath = doc.createElement('div');
-  enemyPath.className = 'enemy-path';
-  enemyPath.setAttribute('role', 'region');
-  enemyPath.setAttribute('aria-label', 'Enemy attack path');
-  
-  // Place elements
-  doc.body.appendChild(gameContainer);
-  gameContainer.appendChild(towerZone);
-  gameContainer.appendChild(enemyPath);
-  
-  return { towers, enemies, projectiles, gameContainer };
-}
-
-// Add it to existing exports (towerDefense will be exported separately)
-// AddLangAttribute organization implementation
-function getFullLangAttribute() {
-  const lang = getLangAttribute();
-  const countryCode = navigator.userLanguage || navigator.language || "en-US";
-  return lang.split('-')[0] + '-' + countryCode.split('-')[1];
-}
-
-// Function to trigger accessibility mode
-function triggerAccessibilityMode() {
-  const doc = getDocument();
-  if (doc) {
-    doc.body.setAttribute('data-accessibility-mode', 'enabled');
-  }
-}
-
-export function render() {
-    const theme = createTheme();
-
-    // Check for accessibility compliance
-    const complianceResult = handleAccessibilityIssues();
-    if (!complianceResult) {
-        console.error('Accessibility compliance check failed');
-        return;
-    }
-
-    // Render based on the theme
-    document.body.style.backgroundColor = theme.backgroundColor;
-    document.body.style.color = theme.textColor;
-}
-
-// Implement the handleErrorState function to handle the new accessibility issue
-function handleErrorState(errorElement, container, trigger = false) {
-  if (!errorElement) return;
-
-  const doc = getDocument();
-  if (!doc) return;
-
-  // Wrap the error in a <section> element
-  const errorSection = doc.createElement('section');
-  errorSection.setAttribute('role', 'alert');
-  errorSection.setAttribute('aria-live', 'assertive');
-
-  if (typeof errorElement === 'string') {
-    errorSection.textContent = errorElement;
-  } else {
-    errorSection.appendChild(errorElement);
   }
 
-  if (container) {
-    const errorContainer = doc.createElement('div');
-    errorContainer.setAttribute('class', 'error-container');
-    errorContainer.setAttribute('role', 'alert');
-    errorContainer.appendChild(errorSection);
-    container.appendChild(errorContainer);
-  }
-
-  // If trigger is true, trigger the accessibility mode
-  if (trigger) {
-    triggerAccessibilityMode();
-  }
+  return {
+    valid: issues.length === 0,
+    issues
+  };
 }
 
-// Implement the handleAccessibilityError function that wraps handleErrorState with triggering the accessibility mode
-function handleAccessibilityError(errorElement, container) {
-  handleErrorState(errorElement, container, true);
-}
-
-// Function to render dependency graph using dependencyGraphContent
-function renderDependencyGraph(container) {
-  createInPageButton();
-  container.appendChild(createElement(dependencyGraphContent));
-}
-
-// Function to render index view using indexContent
-function renderIndexView(container) {
-  createInPageButton();
-  container.appendChild(createElement(indexContent));
-}
-
-// Address accessibility issues from insight report
-// ----- END ORIGINAL CODE -----
-// TODO: Any additional changes requested in the issue
-
-/**
- * Validates landmark accessibility
- */
 function getDependencyDepth(dependencies, currentKey = '') {
   //... (existing code)
 }
@@ -367,6 +226,9 @@ function visualizeDependencyTreeWithDepth(dependencies, maxDepth) {
 }
 
 module.exports = {
+  getLangAttribute,
+  createInPageButton,
+  checkLinkButtonAccessibility,
   renderDependencyGraph,
   displayModuleStructure,
   getDependencyDepth,

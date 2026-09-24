@@ -425,23 +425,3 @@ function addressAccessibilityIssues() {
         this.click();
       }
     });
-  });
-
-  // Add focusVisible polyfill behavior
-  ... function(e) {
-    if (e.key === 'Tab') {
-      ...
-    }
-  });
-
-  ... function() {
-    ...
-  });
-
-  // Announce welcome message
-  a11y.announce('Welcome to the bot!', 'assertive');
-
-  // Adding an alt attribute to an image
-  const imageElement = ...
-  if (imageElement) {
-    image

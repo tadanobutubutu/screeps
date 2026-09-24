@@ -1,4 +1,5 @@
-// Existing code from main.js
+// Core module for accessibility features and component rendering
+// TODO: Create or update the affected functions to be accessible
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Header from './components/Header';
@@ -6,47 +7,96 @@ import Main from './components/Main';
 import Footer from './components/Footer';
 import './styles.css';
 
-// Initial setup
-const app = ...;
-
-// Improve accessibility
-app.setAttribute('role', 'main');
-app.setAttribute('aria-label', 'Main application');
-
-// New function as per the issue
-function addLandmarks(landmarks) {
-  // Assuming landmarks is an array of objects with 'name' and 'coordinates' properties
-  landmarks.forEach(landmark => {
-    // Perform any necessary operations on the landmark
-    // For example, you might want to add it to a map or a database, or calculate the distance to another landmark
-    console.log(`Adding landmark: ${landmark.name} at coordinates: ${landmark.coordinates}`);
-    // Add your logic here
-  });
-}
-
-// Assuming there's a way to retrieve landmarks, you would call the function like this:
-// const allLandmarks = getLandmarks(); // Placeholder function
-// addLandmarks(allLandmarks);
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-
 function function3() {
   // TODO: Implement new function3 logic here
 }
 
-function functionA() {
-  return 'functionA';
+export function announceToScreenReader(message, politeness = 'polite') {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', politeness);
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.className = 'sr-only';
+  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
+  announcer.textContent = message;
+  document.body.appendChild(announcer);
+  
+  setTimeout(() => {
+    document.body.removeChild(announcer);
+  }, 1000);
 }
 
-function functionB() {
-  return 'functionB';
+export function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          lastFocusable.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          firstFocusable.focus();
+          e.preventDefault();
+        }
+      }
+    }
+  };
+
+  element.addEventListener('keydown', handleKeyDown);
+  
+  if (firstFocusable) {
+    firstFocusable.focus();
+  }
+
+  return () => {
+    element.removeEventListener('keydown', handleKeyDown);
+  };
+}
+
+export function manageFocusOnNavigation(container) {
+  const mainContent = container || document.querySelector('main');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.focus();
+  }
+}
+
+export function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+export function setAriaExpanded(element, isExpanded) {
+  if (element) {
+    element.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+  }
+}
+
+export function hasAccessibleName(element) {
+  if (!element) return false;
+  
+  // Check aria-label
+  if (element.getAttribute('aria-label')) return true;
+  
+  // Check aria-labelledby
+  if (element.getAttribute('aria-labelledby')) {
+    const labelledById = element.getAttribute('aria-labelledby');
+    const labelledElement = document.getElementById(labelledById);
+    if (labelledElement && labelledElement.textContent.trim()) return true;
+  }
+  
+  // Check for text content
+  if (element.textContent.trim()) return true;
+  
+  // Check for img with alt text
+  if (element.tagName === 'IMG' && element.alt) return true;
+  
+  return false;
 }
 
 function App() {
@@ -66,7 +116,6 @@ function App() {
   };
 
   useEffect(() => {
-    document.documentElement.lang = 'en';
     fetchData();
   }, []);
 
@@ -77,7 +126,7 @@ function App() {
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
   return (
-    <div role="application" aria-label="Main application">
+    <div className="app">
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
@@ -85,21 +134,21 @@ function App() {
   );
 }
 
-export function getUniqueLandmarkName(existingNames, baseName = 'main') {
-  if (existingNames && !existingNames.includes(baseName)) {
-    return baseName;
+export function getUniqueLandmarkName(existingNames) {
+  if (existingNames.includes('main')) {
+    return 'main-content';
   }
   let counter = 2;
-  let newName = `${baseName}-${counter}`;
-  while (existingNames && existingNames.includes(newName)) {
+  let newName = `main-${counter}`;
+  while (existingNames.includes(newName)) {
     counter++;
-    newName = `${baseName}-${counter}`;
+    newName = `main-${counter}`;
   }
   return newName;
 }
 
-export function validateLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"], [role="contentinfo"], header, nav, main, footer');
+export function validateUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -125,6 +174,10 @@ export function validateLandmarks() {
   return issues;
 }
 
+export function validateLandmarks() {
+  return validateUniqueLandmarks();
+}
+
 export function validateTableAccessibility(tableElement) {
   const issues = [];
 
@@ -148,7 +201,7 @@ export function validateTableAccessibility(tableElement) {
   }
 
   // Check for headers
-  const headers = tableElement.querySelectorAll('th, td[scope]');
+  const headers = tableElement.querySelectorAll('th');
   if (headers.length === 0) {
     issues.push({
       element: tableElement,
@@ -243,7 +296,7 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 
   // Add title element as first child
   const title = document.createElement('title');
-  title.id = `${accessibleName}-${Math.random().toString(36).substr(2, 9)}`;
+  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.textContent = accessibleName;
 
   // Insert title as first child
@@ -254,22 +307,22 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 }
 
 export function isValidLink(element) {
-  // ... existing code ...
-  return element && (element.tagName === 'A' && element.href);
+  // Check if element is an anchor with href
+  const isAnchor = element.tagName === 'A' && element.href;
+  // Check if it's a button acting as a link
+  const isFakeLink = element.getAttribute('role') === 'link' && (element.href || element.onclick);
+  return isAnchor || isFakeLink;
 }
 
-export function addScopeToHeaders() {
-  // ... existing code ...
-  const thElements = document.querySelectorAll('th');
-  thElements.forEach(th => {
-    if (!th.getAttribute('scope')) {
-      th.setAttribute('scope', 'col');
-    }
+export function addScopeToHeaders(table) {
+  const headers = table.querySelectorAll('th');
+  headers.forEach((header) => {
+    header.setAttribute('scope', 'col');
   });
 }
 
-function addressAccessibilityIssues(issues) {
-  issues.forEach(issue => {
+export function addressAccessibilityIssues(issues) {
+  issues.forEach((issue) => {
     console.log(`Addressing issue: ${issue.issue}`);
     // TODO: Implement solution to the issue
     console.log(`Solution: ${issue.solution}`);
@@ -277,24 +330,29 @@ function addressAccessibilityIssues(issues) {
   });
 }
 
-export function announceToScreenReader(message, priority = 'polite') {
-  const announcer = document.createElement('div');
-  announcer.setAttribute('aria-live', priority);
-  announcer.setAttribute('aria-atomic', 'true');
-  announcer.className = 'sr-only';
-  announcer.textContent = message;
-  document.body.appendChild(announcer);
-  
-  setTimeout(() => {
-    document.body.removeChild(announcer);
-  }, 1000);
+function newFunction() {
+  // implementation of new function
 }
 
-export function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
+export const accessibilityUtils = newFunction;
 
-  container
+export {
+  function3,
+  App,
+  getUniqueLandmarkName,
+  validateUniqueLandmarks,
+  validateLandmarks,
+  validateTableAccessibility,
+  validateTableStructure,
+  addSvgAccessibleName,
+  isValidLink,
+  addScopeToHeaders,
+  addressAccessibilityIssues,
+  announceToScreenReader,
+  trapFocus,
+  manageFocusOnNavigation,
+  prefersReducedMotion,
+  setAriaExpanded,
+  hasAccessibleName,
+  newFunction
+};

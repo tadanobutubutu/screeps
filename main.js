@@ -469,6 +469,12 @@ function startApp() {
       if (typeof updateElementWithIdOrAriaLabel === 'function') {
         updateElementWithIdOrAriaLabel(document.getElementById('MyElement'), 'My Element');
       }
+      if (typeof startDependencyGraphRenders === 'function') {
+        startDependencyGraphRenders();
+      }
+      if (typeof renderDependencyGraphs === 'function') {
+        renderDependencyGraphs();
+      }
     }
   });
 }

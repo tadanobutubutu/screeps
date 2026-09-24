@@ -8,15 +8,8 @@ I need to fix the import to not redeclare `getLangAttribute`, and also fix the i
 const main = require('./utilities');
 
 const {
-    createWebResourceButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
     validateAccessibilityReport,
     exportUtils,
-    addressAccessibilityIssues: existingAddressIssues,
     ensureElementHasId,
     ensureElementHasIdOrigin,
     addAriaLabel,
@@ -25,8 +18,6 @@ const {
     fixDependencyGraphAria,
     addMainLandmarkToIndex,
     focusTrap,
-    checkAccessibility: existingCheckAccessibility,
-    newFunction,
 } = main;
 
 // Implement the function for addressing accessibility issues from insight report
@@ -190,6 +181,20 @@ function getLangAttribute() {
 }
 
 /**
+ * Sets the lang attribute on the document's <html> element
+ * @param {string} lang - The language code to set
+ * @returns {boolean} Whether the lang attribute was set
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const langValue = lang || 'en';
+    document.documentElement.setAttribute('lang', langValue);
+    return true;
+  }
+  return false;
+}
+
+/**
  * Detects the language of the given content and sets the HTML lang attribute
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
@@ -321,6 +326,49 @@ function createWebResourceButton({ platform, url, parent = document.body, ariaLa
     btn.setAttribute('aria-label', ariaLabel || `Link to ${platform}`);
     btn.textContent = platform;
 
-    // Add platform-specific styling class
-    const platformClass = platform.toLowerCase().replace(/\s+/g, '-');
-    btn.classList.add(platformClass
+  // Add platform-specific styling class
+  const platformClass = platform.toLowerCase().replace(/\s+/g, '-');
+  btn.classList.add(`platform-${platformClass}`);
+
+  parent.appendChild(btn);
+  return btn;
+}
+
+// TODO: New code that was added to the branch
+// New function that does something different
+/**
+ * Performs a different operation than existing functions
+ * @param {*} input - The input to process
+ * @returns {*} The processed result
+ */
+function newFunction(input) {
+  // Implementation of the new function
+  return input;
+}
+
+// Line 540: This is the existing code that needs to be preserved
+// This comment has been added as requested in the GitHub issue
+
+// REACT_015: Add lang attribute to HTML element
+// Add the language attribute to the HTML element for proper accessibility
+if (typeof document !== 'undefined' && document.documentElement) {
+  detectAndSetLang();
+}
+
+module.exports = {
+  setHtmlLangAttribute,
+  getLangAttribute,
+  detectAndSetLang,
+  personName,
+  createAccessibleInPageButton,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createWebResourceButton,
+  newFunction,
+  addressAccessibilityIssues,
+  checkAccessibility,
+};

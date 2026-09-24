@@ -16,7 +16,23 @@ function setLangAttribute(htmlElement) {
 
 // Your code here for addressing other accessibility issues mentioned in the issue
 
-// Exporting the greet function as-is
-module.exports = {
-  greet,
-};
+export function calculateProduct(a, b) {
+  return a * b;
+}
+
+// New export as per the issue requirements
+export function newExportedFunction() {
+  // Implementation details go here
+}
+
+// Exports for the functions
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { calculateSum, calculateProduct, newExportedFunction };
+}
+
+// If running in browser context
+if (typeof window !== 'undefined') {
+  window.calculateSum = calculateSum;
+  window.calculateProduct = calculateProduct;
+  window.newExportedFunction = newExportedFunction;
+}

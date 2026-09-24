@@ -170,7 +170,114 @@ export function fixButtonIdentifiers(container) {
     }
   });
   
-  return container;
+  // Ensure all landmarks have unique IDs
+  ensureUniqueLandmarks();
+  
+  // Return the announcer for use in the app
+  return {
+    announce: announcer.announce,
+    setupKeyboardNavigation,
+    trapFocus,
+    createAnnouncer,
+    prefersReducedMotion,
+    renderDependencyGraph,
+    renderSimpleDependencyGraph
+  };
+}
+
+/**
+ * Checks if a value is an empty string, null, or undefined
+ * @param {*} value - The value to check
+ * @returns {boolean} - True if the value is empty
+ */
+function isEmpty(value) {
+  return value === null || value === undefined || value === '';
+}
+
+/**
+ * Capitalizes the first letter of a string
+ * @param {string} str - The string to capitalize
+ * @returns {string} - The capitalized string
+ */
+function capitalize(str) {
+  if (typeof str !== 'string' || str.length === 0) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Generates a random integer between min and max (inclusive)
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Random integer
+ */
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Clamps a number between min and max values
+ * @param {number} num - Number to clamp
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Clamped number
+ */
+function clamp(num, min, max) {
+  return Math.min(Math.max(num, min), max);
+}
+
+/**
+ * Deep clones an object
+ * @param {*} obj - Object to clone
+ * @returns {*} - Cloned object
+ */
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj.getTime());
+  if (obj instanceof Array) return obj.map(item => deepClone(item));
+  if (obj instanceof Object) {
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        cloned[key] = deepClone(obj[key]);
+      }
+    }
+    return cloned;
+  }
+}
+
+// New function to add/fix 4 landmark issues
+function addMainLandmark() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  document.body.insertBefore(mainElement, document.body.firstChild);
+}
+
+// New function to ensure unique landmarks
+function uniqueLandmarks() {
+  const roles = ['banner', 'header', 'navigation', 'main', 'contentinfo', 'complementary', 'navigation', 'region'];
+  roles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      console.warn(`Multiple elements with role "${role}" detected. Ensure each role is unique.`);
+    }
+  });
+}
+
+/**
+ * NEW: Add aria-label to element
+ */
+export function addAriaLabel(element, label) {
+  if (!element) return null;
+  
+  if (!element.getAttribute('aria-label') && label) {
+    element.setAttribute('aria-label', label);
+  }
 }
 
 /**
@@ -304,20 +411,79 @@ export function renderDependencyGraphs(container, dependencies = []) {
   return graphContainer;
 }
 
-/**
- * New function to ensure the element has an id and add aria-label
- * Integrates both ensureElementHasId and addAriaLabel functionality
- * @param {Element} element - The element to check and modify
- * @param {string} label - The label text for the aria-label attribute
- */
-export function ensureElementIdAndAriaLabel(element, label) {
-  if (!element) return null;
-  
-  // Ensure element has an id using the exported function
-  ensureElementHasId(element);
-  
-  // Add aria-label using the exported function
-  addAriaLabel(element, label);
-  
-  return element;
-}
+// Preserve all existing exports
+module.exports = {
+  renderDependencyGraph,
+  renderIndex,
+  // Preserve any other existing exports here
+  newFunction,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  addMainLandmark,
+  uniqueLandmarks,
+  addAriaLabel,
+  ensureElementHasId,
+  renderDependencyGraphs,
+  initializeAccessibility,
+  setupKeyboardNavigation,
+  trapFocus,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  isEmpty,
+  capitalize,
+  getRandomInt,
+  clamp,
+  deepClone,
+  myAccessibleFunction
+};
+
+// Export all utility functions
+export {
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  accessibilityUtils,
+  trapFocus,
+  setupKeyboardNavigation,
+  implementAccessibilityFixesFromReport,
+  renderGraphIndex,
+  newExportedFunction,
+  myAccessibleFunction,
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  createAnnouncer,
+  prefersReducedMotion,
+  isEmpty,
+  capitalize,
+  getRandomInt,
+  clamp,
+  deepClone
+};

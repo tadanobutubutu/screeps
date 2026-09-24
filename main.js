@@ -13,43 +13,43 @@ const { createInPageButton, createWebResourceButton, validateLandmark, validateL
  * Validates and fixes table structure accessibility issues.
  * Handles REACT_027 - Fix 26 table structure issues
  */
-function validateTableStructure () {
-  const tables = document.querySelectorAll('table')
+function validateTableStructure() {
+    const tables = document.querySelectorAll('table');
 
-  tables.forEach((table) => {
-    const rows = table.querySelectorAll('tr')
-    const firstRow = rows[0]
+    tables.forEach(table => {
+        const rows = table.querySelectorAll('tr');
+        const firstRow = rows[0];
 
-    if (!firstRow) return
+        if (!firstRow) return;
 
-    // Get all header cells in the first row to determine column count
-    const firstRowThs = firstRow.querySelectorAll('th')
-    const firstRowTds = firstRow.querySelectorAll('td')
-    const firstRowHeaders = [...firstRowThs, ...firstRowTds]
-    const columnCount = firstRowHeaders.length
+        // Get all header cells in the first row to determine column count
+        const firstRowThs = firstRow.querySelectorAll('th');
+        const firstRowTds = firstRow.querySelectorAll('td');
+        const firstRowHeaders = [...firstRowThs, ...firstRowTds];
+        const columnCount = firstRowHeaders.length;
 
-    rows.forEach((row, rowIndex) => {
-      const ths = row.querySelectorAll('th')
-      const tds = row.querySelectorAll('td')
-      const allCells = [...ths, ...tds]
+        rows.forEach((row, rowIndex) => {
+            const ths = row.querySelectorAll('th');
+            const tds = row.querySelectorAll('td');
+            const allCells = [...ths, ...tds];
 
-      allCells.forEach((cell, cellIndex) => {
-        if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
-          const isFirstRow = rowIndex === 0
-          const isFirstCell = cellIndex === 0
+            allCells.forEach((cell, cellIndex) => {
+                if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+                    const isFirstRow = rowIndex === 0;
+                    const isFirstCell = cellIndex === 0;
 
-          // First row cells are column headers
-          if (isFirstRow) {
-            cell.setAttribute('scope', 'col')
-          }
-          // First cell in subsequent rows are row headers
-          else if (isFirstCell) {
-            cell.setAttribute('scope', 'row')
-          }
-        }
-      })
-    })
-  })
+                    // First row cells are column headers
+                    if (isFirstRow) {
+                        cell.setAttribute('scope', 'col');
+                    }
+                    // First cell in subsequent rows are row headers
+                    else if (isFirstCell) {
+                        cell.setAttribute('scope', 'row');
+                    }
+                }
+            });
+        });
+    });
 }
 
 /**
@@ -349,6 +349,5 @@ module.exports = {
   landmarks,
   uniqueLandmarks,
   validateTableAccessibility,
-  validateTableStructure,
-  newFunction
-}
+  validateTableStructure
+};

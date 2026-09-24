@@ -9,7 +9,7 @@
 // Version 1 implementation (HEAD branch) - preserved accessibility enhancements
 
   // Add accessibility improvements
-  document.documentElement.lang = 'en';
+  const rootElement = document.getElementById('root') || document.body;
   document.title = 'Accessible Application';
 
 // TODO: This is the existing code that needs to be preserved (This comment remains as-is)
@@ -290,8 +290,7 @@ function checkLinkAccessibility() {
   skipLink.href = '#main-content';
   skipLink.textContent = 'Skip to main content';
   skipLink.className = 'skip-link';
-  skipLink.setAttribute('aria-label', 'Skip to main content');
-  document.body.insertBefore(skipLink, document.body.firstChild);
+  rootElement.insertBefore(skipLink, rootElement.firstChild);
 
 // TODO: Implement harvest logic
 // This function should collect resources or data from available sources
@@ -352,7 +351,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     button.textContent = buttonText;
     button.className = buttonClass;
     button.setAttribute('aria-label', buttonText); // Add ARIA label
-    button.setAttribute('role', 'button');
     return button;
 }
 
@@ -410,17 +408,16 @@ function addBook(title, author, isbn) {
     form.appendChild(submitButton);
 
     // Add form to document
-    document.body.appendChild(form);
+    const container = document.getElementById('book-form-container') || document.body;
+    container.appendChild(form);
 
     // Return form for potential further manipulation
     return form;
 }
 
 // Preserve any existing exports here
+// export { addressAccessibilityIssues, createInPageButton, existingFunction };
+// Assuming existingFunction is the name of another export in the codebase (you should replace this with its actual name)
 
-// TODO: Create or update the affected functions to be accessible
-function newFunctionForMain() {
-    console.log('New function is now accessible in main.js');
-}
-
-// Update or create any other necessary functions here
+// Adding missing exports for the functions defined above
+export { addressAccessibilityIssues, createInPageButton, addBook };

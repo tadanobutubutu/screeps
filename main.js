@@ -132,7 +132,11 @@ function fixHeadingHierarchy(issue) {
 // Import required modules
 const http = require('http');
 const path = require('path');
-const crypto = require('crypto-js'); // Importing the new required module
+
+// TODO: Add the implementation of the requested function
+function calculateSum(a, b) {
+  return a + b;
+}
 
 // Application configuration
 const config = {
@@ -204,8 +208,8 @@ module.exports = {
   createServer,
   startApp,
   config,
-  getLangAttribute,
-  createInPageButton
+  // Add the new export for calculateSum function
+  calculateSum
 };
 
 // Function to render graph/index using new functions

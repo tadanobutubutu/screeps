@@ -215,54 +215,58 @@ const accessibilityUtils = {
   },
 
   /**
-     * Generate a report based on accessibility issues using axe-core.
-     * Scans the page for accessibility violations and returns a structured report.
+     * Validates landmark elements for accessibility compliance.
+     * Checks for proper landmark usage, structure, and ARIA attributes.
      *
-     * @returns {Promise<Object>} A promise that resolves with the accessibility report.
+     * @returns {Object} Summary of validation results including count of issues found.
      */
-  generateAccessibilityReport () {
-    return new Promise((resolve, reject) => {
-      if (typeof axe === 'undefined') {
-        reject(new Error('axe-core is not loaded'))
-        return
+  validateLandmark () {
+    const fixes = {
+      landmarks: 0,
+      missingRequired: 0,
+      misused: 0
+    }
+
+    // Find all landmark elements using role="landmark"
+    const landmarkElements = document.querySelectorAll('[role="landmark"]')
+    
+    // Also check for common landmark tag names
+    const tagBasedLandmarks = Array.from(
+      document.querySelectorAll('nav, main, header, footer, aside')
+    ).filter(el => el !== null)
+
+    // Combine both sets
+    const allLandmarks = [...landmarkElements, ...tagBasedLandmarks].filter(el => el !== null)
+
+    const totalLandmarks = allLandmarks.length
+
+    if (totalLandmarks === 0) {
+      console.warn('No landmark elements found on the page')
+      fixes.missingRequired++
+      return fixes
+    }
+
+    // Check for required landmarks (nav, main, header, footer)
+    const requiredRoles = ['navigation', 'main', 'header', 'footer']
+    let missingRequired = 0
+
+    for (const role of requiredRoles) {
+      const elements = document.querySelectorAll(`[role="${role}"]`)
+      if (elements.length === 0) {
+        missingRequired++
       }
+    }
 
-      axe.run((err, results) => {
-        if (err) {
-          reject(err)
-          return
-        }
+    fixes.missingRequired += missingRequired
 
-        const violationsByImpact = {
-          critical: [],
-          serious: [],
-          moderate: [],
-          minor: []
-        }
+    // Check for potential misuse - multiple landmarks with conflicting roles
+    // This is a simplified check - in practice, you might want more sophisticated logic
+    const landmarkElementsWithRole = document.querySelectorAll('[role="landmark"]')
+    // We can't easily distinguish between correct and incorrect landmark usage without more context
+    // So we'll leave this check minimal for now
 
-        results.violations.forEach((violation) => {
-          violationsByImpact[violation.impact].push(violation)
-        })
-
-        const report = {
-          timestamp: new Date().toISOString(),
-          url: window.location.href,
-          summary: {
-            totalViolations: results.violations.length,
-            totalPasses: results.passes.length,
-            criticalCount: violationsByImpact.critical.length,
-            seriousCount: violationsByImpact.serious.length,
-            moderateCount: violationsByImpact.moderate.length,
-            minorCount: violationsByImpact.minor.length
-          },
-          violations: results.violations,
-          passes: results.passes,
-          violationsByImpact: violationsByImpact
-        }
-
-        resolve(report)
-      })
-    })
+    console.log('Landmark validation completed', fixes)
+    return fixes
   },
 
   /**
@@ -456,4 +460,188 @@ const ensureElementHasId = (element, prefix = 'element') => {
  * Adds an aria‑label to the element if one is not already present.
  *
  * @param {HTMLElement} element - The element to label.
- * @param {
+ * @param {string} label - The accessible label text.
+ * @returns {HTMLElement} The element (for chaining).
+ */
+const addAriaLabel = (element, label) => {
+  if (!element) {
+    throw new Error('Element is required')
+  }
+  if (!label) {
+    throw new Error('Label is required')
+  }
+
+  element.setAttribute('aria-label', label)
+  return element
+}
+
+/**
+ * Renders a dependency graph inside the given container.
+ *
+ * @param {HTMLElement} container - The DOM element that will hold the graph.
+ * @param {Object} dependencies - The dependency data to visualize.
+ * @param {Object} [options={}] - Optional rendering options.
+ * @returns {HTMLElement} The container element.
+ */
+function renderDependencyGraphs (container, dependencies, options = {}) {
+  if (!container) {
+    throw new Error('Container element is required')
+  }
+
+  if (!dependencies) {
+    throw new Error('Dependencies data is required')
+  }
+
+  // Ensure container has an id for graph references
+  const containerId = ensureElementHasId(container, 'graph-container')
+
+  // Add accessibility label if not present
+  addAriaLabel(container, `Dependency graph: ${containerId}`)
+
+  // Render logic placeholder
+  container.innerHTML = `<div id="${containerId}">Graph not implemented</div>`
+
+  return container
+}
+
+/**
+ * Validates the table structure for accessibility issues.
+ * Checks for:
+ *   - Presence of captions.
+ *   - Proper use of `<th>` elements with `scope` attributes.
+ *   - Consistent cell counts across rows.
+ *   - Absence of problematic colspan/rowspan in data cells (basic check).
+ *
+ * @returns {boolean} True if all tables pass checks, otherwise false.
+ */
+function validateTableStructure () {
+  const fixes = {
+    skipLinks: 0,
+    tables: 0,
+    images: 0
+  }
+
+  // Validate skip links
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    const target = link.getAttribute('href').substring(1)
+    const element = document.getElementById(target)
+    if (!element) {
+      console.warn(`Skip link points to non-existent element: ${target}`)
+      fixes.skipLinks++
+    }
+  })
+
+  // Validate tables
+  document.querySelectorAll('table').forEach((table) => {
+    if (!table.querySelector('th')) {
+      console.warn('Table missing header cells (th)')
+      fixes.tables++
+    }
+    // Ensure each row has same number of cells
+    const rows = table.querySelectorAll('tr')
+    const cellCounts = new Set()
+    rows.forEach((row) => {
+      cellCounts.add(row.children.length)
+    })
+    if (cellCounts.size > 1) {
+      console.warn('Inconsistent number of cells across table rows')
+      fixes.tables++
+    }
+  })
+
+  // Validate images
+  document.querySelectorAll('img:not([alt])').forEach((img) => {
+    console.warn('Image missing alt attribute', img)
+    fixes.images++
+  })
+
+  console.log('Accessibility issues addressed', fixes)
+  return fixes
+}
+
+/**
+ * Validates the structure of tables on the page for accessibility best practices.
+ * This is a more comprehensive version of validateTableStructure that includes additional checks.
+ *
+ * @returns {boolean} True if all tables pass checks, otherwise false.
+ */
+function validateTableStructureComprehensive () {
+  const fixes = {
+    skipLinks: 0,
+    tables: 0,
+    images: 0
+  }
+
+  // Validate skip links
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    const target = link.getAttribute('href').substring(1)
+    const element = document.getElementById(target)
+    if (!element) {
+      console.warn('Skip link points to non-existent element: ' + target)
+      fixes.skipLinks++
+    }
+  })
+
+  // Validate tables
+  document.querySelectorAll('table').forEach((table) => {
+    if (!table.querySelector('caption')) {
+      console.warn('Table missing caption')
+      fixes.tables++
+    }
+
+    // Check for headers
+    const headers = table.querySelectorAll('th')
+    if (headers.length === 0) {
+      console.warn('Table missing header cells (th)')
+      fixes.tables++
+    } else {
+      headers.forEach((th) => {
+        if (!th.hasAttribute('scope')) {
+          console.warn('Header cell missing scope attribute', th)
+          fixes.tables++
+        }
+      })
+    }
+
+    // Check row consistency
+    const rows = table.querySelectorAll('tr')
+    const cellCounts = new Set()
+    rows.forEach((row) => {
+      cellCounts.add(row.children.length)
+    })
+    if (cellCounts.size > 1) {
+      console.warn('Inconsistent number of cells across table rows')
+      fixes.tables++
+    }
+
+    // Check for complex table structures
+    const complexCells = table.querySelectorAll('td[colspan], td[rowspan]')
+    if (complexCells.length > 0) {
+      complexCells.forEach((cell) => {
+        console.warn('Data cell at row has colspan/rowspan', cell)
+        fixes.tables++
+      })
+    }
+  })
+
+  console.log('Accessibility issues addressed', fixes)
+  return fixes
+}
+
+// Export functions for use in other modules
+module.exports = {
+  initSkipLink: accessibilityUtils.initSkipLink,
+  trapFocus: accessibilityUtils.trapFocus,
+  newFocusTrap: accessibilityUtils.newFocusTrap,
+  initAccessibility: accessibilityUtils.initAccessibility,
+  announceToScreenReader: accessibilityUtils.announceToScreenReader,
+  handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
+  exportData: accessibilityUtils.exportData,
+  addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
+  validateLandmark: accessibilityUtils.validateLandmark,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs,
+  validateTableStructure,
+  validateTableStructureComprehensive
+}

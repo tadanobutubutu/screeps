@@ -60,6 +60,106 @@ function validateTableAccessibility () {
   validateTableStructure()
 }
 
+/**
+ * Gets the lang attribute for the HTML element
+ * Handles REACT_015 - Add lang attribute to HTML element
+ */
+function getLangAttribute() {
+    const html = document.querySelector('html');
+    if (html && !html.hasAttribute('lang')) {
+        html.setAttribute('lang', 'en');
+    }
+}
+
+/**
+ * Creates an in-page button with proper accessibility attributes
+ * Handles REACT_036 - Fix 1 fake link issue
+ */
+function createInPageButton(text, href) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.setAttribute('role', 'button');
+    button.setAttribute('tabindex', '0');
+
+    if (href) {
+        button.addEventListener('click', () => {
+            window.location.href = href;
+        });
+    }
+
+    return button;
+}
+
+/**
+ * Validates landmark structure and adds ARIA roles if needed
+ * Handles REACT_017 - Add/fix 2 landmark issues
+ */
+function validateLandmarkStructure() {
+    const main = document.querySelector('main');
+    if (main && !main.hasAttribute('role')) {
+        main.setAttribute('role', 'main');
+    }
+
+    const nav = document.querySelector('nav');
+    if (nav && !nav.hasAttribute('role')) {
+        nav.setAttribute('role', 'navigation');
+    }
+}
+
+/**
+ * Gets accessible name for SVG elements
+ * Handles REACT_041 - Add accessible names to 2 SVGs
+ */
+function getSvgAccessibleName(svg) {
+    if (!svg) return '';
+
+    // Check for title and desc elements
+    const title = svg.querySelector('title');
+    const desc = svg.querySelector('desc');
+
+    if (title) return title.textContent;
+    if (desc) return desc.textContent;
+
+    // Fallback to ARIA label if available
+    if (svg.hasAttribute('aria-label')) {
+        return svg.getAttribute('aria-label');
+    }
+
+    return '';
+}
+
+/**
+ * Sets proper attributes for SVG accessibility
+ */
+function setSvgAttributes(svg, name) {
+    if (!svg || !name) return;
+
+    if (!svg.querySelector('title')) {
+        const title = document.createElement('title');
+        title.textContent = name;
+        svg.prepend(title);
+    }
+
+    if (!svg.hasAttribute('aria-hidden')) {
+        svg.setAttribute('aria-hidden', 'false');
+    }
+}
+
+/**
+ * Validates link accessibility and ensures proper attributes
+ * Handles REACT_036 - Fix 1 fake link issue
+ */
+function validateLinkAccessibility() {
+    const links = document.querySelectorAll('a');
+
+    links.forEach(link => {
+        if (!link.hasAttribute('href') || link.getAttribute('href') === '#') {
+            link.setAttribute('role', 'button');
+            link.setAttribute('tabindex', '0');
+        }
+    });
+}
+
 // TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 
 /**
@@ -253,12 +353,9 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   getLangAttribute,
-  wrapPrimaryContentInMain,
-  validateLandmark,
+  createInPageButton,
   validateLandmarkStructure,
   getSvgAccessibleName,
   setSvgAttributes,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks
+  validateLinkAccessibility
 };

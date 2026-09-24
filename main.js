@@ -27,8 +27,8 @@ import { state, updateState } from './state.js'
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+// _Commit: 30f5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac494f5e1c81cf4389f9c1 -->
 // _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
 
 <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
@@ -105,7 +105,7 @@ function addLangAttribute () {
   // Assuming there is a relevant element selector or similar to target
   const elementToModify = document.documentElement
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en') // Example: English
+    elementToModify.setAttribute('lang', 'en');
   }
 }
 

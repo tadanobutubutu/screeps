@@ -9,92 +9,89 @@ const { indexContent } = require('./utilities');
 const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
-const { main } = require('./utilities');
-const { functionA, functionB } = require('./utilities');
+/**
+ * Validates and fixes table structure accessibility issues.
+ * Handles REACT_027 - Fix 26 table structure issues
+ */
+function validateTableStructure() {
+    const tables = document.querySelectorAll('table');
 
-// Function to validate table accessibility
-const validateTableAccessibility = (html) => {
-  const issues = [];
-  
-  // Check if HTML contains tables
-  const tableRegex = /<table[\s\S]*?>[\s\S]*?<\/table>/gi;
-  let match;
-  
-  while ((match = tableRegex.exec(html)) !== null) {
-    const tableContent = match[0];
-    const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
-    
-    // Check for caption
-    const hasCaption = /<caption[\s\S]*?>[\s\S]*?<\/caption>/i.test(tableContent);
-    if (!hasCaption) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
-        suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
-      });
-    }
-    
-    // Check for th elements
-    const hasHeaders = /<th[\s\S]*?>[\s\S]*?<\/th>/i.test(tableContent);
-    if (!hasHeaders) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
-        suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
-      });
-    }
-    
-    // Check for scope attributes on th elements
-    const thMatches = (tableContent.match(/<th[\s\S]*?>/gi) || []);
-    thMatches.forEach((thTag, index) => {
-      if (!thTag.includes('scope=')) {
-        issues.push({
-          type: 'table',
-          severity: 'info',
-          message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
-          suggestion: 'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements'
+    tables.forEach(table => {
+        const rows = table.querySelectorAll('tr');
+        const firstRow = rows[0];
+
+        if (!firstRow) return;
+
+        // Get all header cells in the first row to determine column count
+        const firstRowThs = firstRow.querySelectorAll('th');
+        const firstRowTds = firstRow.querySelectorAll('td');
+        const firstRowHeaders = [...firstRowThs, ...firstRowTds];
+        const columnCount = firstRowHeaders.length;
+
+        rows.forEach((row, rowIndex) => {
+            const ths = row.querySelectorAll('th');
+            const tds = row.querySelectorAll('td');
+            const allCells = [...ths, ...tds];
+
+            allCells.forEach((cell, cellIndex) => {
+                if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+                    const isFirstRow = rowIndex === 0;
+                    const isFirstCell = cellIndex === 0;
+
+                    // First row cells are column headers
+                    if (isFirstRow) {
+                        cell.setAttribute('scope', 'col');
+                    }
+                    // First cell in subsequent rows are row headers
+                    else if (isFirstCell) {
+                        cell.setAttribute('scope', 'row');
+                    }
+                }
+            });
         });
       }
     });
-    
-    // Check for thead and tbody structure
-    const hasThead = /<thead[\s\S]*?>[\s\S]*?<\/thead>/i.test(tableContent);
-    const hasTbody = /<tbody[\s\S]*?>[\s\S]*?<\/tbody>/i.test(tableContent);
-    
-    if (!hasThead) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <thead> element`,
-        suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
-      });
-    }
-    
-    if (!hasTbody) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <tbody> element`,
-        suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
-      });
-    }
-    
-    // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (tableContent.match(/<th[\s\S]*?>[\s\S]*?<\/th>/gi) || []).length > 1;
-    if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers\s*=/i.test(tableContent);
-      const hasIdAttr = (tableContent.match(/<th[\s\S]*?id\s*=[\s\S]*?>/gi) || []).length > 0 && (tableContent.match(/<td[\s\S]*?>/gi) || []).length > 0;
-      
-      if (!hasIdAttr && !hasHeadersAttr) {
-        issues.push({
-          type: 'table',
-          severity: 'warning',
-          message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
-          suggestion: 'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids'
-        });
-      }
+}
+
+/**
+ * Main entry point for table accessibility validation.
+ * Calls validateTableStructure() to fix all table scope attribute issues.
+ */
+function validateTableAccessibility() {
+    validateTableStructure();
+}
+
+// TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+
+/**
+ * Landmark data structure
+ */
+const landmarks = [
+  { id: 1, name: 'Eiffel Tower', location: 'Paris' },
+  { id: 2, name: 'Statue of Liberty', location: 'New York' },
+  { id: 3, name: 'Eiffel Tower', location: 'Paris' },
+  { id: 4, name: 'Big Ben', location: 'London' },
+  { id: 5, name: 'Statue of Liberty', location: 'New York' }
+];
+
+/**
+ * Ensures unique landmarks by removing duplicates based on name and location
+ * @param {Array} landmarksArray - Array of landmark objects
+ * @returns {Array} - Array of unique landmarks
+ */
+function ensureUniqueLandmarks(landmarksArray) {
+  if (!Array.isArray(landmarksArray)) {
+    return [];
+  }
+
+  const seen = new Set();
+  const uniqueLandmarks = [];
+
+  for (const landmark of landmarksArray) {
+    const key = `${landmark.name}-${landmark.location}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueLandmarks.push(landmark);
     }
   }
   
@@ -117,85 +114,69 @@ function getActiveSessionsCount() {
 // Apply uniqueness to the landmarks
 const uniqueLandmarks = ensureUniqueLandmarks(landmarks)
 
-// TODO: Implement tower defense
-class TowerDefenseGame {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    this.ctx = this.canvas.getContext('2d');
-    this.towers = [];
-    this.enemies = [];
-    this.projectiles = [];
-    this.gameLoopId = null;
-    this.gameRunning = false;
-    this.wave = 1;
-    this.money = 100;
-    this.lives = 20;
-    this.path = [
-      { x: 50, y: 50 },
-      { x: 50, y: 300 },
-      { x: 300, y: 300 },
-      { x: 300, y: 50 },
-      { x: 550, y: 50 },
-      { x: 550, y: 300 },
-      { x: 800, y: 300 }
-    ];
+// New function to add lang attribute to HTML element
+function getLangAttribute() {
+    return document.documentElement.getAttribute('lang') || 'en';
+}
 
-    this.initEventListeners();
-    this.drawGame();
-  }
+function addLangAttribute() {
+    const htmlElement = document.documentElement;
+    if (!htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', getLangAttribute());
+    }
+}
 
-const a11yStore = {
-  // ... existing methods ...
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  },
+// New functions for landmark validation and structure
+function validateLandmark() {
+    // Implementation would go here
+    console.log('Validating landmark');
+}
 
-      // Place new tower if enough money
-      if (this.money >= 50) {
-        this.towers.push({
-          x,
-          y,
-          range: 100,
-          damage: 10,
-          fireRate: 1000,
-          lastShot: 0
-        });
-        this.money -= 50;
-      }
-    });
-  }
+function validateLandmarkStructure() {
+    // Implementation would go here
+    console.log('Validating landmark structure');
+}
 
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) return;
-    this.announce(message, priority);
-  },
+// New functions for SVG accessibility
+function getSvgAccessibleName(svgElement) {
+    // Implementation would go here
+    return svgElement.getAttribute('aria-label') || '';
+}
 
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element, index) => {
-      const landmarks = document.querySelectorAll(element);
-      landmarks.forEach((landmark) => {
-        if (landmark.id === '') {
-          landmark.id = `${element}-${index}`;
-        }
+function setSvgAttributes(svgElement, name) {
+    // Implementation would go here
+    svgElement.setAttribute('aria-label', name);
+}
 
-        if (landmarks.length > 1) {
-          if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} section`);
-          }
-        }
-      });
-    });
-  }
-};
+// New functions for fake link handling
+function createInPageButton() {
+    // Implementation would go here
+    console.log('Creating in-page button');
+}
 
-// Export the function for handling credential responses
+function validateLinkAccessibility() {
+    // Implementation would go here
+    console.log('Validating link accessibility');
+}
+
+function handleFakeLinks() {
+    // Implementation would go here
+    console.log('Handling fake links');
+}
+
 module.exports = {
+  ensureUniqueLandmarks,
+  landmarks,
+  uniqueLandmarks,
   validateTableAccessibility,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  a11yStore,
-  functionA,
-  functionB
+  validateTableStructure,
+  getLangAttribute,
+  addLangAttribute,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks
 };

@@ -230,5 +230,8 @@ function renderDependencyGraph(containerId, graphData) {
     return renderGraphIndex(containerId, graphData);
 }
 
+// REACT_015: Add lang attribute
+document.documentElement.lang = getCurrentLanguage();
+
 // Preserve any existing exports here
 export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, analyzeHarvestedData, upgrade, renderGraphIndex, renderDependencyGraph };

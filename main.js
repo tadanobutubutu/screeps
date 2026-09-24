@@ -156,6 +156,27 @@ function addScopeToTableHeaders() {
   // This function is already implemented as per the issue description
 }
 
+// Function for checking landmark structure
+function checkLandmarkStructure(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return false;
+  }
+  
+  if (landmarks.length === 0) {
+    return false;
+  }
+  
+  const identifiers = new Set();
+  for (const landmark of landmarks) {
+    if (!landmark) return false;
+    const identifier = landmark.id || landmark.name;
+    if (!identifier) return false;
+    if (identifiers.has(identifier)) return false;
+    identifiers.add(identifier);
+  }
+  return true;
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
@@ -165,8 +186,5 @@ module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   newFunction,
-  addLangAttribute,
-  fixLandmarkRolesAndIssues,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssues
+  checkLandmarkStructure
 };

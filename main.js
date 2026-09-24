@@ -182,22 +182,22 @@ function startApp() {
 }
 
 /**
- * Stops the application
- * @param {http.Server} server The server instance to stop
+ * Checks if the element with the given landmark identifier exists in the response
+ * @param {http.ServerResponse} res - The HTTP server response object
+ * @param {string} landmark - The landmark identifier to check for
+ * @returns {boolean} True if the landmark element exists, false otherwise
  */
-function stopApp(server) {
-  server.close(() => {
-    console.log('Server stopped');
-  });
+function checkLandmarkElement(res, landmark) {
+  const responseBody = res._responseBody; // Assuming the response body is stored in res._responseBody
+  return responseBody && responseBody.includes(landmark);
 }
 
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  myCustomMiddleware,
-  getData,
-  config
+  config,
+  checkLandmarkElement
 };
 
 // Start the application if run directly (with new functions)

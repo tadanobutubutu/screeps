@@ -305,45 +305,31 @@ function createInPageButton (buttonId, buttonText, buttonClass) {
 
 // Don't forget to test your new additions in the test file
 
-// TODO: Implement the logic to handle the credential response
 /**
- * Handles the credential response from an authentication provider or API.
- * This function processes the received credential, validates it if needed,
- * and performs appropriate actions such as storing it, sending to a server,
- * or updating the UI.
- * @param {Object} credential - The credential object received from the provider.
- * @returns {void}
+ * Renders a dependency graph as an HTML string.
+ * @param {Object} graph - An object where keys are node names and values are arrays of dependent node names.
+ * @returns {string} HTML string representing the dependency graph.
  */
-function handleCredentialResponse(credential) {
-  // Implement logic to handle the credential response
-  console.log('Credential response received:', credential);
-  
-  // Example: Validate credential structure
-  if (!credential || typeof credential !== 'object') {
-    console.error('Invalid credential response');
-    return;
-  }
-  
-  // Example: Extract relevant fields (adjust based on actual credential format)
-  const { id, name, email, token } = credential;
-  
-  // Example: Store credential in session storage or context
-  if (typeof window !== 'undefined' && window.localStorage) {
-    if (token) {
-      localStorage.setItem('authToken', token);
+function renderDependencyGraph (graph) {
+  if (typeof graph !== 'object' || graph === null) return ''
+  let html = '<ul class="dependency-graph">'
+  Object.keys(graph).forEach(node => {
+    const deps = graph[node]
+    html += `<li><strong>${node}</strong>`
+    if (Array.isArray(deps) && deps.length > 0) {
+      html += '<ul>'
+      deps.forEach(dep => {
+        html += `<li>${dep}</li>`
+      })
+      html += '</ul>'
     }
-    if (id) {
-      localStorage.setItem('userId', id);
-    }
-  }
-  
-  // Example: Update UI or trigger further actions
-  // You might want to dispatch an event or call another function
-  console.log('Credential processed successfully');
-  
-  return credential;
+    html += '</li>'
+  })
+  html += '</ul>'
+  return html
 }
 
+// Export accessibility utility functions
 module.exports = {
   addLangAttribute,
   fixTableStructure,
@@ -355,44 +341,12 @@ module.exports = {
   addressAccessibilityIssues,
   createInPageButton,
   divide,
-  main,
-  newFunction,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkHelpers,
-  validateLandmarkStructHelpers,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createAccessibleLink,
-  handleFakeLinks,
-  getAccessibleElement,
-  createAccessibleButton,
-  enhanceKeyboardNavigation,
-  addAriaRoles,
-  checkContrastRatios,
-  addBook,
-  initializeAccessibility,
-  handleCredentialResponse
+  checkLinkAccessibility,
+  wrapPrimaryContentInMain,
+  renderDependencyGraph
 }
 
 // Run if executed directly
 if (require.main === module) {
   main()
-}
-
-/**
- * Checks if a link element is accessible (has text, aria-label, or title)
- * @param {Element} link - The link element to check
- * @returns {boolean} True if the link is accessible, false otherwise
- */
-function isLinkAccessible (link) {
-  if (!link) return false
-  const text = link.textContent && link.textContent.trim()
-  const ariaLabel = link.getAttribute('aria-label')
-  const title = link.getAttribute('title')
-  return !!(text || ariaLabel || title)
 }

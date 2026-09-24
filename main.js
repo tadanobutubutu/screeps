@@ -9,11 +9,96 @@ const CONFIG = {
   timeout: 5000
 };
 
-// Function for generating a report based on accessibility issues
-function generateAccessibilityReport(accessibilityReport) {
-  // Your implementation here
-  // ... (new function)
+const log = (message, level = 'info') => {
+  // ... existing log function implementation ...
+};
+
+async function initBoth() {
+  if (process.env.NODE_ENV === 'browser') {
+    await initBrowser();
+  } else {
+    await initNodeJS();
+  }
 }
+
+function initBrowser() {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+}
+
+function initNodeJS() {
+  app.listen(CONFIG.port, () => {
+    log(`Server started at http://${CONFIG.host}:${CONFIG.port}`);
+  });
+}
+
+async function handleKeyNavigation(event) {
+  // ... (from 'browser' implementation)
+}
+
+async function trapFocus(event) {
+  // ... (from 'browser' implementation)
+}
+
+function setupKeyboardNavigation() {
+  // ... (from 'browser' implementation without the event handler)
+}
+
+function setupAriaLiveRegions() {
+  // ... (from 'browser' implementation)
+}
+
+function setupFocusManagement() {
+  // ... (from 'browser' implementation)
+}
+
+/* Added utility functions from the Node.js implementation */
+function validateInput(input) {
+  if (typeof input !== 'string') {
+    return false;
+  }
+  return input.length > 0 && input.length <= 1000;
+}
+
+const parseJSONsafe = (jsonString) => {
+  // ... existing parseJSONsafe function implementation ...
+};
+
+const formatResponse = (data, statusCode = 200) => {
+  // ... existing formatResponse function implementation ...
+};
+
+const delay = (ms) => {
+  // ... existing delay function implementation ...
+};
+
+const retryOperation = (operation, maxRetries = CONFIG.maxRetries) => {
+  // ... existing retryOperation function implementation ...
+};
+
+function spawnSomeCommand(callback) {
+  const child_process = require('child_process');
+  child_process.spawn('someCommand', {}, {
+    stdio: 'inherit',
+  }).on('exit', (code, signal) => {
+    if (code === 0) {
+      callback(null, 'Successfully executed someCommand');
+    } else {
+      callback(new Error(`someCommand failed with code ${code}`));
+    }
+  });
+}
+
+const sanitizeFilename = (filename) => {
+  // ... existing sanitizeFilename function implementation ...
+};
+
+const readFileSafe = (filePath) => {
+  // ... existing readFileSafe function implementation ...
+};
 
 const processData = (items) => {
   // ... existing processData function implementation ...
@@ -613,9 +698,24 @@ function checkTableStructure(tableName, expectedColumns) {
 }
 
 const moduleExports = {
-  checkTableStructure,
-  countDependencies,
-  transpileModule,
+  CONFIG,
+  log,
+  validateInput,
+  spawnSomeCommand,
+  handleKeyNavigation,
+  trapFocus,
+  setupKeyboardNavigation,
+  setupAriaLiveRegions,
+  setupFocusManagement,
+  parseJSONsafe,
+  formatResponse,
+  delay,
+  retryOperation,
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  groupByCategory,
   transformInputData,
   ensureElementHasId,
   addAriaLabel,
@@ -670,10 +770,12 @@ const moduleExports = {
 // Ensure DOM is fully loaded before executing scripts
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = moduleExports;
-} else {
+} else if (typeof window !== 'undefined') {
   // Browser environment - wait for DOM
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+      init();
+    });
   } else {
     init();
   }

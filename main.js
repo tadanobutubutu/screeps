@@ -23,10 +23,10 @@ export function myNewFunction() {
 }
 
 // REACT_015: Add lang attribute to the <html> element
-function getLangAttributePattern(html) {
+function ... {
   if (typeof html !== 'string') return html;
-  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
-    if (attrs.includes('lang=')) return match;
+  return ... (match, attrs) => {
+    if ... return match;
     return `<html${attrs} lang="en">`;
   });
 }
@@ -43,7 +43,7 @@ import a11y from './AccessibilityUtilities';
 const root = ...
 
 // DOM Elements
-const dependencyGraph = document.getElementById('dependency-graph');
+const dependencyGraph = ...
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
@@ -183,20 +183,20 @@ function getLangAttribute() {
 function addLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    document.documentElement.lang = getLangAttribute();
+    ... getLangAttribute());
   }
 }
 
 function validateTableAccessibility(table) {
   // Check for caption or aria-label
-  return table.querySelector('caption') ||
+  return ... ||
            table.getAttribute('aria-label') ||
            table.getAttribute('aria-labelledby');
 }
 
 function validateTableStructure(table) {
-  const hasHeader = table.querySelector('th');
-  const hasBody = table.querySelector('td');
+  const hasHeader = ... th');
+  const hasBody = ... td');
   return hasHeader && hasBody;
 }
 
@@ -208,8 +208,8 @@ function fixTableStructure(table) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const headerRow = document.createElement('tr');
-        firstRow.querySelectorAll('td').forEach(cell => {
-          const th = document.createElement('th');
+        ... => {
+          const th = ...
           th.textContent = cell.textContent;
           ...
         });
@@ -221,7 +221,7 @@ function fixTableStructure(table) {
 }
 
 function addMainLandmark() {
-  const rootContainer = document.querySelector('[data-main]');
+  const rootContainer = ...
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }
@@ -229,13 +229,13 @@ function addMainLandmark() {
 
 function validateLandmark(landmark) {
   const validRoles = ['main', 'navigation', 'banner', 'contentinfo', 'search', 'complementary', 'form', 'region'];
-  const role = landmark.getAttribute('role');
-  return role && validRoles.includes(role);
+  const role = ...
+  return ...
 }
 
-function hasLandmarkLabel(landmark) {
-  const ariaLabel = landmark.getAttribute('aria-label');
-  const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
+function ... {
+  const ariaLabel = ...
+  const ariaLabelledBy = ...
   return !!(ariaLabel || ariaLabelledBy || landmark.textContent.trim());
 }
 
@@ -253,7 +253,7 @@ function validateLandmarkStructure() {
   });
 
   if (missingLandmarks.length > 0) {
-    console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+    ... warning: Missing required landmarks: ... ')}`);
     return false;
   }
 
@@ -263,7 +263,7 @@ function validateLandmarkStructure() {
 function getSvgAccessibleName(svg) {
   return ... ||
          svg.getAttribute('title') ||
-         svg.getAttribute('aria-labelledby') ||
+         ... ||
          'SVG graphic';
 }
 
@@ -273,7 +273,7 @@ function setSvgAttributes(svg, name) {
 }
 
 function ensureUniqueLandmarks() {
-  const mainLandmarks = document.querySelectorAll('[role="main"]');
+  const mainLandmarks = ... main');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((landmark, index) => {
       if (index > 0) {
@@ -287,8 +287,8 @@ function ensureUniqueLandmarks() {
 function createInPageButton() {
   const button = document.createElement('button');
   button.textContent = 'Skip to content';
-  button.addEventListener('click', function() {
-    const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  ... function() {
+    const mainContent = ...
     if (mainContent) {
       mainContent.focus();
     }
@@ -312,9 +312,9 @@ function validateLinkAccessibility(link) {
  * Handles fake links in the document
  */
 function handleFakeLinks() {
-  const links = document.querySelectorAll('[role="link"]');
+  const links = ...
   links.forEach(link => {
-    if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+    if ... {
       link.setAttribute('aria-label', 'Link to ' + (link.href || 'unknown destination'));
     }
   });
@@ -361,8 +361,8 @@ function ... {
     }
   });
 
-  // Check for buttons without accessible name
-  const buttons = document.querySelectorAll('button');
+  // Check for buttons without accessible names
+  const buttons = ...
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || ...
     if (!accessibleName) {
@@ -390,13 +390,13 @@ function ... {
   });
 
   // Check for form inputs without labels
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach((input, index) => {
+  const inputs = ...
+  ... index) => {
     const inputType = input.getAttribute('type');
     if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
-      const labelId = input.getAttribute('aria-labelledby');
-      const labelText = input.getAttribute('aria-label');
-      const hasLabel = input.id && document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
+      const labelId = ...
+      const labelText = ...
+      const hasLabel = ... || labelId || labelText;
       if (!hasLabel) {
         issues.push({
           type: 'missing-label',
@@ -409,7 +409,7 @@ function ... {
   });
 
   // Check for empty headings
-  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const headings = ... h2, h3, h4, h5, h6');
   headings.forEach((heading, index) => {
     if (!heading.textContent.trim()) {
       issues.push({
@@ -437,17 +437,17 @@ function ... {
  */
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
-  const rootContainer = document.querySelector('#root');
+  const rootContainer = ...
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }
 
   // Initialize skip link functionality
-  const skipLink = document.querySelector('.skip-link');
+  const skipLink = ...
   if (skipLink) {
-    skipLink.addEventListener('click', function(e) {
-      const targetId = skipLink.getAttribute('href');
-      const target = document.querySelector(targetId);
+    ... function(e) {
+      const targetId = ...
+      const target = ...
       if (target) {
         target.setAttribute('tabindex', '-1');
         target.focus();
@@ -456,13 +456,6 @@ function addressAccessibilityIssues() {
   }
 
   // Ensure all buttons with role="button" respond to Enter key
-  document.querySelectorAll('[role="button"]').forEach(button => {
-    button.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        this.click();
-      }
-    });
-  });
-
-  // Add
+  ... => {
+    ... function(e) {
+      if (

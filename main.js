@@ -20,7 +20,7 @@ const appData = {
 };
 
 // Function to validate table accessibility
-const validateTableAccessibility = (html) => {
+const validateTableAccessibilityIssues = (html) => {
   const issues = [];
 
   // Check if HTML contains tables
@@ -737,31 +737,7 @@ function log(message, level = 'info') {
 
 // Make sure to preserve all existing exports
 module.exports = {
-    addSvgAccessibilityProps: a11yStore.addSVGAccessibilityProps,
-    isLandmarkElement,
-    handleCredentialResponse,
-    parseCredentialResponse,
-    decodeJwtToken,
-    generateSessionId,
-    validateTableStructure,
-    validateTableAccessibility,
-    validateLandmark,
-    validateLandmarkStructure,
-    createInPageButton,
-    personName,
-    validateSession,
-    revokeSession,
-    getActiveSessionsCount,
-    server,
-    sanitizeFilename,
-    processData,
-    renderDependencyGraph,
-    renderIndex,
-    newFunction,
-    checkLandmarkElement,
-    wrapPrimaryContentInMain,
-    checkLandmarks,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    createFocusTrap: a11yStore.createFocusTrap
-};
+  // existing exports...
+  newFunction, // Add the new function to exports
+  newFocusTrap // Add the new function to exports
+}

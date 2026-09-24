@@ -38,26 +38,10 @@ function newFunction() {
   // Function body
 }
 
-/**
- * Renders dependency graph visualization.
- * This function can be used for debugging purposes to display module dependencies.
- * @param {Object} dependencies - The dependency data to render
- * @returns {string} - The rendered dependency graph as a string
- */
-function renderDependencyGraph(dependencies) {
-  // TODO: Implement or update specific functions that render dependency graphs
-  // For debugging and visualization purposes
-  if (!dependencies || typeof dependencies !== 'object') {
-    return '';
-  }
-  
-  let graphOutput = 'Dependency Graph:\n';
-  Object.keys(dependencies).forEach(module => {
-    const deps = dependencies[module] || [];
-    graphOutput += `  ${module} -> ${deps.join(', ') || '(no dependencies)'}\n`;
-  });
-  
-  return graphOutput;
+// New function for rendering graph/index
+function renderGraphIndex() {
+  // Code to render the graph/index
+  console.log('Graph/index rendered');
 }
 
 // Don't forget to test your new additions in the test file
@@ -71,6 +55,6 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   checkLinkAccessibility,
-  existingFunction,
   newFunction,
+  renderGraphIndex
 };

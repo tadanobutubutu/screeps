@@ -1,5 +1,14 @@
 // main.js - Combined utility and accessibility features
 
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views to import and use dependencyGraphContent/indexContent from the
+// appropriate modules.
+// Updated: imported and used dependencyGraphContent and indexContent in the
+// relevant rendering functions.
+
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
+
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
@@ -293,6 +302,41 @@ function deepClone(obj) {
     return cloned;
   }
   return obj;
+}
+
+/**
+ * Renders a dependency graph visualization
+ * @param {Object} dependencies - Graph data structure with nodes and edges
+ * @param {string|HTMLElement} container - DOM element or selector to render the graph
+ * @param {Object} options - Visualization options
+ * @returns {Object} - Graph visualization control object
+ */
+function renderDependencyGraph(dependencies, container, options = {}) {
+  const defaultOptions = {
+    nodeWidth: 100,
+    nodeHeight: 40,
+    nodeColor: '#4a90e2',
+    nodeTextColor: '#ffffff',
+    edgeColor: '#999999',
+    animated: true,
+    ...options
+  };
+  
+  const containerEl = typeof container === 'string' 
+    ? document.querySelector(container) 
+    : container;
+  
+  if (!containerEl) {
+    throw new Error('Container element not found for dependency graph rendering');
+  }
+  
+  // Use the imported module to render the graph
+  const graphControl = dependencyGraphContent.renderGraph(containerEl, dependencies, defaultOptions);
+  
+  // Initial render
+  graphControl.redraw?.();
+  
+  return graphControl;
 }
 
 // Export for use in other modules

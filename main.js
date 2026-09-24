@@ -249,27 +249,30 @@ function getSvgAccessibleName(svgElement) {
     if (title && title.textContent) {
         return title.textContent.trim();
     }
-    
-    // Try to get desc element text
-    const desc = svgElement.querySelector('desc');
-    if (desc && desc.textContent) {
-        return desc.textContent.trim();
-    }
-    
-    // Fallback to text elements
-    const content = svgElement.innerHTML;
-    const textContent = content.match(/<text [^>]*>(.*?)<\/text>/gi);
-    if (textContent) {
-        return textContent.map(t => t.replace(/<[^>]*>/g, '').trim()).join(' ');
-    }
-    
-    // Fallback to aria-label
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (ariaLabel) {
-        return ariaLabel;
-    }
-    
-    return '';
+
+    setSvgAttributes(svg);
+  });
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const text = svg.textContent.trim();
+  if (text) return text;
+  // Fallback to any text node inside the SVG
+  const textNode = svg.querySelector('text');
+  if (textNode) return textNode.textContent.trim();
+  return 'Unlabeled SVG';
+}
+
+function setSvgAttributes(svg) {
+  if (!svg) return;
+  // Ensure the element is marked as an image
+  svg.setAttribute('role', 'img');
+
+  const name = getSvgAccessibleName(svg);
+  if (name) {
+    svg.setAttribute('aria-label', name);
+  }
 }
 
 function checkTableStructure(table) {

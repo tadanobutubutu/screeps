@@ -6,6 +6,32 @@ const primaryContent = document.querySelector('.primary-content') ||
                         document.getElementById('main-content') ||
                         document.querySelector('#content');
 
+// Function to retrieve the current language setting
+function getCurrentLanguageSetting() {
+  // Check for language setting in the following order:
+  // 1. Check document.documentElement.lang attribute
+  // 2. Check for lang attribute on HTML element
+  // 3. Check for meta tags containing language information
+  // 4. Default to 'en' if no language is found
+  
+  let lang = 'en';
+  
+  // Try to get language from document.documentElement.lang
+  if (document.documentElement && document.documentElement.lang) {
+    lang = document.documentElement.lang;
+  }
+  
+  // If no lang attribute, try to find a meta tag with language info
+  if (!lang || lang === 'en') {
+    const metaLang = document.querySelector('meta[http-equiv="content-language"]');
+    if (metaLang && metaLang.content) {
+      lang = metaLang.content.split(',')[0].trim();
+    }
+  }
+  
+  return lang;
+}
+
 // Function to wrap primary content in a <main> element
 function wrapPrimaryContentInMain() {
   // If primary content exists and is not already inside a <main> element
@@ -139,7 +165,7 @@ function validateLandmark(landmark) {
 }
 
 // Validate landmark structure
-function validateLandmarkStructure(landmark) {
+function landmarkStructureCheck(landmark) {
   const errors = [];
 
   if (!landmark) {
@@ -150,26 +176,6 @@ function validateLandmarkStructure(landmark) {
   // Check for required properties
   if (!landmark.role) {
     errors.push('Landmark must have a role');
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-// Validate landmark attributes
-function validateLandmarkAttributes(element) {
-  const errors = [];
-
-  if (!element) {
-    errors.push('Element is required');
-    return { valid: false, errors };
-  }
-
-  const role = element.getAttribute('role');
-  if (!role) {
-    errors.push('Landmark must have a role attribute');
   }
 
   return {
@@ -264,22 +270,6 @@ function createInPageButtons(buttonsData) {
   });
 }
 
-// Create single in-page button
-function createInPageButton(buttonData) {
-  if (!buttonData) return null;
-
-  const button = document.createElement('button');
-  button.id = buttonData.id;
-  button.textContent = buttonData.text;
-  button.setAttribute('data-role', buttonData.role);
-
-  button.addEventListener('click', () => {
-    location.hash = buttonData.href;
-  });
-
-  return button;
-}
-
 // Function to set language attribute
 function setLanguageAttribute(document, lang) {
   if (document.documentElement) {
@@ -302,21 +292,6 @@ function addLandmarkRoles(container) {
   sections.forEach(section => {
     if (!section.getAttribute('role') && possibleLandmarks[section.tagName.toLowerCase()]) {
       section.setAttribute('role', possibleLandmarks[section.tagName.toLowerCase()]);
-    }
-  });
-}
-
-// Add landmark regions
-function addLandmarkRegions(container) {
-  if (!container) return;
-
-  const regionRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary'];
-  regionRoles.forEach(role => {
-    const existing = container.querySelector(`[role="${role}"]`);
-    if (!existing) {
-      const region = document.createElement('div');
-      region.setAttribute('role', role);
-      container.appendChild(region);
     }
   });
 }
@@ -537,20 +512,6 @@ function addressInsightIssues(document) {
   return issues;
 }
 
-// Process accessibility issues
-function processAccessibilityIssues(issues) {
-  if (!Array.isArray(issues)) {
-    return [];
-  }
-
-  return issues.map(issue => {
-    if (issue.type === 'landmark') {
-      return { ...issue, resolved: true };
-    }
-    return issue;
-  });
-}
-
 // Render dependency graph
 function renderDependencyGraph(container) {
   if (!container) return;
@@ -563,6 +524,59 @@ function renderIndexView(container) {
   if (!container) return;
   // Implementation for rendering index view
   console.log('Rendering index view');
+}
+
+// TODO: Add any other missing exports that might have been?
+// Added missing exports as per the issue
+function landmarkStructureCheck(container) {
+  if (!container) return { valid: false, errors: ['Container is required'] };
+  const landmarks = container.querySelectorAll('[role]');
+  const errors = [];
+  landmarks.forEach(lm => {
+    const role = lm.getAttribute('role');
+    if (!['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search', 'form'].includes(role)) {
+      errors.push(`Invalid landmark role: ${role}`);
+    }
+  });
+  return { valid: errors.length === 0, errors };
+}
+
+function setLanguageAttribute(element, lang) {
+  if (element && typeof lang === 'string' && lang.length > 0) {
+    element.setAttribute('lang', lang);
+    return true;
+  }
+  return false;
+}
+
+function addLandmarkRoles(elements) {
+  if (!Array.isArray(elements)) return [];
+  return elements.map(el => {
+    if (el.tagName) {
+      const tag = el.tagName.toLowerCase();
+      const roleMap = { nav: 'navigation', main: 'main', footer: 'contentinfo', aside: 'complementary' };
+      if (roleMap[tag] && !el.getAttribute('role')) {
+        el.setAttribute('role', roleMap[tag]);
+      }
+    }
+    return el;
+  });
+}
+
+function fixFakeLinks(links) {
+  if (!Array.isArray(links)) return [];
+  return links.map(link => {
+    if (link.href && !link.getAttribute('role')) {
+      if (link.href.startsWith('#') || link.href === '') {
+        link.setAttribute('role', 'button');
+      }
+    }
+    return link;
+  });
+}
+
+function isSecureContext() {
+  return window.isSecureContext === true || window.location.protocol === 'https:' || window.location.hostname === 'localhost';
 }
 
 // Updated function using the new functions for rendering graph/index
@@ -753,6 +767,7 @@ function Main() {
 // Export all functions
 export {
   getLangAttribute,
+  getCurrentLanguageSetting,
   addLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
@@ -782,7 +797,9 @@ export {
   initApp,
   VisualizeDependencyTree,
   checkLandmarkElement,
+  ensureUniqueLandmarks,
   ensureLandmarkUniqueness,
+  validateLandmark,
   renderDependencyGraphContent,
   landmarks,
   appData,
@@ -794,6 +811,10 @@ export {
   onTitleSort,
   onAuthorSort,
   Main,
+  landmarkStructureCheck,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
   isSecureContext,
   ensureFocusableElements,
   validateSvgAccessibility,

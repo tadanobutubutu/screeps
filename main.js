@@ -105,7 +105,7 @@ function addLangAttribute () {
   // Assuming there is a relevant element selector or similar to target
   const elementToModify = document.documentElement;
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en');
+    elementToModify.setAttribute('lang', 'en'); // Example: English
   }
 }
 
@@ -122,19 +122,19 @@ function ensureElementHasId(elementId) {
 // Ensure elements have the required IDs
 ensureElementHasId('myTable');
 ensureElementHasId('myLogo');
-ensureElementHasId('accessibility-menu');
+ensureElementHasId('accessibilityMenu');
 
 // Add ARIA labels for better screen reader support
 addAriaLabel('myTable', 'Product data table');
 addAriaLabel('myLogo', 'Company logo');
-addAriaLabel('accessibility-menu', 'Accessibility menu');
+addAriaLabel('accessibilityMenu', 'Accessibility menu');
 
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
 addLangAttribute();
 
-// TODO: add the new functions or changes requested in the issue
+// TODO: This is the existing code that needs to be preserve
 // Here's a sample implementation for a new function named 'myNewFunction'
 function myNewFunction(arg1, arg2) {
   // Your implementation of the function goes here.
@@ -218,8 +218,14 @@ function createInPageButton() {
   const button = document.createElement('button');
   button.setAttribute('aria-label', 'Skip to main content');
   button.textContent = 'Skip to main content';
-  button.setAttribute('id', 'skip-to-main');
-  return button;
+  button.onclick = function() {
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+      mainContent.setAttribute('tabindex', '-1');
+      mainContent.focus();
+    }
+  };
+  document.body.prepend(button);
 }
 
 // Added function to create accessible links as mentioned in the issue
@@ -256,12 +262,12 @@ function calculateSum(a, b) {
 // Ensure elements have the required IDs
 ensureElementHasId('myTable');
 ensureElementHasId('myLogo');
-ensureElementHasId('accessibility-menu');
+ensureElementHasId('accessibilityMenu');
 
 // Add ARIA labels for better screen reader support
 addAriaLabel('myTable', 'Product data table');
 addAriaLabel('myLogo', 'Company logo');
-addAriaLabel('accessibility-menu', 'Accessibility menu');
+addAriaLabel('accessibilityMenu', 'Accessibility menu');
 
 // DOM-based accessibility code
 
@@ -272,8 +278,8 @@ addLangAttribute();
 createInPageButton();
 
 // Ensure button has an id and appropriate ARIA label
-ensureElementHasId('skip-to-main');
-addAriaLabel('skip-to-main', 'Skip to main content');
+ensureElementHasId('skipToMain');
+addAriaLabel('skipToMain', 'Skip to main content');
 
 // Validate table structure and accessibility
 // Ensuring all tables in the document are accessible
@@ -332,95 +338,10 @@ validateTableStructure(table);
 
 // Add/fix landmark issues
 validateLandmark();
+ensureElementHasId('mainContent');
 ensureUniqueLandmarks();
 
 // Add accessible names to SVGs
 const svg = document.querySelector('svg');
 const accessibleName = getSvgAccessibleName(svg);
-set
-
-/**
- * Creates an accessible form for adding a new book
- * @param {HTMLElement} container - The container element to append the form to
- */
-function createBookForm(container) {
-  const form = document.createElement('form');
-  form.setAttribute('role', 'form');
-  form.setAttribute('aria-labelledby', 'add-book-form-title');
-
-  const title = document.createElement('h2');
-  title.id = 'add-book-form-title';
-  title.textContent = 'Add New Book';
-  form.appendChild(title);
-
-  // Title field
-  const titleLabel = document.createElement('label');
-  titleLabel.setAttribute('for', 'book-title');
-  titleLabel.textContent = 'Book Title:';
-  form.appendChild(titleLabel);
-
-  const titleInput = document.createElement('input');
-  titleInput.id = 'book-title';
-  titleInput.type = 'text';
-  titleInput.setAttribute('required', 'true');
-  titleInput.setAttribute('aria-required', 'true');
-  form.appendChild(titleInput);
-
-  // Author field
-  const authorLabel = document.createElement('label');
-  authorLabel.setAttribute('for', 'book-author');
-  authorLabel.textContent = 'Author:';
-  form.appendChild(authorLabel);
-
-  const authorInput = document.createElement('input');
-  authorInput.id = 'book-author';
-  authorInput.type = 'text';
-  authorInput.setAttribute('required', 'true');
-  authorInput.setAttribute('aria-required', 'true');
-  form.appendChild(authorInput);
-
-  // Submit button
-  const submitButton = document.createElement('button');
-  submitButton.type = 'submit';
-  submitButton.textContent = 'Add Book';
-  submitButton.setAttribute('aria-label', 'Add new book to collection');
-  form.appendChild(submitButton);
-
-  // Error message area
-  const errorArea = document.createElement('div');
-  errorArea.id = 'book-form-error';
-  errorArea.setAttribute('role', 'alert');
-  errorArea.setAttribute('aria-live', 'assertive');
-  form.appendChild(errorArea);
-
-  // Form submission handler
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const titleValue = titleInput.value.trim();
-    const authorValue = authorInput.value.trim();
-
-    if (!titleValue || !authorValue) {
-      errorArea.textContent = 'Please fill in all required fields';
-      return;
-    }
-
-    // Clear form and show success message
-    titleInput.value = '';
-    authorInput.value = '';
-    errorArea.textContent = 'Book added successfully!';
-    errorArea.style.color = 'green';
-
-    // Here you would typically add the book to your data store
-    // For example: addBookToCollection({ title: titleValue, author: authorValue });
-  });
-
-  container.appendChild(form);
-}
-
-// Initialize the book form when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-  const bookFormContainer = document.getElementById('book-form-container');
-  if (bookFormContainer) {
-    createBookForm(bookFormContainer);
-  }
-});
+setSvgAttributes(svg, accessibleName);

@@ -500,6 +500,74 @@ AddressabilityIssues.spawnSomeCommand = function (callback) {
   });
 };
 
+// Add calculateAccessibilityScore function
+AddressabilityIssues.calculateAccessibilityScore = function (fixedIssues) {
+  if (!Array.isArray(fixedIssues)) {
+    return 0;
+  }
+
+  const scorePoints = {
+    'color-contrast': 5,
+    'missing-alt-text': 3,
+    'missing-aria-label': 5,
+    'heading-order': 2,
+    'other': 1
+  };
+
+  return fixedIssues.reduce((score, issue) => {
+    const points = scorePoints[issue.type] || scorePoints['other'];
+    return score + points;
+  }, 0);
+};
+
+/**
+ * Handles the credential response received from an identity provider.
+ * Validates the response and processes the credential.
+ */
+function handleCredentialResponse(response) {
+  if (!response || typeof response !== 'object') {
+    console.error('Invalid credential response received');
+    return null;
+  }
+
+  const credential = response.credential;
+  if (!credential || typeof credential !== 'string') {
+    console.error('Credential response missing credential field');
+    return null;
+  }
+
+  // Parse the JWT-like credential (header.payload.signature)
+  const parts = credential.split('.');
+  if (parts.length !== 3) {
+    console.error('Malformed credential token');
+    return null;
+  }
+
+  let payload = null;
+  try {
+    const decodedPayload = Buffer.from(parts[1], 'base64').toString('utf-8');
+    payload = JSON.parse(decodedPayload);
+  } catch (error) {
+    console.error(`Failed to decode credential payload: ${error.message}`);
+    return null;
+  }
+
+  if (!payload || !payload.sub) {
+    console.error('Credential payload missing required subject identifier');
+    return null;
+  }
+
+  // Notify any listeners that a valid credential was received
+  announceToScreenReader(`Signed in as ${payload.email || payload.sub}`);
+
+  return {
+    subject: payload.sub,
+    email: payload.email || null,
+    name: payload.name || null,
+    payload
+  };
+}
+
 // Ensure DOM is fully loaded before executing scripts
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports

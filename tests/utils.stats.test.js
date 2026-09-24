@@ -18,6 +18,7 @@ const StatsManager = require('../utils.stats');
 describe('utils.stats', () => {
     beforeEach(() => {
         global.Memory = {};
+        global.Game.time = 100;
     });
 
     test('モジュールが正しく読み込める', () => {
@@ -91,6 +92,18 @@ describe('utils.stats', () => {
             expect(global.Memory.stats.totalRepairDone).toBe(0);
         });
 
+        test('recordRoomStat aborts if roomName or key is unsafe', () => {
+            StatsManager.initMemory();
+            StatsManager.recordRoomStat('__proto__', 'energy', 100);
+            StatsManager.recordRoomStat('W1N1', 'constructor', 100);
+
+            // Both should be ignored, roomStats should be empty or undefined for these
+            expect(Object.keys(global.Memory.stats.roomStats).length).toBe(0);
+            expect(
+                Object.prototype.hasOwnProperty.call(global.Memory.stats.roomStats, '__proto__')
+            ).toBe(false);
+        });
+
         test('recordRoomStat validates room names and keys', () => {
             StatsManager.initMemory();
             StatsManager.recordRoomStat('__proto__', 'energy', 100);
@@ -101,6 +114,23 @@ describe('utils.stats', () => {
                 Object.prototype.hasOwnProperty.call(global.Memory.stats.roomStats, '__proto__')
             ).toBe(false);
             expect(global.Memory.stats.roomStats['W1N1']).toBeUndefined();
+        });
+
+        test('recordRoomStat ignores existing room if keys limit reached', () => {
+            StatsManager.initMemory();
+            for (let i = 0; i < 10; i++) {
+                StatsManager.recordRoomStat('W1N1', `key${i}`, 1);
+            }
+            StatsManager.recordRoomStat('W1N1', 'extra_key', 5);
+            expect(global.Memory.stats.roomStats['W1N1']['extra_key']).toBeUndefined();
+        });
+
+        test('recordRoomStat adds a new key to an existing room', () => {
+            StatsManager.initMemory();
+            StatsManager.recordRoomStat('W1N1', 'energy', 10);
+            StatsManager.recordRoomStat('W1N1', 'minerals', 5);
+            expect(global.Memory.stats.roomStats['W1N1']['energy']).toBe(10);
+            expect(global.Memory.stats.roomStats['W1N1']['minerals']).toBe(5);
         });
 
         test('recordRoomStat enforces MAX_ROOM_STATS limit', () => {
@@ -117,6 +147,21 @@ describe('utils.stats', () => {
                 StatsManager.recordRoomStat('W1N1', `key${i}`, 1);
             }
             expect(Object.keys(global.Memory.stats.roomStats['W1N1']).length).toBe(10);
+        });
+
+        test('recordRoomStat adds amount to existing key', () => {
+            StatsManager.initMemory();
+            StatsManager.recordRoomStat('W1N1', 'energy', 10);
+            StatsManager.recordRoomStat('W1N1', 'energy', 20);
+            expect(global.Memory.stats.roomStats['W1N1']['energy']).toBe(30);
+        });
+
+        test('getStats with zero uptime returns 0.00 avgEnergyPerTick', () => {
+            global.Game.time = 100;
+            StatsManager.initMemory(); // startTime becomes 100
+            global.Game.time = 100; // uptime becomes 0
+            const stats = StatsManager.getStats();
+            expect(stats.avgEnergyPerTick).toBe('0.00');
         });
 
         test('recordRoomStat handles invalid amounts', () => {

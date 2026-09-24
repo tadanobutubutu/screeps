@@ -1,25 +1,15 @@
 // TODO: This is the existing code that needs to be preserved
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// _Commit: b646ff783d636b840c63a75f17def8380977175a_
-// <!-- todo-hash: e944d6bc26c5766586cd5c819c30f566e3ef878d -->
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
-// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (typically in index.html, not main.js)
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// - REACT_041: Add accessible names to 2 SVGs
-// (Added functions for REACT_017 and new REACT_025)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+//_Commit: cd28b4081296230a3ae76dd7fc96ea40c2e831c5_
 
-// Accessibility utilities
+//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
 /**
  * Ensures the given element has an accessible ID and aria-label.

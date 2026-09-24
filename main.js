@@ -40,8 +40,15 @@ function log(message) {
     }
 }
 
-// New function or change as requested in the issue
-function newFunction() {
-    // New function logic...
-    console.log('This is the new function logic.');
+// Add lang attribute to HTML element
+function getLangAttribute() {
+    // Implementation to determine the language attribute value
+    // This function should be implemented to return the correct language value
+    // For example, it could check the document's language or a predefined setting
+    return 'en';
+}
+
+function createInPageButton() {
+    let langAttribute = getLangAttribute();
+    document.documentElement.setAttribute('lang', langAttribute);
 }

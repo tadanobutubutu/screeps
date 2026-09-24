@@ -221,11 +221,14 @@ class ScreepsBot {
     }
   }
 
-  calculateDiscount(price, discountRate) {
-    // Calculate the discount amount based on the price and discount rate
-    const discountAmount = price * (discountRate / 100);
-    return discountAmount;
-  }
+  // Event listener for click events on the dependencyGraph element
+  handleDependencyGraphClick = () => {
+    const dependencyGraph = document.getElementById('dependencyGraph');
+    if (dependencyGraph) {
+      const html = dependencyGraph.innerHTML;
+      this.validateTableAccessibility(html);
+    }
+  };
 
   // ... (Add the event listener for click events on the dependencyGraph element)
 }

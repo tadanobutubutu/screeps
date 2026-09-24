@@ -1040,7 +1040,9 @@ export default function Dashboard() {
                                 alignItems: 'center',
                             }}
                         >
-                            <span aria-live="polite">一致なし</span>
+                            <span role="status" aria-live="polite">
+                                一致なし
+                            </span>
                             <button
                                 onClick={clearSearchQuery}
                                 onMouseEnter={() => setNoMatchClearHover(true)}

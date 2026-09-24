@@ -734,3 +734,10 @@ function generateAndDisplayReport() {
 
     return report;
 }
+
+// Export the accessibility report functions
+export {
+    generateAccessibilityReport,
+    renderAccessibilityReportHtml,
+    generateAndDisplayReport
+};

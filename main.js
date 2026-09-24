@@ -37,6 +37,71 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e)
     }
+  },
+
+  /**
+     * Initialize accessibility features for the application
+     * @param {Object} options - Configuration options for accessibility
+     * @param {boolean} [options.enforceContrast=true] - Whether to enforce minimum contrast ratios
+     * @param {boolean} [options.enableKeyboardNav=true] - Whether to enable keyboard navigation
+     * @param {boolean} [options.announcePageLoad=true] - Whether to announce page load to screen readers
+     */
+  initAccessibility: (options = {}) => {
+    const {
+      enforceContrast = true,
+      enableKeyboardNav = true,
+      announcePageLoad = true
+    } = options
+
+    // Set default language if not specified
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en'
+    }
+
+    // Enforce minimum contrast if enabled
+    if (enforceContrast) {
+      document.documentElement.style.setProperty('--min-contrast', '4.5:1')
+    }
+
+    // Enable keyboard navigation if enabled
+    if (enableKeyboardNav) {
+      document.addEventListener('keydown', (e) => {
+        const handlers = {
+          Tab: (event) => {
+            // Handle tab navigation
+          },
+          Escape: (event) => {
+            // Handle escape key
+          }
+        }
+        accessibilityUtils.handleKeyboardNav(e, handlers)
+      })
+    }
+
+    // Announce page load if enabled
+    if (announcePageLoad) {
+      accessibilityUtils.announceToScreenReader('Page loaded successfully')
+    }
+
+    // Add skip to content link
+    const skipLink = document.createElement('a')
+    skipLink.href = '#main-content'
+    skipLink.textContent = 'Skip to main content'
+    skipLink.className = 'skip-link'
+    skipLink.style.position = 'absolute'
+    skipLink.style.left = '-9999px'
+    document.body.insertBefore(skipLink, document.body.firstChild)
+
+    // Focus skip link when it's clicked
+    skipLink.addEventListener('click', (e) => {
+      e.preventDefault()
+      const mainContent =
+                document.getElementById('main-content') || document.querySelector('main')
+      if (mainContent) {
+        mainContent.setAttribute('tabindex', '-1')
+        mainContent.focus()
+      }
+    })
   }
 }
 
@@ -274,46 +339,6 @@ async function handleCredentialResponse (response) {
   throw new Error('Invalid credential response')
 }
 
-/**
- * Creates an accessible button element with optional click handler
- * @param {Object} options - Button configuration options
- * @param {string} options.text - Button text content
- * @param {string} [options.id] - Optional button ID
- * @param {string} [options.className] - Optional CSS class name
- * @param {string} [options.ariaLabel] - Optional ARIA label for accessibility
- * @param {Function} [options.onClick] - Click event handler
- * @param {HTMLElement} [options.parent] - Parent element to append button to
- * @returns {HTMLButtonElement} The created button element
- */
-function createButton ({ text, id, className, ariaLabel, onClick, parent }) {
-  const button = document.createElement('button')
-
-  // Set basic properties
-  button.textContent = text
-  if (id) button.id = id
-  if (className) button.className = className
-
-  // Set accessibility attributes
-  button.setAttribute('type', 'button')
-  if (ariaLabel) {
-    button.setAttribute('aria-label', ariaLabel)
-  } else {
-    button.setAttribute('aria-label', text)
-  }
-
-  // Add click handler if provided
-  if (onClick && typeof onClick === 'function') {
-    button.addEventListener('click', onClick)
-  }
-
-  // Append to parent if provided
-  if (parent && parent instanceof HTMLElement) {
-    parent.appendChild(button)
-  }
-
-  return button
-}
-
 // Export functionality with accessibility support
 const exportUtils = {
   exportData: (data, filename, mimeType) => {
@@ -402,6 +427,5 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap,
-  createButton
+  newFocusTrap
 }

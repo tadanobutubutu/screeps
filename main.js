@@ -230,28 +230,245 @@ function ensureUniqueLandmarks() {
     a11yStore.ensureUniqueLandmarks();
 }
 
-// New function to get the language attribute value
-const getLangAttribute = () => {
-  return 'en';
+function addSvgAccessibleNames() {
+  // Implementation for adding accessible names to SVGs
+}
+
+function fixFakeLinkIssue() {
+  // Implementation for fixing fake link issue
+}
+
+/* New function to handle credential response */
+function handleCredentialResponse(response) {
+  // TODO: Implement the logic to handle the credential response
+  // This function should be called when a credential response is received
+  // For example, you might parse the response, validate it, and then store or use the credentials
+  console.log('Handling credential response:', response);
+  // Placeholder for actual implementation
+}
+
+/**
+ * Gets the appropriate lang attribute value for the HTML element
+ * @param {string} [defaultLang='en'] - The default language to use
+ * @returns {string} The language code to apply to the html element
+ */
+function getLangAttribute(defaultLang = 'en') {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && htmlElement.getAttribute('lang')) {
+    return htmlElement.getAttribute('lang');
+  }
+  return defaultLang;
+}
+
+/**
+ * Gets or sets an accessible name for a person element
+ * @param {HTMLElement} element - The element to provide a person name for
+ * @param {string} name - The person's name to use as the accessible name
+ */
+function personName(element, name) {
+  if (!element) return;
+  if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+    element.setAttribute('aria-label', name);
+  }
+}
+
+/**
+ * Validates table accessibility and returns issues found
+ * @param {Document|Element} context - The document or container to validate
+ * @returns {Object} Validation result with issues array
+ */
+function validateTableAccessibility(context = document) {
+  const issues = [];
+  const tables = context.querySelectorAll('table');
+
+  tables.forEach((table, index) => {
+    // Check for caption
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      issues.push({
+        type: 'warning',
+        code: 'TABLE_WITHOUT_CAPTION',
+        message: `Table at index ${index} should have a caption element to describe its purpose`
+      });
+    }
+
+    // Check for headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push({
+        type: 'error',
+        code: 'TABLE_WITHOUT_HEADERS',
+        message: `Table at index ${index} should have th elements to define row/column headers`
+      });
+    }
+  });
+
+  return {
+    totalIssues: issues.length,
+    issues: issues,
+    summary: `Table accessibility validation completed with ${issues.length} issues`
+  };
+}
+
+/**
+ * Validates the structure of tables for accessibility
+ * @param {Document|Element} context - The document or container to validate
+ * @returns {Object} Validation result with issues array
+ */
+function validateTableStructure(context = document) {
+  const issues = [];
+  const tables = context.querySelectorAll('table');
+
+  tables.forEach((table, index) => {
+    const rows = table.querySelectorAll('tr');
+    if (rows.length === 0) {
+      issues.push({
+        type: 'error',
+        code: 'TABLE_EMPTY',
+        message: `Table at index ${index} has no rows`
+      });
+    }
+
+    // Check for proper thead/tbody structure when multiple rows exist
+    if (rows.length > 1) {
+      const hasThead = table.querySelector('thead');
+      if (!hasThead) {
+        issues.push({
+          type: 'info',
+          code: 'TABLE_MISSING_THEAD',
+          message: `Table at index ${index} should use thead element to group header rows`
+        });
+      }
+    }
+  });
+
+  return {
+    totalIssues: issues.length,
+    issues: issues,
+    summary: `Table structure validation completed with ${issues.length} issues`
+  };
+}
+
+/**
+ * Validates a single landmark element for accessibility
+ * @param {HTMLElement} landmark - The landmark element to validate
+ * @returns {Object} Validation result for the landmark
+ */
+function validateLandmark(landmark) {
+  if (!landmark) {
+    return {
+      isValid: false,
+      issues: [{
+        type: 'error',
+        code: 'NO_LANDMARK',
+        message: 'No landmark element provided'
+      }]
+    };
+  }
+
+  const issues = [];
+  const tagName = landmark.tagName.toLowerCase();
+
+  // Check for accessible name on section, nav, aside, form
+  if (['section', 'nav', 'aside', 'form'].includes(tagName)) {
+    const hasLabel = landmark.getAttribute('aria-label') ||
+                     landmark.getAttribute('aria-labelledby') ||
+                     (tagName === 'section' && landmark.querySelector('h1, h2, h3, h4, h5, h6')) ||
+                     (tagName === 'form' && landmark.getAttribute('name'));
+
+    if (!hasLabel) {
+      issues.push({
+        type: 'warning',
+        code: `${tagName.toUpperCase()}_WITHOUT_NAME`,
+        message: `${tagName} element should have an accessible name`
+      });
+    }
+  }
+
+  return {
+    isValid: issues.filter(i => i.type === 'error').length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Gets an accessible name for an SVG element, generating one if missing
+ * @param {SVGElement} svg - The SVG element
+ * @param {string} [fallbackName='icon'] - Fallback name if no accessible name exists
+ * @returns {string} The accessible name for the SVG
+ */
+function getSvgAccessibleName(svg, fallbackName = 'icon') {
+  if (!svg) return fallbackName;
+
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+
+  const ariaLabelledBy = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) return ariaLabelledBy;
+
+  const title = svg.querySelector('title');
+  if (title && title.textContent) return title.textContent;
+
+  // Generate accessible name if none exists
+  svg.setAttribute('aria-label', fallbackName);
+  return fallbackName;
+}
+
+/**
+ * Main game loop
+ */
+const loop = () => {
+  // Main game logic
 };
 
-// New function to fix fake link issues
+// Fix fake link issues
 const fixFakeLinkIssues = () => {
-  validateLinkAccessibility();
+    validateLinkAccessibility();
 };
 
 // New function to handle dynamic content updates
-function updateLiveRegion (message, priority = 'polite') {
-  a11yStore.updateLiveRegion(message, priority)
+function updateLiveRegion(message, priority = 'polite') {
+    a11yStore.updateLiveRegion(message, priority);
 }
 
 // New function to add IDs to landmark elements
-function addLandmarkIds () {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside']
-  landmarkElements.forEach((tag) => {
-    const landmark = document.querySelector(tag)
-    if (landmark && landmark.id === '') {
-      landmark.id = `${tag}-${Math.floor(Math.random() * 1000)}`
+function addLandmarkIds() {
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach((tag) => {
+        const landmark = document.querySelector(tag);
+        if (landmark && landmark.id === '') {
+            landmark.id = `${tag}-${Math.floor(Math.random() * 1000)}`;
+        }
+    });
+}
+
+// New function to check landmark elements in the DOM
+function checkLandmarkElementsInDom() {
+    a11yStore.checkLandmarkElements();
+}
+
+// New function to add SVG accessibility props
+function addSVGAccessibilityProps() {
+    a11yStore.addSVGAccessibilityProps();
+}
+
+// Preserve existing code functionality
+function preserveExistingCode() {
+    a11yStore.preserveExistingCode();
+}
+
+// New function to address new accessibility issues from insight report
+function newFunction() {
+    // Placeholder for new accessibility issue fixes
+    // Implement specific fixes based on insight report when available
+}
+
+// Example of addressing REACT_015: Add lang attribute to HTML element
+function addLangAttribute() {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement) {
+        const lang = getLangAttribute();
+        htmlElement.setAttribute('lang', lang);
     }
   })
 }
@@ -305,88 +522,37 @@ if (typeof window !== 'undefined') {
 
 // Continue with the rest of your existing code here...
 
-function addSvgAccessibleNames() {
-  // Implementation for adding accessible names to SVGs
-}
-
-function fixFakeLinkIssue() {
-  // Implementation for fixing fake link issue
-  fixFakeLinkIssues();
-}
-
-/* New function to handle credential response */
-function handleCredentialResponse(response) {
-  // TODO: Implement the logic to handle the credential response
-  // This function should be called when a credential response is received
-  // For example, you might parse the response, validate it, and then store or use the credentials
-  console.log('Handling credential response:', response);
-  // Placeholder for actual implementation
-}
-
-const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside'];
-const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.map(tag => tag);
-
-function getLandmarkSummary() {
-  return { count: LANDMARK_ELEMENTS.length, elements: LANDMARK_ELEMENTS };
-}
-
-function findLandmarks() {
-  return [];
-}
-
-function add(a, b) { return a + b; }
-function subtract(a, b) { return a - b; }
-function multiply(a, b) { return a * b; }
-function divide(a, b) { return b !== 0 ? a / b : 0; }
-
-function fixTableStructure() {
-  // Placeholder for table structure fixes
-}
-
-function addMainLandmark() {
-  wrapPrimaryContentInMain();
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
+module.exports = {
+    loop,
     addressAccessibilityIssues,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    wrapPrimaryContentInMain,
-    countDependencies,
+    validateLandmarkStructure,
+    LANDMARK_ELEMENTS,
+    addSvgAccessibleNames,
+    fixFakeLinkIssue,
+    handleCredentialResponse,
     getLangAttribute,
+    personName,
     validateTableAccessibility,
     validateTableStructure,
     validateLandmark,
-    validateLandmarkStructure,
     getSvgAccessibleName,
-    ensureUniqueLandmarks,
+    createInPageButton,
+    checkLandmarkElements,
+    countDependencies,
+    a11yStore,
+    addLandmarkRegions,
+    updateLiveRegion,
+    addSVGAccessibilityProps,
+    preserveExistingCode,
+    newFunction,
     fixFakeLinkIssues,
     updateLiveRegion,
     addLandmarkIds,
     checkLandmarkElementsInDom,
-    addSVGAccessibilityProps,
-    preserveExistingCode,
-    newFunction,
+    renderIndexView,
+    wrapPrimaryContentInMain,
+    validateLinkAccessibility,
+    handleFakeLinks,
     addLangAttribute,
-    addSvgAccessibleNames,
-    fixFakeLinkIssue,
-    handleCredentialResponse,
-    someFunction,
-    createInPageButton,
-    getLandmarkSummary,
-    findLandmarks,
-    LANDMARK_ELEMENTS,
-    LANDMARK_SELECTORS,
-    add,
-    subtract,
-    multiply,
-    divide,
-    fixTableStructure,
-    addMainLandmark
-  };
-}
-
-if (typeof window !== 'undefined') {
-  window.landmarkValidation = validateLandmarkStructure(document);
-}
+    ensureUniqueLandmarks,
+};

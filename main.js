@@ -188,11 +188,13 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  // New function
+  /**
+   * New method to ensure interactive elements are accessible
+   */
   ensureInteractiveElementsAccessible() {
-    a11yStore.ensureInteractiveRoles();
-    a11yStore.addFormControlLabels();
-    a11yStore.ensureImageAccessibility();
+    this.ensureInteractiveRoles();
+    this.addFormControlLabels();
+    this.ensureImageAccessibility();
   }
 };
 

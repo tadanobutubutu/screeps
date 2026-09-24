@@ -35,10 +35,68 @@ function setFocus(elementId) {
   return element;
 };
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs, address accessibility issues from insight report
-function ensureElementId(element) {
-    if (element && !element.id) {
-        element.id = 'element-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+// Import accessibility utilities from the other conflict branch
+const accessibilityUtils = require('./accessibility').accessibilityUtils;
+
+// Persist any new functions from the other conflict branch
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  getSvgAccessibleName,
+  // Removed the redundant 'getLangAttribute' from this import
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureUniqueLandmarks,
+  addAccessibleName,
+  handleAccessibilityErrors,
+  handleAccessibilityIssues,
+  createAccessibleLink,
+  handleAccessibilityErrors, // Removed the duplicate import of 'handleAccessibilityErrors'
+  handleAccessibilityIssues, // Removed the duplicate import of 'handleAccessibilityIssues'
+  createInPageButton, // Removed the duplicate import of 'createInPageButton'
+  newFocusTrap,
+  transformInputData,
+  renderDependencyGraph,
+  renderIndex,
+  renderIndexView,
+  renderDependencyGraphs,
+  dependencyGraphContent,
+  indexContent,
+  indexTemplateContent,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  ensureUniqueLandmarks as _ensureUniqueLandmarks,
+  setSvgAccessibilityProps,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixFakeLinks,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  newFocusTrap: (_element) => {
+    const focusableElements = _element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length === 0) {
+      accessibilityUtils.originNewFocusTrap(_element);
+      return;
     }
     return element;
 }

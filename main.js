@@ -3,15 +3,9 @@ const missingModule = require('./path/to/missing/module');
 
 const main = require('./utilities');
 
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+const { createWebResourceButton, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
-const {
-  addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks: ensureUniqueLandmarksUtils,
-  setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues,
-  addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId,
-  ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria,
-  addMainLandmarkToIndex, addressAccessibilityIssues
-} = main;
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks: ensureUniqueLandmarksUtils, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
 
 const http = require('http');
 
@@ -145,35 +139,17 @@ function personName(name) {
  * @param {string} [ariaLabel] - Optional ARIA label (defaults to label)
  * @returns {HTMLElement} The created button element
  */
-function createInPageButton(parent, label, ariaLabel) {
-    parent = parent || document.body;
-    ariaLabel = ariaLabel || label;
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.setAttribute('role', 'button');
-    btn.setAttribute('aria-label', ariaLabel);
-    btn.textContent = label;
-    parent.appendChild(btn);
-    return btn;
-}
-
-/**
- * Creates an accessible web resource button.
- * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
- * @param {string} href - The URL to open when the button is clicked
- * @param {string} label - The accessible label for the button
- * @returns {HTMLButtonElement} The created button element
- */
-function createWebResourceButton(parent = document.body, href = '#', label = 'Visit resource') {
+function createInPageButtonLocal(parent = (typeof document !== 'undefined' ? document.body : null)) {
+  if (typeof document === 'undefined') return null;
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.textContent = label;
   btn.setAttribute('aria-label', label);
   btn.setAttribute('role', 'button');
-  btn.addEventListener('click', () => {
-    window.open(href, '_blank', 'noopener,noreferrer');
-  });
-  parent.appendChild(btn);
+  btn.setAttribute('aria-label', 'Open modal');
+  if (parent) {
+    parent.appendChild(btn);
+  }
   return btn;
 }
 
@@ -686,8 +662,7 @@ module.exports = {
   getLangAttribute,
   detectAndSetLang,
   personName,
-  createInPageButton,
-  createWebResourceButton,
+  createInPageButton: createInPageButtonLocal,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,

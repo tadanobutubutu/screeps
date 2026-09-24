@@ -30,59 +30,22 @@ function ensureElementHasId(element) {
   // ... (Previously existing functionality)
 }
 
-function addAriaLabel(element, label) {
-  // ... (Previously existing functionality)
+export function getUniqueLandmarkName(baseName, existingNames) {
+  if (existingNames.indexOf(baseName) === -1) {
+    return baseName;
+  }
+  let counter = 2;
+  let newName = `${baseName} ${counter}`;
+  while (existingNames.indexOf(newName) !== -1) {
+    counter++;
+    newName = `${baseName} ${counter}`;
+  }
+  return newName;
 }
 
-function renderDependencyGraphs(dependencies, container) {
-  // ... (Previously existing functionality)
-}
-
-function checkTableStructure(table) {
-  // ... (Previously existing functionality)
-}
-
-function getLangAttribute() {
-  // ... (Previously existing functionality)
-}
-
-function MyComponent() {
-  // ... (Previously existing functionality)
-}
-
-// Existing code that should be preserved
-export function existingFunction() {
-  // ... existing code ...
-}
-
-// New function added to address accessibility issues
-const accessibilityFunction = () => {
-  // Implement the recommended accessibility changes
-  // ...
-};
-
-const anotherFunction = () => {
-  // Existing code for anotherFunction
-};
-
-function newFunction() {
-  // implementation of new function
-  return 'Accessibility issues addressed';
-}
-
-export { newFunction as accessibilityFunction };
-
-export function getLangAttributeValue(lang) {
-  return lang || 'en';
-}
-
-// REACT_015: Add lang attribute to person name element
-export function personName(name, lang) {
-  return `<span lang="${getLangAttributeValue(lang)}">${name}</span>`;
-}
-
-// REACT_027: Validate table accessibility
-export function validateTableAccessibility(tableElement) {
+export function validateUniqueLandmarks(container) {
+  const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+  const landmarkNames = new Set();
   const issues = [];
 
   if (!tableElement) {
@@ -132,10 +95,32 @@ export function validateTableStructure(tableElement) {
   return issues;
 }
 
-// REACT_041: Add accessible names to SVGs
-export function getSvgAccessibleName(svgElement, accessibleName) {
-  if (!svgElement) {
-    return null;
+export function addSvgAccessibleName(svgElement, accessibleName) {
+  if (!svgElement) return;
+  
+  const title = document.createElement('title');
+  title.id = `${accessibleName.replace(/\s+/g, '-').toLowerCase()}-title`;
+  title.textContent = accessibleName;
+  
+  svgElement.insertBefore(title, svgElement.firstChild);
+  
+  svgElement.setAttribute('aria-labelledby', title.id);
+}
+
+export function isValidLink(element) {
+  if (!element) return true;
+  
+  const tagName = element.tagName.toLowerCase();
+  const href = element.getAttribute('href');
+  const onClick = element.getAttribute('onClick');
+  
+  const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
+  
+  if (isFakeLink) {
+    return {
+      valid: false,
+      suggestion: `Replace <${tagName}> with <button> or <a href="#"> for proper accessibility.`
+    };
   }
 
   if (svgElement && accessibleName) {
@@ -145,11 +130,35 @@ export function getSvgAccessibleName(svgElement, accessibleName) {
   return svgElement;
 }
 
-// REACT_025: Ensure unique landmarks
-export function getUniqueLandmarks(container) {
-  const landmarks = [];
-  const roleCount = {};
-  const issues = [];
+export function addScopeToHeaders(tableElement) {
+  if (!tableElement) return [];
+  
+  const headers = tableElement.querySelectorAll('th');
+  const updates = [];
+  
+  headers.forEach((th) => {
+    const row = th.closest('tr');
+    const rowIndex = Array.from(row.parentNode.children).indexOf(row);
+    const cellIndex = Array.from(row.cells).indexOf(th);
+    
+    let scope = 'col';
+    
+    if (cellIndex === 0 && rowIndex > 0) {
+      scope = 'row';
+    }
+    
+    if (!th.getAttribute('scope')) {
+      th.setAttribute('scope', scope);
+      updates.push({
+        element: th,
+        scope: scope,
+        position: { row: rowIndex, col: cellIndex }
+      });
+    }
+  });
+  
+  return updates;
+}
 
   const landmarkElements = container.querySelectorAll('header, nav, main, aside, footer, section, article');
 

@@ -261,13 +261,40 @@ function initializeApp() {
   return appState;
 }
 
-// Process data function
-function processData(data) {
-  if (!data) {
-    return null;
+// Handle credential response
+function handleCredentialResponse(response) {
+  if (!response || !response.credential) {
+    throw new Error('Invalid credential response');
   }
-  appState.data = data;
-  return data;
+
+  try {
+    // Decode the JWT credential
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+
+    // Store the user info in app state
+    appState.data = {
+      id: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      picture: payload.picture
+    };
+
+    console.log('Credential processed successfully');
+    return appState.data;
+  } catch (error) {
+    console.error('Error processing credential:', error);
+    throw error;
+  }
+}
+
+// ... (Preserve the rest of the existing functions and their changes)
+
+// Main function (required export)
+function main() {
+  initialize();
+  initializeApp();
+  console.log('Main function executed');
+  return { executed: true };
 }
 
 // Fetch user function
@@ -765,6 +792,7 @@ module.exports = {
   landmarkConfig: appConfig,
   initialize,
   initializeApp,
+  handleCredentialResponse,
   main,
   ensureAccessibleAttributes,
   // ... (Preserve the rest of the existing exports)

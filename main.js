@@ -49,28 +49,15 @@ const a11yStore = {
   liveRegion: null,
   // ... existing methods ...
 
-  // New function to validate the accessibility report for issues
-  validateAccessibilityReport() {
-    const errors = [];
-
-    if (!a11yStore.prefersReducedMotion()) {
-      errors.push('User does not prefer reduced motion');
-    }
-
-    if (a11yStore.prefersHighContrast()) {
-      errors.push('User prefers high contrast');
-    }
-
-    // Add more checks as needed
-
-    if (errors.length > 0) {
-      console.warn('Accessibility issues found:', errors.join('\n'));
-    } else {
-      console.log('No accessibility issues found.');
-    }
+  /**
+   * Check if the user prefers reduced motion
+   * @returns {boolean} True if the user prefers reduced motion
+   */
+  preferReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
-  prefersHighContrast() {
+  preferHighContrast() {
     return window.matchMedia('(prefers-contrast: more)').matches;
   },
 
@@ -83,7 +70,7 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
+      landmarks.forEach((landmark) => {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
@@ -167,17 +154,56 @@ const a11yStore = {
       }
     });
   },
-
-  // ... remaining a11yStore methods ...
-
-  /**
-   * Validate the accessibility report for issues
-   */
-  validateAccessibilityReport() {
-    // TODO: Implement the validation logic here
-    console.log('Accessibility report validation logic needs to be implemented.');
-  }
 };
+
+/**
+ * Validates the accessibility report by running all accessibility checks
+ * and ensuring the a11yStore methods are properly configured.
+ */
+function validateAccessibilityReport() {
+  console.log('Validating accessibility report...');
+  
+  // Check if a11yStore exists and has required methods
+  if (!a11yStore) {
+    throw new Error('a11yStore is not initialized');
+  }
+  
+  const requiredMethods = [
+    'preferReducedMotion',
+    'preferHighContrast',
+    'updateLiveRegion',
+    'checkLandmarkElements',
+    'addSVGAccessibilityProps',
+    'fixFakeLinks',
+    'ensureInteractiveRoles',
+    'addFormControlLabels',
+    'ensureImageAccessibility'
+  ];
+  
+  for (const methodName of requiredMethods) {
+    if (!a11yStore[methodName]) {
+      throw new Error(`Missing accessibility method: ${methodName}`);
+    }
+  }
+  
+  // Run each accessibility check
+  try {
+    a11yStore.preferReducedMotion();
+    a11yStore.preferHighContrast();
+    a11yStore.updateLiveRegion('Test message');
+    a11yStore.checkLandmarkElements();
+    a11yStore.addSVGAccessibilityProps();
+    a11yStore.fixFakeLinks();
+    a11yStore.ensureInteractiveRoles();
+    a11yStore.addFormControlLabels();
+    a11yStore.ensureImageAccessibility();
+    
+    console.log('Accessibility report validation passed successfully.');
+  } catch (error) {
+    console.error('Accessibility validation failed:', error.message);
+    process.exit(1);
+  }
+}
 
 // New functions
 function ensureInteractiveElementsAccessible() {

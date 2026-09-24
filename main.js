@@ -354,4 +354,259 @@ function ... {
     html5Landmarks.forEach(tag => {
         const pattern = new RegExp(`<${tag}`, 'gi');
         const matches = html.match(pattern);
-        if
+        if (matches && matches.length > 1) {
+            // Keep first, add role="region" to others
+            let count = 0;
+            html = html.replace(pattern, (match) => {
+                count++;
+                if (count === 1) return match;
+                return match.replace(new RegExp(`<${tag}`, 'i'), `<${tag} role="region"`);
+            });
+        }
+    });
+
+    return html;
+}
+
+// REACT_036: Fix fake link issues
+function fixFakeLinks(html) {
+    if (typeof html !== 'string') return html;
+
+    // Find spans or divs with onclick that act as links and convert to <a>
+    html = html.replace(
+        /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
+        (match, before, onclick, after) => {
+            const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
+            if (hrefMatch) {
+                return `<a href="${hrefMatch[1]}"${before}${after}>`;
+            }
+            return match;
+        }
+    );
+
+    html = html.replace(/<\/span>/gi, '</a>');
+
+    return html;
+}
+
+// Main function that applies all accessibility fixes
+function applyAccessibilityFixes(html) {
+    let result = html;
+    result = addLangAttribute(result);
+    result = fixTableStructure(result);
+    result = fixLandmarks(result);
+    result = addSvgAccessibleNames(result);
+    result = ensureUniqueLandmarks(result);
+    result = fixFakeLinks(result);
+    return result;
+}
+
+// New function to address accessibility issues
+function addressAccessibilityIssues(insightReport) {
+  // Apply accessibility fixes to HTML content based on insight report
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
+  }
+
+  // Implement the changes required to address accessibility issues from the insight report
+  // For example, this could be calling existing utility functions to validate accessibility
+  const linkIssues = checkLinkAccessibility();
+  const tableIssues = validateTableAccessibility();
+  const tableStructureIssues = validateTableStructure();
+  const linkAccessibilityIssues = validateLinkAccessibility();
+  const fakeLinkIssues = handleFakeLinks();
+
+  // Handle issues (e.g., log them, display warnings, etc.)
+  // For demonstration purposes, we will just log the issues to the console
+  console.log('Addressing accessibility issues from insight report:', insightReport);
+  console.log('Link Accessibility Issues:', linkIssues);
+  console.log('Table Accessibility Issues:', tableIssues);
+  console.log('Table Structure Issues:', tableStructureIssues);
+  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
+  console.log('Fake Link Issues:', fakeLinkIssues);
+
+  // Here you could add additional logic to address the issues
+  // For example, you might want to update the DOM or call other functions
+}
+
+// Function to ensure dependency graph container has proper ARIA role
+function ensureDependencyGraphContainerAccessibility() {
+  const container = document.querySelector('.dependency-graph-container');
+  if (container && !container.hasAttribute('role')) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
+// Function to ensure all landmark elements have unique IDs
+function ensureUniqueLandmarkIds() {
+  const landmarks = [
+    { selector: 'header', role: 'banner' },
+    { selector: 'nav', role: 'navigation' },
+    { selector: 'main', role: 'main' },
+    { selector: 'aside', role: 'complementary' },
+    { selector: 'footer', role: 'contentinfo' }
+  ];
+
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark.selector);
+    elements.forEach((element, index) => {
+      if (!element.id) {
+        element.id = `${landmark.role}-${index + 1}`;
+      }
+    });
+  });
+}
+
+// Updated addressAccessibilityIssues function to include new requirements
+function addressAccessibilityIssues(insightReport) {
+  // Apply accessibility fixes to HTML content based on insight report
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
+  }
+
+  // Ensure dependency graph container has proper ARIA role
+  ensureDependencyGraphContainerAccessibility();
+
+  // Ensure all landmark elements have unique IDs
+  ensureUniqueLandmarkIds();
+
+  // Implement the changes required to address accessibility issues from the insight report
+  const linkIssues = checkLinkAccessibility();
+  const tableIssues = validateTableAccessibility();
+  const tableStructureIssues = validateTableStructure();
+  const linkAccessibilityIssues = validateLinkAccessibility();
+  const fakeLinkIssues = handleFakeLinks();
+
+  // Handle issues (e.g., log them, display warnings, etc.)
+  console.log('Addressing accessibility issues from insight report:', insightReport);
+  console.log('Link Accessibility Issues:', linkIssues);
+  console.log('Table Accessibility Issues:', tableIssues);
+  console.log('Table Structure Issues:', tableStructureIssues);
+  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
+  console.log('Fake Link Issues:', fakeLinkIssues);
+
+  return {
+    success: true,
+    message: 'Accessibility issues addressed successfully',
+    issues: {
+      linkIssues,
+      tableIssues,
+      tableStructureIssues,
+      linkAccessibilityIssues,
+      fakeLinkIssues
+    }
+  };
+}
+
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    document.body.appendChild(button);
+}
+
+/**
+ * Handles the credential response from authentication providers.
+ * Processes the response object and determines if authentication was successful.
+ * @param {Object} credentialResponse - The response object from the credential provider
+ * @param {string} credentialResponse.credential - The JWT token from the credential response
+ * @param {string} [credentialResponse.select_by] - How the credential was selected
+ * @returns {Object} An object containing success status and parsed credential data
+ */
+function newFunction(credentialResponse) {
+    // Validate input
+    if (!credentialResponse) {
+        return {
+            success: false,
+            error: 'No credential response provided'
+        };
+    }
+
+    // Check if credential exists
+    if (!credentialResponse.credential) {
+        return {
+            success: false,
+            error: 'No credential token found in response'
+        };
+    }
+
+    try {
+        // Parse the JWT token to extract user information
+        const tokenParts = credentialResponse.credential.split('.');
+        
+        if (tokenParts.length !== 3) {
+            return {
+                success: false,
+                error: 'Invalid credential token format'
+            };
+        }
+
+        // Decode the payload (middle part of JWT)
+        const payload = JSON.parse(atob(tokenParts[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+        // Extract relevant user information from the token
+        const userData = {
+            email: payload.email || null,
+            name: payload.name || null,
+            picture: payload.picture || null,
+            sub: payload.sub || null, // Unique user identifier
+            email_verified: payload.email_verified || false,
+            issued_at: payload.iat ? new Date(payload.iat * 1000) : null,
+            expiration: payload.exp ? new Date(payload.exp * 1000) : null
+        };
+
+        // Check if the token has expired
+        if (userData.expiration && new Date() > userData.expiration) {
+            return {
+                success: false,
+                error: 'Credential token has expired',
+                user: userData
+            };
+        }
+
+        // Return successful response with user data
+        return {
+            success: true,
+            user: userData,
+            select_by: credentialResponse.select_by || 'unknown',
+            raw_credential: credentialResponse.credential
+        };
+
+    } catch (error) {
+        return {
+            success: false,
+            error: `Failed to parse credential: ${error.message}`
+        };
+    }
+}
+
+// Don't forget to test your new additions in the test file
+
+// Export the function for testing and external use
+module.exports = { newFunction };
+
+// Export accessibility utility functions
+export {
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibility,
+  newFunction,
+  addressAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarks,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  applyAccessibilityFixes,
+  divide,
+  wrapPrimaryContentInMain,
+  ensureDependencyGraphContainerAccessibility,
+  ensureUniqueLandmarkIds
+};

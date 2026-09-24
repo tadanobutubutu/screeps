@@ -26,14 +26,14 @@
       const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
       const count = (seen.get(role) || 0) + 1;
       seen.set(role, count);
-      if (count > 1 && !landmark.id) {
-        landmark.id = `${role} ${count}`;
+      if (count > 1 && landmark.id) {
+        landmark.setAttribute('aria-label', `${role} ${count}`);
       }
     });
   },
 
   fixFakeLink: function() {
-    const fakeLinks = document.querySelectorAll('[data-fake-link]');
+    const fakeLinks = document.querySelectorAll('a:not([href])');
     fakeLinks.forEach(el => {
       if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
       if (!el.hasAttribute('role')) el.setAttribute('role', 'link');
@@ -184,9 +184,9 @@
   },
 
   initializeAccessibility: function() {
-    this.addSvgAccessibleNames();
-    this.ensureUniqueLandmarks();
     this.fixFakeLink();
+    this.ensureUniqueLandmarks();
+    this.addSvgAccessibleNames();
   },
 
   initialize: function() {
@@ -197,7 +197,7 @@
     return issuesData;
   },
 
-  generateReport: function(issuesData) {
+  generateAccessibilityReport: function(issuesData) {
     const analyzedIssues = this.analyzeAccessibility(issuesData);
     const report = {
       introduction: 'Accessibility report for the application',

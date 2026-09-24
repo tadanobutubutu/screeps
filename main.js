@@ -149,6 +149,9 @@ function wrapPrimaryContentInMain(primaryContent) {
 // Renders the dependency graph view.
 // Updated to use dependencyGraphContent.
 export function renderDependencyGraph() {
+  // Apply accessibility fixes
+  fixAccessibilityIssues();
+  
   // Example usage: replace with actual rendering logic
   console.log('Rendering dependency graph:', dependencyGraphContent);
 }
@@ -156,6 +159,9 @@ export function renderDependencyGraph() {
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
+  // Apply accessibility fixes
+  fixAccessibilityIssues();
+  
   // Example usage: replace with actual rendering logic
   console.log('Rendering index view:', indexContent);
 }
@@ -405,8 +411,6 @@ module.exports = {
   renderPage,
   someFunction
 };
-
-// ... other exports ...
 
 // Existing code preserved
 function existingFunction() {

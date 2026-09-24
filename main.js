@@ -4,8 +4,10 @@
 // - REACT_015: Add lang attribute to HTML element (typically in index.html, not main.js)
 // - REACT_017: Add landmark roles and fix landmark issues
 // - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_041: Add accessible names to 2 SVGs
+// (Added functions for REACT_017 and new REACT_025)
 
 /**
  * Ensures the given element has an ID.
@@ -219,24 +221,6 @@ function ensureLangAttribute (document) {
     html.setAttribute('lang', document.documentElement.lang || 'en')
   }
   return html.getAttribute('lang')
-}
-
-/**
- * Creates an in-page button with accessibility attributes.
- * @param {string} label - The visible label/text for the button
- * @param {HTMLElement} [container] - Optional container to append the button into
- * @returns {HTMLButtonElement} The created button element
- */
-export function createInPageButton (label, container) {
-  const button = document.createElement('button')
-  button.textContent = label || ''
-  button.setAttribute('type', 'button')
-  ensureElementHasId(button)
-  addAriaLabel(button, label || '')
-  if (container && typeof container.appendChild === 'function') {
-    container.appendChild(button)
-  }
-  return button
 }
 
 // Export all functions for testing

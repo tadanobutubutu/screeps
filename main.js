@@ -4,92 +4,105 @@
 // Dependency imports
 const http = require('http');
 const url = require('url');
+const { dependencyGraphContent } = require('./utilities');
+const { indexContent } = require('./utilities');
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
+const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
-/**
- * Validates and fixes table structure accessibility issues.
- * Handles REACT_027 - Fix 26 table structure issues
- */
-function validateTableStructure() {
-    const tables = document.querySelectorAll('table');
+const { main } = require('./utilities');
+const { functionA, functionB } = require('./utilities');
 
-    tables.forEach(table => {
-        const rows = table.querySelectorAll('tr');
-        const firstRow = rows[0];
-
-        if (!firstRow) return;
-
-        // Get all header cells in the first row to determine column count
-        const firstRowThs = firstRow.querySelectorAll('th');
-        const firstRowTds = firstRow.querySelectorAll('td');
-        const firstRowHeaders = [...firstRowThs, ...firstRowTds];
-        const columnCount = firstRowHeaders.length;
-
-        rows.forEach((row, rowIndex) => {
-            const ths = row.querySelectorAll('th');
-            const tds = row.querySelectorAll('td');
-            const allCells = [...ths, ...tds];
-
-            allCells.forEach((cell, cellIndex) => {
-                if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
-                    const isFirstRow = rowIndex === 0;
-                    const isFirstCell = cellIndex === 0;
-
-                    // First row cells are column headers
-                    if (isFirstRow) {
-                        cell.setAttribute('scope', 'col');
-                    }
-                    // First cell in subsequent rows are row headers
-                    else if (isFirstCell) {
-                        cell.setAttribute('scope', 'row');
-                    }
-                }
-            });
+// Function to validate table accessibility
+const validateTableAccessibility = (html) => {
+  const issues = [];
+  
+  // Check if HTML contains tables
+  const tableRegex = /<table[\s\S]*?>[\s\S]*?<\/table>/gi;
+  let match;
+  
+  while ((match = tableRegex.exec(html)) !== null) {
+    const tableContent = match[0];
+    const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
+    
+    // Check for caption
+    const hasCaption = /<caption[\s\S]*?>[\s\S]*?<\/caption>/i.test(tableContent);
+    if (!hasCaption) {
+      issues.push({
+        type: 'table',
+        severity: 'warning',
+        message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
+        suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
+      });
+    }
+    
+    // Check for th elements
+    const hasHeaders = /<th[\s\S]*?>[\s\S]*?<\/th>/i.test(tableContent);
+    if (!hasHeaders) {
+      issues.push({
+        type: 'table',
+        severity: 'warning',
+        message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
+        suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
+      });
+    }
+    
+    // Check for scope attributes on th elements
+    const thMatches = (tableContent.match(/<th[\s\S]*?>/gi) || []);
+    thMatches.forEach((thTag, index) => {
+      if (!thTag.includes('scope=')) {
+        issues.push({
+          type: 'table',
+          severity: 'info',
+          message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
+          suggestion: 'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements'
         });
       }
     });
-}
-
-/**
- * Main entry point for table accessibility validation.
- * Calls validateTableStructure() to fix all table scope attribute issues.
- */
-function validateTableAccessibility() {
-    validateTableStructure();
-}
-
-// TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-
-/**
- * Landmark data structure
- */
-const landmarks = [
-  { id: 1, name: 'Eiffel Tower', location: 'Paris' },
-  { id: 2, name: 'Statue of Liberty', location: 'New York' },
-  { id: 3, name: 'Eiffel Tower', location: 'Paris' },
-  { id: 4, name: 'Big Ben', location: 'London' },
-  { id: 5, name: 'Statue of Liberty', location: 'New York' }
-];
-
-/**
- * Ensures unique landmarks by removing duplicates based on name and location
- * @param {Array} landmarksArray - Array of landmark objects
- * @returns {Array} - Array of unique landmarks
- */
-function ensureUniqueLandmarks(landmarksArray) {
-  if (!Array.isArray(landmarksArray)) {
-    return [];
-  }
-
-  const seen = new Set();
-  const uniqueLandmarks = [];
-
-  for (const landmark of landmarksArray) {
-    const key = `${landmark.name}-${landmark.location}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      uniqueLandmarks.push(landmark);
+    
+    // Check for thead and tbody structure
+    const hasThead = /<thead[\s\S]*?>[\s\S]*?<\/thead>/i.test(tableContent);
+    const hasTbody = /<tbody[\s\S]*?>[\s\S]*?<\/tbody>/i.test(tableContent);
+    
+    if (!hasThead) {
+      issues.push({
+        type: 'table',
+        severity: 'info',
+        message: `Table ${tableNumber} is missing <thead> element`,
+        suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
+      });
+    }
+    
+    if (!hasTbody) {
+      issues.push({
+        type: 'table',
+        severity: 'info',
+        message: `Table ${tableNumber} is missing <tbody> element`,
+        suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
+      });
+    }
+    
+    // Check for id and headers attributes for complex tables
+    const hasMultipleHeaders = (tableContent.match(/<th[\s\S]*?>[\s\S]*?<\/th>/gi) || []).length > 1;
+    if (hasMultipleHeaders) {
+      const hasHeadersAttr = /headers\s*=/i.test(tableContent);
+      const hasIdAttr = (tableContent.match(/<th[\s\S]*?id\s*=[\s\S]*?>/gi) || []).length > 0 && (tableContent.match(/<td[\s\S]*?>/gi) || []).length > 0;
+      
+      if (!hasIdAttr && !hasHeadersAttr) {
+        issues.push({
+          type: 'table',
+          severity: 'warning',
+          message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
+          suggestion: 'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids'
+        });
+      }
     }
   }
+  
+  return issues;
+};
+
+// Re-add the required exports for functionA and functionB
+// Assuming that they are objects with properties X, Y, and Z
 
 // App state for session management
 const appState = {
@@ -131,19 +144,11 @@ class TowerDefenseGame {
     this.drawGame();
   }
 
-  initEventListeners() {
-    this.canvas.addEventListener('click', (e) => {
-      const rect = this.canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      // Check if clicking on a tower
-      for (const tower of this.towers) {
-        if (Math.sqrt((x - tower.x) ** 2 + (y - tower.y) ** 2) < 20) {
-          this.selectTower(tower);
-          return;
-        }
-      }
+const a11yStore = {
+  // ... existing methods ...
+  prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  },
 
       // Place new tower if enough money
       if (this.money >= 50) {
@@ -160,208 +165,37 @@ class TowerDefenseGame {
     });
   }
 
-  startGame() {
-    if (!this.gameRunning) {
-      this.gameRunning = true;
-      this.gameLoop();
-    }
-  }
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) return;
+    this.announce(message, priority);
+  },
 
-  stopGame() {
-    this.gameRunning = false;
-    if (this.gameLoopId) {
-      cancelAnimationFrame(this.gameLoopId);
-    }
-  }
+  checkLandmarkElements() {
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach((element, index) => {
+      const landmarks = document.querySelectorAll(element);
+      landmarks.forEach((landmark) => {
+        if (landmark.id === '') {
+          landmark.id = `${element}-${index}`;
+        }
 
-  gameLoop() {
-    if (!this.gameRunning) return;
-
-    this.update();
-    this.draw();
-    this.gameLoopId = requestAnimationFrame(() => this.gameLoop());
-  }
-
-  update() {
-    // Spawn enemies
-    if (Math.random() < 0.02 && this.enemies.length < 10) {
-      this.enemies.push({
-        x: this.path[0].x,
-        y: this.path[0].y,
-        pathIndex: 0,
-        speed: 1,
-        health: 30,
-        maxHealth: 30
+        if (landmarks.length > 1) {
+          if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+            landmark.setAttribute('aria-label', `${element} section`);
+          }
+        }
       });
-    }
-
-    // Move enemies
-    for (let i = this.enemies.length - 1; i >= 0; i--) {
-      const enemy = this.enemies[i];
-      const target = this.path[enemy.pathIndex];
-
-      if (target) {
-        const dx = target.x - enemy.x;
-        const dy = target.y - enemy.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < 5) {
-          enemy.pathIndex++;
-          if (enemy.pathIndex >= this.path.length) {
-            // Enemy reached end
-            this.lives--;
-            this.enemies.splice(i, 1);
-            continue;
-          }
-        } else {
-          enemy.x += (dx / distance) * enemy.speed;
-          enemy.y += (dy / distance) * enemy.speed;
-        }
-      }
-    }
-
-    // Tower shooting
-    const now = Date.now();
-    for (const tower of this.towers) {
-      if (now - tower.lastShot > tower.fireRate) {
-        // Find closest enemy in range
-        let closestEnemy = null;
-        let closestDistance = Infinity;
-
-        for (const enemy of this.enemies) {
-          const dx = enemy.x - tower.x;
-          const dy = enemy.y - tower.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < tower.range && distance < closestDistance) {
-            closestEnemy = enemy;
-            closestDistance = distance;
-          }
-        }
-
-        if (closestEnemy) {
-          // Shoot projectile
-          this.projectiles.push({
-            x: tower.x,
-            y: tower.y,
-            targetX: closestEnemy.x,
-            targetY: closestEnemy.y,
-            speed: 5,
-            damage: tower.damage
-          });
-          tower.lastShot = now;
-        }
-      }
-    }
-
-    // Move projectiles and check for hits
-    for (let i = this.projectiles.length - 1; i >= 0; i--) {
-      const projectile = this.projectiles[i];
-      const dx = projectile.targetX - projectile.x;
-      const dy = projectile.targetY - projectile.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < 5) {
-        // Projectile hit target
-        for (let j = this.enemies.length - 1; j >= 0; j--) {
-          const enemy = this.enemies[j];
-          if (Math.abs(enemy.x - projectile.targetX) < 5 &&
-              Math.abs(enemy.y - projectile.targetY) < 5) {
-            enemy.health -= projectile.damage;
-            if (enemy.health <= 0) {
-              this.enemies.splice(j, 1);
-              this.money += 10;
-            }
-            break;
-          }
-        }
-        this.projectiles.splice(i, 1);
-      } else {
-        projectile.x += (dx / distance) * projectile.speed;
-        projectile.y += (dy / distance) * projectile.speed;
-      }
-    }
-
-    // Check game over
-    if (this.lives <= 0) {
-      this.stopGame();
-      alert('Game Over!');
-    }
+    });
   }
+};
 
-  draw() {
-    // Clear canvas
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // Draw path
-    this.ctx.strokeStyle = '#555';
-    this.ctx.lineWidth = 10;
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.path[0].x, this.path[0].y);
-    for (let i = 1; i < this.path.length; i++) {
-      this.ctx.lineTo(this.path[i].x, this.path[i].y);
-    }
-    this.ctx.stroke();
-
-    // Draw towers
-    this.ctx.fillStyle = 'blue';
-    for (const tower of this.towers) {
-      this.ctx.beginPath();
-      this.ctx.arc(tower.x, tower.y, 20, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Draw range
-      this.ctx.strokeStyle = 'rgba(0, 0, 255, 0.2)';
-      this.ctx.beginPath();
-      this.ctx.arc(tower.x, tower.y, tower.range, 0, Math.PI * 2);
-      this.ctx.stroke();
-    }
-
-    // Draw enemies
-    this.ctx.fillStyle = 'red';
-    for (const enemy of this.enemies) {
-      this.ctx.beginPath();
-      this.ctx.arc(enemy.x, enemy.y, 10, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Draw health bar
-      this.ctx.fillStyle = 'green';
-      this.ctx.fillRect(enemy.x - 10, enemy.y - 20, 20 * (enemy.health / enemy.maxHealth), 5);
-      this.ctx.fillStyle = 'red';
-    }
-
-    // Draw projectiles
-    this.ctx.fillStyle = 'yellow';
-    for (const projectile of this.projectiles) {
-      this.ctx.beginPath();
-      this.ctx.arc(projectile.x, projectile.y, 3, 0, Math.PI * 2);
-      this.ctx.fill();
-    }
-
-    // Draw UI
-    this.ctx.fillStyle = 'black';
-    this.ctx.font = '20px Arial';
-    this.ctx.fillText(`Money: $${this.money}`, 10, 30);
-    this.ctx.fillText(`Lives: ${this.lives}`, 10, 60);
-    this.ctx.fillText(`Wave: ${this.wave}`, 10, 90);
-  }
-
-  selectTower(tower) {
-    // In a real implementation, this would show tower upgrade options
-    console.log('Tower selected:', tower);
-  }
-}
-
+// Export the function for handling credential responses
 module.exports = {
-  http,
-  url,
-  dependencyGraphContent,
-  indexContent,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  landmarks,
-  uniqueLandmarks,
-  TowerDefenseGame
+  validateTableAccessibility,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  a11yStore,
+  functionA,
+  functionB
 };

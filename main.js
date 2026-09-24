@@ -1,10 +1,19 @@
 // TODO: This is the existing code that needs to be preserved
 
-// New function as per the issue request
-function newRequiredExport() {
-  // Implementation of the new function
-  console.log('This is a new required export function');
+// New function for creating in-page buttons
+function createInPageButton(buttonId, buttonText, buttonClass) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.className = buttonClass;
+  document.body.appendChild(button);
 }
 
-// Export the new function
-export { newRequiredExport };
+// Existing exports and functions
+export function someExistingFunction() {
+  // ... existing function code ...
+}
+
+export function anotherExistingFunction() {
+  // ... existing function code ...
+}

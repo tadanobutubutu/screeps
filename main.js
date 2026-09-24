@@ -1,9 +1,4 @@
-/**
- * Main application entry point
- * @module main
- */
-
-// Import required module(s) and export the new necessary function(s) here in main.js
+// main.js - Application entry point
 
 // New function or change as per the issue description
 function newFunction() {

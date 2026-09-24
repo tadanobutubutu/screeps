@@ -85,6 +85,80 @@ const accessibilityUtils = {
       isAccessible: issues.length === 0,
       issues: issues.length > 0 ? issues : null
     }
+  },
+
+  /**
+   * Set up keyboard navigation for an element
+   * @param {HTMLElement} element - The element to set up navigation for
+   * @param {Object} handlers - The handler functions for different keys
+   */
+  setupKeyboardNav: (element, handlers) => {
+    if (!element || !handlers) return;
+
+    element.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, handlers);
+    });
+  },
+
+  /**
+   * Add ARIA attributes to an element
+   * @param {HTMLElement} element - The element to add ARIA attributes to
+   * @param {Object} attributes - The ARIA attributes to add
+   */
+  addAriaAttributes: (element, attributes) => {
+    if (!element || !attributes) return;
+
+    Object.entries(attributes).forEach(([key, value]) => {
+      element.setAttribute(`aria-${key}`, value);
+    });
+  },
+
+  /**
+   * Create a live region for screen reader announcements
+   * @param {string} [priority='polite'] - The priority of the live region
+   * @returns {HTMLElement} The created live region element
+   */
+  createLiveRegion: (priority = 'polite') => {
+    const liveRegion = document.createElement('div');
+    liveRegion.setAttribute('aria-live', priority);
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.className = 'sr-only';
+    liveRegion.style.position = 'absolute';
+    liveRegion.style.left = '-9999px';
+    document.body.appendChild(liveRegion);
+    return liveRegion;
+  },
+
+  /**
+   * Focus the first focusable element within a container
+   * @param {HTMLElement} container - The container to search for focusable elements
+   */
+  focusFirstElement: (container) => {
+    if (!container) return;
+
+    const focusableElements = container.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    }
+  },
+
+  /**
+   * Focus the last focusable element within a container
+   * @param {HTMLElement} container - The container to search for focusable elements
+   */
+  focusLastElement: (container) => {
+    if (!container) return;
+
+    const focusableElements = container.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length > 0) {
+      focusableElements[focusableElements.length - 1].focus();
+    }
   }
 }
 
@@ -95,7 +169,11 @@ function initAccessibility () {
   // Set up accessibility utilities
   if (typeof window !== 'undefined') {
     // Ensure screen reader support is available
-    document.body.setAttribute('role', 'application')
+    document.body.setAttribute('role', 'application');
+
+    // Create a global live region for announcements
+    const globalLiveRegion = accessibilityUtils.createLiveRegion('polite');
+    document.body.appendChild(globalLiveRegion);
   }
   return accessibilityUtils
 }
@@ -159,6 +237,22 @@ function renderDependencyGraphs (container, dependencies, options = {}) {
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`)
 
+  // Add keyboard navigation support
+  accessibilityUtils.setupKeyboardNav(container, {
+    Escape: (e) => {
+      e.preventDefault();
+      accessibilityUtils.announceToScreenReader('Graph navigation closed');
+    },
+    ArrowLeft: (e) => {
+      e.preventDefault();
+      // Implement left navigation
+    },
+    ArrowRight: (e) => {
+      e.preventDefault();
+      // Implement right navigation
+    }
+  });
+
   return {
     containerId,
     accessible: hasAriaLabel,
@@ -194,7 +288,10 @@ function focusTrap (element) {
     }
   })
 
-  return element
+  // Focus the first element when trap is activated
+  firstElement.focus();
+
+  return element;
 }
 
 function newFocusTrap () {

@@ -171,10 +171,25 @@ function startApp() {
   return server;
 }
 
-// New function added as per issue
-function handleRequest(req, res) {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Request received\n');
+/**
+ * Checks if the application has accessible configuration
+ * @returns {boolean} True if the configuration is accessible
+ */
+function isAccessible() {
+  return Boolean(config && config.port && config.env);
+}
+
+/**
+ * Gets an accessible summary of the application status
+ * @returns {object} An accessible status object
+ */
+function getAccessibleStatus() {
+  return {
+    status: 'ok',
+    accessible: isAccessible(),
+    port: config.port,
+    environment: config.env
+  };
 }
 
 // Export functions for testing
@@ -182,7 +197,8 @@ module.exports = {
   createServer,
   startApp,
   config,
-  handleRequest
+  isAccessible,
+  getAccessibleStatus
 };
 
 // Start the application if run directly (with new functions)

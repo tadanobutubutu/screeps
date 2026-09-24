@@ -7,8 +7,6 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 
-// main.js - Accessibility-focused implementation
-
 /**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
@@ -32,13 +30,13 @@ function detectAndSetLang(content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[一-鿿]/.test(content)) {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[぀-ヿ]/.test(content)) {
+    } else if (/[\u3040-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
-    } else if (/[Ѐ-ӿ]/.test(content)) {
+    } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[؀-ۿ]/.test(content)) {
+    } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
@@ -61,21 +59,6 @@ function personName(name) {
   if (!name) return '';
   return name.trim();
 }
-
-const addLangAttribute = (element) => {
-  if (element && typeof element.setAttribute === 'function') {
-    element.setAttribute('lang', 'en');
-  }
-  return element;
-};
-
-const ensureLandmarkUniqueness = (elements) => {
-  if (!Array.isArray(elements)) {
-    return [];
-  }
-  // Process elements to ensure landmark uniqueness
-  return elements;
-};
 
 // New function to address REACT_027: Fix 26 table structure issues
 function validateTableAccessibility(table) {
@@ -203,7 +186,7 @@ function validateLandmarkStructure() {
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName(svg, name = null) {
+function getSvgAccessibleName(svg) {
   // This function returns the accessible name for an SVG
   if (!svg) {
     return '';
@@ -239,8 +222,7 @@ function getSvgAccessibleName(svg, name = null) {
     }
   }
 
-  // Fallback to provided name or empty string
-  return name || '';
+  return '';
 }
 
 // New function to address REACT_025: Ensure unique landmarks (2 issues)
@@ -478,7 +460,7 @@ function buildDependencyGraph(node, options = {}) {
 }
 
 /**
- * Renders a dependency graph visualization with landmark validation
+ * Renders a dependency graph visualization
  * @param {HTMLElement} rootNode - The root DOM node to render the graph from
  * @param {HTMLElement} container - Optional container element to render into
  * @param {Object} options - Rendering options
@@ -494,13 +476,9 @@ function renderDependencyGraph(rootNode, container, options = {}) {
     // Build the dependency graph structure
     const graphData = buildDependencyGraph(rootNode, options);
 
-    // Additional landmark validation for the rendered graph
-    const landmarkValidation = validateLandmarkStructure();
-
     // Log for debugging
     console.log('Rendering dependency graph starting from:', rootNode);
     console.log('Graph data:', JSON.stringify(graphData, null, 2));
-    console.log('Landmark validation:', JSON.stringify(landmarkValidation, null, 2));
 
     // If container provided, render visual elements
     if (container && typeof document !== 'undefined') {
@@ -529,16 +507,14 @@ function renderDependencyGraph(rootNode, container, options = {}) {
         message: 'Dependency graph rendered successfully',
         container: graphContainer,
         svg: svg,
-        data: graphData,
-        landmarkValidation: landmarkValidation
+        data: graphData
       };
     }
 
     return {
       success: true,
       message: 'Dependency graph data built successfully',
-      data: graphData,
-      landmarkValidation: landmarkValidation
+      data: graphData
     };
   } catch (error) {
     console.error('Error rendering dependency graph:', error);
@@ -581,7 +557,7 @@ function buildBreadcrumbData(indexPath, options = {}) {
 }
 
 /**
- * Renders an index view (breadcrumb or navigation structure) with landmark validation
+ * Renders an index view (breadcrumb or navigation structure)
  * @param {string} indexPath - The path to render the index view for
  * @param {HTMLElement} container - Optional container element to render into
  * @param {Object} options - Rendering options
@@ -600,25 +576,14 @@ function renderIndexView(indexPath, container, options = {}) {
       separator: options.separator || '/'
     });
 
-    // Additional landmark validation for the rendered index view
-    const landmarkValidation = validateLandmarkStructure();
-
     // Log for debugging
     console.log('Rendering index view at path:', indexPath);
     console.log('Breadcrumb data:', JSON.stringify(breadcrumbData, null, 2));
-    console.log('Landmark validation:', JSON.stringify(landmarkValidation, null, 2));
 
     // If container provided, render visual elements
     if (container && typeof document !== 'undefined') {
       const nav = document.createElement('nav');
       nav.setAttribute('aria-label', options.ariaLabel || 'Breadcrumb');
-      nav.setAttribute('role', 'navigation');
-      
-      // Validate the navigation landmark
-      const navValidation = validateLandmark(nav);
-      if (!navValidation.valid) {
-        console.warn('Navigation landmark validation issues:', navValidation.errors);
-      }
       
       const ol = document.createElement('ol');
       ol.className = options.listClassName || 'breadcrumb';
@@ -650,8 +615,7 @@ function renderIndexView(indexPath, container, options = {}) {
         message: 'Index view rendered successfully',
         nav: nav,
         breadcrumbs: breadcrumbData.breadcrumbs,
-        data: breadcrumbData,
-        landmarkValidation: landmarkValidation
+        data: breadcrumbData
       };
     }
 
@@ -659,13 +623,32 @@ function renderIndexView(indexPath, container, options = {}) {
       success: true,
       message: 'Index view data built successfully',
       breadcrumbs: breadcrumbData.breadcrumbs,
-      data: breadcrumbData,
-      landmarkValidation: landmarkValidation
+      data: breadcrumbData
     };
   } catch (error) {
     console.error('Error rendering index view:', error);
     return { success: false, errors: [error.message] };
   }
+}
+
+// NEW FUNCTION TO ADDRESS IMAGE ACCESSIBILITY ISSUE
+/**
+ * Validates the accessibility of an image element
+ * @param {HTMLImageElement} img - The image element to validate
+ * @returns {Object} Result with valid boolean and errors array
+ */
+function validateImageAccessibility(img) {
+  const errors = [];
+  if (!img) {
+    return { valid: false, errors: ['Image element is required'] };
+  }
+
+  // Check if alt attribute exists (required for accessibility)
+  if (!img.hasAttribute('alt')) {
+    errors.push('Image is missing alt attribute');
+  }
+
+  return { valid: errors.length === 0, errors };
 }
 
 // TODO: Implement tower defense
@@ -821,160 +804,12 @@ function towerDefense() {
   };
 }
 
-// Additional functions from origin/main integration
-function getLandmarkElements() {
-  // Your implementation for accessing landmarks
-  if (typeof document !== 'undefined') {
-    return Array.from(document.querySelectorAll('header, nav, main, aside, footer'));
-  }
-  return [];
-}
-
-function addressInsightIssues() {
-  // Address new accessibility issues from insight report
-  // This function can be expanded to handle specific issues
-  console.log('Addressing insight issues...');
-}
-
-const init = () => {
-  addLangAttribute(document.documentElement);
-  addressInsightIssues();
-  enforceAccessibility();
-};
-
-const enforceAccessibility = () => {
-  renderDependencyGraphs();
-  fixButtonIdentifiers();
-  fixFakeLinkIssues();
-
-  setupAriaLiveRegions();
-  setupFocusManagement();
-  enforceSemanticMarkup();
-};
-
-// New functions to address the listed issues
-function renderDependencyGraphs() {
-  // Implementation for rendering dependency graphs
-  const graphContainers = document.querySelectorAll('.dependency-graph, [data-dependency-graph]');
-  graphContainers.forEach(container => {
-    const rootNode = container;
-    if (rootNode) {
-      renderDependencyGraph(rootNode, container);
-    }
-  });
-}
-
-function fixButtonIdentifiers() {
-  // Implementation for fixing button identifiers
-  const buttons = document.querySelectorAll('button:not([id])');
-  buttons.forEach((button, index) => {
-    if (!button.getAttribute('id')) {
-      button.setAttribute('id', `button-${index}`);
-    }
-  });
-}
-
-function fixFakeLinkIssues() {
-  // Implementation for fixing fake link issues
-  const links = document.querySelectorAll('a[href="#"], a:not([href])');
-  links.forEach(link => {
-    const validation = isLinkAccessible(link);
-    if (!validation.valid) {
-      console.warn('Fake link issue:', validation.errors);
-      // Optionally fix by adding role="button" if needed
-    }
-  });
-}
-
-function setupAriaLiveRegions() {
-  // Implementation for setting up aria live regions
-  if (typeof document !== 'undefined' && !document.querySelector('[aria-live]')) {
-    const liveRegion = document.createElement('div');
-    liveRegion.setAttribute('aria-live', 'polite');
-    liveRegion.setAttribute('aria-atomic', 'true');
-    liveRegion.className = 'sr-only';
-    document.body.appendChild(liveRegion);
-  }
-}
-
-function setupFocusManagement() {
-  // Implementation for setting up focus management
-  // Add focus styles or manage focus for dynamic content
-}
-
-function enforceSemanticMarkup() {
-  // Implementation for enhancing semantic markup
-  // Check for proper semantic elements usage
-}
-
-function handleAccessibilityIssues() {
-  // Implementation for handling accessibility issues
-  // Call various validation functions
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-  
-  const landmarks = document.querySelectorAll('[role], header, nav, main, aside, footer');
-  landmarks.forEach(landmark => {
-    validateLandmark(landmark);
-  });
-  
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    getSvgAccessibleName(svg);
-  });
-}
-
-function ensureDependencyGraphAriaRole() {
-  // Implementation for ensuring dependency graph aria role
-  const graphs = document.querySelectorAll('.dependency-graph');
-  graphs.forEach(graph => {
-    if (!graph.getAttribute('role')) {
-      graph.setAttribute('role', 'img');
-    }
-  });
-}
-
-// Utility functions from origin/main
-function checkTableStructure() {
-  // Implementation for checking table structure
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableStructure(table);
-  });
-}
-
-function countDependencies() {
-  // Implementation for counting dependencies
-  const depElements = document.querySelectorAll('[data-dependency]');
-  return depElements.length;
-}
-
-function handleCredentialResponse(response) {
-  // Implementation for handling credential response
-  console.log('Credential response received:', response);
-}
-
-const setSvgAttributes = (svg) => {
-  // Set default SVG attributes for accessibility
-  if (svg && svg.tagName === 'SVG') {
-    svg.setAttribute('role', 'img');
-  }
-  if (svg && !svg.hasAttribute('aria-hidden')) {
-    svg.setAttribute('aria-hidden', 'true');
-  }
-};
-
 // Export all functions to maintain current exports
 module.exports = {
   setHtmlLangAttribute,
   detectAndSetLang,
   getLangAttribute,
   personName,
-  addLangAttribute,
-  ensureLandmarkUniqueness,
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
@@ -989,20 +824,5 @@ module.exports = {
   buildDependencyGraph,
   buildBreadcrumbData,
   towerDefense,
-  init,
-  enforceAccessibility,
-  getLandmarkElements,
-  addressInsightIssues,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixFakeLinkIssues,
-  setupAriaLiveRegions,
-  setupFocusManagement,
-  enforceSemanticMarkup,
-  handleAccessibilityIssues,
-  ensureDependencyGraphAriaRole,
-  checkTableStructure,
-  countDependencies,
-  handleCredentialResponse,
-  setSvgAttributes
+  validateImageAccessibility // Added new function for image accessibility
 };

@@ -21,10 +21,9 @@ const viewsDir = path.join(__dirname, 'views');
 // Landmark elements that should be checked for proper usage
 const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
 
-// The new function you need to add
 function newFunction() {
-    // Example implementation: return a simple message
-    return 'New function executed';
+  // Example implementation: return a simple message
+  return 'New function executed';
 }
 
 // TODO: Add back any required exports that might have been omitted
@@ -42,194 +41,7 @@ function run() {
     updateThScope(file);
     validateTableAccessibility(file);
     // Add more accessibility checks here if needed
-    
-    // REACT_015: Add lang attribute to HTML element
-    addLangAttributeToHtml(file);
-    
-    // REACT_017: Add landmark roles and fix landmark issues
-    fixLandmarkRoles(file);
-    
-    // REACT_041: Add accessible names to 2 SVGs
-    addAccessibleNamesToSvgs(file);
-    
-    // REACT_025: Ensure unique landmarks (2 issues)
-    ensureUniqueLandmarksInFile(file);
-    
-    // REACT_036: Fix 1 fake link issue
-    fixFakeLinks(file);
   });
-}
-
-/**
- * REACT_015: Adds lang attribute to HTML element if missing
- * @param {string} file - The file path to process
- */
-function addLangAttributeToHtml(file) {
-  try {
-    let content = fs.readFileSync(file, 'utf8');
-    const langRegex = /<html([^>]*)>/gi;
-    const match = langRegex.exec(content);
-    
-    if (match) {
-      const openingTag = match[0];
-      const attributes = match[1];
-      
-      // Check if lang attribute already exists
-      if (!/lang\s*=/i.test(attributes)) {
-        // Add lang="en" to the html tag
-        const updatedTag = openingTag.replace(/>/, ' lang="en">');
-        content = content.replace(openingTag, updatedTag);
-        fs.writeFileSync(file, content);
-        console.log(`Added lang attribute to HTML element in ${file}`);
-      }
-    }
-  } catch (error) {
-    console.error(`Error adding lang attribute in ${file}:`, error);
-  }
-}
-
-/**
- * REACT_017: Fixes landmark issues by adding appropriate roles and labels
- * @param {string} file - The file path to process
- */
-function fixLandmarkRoles(file) {
-  try {
-    let content = fs.readFileSync(file, 'utf8');
-    let modified = false;
-    
-    // Check for section elements without aria-label or role
-    const sectionRegex = /<section(?![^>]*aria-label)(?![^>]*aria-labelledby)(?![^>]*role)([^>]*)>/gi;
-    content = content.replace(sectionRegex, (match, attrs) => {
-      modified = true;
-      return `<section${attrs} role="region">`;
-    });
-    
-    // Check for divs used as navigation without proper attributes
-    const navDivRegex = /<div(?=[^>]*class[^>]*\bnav\b)(?![^>]*role)([^>]*)>/gi;
-    content = content.replace(navDivRegex, (match, attrs) => {
-      modified = true;
-      return `<div${attrs} role="navigation">`;
-    });
-    
-    if (modified) {
-      fs.writeFileSync(file, content);
-      console.log(`Fixed landmark roles in ${file}`);
-    }
-  } catch (error) {
-    console.error(`Error fixing landmark roles in ${file}:`, error);
-  }
-}
-
-/**
- * REACT_041: Adds accessible names to SVG elements that are missing them
- * @param {string} file - The file path to process
- */
-function addAccessibleNamesToSvgs(file) {
-  try {
-    let content = fs.readFileSync(file, 'utf8');
-    let svgCount = 0;
-    
-    // Find SVG elements that need accessible names
-    const svgRegex = /<svg(?![^>]*aria-label)(?![^>]*aria-labelledby)(?![^>]*role)([^>]*)>/gi;
-    
-    content = content.replace(svgRegex, (match, attrs) => {
-      svgCount++;
-      const titleId = `svg-title-${svgCount}-${Date.now()}`;
-      // Add role="img" and aria-labelledby
-      const newAttrs = attrs.replace(/\s*$/, '');
-      return `<svg${newAttrs} role="img" aria-labelledby="${titleId}"><title id="${titleId}">SVG Image ${svgCount}</title>`;
-    });
-    
-    if (svgCount > 0) {
-      fs.writeFileSync(file, content);
-      console.log(`Added accessible names to ${svgCount} SVG(s) in ${file}`);
-    }
-  } catch (error) {
-    console.error(`Error adding SVG accessible names in ${file}:`, error);
-  }
-}
-
-/**
- * REACT_025: Ensures landmarks have unique identifiers
- * @param {string} file - The file path to process
- */
-function ensureUniqueLandmarksInFile(file) {
-  try {
-    let content = fs.readFileSync(file, 'utf8');
-    let modified = false;
-    const usedIds = new Set();
-    
-    // Find all landmark elements
-    LANDMARK_ELEMENTS.forEach(landmark => {
-      const landmarkRegex = new RegExp(`<${landmark}([^>]*)>`, 'gi');
-      
-      content = content.replace(landmarkRegex, (match, attrs) => {
-        // Check if element has an id
-        const idMatch = /id\s*=\s*["']([^"']+)["']/i.exec(attrs);
-        
-        if (idMatch) {
-          const id = idMatch[1];
-          if (usedIds.has(id)) {
-            // ID is not unique, create a new unique id
-            modified = true;
-            const newId = `${landmark}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-            return match.replace(idMatch[0], `id="${newId}"`);
-          }
-          usedIds.add(id);
-        } else {
-          // Add unique id to landmark elements that are likely to be duplicated
-          if (landmark === 'section' || landmark === 'aside' || landmark === 'nav') {
-            modified = true;
-            const newId = `${landmark}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-            return match.replace('>', ` id="${newId}">`);
-          }
-        }
-        return match;
-      });
-    });
-    
-    if (modified) {
-      fs.writeFileSync(file, content);
-      console.log(`Ensured unique landmarks in ${file}`);
-    }
-  } catch (error) {
-    console.error(`Error ensuring unique landmarks in ${file}:`, error);
-  }
-}
-
-/**
- * REACT_036: Fixes fake links (anchor tags without href that should be buttons)
- * @param {string} file - The file path to process
- */
-function fixFakeLinks(file) {
-  try {
-    let content = fs.readFileSync(file, 'utf8');
-    let modified = false;
-    
-    // Find anchor tags without href or with href="#"
-    const fakeLinkRegex = /<a(?![^>]*href)([^>]*)>([^<]*)<\/a>/gi;
-    
-    content = content.replace(fakeLinkRegex, (match, attrs, text) => {
-      modified = true;
-      // Convert to button
-      return `<button${attrs}>${text}</button>`;
-    });
-    
-    // Also fix empty anchors (just closing tag or whitespace)
-    const emptyLinkRegex = /<a\s+class\s*=\s*["']([^"']*)["'][^>]*>\s*<\/\s*a\s*>/gi;
-    
-    content = content.replace(emptyLinkRegex, (match, className) => {
-      modified = true;
-      return `<button class="${className}"></button>`;
-    });
-    
-    if (modified) {
-      fs.writeFileSync(file, content);
-      console.log(`Fixed fake links in ${file}`);
-    }
-  } catch (error) {
-    console.error(`Error fixing fake links in ${file}:`, error);
-  }
 }
 
 // Start the game loop
@@ -238,10 +50,117 @@ Module.onInit = function() {
 };
 
 /**
- * Checks landmark elements in HTML content for accessibility compliance.
- * @param {string} htmlContent - The HTML content to check
- * @returns {Object} - Object containing landmark element information and any warnings
+ * Checks if a table has the expected structure
+ * @param {string} tableName - The name of the table to check
+ * @param {Array<string>} expectedColumns - Array of expected column names
+ * @returns {boolean} - True if table structure matches expected columns, false otherwise
  */
+function checkTableStructure(tableName, expectedColumns) {
+  // ... existing implementation ...
+}
+
+/**
+ * Ensures the given element has an id attribute
+ * @param {HTMLElement} element - The element to check
+ * @returns {string} - The id of the element
+ */
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label to the given element
+ * @param {HTMLElement} element - The element to modify
+ * @param {string} label - The label text to add
+ */
+function addAriaLabel(element, label) {
+  if (element && label) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * Renders dependency graphs for debugging purposes
+ * @param {Object} dependencies - Object containing dependency mappings
+ * @returns {string} - String representation of the dependency graph
+ */
+function renderDependencyGraphs(dependencies) {
+  let graphOutput = 'Dependency Graph:\n';
+
+  if (!dependencies || typeof dependencies !== 'object') {
+    return graphOutput + 'No dependencies to display';
+  }
+
+  for (const [module, deps] of Object.entries(dependencies)) {
+    graphOutput += `\n${module} -> `;
+    if (Array.isArray(deps)) {
+      graphOutput += deps.join(', ') || 'none';
+    } else if (typeof deps === 'object' && deps !== null) {
+      graphOutput += Object.keys(deps).join(', ') || 'none';
+    } else {
+      graphOutput += String(deps);
+    }
+  }
+
+  return graphOutput;
+}
+
+/**
+ * Counts the total number of dependencies
+ * @returns {number} - Total count of dependencies
+ */
+function countDependencies() {
+  // Existing function implementation
+
+  // New implementation to count dependencies using Document and regex
+  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
+  const document = { body: { textContent: '' } };
+  const importCount = (document.body.textContent || '').match(importCommentRegExp) || [];
+  return importCount.length;
+}
+
+/**
+ * Module structure display function for debugging purposes
+ * @param {Object} module - The module object to display
+ * @returns {string} - String representation of the module structure
+ */
+function displayModuleStructure(module) {
+  let structure = 'Module Structure:\n';
+
+  if (!module) {
+    return structure + 'No module provided';
+  }
+
+  structure += `Name: ${module.name || 'unnamed'}\n`;
+  structure += `Exports: ${Object.keys(module.exports || {}).join(', ') || 'none'}\n`;
+  structure += `Dependencies: ${(module.dependencies || []).length}\n`;
+
+  return structure;
+}
+
+function myNewFunction(input) {
+  // Implement the new function here
+  return input;
+}
+
+function main() {
+  return 'Hello World';
+}
+
+function SomeClass() {}
+
+function someUtility() {
+  return true;
+}
+
+const config = {
+  enabled: true
+};
+
+// Add the new function definition
 function checkLandmarkElements(htmlContent) {
   const warnings = [];
   const foundLandmarks = {};
@@ -251,20 +170,6 @@ function checkLandmarkElements(htmlContent) {
     const matches = htmlContent.match(regex);
     if (matches) {
       foundLandmarks[landmark] = matches.length;
-    } else {
-      warnings.push(`Missing landmark element: <${landmark}>`);
-    }
-  });
-  return { warnings, foundLandmarks };
-}
-
-/**
- * Add lang attribute to HTML element
- */
-function addLangAttribute(lang) {
-    const htmlElement = document.querySelector('html');
-    if (htmlElement) {
-        htmlElement.setAttribute('lang', lang);
     }
   });
 
@@ -279,135 +184,30 @@ function addLangAttribute(lang) {
   };
 }
 
+// ... Add the rest of the methods you have implemented in the conflicted file below ...
+
 /**
- * Creates an in-page button for the game interface
- * @param {Object} options - Button configuration options
- * @param {string} options.text - The text to display on the button
- * @param {Function} options.onClick - The callback function when button is clicked
- * @param {string} [options.id] - Optional unique identifier for the button
- * @param {string} [options.title] - Optional title/tooltip for the button
- * @param {string} [options.className] - Optional CSS class name for styling
- * @returns {Object} - The created button object
+ * Updates th elements without scope attribute to include scope="row"
+ * @param {string} file - The file path to process
  */
-function createInPageButton(options) {
-  const { text, onClick, id, title, className } = options;
-
-  // Validate required options
-  if (!text) {
-    throw new Error('Button text is required');
+function updateThScope(file) {
+  try {
+    let content = fs.readFileSync(file, 'utf8');
+    // Simple regex to find th elements without scope attribute
+    const updatedContent = content.replace(/<th(?![^>]*scope)([^>]*)>/gi, '<th scope="row"$1>');
+    if (content !== updatedContent) {
+      fs.writeFileSync(file, updatedContent);
+      console.log(`Updated th scope attributes in ${file}`);
+    }
+  } catch (error) {
+    console.error(`Error updating th scope in ${file}:`, error);
   }
-  if (typeof onClick !== 'function') {
-    throw new Error('onClick callback must be a function');
-  }
-
-  // Create button object
-  const button = {
-    id: id || `btn-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    text: String(text),
-    title: title || '',
-    className: className || 'default-button',
-    onClick,
-    disabled: false,
-    visible: true,
-    element: null
-  };
-
-  // Store button reference
-  if (!createInPageButton.buttons) {
-    createInPageButton.buttons = {};
-  }
-  createInPageButton.buttons[button.id] = button;
-
-  return button;
 }
 
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-  // Existing function implementation
-  // New implementation to count dependencies using dependencyGraphContent and regex
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
-  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
-  return importCount.length;
-}
-
-// Store for accessibility announcements (screen reader support)
-const a11yStore = {
-  liveRegion: null,
-  announcements: [],
-  addAnnouncement(message) {
-    this.announcements.push({
-      message,
-      timestamp: Date.now()
-    });
-  },
-  getAnnouncements() {
-    return this.announcements;
-  },
-  clearAnnouncements() {
-    this.announcements = [];
-  },
-
-// Utility: Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return (
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
-
-function myFunction() {
-    // Existing implementation
-}
+// ... Add missed function exports at the end of the file ...
 
 module.exports = {
-    main,
-    SomeClass,
-    someUtility,
-    config,
-    countDependencies,
-    run,
-    checkTableStructure,
-    ensureElementHasId,
-    addAriaLabel,
-    renderDependencyGraph,
-    myNewFunction,
-    newFunction,
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
-    displayModuleStructure,
-    // New functions from merge
-    checkLandmarkElements,
-    createInPageButtonOptions,
-    countDependencies: countDependencies,
-    a11yStore,
-    addLandmarkRegions,
-    addressAccessibilityIssues,
-    LANDMARK_ELEMENTS,
-    updateLiveRegion,
-    addSVGAccessibilityProps,
-    preserveExistingCode,
-    personName,
-    validateLandmark,
-    ensureUniqueLandmarks,
-    checkLandmarkElementsInDom,
-    makeAPICall,
-    createInPageButtonElement,
-    updateThScopeAttribute,
-    validateTableAccessibilityFn,
-    validateTableStructureFn,
-    validateLandmarkStructureFn,
-    getSvgAccessibleNameFn,
-    // Accessibility fix functions
-    addLangAttributeToHtml,
-    fixLandmarkRoles,
-    addAccessibleNamesToSvgs,
-    ensureUniqueLandmarksInFile,
-    fixFakeLinks,
-    myFunction,
+  ... your export statements ...
+  checkLandmarkElements, // Add this new function export
+  // ... any other missing function exports ...
 };

@@ -16,9 +16,15 @@ function secureRandomFloat() {
             return buf.readUInt32LE(0) / (0xffffffff + 1);
         }
     } catch (e) {
-        // Fallback
+        // Fallback handled below
     }
-    return Math.random();
+    // Fallback: Use Web Crypto API if available, otherwise return 0 to fail safely
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        const array = new Uint32Array(1);
+        crypto.getRandomValues(array);
+        return array[0] / (0xffffffff + 1);
+    }
+    return 0; // Secure fallback
 }
 
 // ⚡ PERFORMANCE: Per-tick cache for visual effects enablement

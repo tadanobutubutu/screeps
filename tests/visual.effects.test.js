@@ -223,7 +223,7 @@ describe('visual.effects', () => {
         // Memoryからは削除されているはず
         expect(mockCreep.memory.trailPositions).toBeUndefined();
     });
-    test('secureRandomFloat falls back to Math.random on exception', () => {
+    test('secureRandomFloat gracefully handles exception without Math.random', () => {
         const originalMathRandom = Math.random;
         Math.random = jest.fn().mockReturnValue(0.99);
         try {
@@ -238,7 +238,7 @@ describe('visual.effects', () => {
             expect(() => {
                 visualEffects.particles({ x: 25, y: 25, roomName: 'W0N0' }, '#FFD700', 1);
             }).not.toThrow();
-            expect(Math.random).toHaveBeenCalled();
+            expect(Math.random).not.toHaveBeenCalled();
         } finally {
             Math.random = originalMathRandom;
             jest.unmock('crypto');

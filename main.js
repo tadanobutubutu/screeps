@@ -1,11 +1,11 @@
 // main.js
 
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-
-// Additional existing functionality
-function existingFunction() {
-  return 'existing functionality';
+// TODO: Implement this function for creating in-page buttons
+function createInPageButton(buttonId, buttonText) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  document.body.appendChild(button);
 }
 
 function anotherFunction() {

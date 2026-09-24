@@ -17,49 +17,22 @@ const {
   transformInputData,
   initSkipLink,
   trapFocus,
-  newFocusTrap,
-  ensureElementId,
+  announceToScreenReader,
+  ensureElementId: ensureElementIdOrigin,
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
   addAriaLabel,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementHasIdOrigin,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  renderAdditionalContent,
-  transformInputData,
-  addSvgAccessibleName,
-  announceToScreenReader,
-} = main;
-
-// TODO: This is the existing code that needs to be preserved
-
-// Accessibility utilities and functions
-const accessibilityUtils = {
-  initSkipLink,
-  trapFocus,
-  announceToScreenReader,
-  ensureElementId,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addAriaLabel,
-  addressAccessibilityIssues,
-  handleCredentialResponse,
-  ensureElementHasIdOrigin,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addSvgAccessibleName,
-  newFocusTrap,
+  ensureElementHasIdOrigin
 } = main;
 
-const newFocusTrapImpl = (element) => {
+const newFocusTrap = (element) => {
   if (!element) return originNewFocusTrap(element);
   const focusable = element.querySelectorAll(
     'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
@@ -81,7 +54,7 @@ const newFocusTrapImpl = (element) => {
   });
 };
 
-const ensureElementIdImpl = (element) => {
+const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }

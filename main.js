@@ -5,6 +5,9 @@ import { setDependencyGraph } from './actions/dependencyGraph';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
 import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
 
-// ... The rest of the file remains the same as the 'origin/main' section.
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original code goes here
+// ----- END ORIGINAL CODE -----
 
 // TODO: Any additional changes requested in the issue should be added after this function

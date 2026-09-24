@@ -283,14 +283,8 @@ function renderIndexView(data, options = {}) {
     }
   },
 
-  fixTableStructure: () => {
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      // Ensure table has proper structure
-      if (!table.querySelector('thead') || !table.querySelector('tbody')) {
-        const thead = document.createElement('thead');
-        const tbody = document.createElement('tbody');
-        const rows = table.querySelectorAll('tr');
+  // New function for addressing accessibility issues from insight report
+  newFocusTrap: newFocusTrap,
 
         if (rows.length > 0) {
           thead.appendChild(rows[0].cloneNode(true));
@@ -471,6 +465,29 @@ function renderDependencyGraph(data) {
     nodes: data.nodes || [],
     edges: data.edges || []
   };
+};
+
+// Function for trap focus implementation (merged with newFocusTrap)
+function newFocusTrap(element) {
+  if (!element) return;
+  const focusable = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  });
 }
 
 // Add back any required exports that might have been removed.

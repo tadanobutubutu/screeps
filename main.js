@@ -2,7 +2,20 @@
 function greet(name) {
   return `Hello, ${name}!`;
 }
-// TODO: Any additional changes requested in the issue should be added after this function
+
+// Additional logic to handle credential response
+function handleCredentialResponse(credentialResponse) {
+  // Example processing of credential response
+  // This is just a placeholder and should be replaced with actual logic
+  if (credentialResponse && credentialResponse.credential) {
+    // Assuming the credential object has a property called 'token'
+    const token = credentialResponse.credential.token;
+    console.log(`Received token: ${token}`);
+    // Additional logic can be added here to handle the token or any other property
+  } else {
+    console.log('Invalid or missing credential response');
+  }
+}
 
 // New function implementation as per the issue requirements
 function newFunction() {
@@ -84,7 +97,6 @@ export function calculateProduct(a, b) {
   return a * b;
 }
 
-function function3() {
-  // TODO: Implement new function3 logic here
-  return "function3";
+export function handleCredentialResponse(credentialResponse) {
+  return handleCredentialResponse(credentialResponse);
 }

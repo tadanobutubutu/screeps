@@ -224,14 +224,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // If running in browser context
 if (typeof window !== 'undefined') {
-  window.addLangAttribute = addLangAttribute;
-  window.fixTableStructure = fixTableStructure;
-  window.fixLandmarkIssues = fixLandmarkIssues;
-  window.ensureUniqueLandmarks = ensureUniqueLandmarks;
-  window.addSvgAccessibleNames = addSvgAccessibleNames;
-  window.fixFakeLinkIssue = fixFakeLinkIssue;
-  window.googleSignIn = googleSignIn;
-  window.fixButtonIdentifiers = fixButtonIdentifiers;
+  window.checkLinkAndButtonAccessibility = checkLinkLinkAndButtonAccessibility;
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;

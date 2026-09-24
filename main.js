@@ -6,8 +6,6 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
-
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,
@@ -116,9 +114,11 @@ module.exports = {
   newFocusTrap
 };
 
-// Start the application if run directly
-if (require.main === module) {
-  startApp();
+// New functions
+
+// New function to handle logging
+function logMessage(message) {
+  console.log(`[LOG]: ${message}`);
 }
 
 // TODO: Address accessibility issues from insight report:
@@ -130,4 +130,9 @@ function logWithAccessibility(message) {
   document.body.appendChild(accessibilityLog);
 }
 
-// Example usage: logWithAccessibility(`Server running on port ${config.port}`);
+// New function to add lang attribute to HTML element
+function addLangAttribute(htmlElement) {
+  htmlElement.setAttribute('lang', 'en');
+}
+
+// TODO: Any additional changes requested in the issue should be added after this function

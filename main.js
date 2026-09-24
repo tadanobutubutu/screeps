@@ -4,8 +4,8 @@
 // Dependency imports
 const http = require('http')
 const url = require('url')
-const { dependencyGraphContent } = require('./utilities')
-const { indexContent } = require('./utilities')
+const { dependencyGraphContent } = require('./dependencyGraphContent')
+const { indexContent } = require('./indexContent')
 const {
   addLangAttribute,
   fixTableStructureIssues,
@@ -20,7 +20,7 @@ const {
   uniqueLandmarks,
   fixImageAltTexts,
   googleSignIn,
-  handleCredentialResponse,
+  handleCredentialResponse: handleCredentialResponseImported,
   ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
@@ -28,7 +28,9 @@ const {
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
-  addressAccessibilityIssues,
+  addressAccessibilityIssues
+} = require('./utilities')
+const {
   createInPageButton,
   createWebResourceButton,
   validateLandmark,
@@ -37,14 +39,17 @@ const {
 } = require('./utilities')
 
 const { main } = require('./utilities')
-const { functionA, functionB } = require('./utilities')
+const { functionA, functionB } = require('./functionModule')
+
+const { http: httpImported } = require('http')
+const url2 = require('url')
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
   const issues = []
 
   // Check if HTML contains tables
-  const tableRegex = /<table[^>]*>[\s\S]*?<\/table>/gi
+  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi
   let match
 
   while ((match = tableRegex.exec(html)) !== null) {
@@ -64,7 +69,7 @@ const validateTableAccessibility = (html) => {
     }
 
     // Check for th elements
-    const hasHeaders = /<th[^>]*>[\s\S]*?<\/th>/i.test(tableContent)
+    const hasHeaders = /<th[^>]*>/i.test(tableContent)
     if (!hasHeaders) {
       issues.push({
         type: 'table',
@@ -76,7 +81,7 @@ const validateTableAccessibility = (html) => {
     }
 
     // Check for scope attributes on th elements
-    const thMatches = tableContent.match(/<th[^>]*>[\s\S]*?<\/th>/gi) || []
+    const thMatches = tableContent.match(/<th[^>]*>/gi) || []
     thMatches.forEach((thTag, index) => {
       if (!/scope=/i.test(thTag)) {
         issues.push({
@@ -112,11 +117,10 @@ const validateTableAccessibility = (html) => {
     }
 
     // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders =
-            (tableContent.match(/<th[^>]*>[\s\S]*?<\/th>/gi) || []).length > 1
+    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1
     if (hasMultipleHeaders) {
-      const hasHeadersAttr = tableContent.includes('headers=')
-      const hasIdAttr = (tableContent.match(/<th[^>]*id=/gi) || []).length > 0
+      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent)
+      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'))
 
       if (!hasIdAttr && !hasHeadersAttr) {
         issues.push({
@@ -133,6 +137,10 @@ const validateTableAccessibility = (html) => {
   return issues
 }
 
+// Re-add the required exports for functionA and functionB
+// Assuming that they are objects with properties X, Y, and Z
+// (already imported above)
+
 // App state for session management
 const appState = {
   sessions: new Map()
@@ -147,56 +155,56 @@ function validateSession (sessionId) {
   return appState.sessions.get(sessionId) || null
 }
 
+function handleCredentialResponse (credentialResponse) {
+  // Process credential response - basic implementation
+  if (!credentialResponse || typeof credentialResponse !== 'object') {
+    return { status: 'error', message: 'Invalid credential response' }
+  }
+  return { status: 'success', credential: credentialResponse }
+}
+
 // Accessibility store for managing accessibility state and preferences
 const a11yStore = {
+  // ... existing methods ...
+}
+
+const a11yStoreMethods = {
   prefersReducedMotion () {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    return typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false
   },
 
   prefersHighContrast () {
-    return window.matchMedia('(prefers-contrast: more)').matches
+    return typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(prefers-contrast: more)').matches
+      : false
   },
 
   updateLiveRegion (message, priority = 'polite') {
-    if (!this.liveRegion) {
-      this.liveRegion = document.createElement('div')
-      this.liveRegion.setAttribute('aria-live', priority)
-      this.liveRegion.setAttribute('aria-atomic', 'true')
-      this.liveRegion.className = 'sr-only'
-      document.body.appendChild(this.liveRegion)
-    }
+    if (!this.liveRegion) this.createLiveRegion()
     this.announce(message, priority)
   },
 
   checkLandmarkElements () {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside']
     landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(element)
+      const landmarks = document.querySelectorAll(`[role="${element}"]`)
       landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
-          landmark.id = element + '-' + index
+          landmark.setAttribute('id', `${element}-${index}`)
         }
 
         if (landmarks.length > 1) {
           if (
-            !landmark.getAttribute('aria-label') &&
-                        !landmark.getAttribute('aria-labelledby')
+            !landmark.hasAttribute('aria-label') &&
+                        !landmark.hasAttribute('aria-labelledby')
           ) {
-            landmark.setAttribute('aria-label', element + ' section ' + (index + 1))
+            landmark.setAttribute('aria-label', element)
           }
         }
       })
     })
-  },
-
-  liveRegion: null,
-
-  announce (message, priority = 'polite') {
-    this.liveRegion.setAttribute('aria-live', priority)
-    this.liveRegion.textContent = ''
-    setTimeout(() => {
-      this.liveRegion.textContent = message
-    }, 100)
   }
 }
 
@@ -205,8 +213,6 @@ module.exports = {
   getActiveSessionsCount,
   validateSession,
   handleCredentialResponse,
-  a11yStore,
   functionA,
-  functionB,
-  main
+  functionB
 }

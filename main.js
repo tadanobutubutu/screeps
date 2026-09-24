@@ -329,9 +329,16 @@ function ensureDependencyGraphARIA(containerId = 'dependencyGraph', role = 'regi
   }
 }
 
+// New function for rendering graph/index
+function renderGraphIndex(data) {
+  // Implementation for rendering graph/index
+  // This is a placeholder function and should be replaced with actual implementation
+  console.log('Rendering graph/index with data:', data);
+}
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, ensureDependencyGraphARIA };
+  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, renderGraphIndex };
 }
 
 // If running in browser context
@@ -339,5 +346,5 @@ if (typeof window !== 'undefined') {
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
-  window.ensureDependencyGraphARIA = ensureDependencyGraphARIA;
+  window.renderGraphIndex = renderGraphIndex;
 }

@@ -553,8 +553,5 @@ module.exports = {
     // Implementation of fixFakeLink
     // TODO: Add the implementation details here
   },
-  // New function to set the language attribute on the HTML element
-  setLanguageAttribute: function() {
-    detectAndSetLang();
-  }
+  detectAndSetLang: detectAndSetLang
 };

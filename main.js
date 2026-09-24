@@ -1,12 +1,5 @@
-// New required export
-function newRequiredFunction() {
-  // Implementation of the new required function
-}
-
-// Additional new function if needed
-function additionalFunction() {
-  // Implementation of the additional function
-}
+const fs = require('fs');
+const path = require('path');
 
 // Import dependency graph and index content modules
 const dependencyGraphContent = require('./dependencyGraphContent');
@@ -20,12 +13,18 @@ const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section'
  * @param {string} htmlContent - The HTML content to check
  * @returns {Object} - Object containing landmark element information and any warnings
  */
-function checkLandmarkElements(htmlContent) {
+function checkLandmarkElementsInContent(htmlContent) {
+  // Validate input
+  if (typeof htmlContent !== 'string') {
+    throw new Error('HTML content must be a string');
+  }
+
   const warnings = [];
   const foundLandmarks = {};
 
   LANDMARK_ELEMENTS.forEach(landmark => {
-    const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
+    // Use case-insensitive regex to find landmark elements
+    const regex = new RegExp(`<${landmark}[\\s>]`, 'gi');
     const matches = htmlContent.match(regex);
     if (matches) {
       foundLandmarks[landmark] = matches.length;
@@ -66,7 +65,7 @@ function createInPageButton(options) {
 
   // Create button object
   const button = {
-    id: id || `btn-${Date.now()}-${Math.floor(Math.random() * 9999)}`,
+    id: id || `btn-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     text: String(text),
     title: title || '',
     className: className || 'default-button',
@@ -88,8 +87,8 @@ function createInPageButton(options) {
 // TODO: Implement a function to count dependencies
 function countDependencies() {
   // Existing function implementation
-
-  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`];
+  // New implementation to count dependencies using dependencyGraphContent and regex
+  const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
   const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
 }
@@ -163,7 +162,8 @@ function newFunction() {
 }
 
 module.exports = {
-  checkLandmarkElements,
+  checkLandmarkElements: checkLandmarkElementsInContent,
+  checkLandmarkElementsInContent,
   createInPageButton,
   countDependencies,
   a11yStore,
@@ -184,6 +184,6 @@ module.exports = {
   ensureUniqueLandmarks: a11yStore.ensureUniqueLandmarks,
   checkLandmarkElementsInDom,
   renderIndexView,
-  newRequiredFunction,
-  additionalFunction
+  addLandmarkIds,
+  newFunction
 };

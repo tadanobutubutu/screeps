@@ -128,6 +128,38 @@ function spawnNewUser(name, age) {
     return newUser;
 }
 
+// New function to create a user with additional metadata
+function createUserWithMetadata(name, age, metadata = {}) {
+    const user = new User(name, age);
+    return { ...user, ...metadata };
+}
+
+// New function to validate user data
+function validateUserData(user) {
+    if (!user || !user.name || !user.age) {
+        return false;
+    }
+    if (typeof user.name !== 'string' || user.name.trim() === '') {
+        return false;
+    }
+    if (typeof user.age !== 'number' || user.age < 0 || user.age > 120) {
+        return false;
+    }
+    return true;
+}
+
+// New function to get user details
+function getUserDetails(userId) {
+    if (!userId) return null;
+    // In a real app, this would fetch from a database
+    return {
+        id: userId,
+        name: 'Sample User',
+        age: 30,
+        role: 'user'
+    };
+}
+
 // Web server dependencies (incorporated from origin/main)
 const express = require('express');
 const path = require('path');
@@ -329,6 +361,9 @@ function functionA(input) {
 module.exports = {
     User,
     spawnNewUser,
+    createUserWithMetadata,
+    validateUserData,
+    getUserDetails,
     config,
     initialize,
     initializeApp,

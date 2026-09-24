@@ -5,7 +5,7 @@
 // Main module
 
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraph');
+const { dependencyGraphContent } = require('./graphs');
 const { indexContent } = require('./index');
 
 const main = require('./utilities');
@@ -25,7 +25,7 @@ const {
   min,
   mode,
   median,
-} = require('./mathUtils');
+} = main;
 
 // Existing rendering functions (preserving existing exports and functions)
 
@@ -42,7 +42,7 @@ function getWelcomeMessage() {
   return greetingFunction() + " This is a new function that returns a welcome message.";
 }
 
-const { class1, function1, Object1 } = require('./legacyModule');
+const { class1, function1, Object1 } = require('./module');
 
 // Accessibility store with comprehensive accessibility improvements
 const a11yStore = {
@@ -55,13 +55,13 @@ const a11yStore = {
    * @returns {Object} An object containing the container element and a destroy function
    */
   prefersReducedMotion() {
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-    return prefersReduced.matches;
+    const prefersReducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    return prefersReducedQuery.matches;
   },
 
   prefersHighContrast() {
-    const prefersMore = window.matchMedia('(prefers-contrast: more)');
-    return prefersMore.matches;
+    const prefersHighContrastQuery = window.matchMedia('(prefers-contrast: more)');
+    return prefersHighContrastQuery.matches;
   },
 
   liveRegion: null,
@@ -69,12 +69,25 @@ const a11yStore = {
   updateLiveRegion(message, priority = 'polite') {
     if (!this.liveRegion) {
       this.liveRegion = document.createElement('div');
+      this.liveRegion.setAttribute('role', 'status');
       this.liveRegion.setAttribute('aria-live', priority);
       this.liveRegion.setAttribute('aria-atomic', 'true');
-      this.liveRegion.className = 'sr-only';
+      this.liveRegion.style.position = 'absolute';
+      this.liveRegion.style.width = '1px';
+      this.liveRegion.style.height = '1px';
+      this.liveRegion.style.padding = '0';
+      this.liveRegion.style.margin = '-1px';
+      this.liveRegion.style.overflow = 'hidden';
+      this.liveRegion.style.clip = 'rect(0, 0, 0, 0)';
+      this.liveRegion.style.whiteSpace = 'nowrap';
+      this.liveRegion.style.border = '0';
       document.body.appendChild(this.liveRegion);
     }
-    this.announce(message, priority);
+    this.liveRegion.textContent = '';
+    // Use setTimeout to ensure the region is announced
+    setTimeout(() => {
+      this.liveRegion.textContent = message;
+    }, 100);
   },
 
   announce(message, priority) {
@@ -87,7 +100,7 @@ const a11yStore = {
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach(element => {
+    landmarkElements.forEach((element) => {
       const landmarks = document.querySelectorAll(element);
       landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
@@ -95,15 +108,15 @@ const a11yStore = {
         }
 
         if (landmarks.length > 1) {
-          if (!landmark.id || landmark.id === `${element}-${index}`) {
-            landmark.id = `${element} ${index + 1}`;
+          if (!landmark.getAttribute('aria-label')) {
+            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
         }
       });
     });
   },
 
-  fixSVGElements() {
+  ensureSvgAccessibility() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
       let titleElement = svg.querySelector('title');
@@ -119,19 +132,17 @@ const a11yStore = {
       }
     };
 
-      if (!svg.getAttribute('role')) {
-        svg.setAttribute('role', 'img');
-        svg.setAttribute('aria-labelledby', titleElement.id);
-      }
-      
-      if (!svg.getAttribute('aria-labelledby') && titleElement.id) {
-        svg.setAttribute('aria-labelledby', titleElement.id);
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-labelledby', titleElement.id);
+
+      if (!svg.getAttribute('aria-hidden')) {
+        svg.setAttribute('aria-hidden', 'true');
       }
     });
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href=""], [href="#"], [onclick*="navigate"]');
+    const fakeLinks = document.querySelectorAll('[href="#"], [href=""], a[onclick]');
     fakeLinks.forEach((link) => {
       link.setAttribute('role', 'link');
       link.setAttribute('tabindex', '0');
@@ -143,8 +154,7 @@ const a11yStore = {
    * Ensure all interactive elements have proper ARIA roles
    */
   ensureInteractiveRoles() {
-    const interactiveSelectors = '[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]';
-    const interactiveElements = document.querySelectorAll(interactiveSelectors);
+    const interactiveElements = document.querySelectorAll('div[onclick], span[onclick], a[onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
     interactiveElements.forEach((element) => {
       if (!element.getAttribute('role')) {
         element.setAttribute('role', 'button');
@@ -177,7 +187,7 @@ const a11yStore = {
   ensureImageAltText() {
     const images = document.querySelectorAll('img');
     images.forEach((img) => {
-      if (!img.alt && !img.getAttribute('aria-hidden')) {
+      if (!img.alt && !img.getAttribute('aria-label') && !img.getAttribute('role')) {
         img.setAttribute('alt', '');
         img.setAttribute('role', 'presentation');
       }
@@ -196,4 +206,72 @@ const a11yStore = {
   }
 };
 
+// New functions
+function ensureInteractiveElementsAccessible() {
+  // Check for interactive elements without proper accessibility
+  const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onkeyup], [onkeypress]');
+  
+  interactiveElements.forEach((element) => {
+    // Ensure elements are keyboard accessible
+    if (!element.hasAttribute('tabindex') && !element.hasAttribute('href')) {
+      element.setAttribute('tabindex', '0');
+    }
+    
+    // Add role if not present
+    if (!element.getAttribute('role')) {
+      if (element.tagName === 'A') {
+        // Links should have proper href or role="button"
+        if (!element.getAttribute('href') || element.getAttribute('href') === '#') {
+          element.setAttribute('role', 'button');
+        }
+      } else {
+        element.setAttribute('role', 'button');
+      }
+    }
+    
+    // Ensure visible focus indicator
+    if (!element.hasAttribute('data-a11y-focus')) {
+      element.setAttribute('data-a11y-focus', 'true');
+    }
+  });
+  
+  return true;
+}
+
 // ... rest of the code ...
+
+// Initialize accessibility features when DOM is ready
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    // Run accessibility checks
+    if (a11yStore && typeof a11yStore.checkLandmarkElements === 'function') {
+      a11yStore.checkLandmarkElements();
+    }
+    if (a11yStore && typeof a11yStore.ensureSvgAccessibility === 'function') {
+      a11yStore.ensureSvgAccessibility();
+    }
+    if (a11yStore && typeof a11yStore.fixFakeLinks === 'function') {
+      a11yStore.fixFakeLinks();
+    }
+    if (a11yStore && typeof a11yStore.ensureInteractiveRoles === 'function') {
+      a11yStore.ensureInteractiveRoles();
+    }
+    if (a11yStore && typeof a11yStore.addFormControlLabels === 'function') {
+      a11yStore.addFormControlLabels();
+    }
+    if (a11yStore && typeof a11yStore.ensureImageAccessibility === 'function') {
+      a11yStore.ensureImageAccessibility();
+    }
+    if (typeof ensureInteractiveElementsAccessible === 'function') {
+      ensureInteractiveElementsAccessible();
+    }
+  });
+}
+
+module.exports = {
+  a11yStore,
+  ensureInteractiveElementsAccessible,
+  greetingFunction,
+  getWelcomeMessage,
+  config
+};

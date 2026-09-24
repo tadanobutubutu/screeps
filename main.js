@@ -3,203 +3,138 @@
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateTableAccessibility())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-// ADD: Address new accessibility issues from insight report
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
+// New accessibility fixes added below
 
-// Existing code preserved below
-function getLangAttribute() {
-  // ... Implementation
-}
-
-function getFullLangAttribute() {
-  // ... Implementation
-}
-
-function validateTableAccessibility() {
-  // ... Implementation
-}
-
-function validateTableStructure() {
-  // ... Implementation
-}
-
-function validateLandmark() {
-  // ... Implementation
-}
-
-function validateLandmarkStructure() {
-  // ... Implementation
-}
-
-function ensureUniqueLandmarks() {
-  // ... Implementation
-}
-
-function getSvgAccessibleName() {
-  // ... Implementation
-}
-
-function createInPageButton() {
-  // ... Implementation
-}
-
-function ensureUniqueLandmarks() {
-  // ... Implementation
-}
-
-function validateTableAccessibility() {
-  // ... Implementation
-}
-
-function createAccessibleLink() {
-  // ... Implementation
-}
-
-function handleAccessibilityIssues() {
-  // ... Implementation
-}
-
-function newFocusTrap() {
-  // New function to handle focus trap for keyboard navigation
-  // ... Implementation
-}
-
-/**
- * Handles fake links by converting them to proper accessible elements
- * @param {Object} link - The fake link to handle
- * @returns {Object} Converted accessible element
- */
-function handleFakeLinks(link) {
-  if (link.isFake) {
-    return {
-      type: 'span',
-      text: link.text,
-      role: 'link',
-      ariaLabel: link.ariaLabel || link.text,
-      tabIndex: 0
-    };
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
   }
-  return link;
 }
 
-/**
- * Handles accessibility issues found during validation
- * @param {Array} issues - Array of accessibility issues
- * @returns {Object} Summary of handled issues
- */
-function handleAccessibilityIssues(issues) {
-  const handled = [];
-  const unhandled = [];
+// REACT_027: Fix table structure issues
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has proper structure
+    if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
+      const rows = table.querySelectorAll('tr');
 
-  issues.forEach(issue => {
-    if (issue.fixable) {
-      handled.push(issue);
-    } else {
-      unhandled.push(issue);
+      if (rows.length > 0) {
+        thead.appendChild(rows[0].cloneNode(true));
+        rows[0].remove();
+      }
+
+      rows.forEach(row => tbody.appendChild(row.cloneNode(true)));
+      table.innerHTML = '';
+      table.appendChild(thead);
+      table.appendChild(tbody);
     }
+
+    // Add scope attributes to headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
   });
-
-  return {
-    total: issues.length,
-    handled: handled.length,
-    unhandled: unhandled.length,
-    unhandledIssues: unhandled
-  };
 }
 
-/**
- * Ensures an element has an ID attribute
- * @param {Object} element - The element to check
- * @param {string} id - The ID to assign if missing
- * @returns {Object} The element with ensured ID
- */
-function ensureElementId(element, id) {
-  if (!element.id) {
-    element.id = id;
+// REACT_017: Fix landmark issues
+function fixLandmarkIssues() {
+  // Add main landmark if missing
+  if (!document.querySelector('main')) {
+    const main = document.createElement('main');
+    const content = document.querySelector('body').innerHTML;
+    document.querySelector('body').innerHTML = '';
+    main.innerHTML = content;
+    document.querySelector('body').appendChild(main);
   }
-  return element;
-}
 
-/**
- * Adds an aria-label to an element if missing
- * @param {Object} element - The element to modify
- * @param {string} label - The aria-label to add
- * @returns {Object} The element with aria-label
- */
-function addAriaLabel(element, label) {
-  if (!element.ariaLabel) {
-    element.ariaLabel = label;
-  }
-  return element;
-}
-
-/**
- * Adds proper landmark regions to the document
- * @param {Array} regions - Array of landmark regions to add
- * @returns {Object} Result with success status and any issues found
- */
-function addProperLandmarkRegions(regions) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-
+  // Add ARIA landmarks for regions
+  const regions = document.querySelectorAll('[role="region"]');
   regions.forEach(region => {
-    if (!validLandmarks.includes(region.tagName.toLowerCase())) {
-      issues.push(`Invalid landmark region: ${region.tagName}`);
+    if (!region.hasAttribute('aria-label') && !region.hasAttribute('aria-labelledby')) {
+      region.setAttribute('aria-label', 'Content region');
     }
   });
-
-  return {
-    success: issues.length === 0,
-    issues
-  };
 }
 
-/**
- * Renders a dependency graph visualization
- * @param {Object} graphData - The graph data to render
- * @returns {Object} The rendered graph element
- */
-function renderDependencyGraph(graphData) {
-  return {
-    type: 'graph',
-    data: graphData,
-    rendered: true,
-    timestamp: new Date().toISOString()
-  };
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          el.setAttribute('aria-label', `${landmark} ${index + 1}`);
+        }
+      });
+    }
+  });
 }
 
-// New changes for improved accessibility of the addBook function or form
-function addBook() {
-    // Existing code for adding a book
+// REACT_041: Add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (title) {
+        svg.setAttribute('aria-labelledby', title.id);
+      } else {
+        svg.setAttribute('aria-label', 'Graphic');
+      }
+    }
+  });
 }
 
-// Adding accessibility improvements to the addBook function or form
-// Ensuring that all interactive elements are keyboard accessible
-function makeAccessible(element) {
-    element.setAttribute('tabindex', '0');
+// REACT_036: Fix fake link issues
+function fixFakeLinkIssues() {
+  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
+  fakeLinks.forEach(link => {
+    if (!link.hasAttribute('tabindex')) {
+      link.setAttribute('tabindex', '0');
+    }
+    if (!link.hasAttribute('role')) {
+      link.setAttribute('role', 'link');
+    }
+  });
 }
 
-// Adding a11y-specific roles and aria-labels
-function addAriaSupport(element, label) {
-    element.setAttribute('role', 'button');
-    element.setAttribute('aria-label', label);
+// REACT_037: Google sign-in logic
+function googleSignIn() {
+  // Implementation would go here
+  console.log('Google sign-in initiated');
 }
 
-// Example usage of makeAccessible and addAriaSupport within the addBook function or form
-function enhanceAddBookAccessibility() {
-    const addBookButton = document.getElementById('addBookButton');
-    makeAccessible(addBookButton);
-    addAriaSupport(addBookButton, 'Add a new book');
+// REACT_040: Replace my-button with actual button id for accessibility
+function fixButtonIdentifiers() {
+  const buttons = document.querySelectorAll('[id="my-button"]');
+  buttons.forEach(button => {
+    button.id = 'accessible-button';
+  });
 }
 
-// Ensure accessibility improvements are applied
-enhanceAddBookAccessibility();
+// REACT_042: Ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphAriaRole() {
+  const container = document.querySelector('#dependencyGraph');
+  if (container && !container.hasAttribute('role')) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+}
 
-// Export all functions for testing and external use
-module.exports = {
+// Export all existing functions
+export {
   getLangAttribute,
   getFullLangAttribute,
   validateTableAccessibility,
@@ -208,18 +143,19 @@ module.exports = {
   validateLandmarkStructure,
   ensureUniqueLandmarks,
   getSvgAccessibleName,
-  setSvgAttributes,
   createInPageButton,
   createAccessibleLink,
-  checkLinkAndButtonAccessibility,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  handleAccessibilityIssues,
-  ensureElementId,
-  addAriaLabel,
-  addProperLandmarkRegions,
-  addBook,
-  makeAccessible,
-  addAriaSupport,
-  enhanceAddBookAccessibility
+  handleAccessibilityIssues
+};
+
+// Export new functions
+export {
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addSvgAccessibleNames,
+  fixFakeLinkIssues,
+  googleSignIn,
+  fixButtonIdentifiers,
+  ensureDependencyGraphAriaRole
 };

@@ -1267,6 +1267,62 @@ function enhanceAddBookFormAccessibility(formElement) {
     }
 }
 
+// New function to render dependency graph visualization
+function renderDependencyGraphVisualization(graphData) {
+    if (!graphData || !graphData.nodes || !graphData.edges) {
+        console.error('Invalid graph data provided');
+        return null;
+    }
+
+    // Create a container for the visualization
+    const container = document.createElement('div');
+    container.className = 'dependency-graph-visualization';
+
+    // Create nodes visualization
+    const nodesContainer = document.createElement('div');
+    nodesContainer.className = 'graph-nodes';
+    graphData.nodes.forEach(node => {
+        const nodeElement = document.createElement('div');
+        nodeElement.className = 'graph-node';
+        nodeElement.textContent = node.name || 'Unnamed Node';
+        nodeElement.setAttribute('data-id', node.id);
+        nodesContainer.appendChild(nodeElement);
+    });
+
+    // Create edges visualization
+    const edgesContainer = document.createElement('div');
+    edgesContainer.className = 'graph-edges';
+    graphData.edges.forEach(edge => {
+        const edgeElement = document.createElement('div');
+        edgeElement.className = 'graph-edge';
+        edgeElement.textContent = `${edge.source} → ${edge.target}`;
+        edgesContainer.appendChild(edgeElement);
+    });
+
+    // Add to container
+    container.appendChild(nodesContainer);
+    container.appendChild(edgesContainer);
+
+    return container;
+}
+
+// New function to update dependency graph visualization
+function updateDependencyGraphVisualization(container, graphData) {
+    if (!container || !graphData) {
+        console.error('Invalid parameters for updating graph visualization');
+        return;
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Re-render the graph
+    const newVisualization = renderDependencyGraphVisualization(graphData);
+    if (newVisualization) {
+        container.appendChild(newVisualization);
+    }
+}
+
 // Export functions for testing
 module.exports = {
     User,
@@ -1321,6 +1377,10 @@ module.exports = {
     // New accessibility functions for addBook
     validateAddBookForm,
     enhanceAddBookFormAccessibility,
+
+    // New functions for dependency graph visualization
+    renderDependencyGraphVisualization,
+    updateDependencyGraphVisualization,
 
     // Landmarks array and app state
     landmarks,

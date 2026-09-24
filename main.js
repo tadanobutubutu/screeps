@@ -43,28 +43,77 @@ function calculateSum(a, b) {
 }
 
 /**
- * Checks elements for accessibility issues related to links and buttons
- * @param {HTMLElement} container - Container element to check (defaults to document)
+ * Checks if a link element is accessible (has discernible text or aria-label)
+ * @param {HTMLElement} linkElement - The link element to check
+ * @returns {boolean} - True if the link is accessible
+ */
+function isLinkAccessible(linkElement) {
+  if (!linkElement || linkElement.tagName !== 'A') {
+    return false;
+  }
+  
+  const ariaLabel = linkElement.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim().length > 0) {
+    return true;
+  }
+  
+  const textContent = linkElement.textContent;
+  if (textContent && textContent.trim().length > 0) {
+    return true;
+  }
+  
+  // Check for img with alt text inside the link
+  const img = linkElement.querySelector('img');
+  if (img && img.getAttribute('alt')) {
+    return true;
+  }
+  
+  // Check for aria-labelledby
+  const labelledBy = linkElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Checks links and buttons for accessibility issues
+ * @param {Document|HTMLElement} [root=document] - The root element to search within
  * @returns {Array} - Array of accessibility issues found
  */
-function checkLinkAndButtonAccessibility(container = document) {
+function checkLinkAndButtonAccessibility(root = document) {
   const issues = [];
-  const elements = container.querySelectorAll('a, button');
-  
-  elements.forEach((element, index) => {
-    const hasText = element.textContent.trim().length > 0;
-    const hasAriaLabel = element.hasAttribute('aria-label');
-    const hasAriaLabelledby = element.hasAttribute('aria-labelledby');
-    
-    if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
+
+  // Check links
+  const links = root.querySelectorAll('a');
+  links.forEach((link, index) => {
+    if (!isLinkAccessible(link)) {
       issues.push({
-        index,
-        element,
-        type: element.tagName.toLowerCase()
+        type: 'link',
+        element: link,
+        index: index,
+        message: 'Link has no discernible text'
       });
     }
   });
-  
+
+  // Check buttons
+  const buttons = root.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    const ariaLabel = button.getAttribute('aria-label');
+    const textContent = button.textContent && button.textContent.trim();
+    
+    if (!ariaLabel && !textContent) {
+      issues.push({
+        type: 'button',
+        element: button,
+        index: index,
+        message: 'Button has no accessible name'
+      });
+    }
+  });
+
   return issues;
 }
 

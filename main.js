@@ -25,12 +25,9 @@ function greetingFunction() {
 
 // Update the existing function using the new functions for rendering graph/index
 const renderGraphIndex = (graphData) => {
-  validateTableAccessibility(graphData); // New added for better accessibility
-  validateTableStructure(graphData); // New added for better accessibility
-
+  // Enhanced rendering logic using the new functions
   setSvgAccessibilityProps(graphData);
-  addSvgAccessibleNames(graphData);
-  // Enhanced rendering logic using new accessibility functions
+  addAccessibleNamesToSVGs(graphData);
   renderDependencyGraphs(graphData);
 };
 

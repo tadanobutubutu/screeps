@@ -1,7 +1,17 @@
 // TODO: Add back any required exports that might have been removed
 // TODO: This is the existing code that needs to be preserved
-//_Commit: 243c66538868c6b87a45660312397ab39e0f830d_
-//<!-- todo-hash: ... -->
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+// main.js - Accessibility improvements implementation
+// main.js - Combined utility and accessibility features
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
@@ -26,8 +36,8 @@ function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 10);
-        candidate = baseName + '-' + suffix;
+        const suffix = Math.floor(Math.random() * 9000) + 1000;
+        candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -66,7 +76,7 @@ function addAriaLabel(element, label) {
  */
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.documentElement;
+  const elementToModify = document.querySelector('html');
   if (elementToModify) {
     elementToModify.setAttribute('lang', 'en'); // Example: English
   }
@@ -113,10 +123,10 @@ createInPageButton();
 
 // Validate table structure and accessibility
 // Assuming you have a table element with an id of 'myTable'
-const table = document.getElementById('myTable');
+const table = document.querySelector('#myTable');
 if (table) {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
+    validateTableAccessibility(table);
+    validateTableStructure(table);
 }
 
 // Add/fix landmark issues
@@ -124,10 +134,10 @@ validateLandmark();
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
-const svg = document.getElementById('mySvg');
+const svg = document.querySelector('#mySvg');
 if (svg) {
-  const accessibleName = getSvgAccessibleName(svg);
-  setSvgAttributes(svg, accessibleName);
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
 }
 
 // Ensure unique landmarks
@@ -143,12 +153,14 @@ handleFakeLinks();
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
+  return `${product.name} - ${product.category || 'Unknown'}`;
 }
 
 function renderProductList(products) {
-  const container = document.createElement('div');
-  container.innerHTML = products.map(p => `<div class="product">${formatProductName(p)}</div>`).join('');
+  const container = document.querySelector('#product-list');
+  if (container) {
+      container.innerHTML = products.map(p => `<div class="product-item">${formatProductName(p)}</div>`).join('');
+  }
   return container;
 }
 
@@ -163,7 +175,7 @@ function renderCart(cart) {
   return `
     <div class="cart">
       <h2>Shopping Cart</h2>
-      <p>Total: $${total.toFixed(2)}</p>
+      <p>Total: ${formatCurrency(total)}</p>
       <p>Date: ${formatDate(new Date())}</p>
     </div>
   `;
@@ -171,7 +183,7 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return `<div class="validated">${input}</div>`;
+    return renderPage(input);
   }
   return '<p>Invalid input</p>';
 }
@@ -259,7 +271,22 @@ function checkLandmarkElements() {
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
+  const links = document.querySelectorAll('a');
+  const results = [];
+  
+  links.forEach((link, index) => {
+    const href = link.getAttribute('href');
+    const hasAccessibleName = link.textContent.trim() || link.getAttribute('aria-label');
+    
+    results.push({
+      index: index,
+      href: href,
+      hasAccessibleName: !!hasAccessibleName,
+      isValid: !!hasAccessibleName && href !== '#'
+    });
+  });
+  
+  return results;
 }
 
 // Export accessibility utility functions

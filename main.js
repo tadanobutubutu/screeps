@@ -115,30 +115,25 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html>';
-    html += '<head><meta charset="UTF-8"><title>Dependency Index</title></head>';
-    html += '<body><main>';
-    html += '<h1>Dependency Index</h1>';
+    // REACT_015: Add lang attribute to HTML element
+    // REACT_017: Add landmark roles (header, main, nav) and fix landmark issues
+    // REACT_025: Ensure unique landmarks
+    let html = '<!DOCTYPE html><html lang="en"><head><title>Dependencies</title></head><body>';
+    html += '<header role="banner"><h1>Dependency Index</h1></header>';
+    html += '<main role="main">';
+    html += '<nav role="navigation" aria-label="Package list">';
     html += '<ul>';
     
     for (const pkg of packages) {
         html += `<li>${pkg.name} - ${pkg.version || 'N/A'}</li>`;
     }
     
-    html += '</ul></main></body></html>';
-    
-    // Apply accessibility improvements
-    return addressAccessibilityIssues(html);
-}
-
-/**
- * Adds landmark roles to the main content area of the index view
- * @returns {string} - HTML string for the index view with landmark roles
- */
-function addLandmarkRolesToIndexView() {
-    const html = renderIndexView([{ name: 'example', version: '1.0.0' }]);
-    const modifiedHtml = html.replace('<main>', '<main role="main">');
-    return modifiedHtml;
+    html += '</ul>';
+    html += '</nav>';
+    html += '</main>';
+    html += '<footer role="contentinfo"><p>Dependency Index</p></footer>';
+    html += '</body></html>';
+    return html;
 }
 
 /**

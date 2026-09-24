@@ -46,7 +46,7 @@ const defaultSorting = sortByTitle;
 
 // Generate a unique key for a book item
 function generateKey(book) {
-  return `${book.id}-${book.title}`;
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Render a single book item
@@ -59,6 +59,72 @@ function BookItem(book) {
         avatar={book.coverImage && <img src={book.coverImage} alt={`Cover of ${book.title}`} style={{ width: 50, height: 75 }} />}
       />
     </List.Item>
+  );
+}
+
+// Function to create a new book entry in the Redux store
+function addBook(book) {
+  // Perform any necessary validation or processing before adding the book
+  // ...
+
+  // Dispatch an action to add the book to the books list in the Redux store
+  dispatch({ type: 'ADD_BOOK', payload: book });
+}
+
+// Accessible Add Book Form Component
+function AddBookForm() {
+  const dispatch = useDispatch();
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (title.trim() && author.trim()) {
+      const newBook = {
+        id: Date.now(),
+        title: title.trim(),
+        author: author.trim()
+      };
+      dispatch({ type: 'ADD_BOOK', payload: newBook });
+      setTitle('');
+      setAuthor('');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} aria-label="Add new book" role="form">
+      <div>
+        <label htmlFor="book-title" id="book-title-label">
+          Book Title
+        </label>
+        <input
+          id="book-title"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          aria-labelledby="book-title-label"
+          placeholder="Enter book title"
+          required
+        />
+      </div>
+      <div>
+        <label htmlFor="book-author" id="book-author-label">
+          Author
+        </label>
+        <input
+          id="book-author"
+          type="text"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          aria-labelledby="book-author-label"
+          placeholder="Enter author name"
+          required
+        />
+      </div>
+      <button type="submit" aria-label="Add book to list">
+        Add Book
+      </button>
+    </form>
   );
 }
 
@@ -105,9 +171,7 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = booksList.map((book) => (
-    <BookItem key={book.id} book={book} />
-  ));
+  const bookItems = getBooksList.map((book) => BookItem(book));
 
   // Render the list of book items and sorting controls
   return (
@@ -115,16 +179,11 @@ function Main() {
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List
-        dataSource={booksList}
-        renderItem={(book) => (
-          <List.Item key={book.id}>
-            <List.Item.Meta
-              title={book.title}
-              description={`by ${book.author}`}
-            />
-          </List.Item>
-        )}
+        dataSource={getBooksList}
+        renderItem={(book) => BookItem(book)}
       />
+      {/* Accessibility improvements for adding a new book */}
+      <AddBookForm />
     </div>
   );
 }

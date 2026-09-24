@@ -119,7 +119,6 @@ module.exports = {
   calculatePercentage
 }
 
-// New function added as per the issue
-function calculatePercentage(total, part) {
-  return (part / total) * 100;
+function calculatePercentage(total, value) {
+  return (value / total) * 100;
 }

@@ -107,8 +107,7 @@ describe('role.explorer', () => {
         global.Game.map.describeExits.mockReturnValue({ 1: 'W1N2', 3: 'W2N1' });
 
         // Mock Math.random to verify fallback doesn't throw and coverage hits
-        const originalRandom = Math.random;
-        Math.random = jest.fn().mockReturnValue(0.9);
+
 
         const creep = {
             memory: { targetRoom: 'W1N1' }, // we are already here
@@ -123,10 +122,10 @@ describe('role.explorer', () => {
         expect(creep.memory.targetRoom).toBeDefined();
         expect(['W1N2', 'W2N1']).toContain(creep.memory.targetRoom);
 
-        Math.random = originalRandom;
+
     });
 
-    test('falls back to Math.random when crypto.randomBytes throws an error', () => {
+    test('falls back to custom PRNG when crypto.randomBytes throws an error', () => {
         global.Game.map.describeExits.mockReturnValue({ 1: 'W1N2', 3: 'W2N1' });
 
         // Mock crypto to throw an error
@@ -136,8 +135,7 @@ describe('role.explorer', () => {
             throw new Error('Simulated crypto error');
         });
 
-        const originalRandom = Math.random;
-        Math.random = jest.fn().mockReturnValue(0.9);
+
 
         const creep = {
             memory: { targetRoom: 'W1N1' }, // we are already here
@@ -151,13 +149,13 @@ describe('role.explorer', () => {
         expect(creep.say).toHaveBeenCalledWith('👀 scouting');
         expect(creep.memory.targetRoom).toBeDefined();
         expect(['W1N2', 'W2N1']).toContain(creep.memory.targetRoom);
-        expect(Math.random).toHaveBeenCalled(); // Verify fallback was reached
 
-        Math.random = originalRandom;
+
+
         crypto.randomBytes = originalRandomBytes;
     });
 
-    test('falls back to Math.random when require("crypto") throws an error', () => {
+    test('falls back to custom PRNG when require("crypto") throws an error', () => {
         global.Game.map.describeExits.mockReturnValue({ 1: 'W1N2', 3: 'W2N1' });
 
         // Force require('crypto') to throw by using jest.doMock
@@ -169,8 +167,7 @@ describe('role.explorer', () => {
         // Re-require the module under test so it uses the mocked crypto
         const roleExplorerMocked = require('../role.explorer');
 
-        const originalRandom = Math.random;
-        Math.random = jest.fn().mockReturnValue(0.9);
+
 
         const creep = {
             memory: { targetRoom: 'W1N1' }, // we are already here
@@ -184,9 +181,9 @@ describe('role.explorer', () => {
         expect(creep.say).toHaveBeenCalledWith('👀 scouting');
         expect(creep.memory.targetRoom).toBeDefined();
         expect(['W1N2', 'W2N1']).toContain(creep.memory.targetRoom);
-        expect(Math.random).toHaveBeenCalled(); // Verify fallback was reached
 
-        Math.random = originalRandom;
+
+
 
         // Cleanup
         jest.dontMock('crypto');

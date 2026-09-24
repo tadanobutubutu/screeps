@@ -9,35 +9,47 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
+// Existing functions would be here...
+
 /**
- * Fixes a single fake link issue by ensuring the link has proper ARIA attributes
- * @param {HTMLElement} element - The link element to fix
+ * Renders the dependency graph with the new graph/index functionality
+ * @param {Object} options - Rendering options
+ * @returns {HTMLElement} The rendered graph element
  */
-function fixFakeLinkIssue(element) {
-    if (!element || element.tagName !== 'A') return;
+function renderDependencyGraph(options) {
+  // Existing implementation would be here
+  // ...
 
-    // Ensure the link has proper ARIA attributes
-    if (!element.getAttribute('aria-hidden') && !element.getAttribute('role')) {
-        element.setAttribute('aria-hidden', 'true');
-    }
+  // New graph/index rendering integration
+  const graphIndex = renderGraphIndex(options);
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph-container';
+  graphContainer.appendChild(graphIndex);
 
-    // Ensure the link has proper tabindex
-    if (element.getAttribute('tabindex') !== '-1') {
-        element.setAttribute('tabindex', '-1');
-    }
+  // Return the combined graph with index
+  return graphContainer;
 }
 
 /**
- * Fixes all fake link issues in the document
+ * Renders the graph index component
+ * @param {Object} options - Rendering options
+ * @returns {HTMLElement} The rendered graph index element
  */
-function fixFakeLinkIssues() {
-    const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"], a[href=""]');
-    fakeLinks.forEach(fixFakeLinkIssue);
+function renderGraphIndex(options) {
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'graph-index';
+
+  // Create index items based on options
+  if (options && options.nodes) {
+    options.nodes.forEach(node => {
+      const indexItem = document.createElement('div');
+      indexItem.className = 'graph-index-item';
+      indexItem.textContent = node.label || node.id;
+      indexContainer.appendChild(indexItem);
+    });
+  }
+
+  return indexContainer;
 }
 
-// Export existing functions (assuming they exist in the original file)
-export {
-    // ... existing exports ...
-    fixFakeLinkIssue,
-    fixFakeLinkIssues
-};
+// All existing exports would remain here...

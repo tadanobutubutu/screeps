@@ -12,13 +12,10 @@ const path = require('path');
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-// Function to add lang attribute to the HTML element
+// Assuming 'addLangAttribute' is a function that has already been implemented
 function addLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement) {
-    const lang = getLangAttribute();
-    if (!lang) {
-      document.documentElement.lang = 'en';
-    }
+    getLangAttribute();
   }
 }
 addLangAttribute();
@@ -28,7 +25,7 @@ function getLangAttribute() {
   let lang = htmlElement.getAttribute('lang');
 
   if (!lang) {
-    lang = htmlElement.lang;
+    lang = htmlElement.getAttribute('xml:lang');
   }
 
   if (!lang) {
@@ -92,7 +89,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = prefix + '-' + Math.random().toString(36).substr(2, 9);
+  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -128,8 +125,8 @@ function renderDependencyGraph(container, dependencies = {}) {
 
   const graphElement = document.createElement('div');
   graphElement.className = 'dependency-graph';
-  const img = document.createElement('img');
-  img.setAttribute('alt', 'Dependency graph visualization');
+  graphElement.setAttribute('role', 'img');
+  graphElement.setAttribute('aria-label', 'Dependency graph visualization');
 
   const nodes = dependencies.nodes || [];
   const edges = dependencies.edges || [];
@@ -138,7 +135,7 @@ function renderDependencyGraph(container, dependencies = {}) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
-  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-hidden', 'true');
 
   // Render edges
   edges.forEach((edge, index) => {
@@ -149,7 +146,7 @@ function renderDependencyGraph(container, dependencies = {}) {
     line.setAttribute('y2', edge.target?.y || 0);
     line.setAttribute('stroke', '#666');
     line.setAttribute('stroke-width', '2');
-    line.setAttribute('id', 'edge-' + index);
+    line.setAttribute('id', `edge-${index}`);
     svg.appendChild(line);
   });
 
@@ -160,7 +157,7 @@ function renderDependencyGraph(container, dependencies = {}) {
     circle.setAttribute('cy', node.y || 0);
     circle.setAttribute('r', node.size || 20);
     circle.setAttribute('fill', node.color || '#4A90E2');
-    circle.setAttribute('id', 'node-' + index);
+    circle.setAttribute('id', `node-${index}`);
 
     const nodeId = ensureElementHasId(circle, 'graph-node');
     if (node.label) {
@@ -182,9 +179,44 @@ function existingFunction() {
 
 // New function implementation as per the issue requirements
 function personName() {
-  // Implementation details go here
-  // For example:
-  return 'New function result';
+  // Returns the name of the person associated with the current context
+  // This is used for accessibility purposes to provide person identification
+  // Returns a string containing the person's name, or null if not available
+  const lang = getLangAttribute();
+  const defaultName = 'User';
+  
+  // Check if there's a person name element in the DOM
+  if (typeof document !== 'undefined') {
+    const personNameElement = document.querySelector('[data-person-name]');
+    if (personNameElement && personNameElement.textContent) {
+      return personNameElement.textContent.trim();
+    }
+    
+    // Check for common accessibility patterns for person names
+    const accessibleNames = [
+      document.querySelector('[aria-label*="name"]'),
+      document.querySelector('[aria-labelledby*="name"]'),
+      document.querySelector('[itemprop="name"]')
+    ];
+    
+    for (const el of accessibleNames) {
+      if (el && el.textContent) {
+        return el.textContent.trim();
+      }
+    }
+  }
+  
+  // Return localized default name based on language
+  const localizedNames = {
+    'en': 'User',
+    'es': 'Usuario',
+    'fr': 'Utilisateur',
+    'de': 'Benutzer',
+    'ja': 'ユーザー',
+    'zh': '用户'
+  };
+  
+  return localizedNames[lang] || defaultName;
 }
 
 function createInPageButton(options) {

@@ -136,6 +136,20 @@ function setHtmlLangAttribute(lang) {
     console.log('AnotherExport function called.');
   },
 
+  // New export function
+  accessibilityReportValidation: function() {
+    // Implementation of the accessibilityReportValidation function
+    // You can add your code here to validate the accessibility report
+    // For instance:
+    const report = getAccessibilityReport();
+
+    if (!report.isValid) {
+      console.error('Accessibility report is not valid:', report.message);
+    } else {
+      console.log('Accessibility report is valid.');
+    }
+  },
+
   getLangAttribute: function() {
     // Implementation of getLangAttribute
   },
@@ -280,12 +294,9 @@ function setHtmlLangAttribute(lang) {
     return 'newExportFunction executed';
   },
 
-  validateTableStructure: function() {
-    // Implementation of validateTableStructure
-    // This function should check the table structure for accessibility issues.
-    // Example: Check for correct use of `<th>` elements, scope attributes, etc.
-    console.log('Validating table structure for accessibility issues...');
-    // Add the actual validation logic here
+  // Add the new function to be called at the end
+  validateAccessibilityReport: function() {
+    accessibilityReportValidation();
   }
   return false;
 }

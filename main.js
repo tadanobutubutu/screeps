@@ -13,18 +13,111 @@ const { setElementLabel } = require('./AccessibilityHelpers');
 
 // TODO: This is the existing code that needs to be preserved
 
-function renderDependencyGraph(deps, options = {}) {
-    // The original renderDependencyGraph function has been updated to work with the new changes
-    // ... (Updated code goes here)
+function renderIndex(content = indexContent, options = {}) {
+    // Render the index page with the provided content or default content
+    const { title, metaDescription, sections } = content;
+    
+    // Generate the HTML for the index page
+    let html = `<!DOCTYPE html>\n<html lang="${getLangAttribute()}">\n`;
+    html += `<head>\n`;
+    html += `  <meta charset="UTF-8">\n`;
+    html += `  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n`;
+    if (metaDescription) {
+        html += `  <meta name="description" content="${metaDescription}">\n`;
+    }
+    html += `  <title>${title || 'ScreetsBot'}</title>\n`;
+    html += `</head>\n`;
+    html += `<body>\n`;
+    
+    // Add sections
+    if (sections && Array.isArray(sections)) {
+        sections.forEach(section => {
+            html += `  <section id="${section.id}" class="section">\n`;
+            if (section.title) {
+                html += `    <h2>${section.title}</h2>\n`;
+            }
+            if (section.content) {
+                html += `    <div class="content">${section.content}</div>\n`;
+            }
+            html += `  </section>\n`;
+        });
+    }
+    
+    html += `</body>\n</html>`;
+    
+    return html;
 }
 
-// New feature: Priority-based task scheduling
-function addTask(taskFn, priority = 'medium') {
-  const taskId = this.generateTaskId()
-  this.tasks.push({ task: taskFn, priority, id: taskId })
-  this.scheduleTasks()
-  return taskId
+function renderDependencyGraph(deps, options = {}) {
+    // Render a dependency graph visualization
+    const { 
+        format = 'html', 
+        includeMetadata = true,
+        containerId = 'dependency-graph-container'
+    } = options;
+    
+    // Generate the content using the content generator
+    const content = dependencyGraphContent(deps);
+    
+    // Create the container element
+    const container = document.createElement('div');
+    container.id = containerId;
+    container.className = 'dependency-graph';
+    container.setAttribute('role', 'tree');
+    container.setAttribute('aria-label', 'Dependency tree visualization');
+    
+    // Add accessibility attributes
+    if (includeMetadata) {
+        container.setAttribute('aria-describedby', 'dependency-graph-description');
+    }
+    
+    // Build the tree structure
+    let treeHTML = '';
+    if (content.title) {
+        treeHTML += `<h3>${content.title}</h3>\n`;
+    }
+    
+    treeHTML += `<ul role='tree' aria-label='Dependency nodes'>\n`;
+    
+    if (content.nodes && Array.isArray(content.nodes)) {
+        content.nodes.forEach(node => {
+            const nodeId = `node-${node.id}`;
+            treeHTML += `  <li role='treeitem' id='${nodeId}' aria-expanded='false'>\n`;
+            treeHTML += `    <span aria-label='${node.name}, level ${node.level}'>${node.name}</span>\n`;
+            if (node.children && node.children.length > 0) {
+                treeHTML += `    <ul role='group'>\n`;
+                node.children.forEach(child => {
+                    treeHTML += `      <li role='treeitem'>${child.name}</li>\n`;
+                });
+                treeHTML += `    </ul>\n`;
+            }
+            treeHTML += `  </li>\n`;
+        });
+    }
+    
+    treeHTML += `</ul>\n`;
+    
+    container.innerHTML = treeHTML;
+    
+    // Add description if needed
+    if (includeMetadata && content.description) {
+        const desc = document.createElement('p');
+        desc.id = 'dependency-graph-description';
+        desc.className = 'sr-only';
+        desc.textContent = content.description;
+        container.appendChild(desc);
+    }
+    
+    return container;
 }
+
+class ScreetsBot {
+  constructor(options = {}) {
+    this.options = options;
+    this.initialized = false;
+  }
+
+  // ... (The rest of the class definition remains the same as in the original conflict branch)
 
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent');
@@ -63,52 +156,46 @@ const {
 
 class ScreepsBot {
   validateTableAccessibility(html) {
-    // Implement the logic to validate table accessibility based on the criteria
-    // ...
-
-    const tableIssues = [];
-
-    // Extract table structure from the provided HTML
-    const tables = html.querySelectorAll('table');
-
-    tables.forEach((table) => {
-      const tableRowCount = table.rows.length;
-      const tableHeaderCount = table.tHead.rows.length;
-
-      // Table structure is valid when the table has at least one row and one table header row
-      if (tableRowCount < 2 || tableHeaderCount < 1) {
-        tableIssues.push(`Table #${tableIssues.length + 1} doesn't have the required row(s) and/or table header row(s).`);
+    if (!html) return { valid: false, errors: ['No HTML provided'] };
+    
+    const errors = [];
+    
+    // Check for table element
+    if (!html.includes('<table')) {
+      return { valid: false, errors: ['No table element found'] };
+    }
+    
+    // Check for scope attribute on th elements
+    const thMatches = html.match(/<th[^>]*>/g) || [];
+    thMatches.forEach((th, index) => {
+      if (!th.includes('scope=')) {
+        errors.push(`Table header cell ${index + 1} missing scope attribute`);
       }
-
-      // Check if table has appropriate table header cells (TH elements) with proper scoping
-      // For more details on table scope, see: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Tables#table_scope
-      const tableHeaderCells = Array.from(table.tHead.getElementsByTagName('th'));
-      const tableBodyCells = Array.from(table.tBody.getElementsByTagName('td'));
-
-      // No table header cells found
-      if (tableHeaderCells.length === 0) {
-        tableIssues.push(`Table #${tableIssues.length + 1} doesn't have any table header cells (TH elements).`);
-      }
-
-      // Check for appropriate table header cell scoping
-      tableHeaderCells.forEach((headerCell, index) => {
-        const cellScope = headerCell.scope;
-        const matchingRowCount = tableBodyCells.filter((cell, colIndex) => colIndex === index).length;
-
-        // Table header cell doesn't have a scope attribute or has an invalid value
-        if (cellScope && (cellScope !== 'col' || cellScope !== 'row' || cellScope !== 'rowgroup' || cellScope !== 'colgroup')) {
-          tableIssues.push(`Table #${tableIssues.length + 1} has an invalid table header cell scope for cell #${index + 1} with value "${cellScope}".`);
-        }
-
-        // Table header cell's scope does not match the number of rows it spans across
-        if (cellScope && matchingRowCount !== parseInt(cellScope, 10)) {
-          tableIssues.push(`Table #${tableIssues.length + 1} has a table header cell with scope "${cellScope}" that doesn't match the number of rows it spans across.`);
-        }
-      });
     });
-
-    // Return the list of table accessibility issues found
-    return tableIssues;
+    
+    // Check for caption element (optional but recommended)
+    if (!html.includes('<caption')) {
+      errors.push('Table missing caption element for accessibility');
+    }
+    
+    // Check for proper table structure (thead, tbody)
+    if (!html.includes('<thead') && !html.includes('<th')) {
+      errors.push('Table should have thead element with header cells');
+    }
+    
+    // Check for summary or aria-label on table
+    const tableMatch = html.match(/<table[^>]*>/);
+    if (tableMatch) {
+      const tableTag = tableMatch[0];
+      if (!tableTag.includes('aria-label') && !tableTag.includes('summary')) {
+        errors.push('Table should have aria-label or summary attribute for context');
+      }
+    }
+    
+    return {
+      valid: errors.length === 0,
+      errors: errors
+    };
   }
 
   // Event listener for click events on the dependencyGraph element
@@ -121,12 +208,26 @@ class ScreepsBot {
   };
 
   // ... (Add the event listener for click events on the dependencyGraph element)
+  
+  init() {
+    if (this.initialized) return;
+    
+    // Initialize any required functionality
+    window.addEventListener('click', this.handleClick.bind(this));
+    this.initialized = true;
+  }
+  
+  handleClick(e) {
+    // Handle click events throughout the application
+  }
 }
 
 // Add lang attribute to HTML element
 function getLangAttribute() {
     // Implementation to add lang attribute
-    return document.documentElement.lang || 'en';
+    return typeof document !== 'undefined' 
+        ? (document.documentElement.lang || 'en')
+        : 'en';
 }
 
 // Accessibility utilities for keyboard navigation and screen reader support
@@ -155,8 +256,40 @@ const accessibilityUtils = {
         message.setAttribute('aria-describedby', id);
 
         setTimeout(() => {
-            document.body.removeChild(container);
-        }, 10000);
+            if (document.body.contains(announcer)) {
+                document.body.removeChild(announcer);
+            }
+        }, 1000);
+    },
+
+    /**
+     * Handle keyboard navigation for custom components
+     * @param {KeyboardEvent} e - Keyboard event
+     * @param {Object} options - Navigation options
+     */
+    handleKeyboardNav(e, options = {}) {
+        const { onEscape, onEnter, onArrowUp, onArrowDown } = options;
+        
+        switch (e.key) {
+            case 'Escape':
+                if (onEscape) onEscape(e);
+                break;
+            case 'Enter':
+                if (onEnter) onEnter(e);
+                break;
+            case 'ArrowUp':
+                if (onArrowUp) {
+                    e.preventDefault();
+                    onArrowUp(e);
+                }
+                break;
+            case 'ArrowDown':
+                if (onArrowDown) {
+                    e.preventDefault();
+                    onArrowDown(e);
+                }
+                break;
+        }
     }
 };
 
@@ -194,6 +327,68 @@ function createInPageButtons(container, options = {}) {
     return buttons;
 }
 
+// Create in-page navigation buttons
+function createInPageButtons(container, navItems) {
+    if (!container || !navItems || !Array.isArray(navItems)) return;
+    
+    const nav = document.createElement('nav');
+    nav.setAttribute('aria-label', 'In-page navigation');
+    
+    const ul = document.createElement('ul');
+    ul.className = 'in-page-nav';
+    
+    navItems.forEach(item => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#${item.id}`;
+        a.textContent = item.text || item.id;
+        a.setAttribute('aria-current', item.current ? 'page' : 'false');
+        
+        // Add click handler for accessibility
+        a.addEventListener('click', (e) => {
+            const target = document.querySelector(item.id);
+            if (target) {
+                target.tabIndex = -1;
+                target.focus();
+            }
+        });
+        
+        li.appendChild(a);
+        ul.appendChild(li);
+    });
+    
+    nav.appendChild(ul);
+    container.appendChild(nav);
+    
+    return nav;
+}
+
+// Accessibility enhancements for dependency graph elements
+function enhanceDependencyGraphAccessibility(graphElement) {
+    if (!graphElement) return;
+    
+    graphElement.setAttribute('role', 'treegrid');
+    graphElement.setAttribute('aria-multiselectable', 'false');
+    
+    // Add keyboard navigation support
+    graphElement.addEventListener('keydown', (e) => {
+        accessibilityUtils.handleKeyboardNav(e, {
+            onArrowUp: () => {
+                // Move to previous node in graph
+            },
+            onArrowDown: () => {
+                // Move to next node in graph
+            },
+            onEnter: () => {
+                // Expand/collapse node
+            },
+            onEscape: () => {
+                // Close or deselect current node
+            }
+        });
+    });
+}
+
 // Export all required functions and utilities
 module.exports = {
     renderDependencyGraph,
@@ -202,9 +397,10 @@ module.exports = {
     accessibilityUtils,
     trapFocus,
     newFocusTrap,
-    initSkipLink,
-    announceToScreenReader,
-    handleKeyboardNav,
-    createAccessibleMessage,
-    createInPageButtons
+    initSkipLink: accessibilityUtils.initSkipLink,
+    announceToScreenReader: accessibilityUtils.announceToScreenReader,
+    handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
+    createInPageButtons,
+    ScreetsBot,
+    enhanceDependencyGraphAccessibility
 };

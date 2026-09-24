@@ -63,63 +63,71 @@ const accessibilityUtils = {
   },
 
   /**
-   * Validate table structure for accessibility issues
-   * @param {HTMLTableElement} table - The table element to validate
-   * @returns {Object} Validation results with issues and suggestions
+   * Add ARIA attributes to an element
+   * @param {HTMLElement} element - The element to add ARIA attributes to
+   * @param {Object} attributes - ARIA attributes to add
    */
-  validateTableAccessibility: (table) => {
-    if (!table || table.tagName !== 'TABLE') {
-      throw new Error('Invalid table element provided');
-    }
+  addAriaAttributes: (element, attributes) => {
+    if (!element || !attributes) return;
 
-    const results = {
-      isAccessible: true,
-      issues: [],
-      suggestions: []
-    };
-
-    // Check for missing table caption
-    if (!table.querySelector('caption')) {
-      results.isAccessible = false;
-      results.issues.push('Table is missing a caption');
-      results.suggestions.push('Add a <caption> element to describe the table purpose');
-    }
-
-    // Check for missing table headers
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      results.isAccessible = false;
-      results.issues.push('Table is missing header cells (th elements)');
-      results.suggestions.push('Add th elements to define column headers');
-    }
-
-    // Check for scope attributes on headers
-    headers.forEach(header => {
-      if (!header.hasAttribute('scope')) {
-        results.isAccessible = false;
-        results.issues.push('Header cell is missing scope attribute');
-        results.suggestions.push('Add scope="col" or scope="row" to header cells');
+    Object.entries(attributes).forEach(([key, value]) => {
+      if (key.startsWith('aria-')) {
+        element.setAttribute(key, value);
       }
     });
+  },
 
-    // Check for missing ARIA attributes
-    if (!table.hasAttribute('role')) {
-      results.isAccessible = false;
-      results.issues.push('Table is missing role attribute');
-      results.suggestions.push('Add role="table" to the table element');
-    }
+  /**
+   * Ensure an element has proper keyboard accessibility
+   * @param {HTMLElement} element - The element to make accessible
+   * @param {Object} options - Configuration options
+   */
+  ensureKeyboardAccessibility: (element, options = {}) => {
+    if (!element) return;
 
-    // Check for data cells with headers
-    const dataCells = table.querySelectorAll('td');
-    dataCells.forEach(cell => {
-      if (!cell.hasAttribute('headers') && headers.length > 0) {
-        results.isAccessible = false;
-        results.issues.push('Data cell is missing headers attribute');
-        results.suggestions.push('Add headers attribute pointing to header IDs');
+    const { role = 'button', tabIndex = 0, label } = options;
+
+    if (role) element.setAttribute('role', role);
+    if (tabIndex !== undefined) element.setAttribute('tabindex', tabIndex);
+    if (label) element.setAttribute('aria-label', label);
+
+    // Add keyboard event listeners
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        element.click();
       }
     });
+  },
 
-    return results;
+  /**
+   * Create a live region for dynamic content updates
+   * @param {string} id - The ID for the live region
+   * @param {string} [priority='polite'] - The priority of the live region
+   * @returns {HTMLElement} The created live region element
+   */
+  createLiveRegion: (id, priority = 'polite') => {
+    const liveRegion = document.createElement('div');
+    liveRegion.id = id;
+    liveRegion.setAttribute('aria-live', priority);
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.className = 'sr-only';
+    liveRegion.style.position = 'absolute';
+    liveRegion.style.left = '-9999px';
+    document.body.appendChild(liveRegion);
+    return liveRegion;
+  },
+
+  /**
+   * Update a live region with new content
+   * @param {string} id - The ID of the live region to update
+   * @param {string} content - The new content to announce
+   */
+  updateLiveRegion: (id, content) => {
+    const liveRegion = document.getElementById(id);
+    if (liveRegion) {
+      liveRegion.textContent = content;
+    }
   }
 }
 
@@ -130,9 +138,10 @@ function initAccessibility () {
   // Set up accessibility utilities
   if (typeof window !== 'undefined') {
     // Ensure screen reader support is available
-    document.body.setAttribute('role', 'application')
-    // Add lang attribute to HTML element (REACT_015)
-    document.documentElement.setAttribute('lang', 'en')
+    document.body.setAttribute('role', 'application');
+
+    // Create a global live region for important announcements
+    accessibilityUtils.createLiveRegion('global-announcer', 'assertive');
   }
   return accessibilityUtils
 }
@@ -442,6 +451,12 @@ function renderDependencyGraphs (container, dependencies, options = {}) {
 
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`)
+
+  // Add ARIA attributes for better screen reader support
+  accessibilityUtils.addAriaAttributes(container, {
+    'aria-roledescription': 'dependency visualization',
+    'aria-busy': 'false'
+  });
 
   return {
     containerId,

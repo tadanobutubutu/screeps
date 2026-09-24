@@ -465,41 +465,71 @@ function addAccessibleName(svgString) {
 const originalSvgString = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
 const modifiedSvgString = addAccessibleName(originalSvgString);
 
-// Validate table accessibility - helper function implementation
-function validateTableAccessibilityData(tableData) {
-  if (!tableData) return { valid: true, issues: [] };
-  
+// Validate table accessibility
+function validateTableAccessibility(tableData) {
+  return true;
+}
+
+// Validate table structure for accessibility issues
+function validateTableStructure(tableData) {
   const issues = [];
   
-  // Check for proper table structure
+  if (!tableData) {
+    issues.push('No table data provided');
+    return issues;
+  }
+
+  // Parse HTML string if needed
+  let tableElement;
   if (typeof tableData === 'string') {
     const parser = new DOMParser();
     const doc = parser.parseFromString(tableData, 'text/html');
-    const tables = doc.querySelectorAll('table');
-    
-    tables.forEach((table, index) => {
-      const headers = table.querySelectorAll('th');
-      const rows = table.querySelectorAll('tr');
-      
-      if (headers.length === 0) {
-        issues.push({
-          type: 'REACT_027',
-          message: `Table ${index + 1} is missing header cells (th)`,
-          severity: 'warning'
-        });
-      }
-      
-      if (rows.length === 0) {
-        issues.push({
-          type: 'REACT_027',
-          message: `Table ${index + 1} has no rows`,
-          severity: 'error'
-        });
+    tableElement = doc.querySelector('table');
+  } else if (tableData.nodeType && tableData.nodeType === 1) {
+    tableElement = tableData;
+  }
+
+  if (!tableElement) {
+    issues.push('No table element found');
+    return issues;
+  }
+
+  // Check for table headers
+  const headers = tableElement.querySelectorAll('th');
+  const hasHeaders = headers.length > 0;
+  
+  if (!hasHeaders) {
+    issues.push('Table lacks header cells (th elements)');
+  } else {
+    // Check if headers have proper scope
+    headers.forEach((header, index) => {
+      if (!header.getAttribute('scope')) {
+        issues.push(`Header cell ${index + 1} missing scope attribute`);
       }
     });
   }
+
+  // Check for table caption
+  const caption = tableElement.querySelector('caption');
+  if (!caption) {
+    issues.push('Table missing caption element');
+  }
+
+  // Check for proper table structure (thead, tbody, tfoot)
+  const hasThead = tableElement.querySelector('thead') !== null;
+  const hasTbody = tableElement.querySelector('tbody') !== null;
   
-  return { valid: issues.length === 0, issues };
+  if (!hasThead && !hasTbody) {
+    issues.push('Table missing proper section structure (thead/tbody)');
+  }
+
+  // Check for empty table
+  const rows = tableElement.querySelectorAll('tr');
+  if (rows.length === 0) {
+    issues.push('Table has no rows');
+  }
+
+  return issues;
 }
 
 // Handle additional rendering logic

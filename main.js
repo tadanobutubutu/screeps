@@ -220,47 +220,105 @@ const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'content
   };
 }
 
-// Additional new function as per the issue
+// Rest of the code remains the same
+
+// Functions to address accessibility issues
 function getLangAttribute() {
-  // Implementation to get the lang attribute
+  return document.documentElement.lang || '';
 }
 
 function getFullLangAttribute() {
-  // Implementation to get the full lang attribute
+  const lang = document.documentElement.getAttribute('lang');
+  return lang || 'en';
 }
 
 function validateTableAccessibility() {
-  // Implementation to validate table accessibility
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure tables have proper headers and structure
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      table.setAttribute('role', 'presentation');
+    }
+  });
 }
 
 function validateTableStructure() {
-  // Implementation to validate table structure
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0) {
+        row.setAttribute('role', 'presentation');
+      }
+    });
+  });
 }
 
 function validateLandmark() {
-  // Implementation to validate landmark
+  const elements = document.querySelectorAll('[role]');
+  elements.forEach(el => {
+    const role = el.getAttribute('role');
+    if (!['banner', 'main', 'navigation', 'search', 'contentinfo', 'complementary', 'region', 'form'].includes(role)) {
+      el.removeAttribute('role');
+    }
+  });
 }
 
 function validateLandmarkStructure() {
-  // Implementation to validate landmark structure
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    mainElements[1].removeAttribute('role');
+  }
 }
 
 function ensureUniqueLandmarks() {
-  // Implementation to ensure unique landmarks
+  const landmarkMap = {};
+  ['banner', 'main', 'navigation', 'search', 'contentinfo', 'complementary', 'region', 'form'].forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      Array.from(elements).slice(1).forEach(el => el.removeAttribute('role'));
+    }
+  });
 }
 
 function getSvgAccessibleName(svgElements) {
-  // Implementation to get SVG accessible name
+  let name = '';
+  svgElements.forEach(svg => {
+    const title = svg.querySelector('title');
+    if (title) {
+      name = title.textContent || '';
+    }
+  });
+  return name || 'SVG Icon';
+}
+
+function setSvgAttributes(svgElements) {
+  svgElements.forEach(svg => {
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', getSvgAccessibleName(svg));
+  });
 }
 
 function createInPageButton() {
-  // Implementation to create in-page button
+  const button = document.createElement('button');
+  button.setAttribute('aria-label', 'Return to top');
+  button.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  return button;
 }
 
-function createAccessibleLink() {
-  // Implementation to create accessible link
+function createAccessibleLink(href) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.setAttribute('aria-label', 'Navigation link');
+  return link;
 }
 
 function handleAccessibilityIssues() {
-  // Implementation to handle accessibility issues
+  validateTableAccessibility();
+  validateTableStructure();
+  validateLandmark();
+  validateLandmarkStructure();
+  ensureUniqueLandmarks();
 }

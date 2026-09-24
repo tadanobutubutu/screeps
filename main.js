@@ -1,21 +1,36 @@
-// Assuming main.js has a function that sets up the page structure
-function setupPageStructure() {
-    // Existing setup code...
-
-    // TODO: Validate the landmark structure for accessibility issues
-    validateLandmarks();
-}
-
-function validateLandmarks() {
-    // Example of how you might validate landmarks
-    const landmarks = document.querySelectorAll('[role="landmark"]');
-    landmarks.forEach(landmark => {
-        if (!landmark.textContent || landmark.textContent.trim() === '') {
-            console.error('Accessibility issue: Empty landmark found:', landmark);
+const accessibilityReport = {
+  // Function to address accessibility issues from insight report
+  fixAccessibilityIssues() {
+    // Iterate through all rooms
+    for (const roomName in Game.rooms) {
+      const room = Game.rooms[roomName];
+      
+      // Check sources for pathfinding accessibility
+      const sources = room.find(FIND_SOURCES);
+      sources.forEach(source => {
+        const path = PathFinder.search(room.controller.pos, source.pos, {
+          maxRooms: 1
+        });
+        
+        // If path is blocked or incomplete, log the issue
+        if (path.incomplete) {
+          console.log(`Accessibility issue in ${roomName}: Path to source blocked`);
         }
-        // Add more validation rules as needed
-    });
-}
+      });
+      
+      // Check exits for accessibility
+      const exits = room.find(FIND_EXIT);
+      exits.forEach(exit => {
+        const path = PathFinder.search(room.controller.pos, exit, {
+          maxRooms: 1
+        });
+        
+        if (path.incomplete) {
+          console.log(`Accessibility issue in ${roomName}: Path to exit blocked`);
+        }
+      });
+    }
+  }
+};
 
-// Assuming there's a call to setupPageStructure() at some point in the application
-setupPageStructure();
+module.exports = accessibilityReport;

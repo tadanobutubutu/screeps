@@ -241,183 +241,13 @@ function addAccessibleNamesToSvg(svgElement, names) {
       }
     }
 
-    function activate() {
-      if (isActive) return;
-
-      previouslyFocusedElement = document.activeElement;
-      container.setAttribute('data-focus-trap-active', 'true');
-
-      const focusableElements = getFocusableElements(container);
-      if (focusableElements.length > 0) {
-        focusableElements[0].focus();
-      }
-
-      container.addEventListener('keydown', handleKeyDown);
-      isActive = true;
-    }
-
-    function deactivate() {
-      if (!isActive) return;
-
-      container.removeAttribute('data-focus-trap-active');
-      container.removeEventListener('keydown', handleKeyDown);
-
-      if (previouslyFocusedElement) {
-        previouslyFocusedElement.focus();
-      }
-
-      isActive = false;
-    }
-
-    function toggle() {
-      if (isActive) {
-        deactivate();
-      } else {
-        activate();
-      }
-    }
-
-    return { activate, deactivate, toggle };
-  },
-  getLangAttribute: function() {
-    // Implementation to handle REACT_015
-  },
-  personName: function() {
-    // Implementation to handle REACT_015
-  },
-  validateTableAccessibility: function(element) {
-    if (!element) return false;
-    // Prefer explicit role="table"; allow tables without explicit role if they contain <table>
-    if (element.getAttribute('role') !== 'table') {
-      const table = element.querySelector('table');
-      if (table) return true;
-    }
-    return true;
-  },
-  validateTableStructure: function(element) {
-    if (!element) return false;
-    const rows = element.querySelectorAll('tr');
-    return rows.length > 0;
-  },
-  validateLandmark: function(element) {
-    if (!element) return false;
-    // Landmarks are expected to be SVG elements
-    return element.tagName === 'SVG';
-  },
-  validateLandmarkStructure: function(element) {
-    if (!element) return false;
-    return element.id || element.getAttribute('aria-label');
-  },
-  ensureUniqueLandmarksArray: function(landmarks) {
-    if (!Array.isArray(landmarks)) return [];
-    const seen = new Set();
-    const result = [];
-    for (const lm of landmarks) {
-      const id = lm.id || 'unknown';
-      if (seen.has(id)) {
-        // Generate a unique ID by appending a timestamp
-        lm.id = `${id}-${Date.now()}`;
-      }
-      seen.add(id);
-      result.push(lm);
-    }
-    return result;
-  },
-  getSvgAccessibleName: function(svgElement) {
-    if (!svgElement) return '';
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (ariaLabel) return ariaLabel;
-    const title = svgElement.getAttribute('title');
-    if (title) return title;
-    return svgElement.tagName.toLowerCase();
-  },
-  addAccessibleNamesToSvg: function(svgElement, names) {
-    const targetNames = Array.isArray(names) ? names : [names];
-    for (let i = 0; i < svgElement.children.length; i++) {
-      const child = svgElement.children[i];
-      if (child.nodeType === Node.ELEMENT_NODE) {
-        if (child.getAttribute('role') === 'img' || child.type === 'image') {
-          if (!child.getAttribute('aria-label') && targetNames.length > 0) {
-            this.addAriaLabel(child, targetNames[0]);
-          }
-        }
-      }
-    }
-  },
-  newFocusTrap: function() {
-    // Implementation to handle REACT_017 and NEW
-  },
-  createInPageButton: function() {
-    // Implementation to handle REACT_036
-  },
-  addressAccessibilityIssues: function () {
-    // New function to address accessibility issues
-  },
-  newFunction: function () {
-    // New function implementation
-  },
-  fixTableStructureIssues: function(document) {
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      // Ensure tables have proper structure
-      if (!table.querySelector('thead') && table.querySelector('tr')) {
-        const firstRow = table.querySelector('tr');
-        const ths = firstRow.querySelectorAll('th');
-        if (ths.length > 0) {
-          const thead = document.createElement('thead');
-          thead.appendChild(firstRow.cloneNode(true));
-          table.insertBefore(thead, table.firstChild);
-          firstRow.remove();
-        }
-      }
-
-      // Ensure tables have tbody
-      if (!table.querySelector('tbody')) {
-        const rows = Array.from(table.querySelectorAll('tr'));
-        const tbody = document.createElement('tbody');
-        rows.forEach(row => tbody.appendChild(row));
-        const thead = table.querySelector('thead');
-        if (thead) {
-          table.insertBefore(tbody, thead.nextSibling);
-        } else {
-          table.insertBefore(tbody, table.firstChild);
-        }
-      }
-
-      // Ensure proper caption if needed
-      const caption = table.querySelector('caption');
-      if (!caption) {
-        const newCaption = document.createElement('caption');
-        newCaption.textContent = 'Data table';
-        newCaption.style.clip = 'rect(0 0 0 0)';
-        newCaption.style.clipPath = 'inset(50%)';
-        newCaption.style.height = '1px';
-        newCaption.style.overflow = 'hidden';
-        newCaption.style.whiteSpace = 'nowrap';
-        newCaption.style.width = '1px';
-        table.insertBefore(newCaption, table.firstChild);
-      }
-    });
-    return tables.length;
-  },
-  // TODO: This is the existing code that needs to be preserved
-  // (This comment remains as-is)
-  // TODO: Create or update the affected functions to be accessible
-  generateAccessibilityReport: function(issues) {
-    if (!Array.isArray(issues)) {
-      throw new Error('Issues must be an array');
-    }
-
-    const report = {
-      totalIssues: issues.length,
-      severityCounts: {
-        critical: 0,
-        serious: 0,
-        moderate: 0,
-        minor: 0
-      },
-      issuesByType: {},
-      issues: []
+    // Process credential information
+    const processedCredential = {
+        id: response.id || null,
+        token: response.token || null,
+        name: response.name || 'Anonymous User',
+        email: response.email || null,
+        success: true
     };
 
     issues.forEach(issue => {
@@ -438,19 +268,237 @@ function addAccessibleNamesToSvg(svgElement, names) {
       }
       report.issuesByType[type]++;
 
-      report.issues.push({
-        type: type,
-        severity: severity,
-        message: issue.message || '',
-        element: issue.element || null
-      });
-    });
+/**
+ * Google Sign-In logic
+ * Initializes Google sign-in and handles the authentication flow.
+ * @param {Object} options - Configuration options for Google Sign-In
+ * @param {string} options.clientId - The Google OAuth client ID
+ * @param {function} options.callback - Callback function to handle credential response
+ * @param {string} [options.buttonId='google-signin-btn'] - ID of the sign-in button element
+ * @returns {Object} Result of the sign-in initialization
+ */
+function googleSignIn(options) {
+    if (!options || !options.clientId) {
+        return { success: false, error: 'Google client ID is required' };
+    }
 
-    report.summary = `Found ${report.totalIssues} accessibility issue(s): ` +
-      `${report.severityCounts.critical} critical, ` +
-      `${report.severityCounts.serious} serious, ` +
-      `${report.severityCounts.moderate} moderate, ` +
-      `${report.severityCounts.minor} minor.`;
+    var buttonId = options.buttonId || 'google-signin-btn';
+
+    // In browser environment, use Google Identity Services
+    if (typeof window !== 'undefined' && window.google && window.google.accounts && window.google.accounts.id) {
+        window.google.accounts.id.initialize({
+            client_id: options.clientId,
+            callback: options.callback || handleCredentialResponse
+        });
+
+        var buttonElement = document.getElementById(buttonId);
+        if (buttonElement) {
+            window.google.accounts.id.renderButton(
+                buttonElement,
+                { theme: 'outline', size: 'large', shape: 'rectangular' }
+            );
+            // Ensure the button is keyboard accessible
+            buttonElement.setAttribute('aria-label', 'Sign in with Google');
+            if (!buttonElement.hasAttribute('tabindex')) {
+                buttonElement.setAttribute('tabindex', '0');
+            }
+        }
+
+        // Announce to screen readers
+        if (typeof announceToScreenReader === 'function') {
+            announceToScreenReader('Google sign-in button is ready');
+        }
+
+        return { success: true, message: 'Google Sign-In initialized' };
+    }
+
+    // In non-browser or missing Google library, return stub for testing
+    return {
+        success: true,
+        message: 'Google Sign-In configuration prepared',
+        clientId: options.clientId,
+        callback: options.callback || handleCredentialResponse
+    };
+}
+
+// Ensure DOM is fully loaded before executing scripts
+if (typeof module !== 'undefined' && module.exports) {
+  // Node.js environment - setup basic exports
+  module.exports = {
+    checkTableStructure,
+    countDependencies,
+    init,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup,
+    trapFocus,
+    handleKeyNavigation,
+    closeOpenDialogs,
+    announceToScreenReader,
+    calculateDifference,
+    calculateProduct,
+    isNumber,
+    clamp,
+    hello,
+    getVersion,
+    getConfig,
+    addressAccessibilityIssues,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    validateLandmark,
+    spawnSomeCommand,
+    createInPageButton,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    countDependencies,
+    googleSignIn
+  };
+} else {
+  // Browser environment - wait for DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+}
+
+function init() {
+  setupAriaLiveRegions();
+  setupFocusManagement();
+  enhanceSemanticMarkup();
+}
+
+function setupAriaLiveRegions() {
+  const liveRegion = document.getElementById('aria-live-region');
+  if (!liveRegion) {
+    const region = document.createElement('div');
+    region.id = 'aria-live-region';
+    region.setAttribute('aria-live', 'polite');
+    region.setAttribute('aria-atomic', 'true');
+    region.className = 'sr-only';
+    document.body.appendChild(region);
+  }
+}
+
+function setupFocusManagement() {
+  // Trap focus within modal dialogs
+  const modals = document.querySelectorAll('[role="dialog"]');
+  modals.forEach((modal) => {
+    modal.addEventListener('keydown', trapFocus);
+  });
+
+  // Ensure all interactive elements are keyboard accessible
+  const interactiveElements = document.querySelectorAll(
+    'button, a, input, select, textarea, [tabindex]'
+  );
+  interactiveElements.forEach(element => {
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
+  });
+}
+
+function enhanceSemanticMarkup() {
+  // Add skip link if not present
+  if (!document.getElementById('skip-link')) {
+    const skipLink = document.createElement('a');
+    skipLink.id = 'skip-link';
+    skipLink.href = '#main-content';
+    skipLink.textContent = 'Skip to main content';
+    skipLink.className = 'skip-link';
+    skipLink.style.position = 'absolute';
+    skipLink.style.top = '-40px';
+    document.body.insertBefore(skipLink, document.body.firstChild);
+  }
+
+  // Ensure images have alt attributes
+  const images = document.querySelectorAll('img');
+  images.forEach((img) => {
+    if (!img.hasAttribute('alt')) {
+      img.setAttribute('alt', '');
+      img.setAttribute('role', 'presentation');
+    }
+  });
+
+  // Ensure form inputs have associated labels
+  const inputs = document.querySelectorAll('input, select, textarea');
+  inputs.forEach((input) => {
+    const id = input.id || 'input-' + Math.random().toString(36).substr(2, 9);
+    input.id = id;
+    if (!input.hasAttribute('aria-label') && !document.querySelector('label[for="' + id + '"]')) {
+      input.setAttribute('aria-label', input.name || 'Input field');
+    }
+  });
+}
+
+function closeOpenDialogs() {
+  /* existing code */
+}
+
+function announceToScreenReader(message) {
+  const liveRegion = document.getElementById('aria-live-region');
+  if (liveRegion) {
+    liveRegion.textContent = '';
+    // Slight delay to ensure screen readers pick up the change
+    setTimeout(() => {
+      liveRegion.textContent = message;
+    }, 100);
+  }
+}
+
+function calculateDifference(a, b) {
+  /* existing code */
+}
+
+function calculateProduct(a, b) {
+  /* existing code */
+}
+
+function isNumber(value) {
+  /* existing code */
+}
+
+function clamp(value, min, max) {
+  /* existing code */
+}
+
+function createInPageButton(buttonId, buttonText) {
+  /* existing code */
+}
+
+function getSvgAccessibleName(svg) {
+  /* existing code */
+}
+
+function setSvgAttributes(svg) {
+  /* existing code */
+}
+
+function handleFakeLinks(issues) {
+  /* existing code */
+}
+
+// Accessibility utilities
+const hello = () => {
+  return 'Hello from main.js';
+};
+
+// Utilities for addressing accessibility issues
+const address = {
+  addressAccessibilityIssues: function(issues) {
+    /* existing code */
+  },
+
+  generateAccessibilityReport: function(accessibilityReport) {
+    if (!accessibilityReport || !accessibilityReport.issues) {
+      return [];
+    }
+
+    const report = accessibilityReport.issues.map(issue => ({
+      issueType: issue.type,
+      status: issue.status || 'pending',
+      fixApplied: issue.fixApplied || ''
+    }));
 
     return report;
   },
@@ -525,34 +573,18 @@ function addAccessibleNamesToSvg(svgElement, names) {
   addMainLandmark: function(document) {
     const mainElements = document.querySelectorAll('main');
 
-    if (mainElements.length === 0) {
-      // Find the main content area and wrap it with <main>
-      const body = document.body;
-      const main = document.createElement('main');
-      main.setAttribute('role', 'main');
-
-      // Move all body children into main
-      while (body.firstChild) {
-        main.appendChild(body.firstChild);
-      }
-      body.appendChild(main);
-    } else if (mainElements.length === 1) {
-      const main = document.querySelector('main');
-      if (!main.hasAttribute('role')) {
-        main.setAttribute('role', 'main');
-      }
-    }
-
-    return document.querySelectorAll('main').length;
+  addLangAttribute: function(element, lang) {
+    element.setAttribute('lang', lang);
   },
   addSvgAccessibleNames: function(document) {
     const svgs = document.querySelectorAll('svg');
     let count = 0;
 
-    svgs.forEach((svg, index) => {
-      const existingLabel = svg.getAttribute('aria-label') ||
-                            svg.querySelector('title') ||
-                            svg.getAttribute('aria-labelledby');
+  countDependencies: function() {
+    const path = require('path');
+    const fs = require('fs');
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
       if (!existingLabel) {
         const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');

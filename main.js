@@ -470,4 +470,68 @@ export function ... {
     const elements = ...
     elements.forEach((el, index) => {
       if (index > 0 && !el.getAttribute('aria-label')) {
-        const count = index + 1
+        const count = index + 1;
+        el.setAttribute('aria-label', `${role} ${count}`);
+      }
+    });
+  });
+  
+  return container;
+}
+
+/**
+ * REACT_025: Unique landmarks helper
+ */
+export function uniqueLandmarks() {
+  return ensureUniqueLandmarks
+}
+
+/**
+ * REACT_041: Add accessible names to SVGs
+ */
+export function ... accessibleName) {
+  if (!svgElement) return null;
+  
+  let title = ...
+  if (!title) {
+    title = document.createElement('title');
+    svgElement.insertBefore(title, ...
+  }
+  title.textContent = accessibleName;
+  
+  const titleId = ... 9)}`;
+  title.setAttribute('id', titleId);
+  ... titleId)
+  
+  if ... {
+    ... 'img');
+  }
+  
+  return svgElement;
+}
+
+/**
+ * REACT_041: Add accessible names to all SVGs in container
+ */
+export function ... defaultName) {
+  if (!container) return;
+  
+  const svgs = ...
+  svgs.forEach((svg, index) => {
+    if ... && ... {
+      addSvgAccessibleNames(svg, defaultName || `Icon ${index + 1}`);
+    }
+  });
+  
+  return container;
+}
+
+/**
+ * REACT_036: Fix fake link issue
+ */
+export function fixFakeLinkIssue(element) {
+  if (!element) return null;
+  
+  const tagName = element.tagName.toLowerCase();
+  const role = element.getAttribute('role');
+  const onClick = element.get

@@ -32,7 +32,16 @@ const setLanguageAttribute = (lang = 'en') => {
   return button;
 }
 
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it`s called when the button is clicked.
+// Testing the checkLandmarkElement function:
+// To test this function, we could create a test file with the following content:
+const landmarkStructureCheck = (landmark) => {
+  if (!landmark.name || !landmark.coordinates) {
+    return false;
+  }
+  return true;
+}
+
+// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:
 export function rotateBack() {
   // Your code to rotate back
@@ -153,26 +162,92 @@ function ensureThScope() {
  * This addresses the REACT_025 issue by checking for duplicate landmarks
  * and making them unique with appropriate aria-label or aria-labelledby attributes.
  */
-const ensureUniqueLandmarkElements = () => {
-  // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('nav');
-  if (navElements.length > 1) {
-    navElements.forEach((nav, index) => {
-      if (index > 0) {
-        nav.setAttribute('aria-label', `Navigation ${index + 1}`);
-      }
-    });
-  }
 
-  // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    mainElements.forEach((main, index) => {
-      if (index > 0) {
-        main.setAttribute('aria-label', `Main content ${index + 1}`);
-      }
+// Ensure unique landmarks by filtering duplicates
+function ensureUniqueLandmarks(landmarks) {
+    const seen = new Set();
+    return landmarks.filter(landmark => {
+        const key = landmark.name + '_' + (landmark.role || 'default');
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
     });
-  }
+}
+
+const ensureUniqueLandmarkElements = () => {
+  // Define landmark roles - some should be unique per page
+  const uniqueLandmarkRoles = ['main', 'banner', 'contentinfo'];
+  const multipleAllowedRoles = ['navigation', 'complementary', 'region', 'search', 'form'];
+  const allLandmarkRoles = [...uniqueLandmarkRoles, ...multipleAllowedRoles];
+
+  // Find all elements with landmark roles
+  const landmarks = document.querySelectorAll(allLandmarkRoles.map(role => `[role="${role}"]`).join(', '));
+
+  // Group landmarks by role
+  const landmarksByRole = {};
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (!landmarksByRole[role]) {
+      landmarksByRole[role] = [];
+    }
+    landmarksByRole[role].push(landmark);
+  });
+
+  // Check unique landmark roles - should only have one per page
+  uniqueLandmarkRoles.forEach(role => {
+    const elements = landmarksByRole[role] || [];
+    if (elements.length > 1) {
+      console.warn(`Multiple ${role} landmarks found. Only one is allowed per page.`);
+      // Keep the first one, remove role from others
+      elements.slice(1).forEach(el => {
+        el.removeAttribute('role');
+        console.warn(`Removed duplicate ${role} landmark role from element:`, el);
+      });
+    }
+  });
+
+  // For roles that allow multiples, ensure each has a unique accessible name
+  multipleAllowedRoles.forEach(role => {
+    const elements = landmarksByRole[role] || [];
+    if (elements.length > 1) {
+      const usedNames = new Set();
+      elements.forEach((el, index) => {
+        // Check for existing accessible name
+        const ariaLabel = el.getAttribute('aria-label');
+        const ariaLabelledBy = el.getAttribute('aria-labelledby');
+        let accessibleName = ariaLabel || (ariaLabelledBy ? document.getElementById(ariaLabelledBy)?.textContent : null);
+
+        if (!accessibleName) {
+          // Generate a unique name
+          accessibleName = `${role} ${index + 1}`;
+          el.setAttribute('aria-label', accessibleName);
+        }
+
+        // Ensure uniqueness
+        let uniqueName = accessibleName;
+        let counter = 1;
+        while (usedNames.has(uniqueName)) {
+          uniqueName = `${accessibleName} ${counter}`;
+          counter++;
+        }
+        usedNames.add(uniqueName);
+
+        if (uniqueName !== accessibleName) {
+          el.setAttribute('aria-label', uniqueName);
+        }
+      });
+    } else if (elements.length === 1) {
+      // Single landmark of this type - ensure it has an accessible name if needed
+      const el = elements[0];
+      const ariaLabel = el.getAttribute('aria-label');
+      const ariaLabelledBy = el.getAttribute('aria-labelledby');
+      if (!ariaLabel && !ariaLabelledBy) {
+        el.setAttribute('aria-label', role);
+      }
+    }
+  });
 };
 
 /**
@@ -214,6 +289,15 @@ const fixFakeLinks = () => {
     }
   });
 };
+
+// Function to add accessible names to 2 SVGs
+function addSvgAccessibleNames() {
+  const svg1 = document.getElementById('svg1');
+  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
+
+  const svg2 = document.getElementById('svg2');
+  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
+}
 
 function helloWorld() {
   return 'Hello, World!';
@@ -288,6 +372,11 @@ const appData = {
     version: '1.0.0'
 };
 
+// Define icons object
+let icons = {
+    icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
+};
+
 // Initialization function
 const initApp = () => {
   // Initialize the main application
@@ -296,13 +385,14 @@ const initApp = () => {
   // Apply accessibility fixes
   setLanguageAttribute(); // Default to 'en'
   addLandmarkRoles();
+  ensureUniqueLandmarkElements();
 
   // Add accessible names to SVGs (example selectors and names)
   addSVGAccessibleName('.home-icon', 'Home icon');
   addSVGAccessibleName('.settings-icon', 'Settings icon');
 
-  // Define icons object
-  const icons = {
+  // Update icons with proper accessible names
+  icons = {
     icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
   };
   
@@ -383,90 +473,6 @@ function handleEvent(event) {
   // Event handling logic would go here
 }
 
-// Function to add accessible names to 2 SVGs
-function addSvgAccessibleNames() {
-  const svg1 = document.getElementById('svg1');
-  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
-
-  const svg2 = document.getElementById('svg2');
-  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
-}
-
-// Function to ensure unique landmarks (2 issues)
-function ensureUniqueLandmarkRoles() {
-  // Define landmark roles - some should be unique per page
-  const uniqueLandmarkRoles = ['main', 'banner', 'contentinfo'];
-  const multipleAllowedRoles = ['navigation', 'complementary', 'region', 'search', 'form'];
-  const allLandmarkRoles = [...uniqueLandmarkRoles, ...multipleAllowedRoles];
-
-  // Find all elements with landmark roles
-  const landmarks = document.querySelectorAll(allLandmarkRoles.map(role => `[role="${role}"]`).join(', '));
-
-  // Group landmarks by role
-  const landmarksByRole = {};
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (!landmarksByRole[role]) {
-      landmarksByRole[role] = [];
-    }
-    landmarksByRole[role].push(landmark);
-  });
-
-  // Check unique landmark roles - should only have one per page
-  uniqueLandmarkRoles.forEach(role => {
-    const elements = landmarksByRole[role] || [];
-    if (elements.length > 1) {
-      console.warn(`Multiple ${role} landmarks found. Only one is allowed per page.`);
-      // Keep the first one, remove role from others
-      elements.slice(1).forEach(el => {
-        el.removeAttribute('role');
-        console.warn(`Removed duplicate ${role} landmark role from element:`, el);
-      });
-    }
-  });
-
-  // For roles that allow multiples, ensure each has a unique accessible name
-  multipleAllowedRoles.forEach(role => {
-    const elements = landmarksByRole[role] || [];
-    if (elements.length > 1) {
-      const usedNames = new Set();
-      elements.forEach((el, index) => {
-        // Check for existing accessible name
-        const ariaLabel = el.getAttribute('aria-label');
-        const ariaLabelledBy = el.getAttribute('aria-labelledby');
-        let accessibleName = ariaLabel || (ariaLabelledBy ? document.getElementById(ariaLabelledBy)?.textContent : null);
-
-        if (!accessibleName) {
-          // Generate a unique name
-          accessibleName = `${role} ${index + 1}`;
-          el.setAttribute('aria-label', accessibleName);
-        }
-
-        // Ensure uniqueness
-        let uniqueName = accessibleName;
-        let counter = 1;
-        while (usedNames.has(uniqueName)) {
-          uniqueName = `${accessibleName} ${counter}`;
-          counter++;
-        }
-        usedNames.add(uniqueName);
-
-        if (uniqueName !== accessibleName) {
-          el.setAttribute('aria-label', uniqueName);
-        }
-      });
-    } else if (elements.length === 1) {
-      // Single landmark of this type - ensure it has an accessible name if needed
-      const el = elements[0];
-      const ariaLabel = el.getAttribute('aria-label');
-      const ariaLabelledBy = el.getAttribute('aria-labelledby');
-      if (!ariaLabel && !ariaLabelledBy) {
-        el.setAttribute('aria-label', role);
-      }
-    }
-  });
-}
-
 // Function to fix 1 fake link issue
 function fixFakeLink() {
   const fakeLinks = document.querySelectorAll('[href="#"]:not([aria-hidden])');
@@ -478,11 +484,11 @@ function fixFakeLink() {
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
-  const fakeLink = document.getElementById('unrotate');
-  if (fakeLink && fakeLink.tagName === 'A') {
-    const parent = fakeLink.parentElement;
+  const fakeLinkEl = document.getElementById('unrotate');
+  if (fakeLinkEl && fakeLinkEl.tagName === 'A') {
+    const parent = fakeLinkEl.parentElement;
     const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
+    parent.replaceChild(newButton, fakeLinkEl);
   }
 
   // Ensure table headers have proper scope
@@ -522,7 +528,7 @@ function initialize() {
   addSvgAccessibleNames();
 
   // Accessibility: Ensure unique landmarks (2 issues)
-  ensureUniqueLandmarkRoles();
+  ensureUniqueLandmarkElements();
 
   // Accessibility: Fix 1 fake link issue
   fixFakeLink();

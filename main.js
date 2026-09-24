@@ -42,7 +42,6 @@ const {
   getActiveSessionsCount,
   validateSession,
   handleCredentialResponse,
-  accessibilityUtils,
   createAnnouncer,
   prefersReducedMotion,
   renderSimpleDependencyGraph,
@@ -61,7 +60,10 @@ const {
   newFunction,
   validateHeadingHierarchy,
   ensureHeadingHierarchy,
-  renderAdditionalContent
+  renderAdditionalContent,
+  newFocusTrap,
+  calculateComplexity,
+  renderDependencyGraph
 } = main
 
 // Access the dependencyGraph container and ensure it has proper ARIA role

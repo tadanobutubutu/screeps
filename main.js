@@ -346,109 +346,135 @@ const svg = document.querySelector('svg');
 const accessibleName = getSvgAccessibleName(svg);
 set
 
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+/**
+ * Creates an accessible book form with proper labels and ARIA attributes
+ * @param {string} formId - ID for the form element
+ * @returns {HTMLFormElement} The created form element
+ */
+function createAccessibleBookForm(formId) {
+  const form = document.createElement('form');
+  form.id = formId;
+  form.setAttribute('role', 'form');
+  form.setAttribute('aria-labelledby', `${formId}-title`);
 
-// New function to handle SVG accessibility as per REACT_041
-function setSvgAccessibilityProps(svgElement, accessibleName) {
-  if (!svgElement) return;
+  // Create form title
+  const title = document.createElement('h2');
+  title.id = `${formId}-title`;
+  title.textContent = 'Add New Book';
+  form.appendChild(title);
 
-  // Set ARIA attributes for better accessibility
-  svgElement.setAttribute('role', 'img');
-  svgElement.setAttribute('aria-label', accessibleName);
+  // Create accessible form fields
+  const fields = [
+    { id: 'title', label: 'Book Title', type: 'text', required: true },
+    { id: 'author', label: 'Author', type: 'text', required: true },
+    { id: 'isbn', label: 'ISBN', type: 'text', required: true },
+    { id: 'price', label: 'Price', type: 'number', required: true }
+  ];
 
-  // Ensure SVG has a title element for additional accessibility
-  let titleElement = svgElement.querySelector('title');
-  if (!titleElement) {
-    titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-    svgElement.insertBefore(titleElement, svgElement.firstChild);
-  }
-  titleElement.textContent = accessibleName;
-}
+  fields.forEach(field => {
+    const div = document.createElement('div');
+    div.className = 'form-group';
 
-// New function to add proper landmark regions as per REACT_037
-function addProperLandmarkRegions() {
-  // Ensure main content area has proper landmark
-  const mainContent = document.querySelector('main');
-  if (mainContent && !mainContent.hasAttribute('role')) {
-    mainContent.setAttribute('role', 'main');
-  }
+    const label = document.createElement('label');
+    label.htmlFor = `${formId}-${field.id}`;
+    label.textContent = field.label;
+    div.appendChild(label);
 
-  // Ensure navigation has proper landmark
-  const navigation = document.querySelector('nav');
-  if (navigation && !navigation.hasAttribute('role')) {
-    navigation.setAttribute('role', 'navigation');
-  }
-
-  // Ensure footer has proper landmark
-  const footer = document.querySelector('footer');
-  if (footer && !footer.hasAttribute('role')) {
-    footer.setAttribute('role', 'contentinfo');
-  }
-}
-
-// New function to handle fake links as per REACT_036
-function handleFakeLinks() {
-  // Find all elements that look like links but aren't
-  const fakeLinks = document.querySelectorAll('[role="link"], [class*="link"], [id*="link"]');
-
-  fakeLinks.forEach(link => {
-    // If it's not a real link, convert it to a button or add proper ARIA
-    if (link.tagName !== 'A' || !link.hasAttribute('href')) {
-      link.setAttribute('role', 'button');
-      link.setAttribute('tabindex', '0');
-
-      // Add click handler for keyboard accessibility
-      link.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          link.click();
-        }
-      });
+    const input = document.createElement('input');
+    input.type = field.type;
+    input.id = `${formId}-${field.id}`;
+    input.name = field.id;
+    if (field.required) {
+      input.required = true;
+      input.setAttribute('aria-required', 'true');
     }
+    div.appendChild(input);
+
+    form.appendChild(div);
   });
+
+  // Create submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Book';
+  submitButton.setAttribute('aria-label', 'Submit book information');
+  form.appendChild(submitButton);
+
+  return form;
 }
 
-// Initialize accessibility features when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  // Add lang attribute to HTML element
-  addLangAttribute();
+/**
+ * Adds a book to the system with accessibility considerations
+ * @param {Object} bookData - Book information
+ * @param {string} bookData.title - Book title
+ * @param {string} bookData.author - Author name
+ * @param {string} bookData.isbn - ISBN number
+ * @param {number} bookData.price - Book price
+ */
+function addBook(bookData) {
+  // Validate input data
+  if (!validateBookData(bookData)) {
+    throw new Error('Invalid book data provided');
+  }
 
-  // Create in-page button with accessibility considerations
-  createInPageButton();
+  // Process the book data
+  const processedBook = {
+    ...bookData,
+    formattedPrice: formatCurrency(bookData.price),
+    addedDate: formatDate(new Date())
+  };
 
-  // Validate table structure and accessibility
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
+  // Update application state
+  updateState('books', [...state.books, processedBook]);
 
-  // Add/fix landmark issues
-  validateLandmark();
-  validateLandmarkStructure();
-  ensureUniqueLandmarks();
-  addProperLandmarkRegions();
+  // Announce the addition to screen readers
+  const announcement = document.createElement('div');
+  announcement.setAttribute('role', 'status');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.textContent = `Book "${bookData.title}" by ${bookData.author} has been added.`;
+  document.body.appendChild(announcement);
 
-  // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      setSvgAccessibilityProps(svg, accessibleName);
-    }
-  });
+  // Remove the announcement after a delay
+  setTimeout(() => {
+    document.body.removeChild(announcement);
+  }, 5000);
+}
 
-  // Handle fake links
-  handleFakeLinks();
+/**
+ * Validates book data for the addBook function
+ * @param {Object} bookData - Book information to validate
+ * @returns {boolean} True if data is valid
+ */
+function validateBookData(bookData) {
+  if (!bookData || typeof bookData !== 'object') return false;
 
-  // Handle all accessibility issues
-  handleAccessibilityIssues();
-});
+  const requiredFields = ['title', 'author', 'isbn', 'price'];
+  for (const field of requiredFields) {
+    if (!bookData[field]) return false;
+  }
+
+  if (typeof bookData.price !== 'number' || bookData.price <= 0) return false;
+
+  return true;
+}
+
+// Add lang attribute to HTML element
+... getLangAttribute());
+
+// Create in-page button with accessibility considerations
+createInPageButton();
+
+// Validate table structure and accessibility
+const table = ...
+validateTableAccessibility(table);
+validateTableStructure(table);
+
+// Add/fix landmark issues
+validateLandmark();
+...
+ensureUniqueLandmarks();
+
+// Add accessible names to SVGs
+const svg = ...
+const accessibleName = getSvgAccessibleName(svg);
+set

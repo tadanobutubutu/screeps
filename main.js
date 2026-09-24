@@ -1,6 +1,7 @@
 // TODO: This is the existing code that needs to be preserve
 
 function checkLandmarkElements() {
+    // TODO: Implement this function for checking landmark elements
     const landmarks = ['header', 'footer', 'nav', 'main', 'section', 'article'];
     let allValid = true;
 

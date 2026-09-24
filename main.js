@@ -300,265 +300,53 @@ function handleFakeLinks(link) {
 }
 
 /**
- * Handles the addBook form with accessibility improvements
- * @param {HTMLElement} form - The form element containing the book addition form
- * @returns {Promise<void>}
+ * Creates a focus trap for keyboard navigation within a given element.
+ * @param {HTMLElement} container - The container element to trap focus within.
+ * @returns {Object} An object with methods to enable and disable the focus trap.
  */
-async function addBookForm(form) {
-  // Ensure the form has the correct role
-  if (form && form.matches('form')) {
-    form.setAttribute('role', 'form');
-  }
+function newFocusTrap(container) {
+  if (!container || typeof container !== 'object') return null;
 
-  // Add accessible name to the form if not already present
-  const formName = form.querySelector('[aria-labelledby]')?.getAttribute('aria-labelledby') ||
-                   form.querySelector('[for]')?.getAttribute('for') ||
-                   'Add Book Form';
-  if (formName) {
-    form.setAttribute('aria-labelledby', formName);
-  }
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusableElements.length === 0) return null;
 
-  // Associate labels with form elements
-  const inputs = form.querySelectorAll('input, select, textarea');
-  inputs.forEach(input => {
-    const id = input.id;
-    if (id && !input.hasAttribute('id')) {
-      // Remove existing ID if present
-      input.removeAttribute('id');
-      // Use the form's label as the input's id
-      const label = form.querySelector(`[for="${id}"]`);
-      if (label) {
-        input.setAttribute('id', id);
-        input.setAttribute('aria-label', label.textContent);
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  function handleKeyDown(e) {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
       } else {
-        // Fallback: use a generic description
-        input.setAttribute('aria-label', 'Book information field');
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
       }
     }
-  });
+  }
 
-  // Handle form submission
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    try {
-      // In a real application, you would send the form data to a server
-      const formData = new FormData(form);
-      console.log('Submitting book data:', Object.fromEntries(formData));
-      
-      // Simulate successful submission
-      await new Promise(resolve => setTimeout(resolve, 500));
-      alert('Book added successfully!');
-    } catch (error) {
-      console.error('Error submitting book form:', error);
+  container.addEventListener('keydown', handleKeyDown);
+
+  return {
+    enable: () => {
+      container.setAttribute('tabindex', '-1');
+      container.focus();
+    },
+    disable: () => {
+      container.removeEventListener('keydown', handleKeyDown);
+      container.removeAttribute('tabindex');
     }
-  });
+  };
 }
 
-/**
- * Creates an accessible in- page button and appends it to the given parent element.
- * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(parent = document.body) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', 'Open modal');
-  parent.appendChild(btn);
-  return btn;
-}
-
-/**
- * Validates the accessibility of a table element
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} Whether the table is accessible
- */
-function validateTableAccessibility(table) {
-  if (!table || typeof table !== 'object' || !(table instanceof HTMLElement)) return false;
-
-  // Check if table has a caption
-  if (!table.querySelector('caption')) {
-    console.warn('Table is missing a caption');
-    return false;
-  }
-
-  // Check if table has proper headers
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    console.warn('Table is missing header cells');
-    return false;
-  }
-
-  // Check if table cells have proper scope attributes
-  const cells = table.querySelectorAll('td, th');
-  for (const cell of cells) {
-    if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
-      console.warn('Table header cell is missing scope attribute');
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * Validates the structure of a table element
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} Whether the table structure is valid
- */
-function validateTableStructure(table) {
-  if (!table || typeof table !== 'object' || !(table instanceof HTMLElement)) return false;
-
-  // Check if table has proper structure
-  if (!table.querySelector('thead') || !table.querySelector('tbody')) {
-    console.warn('Table is missing required thead or tbody elements');
-    return false;
-  }
-
-  // Check if table has at least one row
-  if (table.querySelectorAll('tr').length === 0) {
-    console.warn('Table is missing rows');
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Validates a landmark element for accessibility
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark is valid
- */
-function validateLandmark(element) {
-  if (!element || typeof element !== 'object') return false;
-
-  // Check if element is a valid landmark role
-  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
-  const role = element.getAttribute('role') || element.tagName.toLowerCase();
-
-  if ... {
-    return false;
-  }
-
-  // Check for required ARIA attributes based on role
-  switch (role) {
-    case 'navigation':
-      if (!element.getAttribute('aria-label') && ... {
-        return false;
-      }
-      break;
-    case 'region':
-      if (!element.getAttribute('aria-label') && ... {
-        return false;
-      }
-      break;
-    case 'form':
-      if (!element.getAttribute('aria-label') && ... {
-        return false;
-      }
-      break;
-  }
-
-  // Check if landmark is unique when required
-  if (['banner', 'main', ... {
-    const elements = ...
-    if (elements.length > 1) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * Validates the structure of landmark elements
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark structure is valid
- */
-function validateLandmarkStructure(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
-}
-
-/**
- * Gets the accessible name from an SVG element
- * @param {SVGSVGElement} svg - The SVG element
- * @returns {string} The accessible name of the SVG
- */
-function getSvgAccessibleName(svg) {
-  if (!svg || typeof svg !== 'object') return '';
-  return ... || svg.getAttribute('title') || '';
-}
-
-/**
- * Validates landmark attributes for accessibility
- * @param {HTMLElement} element - The landmark element to validate
- * @returns {boolean} Whether the landmark attributes are valid
- */
-function validateLandmarkAttributes(element) {
-  if (!element || typeof element !== 'object') return true;
-  return true;
-}
-
-/**
- * Sets SVG attributes to ensure accessibility
- * @param {SVGSVGElement} svg - The SVG element
- * @param {string} name - The accessible name for the SVG
- */
-function setSvgAttributes(svg, name) {
-  if (!svg || typeof svg !== 'object') return;
-  ... name);
-  svg.setAttribute('role', 'img');
-}
-
-/**
- * Ensures all landmarks are unique in the document
- * @returns {boolean} Whether all landmarks are unique
- */
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined') return true;
-  const landmarks = ... [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
-  const landmarkRoles = new Set();
-  for (const landmark of landmarks) {
-    const role = ...
-    if (landmarkRoles.has(role)) {
-      return false;
-    }
-    landmarkRoles.add(role);
-  }
-  return true;
-}
-
-/**
- * Validates link accessibility
- * @param {HTMLAnchorElement} link - The link element to validate
- * @returns {boolean} Whether the link is accessible
- */
-function validateLinkAccessibility(link) {
-  if (!link || typeof link !== 'object') return true;
-  return ... && link.getAttribute('href') !== '#';
-}
-
-/**
- * Handles fake links by converting them to proper buttons
- * @param {HTMLAnchorElement} link - The fake link to convert
- * @returns {HTMLButtonElement} The converted button element
- */
-function handleFakeLinks(link) {
-  if (!link || typeof link !== 'object' || link.tagName !== 'A') return null;
-  if ... === '#') {
-    const button = document.createElement('button');
-    button.textContent = link.textContent;
-    button.setAttribute('aria-label', link.getAttribute('aria-label') || link.textContent);
-    ... link);
-    return button;
-  }
-  return null;
-}
-
-// Assuming main.js already exports the renderDependencyGraph and renderIndexView functions
-// No need to handle those conflicts here
+// REACT_015: Add lang attribute to HTML element
+// Add the language attribute to the HTML element for proper accessibility
 
 module.exports = {
   setHtmlLangAttribute,
@@ -576,5 +364,5 @@ module.exports = {
   ensureUniqueLandmarks,
   validateLinkAccessibility,
   handleFakeLinks,
-  addBookForm
+  newFocusTrap
 };

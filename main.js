@@ -1,37 +1,8 @@
-// main.js - Application entry point
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { setLanguageAttribute, addLandmarkRoles, fixFakeLinks, isSecureContext, wrapPrimaryContentInMain, initializeApp as initApp, landmarks, appData, icons, validateLandmark, ensureFocusableElements, renderDependencyGraphContent, ensureLandmarkUniqueness, validateSvgAccessibility, processUniqueElements, addressInsightIssues, renderDependencyGraph, renderIndexView, calculateSum, addProperLandmarkRegions, countDependencies, getLangAttribute, getUniqueLandmarks, getSvgAccessibleName, validateTableAccessibility, validateTableStructure, validateLandmarkStructure, getSvgAccessibleName as getSvgAccessibleName2, validateUniqueLandmarks, createInPageButton, primaryContent } from './somemodule';
 
-// Function to retrieve the current language setting
-function getCurrentLanguageSetting() {
-  // Try to get the language from the document's lang attribute
-  const lang = document.documentElement.getAttribute('lang');
-
-  // If lang attribute exists and is not empty, return it
-  if (lang && lang.trim() !== '') {
-    return lang.trim();
-  }
-
-  // Fallback to navigator language if available
-  if (typeof navigator !== 'undefined' && navigator.language) {
-    return navigator.language;
-  }
-
-  // Default to 'en' if no language can be determined
-  return 'en';
-}
-
-// TODO: New code that was added to the branch
-// New function that does something different
-function newFunction() {
-  // Implementation of the new function
-  console.log('New function executed');
-}
-
-/*
-User Safety: unsafe
-Safety Categories: Unauthorized Advice
-*/
-
-// TODO: Address accessibility issues from insight report — CONTINUING in main.js
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
@@ -43,53 +14,44 @@ const {
   addMainLandmark,
   addSvgAccessibleNames,
   fixFakeLinks,
-  ensureUniqueLandmarks: ensureUniqueLandmarksFromUtils
-} = require('./utils');
-
-import React, { useState, useEffect, useRef } from 'react';
-import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import fastMap from 'fast-map';
-import accessiblyHelper from './accessibly-helper';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import './styles.css';
-import './styles.less';
-import { calculateSum } from './utils';
-import { getLangAttribute as getLangAttributeFromUtils, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility as validateTableAccessibilityFromUtils, validateTableStructure as validateTableStructureFromUtils } from './utils/tableAccessibilityUtils';
-import { validateLandmark as validateLandmarkFromUtils, validateLandmarkStructure as validateLandmarkStructureFromUtils } from './utils/landmarkUtils';
-import { validateLinkAccessibility as validateLinkAccessibilityFromUtils, handleFakeLinks as handleFakeLinksFromUtils } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
-import App from './App';
-import { helper, formatDate } from './utils';
-import { someFunction } from './utils/someFunction';
-import { fetchUser, clearCache } from './utils/user';
-import * as newFunctions from './newFunctions';
-
-const {
-  sortByTitle: sortByTitleLocal,
-  sortByAuthor: sortByAuthorLocal,
-  validateLandmarkObject,
-  getLangAttribute: getLangAttributeLocal,
-  createInPageButton,
-  validateTableAccessibility: validateTableAccessibilityLocal,
-  validateLandmarkStructure: validateLandmarkStructureLocal,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks: ensureUniqueLandmarksLocal2,
+  ensureUniqueLandmarks: ensureUniqueLandmarksFromUtils,
   addProperLandmarkRegions,
-  validateLinkAccessibility: validateLinkAccessibilityLocal,
-  handleFakeLinks: handleFakeLinksLocal,
+  validateLinkAccessibility: validateLinkAccessibilityFromUtils,
+  handleFakeLinks: handleFakeLinksFromUtils,
   someFunction: someFunctionLocal,
   fetchUser: fetchUserLocal,
   clearCache: clearCacheLocal,
   addSvgAccessibilityProps,
   getAccessibleLinkProps,
   landmarkStructureCheck,
+} = require('./utils');
+
+const {
+  sortByTitle: sortByTitleLocal,
+  sortByAuthor: sortByAuthorLocal,
+  validateLandmarkObject,
+  getLangAttribute: getLangAttributeLocal,
+  createInPageButton: createInPageButtonLocal,
+  validateTableAccessibility: validateTableAccessibilityLocal,
+  validateLandmarkStructure: validateLandmarkStructureLocal,
+  getSvgAccessibleName: getSvgAccessibleNameLocal,
+  setSvgAttributes,
+  ensureUniqueLandmarks: ensureUniqueLandmarksLocal2,
+  someFunction: someFunctionLocal2,
+  fetchUser: fetchUserLocal2,
+  clearCache: clearCacheLocal2,
+  addSvgAccessibilityProps: addSvgAccessibilityPropsLocal,
+  getAccessibleLinkProps: getAccessibleLinkPropsLocal,
+  landmarkStructureCheck: landmarkStructureCheckLocal,
 } = require('./somemodule');
+
+// TODO: This is the existing code that needs to be preserved
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 2be288e6871a7369e84e30193fd1601b6ff1e34c -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 
 const config = {
   name: 'MyApp',
@@ -118,27 +80,6 @@ const landmarkSelectors = [
 
 const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
 
-// Ensure the dependencyGraph container has a proper ARIA role
-if (dependencyGraph) {
-  if (!dependencyGraph.id) {
-    dependencyGraph.id = 'dependencyGraph';
-  }
-  if (!dependencyGraph.hasAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region');
-  }
-  if (!dependencyGraph.hasAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
-  }
-}
-
-// TODO: Implement the new function as per the issue requirements
-// New function that does something different
-function newFunction() {
-  console.log('New function executed');
-  // Implementation of the new function
-  // ...
-}
-
 let isInitialized = false;
 let dependencyGraph = null;
 
@@ -148,9 +89,11 @@ const appState = {
   cache: new Map()
 };
 
-let icons = {};
-let UserSafety = "unsafe";
-let SafetyCategories = "Unauthorized Advice";
+// TODO: Address accessibility issues from insight report — CONTINUING in main.js
+
+function validateLandmark(landmark) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
 const books = [];
 const safetyCategory = "User Safety: safe";
@@ -171,19 +114,100 @@ function ensureUniqueLandmarks(landmarksArray) {
       return [];
   }
 
-  const seen = new Set();
-  return landmarksArray.map((landmark) => {
-      const key = enforceLeafRuntime(landmark.name) + '_' + (landmark.role || 'default');
-      if (!seen.has(key)) {
-          seen.add(key);
-          landmark.id = landmark.id || key;
-          landmark = ensureElementHasId(landmark, landmark.id);
-          if (!landmark.attributes || !landmark.attributes.aria) {
-              landmark.attributes = landmark.attributes || {};
-              landmark.attributes.aria = {};
-          }
-          landmark.attributes.aria.label = ensureLandmarkLabel(landmark);
-          return landmark;
+  // Check for headers attribute (from HEAD)
+  if (!table.getAttribute('headers')) {
+    issues.push('Missing headers attribute');
+  }
+
+  // Check for scope attribute on header cells (from HEAD)
+  const headerCells = table.querySelectorAll('th');
+  headerCells.forEach(cell => {
+    if (!cell.hasAttribute('scope')) {
+      issues.push('Missing scope attribute on header cell');
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validates the structure of tables for accessibility
+ * @param {Array|Object} tables - Array of table objects or single table element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableStructure(tables) {
+  const allIssues = [];
+
+  // Handle both single table element and array of tables
+  const tableArray = Array.isArray(tables) ? tables : [tables];
+
+  tableArray.forEach((table, index) => {
+    // Check for rows (from origin/main)
+    const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
+    if (rows.length === 0) {
+      allIssues.push({
+        tableIndex: index,
+        issues: ['Table has no rows']
+      });
+    }
+
+    // Validate table accessibility (from HEAD)
+    const result = validateTableAccessibility(table);
+    if (!result.success) {
+      allIssues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
+    }
+  });
+
+  return {
+    success: allIssues.length === 0,
+    issues: allIssues
+  };
+}
+
+/**
+ * Validates landmark elements for accessibility
+ * @param {Object} element - The element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmarkElement(element) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
+  if (!element.tagName) {
+    issues.push('Missing tagName');
+  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${element.tagName}`);
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validates the structure of landmark elements
+ * @param {Array} landmarks - Array of landmark elements to validate (optional)
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmarkStructure(landmarks) {
+  const issues = [];
+
+  // If landmarks array is provided, validate each one (from HEAD)
+  if (Array.isArray(landmarks)) {
+    landmarks.forEach((landmark, index) => {
+      const result = validateLandmarkElement(landmark);
+      if (!result.success) {
+        issues.push({
+          landmarkIndex: index,
+          issues: result.issues
+        });
       }
       return null;
   }).filter(Boolean);
@@ -368,10 +392,10 @@ function addressInsightIssues() {
   validateTableAccessibility();
   validateTableStructure();
 
-  // REACT_017: Add/fix landmark issues and ensure unique landmarks
-  validateLandmark(landmarks);
-  validateLandmarkStructure(landmarks);
-  ensureUniqueLandmarks(landmarks);
+  const landmarks = document.querySelectorAll('[role]');
+  landmarks.forEach(landmark => {
+    validateLandmarkElement(landmark);
+  });
 
   // REACT_041: Add accessible names to SVGs
   getSvgAccessibleName();
@@ -417,8 +441,56 @@ function validateTableAccessibility(tableElement) {
   return true;
 }
 
-function validateTableStructure(tableElement) {
-  if (!tableElement) return false;
+/**
+ * Adds language attribute to HTML element
+ * @param {string} lang - The language code to set
+ * @returns {boolean} Success status
+ */
+function addLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Fixes table structure issues
+ * @param {Object} table - The table element to fix
+ * @returns {Object} Result with success status and any issues found
+ */
+function fixTableStructure(table) {
+  const issues = [];
+
+  if (!table) {
+    return { success: false, issues: ['No table provided'] };
+  }
+
+  // Add caption if missing
+  if (!table.querySelector('caption')) {
+    const caption = document.createElement('caption');
+    caption.textContent = 'Table caption';
+    table.insertBefore(caption, table.firstChild);
+  }
+
+  // Add scope attributes to header cells
+  const headerCells = table.querySelectorAll('th');
+  headerCells.forEach(cell => {
+    if (!cell.hasAttribute('scope')) {
+      cell.setAttribute('scope', 'col');
+    }
+  });
+
+  return { success: true, issues };
+}
+
+/**
+ * Handles the credential response from an authentication flow
+ * @param {Object} credentialResponse - The response object from credential provider
+ * @returns {Object} Result with success status and parsed credential data
+ */
+function handleCredentialResponse(credentialResponse) {
+  const issues = [];
 
   const rows = tableElement.querySelectorAll('tr');
   let hasHeader = false;
@@ -733,105 +805,32 @@ function addProperLandmarkRegions() {
   });
 }
 
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-function createInPageButton(buttonText, onClickHandler) {
-  return {
-    button: {
-      onClick: onClickHandler,
-      lang: getLangAttribute(),
-      text: buttonText
-    }
-  };
-}
-
-function addLangAttribute() {
-  if (document && document.documentElement) {
-    if (!document.documentElement.getAttribute('lang')) {
-      document.documentElement.setAttribute('lang', getLangAttribute());
-    }
-  }
-}
-
-async function renderFunction1() {
-  await accessiblyHelper();
-
-  function wrapPrimaryContentInMain() {
-    if (document.body.firstChild) {
-      const wrapper = document.createElement('main');
-      wrapper.innerHTML = document.body.firstChild.outerHTML;
-      document.body.replaceChild(wrapper, document.body.firstChild);
-    }
-  }
-}
-
-function renderFunction2() {
-  // ...
-}
-
-// Exporting module objects
-export {
-  wrapPrimaryContentInMain,
-  initializeApp,
-  handleUserInteraction,
-  cleanup,
-  initApp,
-  processData,
-  fetchUser,
-  clearCache,
-  VisualizeDependencyTree,
-  checkLandmarkElement,
-  ensureUniqueLandmarks,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  landmarks,
-  appData,
-  icons,
-  validateLandmark,
-  ensureFocusableElements,
-  renderDependencyGraphContent,
-  ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies,
-  createInPageButton,
-  primaryContent,
-  getUniqueLandmarks,
-  getSvgAccessibleName,
-  validateTableAccessibility,
-  validateTableStructure,
-  scanAccessibility,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  validateLandmark,
-  validateLandmarkStructure,
-  loadLandmarks,
-  processLandmarks,
-  ensureUniqueLandmarks,
-  checkLandmarkElement,
-  validateLandmarkObject,
-  addSvgAccessibilityProps,
-  getSvgAccessibilityProps,
-  getAccessibleLinkProps,
-  getLangAttribute,
-  createInPageButton,
-  wrapPrimaryContentInMain,
-  addLangAttribute,
-  CONFIG,
-  appState
+// Export all existing and new functions
+module.exports = {
+    getLangAttribute,
+    getFullLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkElement,
+    validateLandmarkStructure,
+    ensureUniqueLandmarks,
+    getSvgAccessibleName,
+    createInPageButton,
+    createAccessibleLink,
+    handleAccessibilityIssues,
+    addSvgAccessibilityProps,
+    addLangAttribute,
+    fixTableStructure,
+    addMainLandmark,
+    setSvgAttributes,
+    initializeApp,
+    getConfig,
+    validateInput,
+    processData,
+    addLandmarkRegions,
+    handleCredentialResponse,
+    validateCredentialToken,
+    processCredentialAuthentication,
+    upgradeSystem
 };
-
-// Run if executed directly
-if (require.main === module) {
-  initialize();
-}

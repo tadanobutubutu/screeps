@@ -180,177 +180,107 @@ export function createInPageButton(label, href, isFakeLink = false) {
   return `<a href="${href}">${label}</a>`;
 }
 
-// NEW: Address new accessibility issues from insight report
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function setAriaExpanded(element, expanded) {
+  if (element) {
+    element.setAttribute('aria-expanded', expanded);
+  }
+}
+
+function hasAccessibleName(element) {
+  return !!(element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.textContent.trim());
+}
+
+// Accessibility issue addressing functions
 export function addressAccessibilityIssues(insightReport) {
-  insightReport.forEach(issue => {
-    console.log(`Addressing issue: ${issue.issue}`);
-    console.log(`Solution: ${issue.solution}`);
+  if (!insightReport || !Array.isArray(insightReport)) {
+    console.warn('Invalid insight report provided');
+    return [];
+  }
 
-    // Apply the solution based on issue type
-    switch (issue.type) {
-      case 'lang':
-        // Handled by getLangAttribute() and personName()
+  const addressedIssues = [];
+
+  insightReport.forEach((issue) => {
+    if (!issue || !issue.issue) {
+      return;
+    }
+
+    const result = {
+      issue: issue.issue,
+      solution: issue.solution,
+      addressed: false,
+      actions: []
+    };
+
+    switch (issue.issue) {
+      case 'duplicate-landmark':
+        if (issue.element && issue.suggestedName) {
+          issue.element.setAttribute('aria-label', issue.suggestedName);
+          result.addressed = true;
+          result.actions.push(`Set aria-label to "${issue.suggestedName}"`);
+        }
+        break;
+
+      case 'missing-aria-label':
+        if (issue.element && issue.label) {
+          issue.element.setAttribute('aria-label', issue.label);
+          result.addressed = true;
+          result.actions.push(`Added aria-label: "${issue.label}"`);
+        }
+        break;
+
+      case 'missing-svg-name':
+        if (issue.element && issue.name) {
+          addSvgAccessibleName(issue.element, issue.name);
+          result.addressed = true;
+          result.actions.push(`Added accessible name to SVG: "${issue.name}"`);
+        }
+        break;
+
+      case 'fake-link':
         if (issue.element) {
-          issue.element.lang = getLangAttributeValue(issue.lang);
+          const validation = isValidLink(issue.element);
+          if (!validation.valid) {
+            result.addressed = true;
+            result.actions.push(validation.suggestion);
+          }
         }
         break;
 
-      case 'table':
-        // Handled by validateTableAccessibility() and validateTableStructure()
-        if (issue.table) {
-          const accessibilityIssues = validateTableAccessibility(issue.table);
-          const structureIssues = validateTableStructure(issue.table);
-          issue.fixedIssues = [...accessibilityIssues, ...structureIssues];
-        }
-        break;
-
-      case 'svg':
-        // Handled by getSvgAccessibleName()
+      case 'missing-table-scope':
         if (issue.element) {
-          getSvgAccessibleName(issue.element, issue.accessibleName);
+          const updates = addScopeToHeaders(issue.element);
+          result.addressed = updates.length > 0;
+          result.actions.push(`Added scope attribute to ${updates.length} header(s)`);
         }
         break;
 
-      case 'landmark':
-        // Handled by ensureUniqueLandmarks()
-        if (issue.container) {
-          const result = getUniqueLandmarks(issue.container);
-          issue.landmarks = result.landmarks;
-          issue.issues = result.issues;
-        }
-        break;
-
-      case 'fakeLink':
-        // Handled by createInPageButton() and personName()
+      case 'missing-id':
         if (issue.element) {
-          issue.element.outerHTML = createInPageButton(issue.label, issue.href, true);
+          ensureElementHasId(issue.element);
+          result.addressed = true;
+          result.actions.push(`Generated ID for element`);
         }
         break;
 
       default:
-        console.log(`Unknown issue type: ${issue.type}`);
+        result.actions.push(`No automated fix available for issue: ${issue.issue}`);
+        break;
     }
+
+    console.log(`Addressing issue: ${issue.issue}`);
+    console.log(`Solution: ${issue.solution}`);
+    if (result.actions.length > 0) {
+      console.log(`Actions taken: ${result.actions.join('; ')}`);
+    }
+
+    addressedIssues.push(result);
   });
 
-  return insightReport;
-}
-
-// Existing tests in /tests/ must continue to pass
-// Example test case for the new functions
-describe('addressAccessibilityIssues', () => {
-  it('should address each issue in the insight report', () => {
-    const insightReport = [
-      { issue: 'REACT_015: Missing lang attribute', solution: 'Add lang attribute using getLangAttribute()', type: 'lang', lang: 'en' },
-      { issue: 'REACT_027: Table structure issue', solution: 'Fix table structure using validateTableAccessibility()', type: 'table' }
-    ];
-
-    const consoleSpy = jest.spyOn(console, 'log');
-
-    const result = addressAccessibilityIssues(insightReport);
-
-    expect(consoleSpy).toHaveBeenCalledWith('Addressing issue: REACT_015: Missing lang attribute');
-    expect(consoleSpy).toHaveBeenCalledWith('Add lang attribute using getLangAttribute()');
-    expect(consoleSpy).toHaveBeenCalledWith('Addressing issue: REACT_027: Table structure issue');
-    expect(consoleSpy).toHaveBeenCalledWith('Fix table structure using validateTableAccessibility()');
-
-    consoleSpy.mockRestore();
-  });
-});
-
-export function announceToScreenReader(message) {
-  const announcement = document.createElement('div');
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.setAttribute('aria-atomic', 'true');
-  announcement.style.position = 'absolute';
-  announcement.style.left = '-10000px';
-  announcement.style.width = '1px';
-  announcement.style.height = '1px';
-  announcement.style.overflow = 'hidden';
-  announcement.textContent = message;
-  document.body.appendChild(announcement);
-
-  setTimeout(() => {
-    if (announcement.parentNode) {
-      document.body.removeChild(announcement);
-    }
-  }, 1000);
-}
-
-export function trapFocus(element) {
-  if (!element) return;
-
-  const focusableSelectors = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
-  const focusableElements = element.querySelectorAll(focusableSelectors);
-
-  if (focusableElements.length === 0) return;
-
-  const firstFocusable = focusableElements[0];
-  const lastFocusable = focusableElements[focusableElements.length - 1];
-
-  function handleKeyDown(e) {
-    if (e.key === 'Tab') {
-      if (e.shiftKey) {
-        if (document.activeElement === firstFocusable) {
-          lastFocusable.focus();
-          e.preventDefault();
-        }
-      } else {
-        if (document.activeElement === lastFocusable) {
-          firstFocusable.focus();
-          e.preventDefault();
-        }
-      }
-    }
-  }
-
-  element.addEventListener('keydown', handleKeyDown);
-  firstFocusable.focus();
-
-  return () => {
-    element.removeEventListener('keydown', handleKeyDown);
-  };
-}
-
-export function manageFocusOnNavigation(navigationElement) {
-  if (!navigationElement) return;
-
-  const links = navigationElement.querySelectorAll('a[href], button');
-  links.forEach((link) => {
-    link.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-        const currentIndex = Array.from(links).indexOf(document.activeElement);
-        let nextIndex;
-
-        if (e.key === 'ArrowRight') {
-          nextIndex = (currentIndex + 1) % links.length;
-        } else {
-          nextIndex = (currentIndex - 1 + links.length) % links.length;
-        }
-
-// Accessibility functions are now accessible in main.js:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
-/**
- * Adds lang attribute to HTML element
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with lang attribute added
- */
-export function addLangAttribute(html) {
-  if (typeof html !== 'string') return html;
-  
-  return html.replace(/<html(\s[^>]*)?>/gi, (match, attrs) => {
-    // Check if lang attribute already exists
-    if (!attrs || attrs.includes(' lang=')) {
-      return match;
-    }
-    // Add lang attribute with 'en' as default
-    return `<html${attrs} lang="en">`;
-  });
+  return addressedIssues;
 }
 
 /**

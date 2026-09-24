@@ -1323,6 +1323,175 @@ function updateDependencyGraphVisualization(container, graphData) {
     }
 }
 
+// New accessibility functions added to address the issue
+
+/**
+ * Function to check if an element has proper ARIA attributes
+ * @param {HTMLElement} element - The element to check
+ * @returns {Array} Array of issues found
+ */
+function checkAriaAttributes(element) {
+    const issues = [];
+
+    if (!element) {
+        issues.push('Element is null or undefined');
+        return issues;
+    }
+
+    // Check for required ARIA attributes based on role
+    const role = element.getAttribute('role');
+    if (role) {
+        switch (role) {
+            case 'button':
+                if (!element.getAttribute('aria-pressed') && !element.getAttribute('aria-expanded')) {
+                    issues.push('Button role should have aria-pressed or aria-expanded');
+                }
+                break;
+            case 'checkbox':
+            case 'switch':
+                if (!element.getAttribute('aria-checked')) {
+                    issues.push(`${role} role should have aria-checked`);
+                }
+                break;
+            case 'menuitem':
+            case 'menuitemcheckbox':
+            case 'menuitemradio':
+                if (!element.getAttribute('aria-checked')) {
+                    issues.push(`${role} role should have aria-checked`);
+                }
+                break;
+            case 'radio':
+                if (!element.getAttribute('aria-checked')) {
+                    issues.push('Radio role should have aria-checked');
+                }
+                break;
+            case 'slider':
+            case 'spinbutton':
+                if (!element.getAttribute('aria-valuenow')) {
+                    issues.push(`${role} role should have aria-valuenow`);
+                }
+                if (!element.getAttribute('aria-valuemin')) {
+                    issues.push(`${role} role should have aria-valuemin`);
+                }
+                if (!element.getAttribute('aria-valuemax')) {
+                    issues.push(`${role} role should have aria-valuemax`);
+                }
+                break;
+            case 'progressbar':
+                if (!element.getAttribute('aria-valuenow')) {
+                    issues.push('Progressbar role should have aria-valuenow');
+                }
+                break;
+        }
+    }
+
+    // Check for aria-hidden conflicts
+    if (element.getAttribute('aria-hidden') === 'true' && element.getAttribute('aria-label')) {
+        issues.push('Element with aria-hidden="true" should not have aria-label');
+    }
+
+    return issues;
+}
+
+/**
+ * Function to fix common accessibility issues in the DOM
+ */
+function fixCommonAccessibilityIssues() {
+    if (typeof document === 'undefined') return;
+
+    // Fix missing alt attributes on images
+    document.querySelectorAll('img:not([alt])').forEach(img => {
+        img.setAttribute('alt', '');
+    });
+
+    // Fix missing labels on form elements
+    document.querySelectorAll('input:not([type="hidden"]):not([aria-hidden="true"])').forEach(input => {
+        if (!input.id) {
+            input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
+        }
+        if (!document.querySelector(`label[for="${input.id}"]`)) {
+            const label = document.createElement('label');
+            label.setAttribute('for', input.id);
+            label.textContent = input.placeholder || 'Input field';
+            input.parentNode.insertBefore(label, input);
+        }
+    });
+
+    // Fix color contrast issues (simplified example)
+    document.querySelectorAll('*').forEach(element => {
+        const style = window.getComputedStyle(element);
+        const bgColor = style.backgroundColor;
+        const textColor = style.color;
+
+        // This is a simplified check - in a real implementation you'd need a proper contrast ratio calculation
+        if (bgColor && textColor && bgColor !== 'rgba(0, 0, 0, 0)' && textColor !== 'rgba(0, 0, 0, 0)') {
+            // You would implement actual contrast checking here
+            // For now, just ensure there's some contrast
+            if (bgColor === textColor) {
+                element.style.color = 'black';
+            }
+        }
+    });
+}
+
+/**
+ * Function to check keyboard navigation accessibility
+ * @returns {Array} Array of keyboard navigation issues found
+ */
+function checkKeyboardNavigation() {
+    if (typeof document === 'undefined') return [];
+
+    const issues = [];
+
+    // Check if all interactive elements are keyboard accessible
+    const interactiveElements = document.querySelectorAll(
+        'a[href], button, input, select, textarea, [tabindex], [contenteditable]'
+    );
+
+    interactiveElements.forEach(element => {
+        const tabIndex = element.getAttribute('tabindex');
+        if (tabIndex === '-1') {
+            // Element is intentionally not keyboard accessible
+            return;
+        }
+
+        // Check if element is visible and not hidden
+        const style = window.getComputedStyle(element);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+            issues.push(`Interactive element ${element.tagName} is not visible`);
+        }
+
+        // Check if element is focusable
+        if (element.tagName === 'A' && !element.getAttribute('href')) {
+            issues.push(`Anchor element without href is not keyboard accessible`);
+        }
+    });
+
+    // Check for focus traps
+    const focusableElements = document.querySelectorAll(
+        'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (focusableElements.length > 0) {
+        // Check if the first and last focusable elements can be focused in sequence
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        // This is a simplified check - in a real implementation you'd need to simulate tabbing
+        if (firstElement && lastElement) {
+            // Check if the elements are in the same container
+            const firstContainer = firstElement.closest('[role="dialog"], [role="alertdialog"], [role="menu"]');
+            const lastContainer = lastElement.closest('[role="dialog"], [role="alertdialog"], [role="menu"]');
+
+            if (firstContainer && lastContainer && firstContainer !== lastContainer) {
+                issues.push('Potential focus trap detected - elements are in different containers');
+            }
+        }
+    }
+
+    return issues;
+}
+
 // Export functions for testing
 module.exports = {
     User,
@@ -1381,6 +1550,11 @@ module.exports = {
     // New functions for dependency graph visualization
     renderDependencyGraphVisualization,
     updateDependencyGraphVisualization,
+
+    // New accessibility functions
+    checkAriaAttributes,
+    fixCommonAccessibilityIssues,
+    checkKeyboardNavigation,
 
     // Landmarks array and app state
     landmarks,
@@ -1450,9 +1624,14 @@ if (require.main === module) {
       });
       addressAccessibilityIssues(insightReport);
     }
-};
 
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Original code goes here
-// ----- END ORIGINAL CODE -----
+    // Run additional accessibility checks
+    if (typeof document !== 'undefined') {
+        fixCommonAccessibilityIssues();
+        const keyboardIssues = checkKeyboardNavigation();
+        if (keyboardIssues.length > 0) {
+            console.log('Keyboard navigation issues found:');
+            keyboardIssues.forEach(issue => console.log(issue));
+        }
+    }
+}

@@ -9,12 +9,22 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
+function processSvgElements() {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      svg.setAttribute('aria-labelledby', accessibleName);
+    }
+  });
+}
+
 const AddressabilityIssues = {
   MISSING_ID: 'missing-id',
   MISSING_ARIA_LABEL: 'missing-aria-label',
   MISSING_ROLE: 'missing-role',
-
-  analyzeAccessibility(insightReport) {
+  
+  analyzeInsightReport(insightReport) {
     if (!insightReport || !insightReport.sections) {
       return [];
     }
@@ -103,8 +113,8 @@ const AddressabilityIssues = {
       'form': 'form'
     };
 
-    const isLandmark = landmarkRoles.includes(role) ||
-                       (tagName && implicitLandmarks[tagName] === role);
+    const isLandmark = landmarkRoles.includes(role) || 
+                       (tagName && implicitLandmarks.hasOwnProperty(tagName));
 
     return {
       valid: isLandmark,
@@ -114,9 +124,8 @@ const AddressabilityIssues = {
   },
 
   spawnSomeCommand(command) {
-    const childProcess = exec(command, [], {
-      stdio: 'inherit',
-      shell: true
+    const childProcess = exec(command, function(error, stdout, stderr) {
+      return { stdout: stdout, stderr: stderr, error: error };
     });
     return childProcess;
   },
@@ -133,7 +142,7 @@ const AddressabilityIssues = {
   },
 
   countDependencies() {
-    const packageJsonPath = path.join(__dirname, 'package.json');
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
     const dependencies = packageJson.dependencies || {};
@@ -147,7 +156,7 @@ const AddressabilityIssues = {
   },
 
   fixMainLandmarkIssues(source) {
-    const mainBlockRegex = /<main>[\s\S]*?<\/main>/g;
+    const mainBlockRegex = /<main\b[^>]*>[\s\S]*?<\/main>/gi;
 
     const matches = source.match(mainBlockRegex);
     if (matches.length <= 1) {
@@ -167,7 +176,7 @@ const AddressabilityIssues = {
   },
 
   fixSemanticMarkup(source) {
-    const mainBlockRegex = /<main>[\s\S]*?<\/main>/g;
+    const mainBlockRegex = /<main\b[^>]*>[\s\S]*?<\/main>/gi;
 
     const matches = source.match(mainBlockRegex);
     if (!matches || matches.length <= 1) {
@@ -187,7 +196,7 @@ const AddressabilityIssues = {
   },
 
   validateLandmarkStructure() {
-    const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+    const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
 
     landmarks.forEach(landmark => {
@@ -201,7 +210,7 @@ const AddressabilityIssues = {
         footer: 'contentinfo'
       };
 
-      if (!role) {
+      if (!role && tagName) {
         const implicitLandmark = implicitRole[tagName];
         if (implicitLandmark) {
           landmark.setAttribute('role', implicitLandmark);
@@ -211,125 +220,9 @@ const AddressabilityIssues = {
   }
 };
 
-function initializeAccessibility() {
-  if (typeof document === 'undefined') return;
-  // Initialize accessibility features
-}
-
-function addBook(bookData) {
-  // ... Existing code ...
-  return bookData;
-}
-
-function createServer() {
-  // ... Existing code ...
-  return null;
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    AddressabilityIssues,
-    addBook,
-    createServer,
-    fixMainLandmarkIssues,
-    fixSemanticMarkup,
-    initializeAccessibility,
-    validateLandmarkStructure
-  };
-} else {
-  // Browser environment - wait for DOM
-  if (typeof document !== 'undefined' && document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAccessibility);
-  } else {
-    initializeAccessibility();
-  }
-}
-
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  });
-}
-
-function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll('[data-fake-link]');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'link');
-    link.setAttribute('href', '#');
-  });
-}
-
-/**
- * Ensures the element has an id, adds aria-label, and renders dependency graph
- * @param {Element} element - The HTML element to modify
- * @param {string} label - The aria-label to be added
- */
-function enhanceElementWithA11y(element, label) {
-  ensureElementHasId(element);
-  addAriaLabel(element, label);
-  renderAccessibilityEnhancements();
-}
-
-/**
- * Updates the element with an id or adds one if missing, and adds the given aria-label
- * @param {Element} element - The HTML element to modify
- * @param {string} label - The aria-label to be added
- */
-function updateElementAccessibility(element, label) {
-  ensureElementHasId(element);
-  addAriaLabel(element, label);
-}
-
-/**
- * Starts the rendering of dependency graphs within the application
- */
-function startDependencyGraphRenders() {
-  // Implementation to render dependency graphs
-  renderDependencyGraphs();
-}
-
-/**
- * Starts the application
- */
-function startApp() {
-  const server = createServer();
-  server.on('listening', () => {
-    console.log(`Server started on port ${config.port}`);
-    updateElementAccessibility(null, 'My Element'); // Example usage
-    newFunction();
-  });
-  return server;
-}
-
-// Export functions for testing
-module.exports = {
-  createServer,
-  startApp,
-  config,
-  generateAccessibilityReport,
-  addBook,
-  checkLandmarkElements,
-  newFunction,
-  renderAccessibilityEnhancements,
-  startDependencyGraphRenders,
-  addLangAttribute,
-  addLandmarkRoles,
-  ensureUniqueLandmarks,
-  fixFakeLink,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
-};
-
-// Additional utility functions from origin/main
-function someOtherFunction() {
-  // Placeholder implementation
-}
+// TODO: This is the existing code that needs to be preserved
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//

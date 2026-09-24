@@ -842,7 +842,33 @@ module.exports = {
   initialize,
   initializeApp,
   clearCache,
-  processAccessibilityReport, // Added missing export
-  checkLandmarkElement,       // Added missing export
-  landmarkStructureCheck     // Added missing export
+  // Added back the missing exports
+  getFullLangAttribute,
+  calculateSum,
+  processDataUtil,
+  setAndGetImageAlt,
+  checkLandmarkElement,
+  landmarkStructureCheck,
+  processAccessibilityReport,
+  renderGraph,
+  fixFakeLinks,
+  addLandmarkRegions,
+  validateLandmarkAttributes,
+  setLanguageAttribute,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  validateInput,
+  processData,
+  formatResponse,
+  initialize,
+  initializeApp,
+  clearCache
 };

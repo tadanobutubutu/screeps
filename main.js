@@ -426,4 +426,17 @@ function addressAccessibilityIssues() {
       const targetId = ...
       const target = ...
       if (target) {
-        target.setAttribute('tabindex', '-1
+        target.setAttribute('tabindex', '-1');
+        target.focus();
+      }
+    });
+  }
+
+  // Ensure all buttons with role="button" respond to Enter key
+  ... => {
+    ... function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.click();
+      }
+    });

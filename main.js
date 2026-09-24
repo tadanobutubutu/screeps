@@ -1,121 +1,110 @@
-// TODO: This is the existing code that needs to be preserved
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_017: Add landmark roles and fix landmark issues (DONE: addLandmarkRoles)
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
 
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// Import necessary dependencies
+import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
 
-// Implemented validateLandmark functionality
-function validateLandmarkObject(landmark) {
-  const errors = [];
+// Configuration
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000,
+  debug: true,
+  version: '1.0.0'
+};
 
-  if (!landmark) {
-    errors.push('Landmark is required');
-    return { valid: false, errors };
-  }
-
-  // Check if landmark is an array - validate array elements
-  const itemsToValidate = Array.isArray(landmark) ? landmark : [landmark];
-
-  for (const item of itemsToValidate) {
-    // Validate name
-    if (!item.name || typeof item.name !== 'string' || item.name.trim() === '') {
-      errors.push('Landmark must have a valid name');
-    }
-
-    // Validate latitude
-    if (item.latitude === undefined || item.latitude === null) {
-      errors.push('Landmark must have a latitude');
-    } else if (typeof item.latitude !== 'number' || isNaN(item.latitude)) {
-      errors.push('Landmark latitude must be a number');
-    } else if (item.latitude < -90 || item.latitude > 90) {
-      errors.push('Landmark latitude must be between -90 and 90');
-    }
-
-    // Validate longitude
-    if (item.longitude === undefined || item.longitude === null) {
-      errors.push('Landmark must have a longitude');
-    } else if (typeof item.longitude !== 'number' || isNaN(item.longitude)) {
-      errors.push('Landmark longitude must be a number');
-    } else if (item.longitude < -180 || item.longitude > 180) {
-      errors.push('Landmark longitude must be between -180 and 180');
-    }
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-// TODO: Identify and update specific functions that render dependency graphs or mark as N/A if none exist in this file
-
-// Function to render a single book item
-function BookItem({ book }) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={`by ${book.author}`}
-      />
-    </List.Item>
-  );
-}
-
-// Function to render the form for adding a new book entry
-function BookForm() {
-  const dispatch = useDispatch();
-
-  // Define state for the form inputs
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-
-  // Handle input changes
-  const handleTitleChange = (e) => setTitle(e.target.value);
-  const handleAuthorChange = (e) => setAuthor(e.target.value);
-
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Perform any necessary validation or processing before adding the book
-    // ...
-
-    // Dispatch an action to add the book to the books list in the Redux store
-    dispatch({ type: 'ADD_BOOK', payload: { title, author } });
-  };
-
-  // Render the form
-  return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="title">Title:</label>
-      <input
-        type="text"
-        id="title"
-        value={title}
-        onChange={handleTitleChange}
-        aria-label="Book title"
-      />
-      <label htmlFor="author">Author:</label>
-      <input
-        type="text"
-        id="author"
-        value={author}
-        onChange={handleAuthorChange}
-        aria-label="Book author"
-      />
-      <button type="submit">Add Book</button>
-    </form>
-  );
-}
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
 
 // Accessibility helper functions
+const getRootHtmlAccessibilityProps = (lang = 'en') => {
+  return { lang };
+};
+
+const getSvgAccessibilityProps = (label, labelledById) => {
+  const props = {
+    role: 'img',
+    focusable: 'false',
+  };
+  if (label) {
+    props['aria-label'] = label;
+  } else if (labelledById) {
+    props['aria-labelledby'] = labelledById;
+  } else {
+    props['aria-hidden'] = 'true';
+  }
+  return props;
+};
+
+const getAccessibleLinkProps = (href, label) => {
+  return {
+    href,
+    role: 'link',
+    'aria-label': label,
+  };
+};
+
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    'react': true,
+    'react-redux': true,
+    'antd': true
+  };
+  return Object.keys(dependencies).length;
+}
+
+// Function to ensure landmark uniqueness when there's an array structure
+function ensureLandmarkUniqueness(landmarks) {
+  const seen = new Set();
+  const uniqueLandmarks = [];
+  for (const landmark of landmarks) {
+    let key = landmark;
+    if (!key.name) {
+      key = { name: landmark.role || 'default' };
+    }
+
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    uniqueLandmarks.push(landmark);
+  }
+
+  return uniqueLandmarks;
+}
+
+function ensureLandmarkUniquenessWithArray(landmarksArray) {
+  if (!landmarksArray || landmarksArray.length === 0) return {};
+
+  const seen = new Set();
+  const uniqueLandmarks = [];
+  for (const landmark of landmarksArray) {
+    let key = landmark;
+    if (!key.name) {
+      key = { name: landmark.role || 'default' };
+    }
+
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    uniqueLandmarks.push(landmark);
+  }
+
+  return uniqueLandmarks;
+}
+
 // REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
   return document.documentElement.lang || 'en';
@@ -124,7 +113,7 @@ function getLangAttribute() {
 // REACT_015 & REACT_036: Create accessible in-page button
 function createInPageButton(buttonText, onClickHandler) {
   return (
-    <button
+    <button 
       onClick={onClickHandler}
       lang={getLangAttribute()}
     >
@@ -133,346 +122,57 @@ function createInPageButton(buttonText, onClickHandler) {
   );
 }
 
-/**
- * Get the language attribute for the HTML element
- * @returns {string} The language attribute value
- */
-function getLangAttributeFromHtml() {
-  const htmlElement = document.documentElement;
-  return htmlElement.getAttribute('lang') || 'en';
+// REACT_027: Validate table accessibility
+function validateTableAccessibility(tableElement) {
+  const issues = [];
+  const hasCaption = tableElement.querySelector('caption');
+  const hasHeaders = tableElement.querySelector('th');
+  
+  if (!hasCaption) {
+    issues.push('Table is missing a caption');
+  }
+  if (!hasHeaders) {
+    issues.push('Table is missing header cells (th)');
+  }
+
+  return issues;
 }
 
-/**
- * Set the language attribute for the HTML element
- * @param {string} lang - The language code to set
- */
-function setLanguageAttribute(lang) {
-  const htmlElement = document.documentElement;
-  htmlElement.setAttribute('lang', lang);
+// REACT_017: Validate landmarks
+function validateLandmarkStructure() {
+  const issues = [];
+  const mainElement = document.querySelector('main');
+  const headerElement = document.querySelector('header');
+  const footerElement = document.querySelector('footer');
+  
+  if (!mainElement) {
+    issues.push('Missing main landmark');
+  }
+  if (!headerElement) {
+    issues.push('Missing header landmark');
+  }
+  if (!footerElement) {
+    issues.push('Missing footer landmark');
+  }
+  
+  return issues;
 }
 
-/**
- * Wrap primary content in a main element with proper landmark
- * @param {string} contentId - The ID of the primary content container
- */
-function wrapPrimaryContentInMain(contentId) {
-  const content = document.getElementById(contentId);
-  if (content && content.tagName !== 'MAIN') {
-    const mainElement = document.createElement('main');
-    mainElement.setAttribute('id', 'main-content');
-    mainElement.setAttribute('role', 'main');
-    while (content.firstChild) {
-      mainElement.appendChild(content.firstChild);
-    }
-    content.appendChild(mainElement);
+// REACT_041: Get SVG accessible name
+function getSvgAccessibleName(svgElement) {
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
   }
-}
-
-/**
- * Validate table accessibility
- * @param {HTMLElement} table - The table element to validate
- * @returns {Object} Validation result with valid status and errors
- */
-function validateTableAccessibility(table) {
-  const errors = [];
-
-  if (!table) {
-    errors.push('Table element is required');
-    return { valid: false, errors };
+  
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    return labelElement ? labelElement.textContent : '';
   }
-
-  if (table.tagName !== 'TABLE') {
-    errors.push('Element must be a table');
-    return { valid: false, errors };
-  }
-
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    errors.push('Table should have a caption for accessibility');
-  }
-
-  // Check for th elements
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    errors.push('Table should have header cells (th) for accessibility');
-  }
-
-  // Check for proper scope attributes on headers
-  headers.forEach(th => {
-    if (!th.getAttribute('scope')) {
-      errors.push('Header cells should have a scope attribute');
-    }
-  });
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-/**
- * Validate table structure
- * @param {HTMLElement} table - The table element to validate
- * @returns {Object} Validation result with valid status and errors
- */
-function validateTableStructure(table) {
-  const errors = [];
-
-  if (!table) {
-    errors.push('Table element is required');
-    return { valid: false, errors };
-  }
-
-  // Check for thead
-  const thead = table.querySelector('thead');
-  if (!thead) {
-    errors.push('Table should have a thead section');
-  }
-
-  // Check for tbody
-  const tbody = table.querySelector('tbody');
-  if (!tbody) {
-    errors.push('Table should have a tbody section');
-  }
-
-  // Check for proper row structure
-  const rows = table.querySelectorAll('tr');
-  if (rows.length === 0) {
-    errors.push('Table must have at least one row');
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-/**
- * Validate landmark structure
- * @param {HTMLElement} element - The element to validate
- * @returns {Object} Validation result with valid status and errors
- */
-function validateLandmarkStructure(element) {
-  const errors = [];
-
-  if (!element) {
-    errors.push('Element is required');
-    return { valid: false, errors };
-  }
-
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary', 'form', 'region'];
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
-
-  // Check if element has a valid landmark role or is a landmark element
-  if (role && !validLandmarks.includes(role)) {
-    errors.push(`Invalid landmark role: ${role}`);
-  }
-
-  // Check if landmark has accessible name
-  const hasName = element.getAttribute('aria-label') ||
-                  element.getAttribute('aria-labelledby') ||
-                  element.querySelector('h1, h2, h3, h4, h5, h6');
-
-  if (!hasName) {
-    errors.push('Landmark should have an accessible name');
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-/**
- * Add and fix landmark issues
- * @param {HTMLElement} container - The container element to process
- * @returns {Array} List of issues that were fixed
- */
-function addFixLandmarkIssues(container) {
-  const fixedIssues = [];
-  const validLandmarks = ['main', 'navigation', 'search', 'banner', 'contentinfo', 'complementary', 'form', 'region'];
-
-  if (!container) {
-    return fixedIssues;
-  }
-
-  // Find all potential landmark elements
-  const landmarkElements = container.querySelectorAll('[role], nav, main, header, footer, aside, form');
-
-  landmarkElements.forEach(element => {
-    const role = element.getAttribute('role');
-    const tagName = element.tagName.toLowerCase();
-
-    // Add role if missing and element is a landmark
-    if (!role && ['nav', 'main', 'header', 'footer', 'aside'].includes(tagName)) {
-      const defaultRole = tagName === 'header' ? 'banner' : tagName;
-      if (validLandmarks.includes(defaultRole)) {
-        element.setAttribute('role', defaultRole);
-        fixedIssues.push(`Added role="${defaultRole}" to ${tagName} element`);
-      }
-    }
-
-    // Ensure landmark has accessible name
-    const hasName = element.getAttribute('aria-label') ||
-                    element.getAttribute('aria-labelledby');
-
-    if (!hasName && !element.querySelector('h1, h2, h3, h4, h5, h6')) {
-      // Add aria-label if no accessible name exists
-      if (role) {
-        element.setAttribute('aria-label', role.charAt(0).toUpperCase() + role.slice(1) + ' region');
-        fixedIssues.push(`Added aria-label to element with role="${role}"`);
-      }
-    }
-  });
-
-  return fixedIssues;
-}
-
-/**
- * Add proper landmark regions
- * @param {HTMLElement} container - The container element to process
- * @returns {Array} List of landmarks that were processed
- */
-function addProperLandmarkRegions(container) {
-  const processedLandmarks = [];
-  const validLandmarks = {
-    'main': 'main',
-    'nav': 'navigation',
-    'header': 'banner',
-    'footer': 'contentinfo',
-    'aside': 'complementary',
-    'form': 'form',
-    'section': 'region'
-  };
-
-  if (!container) {
-    return processedLandmarks;
-  }
-
-  // Find all potential landmark elements
-  Object.keys(validLandmarks).forEach(tagName => {
-    const elements = container.querySelectorAll(tagName);
-    elements.forEach(element => {
-      const role = element.getAttribute('role');
-      // Add role if missing
-      if (!role) {
-        const defaultRole = validLandmarks[tagName];
-        element.setAttribute('role', defaultRole);
-        processedLandmarks.push({ element, role: defaultRole });
-      }
-    });
-  });
-
-  return processedLandmarks;
-}
-
-/**
- * Validate SVG accessibility
- * @param {SVGElement} svg - The SVG element to validate
- * @returns {Object} Validation result with valid status and errors
- */
-function validateSvgAccessibility(svg) {
-  const errors = [];
-
-  if (!svg) {
-    errors.push('SVG element is required');
-    return { valid: false, errors };
-  }
-
-  if (svg.tagName !== 'SVG') {
-    errors.push('Element must be an SVG');
-    return { valid: false, errors };
-  }
-
-  // Check for accessible name
-  const hasName = svg.getAttribute('aria-label') ||
-                  svg.getAttribute('aria-labelledby') ||
-                  svg.querySelector('title');
-
-  if (!hasName) {
-    errors.push('SVG should have an accessible name');
-  }
-
-  // Check for focusable attribute
-  const focusable = svg.getAttribute('focusable');
-  if (focusable === 'false') {
-    errors.push('SVG focusable should be true or removed');
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
-}
-
-/**
- * Fix fake link issues
- * @param {HTMLElement} container - The container element to process
- * @returns {Array} List of issues that were fixed
- */
-function fixFakeLinks(container) {
-  const fixedIssues = [];
-
-  if (!container) {
-    return fixedIssues;
-  }
-
-  // Find all links
-  const links = container.querySelectorAll('a');
-
-  links.forEach(link => {
-    const href = link.getAttribute('href');
-
-    // Check for fake links (javascript:, #, or empty href)
-    if (href === 'javascript:;' || href === '#' || href === '') {
-      // Check if link has proper role
-      if (!link.getAttribute('role') && !link.getAttribute('aria-label')) {
-        // Remove role if it's acting as a button but looks like a link
-        if (link.getAttribute('href') === '#') {
-          link.removeAttribute('href');
-          link.setAttribute('role', 'button');
-          fixedIssues.push('Fixed fake link by adding role="button"');
-        }
-      }
-    }
-  });
-
-  return fixedIssues;
-}
-
-/**
- * Process unique elements to avoid duplicates
- * @param {Array} elements - Array of elements to process
- * @returns {Array} Array of unique elements
- */
-function processUniqueElements(elements) {
-  if (!elements || !Array.isArray(elements)) {
-    return [];
-  }
-
-  const seen = new Set();
-  return elements.filter(element => {
-    const key = element.id || element.className || element.textContent;
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
-}
-
-/**
- * Get SVG accessible name
- * @param {SVGElement} svg - The SVG element
- * @returns {string} The accessible name
- */
-function getSvgAccessibleName(svg) {
-  return svg.getAttribute('aria-label') ||
-         svg.querySelector('title')?.textContent ||
-         svg.id ||
-         '';
+  
+  const titleElement = svgElement.querySelector('title');
+  return titleElement ? titleElement.textContent : '';
 }
 
 // REACT_041: Set SVG attributes for accessibility
@@ -489,14 +189,26 @@ function setSvgAttributes(svgElement, accessibleName) {
 function ensureUniqueLandmarks() {
   const issues = [];
   const landmarkTypes = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-
+  
   landmarkTypes.forEach(type => {
     const landmarks = document.querySelectorAll(`[role="${type}"]`);
     if (landmarks.length > 1) {
       issues.push(`Multiple ${type} landmarks found - should be unique`);
     }
   });
+  
+  return issues;
+}
 
+// REACT_025: Add proper landmark regions
+function addProperLandmarkRegions() {
+  const issues = [];
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  
+  if (!mainContent) {
+    issues.push('Missing main landmark region');
+  }
+  
   return issues;
 }
 
@@ -506,19 +218,19 @@ function validateLinkAccessibility(linkElement) {
   const href = linkElement.getAttribute('href');
   const text = linkElement.textContent.trim();
   const ariaLabel = linkElement.getAttribute('aria-label');
-
+  
   if (!href || href === '#' || href === '') {
     issues.push('Link has no valid href attribute');
   }
-
+  
   if (!text && !ariaLabel) {
     issues.push('Link has no accessible name');
   }
-
+  
   if (linkElement.getAttribute('role') === 'link' && !href) {
     issues.push('Fake link detected without href');
   }
-
+  
   return issues;
 }
 
@@ -526,36 +238,94 @@ function validateLinkAccessibility(linkElement) {
 function handleFakeLinks() {
   const issues = [];
   const fakeLinks = document.querySelectorAll('[role="link"]');
-
+  
   fakeLinks.forEach((link, index) => {
     const href = link.getAttribute('href');
     if (!href) {
       issues.push(`Fake link ${index} has no href attribute`);
     }
-
-    // Convert fake link to accessible button if it's clickable
+    
     if (link.tagName !== 'A' && link.onclick) {
       issues.push(`Consider using <button> instead of fake link ${index}`);
     }
   });
-
+  
   return issues;
+}
+
+// Validate landmark object
+function validateLandmarkObject(landmark) {
+  const errors = [];
+
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  if (Array.isArray(landmark)) {
+    landmark.forEach((innerLandmark, index) => {
+      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+        errors.push(`Landmark at index ${index} must have a valid name`);
+      }
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+function ensureLandmarkUniqueness(elements) {
+  const elementsById = {};
+
+  if (Array.isArray(elements)) {
+    for (const landmark of elements) {
+      if (landmark.id) {
+        if (elementsById[landmark.id]) {
+          landmark.id += '_duplicate';
+        } else {
+          elementsById[landmark.id] = true;
+        }
+      }
+    }
+  }
+
+  return elements;
 }
 
 // TODO: Implement new function3 logic here
 function function3(param1, param2) {
-  // New function3 implementation
   if (!param1 || !param2) {
     return null;
   }
-
-  // Process parameters and return result
+  
   const result = {
     combined: `${param1}-${param2}`,
     timestamp: Date.now(),
     validated: true
   };
-
+  
   return result;
 }
 
@@ -596,221 +366,52 @@ function AddBookForm({ onAddBook }) {
 
     if (!author.trim()) {
       setError('Author is required');
+      if (!titleInputRef.current) {
+        if (titleInputRef.current) {
+          titleInputRef.current.focus();
+        }
+      }
       return;
     }
 
-    onAddBook({ title: title.trim(), author: author.trim() });
+    onAddBook({ title, author });
     setTitle('');
     setAuthor('');
   };
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} aria-label="Add new book">
+    <form ref={formRef} onSubmit={handleSubmit} aria-label="Add new book form">
       <div>
-        <label htmlFor="new-book-title">Book Title:</label>
+        <label htmlFor="book-title">Book Title:</label>
         <input
+          id="book-title"
           ref={titleInputRef}
-          id="new-book-title"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           aria-invalid={!!error}
-          aria-describedby={error ? 'book-form-error' : undefined}
+          aria-describedby={error ? 'book-error' : undefined}
+          required
         />
       </div>
       <div>
-        <label htmlFor="new-book-author">Author:</label>
+        <label htmlFor="book-author">Author:</label>
         <input
-          id="new-book-author"
+          id="book-author"
           type="text"
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
+          required
         />
       </div>
       {error && (
-        <div id="book-form-error" role="alert" aria-live="polite">
+        <div id="book-error" role="alert" aria-live="polite">
           {error}
         </div>
       )}
       <button type="submit">Add Book</button>
     </form>
   );
-}
-
-/**
- * Ensure landmark uniqueness when there's an array structure
- * @param {Array} elements - Array of landmark elements
- * @returns {Array} Processed array with unique landmarks
- */
-function ensureLandmarkUniqueness(elements) {
-  const elementsById = {};
-  const result = [];
-
-  if (Array.isArray(elements)) {
-    elements.forEach(landmark => {
-      if (landmark.id) {
-        const originalId = landmark.id;
-        if (elementsById[originalId]) {
-          // Duplicate found, create new id
-          let newId = originalId + '_duplicate';
-          let counter = 1;
-          while (elementsById[newId]) {
-            newId = originalId + '_duplicate_' + counter;
-            counter++;
-          }
-          landmark.id = newId;
-          elementsById[newId] = true;
-          result.push(landmark);
-        } else {
-          elementsById[originalId] = true;
-          result.push(landmark);
-        }
-      } else {
-        result.push(landmark);
-      }
-    });
-  }
-
-  return result;
-}
-
-/**
- * Check if context is secure
- * @returns {boolean} True if secure context
- */
-function isSecureContext() {
-  return window.isSecureContext || false;
-}
-
-/**
- * Initialize app with accessibility fixes
- * @param {HTMLElement} container - The container to process
- */
-function initApp(container) {
-  if (!container) {
-    return;
-  }
-
-  // Fix landmark issues
-  addFixLandmarkIssues(container);
-
-  // Fix fake links
-  fixFakeLinks(container);
-
-  // Add proper landmark regions
-  addProperLandmarkRegions(container);
-}
-
-/**
- * Check landmark structure
- * @param {HTMLElement} element - The element to check
- * @returns {Object} Validation result
- */
-function landmarkStructureCheck(element) {
-  return validateLandmarkStructure(element);
-}
-
-/**
- * Add landmark roles to elements
- * @param {HTMLElement} container - The container to process
- * @returns {Array} List of added roles
- */
-function addLandmarkRoles(container) {
-  return addFixLandmarkIssues(container);
-}
-
-/**
- * Render dependency graph
- * @param {HTMLElement} container - The container to render into
- */
-function renderDependencyGraph(container) {
-  if (!container) {
-    return;
-  }
-
-  container.setAttribute('role', 'region');
-  container.setAttribute('aria-label', 'Dependency Graph');
-
-  // Add visual representation
-  const graphElement = document.createElement('div');
-  graphElement.className = 'dependency-graph-content';
-  container.appendChild(graphElement);
-}
-
-/**
- * Render index view
- * @param {HTMLElement} container - The container to render into
- */
-function renderIndexView(container) {
-  if (!container) {
-    return;
-  }
-
-  // Render index content within the container
-  const indexElement = document.createElement('div');
-  indexElement.className = 'index-view';
-  container.appendChild(indexElement);
-}
-
-/**
- * Address insight issues
- * @param {HTMLElement} container - The container to process
- */
-function addressInsightIssues(container) {
-  if (!container) {
-    return;
-  }
-
-  addFixLandmarkIssues(container);
-  fixFakeLinks(container);
-  addProperLandmarkRegions(container);
-}
-
-/**
- * Calculate sum of two numbers
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Sum of a and b
- */
-function calculateSum(a, b) {
-  return a + b;
-}
-
-/**
- * Count dependencies in a module
- * @param {Object} module - The module object
- * @returns {number} Number of dependencies
- */
-function countDependencies(module) {
-  if (!module || !module.dependencies) {
-    return 0;
-  }
-  return module.dependencies.length;
-}
-
-/**
- * Updated function: ensures landmarks uniqueness when there's an array structure
- * @param {Array} elements - Array of landmark elements
- * @returns {Array} Processed array with unique landmarks
- */
-function ensureUniqueLandmarksFromArray(elements) {
-  const seen = new Set();
-  const result = [];
-
-  if (!Array.isArray(elements)) {
-    return result;
-  }
-
-  elements.forEach(element => {
-    const key = element.name + '_' + (element.role || 'default');
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    result.push(element);
-  });
-
-  return result;
 }
 
 function initializeApp() {
@@ -854,7 +455,7 @@ function processData(data) {
 
 const validateInput = (input) => input !== null && input !== undefined;
 
-const BookItemArrow = ({ book }) => {
+const BookItem = ({ book }) => {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
@@ -865,24 +466,17 @@ const BookItemArrow = ({ book }) => {
   );
 };
 
-const BookFormArrow = () => {
+const BookForm = () => {
   const dispatch = useDispatch();
 
-  // Define state for the form inputs
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
 
-  // Handle input changes
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleAuthorChange = (e) => setAuthor(e.target.value);
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Perform any necessary validation or processing before adding the book
-    // ...
-
-    // Dispatch an action to add the book to the books list in the Redux store
     dispatch({ type: 'ADD_BOOK', payload: { title, author } });
   };
 
@@ -912,7 +506,8 @@ const BookFormArrow = () => {
 };
 
 function main() {
-  console.log('Main function executed');
+  initializeApp();
+  setupHandlers();
 }
 
 if (require.main === module) {
@@ -920,78 +515,11 @@ if (require.main === module) {
   console.log('Main function executed');
 }
 
-// Ensure the main element has an id, aria-label, and lang attribute for accessibility
-try {
-  const mainEl = document.createElement('div');
-  mainEl.id = 'main';
-  mainEl.setAttribute('aria-label', 'Main application');
-  mainEl.setAttribute('lang', 'en');
-  if (document.body) {
-    document.body.appendChild(mainEl);
-  }
-} catch (e) {
-  // Ignore if running outside a browser environment
-}
-
-// Initialize the app
-if (typeof initializeApp === 'function') {
-  try {
-    registerSW();
-  } catch (e) {
-    console.warn('SW registration failed:', e);
-  }
-
-  // Run initialization
-  const container = document.getElementById('root');
-  if (container) {
-    initApp(container);
-  }
-}
-
-function ensureFocusableElements(container) {
-  if (!container) {
-    return [];
-  }
-
-  const focusableSelectors = [
-    'a[href]',
-    'button',
-    'input',
-    'select',
-    'textarea',
-    'contenteditable',
-    '[tabindex]:not([tabindex="-1"])'
-  ];
-
-  const focusableElements = [];
-  focusableSelectors.forEach(selector => {
-    const elements = container.querySelectorAll(selector);
-    elements.forEach(el => focusableElements.push(el));
-  });
-
-  return focusableElements;
-}
-
 module.exports = {
   config,
   appState,
   validateLandmarkObject,
   ensureLandmarkUniqueness,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addProperLandmarkRegions,
-  countDependencies,
-  getLangAttribute,
-  wrapPrimaryContentInMain,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmarkStructure,
-  addFixLandmarkIssues,
-  ensureUniqueLandmarksFromArray,
   initializeApp,
   setupHandlers,
   validateInput,

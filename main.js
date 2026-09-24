@@ -1,6 +1,7 @@
-// TODO: This is the existing code that needs to be preserved
-// main.js
-// Updated to import and use dependencyGraphContent and indexContent
+// Dependency imports
+const { dependencyGraphContent } = require('./dependencyGraphContent')
+const { indexContent } = require('./indexContent')
+const { accessibilityUtils } = require('./accessibilityUtils')
 
 // Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 const main = require('./utilities')
@@ -35,19 +36,81 @@ const {
   checkAccessibility,
   validateAccessibilityReport,
   exportUtils,
-  addressAccessibilityIssues
-} = main;
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  newFunction,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  renderAdditionalContent,
+  googleSignIn,
+  decodeJwtResponse,
+  ensureUniqueLandmarks,
+  addSvgAccessibleName
+} = main
+
+// Access the dependencyGraph container and ensure it has proper ARIA role
+const dependencyGraph = document.getElementById('dependency-graph')
+
+if (dependencyGraph) {
+  // Set appropriate ARIA role for the dependency graph container
+  // Using 'region' role for a contained section of content
+  if (!dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'region')
+  }
+
+  // Add accessible label if not already present
+  if (!dependencyGraph.getAttribute('aria-label')) {
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
+  }
+
+  // Ensure element has an ID if not present
+  if (!dependencyGraph.id) {
+    dependencyGraph.id = 'dependencyGraph'
+  }
+}
 
 // Required changes to fix the React SVG Accessible Name issue
-function fixReactSvgAccessibleName(svgString) {
-  const parser = new DOMParser();
-  const svg = parser.parseFromString(svgString, 'image/svg+xml');
-  const svgElement = svg.documentElement;
-  if (svgElement && !getSvgAccessibleName(svgElement)) {
-    const title = svgElement.querySelector('title');
-    if (title) {
-      title.textContent = 'Descriptive label for SVG';
-    }
+function addAccessibleName (svgString) {
+  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
+  // and returns the modified SVG string.
+  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
+  const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml')
+  const svgElement = svg.documentElement
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
+    svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
   }
   
   const serializer = new XMLSerializer();
@@ -55,8 +118,8 @@ function fixReactSvgAccessibleName(svgString) {
 }
 
 // Example usage of the function
-const originalSvgString = '<svg ... viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...';
-const modifiedSvgString = fixReactSvgAccessibleName(originalSvgString);
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...'
+const modifiedSvgString = addAccessibleName(originalSvgString)
 
 /**
  * Validates table accessibility
@@ -205,49 +268,70 @@ function newFunction2() {
   return 'new function 2 result';
 }
 
-// Accessibility helper functions
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-function addGraphRole() {
-  const elements = [];
-  elements.forEach(el => {
-    el.setAttribute('role', 'graph');
-    el.setAttribute('aria-label', 'Dependency graph visualization');
-  });
-}
-
-// Added functions from HEAD that were not fully present in origin/main
-function ensureElementHasId() {
-  // Placeholder for ensuring element has an ID
-}
-
-function ensureElementHasIdOrigin() {
-  // Placeholder for ensuring element has an ID origin
-}
-
-function addAriaLabel(elementId, label) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-}
-
-function addAccessibleName(elementId, name) {
-  addAriaLabel(elementId, name);
-}
-
-function renderDependencyGraphs(container) {
-  // Render the dependency graph visualization
-  if (typeof container === 'string') {
-    container = document.getElementById(container);
-  }
-  if (!container) return null;
+/**
+ * Creates a web resource button suitable for accessibility (e.g., Github, Stack Overflow, etc.)
+ * @param {Object} options - Options for creating the web resource button
+ * @param {string} options.url - The URL to link to
+ * @param {string} options.label - The accessible label for the button
+ * @param {string} options.title - The title attribute for additional context
+ * @param {string} options.icon - Optional SVG icon for the button
+ * @param {string} options.type - The type of resource (e.g., 'github', 'stackoverflow', 'docs')
+ * @returns {HTMLAnchorElement} The created accessible button element
+ */
+function createWebResourceButton ({ url, label, title, icon, type }) {
+  const button = document.createElement('a')
+  button.href = url
+  button.setAttribute('role', 'button')
+  button.setAttribute('aria-label', label)
   
-  // Basic implementation
-  container.innerHTML = '<div class="dependency-graph"></div>';
-  return container;
+  if (title) {
+    button.setAttribute('title', title)
+  }
+  
+  button.className = `web-resource-button web-resource-${type || 'link'}`
+  
+  if (icon) {
+    button.innerHTML = icon
+  }
+  
+  // Ensure the button opens in a new tab with proper security attributes
+  button.setAttribute('target', '_blank')
+  button.setAttribute('rel', 'noopener noreferrer')
+  
+  return button
+}
+
+function validateTableStructure(container) {
+  return container && container.querySelectorAll('table').length > 0
+}
+
+function validateHeadingHierarchy(headings) {
+  // Implementation placeholder - function to be implemented
+  return true
+}
+
+function ensureHeadingHierarchy(container) {
+  if (!container) return null
+
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  let previousLevel = 0
+
+  headings.forEach(heading => {
+    const currentLevel = parseInt(heading.tagName.charAt(1), 10)
+    if (previousLevel > 0 && currentLevel - previousLevel > 1) {
+      // Fix skipped heading levels by promoting or demoting as needed
+      const correctedLevel = previousLevel + 1
+      const newHeading = document.createElement(`h${correctedLevel}`)
+      newHeading.innerHTML = heading.innerHTML
+      newHeading.className = heading.className
+      heading.parentNode.replaceChild(newHeading, heading)
+      previousLevel = correctedLevel
+    } else {
+      previousLevel = currentLevel
+    }
+  })
+
+  return container
 }
 
 // New function to handle additional rendering logic
@@ -256,15 +340,12 @@ function renderDependencyGraphs(container) {
 function renderAdditionalContentData(additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
-  return '';
+  return '<div class="additional-content"></div>'
 }
 
-// Accessibility-related function to be added
-function checkAccessibilityForReport() {
-  // Placeholder for accessibility checking logic
-  // This function should be implemented to check for accessibility issues
-  // For now, it just returns an empty array
-  return [];
+// New accessibility function for calculating complexity of a module
+function calculateComplexity(moduleData) {
+  return moduleData.dependencies ? moduleData.dependencies.length : 0
 }
 
 // Helper function for logging
@@ -276,92 +357,67 @@ function log(message, level = 'info') {
   }
 }
 
-// Implement the function for addressing accessibility issues from insight report
-function ensureDependencyGraphARIA(container) {
-  const fixes = {
-    langAdded: false,
-    mainLandmarkAdded: false,
-    landmarksFixed: 0,
-    svgNamesAdded: 0,
-    fakeLinksFixed: 0
-  };
+function renderDependencyGraph(deps, options = {}) {
+  // Use dependencyGraphContent from the imported module
+  const graphContent = dependencyGraphContent(deps, options)
+  return `<div class="dependency-graph" role="img" aria-label="Dependency graph">${graphContent}</div>`
+}
 
   if (!report || !report.issues) {
     return fixes;
   }
 
-  // Add lang attribute to HTML element if missing
-  const htmlEl =
-    container.querySelector('html') ||
-    (container.ownerDocument && container.ownerDocument.documentElement);
-  if (htmlEl && !htmlEl.lang) {
-    htmlEl.setAttribute('lang', 'en');
-    fixes.langAdded = true;
-  }
-
-  // Add main landmark if missing
-  const mainElement = container.querySelector('main');
-  if (!mainElement) {
-    const body = container.ownerDocument ? container.ownerDocument.body : document.body;
-    if (body) {
-      const newMain = container.ownerDocument.createElement('main');
-      while (body.firstChild) {
-        newMain.appendChild(body.firstChild);
-      }
-      body.appendChild(newMain);
-      fixes.mainLandmarkAdded = true;
-    }
-  }
-
-  // Update the existing function using the new functions for rendering graph/index
-  renderDependencyGraphs(container);
-  renderGraphIndex(container.innerHTML);
-  renderAdditionalContent(container.innerHTML);
-
-  // Fix landmark issues
-  validateLandmark(container);
-  validateLandmarkStructure(container);
-
-  // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName && accessibleName.trim()) {
-      addSvgAccessibleName(svg, accessibleName);
-      fixes.svgNamesAdded++;
-    }
-  });
-
-  // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('[role="link"], a:not([href])');
-  fakeLinks.forEach(link => {
-    if (!link.getAttribute('href')) {
-      link.setAttribute('href', '#' + (link.id || 'link-' + Math.random()));
-    }
-    if (!link.hasAttribute('role')) {
-      link.setAttribute('role', 'link');
-    }
-    fixes.fakeLinksFixed++;
-  });
-
-  // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(report);
-  if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn');
-  }
-
-  // Implement focus trap for keyboard navigation
-  trapFocus(container);
-
-  if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info');
-  }
-
-  if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info');
-  }
-
-  // Check for new accessibility issues
-  const newAccessibilityIssues = checkAccessibility(container);
-  if (newAccessibilityIssues && newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found
+// Export for use in other modules
+module.exports = {
+  ...main,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  newFunction,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  renderAdditionalContent,
+  newFocusTrap,
+  calculateComplexity,
+  renderDependencyGraph
+}

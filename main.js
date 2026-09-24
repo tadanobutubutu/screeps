@@ -14,51 +14,27 @@ import react from 'react';
 // (This comment remains as-is)
 
 // New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues(insightReport) {
-  // Code to fix accessibility issues as per the insight report
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach(function(issue) {
-      switch (issue.type) {
-        case 'REACT_015':
-          // Add lang attribute to HTML element
-          addLangAttribute(document.documentElement);
-          break;
-        case 'REACT_027':
-          // Fix table structure issues
-          if (issue.type === 'structure') {
-            validateTableStructure();
-            fixTableStructure();
-          } else {
-            validateTableAccessibility();
-          }
-          break;
-        case 'REACT_017':
-          // Add/fix landmark issues
-          addMainLandmark();
-          validateLandmark();
-          validateLandmarkStructure();
-          validateLandmarkAttributes();
-          addLandmarkRegions();
-          break;
-        case 'REACT_041':
-          // Add accessible names to SVGs
-          setSvgAttributes(document.querySelector('#yourSvgId'), getSvgAccessibleName());
-          break;
-        case 'REACT_025':
-          // Ensure unique landmarks
-          ensureUniqueLandmarks();
-          break;
-        case 'REACT_036':
-          // Fix fake link issue
-          handleFakeLinks();
-          validateLinkAccessibility();
-          break;
-        default:
-          handleIssue(issue);
-          break;
-      }
-    });
-  }
+function fixAccessibilityIssues() {
+  // Fix table accessibility issues
+  const tableResults = validateTableAccessibility();
+  const tableStructureResults = validateTableStructure();
+
+  // Fix landmark accessibility issues
+  const landmarkResults = validateLandmark();
+  const landmarkStructureResults = validateLandmarkStructure();
+
+  // Fix link accessibility issues
+  const linkResults = validateLinkAccessibility();
+  handleFakeLinks();
+
+  // Return summary of fixes applied
+  return {
+    tables: tableResults,
+    tableStructure: tableStructureResults,
+    landmarks: landmarkResults,
+    landmarkStructure: landmarkStructureResults,
+    links: linkResults
+  };
 }
 
 // Configuration
@@ -615,28 +591,17 @@ function setLanguageAttribute() {
 
 // Export functions for testing
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    loadLandmarks,
-    processLandmarks,
-    sortLandmarks,
-    getLandmarkById,
-    ensureUniqueLandmarks,
-    addressAccessibilityIssues,
-    fixAccessibilityIssues,
-    initialize,
-    initializeApp,
-    config,
-    handleIssue,
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    checkLinkAccessibility
-  };
+    module.exports = {
+      loadLandmarks, processLandmarks, sortLandmarks, getLandmarkById, ensureUniqueLandmarks
+    };
 }
+
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)

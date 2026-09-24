@@ -18,19 +18,16 @@ import path from 'path';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
-import './styles.less';
-import fs from 'fs';
-import { CONFIG as UTILS_CONFIG } from './utils/constants';
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute, addLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure, fixTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure, validateLandmarkAttributes, addLandmarkRegions } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks, validateInput, processData as processDataUtil, formatResponse, createInPageButton } from './utils/linkAccessibilityUtils';
-import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { visualizeDependencyTree } from './utils.js';
+import axe from 'axe-core';
+
+// main.js
+
+// Existing code preserved
+module.exports = {
+  userSafety: 'unsafe',
+  safetyCategories: 'Unauthorized Advice'
+};
 
 // Combined Configuration
 const CONFIG = {
@@ -222,52 +219,171 @@ const appData = {
   version: '1.0.0'
 };
 
+// Configuration & State
+const config = {
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000
+};
+
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+// Filter only accessibility-related issues
+const accessibilityIssues = insightReport => {
+  if (!insightReport || !insightReport.issues) return [];
+  return insightReport.issues.filter(
+    issue => issue.category === 'Accessibility' ||
+             (issue.type && issue.type.toLowerCase().includes('accessibility'))
+  );
+};
+
 function getLangAttribute() {
   // Code for getting the language attribute
+  return typeof document === 'undefined' ? null : document.documentElement.lang;
 }
 
 function addLangAttribute(element) {
   // Code for adding the language attribute to the specified element
+  if (element && !element.hasAttribute('lang')) {
+    element.setAttribute('lang', 'en');
+  }
 }
 
 function validateTableAccessibility() {
-  // Code for validating table accessibility
+  if (typeof document === 'undefined') return [];
+  const issues = [];
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const thCells = row.querySelectorAll('th');
+      if (thCells.length > 0 && !row.hasAttribute('role') && row.tagName === 'TR') {
+        issues.push({
+          description: 'Table row has header cells but needs proper structure',
+          severity: 'high',
+          element: row,
+          table: table
+        });
+      }
+    });
+  });
+  return issues;
 }
 
 function validateTableStructure() {
-  // Code for validating table structure
+  if (typeof document === 'undefined') return [];
+  const issues = [];
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    if (!table.querySelector('caption')) {
+      issues.push({
+        description: 'Table is missing a caption element',
+        severity: 'medium',
+        element: table,
+        table: table
+      });
+    }
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(cell => {
+      if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
+        issues.push({
+          description: 'Table header cell is missing scope or headers attribute',
+          severity: 'high',
+          element: cell,
+          table: table
+        });
+      }
+    });
+  });
+  return issues;
 }
 
 function fixTableStructure() {
-  // Code for fixing table structure issues
+  if (typeof document === 'undefined') return;
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = `Table ${index + 1}`;
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    const headers = table.querySelectorAll('th');
+    const cells = table.querySelectorAll('td, th');
+
+    cells.forEach(cell => {
+      if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
+        const isHeader = cell.tagName === 'TH';
+        if (isHeader) {
+          cell.setAttribute('scope', 'col');
+        }
+      }
+    });
+  });
 }
 
 function addMainLandmark() {
-  // Code for adding main landmark
+  if (typeof document === 'undefined') return;
+  const main = document.querySelector('main');
+  if (!main) {
+    const newMain = document.createElement('main');
+    document.body.appendChild(newMain);
+  }
 }
 
 function validateLandmark() {
   // Code for validating landmark
+  return [];
 }
 
 function validateLandmarkStructure() {
-  // Code for validating landmark structure
+  if (typeof document === 'undefined') return [];
+  return [];
 }
 
 function validateLandmarkAttributes() {
-  // Code for validating landmark attributes
+  if (typeof document === 'undefined') return [];
+  return [];
 }
 
 function getSvgAccessibleName() {
-  // Code for getting accessible name for SVGs
+  if (typeof document === 'undefined') return [];
+  const svgs = document.querySelectorAll('svg');
+  const names = [];
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      names.push({
+        element: svg,
+        svg: svg
+      });
+    }
+  });
+  return names;
 }
 
 function setSvgAttributes(svg, accessibleName) {
-  // Code for setting SVG attributes with the accessible name
+  if (!svg) return;
+  const title = document.createElement('title');
+  title.textContent = accessibleName || 'SVG Icon';
+  title.id = `svg-title-${Date.now()}`;
+  svg.insertBefore(title, svg.firstChild);
+  svg.setAttribute('aria-labelledby', title.id);
 }
 
-function ensureUniqueLandmarks(landmarks) {
-  // Code for ensuring unique landmarks
+function ensureUniqueLandmarks(landmarks = []) {
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
 }
 
 function createInPageButton() {
@@ -275,11 +391,23 @@ function createInPageButton() {
 }
 
 function validateLinkAccessibility() {
-  // Code for validating link accessibility
+  if (typeof document === 'undefined') return [];
+  return [];
 }
 
 function handleFakeLinks() {
-  // Code for handling fake links
+  if (typeof document === 'undefined') return;
+  document.querySelectorAll('a').forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
+      if (link.querySelector('button') || link.getAttribute('role') === 'button') {
+        link.setAttribute('role', 'button');
+        if (!link.id) {
+          link.id = `button-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
+      }
+    }
+  });
 }
 
 function addLandmarkRoles() {
@@ -288,6 +416,10 @@ function addLandmarkRoles() {
 
 function setLanguageAttribute() {
   // Code for setting language attribute
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
 }
 
 function addressAccessibilityIssues(insightReport) {
@@ -469,176 +601,6 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-/**
- * Generates specific accessibility fixes based on issue type.
- * @param {Object} issue - The accessibility issue object.
- * @returns {string} The suggested fix for the issue.
- */
-function generateAccessibilityFix(issue) {
-  switch (issue.type) {
-    case 'missing_alt_text':
-      return `Add descriptive alt text to image element (${issue.elementId})`;
-    case 'low_contrast':
-      return `Increase color contrast ratio for text in element (${issue.elementId})`;
-    case 'missing_aria_label':
-      return `Add ARIA label to element (${issue.elementId})`;
-    case 'keyboard_trap':
-      return `Ensure element (${issue.elementId}) can be navigated using keyboard`;
-    default:
-      return `Review accessibility guidelines and apply appropriate adjustments for element (${issue.elementId})`;
-  }
-}
-
-/**
- * Generates an accessibility report for the current document.
- * @returns {Object} An accessibility report with issues and recommendations.
- */
-function generateAccessibilityReport() {
-  const report = {
-    timestamp: new Date().toISOString(),
-    issues: [],
-    summary: {
-      total: 0,
-      critical: 0,
-      moderate: 0,
-      minor: 0
-    }
-  };
-
-  if (typeof document === 'undefined') {
-    return report;
-  }
-
-  // Check for lang attribute
-  if (!document.documentElement.getAttribute('lang')) {
-    report.issues.push({
-      type: 'missing_lang_attribute',
-      severity: 'critical',
-      message: 'Document is missing lang attribute'
-    });
-    report.summary.total++;
-    report.summary.critical++;
-  }
-
-  // Check for landmarks
-  const landmarksFound = document.querySelectorAll('header, nav, main, footer, aside');
-  if (landmarksFound.length === 0) {
-    report.issues.push({
-      type: 'missing_landmarks',
-      severity: 'moderate',
-      message: 'Page is missing landmark regions'
-    });
-    report.summary.total++;
-    report.summary.moderate++;
-  }
-
-  // Check for tables without headers
-  document.querySelectorAll('table').forEach((table, index) => {
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      report.issues.push({
-        type: 'table_missing_headers',
-        severity: 'moderate',
-        elementId: `table-${index + 1}`,
-        message: `Table ${index + 1} is missing header cells`
-      });
-      report.summary.total++;
-      report.summary.moderate++;
-    }
-  });
-
-  // Check for images without alt text
-  document.querySelectorAll('img').forEach((img, index) => {
-    if (!img.getAttribute('alt')) {
-      report.issues.push({
-        type: 'missing_alt_text',
-        severity: 'critical',
-        elementId: `img-${index + 1}`,
-        message: `Image ${index + 1} is missing alt text`
-      });
-      report.summary.total++;
-      report.summary.critical++;
-    }
-  });
-
-  return report;
-}
-
-/**
- * Wraps primary content in a main landmark element if not present.
- */
-function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined') return;
-
-  const mainElement = document.querySelector('main');
-  if (!mainElement) {
-    const body = document.body;
-    if (body) {
-      const main = document.createElement('main');
-      while (body.firstChild) {
-        main.appendChild(body.firstChild);
-      }
-      body.appendChild(main);
-    }
-  }
-}
-
-// TODO: Implement spawning logic
-function spawnProcess(command) {
-  return new Promise((resolve, reject) => {
-    const { spawn } = require('child_process');
-    const process = spawn(command);
-
-    process.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
-    });
-
-    process.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
-    });
-
-    process.on('close', (code) => {
-      if (code === 0) {
-        resolve(`Process exited with code ${code}`);
-      } else {
-        reject(`Process exited with code ${code}`);
-      }
-    });
-  });
-}
-
-// REACT_015: Add lang attribute to document
-function ensureLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement && document.documentElement.getAttribute('lang') === null) {
-    document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
-  }
-}
-
-// REACT_027: Fix table structure issues
-function fixTableStructureImpl() {
-  if (typeof document === 'undefined') return;
-
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table, index) => {
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = `Table ${index + 1}`;
-      table.insertBefore(caption, table.firstChild);
-    }
-
-    const cells = document.querySelectorAll('td, th');
-
-    cells.forEach(cell => {
-      if (!cell.hasAttribute('scope') && !cell.hasAttribute('headers')) {
-        const isHeader = cell.tagName === 'TH';
-        if (isHeader) {
-          cell.setAttribute('scope', 'col');
-        }
-      }
-    });
-  });
-}
-
 // REACT_017 & REACT_025: Fix and ensure unique landmarks
 function fixLandmarks() {
   if (typeof document === 'undefined') return;
@@ -678,23 +640,6 @@ function addSvgAccessibleNames() {
   });
 }
 
-// REACT_036: Fix fake link issues (links without href or with javascript:void(0))
-function fixFakeLinksIssues() {
-  if (typeof document === 'undefined') return;
-
-  document.querySelectorAll('a').forEach(link => {
-    const href = link.getAttribute('href');
-    if (!href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;') {
-      if (link.querySelector('button') || link.getAttribute('role') === 'button') {
-        link.setAttribute('role', 'button');
-        if (!link.id) {
-          link.id = `button-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        }
-      }
-    }
-  });
-}
-
 // REACT_040: Replace my-button with actual button id for accessibility
 function replaceButtonIds() {
   if (typeof document === 'undefined') return;
@@ -725,171 +670,6 @@ function ensureDependencyGraphAriaRole() {
       dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
     }
   }
-}
-
-// REACT_037: Google sign-in logic
-const googleSignIn = {
-  initialize: function(clientId) {
-    if (typeof google !== 'undefined' && google.accounts) {
-      google.accounts.id.initialize({
-        client_id: clientId,
-        callback: this.handleCredentialResponse.bind(this)
-      });
-      return true;
-    }
-    return false;
-  },
-
-  renderButton: function(elementId) {
-    const element = document.getElementById(elementId);
-    if (element && typeof google !== 'undefined' && google.accounts) {
-      google.accounts.id.renderButton(element, {
-        theme: 'outline',
-        size: 'large',
-        text: 'sign_in_with'
-      });
-      return true;
-    }
-    return false;
-  },
-
-  handleCredentialResponse: function(response) {
-    console.log('Google Sign-In successful');
-    return response;
-  }
-};
-
-// Landmark utility functions
-function isValidLandmark(element) {
-  if (typeof element !== 'object' || element === null) {
-    return false;
-  }
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
-  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-  const role = element.getAttribute ? element.getAttribute('role') : null;
-  return validLandmarks.includes(tagName) || (role && validLandmarks.includes(role));
-}
-
-function loadLandmarks() {
-  if (typeof document === 'undefined') return [];
-  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
-  return Array.from(document.querySelectorAll(landmarkSelectors.join(', ')));
-}
-
-function processLandmarks(landmarksList) {
-  return landmarksList.map((landmark, index) => ({
-    index,
-    tagName: landmark.tagName.toLowerCase(),
-    id: landmark.id || null,
-    ariaLabel: landmark.getAttribute('aria-label') || null,
-    ariaLabelledby: landmark.getAttribute('aria-labelledby') || null
-  }));
-}
-
-function sortLandmarks(landmarksList) {
-  const order = { main: 0, nav: 1, header: 2, aside: 3, section: 4, article: 5, footer: 6 };
-  return [...landmarksList].sort((a, b) => {
-    const aOrder = order[a.tagName.toLowerCase()] ?? 7;
-    const bOrder = order[b.tagName.toLowerCase()] ?? 7;
-    return aOrder - bOrder;
-  });
-}
-
-function getLandmarkById(landmarksList, id) {
-  return landmarksList.find(landmark => landmark.id === id);
-}
-
-function addMainLandmark() {
-  if (typeof document === 'undefined') return;
-  if (!document.querySelector('main')) {
-    const main = document.createElement('main');
-    const body = document.body;
-    if (body && body.firstChild) {
-      body.insertBefore(main, body.firstChild);
-    } else if (body) {
-      body.appendChild(main);
-    }
-  }
-}
-
-// Initialize all accessibility fixes
-function initializeAccessibility() {
-  ensureLangAttribute();
-  fixTableStructureImpl();
-  fixLandmarks();
-  addSvgAccessibleNames();
-  fixFakeLinksIssues();
-  replaceButtonIds();
-  ensureDependencyGraphAriaRole();
-  wrapPrimaryContentInMain();
-}
-
-// Run on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAccessibility);
-  } else {
-    initializeAccessibility();
-  }
-}
-
-// Process data
-function processData(data) {
-  // Process data
-  return processDataUtil ? processDataUtil(data) : data;
-}
-
-// Fetch user
-function fetchUser(userId) {
-  // Fetch user data
-  return { id: userId, name: 'User' };
-}
-
-// Clear cache
-function clearCache() {
-  // Clear cache
-}
-
-// CPU-intensive function (for demonstration on the effect of using React)
-function calculateSumArray(array) {
-  let sum = 0;
-  for (let i = 0; i < array.length; i++) {
-    sum += array[i];
-  }
-  return sum;
-}
-
-// App that uses the React library
-function App({ array }) {
-  const [sum, setSum] = useState(calculateSumArray(array));
-
-  useEffect(() => {
-    setSum(calculateSumArray(array));
-  }, [array]);
-
-  return (
-    <div>
-      <h1>Sum: {sum}</h1>
-    </div>
-  );
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main');
-}
-
-// Check if the environment is secure before initializing
-if (typeof isSecureContext === 'function' && isSecureContext()) {
-  initializeApp();
-} else {
-  console.warn('Application is not running in a secure context. Some features may not be available.');
-}
-
-// Validate input
-function validateInputImpl(input) {
-  // Validate input
 }
 
 function getInsightReport() {
@@ -1044,16 +824,104 @@ function getInsightReport() {
   return report;
 }
 
-function processAccessibilityReport(report) {
-  // Process accessibility report and return findings
-  const findings = {
-    langAttribute: false,
-    tableIssues: 0,
-    landmarkIssues: 0,
-    svgIssues: 0,
-    uniqueLandmarkIssues: 0,
-    fakeLinkIssues: 0
-  };
+// REACT_037: Google sign-in logic
+const googleSignIn = {
+  initialize: function(clientId) {
+    if (typeof google !== 'undefined' && google.accounts) {
+      google.accounts.id.initialize({
+        client_id: clientId,
+        callback: this.handleCredentialResponse.bind(this)
+      });
+      return true;
+    }
+    return false;
+  },
+
+  renderButton: function(elementId) {
+    const element = document.getElementById(elementId);
+    if (element && typeof google !== 'undefined' && google.accounts) {
+      google.accounts.id.renderButton(element, {
+        theme: 'outline',
+        size: 'large',
+        text: 'sign_in_with'
+      });
+      return true;
+    }
+    return false;
+  },
+
+  handleCredentialResponse: function(response) {
+    console.log('Google Sign-In successful');
+    return response;
+  }
+};
+
+const APP_CONFIG = {
+  spawnStructure: {
+    body: [WORK, CARRY, MOVE],
+    priority: 1
+  }
+};
+
+// New spawning logic implementation
+function spawnEntity(entityType, params) {
+  // Logic to spawn an entity of the specified type with given parameters
+  // ...
+}
+
+function clearCacheState() {
+  appState.data = null;
+  appState.cache.clear();
+}
+
+function someFunction() {
+  return 'some value';
+}
+
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString().split('T')[0];
+}
+
+function validateInput(input) {
+  if (!input || input.length === 0) {
+    return false;
+  }
+  return true;
+}
+
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
+export {
+  APP_CONFIG,
+  generateAccessibilityReport,
+  fetchUser,
+  clearCacheState,
+  someFunction,
+  helper,
+  formatDate,
+  validateInput,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  appState,
+  setLanguageAttribute,
+  spawnEntity,
+  googleSignIn
+};
+
+// App state
+const state = {
+  // Application state
+};
 
   if (report && Array.isArray(report.issues)) {
     findings.langAttribute = report.issues.some(i => i.type === 'REACT_015');
@@ -1067,108 +935,119 @@ function processAccessibilityReport(report) {
   return findings;
 }
 
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(() => {
-    const sortFunction = addBook.length > 0 ? sortByTitle : sortByTitle;
-    return sortFunction;
+// Initialize app function
+function initApp() {
+  initialize();
+  return appState;
+}
+
+// Run on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAccessibility);
+  } else {
+    initializeAccessibility();
+  }
+
+  /**
+   * REACT_015: Add lang attribute to HTML element
+   * Sets the language attribute on the HTML element.
+   */
+  function setLanguageAttribute() {
+    const htmlElement = document.documentElement;
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en');
+    }
+  }
+
+  async function generateAccessibilityReport(options = {}) {
+    // Configure axe-core options
+    const axeOptions = {};
+    if (options.tags && options.tags.length > 0) {
+      axeOptions.runOnly = {
+        type: 'tag',
+        values: options.tags
+      };
+    }
+    if (options.runOnly && options.runOnly.length > 0) {
+      axeOptions.runOnly = {
+        type: 'rule',
+        values: options.runOnly
+      };
+    }
+
+    const results = await axe.run(document.body, axeOptions);
+    const report = {
+      summary: {
+        critical: 0,
+        serious: 0,
+        moderate: 0,
+        minor: 0,
+        unknown: 0,
+        total: 0
+      },
+      violations: []
+    };
+
+    // Process violations by impact level
+    if (results && results.violations) {
+      results.violations.forEach(violation => {
+        const impact = violation.impact || 'unknown';
+        if (report.summary.hasOwnProperty(impact)) {
+          report.summary[impact]++;
+        }
+        report.summary.total++;
+
+        // Add each violation to issues array
+        violation.nodes.forEach(node => {
+          report.violations.push({
+            id: violation.id,
+            impact: violation.impact,
+            description: violation.description,
+            help: violation.help,
+            helpUrl: violation.helpUrl,
+            nodes: [node],
+            selector: node.target ? node.target.join(', ') : ''
+          });
+        });
+      });
+    }
+
+    return report;
+  }
+
+  function fetchUser() {
+    // Placeholder for fetch user implementation
+    return Promise.resolve({ name: 'Test User' });
+  }
+}
+
+// Main function (required export)
+function main() {
+  initialize();
+  console.log('Main function executed');
+}
+
+// If running directly, visualize the dependency tree and start the server
+if (typeof require !== 'undefined' && require.main === module) {
+  main();
+
+  // Start server
+  const expressApp = express();
+  const PORT = process.env.PORT || 3000;
+  const HOST = process.env.HOST || 'localhost';
+  expressApp.listen(PORT, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
   });
 }
 
-function handleFakeLinks() {
-  // Code for handling fake links
-}
-
-function getInsightReport() {
-  const issues = [];
-
-  // Check for lang attribute on HTML element
-  const langAttribute = getLangAttribute();
-  if (!langAttribute) {
-    issues.push({
-      type: 'REACT_015',
-      description: 'HTML element is missing lang attribute',
-      severity: 'critical',
-      element: 'html'
-    });
-  }
-
-  // Render the list of book items and sorting controls
-  return (
-    <main {...getLandmarkProps('main', 'Main content')}>
-      <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
-      <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
-      <List
-        itemLayout="vertical"
-        dataSource={booksList}
-        renderItem={book => (
-          <List.Item key={generateKey(book)}>
-            <BookItem book={book} />
-          </List.Item>
-        )}
-      />
-      <Button onClick={handleAddBook}>
-        {typeof enhanceAccessibilityForAddBook === 'function' ? 'Add Book (Experimental Accessibility Improvements)' : 'Add Book'}
-      </Button>
-      <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
-    </main>
-  );
-}
-
-// Exporting module
-module.exports = {
-  userSafety: 'unsafe',
-  safetyCategories: 'Unauthorized Advice',
-  config: CONFIG,
-  App,
-  Main,
-  AddBookForm,
-  getRootHtmlAccessibilityProps,
-  getLandmarkProps,
-  getSvgAccessibilityProps,
-  getAccessibleLinkProps,
-  calculateSum,
-  calculateSumArray,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility: validateTableAccessibilityImpl,
-  validateTableStructure: validateTableStructureImpl,
-  validateLandmark: validateLandmarkImpl,
-  validateLandmarkStructure: validateLandmarkStructureImpl,
-  getSvgAccessibleName: getSvgAccessibleNameImpl,
-  setSvgAttributes: setSvgAttributesImpl,
-  initializeApp,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  generateAccessibilityReport,
-  wrapPrimaryContentInMain,
-  ensureUniqueLandmarks: ensureUniqueLandmarksImpl,
-  addLangAttribute,
-  addressAccessibilityIssues,
-  spawnProcess,
-  ensureLangAttribute,
-  fixTableStructure: fixTableStructureImpl,
-  fixLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinksIssues,
-  replaceButtonIds,
-  ensureDependencyGraphAriaRole,
-  googleSignIn,
-  initializeAccessibility,
-  processData,
-  formatResponse,
-  isValidLandmark,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  addMainLandmark,
-  fetchUser,
-  clearCache,
-  validateInput: validateInputImpl,
-  landmarkConfig: CONFIG,
-  main,
-  processAccessibilityReport,
+// Exports
+export {
+  expressApp,
+  initApp,
+  CONFIG: APP_CONFIG,
+  config,
+  appState,
   getInsightReport,
   validateLandmarkAttributes: validateLandmarkAttributesImpl,
   fixTableStructureIssues,
@@ -1194,4 +1073,11 @@ module.exports = {
   }
 };
 
-export default Main;
+if (typeof document !== 'undefined') {
+  addressAccessibilityIssues(getInsightReport());
+  ensureDependencyGraphAriaRole();
+  replaceButtonIds();
+  addSvgAccessibleNames();
+  setLanguageAttribute();
+  fixLandmarks();
+}

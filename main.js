@@ -9,48 +9,193 @@ function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
 
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
+const landmarks = [];
+
+function spawnNewUser(name, age) {
+    return new User(name, age);
 }
 
-// Function to generate a key for each book item
-function generateKey(book) {
-  return book.id || `${book.title}-${book.author}`;
+const config = {
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
+};
+
+const appState = {
+    initialized: false,
+    data: null,
+    cache: new Map()
+};
+
+function initialize() {
+    appState.initialized = true;
+    console.log('App initialized');
 }
 
-// Function to render a single book item
-function BookItem({ book }) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={`by ${book.author}`}
-      />
-    </List.Item>
-  );
+function initializeApp() {
+    initialize();
+    return appState;
 }
 
-// Function to render the form for adding a new book entry
-function BookForm() {
-  const dispatch = useDispatch();
+function main() {
+    initialize();
+    initializeApp();
+    console.log('Main function executed');
+    return { executed: true };
+}
 
-  // Define state for the form inputs
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
+function validateLandmark(landmark) {
+    const errors = [];
 
-  // Handle input changes
-  const handleTitleChange = (e) => setTitle(e.target.value);
-  const handleAuthorChange = (e) => setAuthor(e.target.value);
+    if (landmark === undefined || landmark === null) {
+        errors.push('Landmark must have a valid object structure');
+    } else if (!landmarkStructureCheck(landmark)) {
+        errors.push('Landmark must have a name, latitude, and longitude');
+    }
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Perform any necessary validation or processing before adding the book
-    // ...
+    // Additional validation: check for array composition with name
+    if (Array.isArray(landmark) && landmark.length > 0) {
+        landmark.forEach(innerLandmark => {
+            if (!innerLandmark || typeof innerLandmark !== 'object' || !innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+                errors.push('Landmark array must have valid landmarks with names');
+            }
+        });
+    }
 
-    // Dispatch an action to add the book to the books list in the Redux store
-    dispatch({ type: 'ADD_BOOK', payload: { title, author } });
+    return errors;
+}
+
+// Accessibility helper functions (merged)
+
+function validateTableAccessibility(table) {
+    const issues = validateTableAccessibility(table) || validateTableAccessibility(table);
+    return issues;
+}
+
+function validateTableStructure(table) {
+    const issues = validateTableStructure(table) || validateTableStructure(table);
+    return issues;
+}
+
+function fixTableStructure(table) {
+    fixTableStructure(table) || fixTableStructure(table);
+}
+
+// Landmark helper functions (merged)
+
+function ensureLandmarkUniqueness(elements, unique) {
+    if (unique && Array.isArray(elements)) {
+        const elementsById = {};
+
+        for (const landmark of elements) {
+            if (landmark && landmark.id) {
+                if (!elementsById[landmark.id]) {
+                    elementsById[landmark.id] = true;
+                } else {
+                    landmark.id += '_duplicate';
+                }
+            }
+        }
+
+        return elements;
+    }
+    return elements;
+}
+
+function getSvgAccessibleName(svgElement) {
+    // Check for aria-label
+    let label = svgElement.getAttribute('aria-label');
+
+    // Check for aria-labelledby
+    const labelledBy = svgElement.getAttribute('aria-labelledby');
+    if (labelledBy) {
+        const labelElement = document.getElementById(labelledBy);
+        if (labelElement) {
+            label = labelElement.textContent;
+        }
+    }
+
+    // Check for title element inside SVG
+    if (!label) {
+        const title = svgElement.querySelector('title');
+        if (title) {
+            label = title.textContent;
+        }
+    }
+
+    return label || '';
+}
+
+function setSvgAttributes(svgElement, accessibleName) {
+    svgElement.setAttribute('role', 'img');
+
+    if (!svgElement.getAttribute('aria-label') && accessibleName) {
+        svgElement.setAttribute('aria-label', accessibleName);
+    }
+
+    const existingTitle = svgElement.querySelector('title');
+    if (!existingTitle && accessibleName) {
+        const title = document.createElement('title');
+        title.textContent = accessibleName;
+        svgElement.insertBefore(title, svgElement.firstChild);
+    }
+}
+
+function ensureUniqueLandmarks(landmarksArray) {
+    return ensureUniqueLandmarks(landmarksArray);
+}
+
+// Accessibility helper functions (added back)
+
+function setLanguageAttribute(lang) {
+    if (typeof document !== 'undefined') {
+        document.documentElement.setAttribute('lang', lang);
+    }
+}
+
+function addLandmarkRoles(element, role) {
+    if (element && role) {
+        element.setAttribute('role', role);
+    }
+    return element;
+}
+
+function fixFakeLinks(element) {
+    if (element && element.tagName === 'A' && !element.hasAttribute('href')) {
+        element.setAttribute('role', 'button');
+    }
+    return element;
+}
+
+function isSecureContext() {
+    if (typeof window !== 'undefined' && window.isSecureContext !== undefined) {
+        return window.isSecureContext;
+    }
+    return false;
+}
+
+// New function for handling focus trap for keyboard navigation
+function newFocusTrap(focusableElements, onEscape) {
+  const initialFocus = null;
+
+  function trapFocus(event) {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      const focusable = Array.from(focusableElements).filter(el => el.offsetWidth > 0 && el.offsetHeight > 0);
+      if (focusable[0]) {
+        focusable[0].focus();
+      } else {
+        if (initialFocus) initialFocus.focus();
+      }
+    } else if (event.key === 'Escape') {
+      // Close the trap by returning focus to the last focused element
+      // In a real implementation, we would need to track the previous element
+      console.log('Focus trap triggered, returning focus');
+    }
+  }
+
+  document.addEventListener('keydown', trapFocus);
+
+  return () => {
+    document.removeEventListener('keydown', trapFocus);
   };
 
   // Render the form
@@ -77,313 +222,31 @@ function BookForm() {
   );
 }
 
-// Accessibility helper functions
-// REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
+// TODO: Implement spawning logic
 
-// REACT_015 & REACT_036: Create accessible in-page button
-function createInPageButton(buttonText, onClickHandler) {
-  return (
-    <button 
-      onClick={onClickHandler}
-      type="button"
-      lang={getLangAttribute()}
-    >
-      {buttonText}
-    </button>
-  );
-}
+// ... Additional functions and exports
 
-// REACT_027: Validate table accessibility
-function validateTableAccessibility(tableElement) {
-  const issues = [];
-  // Check for proper table structure
-  const hasCaption = tableElement.querySelector('caption');
-  const hasHeaders = tableElement.querySelector('th');
-  
-  if (!hasCaption) {
-    issues.push('REACT_027: Table is missing a caption');
-  }
-  if (!hasHeaders) {
-    issues.push('REACT_027: Table is missing header cells (th)');
-  }
-  
-  return issues;
-}
+// Main execution when run directly
+if (require.main === module) {
+    // Start server
+    const app = express();
+    const PORT = process.env.PORT || 3000;
+    const HOST = process.env.HOST || 'localhost';
 
-// REACT_027: Validate table structure
-function validateTableStructure(tableElement) {
-  const issues = [];
-  const rows = tableElement.querySelectorAll('tr');
-  
-  rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
-    if (cells.length === 0) {
-      issues.push(`REACT_027: Row ${rowIndex} has no cells`);
+    app.listen(PORT, () => {
+        console.log(`Server running on http://${HOST}:${PORT}`);
+    });
+
+    // Visualize dependency tree when running directly
+    visualizeDependencyTree(require.dependencies);
+
+    // Run accessibility check and fix issues if any
+    const insightReport = getInsightReport();
+    if (insightReport.length > 0) {
+        console.log('Accessibility issues found:');
+        insightReport.forEach((issue) => {
+            console.log(`${issue.type}: ${issue.description}`);
+        });
+        addressAccessibilityIssues(insightReport);
     }
-  });
-  
-  return issues;
 }
-
-// REACT_017: Validate landmarks
-function validateLandmark() {
-  const issues = [];
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-  
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark);
-    if (elements.length > 1 && landmark !== 'nav' && landmark !== 'aside') {
-      issues.push(`REACT_017: Multiple ${landmark} landmarks found`);
-    }
-  });
-  
-  return issues;
-}
-
-// REACT_017: Validate landmark structure
-function validateLandmarkStructure() {
-  const issues = [];
-  const mainElement = document.querySelector('main');
-  const headerElement = document.querySelector('header');
-  const footerElement = document.querySelector('footer');
-  
-  if (!mainElement) {
-    issues.push('REACT_017: Missing main landmark');
-  }
-  if (!headerElement) {
-    issues.push('REACT_017: Missing header landmark');
-  }
-  if (!footerElement) {
-    issues.push('REACT_017: Missing footer landmark');
-  }
-  
-  return issues;
-}
-
-// REACT_041: Get SVG accessible name
-function getSvgAccessibleName(svgElement) {
-  // Check for aria-label
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-  
-  // Check for aria-labelledby
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labelElement = document.getElementById(ariaLabelledby);
-    return labelElement ? labelElement.textContent : '';
-  }
-  
-  // Check for title element inside SVG
-  const titleElement = svgElement.querySelector('title');
-  return titleElement ? titleElement.textContent : '';
-}
-
-// REACT_041: Set SVG attributes for accessibility
-function setSvgAttributes(svgElement, accessibleName) {
-  if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
-    svgElement.setAttribute('aria-label', accessibleName);
-  }
-  if (!svgElement.getAttribute('role')) {
-    svgElement.setAttribute('role', 'img');
-  }
-}
-
-// REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks() {
-  const issues = [];
-  const landmarkTypes = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  
-  landmarkTypes.forEach(type => {
-    const landmarks = document.querySelectorAll(`[role="${type}"]`);
-    if (landmarks.length > 1) {
-      issues.push(`REACT_025: Multiple ${type} landmarks found - should be unique`);
-    }
-  });
-  
-  return issues;
-}
-
-// REACT_025: Add proper landmark regions
-function addProperLandmarkRegions() {
-  const issues = [];
-  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
-  
-  if (!mainContent) {
-    issues.push('REACT_025: Missing main landmark region');
-  }
-  
-  return issues;
-}
-
-// REACT_036: Validate link accessibility
-function validateLinkAccessibility(linkElement) {
-  const issues = [];
-  const href = linkElement.getAttribute('href');
-  const text = linkElement.textContent.trim();
-  const ariaLabel = linkElement.getAttribute('aria-label');
-  
-  if (!href || href === '#' || href === '') {
-    issues.push('REACT_036: Link has no valid href attribute');
-  }
-  
-  if (!text && !ariaLabel) {
-    issues.push('REACT_036: Link has no accessible name');
-  }
-  
-  if (linkElement.getAttribute('role') === 'link' && !href) {
-    issues.push('REACT_036: Fake link detected without href');
-  }
-  
-  return issues;
-}
-
-// REACT_036: Handle fake links
-function handleFakeLinks() {
-  const issues = [];
-  const fakeLinks = document.querySelectorAll('[role="link"]:not(a[role="link"])');
-  
-  fakeLinks.forEach((link, index) => {
-    const href = link.getAttribute('href');
-    if (!href) {
-      issues.push(`REACT_036: Fake link ${index} has no href attribute`);
-    }
-    
-    // Convert fake link to accessible button if it's clickable
-    if (link.tagName !== 'A' && link.getAttribute('onclick')) {
-      issues.push(`REACT_036: Consider using <button> instead of fake link ${index}`);
-    }
-  });
-  
-  return issues;
-}
-
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
-
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort(dispatch, list) {
-  const sortedList = [...list].sort(sortByTitle);
-  dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort(dispatch, list) {
-  const sortedList = [...list].sort(sortByAuthor);
-  dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
-}
-
-// Accessible Add Book Form component
-function AddBookForm({ onAddBook }) {
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [error, setError] = useState('');
-  const titleInputRef = useRef(null);
-  const formRef = useRef(null);
-  const errorId = 'add-book-error';
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setError('');
-
-    if (!title.trim()) {
-      setError('Title is required');
-      if (titleInputRef.current) {
-        titleInputRef.current.focus();
-      }
-      return;
-    }
-
-    if (!author.trim()) {
-      setError('Author is required');
-      return;
-    }
-
-    onAddBook({ title: title.trim(), author: author.trim() });
-    setTitle('');
-    setAuthor('');
-    
-    // Move focus to title input after successful submission for accessibility
-    if (titleInputRef.current) {
-      titleInputRef.current.focus();
-    }
-  };
-
-  const handleTitleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      // Move to author input on Enter key
-      const form = formRef.current;
-      if (form) {
-        const authorInput = form.querySelector('#add-book-author');
-        if (authorInput) {
-          authorInput.focus();
-        }
-      }
-    }
-  };
-
-  return (
-    <form 
-      ref={formRef}
-      onSubmit={handleSubmit} 
-      aria-label="Add new book form"
-      style={{ marginBottom: '16px' }}
-    >
-      <div style={{ marginBottom: '8px' }}>
-        <label htmlFor="add-book-title" id="add-book-title-label">
-          Book Title
-        </label>
-        <input
-          id="add-book-title"
-          ref={titleInputRef}
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={handleTitleKeyDown}
-          aria-required="true"
-          aria-labelledby="add-book-title-label"
-          aria-describedby={error ? errorId : undefined}
-          placeholder="Enter book title"
-          style={{ marginLeft: '8px' }}
-        />
-      </div>
-      
-      <div style={{ marginBottom: '8px' }}>
-        <label htmlFor="add-book-author" id="add-book-author-label">
-          Author
-        </label>
-        <input
-          id="add-book-author"
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          aria-required="true"
-          aria-labelledby="add-book-author-label"
-          aria-describedby={error ? errorId : undefined}
-          placeholder="Enter author name"
-          style={{ marginLeft: '8px' }}
-        />
-      </div>
-
-      {error && (
-        <div 
-          id={errorId}
-          role="alert" 
-          aria-live="polite"
-          style={{ color: 'red', marginBottom: '8px' }}
-        >
-          {error}
-        </div>
-      )}
-
-      <button 
-        type="submit"
-        aria-describedby={error ? errorId : undefined}
-      >
-        Add Book
-      </button>

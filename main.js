@@ -12,7 +12,7 @@ const {
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
-  ensureUniqueLandmarks,
+  ensureUniqueLandmarks: ensureUniqueLandmarksUtil,
   setSvgAccessibilityProps,
   addSvgAccessibleNames,
   addAccessibleNamesToSVGs,
@@ -37,6 +37,99 @@ const {
 const http = require('http')
 const url = require('url')
 
+// Function to validate table accessibility
+const validateTableAccessibility = (html) => {
+  const issues = []
+
+  // Check if HTML contains tables
+  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi
+  let match
+
+  while ((match = tableRegex.exec(html)) !== null) {
+    const tableContent = match[0]
+    const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1
+
+    // Check for caption
+    const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent)
+    if (!hasCaption) {
+      issues.push({
+        type: 'table',
+        severity: 'warning',
+        message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
+        suggestion:
+                    'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
+      })
+    }
+
+    // Check for th elements
+    const hasHeaders = /<th[^>]*>/i.test(tableContent)
+    if (!hasHeaders) {
+      issues.push({
+        type: 'table',
+        severity: 'warning',
+        message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
+        suggestion:
+                    'Add <th> elements for column or row headers to improve accessibility for screen readers'
+      })
+    }
+
+    // Check for scope attributes on th elements
+    const thMatches = tableContent.match(/<th[^>]*>/gi) || []
+    thMatches.forEach((thTag, index) => {
+      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
+        issues.push({
+          type: 'table',
+          severity: 'info',
+          message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
+          suggestion:
+                        'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements'
+        })
+      }
+    })
+
+    // Check for thead and tbody structure
+    const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent)
+    const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent)
+
+    if (!hasThead) {
+      issues.push({
+        type: 'table',
+        severity: 'info',
+        message: `Table ${tableNumber} is missing <thead> element`,
+        suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
+      })
+    }
+
+    if (!hasTbody) {
+      issues.push({
+        type: 'table',
+        severity: 'info',
+        message: `Table ${tableNumber} is missing <tbody> element`,
+        suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
+      })
+    }
+
+    // Check for id and headers attributes for complex tables
+    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1
+    if (hasMultipleHeaders) {
+      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent)
+      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'))
+
+      if (!hasIdAttr && !hasHeadersAttr) {
+        issues.push({
+          type: 'table',
+          severity: 'warning',
+          message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
+          suggestion:
+                        'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids'
+        })
+      }
+    }
+  }
+
+  return issues
+}
+
 // Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
 const { functionA, functionB } = require('./functionModule')
@@ -51,7 +144,7 @@ const renderGraphIndex = (graphData) => {
   // This function should use the new functions for rendering the graph/index
   // For example, it could call `setSvgAccessibilityProps`, `addAccessibleNamesToSVGs`, etc.
   // Replace this with the actual implementation details
-  renderDependencyGraphs(graphData)
+  renderDependencyGraph(graphData)
 }
 
 function getSvgAccessibleName (svgElement) {
@@ -90,7 +183,7 @@ function getSvgAccessibleName (svgElement) {
  */
 function renderDependencyGraph (deps, options = {}) {
   // Use dependencyGraphContent from the imported module
-  return main.dependencyGraphContent(deps, options)
+  return dependencyGraphContent(deps, options)
 }
 
 /**
@@ -101,7 +194,7 @@ function renderDependencyGraph (deps, options = {}) {
  */
 function renderIndex (data, options = {}) {
   // Use indexContent from the imported module
-  return main.indexContent(data, options)
+  return indexContent(data, options)
 }
 
 if (typeof document !== 'undefined') {
@@ -166,7 +259,7 @@ function checkLandmarks (container = document) {
  * Ensure unique main landmarks exist in the document.
  * Logs a warning if multiple main landmarks are detected.
  */
-function ensureUniqueLandmarksInDocument () {
+function ensureUniqueLandmarks () {
   const mains = document.querySelectorAll('main, [role="main"]')
   if (mains.length > 1) {
     console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.')
@@ -224,153 +317,62 @@ function handleFocusTrap (element) {
   })
 }
 
-// Additional functions from origin/main that are not already present in HEAD
-function detectAndSetLang () {
+// Additional functions from origin/main
+function detectAndSetLang() {
   if (typeof document !== 'undefined' && document.documentElement) {
-    const htmlEl = document.documentElement
-    if (!htmlEl.hasAttribute('lang')) {
-      htmlEl.setAttribute('lang', 'en')
-    }
+    const lang = document.documentElement.lang || navigator.language.split('-')[0] || 'en'
+    document.documentElement.setAttribute('lang', lang)
   }
 }
 
-function MyExport () {
-  // Existing implementation
+function MyExport() {
+  // Existing implementation...
 }
 
-function AnotherExport () {
+function AnotherExport() {
   // TODO: Implement the new function as per the issue requirements
-  console.log('AnotherExport function called.')
+  // This is a placeholder implementation for AnotherExport. Replace with the required functionality.
+  console.log('AnotherExport function called.');
 }
 
-function getLangAttribute () {
+function getLangAttribute() {
   // Implementation of getLangAttribute
+  if (typeof document !== 'undefined') {
+    return document.documentElement.lang
+  }
+  return null
 }
 
-function validateTableAccessibility () {
-  // Implementation of validateTableAccessibility
-}
-
-function validateTableStructure () {
+function validateTableStructure() {
   // Implementation of validateTableStructure
 }
 
-function setSvgAttributes () {
+function setSvgAttributes() {
   // Implementation of setSvgAttributes
 }
 
-function validateLinkAccessibility () {
+function validateLinkAccessibility() {
   // Implementation of validateLinkAccessibility
 }
 
-function handleFakeLinks () {
+function handleFakeLinks() {
   // Implementation of handleFakeLinks
 }
 
-function addProperLandmarkRegions () {
+function addProperLandmarkRegions() {
   // Implementation of addProperLandmarkRegions
 }
 
-function fixFakeLink () {
+function fixFakeLink() {
+  // Fix 1 fake link issue
   // Implementation of fixFakeLink
 }
 
-function newExportFunction () {
+function newExportFunction() {
   // Implementation of the new export function
-  return 'newExportFunction executed'
-}
-
-function applyAccessibilityFixes (container) {
-  const fixes = {}
-
-  // Add lang attribute to HTML element if missing
-  const htmlEl = container.querySelector('html') || (container.ownerDocument && container.ownerDocument.querySelector('html'))
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en')
-    fixes.langAdded = true
-  }
-
-  // Add main landmark if missing
-  const mainElement = container.querySelector('main')
-  if (!mainElement) {
-    const body = container.querySelector('body')
-    if (body) {
-      const newMain = document.createElement('main')
-      while (body.firstChild) {
-        newMain.appendChild(body.firstChild)
-      }
-      body.appendChild(newMain)
-      fixes.mainLandmarkAdded = true
-    }
-  }
-
-  // Update the existing function using the new functions for rendering graph/index
-  renderDependencyGraphs(container)
-  fixButtonIdentifiers(container)
-  fixDependencyGraphAria(container)
-  addMainLandmarkToIndex(container)
-
-  // Fix landmark issues
-  validateLandmark(container)
-  validateLandmarkStructure(container)
-
-  // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg)
-    if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', accessibleName)
-      fixes.svgNamesAdded = (fixes.svgNamesAdded || 0) + 1
-    }
-  })
-
-  // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href])')
-  fakeLinks.forEach(link => {
-    link.setAttribute('href', '#' + (link.id || `link-${Date.now()}`))
-    link.setAttribute('role', 'link')
-    fixes.fakeLinksFixed = (fixes.fakeLinksFixed || 0) + 1
-  })
-
-  // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(container)
-  if (accessibilityReport && accessibilityReport.length > 0) {
-    console.log(`Accessibility report contains ${accessibilityReport.length} remaining issues`)
-  }
-
-  // Implement focus trap for keyboard navigation
-  handleFocusTrap(container)
-
-  if (fixes.langAdded) {
-    console.log('Lang attribute added to HTML element')
-  }
-
-  if (fixes.mainLandmarkAdded) {
-    console.log('Main landmark added')
-  }
-
-  // Check for new accessibility issues
-  const newAccessibilityIssues = main.checkAccessibility(container)
-  if (newAccessibilityIssues.length > 0) {
-    console.log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`)
-  }
-
-  const landmarkFixesCount = fixes.landmarksFixed || 0
-  if (landmarkFixesCount > 0) {
-    console.log(`Fixed ${landmarkFixesCount} unique landmarks`)
-  }
-
-  const svgFixes = fixes.svgNamesAdded || 0
-  if (svgFixes > 0) {
-    console.log(`Fixed accessible names for ${svgFixes} SVGs`)
-  }
-
-  const fakeLinkFixes = fixes.fakeLinksFixed || 0
-  if (fakeLinkFixes > 0) {
-    console.log(`Fixed fake link issues for ${fakeLinkFixes} elements`)
-  }
-
-  return fixes
+  // The function implementation should go here. It could look like this:
+  // return someCodeOrFunctionThatImplementsTheRequirement;
+  return 'newExportFunction executed';
 }
 
 // HTTP Server setup
@@ -479,6 +481,12 @@ if (require.main === module) {
 
 // Export modules for testing
 module.exports = {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  validateTableAccessibility,
   renderDependencyGraph,
   renderIndex,
   renderGraphIndex,
@@ -486,23 +494,21 @@ module.exports = {
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   checkLandmarks,
-  ensureUniqueLandmarksInDocument,
+  ensureUniqueLandmarks,
   handleFocusTrap,
   revokeSession,
   functionA,
   functionB,
-  // Additional exports from origin/main
-  detectAndSetLang,
+  // Exports from origin/main
   MyExport,
   AnotherExport,
   getLangAttribute,
-  validateTableAccessibility,
   validateTableStructure,
+  getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,
   handleFakeLinks,
   addProperLandmarkRegions,
   fixFakeLink,
-  newExportFunction,
-  applyAccessibilityFixes
+  newExportFunction
 }

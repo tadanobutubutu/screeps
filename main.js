@@ -170,5 +170,6 @@ export { existingFunction, personName };
 
     // Append the button to the body or a specific container
     document.body.appendChild(button);
+
     return button;
 }

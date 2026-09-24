@@ -254,7 +254,25 @@ export function getSvgAccessibleName(svgElement) {
   if (accessibleName) return accessibleName;
   
   // Check for aria-labelledby
-  const labelledBy = svgElement.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.getElementById(labelledBy);
-    return label
+  const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    const labelledElement = document.getElementById(ariaLabelledBy);
+    if (labelledElement) {
+      return labelledElement.textContent || labelledElement.value;
+    }
+  }
+  
+  // Check for title element
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement) {
+    return titleElement.textContent;
+  }
+  
+  // Check for alt text in images inside SVG
+  const imgElement = svgElement.querySelector('image');
+  if (imgElement && imgElement.getAttribute('alt')) {
+    return imgElement.getAttribute('alt');
+  }
+  
+  return null;
+}

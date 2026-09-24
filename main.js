@@ -1,4 +1,6 @@
-// main.js - Accessibility-focused implementation
+/**
+ * Main application entry point
+ */
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs,
 // count dependencies, address accessibility issues from insight report, handle new functionalities, check landmark elements, and handle credential response
@@ -8,7 +10,7 @@
 const http = require('http');
 const path = require('path');
 
-// TODO: Add exports for new functions if needed - UPDATED: Added exports below
+// TODO: This is the existing code that needs to be preserved
 
 // Application configuration
 const config = {
@@ -36,26 +38,14 @@ function startApp() {
   server.listen(config.port, () => {
     console.log(`Server running on port ${config.port}`);
   });
-  // Add the new function here
-  function newFunction() {
-    console.log("New function is called!");
-  }
   return server;
-}
-
-// New function as per the issue requirements
-function newFunction() {
-  // TODO: Implement the new function as per the issue requirements
-  // Placeholder implementation
-  return "New function executed";
 }
 
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config,
-  newFunction // Add the new function to the exports
+  config
 };
 
 // Start the application if run directly

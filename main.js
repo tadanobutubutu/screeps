@@ -121,14 +121,14 @@ function safeJsonParse (str, defaultValue) {
 }
 
 // Accessibility helper functions
-function handleKeyboardNavigation (options) {
-  if (options === undefined) options = {}
-  const onEnter = options.onEnter
-  const onEscape = options.onEscape
-  const onArrowUp = options.onArrowUp
-  const onArrowDown = options.onArrowDown
+function handleKeyboardNavigation(options) {
+  if (options === undefined) options = {};
+  var onEnter = options.onEnter;
+  var onEscape = options.onEscape;
+  var onArrowUp = options.onArrowUp;
+  var onArrowDown = options.onArrowDown;
 
-  return function (event) {
+  return function(event) {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event)
@@ -176,11 +176,11 @@ function trapFocus (container) {
     }
   }
 
-  container.addEventListener('keydown', handleTab)
+  container.addEventListener('keydown', handleTab);
 
-  return function () {
-    container.removeEventListener('keydown', handleTab)
-  }
+  return function() {
+    container.removeEventListener('keydown', handleTab);
+  };
 }
 
 // ARIA live region announcer
@@ -215,9 +215,9 @@ function getLangAttribute () {
 }
 
 // Ensure the HTML element has proper ARIA attributes including lang
-function ensureDependencyGraphARIA () {
-  const doc = getDocument()
-  const htmlElement = doc ? doc.querySelector('html') : null
+function ensureDependencyGraphARIA() {
+  var doc = getDocument();
+  var htmlElement = doc ? doc.querySelector('html') : null;
 
   if (!htmlElement) {
     return { lang: null, dir: null }
@@ -248,7 +248,7 @@ function addAccessibleNamesToSvg (container) {
     svgs[1].setAttribute('aria-label', 'Second SVG')
   }
 
-  svgs.forEach(function (svg, index) {
+  svgs.forEach(function(svg, index) {
     if (!svg.hasAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
       svg.setAttribute('aria-label', 'SVG element ' + (index + 1))
     }
@@ -550,41 +550,41 @@ if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', function () {
     window.accessibilityFeatures = initializeAccessibility()
     // Ensure ARIA attributes are properly set on the HTML element
-    ensureDependencyGraphARIA()
+    ensureDependencyGraphARIA();
 
     // Run accessibility fixes
-    addLangAttribute()
-    createInPageButton()
+    addLangAttribute();
+    createInPageButton();
 
     // Validate tables
-    const tables = document.querySelectorAll('table')
-    tables.forEach(function (table) {
-      validateTableAccessibility(table)
-      validateTableStructure(table)
-    })
+    var tables = document.querySelectorAll('table');
+    tables.forEach(function(table) {
+      validateTableAccessibility(table);
+      validateTableStructure(table);
+    });
 
     // Validate landmarks
-    validateLandmark()
-    validateLandmarkStructure()
-    ensureUniqueLandmarks()
+    validateLandmark();
+    validateLandmarkStructure();
+    ensureUniqueLandmarks();
 
     // Add accessible names to SVGs
-    const svgs = document.querySelectorAll('svg')
-    svgs.forEach(function (svg) {
-      const accessibleName = getSvgAccessibleName(svg)
-      setSvgAttributes(svg, accessibleName)
-    })
+    var svgs = document.querySelectorAll('svg');
+    svgs.forEach(function(svg) {
+      var accessibleName = getSvgAccessibleName(svg);
+      setSvgAttributes(svg, accessibleName);
+    });
 
     // Handle fake links
-    handleFakeLinks()
+    handleFakeLinks();
 
     // Ensure elements have IDs and ARIA labels
-    ensureElementHasId('myTable')
-    ensureElementHasId('mySvg')
-    ensureElementHasId('inPageButton')
-    addAriaLabelById('myTable', 'Product data table')
-    addAriaLabelById('mySvg', 'Company logo')
-    addAriaLabelById('inPageButton', 'Accessibility menu')
+    ensureElementHasId('myTable');
+    ensureElementHasId('mySvg');
+    ensureElementHasId('inPageButton');
+    addAriaLabelById('myTable', 'Product data table');
+    addAriaLabelById('mySvg', 'Company logo');
+    addAriaLabelById('inPageButton', 'Accessibility menu');
 
     // Fix button identifiers
     const buttons = document.querySelectorAll('button, [role="button"]')
@@ -592,7 +592,7 @@ if (typeof document !== 'undefined') {
       if (!button.id) {
         button.id = 'accessible-button-' + index
       }
-    })
+    });
 
     // Google sign-in accessibility
     const googleButton = document.querySelector('[data-google-signin]')

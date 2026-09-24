@@ -31,10 +31,11 @@ function addressAccessibilityIssues() {
   // ... any new code or functions requested in the issue ...
   addProperLandmarkRegions();
 
-  // New function to be added as per the issue
-  function capitalizeFirstLetter(text) {
-    return text.charAt(0).toUpperCase() + text.slice(1);
-  }
+  // TODO: This is the existing code that needs to be preserved
+  // Functions to ensure the element has an id, add aria-label, render dependency graphs
+  // (Previously existing code that needs to be preserved)
+  // _Commit: ddfa65a4c93ceea2f26a5eb8474ae526372f857b_
+  // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
   const buttons = document.querySelectorAll('button');
   buttons.forEach(button => {

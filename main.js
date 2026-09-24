@@ -22,7 +22,7 @@ const {
   validateAccessibilityReport,
   getSvgAccessibleName,
   getLangAttribute,
-  handleCredentialResponse: originHandleCredentialResponse,
+  handleCredentialResponse: handleCredentialResponseOriginal,
   ensureElementId,
   addAriaLabel,
   ensureElementHasId,
@@ -44,11 +44,11 @@ const {
   renderDependencyGraph,
   renderDependencyGraphAria,
   addMainLandmarkToIndex,
-  addressAccessibilityIssues: originAddressAccessibilityIssues,
+  addressAccessibilityIssues: addressAccessibilityIssuesOriginal,
   // New function to handle focus trap
   newFocusTrap: newMainFocusTrap,
   // New functions to address new accessibility issues from insight report
-  newAddressAccessibilityIssues: newAddressAccessibilityIssues
+  newAddressAccessibilityIssues: newAddressAccessibilityIssuesOriginal
 } = main;
 
 // Access the dependencyGraph container and ensure it has proper ARIA role

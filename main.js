@@ -14,6 +14,52 @@
 // todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
 
 /**
+ * Get the current lang attribute value of the HTML element
+ * @returns {string} The lang attribute value or empty string if not set
+ */
+function getLangAttribute() {
+  return document.documentElement.lang || '';
+}
+
+/**
+ * Get the full lang attribute including region subtag (e.g., 'en-US')
+ * @returns {string} The full lang attribute value or empty string if not set
+ */
+function getFullLangAttribute() {
+  const lang = document.documentElement.lang || '';
+  return lang || '';
+}
+
+/**
+ * Validate landmark roles on elements
+ */
+function validateLandmark() {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  const implicitRoles = {
+    header: 'banner',
+    nav: 'navigation',
+    main: 'main',
+    aside: 'complementary',
+    footer: 'contentinfo'
+  };
+
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, [role]');
+  landmarks.forEach(landmark => {
+    const tag = landmark.tagName ? landmark.tagName.toLowerCase() : '';
+    const role = landmark.getAttribute('role');
+    let effectiveRole = role;
+
+    if (!role && implicitRoles[tag]) {
+      effectiveRole = implicitRoles[tag];
+    }
+
+    if (effectiveRole && !landmarkRoles.includes(effectiveRole)) {
+      console.warn(`Invalid landmark role "${effectiveRole}" on element <${tag}>`);
+    }
+  });
+}
+
+/**
  * Main application entry point with accessibility features
  */
 

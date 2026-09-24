@@ -99,7 +99,7 @@ export function addLandmarkRegions() {
 }
 
 // Function to render graph/index using new functions
-function renderGraphIndex() {
+export function renderGraphIndex() {
   // JavaScript code to prepare data for the graph
   const data = prepareDataForGraph();
 
@@ -546,5 +546,57 @@ const a11yStore = {
     });
   },
 
-  // ... Existing functions from current main.js ...
+    buttons.forEach(button => {
+      // Check if button needs explicit role="button"
+      if (button.getAttribute('role') !== 'button') {
+        button.setAttribute('role', 'button');
+      }
+      // Check for accessible name for buttons
+      const hasText = button.textContent.trim().length > 0;
+      const hasAriaLabel = button.hasAttribute('aria-label');
+      const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
+
+      if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
+        console.error('Accessibility Error: Button without accessible name', button);
+      }
+    });
+  }
+
+  // Call the function to check accessibility
+  checkLinksAndButtons();
+}
+
+export { addressAccessibilityIssues };
+
+// Screeps module exports for game loop integration
+// Note: In an ES module, we can't use module.exports directly with require
+// These should be handled differently in a proper ES module setup
+import roleHarvester from 'role.harvester';
+import roleUpgrader from 'role.upgrader';
+
+// For CommonJS compatibility in Node.js, we would need to export these separately
+// But since we're in an ES module context, we'll export them as module exports
+export const getLangAttribute = function() {
+  // Implementation would go here
 };
+
+export const wrapPrimaryContentInMain = function() {
+  // Implementation would go here
+};
+
+export function loop() {
+    // Clear the memory of dead creeps
+    for(var name in Memory.creeps) {
+        if(!Game.creeps[name]) {
+            delete Memory.creeps[name];
+        }
+    }
+
+    // TODO: Add implementation details
+
+    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+
+    if(harvesters.length < 2) {
+        var newName = 'Harvester' + Game.time;
+        Game.sp

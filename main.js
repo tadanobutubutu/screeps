@@ -10,7 +10,23 @@
 
 // Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
-const main = require('./utilities')
+const main = require('./utilities');
+
+// Import necessary dependencies
+import React from 'react';
+import { render } from 'react-dom';
+import {
+  googleSignIn,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs,
+  createInPageButton
+} from './AccessibilityHelpers';
+
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
 
 const {
   createInPageButton,

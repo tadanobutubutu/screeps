@@ -343,41 +343,63 @@ function processData(data) {
   return result;
 }
 
-const exportUtils = {};
-
-function getLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.getAttribute('lang') || 'en';
+function getLangAttribute(element) {
+  if (element && typeof element.getAttribute === 'function') {
+    return element.getAttribute('lang') || (typeof document !== 'undefined' && document.documentElement ? document.documentElement.getAttribute('lang') : 'en');
   }
-  return 'en';
+  return (typeof document !== 'undefined' && document.documentElement ? document.documentElement.getAttribute('lang') : 'en') || 'en';
 }
 
-function personName(name) {
-  if (!name) return '';
-  const lang = getLangAttribute();
-  return typeof name === 'string' ? `<span lang="${lang}">${name}</span>` : name;
+function createInPageButton(label, targetId) {
+  if (typeof document === 'undefined') return null;
+  const btn = document.createElement('button');
+  btn.textContent = label || 'In-page link';
+  btn.setAttribute('type', 'button');
+  btn.setAttribute('aria-label', label || 'Navigate to section');
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.setAttribute('tabindex', '-1');
+      target.focus();
+    }
+  });
+  return btn;
 }
 
-function validateTableAccessibility(element) {
-  if (!element || element.tagName !== 'TABLE') return false;
-  return !!element.querySelector('caption') || element.querySelectorAll('th').length > 0;
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  if (typeof table.querySelector === 'function') {
+    return !!(table.querySelector('caption') || table.getAttribute('aria-label') || table.getAttribute('aria-labelledby') || table.getAttribute('summary'));
+  }
+  return false;
 }
 
-function validateTableStructure(element) {
-  if (!element || element.tagName !== 'TABLE') return false;
-  return element.querySelectorAll('tr').length > 0;
+function validateTableStructure(table) {
+  if (!table) return false;
+  if (typeof table.querySelector === 'function') {
+    return !!(table.querySelector('thead') && table.querySelector('tbody'));
+  }
+  return false;
 }
 
 function validateLandmark(element) {
   if (!element) return false;
-  const role = element.getAttribute ? element.getAttribute('role') : null;
-  const validLandmarks = ['banner', 'navigation', 'main', 'region', 'contentinfo', 'form', 'search', 'application', 'complementary'];
-  return validLandmarks.includes(role);
+  const role = (element.getAttribute && element.getAttribute('role')) || null;
+  const tag = (element.tagName && element.tagName.toLowerCase()) || '';
+  const validRoles = ['banner', 'navigation', 'main', 'search', 'contentinfo', 'complementary', 'region'];
+  if (validRoles.indexOf(role) !== -1) return true;
+  if (['header', 'footer', 'main', 'aside', 'nav', 'section'].indexOf(tag) !== -1) return true;
+  return false;
 }
 
 function validateLandmarkStructure(element) {
   if (!element) return false;
-  return !!(element.children && element.children.length >= 0);
+  const role = (element.getAttribute && element.getAttribute('role')) || null;
+  if (role === 'region' || role === 'navigation' || role === 'complementary') {
+    const labeled = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || (element.id ? true : false);
+    return !!labeled;
+  }
+  return true;
 }
 
 function getSvgAccessibleName(svg) {
@@ -386,69 +408,128 @@ function getSvgAccessibleName(svg) {
     const title = svg.querySelector('title');
     if (title && title.textContent) return title.textContent.trim();
   }
-  return (svg.getAttribute ? (svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '') : '');
+  return (svg.getAttribute && (svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.getAttribute('title'))) || '';
 }
 
-function createInPageButton(element) {
-  if (!element) return element;
-  if (element.tagName === 'A') {
-    const href = element.getAttribute ? element.getAttribute('href') : '';
-    if (href === '#' || href === 'javascript:void(0)') {
-      try {
-        const button = typeof document !== 'undefined' ? document.createElement('button') : {};
-        button.innerHTML = element.innerHTML;
-        button.className = element.className;
-        if (element.attributes) {
-          for (let i = 0; i < element.attributes.length; i++) {
-            const attr = element.attributes[i];
-            if (attr.name !== 'href') button.setAttribute(attr.name, attr.value);
-          }
-        }
-        if (element.parentNode && element.parentNode.replaceChild) {
-          element.parentNode.replaceChild(button, element);
-        }
-        return button;
-      } catch (e) {
-        return element;
-      }
+function setSvgAttributes(svg, accessibleName) {
+  if (!svg) return;
+  if (svg.setAttribute) {
+    svg.setAttribute('role', 'img');
+    if (accessibleName) svg.setAttribute('aria-label', accessibleName);
+  }
+  if (accessibleName && svg.querySelector && !svg.querySelector('title')) {
+    if (typeof document !== 'undefined') {
+      const title = document.createElement('title');
+      title.textContent = accessibleName;
+      svg.insertBefore(title, svg.firstChild);
     }
   }
-  return element;
 }
 
-function initAccessibility() {
-  if (typeof document !== 'undefined' && accessibilityUtils && typeof accessibilityUtils.initSkipLink === 'function') {
-    accessibilityUtils.initSkipLink();
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') return;
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="search"], [role="contentinfo"], [role="complementary"], [role="region"], header, footer, nav, main, aside, section');
+  const seen = {};
+  landmarks.forEach(el => {
+    const label = (el.getAttribute && el.getAttribute('aria-label')) || el.id || (el.tagName ? el.tagName.toLowerCase() : 'landmark');
+    if (seen[label]) {
+      const newLabel = label + '-unique';
+      if (el.setAttribute) el.setAttribute('aria-label', newLabel);
+      seen[newLabel] = true;
+    } else {
+      seen[label] = true;
+    }
+  });
+}
+
+function validateLinkAccessibility(link) {
+  if (!link) return false;
+  const href = link.getAttribute ? link.getAttribute('href') : null;
+  if (!href || href === '#' || href.indexOf('#') === 0) return false;
+  const text = link.textContent || '';
+  const labeled = link.getAttribute ? (link.getAttribute('aria-label') || link.getAttribute('aria-labelledby')) : null;
+  return !!(text.trim() || labeled);
+}
+
+function handleFakeLinks() {
+  if (typeof document === 'undefined') return;
+  const links = document.querySelectorAll('a[href="#"], a:not([href])');
+  links.forEach(link => {
+    if (link.setAttribute) link.setAttribute('role', 'button');
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute ? link.getAttribute('href') : null;
+      if (href === '#') e.preventDefault();
+    });
+  });
+}
+
+function addProperLandmarkRegions() {
+  if (typeof document === 'undefined') return;
+  const header = document.querySelector('header');
+  if (header && header.setAttribute && !header.getAttribute('role')) header.setAttribute('role', 'banner');
+  const footer = document.querySelector('footer');
+  if (footer && footer.setAttribute && !footer.getAttribute('role')) footer.setAttribute('role', 'contentinfo');
+  const main = document.querySelector('main');
+  if (main && main.setAttribute && !main.getAttribute('role')) main.setAttribute('role', 'main');
+  const navs = document.querySelectorAll('nav');
+  navs.forEach(n => {
+    if (n.setAttribute && !n.getAttribute('role')) n.setAttribute('role', 'navigation');
+  });
+}
+
+function personName(first, last) {
+  return (first || '') + (last ? ' ' + last : '');
+}
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.getAttribute('lang') || 'en';
   }
-}
 
-function sanitizeFilename(filename) {
-  if (typeof filename !== 'string') return '';
-  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
-}
+  const processValue = (val) => {
+    if (typeof val === 'string') {
+      if (trimWhitespace) val = val.trim();
+      if (uppercase) val = val.toUpperCase();
+      if (maxLength !== null && val.length > maxLength) val = val.slice(0, maxLength);
+    }
+    return val;
+  };
 
-function readFileSafe(path) {
-  return null;
-}
-
-function processData(data) {
-  return data;
-}
-
-function filterValidItems(items) {
-  if (!Array.isArray(items)) return [];
-  return items.filter(i => i !== null && i !== undefined);
-}
-
-function groupByCategory(items) {
-  const result = {};
-  if (!Array.isArray(items)) return result;
-  for (const item of items) {
-    const cat = item && item.category ? item.category : 'uncategorized';
-    if (!result[cat]) result[cat] = [];
-    result[cat].push(item);
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => {
+      if (item && typeof item === 'object') {
+        const newItem = preserveKeys ? { ...item } : {};
+        for (const k in item) {
+          if (Object.prototype.hasOwnProperty.call(item, k)) {
+            newItem[k] = processValue(item[k]);
+          }
+        }
+        return newItem;
+      }
+      return processValue(item);
+    });
   }
-  return result;
+
+  if (inputData && typeof inputData === 'object') {
+    const result = preserveKeys ? { ...inputData } : {};
+    for (const k in inputData) {
+      if (Object.prototype.hasOwnProperty.call(inputData, k)) {
+        result[k] = processValue(inputData[k]);
+      }
+    }
+    return result;
+  }
+
+  return processValue(inputData);
 }
 
 // Initialize on DOM ready
@@ -482,6 +563,17 @@ module.exports = {
   processData,
   filterValidItems,
   groupByCategory,
-  functionA,
-  functionB
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  personName
 };

@@ -16,35 +16,6 @@ function newFunction() {
   // Implementation details go here
 }
 
-// New function as per the issue request
-function newFunction() {
-  // New function implementation
-}
-
-// New function added as per the issue
-// (This comment remains as-is)
-
-// New function as per the issue request
-function newFunction() {
-  // New function implementation
-}
-
-// New function added as per the issue
-// (This comment remains as-is)
-
-// New function as per the issue request
-function newFunction() {
-  // New function implementation
-}
-
-// New function added as per the issue
-// (This comment remains as-is)
-
-// New function as per the issue request
-function newFunction() {
-  // New function implementation
-}
-
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -53,7 +24,7 @@ function newFunction() {
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Google sign-in logic (DONE: googleSignIn)
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: fixDependencyGraphAccessibility)
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphContainer)
 
 // TODO: This is the existing code that needs to be preserved
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
@@ -73,7 +44,7 @@ function newFunction() {
  */
 function addLangAttribute(doc, lang = 'en') {
   const html = doc.documentElement;
-  if (html && !html.hasAttribute('lang')) {
+  if (html) {
     html.setAttribute('lang', lang);
   }
   return html;
@@ -92,8 +63,9 @@ function fixTableStructure(doc) {
       if (firstRow) {
         const thead = doc.createElement('thead');
         const tbody = table.querySelector('tbody') || doc.createElement('tbody');
-        thead.appendChild(firstRow.cloneNode(true));
-        table.insertBefore(thead, tbody || table.firstChild);
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, tbody);
+        table.insertBefore(tbody, table.lastChild);
         firstRow.remove();
       }
     }
@@ -119,7 +91,7 @@ function addMainLandmark(doc) {
       body.appendChild(main);
     }
   }
-  return existingMain || doc.querySelector('main, [role="main"]');
+  return doc.querySelector('main, [role="main"]');
 }
 
 /**
@@ -131,7 +103,8 @@ function addLandmarkRegions(doc) {
   landmarks.forEach((landmark) => {
     const elements = doc.querySelectorAll(landmark);
     elements.forEach((el) => {
-      if (!el.getAttribute('role') && el.tagName.toLowerCase() !== landmark) {
+      const tagName = el.tagName.toLowerCase();
+      if (!el.getAttribute('role') && tagName !== landmark) {
         el.setAttribute('role', landmark);
       }
     });
@@ -199,10 +172,18 @@ function addSvgAccessibleNames(svg, name) {
   }
 }
 
-// New function or change requested in the issue
-export function newExportedFunction() {
-  // Implementation of the new function
-  return 'This is the new exported function';
+/**
+ * Add accessible names to all SVGs in the document
+ * @param {Document} doc - The document object
+ */
+function addAccessibleNamesToSVGs(doc) {
+  const svgs = doc.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (svg && !svg.getAttribute('aria-label')) {
+      addSvgAccessibleNames(svg, `SVG Icon ${index + 1}`);
+    }
+  });
+  return svgs.length;
 }
 
 /**
@@ -210,12 +191,12 @@ export function newExportedFunction() {
  * @param {Document} doc - The document object
  */
 function fixFakeLinkIssues(doc) {
-  const links = doc.querySelectorAll('a[href="#"], a:not([href])');
+  const links = doc.querySelectorAll('a[href=""], a:not([href])');
   links.forEach((link) => {
     const onclick = link.getAttribute('onclick');
     const role = link.getAttribute('role');
     // If it's a fake link (using onclick as navigation), add button role or make it a button
-    if ((onclick || role === 'link') && !link.getAttribute('href')) {
+    if ((onclick && onclick.includes('location')) || role === 'link') {
       // Convert to button if appropriate
       link.setAttribute('role', 'button');
     }
@@ -229,7 +210,8 @@ function fixFakeLinkIssues(doc) {
  */
 function fixFakeLinkIssue(link) {
   if (link && link.tagName && link.tagName.toLowerCase() === 'a') {
-    if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
+    const href = link.getAttribute('href');
+    if (href === '#' || href === '') {
       link.setAttribute('role', 'button');
     }
   }
@@ -274,7 +256,7 @@ function googleSignIn(options = {}) {
  */
 function fixButtonIdentifiers(doc) {
   // Fix any buttons with generic 'my-button' id
-  const buttons = doc.querySelectorAll('button#my-button, [id="my-button"]');
+  const buttons = doc.querySelectorAll('button, [role="button"]');
   buttons.forEach((button, index) => {
     const newId = `action-button-${index + 1}`;
     button.setAttribute('id', newId);
@@ -291,7 +273,7 @@ function fixButtonIdentifiers(doc) {
  * @param {Document} doc - The document object
  * @returns {Element|null} The dependencyGraph container with ARIA role
  */
-function ensureDependencyGraphAriaRole(doc) {
+function ensureDependencyGraphContainer(doc) {
   const container = doc.querySelector('.dependency-graph, [data-graph]');
   if (container) {
     if (!container.getAttribute('role')) {
@@ -341,8 +323,6 @@ export {
   fixFakeLinkIssue,
   googleSignIn,
   fixButtonIdentifiers,
-  ensureDependencyGraphAriaRole,
-  fixDependencyGraphAccessibility,
-  newExportedFunction,
+  ensureDependencyGraphContainer,
   newFunction
 };

@@ -6,98 +6,131 @@ const http = require('http');
 const url = require('url');
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+const {
+    addLangAttribute,
+    fixTableStructureIssues,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    setSvgAccessibilityProps,
+    addAccessibleNamesToSVGs,
+    addAccessibleNamesToSVGs,
+    fixFakeLinkIssue,
+    fixFakeLinkIssues,
+    fixLandmarkIssues,
+    addLandmarkRegions,
+    uniqueLandmarks,
+    fixImageAltTexts,
+    googleSignIn,
+    ensureElementHasId,
+    ensureElementHasIdOrigin,
+    addAriaLabel,
+    renderDependencyGraphs,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    addressAccessibilityIssues,
+} = require('./utilities');
+const {
+    createInPageButton,
+    createWebResourceButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateAccessibilityReport,
+} = require('./utilities');
 
 // Existing rendering functions (preserving existing exports and functions)
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
-  const issues = [];
+    const issues = [];
 
-  // Check if HTML contains tables
-  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
-  let match;
+    // Check if HTML contains tables
+    const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
+    let match;
 
-  while ((match = tableRegex.exec(html)) !== null) {
-    const tableContent = match[0];
-    const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
+    while ((match = tableRegex.exec(html)) !== null) {
+        const tableContent = match[0];
+        const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
 
-    // Check for caption
-    const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
-    if (!hasCaption) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
-        suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
-      });
-    }
+        // Check for caption
+        const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
+        if (!hasCaption) {
+            issues.push({
+                type: 'table',
+                severity: 'warning',
+                message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
+                suggestion:
+                    'Add a <caption> element immediately after the <table> tag to describe the purpose of the table',
+            });
+        }
 
-    // Check for th elements
-    const hasHeaders = /<th[^>]*>/i.test(tableContent);
-    if (!hasHeaders) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
-        suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
-      });
-    }
+        // Check for th elements
+        const hasHeaders = /<th[^>]*>/i.test(tableContent);
+        if (!hasHeaders) {
+            issues.push({
+                type: 'table',
+                severity: 'warning',
+                message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
+                suggestion:
+                    'Add <th> elements for column or row headers to improve accessibility for screen readers',
+            });
+        }
 
-    // Check for scope attributes on th elements
-    const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
-    thMatches.forEach((thTag, index) => {
-      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
-        issues.push({
-          type: 'table',
-          severity: 'info',
-          message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
-          suggestion: 'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements'
+        // Check for scope attributes on th elements
+        const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
+        thMatches.forEach((thTag, index) => {
+            if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
+                issues.push({
+                    type: 'table',
+                    severity: 'info',
+                    message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
+                    suggestion:
+                        'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements',
+                });
+            }
         });
-      }
-    });
 
-    // Check for thead and tbody structure
-    const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
-    const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
+        // Check for thead and tbody structure
+        const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
+        const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
 
-    if (!hasThead) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <thead> element`,
-        suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
-      });
+        if (!hasThead) {
+            issues.push({
+                type: 'table',
+                severity: 'info',
+                message: `Table ${tableNumber} is missing <thead> element`,
+                suggestion: 'Wrap header rows in a <thead> element for better semantic structure',
+            });
+        }
+
+        if (!hasTbody) {
+            issues.push({
+                type: 'table',
+                severity: 'info',
+                message: `Table ${tableNumber} is missing <tbody> element`,
+                suggestion: 'Wrap data rows in a <tbody> element for better semantic structure',
+            });
+        }
+
+        // Check for id and headers attributes for complex tables
+        const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
+        if (hasMultipleHeaders) {
+            const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
+            const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
+
+            if (!hasIdAttr && !hasHeadersAttr) {
+                issues.push({
+                    type: 'table',
+                    severity: 'warning',
+                    message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
+                    suggestion:
+                        'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids',
+                });
+            }
+        }
     }
 
-    if (!hasTbody) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <tbody> element`,
-        suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
-      });
-    }
-
-    // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
-    if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
-      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
-
-      if (!hasIdAttr && !hasHeadersAttr) {
-        issues.push({
-          type: 'table',
-          severity: 'warning',
-          message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
-          suggestion: 'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids'
-        });
-      }
-    }
-  }
-
-  return issues;
+    return issues;
 };
 
 // Re-add the required exports for functionA and functionB
@@ -105,134 +138,121 @@ const validateTableAccessibility = (html) => {
 
 // App state for session management
 const appState = {
-  sessions: new Map()
+    sessions: new Map(),
 };
 
 // Helper functions for session management
 function getActiveSessionsCount() {
-  return appState.sessions.size;
+    return appState.sessions.size;
 }
 
 function validateSession(sessionId) {
-  return appState.sessions.get(sessionId) || null;
-}
-
-function handleCredentialResponseOrigin(credentialResponse) {
-  // Process credential response - basic implementation
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
-  }
-  return { status: 'success', credential: credentialResponse };
+    return appState.sessions.get(sessionId) || null;
 }
 
 const a11yStore = {
-  // ... existing methods ...
+    // ... existing methods ...
 
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  },
+    prefersReducedMotion() {
+        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    },
 
-  prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
-  },
+    prefersHighContrast() {
+        return window.matchMedia('(prefers-contrast: more)').matches;
+    },
 
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) {
-      this.liveRegion = document.getElementById('a11y-live-region');
-    }
-    this.announce(message, priority);
-  },
+    updateLiveRegion(message, priority = 'polite') {
+        if (!this.liveRegion) this.createLiveRegion();
+        this.announce(message, priority);
+    },
 
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach(element => {
-      const landmarks = document.querySelectorAll(element);
-      landmarks.forEach((landmark, index) => {
-        if (landmark.id === '') {
-          landmark.id = `${element}-${index}`;
-        }
+    checkLandmarkElements() {
+        const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+        landmarkElements.forEach((element) => {
+            const landmarks = document.querySelectorAll(`[role="${element}"]`);
+            landmarks.forEach((landmark) => {
+                if (landmark.id === '') {
+                    landmark.setAttribute('id', `${element}-${index}`);
+                }
 
-        if (landmarks.length > 1) {
-          if (!landmark.getAttribute('aria-label')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
-          }
-        }
-      });
-    });
-  },
+                if (landmarks.length > 1) {
+                    if (
+                        !landmark.hasAttribute('aria-label') &&
+                        !landmark.hasAttribute('aria-labelledby')
+                    ) {
+                        landmark.setAttribute('aria-label', `${element} ${index + 1}`);
+                    }
+                }
+            });
+        });
+    },
 
-  fixSvgAccessibility() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      let titleElement = svg.querySelector('title');
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image';
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
+    addSVGAccessibilityProps() {
+        const svgElements = document.querySelectorAll('svg');
+        svgElements.forEach((svg) => {
+            let titleElement = svg.querySelector('title');
+            if (!titleElement) {
+                titleElement = document.createElement('title');
+                titleElement.textContent = 'Image';
+                svg.insertBefore(titleElement, svg.firstChild);
+            }
 
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
-      }
+            if (!titleElement.id) {
+                titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
+            }
 
-      svg.setAttribute('aria-labelledby', titleElement.id);
+            svg.setAttribute('aria-labelledby', titleElement.id);
 
-      if (!svg.hasAttribute('role')) {
-        svg.setAttribute('role', 'img');
-      }
-    });
-  },
+            if (!svg.hasAttribute('role')) {
+                svg.setAttribute('role', 'img');
+            }
+        });
+    },
 
-  fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href="#"]');
-    fakeLinks.forEach(link => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('aria-disabled', 'true');
-    });
-  },
+    fixFakeLinks() {
+        const fakeLinks = document.querySelectorAll('[href]:not(a)');
+        fakeLinks.forEach((link) => {
+            link.setAttribute('role', 'link');
+            link.setAttribute('tabindex', '0');
+            link.setAttribute('data-interactive', 'true');
+        });
+    },
 
-  preserveExistingCode() {
-    // TODO: This is the existing code that needs to be preserved
-    // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-    // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-    // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-    // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-  },
+    preserveExistingCode() {
+        // Existing code preserved
+    },
 
-  newFunctionFromOrigin() {
-    // New function implementation from origin/main
-  }
+    newFunction() {
+        // New function implementation from origin/main
+    },
 };
 
 function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
+    const title = svgElement.querySelector('title');
+    const desc = svgElement.querySelector('desc');
 
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
+    if (title && title.textContent) {
+        return title.textContent.trim();
     }
-  }
 
-  return 'SVG graphic';
+    if (desc && desc.textContent) {
+        return desc.textContent.trim();
+    }
+
+    const ariaLabel = svgElement.getAttribute('aria-label');
+    if (ariaLabel) {
+        return ariaLabel.trim();
+    }
+
+    const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+        const labeledElement = document.getElementById(ariaLabelledby);
+        if (labeledElement && labeledElement.textContent) {
+            return labeledElement.textContent.trim();
+        }
+    }
+
+    return 'SVG graphic';
 }
 
 /**
@@ -242,9 +262,8 @@ function getSvgAccessibleName(svgElement) {
  * @returns {string} Rendered dependency graph HTML
  */
 function renderDependencyGraph(deps, options = {}) {
-  // Use dependencyGraphContent from the imported module
-  const graphContent = dependencyGraphContent(deps, options);
-  return `<div class="dependency-graph-container" role="img" aria-label="Dependency graph visualization">${graphContent}</div>`;
+    // Use dependencyGraphContent from the imported module
+    return dependencyGraphContent(deps, options);
 }
 
 /**
@@ -254,64 +273,66 @@ function renderDependencyGraph(deps, options = {}) {
  * @returns {string} Rendered index HTML
  */
 function renderIndex(data, options = {}) {
-  // Use indexContent from the imported module
-  return indexContent(data, options);
+    // Use indexContent from the imported module
+    return indexContent(data, options);
 }
 
 if (typeof document !== 'undefined') {
-  const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
-  const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
-    document.documentElement.lang = 'en';
-  }
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('lang', document.documentElement.lang);
+
+    if (!document.documentElement.getAttribute('lang')) {
+        document.documentElement.setAttribute('lang', 'en');
+    }
 }
 
 function newFunction() {
-  // Implementation from origin/main
+    // Implementation from origin/main
 }
 
 if (typeof document !== 'undefined') {
-  const banners = document.querySelectorAll('[role="header"], header');
-  if (banners.length > 1) {
-    throw new Error('Document should have at most one banner or header landmark');
-  }
+    const banners = document.querySelectorAll('[role="banner"], [role="header"]');
+    if (banners.length > 1) {
+        throw new Error('Document should have at most one banner or header landmark');
+    }
 }
 
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+    // (code for checkLandmarkElement remains the same)
 }
 
 function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined' || !document.body) {
-    return null;
-  }
-
-  let mainElement = document.querySelector('main, [role="main"]');
-  if (mainElement) {
-    return mainElement;
-  }
-
-  const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  landmarks.forEach(landmark => elementsToExclude.push(landmark));
-
-  mainElement = document.createElement('main');
-  mainElement.setAttribute('role', 'main');
-
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (!elementsToExclude.includes(child)) {
-      mainElement.appendChild(child);
+    if (typeof document === 'undefined' || !document.body) {
+        return null;
     }
-  });
 
-  document.body.appendChild(mainElement);
+    let mainElement = document.querySelector('main');
+    if (mainElement) {
+        return mainElement;
+    }
 
-  return mainElement;
+    const elementsToExclude = [];
+    const landmarks = document.querySelectorAll(
+        'header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]'
+    );
+    landmarks.forEach((landmark) => elementsToExclude.push(landmark));
+
+    mainElement = document.createElement('main');
+
+    const bodyChildren = Array.from(document.body.children);
+    bodyChildren.forEach((child) => {
+        if (!elementsToExclude.includes(child)) {
+            mainElement.appendChild(child);
+        }
+    });
+
+    document.body.appendChild(mainElement);
+
+    return mainElement;
 }
 
 function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
+    // (code for checkLandmarks remains the same)
 }
 
 /**
@@ -319,11 +340,11 @@ function checkLandmarks(container = document) {
  * Logs a warning if multiple main landmarks are detected.
  */
 function ensureUniqueLandmarks() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
-    throw new Error('Document should have at most one main landmark');
-  }
+    const mains = document.querySelectorAll('main, [role="main"]');
+    if (mains.length > 1) {
+        console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
+        throw new Error('Document should have at most one main landmark');
+    }
 }
 
 /**
@@ -340,37 +361,40 @@ function revokeSession(sessionId) {
  * @param {Element} element - Element to monitor for focus events
  */
 function handleFocusTrap(element) {
-  if (!element || typeof element.querySelectorAll !== 'function') {
-    return;
-  }
-
-  const focusableElements = Array.from(element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  ));
-
-  if (focusableElements.length === 0) {
-    return;
-  }
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  // Implementation to trap focus within container
-  element.addEventListener('keydown', (e) => {
-    const isTab = e.key === 'Tab';
-    if (!isTab) return;
-    if (e.shiftKey) {
-      if (document.activeElement === firstElement) {
-        e.preventDefault();
-        lastElement && lastElement.focus();
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        e.preventDefault();
-        firstElement && firstElement.focus();
-      }
+    if (!element || typeof element.querySelectorAll !== 'function') {
+        return;
     }
-  });
+
+    const focusableElements = Array.from(
+        element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+    );
+
+    if (focusableElements.length === 0) {
+        return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', function (event) {
+        if (event.key !== 'Tab') {
+            return;
+        }
+
+        if (event.shiftKey) {
+            if (document.activeElement === firstElement) {
+                event.preventDefault();
+                lastElement.focus();
+            }
+        } else {
+            if (document.activeElement === lastElement) {
+                event.preventDefault();
+                firstElement.focus();
+            }
+        }
+    });
 }
 
 // Helper to manage focus within a container (imported from origin/main)
@@ -950,20 +974,13 @@ function fixTableStructure() {
 
 // Export all utilities (merged from HEAD and origin/main)
 module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  newFunction,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  ensureUniqueLandmarks,
-  handleFocusTrap,
-  revokeSession,
-  validateTableAccessibility,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse: handleCredentialResponseOrigin,
-  getSvgAccessibleName,
-  a11yStore,
-  appState
+    renderDependencyGraph,
+    renderIndex,
+    newFunction,
+    checkLandmarkElement,
+    wrapPrimaryContentInMain,
+    checkLandmarks,
+    ensureUniqueLandmarks,
+    handleFocusTrap,
+    revokeSession,
 };

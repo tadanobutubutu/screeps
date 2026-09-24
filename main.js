@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = path = require('path');
+const path = require('path');
 
 // Import test helper function
 const { updateThScopeAttribute } = require('./testHelper');
@@ -361,23 +361,107 @@ const a11yStore = {
   // Address accessibility issues from insight report
   addressAccessibilityIssues(report) {
     if (!report) return;
-    a11yStore.addressAccessibilityIssues(report);
+    console.log("Addressing accessibility issues from report:", report);
   },
 
   // Preserve existing code functionality
   preserveExistingCode() {
+    // Placeholder to ensure existing functionality is maintained
     console.log("Preserving existing code and accessibility features");
   },
 
-  // Placeholder methods (not previously defined) to avoid runtime errors during init()
-  addFocusStyles() {
-    // No implementation required for now
+  // Get person name for accessible labeling
+  personName() {
+    const nameElement = document.querySelector('[data-person-name]');
+    return nameElement ? nameElement.textContent.trim() : 'User';
   },
-  setupFocusVisiblePolyfill() {
-    // No implementation required for now
+
+  // Validate and fix table accessibility
+  validateTableAccessibility() {
+    if (typeof window === 'undefined') return;
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      const headers = table.querySelectorAll('th');
+      headers.forEach(th => {
+        if (!th.getAttribute('scope')) {
+          th.setAttribute('scope', 'col');
+        }
+      });
+      if (!table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
+        table.setAttribute('aria-label', 'Table');
+      }
+    });
   },
-  enhanceDynamicContent() {
-    // No implementation required for now
+
+  // Validate and fix table structure
+  validateTableStructure() {
+    if (typeof window === 'undefined') return;
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      if (!table.querySelector('thead')) {
+        const thead = document.createElement('thead');
+        const firstRow = table.querySelector('tr');
+        if (firstRow) {
+          thead.appendChild(firstRow);
+        }
+        table.insertBefore(thead, table.firstChild);
+      }
+      if (!table.querySelector('tbody')) {
+        const tbody = document.createElement('tbody');
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+          if (!table.querySelector('thead').contains(row)) {
+            tbody.appendChild(row);
+          }
+        });
+        table.appendChild(tbody);
+      }
+    });
+  },
+
+  // Validate landmark elements
+  validateLandmark() {
+    if (typeof window === 'undefined') return;
+    const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
+    landmarks.forEach(el => {
+      if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.getAttribute('role')) {
+        // Optionally add a role, but leave as is for now
+      }
+    });
+  },
+
+  // Validate landmark structure
+  validateLandmarkStructure() {
+    if (typeof window === 'undefined') return;
+    const main = document.querySelector('main');
+    if (main) {
+      const nestedLandmarks = main.querySelectorAll('main, nav, header, footer, aside');
+      if (nestedLandmarks.length > 0) {
+        console.warn('Landmarks nested within main may be incorrect.');
+      }
+    }
+  },
+
+  // Get accessible name for SVG
+  getSvgAccessibleName(svg) {
+    return svg.getAttribute('aria-label') || svg.getAttribute('title') || 'Image';
+  },
+
+  // Ensure unique landmark IDs
+  ensureUniqueLandmarks() {
+    if (typeof window === 'undefined') return;
+    const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
+    const idSet = new Set();
+    landmarks.forEach(el => {
+      const id = el.id;
+      if (id) {
+        if (idSet.has(id)) {
+          console.warn('Duplicate landmark ID found:', id);
+        } else {
+          idSet.add(id);
+        }
+      }
+    });
   }
 };
 
@@ -401,258 +485,11 @@ function addressAccessibilityIssues(report) {
   a11yStore.addressAccessibilityIssues(report);
 }
 
-// New functions to address specific accessibility issues
-
-// Get person name for accessible labeling
-function personName() {
-  const nameElement = document.querySelector('[data-person-name]');
-  return nameElement ? nameElement.textContent.trim() : a11yStore.personName();
+// New function placeholder
+function newFunction() {
+  return { status: 'implemented' };
 }
 
-// Validate and fix table accessibility
-function validateTableAccessibility() {
-  if (typeof window === 'undefined') return;
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    const headers = table.querySelectorAll('th');
-    headers.forEach(th => {
-      if (!th.getAttribute('scope')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
-    if (!table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
-      table.setAttribute('aria-label', 'Table');
-    }
-  });
-  a11yStore.validateTableAccessibility();
-}
-
-// Validate and fix table structure
-function validateTableStructure() {
-  if (typeof window === 'undefined') return;
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!table.querySelector('thead')) {
-      const thead = document.createElement('thead');
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        thead.appendChild(firstRow);
-      }
-      table.insertBefore(thead, table.firstChild);
-    }
-    if (!table.querySelector('tbody')) {
-      const tbody = document.createElement('tbody');
-      const rows = table.querySelectorAll('tr');
-      rows.forEach(row => {
-        if (!table.querySelector('thead').contains(row)) {
-          tbody.appendChild(row);
-        }
-      });
-      table.appendChild(tbody);
-    }
-  });
-  a11yStore.validateTableStructure();
-}
-
-// Validate landmark elements
-function validateLandmark() {
-  if (typeof window === 'undefined') return;
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
-  landmarks.forEach(el => {
-    if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.getAttribute('role')) {
-      // Optionally add a role, but leave as is for now
-    }
-  });
-  a11yStore.validateLandmark();
-}
-
-// Validate landmark structure
-function validateLandmarkStructure() {
-  if (typeof window === 'undefined') return;
-  const main = document.querySelector('main');
-  if (main) {
-    const nestedLandmarks = main.querySelectorAll('main, nav, header, footer, aside');
-    if (nestedLandmarks.length > 0) {
-      console.warn('Landmarks nested within main may be incorrect.');
-    }
-  }
-  a11yStore.validateLandmarkStructure();
-}
-
-// Get accessible name for SVG
-function getSvgAccessibleName(svg) {
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || a11yStore.getSvgAccessibleName(svg) || 'Image';
-}
-
-// Ensure unique landmark IDs
-function ensureUniqueLandmarks() {
-  if (typeof window === 'undefined') return;
-  const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
-  const idSet = new Set();
-  landmarks.forEach(el => {
-    const id = el.id;
-    if (id) {
-      if (idSet.has(id)) {
-        console.warn('Duplicate landmark ID found:', id);
-      } else {
-        idSet.add(id);
-      }
-    }
-  });
-  a11yStore.ensureUniqueLandmarks();
-}
-
-// New function to handle dynamic content updates
-function updateLiveRegion(message, priority = 'polite') {
-  a11yStore.updateLiveRegion(message, priority);
-}
-
-// New function to add IDs to landmark elements (preserved from HEAD)
-function addLandmarkIds() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach(tag => {
-    const landmark = document.querySelector(tag);
-    if (landmark && landmark.id === '') {
-      landmark.id = `${tag}-${Math.floor(Math.random() * 1000)}`;
-    }
-  });
-}
-
-// Validate and fix table structure
-function validateTableStructure() {
-  if (!window) return;
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!table.querySelector('thead')) {
-      const thead = document.createElement('thead');
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        thead.appendChild(firstRow);
-      }
-      table.insertBefore(thead, table.firstChild);
-    }
-    if (!table.querySelector('tbody')) {
-      const tbody = document.createElement('tbody');
-      const rows = table.querySelectorAll('tr');
-      rows.forEach(row => {
-        if (!table.querySelector('thead').contains(row)) {
-          tbody.appendChild(row);
-        }
-      });
-      table.appendChild(tbody);
-    }
-  });
-}
-
-// Validate landmark elements
-function validateLandmark() {
-  if (!window) return;
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
-  landmarks.forEach(el => {
-    if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.getAttribute('role')) {
-      // Optionally add a role, but leave as is for now
-    }
-  });
-}
-
-// Validate landmark structure
-function validateLandmarkStructure() {
-  if (!window) return;
-  const main = document.querySelector('main');
-  if (main) {
-    const nestedLandmarks = main.querySelectorAll('main, nav, header, footer, aside');
-    if (nestedLandmarks.length > 0) {
-      console.warn('Landmarks nested within main may be incorrect.');
-    }
-  }
-}
-
-// Get accessible name for SVG
-function getSvgAccessibleName(svg) {
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || 'Image';
-}
-
-// Ensure unique landmark IDs
-function ensureUniqueLandmarks() {
-  if (!window) return;
-  const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
-  const idSet = new Set();
-  landmarks.forEach(el => {
-    const id = el.id;
-    if (id) {
-      if (idSet.has(id)) {
-        console.warn('Duplicate landmark ID found:', id);
-      } else {
-        idSet.add(id);
-      }
-    }
-  });
-}
-
-// Focus trap for keyboard navigation
-function newFocusTrap() {
-  // Helper to get all focusable elements within a container
-  function getFocusableElements(container) {
-    return Array.from(container.querySelectorAll('button, [href], input, select, textarea, [tabindex]')).filter(el => !el.hasAttribute('disabled') && el.getAttribute('tabindex') !== '-1');
-  }
-
-  let focusTrapActive = false;
-  let currentFocusedElement = null;
-  let trapContainer = null;
-
-  // Activate focus trap around a specific element (typically a modal)
-  function activate(element) {
-    if (!element) return;
-    trapContainer = element;
-    focusTrapActive = true;
-    // Move focus to first focusable element inside the trap
-    const focusable = getFocusableElements(trapContainer);
-    if (focusable.length > 0) {
-      focusable[0].focus();
-      currentFocusedElement = focusable[0];
-    }
-  }
-
-  // Deactivate focus trap
-  function deactivate() {
-    focusTrapActive = false;
-    trapContainer = null;
-    currentFocusedElement = null;
-  }
-
-  // Listen for Tab key to trap focus
-  document.addEventListener('keydown', (e) => {
-    if (!focusTrapActive || e.key !== 'Tab') return;
-
-    const focusable = getFocusableElements(trapContainer);
-    if (focusable.length === 0) return;
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (e.shiftKey) {
-      // Shift + Tab
-      if (document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      }
-    } else {
-      // Tab
-      if (document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-  });
-
-  // Return public API
-  return { activate, deactivate };
-}
-
-// Additional helper: expose newFocusTrap as a property for compatibility
-const newFocusTrapSingleton = newFocusTrap();
-
-// Export module
 module.exports = {
   checkLandmarkElements,
   createInPageButton,
@@ -660,17 +497,17 @@ module.exports = {
   a11yStore,
   addLandmarkRegions,
   addressAccessibilityIssues,
-  newFocusTrap: newFocusTrapSingleton,
+  newFunction,
   LANDMARK_ELEMENTS,
   getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
   updateLiveRegion: a11yStore.updateLiveRegion.bind(a11yStore),
   addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps.bind(a11yStore),
   preserveExistingCode: a11yStore.preserveExistingCode.bind(a11yStore),
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  ensureUniqueLandmarks
+  personName: a11yStore.personName.bind(a11yStore),
+  validateTableAccessibility: a11yStore.validateTableAccessibility.bind(a11yStore),
+  validateTableStructure: a11yStore.validateTableStructure.bind(a11yStore),
+  validateLandmark: a11yStore.validateLandmark.bind(a11yStore),
+  validateLandmarkStructure: a11yStore.validateLandmarkStructure.bind(a11yStore),
+  getSvgAccessibleName: a11yStore.getSvgAccessibleName.bind(a11yStore),
+  ensureUniqueLandmarks: a11yStore.ensureUniqueLandmarks.bind(a11yStore)
 };

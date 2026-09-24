@@ -104,12 +104,12 @@ function addSvgAccessibleNames(root = document) {
   });
 }
 
-/**
- * Check table structure for accessibility
- * @param {HTMLTableElement} table - The table element
- * @returns {Object} - Validation result with valid, hasHeader, hasBody, hasCaption
- */
-function checkTableStructure(table) {
+function getLangAttribute() {
+  const lang = document.documentElement?.lang || navigator.language || navigator.userLanguage || 'en';
+  return lang;
+}
+
+function validateTableAccessibility(table, index) {
   if (!table) {
     return { valid: false, error: 'Table element is required' };
   }

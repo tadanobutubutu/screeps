@@ -206,8 +206,131 @@ function createAccessibleButton(text, url = '', icon = '', className = '') {
   if (className) {
     btn.className = className;
   }
-  
-  return btn;
+
+  const landmarks = root.querySelectorAll(
+    'header, nav, main, footer, aside, section, ' +
+    '[role="banner"], [role="navigation"], [role="main"], ' +
+    '[role="contentinfo"], [role="complementary"], [role="region"], ' +
+    '[role="search"], [role="form"]'
+  );
+
+  const issues = [];
+  const roleCounts = {};
+  const labelledRoles = {}; // Maps role -> Set of labels
+
+  landmarks.forEach((landmark, index) => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    const label = landmark.getAttribute('aria-label') ||
+                  (landmark.getAttribute('aria-labelledby') ?
+                    `#${landmark.getAttribute('aria-labelledby')}` : '');
+
+    // Count roles
+    roleCounts[role] = (roleCounts[role] || 0) + 1;
+
+    // Track labelled roles for uniqueness check
+    if (label) {
+      if (!labelledRoles[role]) labelledRoles[role] = new Set();
+      labelledRoles[role].add(label);
+      
+      // Check for duplicate labels within the same role
+      if (labelledRoles[role].has(label)) {
+        issues.push({
+          type: 'duplicate_labeled_landmark',
+          element: landmark,
+          role,
+          message: `Duplicate label "${label}" for landmark with role "${role}"`
+        });
+      } else {
+        labelledRoles[role].add(label);
+      }
+    } else {
+      // Unlabelled landmarks - check for duplicates
+      if (roleCounts[role] > 1) {
+        issues.push({
+          type: 'duplicate_unlabelled_landmark',
+          element: landmark,
+          role,
+          message: `Multiple <${role}> landmarks without unique labels`
+        });
+      }
+    }
+  });
+
+  // Check for required landmarks
+  const requiredRoles = ['main'];
+  requiredRoles.forEach(role => {
+    if (!roleCounts[role]) {
+      issues.push({
+        type: 'missing_required_landmark',
+        role,
+        message: `Required landmark "${role}" is missing`
+      });
+    }
+  });
+
+  return {
+    valid: issues.length === 0,
+    roleCounts,
+    labelledRoles,
+    issues
+  };
+}
+
+/**
+ * Gets an accessible name for an SVG element
+ * @param {SVGElement|string} svg - SVG element or selector
+ * @returns {Object} Accessible name information
+ */
+function getSvgAccessibleName(svg) {
+  const element = typeof svg === 'string'
+    ? (typeof document !== 'undefined' ? document.querySelector(svg) : null)
+    : svg;
+
+  if (!element) {
+    return {
+      name: '',
+      hasName: false,
+      method: 'none',
+      issues: [{ type: 'element_not_found', message: 'SVG element not found' }]
+    };
+  }
+
+  // Check for various accessible name sources in priority order
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) {
+    return { name: ariaLabel, hasName: true, method: 'aria-label' };
+  }
+
+  const ariaLabelledBy = element.getAttribute('aria-labelledby');
+  if (ariaLabelledBy && typeof document !== 'undefined') {
+    const labelEl = document.getElementById(ariaLabelledBy);
+    if (labelEl) {
+      return { name: labelEl.textContent.trim(), hasName: true, method: 'aria-labelledby' };
+    }
+  }
+
+  const titleEl = element.querySelector('title');
+  if (titleEl && titleEl.textContent.trim()) {
+    return { name: titleEl.textContent.trim(), hasName: true, method: 'title_element' };
+  }
+
+  const descEl = element.querySelector('desc');
+  if (descEl && descEl.textContent.trim()) {
+    return { name: descEl.textContent.trim(), hasName: true, method: 'desc_element' };
+  }
+
+  // Check for role="img" with no name
+  const role = element.getAttribute('role');
+  if (role === 'img') {
+    return {
+      name: '',
+      hasName: false,
+      method: 'none',
+      issues: [{ type: 'missing_accessible_name', message: 'SVG with role="img" requires an accessible name' }]
+    };
+  }
+
+  return { name: '', hasName: false, method: 'none' };
 }
 
 // Main validation function for web accessibility

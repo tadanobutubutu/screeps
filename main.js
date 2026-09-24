@@ -71,5 +71,5 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   checkLinkAccessibility,
-  renderDependencyGraph,
+  newFunction, // Assuming newFunction is the change requested
 };

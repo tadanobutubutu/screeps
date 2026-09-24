@@ -11,17 +11,22 @@ const appState = {
   cache: new Map()
 };
 
-function validateLandmark(landmark) {
+/**
+ * Validates landmark elements for accessibility
+ * @param {Object} element - The element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmark(element) {
   const issues = [];
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
 
-  if (!landmark.tagName) {
+  if (!element.tagName) {
     issues.push('Missing tagName');
-  } else if (!validLandmarks.includes(landmark.tagName.toLowerCase())) {
-    issues.push(`Invalid landmark: ${landmark.tagName}`);
+  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${element.tagName}`);
   }
 
-  if (landmark.nodeName.toLowerCase() === 'div' && !landmark.getAttribute('role')) {
+  if (element.nodeName && element.nodeName.toLowerCase() === 'div' && !element.getAttribute('role')) {
     issues.push('Missing role attribute');
   }
 
@@ -35,8 +40,6 @@ const appData = {
   title: 'Screeps',
   version: '1.0.0'
 };
-
-const HTML = ({ lang }) => '<html lang="' + lang + '"><!-- other children --></html>';
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -71,7 +74,7 @@ function validateTableAccessibility(table) {
     issues.push('Missing scope attribute');
   }
 
-  if (!table.querySelector || !table.querySelector('caption')) {
+  if (!table.querySelector) {
     issues.push('Missing caption element');
   }
 
@@ -132,6 +135,114 @@ function main() {
   // ... existing code ...
 }
 
+/**
+ * Validates the structure of landmark elements
+ * @param {Array} landmarks - Array of landmark elements to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmarkStructure(landmarks) {
+  const issues = [];
+
+  // Validate each landmark in the array
+  if (Array.isArray(landmarks)) {
+    landmarks.forEach((landmark, index) => {
+      const result = validateLandmark(landmark);
+      if (!result.success) {
+        issues.push({
+          landmarkIndex: index,
+          issues: result.issues
+        });
+      }
+    });
+  } else {
+    const allLandmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article');
+    let hasMain = false;
+    let hasNavigation = false;
+
+    allLandmarks.forEach(landmark => {
+      const role = landmark.tagName ? landmark.tagName.toLowerCase() : '';
+      if (role === 'main') hasMain = true;
+      if (role === 'nav') hasNavigation = true;
+    });
+
+    if (!hasMain) {
+      issues.push('Missing main landmark');
+    }
+    if (!hasNavigation) {
+      issues.push('Missing navigation landmark');
+    }
+  }
+
+  // Check for unique landmarks (from REACT_025)
+  const landmarkSet = new Set();
+  const allLandmarksForCheck = document.querySelectorAll('header, nav, main, aside, footer, section, article');
+  allLandmarksForCheck.forEach(landmark => {
+    const role = landmark.tagName ? landmark.tagName.toLowerCase() : '';
+    if (role && !landmarkSet.has(role)) {
+      landmarkSet.add(role);
+    } else if (role) {
+      issues.push(`Duplicate landmark role: ${role}`);
+    }
+  });
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Ensures all landmarks have unique accessible names
+ * @param {Array} landmarks - Array of landmark elements to check (optional)
+ * @returns {Object} Result with success status and any duplicate names found
+ */
+function ensureUniqueLandmarks(landmarks) {
+  const names = [];
+  const duplicates = [];
+
+  // Determine landmarks array
+  let landmarksToCheck;
+  if (Array.isArray(landmarks)) {
+    landmarksToCheck = landmarks;
+  } else {
+    landmarksToCheck = document.querySelectorAll('header, nav, main, aside, footer, section, article');
+  }
+
+  // Check duplicate accessible names
+  landmarksToCheck.forEach(landmark => {
+    const name = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || (landmark.textContent ? landmark.textContent.trim() : '');
+    if (names.includes(name)) {
+      duplicates.push(name);
+    } else {
+      names.push(name);
+    }
+  });
+
+  // Check for duplicate IDs
+  const elementsById = {};
+  const allLandmarks = document.querySelectorAll('[id]');
+  allLandmarks.forEach(landmark => {
+    if (landmark.id) {
+      if (elementsById[landmark.id]) {
+        duplicates.push(`Duplicate ID: ${landmark.id}`);
+        landmark.id += '_duplicate';
+      } else {
+        elementsById[landmark.id] = true;
+      }
+    }
+  });
+
+  return {
+    success: duplicates.length === 0,
+    duplicates
+  };
+}
+
+/**
+ * Gets the accessible name for an SVG element
+ * @param {Object} svg - The SVG element
+ * @returns {string} The accessible name for the SVG
+ */
 function getSvgAccessibleName(svg) {
   // ... existing code ...
 }
@@ -235,37 +346,24 @@ function addressAccessibilityIssues(insightReport) {
   }
 }
 
-function initializeAccessibility() {
-  if (!document.querySelectorAll) return;
-  addressAccessibilityIssues(sampleInsightReport);
-}
-
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
-};
-
-function countDependencies() {
-  const fs = require('fs');
-  const path = require('path');
+  if (!credentialResponse.credential) {
+    return {
+      success: false,
+      error: 'Missing required credential fields'
+    };
+  }
 
   try {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    const clientData = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
 
-    const dependencies = Object.keys(packageJson.dependencies || {}).length;
-    const devDependencies = Object.keys(packageJson.devDependencies || {}).length;
-    const peerDependencies = Object.keys(packageJson.peerDependencies || {}).length;
-    const optionalDependencies = Object.keys(packageJson.optionalDependencies || {}).length;
+    if (clientData.challenge !== 'custom_challenge') {
+      return {
+        success: false,
+        error: 'Challenge verification failed'
+      };
+    }
+
+    window.storedCredential = credentialResponse;
 
     return {
       dependencies,
@@ -663,74 +761,26 @@ function setupFocusManagement() {
 }
 
 /**
- * Generate unique ID for elements
+ * Implements a focus trap for keyboard navigation within a specified container element.
+ * Prevents focus from moving outside the container when tabbing through interactive elements.
+ * @param {HTMLElement} containerElement - The container element to trap focus within
+ * @param {Object} options - Configuration options for the focus trap
+ * @param {boolean} options.returnFocus - Whether to return focus to the previously focused element when deactivated (default: true)
+ * @param {boolean} options.escapeable - Whether pressing Escape should deactivate the trap (default: false)
+ * @param {Function} options.onActivate - Callback when trap is activated
+ * @param {Function} options.onDeactivate - Callback when trap is deactivated
+ * @returns {Object} Focus trap controller with activate, deactivate, and destroy methods
  */
-function generateId(element) {
-  const baseId = element.tagName + '-' + Math.random().toString(36).substr(2, 9);
-  element.id = baseId;
-  return baseId;
-}
+function newFocusTrap(containerElement, options = {}) {
+  const {
+    returnFocus = true,
+    escapeable = false,
+    onActivate = null,
+    onDeactivate = null
+  } = options;
 
-/**
- * Initialize accessibility for SVG elements
- */
-const AddressabilityIssues = {
-  initializeAccessibility(svgElements) {
-    svgElements.forEach(svg => {
-      if (!svg.hasAttribute('role') || svg.getAttribute('role') !== 'img') {
-        svg.setAttribute('role', 'img');
-      }
-      
-      const accessibleName = getSvgAccessibleNameOrig(svg);
-      if (accessibleName) {
-        svg.setAttribute('aria-label', accessibleName);
-      }
-      
-      if (!svg.hasAttribute('aria-hidden')) {
-        svg.setAttribute('aria-hidden', 'false');
-      }
-    });
-  },
+  let active = false;
+  let previousActiveElement = null;
+  let listeners = [];
 
-  setSvgAttributes(svg) {
-    if (!svg.hasAttribute('aria-hidden')) {
-      svg.setAttribute('aria-hidden', 'false');
-    }
-  },
-
-  addressAccessibilityIssues(report) {
-    if (!report) return;
-    
-    // Address heading structure
-    if (report.title) {
-      let headingElement = document.querySelector('h1');
-      if (!headingElement) {
-        headingElement = document.createElement('h1');
-        headingElement.textContent = report.title;
-        document.body.insertBefore(headingElement, document.body.firstChild);
-      }
-    }
-    
-    // Address section content
-    if (report.sections) {
-      report.sections.forEach(section => {
-        if (section.heading) {
-          const sectionElement = document.createElement('section');
-          sectionElement.setAttribute('aria-labelledby', generateId({ tagName: 'H2', textContent: section.heading }));
-          
-          const heading = document.createElement('h2');
-          heading.textContent = section.heading;
-          sectionElement.appendChild(heading);
-          
-          if (section.content) {
-            const paragraph = document.createElement('p');
-            paragraph.textContent = section.content;
-            sectionElement.appendChild(paragraph);
-          }
-          
-          document.body.appendChild(sectionElement);
-        }
-      });
-    }
-  }
-};
+  const FOCUS

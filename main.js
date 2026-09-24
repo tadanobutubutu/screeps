@@ -7,6 +7,59 @@ function generateUniqueId() {
   return 'id-' + Math.random().toString(36).substr(2, 9);
 }
 
+// Add setupAriaLiveRegions function
+function setupAriaLiveRegions() {
+  const liveRegions = document.querySelectorAll('[data-live-region]');
+  liveRegions.forEach((region) => {
+    if (!region.hasAttribute('aria-live')) {
+      region.setAttribute('aria-live', 'polite');
+    }
+    if (!region.hasAttribute('role')) {
+      region.setAttribute('role', 'status');
+    }
+  });
+}
+
+// Add setupFocusManagement function
+function setupFocusManagement() {
+  const focusableElements = document.querySelectorAll('a[href], button, textarea, input[type]:not([type="hidden"]), select, details:not([disabled]), [tabindex]:not([tabindex="-1"])');
+  focusableElements.forEach((element) => {
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
+  });
+}
+
+// Add enhanceSemanticMarkup function
+function enhanceSemanticMarkup() {
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headings.forEach((heading) => {
+    if (!heading.hasAttribute('id')) {
+      const headingText = heading.textContent.trim().replace(/\s+/g, '-').toLowerCase();
+      heading.setAttribute('id', headingText);
+    }
+  });
+}
+
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent) {
+    return desc.textContent.trim();
+  }
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
+}
+
+function setSvgAttributes(svg) {
+  if (!svg.hasAttribute('aria-hidden')) {
+    svg.setAttribute('aria-hidden', 'true');
+  }
+}
+
+// Function for checking table structure
 function checkTableStructure(table) {
   if (!table) return { valid: false, error: 'No table provided' };
   const rows = table.rows;
@@ -435,7 +488,19 @@ if (typeof module !== 'undefined' && module.exports) {
     generateUniqueId,
     detectAccessibilityIssues,
     handleCredentialResponse,
-    getStoredCredentials,
-    clearCredentials
+    sampleInsightReport,
+    getLangAttribute,
+    personName,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    ensureUniqueLandmarks,
+    personName,
+    createInPageButton,
+    fixFakeLink,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup
   };
 }

@@ -1,6 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// main.js - Main application entry point
+// Addressed accessibility issues from insight report
 
 // TODO: Add back any required exports that might have been removed
 // TODO: Identify and update specific functions as needed
@@ -8,21 +7,49 @@
 // Dependency imports
 const http = require('http');
 const url = require('url');
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
-// Re-add the required exports for functionA and functionB
-// Assuming that they are objects with properties X, Y, and Z
-const { functionA, functionB } = require('./functionModule');
+// Accessibility utilities exports
+const { 
+  addLangAttribute, 
+  fixTableStructureIssues, 
+  addMainLandmark, 
+  ensureUniqueLandmarks, 
+  setSvgAccessibilityProps, 
+  addAccessibleNamesToSVGs, 
+  fixFakeLinkIssue, 
+  fixFakeLinkIssues, 
+  fixLandmarkIssues, 
+  addLandmarkRegions, 
+  uniqueLandmarks, 
+  fixImageAltTexts, 
+  googleSignIn, 
+  handleCredentialResponse: handleCredentialResponseUtil, 
+  ensureElementHasId, 
+  ensureElementHasIdOrigin, 
+  addAriaLabel, 
+  renderDependencyGraphs, 
+  fixButtonIdentifiers, 
+  fixDependencyGraphAria, 
+  addMainLandmarkToIndex, 
+  addressAccessibilityIssues,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  dependencyGraphContent,
+  indexContent,
+  functionA,
+  functionB,
+  main
+} = require('./utilities');
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
   const issues = [];
 
   // Check if HTML contains tables
-  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
+  const tableRegex = /<table[^>]*>[\s\S]*?<\/table>/gi;
   let match;
 
   while ((match = tableRegex.exec(html)) !== null) {
@@ -41,7 +68,7 @@ const validateTableAccessibility = (html) => {
     }
 
     // Check for th elements
-    const hasHeaders = /<th[^>]*>/i.test(tableContent);
+    const hasHeaders = /<th[^>]*>[\s\S]*?<\/th>/i.test(tableContent);
     if (!hasHeaders) {
       issues.push({
         type: 'table',
@@ -52,9 +79,9 @@ const validateTableAccessibility = (html) => {
     }
 
     // Check for scope attributes on th elements
-    const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
+    const thMatches = (tableContent.match(/<th[^>]*>[\s\S]*?<\/th>/gi) || []);
     thMatches.forEach((thTag, index) => {
-      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
+      if (!/scope\s*=/i.test(thTag)) {
         issues.push({
           type: 'table',
           severity: 'info',
@@ -87,11 +114,12 @@ const validateTableAccessibility = (html) => {
     }
 
     // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
+    const thElements = tableContent.match(/<th[^>]*>[\s\S]*?<\/th>/gi) || [];
+    const hasMultipleHeaders = thElements.length > 1;
     if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
-      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
-
+      const hasHeadersAttr = /headers\s*=/i.test(tableContent);
+      const hasIdAttr = /<th[^>]*id\s*=/i.test(tableContent);
+      
       if (!hasIdAttr && !hasHeadersAttr) {
         issues.push({
           type: 'table',
@@ -105,10 +133,6 @@ const validateTableAccessibility = (html) => {
 
   return issues;
 };
-
-// Re-add the required exports for functionA and functionB
-// Assuming that they are objects with properties X, Y, and Z
-const { functionA, functionB } = require('./functionModule');
 
 // App state for session management
 const appState = {
@@ -129,27 +153,124 @@ function validateSession(sessionId) {
 // };
 
 const a11yStore = {
-  // ... existing methods ...
+  liveRegion: null,
+  
+  setLiveRegion(element) {
+    this.liveRegion = element;
+  },
+  
+  getLiveRegion() {
+    return this.liveRegion;
+  },
+  
+  prefersReducedMotion() {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  },
+
+  prefersHighContrast() {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-contrast: more)').matches;
+  },
+
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) return;
+    this.announce(message, priority);
+  },
+  
+  announce(message, priority = 'polite') {
+    if (!this.liveRegion) return;
+    this.liveRegion.setAttribute('aria-live', priority);
+    this.liveRegion.textContent = '';
+    // Force reflow to ensure announcement
+    void this.liveRegion.offsetHeight;
+    this.liveRegion.textContent = message;
+  },
+
+  checkLandmarkElements() {
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    const results = [];
+    
+    landmarkElements.forEach((element) => {
+      if (typeof document === 'undefined') return;
+      const landmarks = document.querySelectorAll(element);
+      landmarks.forEach((landmark, index) => {
+        if (!landmark.id) {
+          landmark.id = `${element}-${index}`;
+        }
+
+        if (landmarks.length > 1 && element === 'main') {
+          landmark.setAttribute('aria-label', landmark.id);
+        }
+      });
+    });
+    
+    return results;
+  },
+
+  validateFocusManagement() {
+    const focusableElements = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    if (typeof document === 'undefined') return { valid: true };
+    
+    const focusable = document.querySelectorAll(focusableElements);
+    return { valid: focusable.length > 0 };
+  },
+
+  getTheme() {
+    return this._theme || 'light';
+  },
+
+  setTheme(theme) {
+    this._theme = theme;
+  }
 };
 
-// New function3 logic implementation
-function function3() {
-  // TODO: Implement new function3 logic here
-}
-
-prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-},
-
-prefersHighContrast() {
-  return window.matchMedia('(prefers-contrast: more)').matches;
-},
-
-updateLiveRegion(message, priority = 'polite') {
-  if (!this.liveRegion) this.createLiveRegion();
-  this.announce(message, priority);
-},
-
-        if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria
+// Export all accessibility-related functions and utilities
+module.exports = {
+  // Accessibility functions
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  setSvgAccessibilityProps,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  addressAccessibilityIssues,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  validateTableAccessibility,
+  
+  // Content functions
+  dependencyGraphContent,
+  indexContent,
+  
+  // Core functions
+  main,
+  functionA,
+  functionB,
+  
+  // Session management
+  appState,
+  getActiveSessionsCount,
+  validateSession,
+  
+  // Accessibility store
+  a11yStore
+};

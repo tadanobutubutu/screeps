@@ -114,7 +114,6 @@ module.exports = {
   handleKeyboardNavigation,
   navigateWithArrow,
   handleTabNavigation,
-  focusTrap,
   renderDependencyGraphs,
   validateAccessibilityReport,
   ...mainUtilities

@@ -644,12 +644,9 @@ function displayModuleStructure (module) {
   }
 }
 
-function addAriaLabel(element) {
+function addAriaLabel(element, label) {
   // Combined and reconciled code from both branches
   if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', element.getAttribute('aria-label') || element.textContent.trim() || 'Untitled');
+    element.setAttribute('aria-label', label);
   }
 }
-
-// ----- END ORIGINAL CODE -----
-// TODO: This is the existing code that needs to be preserved

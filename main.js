@@ -1,6 +1,4 @@
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
-// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
-
+// TODO: This is the existing code that needs to be preserved
 // REACT_015: Add lang attribute to the <html> element
 function someFunctionName(html, lang = 'en') {
     if (typeof html !== 'string') return html;
@@ -52,7 +50,11 @@ function someOtherFunctionName(html) {
         return `<table${attrs}>${thead}${tbody}`;
     });
 
+    // Add scope attribute to th elements if not present
+    html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
+        if (/\bscope=/i.test(match)) return match;
+        return `<th${attrs} scope="col">`;
+    });
+
     return html;
 }
-
-module.exports = { someFunctionName, someOtherFunctionName };

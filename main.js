@@ -192,11 +192,11 @@ module.exports = {
   // ... other exports ...
 
   // Preserve existing functionality
-  handleAccessibilityIssues: this.handleAccessibilityIssues,
-  getFullLangAttribute: this.getFullLangAttribute,
-  addAriaLabel: this.addAriaLabel,
-  ensureUniqueLandmarkId: this.ensureUniqueLandmarkId,
-  uniqueLandmarks: this.uniqueLandmarks,
-  ensureUniqueLandmarks: this.ensureUniqueLandmarks,
-  createAccessibleLink: this.createAccessibleLink
+  handleAccessibilityIssues: handleAccessibilityIssues,
+  getFullLangAttribute: getFullLangAttribute,
+  addAriaLabel: addAriaLabel,
+  ensureUniqueLandmarkId: ensureUniqueLandmarkId,
+  uniqueLandmarks: uniqueLandmarks,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  createAccessibleLink: createAccessibleLink
 };

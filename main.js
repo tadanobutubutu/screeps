@@ -1,10 +1,6 @@
-// Imported modules
-import { graphRenderer } from './graphRenderer.js';
-import { layoutEngine } from './layoutEngine.js';
-import { dataProcessor } from './dataProcessor.js';
-
 // Existing code starts here
-
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-swift';
 // This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
@@ -20,74 +16,57 @@ import { dataProcessor } from './dataProcessor.js';
  */
 function checkLandmarkElement(id) {
   const element = document.getElementById(id);
-  if (!element) {
-    return false;
-  }
-  const role = element.getAttribute('role');
-  const landmarkRoles = ['navigation', 'main', 'banner', 'contentinfo', 'complementary', 'search', 'form', 'region'];
-  return role && landmarkRoles.includes(role);
+  return element !== null;
 }
 
-export function createInPageButton(buttonText, onClickHandler) {
+function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
   if (onClickHandler && typeof onClickHandler === 'function') {
-    ... onClickHandler);
+    button.addEventListener('click', onClickHandler);
   }
   return button;
 }
 
-// Testing the checkLandmarkElement function:
-// To test this function, we could create a test file with the following content:
-const landmarkStructureCheck = (landmark) => {
-  if (!landmark.name || !landmark.coordinates) {
+// Ensure unique landmarks by filtering duplicates
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+/**
+ * Validates a landmark object to ensure it meets accessibility criteria.
+ * A valid landmark must have a non-empty name and, if provided, a recognized role.
+ *
+ * @param {Object} landmark - The landmark object to validate.
+ * @param {string} landmark.name - The name of the landmark (required).
+ * @param {string} [landmark.role] - The ARIA role of the landmark (optional).
+ * @returns {boolean} Returns true if the landmark is valid, false otherwise.
+ */
+function validateLandmark(landmark) {
+  if (!landmark || typeof landmark !== 'object') {
+    return false;
+  }
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    return false;
+  }
+  const validRoles = ['navigation', 'main', 'banner', 'contentinfo', 'complementary', 'form', 'region', 'search'];
+  if (landmark.role && !validRoles.includes(landmark.role)) {
     return false;
   }
   return true;
 }
 
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
-// If not, define it here:
-export function rotateBack() {
-  // Your code to rotate back
-  console.log('Reverting back the rotation.');
-}
+// ... (other code in main.js)
 
-// ... (other code in main. js)
-
-// Additional accessibility-related code changes:
-// Ensure that all interactive elements have appropriate keyboard support
-// Check that ARIA attributes are correctly paired and have appropriate values
-
-// REACT_015: lang attribute should be added to the HTML element (typically in index.html)
-// <html lang="en">
-
-// REACT_017: Add landmark roles and fix landmark issues
-// Add main landmark role to main content area
-// Example: <main role="main">...</main>
-
-// REACT_025: Ensure unique landmarks
-// Ensure only one main landmark per page
-// Use unique aria-label or aria-labelledby for landmark regions
-
-// REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
-function createUnrotateButton() {
-  const button = document.createElement('button');
-  button.id = 'unrotate';
-  button.setAttribute('role', 'button');
-  button.setAttribute('aria-label', 'rotate back');
-  button.textContent = 'rotate back';
-  button.addEventListener('click', rotateBack);
-  return button;
-}
-
-// Replace fake links with proper buttons
-const fakeLink = document.querySelector('a[href="#"]');
-if (fakeLink && fakeLink.tagName === 'A') {
-  const parent = fakeLink.parentElement;
-  const newButton = createUnrotateButton();
-  parent && parent.replaceChild(newButton, fakeLink);
-}
+// React accessibility changes
 
 // Add lang attribute to HTML element
 if (typeof document !== 'undefined') {
@@ -104,16 +83,15 @@ const isSecureContext = () => {
 
 /**
  * Sets the language attribute on the HTML element.
- *
  * This ensures that screen readers and other assistive technologies
  * can correctly interpret the language of the page.
  *
- * @param {string} lang - The language code to set (e. g., 'en', 'es', 'fr').
+ * @param {string} lang - The language code to set (default: 'en', e.g., 'en', 'es', 'fr').
  */
 const setLanguageAttribute = (lang = 'en') => {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    ... lang);
+    htmlElement.setAttribute('lang', lang);
   }
 };
 
@@ -121,37 +99,31 @@ const setLanguageAttribute = (lang = 'en') => {
  * Adds landmark roles to the main navigation and content sections.
  *
  * This addresses the REACT_017 issue by adding appropriate ARIA roles
- * such as 'navigation', 'main', 'banner', and 'contentinfo' to relevant HTML elements.
+ * such as 'navigation', 'main', and 'banner' to relevant HTML elements.
  */
 const addLandmarkRoles = () => {
   // Navigation landmark
-  const navElement = ...
-  if (navElement && ... {
-    ... 'navigation');
+  const navElement = document.querySelector('nav');
+  if (navElement && !navElement.getAttribute('role')) {
+    navElement.setAttribute('role', 'navigation');
   }
 
   // Main content landmark
   const mainElement = document.querySelector('main');
   if (mainElement && !mainElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'main');
+    mainElement.setAttribute('role', 'main');
   }
 
   // Header landmark (banner)
-  const headerElement = ...
-  if (headerElement && ... {
-    ... 'banner');
+  const headerElement = document.querySelector('header');
+  if (headerElement && !headerElement.getAttribute('role')) {
+    headerElement.setAttribute('role', 'banner');
   }
 
   // Footer landmark (contentinfo)
-  const footerElement = ...
+  const footerElement = document.querySelector('footer');
   if (footerElement && !footerElement.getAttribute('role')) {
     footerElement.setAttribute('role', 'contentinfo');
-  }
-
-  // Specific main-content ID
-  const mainContent = document.getElementById('main-content');
-  if (mainContent && !mainContent.getAttribute('role')) {
-    mainContent.setAttribute('role', 'main');
   }
 };
 
@@ -163,9 +135,9 @@ const addLandmarkRoles = () => {
  */
 const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
-  const navElements = ...
+  const navElements = document.querySelectorAll('[role="navigation"]');
   if (navElements.length > 1) {
-    ... index) => {
+    navElements.forEach((nav, index) => {
       if (index > 0) {
         nav.setAttribute('aria-label', `Navigation ${index + 1}`);
       }
@@ -173,9 +145,9 @@ const ensureUniqueLandmarkElements = () => {
   }
 
   // Main content landmark uniqueness
-  const mainElements = ...
+  const mainElements = document.querySelectorAll('[role="main"]');
   if (mainElements.length > 1) {
-    ... index) => {
+    mainElements.forEach((main, index) => {
       if (index > 0) {
         main.setAttribute('aria-label', `Main content ${index + 1}`);
       }
@@ -193,10 +165,10 @@ const ensureUniqueLandmarkElements = () => {
  * @param {string} accessibleName - The accessible name to set.
  */
 const addSVGAccessibleName = (svgSelector, accessibleName) => {
-  const svgs = ...
+  const svgs = document.querySelectorAll(svgSelector);
   svgs.forEach((svg) => {
     // Check if the SVG already has a title element
-    let titleElement = ...
+    let titleElement = svg.querySelector('title');
     if (!titleElement) {
       titleElement = document.createElement('title');
       svg.insertBefore(titleElement, svg.firstChild);
@@ -218,94 +190,17 @@ function createUnrotateButton() {
   button.setAttribute('role', 'button');
   button.ariaLabel = 'rotate back';
   button.textContent = 'rotate back';
-  ... rotateBack);
+  button.addEventListener('click', rotateBack);
   return button;
 }
 
 function replaceFakeLinks() {
-  const fakeLink = ...
+  const fakeLink = document.getElementById('unrotate');
   if (fakeLink && fakeLink.tagName === 'A') {
     const parent = fakeLink.parentElement;
     const newButton = createUnrotateButton();
-    ... fakeLink);
+    parent.replaceChild(newButton, fakeLink);
   }
-}
-
-/**
- * Fixes table structure accessibility issues.
- *
- * This addresses the REACT_027 issue by ensuring tables have proper
- * accessibility attributes including headers, captions, and scope attributes.
- */
-const fixTableStructureIssues = () => {
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table, tableIndex) => {
-    // Add caption if missing
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = `Table ${tableIndex + 1}`;
-      caption.style.cssText = 'position: absolute; left: -9999px;'; // Visually hidden but accessible
-      table.insertBefore(caption, table.firstChild);
-    }
-
-    // Ensure header cells have scope attributes
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach((th) => {
-      if (!th.getAttribute('scope')) {
-        // Determine scope based on position
-        const parentRow = th.closest('tr');
-        const isFirstCell = parentRow && parentRow.cells[0] === th;
-        const isHeaderRow = parentRow && parentRow.parentElement &&
-          (parentRow.parentElement.tagName === 'THEAD' || parentRow.rowIndex === 0);
-        th.setAttribute('scope', isHeaderRow ? 'col' : 'row');
-      }
-    });
-
-    // Associate data cells with headers for complex tables
-    const dataCells = table.querySelectorAll('td');
-    const hasHeaders = table.querySelectorAll('th[id]').length > 0;
-    if (hasHeaders) {
-      dataCells.forEach((td) => {
-        if (!td.getAttribute('headers')) {
-          const cellIndex = td.cellIndex;
-          const row = td.closest('tr');
-          const tableSection = row ? row.parentElement : null;
-          const headerRow = tableSection && tableSection.tagName === 'THEAD'
-            ? tableSection.rows[0]
-            : (table.tHead ? table.tHead.rows[0] : table.rows[0]);
-          if (headerRow && headerRow.cells[cellIndex]) {
-            const headerCell = headerRow.cells[cellIndex];
-            if (headerCell.id) {
-              td.setAttribute('headers', headerCell.id);
-            } else {
-              headerCell.id = `th-${tableIndex}-${cellIndex}`;
-              td.setAttribute('headers', headerCell.id);
-            }
-          }
-        }
-      });
-    }
-
-    // Ensure table has proper structure (thead, tbody, tfoot)
-    if (!table.tHead && table.rows.length > 0) {
-      const thead = document.createElement('thead');
-      const firstRow = table.rows[0];
-      if (firstRow.cells.length > 0 && firstRow.cells[0].tagName === 'TH') {
-        thead.appendChild(firstRow.cloneNode(true));
-        firstRow.parentNode.replaceChild(thead, firstRow);
-      }
-    }
-  });
-};
-
-// ... (other code in main.js)
-
-// Implemented function3 logic here
-function function3() {
-  const button = createInPageButton('Function3', function() {
-    console.log('Function3 clicked!');
-  });
-  document.body.appendChild(button);
 }
 
 // ... (other code in main.js)
@@ -315,16 +210,7 @@ export function newFunction() {
   const button = createInPageButton('New Function', function() {
     console.log('New Function clicked!');
   });
-  ...
+  document.body.appendChild(button);
 }
 
 // ... (other code in main.js)
-
-// Required exports for functionA and functionB
-export function functionA() {
-  // Function A implementation
-}
-
-export function functionB() {
-  // Function B implementation
-}

@@ -132,42 +132,42 @@ function personName (name) {
 function validateTableAccessibility (table) {
   // This function validates the accessibility of tables
   // Check for proper table headers with scope attributes
-  const errors = []
+  const errors = [];
 
   if (!table) {
     return { valid: false, errors: ['Table element is required'] }
   }
 
-  const headers = table.querySelectorAll('th')
+  const headers = table.querySelectorAll('th');
   headers.forEach((th, index) => {
     if (!th.hasAttribute('scope')) {
       errors.push(`Table header at index ${index} is missing scope attribute`)
     }
-  })
+  });
 
   // Check if table has a caption or is properly described
-  const hasCaption = table.querySelector('caption')
-  const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby')
+  const hasCaption = table.querySelector('caption');
+  const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
 
   if (!hasCaption && !hasAriaLabel) {
     errors.push('Table is missing a caption or aria-label/aria-labelledby')
   }
 
-  return { valid: errors.length === 0, errors }
+  return { valid: errors.length === 0, errors };
 }
 
 function validateTableStructure (table) {
   // This function validates the structure of tables
-  const errors = []
+  const errors = [];
 
   if (!table) {
     return { valid: false, errors: ['Table element is required'] }
   }
 
   // Check for proper table structure
-  const tbody = table.querySelector('tbody')
-  const thead = table.querySelector('thead')
-  const tfoot = table.querySelector('tfoot')
+  const tbody = table.querySelector('tbody');
+  const thead = table.querySelector('thead');
+  const tfoot = table.querySelector('tfoot');
 
   // Check for thead and tbody presence
   if (!thead) {
@@ -189,32 +189,23 @@ function validateTableStructure (table) {
                 `Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`
       )
     }
-  })
+  });
 
-  return { valid: errors.length === 0, errors }
+  return { valid: errors.length === 0, errors };
 }
 
 // New function to address REACT_017: Add/fix 4 landmark issues
 function validateLandmark (element) {
   // This function validates landmarks
-  const errors = []
-  const allowedLandmarks = [
-    'banner',
-    'navigation',
-    'main',
-    'complementary',
-    'contentinfo',
-    'search',
-    'form',
-    'region'
-  ]
+  const errors = [];
+  const allowedLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
 
   if (!element) {
     return { valid: false, errors: ['Element is required'] }
   }
 
-  const role = element.getAttribute('role')
-  const tagName = element.tagName.toLowerCase()
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
 
   // Check if element has valid landmark role
   if (role && !allowedLandmarks.includes(role)) {
@@ -224,21 +215,20 @@ function validateLandmark (element) {
   // Check if landmark has accessible name when required
   const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary']
   if (role && landmarksNeedingNames.includes(role)) {
-    const hasLabel =
-            element.getAttribute('aria-label') ||
-            element.getAttribute('aria-labelledby') ||
-            element.querySelector('h1, h2, h3, h4, h5, h6')
+    const hasLabel = element.getAttribute('aria-label') ||
+                     element.getAttribute('aria-labelledby') ||
+                     element.querySelector('h1, h2, h3, h4, h5, h6');
     if (!hasLabel) {
       errors.push(`Landmark role "${role}" is missing accessible name`)
     }
   }
 
-  return { valid: errors.length === 0, errors }
+  return { valid: errors.length === 0, errors };
 }
 
 function validateLandmarkStructure () {
   // This function validates the structure of landmarks
-  const errors = []
+  const errors = [];
 
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] }
@@ -262,7 +252,7 @@ function validateLandmarkStructure () {
     errors.push(`Found ${footerLandmarks.length} contentinfo landmarks, should have only 1`)
   }
 
-  return { valid: errors.length === 0, errors }
+  return { valid: errors.length === 0, errors };
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
@@ -302,33 +292,33 @@ function getSvgAccessibleName (svg) {
     }
   }
 
-  return ''
+  return '';
 }
 
 // New function to address REACT_025: Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks () {
   // This function ensures that landmarks are unique
-  const errors = []
+  const errors = [];
 
   if (typeof document === 'undefined') {
     return { valid: false, errors: ['Document not available'] }
   }
 
   // Define unique landmarks that should only appear once
-  const uniqueLandmarks = ['main', 'banner', 'contentinfo']
-  const uniqueRoleSelectors = ['[role="main"]', '[role="banner"]', '[role="contentinfo"]']
+  const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
+  const uniqueRoleSelectors = ['[role="main"]', '[role="banner"]', '[role="contentinfo"]'];
 
   uniqueLandmarks.forEach((landmark, index) => {
-    const elements = document.querySelectorAll(uniqueRoleSelectors[index])
-    const tagElements = document.querySelectorAll(landmark)
-    const totalCount = elements.length + tagElements.length
+    const elements = document.querySelectorAll(uniqueRoleSelectors[index]);
+    const tagElements = document.querySelectorAll(landmark);
+    const totalCount = elements.length + tagElements.length;
 
     if (totalCount > 1) {
       errors.push(
                 `Found ${totalCount} instances of "${landmark}" landmark, should have only 1`
       )
     }
-  })
+  });
 
   // Check for landmark IDs that should be unique
   const landmarksWithIds = document.querySelectorAll('[role][id]')
@@ -338,23 +328,30 @@ function ensureUniqueLandmarks () {
     if (ids.has(id)) {
       errors.push(`Duplicate landmark id found: ${id}`)
     }
-    ids.add(id)
-  })
+    ids.add(id);
+  });
 
-  return { valid: errors.length === 0, errors }
+  return { valid: errors.length === 0, errors };
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
 function createAccessibleLink (href, text, options = {}) {
   // This function creates an accessible link
-  const { onClick, role = 'link', ariaLabel, className, target, rel } = options
+  const {
+    onClick,
+    role = 'link',
+    ariaLabel,
+    className,
+    target,
+    rel
+  } = options;
 
   if (!href && !onClick) {
     return null
   }
 
-  const link = document.createElement('a')
-  link.textContent = text
+  const link = document.createElement('a');
+  link.textContent = text;
 
   if (href) {
     link.href = href
@@ -391,7 +388,7 @@ function createAccessibleLink (href, text, options = {}) {
     link.setAttribute('role', role)
   }
 
-  return link
+  return link;
 }
 
 /**
@@ -399,8 +396,8 @@ function createAccessibleLink (href, text, options = {}) {
  * @param {HTMLAnchorElement} link - The link element to check
  * @returns {Object} Result with valid boolean and errors array
  */
-function isLinkAccessible (link) {
-  const errors = []
+function isLinkAccessible(link) {
+  const errors = [];
 
   if (!link) {
     return { valid: false, errors: ['Link element is required'] }
@@ -427,10 +424,10 @@ function isLinkAccessible (link) {
   }
 
   // Check for accessible name
-  const textContent = link.textContent ? link.textContent.trim() : ''
-  const ariaLabel = link.getAttribute('aria-label')
-  const ariaLabelledby = link.getAttribute('aria-labelledby')
-  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby
+  const textContent = link.textContent ? link.textContent.trim() : '';
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledby = link.getAttribute('aria-labelledby');
+  const hasAccessibleName = textContent || ariaLabel || ariaLabelledby;
 
   if (!hasAccessibleName) {
     errors.push(
@@ -464,7 +461,7 @@ function isLinkAccessible (link) {
     errors.push('Link title attribute duplicates link text')
   }
 
-  return { valid: errors.length === 0, errors }
+  return { valid: errors.length === 0, errors };
 }
 
 /**
@@ -487,9 +484,9 @@ function createInPageButton (parent = document.body) {
  * @param {Object} moduleRegistry - Optional registry of known modules and their dependencies
  * @returns {Object} An object containing module info, dependencies, and dependents
  */
-function getModuleDependencies (moduleName, moduleRegistry = {}) {
-  const dependencies = []
-  const dependents = []
+function getModuleDependencies(moduleName, moduleRegistry = {}) {
+  const dependencies = [];
+  const dependents = [];
 
   // Build dependency list from registry
   if (moduleRegistry[moduleName]) {
@@ -522,7 +519,7 @@ function getModuleDependencies (moduleName, moduleRegistry = {}) {
         type: allDeps.includes(moduleName) ? 'required' : 'optional'
       })
     }
-  })
+  });
 
   return {
     name: moduleName,
@@ -538,8 +535,12 @@ function getModuleDependencies (moduleName, moduleRegistry = {}) {
  * @param {Object} options - Rendering options (format, maxDepth, etc.)
  * @returns {Object} An object containing the rendered graph data and metadata
  */
-function renderDependencyGraph (dependencies, options = {}) {
-  const { maxDepth = 3, includeDevDependencies = true, format = 'tree' } = options
+function renderDependencyGraph(dependencies, options = {}) {
+  const {
+    maxDepth = 3,
+    includeDevDependencies = true,
+    format = 'tree'
+  } = options;
 
   const graph = {
     nodes: [],
@@ -550,31 +551,31 @@ function renderDependencyGraph (dependencies, options = {}) {
       maxDepth: 0,
       circularDeps: []
     }
-  }
+  };
 
-  const visited = new Set()
-  const nodeMap = new Map()
+  const visited = new Set();
+  const nodeMap = new Map();
 
   // Build nodes from dependencies
   const addNode = (name, depth = 0) => {
     if (visited.has(name)) {
       return
     }
-    visited.add(name)
+    visited.add(name);
 
-    const nodeId = `node_${graph.nodes.length}`
+    const nodeId = `node_${graph.nodes.length}`;
     const node = {
       id: nodeId,
       name,
       depth,
       type: 'module'
-    }
+    };
 
-    graph.nodes.push(node)
-    nodeMap.set(name, nodeId)
-    graph.metadata.totalNodes++
-    graph.metadata.maxDepth = Math.max(graph.metadata.maxDepth, depth)
-  }
+    graph.nodes.push(node);
+    nodeMap.set(name, nodeId);
+    graph.metadata.totalNodes++;
+    graph.metadata.maxDepth = Math.max(graph.metadata.maxDepth, depth);
+  };
 
   // Build edges between nodes
   const addEdge = (from, to) => {
@@ -585,9 +586,9 @@ function renderDependencyGraph (dependencies, options = {}) {
       to: nodeMap.get(to) || to,
       fromName: from,
       toName: to
-    })
-    graph.metadata.totalEdges++
-  }
+    });
+    graph.metadata.totalEdges++;
+  };
 
   // Process dependencies recursively
   const processDependencies = (deps, parentName = null, depth = 0) => {
@@ -627,7 +628,7 @@ function renderDependencyGraph (dependencies, options = {}) {
         })
       }
     }
-  }
+  };
 
   // Detect circular dependencies
   const detectCircularDeps = (deps, path = []) => {
@@ -635,13 +636,13 @@ function renderDependencyGraph (dependencies, options = {}) {
       return
     }
 
-    const currentName = deps.name || 'root'
+    const currentName = deps.name || 'root';
     if (path.includes(currentName)) {
       graph.metadata.circularDeps.push([...path, currentName])
       return
     }
 
-    const newPath = [...path, currentName]
+    const newPath = [...path, currentName];
 
     if (Array.isArray(deps.dependencies)) {
       deps.dependencies.forEach((dep) => {
@@ -651,7 +652,7 @@ function renderDependencyGraph (dependencies, options = {}) {
         }
       })
     }
-  }
+  };
 
   // Process the input dependencies
   if (dependencies) {
@@ -667,32 +668,34 @@ function renderDependencyGraph (dependencies, options = {}) {
         if (parentId === null) {
           return graph.edges.every((e) => e.from !== n.id)
         }
-        return graph.edges.some((e) => e.from === parentId && e.to === n.id)
-      })
+        return graph.edges.some(e => e.from === parentId && e.to === n.id);
+      });
 
       children.forEach((node, index) => {
-        const isLastChild = index === children.length - 1
-        const connector = isLast ? '└── ' : '├── '
-        const childPrefix = prefix + (isLast ? '    ' : '│   ')
+        const isLastChild = index === children.length - 1;
+        const connector = isLast ? '└── ' : '├── ';
+        const childPrefix = prefix + (isLast ? '    ' : '│   ');
 
-        treeRepresentation += `${prefix}${connector}${node.name}\n`
+        treeRepresentation += `${prefix}${connector}${node.name}\n`;
 
-        const nodeChildren = nodes.filter((n) =>
-          graph.edges.some((e) => e.from === node.id && e.to === n.id)
-        )
+        const nodeChildren = nodes.filter(n =>
+          graph.edges.some(e => e.from === node.id && e.to === n.id)
+        );
         nodeChildren.forEach((child, childIndex) => {
-          const childConnector = childIndex === nodeChildren.length - 1 ? '└── ' : '├── '
-          treeRepresentation += `${childPrefix}${childConnector}${child.name}\n`
-        })
-      })
-    }
+          const childConnector = childIndex === nodeChildren.length - 1 ? '└── ' : '├── ';
+          treeRepresentation += `${childPrefix}${childConnector}${child.name}\n`;
+        });
+      });
+    };
 
-    treeRepresentation = 'Dependency Graph:\n'
-    treeRepresentation += `Total Modules: ${graph.metadata.totalNodes}\n`
-    treeRepresentation += `Total Dependencies: ${graph.metadata.totalEdges}\n`
-    treeRepresentation += '─'.repeat(40) + '\n'
+    treeRepresentation = 'Dependency Graph:\n';
+    treeRepresentation += `Total Modules: ${graph.metadata.totalNodes}\n`;
+    treeRepresentation += `Total Dependencies: ${graph.metadata.totalEdges}\n`;
+    treeRepresentation += '─'.repeat(40) + '\n';
 
-    const rootNodes = graph.nodes.filter((n) => graph.edges.every((e) => e.to !== n.id))
+    const rootNodes = graph.nodes.filter(n =>
+      graph.edges.every(e => e.to !== n.id)
+    );
     rootNodes.forEach((node, index) => {
       treeRepresentation += `${node.name}\n`
       renderTree(graph.nodes, node.id, '', index === rootNodes.length - 1)
@@ -717,10 +720,10 @@ function getModuleStructure (modules) {
     totalCount: 0,
     exports: {},
     imports: {}
-  }
+  };
 
   if (typeof modules !== 'object' || modules === null) {
-    return structure
+    return structure;
   }
 
   // Process each module
@@ -736,7 +739,7 @@ function getModuleStructure (modules) {
       peerDependencies: [],
       size: mod.size || 0,
       lineCount: mod.lineCount || 0
-    }
+    };
 
     // Extract exports
     if (mod.exports) {
@@ -772,11 +775,11 @@ function getModuleStructure (modules) {
       moduleInfo.peerDependencies = mod.peerDependencies
     }
 
-    structure.modules.push(moduleInfo)
-    structure.totalCount++
-  })
+    structure.modules.push(moduleInfo);
+    structure.totalCount++;
+  });
 
-  return structure
+  return structure;
 }
 
 /**
@@ -785,29 +788,36 @@ function getModuleStructure (modules) {
  * @param {Object} options - Display options (verbose, showExports, etc.)
  * @returns {string} A formatted string representation of the module structure
  */
-function displayModuleStructure (moduleStructure, options = {}) {
-  const { verbose = false, showExports = true, showDependencies = true, maxDepth = 2 } = options
+function displayModuleStructure(moduleStructure, options = {}) {
+  const {
+    verbose = false,
+    showExports = true,
+    showDependencies = true,
+    maxDepth = 2
+  } = options;
 
   if (!moduleStructure || !moduleStructure.modules) {
     return 'No module structure data available'
   }
 
-  const output = []
-  output.push('═'.repeat(60))
-  output.push('MODULE STRUCTURE REPORT')
-  output.push('═'.repeat(60))
-  output.push(`Total Modules: ${moduleStructure.totalCount}`)
-  output.push(`Total Unique Exports: ${Object.keys(moduleStructure.exports || {}).length}`)
-  output.push(`Total Unique Imports: ${Object.keys(moduleStructure.imports || {}).length}`)
-  output.push('═'.repeat(60))
+  let output = [];
+  output.push('═'.repeat(60));
+  output.push('MODULE STRUCTURE REPORT');
+  output.push('═'.repeat(60));
+  output.push(`Total Modules: ${moduleStructure.totalCount}`);
+  output.push(`Total Unique Exports: ${Object.keys(moduleStructure.exports || {}).length}`);
+  output.push(`Total Unique Imports: ${Object.keys(moduleStructure.imports || {}).length}`);
+  output.push('═'.repeat(60));
 
   // Sort modules alphabetically
-  const sortedModules = [...moduleStructure.modules].sort((a, b) => a.name.localeCompare(b.name))
+  const sortedModules = [...moduleStructure.modules].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
   sortedModules.forEach((mod, index) => {
-    output.push('')
-    output.push(`${index + 1}. ${mod.name}`)
-    output.push('─'.repeat(40))
+    output.push('');
+    output.push(`${index + 1}. ${mod.name}`);
+    output.push('─'.repeat(40));
 
     if (verbose) {
       output.push(`   Type: ${mod.type}`)
@@ -851,14 +861,14 @@ function displayModuleStructure (moduleStructure, options = {}) {
         })
       }
     }
-  })
+  });
 
-  output.push('')
-  output.push('═'.repeat(60))
-  output.push('END OF REPORT')
-  output.push('═'.repeat(60))
+  output.push('');
+  output.push('═'.repeat(60));
+  output.push('END OF REPORT');
+  output.push('═'.repeat(60));
 
-  return output.join('\n')
+  return output.join('\n');
 }
 
 /**
@@ -879,8 +889,8 @@ function formatBytes (bytes) {
  * @param {Object} dependencies - The dependency data to export
  * @returns {Object} Serializable representation of the dependency graph
  */
-function exportDependencyGraph (dependencies) {
-  const graphData = renderDependencyGraph(dependencies, { format: 'data' })
+function exportDependencyGraph(dependencies) {
+  const graphData = renderDependencyGraph(dependencies, { format: 'data' });
 
   return {
     format: 'json',
@@ -927,9 +937,9 @@ function exportModuleStructure (moduleStructure) {
 function towerDefense () {
   // A simple tower defense game implementation
   // Define towers, enemies, waves, and game loop
-  const towers = []
-  const enemies = []
-  const wave = 1
+  const towers = [];
+  const enemies = [];
+  let wave = 1;
 
   // Example: Tower constructor
   function Tower (x, y, range, damage, rate) {

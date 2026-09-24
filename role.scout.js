@@ -7,6 +7,24 @@ const MAX_VISITED_ROOMS = 100;
 
 // ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
 const PATH_STYLE_SCOUT = { visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 } };
+/**
+ * Generates a secure random integer between 0 and max-1.
+ * Uses crypto for security with a fallback to Math.random() for sandbox environments.
+ * @param {number} max
+ * @returns {number}
+ */
+function secureRandomInt(max) {
+    try {
+        const crypto = require('crypto');
+        if (crypto && crypto.randomBytes) {
+            const buf = crypto.randomBytes(4);
+            return buf.readUInt32LE(0) % max;
+        }
+    } catch (e) {
+        // Fallback
+    }
+    return Math.floor(Math.random() * max);
+}
 
 const roleScout = {
     run: function (creep) {
@@ -29,7 +47,7 @@ const roleScout = {
 
         if (exits && Object.keys(exits).length > 0) {
             const exitValues = Object.values(exits);
-            creep.memory.targetRoom = exitValues[Math.floor(Math.random() * exitValues.length)];
+            creep.memory.targetRoom = exitValues[secureRandomInt(exitValues.length)];
         } else {
             // No exits found, stay in current room
             creep.say('⚠️');

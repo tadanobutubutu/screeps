@@ -1,4 +1,4 @@
-// Existing code from main.js
+// TODO: This is the existing code that needs to be preserved
 class User {
     constructor(name, age) {
         this.name = name;

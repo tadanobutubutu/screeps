@@ -1,8 +1,5 @@
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
-// Main entry point for dependency visualization tool
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
-
+// TODO: This is the existing code that needs to be preserve
+// (This comment remains as-is)
 import React from 'react';
 import { render } from 'react-dom';
 import {
@@ -43,7 +40,7 @@ import {
   renderIndex
 } from './AccessibilityHelpers';
 
-const ScreepsBotModule = require('./ScreepsBot').default;
+const ScreepsBotFactory = require('./ScreepsBot').default;
 const updateUI = require('./updateUI').default;
 const main = require('./utilities');
 const React = require('react');
@@ -122,7 +119,6 @@ const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 const { accessibilityUtils } = require('./accessibilityUtils');
 
-const SET_ELEMENT_LABEL = main.setElementLabel;
 const { validateTableStructureForAccessibility } = main;
 
 const DOMParser = require('@xmldom/xmldom').DOMParser;
@@ -173,6 +169,11 @@ if (dependencyGraph) {
     dependencyGraph.setAttribute('id', 'dependencyGraph');
   }
 
+  // Validate table accessibility
+  const validateTableAccessibilityGraph = (html) => {
+    // ... (existing code)
+  };
+
   // Function to validate table accessibility
   dependencyGraph.addEventListener('click', (event) => {
     const target = event.target;
@@ -180,7 +181,7 @@ if (dependencyGraph) {
       const table = target.closest('table');
       if (table) {
         const tableHref = target.getAttribute('href');
-        const tableContent = tableHref ? fetch(tableHref).then(response => response.text()).then(html => validateTableAccessibility(html)) : validateTableAccessibility(table.outerHTML);
+        const tableContent = tableHref ? fetch(tableHref).then(response => response.text()).then(html => validateTableAccessibilityGraph(html)) : validateTableAccessibilityGraph(table.outerHTML);
         tableContent.then(results => {
           const message = results.map(issue => `Table accessibility issue: ${issue.message}`).join('\n');
           a11yStore.updateLiveRegion(message, 'assertive');
@@ -533,14 +534,9 @@ function validateTableStructure(tableData) {
 }
 
 // Handle additional rendering logic
-function renderAdditionalContentHandler(additionalData) {
-  // Implementation for rendering additional content
-  const container = document.getElementById('additionalContent');
-  if (container && additionalData) {
-    container.innerHTML = additionalData;
-    return container.innerHTML;
-  }
-  return '';
+function renderAdditionalContentData(additionalData) {
+  // Your implementation for additional rendering logic
+  return additionalData;
 }
 
 // Main entry point

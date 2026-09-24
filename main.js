@@ -151,22 +151,58 @@ const config = {
 };
 
 /**
- * Validates the table structure for accessibility issues
- * @param {HTMLTableElement} table - The table to validate
- * @returns {boolean} Returns true if no accessibility issues are found, false otherwise
+ * Makes an API call to the specified URL
+ * @param {string} url - The URL to make the request to
+ * @param {Object} options - Request options (method, headers, body, etc.)
+ * @returns {Promise<Object>} Promise resolving to the response data
  */
-function validateTableAccessibility(table) {
-  // Add accessibility validation logic here
-  // This is a placeholder function
-  // In a real-world scenario, you would include checks for table headers, roles, etc.
-  if (!table) return false;
+function makeApiCall(url, options = {}) {
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const requestOptions = {
+      hostname: urlObj.hostname,
+      port: urlObj.port || (urlObj.protocol === 'https:' ? 443 : 80),
+      path: urlObj.pathname + urlObj.search,
+      method: options.method || 'GET',
+      headers: options.headers || {}
+    };
 
-  const headers = table.rows[0].cells;
-  if (headers.length === 0) return false;
+    const protocol = urlObj.protocol === 'https:' ? require('https') : http;
 
-  // Add more validation logic as needed
+    const req = protocol.request(requestOptions, (res) => {
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        try {
+          const parsedData = JSON.parse(data);
+          resolve({
+            statusCode: res.statusCode,
+            headers: res.headers,
+            data: parsedData
+          });
+        } catch (e) {
+          resolve({
+            statusCode: res.statusCode,
+            headers: res.headers,
+            data: data
+          });
+        }
+      });
+    });
 
-  return true; // Assume table passes validation for this placeholder function
+    req.on('error', (error) => {
+      reject(error);
+    });
+
+    if (options.body) {
+      const body = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
+      req.write(body);
+    }
+
+    req.end();
+  });
 }
 
 /**
@@ -229,8 +265,8 @@ function addMiddleware(middleware) {
 module.exports = {
   createServer,
   startApp,
-  addMiddleware,
-  config
+  config,
+  makeApiCall
 };
 
 // Start the application if run directly

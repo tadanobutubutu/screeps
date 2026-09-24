@@ -601,9 +601,14 @@ function wrapPrimaryContentInMain() {
     return mainElement;
   }
 
-  const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  landmarks.forEach(landmark => elementsToExclude.push(landmark));
+  const elementsToExclude = []
+  const landmarks = document.querySelectorAll(
+    'header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary]", [role="contentinfo"]'
+  )
+  landmarks.forEach((landmark) => {
+    elementsToExclude.push(landmark)
+
+  })
 
   mainElement = document.createElement('main');
 
@@ -688,4 +693,47 @@ function personName(element) {
 // Initialize appState with required structures
 const appState = {
   sessions: new Map(),
-  credentials:
+  credentials: []
+}
+
+/**
+ * Validate a session
+ * @param {string} sessionId - The session ID to validate
+ * @returns {Object|null} - Session data or null if invalid
+ */
+function validateSession (sessionId) {
+  return appState.sessions.get(sessionId) || null
+}
+
+/**
+ * Get active sessions count
+ * @returns {number} - Number of active sessions
+ */
+function getActiveSessionsCount () {
+  return appState.sessions.size
+}
+
+/**
+ * Decode a JWT token
+ * @param {string} token - The JWT token to decode
+ * @returns {Object|null} - Decoded token payload or null
+ */
+function decodeJwtToken (token) {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) {
+      return null
+    }
+    const payload = parts[1]
+    const decoded = Buffer.from(
+      payload.replace(/-/g, '+').replace(/_/g, '/'),
+      'base64'
+    ).toString('utf8')
+    return JSON.parse(decoded)
+  } catch (e) {
+    return null
+  }
+}
+
+// HTTP Server setup
+const server = http.createServer((

@@ -1,43 +1,72 @@
-// main.js
-const { createWebResourceButton, validateAccessibilityReport } = require('./utilities');
+We need to resolve the conflict. The file is a JavaScript module with many functions. The conflict seems to be between two versions: HEAD version (the long version with accessibility utilities etc.) and origin/main version (the shorter version with dependencyGraph handling and new functions). The conflict markers show:
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+- In HEAD: after utility functions, there is a comment about accessibility improvements implementation, and includes a lot of functions (focusTrap, trapFocus, newFocusTrap, initAccessibility, initKeyboardNavigation, exportData, addressAccessibilityIssues, announceToScreenReader, validateTableStructure, enhanceFormAccessibility). Then there is a module export section.
 
-// Configuration
-const CONFIG = {
-  port: process.env.PORT || 3000,
-  host: process.env.HOST || 'localhost',
-  maxRetries: 3,
-  timeout: 5000
-};
+- In origin/main: after the dependencyGraph handling snippet (the part before <<<<<), there is code that sets role and aria-label on dependencyGraph, then there are new functions (addAccessibleName, imports, calculateSum, newFunction, renderGraphIndex, module exports). The conflict markers show that HEAD includes a function `initSkipLink`? Actually at the end of HEAD there is `initSkipLink: accessibilityUtils.initSkipLink`, but that seems odd.
 
-// Accessibility utilities and functions
-const accessibilityUtils = {
-  // Initialize skip link functionality for keyboard navigation
-  initSkipLink: () => {
-    const skipLink = document.querySelector('a[href="#main-content"]');
-    if (skipLink) {
-      skipLink.addEventListener('click', (e) => {
+Let's parse the conflict sections:
+
+First part:
+
+```
+<<<<<<< HEAD
+// main.js - Accessibility improvements implementation
+// Merged from HEAD and origin/main
+
+// ============================================
+// Utility Functions
+// ============================================
+
+...
+// ============================================
+// Accessibility Utilities
+// ============================================
+=======
+// TODO: Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+>>>>>>> origin/main
+
+// Access the dependencyGraph container and ensure it has proper ARIA role
+const dependencyGraph = document.getElementById('dependencyGraph');
+```
+
+So the conflict is that HEAD has a big block of code (the accessibility utilities) and origin/main has a small snippet about dependencyGraph.
+
+But then later there are more conflict markers:
+
+```
+<<<<<<< HEAD
+    skipLink.addEventListener('click', (e) => {
+      const href = skipLink.getAttribute('href');
+      if (!href) return;
+      const targetId = href.replace('#', '');
+      if (!targetId) return;
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.focus();
         e.preventDefault();
-        const target = document.getElementById('main-content');
-        if (target) {
-          target.setAttribute('tabindex', '-1');
-          target.focus();
-        }
-      });
-    }
+      }
+    });
   },
 
-  // Trap focus within an element (for modals, dialogs)
-  trapFocus: (element) => {
+  /**
+   * Traps focus within the given element.
+   * Tab‑presses are confined to the element's focusable descendants.
+   *
+   * @param {HTMLElement} element - The container element.
+   */
+  trapFocus(element) {
+    if (!element) return;
+    
     const focusableElements = element.querySelectorAll(
-      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
+    
+    if (focusableElements.length === 0) return;
+    
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-
+    
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
@@ -49,280 +78,46 @@ const accessibilityUtils = {
         }
       }
     });
+    
+    firstElement.focus();
   },
 
-  // Announce message to screen readers
-  announceToScreenReader: (message, priority = 'polite') => {
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    setTimeout(() => announcer.remove(), 1000);
-  },
-
-  // Handle keyboard navigation
-  handleKeyboardNav: (e, handlers) => {
-    const key = e.key;
-    if (handlers[key]) {
-      handlers[key](e);
-    }
-  },
-
-  // New function implementation: traps focus within a given element
-  newFocusTrap: (element) => {
+  /**
+   * A newer focus trap implementation.
+   * Identical to `trapFocus` for consistency.
+   *
+   * @param {HTMLElement} element - The container element.
+   */
+  newFocusTrap(element) {
     if (!element) return;
-    const focusable = element.querySelectorAll(
-      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
+    
+    if (focusableElements.length === 0) return;
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === first) {
-          last.focus();
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
           e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          first.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
           e.preventDefault();
         }
       }
     });
-  }
-};
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-const ensureElementId = (element) => {
-  if (element && !element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element;
-};
-
-const addAriaLabel = (element, label) => {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
-};
-
-const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
-  return {
-    statusCode,
-    data,
-    timestamp: new Date().toISOString()
-  };
-}
-
-const renderIndex = (data) => {
-  return {
-    index: data.index || [],
-    totalCount: (data.index || []).length
-  };
-};
-
-// Ensure dependencyGraph container has proper ARIA role
-const ensureDependencyGraphAriaRole = (container) => {
-  if (container && typeof container.setAttribute === 'function' && !container.getAttribute('role')) {
-    container.setAttribute('role', 'application');
-  }
-  return container;
-};
-
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-
-// Utility functions for rendering accessibility features
-const getLangAttribute = () => {
-  // Implementation for adding a lang attribute to HTML element
-};
-
-const personName = () => {
-  // Implementation for adding accessible names to persons
-};
-
-// Module-level function definitions
-function affectedFunction() {
-  // Function implementation
-  return 'affected function result';
-}
-
-function updateFunction() {
-  // Function implementation
-  return 'update function result';
-}
-
-function accessibleFunction() {
-  // Function implementation
-  return 'accessible function result';
-}
-
-// Export functionality with accessibility support
-const exportUtils = {
-  exportData: (data, filename, mimeType) => {
-    const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.setAttribute('aria-label', `Download ${filename}`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
     
-    // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+    firstElement.focus();
   },
 
-// New function added as per issue
-function myNewFunction(input) {
-  if (typeof input !== 'string') {
-    return input;
-  }
-  return input.toUpperCase();
-}
-
-  exportToCSV: (data, filename) => {
-    if (!data || data.length === 0) return;
-    
-    const headers = Object.keys(data[0]);
-    const csvRows = [];
-    csvRows.push(headers.join(','));
-    
-    for (const row of data) {
-      const values = headers.map(header => {
-        const escaped = ('' + row[header]).replace(/"/g, '\\"');
-        return `"${escaped}"`;
-      });
-      csvRows.push(values.join(','));
-    }
-    
-    const csvString = csvRows.join('\n');
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
-  }
-
-  function nextFocusableElement() {
-    setActiveElement(activeElementIndex + 1);
-  }
-
-  function previousFocusableElement() {
-    setActiveElement(activeElementIndex - 1);
-  }
-
-  function moveFocusToFirst() {
-    setActiveElement(0);
-  }
-
-  function moveFocusToLast() {
-    setActiveElement(focusableElements.length - 1);
-  }
-
-  element.addEventListener('keydown', (e) => {
-    switch (e.key) {
-      case 'Tab':
-        if (e.shiftKey) {
-          previousFocusableElement();
-        } else {
-          nextFocusableElement();
-        }
-        e.preventDefault();
-        break;
-      case 'ArrowLeft':
-        previousFocusableElement();
-        e.preventDefault();
-        break;
-      case 'ArrowRight':
-        nextFocusableElement();
-        e.preventDefault();
-        break;
-      case 'Home':
-        moveFocusToFirst();
-        e.preventDefault();
-        break;
-      case 'End':
-        moveFocusToLast();
-        e.preventDefault();
-        break;
-    }
-  });
-};
-
-function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9_\-\.]/gi, '_');
-}
-
-function readFileSafe(filePath) {
-  try {
-    const fs = require('fs');
-    return fs.readFileSync(filePath, 'utf8');
-  } catch (error) {
-    log(`Error reading file ${filePath}: ${error.message}`, 'error');
-    return null;
-  }
-}
-
-// Initialize accessibility features
-const initAccessibility = () => {
-  accessibilityUtils.initSkipLink();
-
-  // Add keyboard support for navigation
-  document.addEventListener('keydown', (e) => {
-    accessibilityUtils.handleKeyboardNav(e, {
-      Escape: () => {
-        // Close modals or dropdowns
-      }
-    });
-  });
-};
-
-// Main entry point
-function main() {
-  // Application initialization
-  return 'main function executed';
-}
-
-// Export functions to make them accessible
-module.exports = {
-  affectedFunction,
-  updateFunction,
-  accessibleFunction,
-  main,
-  calculateSum,
-  handleCredentialResponse,
-  log,
-  newFocusTrap,
-  ensureElementId,
-  addAriaLabel,
-  renderDependencyGraph,
-  ensureDependencyGraphAriaRole,
-  exportUtils,
-  sanitizeFilename,
-  readFileSafe,
-  initAccessibility,
-  getLangAttribute,
-  personName
-};
-
-// Also attach to global scope for browser/standalone access
-if (typeof window !== 'undefined') {
-  window.affectedFunction = affectedFunction;
-  window.updateFunction = updateFunction;
-  window.accessibleFunction = accessibleFunction;
-  window.main = main;
-}
+  /**
+   * Enhances keyboard accessibility for interactive elements and elements with
+   * the `data-accessible` attribute. Adds a `tabindex="0"` and handles Enter/Space
+   * to trigger clicks.
+   */
+ <unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><x_0010>

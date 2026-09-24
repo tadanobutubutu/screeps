@@ -254,6 +254,4 @@ export {
 };
 
 export default Main;
-export { Main, updateMainTitle };
-
-initializeAccessibility();
+export { Main, updateTitle };

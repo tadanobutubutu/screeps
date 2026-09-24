@@ -167,90 +167,101 @@ const accessibilityUtils = {
   },
 
   /**
-   * Set up keyboard navigation for an element
-   * @param {HTMLElement} element - The element to set up keyboard navigation for
-   * @param {Object} handlers - The handler functions for different keys
+   * Get language attribute for HTML element
+   * @returns {string} The lang attribute value
    */
-  setupKeyboardNav: (element, handlers) => {
-    if (!element || !handlers) return;
-
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, handlers);
-    });
+  getLangAttribute: () => {
+    return document.documentElement.lang || 'en';
   },
 
   /**
-   * Create a focus trap for modal dialogs
-   * @param {HTMLElement} element - The modal element to trap focus within
-   * @param {HTMLElement} [initialFocus] - The element to focus initially
-   * @returns {Object} Object with methods to manage the focus trap
+   * Validate table accessibility
+   * @param {HTMLElement} table - The table element to validate
+   * @returns {boolean} Whether the table is accessible
    */
-  createFocusTrap: (element, initialFocus = null) => {
-    if (!element) return;
+  validateTableAccessibility: (table) => {
+    if (!table) return false;
 
-    const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
+    // Check for proper table structure
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasThead = table.querySelector('thead') !== null;
+    const hasTbody = table.querySelector('tbody') !== null;
 
-    if (focusableElements.length === 0) return;
+    // Check for proper headers
+    const headers = table.querySelectorAll('th');
+    let hasScope = true;
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        hasScope = false;
+      }
+    });
 
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
+    return hasCaption && hasThead && hasTbody && hasScope;
+  },
 
-    // Set initial focus
-    if (initialFocus && element.contains(initialFocus)) {
-      initialFocus.focus();
-    } else {
-      firstElement.focus();
+  /**
+   * Validate landmark structure
+   * @param {HTMLElement} element - The element to validate
+   * @returns {boolean} Whether the landmark is properly structured
+   */
+  validateLandmark: (element) => {
+    if (!element) return false;
+
+    const role = element.getAttribute('role');
+    if (!role) return false;
+
+    // Check for proper landmark roles
+    const validLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+    return validLandmarks.includes(role);
+  },
+
+  /**
+   * Get accessible name for SVG
+   * @param {HTMLElement} svg - The SVG element
+   * @returns {string} The accessible name
+   */
+  getSvgAccessibleName: (svg) => {
+    if (!svg) return '';
+
+    // Check for aria-label, aria-labelledby, or title
+    if (svg.hasAttribute('aria-label')) {
+      return svg.getAttribute('aria-label');
     }
 
-    const handleKeyDown = (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
-        }
-      } else if (e.key === 'Escape') {
-        // Handle escape key for modal closing
-        const closeButton = element.querySelector('[data-close-modal]');
-        if (closeButton) {
-          closeButton.click();
-        }
-      }
-    };
+    if (svg.hasAttribute('aria-labelledby')) {
+      const id = svg.getAttribute('aria-labelledby');
+      const labelElement = document.getElementById(id);
+      return labelElement ? labelElement.textContent : '';
+    }
 
-    element.addEventListener('keydown', handleKeyDown);
-
-    return {
-      activate: () => {
-        if (initialFocus && element.contains(initialFocus)) {
-          initialFocus.focus();
-        } else {
-          firstElement.focus();
-        }
-      },
-      deactivate: () => {
-        element.removeEventListener('keydown', handleKeyDown);
-      }
-    };
+    const title = svg.querySelector('title');
+    return title ? title.textContent : '';
   },
 
   /**
-   * Add ARIA attributes to an element
-   * @param {HTMLElement} element - The element to add ARIA attributes to
-   * @param {Object} attributes - Object of ARIA attributes to add
+   * Create an accessible in-page button
+   * @param {string} text - The button text
+   * @param {Function} onClick - The click handler
+   * @returns {HTMLElement} The created button
    */
-  addAriaAttributes: (element, attributes) => {
-    if (!element || !attributes) return;
+  createInPageButton: (text, onClick) => {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.setAttribute('aria-label', text);
+    button.addEventListener('click', onClick);
+    return button;
+  },
 
-    Object.entries(attributes).forEach(([key, value]) => {
-      if (key.startsWith('aria-')) {
-        element.setAttribute(key, value);
-      }
-    });
+  /**
+   * Get person name with proper accessibility attributes
+   * @param {string} name - The person's name
+   * @returns {HTMLElement} The name element with proper attributes
+   */
+  personName: (name) => {
+    const span = document.createElement('span');
+    span.textContent = name;
+    span.setAttribute('aria-label', `Person: ${name}`);
+    return span;
   }
 }
 
@@ -262,8 +273,11 @@ function initAccessibility () {
   if (typeof window !== 'undefined') {
     // Ensure screen reader support is available
     document.body.setAttribute('role', 'application');
-    // Add lang attribute to HTML element
-    document.documentElement.lang = 'en';
+
+    // Set language attribute if not already set
+    if (!document.documentElement.hasAttribute('lang')) {
+      document.documentElement.setAttribute('lang', accessibilityUtils.getLangAttribute());
+    }
   }
   return accessibilityUtils
 }
@@ -756,8 +770,82 @@ function newFocusTrap(element) {
   firstElement.focus();
 }
 
-function newFocusTrap(element) {
-  return accessibilityUtils.newFocusTrap(element);
+/**
+ * New focus trap implementation with additional accessibility features
+ * @param {HTMLElement} element - The element to trap focus within
+ * @param {Object} options - Configuration options
+ */
+function newFocusTrap(element, options = {}) {
+  if (!element) return;
+
+  const {
+    initialFocus = null,
+    escapeDeactivates = true,
+    clickOutsideDeactivates = true,
+    returnFocusOnDeactivate = true
+  } = options;
+
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  // Set initial focus
+  if (initialFocus) {
+    initialFocus.focus();
+  } else {
+    firstElement.focus();
+  }
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    } else if (e.key === 'Escape' && escapeDeactivates) {
+      // Deactivate trap on escape
+      deactivateTrap();
+    }
+  };
+
+  // Handle click outside
+  const handleClickOutside = (e) => {
+    if (clickOutsideDeactivates && !element.contains(e.target)) {
+      deactivateTrap();
+    }
+  };
+
+  // Deactivate the trap
+  const deactivateTrap = () => {
+    element.removeEventListener('keydown', handleKeyDown);
+    document.removeEventListener('mousedown', handleClickOutside);
+
+    if (returnFocusOnDeactivate) {
+      // Return focus to the element that triggered the trap
+      const previousActiveElement = document.activeElement;
+      if (previousActiveElement) {
+        previousActiveElement.focus();
+      }
+    }
+  };
+
+  // Add event listeners
+  element.addEventListener('keydown', handleKeyDown);
+  document.addEventListener('mousedown', handleClickOutside);
+
+  // Return cleanup function
+  return {
+    deactivate: deactivateTrap
+  };
 }
 
 /**

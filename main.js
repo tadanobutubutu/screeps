@@ -8,16 +8,11 @@ import './styles.css';
 import path from 'path';
 import fs from 'fs';
 
-import {
-  addLangAttribute,
-  fixTableStructure,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  checkTableAccessibility
-} from './utils/accessibility';
+// REACT_015: Add lang attribute
+
+function App() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -394,18 +389,26 @@ export function fixTableStructureIssues(html) {
   return result;
 }
 
-/**
- * Adds main landmark to HTML for proper document structure
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with main landmark added
- */
-export function addMainLandmark(html) {
-  if (typeof html !== 'string') return html;
-  
-  // Check if main landmark already exists
-  if (html.includes('<main') || html.includes('</main>')) {
-    return html;
-  }
+export {
+  App,
+  AppWithAccessibility,
+  getUniqueLandmarkName,
+  validateUniqueLandmarks,
+  addSvgAccessibleName,
+  isValidLink,
+  addScopeToHeaders,
+  addressAccessibilityIssues,
+  announceToScreenReader,
+  trapFocus,
+  manageFocusOnNavigation,
+  prefersReducedMotion,
+  setAriaExpanded,
+  hasAccessibleName,
+  newFunction,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs
+};
 
   // If no main landmark, try to add one after the opening body tag
   return html.replace(/<body(\s[^>]*)?>/gi, (match, attrs) => {

@@ -22,109 +22,99 @@ const AddressabilityIssues = {
     if (!container) return;
     container.innerHTML = '';
     
-    const {
-      width = 800,
-      height = 600,
-      nodeRadius = 20,
-      onNodeClick = null,
-      ariaDescription = 'Dependency graph visualization'
-    } = options;
-
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', 'Dependency graph');
-    svg.setAttribute('aria-description', ariaDescription);
-    svg.setAttribute('width', String(width));
-    svg.setAttribute('height', String(height));
-    svg.setAttribute('tabindex', '0');
+    svg.setAttribute('width', '400');
+    svg.setAttribute('height', '300');
     
-    // Create a description element for screen readers
-    const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
-    desc.textContent = this.generateGraphDescription(graphData);
-    svg.appendChild(desc);
-
-    // Create a main group for the graph content
-    const mainGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    mainGroup.setAttribute('role', 'group');
-    mainGroup.setAttribute('aria-label', 'Graph content');
-    
-    // Process and render edges first (so they appear behind nodes)
-    if (graphData && graphData.edges) {
-      graphData.edges.forEach((edge, index) => {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', String(edge.from.x || 0));
-        line.setAttribute('y1', String(edge.from.y || 0));
-        line.setAttribute('x2', String(edge.to.x || 0));
-        line.setAttribute('y2', String(edge.to.y || 0));
-        line.setAttribute('stroke', '#666');
-        line.setAttribute('stroke-width', '2');
-        line.setAttribute('aria-label', `Edge from ${edge.fromLabel || 'node'} to ${edge.toLabel || 'node'}`);
-        line.id = `edge-${index}`;
-        mainGroup.appendChild(line);
-      });
-    }
-
-    // Process and render nodes
-    if (graphData && graphData.nodes) {
-      graphData.nodes.forEach((node, index) => {
-        const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        const nodeId = node.id || `node-${index}`;
+    if (graphData && Array.isArray(graphData.nodes) && graphData.nodes.length > 0) {
+      const nodes = graphData.nodes;
+      const edges = graphData.edges || [];
+      
+      const nodeRadius = 20;
+      const nodeSpacing = 80;
+      
+      nodes.forEach((node, index) => {
+        const x = 50 + (index % 5) * nodeSpacing;
+        const y = 50 + Math.floor(index / 5) * nodeSpacing;
         
-        // Create the node circle
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', String(node.x || 0));
-        circle.setAttribute('cy', String(node.y || 0));
-        circle.setAttribute('r', String(nodeRadius));
-        circle.setAttribute('fill', node.color || '#4A90E2');
-        circle.setAttribute('stroke', '#333');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', nodeRadius);
+        circle.setAttribute('fill', '#4CAF50');
+        circle.setAttribute('stroke', '#2E7D32');
         circle.setAttribute('stroke-width', '2');
-        circle.id = `${nodeId}-circle`;
         
-        // Create accessible text label
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', String(node.x || 0));
-        text.setAttribute('y', String((node.y || 0) + 4));
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('fill', '#fff');
-        text.setAttribute('font-size', '12');
-        text.setAttribute('aria-hidden', 'true');
-        text.textContent = node.label || nodeId;
-        
-        // Create accessible title for the node
-        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        title.textContent = `${node.label || nodeId}${node.description ? ': ' + node.description : ''}`;
-        
-        // Wrap elements in a group for the node
-        group.setAttribute('role', 'button');
-        group.setAttribute('aria-label', `${node.label || nodeId}${node.description ? ': ' + node.description : ''}`);
-        group.setAttribute('tabindex', '0');
-        group.id = nodeId;
-        
-        // Add keyboard event listeners for accessibility
-        group.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            if (onNodeClick && typeof onNodeClick === 'function') {
-              onNodeClick(node, index);
-            }
-          }
-        });
-        
-        // Add click event if callback provided
-        if (onNodeClick && typeof onNodeClick === 'function') {
-          group.addEventListener('click', () => {
-            onNodeClick(node, index);
-          });
+        if (node.id) {
+          circle.setAttribute('id', node.id);
         }
         
-        group.appendChild(title);
-        group.appendChild(circle);
-        group.appendChild(text);
-        mainGroup.appendChild(group);
+        if (node.label) {
+          circle.setAttribute('aria-label', node.label);
+          circle.setAttribute('title', node.label);
+        }
+        
+        svg.appendChild(circle);
+        
+        if (node.label) {
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', x);
+          text.setAttribute('y', y + 4);
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('fill', 'white');
+          text.setAttribute('font-size', '12');
+          text.setAttribute('font-family', 'Arial, sans-serif');
+          text.textContent = node.label;
+          svg.appendChild(text);
+        }
       });
+      
+      edges.forEach(edge => {
+        if (!edge.from || !edge.to) return;
+        
+        const fromNode = nodes.find(n => n.id === edge.from);
+        const toNode = nodes.find(n => n.id === edge.to);
+        
+        if (!fromNode || !toNode) return;
+        
+        const fromX = 50 + (nodes.indexOf(fromNode) % 5) * nodeSpacing;
+        const fromY = 50 + Math.floor(nodes.indexOf(fromNode) / 5) * nodeSpacing;
+        const toX = 50 + (nodes.indexOf(toNode) % 5) * nodeSpacing;
+        const toY = 50 + Math.floor(nodes.indexOf(toNode) / 5) * nodeSpacing;
+        
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', fromX + nodeRadius);
+        line.setAttribute('y1', fromY);
+        line.setAttribute('x2', toX - nodeRadius);
+        line.setAttribute('y2', toY);
+        line.setAttribute('stroke', '#666');
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('marker-end', 'url(#arrowhead)');
+        
+        svg.appendChild(line);
+      });
+      
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+      marker.setAttribute('id', 'arrowhead');
+      marker.setAttribute('markerWidth', '10');
+      marker.setAttribute('markerHeight', '7');
+      marker.setAttribute('refX', '9');
+      marker.setAttribute('refY', '3.5');
+      marker.setAttribute('orient', 'auto');
+      
+      const markerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      markerPath.setAttribute('d', 'M0,0 L0,7 L10,3.5 Z');
+      markerPath.setAttribute('fill', '#666');
+      marker.appendChild(markerPath);
+      marker.appendChild(markerPath);
+      
+      defs.appendChild(marker);
+      svg.insertBefore(defs, svg.firstChild);
     }
-
-    svg.appendChild(mainGroup);
+    
     container.appendChild(svg);
     
     return svg;
@@ -448,33 +438,25 @@ function createInPageButton(options = {}) {
   return button;
 }
 
-// Updated function to render dependency graphs with proper accessibility
-function renderDependencyGraphs(containers = [], graphData = null) {
-  const results = [];
+// TODO: No additional changes requested at this time
+function renderDependencyGraphs() {
+  // Render multiple dependency graphs from application state
+  const graphs = [];
   
-  if (!containers || containers.length === 0) {
-    // If no containers provided, try to find containers with data-graph attribute
-    const graphContainers = document.querySelectorAll('[data-graph]');
-    graphContainers.forEach((container) => {
-      const data = container.getAttribute('data-graph-data');
-      const parsedData = data ? JSON.parse(data) : graphData;
-      if (parsedData) {
-        const svg = AddressabilityIssues.renderDependencyGraph(parsedData, container);
-        results.push({ container, svg, success: !!svg });
-      }
-    });
-  } else {
-    // Process provided containers
-    const containerArray = Array.isArray(containers) ? containers : [containers];
-    containerArray.forEach((container, index) => {
-      const data = graphData || (container.getAttribute ? container.getAttribute('data-graph-data') : null);
-      const parsedData = data ? (typeof data === 'string' ? JSON.parse(data) : data) : null;
-      const svg = AddressabilityIssues.renderDependencyGraph(parsedData, container);
-      results.push({ container, svg, success: !!svg, index });
-    });
-  }
+  // Example: Get dependency data from module exports or global state
+  const dependencyData = window.DEPENDENCY_DATA || [];
   
-  return results;
+  dependencyData.forEach(graphData => {
+    const container = document.createElement('div');
+    container.className = 'dependency-graph-container';
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', graphData.title || 'Dependency Graph');
+    
+    AddressabilityIssues.renderDependencyGraph(graphData, container);
+    graphs.push(container);
+  });
+  
+  return graphs;
 }
 
 // Helper functions

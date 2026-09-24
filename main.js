@@ -81,6 +81,20 @@ function addLangAttributeToHtmlElement(issue) {
   }
 }
 
+// Function for creating in-page buttons
+function createInPageButton(label, onClickHandler, options = {}) {
+  // Implementation for creating an in-page button
+  const button = createElement('button', {
+    id: options.id || `in-page-button-${uuidv4()}`,
+    className: options.className || 'in-page-button',
+    onClick: onClickHandler,
+    'aria-label': options.ariaLabel || label,
+    disabled: options.disabled || false
+  }, label);
+
+  return button;
+}
+
 // Main function to process accessibility issues from an insight report
 function processAccessibilityReport(insightReport) {
   // Call function to address accessibility issues
@@ -201,48 +215,5 @@ function fixTableStructure(table) {
   validateTableStructure(table);
 }
 
-function fixLandmarks() {
-  validateLandmarkUtils();
-  validateLandmarkStructUtils();
-}
-
-function addSvgAccessibleNames(svg) {
-  getSvgAccessibleName(svg);
-  setSvgAttributes(svg);
-}
-
-function ensureUniqueLandmarks() {
-  validateLandmarkHelpers();
-  validateLandmarkStructHelpers();
-}
-
-function fixFakeLinks() {
-  validateLinkAccessibility();
-  handleFakeLinks();
-}
-
-function applyAccessibilityFixes() {
-  // Placeholder for implementing accessibility fixes
-  console.log('Applying accessibility fixes');
-}
-
-module.exports = {
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarks,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinks,
-  applyAccessibilityFixes,
-  addressAccessibilityIssues,
-  createInPageButton,
-  validateTableAccessibility,
-  validateLandmarkStructure,
-  getLangAttribute,
-  getSvgAccessibleName,
-  personName,
-  divide,
-  checkLinkAccessibility,
-  wrapPrimaryContentInMain,
-  handleCredentialResponse
-};
+// Add back any required exports that might have been removed
+export { addressAccessibilityIssues, processAccessibilityIssues, createInPageButton };

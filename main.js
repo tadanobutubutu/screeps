@@ -23,10 +23,115 @@ function addressAccessibilityIssues() {
   fixUniqueLandmarks(insightReport());
 }
 
-accessibilityUtils.trapFocus = (element) => {
-  if (!element) {
-    return () => {};
+// Export functionality with accessibility support
+const exportUtilities = {
+  exportData: (data, filename, mimeType) => {
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.setAttribute('aria-label', "Download " + filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    // Announce download completion to screen readers
+    announceToScreenReader("Download of " + filename + " started");
+  },
+
+  exportToJSON: (data, filename) => {
+    const jsonString = JSON.stringify(data, null, 2);
+    exportUtilities.exportData(jsonString, filename || 'export.json', 'application/json');
+  },
+
+  exportToCSV: (data, filename) => {
+    if (!data || data.length === 0) return;
+
+    const headers = Object.keys(data[0]);
+    const csvRows = [];
+
+    csvRows.push(headers.join(','));
+
+    for (const row of data) {
+      const values = headers.map(header => {
+        const escaped = (' ' + row[header]).replace(/"/g, '\\"');
+        return "\"" + escaped + "\"";
+      });
+      csvRows.push(values.join(','));
+    }
+
+    const csvString = csvRows.join('\n');
+    exportUtilities.exportData(csvString, filename || 'export.csv', 'text/csv');
   }
+};
+
+function sanitizeFilename(filename) {
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
+}
+
+function readFileSafe(filePath) {
+  try {
+    return fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    log("Error reading file " + filePath + ": " + error.message, 'error');
+    return null;
+  }
+}
+
+// Existing data processing functions
+function processData(items) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items.map(item => ({
+    ...item,
+    processed: true,
+    timestamp: Date.now()
+  }));
+}
+
+function filterValidItems(items, validator) {
+  return items.filter(item => {
+    try {
+      return validator(item);
+    } catch {
+      return false;
+    }
+  });
+}
+
+// Initialize accessibility features
+const initAccessibility = () => {
+  accessibilityUtils.initSkipLink();
+
+  // Add keyboard support for all interactive elements
+  document.querySelectorAll('button, a, input, select, textarea').forEach(element => {
+    element.addEventListener('keydown', (e) => {
+      const handlers = {
+        Enter: () => element.click(),
+        ' ': () => element.click()
+      };
+      if (handlers[e.key]) {
+        handlers[e.key]();
+      }
+    });
+  });
+};
+
+// TODO: Implement this function for creating in- page buttons
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    button.setAttribute('aria-label', buttonText);
+    button.addEventListener('click', function() {
+        // Button click handler can be added here
+    });
+    return button;
+}
 
   const focusableElements = element.querySelectorAll(
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -183,39 +288,10 @@ function wrapPrimaryContentInMain(content, options = {}) {
   return mainElement;
 }
 
-// Export all functions for use elsewhere in the repository
-module.exports = {
-  addressAccessibilityIssues,
-  renderDependencyGraphContent,
-  validateInput,
-  processData,
-  formatResponse,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButtons,
-  fixUniqueLandmarks,
-  generateAccessibilityReport,
-  renderDependencyGraphs,
-  focusTrap,
-  addAriaLabel,
-  calculateSum,
-  initAccessibility,
-  groupByCategory,
-  ensureDependencyGraphARIA,
-  initiateAnnounceToScreenReader,
-  handleKeyboardNavKeyDownEvent,
-  newFocusTrap,
-  exportUtilities,
-  sanitizeFilename,
-  readFileSafe,
-  filterValidItems,
-  renderGraphIndex,
-  renderAdditionalContent,
-  addSvgAccessibleNameToElement,
-  addMainLandmarkToIndex,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  transformInputData,
-  handleCredentialResponse,
-  wrapPrimaryContentInMain
-};
+// REACT_042: Ensure dependencyGraph container has proper ARIA role
+function ensureProperARIAroleForDependencyGraph() {
+    const dependencyGraph = document.querySelector('#dependencyGraph');
+    if (dependencyGraph) {
+        // TODO: Implement the actual logic
+    }
+}

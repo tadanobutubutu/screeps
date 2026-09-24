@@ -32,6 +32,14 @@ function newFunction() {
   return 'newFunction executed';
 }
 
+// Initialize accessibility features
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    // a11yStore.init(); // Ensure a11yStore is imported
+    addressAccessibilityIssuesDOM();
+  });
+}
+
 // Preserve existing code
 const preserveExistingCode = () => {
   return 'existing code preserved';
@@ -186,8 +194,66 @@ function renderGraphIndex() {
   // JavaScript code to prepare data for the graph
   const data = prepareDataForGraph();
 
-  // Render the graph using the new functions
-  // renderGraph(data);
+  if (typeof document !== 'undefined') {
+    const landmarks = document.querySelectorAll('[role="landmark"]');
+    landmarks.forEach((landmark, index) => {
+      landmark.setAttribute('aria-label', `${translations['en'].landmark}-${index + 1}`);
+      // Additional landmark processing...
+    });
+
+    const svg1 = document.querySelector('.svg1');
+    const svg2 = document.querySelector('.svg2');
+    if (svg1) svg1.setAttribute('aria-labelledby', 'svg1-title');
+    if (svg2) svg2.setAttribute('aria-labelledby', 'svg2-title');
+
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length > 1) {
+      // Keep the first main as a landmark, and change the rest to non-landmarks
+      for (let i = 1; i < mainElements.length; i++) {
+        mainElements[i].setAttribute('role', 'presentation');
+      }
+    }
+
+    const fakeLinks = document.querySelectorAll('.fake-link');
+    fakeLinks.forEach(link => {
+      link.setAttribute('role', 'presentation');
+    });
+
+    // Implement this function for checking link and button accessibility
+    function checkLinksAndButtons() {
+      const links = document.querySelectorAll('a');
+      const buttons = document.querySelectorAll('button');
+
+      links.forEach(link => {
+        // Check if link needs explicit role="link"
+        if (!link.hasAttribute('href') && link.getAttribute('role') !== 'link') {
+          link.setAttribute('role', 'link');
+        }
+        // Check for link without href attribute
+        if (!link.hasAttribute('href')) {
+          console.error('Accessibility Error: Link without href attribute', link);
+        }
+      });
+
+      buttons.forEach(button => {
+        // Check if button needs explicit role="button"
+        if (button.getAttribute('role') !== 'button') {
+          button.setAttribute('role', 'button');
+        }
+        // Check for accessible name for buttons
+        const hasText = button.textContent.trim().length > 0;
+        const hasAriaLabel = button.hasAttribute('aria-label');
+        const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
+
+        if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
+          console.error('Accessibility Error: Button without accessible name', button);
+        }
+      });
+    }
+
+    // Call the function to check accessibility
+    checkLinksAndButtons();
+  }
 }
 
 // Update the existing rotateBack function to call renderGraphIndex

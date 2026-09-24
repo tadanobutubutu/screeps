@@ -775,7 +775,12 @@ export {
 };
 
 // Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, checkLandmarkElements };
+module.exports = {
+  checkLinkAccessibility, 
+  renderDependencyGraph, 
+  displayModuleStructure, 
+  checkLandmarkElements
+};
 
 // ... other exports ...
 

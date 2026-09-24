@@ -7,13 +7,12 @@ const { main } = require('./utilities');
 
 const {
   createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
+  validateTableAccessibility: validateTableAccessibilityFromMain,
+  validateTableStructure: validateTableStructureFromMain,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
   getLangAttribute,
-  validateAccessibilityReport,
   announceToScreenReader,
   handleKeyboardNav,
   newFocusTrap: originNewFocusTrap,
@@ -187,55 +186,4 @@ function myNewFunction() {
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c8cf4389f9c -->
-// _Commit: 4a63dcac59b893a2efdccd50635fab9cc54e7989_
-// <!-- todo-hash: 69d71664fd0827cd05d345427adf276b26830ba5 -->
-
-module.exports = {
-  ...main,
-  ...accessibilityUtils,
-  ensureElementIdUtil,
-  newFocusTrap,
-  log,
-  sanitizeFilename,
-  readFileSafe,
-  processData,
-  filterValidItems,
-  initAccessibility,
-  groupByCategory,
-  transformInputData,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  displayModuleStructure,
-  generateDependencyGraph,
-  validateAccessibilityReport,
-  addressAccessibilityIssues,
-  newAccessibilityCheck,
-  exportUtils,
-  handleCredentialResponse,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  renderAdditionalContent,
-  createAccessibleLink,
-  myNewFunction,
-  renderDependencyGraph,
-  getTables,
-  getConfig,
-  setConfig,
-  addAccessibleName
-};
+// _Commit: eef4b

@@ -50,10 +50,9 @@ function handleTabNavigation(event, activeElement) {
   console.log('Handling tab navigation');
 }
 
-// New function: Harvest logic
-function harvestLogic() {
-  // TODO: Implement harvest logic
-  console.log('Harvest logic is not implemented yet.');
+// New function: Calculate discount based on some criteria
+function calculateDiscount(price, discountRate) {
+  return price * (1 - discountRate);
 }
 
 // Import and use existing functions from utilities
@@ -73,6 +72,7 @@ module.exports = {
   handleKeyboardNavigation,
   navigateWithArrow,
   handleTabNavigation,
+  calculateDiscount,
   renderDependencyGraphs,
   harvestLogic,
   ...mainUtilities

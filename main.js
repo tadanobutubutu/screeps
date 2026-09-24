@@ -1,4 +1,13 @@
-import react from 'react';
+// TODO: This is the existing code that needs to be preserved
+
+import React from 'react';
+import express from 'express';
+import path from 'path';
+import './styles.css';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
+import { isSecureContext } from './utils.js';
+
 // Existing code starts here
 
 // This is the existing code that needs to be preserved

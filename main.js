@@ -131,35 +131,47 @@ export function addressAccessibilityIssues() {
             }
             uniqueLandmarkMap[uniqueLandmark] = element;
           }
-          uniqueLandmarkMap[uniqueLandmark] = element[0];
-        });
-
-        landmarks.forEach(landmark => {
-          if (!uniqueLandmarkMap[landmark]) {
-            uniqueLandmarkMap[landmark] = document.querySelector(`#${landmark}`);
-          }
-        });
-
-        // Set aria-describedby for unique landmarks with a description
-        landmarks.forEach(landmark => {
-          const describedByList = Array.from(uniqueLandmarkMap[landmark].attributes.ariaDescribedby.value.split(" "));
-          insightReport.issues.forEach(issue => {
-            if (issue.ariaRole === landmark && issue.ariaDescribedby) {
-              const describedBy = [...describedByList, issue.id];
-              uniqueLandmarkMap[landmark].setAttribute('aria-describedby', describedBy.join(" "));
-            }
-          });
+          uniqueLandmarkMap[uniqueLandmark] = element;
         });
       }
     });
   }
 
-  // Call the functions to improve accessibility
-  improveAccessibility();
-  ensureUniqueLandmarks(insightReport);
+  function generateAccessibilityReport() {
+    const report = {
+      buttonsWithMissingAriaLabel: [],
+      improvedFocusability: []
+    };
+
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      if (!button.getAttribute('aria-label')) {
+        report.buttonsWithMissingAriaLabel.push(button.textContent);
+      }
+    });
+
+    const focusable = document.querySelectorAll('[role="link"]');
+    focusable.forEach(el => {
+      if (el.tabIndex < 0) {
+        el.tabIndex = 0;
+        report.improvedFocusability.push(el);
+      }
+    });
+
+    // Additional checks can be added here as needed
+
+    return JSON.stringify(report, null, 2);
+  }
+
+  // Generate the report based on accessibility issues
+  const report = generateAccessibilityReport();
+  logger.info('Accessibility report generated:', report);
 }
 
-// Export the function for other modules to use
-module.exports = {
-  addressAccessibilityIssues
-};
+// Existing function that can be called to address accessibility issues
+function initializeAccessibility() {
+  if (!isInitialized) {
+    addressAccessibilityIssues();
+    isInitialized = true;
+  }
+}

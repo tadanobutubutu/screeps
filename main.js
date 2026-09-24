@@ -360,7 +360,7 @@ module.exports = {
     PORT: process.env.PORT || 3000,
     HOST: process.env.HOST || 'localhost',
 
-    // Added missing exports as per the issue
+    // Added back required exports
     landmarks,
     appState
 };

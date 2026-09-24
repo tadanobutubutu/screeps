@@ -22,7 +22,7 @@ const {
   validateAccessibilityReport,
   getSvgAccessibleName,
   getLangAttribute,
-  handleCredentialResponse: originalHandleCredentialResponse,
+  handleCredentialResponse: originHandleCredentialResponse,
   ensureElementId,
   addAriaLabel,
   ensureElementHasId,
@@ -44,7 +44,7 @@ const {
   renderDependencyGraph,
   renderDependencyGraphAria,
   addMainLandmarkToIndex,
-  addressAccessibilityIssues: originalAddressAccessibilityIssues,
+  addressAccessibilityIssues: originAddressAccessibilityIssues,
   // New function to handle focus trap
   newFocusTrap: newMainFocusTrap,
   // New functions to address new accessibility issues from insight report

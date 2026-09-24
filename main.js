@@ -163,25 +163,17 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  /**
-   * Initialize all accessibility improvements for the page
-   * This function coordinates all a11y enhancements to ensure
-   * a fully accessible experience
-   */
-  initializeAccessibility() {
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
-    this.fixFakeLinks();
-    this.ensureInteractiveRoles();
-    this.addFormControlLabels();
-    this.ensureImageAccessibility();
-    
-    // Apply reduced motion preference globally if user prefers it
-    if (this.prefersReducedMotion()) {
-      document.documentElement.style.setProperty('animation', 'none');
-      document.documentElement.style.setProperty('transition', 'none');
-    }
-  },
+  // New function to create a button with correct accessibility properties for in-page linking
+  createAccessibleButton(text, href, id) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.setAttribute('role', 'button');
+    button.setAttribute('aria-label', text);
+    button.setAttribute('tabindex', '0');
+    button.setAttribute('href', href);
+    button.setAttribute('id', id);
+    return button;
+  }
 };
 
 // New functions

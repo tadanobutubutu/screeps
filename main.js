@@ -369,8 +369,10 @@ export function AppWithAccessibility() {
       setLoading(false);
     }
 
-    addressedIssues.push(result);
-  });
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', getLangAttribute() || 'en');
+    fetchData();
+  }, []);
 
   return addressedIssues;
 }

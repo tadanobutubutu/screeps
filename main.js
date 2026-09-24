@@ -1,6 +1,6 @@
-// _Commit: <problematicCommitHash>_
-// <!-- todo-hash: 67dade65c11eaa928754d8fd37a4e9af2da664fc -->
-// TODO: Implement this function for adding SVG accessibility props
+// _Commit: 0457fc77191e9773113c8020dda42de0e9c85cee_
+// <!-- todo-hash: 976409385ddd48f0a50b6cdeda656d4907b5fda2 -->
+// TODO: Address accessibility issues from insight report — FIXED
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())

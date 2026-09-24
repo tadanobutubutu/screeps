@@ -89,10 +89,10 @@ export function validateTableStructure(tableElement) {
   }
 
   const errors = [];
-  const rows = tableElement.querySelectorAll('tr');
-
+  const rows = Array.from(tableElement.querySelectorAll('tr'));
+  
   rows.forEach((row, rowIndex) => {
-    const cells = Array.from(row.querySelectorAll('td'));
+    const cells = Array.from(row.querySelectorAll('td, th'));
     const cellCount = cells.length;
 
     // Check for empty cells
@@ -105,8 +105,7 @@ export function validateTableStructure(tableElement) {
     // Check that rows have consistent cell counts
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = prevRow.querySelectorAll('td, th');
-      
+      const prevCells = Array.from(prevRow.querySelectorAll('td, th'));
       if (cellCount !== prevCells.length) {
         errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
       }
@@ -117,187 +116,4 @@ export function validateTableStructure(tableElement) {
 }
 
 // New function to address REACT_017: Add/fix 4 landmark issues
-export function validateLandmark(element) {
-  if (typeof document === 'undefined' || !element) {
-    return { valid: false, errors: ['Element not found'] };
-  }
-
-  const errors = [];
-  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
-
-  // Check if element is a valid landmark
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
-
-  if (role && !validLandmarks.includes(role)) {
-    errors.push(`Element has invalid landmark role: ${role}`);
-  }
-
-  if (!role && !validLandmarks.includes(tagName)) {
-    errors.push(`Element is not a valid landmark: ${tagName}`);
-  }
-
-  // Check for accessible name
-  const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.querySelector('h1, h2, h3, h4, h5, h6');
-
-  if (!hasLabel) {
-    errors.push('Landmark is missing accessible name (aria-label, aria-labelledby, or heading)');
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-
-export function validateLandmarkStructure() {
-  if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
-  }
-
-  const errors = [];
-
-  // Check for multiple main landmarks
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
-  }
-
-  // Check for proper nesting of landmarks
-  const landmarks = document.querySelectorAll('nav, main, aside, footer, section, article, [role]');
-  
-  landmarks.forEach((landmark) => {
-    const parent = landmark.parentElement;
-    while (parent) {
-      const parentTag = parent.tagName.toLowerCase();
-      const parentRole = parent.getAttribute('role');
-
-      // Check for invalid nesting
-      if (parentTag === 'header' && parentTag === 'header') {
-        errors.push('Nested header elements found');
-      }
-      if (parentTag === 'footer' && parentTag === 'footer') {
-        errors.push('Nested footer elements found');
-      }
-
-      parent = parent.parentElement;
-    }
-  });
-
-  return { valid: errors.length === 0, errors };
-}
-
-// New function to address REACT_041: Add accessible names to 2 SVGs
-export function getSvgAccessibleName(svgElement) {
-  if (typeof document === 'undefined' || !svgElement) {
-    return null;
-  }
-
-  // Check for aria-label
-  let accessibleName = svgElement.getAttribute('aria-label');
-  if (accessibleName) return accessibleName;
-  
-  // Check for aria-labelledby
-  const labelledBy = svgElement.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const labelElement = document.getElementById(labelledBy);
-    if (labelElement) return labelElement.textContent;
-  }
-  
-  // Check for title element
-  const title = svgElement.querySelector('title');
-  if (title) return title.textContent;
-  
-  return null;
-}
-
-// New function to address REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  if (typeof document === 'undefined') {
-    return { modified: false, errors: ['Document not available'] };
-  }
-  
-  const errors = [];
-  let modified = false;
-  
-  // Check for unique landmark types that should only appear once
-  const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
-  
-  uniqueLandmarks.forEach((landmarkType) => {
-    const selector = landmarkType === 'main' 
-      ? 'main, [role="main"]'
-      : landmarkType === 'banner'
-      ? 'header[role="banner"], header:not([role]), [role="banner"]'
-      : 'footer[role="contentinfo"], footer:not([role]), [role="contentinfo"]';
-    
-    const elements = document.querySelectorAll(selector);
-    
-    if (elements.length > 1) {
-      errors.push(`Multiple ${landmarkType} landmarks found (${elements.length}). Consider using aria-label to differentiate them.`);
-      modified = true;
-    }
-  });
-  
-  // Check for unique nav landmarks
-  const navElements = document.querySelectorAll('nav, [role="navigation"]');
-  const navLabels = new Map();
-  
-  navElements.forEach((nav) => {
-    const label = nav.getAttribute('aria-label') || nav.getAttribute('aria-labelledby');
-    if (label) {
-      if (navLabels.has(label)) {
-        errors.push(`Multiple nav landmarks with the same aria-label: ${label}`);
-      } else {
-        navLabels.set(label, nav);
-      }
-    } else if (navElements.length > 1) {
-      errors.push('Multiple nav landmarks found without aria-labels to differentiate them');
-    }
-  });
-  
-  return { modified, errors };
-}
-
-// New function to address REACT_036: Fix 1 fake link issue
-function personName(name) {
-  if (!name || typeof name !== 'string') {
-    return 'Anonymous';
-  }
-  return name.trim();
-}
-
-// New function to address REACT_036: Fix 1 fake link issue
-function createInPageButton(text, onClick) {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-  
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.textContent = text || 'Button';
-  
-  if (typeof onClick === 'function') {
-    button.addEventListener('click', onClick);
-  }
-  
-  button.style.cursor = 'pointer';
-  button.setAttribute('role', 'button');
-  
-  return button;
-}
-
-// Export all functions to make them accessible in main.js
-export {
-  renderDependencyGraph,
-  renderIndexView,
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  ensureUniqueLandmarks,
-  personName,
-  createInPageButton,
-  dependencyGraphContent,
-  indexContent
-};
+function validateLandmark(element)

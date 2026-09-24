@@ -169,36 +169,5 @@ function addLandmarkRegions(landmarks, regions) {
     });
 }
 
-// Export all functions
-module.exports = {
-  validateInput,
-  processData,
-  formatResponse,
-  config: CONFIG,
-  isValidLandmark,
-  loadLandmarks,
-  processLandmarks,
-  sortLandmarks,
-  getLandmarkById,
-  ensureUniqueLandmarks,
-  writeReport,
-  generateAccessibilityReport,
-  // New functions for version 2 implementation (new-feature-branch)
-  renderDependencyGraph,
-  addLandmarkRegions
-};
-
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
-}
+// Export the new function
+module.exports.addLandmarkRegions = addLandmarkRegions;

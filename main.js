@@ -327,7 +327,103 @@ function ensureElementId(element, baseId) {
     }
     element.id = id;
   }
-  return element.id;
+  return element;
+};
+
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+};
+
+const renderDependencyGraph = (data) => {
+  // Implementation for rendering dependency graphs
+  return {
+    nodes: data.nodes || [],
+    edges: data.edges || []
+  };
+};
+
+// New graph rendering functions
+const renderGraph = (container, data, options = {}) => {
+  if (!container || !data) return;
+
+  // Create graph container
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'graph-container';
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', options.title || 'Dependency graph');
+
+  // Create nodes
+  data.nodes.forEach(node => {
+    const nodeElement = document.createElement('div');
+    nodeElement.className = 'graph-node';
+    nodeElement.id = `node-${node.id}`;
+    nodeElement.textContent = node.label;
+    nodeElement.setAttribute('aria-label', `Node ${node.label}`);
+    graphContainer.appendChild(nodeElement);
+  });
+
+  // Create edges
+  data.edges.forEach(edge => {
+    const edgeElement = document.createElement('div');
+    edgeElement.className = 'graph-edge';
+    edgeElement.setAttribute('data-from', edge.from);
+    edgeElement.setAttribute('data-to', edge.to);
+    edgeElement.setAttribute('aria-hidden', 'true');
+    graphContainer.appendChild(edgeElement);
+  });
+
+  container.appendChild(graphContainer);
+  return graphContainer;
+};
+
+const renderGraphIndex = (container, data, options = {}) => {
+  if (!container || !data) return;
+
+  // Create index container
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'graph-index';
+  indexContainer.setAttribute('aria-label', 'Graph index');
+
+  // Create index entries
+  data.nodes.forEach(node => {
+    const indexItem = document.createElement('div');
+    indexItem.className = 'graph-index-item';
+    indexItem.textContent = node.label;
+    indexItem.setAttribute('aria-label', `Index item: ${node.label}`);
+    indexItem.addEventListener('click', () => {
+      const nodeElement = document.getElementById(`node-${node.id}`);
+      if (nodeElement) {
+        nodeElement.scrollIntoView({ behavior: 'smooth' });
+        nodeElement.focus();
+      }
+    });
+    indexContainer.appendChild(indexItem);
+  });
+
+  container.appendChild(indexContainer);
+  return indexContainer;
+};
+
+// Accessibility utilities and functions
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
+// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
+
+// New accessibility functions implementation
+function getLangAttribute(element, lang) {
+  if (element) {
+    element.setAttribute('lang', lang || 'en');
+  }
+  return element;
 }
 
 /**
@@ -733,6 +829,24 @@ if (typeof document !== 'undefined') {
 
 // Export all utilities
 module.exports = {
+  accessibilityUtils,
+  exportUtils,
+  initAccessibility,
+  handleCredentialResponse,
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraph,
+  renderGraph,
+  renderGraphIndex,
+  calculateSum,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
   ensureUniqueLandmarks,
   newFocusTrap,
   transformInputData,

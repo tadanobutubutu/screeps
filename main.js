@@ -133,16 +133,19 @@ function fixHeadingHierarchy(issue) {
 const http = require('http');
 const path = require('path');
 
-// TODO: Add the implementation of the requested function
-function calculateSum(a, b) {
-  return a + b;
-}
-
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development'
 };
+
+/**
+ * Add the implementation of this function
+ */
+function additionalFunction() {
+  // Function implementation goes here
+  console.log('This is the additional function');
+}
 
 /**
  * Creates and starts the HTTP server
@@ -208,8 +211,7 @@ module.exports = {
   createServer,
   startApp,
   config,
-  // Add the new export for calculateSum function
-  calculateSum
+  additionalFunction // Export the new function for testing
 };
 
 // Function to render graph/index using new functions

@@ -1,4 +1,5 @@
-// main.js - Combined utility and accessibility features
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
 
 // TODO: Identify and update specific functions that render dependency graphs or
 // Here is the implementation for checking link accessibility

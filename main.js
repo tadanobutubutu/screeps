@@ -86,7 +86,19 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 function processSvgElements() {
+  if (typeof document === 'undefined' || !document.querySelectorAll) {
+    return;
+  }
   const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+    if (!svg.id) {
+      ensureElementHasId(svg);
+    }
+  });
 }
 
 // New functionality: Ensure element has an id, add aria-label, render dependency graphs
@@ -641,6 +653,16 @@ function initializeAccessibility() {
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    // From HEAD
+    createServer,
+    startApp,
+    config,
+    validateLandmark,
+    countDependencies: AddressabilityIssues.countDependencies,
+    checkLandmarkElements,
+    sampleInsightReport,
+    processSvgElements,
+    // From origin/main
     ensureElementHasId,
     addAriaLabel,
     renderDependencyGraph,

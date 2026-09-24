@@ -3,7 +3,11 @@
  * @module main
  */
 
-// Import required module(s) and export the new necessary function(s) here in main.js
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+
+// Import required modules (example: fs module for file operations)
+const fs = require('fs');
+const path = require('path');
 
 /**
  * Application configuration
@@ -83,7 +87,7 @@ function focusTrap(element) {
  */
 async function init() {
     log('Initializing application...');
-    console.log(`Welcome to ${config.appName}`);
+    console.log(`Welcome to ${config.appName} v${config.version}!`);
 }
 
 // Existing exports are preserved as-is

@@ -633,7 +633,117 @@ function fixLinkAndButtonAccessibility(elements) {
   };
 }
 
-// Export all functions for testing and external use
+function fixFakeLinks() {
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (link.getAttribute('href') === '#' || !link.getAttribute('href')) {
+      link.setAttribute('role', 'text');
+    }
+  });
+}
+
+/**
+ * Fixes accessible names for SVG elements
+ */
+function fixSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+}
+
+// TODO: Implement this function for adding SVG accessibility props
+/**
+ * Adds SVG accessibility properties to an SVG element
+ * @param {Object} svgElement - The SVG element to add accessibility props to
+ * @param {string} accessibleName - The accessible name for the SVG
+ * @param {string} role - The ARIA role for the SVG (default: 'img')
+ * @returns {Object} The SVG element with accessibility props added
+ */
+function addSvgAccessibilityProps(svgElement, accessibleName, role = 'img') {
+    if (!svgElement || typeof svgElement !== 'object') {
+        return null;
+    }
+    
+    // Set the role attribute
+    svgElement.setAttribute('role', role);
+    
+    // Set the accessible name via aria-label
+    if (accessibleName) {
+      svgElement.setAttribute('aria-label', accessibleName);
+    }
+    
+    return svgElement;
+}
+
+/**
+ * Fixes button identifiers for accessibility by replacing placeholder ids
+ * like 'my-button' with meaningful, descriptive button ids based on the
+ * button's text content. Ensures each button has a unique, accessible id.
+ * @returns {Object} Result with success status and count of buttons fixed
+ */
+function fixButtonIdentifiers() {
+  const buttons = document.querySelectorAll('button');
+  const seenIds = {};
+  let fixed = 0;
+
+  buttons.forEach((button, index) => {
+    let currentId = button.getAttribute('id');
+    const isPlaceholder = !currentId || currentId === 'my-button' || /^my-button(-.*)?$/.test(currentId);
+
+    if (isPlaceholder) {
+      // Generate a meaningful id from the button's text content
+      const text = (button.textContent || '').trim();
+      let newId;
+      if (text) {
+        newId = 'btn-' + text.toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '');
+        if (!newId || newId === 'btn-') {
+          newId = 'btn-' + (index + 1);
+        }
+      } else {
+        newId = 'btn-' + (index + 1);
+      }
+
+      // Ensure uniqueness
+      let uniqueId = newId;
+      let counter = 2;
+      while (seenIds[uniqueId] || document.getElementById(uniqueId)) {
+        uniqueId = newId + '-' + counter;
+        counter++;
+      }
+
+      button.setAttribute('id', uniqueId);
+      seenIds[uniqueId] = true;
+      fixed++;
+    } else {
+      // Track existing non-placeholder ids to ensure overall uniqueness
+      if (seenIds[currentId] || document.getElementById(currentId) && document.getElementById(currentId) !== button) {
+        let uniqueId = currentId + '-unique';
+        let counter = 2;
+        while (seenIds[uniqueId] || document.getElementById(uniqueId)) {
+          uniqueId = currentId + '-unique-' + counter;
+          counter++;
+        }
+        button.setAttribute('id', uniqueId);
+        seenIds[uniqueId] = true;
+        fixed++;
+      } else {
+        seenIds[currentId] = true;
+      }
+    }
+  });
+
+  return {
+    success: true,
+    fixed
+  };
+}
+
 module.exports = {
   // ... (existing exports)
   generateAccessibilityReport,
@@ -656,10 +766,10 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   addProperLandmarkRegions,
-  renderDependencyGraph,
-  addBook,
-  makeAccessible,
-  addAriaSupport,
-  enhanceAddBookAccessibility,
-  fixLinkAndButtonAccessibility
+  fixFakeLinks,
+  checkLandmarkElements,
+  ensureUniqueLandmarks,
+  fixSvgAccessibleNames,
+  addSvgAccessibilityProps,
+  fixButtonIdentifiers
 };

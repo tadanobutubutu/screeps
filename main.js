@@ -131,85 +131,35 @@ export function addressAccessibilityIssues() {
             }
             uniqueLandmarkMap[uniqueLandmark] = element;
           }
-          uniqueLandmarkMap
+          uniqueLandmarkMap[uniqueLandmark] = element[0];
+        });
+
+        landmarks.forEach(landmark => {
+          if (!uniqueLandmarkMap[landmark]) {
+            uniqueLandmarkMap[landmark] = document.querySelector(`#${landmark}`);
+          }
+        });
+
+        // Set aria-describedby for unique landmarks with a description
+        landmarks.forEach(landmark => {
+          const describedByList = Array.from(uniqueLandmarkMap[landmark].attributes.ariaDescribedby.value.split(" "));
+          insightReport.issues.forEach(issue => {
+            if (issue.ariaRole === landmark && issue.ariaDescribedby) {
+              const describedBy = [...describedByList, issue.id];
+              uniqueLandmarkMap[landmark].setAttribute('aria-describedby', describedBy.join(" "));
+            }
+          });
         });
       }
     });
   }
 
-  function fixFakeLinkIssue() {
-    const fakeLinks = document.querySelectorAll('.fake-link');
-    fakeLinks.forEach(link => {
-      link.classList.add('real-link');
-      link.setAttribute('role', 'link');
-    });
-  }
-
-  function addLandmarkRoles(insightReport) {
-    const issues = insightReport.issues || [];
-
-    issues.forEach(issue => {
-      if (issue.code === 'REACT_017') {
-        const element = document.querySelector(issue.selector);
-        if (element && issue.ariaRole) {
-          element.setAttribute('role', issue.ariaRole);
-        }
-      }
-    });
-  }
-
-  function fixLandmarkIssues(insightReport) {
-    const issues = insightReport.issues || [];
-    issues.forEach(issue => {
-      if (issue.code === 'REACT_017') {
-        const element = document.querySelector(issue.selector);
-        if (element && issue.ariaRole) {
-          element.setAttribute('role', issue.ariaRole);
-        }
-      }
-    });
-  }
-
-  // ... existing code and exports ...
-
-  return null;
+  // Call the functions to improve accessibility
+  improveAccessibility();
+  ensureUniqueLandmarks(insightReport);
 }
 
-// TODO: This is the new function request
-export function newFunction() {
-  // Implement the new function here
-  console.log("New Function has been called!");
-}
-
-// Continue with existing exports, functions, or any other code that follows
-
-// Function to ensure an element has an id
-function ensureElementHasId(element) {
-  if (!element.id) {
-    const generatedId = 'el-' + Math.random().toString(36).substr(2, 9);
-    element.setAttribute('id', generatedId);
-  }
-  return element.id;
-}
-
-// Function to add aria-label to an element
-function addAriaLabel(element, label) {
-  if (label && !element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', label);
-  }
-}
-
-// Function to render a dependency graph
-function renderDependencyGraph(container, dependencies) {
-  const graphContainer = document.querySelector(container);
-  if (graphContainer) {
-    graphContainer.innerHTML = '';
-    const ul = document.createElement('ul');
-    dependencies.forEach(dep => {
-      const li = document.createElement('li');
-      li.textContent = dep.name;
-      ul.appendChild(li);
-    });
-    graphContainer.appendChild(ul);
-  }
-}
+// Export the function for other modules to use
+module.exports = {
+  addressAccessibilityIssues
+};

@@ -84,8 +84,8 @@ const addLandmarkRoles = () => {
   }
 
 // Example usage for SVGs:
-// const svg1 = document.querySelector('.svg-1');
-// const svg2 = document.querySelector('.svg-2');
+// const svg1 = ...
+// const svg2 = ...
 // setSvgAttributes(svg1, 'Description of first icon');
 // setSvgAttributes(svg2, 'Description of second icon');
 
@@ -287,14 +287,14 @@ function setupButtonAccessibility() {
  * Setup skip link functionality for keyboard navigation
  */
 function setupSkipLinks() {
-  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
+  const skipLink = document.querySelector('.skip-link') || document.querySelector('a[href^="#"]');
   if (skipLink) {
     skipLink.addEventListener('click', function(e) {
       e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href') || '');
+      const targetId = skipLink.getAttribute('href') || '';
+      const target = document.querySelector(targetId) || '';
       if (target) {
         target.focus();
-        target.scrollIntoView({ behavior: 'smooth' });
       }
     });
   }
@@ -304,20 +304,11 @@ function setupSkipLinks() {
  * Ensure all <th> elements have scope attribute
  * REACT_027: Add scope="col" or scope="row" to <th> elements
  */
-function ensureThScope() {
-  const thElements = document.querySelectorAll('th');
-  thElements.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      // Determine if it's a column header or row header based on context
-      const parent = th.parentElement;
-      const parentTagName = parent ? parent.tagName.toLowerCase() : '';
-      const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
-
-      if (isFirstCell && parentTagName === 'tr') {
-        th.setAttribute('scope', 'row');
-      } else if (parentTagName === 'thead' || !isFirstCell) {
-        th.setAttribute('scope', 'col');
-      }
+function setupButtonAccessibility() {
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button) => {
+    if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
+      button.setAttribute('aria-label', 'Action button');
     }
   });
 }
@@ -400,7 +391,7 @@ const initApp = () => {
   addLandmarkRoles();
   ensureUniqueLandmarks();
 
-  const mainContent = document.querySelector('main') || document.getElementById('main-content');
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
   if (mainContent) mainContent.setAttribute('role', 'main');
 
   // Define icons object
@@ -418,15 +409,11 @@ function checkLandmarkElement() {
 
 // Function to add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
-  const svg1 = document.querySelector('.svg-1');
-  if (svg1 && !svg1.getAttribute('aria-label') && !svg1.getAttribute('aria-labelledby')) {
-    svg1.setAttribute('aria-label', 'SVG image 1');
-  }
+  const svg1 = document.querySelector('svg:first-of-type');
+  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
 
-  const svg2 = document.querySelector('.svg-2');
-  if (svg2 && !svg2.getAttribute('aria-label') && !svg2.getAttribute('aria-labelledby')) {
-    svg2.setAttribute('aria-label', 'SVG image 2');
-  }
+  const svg2 = document.querySelector('svg:nth-of-type(2)');
+  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
 }
 
 // Function to ensure unique landmarks (2 issues)
@@ -437,7 +424,7 @@ function ensureUniqueLandmarks() {
   landmarks.forEach((landmark) => {
     const id = landmark.id;
     if (landmarkIds.has(id)) {
-      console.error('Duplicate landmar ID encountered:', id);
+      console.error('Duplicate landmark ID encountered:', id);
     } else {
       landmarkIds.add(id);
     }
@@ -450,6 +437,19 @@ function fixFakeLink() {
   fakeLinks.forEach((link) => {
     handleFakeLinks(link);
   });
+}
+
+// Handle individual fake link conversion
+function handleFakeLinks(link) {
+  if (link.tagName === 'A') {
+    const parent = link.parentElement;
+    const newButton = document.createElement('button');
+    newButton.textContent = link.textContent || 'Click';
+    newButton.setAttribute('role', 'button');
+    if (link.id) newButton.id = link.id;
+    if (link.className) newButton.className = link.className;
+    parent.replaceChild(newButton, link);
+  }
 }
 
 // Initialize accessibility improvements
@@ -482,250 +482,7 @@ function initialize() {
   console.log('Application initialized');
 
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.querySelector('main') || document.getElementById('main-content');
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
-    mainContent.setAttribute('role', 'main');
-  }
-
-  // Accessibility: Add skip link functionality
-  setupSkipLinks();
-
-  // Accessibility: Ensure buttons have proper labels
-  setupButtonAccessibility();
-
-  // Accessibility: Add landmark roles and fix landmark issues
-  addLandmarkRoles();
-
-  // Accessibility: Add accessible names to SVGs
-  addSvgAccessibleNames();
-
-  // Accessibility: Ensure unique landmarks
-  ensureUniqueLandmarks();
-
-  // Accessibility: Fix fake link issue
-  fixFakeLink();
-
-  // Initialize accessibility improvements
-  initializeAccessibility();
-}
-
-/**
- * New function requested in the issue
- */
-function newFunction() {
-  // Implementation of the new function
-  const button = createInPageButton('New Button', function() {
-    console.log('New Function clicked!');
-  });
-  document.body.appendChild(button);
-}
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-function addressAccessibilityIssues() {
-  // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root');
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-  }
-
-  // Create a hidden live region for dynamic announcements
-  const announcementId = 'accessibility-announcement';
-  let announcement = document.getElementById(announcementId);
-  if (!announcement) {
-    announcement = document.createElement('div');
-    announcement.id = announcementId;
-    announcement.setAttribute('role', 'status');
-    announcement.setAttribute('aria-live', 'polite');
-    announcement.setAttribute('aria-atomic', 'true');
-    // Hide off-screen
-    announcement.style.position = 'absolute';
-    announcement.style.left = '-9999px';
-    announcement.style.top = '-9999px';
-    document.body.appendChild(announcement);
-  }
-}
-
-// Validate that tables in the document are accessible
-function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  const results = [];
-  
-  tables.forEach((table, index) => {
-    const hasCaption = table.querySelector('caption') !== null;
-    const hasHeaders = table.querySelector('th') !== null;
-    const hasScope = Array.from(table.querySelectorAll('th')).every(
-      th => th.hasAttribute('scope')
-    );
-    
-    results.push({
-      tableIndex: index,
-      hasCaption,
-      hasHeaders,
-      hasScope,
-      isAccessible: hasCaption && hasHeaders && hasScope
-    });
-  });
-  
-  return results;
-}
-
-// Validate the structure of tables in the document
-function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
-  const results = [];
-  
-  tables.forEach((table, index) => {
-    const rows = table.querySelectorAll('tr');
-    let isValid = true;
-    let error = null;
-    
-    if (rows.length === 0) {
-      isValid = false;
-      error = 'Table has no rows';
-    } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('th, td').length);
-      const allSame = cellCounts.every(count => count === cellCounts[0]);
-      
-      if (!allSame) {
-        isValid = false;
-        error = 'Table has inconsistent cell counts across rows';
-      }
-    }
-    
-    results.push({
-      tableIndex: index,
-      rowCount: rows.length,
-      isValid,
-      error
-    });
-  });
-  
-  return results;
-}
-
-// Generate accessibility report
-function generateAccessibilityReport() {
-  const timestamp = new Date().toISOString();
-  const tableAccessibilityResults = validateTableAccessibility();
-  const tableStructureResults = validateTableStructure();
-  
-  const totalTables = tableAccessibilityResults.length;
-  const accessibleTables = tableAccessibilityResults.filter(r => r.isAccessible).length;
-  const validStructures = tableStructureResults.filter(r => r.isValid).length;
-  
-  const issues = [];
-  
-  tableAccessibilityResults.forEach((result, index) => {
-    if (!result.isAccessible) {
-      const issue = { tableIndex: index, type: 'accessibility' };
-      if (!result.hasCaption) issue.reason = 'Missing caption';
-      else if (!result.hasHeaders) issue.reason = 'Missing header cells';
-      else if (!result.hasScope) issue.reason = 'Headers missing scope attribute';
-      issues.push(issue);
-    }
-  });
-  
-  tableStructureResults.forEach((result, index) => {
-    if (!result.isValid && result.error) {
-      issues.push({ tableIndex: index, type: 'structure', reason: result.error });
-    }
-  });
-  
-  return {
-    timestamp,
-    summary: {
-      totalTables,
-      accessibleTables,
-      validStructures,
-      accessibilityScore: totalTables > 0 ? Math.round((accessibleTables / totalTables) * 100) : 100,
-      structureScore: totalTables > 0 ? Math.round((validStructures / totalTables) * 100) : 100
-    },
-    issues,
-    tableAccessibility: tableAccessibilityResults,
-    tableStructure: tableStructureResults
-  };
-}
-
-// Spawning logic implementation
-function spawnEntity(type, position) {
-  // Create a new entity object with type and position
-  const entity = { type, position };
-  // Additional spawning logic can be added here
-  return entity;
-}
-
-// Export the new function
-export {
-  VERSION,
-  CONFIG,
-  initialize,
-  getConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure,
-  generateAccessibilityReport,
-  spawnEntity
-};
-
-function getVersion() {
-  return VERSION;
-}
-
-// Export existing functionality and new functions
-export { 
-  initialize, 
-  getConfig, 
-  setupSkipLinks, 
-  setupButtonAccessibility, 
-  createInPageButton, 
-  performTask, 
-  handleEvent, 
-  greet, 
-  add, 
-  calculateDiscount, 
-  newFunction,
-  VERSION,
-  CONFIG,
-  getVersion,
-  addressAccessibilityIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  generateAccessibilityReport,
-  rotateBack,
-  initializeAccessibility,
-  createUnrotateButton,
-  addLandmarkRoles,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLink
-};
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-  } else {
-    initialize();
-  }
-}
-
-document.documentElement.lang = 'en';
-
-reportWebVitals();
-
-export default {
-  VERSION,
-  CONFIG,
-  initialize,
-  getConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  validateTableAccessibility,
-  validateTableStructure,
-  generateAccessibilityReport,
-  spawnEntity
-};
+    mainContent.setAttribute('role

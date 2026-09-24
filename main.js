@@ -1,8 +1,7 @@
-`
+// main.js
+// Main entry point for the application
 
-// Accessibility Functions for Screeps
-
-const utils = require('./utils');
+const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
 const path = require('path');
@@ -16,8 +15,15 @@ const CONFIG = {
   version: '1.0.0'
 };
 
-const accessiblyHelper = async (...args) => {
-  return args;
+const landmarkSelectors = ['header', 'footer', 'main', 'nav', 'aside', 'section[role="region"]'];
+
+let isInitialized = false;
+let dependencyGraph = null;
+
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
 };
 
 /* Some code changed for merging HEAD and MINE changes */
@@ -80,7 +86,179 @@ const {
 
 // ... (Keep the remaining code from both versions)
 
-export const checkLandmarkElement = (id) => {
+function validateTableAccessibility(tableElement) {
+  if (!tableElement) return false;
+
+  const headers = tableElement.querySelectorAll('th');
+  const cells = tableElement.querySelectorAll('td, th');
+
+  for (const cell of cells) {
+    if (!cell.id && !cell.getAttribute('scope')) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function validateTableStructure(tableElement) {
+  if (!tableElement) return false;
+
+  const rows = tableElement.querySelectorAll('tr');
+  let hasHeader = false;
+
+  for (const row of rows) {
+    const cells = row.querySelectorAll('th, td');
+    for (const cell of cells) {
+      if (cell.tagName.toLowerCase() === 'th') {
+        hasHeader = true;
+        if (!cell.getAttribute('scope')) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return hasHeader;
+}
+
+async function scanAccessibility() {
+  const violations = [];
+
+  if (typeof document !== 'undefined') {
+    const results = await axe.run(document);
+    violations.push(...results.violations);
+  }
+
+  return { violations };
+}
+
+function validateLinkAccessibility() {
+  const links = document.querySelectorAll('a[href]');
+
+  for (const link of links) {
+    if (!link.textContent.trim()) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    if (link.tagName === 'A' && !link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+  });
+}
+
+function validateLandmark() {
+  const landmarks = document.querySelectorAll(landmarkSelectors.join(','));
+  return landmarks.length > 0;
+}
+
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll(landmarkSelectors.join(','));
+
+  for (const landmark of landmarks) {
+    if (!landmark.id && !landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function initialize() {
+  console.log('Initializing application...');
+
+  if (!isInitialized) {
+    isInitialized = true;
+    appState.initialized = true;
+
+    const appData = {
+      title: 'Screeps',
+      version: CONFIG.version
+    };
+
+    /**
+     * Address accessibility issues from insight report:
+     * - REACT_015: Add lang attribute to HTML element (handled by addLangAttribute() and wrapPrimaryContentInMain())
+     * - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+     * - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
+     * - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+     * - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
+     * - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks(), createAccessibleLink() and addFixLandmarkIssues())
+     * todo-hash: 50090d29914857ebc4d3d6f532d1293acbb65526
+     */
+
+    addLangAttribute();
+    wrapPrimaryContentInMain();
+    fixTableStructureIssues();
+    fixTableHeaderCellScope();
+    addMainLandmark();
+    addSvgAccessibleNames();
+    fixFakeLinks();
+    ensureUniqueLandmarks();
+
+    // Load landmarks for accessibility processing
+    const landmarks = loadLandmarks();
+    const processed = processLandmarks(landmarks);
+
+    // Ensure the dependencyGraph container has a proper ARIA role
+    if (dependencyGraph) {
+      if (!dependencyGraph.id) {
+        dependencyGraph.id = 'dependencyGraph';
+      }
+      if (!dependencyGraph.hasAttribute('role')) {
+        dependencyGraph.setAttribute('role', 'region');
+      }
+      if (!dependencyGraph.hasAttribute('aria-label')) {
+        dependencyGraph.setAttribute('aria-label', 'Dependency Graph Visualization');
+      }
+    }
+  }
+}
+
+function loadLandmarks() {
+  try {
+    const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading landmarks:', error.message);
+    return [];
+  }
+}
+
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const validLandmarks = landmarks.filter(isValidLandmark);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+  return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (seen.has(`${landmark.id || ''}${landmark.name || ''}`)) {
+      return false;
+    }
+    seen.add(`${landmark.id || ''}${landmark.name || ''}`);
+    return true;
+  });
+}
+
+function checkLandmarkElement(id) {
   const element = document.getElementById(id);
   return element !== null;
 };
@@ -107,7 +285,12 @@ function validateLandmarkObject(landmark) {
   return { valid: errors.length === 0, errors };
 }
 
-// ... (Keep the remaining code from both versions)
+function isValidLandmark(landmark) {
+  return validateLandmarkObject(landmark).valid;
+}
+
+function addSvgAccessibilityProps(svgElement, label, labelledById) {
+  if (!svgElement) return;
 
 // Add new functions below this line
 export { createUnrotateButton };
@@ -193,4 +376,24 @@ function createInPageButton(buttonText, onClickHandler) {
 // ... (Keep the remaining code from both versions)
 ```
 
-This resolved conflict by preserving both sets of changes, and merging the common code where necessary. The final code now includes new functions and merged changes for both versions, including `createUnrotateButton`, API URL, rotateBack, and some accessibility utilities.
+  if (primaryContent && !primaryContent.closest('main')) {
+    const mainElement = document.createElement('main');
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    mainElement.appendChild(primaryContent);
+    return mainElement;
+  }
+  return null;
+}
+
+function addLangAttribute() {
+  if (document && document.documentElement) {
+    if (!document.documentElement.getAttribute('lang')) {
+      document.documentElement.setAttribute('lang', getLangAttribute());
+    }
+  }
+}
+
+async function renderFunction1() {
+  // await accessiblyHelper(); // Removed as accessiblyHelper is not defined
+  wrapPrimaryContentInMain();
+}

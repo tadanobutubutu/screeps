@@ -1,4 +1,5 @@
-// Existing code
+// TODO: Add any updates related to new functions
+// main.js
 
 // TODO: Add any updates related to new functions
 function newFunction1() {

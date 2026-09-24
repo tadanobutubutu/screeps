@@ -42,7 +42,10 @@ function renderDependencyGraphs(dependencies, container) {
   // Create graph visualization
   const graphElement = document.createElement('div');
   graphElement.className = 'dependency-graph';
+  graphElement.setAttribute('role', 'img');
+  graphElement.setAttribute('aria-label', 'Dependency Graph');
   const title = '<h3>Dependency Graph</h3>';
+  graphElement.innerHTML = title;
 
   // Render nodes
   Object.keys(dependencies).forEach(key => {
@@ -51,6 +54,8 @@ function renderDependencyGraphs(dependencies, container) {
     node.textContent = `${key}: ${dependencies[key]}`;
     graphElement.appendChild(node);
   });
+  
+  container.appendChild(graphElement);
 }
 
 /**

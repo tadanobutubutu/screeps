@@ -1517,19 +1517,35 @@ function implementAccessibilitySolutions(insightReport) {
   return solutions;
 }
 
-// Sample insight report data
-const sampleInsightReport = {
-  title: 'Quarterly Performance Report',
-  sections: [
-    {
-      heading: 'Sales Overview',
-      content: 'Total sales increased by 15% compared to last quarter.'
-    },
-    {
-      heading: 'Customer Satisfaction',
-      content: 'Average satisfaction score: 4.2 out of 5.'
-    }
-  ]
+module.exports = {
+  createServer,
+  startApp,
+  config,
+  app,
+  PORT,
+  validateLandmark,
+  ensureElementHasId,
+  addAriaLabel,
+  addBook,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  addSvgAccessibleName,
+  handleFakeLinks,
+  countDependencies,
+  countPackageDependencies,
+  addressNewAccessibilityIssues,
+  generateAccessibilityReport,
+  calculateAccessibilityScore,
+  spawnCommand,
+  processSvgElements,
+  ensureElementId,
+  ensureUniqueLandmarksFromString,
+  validateNewAccessibilityIssues,
+  validateLandmarkStructure
 };
 
 // Some modifications to MyComponent

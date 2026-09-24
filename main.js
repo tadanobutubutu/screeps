@@ -38,7 +38,79 @@ function extractSvgAccessibleName(svgElement) {
  * @returns {Object} - Summary of fixes applied
  */
 function addressAccessibilityIssues(issues, options = {}) {
-  // ... Existing code for addressAccessibilityIssues ...
+  const defaultText = options.defaultText || 'Action';
+  const useAriaLabel = options.useAriaLabel || false;
+  
+  const summary = {
+    totalIssues: issues.length,
+    linkIssuesFixed: 0,
+    buttonIssuesFixed: 0,
+    skipped: 0,
+    fixes: []
+  };
+
+  issues.forEach((issue) => {
+    if (!issue.element || !issue.element.parentNode) {
+      summary.skipped++;
+      return;
+    }
+
+    try {
+      if (issue.type === 'link') {
+        if (useAriaLabel) {
+          issue.element.setAttribute('aria-label', defaultText);
+        } else {
+          // Add visible text content
+          const textNode = document.createTextNode(defaultText);
+          issue.element.appendChild(textNode);
+        }
+        summary.linkIssuesFixed++;
+        summary.fixes.push({
+          type: 'link',
+          index: issue.index,
+          action: 'Added accessible text content'
+        });
+      } else if (issue.type === 'button') {
+        if (useAriaLabel) {
+          issue.element.setAttribute('aria-label', defaultText);
+        } else {
+          // Add visible text content
+          const textNode = document.createTextNode(defaultText);
+          issue.element.appendChild(textNode);
+        }
+        summary.buttonIssuesFixed++;
+        summary.fixes.push({
+          type: 'button',
+          index: issue.index,
+          action: 'Added accessible name'
+        });
+      } else if (issue.type === 'svg') {
+        // Extract the accessible name for an SVG from its content
+        const svgContent = issue.element.innerHTML;
+        const svgName = /<title>(.*?)<\/title>/gi.exec(svgContent);
+        if (svgName && svgName.length > 1) {
+          issue.element.setAttribute('aria-label', svgName[1]);
+        } else {
+          issue.element.setAttribute('aria-label', defaultText);
+        }
+        summary.fixes.push({
+          type: 'svg',
+          index: issue.index,
+          action: 'Set accessible name from content'
+        });
+      }
+    } catch (error) {
+      summary.skipped++;
+      summary.fixes.push({
+        type: issue.type,
+        index: issue.index,
+        action: 'Failed to fix',
+        error: error.message
+      });
+    }
+  });
+
+  return summary;
 }
 
 function checkLinkAndButtonAccessibility(issues, options) {

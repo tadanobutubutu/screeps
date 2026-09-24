@@ -135,20 +135,15 @@ function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
 
-  if (typeof document !== 'undefined') {
-    const nameElement = document.createElement('span');
-    nameElement.setAttribute('lang', lang);
-    nameElement.setAttribute('aria-label', fullName);
-    nameElement.textContent = fullName || 'Unknown';
+  const element = document.createElement('span');
+  element.setAttribute('aria-label', fullName);
+  element.textContent = fullName;
 
-    if (container) {
-      container.appendChild(nameElement);
-    }
-
-    return nameElement;
+  if (container) {
+    container.appendChild(element);
   }
 
-  return fullName || 'Unknown';
+  return element;
 }
 
 /**
@@ -165,145 +160,120 @@ function createInPageButton(parent = document.body) {
   return btn;
 }
 
-/**
- * Creates an accessible web resource button for linking to external resources.
- * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
- * @param {string} label - The accessible label/description of the button
- * @returns {HTMLElement} The created button element
- */
-function createWebResourceButton(parent = document.body, label = 'Open Resource') {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.setAttribute('role', 'button');
-  btn.setAttribute('aria-label', label);
-  parent.appendChild(btn);
-  return btn;
-}
+// New function to validate table accessibility
+function validateTableAccessibility() {
+  // Implementation for table accessibility validation
+  if (typeof document === 'undefined') return;
 
-// TODO: Implement tower defense
-function towerDefense() {
-  // A simple tower defense game implementation
-  // Define towers, enemies, waves, and game loop
-  const towers = [];
-  const enemies = [];
-  let wave = 1;
-
-  // Example: Tower constructor
-  function Tower(x, y, range, damage, rate) {
-    this.x = x;
-    this.y = y;
-    this.range = range;
-    this.damage = damage;
-    this.rate = rate;
-    this.lastShot = 0;
-  }
-
-  // Example: Enemy constructor
-  function Enemy(x, y, health, speed) {
-    this.x = x;
-    this.y = y;
-    this.health = health;
-    this.speed = speed;
-  }
-
-  // Add a tower
-  function addTower(x, y, range, damage, rate) {
-    towers.push(new Tower(x, y, range, damage, rate));
-  }
-
-  // Add an enemy
-  function addEnemy(x, y, health, speed) {
-    enemies.push(new Enemy(x, y, health, speed));
-  }
-
-  // Update game state (simplified)
-  function update() {
-    // Logic for enemy movement, tower shooting, etc.
-    console.log(`Wave ${wave} - updating game state`);
-  }
-
-  // Start the game
-  function start() {
-    console.log('Tower defense game started');
-    // Add initial towers and enemies
-    addTower(100, 100, 200, 10, 1000);
-    addEnemy(0, 50, 100, 2);
-    // Game loop would be here
-  }
-
-  // Expose game functions
-  return {
-    start,
-    addTower,
-    addEnemy,
-    update,
-    getWave: () => wave
-  };
-}
-
-// Add back missing functions from TODO comments
-
-/**
- * Function to fix table structure issues (REACT_027)
- * @param {HTMLTableElement} table - The table element to fix
- * @returns {Object} Result object with valid status and any errors
- */
-function fixTableStructure(table) {
-  const result = { valid: true, errors: [] };
-
-  if (!table) {
-    return { valid: false, errors: ['Table element is required'] };
-  }
-
-  // Fix missing thead
-  const thead = table.querySelector('thead');
-  if (!thead) {
-    const newThead = document.createElement('thead');
-    const firstRow = table.querySelector('tr');
-    if (firstRow) {
-      newThead.appendChild(firstRow.cloneNode(true));
-      table.insertBefore(newThead, table.firstChild);
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has a caption
+    if (!table.querySelector('caption')) {
+      console.warn('Table missing caption:', table);
     }
-  }
 
-  // Fix missing tbody
-  if (!table.querySelector('tbody')) {
-    const tbody = document.createElement('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
-    if (rows.length > 0 && table.querySelector('thead')) {
-      const theadRows = table.querySelectorAll('thead tr');
-      const dataRows = rows.slice(theadRows.length);
-      dataRows.forEach(row => tbody.appendChild(row));
+    // Ensure table has proper headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      console.warn('Table missing headers:', table);
     }
-    table.appendChild(tbody);
-  }
 
-  // Fix inconsistent column counts
-  const allRows = table.querySelectorAll('tr');
-  const columnCounts = Array.from(allRows).map(row => row.querySelectorAll('td, th').length);
-  const uniqueCounts = [...new Set(columnCounts)];
-  if (uniqueCounts.length > 1) {
-    // Use the most common column count
-    const countCounts = {};
-    columnCounts.forEach(count => {
-      countCounts[count] = (countCounts[count] || 0) + 1;
-    });
-    const mostCommonCount = Object.entries(countCounts).sort((a, b) => b[1] - a[1])[0][0];
-
-    allRows.forEach((row, rowIndex) => {
-      const cells = row.querySelectorAll('td, th');
-      if (cells.length !== mostCommonCount) {
-        // Add or remove cells to match the most common count
-        while (cells.length < mostCommonCount) {
-          const cell = document.createElement(cells.length % 2 === 0 ? 'td' : 'th');
-          row.appendChild(cell);
-        }
+    // Ensure table cells have proper scope attributes
+    const cells = table.querySelectorAll('td, th');
+    cells.forEach(cell => {
+      if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+        console.warn('Table header missing scope attribute:', cell);
       }
     });
-    result.valid = result.errors.length === 0;
+  });
+}
+
+// New function to validate table structure
+function validateTableStructure() {
+  // Implementation for table structure validation
+  if (typeof document === 'undefined') return;
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Check for proper table structure
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0) {
+        console.warn('Table row missing cells:', row);
+      }
+    });
+  });
+}
+
+// New function to validate landmarks
+function validateLandmark() {
+  // Implementation for landmark validation
+  if (typeof document === 'undefined') return;
+
+  const landmarks = [
+    'header', 'nav', 'main', 'footer',
+    '[role="banner"]', '[role="navigation"]',
+    '[role="main"]', '[role="contentinfo"]'
+  ];
+
+  landmarks.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      console.warn(`Multiple ${selector} landmarks found. Only one should exist.`);
+    }
+  });
+}
+
+// New function to validate landmark structure
+function validateLandmarkStructure() {
+  // Implementation for landmark structure validation
+  if (typeof document === 'undefined') return;
+
+  const main = document.querySelector('main, [role="main"]');
+  if (!main) {
+    console.warn('Missing main landmark. Every page should have one main landmark.');
   }
 
-  return result;
+  const nav = document.querySelector('nav, [role="navigation"]');
+  if (!nav) {
+    console.warn('Missing navigation landmark. Consider adding one for better accessibility.');
+  }
+}
+
+// New function to get SVG accessible name
+function getSvgAccessibleName(svgElement) {
+  // Implementation for getting SVG accessible name
+  if (!svgElement || typeof document === 'undefined') return '';
+
+  // Check for aria-label
+  if (svgElement.hasAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+
+  // Check for aria-labelledby
+  if (svgElement.hasAttribute('aria-labelledby')) {
+    const id = svgElement.getAttribute('aria-labelledby');
+    const labelElement = document.getElementById(id);
+    if (labelElement) {
+      return labelElement.textContent.trim();
+    }
+  }
+
+  // Check for title element
+  const title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent.trim();
+  }
+
+  // Check for desc element
+  const desc = svgElement.querySelector('desc');
+  if (desc) {
+    return desc.textContent.trim();
+  }
+
+  // Fallback to empty string
+  return '';
 }
 
 /**

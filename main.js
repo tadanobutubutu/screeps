@@ -16,11 +16,51 @@ Here is the resolved file content:
 
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport, validateTableStructure, getSvgAccessibleName, getLangAttribute, calculateSum } = main;
 
-function addAccessibleName(svgString) {
-  const svg = new DOMParser().parseFromString(svgString, "image/svg+xml");
-  const svgElement = svg.documentElement;
-  if (!svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG');
+/**
+ * New function for rendering the graph/index
+ * @param {Object} content - The content to render
+ * @param {Object} options - Rendering options
+ * @returns {string} Rendered HTML
+ */
+function renderGraphIndex(content, options = {}) {
+  // Implementation of the new function
+  // This is a placeholder for the actual rendering logic
+  return content; // Simplified return for demonstration
+}
+
+// Helper to manage focus within a container
+function trapFocus(container) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  container.addEventListener('keydown', (e) => {
+    const isTab = e.key === 'Tab';
+    if (!isTab) return;
+    if (e.shiftKey) {
+      if (document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement && lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement && firstElement.focus();
+      }
+    }
+  });
+}
+
+/**
+ * REACT_015: Add lang attribute to HTML element
+ * Ensures the HTML element has a proper lang attribute for screen readers
+ */
+export function addLangAttribute(container, lang = 'en') {
+  let htmlElement = container.querySelector('html') || document.documentElement;
+  if (!htmlElement) {
+    htmlElement = document.querySelector('html');
   }
   return items.map(item => ({
     ...item,
@@ -372,10 +412,94 @@ export function renderDependencyGraphs(container, dependencies = []) {
   return graphContainer;
 }
 
-// Export functions
-module.exports = {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    initializeAccessibility,
+    setupKeyboardNavigation,
+    trapFocus,
+    createAnnouncer,
+    prefersReducedMotion,
+    renderDependencyGraph,
+    renderSimpleDependencyGraph,
+    isEmpty,
+    capitalize,
+    getRandomInt,
+    clamp,
+    deepClone
+  };
+}
+
+// Export all utility functions
+export {
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  implementAccessibilityFixesFromReport,
+  renderGraphIndex,
+  newExportedFunction,
+  myAccessibleFunction,
+  renderDependencyGraphs,
+  createAnnouncer,
+  preferReducedMotion,
+  renderDependencyGraph,
+  renderSimpleDependencyGraph,
+  isEmpty,
+  capitalize,
+  getRandomInt,
+  clamp,
+  deepClone
 };
-```
+
+// Additional utility functions from origin/main
+function getActiveSessionsCount() {
+  return appState.sessions.size;
+}
+
+function validateSession(sessionId) {
+  return appState.sessions.get(sessionId) || null;
+}
+
+function handleCredentialResponse(credentialResponse) {
+  // Process credential response - basic implementation
+  if (!credentialResponse || typeof credentialResponse !== 'object') {
+    return { status: 'error', message: 'Invalid credential response' };
+  }
+  return { status: 'success', credential: credentialResponse };
+}
+
+function addressAccessibilityIssues() {
+  // Placeholder for accessibility issue addressing
+  return [];
+}
+
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) return null;
+  
+  if (!element.id) {
+    element.id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  return element;
+}
+
+function renderDependencyGraph(element) {
+  // Example: Use a third-party library or custom logic to render a graph
+  console.log('Rendering dependency graph for element:', element);
+}
+
+function renderSimpleDependencyGraph(element) {
+  // Simple rendering logic (to be replaced with actual graph rendering logic)
+  console.log('Rendering simple dependency graph for element:', element);
+}
+
+function initializeAccessibility() {
+  const announcer = createAnnoun

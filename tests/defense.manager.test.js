@@ -82,6 +82,20 @@ describe('defense.manager', () => {
         expect(typeof defenseManager.manageDefenders).toBe('function');
     });
 
+    test('runがメインループを正しく呼び出す', () => {
+        jest.spyOn(defenseManager, 'checkThreats').mockImplementation(() => {});
+        jest.spyOn(defenseManager, 'manageTowers').mockImplementation(() => {});
+        jest.spyOn(defenseManager, 'manageDefenders').mockImplementation(() => {});
+
+        defenseManager.run(mockRoom);
+
+        expect(defenseManager.checkThreats).toHaveBeenCalledWith(mockRoom);
+        expect(defenseManager.manageTowers).toHaveBeenCalledWith(mockRoom);
+        expect(defenseManager.manageDefenders).toHaveBeenCalledWith(mockRoom);
+
+        jest.restoreAllMocks();
+    });
+
     test('manageTowersがtowerがないとき何もしない', () => {
         const room = { find: jest.fn().mockReturnValue([]) };
         expect(() => defenseManager.manageTowers(room)).not.toThrow();

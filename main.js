@@ -1,37 +1,54 @@
 // This is a simple greeting module
-function greet (name) {
-  return `Hello, ${name}!`
+function greet(name) {
+  return `Hello, ${name}!`;
 }
 
-// New function to calculate the average of two numbers
-module.exports.calculateAverage = function (a, b) {
-  return (a + b) / 2
+// TODO: Implement tower defense
+class Tower {
+  constructor(name, damage, range) {
+    this.name = name;
+    this.damage = damage;
+    this.range = range;
+  }
+
+  attack() {
+    return this.damage;
+  }
+}
+
+class TowerDefenseGame {
+  constructor() {
+    this.towers = [];
+    this.enemies = [];
+  }
+
+  addTower(tower) {
+    this.towers.push(tower);
+  }
+
+  addEnemy(enemy) {
+    this.enemies.push(enemy);
+  }
+
+  simulateTurn() {
+    this.enemies.forEach((enemy) => {
+      this.towers.forEach((tower) => {
+        if (enemy.distanceToTower(tower) <= tower.range) {
+          enemy.takeDamage(tower.attack());
+        }
+      });
+      if (enemy.health <= 0) {
+        this.enemies = this.enemies.filter(e => e !== enemy);
+      }
+    });
+  }
 }
 
 // Exported functions
-module.exports.calculateSum = function (a, b) {
-  return a + b
-}
-module.exports.calculateProduct = function (a, b) {
-  return a * b
+export function calculateSum(a, b) {
+  return a + b;
 }
 
-// Line 74 - Implement this function for creating in-page buttons
-function createInPageButton (options) {
-  const defaults = {
-    text: 'Button',
-    className: 'in-page-button',
-    container: document.body,
-    id: null,
-    title: '',
-    disabled: false
-  }
-
-// New function exampleFunction, as per the issue's request
-function exampleFunction() {
-    // Function implementation
-    console.log("This is the new function exampleFunction");
+export function calculateProduct(a, b) {
+  return a * b;
 }
-
-// Add the new function to the exports
-module.exports.exampleFunction = exampleFunction;

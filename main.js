@@ -90,17 +90,19 @@ applyAccessibilityFixes();
 // renderDependencyGraphs(graphData); // Before
 // renderGraphIndex(graphData); // After
 
-// TODO: Implement calculateDiscount
-const calculateDiscount = (price, discountPercentage) => {
-  if (typeof price !== 'number' || typeof discountPercentage !== 'number') {
-    throw new TypeError('Both price and discountPercentage must be numbers');
-  }
-  if (price < 0) {
-    throw new RangeError('price must be non-negative');
-  }
-  if (discountPercentage < 0 || discountPercentage > 100) {
-    throw new RangeError('discountPercentage must be between 0 and 100');
-  }
-  const discountAmount = (price * discountPercentage) / 100;
-  return price - discountAmount;
+// Create a utility function to create a web resource button suitable for accessibility
+const createAccessibleWebResourceButton = (url, text, options = {}) => {
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.textContent = text;
+  button.setAttribute('aria-label', options.ariaLabel || text);
+  button.setAttribute('role', 'link');
+  button.setAttribute('href', url);
+  return button;
+};
+
+// Export the new utility function if needed
+module.exports = {
+  createAccessibleWebResourceButton,
+  // ... other exports
 };

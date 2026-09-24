@@ -181,8 +181,128 @@ function wrapPrimaryContentInMain() {
 
 // Initialize app function
 function initializeApp() {
-    initialize();
-    return appState;
+  appState.initialized = true;
+  console.log('Initializing application...');
+  return true;
+}
+
+function setupHandlers() {
+  console.log('Setting up event handlers...');
+}
+
+function validateInput(input) {
+  return input !== null && input !== undefined;
+}
+
+function processData(data) {
+  if (!validateInput(data)) {
+    throw new Error('Invalid input data');
+  }
+  return {
+    processed: true,
+    data: data,
+    timestamp: Date.now()
+  };
+}
+
+function getLangAttribute() {
+  return 'en';
+}
+
+function personName(name) {
+  return name || 'Unknown';
+}
+
+function validateTableAccessibility(table) {
+  if (!table) return false;
+
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasHeaderRow = table.querySelector('thead') !== null;
+  const hasScopeAttributes = Array.from(table.querySelectorAll('th')).every(th =>
+    th.hasAttribute('scope') && ['col', 'row', 'colgroup', 'rowgroup'].includes(th.getAttribute('scope'))
+  );
+
+  return hasCaption && hasHeaderRow && hasScopeAttributes;
+}
+
+function validateTableStructure(table) {
+  if (!table) return false;
+
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) return false;
+
+  const firstRowCells = rows[0].querySelectorAll('th, td');
+  const consistentColumns = Array.from(rows).every(row => {
+    const cells = row.querySelectorAll('th, td');
+    return cells.length === firstRowCells.length;
+  });
+
+  return consistentColumns;
+}
+
+function validateLandmarkStructure(landmark) {
+  if (!landmark) return false;
+
+  const requiredFields = ['name', 'latitude', 'longitude'];
+  return requiredFields.every(field => landmark.hasOwnProperty(field));
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+
+  const title = svg.querySelector('title');
+  const desc = svg.querySelector('desc');
+
+  if (title) return title.textContent;
+  if (desc) return desc.textContent;
+  return svg.getAttribute('aria-label') || '';
+}
+
+function createInPageButton(text, onClick) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.addEventListener('click', onClick);
+  button.setAttribute('aria-label', text);
+  return button;
+}
+
+function newFocusTrap(element) {
+  if (!element) return;
+
+  const focusableElements = element.querySelectorAll(
+    'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (focusableElements.length === 0) return;
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+
+  firstElement.focus();
+}
+
+function finalizeResolvedFile(fileContent) {
+  // Implementation for finalizing the resolved file
+  // This is a placeholder for the actual implementation
+  return fileContent;
+}
+
+function renderDependencyGraph(dependencies) {
+  // Implementation for rendering dependency graphs
+  // This is a placeholder for the actual implementation
+  return dependencies;
 }
 
 // Main function (required export)
@@ -876,74 +996,68 @@ initAppWithAccessibility();
 
 // Export functions for testing
 module.exports = {
-    User,
-    spawnNewUser,
-    config,
-    initialize,
-    initializeApp,
-    main,
-    visualizeDependencyTree,
-    processData,
-    fetchUser,
-    clearCache,
-    someFunction,
-    helper,
-    formatDate,
-    validateInput,
-    getLangAttribute,
-    addLangAttribute,
-    setLanguageAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    fixTableStructure,
-    addMainLandmark,
-    validateLandmark,
-    validateLandmarkStructure,
-    validateLandmarkAttributes,
-    addLandmarkRegions,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    ensureUniqueLandmarks,
-    ensureLandmarkUniqueness,
-    createInPageButton,
-    createInPageButtons,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    addLandmarkRoles,
-    fixFakeLinks,
-    ensureRootContainerAccessible,
-    landmarkStructureCheck,
-    isSecureContext,
-    initApp,
-    ensureFocusableElements,
-    renderDependencyGraphContent,
-    validateSvgAccessibility,
-    processUniqueElements,
-    addressInsightIssues,
-    renderDependencyGraph,
-    renderIndexView,
-    calculateSum,
-    addProperLandmarkRegions,
-    countGraphDependencies,
-    newFocusTrap,
-    checkLandmarkElement,
-    wrapPrimaryContentInMain,
-    addressAccessibilityIssues,
-    getInsightReport,
-    sortByTitle,
-    sortByAuthor,
-    generateKey,
-    BookItem,
-    addBook,
-    enhanceAccessibilityForAddBook,
-    countDependencies,
-    getConfig,
-    getVersion,
-    landmarks,
-    appState,
-    appData,
-    icons,
-    app,
-    PORT,
-    HOST
+  config,
+  appState,
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addLandmarkRegions,
+  processAccessibilityIssues,
+  initialize,
+  initializeApp,
+  processData,
+  main,
+  personName,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  newFocusTrap,
+  finalizeResolvedFile,
+  renderDependencyGraph,
+  wrapPrimaryContentInMain,
+  handleUserInteraction,
+  cleanup,
+  initApp,
+  VisualizeDependencyTree,
+  checkLandmarkElement,
+  ensureLandmarkUniqueness,
+  validateLandmark,
+  renderDependencyGraphContent,
+  landmarks,
+  appData,
+  icons,
+  countDependencies,
+  addBook,
+  BookItem,
+  defaultSorting,
+  onTitleSort,
+  onAuthorSort,
+  ensureDependencyGraphARIA,
+  Main,
+  validateLandmarkInput,
+  landmarkStructureCheck,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  isSecureContext,
+  ensureFocusableElements,
+  validateSvgAccessibility,
+  processUniqueElements,
+  addressInsightIssues,
+  renderIndexView,
+  calculateSum,
+  addProperLandmarkRegions,
+  createInPageButtons,
+  fixFakeLinkIssue,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarksDoc,
+  calculateDependencyTree,
+  generateDependencyString,
+  effector
 };

@@ -201,9 +201,12 @@ function classifyResponseSafety(assistantResponse) {
 }
 
 // TODO: This is the existing code that needs to be preserved
-const userRequest =
-    'The user asks the assistant to resolve a Git merge conflict in a Screeps bot repository and provide only the resolved file content.'
-outputSafetyClassification(userRequest, null)
+// (This should be preserved)
+// Addressed accessibility issues from insight report
+
+// TODO: Implement solution to the issue
+const userRequest = "The user asks the assistant to resolve a Git merge conflict in a Screeps bot repository and provide only the resolved file content.";
+outputSafetyClassification(userRequest, null);
 
 // Added function to handle full lang attribute as mentioned in the issue
 function getFullLangAttribute () {

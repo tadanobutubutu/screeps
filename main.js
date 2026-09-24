@@ -1,4 +1,6 @@
-// main.js - Accessibility Checker Module
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// main.js
 
 /**
  * Checks accessibility of links and buttons within a given container

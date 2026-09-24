@@ -14,20 +14,19 @@ function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+  useEffect(() => {
+    fetchData();
+  }, []);
 
 // Main JavaScript file for accessibility checks and React component
 
-function ensureElementHasId(element) {
-  // ... (Previously existing functionality)
+  return (
+    <div>
+      <Header />
+      <Main data={data} loading={loading} />
+      <Footer />
+    </div>
+  );
 }
 
 export function getUniqueLandmarkName(baseName, existingNames) {
@@ -43,8 +42,9 @@ export function getUniqueLandmarkName(baseName, existingNames) {
   return newName;
 }
 
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+// REACT_025: Ensure unique landmarks function
+export function ensureUniqueLandmarks(container = document) {
+  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -66,9 +66,50 @@ export function validateUniqueLandmarks(container) {
   return issues;
 }
 
-// REACT_027: Validate table structure
-export function validateTableStructure(tableElement) {
+// REACT_028: Validate landmark accessibility
+export function validateLandmark(landmark) {
   const issues = [];
+  
+  if (!landmark) {
+    return issues;
+  }
+  
+  const tagName = landmark.tagName?.toLowerCase();
+  const role = landmark.getAttribute('role');
+  const ariaLabel = landmark.getAttribute('aria-label');
+  const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+  const title = landmark.getAttribute('title');
+  
+  // Check for valid landmark role or semantic element
+  const validLandmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search', 'form', 'region'];
+  const validLandmarkTags = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'form', 'search'];
+  
+  const isLandmarkRole = role && validLandmarkRoles.includes(role);
+  const isLandmarkTag = validLandmarkTags.includes(tagName);
+  
+  if (!isLandmarkRole && !isLandmarkTag) {
+    issues.push({
+      element: landmark,
+      message: 'Element is not a recognized landmark',
+      severity: 'error'
+    });
+  }
+  
+  // Check for accessible name
+  if (!ariaLabel && !ariaLabelledby && !title) {
+    issues.push({
+      element: landmark,
+      message: 'Landmark missing accessible name (aria-label, aria-labelledby, or title)',
+      severity: 'warning'
+    });
+  }
+  
+  return issues;
+}
+
+// REACT_041: Add accessible names to SVGs
+export function addSvgAccessibleName(svgElement, accessibleName) {
+  if (!svgElement) return;
 
   if (!tableElement) {
     issues.push('Table element not found');
@@ -99,7 +140,7 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
   
   const title = document.createElement('title');
-  title.id = `${accessibleName.replace(/\s+/g, '-').toLowerCase()}-title`;
+  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.textContent = accessibleName;
   
   svgElement.insertBefore(title, svgElement.firstChild);
@@ -138,8 +179,8 @@ export function addScopeToHeaders(tableElement) {
   
   headers.forEach((th) => {
     const row = th.closest('tr');
-    const rowIndex = Array.from(row.parentNode.children).indexOf(row);
-    const cellIndex = Array.from(row.cells).indexOf(th);
+    const rowIndex = row ? Array.from(row.parentNode.children).indexOf(row) : 0;
+    const cellIndex = row ? Array.from(row.children).indexOf(th) : 0;
     
     let scope = 'col';
     
@@ -160,9 +201,76 @@ export function addScopeToHeaders(tableElement) {
   return updates;
 }
 
+function announceToScreenReader(message, priority = 'polite') {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('role', 'status');
+  announcement.setAttribute('aria-live', priority);
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+  setTimeout(() => announcement.remove(), 1000);
+}
+
+function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  const handleTabKey = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  };
+
+  element.addEventListener('keydown', handleTabKey);
+}
+
+function manageFocusOnNavigation() {
+  const mainContent = document.querySelector('[role="main"]');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.focus();
+  }
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function setAriaExpanded(element, expanded) {
+  if (element) {
+    element.setAttribute('aria-expanded', expanded);
+  }
+}
+
+function hasAccessibleName(element) {
+  return !!(element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.textContent.trim());
+}
+
+// Accessibility issue addressing functions
+function addressIssues(issues) {
+  issues.forEach((issue) => {
+    console.log(`Addressing issue: ${issue.issue}`);
+    console.log(`Solution: ${issue.solution}`);
+  });
+}
+
+function newFunction() {
+  // implementation of new function
+}
+
 export function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `generated-id-${Date.now()}`;
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
   }
 }
 
@@ -208,113 +316,10 @@ export function fixTableStructureIssues(html) {
   
   let result = html;
   
-  // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && attrs.includes(' scope=')) {
-      return match;
-    }
-    return `<th${attrs} scope="col">`;
-  });
-  
-  // Ensure tables have associated caption or summary
-  result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && (attrs.includes(' summary=') || attrs.includes(' caption'))) {
-      return match;
-    }
-    // Add summary attribute for screen readers
-    return `<table${attrs} summary="Data table">`;
-  });
-  
-  // Note: The following complex tbody/thead wrapping logic has been removed
-  // due to implementation complexity and potential for breaking HTML structure.
-  // The function now focuses on adding missing scope and summary attributes,
-  // which are critical for accessibility and can be safely applied with regex.
-  
-  return result;
-}
-
-export {
-  App,
-  AppWithAccessibility,
-  getUniqueLandmarkName,
-  validateUniqueLandmarks,
-  addSvgAccessibleName,
-  isValidLink,
-  addScopeToHeaders,
-  addressAccessibilityIssues,
-  announceToScreenReader,
-  trapFocus,
-  manageFocusOnNavigation,
-  prefersReducedMotion,
-  setAriaExpanded,
-  hasAccessibleName,
-  newFunction,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
-};
-
-  // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body(\s[^>]*)?>/gi, (match, attrs) => {
-    return `<body${attrs || ''}><main>`;
-  }).replace(/<\/body>/gi, '</main></body>');
-}
-
-/**
- * Adds accessible names to SVG elements
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with accessible SVG names
- */
-export function addSvgAccessibleNames(html) {
-  if (typeof html !== 'string') return html;
-  
-  let svgCounter = 0;
-  
-  return html.replace(/<svg(\s[^>]*)?>/gi, (match, attrs) => {
-    // Handle case where attrs might be undefined (for <svg> without attributes)
-    const attributes = attrs || '';
-    const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
+  // REACT_017: Add landmark roles and verify proper landmark structure
+  const landmarks = container.querySelectorAll('nav, main, footer, [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
+  landmarks.forEach((landmark) => {
+    const role = landmark.getAttribute('role');
+    const tagName = landmark.tagName.toLowerCase();
     
-    if (existingLabel) {
-      return match;
-    }
-    
-    // Extract title if present
-    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
-    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
-    
-    // Check for id to reference
-    const idMatch = attributes.match(/id="([^"]*)"/);
-    if (idMatch) {
-      return `<svg${attributes} role="img" aria-label="${label}">`;
-    }
-    
-    // Add inline title for accessibility
-    const titleId = `svg-title-${svgCounter}`;
-    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
-  });
-}
-
-/**
- * Ensures unique landmark identifiers for screen readers
- * Converts additional <main> landmarks to <section> so only one <main> exists per page.
- * Also assigns unique IDs to other landmark types.
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with unique landmarks
- */
-export function ensureUniqueLandmarks(html) {
-  if (typeof html !== 'string') return html;
-  
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const counters = {};
-  
-  // Initialize counters for each landmark type
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    if (matches) {
-      counters[lm] = matches.length;
-    }
-  });
-  
-  // First, ensure only
+    if (!role && ['header', 'nav',

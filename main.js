@@ -34,7 +34,7 @@ const accessibilityUtils = {
   // ... existing methods from both branches ...
 
   /**
-     * Announce message to screen readers (from origin/head)
+     * Announce message to screen readers
      * @param {string} message - The message to announce
      * @param {string} [priority='polite'] - The priority of the message (optional, defaults to 'polite')
      */
@@ -51,7 +51,7 @@ const accessibilityUtils = {
   },
 
   /**
-     * Handle keyboard navigation (from origin/head)
+     * Handle keyboard navigation
      * @param {Event} e - The keyboard event
      * @param {Object} handlers - The handler functions for different keys
      */
@@ -59,110 +59,6 @@ const accessibilityUtils = {
     const key = e.key
     if (handlers[key]) {
       handlers[key](e)
-    }
-  },
-
-  /**
-     * Check link accessibility by verifying required attributes
-     * @param {HTMLAnchorElement} link - The link element to check
-     * @returns {Object} Accessibility status and issues
-     */
-  checkLinkAccessibility: (link) => {
-    if (!link || link.tagName !== 'A') {
-      return { isAccessible: false, issues: ['Not a valid link element'] }
-    }
-
-    const issues = []
-
-    // Check for href attribute
-    if (!link.hasAttribute('href') || link.getAttribute('href').trim() === '') {
-      issues.push('Missing or empty href attribute')
-    }
-
-    // Check for aria-label or text content
-    if (!link.hasAttribute('aria-label') && !link.textContent.trim()) {
-      issues.push('Missing aria-label or link text')
-    }
-
-    // Check for target attribute if it's an external link
-    if (link.href && link.hostname !== window.location.hostname) {
-      if (!link.hasAttribute('target')) {
-        issues.push('External link missing target attribute')
-      } else if (link.getAttribute('target') !== '_blank') {
-        issues.push('External link should use target="_blank"')
-      }
-
-      if (!link.hasAttribute('rel') || !link.getAttribute('rel').includes('noopener')) {
-        issues.push('External link missing rel="noopener noreferrer"')
-      }
-    }
-
-    // Check for role attribute if it's a button-like link
-    if (link.getAttribute('role') === 'button' && !link.hasAttribute('tabindex')) {
-      issues.push('Button-like link missing tabindex="0"')
-    }
-
-    return {
-      isAccessible: issues.length === 0,
-      issues: issues.length > 0 ? issues : null
-    }
-  },
-
-  /**
-   * Set up keyboard navigation for an element
-   * @param {HTMLElement} element - The element to set up navigation for
-   * @param {Object} handlers - The handler functions for different keys
-   */
-  setupKeyboardNav: (element, handlers) => {
-    if (!element || !handlers) return;
-
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, handlers);
-    });
-  },
-
-  /**
-   * Add ARIA attributes to an element
-   * @param {HTMLElement} element - The element to add ARIA attributes to
-   * @param {Object} attributes - The ARIA attributes to add
-   */
-  addAriaAttributes: (element, attributes) => {
-    if (!element || !attributes) return;
-
-    Object.entries(attributes).forEach(([key, value]) => {
-      element.setAttribute(`aria-${key}`, value);
-    });
-  },
-
-  /**
-   * Create a live region for screen reader announcements
-   * @param {string} [priority='polite'] - The priority of the live region
-   * @returns {HTMLElement} The created live region element
-   */
-  createLiveRegion: (priority = 'polite') => {
-    const liveRegion = document.createElement('div');
-    liveRegion.setAttribute('aria-live', priority);
-    liveRegion.setAttribute('aria-atomic', 'true');
-    liveRegion.className = 'sr-only';
-    liveRegion.style.position = 'absolute';
-    liveRegion.style.left = '-9999px';
-    document.body.appendChild(liveRegion);
-    return liveRegion;
-  },
-
-  /**
-   * Focus the first focusable element within a container
-   * @param {HTMLElement} container - The container to search for focusable elements
-   */
-  focusFirstElement: (container) => {
-    if (!container) return;
-
-    const focusableElements = container.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (focusableElements.length > 0) {
-      focusableElements[0].focus();
     }
   },
 
@@ -234,12 +130,9 @@ function initAccessibility () {
   // Set up accessibility utilities
   if (typeof window !== 'undefined') {
     // Ensure screen reader support is available
-    document.body.setAttribute('role', 'application');
-
-    // Set language attribute if not already set
-    if (!document.documentElement.hasAttribute('lang')) {
-      document.documentElement.setAttribute('lang', accessibilityUtils.getLangAttribute());
-    }
+    document.body.setAttribute('role', 'application')
+    // Add lang attribute to HTML element (REACT_015)
+    document.documentElement.setAttribute('lang', 'en')
   }
   return accessibilityUtils
 }
@@ -250,8 +143,8 @@ const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = `auto-id-${Math.random().toString(36).substr(2, 9)}`
   }
-  return element;
-};
+  return element
+}
 
 /**
  * Get all loaded tables
@@ -502,13 +395,6 @@ function addAriaAttribute() {
  */
 function setLangAttribute(element, lang) {
   if (element) {
-    element.setAttribute('lang', lang);
-  }
-  return element;
-}
-
-const addAriaLabel = (element, label) => {
-  if (element) {
     element.setAttribute('aria-label', label)
   }
   return element
@@ -557,37 +443,6 @@ function renderDependencyGraphs (container, dependencies, options = {}) {
   // Add accessibility label if not present
   const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`)
 
-  // Add keyboard navigation support
-  accessibilityUtils.setupKeyboardNav(container, {
-    Escape: (e) => {
-      e.preventDefault();
-      accessibilityUtils.announceToScreenReader('Graph navigation closed');
-    },
-    ArrowLeft: (e) => {
-      e.preventDefault();
-      // Implement left navigation
-    },
-    ArrowRight: (e) => {
-      e.preventDefault();
-      // Implement right navigation
-    }
-  });
-
-  // Add keyboard navigation support
-  accessibilityUtils.addKeyboardNavigation(container, {
-    'Escape': () => {
-      // Handle escape key for closing the graph
-      const closeButton = container.querySelector('[aria-label="Close graph"]');
-      if (closeButton) closeButton.click();
-    }
-  });
-
-  // Add ARIA attributes for better screen reader support
-  accessibilityUtils.addAriaAttributes(container, {
-    'aria-roledescription': 'dependency visualization',
-    'aria-busy': 'false'
-  });
-
   return {
     containerId,
     accessible: hasAriaLabel,
@@ -623,191 +478,11 @@ function focusTrap (element) {
     }
   })
 
-  // Focus the first element when trap is activated
-  firstElement.focus();
-
-  return element;
+  return element
 }
 
-/**
- * Create a new focus trap with enhanced functionality.
- * @param {HTMLElement} element - The element to trap focus within
- * @param {Object} [options] - Configuration options for the focus trap
- * @param {boolean} [options.initialFocus=false] - Whether to focus the first element automatically
- * @param {boolean} [options.returnFocus=false] - Whether to return focus to the previously focused element when the trap is deactivated
- * @returns {Object} An object with methods to activate and deactivate the focus trap
- */
-function newFocusTrap(element, options = {}) {
-  if (!element) {
-    throw new Error('Element is required for focus trap');
-  }
-
-  let previousActiveElement = null;
-  let isActive = false;
-
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-
-  if (focusableElements.length === 0) {
-    console.warn('No focusable elements found in the focus trap container');
-    return {
-      activate: () => {},
-      deactivate: () => {}
-    };
-  }
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
-        e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
-      }
-    } else if (e.key === 'Escape') {
-      // Optional: Add escape key handling if needed
-    }
-  };
-
-  const activate = () => {
-    if (isActive) return;
-
-    previousActiveElement = document.activeElement;
-    isActive = true;
-
-    if (options.initialFocus) {
-      firstElement.focus();
-    }
-
-    element.addEventListener('keydown', handleKeyDown);
-  };
-
-  const deactivate = () => {
-    if (!isActive) return;
-
-    isActive = false;
-    element.removeEventListener('keydown', handleKeyDown);
-
-    if (options.returnFocus && previousActiveElement) {
-      previousActiveElement.focus();
-    }
-  };
-
-  return {
-    activate,
-    deactivate,
-    isActive: () => isActive
-  };
-}
-
-function newFocusTrap(element) {
-  if (!element) return;
-
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-
-  if (focusableElements.length === 0) return;
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  element.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
-        e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
-      }
-    }
-  });
-
-  firstElement.focus();
-}
-
-/**
- * New focus trap implementation with additional accessibility features
- * @param {HTMLElement} element - The element to trap focus within
- * @param {Object} options - Configuration options
- */
-function newFocusTrap(element, options = {}) {
-  if (!element) return;
-
-  const {
-    initialFocus = null,
-    escapeDeactivates = true,
-    clickOutsideDeactivates = true,
-    returnFocusOnDeactivate = true
-  } = options;
-
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-
-  if (focusableElements.length === 0) return;
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  // Set initial focus
-  if (initialFocus) {
-    initialFocus.focus();
-  } else {
-    firstElement.focus();
-  }
-
-  // Handle keyboard navigation
-  const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
-        e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
-      }
-    } else if (e.key === 'Escape' && escapeDeactivates) {
-      // Deactivate trap on escape
-      deactivateTrap();
-    }
-  };
-
-  // Handle click outside
-  const handleClickOutside = (e) => {
-    if (clickOutsideDeactivates && !element.contains(e.target)) {
-      deactivateTrap();
-    }
-  };
-
-  // Deactivate the trap
-  const deactivateTrap = () => {
-    element.removeEventListener('keydown', handleKeyDown);
-    document.removeEventListener('mousedown', handleClickOutside);
-
-    if (returnFocusOnDeactivate) {
-      // Return focus to the element that triggered the trap
-      const previousActiveElement = document.activeElement;
-      if (previousActiveElement) {
-        previousActiveElement.focus();
-      }
-    }
-  };
-
-  // Add event listeners
-  element.addEventListener('keydown', handleKeyDown);
-  document.addEventListener('mousedown', handleClickOutside);
-
-  // Return cleanup function
-  return {
-    deactivate: deactivateTrap
-  };
+function newFocusTrap () {
+  // New function implementation
 }
 
 /**
@@ -817,8 +492,8 @@ function newFocusTrap(element, options = {}) {
  * @param {Object} options - Options for the spawn function
  * @returns {ChildProcess} The spawned process
  */
-function spawnProcess(command, args = [], options = {}) {
-  return spawn(command, args, options);
+function spawnProcess (command, args = [], options = {}) {
+  return spawn(command, args, options)
 }
 
 // Credential response handling
@@ -836,10 +511,10 @@ async function handleCredentialResponse (response) {
       success: true,
       token: response.token,
       expiresIn: response.expiresIn || 3600
-    };
+    }
   }
 
-  throw new Error('Invalid credential response');
+  throw new Error('Invalid credential response')
 }
 
 // TODO: Address accessibility issues from insight report
@@ -1156,53 +831,8 @@ const exportUtils = {
       csvRows.push(values.join(','))
     }
 
-    const csvString = csvRows.join('\n');
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
-  },
-
-  /**
-   * Export data to a file with accessibility support
-   * @param {*} data - The data to export
-   * @param {string} filename - The name of the file
-   * @param {string} mimeType - The MIME type of the file
-   * @param {Object} options - Additional options
-   */
-  exportWithAccessibility: (data, filename, mimeType, options = {}) => {
-    const sanitizedFilename = sanitizeFilename(filename);
-    const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-
-    link.href = url;
-    link.download = sanitizedFilename;
-    link.setAttribute('aria-label', `Download ${sanitizedFilename}`);
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
-
-    // Add keyboard support
-    accessibilityUtils.addKeyboardNavigation(link, {
-      Enter: () => link.click(),
-      ' ': () => link.click()
-    });
-
-    // Add ARIA attributes
-    accessibilityUtils.ensureAriaAttributes(link, {
-      'aria-live': 'polite',
-      'aria-atomic': 'true'
-    });
-
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-
-    // Announce download completion
-    accessibilityUtils.announceToScreenReader(`Download of ${sanitizedFilename} started`);
-
-    // Clean up
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-      link.remove();
-    }, 100);
+    const csvString = csvRows.join('\n')
+    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv')
   }
 }
 
@@ -1233,6 +863,63 @@ function readFileSafe (filePath) {
 function log (message, level = 'info') {
   const timestamp = new Date().toISOString()
   console[level === 'error' ? 'error' : 'log'](`[${timestamp}] [${level}] ${message}`)
+}
+
+/**
+ * Add accessible names to SVG elements
+ * @param {SVGElement} svg - The SVG element to add accessible name to
+ * @param {string} name - The accessible name to add
+ */
+function addSvgAccessibleName (svg, name) {
+  if (!svg || !name) return
+
+  // Add title element for screen readers
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title')
+  title.textContent = name
+  svg.insertBefore(title, svg.firstChild)
+
+  // Add aria-label as fallback
+  svg.setAttribute('aria-label', name)
+}
+
+/**
+ * Create a landmark element with proper role and label
+ * @param {string} role - The ARIA role for the landmark
+ * @param {string} label - The accessible label for the landmark
+ * @returns {HTMLElement} The created landmark element
+ */
+function createLandmark (role, label) {
+  const element = document.createElement('div')
+  element.setAttribute('role', role)
+  element.setAttribute('aria-label', label)
+  return element
+}
+
+/**
+ * Fix fake links by converting them to proper buttons or links
+ * @param {HTMLElement} element - The element to fix
+ * @param {string} [role='button'] - The role to assign (button or link)
+ */
+function fixFakeLink (element, role = 'button') {
+  if (!element) return
+
+  if (role === 'button') {
+    element.setAttribute('role', 'button')
+    element.setAttribute('tabindex', '0')
+    element.setAttribute('aria-label', element.textContent || 'Button')
+  } else if (role === 'link') {
+    element.setAttribute('role', 'link')
+    element.setAttribute('tabindex', '0')
+    element.setAttribute('aria-label', element.textContent || 'Link')
+  }
+
+  // Add keyboard event handlers
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      element.click()
+    }
+  })
 }
 
 // New functions for rendering graph/index
@@ -1486,7 +1173,7 @@ module.exports = {
   spawnProcess,
   focusTrap,
   newFocusTrap,
-  sanitizeFilename,
-  readFileSafe,
-  log
-};
+  addSvgAccessibleName,
+  createLandmark,
+  fixFakeLink
+}

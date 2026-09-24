@@ -313,8 +313,7 @@ function renderAccessibleDependencyGraph(dependencies, depth = 0) {
     return `Depth ${depth}: (empty)\\n`;
   }
 
-  // Create unique IDs for each key to ensure unique landmarks
-  const indexedKeys = keys.map((key, index) => ({ key, id: `node-${index}` }));
+  let output = `Depth ${depth}: (${keys.length} item${keys.length === 1 ? '' : 's'})\\n`;
 
   let output = `Depth ${depth}: (${keys.length} item${keys.length === 1 ? '' : 's'})\\n`;
 
@@ -324,10 +323,10 @@ function renderAccessibleDependencyGraph(dependencies, depth = 0) {
     const position = isLast ? 'last' : 'not last';
 
     if (typeof value === 'object' && value !== null) {
-      output += `  - ${item.key} (id="${item.id}", has ${Object.keys(value).length} child${Object.keys(value).length === 1 ? '' : 's'}, ${position})\\n`;
+      output += `  - ${key} (has ${Object.keys(value).length} child${Object.keys(value).length === 1 ? '' : 's'}, ${position})\\n`;
       output += renderAccessibleDependencyGraph(value, depth + 1);
     } else {
-      output += `  - ${item.key} (id="${item.id}", leaf, value: ${value}, ${position})\\n`;
+      output += `  - ${key} (leaf, value: ${value}, ${position})\\n`;
     }
   });
 

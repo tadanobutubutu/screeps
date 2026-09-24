@@ -132,6 +132,18 @@ function validateTableAccessibility() {
   return [];
 }
 
+// Function to render a single book item
+function BookItem(book) {
+  return (
+    <List.Item key={generateKey(book)}>
+      <List.Item.Meta
+        title={book.title}
+        ...
+      />
+    </List.Item>
+  );
+}
+
 function validateTableStructure() {
   // Code for validating table structure
   console.log('Validating table structure');
@@ -141,6 +153,13 @@ function validateTableStructure() {
 function fixTableStructure() {
   // Code for fixing table structure issues
   console.log('Fixing table structure issues');
+}
+
+// Function to handle sorting the book list by title (ascending)
+function onTitleSort(books, dispatch) {
+  const sortedList = ...
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 function addMainLandmark() {
@@ -440,6 +459,79 @@ function Main() {
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   timeout: 5000
+};
+
+// Handle form submission for adding a new book
+const handleAddBook = (event) => {
+  event.preventDefault();
+  const newBook = {
+    id: Date.now(),
+    title: newBookTitle,
+    author: newBookAuthor,
+  };
+  addBook(dispatch, newBook);
+  setNewBookTitle('');
+  setNewBookAuthor('');
+  // Set focus back to the title input for accessibility
+  if (...) {
+    ...
+  }
+};
+
+// Render the list of book items and sorting controls
+const BookList = () => {
+  return (
+    <div>
+      <header role="banner">
+        <nav role="navigation" aria-label="Sorting controls">
+          <button 
+            onClick={() => setSorting(sortByTitle)}
+            aria-pressed={sorting === sortByTitle}
+          >
+            Sort by Title
+          </button>
+          <button 
+            onClick={() => setSorting(sortByAuthor)}
+            aria-pressed={sorting === sortByAuthor}
+          >
+            Sort by Author
+          </button>
+        </nav>
+      </header>
+      <main role="main" aria-label="Book list">
+        <List>
+          {bookItems}
+        </List>
+      </main>
+      {/* Accessible form for adding a new book */}
+      <form ... aria-label="Add new book" role="search">
+        <div>
+          <label htmlFor="book-title">Book Title:</label>
+          <input
+            id="book-title"
+            type="text"
+            value={newBookTitle}
+            onChange={(e) => ...
+            ...
+            required
+            aria-required="true"
+          />
+        </div>
+        <div>
+          <label ...
+          <input
+            id="book-author"
+            type="text"
+            ...
+            onChange={(e) => ...
+            required
+            aria-required="true"
+          />
+        </div>
+        <button type="submit">Add Book</button>
+      </form>
+    </div>
+  );
 };
 
 // App state
@@ -771,25 +863,20 @@ export {
   addLandmarkRegions,
   getInsightReport,
   // Added from origin/main
-  someFunction,
-  CONFIG,
-  helper,
-  formatDate,
-  // Added missing exports
-  HTML,
-  main,
-  getRootHtmlAccessibilityProps,
-  getLandmarkProps,
-  getSvgAccessibilityProps,
-  getAccessibleLinkProps,
-  countDependencies,
-  fetchBookDependencies,
-  updateBookDependencies,
-  AddBookForm,
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort
+  someFunction: function() {
+    return 'some value';
+  },
+  CONFIG: {
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
+  },
+  helper: function(input) {
+    return input ? input.toUpperCase() : '';
+  },
+  formatDate: function(date) {
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+    return date.toISOString();
+  }
 };
-
-export default Main;
-// ----- END ORIGINAL CODE (unchanged) -----

@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserve
+
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
 
@@ -236,33 +238,18 @@ const { formatResponse } = require('./utils/processor');
 
 // Function to write the generated report to a file (from the original commitment)
 function writeReport(report) {
-  const reportDir = path.join(process.cwd(), 'reports');
-  const reportFile = path.join(reportDir, `accessibility-report-${Date.now()}.json`);
-  
-  try {
-    if (!fs.existsSync(reportDir)) {
-      fs.mkdirSync(reportDir, { recursive: true });
-    }
-    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-    return reportFile;
-  } catch (error) {
-    console.error('Error writing report:', error);
-    throw error;
-  }
+  const fs = require('fs');
+  const path = require('path');
+  const reportFile = path.join(process.cwd(), 'accessibility-report.json');
+  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 }
 
 // Function to read the generated report (from the original commitment)
-function readReport(reportFile) {
-  const defaultReportFile = path.join(process.cwd(), 'reports', 'latest-report.json');
-  const filePath = reportFile || defaultReportFile;
-  
-  try {
-    const content = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(content);
-  } catch (error) {
-    console.error('Error reading report:', error);
-    throw error;
-  }
+function readReport() {
+  const fs = require('fs');
+  const path = require('path');
+  const reportFile = path.join(process.cwd(), 'accessibility-report.json');
+  return JSON.parse(fs.readFileSync(reportFile, 'utf8'));
 }
 
 // Function to generate a report based on accessibility issues (combined implementation from both branches)
@@ -316,17 +303,17 @@ async function scanAccessibility() {
 
 // Function to validate landmark elements (from the conflicting branch)
 function validateLandmark(landmarkElement) {
-    const landmarkName = landmarkElement ? landmarkElement.tagName : '';
+    const landmarkName = landmarkElement.getAttribute('aria-label') || landmarkElement.tagName.toLowerCase();
     const requiredLandmarks = ['main', 'nav', 'footer'];
 
-    if (!landmarkElement || !landmarkName) {
+    if (!requiredLandmarks.includes(landmarkElement.tagName.toLowerCase())) {
         return {
             present: false,
             missing: requiredLandmarks
         };
     }
 
-    const landmark = landmarkName.toLowerCase();
+    const landmark = landmarkElement;
 
     if (!requiredLandmarks.includes(landmark)) {
         return {
@@ -347,7 +334,7 @@ if (require.main === module) {
 
   // Add the functions from the conflicting branch
   function sortLandmarks(landmarks, ascending = true) {
-    return [...landmarks].sort((a, b) => {
+    return landmarks.sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -376,19 +363,4 @@ if (require.main === module) {
 
     return validLandmarks;
   }
-
-  // Export additional functions for module usage
-  module.exports = {
-    existingFunction1,
-    existingFunction2,
-    myNewFunction,
-    generateAccessibilityReport,
-    readReport,
-    writeReport,
-    ensureUniqueLandmarks,
-    validateLandmark,
-    validateLandmarks,
-    sortLandmarks,
-    findLandmarkById
-  };
 }

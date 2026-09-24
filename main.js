@@ -267,6 +267,27 @@ function fixLandmarkIssues() {
   });
 }
 
+/**
+ * Fixes landmark accessibility issues from insight report
+ * Addresses REACT_017: Add/fix 2 landmark issues
+ */
+function fixLandmarkIssues() {
+  // Fix missing or invalid landmarks
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.getAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  // Fix landmarks without accessible names
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="banner"], [role="contentinfo"]');
+  landmarks.forEach(landmark => {
+    if (!hasLandmarkAccessibleName(landmark) && landmark.tagName !== 'MAIN') {
+      const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+      landmark.setAttribute('aria-label', `${role} region`);
+    }
+  });
+}
+
 function getSvgAccessibleName(svg) {
   return ... ||
          svg.getAttribute('title') ||
@@ -409,192 +430,4 @@ function ... {
   });
 
   // Check for links without accessible names
-  const links = document.querySelectorAll('a');
-  links.forEach((link, index) => {
-    const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('aria-labelledby');
-    if (!accessibleName) {
-      issues.push({
-        type: 'missing-name',
-        element: 'a',
-        index: index,
-        message: `Link at index ${index} is missing an accessible name`
-      });
-    }
-  });
-
-  // Check for form inputs without labels
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach((input, index) => {
-    const inputType = input.getAttribute('type');
-    if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
-      const labelId = input.getAttribute('aria-labelledby');
-      const labelText = input.getAttribute('aria-label');
-      const hasLabel = document.querySelector(`label[for="${input.id}"]`) || labelId || labelText;
-      if (!hasLabel) {
-        issues.push({
-          type: 'missing-label',
-          element: 'input',
-          index: index,
-          message: `Input at index ${index} is missing an associated label`
-        });
-      }
-    }
-  });
-
-  // Check for empty headings
-  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  headings.forEach((heading, index) => {
-    if (!heading.textContent.trim()) {
-      issues.push({
-        type: 'empty-heading',
-        element: 'heading',
-        index: index,
-        message: `Heading at index ${index} has no text content`
-      });
-    }
-  });
-
-  // Generate report
-  const report = {
-    timestamp: new Date().toISOString(),
-    totalIssues: issues.length,
-    issues: issues
-  };
-
-  console.log('Accessibility Report:', report);
-  return report;
-}
-
-/**
- * Addresses accessibility issues at runtime
- */
-function addressAccessibilityIssues() {
-  // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root');
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-  }
-
-  // Initialize skip link functionality
-  const skipLink = document.getElementById('skip-link');
-  if (skipLink) {
-    skipLink.addEventListener('click', function(e) {
-      const targetId = skipLink.getAttribute('href').substring(1);
-      const target = document.getElementById(targetId);
-      if (target) {
-        target.setAttribute('tabindex', '-1');
-        target.focus();
-      }
-    });
-  }
-
-  // Ensure all buttons with role="button" respond to Enter key
-  document.querySelectorAll('[role="button"]').forEach(button => {
-    button.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        this.click();
-      }
-    });
-  });
-
-  // Add focusVisible polyfill behavior
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Tab') {
-      document.body.classList.add('keyboard-nav');
-    }
-  });
-
-  document.addEventListener('mousedown', function() {
-    document.body.classList.remove('keyboard-nav');
-  });
-
-  // Announce welcome message
-  a11y.announce('Welcome to the bot!', 'assertive');
-
-  // Adding an alt attribute to an image
-  const imageElement = document.querySelector('.image-placeholder');
-  if (imageElement) {
-    imageElement.setAttribute('alt', 'A description of the image');
-  }
-
-  // Correcting the ARIA role for a div
-  const divElement = document.querySelector('.list-container');
-  if (divElement) {
-    divElement.setAttribute('role', 'list');
-  }
-
-  // Adding the lang attribute to the HTML element
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', getLangAttribute());
-  }
-}
-
-/**
- * Harvest resources based on current level
- * @returns {number} The amount of resources harvested
- */
-function harvest() {
-  // Placeholder harvest logic – to be merged with upgrade logic
-  const baseAmount = 10;
-  const currentLevel = getCurrentLevel(); // assume exists
-  return baseAmount * currentLevel;
-}
-
-/**
- * Upgrade the system if enough resources are available
- * @returns {boolean} True if upgrade was successful, false otherwise
- */
-function upgrade() {
-  const required = getRequiredResourcesForUpgrade();
-  const current = getCurrentResources();
-  if (current >= required) {
-    incrementLevel();
-    resetResources();
-    return true;
-  }
-  return false;
-}
-
-// Helper functions (to be merged with existing logic)
-function getCurrentLevel() {
-  // Read from localStorage or default to 1
-  return parseInt(localStorage.getItem('level') || '1', 10);
-}
-
-function getCurrentResources() {
-  return parseInt(localStorage.getItem('resources') || '0', 10);
-}
-
-function getRequiredResourcesForUpgrade() {
-  const level = getCurrentLevel();
-  return level * 50; // example scaling
-}
-
-function incrementLevel() {
-  const level = getCurrentLevel();
-  localStorage.setItem('level', (level + 1).toString());
-}
-
-function resetResources() {
-  localStorage.setItem('resources', '0');
-}
-
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-reportWebVitals();
-
-export {
-  createInPageButton,
-  validateLandmarkStructure,
-  addLangAttribute,
-  fixTableStructure,
-  generateAccessibilityReport,
-  harvest,
-  upgrade
-};
+  const links = document.querySelectorAll

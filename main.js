@@ -15,7 +15,7 @@
 // Main module
 
 // Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraph');
+const { dependencyGraphContent } = require('./graph');
 const { indexContent } = require('./index');
 
 const main = require('./utilities');
@@ -37,6 +37,27 @@ const {
   median,
 } = main;
 
+// Export functions for accessibility
+module.exports = {
+  add,
+  subtract,
+  multiply,
+  divide,
+  power,
+  squareRoot,
+  factorial,
+  fibonacci,
+  sum,
+  average,
+  max,
+  min,
+  mode,
+  median,
+  greetingFunction,
+  getWelcomeMessage,
+  ensureInteractiveElementsAccessible,
+};
+
 // Existing rendering functions (preserving existing exports and functions)
 
 function greetingFunction() {
@@ -52,7 +73,7 @@ function getWelcomeMessage() {
   return greetingFunction() + " This is a new function that returns a welcome message.";
 }
 
-const { class1, function1, Object1 } = require('./some-module');
+const { class1, function1, Object1 } = require('./components');
 
 const a11yStore = {
   // ... existing methods ...
@@ -92,13 +113,7 @@ const a11yStore = {
   liveRegion: null,
 
   updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) {
-      this.liveRegion = document.createElement('div');
-      this.liveRegion.setAttribute('aria-live', priority);
-      this.liveRegion.setAttribute('aria-atomic', 'true');
-      this.liveRegion.className = 'sr-only';
-      document.body.appendChild(this.liveRegion);
-    }
+    if (!this.liveRegion) this.liveRegion = document.createElement('div');
     this.announce(message, priority);
   },
 
@@ -112,25 +127,25 @@ const a11yStore = {
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
+    landmarkElements.forEach(element => {
+      const landmarks = document.querySelectorAll(element);
+      landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${landmark.id}`);
+          landmark.id = `${element}-${index}`;
         }
 
         if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${landmark.id + 1}`);
+          if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
         }
       });
     });
   },
 
-  addSvgAccessibility() {
+  fixSvgTitles() {
     const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
+    svgElements.forEach(svg => {
       let titleElement = svg.querySelector('title');
       if (!titleElement) {
         titleElement = document.createElement('title');
@@ -147,7 +162,7 @@ const a11yStore = {
       const hasAriaLabel = svg.getAttribute('aria-label');
       const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
 
-      if (!svg.getAttribute('role') && !svg.getAttribute('aria-label')) {
+      if (!svg.getAttribute('role')) {
         svg.setAttribute('role', 'img');
         svg.setAttribute('aria-labelledby', titleElement.id);
       }
@@ -155,13 +170,11 @@ const a11yStore = {
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[onclick]');
-    fakeLinks.forEach((link) => {
-      if (link.tagName !== 'A' && link.tagName !== 'BUTTON') {
-        link.setAttribute('role', 'link');
-        link.setAttribute('tabindex', '0');
-        link.setAttribute('aria-pressed', 'true');
-      }
+    const fakeLinks = document.querySelectorAll('[onclick*="location"]');
+    fakeLinks.forEach(link => {
+      link.setAttribute('role', 'link');
+      link.setAttribute('tabindex', '0');
+      link.setAttribute('aria-label', 'true');
     });
   },
 
@@ -170,9 +183,8 @@ const a11yStore = {
    */
   ensureInteractiveRoles() {
     const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach((element) => {
-      const tagName = element.tagName.toLowerCase();
-      if (tagName !== 'a' && tagName !== 'button' && tagName !== 'input' && !element.getAttribute('role')) {
+    interactiveElements.forEach(element => {
+      if (!element.getAttribute('role')) {
         element.setAttribute('role', 'button');
       }
     });
@@ -187,23 +199,20 @@ const a11yStore = {
       if (!control.id) {
         control.id = `form-control-${index}`;
       }
-      const existingLabel = document.querySelector(`label[for="${control.id}"]`);
-      if (!existingLabel) {
-        const label = document.createElement('label');
-        label.setAttribute('for', control.id);
-        label.textContent = control.placeholder || 'Form control';
-        control.parentNode.insertBefore(label, control);
-      }
+      const label = control.previousElementSibling;
+      label.setAttribute('for', control.id);
+      label.textContent = control.placeholder || 'Form control';
+      control.setAttribute('aria-labelledby', label.id || control.id);
     });
   },
 
   /**
    * Ensure all images have alt text or ARIA attributes
    */
-  ensureImageAccessibility() {
+  fixImageAlts() {
     const images = document.querySelectorAll('img');
     images.forEach((img) => {
-      if (!img.alt && !img.getAttribute('aria-label') && !img.getAttribute('aria-labelledby')) {
+      if (!img.alt && !img.getAttribute('aria-label') && !img.getAttribute('role')) {
         img.setAttribute('alt', '');
       }
     });
@@ -264,6 +273,7 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureInteractiveRoles();
   a11yStore.ensureUniqueLandmarks();
   a11yStore.addFormControlLabels();
+  a11yStore.fixImageAlts();
 }
 
 // ... rest of the code ...

@@ -1,5 +1,7 @@
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
 // TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)

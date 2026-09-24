@@ -189,20 +189,13 @@ function startApp() {
 }
 
 /**
- * Function to generate a report based on accessibility issues
- * @returns {Promise<string>} A promise that resolves to the accessibility report
+ * Function for creating in-page buttons
+ * @param {string} id - The ID of the button
+ * @param {string} text - The text to display on the button
+ * @returns {string} The HTML string for the button
  */
-async function generateAccessibilityReport() {
-  // Placeholder for the actual accessibility check logic
-  // This should be replaced with the actual implementation
-  const accessibilityIssues = []; // This should be populated with actual issues found
-
-  // Generate a report string from the issues
-  const report = `Accessibility Report:
-  Issues Found: ${accessibilityIssues.length}
-  Detailed Issues: ${JSON.stringify(accessibilityIssues)}`;
-
-  return report;
+function createButton(id, text) {
+  return `<button id="${id}">${text}</button>`;
 }
 
 // Export functions for testing
@@ -210,8 +203,7 @@ module.exports = {
   createServer,
   startApp,
   config,
-  addLangAttribute,
-  addAccessibilityChanges
+  createButton
 };
 
 // Start the application if run directly

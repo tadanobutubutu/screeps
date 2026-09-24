@@ -1,0 +1,2705 @@
+FAIL tests/fix.test.js
+  ● fix.js solution configuration › should export an object with the expected structure
+
+    TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+
+       7 |
+       8 |   it('should export an object with the expected structure', async () => {
+    >  9 |     const mod = await import('../fix.js');
+         |                 ^
+      10 |     solution = mod.solution;
+      11 |     expect(solution).toBeDefined();
+      12 |     expect(solution).toHaveProperty('name', 'Dependency Dashboard Resolution');
+
+      at Object.<anonymous> (tests/fix.test.js:9:17)
+
+  ● fix.js solution configuration › should have correct meta properties
+
+    TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+
+      19 |
+      20 |   it('should have correct meta properties', async () => {
+    > 21 |     const mod = await import('../fix.js');
+         |                 ^
+      22 |     solution = mod.solution;
+      23 |     expect(solution.meta.repository).toBe('tadanobutubutu/screeps');
+      24 |     expect(solution.meta.dashboardTitle).toBe('Dependency Dashboard');
+
+      at Object.<anonymous> (tests/fix.test.js:21:17)
+
+  ● fix.js solution configuration › should correctly configure the linear-bots action version and tags
+
+    TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+
+      28 |
+      29 |   it('should correctly configure the linear-bots action version and tags', async () => {
+    > 30 |     const mod = await import('../fix.js');
+         |                 ^
+      31 |     solution = mod.solution;
+      32 |     const gitstreamConfig = solution.config.renovate.dynamic.managerConfig['github-actions']['linear-bots/gitstream-github-action'];
+      33 |     expect(gitstreamConfig.version).toBe('v2');
+
+      at Object.<anonymous> (tests/fix.test.js:30:17)
+
+  ● fix.js solution configuration › should correctly define awaiting-schedule branches
+
+    TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+
+      36 |
+      37 |   it('should correctly define awaiting-schedule branches', async () => {
+    > 38 |     const mod = await import('../fix.js');
+         |                 ^
+      39 |     solution = mod.solution;
+      40 |     const branches = solution.branches['awaiting-schedule'];
+      41 |     expect(branches['renovate/posthog-js-1.x']).toEqual({ target: '1.417.1', state: 'ready-to-unschedule' });
+
+      at Object.<anonymous> (tests/fix.test.js:38:17)
+
+  ● fix.js solution configuration › should include correct dependency data in logic check
+
+    TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+
+      44 |
+      45 |   it('should include correct dependency data in logic check', async () => {
+    > 46 |     const mod = await import('../fix.js');
+         |                 ^
+      47 |     solution = mod.solution;
+      48 |     expect(solution.logic.check).toBe('solution_5.javascript');
+      49 |     expect(typeof solution.logic.description).toBe('string');
+
+      at Object.<anonymous> (tests/fix.test.js:46:17)
+
+FAIL tests/src.roles.behavior.test.js
+  ● src roles behaviors › upgrader › アップグレード時にメッセージを表示する
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      399 |
+      400 |             expect(creep.upgradeController).toHaveBeenCalledWith(controller);
+    > 401 |             expect(creep.say).toHaveBeenCalled();
+          |                               ^
+      402 |         });
+      403 |     });
+      404 | });
+
+      at Object.toHaveBeenCalled (tests/src.roles.behavior.test.js:401:31)
+
+FAIL tests/main.test.js
+  ● main.js › モジュールが正しく読み込める
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:182:22)
+
+  ● main.js › loop関数が例外を投げない
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:190:22)
+
+  ● main.js › help関数が存在する
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:195:9)
+
+  ● main.js › adaptiveグローバルが存在する
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:200:9)
+
+  ● main.js › modeグローバルが存在する
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:205:9)
+
+  ● main.js › global help function can be called
+
+    expect(received).not.toThrow()
+
+    Error name:    "TypeError"
+    Error message: "global.help is not a function"
+
+          208 |
+          209 |     test('global help function can be called', () => {
+        > 210 |         expect(() => global.help()).not.toThrow();
+              |                             ^
+          211 |     });
+          212 |
+          213 |     test('global e command exists and returns emotion stats', () => {
+
+      at help (tests/main.test.js:210:29)
+      at Object.toThrow (tests/main.test.js:210:41)
+      at Object.toThrow (tests/main.test.js:210:41)
+
+  ● main.js › global e command exists and returns emotion stats
+
+    TypeError: global.e is not a function
+
+      212 |
+      213 |     test('global e command exists and returns emotion stats', () => {
+    > 214 |         const result = global.e();
+          |                               ^
+      215 |         expect(result).toBeDefined();
+      216 |         expect(result.veryHappy).toBe(0);
+      217 |         expect(result.happy).toBe(0);
+
+      at Object.e (tests/main.test.js:214:31)
+
+  ● main.js › global t command calls showProgress
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:223:22)
+
+  ● main.js › global ts command exists
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "function"
+    Received: "undefined"
+
+      226 |
+      227 |     test('global ts command exists', () => {
+    > 228 |         expect(typeof global.ts).toBe('function');
+          |                                  ^
+      229 |     });
+      230 |
+      231 |     test('global g command exists', () => {
+
+      at Object.toBe (tests/main.test.js:228:34)
+
+  ● main.js › global g command exists
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "function"
+    Received: "undefined"
+
+      230 |
+      231 |     test('global g command exists', () => {
+    > 232 |         expect(typeof global.g).toBe('function');
+          |                                 ^
+      233 |     });
+      234 |
+      235 |     test('global evo command exists', () => {
+
+      at Object.toBe (tests/main.test.js:232:33)
+
+  ● main.js › global evo command exists
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "function"
+    Received: "undefined"
+
+      234 |
+      235 |     test('global evo command exists', () => {
+    > 236 |         expect(typeof global.evo).toBe('function');
+          |                                   ^
+      237 |     });
+      238 |
+      239 |     test('mc, mb, mr, mh, ml, md, mm global commands exist', () => {
+
+      at Object.toBe (tests/main.test.js:236:35)
+
+  ● main.js › mc, mb, mr, mh, ml, md, mm global commands exist
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "function"
+    Received: "undefined"
+
+      238 |
+      239 |     test('mc, mb, mr, mh, ml, md, mm global commands exist', () => {
+    > 240 |         expect(typeof global.mc).toBe('function');
+          |                                  ^
+      241 |         expect(typeof global.mb).toBe('function');
+      242 |         expect(typeof global.mr).toBe('function');
+      243 |         expect(typeof global.mh).toBe('function');
+
+      at Object.toBe (tests/main.test.js:240:34)
+
+  ● main.js › loop() initializes room cache correctly and categorizes structures
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:250:22)
+
+  ● main.js › loop() handles spawning correctly
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:303:22)
+
+  ● main.js › loop() handles existing creeps logic
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:337:22)
+
+  ● main.js › loop() handles social interactions
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:381:22)
+
+  ● main.js › global gr and evor commands exist
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "function"
+    Received: "undefined"
+
+      431 |
+      432 |     test('global gr and evor commands exist', () => {
+    > 433 |         expect(typeof global.gr).toBe('function');
+          |                                  ^
+      434 |         expect(typeof global.evor).toBe('function');
+      435 |     });
+      436 | });
+
+      at Object.toBe (tests/main.test.js:433:34)
+
+PASS tests/src.roles.builder.test.js
+PASS tests/src.roles.upgrader.test.js
+FAIL tests/fix_syntax.test.js
+  ● fix_syntax.js › should strip markdown block prefix and keep everything up to the last closing brace
+
+    Cannot find module '../fix_syntax.js' from 'tests/fix_syntax.test.js'
+
+      15 |         fs.readFileSync.mockReturnValue('Some text\n```javascript\nfunction test() { return {}; }\nconsole.log(1);\n```\nmore text');
+      16 |
+    > 17 |         require('../fix_syntax.js');
+         |         ^
+      18 |
+      19 |         expect(fs.readFileSync).toHaveBeenCalledWith('main.js', 'utf8');
+      20 |         expect(fs.writeFileSync).toHaveBeenCalledWith('main.js.fixed', 'function test() { return {}; }', 'utf8');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_syntax.test.js:17:9)
+
+  ● fix_syntax.js › should just trim if no closing brace is found
+
+    Cannot find module '../fix_syntax.js' from 'tests/fix_syntax.test.js'
+
+      24 |         fs.readFileSync.mockReturnValue('```javascript\nconst a = 1;  \n\n');
+      25 |
+    > 26 |         require('../fix_syntax.js');
+         |         ^
+      27 |
+      28 |         expect(fs.readFileSync).toHaveBeenCalledWith('main.js', 'utf8');
+      29 |         expect(fs.writeFileSync).toHaveBeenCalledWith('main.js.fixed', 'const a = 1;', 'utf8');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_syntax.test.js:26:9)
+
+  ● fix_syntax.js › should handle file with no markdown blocks correctly but with a closing brace
+
+    Cannot find module '../fix_syntax.js' from 'tests/fix_syntax.test.js'
+
+      33 |         fs.readFileSync.mockReturnValue('const obj = { a: 1 };  \n  ');
+      34 |
+    > 35 |         require('../fix_syntax.js');
+         |         ^
+      36 |
+      37 |         expect(fs.readFileSync).toHaveBeenCalledWith('main.js', 'utf8');
+      38 |         expect(fs.writeFileSync).toHaveBeenCalledWith('main.js.fixed', 'const obj = { a: 1 }', 'utf8');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_syntax.test.js:35:9)
+
+FAIL tests/fix_file.test.js
+  ● fix_file.js › should remove markdown wrapper and add crypto require if missing
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      15 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      16 |
+    > 17 |     require('../fix_file.js');
+         |     ^
+      18 |
+      19 |     expect(fsMock.readFileSync).toHaveBeenCalledWith('main.js', 'utf8');
+      20 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:17:5)
+
+  ● fix_file.js › should replace Math.random occurrences with crypto equivalents
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      29 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      30 |
+    > 31 |     require('../fix_file.js');
+         |     ^
+      32 |
+      33 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+      34 |     expect(content).toContain('const val1 = crypto.randomInt(10000);');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:31:5)
+
+  ● fix_file.js › should fix the cutoff catch block
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      40 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      41 |
+    > 42 |     require('../fix_file.js');
+         |     ^
+      43 |
+      44 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+      45 |     expect(content).toContain("  } catch (error) {\n    logging.log('error', `Failed to monitor stargazers: ${error.message}`);\n    throw error;\n  }\n}");
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:42:5)
+
+  ● fix_file.js › should add module.exports if not present
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      50 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      51 |
+    > 52 |     require('../fix_file.js');
+         |     ^
+      53 |
+      54 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+      55 |     expect(content).toContain('module.exports = {');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:52:5)
+
+  ● fix_file.js › should not add module.exports if already present
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      61 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      62 |
+    > 63 |     require('../fix_file.js');
+         |     ^
+      64 |
+      65 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+      66 |     const occurrences = (content.match(/module\.exports = \{/g) || []).length;
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:63:5)
+
+  ● fix_file.js › should replace the stub addTask implementation
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      72 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      73 |
+    > 74 |     require('../fix_file.js');
+         |     ^
+      75 |
+      76 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+      77 |     expect(content).toContain('taskIdCounter++;');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:74:5)
+
+PASS tests/utils.planning.test.js
+PASS tests/sentinel_gemini_api_key_header.test.js
+PASS tests/utils.logging.test.js
+  ● Console
+
+    console.log
+      ℹ️ [info] hello world
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ❌ [error] something broke
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] plain message
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 0
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 1
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 2
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 3
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 4
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 5
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 6
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 7
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 8
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 9
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 10
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 11
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 12
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 13
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 14
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 15
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 16
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 17
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 18
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 19
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 20
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 21
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 22
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 23
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 24
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 25
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 26
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 27
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 28
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 29
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 30
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 31
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 32
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 33
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 34
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 35
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 36
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 37
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 38
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 39
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 40
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 41
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 42
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 43
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 44
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 45
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 46
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 47
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 48
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 49
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 50
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 51
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 52
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 53
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 54
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 55
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 56
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 57
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 58
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 59
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 60
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 61
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 62
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 63
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 64
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 65
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 66
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 67
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 68
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 69
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 70
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 71
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 72
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 73
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 74
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 75
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 76
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 77
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 78
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 79
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 80
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 81
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 82
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 83
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 84
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 85
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 86
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 87
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 88
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 89
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 90
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 91
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 92
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 93
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 94
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 95
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 96
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 97
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 98
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 99
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 100
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 101
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 102
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 103
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 104
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 105
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 106
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 107
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 108
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 109
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 110
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 111
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 112
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 113
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 114
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 115
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 116
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 117
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 118
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] message 119
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] 42
+
+      at Object.log (utils.logging.js:163:13)
+
+    console.log
+      ❌ [error] a message
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ⚠️ [warn] a message
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] a message
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      💬 [debug] a message
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      🔍 [trace] a message
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ❌ [error] boom
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ⚠️ [warn] careful
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] fyi
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] one
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] two
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] three
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ❌ [error] bad
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] fine
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] one
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ❌ [error] [errorCtx] kaboom
+
+      at log (utils.logging.js:163:13)
+
+PASS tests/sentinel_ai_providers_header_injection.test.js
+PASS tests/deploy.test.js
+PASS tests/scripts.add-contributor.test.js
+PASS tests/utils.missions.test.js
+PASS tests/memory.visualizer.test.js
+  ● Console
+
+    console.log
+      Total Size: 0.05 KB
+
+      at Object.log [as showStats] (memory.visualizer.js:31:17)
+
+    console.log
+      History (last 1 ticks):
+
+      at Object.log [as showHistory] (memory.visualizer.js:121:17)
+
+    console.log
+      [100] CPU=10.00, Bucket=undefined, Creeps=5, Energy=300
+
+      at log (memory.visualizer.js:123:21)
+          at Array.forEach (<anonymous>)
+
+    console.log
+      🥇 creep2: 200
+
+      at log (memory.visualizer.js:197:21)
+          at Array.forEach (<anonymous>)
+
+    console.log
+      🥈 creep1: 100
+
+      at log (memory.visualizer.js:197:21)
+          at Array.forEach (<anonymous>)
+
+    console.log
+      [100] Test
+
+      at log (memory.visualizer.js:256:21)
+          at Array.forEach (<anonymous>)
+
+PASS tests/scripts.auto-pr-generator.test.js
+PASS tests/src.roles.miner.test.js
+PASS tests/src.roles.harvester.test.js
+PASS tests/scripts.random-experiment.test.js
+PASS tests/role.harvester.test.js
+  ● Console
+
+    console.log
+      ℹ️ [info] ✨ +5 XP (Energy delivery)
+
+      at log (utils.logging.js:163:13)
+
+PASS tests/roomManager.test.js
+PASS tests/src.utils.roleUtils.test.js
+PASS tests/visual.effects.test.js
+PASS tests/role.explorer.test.js
+PASS tests/towerManager.test.js
+PASS tests/role.medic.test.js
+PASS tests/security.aggregation.test.js
+  ● Console
+
+    console.log
+      ℹ️ [info] [SpawnManager] ルーム W1N1 のクリープ状況 (RCL 1):
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ⚠️ harvester: 0/2
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ⚠️ upgrader: 0/1
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ✓ builder: 0/0
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ✓ repairer: 0/0
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ✓ miner: 0/0
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ✓ transporter: 0/0
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ✓ defender: 0/0
+
+      at log (src/utils/logger.js:180:13)
+
+PASS tests/utils.stats.test.js
+PASS tests/scripts.check_repo_health.test.js
+PASS tests/security.evolution.test.js
+PASS tests/logger.test.js
+PASS tests/src.utils.pathfinder.test.js
+PASS tests/cache.test.js
+PASS tests/role.scout.test.js
+PASS tests/constants.test.js
+PASS tests/src.roles.repairer.test.js
+PASS tests/auto.evolution.test.js
+  ● Console
+
+    console.log
+      ℹ️ [info] Added test to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Added test to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Added test0 to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Added test1 to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Added test2 to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Added test3 to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Added test4 to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Added test5 to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Added test6 to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Added test7 to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Added test8 to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Added test9 to evolution queue
+
+      at log (utils.logging.js:163:13)
+
+    console.log
+      ℹ️ [info] Evolution system reset
+
+      at log (utils.logging.js:163:13)
+
+PASS tests/utils.defense.test.js
+PASS tests/sentinel_logging.test.js
+PASS tests/utils.memory.test.js
+PASS tests/role.defender.test.js
+PASS tests/defense.manager.test.js
+PASS tests/strategy-memory.test.js
+PASS tests/security.pathfinder_eviction.test.js
+PASS tests/scripts.generate-role.test.js
+PASS tests/patch_random.test.js
+PASS tests/utils.dashboard.test.js
+PASS tests/sentinel_deploy_injection.test.js
+PASS tests/sentinel_dos_cache.test.js
+PASS tests/security.memory_map.test.js
+PASS tests/sentinel_logger_secrets_redaction.test.js
+PASS tests/gamification.test.js
+PASS tests/utils.tasks.test.js
+PASS tests/role.builder.test.js
+PASS tests/security.evolution.pollution.test.js
+PASS tests/role.healer.test.js
+PASS tests/sentinel_log_level_bypass.test.js
+PASS tests/security.emotions.test.js
+PASS tests/sentinel_logger_redaction_hardening.test.js
+PASS tests/daily-challenge.test.js
+PASS tests/security.pathfinder.test.js
+PASS tests/src.roles.defender.test.js
+PASS tests/sentinel_spawn_random.test.js
+FAIL tests/spawnManager.test.js
+  ● Console
+
+    console.log
+      ℹ️ [info] [SpawnManager] harvester をスポーン: harvester_100_0
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ❌ [error] [SpawnManager] スポーンエラー | Test Spawn Error
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info] [SpawnManager] ルーム W1N1 のクリープ状況 (RCL 3):
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ⚠️ harvester: 0/2
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ⚠️ upgrader: 0/2
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ⚠️ builder: 0/2
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ⚠️ repairer: 0/1
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ⚠️ miner: 0/2
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ⚠️ transporter: 0/1
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info]   ⚠️ defender: 0/1
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info] [SpawnManager] harvester をスポーン: harvester_100_3
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info] [SpawnManager] harvester をスポーン: harvester_100_4
+
+      at log (src/utils/logger.js:180:13)
+
+    console.log
+      ℹ️ [info] [SpawnManager] harvester をスポーン: harvester_100_5
+
+      at log (src/utils/logger.js:180:13)
+
+  ● spawnManager › run › スポーン処理中に例外が発生した場合、エラーログが出力される
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[SpawnManager] スポーンエラー", Any<Error>
+
+    Number of calls: 0
+
+      164 |             spawnManager.run(mockSpawn);
+      165 |
+    > 166 |             expect(logger.error).toHaveBeenCalledWith(
+          |                                  ^
+      167 |                 '[SpawnManager] スポーンエラー',
+      168 |                 expect.any(Error)
+      169 |             );
+
+      at Object.toHaveBeenCalledWith (tests/spawnManager.test.js:166:34)
+
+PASS tests/sentinel_path_redaction.test.js
+PASS tests/fix_eslint.test.js
+PASS tests/security_redaction.test.js
+PASS tests/utils.ai.test.js
+PASS tests/security.cache.test.js
+PASS tests/role.attacker.test.js
+PASS tests/role.repairer.test.js
+PASS tests/pathfinder.test.js
+PASS tests/format_everything.test.js
+PASS tests/role.transporter.test.js
+PASS tests/patch_main.test.js
+PASS tests/pathfinder.cache.test.js
+PASS tests/fix_globals.test.js
+PASS tests/sentinel_hardening.test.js
+PASS tests/scripts.supabase-keepalive.test.js
+PASS tests/pre_commit_script.test.js
+PASS tests/role.upgrader.test.js
+PASS tests/security_fifo_eviction.test.js
+PASS tests/logger_security.test.js
+PASS tests/security.logging.test.js
+PASS tests/sentinel_console_injection.test.js
+PASS tests/sentinel_supabase_keepalive.test.js
+PASS tests/sentinel_dashboard_hardening.test.js
+PASS tests/utils.stats.robustness.test.js
+PASS tests/security_logger_robustness.test.js
+FAIL tests/taskManager.test.js
+  ● Test suite failed to run
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/taskManager.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/taskManager.test.js:1:14)
+
+FAIL tests/system.adaptive.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    /app/system.adaptive.js:4
+    export default class SystemAdaptive {
+    ^^^^^^
+
+    SyntaxError: Unexpected token 'export'
+
+      13 | };
+      14 |
+    > 15 | const adaptiveSystem = require('../system.adaptive');
+         |                        ^
+      16 |
+      17 | describe('system.adaptive', () => {
+      18 |     beforeEach(() => {
+
+      at Runtime.createScriptFromCode (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-runtime/build/index.js:1318:40)
+      at Object.require (tests/system.adaptive.test.js:15:24)
+
+FAIL tests/security.robust_init.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    /app/system.adaptive.js:4
+    export default class SystemAdaptive {
+    ^^^^^^
+
+    SyntaxError: Unexpected token 'export'
+
+       8 |
+       9 | const autoEvolution = require('../auto.evolution');
+    > 10 | const adaptiveSystem = require('../system.adaptive');
+         |                        ^
+      11 |
+      12 | describe('Security: Robust Initialization', () => {
+      13 |     beforeEach(() => {
+
+      at Runtime.createScriptFromCode (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-runtime/build/index.js:1318:40)
+      at Object.require (tests/security.robust_init.test.js:10:24)
+
+FAIL tests/security.gamification.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    /app/system.adaptive.js:4
+    export default class SystemAdaptive {
+    ^^^^^^
+
+    SyntaxError: Unexpected token 'export'
+
+      3 |  */
+      4 |
+    > 5 | const adaptiveSystem = require('system.adaptive');
+        |                        ^
+      6 |
+      7 | /**
+      8 |  * セキュアな乱数を生成する (PRNGの脆弱性対策)
+
+      at Runtime.createScriptFromCode (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-runtime/build/index.js:1318:40)
+      at Object.require (visual.effects.js:5:24)
+      at Object.require (gamification.js:5:13)
+      at Object.require (tests/security.gamification.test.js:5:22)
+
+FAIL tests/security.dos.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    /app/system.adaptive.js:4
+    export default class SystemAdaptive {
+    ^^^^^^
+
+    SyntaxError: Unexpected token 'export'
+
+       5 | const memVis = require('../memory.visualizer');
+       6 | const logger = require('../utils.logging');
+    >  7 | const adaptive = require('../system.adaptive');
+         |                  ^
+       8 |
+       9 | describe('Security: DoS Protections', () => {
+      10 |     beforeEach(() => {
+
+      at Runtime.createScriptFromCode (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-runtime/build/index.js:1318:40)
+      at Object.require (tests/security.dos.test.js:7:18)
+
+FAIL tests/tutorial.auto.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    SyntaxError: /app/tutorial.auto.js: Missing semicolon. (1:8)
+
+    > 1 | {"error":"402 Payment Required","status":402,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected.","details":{"success":false,"error":{"message":"API key budget too low. This request costs ~0.0005 pollen, but this key has 0.0000.","code":"PAYMENT_REQUIRED","timestamp":"2026-08-03T11:29:51.219Z"},"status":402}}
+        |         ^
+      2 |
+
+      42 | global.FIND_MY_CREEPS = 101;
+      43 |
+    > 44 | const autoTutorial = require('../tutorial.auto');
+         |                      ^
+      45 |
+      46 | describe('tutorial.auto', () => {
+      47 |     test('モジュールが正しく読み込める', () => {
+
+      at constructor (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/@babel/parser/src/parse-error.ts:95:45)
+          at parser.next (<anonymous>)
+          at normalizeFile.next (<anonymous>)
+          at run.next (<anonymous>)
+          at transform.next (<anonymous>)
+      at Object.require (tests/tutorial.auto.test.js:44:22)
+
+FAIL tests/test_random.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    SyntaxError: /app/test_random.js: Missing semicolon. (1:4)
+
+    > 1 | Here is the resolved file content:
+        |     ^
+      2 |
+      3 | ```javascript
+      4 | function secureRandom() {
+
+    > 1 | const { secureRandom } = require('../test_random');
+        |                          ^
+      2 | const crypto = require('crypto');
+      3 |
+      4 | describe('secureRandom', () => {
+
+      at constructor (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/@babel/parser/src/parse-error.ts:95:45)
+          at parser.next (<anonymous>)
+          at normalizeFile.next (<anonymous>)
+          at run.next (<anonymous>)
+          at transform.next (<anonymous>)
+      at Object.require (tests/test_random.test.js:1:26)
+
+Summary of all failing tests
+FAIL tests/fix.test.js
+  ● fix.js solution configuration › should export an object with the expected structure
+
+    TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+
+       7 |
+       8 |   it('should export an object with the expected structure', async () => {
+    >  9 |     const mod = await import('../fix.js');
+         |                 ^
+      10 |     solution = mod.solution;
+      11 |     expect(solution).toBeDefined();
+      12 |     expect(solution).toHaveProperty('name', 'Dependency Dashboard Resolution');
+
+      at Object.<anonymous> (tests/fix.test.js:9:17)
+
+  ● fix.js solution configuration › should have correct meta properties
+
+    TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+
+      19 |
+      20 |   it('should have correct meta properties', async () => {
+    > 21 |     const mod = await import('../fix.js');
+         |                 ^
+      22 |     solution = mod.solution;
+      23 |     expect(solution.meta.repository).toBe('tadanobutubutu/screeps');
+      24 |     expect(solution.meta.dashboardTitle).toBe('Dependency Dashboard');
+
+      at Object.<anonymous> (tests/fix.test.js:21:17)
+
+  ● fix.js solution configuration › should correctly configure the linear-bots action version and tags
+
+    TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+
+      28 |
+      29 |   it('should correctly configure the linear-bots action version and tags', async () => {
+    > 30 |     const mod = await import('../fix.js');
+         |                 ^
+      31 |     solution = mod.solution;
+      32 |     const gitstreamConfig = solution.config.renovate.dynamic.managerConfig['github-actions']['linear-bots/gitstream-github-action'];
+      33 |     expect(gitstreamConfig.version).toBe('v2');
+
+      at Object.<anonymous> (tests/fix.test.js:30:17)
+
+  ● fix.js solution configuration › should correctly define awaiting-schedule branches
+
+    TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+
+      36 |
+      37 |   it('should correctly define awaiting-schedule branches', async () => {
+    > 38 |     const mod = await import('../fix.js');
+         |                 ^
+      39 |     solution = mod.solution;
+      40 |     const branches = solution.branches['awaiting-schedule'];
+      41 |     expect(branches['renovate/posthog-js-1.x']).toEqual({ target: '1.417.1', state: 'ready-to-unschedule' });
+
+      at Object.<anonymous> (tests/fix.test.js:38:17)
+
+  ● fix.js solution configuration › should include correct dependency data in logic check
+
+    TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+
+      44 |
+      45 |   it('should include correct dependency data in logic check', async () => {
+    > 46 |     const mod = await import('../fix.js');
+         |                 ^
+      47 |     solution = mod.solution;
+      48 |     expect(solution.logic.check).toBe('solution_5.javascript');
+      49 |     expect(typeof solution.logic.description).toBe('string');
+
+      at Object.<anonymous> (tests/fix.test.js:46:17)
+
+FAIL tests/src.roles.behavior.test.js
+  ● src roles behaviors › upgrader › アップグレード時にメッセージを表示する
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      399 |
+      400 |             expect(creep.upgradeController).toHaveBeenCalledWith(controller);
+    > 401 |             expect(creep.say).toHaveBeenCalled();
+          |                               ^
+      402 |         });
+      403 |     });
+      404 | });
+
+      at Object.toHaveBeenCalled (tests/src.roles.behavior.test.js:401:31)
+
+FAIL tests/main.test.js
+  ● main.js › モジュールが正しく読み込める
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:182:22)
+
+  ● main.js › loop関数が例外を投げない
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:190:22)
+
+  ● main.js › help関数が存在する
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:195:9)
+
+  ● main.js › adaptiveグローバルが存在する
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:200:9)
+
+  ● main.js › modeグローバルが存在する
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:205:9)
+
+  ● main.js › global help function can be called
+
+    expect(received).not.toThrow()
+
+    Error name:    "TypeError"
+    Error message: "global.help is not a function"
+
+          208 |
+          209 |     test('global help function can be called', () => {
+        > 210 |         expect(() => global.help()).not.toThrow();
+              |                             ^
+          211 |     });
+          212 |
+          213 |     test('global e command exists and returns emotion stats', () => {
+
+      at help (tests/main.test.js:210:29)
+      at Object.toThrow (tests/main.test.js:210:41)
+      at Object.toThrow (tests/main.test.js:210:41)
+
+  ● main.js › global e command exists and returns emotion stats
+
+    TypeError: global.e is not a function
+
+      212 |
+      213 |     test('global e command exists and returns emotion stats', () => {
+    > 214 |         const result = global.e();
+          |                               ^
+      215 |         expect(result).toBeDefined();
+      216 |         expect(result.veryHappy).toBe(0);
+      217 |         expect(result.happy).toBe(0);
+
+      at Object.e (tests/main.test.js:214:31)
+
+  ● main.js › global t command calls showProgress
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:223:22)
+
+  ● main.js › global ts command exists
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "function"
+    Received: "undefined"
+
+      226 |
+      227 |     test('global ts command exists', () => {
+    > 228 |         expect(typeof global.ts).toBe('function');
+          |                                  ^
+      229 |     });
+      230 |
+      231 |     test('global g command exists', () => {
+
+      at Object.toBe (tests/main.test.js:228:34)
+
+  ● main.js › global g command exists
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "function"
+    Received: "undefined"
+
+      230 |
+      231 |     test('global g command exists', () => {
+    > 232 |         expect(typeof global.g).toBe('function');
+          |                                 ^
+      233 |     });
+      234 |
+      235 |     test('global evo command exists', () => {
+
+      at Object.toBe (tests/main.test.js:232:33)
+
+  ● main.js › global evo command exists
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "function"
+    Received: "undefined"
+
+      234 |
+      235 |     test('global evo command exists', () => {
+    > 236 |         expect(typeof global.evo).toBe('function');
+          |                                   ^
+      237 |     });
+      238 |
+      239 |     test('mc, mb, mr, mh, ml, md, mm global commands exist', () => {
+
+      at Object.toBe (tests/main.test.js:236:35)
+
+  ● main.js › mc, mb, mr, mh, ml, md, mm global commands exist
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "function"
+    Received: "undefined"
+
+      238 |
+      239 |     test('mc, mb, mr, mh, ml, md, mm global commands exist', () => {
+    > 240 |         expect(typeof global.mc).toBe('function');
+          |                                  ^
+      241 |         expect(typeof global.mb).toBe('function');
+      242 |         expect(typeof global.mr).toBe('function');
+      243 |         expect(typeof global.mh).toBe('function');
+
+      at Object.toBe (tests/main.test.js:240:34)
+
+  ● main.js › loop() initializes room cache correctly and categorizes structures
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:250:22)
+
+  ● main.js › loop() handles spawning correctly
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:303:22)
+
+  ● main.js › loop() handles existing creeps logic
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:337:22)
+
+  ● main.js › loop() handles social interactions
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/main.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/main.test.js:381:22)
+
+  ● main.js › global gr and evor commands exist
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "function"
+    Received: "undefined"
+
+      431 |
+      432 |     test('global gr and evor commands exist', () => {
+    > 433 |         expect(typeof global.gr).toBe('function');
+          |                                  ^
+      434 |         expect(typeof global.evor).toBe('function');
+      435 |     });
+      436 | });
+
+      at Object.toBe (tests/main.test.js:433:34)
+
+FAIL tests/fix_syntax.test.js
+  ● fix_syntax.js › should strip markdown block prefix and keep everything up to the last closing brace
+
+    Cannot find module '../fix_syntax.js' from 'tests/fix_syntax.test.js'
+
+      15 |         fs.readFileSync.mockReturnValue('Some text\n```javascript\nfunction test() { return {}; }\nconsole.log(1);\n```\nmore text');
+      16 |
+    > 17 |         require('../fix_syntax.js');
+         |         ^
+      18 |
+      19 |         expect(fs.readFileSync).toHaveBeenCalledWith('main.js', 'utf8');
+      20 |         expect(fs.writeFileSync).toHaveBeenCalledWith('main.js.fixed', 'function test() { return {}; }', 'utf8');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_syntax.test.js:17:9)
+
+  ● fix_syntax.js › should just trim if no closing brace is found
+
+    Cannot find module '../fix_syntax.js' from 'tests/fix_syntax.test.js'
+
+      24 |         fs.readFileSync.mockReturnValue('```javascript\nconst a = 1;  \n\n');
+      25 |
+    > 26 |         require('../fix_syntax.js');
+         |         ^
+      27 |
+      28 |         expect(fs.readFileSync).toHaveBeenCalledWith('main.js', 'utf8');
+      29 |         expect(fs.writeFileSync).toHaveBeenCalledWith('main.js.fixed', 'const a = 1;', 'utf8');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_syntax.test.js:26:9)
+
+  ● fix_syntax.js › should handle file with no markdown blocks correctly but with a closing brace
+
+    Cannot find module '../fix_syntax.js' from 'tests/fix_syntax.test.js'
+
+      33 |         fs.readFileSync.mockReturnValue('const obj = { a: 1 };  \n  ');
+      34 |
+    > 35 |         require('../fix_syntax.js');
+         |         ^
+      36 |
+      37 |         expect(fs.readFileSync).toHaveBeenCalledWith('main.js', 'utf8');
+      38 |         expect(fs.writeFileSync).toHaveBeenCalledWith('main.js.fixed', 'const obj = { a: 1 }', 'utf8');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_syntax.test.js:35:9)
+
+FAIL tests/fix_file.test.js
+  ● fix_file.js › should remove markdown wrapper and add crypto require if missing
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      15 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      16 |
+    > 17 |     require('../fix_file.js');
+         |     ^
+      18 |
+      19 |     expect(fsMock.readFileSync).toHaveBeenCalledWith('main.js', 'utf8');
+      20 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:17:5)
+
+  ● fix_file.js › should replace Math.random occurrences with crypto equivalents
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      29 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      30 |
+    > 31 |     require('../fix_file.js');
+         |     ^
+      32 |
+      33 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+      34 |     expect(content).toContain('const val1 = crypto.randomInt(10000);');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:31:5)
+
+  ● fix_file.js › should fix the cutoff catch block
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      40 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      41 |
+    > 42 |     require('../fix_file.js');
+         |     ^
+      43 |
+      44 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+      45 |     expect(content).toContain("  } catch (error) {\n    logging.log('error', `Failed to monitor stargazers: ${error.message}`);\n    throw error;\n  }\n}");
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:42:5)
+
+  ● fix_file.js › should add module.exports if not present
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      50 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      51 |
+    > 52 |     require('../fix_file.js');
+         |     ^
+      53 |
+      54 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+      55 |     expect(content).toContain('module.exports = {');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:52:5)
+
+  ● fix_file.js › should not add module.exports if already present
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      61 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      62 |
+    > 63 |     require('../fix_file.js');
+         |     ^
+      64 |
+      65 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+      66 |     const occurrences = (content.match(/module\.exports = \{/g) || []).length;
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:63:5)
+
+  ● fix_file.js › should replace the stub addTask implementation
+
+    Cannot find module '../fix_file.js' from 'tests/fix_file.test.js'
+
+      72 |     fsMock.readFileSync.mockReturnValue(inputContent);
+      73 |
+    > 74 |     require('../fix_file.js');
+         |     ^
+      75 |
+      76 |     const [filename, content] = fsMock.writeFileSync.mock.calls[0];
+      77 |     expect(content).toContain('taskIdCounter++;');
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (tests/fix_file.test.js:74:5)
+
+FAIL tests/spawnManager.test.js
+  ● spawnManager › run › スポーン処理中に例外が発生した場合、エラーログが出力される
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "[SpawnManager] スポーンエラー", Any<Error>
+
+    Number of calls: 0
+
+      164 |             spawnManager.run(mockSpawn);
+      165 |
+    > 166 |             expect(logger.error).toHaveBeenCalledWith(
+          |                                  ^
+      167 |                 '[SpawnManager] スポーンエラー',
+      168 |                 expect.any(Error)
+      169 |             );
+
+      at Object.toHaveBeenCalledWith (tests/spawnManager.test.js:166:34)
+
+FAIL tests/taskManager.test.js
+  ● Test suite failed to run
+
+    Cannot find module './config' from 'main.js'
+
+    Require stack:
+      main.js
+      tests/taskManager.test.js
+
+      2 | // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+      3 |
+    > 4 | const config = require('./config');
+        |                ^
+      5 | const logger = require('./utils/logger');
+      6 | const { someModule } = require('some-module');
+      7 |
+
+      at Resolver._throwModNotFoundError (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.require (main.js:4:16)
+      at Object.require (tests/taskManager.test.js:1:14)
+
+FAIL tests/system.adaptive.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    /app/system.adaptive.js:4
+    export default class SystemAdaptive {
+    ^^^^^^
+
+    SyntaxError: Unexpected token 'export'
+
+      13 | };
+      14 |
+    > 15 | const adaptiveSystem = require('../system.adaptive');
+         |                        ^
+      16 |
+      17 | describe('system.adaptive', () => {
+      18 |     beforeEach(() => {
+
+      at Runtime.createScriptFromCode (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-runtime/build/index.js:1318:40)
+      at Object.require (tests/system.adaptive.test.js:15:24)
+
+FAIL tests/security.robust_init.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    /app/system.adaptive.js:4
+    export default class SystemAdaptive {
+    ^^^^^^
+
+    SyntaxError: Unexpected token 'export'
+
+       8 |
+       9 | const autoEvolution = require('../auto.evolution');
+    > 10 | const adaptiveSystem = require('../system.adaptive');
+         |                        ^
+      11 |
+      12 | describe('Security: Robust Initialization', () => {
+      13 |     beforeEach(() => {
+
+      at Runtime.createScriptFromCode (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-runtime/build/index.js:1318:40)
+      at Object.require (tests/security.robust_init.test.js:10:24)
+
+FAIL tests/security.gamification.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    /app/system.adaptive.js:4
+    export default class SystemAdaptive {
+    ^^^^^^
+
+    SyntaxError: Unexpected token 'export'
+
+      3 |  */
+      4 |
+    > 5 | const adaptiveSystem = require('system.adaptive');
+        |                        ^
+      6 |
+      7 | /**
+      8 |  * セキュアな乱数を生成する (PRNGの脆弱性対策)
+
+      at Runtime.createScriptFromCode (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-runtime/build/index.js:1318:40)
+      at Object.require (visual.effects.js:5:24)
+      at Object.require (gamification.js:5:13)
+      at Object.require (tests/security.gamification.test.js:5:22)
+
+FAIL tests/security.dos.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    /app/system.adaptive.js:4
+    export default class SystemAdaptive {
+    ^^^^^^
+
+    SyntaxError: Unexpected token 'export'
+
+       5 | const memVis = require('../memory.visualizer');
+       6 | const logger = require('../utils.logging');
+    >  7 | const adaptive = require('../system.adaptive');
+         |                  ^
+       8 |
+       9 | describe('Security: DoS Protections', () => {
+      10 |     beforeEach(() => {
+
+      at Runtime.createScriptFromCode (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/jest-runtime/build/index.js:1318:40)
+      at Object.require (tests/security.dos.test.js:7:18)
+
+FAIL tests/tutorial.auto.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    SyntaxError: /app/tutorial.auto.js: Missing semicolon. (1:8)
+
+    > 1 | {"error":"402 Payment Required","status":402,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected.","details":{"success":false,"error":{"message":"API key budget too low. This request costs ~0.0005 pollen, but this key has 0.0000.","code":"PAYMENT_REQUIRED","timestamp":"2026-08-03T11:29:51.219Z"},"status":402}}
+        |         ^
+      2 |
+
+      42 | global.FIND_MY_CREEPS = 101;
+      43 |
+    > 44 | const autoTutorial = require('../tutorial.auto');
+         |                      ^
+      45 |
+      46 | describe('tutorial.auto', () => {
+      47 |     test('モジュールが正しく読み込める', () => {
+
+      at constructor (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/@babel/parser/src/parse-error.ts:95:45)
+          at parser.next (<anonymous>)
+          at normalizeFile.next (<anonymous>)
+          at run.next (<anonymous>)
+          at transform.next (<anonymous>)
+      at Object.require (tests/tutorial.auto.test.js:44:22)
+
+FAIL tests/test_random.test.js
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation, specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    SyntaxError: /app/test_random.js: Missing semicolon. (1:4)
+
+    > 1 | Here is the resolved file content:
+        |     ^
+      2 |
+      3 | ```javascript
+      4 | function secureRandom() {
+
+    > 1 | const { secureRandom } = require('../test_random');
+        |                          ^
+      2 | const crypto = require('crypto');
+      3 |
+      4 | describe('secureRandom', () => {
+
+      at constructor (../home/jules/.nvm/versions/node/v22.22.1/lib/node_modules/jest/node_modules/@babel/parser/src/parse-error.ts:95:45)
+          at parser.next (<anonymous>)
+          at normalizeFile.next (<anonymous>)
+          at run.next (<anonymous>)
+          at transform.next (<anonymous>)
+      at Object.require (tests/test_random.test.js:1:26)
+
+
+Test Suites: 13 failed, 83 passed, 96 total
+Tests:       33 failed, 880 passed, 913 total
+Snapshots:   0 total
+Time:        5.149 s
+Ran all test suites.

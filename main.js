@@ -29,29 +29,18 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-// TODO: Implement this function for creating in-page buttons
-function spawnProcess(command) {
-  return new Promise((resolve, reject) => {
-    const childProcess = require('child_process').spawn(command);
-    childProcess.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
-      resolve(data.toString());
-    });
-    childProcess.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
-      reject(new Error(`stderr: ${data}`));
-    });
-    childProcess.on('close', (code) => {
-      console.log(`child process exited with code ${code}`);
-    });
-  });
+// TODO: Implement this function for creating in-page buttons with an added aria-label
+function createInPageButtonWithAriaLabel(buttonText, onClickHandler, ariaLabel) {
+  const button = createInPageButton(buttonText, onClickHandler);
+  button.setAttribute('aria-label', ariaLabel);
+  return button;
 }
 
 // Example usage (if needed):
-// const btn = createInPageButton('Say Hello', () => console.log('Clicked'));
-// ...
+// const btn = createInPageButtonWithAriaLabel('Click Me', () => console.log('Clicked'), 'Click the blue button');
+// document.body.appendChild(btn);
 
-export { createInPageButton, spawnProcess };
+export { createInPageButton, createInPageButtonWithAriaLabel };
 
 function analyzeAccessibility(issuesData) {
   // presume this function is already defined

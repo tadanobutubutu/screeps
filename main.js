@@ -213,7 +213,7 @@ function validateLandmarkStructure(context = document) {
         };
     },
 
-    // Impemented upgradeAccessibility function
+    // Implement upgradeAccessibility function
     upgradeAccessibility() {
         // Implement upgrading old accessibility patterns to modern best practices
         // Add your implementation here

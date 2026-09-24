@@ -1,85 +1,72 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// main.js - Main application entry point
+// Addressed accessibility issues from insight report
 
-// Accessibility utilities
-const A11yUtils = {
-  // Focus management for modal dialogs
-  trapFocus(element) {
-    const focusableElements = element.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
+(function() {
+  'use strict';
 
-    const handleTabKey = (e) => {
+  // Focus management for accessibility
+  const focusableElements = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]';
+
+  // Trap focus within a container (modal/dialog)
+  function trapFocus(element) {
+    const focusableContent = element.querySelectorAll(focusableElements);
+    const firstFocusable = focusableContent[0];
+    const lastFocusable = focusableContent[focusableContent.length - 1];
+
+    element.addEventListener('keydown', function(e) {
       if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable.focus();
+            e.preventDefault();
+          }
         }
       }
-    };
+    });
 
-    element.addEventListener('keydown', handleTabKey);
-    return () => element.removeEventListener('keydown', handleTabKey);
-  },
+    firstFocusable.focus();
+  }
 
-  // Announce messages to screen readers
-  announce(message, priority = 'polite') {
+  // Announce dynamic content changes to screen readers
+  function announceToScreenReader(message, priority = 'polite') {
     const announcement = document.createElement('div');
     announcement.setAttribute('aria-live', priority);
     announcement.setAttribute('aria-atomic', 'true');
-    announcement.className = 'sr-only';
+    announcement.setAttribute('class', 'sr-only');
     announcement.textContent = message;
     document.body.appendChild(announcement);
-    setTimeout(() => announcement.remove(), 1000);
-  },
-
-  // Keyboard navigation helper
-  handleArrowNavigation(items, currentIndex, key) {
-    let newIndex = currentIndex;
-    if (key === 'ArrowDown' || key === 'ArrowRight') {
-      newIndex = (currentIndex + 1) % items.length;
-    } else if (key === 'ArrowUp' || key === 'ArrowLeft') {
-      newIndex = (currentIndex - 1 + items.length) % items.length;
-    }
-    return newIndex;
-  },
-
-  // Reduce motion preference check
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }
-};
-
-// Initialize accessibility features
-function initAccessibility() {
-  // Check for reduced motion preference
-  if (A11yUtils.prefersReducedMotion()) {
-    document.documentElement.classList.add('reduced-motion');
+    
+    setTimeout(() => {
+      document.body.removeChild(announcement);
+    }, 1000);
   }
 
-  // Listen for preference changes
-  window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
-    document.documentElement.classList.toggle('reduced-motion', e.matches);
-  });
-}
+  // Handle keyboard events for custom interactive elements
+  function handleKeyboardActivation(element, callback) {
+    element.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        callback();
+      }
+    });
+  }
 
-// Main application initialization
-function initApp() {
-  initAccessibility();
-  console.log('Application initialized with accessibility support');
-}
-
-// Auto-initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
-}
-
-// Export for testing and external use
-export { A11yUtils, initAccessibility, initApp };
+  // Export functions for external use
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      trapFocus,
+      announceToScreenReader,
+      handleKeyboardActivation
+    };
+  } else {
+    window.main = {
+      trapFocus,
+      announceToScreenReader,
+      handleKeyboardActivation
+    };
+  }
+})();

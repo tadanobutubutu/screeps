@@ -68,13 +68,19 @@ export function function3(param1, param2) {
   return result;
 }
 
-// REACT_015: Add lang attribute to the <html> element
-function addLangAttributeToHtml(html) {
-  if (typeof html !== 'string') return html;
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-    if (attrs.includes('lang=')) return match;
-    return `<html${attrs} lang="en">`;
-  });
+// REACT_015: Add lang attribute
+function addLangAttribute(html) {
+  if (typeof html === 'string') {
+    return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+      if (/\blang=/i.test(match)) return match;
+      return `<html${attrs} lang="en">`;
+    });
+  }
+  // Set lang attribute on document element for non-string calls
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', getLangAttribute());
+  }
 }
 
 // React application code with accessibility features
@@ -115,18 +121,10 @@ const dependencyGraph = document.getElementById('dependency-graph');
 /**
  * Adds lang attribute to HTML element
  */
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    ... getLangAttribute());
-  }
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
 }
 
-/**
- * Validates table accessibility
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} True if table is accessible
- */
 function validateTableAccessibility(table) {
   // Check for caption or aria-label
   return ... ||

@@ -96,9 +96,9 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-function fixDependencyGraphAriaForElements(elements) {
-  const elementsArray = elements || [];
-  elementsArray.forEach(el => {
+function fixDependencyGraphRoles() {
+  const elements = [];
+  elements.forEach(el => {
     el.setAttribute('role', 'graph');
     el.setAttribute('aria-label', 'Dependency graph visualization');
   });
@@ -106,31 +106,32 @@ function fixDependencyGraphAriaForElements(elements) {
 }
 
 function newFunction() {
-  // New function implementation
   return main.newFunction();
 }
 
 function anotherNewFunction() {
-  // Another new function implementation
   return main.anotherNewFunction();
 }
 
 // Required changes to fix the React SVG Accessible Name issue
-function fixReactSvgAccessibleName(svgString) {
+function addAccessibleNameToSvg(svgString) {
   const parser = new DOMParser();
   const svgString = container.innerHTML;
   const svg = parser.parseFromString(svgString, 'image/svg+xml');
   const svgElement = svg.documentElement;
-  if (!svgElement || svgElement.nodeName === 'parsererror') {
-    return svgString;
+  if (svgElement && !svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
+    const title = svgElement.querySelector('title');
+    if (title) {
+      svgElement.setAttribute('aria-labelledby', title.id || 'svg-title');
+    }
   }
   const serializer = new XMLSerializer();
   return serializer.serializeToString(svgElement);
 }
 
 // Example usage of the function
-const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" dy="0.35em">Dashboard</text></svg>';
-const modifiedSvgString = fixReactSvgAccessibleName(originalSvgString);
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em"></text></svg>';
+const modifiedSvgString = addAccessibleNameToSvg(originalSvgString);
 
 /**
  * Validates table accessibility
@@ -145,7 +146,7 @@ function validateTableAccessibility(tableData) {
 }
 
 // Implement the function for addressing accessibility issues from insight report
-function addressAccessibilityIssuesFromReport(report) {
+function processAccessibilityReport(report) {
   const fixes = {
     langAdded: false,
     mainLandmarkAdded: false,
@@ -161,9 +162,9 @@ function addressAccessibilityIssuesFromReport(report) {
   const container = document.createElement('div');
   
   // Add lang attribute to HTML element if missing
-  const htmlEl = document.documentElement ||
+  const htmlEl = document.querySelector('html') ||
     (container.ownerDocument && container.ownerDocument.documentElement);
-  if (htmlEl && !htmlEl.getAttribute('lang')) {
+  if (htmlEl && !htmlEl.hasAttribute('lang')) {
     htmlEl.setAttribute('lang', 'en');
     fixes.langAdded = true;
   }
@@ -183,41 +184,31 @@ function addressAccessibilityIssuesFromReport(report) {
   }
 
   // Update the existing function using the new functions for rendering graph/index
-  if (typeof renderDependencyGraphs === 'function') {
-    renderDependencyGraphs(container);
-  }
-  if (typeof addMainLandmarkToIndex === 'function') {
-    addMainLandmarkToIndex(container);
-  }
-  if (typeof fixDependencyGraphAria === 'function') {
-    fixDependencyGraphAria(container);
-  }
+  renderDependencyGraphs(container);
+  addMainLandmarkToIndex(container);
+  validateLandmarkStructure(container);
 
   // Fix landmark issues
-  if (typeof validateLandmark === 'function') {
-    validateLandmark(container);
-  }
-  if (typeof validateLandmarkStructure === 'function') {
-    validateLandmarkStructure(container);
-  }
+  validateLandmark(container);
+  fixLandmarkIssues(container);
 
   // Fix SVG accessible names
   const svgElements = container.querySelectorAll ? container.querySelectorAll('svg') : [];
   svgElements.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName && svg.getAttribute('aria-label') !== accessibleName) {
+    if (accessibleName && !svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', accessibleName);
       fixes.svgNamesAdded++;
     }
   });
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('[role="link"]:not([href]), a:not([href])');
+  const fakeLinks = container.querySelectorAll('[role="link"], a:not([href])');
   fakeLinks.forEach(link => {
-    if (!link.getAttribute('href')) {
-      link.setAttribute('href', '#' + (link.id || 'fake-link'));
+    if (!link.hasAttribute('href')) {
+      link.setAttribute('href', '#' + (link.id || 'link-' + Math.random().toString(36).substr(2, 9)));
     }
-    if (link.getAttribute('role') === 'link') {
+    if (!link.hasAttribute('role')) {
       link.setAttribute('role', 'link');
     }
     fixes.fakeLinksFixed++;
@@ -245,12 +236,12 @@ function addressAccessibilityIssuesFromReport(report) {
   // Check for new accessibility issues
   const newAccessibilityIssues = checkAccessibility ? checkAccessibility(container) : [];
   if (newAccessibilityIssues && newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.map(i => i.message).join(', ')}`, 'error');
+    log(`New accessibility issues found: ${newAccessibilityIssues.map(i => i.code || i.type || 'unknown').join(', ')}`, 'error');
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0;
   if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} landmarks with ${uniqueLandmarks.length} unique landmarks`, 'info');
+    log(`Fixed ${landmarkFixesCount} landmark issues, found ${uniqueLandmarks.length} unique landmarks`, 'info');
   }
 
   const svgFixes = fixes.svgNamesAdded || 0;
@@ -289,8 +280,8 @@ function renderAdditionalContent(additionalData) {
   return main.renderAdditionalContent(additionalData);
 }
 
-function ensureDependencyGraphARIA(container) {
-  return main.ensureDependencyGraphARIA(container);
+function ensureDependencyGraphARIA() {
+  return main.ensureDependencyGraphARIA();
 }
 
 // New rendering function
@@ -325,6 +316,16 @@ function renderAdditionalContentData(additionalData) {
     return '';
   }
   return JSON.stringify(additionalData);
+}
+
+// Add lang attribute to HTML element
+function addLangAttribute(container) {
+  const htmlEl = document.documentElement;
+  if (!htmlEl.hasAttribute('lang')) {
+    htmlEl.setAttribute('lang', 'en');
+    return true;
+  }
+  return false;
 }
 
 // Accessibility-related function to be added
@@ -364,7 +365,7 @@ export {
   validateTableAccessibility,
   validateTableStructure,
   renderAdditionalContent,
-  ensureDependencyGraphARIA,
+  renderAdditionalContentData,
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
@@ -394,14 +395,9 @@ export {
   newFunction1,
   newFunction2,
   main,
-  newFunction: function() {
-    // New function implementation
-  },
-  anotherNewFunction: function() {
-    // Another new function implementation
-  },
+  newFunction: anotherNewFunction,
   ensureDependencyGraphARIA,
-  addAccessibleName,
+  addAccessibleName: addAccessibleNameToSvg,
   fixLandmarkIssues,
   addMainLandmark,
   addLandmarkRegions,
@@ -415,6 +411,6 @@ export {
   addSvgAccessibleNames,
   validateSession,
   handleCredentialResponse,
-  renderAdditionalContentData,
+  fixDependencyGraphRoles,
   log
 };

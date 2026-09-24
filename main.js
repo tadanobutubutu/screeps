@@ -289,25 +289,23 @@ function ensureDependencyGraphContainer(doc) {
 }
 
 /**
- * Count the number of dependencies in the document
+ * Render the main application with all accessibility enhancements
  * @param {Document} doc - The document object
- * @returns {number} The total count of dependencies
+ * @param {Object} options - Rendering options
  */
-function countDependencies(doc) {
-  // Count main landmarks
-  const mainLandmark = doc.querySelector('main');
-  const mainCount = mainLandmark ? 1 : 0;
+function renderApp(doc, options = {}) {
+  const { lang = 'en' } = options;
   
-  // Count SVG elements
-  const svgs = doc.querySelectorAll('svg');
-  const svgCount = svgs.length;
+  // Apply all accessibility fixes
+  addLangAttribute(doc, lang);
+  fixTableStructure(doc);
+  fixLandmarkIssues(doc);
+  addAccessibleNamesToSVGs(doc);
+  fixFakeLinkIssues(doc);
+  fixButtonIdentifiers(doc);
+  ensureDependencyGraphAriaRole(doc);
   
-  // Count buttons
-  const buttons = doc.querySelectorAll('button');
-  const buttonCount = buttons.length;
-  
-  // Return total count
-  return mainCount + svgCount + buttonCount;
+  return doc;
 }
 
 // Export all functions
@@ -328,5 +326,5 @@ export {
   ensureDependencyGraphContainer,
   newExportedFunction,
   newFunction,
-  function3
+  renderApp
 };

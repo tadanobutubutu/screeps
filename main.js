@@ -85,6 +85,21 @@ export function generateKey(book) {
   return `book-${book.id || ... '-')}`;
 }
 
+// Function to create in-page buttons
+export function createInPageButton({ text, onClick, ariaLabel, id, className }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={ariaLabel}
+      id={id}
+      className={className}
+      type="button"
+    >
+      {text}
+    </button>
+  );
+}
+
 // Function to render a single book item
 export function BookItem({ book }) {
   return (
@@ -244,7 +259,7 @@ function Main() {
 }
 
 // Export the necessary functions for use in other modules
-export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport, countDependencies };
+export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport, createInPageButton };
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
 // Export the Main component

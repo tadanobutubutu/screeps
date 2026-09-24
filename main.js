@@ -387,145 +387,41 @@ function renderDependencyGraphContent() {
   renderIndexView(container);
 }
 
-// Add proper landmark regions
-function addProperLandmarkRegions(document) {
-  const regions = ['main', 'navigation', 'banner', 'contentinfo', 'complementary'];
+/**
+ * Adds accessibility properties to SVG elements to ensure proper accessibility.
+ * @param {SVGElement} svgElement - The SVG element to enhance with accessibility properties.
+ * @param {Object} props - Accessibility properties to add (aria-label, role, etc.)
+ * @returns {SVGElement} The enhanced SVG element with accessibility properties.
+ */
+function addSvgAccessibilityProps(svgElement, props = {}) {
+  if (!svgElement || !(svgElement instanceof SVGElement)) {
+    console.warn('Invalid SVG element provided');
+    return svgElement;
+  }
 
-  regions.forEach(role => {
-    const existing = document.querySelector(`[role="${role}"]`);
-    if (!existing) {
-      console.log(`Missing landmark region: ${role}`);
+  // Set default ARIA role if not specified
+  if (!props.role) {
+    props.role = 'img';
+  }
+
+  // Apply all provided properties
+  for (const [key, value] of Object.entries(props)) {
+    if (key.startsWith('aria-') || key === 'role') {
+      svgElement.setAttribute(key, value);
     }
-  });
+  }
+
+  // Ensure the SVG has a title or description if it's decorative
+  if (props.role === 'img' && !svgElement.querySelector('title, desc')) {
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = props['aria-label'] || 'SVG graphic';
+    svgElement.insertBefore(title, svgElement.firstChild);
+  }
+
+  return svgElement;
 }
 
-// Function to count dependencies
-function countDependencies() {
-  const dependencies = {
-    'react': true,
-    'react-redux': true,
-    'antd': true
-  };
-  return Object.keys(dependencies).length;
-}
-
-// Function to handle user interaction
-function handleUserInteraction(event) {
-  console.log('User interaction:', event.type);
-}
-
-// Cleanup function
-function cleanup() {
-  landmarks.length = 0;
-  icons = {};
-}
-
-// Initialize app
-function initApp() {
-  initializeApp();
-  wrapPrimaryContentInMain();
-}
-
-// Process data
-function processData(data) {
-  return data;
-}
-
-// Visualize dependency tree
-function VisualizeDependencyTree(data) {
-  console.log('Visualizing dependency tree:', data);
-}
-
-// Function to render a single book item
-function BookItem(book) {
-  return (
-    <List.Item key={generateKey(book)}>
-      <List.Item.Meta
-        title={book.title}
-        description={book.author}
-      />
-    </List.Item>
-  );
-}
-
-// Function to create a new book entry in the Redux store
-export function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
-
-// Ensure accessibility attributes are set when adding a book
-ensureDependencyGraphARIA();
-
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
-
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Export utility functions
-export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies };
-
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-  const dispatch = useDispatch();
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(book => BookItem(book));
-
-  // Render the list of book items and sorting controls
-  return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List itemLayout="vertical" dataSource={getBooksList} renderItem={book => BookItem(book)} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
-      {/* Example of adding a new book form with accessibility considerations */}
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        // Assuming there's a function to get the form data
-        const newBook = getFormData();
-        addBook(newBook);
-      }}>
-        <label htmlFor="title">Title:</label>
-        <input type="text" id="title" name="title" required aria-label="Book title" />
-        <label htmlFor="author">Author:</label>
-        <input type="text" id="author" name="author" required aria-label="Book author" />
-        <button type="submit">Add Book</button>
-      </form>
-    </div>
-  );
-}
-
-// Export the Main component
-export default Main;
-
-// Export functions for testing (only those defined in this file)
+// Export functions for testing
 export {
   wrapPrimaryContentInMain,
   handleAdditionalChanges,
@@ -565,5 +461,6 @@ export {
   renderIndexView,
   calculateSum,
   addProperLandmarkRegions,
-  createInPageButtons
+  countDependencies,
+  addSvgAccessibilityProps
 };

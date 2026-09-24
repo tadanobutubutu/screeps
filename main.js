@@ -3,6 +3,17 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
+function generateUniqueId() {
+  return 'id-' + Math.random().toString(36).substr(2, 9);
+}
+
+function checkTableStructure(table) {
+  if (!table) return { valid: false, error: 'No table provided' };
+  const rows = table.rows;
+  if (!rows || rows.length === 0) return { valid: false, error: 'Table has no rows' };
+  return { valid: true, rowCount: rows.length };
+}
+
 const AddressabilityIssues = {
   MISSING_ID: 'missing-id',
   MISSING_ALT: 'missing-alt',
@@ -154,7 +165,7 @@ const AddressabilityIssues = {
   spawnSomeCommand(callback) {
     const child_process = require('child_process');
 
-    const spawnOptions = {  shell: true };
+    const spawnOptions = { shell: true };
 
     child_process.spawn('someCommand', [], spawnOptions, (error, stdout, stderr) => {
       if (error) {
@@ -209,13 +220,13 @@ const AddressabilityIssues = {
 
   setSvgAttributes(svg) {
     if (!svg) return;
-  
+
     // Handle width: set to 24 if missing or less than 24
     const width = svg.getAttribute('width');
     if (!width || parseInt(width) < 24) {
       svg.setAttribute('width', '24');
     }
-  
+
     // Handle height: set to 24 if missing or less than 24
     const height = svg.getAttribute('height');
     if (!height || parseInt(height) < 24) {
@@ -225,7 +236,7 @@ const AddressabilityIssues = {
 
   detectAccessibilityIssues(elements) {
     const issues = [];
-  
+
     elements.forEach((element, index) => {
       if (!element.id) {
         issues.push({
@@ -234,7 +245,7 @@ const AddressabilityIssues = {
           message: 'Element is missing an id attribute'
         });
       }
-      
+
       if (!element.getAttribute('role')) {
         issues.push({
           element: index,
@@ -266,7 +277,7 @@ const AddressabilityIssues = {
         svg.setAttribute('role', 'img');
       }
 
-      const accessibleName = AddressabilityIssues.getSvgAccessibleName ? AddressabilityIssues.getSvgAccessibleName(svg) : getSvgAccessibleName(svg);
+      const accessibleName = AddressabilityIssues.getSvgAccessibleName(svg);
       if (accessibleName) {
         svg.setAttribute('aria-label', accessibleName);
       }
@@ -353,120 +364,29 @@ const AddressabilityIssues = {
   }
 };
 
-function init() {
-  // Accessibility-focused implementation functions
-  function countDependencies() {
-    // Implementation: Count dependencies in the codebase
-    const funcNames = Object.keys(init).filter(name => typeof init[name] === 'function');
-    return funcNames.filter(f => f !== 'countDependencies').length;
+  // Update the existing function using the new functions for rendering graph/index
+  // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+  renderGraphAndIndex() {
+    AddressabilityIssues.renderDependencyGraph();
+    AddressabilityIssues.renderIndexView();
   }
-
-  function handleCredentialResponse(response) {
-    // Implementation: Handle credential response
-    console.log('Handling credential response:', response);
-  }
-
-  function getLangAttribute() {
-    // Implementation: Get appropriate language attribute value
-    return 'en';
-  }
-
-  function personName() {
-    // Implementation: Handle person name accessibility
-    return 'John Doe';
-  }
-
-  function validateTableAccessibility(table) {
-    if (!table) {
-      return { valid: false, error: 'Table element is required' };
-    }
-
-    const hasHeader = table.querySelector('thead') !== null;
-    const hasBody = table.querySelector('tbody') !== null;
-    const rows = table.querySelectorAll('tr');
-
-    return {
-      valid: hasHeader && hasBody && rows.length > 0,
-      hasHeader,
-      hasBody,
-      rowCount: rows.length
-    };
-  }
-
-  function validateTableStructure(table) {
-    if (!table) {
-      return { valid: false, error: 'Table element is required' };
-    }
-
-    const hasHeader = table.querySelector('thead') !== null;
-    const hasBody = table.querySelector('tbody') !== null;
-    const rows = table.querySelectorAll('tr');
-
-    return {
-      valid: hasHeader && hasBody && rows.length > 0,
-      hasHeader,
-      hasBody,
-      rowCount: rows.length
-    };
-  }
-
-  function validateLandmark(landmark) {
-    // Check if landmark has required attributes
-    if (!landmark) return false;
-    
-    // Basic validation - could check for id, role, etc.
-    return true;
-  }
-
-  function validateLandmarkStructure(landmark) {
-    // Validate landmark structure
-    if (!landmark) return false;
-    return landmark.hasAttribute('id') && landmark.hasAttribute('role');
-  }
-
-  function ensureUniqueLandmarks() {
-    // Check for duplicates in landmarks
-    // This is a simplified implementation
-    return true;
-  }
-
-  function createInPageButton() {
-    // Create an accessible in-page button
-    const btn = document.createElement('button');
-    btn.setAttribute('type', 'button');
-    return btn;
-  }
-
-  function fixFakeLink(link) {
-    // Fix fake link issues
-    if (link.href.includes('fake')) {
-      link.disabled = true;
-    }
-  }
-
-  // Implement additional accessibility utilities
-  // ...
-
-  main();
-}
-
-function checkTableStructure(table) {
-  if (!table) return { valid: false, error: 'Table is required' };
-  return { valid: true };
-}
+};
 
 // Export functions for testing
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     AddressabilityIssues,
-    initializeAccessibility: AddressabilityIssues.initializeAccessibility,
-    getSvgAccessibleName: AddressabilityIssues.getSvgAccessibleName,
-    setSvgAttributes: AddressabilityIssues.setSvgAttributes,
+    initializeAccessibility: (container) => AddressabilityIssues.initializeAccessibility(container),
+    getSvgAccessibleName: (svg) => AddressabilityIssues.getSvgAccessibleName(svg),
+    setSvgAttributes: (svg) => AddressabilityIssues.setSvgAttributes(svg),
     checkTableStructure,
     generateUniqueId,
-    detectAccessibilityIssues: AddressabilityIssues.detectAccessibilityIssues,
-    handleCredentialResponse: AddressabilityIssues.handleCredentialResponse,
-    getStoredCredentials: AddressabilityIssues.getStoredCredentials,
-    clearCredentials: AddressabilityIssues.clearCredentials
+    detectAccessibilityIssues: (elements) => AddressabilityIssues.detectAccessibilityIssues(elements),
+    handleCredentialResponse: (response) => AddressabilityIssues.handleCredentialResponse(response),
+    getStoredCredentials: () => AddressabilityIssues.getStoredCredentials(),
+    clearCredentials: () => AddressabilityIssues.clearCredentials(),
+    renderDependencyGraph: () => AddressabilityIssues.renderDependencyGraph(),
+    renderIndexView: () => AddressabilityIssues.renderIndexView(),
+    renderGraphAndIndex: () => AddressabilityIssues.renderGraphAndIndex()
   };
 }

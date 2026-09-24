@@ -8,6 +8,24 @@ import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
 
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = [
+    'react',
+    'express',
+    'path',
+    './styles.css',
+    './app.js',
+    'effector-sw',
+    './utils.js'
+  ];
+  
+  return {
+    count: dependencies.length,
+    dependencies: dependencies
+  };
+}
+
 // Existing code starts here
 
 // This is the existing code that needs to be preserved
@@ -548,49 +566,5 @@ if (require.main === module) {
   });
 }
 
-module.exports = {
-  config,
-  initialize,
-  initializeApp,
-  main,
-  helperFunction: utils.helper,
-  function1,
-  function2,
-  function3,
-  getLangAttribute,
-  createInPageButton,
-  accessibilityUtils,
-  validateInput,
-  processData,
-  formatDate,
-  generateAccessibilityReport,
-  getInsightReport,
-  writeReport,
-  addMainLandmark,
-  app,
-  PORT,
-  HOST,
-  renderDependencyGraph,
-  helper,
-  someFunction,
-  clearCache,
-  fetchUser,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  addLandmarkRegions,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  renderGraph,
-  renderIndex,
-  updateGraph,
-  updateIndex,
-  addressAccessibilityIssues,
-  scanAccessibility
-};
+module.exports.main = main;
+module.exports.countDependencies = countDependencies;

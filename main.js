@@ -11,15 +11,6 @@ module.exports = {
   createInPageButton,
   analyzeAccessibility,
   generateAccessibilityReport,
-  getLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateLandmarkUniqueness,
-  fixFakeLink,
 };
 
 ```javascript

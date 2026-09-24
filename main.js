@@ -1,29 +1,18 @@
-Here's the resolved version of the file:
+const main = require('./utilities')
 
-```javascript
-// Importing utilities for formatting and validation
-import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
-import { renderHeader, renderFooter, renderProductCard } from './components.js';
-import { state, updateState } from './state.js';
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/tableAccessibilityUtils';
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-
-// REACT_015: lang attribute added to HTML element
-// The React component rendering the HTML element provides the `lang` prop
-// The language attribute is set according to the application's settings
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30f5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f816325b07a49b809ac49f5e1c81cf4e389f9c1 -->
-// _Commit: b88a21083c89f599fb68eef1dc4d5df10e52_
+const {
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  addSvgAccessibleName,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  setupFocusTrap,
+  restoreFocus,
+  addLangAttribute
+} = require('./AccessibilityHelpers')
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -43,23 +32,8 @@ const CONFIG = {
   env: process.env.NODE_ENV || 'development'
 };
 
-// Initialize _usedLandmarkIds set for tracking used landmark IDs
-const _usedLandmarkIds = new Set();
-
-/**
- * Creates a unique identifier for a landmark given a base name.
- * @param {string} baseName - Base name of the landmark.
- * @returns {string} Unique ID.
- */
-function ensureUniqueLandmarkId(baseName) {
-    let candidate = baseName;
-    if (_usedLandmarkIds.has(candidate)) {
-        // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 9000) + 1000;
-        candidate = `${baseName}-${suffix}`;
-    }
-    _usedLandmarkIds.add(candidate);
-    return candidate;
+  setupFocusTrap('#dependencyGraph')
+  dependecyGraph.addEventListener('focusin', restoreFocus)
 }
 
 /**
@@ -79,258 +53,54 @@ function uniqueLandmarks(landmarks) {
     return result;
 }
 
-// Ensure elements have the required IDs
-function ensureElementHasId(elementId) {
-  const element = document.getElementById(elementId);
-  if (element && !element.hasAttribute('id')) {
-    element.setAttribute('id', elementId);
-  }
+// Other existing main.js code...
+
+function getElementById(id) {
+    return document.getElementById(id);
 }
 
-/**
- * Sets the language attribute on the HTML element.
- *
- * This ensures that screen readers and other assistive technologies
- * can correctly interpret the language of the page.
- *
- * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
- */
-const setLanguageAttribute = (lang = 'en') => {
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
-  }
-};
+function queryElements(selector) {
+    return document.querySelectorAll(selector);
+}
 
-/**
- * Adds landmark roles to the main navigation and content sections.
- *
- * This addresses the REACT_017 issue by adding appropriate ARIA roles
- * such as 'navigation', 'main', and 'banner' to relevant HTML elements.
- */
-const addLandmarkRolesFn = () => {
-  // Navigation landmark
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
-  }
+// Function to check landmark elements in the DOM
+function checkLandmarkElements() {
+    const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
+    const results = {};
 
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.getAttribute('role')) {
-    mainElement.setAttribute('role', 'main');
-  }
-
-  const headerElement = document.querySelector('header');
-  if (headerElement && !headerElement.getAttribute('role')) {
-    headerElement.setAttribute('role', 'banner');
-  }
-
-  // From origin/main: Footer
-  const footerElement = document.querySelector('footer');
-  if (footerElement && !footerElement.getAttribute('role')) {
-    footerElement.setAttribute('role', 'contentinfo');
-  }
-
-/**
- * Ensures that landmarks are unique by adding unique ARIA labels where necessary.
- *
- * This addresses the REACT_025 issue by checking for duplicate landmarks
- * and making them unique with appropriate aria-label or aria-labelledby attributes.
- */
-const ensureUniqueLandmarkElements = () => {
-  // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('[role="navigation"]');
-  if (navElements.length > 1) {
-    navElements.forEach((nav, index) => {
-      if (index > 0) {
-        nav.setAttribute('aria-label', `Navigation ${index + 1}`);
-      }
+    landmarkSelectors.forEach((landmark) => {
+        const elements = document.querySelectorAll(landmark);
+        results[landmark] = {
+            count: elements.length,
+            exists: elements.length > 0
+        };
     });
-  }
 
-  // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('[role="main"]');
-  if (mainElements.length > 1) {
-    mainElements.forEach((main, index) => {
-      if (index > 0) {
-        main.setAttribute('aria-label', `Main content ${index + 1}`);
-      }
-    });
-  }
-};
+    return results;
+}
 
-/**
- * Adds accessible names to SVG elements.
- *
- * This addresses the REACT_041 issue by ensuring that SVGs have appropriate
- * accessible names, either through title or desc elements.
- *
- * @param {string} svgSelector - The CSS selector for the SVG element(s).
- * @param {string} accessibleName - The accessible name to set.
- */
-const addSVGAccessibleName = (svgSelector, accessibleName) => {
-  const svgs = document.querySelectorAll(svgSelector);
-  svgs.forEach((svg) => {
-    // Check if the SVG already has a title element
-    let titleElement = svg.querySelector('title');
-    if (!titleElement) {
-      titleElement = document.createElement('title');
-      svg.insertBefore(titleElement, svg.firstChild);
+// Function to validate landmark structure
+function validateLandmarkStructure() {
+    const results = checkLandmarkElements();
+    const validation = {
+        isValid: true,
+        errors: [],
+        warnings: []
+    };
+
+    if (!results.main.exists) {
+        validation.isValid = false;
+        validation.errors.push('Required <main> landmark element');
     }
-    titleElement.textContent = accessibleName;
-  });
+
+    return validation;
+}
+
+// Application data placeholder
+const appData = {
+    title: 'Application',
+    version: '1.0.0'
 };
-
-/**
- * Fixes fake links (elements that look like links but are not semantic <a> tags).
- *
- * This addresses the REACT_036 issue by identifying elements that have
- * click handlers but are not <a> tags and adding appropriate ARIA roles
- * and attributes to make them accessible.
- */
-const fixFakeLinks = () => {
-  const fakeLinks = document.querySelectorAll('[onclick]:not([role])');
-  fakeLinks.forEach((element) => {
-    if (element.tagName.toLowerCase() !== 'a') {
-      // Add role="button" and appropriate ARIA attributes
-      element.setAttribute('role', 'button');
-      if (!element.getAttribute('tabindex')) {
-        element.setAttribute('tabindex', '0');
-      }
-      if (!element.getAttribute('aria-label')) {
-        // Use the element's text content as the aria-label if not present
-        element.setAttribute('aria-label', element.textContent.trim() || 'Link');
-      }
-    }
-  });
-};
-
-// Define icons object
-const icons = {
-  icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
-};
-
-// Main module entry point
-const main = {
-  /**
-   * Sets the language attribute on the HTML element.
-   *
-   * This ensures that screen readers and other assistive technologies
-   * can correctly interpret the language of the page.
-   *
-   * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
-   */
-  setLanguageAttribute: setLanguageAttribute,
-
-  /**
-   * Adds landmark roles to the main navigation and content sections.
-   *
-   * This addresses the REACT_017 issue by adding appropriate ARIA roles
-   * such as 'navigation', 'main', and 'banner' to relevant HTML elements.
-   */
-  addLandmarkRolesFn: addLandmarkRolesFn,
-
-  /**
-   * Ensures that landmarks are unique by adding unique ARIA labels where necessary.
-   *
-   * This addresses the REACT_025 issue by checking for duplicate landmarks
-   * and making them unique with appropriate aria-label or aria-labelledby attributes.
-   */
-  ensureUniqueLandmarkElements: ensureUniqueLandmarkElements,
-
-  /**
-   * Adds accessible names to SVG elements.
-   *
-   * This addresses the REACT_041 issue by ensuring that SVGs have appropriate
-   * accessible names, either through title or desc elements.
-   *
-   * @param {string} svgSelector - The CSS selector for the SVG element(s).
-   * @param {string} accessibleName - The accessible name to set.
-   */
-  addSVGAccessibleName: addSVGAccessibleName,
-
-  /**
-   * Fixes fake links (elements that look like links but are not semantic <a> tags).
-   *
-   * This addresses the REACT_036 issue by identifying elements that have
-   * click handlers but are not <a> tags and adding appropriate ARIA roles
-   * and attributes to make them accessible.
-   */
-  fixFakeLinks: fixFakeLinks,
-
-  /**
-   * Creates an accessible in-page button element.
-   *
-   * @param {string} text - The text content of the button
-   * @param {Function} onClick - The click handler function
-   * @param {Object} [options] - Optional configuration
-   * @param {string} [options.id] - The ID for the button
-   * @param {string} [options.className] - The class name for the button
-   * @param {string} [options.ariaLabel] - The ARIA label for the button
-   * @param {boolean} [options.disabled=false] - Whether the button is disabled
-   * @returns {HTMLButtonElement} The created button element
-   */
-  createInPageButton: createInPageButton
-};
-
-function helloWorld() {
-  return 'Hello, World!';
-}
-
-// Function to initialize the dependency graph with accessibility support
-function initDependencyGraph(containerId) {
-  const container = document.getElementById(containerId);
-  if (container) {
-    container.setAttribute('role', 'img');
-    container.setAttribute('aria-label', 'Dependency graph visualization');
-  }
-  return container;
-}
-
-// Function to render the dependency graph
-function renderDependencyGraph(containerId) {
-  const container = document.getElementById(containerId);
-  if (container) {
-    // Add the logic to render the dependency graph inside the container
-    // This is a placeholder for the actual rendering logic
-    container.innerHTML = 'Dependency Graph Data';
-  }
-}
-
-// Existing function to ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
-  // Define landmark roles - some should be unique per page
-  const uniqueLandmarkRoles = ['main', 'banner', 'contentinfo'];
-  const multipleAllowedRoles = ['navigation', 'complementary', 'region', 'search', 'form'];
-  const allLandmarkRoles = [...uniqueLandmarkRoles, ...multipleAllowedRoles];
-
-  // Add new function as requested in the issue
-  // Example new function
-  newFunctionName: (param1, param2) => {
-    // Implementation goes here
-  }
-};
-
-// Function to add ARIA labels
-function addAriaLabel(elementId, label) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-}
-
-// Placeholder function for initializeApp
-function initializeApp() {
-  console.log('App initialized');
-}
-
-// Placeholder function for createUnrotateButton
-function createUnrotateButton() {
-  const button = document.createElement('button');
-  button.textContent = 'Unrotate';
-  button.setAttribute('aria-label', 'Unrotate button');
-  return button;
-}
 
 // Initialization function
 const initApp = () => {
@@ -339,145 +109,21 @@ const initApp = () => {
 
   // Apply accessibility fixes
   setLanguageAttribute(); // Default to 'en'
-  addLandmarkRolesFn();
-  ensureUniqueLandmarkElements();
+  addLandmarkRoles();
+  ensureUniqueLandmarks(landmarks);
 
   // Add accessible names to SVGs (example selectors and names)
   addSVGAccessibleName('.home-icon', 'Home icon');
   addSVGAccessibleName('.settings-icon', 'Settings icon');
-};
 
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
-
-// Ensure elements have the required IDs
-ensureElementHasId('myTable');
-ensureElementHasId('mySvg');
-ensureElementHasId('inPageButton');
-ensureElementHasId('myButton');
-
-// Add ARIA labels for better screen reader support
-addAriaLabel('myTable', 'Product data table');
-addAriaLabel('myLogo', 'Company logo');
-addAriaLabel('myMenu', 'Accessibility menu');
-addAriaLabel('myButton', 'My Button');
-
-// DOM-based accessibility code
-
-function getFullLangAttribute() {
-  // Implementation for getting full lang attribute
-  return 'en-US'; // Example implementation
+  // Define icons object
+  icons = {
+    icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
+  };
 }
 
-function personName() {
-  // Existing code...
-}
-
-function validateLandmark() {
-  // Existing code...
-}
-
-function validateTableAccessibility(table) {
-  // Implementation for validating table accessibility
-  if (!table) return;
-  // Add accessibility checks for table
-}
-
-function validateTableStructure(table) {
-  // Implementation for validating table structure
-  if (!table) return;
-  // Add structure validation logic
-}
-
-function ensureElementsHaveIds(elements) {
-  return Array.from(elements).map((element, index) => {
-    if (!element.id) {
-      element.id = `element-${index}`;
-    }
-    return element;
-  });
-}
-
-// Function to add accessible names to 2 SVGs
-function addSvgAccessibleNames() {
-  const svg1 = document.getElementById('svg1');
-  if (svg1) svg1.setAttribute('aria-label', 'SVG image 1');
-
-  const svg2 = document.getElementById('svg2');
-  if (svg2) svg2.setAttribute('aria-label', 'SVG image 2');
-}
-```
-
-// REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// Ensure all <th> elements have scope attribute
-function ensureThScope() {
-  const thElements = document.querySelectorAll('th');
-  thElements.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      // Determine if it's a column header or row header based on context
-      const parent = th.parentElement;
-      const parentTagName = parent ? parent.tagName.toLowerCase() : '';
-      const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
-
-      if (isFirstCell && parentTagName === 'tr') {
-        th.setAttribute('scope', 'row');
-      } else if (parentTagName === 'thead' || !isFirstCell) {
-        th.setAttribute('scope', 'col');
-      }
-    }
-  });
-}
-
-/**
- * Setup skip link functionality for keyboard navigation
- */
-function setupSkipLinks() {
-  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
-  if (skipLink) {
-    skipLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = document.getElementById(skipLink.getAttribute('href').replace('#', ''));
-      if (target) {
-        target.focus();
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  }
-}
-
-/**
- * Ensure buttons have proper accessibility attributes
- */
-function setupButtonAccessibility() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-      button.setAttribute('aria-label', 'Action button');
-    }
-  });
-}
-
-/**
- * Perform a task with the given parameters
- * @param {string} task - The task to perform
- */
-function performTask(task) {
-  console.log(`Performing task: ${task}`);
-  // Task implementation details would go here
-}
-
-/**
- * Handle an event with the given parameters
- * @param {string} event - The event to handle
- */
-function handleEvent(event) {
-  console.log(`Handling event: ${event}`);
-  // Event handling logic would go here
-}
-
-// Merged landmark roles function to include both implementations
+// Add landmark roles to both HEAD and origin/main-defined landmarks
 function addLandmarkRoles() {
-  // From HEAD: Navigation, Main, Header
   const navElement = document.querySelector('nav');
   if (navElement && !navElement.getAttribute('role')) {
     navElement.setAttribute('role', 'navigation');
@@ -493,13 +139,11 @@ function addLandmarkRoles() {
     headerElement.setAttribute('role', 'banner');
   }
 
-  // From origin/main: Footer
   const footerElement = document.querySelector('footer');
   if (footerElement && !footerElement.getAttribute('role')) {
     footerElement.setAttribute('role', 'contentinfo');
   }
 
-  // From origin/main: Specific main-content ID
   const mainContent = document.getElementById('main-content');
   if (mainContent && !mainContent.getAttribute('role')) {
     mainContent.setAttribute('role', 'main');
@@ -609,6 +253,9 @@ function initializeAccessibility() {
       svg.setAttribute('aria-label', `Icon ${index + 1}`);
     }
   });
+
+  setupFocusTrap('#dependencyGraph')
+  dependecyGraph.addEventListener('focusin', restoreFocus)
 }
 
 // Initialize the application with accessibility improvements
@@ -640,388 +287,7 @@ function initialize() {
 
   // Accessibility: Fix 1 fake link issue
   fixFakeLink();
+
+  // Initialize accessibility improvements
+  initializeAccessibility();
 }
-
-// New function requested in the issue
-function newFunction() {
-  // Implementation of the new function
-  const button = createInPageButton('New Button', function() {
-    console.log('New Function clicked!');
-  });
-  document.body.appendChild(button);
-}
-
-/**
- * Handle credential response from authentication/authorization
- * @param {Object|string} response - The credential response data (JSON string or object)
- * @param {Object} options - Configuration options for handling the response
- * @returns {Object} Processed credential information or validation result
- */
-function handleCredentialResponse(response, options = {}) {
-  // Parse the response if it's a string
-  let parsedResponse;
-  if (typeof response === 'string') {
-    try {
-      parsedResponse = JSON.parse(response);
-    } catch (error) {
-      return {
-        success: false,
-        error: 'Invalid JSON format in credential response',
-        details: error.message
-      };
-    }
-  } else {
-    parsedResponse = response;
-  }
-
-  // Default options
-  const defaultOptions = {
-    validate: true,
-    store: true,
-    validateToken: false,
-    ...options
-  };
-
-  // Validation step
-  if (defaultOptions.validate) {
-    const validation = validateCredentialResponse(parsedResponse);
-    if (!validation.isValid) {
-      return {
-        success: false,
-        error: 'Credential validation failed',
-        details: validation.errors
-      };
-    }
-  }
-
-  // Token validation step (if requested)
-  if (defaultOptions.validateToken && parsedResponse.token) {
-    const tokenValidation = validateToken(parsedResponse.token);
-    if (!tokenValidation.isValid) {
-      return {
-        success: false,
-        error: 'Token validation failed',
-        details: tokenValidation.errors
-      };
-    }
-  }
-
-  // Process and store credentials if requested
-  let processedCredentials = null;
-  if (defaultOptions.store) {
-    processedCredentials = processCredentials(parsedResponse);
-    
-    // Store credentials in state or secure storage
-    try {
-      storeCredentials(processedCredentials);
-    } catch (error) {
-      return {
-        success: false,
-        error: 'Failed to store credentials',
-        details: error.message
-      };
-    }
-  } else {
-    processedCredentials = parsedResponse;
-  }
-
-  // Return success response
-  return {
-    success: true,
-    credentials: processedCredentials,
-    message: 'Credential response handled successfully'
-  };
-}
-
-/**
- * Validate credential response structure and content
- * @param {Object} credentialData - The credential data to validate
- * @returns {Object} Validation result with isValid flag and errors
- */
-function validateCredentialResponse(credentialData) {
-  const errors = [];
-  
-  // Check if credentialData is an object
-  if (typeof credentialData !== 'object' || credentialData === null) {
-    errors.push('Credential data must be a non-null object');
-    return {
-      isValid: false,
-      errors: errors
-    };
-  }
-
-  // Required fields validation
-  const requiredFields = ['token', 'userId', 'expiresAt'];
-  requiredFields.forEach(field => {
-    if (!credentialData.hasOwnProperty(field)) {
-      errors.push(`Missing required field: ${field}`);
-    } else if (credentialData[field] === null || credentialData[field] === undefined) {
-      errors.push(`Field ${field} cannot be null or undefined`);
-    }
-  });
-
-  // Token format validation
-  if (credentialData.token) {
-    if (typeof credentialData.token !== 'string') {
-      errors.push('Token must be a string');
-    } else if (credentialData.token.length < 10) {
-      errors.push('Token appears to be invalid (too short)');
-    }
-  }
-
-  // User ID validation
-  if (credentialData.userId) {
-    if (typeof credentialData.userId !== 'string' && typeof credentialData.userId !== 'number') {
-      errors.push('User ID must be a string or number');
-    }
-  }
-
-  // Expiration time validation
-  if (credentialData.expiresAt) {
-    const expiresAt = new Date(credentialData.expiresAt);
-    if (isNaN(expiresAt.getTime())) {
-      errors.push('Invalid expiration date format');
-    } else if (expiresAt <= new Date()) {
-      errors.push('Credential has already expired');
-    }
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
-
-/**
- * Validate authentication token
- * @param {string} token - The authentication token to validate
- * @returns {Object} Validation result with isValid flag and errors
- */
-function validateToken(token) {
-  const errors = [];
-  
-  if (!token) {
-    errors.push('Token is required');
-    return {
-      isValid: false,
-      errors: errors
-    };
-  }
-
-  // Basic token format validation (could be enhanced with JWT decoding)
-  if (typeof token !== 'string') {
-    errors.push('Token must be a string');
-  } else if (token.length < 20) {
-    errors.push('Token appears to be too short to be valid');
-  } else if (!/^[A-Za-z0-9\-_\.]+$/.test(token)) {
-    errors.push('Token contains invalid characters');
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
-}
-
-/**
- * Process credential data for storage and use
- * @param {Object} credentialData - Raw credential data
- * @returns {Object} Processed credential information
- */
-function processCredentials(credentialData) {
-  // Create a sanitized copy of credential data
-  const processed = {
-    userId: credentialData.userId,
-    token: credentialData.token,
-    expiresAt: credentialData.expiresAt,
-    issuedAt: credentialData.issuedAt || new Date().toISOString(),
-    userAgent: navigator.userAgent,
-    lastUsed: new Date().toISOString()
-  };
-
-  // Add any additional metadata
-  if (credentialData.email) {
-    processed.email = credentialData.email;
-  }
-  
-  if (credentialData.roles) {
-    processed.roles = credentialData.roles;
-  }
-
-  return processed;
-}
-
-/**
- * Store credentials in state or secure storage
- * @param {Object} credentials - Processed credential information
- * @throws {Error} If storage fails
- */
-function storeCredentials(credentials) {
-  // Store in application state if available
-  if (typeof state !== 'undefined' && state.credentials) {
-    state.credentials = credentials;
-    if (typeof updateState === 'function') {
-      updateState();
-    }
-  }
-
-  // Store in localStorage as fallback
-  try {
-    localStorage.setItem('app_credentials', JSON.stringify(credentials));
-  } catch (error) {
-    // If localStorage fails, throw error
-    throw new Error('Failed to store credentials: ' + error.message);
-  }
-}
-
-// Tower Defense Implementation
-const TOWER_DEFENSE_CONFIG = {
-  boardSize: { rows: 8, cols: 8 },
-  towerCost: 100,
-  enemyHealth: 100,
-  enemySpeed: 50,
-  maxTowers: 10,
-  gameInterval: 1000
-};
-
-class TowerDefenseGame {
-  constructor(config = TOWER_DEFENSE_CONFIG) {
-    this.config = config;
-    this.board = this.createBoard();
-    this.towers = [];
-    this.enemies = [];
-    this.gameIntervalId = null;
-    this.isRunning = false;
-  }
-
-  createBoard() {
-    const { rows, cols } = this.config.boardSize;
-    return Array.from({ length: rows }, () =>
-      Array.from({ length: cols }, () => ({ type: 'path', tower: null }))
-    );
-  }
-
-  placeTower(row, col) {
-    if (this.towers.length >= this.config.maxTowers) {
-      return false;
-    }
-    
-    if (this.board[row] && this.board[row][col]) {
-      const cell = this.board[row][col];
-      if (cell.type !== 'path' || cell.tower) {
-        return false;
-      }
-      
-      const tower = {
-        id: this.towers.length,
-        row,
-        col,
-        damage: 10,
-        range: 3,
-        cost: this.config.towerCost
-      };
-      
-      cell.tower = tower;
-      this.towers.push(tower);
-      return true;
-    }
-    return false;
-  }
-
-  spawnEnemy() {
-    const enemy = {
-      id: this.enemies.length,
-      health: this.config.enemyHealth,
-      position: { row: 0, col: 0 },
-      pathIndex: 0
-    };
-    this.enemies.push(enemy);
-  }
-
-  updateEnemies() {
-    this.enemies.forEach(enemy => {
-      // Simplified movement logic - move along path
-      if (enemy.position.col < this.config.boardSize.cols - 1) {
-        enemy.position.col++;
-      } else if (enemy.position.row < this.config.boardSize.rows - 1) {
-        enemy.position.row++;
-        enemy.position.col = 0;
-      } else {
-        // Enemy reached the end - remove from array
-        return false;
-      }
-      return true;
-    });
-    
-    // Remove enemies that reached the end
-    this.enemies = this.enemies.filter(enemy => 
-      enemy.position.row < this.config.boardSize.rows - 1
-    );
-  }
-
-  updateTowers() {
-    this.towers.forEach(tower => {
-      // Find enemies in range and attack
-      this.enemies.forEach(enemy => {
-        const distance = Math.abs(tower.row - enemy.position.row) + 
-                         Math.abs(tower.col - enemy.position.col);
-        
-        if (distance <= tower.range) {
-          enemy.health -= tower.damage;
-          if (enemy.health <= 0) {
-            // Mark enemy for removal
-            enemy.health = 0;
-          }
-        }
-      });
-    });
-    
-    // Remove dead enemies
-    this.enemies = this.enemies.filter(enemy => enemy.health > 0);
-  }
-
-  start() {
-    if (this.isRunning) return;
-    
-    this.isRunning = true;
-    this.spawnEnemy(); // Initial enemy
-    
-    this.gameIntervalId = setInterval(() => {
-      this.spawnEnemy();
-      this.updateEnemies();
-      this.updateTowers();
-    }, this.config.gameInterval);
-  }
-
-  stop() {
-    if (this.gameIntervalId) {
-      clearInterval(this.gameIntervalId);
-      this.gameIntervalId = null;
-    }
-    this.isRunning = false;
-  }
-
-  getGameState() {
-    return {
-      board: this.board,
-      towers: this.towers,
-      enemies: this.enemies,
-      isRunning: this.isRunning
-    };
-  }
-}
-
-// Export tower defense game class
-export { TowerDefenseGame, TOWER_DEFENSE_CONFIG };
-
-export function calculateDiscount(price, discount) {
-  if (typeof price !== 'number' || price < 0) {
-    throw new Error('Price must be a non-negative number');
-  }
-  if (typeof discount !== 'number' || discount < 0) {
-    throw new Error('Discount must be a non-negative number');
-  }
-  return price - (price * discount / 100);
-}
-
-export default main;

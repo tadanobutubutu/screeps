@@ -368,7 +368,7 @@ function ... {
     }
   });
 
-  // Check for buttons without accessible name
+  // Check for buttons without accessible names
   const buttons = ...
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || ...
@@ -421,4 +421,28 @@ function ... {
     if (!heading.textContent.trim()) {
       issues.push({
         type: 'empty-heading',
-        element: '
+        element: 'heading',
+        index: index,
+        message: `Heading at index ${index} has no text content`
+      });
+    }
+  });
+
+  // Generate report
+  const report = {
+    timestamp: new Date().toISOString(),
+    totalIssues: issues.length,
+    issues: issues
+  };
+
+  console.log('Accessibility Report:', report);
+  return report;
+}
+
+/**
+ * Addresses accessibility issues at runtime
+ */
+function addressAccessibilityIssues() {
+  // Ensure the root container has an accessible name
+  const rootContainer = ...
+  if (rootContainer) {

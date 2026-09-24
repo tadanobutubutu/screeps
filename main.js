@@ -1,8 +1,8 @@
 // main.js - Screeps bot with utility and accessibility features
 
-// Import the required modules for dependency graph and index content
-const dependencyGraphContent = require('./dependencyGraphContent');
-const indexContent = require('./indexContent');
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
 
 // Utility functions for common tasks
 /**

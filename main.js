@@ -1,3 +1,8 @@
+Looking at the error, the issue is that functions like `validateLandmark`, `validateLandmarkStructure`, `getSvgAccessibleName`, `validateTableAccessibility`, and `validateTableStructure` are being imported from `./utilities` via destructuring, but then they're being declared again as new functions with the same names. This causes the "Identifier has already been declared" error.
+
+I need to remove the duplicate function declarations that conflict with the imports.
+
+```javascript
 // main.js
 // ... existing code ...
 
@@ -106,7 +111,7 @@ function detectAndSetLang(content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (content.match(/[\u4e00-\u9fff]/)) {
+    if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
     } else if (content.match(/[\u3040-\u309f\u30a0-\u30ff]/)) {
       lang = 'ja'; // Japanese
@@ -114,9 +119,9 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (content.match(/[\u0600-\u06ff]/)) {
       lang = 'ar'; // Arabic
-    } else if (content.match(/[àâçéèêëîïôùûüÿœæœ]/i)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]+/i.test(content)) {
       lang = 'fr'; // French
-    } else if (content.match(/[äöüß]/i)) {
+    } else if (/[äöüß]+/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -163,13 +168,23 @@ function validateTableStructure() {
   // Implementation for table structure validation
 }
 
+// New function to validate landmarks
+function validateLandmarkFn() {
+  // Implementation for landmark validation
+}
+
+// New function to validate landmark structure
+function validateLandmarkStructureFn() {
+  // Implementation for landmark structure validation
+}
+
 // New function to get SVG accessible name
-function getSvgAccessibleName() {
+function getSvgAccessibleNameFn() {
   // Implementation for getting SVG accessible name
 }
 
 // New function to validate unique landmarks
-function ensureUniqueLandmarkRoles() {
+function validateUniqueLandmarkRoles() {
   // Implementation for validating unique landmark roles
   // Ensures each landmark has a unique identifier for accessibility
 }
@@ -387,4 +402,23 @@ function createAccessibleModal(options = {}) {
   closeButton.type = 'button';
   closeButton.setAttribute('aria-label', 'Close modal');
   closeButton.textContent = '×';
-  closeButton.className
+  closeButton.className = 'modal-close';
+  closeButton.addEventListener('click', () => {
+    modal.remove();
+  });
+  header.appendChild(closeButton);
+
+  // Create modal content
+  const contentElement = document.createElement('div');
+  contentElement.id = 'modal-content';
+  contentElement.className = 'modal-content';
+  contentElement.innerHTML = content;
+
+  // Create modal footer
+  const footer = document.createElement('div');
+  footer.className = 'modal-footer';
+
+  const confirmButton = document.createElement('button');
+  confirmButton.type = 'button';
+  confirmButton.textContent = 'Confirm';
+  confirmButton.className = 'modal-confirm

@@ -295,6 +295,47 @@ export function validateTableStructure(table) {
   };
 }
 
+/**
+ * Get the lang attribute value for the document
+ * @returns {string} The language attribute value
+ */
+export function getLangAttribute() {
+  if (typeof document !== 'undefined') {
+    return document.documentElement.lang || 'en';
+  }
+  return 'en';
+}
+
+/**
+ * Ensure the dependencyGraph container has a proper ARIA role
+ */
+export function ensureDependencyGraphARIA() {
+  const graphContainer = document.getElementById('dependencyGraph') || 
+                         document.querySelector('.dependencyGraph') ||
+                         document.querySelector('[id*="dependencyGraph"]');
+  if (graphContainer) {
+    if (!graphContainer.hasAttribute('role')) {
+      graphContainer.setAttribute('role', 'graph');
+    }
+    if (!graphContainer.hasAttribute('aria-label')) {
+      graphContainer.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+}
+
+/**
+ * Wrap primary content in a main element for accessibility
+ */
+export function wrapPrimaryContentInMain() {
+  const primaryContent = document.querySelector('main') || 
+                         document.querySelector('[role="main"]');
+  if (primaryContent && !primaryContent.closest('main')) {
+    const main = document.createElement('main');
+    primaryContent.parentNode.insertBefore(main, primaryContent);
+    main.appendChild(primaryContent);
+  }
+}
+
 // Default export for backwards compatibility
 export default {
   calculateSum,
@@ -396,6 +437,11 @@ export { addLandmarkRegions };
 
 export function initializeApp() {
   console.log('Initializing application...');
+  
+  // Apply accessibility fixes from insight report
+  ensureDependencyGraphARIA();
+  document.documentElement.lang = getLangAttribute();
+  
   return Promise.resolve();
 }
 
@@ -432,7 +478,6 @@ function addressAccessibilityIssues() {
     }
   };
 
-  const landmarks = document.querySelectorAll('[role="landmark"]');
   landmarks.forEach((landmark, index) => {
     landmark.setAttribute('aria-label', `${translations['en'].landmark}-${index + 1}`);
     // Additional landmark processing...

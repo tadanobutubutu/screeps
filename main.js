@@ -1,8 +1,8 @@
 const express = require('express');
 const axe = require('axe-core');
 const fs = require('fs');
-const fastMap = require('fast-map');
 const path = require('path');
+const fastify = require('fastify');
 
 // Configuration
 const CONFIG = {
@@ -11,6 +11,56 @@ const CONFIG = {
     apiUrl: process.env.API_URL || 'https://api.example.com',
     timeout: 5000
 };
+
+const request = require('request');
+const { validateInput, processData, formatResponse } = require('./utils/validators');
+const { validateTableAccessibility, validateTableStructure, fixTableStructure, addMainLandmark, validateLandmark, ensureUniqueLandmarks } = require('./utils/accessibility');
+const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
+
+function getLangAttribute() {
+    return navigator.language || navigator.userLanguage;
+}
+
+function addLangAttribute() {
+    // Implementation to be added
+}
+
+function logCurrentURL() {
+    console.log('Current URL: ' + window.location.href);
+}
+
+function validateTableAccessibility(table) {
+    // Implementation to be added
+}
+
+function validateTableStructure(table) {
+    // Implementation to be added
+}
+
+function fixTableStructure(table) {
+    // Implementation to be added
+}
+
+function addMainLandmark() {
+    // Implementation to be added
+}
+
+function validateLandmark(landmark) {
+    const issues = [];
+
+    if (!landmark) {
+        return { valid: false, issues: ['Landmark is null or undefined'] };
+    }
+
+    if (typeof landmark.id !== 'string' || landmark.id.trim().length === 0) {
+        return {
+            valid: false,
+            issues: ['Landmark ID is required and non-empty']
+        };
+    }
+
+    return { valid: true, issues: [] };
+}
 
 function isValidLandmark(landmark) {
     return landmark &&
@@ -80,180 +130,97 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
-// Existing code
-function existingFunction1() {
-  // Existing implementation
+function filterIssuesByRules(issues, allowedRules) {
+    if (!allowedRules || allowedRules.length === 0) {
+        return issues;
+    }
+    return issues.filter(issue => allowedRules.includes(issue.id));
 }
 
-function existingFunction2() {
-  // Existing implementation
-}
-
-// New Function (original commitment)
-function myNewFunction() {
-  // Implement the new functionality (as per the original commitment)
-  return "New function implemented successfully";
-}
-
-// Function to write the generated report to a file
-function writeReport(report) {
-  const reportFile = path.join(__dirname, 'accessibility_report.json');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-}
-
-// New function for generating a report based on accessibility issues
-async function generateAccessibilityReport() {
-  const report = await scanAccessibility();
-  writeReport(report);
-  return report;
-}
-
-async function scanAccessibility() {
-    const axeOptions = {
-        rules: {
-            'color-contrast-min': {'enabled': false},
-            // Add appropriate axe-core rules for your use case here
-        },
-        // Additional axe options from origin/main would be included here
+function generateReportSummary(issues) {
+    const summary = {
+        critical: 0,
+        serious: 0,
+        moderate: 0,
+        minor: 0
     };
 
+    issues.forEach(issue => {
+        const impact = issue.impact || 'minor';
+        if (summary.hasOwnProperty(impact)) {
+            summary[impact]++;
+        }
+    });
+
+    return summary;
+}
+
+// Utilities
+
+async function scanAccessibility() {
     try {
-        const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
-        const results = await axe.run({ html, ...axeOptions });
-        return results;
+        const results = await axe.run(document, {
+            runOnly: {
+                type: 'tag',
+                values: ['wcag2a', 'wcag2aa', 'wcag21aa']
+            }
+        });
+
+        return {
+            timestamp: new Date().toISOString(),
+            violations: results.violations || [],
+            passes: results.passes || [],
+            incomplete: results.incomplete || [],
+            inapplicable: results.inapplicable || []
+        };
     } catch (error) {
         console.error('Accessibility scanning error:', error.message);
         return [];
     }
 }
 
-/**
- * REACT_027: Fix table structure issues
- * Ensures tables have proper structure and accessibility attributes
- */
-function fixTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Add caption if missing
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table caption';
-      table.insertBefore(caption, table.firstChild);
-    }
+async function generateAccessibilityReport(options = {}) {
+    const {
+        options: axeOptions = {},
+        includeIncomplete = true,
+        allowedRules = []
+    } = options;
 
-    // Ensure headers have scope or id
-    const headers = table.querySelectorAll('th');
-    headers.forEach((th, index) => {
-      if (!th.getAttribute('scope') && !th.getAttribute('id')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
+    const scanResults = await scanAccessibility(options);
+    const filteredIssues = filterIssuesByRules(scanResults.violations, allowedRules);
 
-    // Ensure proper table structure
-    validateTableStructure(table);
-  });
-}
+    const report = {
+        timestamp: new Date().toISOString(),
+        summary: generateReportSummary(filteredIssues),
+        issues: filteredIssues,
+        metadata: {
+            totalViolations: scanResults.violations.length,
+            totalPasses: scanResults.passes.length,
+            incompleteCount: scanResults.incomplete ? scanResults.incomplete.length : 0,
+            inapplicableCount: scanResults.inapplicable ? scanResults.inapplicable.length : 0
+        }
+    };
 
-/**
- * REACT_017: Validate and fix landmark issues
- * Ensures proper landmark structure and accessibility
- */
-function fixLandmarkIssues() {
-  // Ensure unique landmarks
-  ensureUniqueLandmarks(landmarks);
-
-  // Add proper landmark regions
-  addProperLandmarkRegions();
-
-  // Validate existing landmarks
-  const landmarkValidation = validateLandmark();
-  if (!landmarkValidation.valid) {
-    console.warn('Landmark validation issues:', landmarkValidation.issues);
-  }
-}
-
-/**
- * REACT_041: Add accessible names to SVGs
- * Ensures all SVGs have accessible names
- */
-function addSvgAccessibility() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const name = getSvgAccessibleName(svg);
-    if (!name) {
-      setSvgAttributes(svg, 'Graphic element');
-    }
-  });
-}
-
-/**
- * REACT_036: Create accessible links
- * Creates properly accessible links and buttons
- */
-function createAccessibleLinks() {
-  // Create skip to content link
-  const skipLink = createInPageButton('main-content', 'Skip to main content');
-  document.body.insertBefore(skipLink, document.body.firstChild);
-
-  // Validate existing links
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    const validation = validateLinkAccessibility(link);
-    if (!validation.valid) {
-      console.warn('Link validation issues:', validation.issues);
-    }
-  });
-}
-
-// Utilities
-const { validateInput, processData } = require('./utils/validators');
-const { formatResponse } = require('./utils/processor');
-
-// Main execution when run directly
-if (require.main === module) {
-  const landmarks = loadLandmarks();
-  const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(processed);
-
-  console.log(`Loaded ${landmarks.length} landmarks`);
-  console.log(`Processed to ${processed.length} unique landmarks`);
-  console.log(`Sorted ${sorted.length} landmarks`);
-
-  if (sorted.length > 0) {
-    console.log('First landmark:', sorted[0]);
-  }
+    return report;
 }
 
 module.exports = {
-    validateInput,
-    processData,
-    formatResponse,
-    config: CONFIG,
-    generateAccessibilityReport,
+    getLangAttribute,
+    addLangAttribute,
+    logCurrentURL,
+    validateTableAccessibility,
+    validateTableStructure,
+    fixTableStructure,
+    addMainLandmark,
+    validateLandmark,
+    isValidLandmark,
     loadLandmarks,
     processLandmarks,
     sortLandmarks,
     getLandmarkById,
     ensureUniqueLandmarks,
-    existingFunction1,
-    existingFunction2,
-    myNewFunction,
-    writeReport,
+    filterIssuesByRules,
+    generateReportSummary,
     scanAccessibility,
-    fixTableAccessibility,
-    fixLandmarkIssues,
-    addSvgAccessibility,
-    createAccessibleLinks,
-    someFunction: function() {
-        return 'some value';
-    },
-    helper: function(input) {
-        return input ? input.toUpperCase() : '';
-    },
-    formatDate: function(date) {
-        if (!(date instanceof Date)) {
-            date = new Date(date);
-        }
-        return date.toISOString().split('T')[0];
-    }
+    generateAccessibilityReport
 };

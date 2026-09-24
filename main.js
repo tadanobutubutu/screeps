@@ -181,143 +181,23 @@ function generateAccessibilityReport() {
   };
 }
 
-// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
-function addressAccessibilityIssuesDOM() {
-  // Internationalization support
-  const translations = {
-    'en': {
-      landmark: 'landmark',
-      'svg1-title': 'SVG Content',
-      'svg2-title': 'Additional SVG'
-    }
-  };
+// Function to render graph/index using new functions
+function renderGraphIndex() {
+  // JavaScript code to prepare data for the graph
+  const data = prepareDataForGraph();
 
-  const landmarks = document.querySelectorAll('[role="landmark"]');
-  landmarks.forEach((landmark, index) => {
-    if (!landmark.getAttribute('aria-label')) {
-      landmark.setAttribute('aria-label', 'Landmark ' + (index + 1));
-    }
-    // Additional landmark processing...
-  });
-
-  const svg1 = document.querySelector('.svg1');
-  const svg2 = document.querySelector('.svg2');
-  if (svg1) svg1.setAttribute('aria-labelledby', 'svg1-title');
-  if (svg2) svg2.setAttribute('aria-labelledby', 'svg2-title');
-
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
-    // The static fix should be applied in the source files
-    // - Replace one <main> with <section role="region" ...
-    // - Same fix
-  }
-
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'presentation');
-  });
-
-  // Implement this function for checking link and button accessibility
-  function checkLinksAndButtons() {
-    const links = document.querySelectorAll('a');
-    const buttons = document.querySelectorAll('button');
-
-    links.forEach(link => {
-      // Check if link needs explicit role="link"
-      if (!link.hasAttribute('href') && link.getAttribute('role') !== 'link') {
-        link.setAttribute('role', 'link');
-      }
-      // Check for link without href attribute
-      if (!link.hasAttribute('href')) {
-        console.error('Accessibility Error: Link without href attribute', link);
-      }
-    });
-
-    buttons.forEach(button => {
-      // Check if button needs explicit role="button"
-      if (button.getAttribute('role') !== 'button') {
-        button.setAttribute('role', 'button');
-      }
-      // Check for accessible name for buttons
-      const hasText = button.textContent.trim().length > 0;
-      const hasAriaLabel = button.hasAttribute('aria-label');
-      const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
-
-      if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
-        console.error('Accessibility Error: Button without accessible name', button);
-      }
-    });
-  }
-
-  // Call the function to check accessibility
-  checkLinksAndButtons();
+  // Render the graph using the new functions
+  // renderGraph(data);
 }
 
-// Default export for backwards compatibility
-const defaultExport = {
-  calculateSum,
-  calculateDifference,
-  calculateProduct,
-  isNumber,
-  clamp,
-  newFunction,
-  addressAccessibilityIssues,
-  preserveExistingCode,
-  initializeApp,
-  generateAccessibilityReport,
-  start() {
-    console.log('Application started');
-    return Promise.resolve();
-  }
-};
+// Update the existing rotateBack function to call renderGraphIndex
+function rotateBack() {
+  // JavaScript code to rotate back
+  console.log('Rotating back...');
 
-// Export all functions using module.exports
-module.exports = {
-  calculateSum,
-  calculateDifference,
-  calculateProduct,
-  isNumber,
-  clamp,
-  divide,
-  checkAccessibilityAttribute,
-  ensureAccessibleLabel,
-  validateFocusableElement,
-  newFunction,
-  addressAccessibilityIssues,
-  preserveExistingCode,
-  initializeApp,
-  generateAccessibilityReport,
-  logger,
-  rotateBack,
-  renderGraphIndex,
-  addressAccessibilityIssuesDOM,
-  defaultExport,
-  start() {
-    console.log('Application started');
-    return Promise.resolve();
-  }
-};
-
-// ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
-
-// Default export for backwards compatibility
-const defaultExport = {
-  calculateSum,
-  calculateDifference,
-  calculateProduct,
-  isNumber,
-  clamp,
-  newFunction,
-  addressAccessibilityIssues,
-  preserveExistingCode,
-  initializeApp,
-  generateAccessibilityReport,
-  start() {
-    console.log('Application started');
-    return Promise.resolve();
-  }
-};
+  // Call renderGraphIndex before rotating back
+  renderGraphIndex();
+}
 
 // Screeps bot main loop
 function loop() {
@@ -361,37 +241,32 @@ function loop() {
 }
 
 // Export all utility functions for both environments
-module.exports = {
-  // Math functions
-  calculateSum,
-  calculateDifference,
-  calculateProduct,
-  isNumber,
-  clamp,
-  divide,
-  
-  // Accessibility functions
-  checkAccessibilityAttribute,
-  ensureAccessibleLabel,
-  validateFocusableElement,
-  
-  // Core functions
-  renderDependencyGraph,
-  renderIndexView,
-  newFunction,
-  preserveExistingCode,
-  addressAccessibilityIssues,
-  renderGraphIndex,
-  prepareDataForGraph,
-  rotateBack,
-  
-  // Backwards compatibility
-  defaultExport,
-  logger,
-  initializeApp,
-  generateAccessibilityReport,
-  addressAccessibilityIssuesDOM,
-  
-  // Screeps
-  loop
-};
+module.exports.calculateSum = calculateSum;
+module.exports.calculateDifference = calculateDifference;
+module.exports.calculateProduct = calculateProduct;
+module.exports.isNumber = isNumber;
+module.exports.clamp = clamp;
+module.exports.divide = divide;
+module.exports.checkAccessibilityAttribute = checkAccessibilityAttribute;
+module.exports.ensureAccessibleLabel = ensureAccessibleLabel;
+module.exports.validateFocusableElement = validateFocusableElement;
+module.exports.defaultExport = defaultExport;
+module.exports.logger = logger;
+module.exports.initializeApp = initializeApp;
+module.exports.generateAccessibilityReport = generateAccessibilityReport;
+module.exports.addressAccessibilityIssuesDOM = addressAccessibilityIssuesDOM;
+module.exports.rotateBack = rotateBack;
+module.exports.renderDependencyGraph = renderDependencyGraph;
+module.exports.renderIndexView = renderIndexView;
+module.exports.newFunction = newFunction;
+module.exports.preserveExistingCode = preserveExistingCode;
+module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+module.exports.countDependencies = countDependencies;
+module.exports.lineCountFunction = lineCountFunction;
+module.exports.renderGraphIndex = renderGraphIndex;
+
+// Export for module usage
+export { a11yStore };
+export { addressAccessibilityIssues };
+export default a11yStore;
+export { wrapPrimaryContentInMain };

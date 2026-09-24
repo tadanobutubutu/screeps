@@ -443,15 +443,9 @@ addAriaLabel('myTable', 'Product data table');
 addAriaLabel('myLogo', 'Company logo');
 addAriaLabel('myMenu', 'Accessibility menu');
 
-// Execute the fix for all accessibility issues
-fixAccessibilityIssues();
-
 // End of file
 
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
-
-// Export all functions to make them accessible in main.js
+// Add exports for required functions
 export {
   createLandmarkId,
   uniqueLandmarks,
@@ -463,7 +457,6 @@ export {
   classifyResponseSafety,
   getFullLangAttribute,
   getLangAttribute,
-  personName,
   validateLandmark,
   validateLandmarkStructure,
   validateTableAccessibility,

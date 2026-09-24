@@ -88,21 +88,4 @@ function updateDependencyGraph(data) {
 }
 
 // Export functions if needed
-module.exports = {
-  getLangAttribute,
-  wrapPrimaryContentInMain,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  addFixLandmarkIssues,
-  getSvgAccessibleName,
-  addAriaToFormControls,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssues,
-  createAccessibleLink,
-  rotateBack,
-  addressAccessibilityIssues,
-  renderDependencyGraph,
-  updateDependencyGraph
-};
+export { rotateBack, addressAccessibilityIssues };

@@ -143,15 +143,55 @@ const accessibilityUtils = {
   },
 
   /**
-   * Add lang attribute to HTML element
-   * @param {HTMLElement} element - The element to add lang attribute to
-   * @param {string} lang - The language code to set
+   * Add keyboard navigation support for interactive elements
+   * @param {HTMLElement} element - The element to add keyboard support to
+   * @param {Object} handlers - The handler functions for different keys
    */
-  addLangAttribute: (element, lang = 'en') => {
-    if (element && element.tagName === 'HTML') {
-      element.setAttribute('lang', lang);
+  addKeyboardNavigation: (element, handlers) => {
+    if (!element || !handlers) return;
+
+    element.addEventListener('keydown', (e) => {
+      accessibilityUtils.handleKeyboardNav(e, handlers);
+    });
+  },
+
+  /**
+   * Ensure proper ARIA labels on dynamic content
+   * @param {HTMLElement} element - The element to add ARIA attributes to
+   * @param {Object} ariaAttributes - The ARIA attributes to add
+   */
+  ensureAriaAttributes: (element, ariaAttributes) => {
+    if (!element || !ariaAttributes) return;
+
+    Object.entries(ariaAttributes).forEach(([key, value]) => {
+      element.setAttribute(key, value);
+    });
+  },
+
+  /**
+   * Maintain focus management for modal dialogs
+   * @param {HTMLElement} modal - The modal element
+   * @param {HTMLElement} trigger - The element that triggered the modal
+   */
+  manageModalFocus: (modal, trigger) => {
+    if (!modal || !trigger) return;
+
+    // Trap focus within the modal
+    focusTrap(modal);
+
+    // Set initial focus to the first focusable element
+    const firstFocusable = modal.querySelector(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    if (firstFocusable) {
+      firstFocusable.focus();
     }
-    return element;
+
+    // Return focus to trigger when modal closes
+    modal.addEventListener('close', () => {
+      trigger.focus();
+    });
   }
 }
 
@@ -395,44 +435,48 @@ const exportUtils = {
   },
 
   /**
-   * Export data to a file with accessibility features
-   * @param {any} data - The data to export
-   * @param {string} filename - The name of the file to create
-   * @param {string} mimeType - The MIME type of the data
-   * @param {string} [label] - Accessibility label for the download button
+   * Export data to a file with accessibility support
+   * @param {*} data - The data to export
+   * @param {string} filename - The name of the file
+   * @param {string} mimeType - The MIME type of the file
+   * @param {Object} options - Additional options
    */
-  exportWithAccessibility: (data, filename, mimeType, label) => {
+  exportWithAccessibility: (data, filename, mimeType, options = {}) => {
     const sanitizedFilename = sanitizeFilename(filename);
-    const accessibleLabel = label || `Download ${sanitizedFilename}`;
-
     const blob = new Blob([data], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
+
     link.href = url;
     link.download = sanitizedFilename;
-    link.setAttribute('aria-label', accessibleLabel);
+    link.setAttribute('aria-label', `Download ${sanitizedFilename}`);
     link.setAttribute('role', 'button');
-    link.style.display = 'none';
+    link.setAttribute('tabindex', '0');
 
     // Add keyboard support
-    link.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        link.click();
-      }
+    accessibilityUtils.addKeyboardNavigation(link, {
+      Enter: () => link.click(),
+      ' ': () => link.click()
     });
 
+    // Add ARIA attributes
+    accessibilityUtils.ensureAriaAttributes(link, {
+      'aria-live': 'polite',
+      'aria-atomic': 'true'
+    });
+
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
 
-    // Announce download completion to screen readers
+    // Announce download completion
     accessibilityUtils.announceToScreenReader(`Download of ${sanitizedFilename} started`);
 
-    // Clean up after a delay
+    // Clean up
     setTimeout(() => {
+      URL.revokeObjectURL(url);
       link.remove();
-    }, 1000);
+    }, 100);
   }
 }
 

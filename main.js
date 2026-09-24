@@ -364,29 +364,18 @@ const AddressabilityIssues = {
   }
 };
 
-  // Update the existing function using the new functions for rendering graph/index
-  // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
-  renderGraphAndIndex() {
-    AddressabilityIssues.renderDependencyGraph();
-    AddressabilityIssues.renderIndexView();
-  }
-};
-
 // Export functions for testing
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     AddressabilityIssues,
-    initializeAccessibility: (container) => AddressabilityIssues.initializeAccessibility(container),
-    getSvgAccessibleName: (svg) => AddressabilityIssues.getSvgAccessibleName(svg),
-    setSvgAttributes: (svg) => AddressabilityIssues.setSvgAttributes(svg),
+    initializeAccessibility,
+    getSvgAccessibleName,
+    setSvgAttributes,
     checkTableStructure,
     generateUniqueId,
-    detectAccessibilityIssues: (elements) => AddressabilityIssues.detectAccessibilityIssues(elements),
-    handleCredentialResponse: (response) => AddressabilityIssues.handleCredentialResponse(response),
-    getStoredCredentials: () => AddressabilityIssues.getStoredCredentials(),
-    clearCredentials: () => AddressabilityIssues.clearCredentials(),
-    renderDependencyGraph: () => AddressabilityIssues.renderDependencyGraph(),
-    renderIndexView: () => AddressabilityIssues.renderIndexView(),
-    renderGraphAndIndex: () => AddressabilityIssues.renderGraphAndIndex()
+    detectAccessibilityIssues,
+    handleCredentialResponse,
+    getStoredCredentials,
+    clearCredentials
   };
 }

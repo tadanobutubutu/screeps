@@ -1,21 +1,38 @@
 const fs = require('fs');
 const main = require('./utilities');
 
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+reportWebVitals();
+
+// Dependency imports
+import { dependencyGraphContent, indexContent } from './dependencyContent';
+
+// Rename the main function in utilities to avoid the latest issue
+import { main as renamedMain } from './utilities';
+
+// Dependency imports from the renamed main function
 const {
   createInPageButton,
+  validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  getLangAttribute,
   validateAccessibilityReport,
-  announceToScreenReader,
-  handleKeyboardNav,
+  announceToScreenReader: announceToScreenReaderOriginal,
+  handleKeyboardNav: handleKeyboardNavOriginal,
   newFocusTrap: originNewFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementHasId: ensureElementIdOrigin,
+  ensureElementId: ensureElementIdOrigin,
   ensureElementHasId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
@@ -26,21 +43,235 @@ const {
   transformInputData,
   initSkipLink,
   trapFocus
-} = main;
+} = renamedMain;
 
-const accessibilityUtils = {
+// Create wrapper functions for compatibility
+const announceToScreenReaderWrapper = announceToScreenReaderOriginal;
+const handleKeyboardNavWrapper = handleKeyboardNavOriginal;
+
+// Renamed the main function to match the name of the variable
+const main = {};
+
+// Add the following functions since they were expected in the exports
+main.ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
+  }
+  return element;
+};
+
+main.addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+};
+
+main.renderDependencyGraph = (data) => {
+  // Implementation for rendering dependency graphs
+  return {
+    nodes: data.nodes || [],
+    edges: data.edges || []
+  };
+};
+
+// Accessibility-related functions
+function main.ensureDependencyGraphARIA() {
+  const dependencyGraphElement = document.querySelector('.dependency-graph');
+  if (dependencyGraphElement) {
+    // Set appropriate ARIA role for the dependency graph container
+    if (!dependencyGraphElement.getAttribute('role')) {
+      dependencyGraphElement.setAttribute('role', 'region');
+    }
+
+    // Add accessible label if not already present
+    if (!dependencyGraphElement.getAttribute('aria-label')) {
+      dependencyGraphElement.setAttribute('aria-label', 'Dependency graph visualization');
+    }
+  }
+}
+
+function main.initiateAnnounceToScreenReader(message, priority) {
+  announceToScreenReaderWrapper(message, priority);
+  main.announcementDelayHandler();
+}
+
+function main.announcementDelayHandler() {
+  setTimeout(() => {
+    document.body.removeChild(document.querySelector('#sr-announcer'));
+  }, 1000);
+}
+
+function main.handleKeyboardNav(e, handlers) {
+  handleKeyboardNavWrapper(e, handlers);
+  main.handleKeyboardNavKeyDownEvent(e, handlers);
+}
+
+function main.handleKeyboardNavKeyDownEvent(e, handlers) {
+  if (e.key === 'Tab') {
+    Object.values(handlers).forEach((handler) => {
+      if (handler) {
+        handler(e);
+      }
+    });
+  }
+}
+
+const getLangAttribute = () => {
+  return navigator.language || navigator.userLanguage;
+}
+
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  const lang = getLangAttribute();
+  htmlElement.lang = lang;
+}
+
+function wrapPrimaryContentInMain() {
+  const mainElement = document.querySelector('main');
+  const primaryContent = document.querySelector('.primary-content');
+
+  if (!mainElement) {
+    const main = document.createElement('main');
+    main.setAttribute('id', 'main');
+    document.body.appendChild(main);
+  }
+
+  primaryContent.getAttribute('id') ? mainElement.appendChild(primaryContent) : mainElement.insertBefore(primaryContent, mainElement.firstChild);
+}
+
+function setSvgAttributes() {
+  return a11y.setSvgAttributes();
+}
+
+function addFixLandmarkIssues() {
+  return a11y.addFixLandmarkIssues();
+}
+
+function ensureUniqueLandmarks() {
+  return a11y.ensureUniqueLandmarks();
+}
+
+function addMainLandmark() {
+  return a11y.addMainLandmark();
+}
+
+function validateLandmarkAttributes() {
+  return a11y.validateLandmarkAttributes();
+}
+
+function validateLandmarkOrigin() {
+  return a11y.validateLandmarkOrigin();
+}
+
+function validateLinkAccessibility() {
+  return a11y.validateLinkAccessibility();
+}
+
+function handleFakeLinks() {
+  return a11y.handleFakeLinks();
+}
+
+function addProperLandmarkRegions() {
+  return a11y.addProperLandmarkRegions();
+}
+
+function fixFakeLinkIssues() {
+  return a11y.fixFakeLinkIssues();
+}
+
+function createAccessibleLink() {
+  return a11y.createAccessibleLink();
+}
+
+function validateLandmarkContainer(container) {
+  return a11y.validateLandmarkContainer(container);
+}
+
+function validateLandmarkStructureHelpers() {
+  return a11y.validateLandmarkStructureHelpers();
+}
+
+function renderIndexView() {
+  // Implementation to be added
+}
+
+function ensureLandmarkStruct() {
+  const { validateLandmark, addFixLandmarkIssues, validateLandmarkOrigin } = a11y;
+  validateLandmarkOrigin();
+
+  const header = document.querySelector('header');
+  if (header && !header.hasAttribute('aria-label')) {
+      header.setAttribute('aria-label', 'Page header');
+  }
+
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.hasAttribute('aria-label')) {
+      mainElement.setAttribute('aria-label', 'Main content');
+  }
+
+  const footer = document.querySelector('footer');
+  if (footer && !footer.hasAttribute('aria-label')) {
+      footer.setAttribute('aria-label', 'Page footer');
+  }
+
+  addFixLandmarkIssues();
+}
+
+function fixAccessibilityIssues() {
+  // Implementation for fixAccessibilityIssues
+}
+
+function checkIfBodyContainButton() {
+  // Implementation for checkIfBodyContainButton
+}
+
+function showModal() {
+  // Implementation for showModal
+}
+
+function spawnButtons() {
+  // Implementation for spawnButtons
+}
+
+function setAccessibleNamesForSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    svg.setAttribute('aria-label', accessibleName);
+  });
+}
+
+function upgrade() {
+  // Implementation for upgrade
+}
+
+function getCurrentLanguage() {
+  // Implementation for getCurrentLanguage
+}
+
+function renderGraphIndex() {
+  // Implementation for renderGraphIndex
+}
+
+export {
+  // From imports
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  getLangAttribute,
   validateAccessibilityReport,
-  handleKeyboardNav,
+  announceToScreenReader: announceToScreenReaderOriginal,
+  handleKeyboardNav: handleKeyboardNavOriginal,
+  newFocusTrap: originNewFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
+  ensureElementId: ensureElementIdOrigin,
+  ensureElementHasId,
+  renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
@@ -49,110 +280,42 @@ const accessibilityUtils = {
   transformInputData,
   initSkipLink,
   trapFocus,
-  announceToScreenReader: function (message, priority) {
-    if (priority === undefined) {
-      priority = 'polite';
-    }
-    const announcer = document.createElement('div');
-    announcer.setAttribute('aria-live', priority);
-    announcer.setAttribute('aria-atomic', 'true');
-    announcer.className = 'sr-only';
-    announcer.style.position = 'absolute';
-    announcer.style.left = '-9999px';
-    announcer.textContent = message;
-    document.body.appendChild(announcer);
-    setTimeout(function () {
-      announcer.remove();
-    }, 1000);
-  },
-  newFocusTrap: newFocusTrap,
-};
 
-const ensureElementHasId = ensureElementHasIdImpl;
-const ensureElementHasIdWithPrefix = ensureElementHasIdWithPrefix;
-const ensureElementId = ensureElementIdOrigin;
-const addAriaLabel = addAriaLabel;
-
-const renderDependencyGraph = renderDependencyGraphs;
-
-function getTables() {
-  return appData.tables;
-}
-
-function getConfig() {
-  return { ...appData.config };
-}
-
-function setConfig(config) {
-  appData.config = { ...appData.config, ...config };
-}
-
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.querySelector('.dependency-graph');
-
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region');
-  }
-
-  // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-  }
-}
-
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName(svgString, label) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const parser = new DOMParser();
-  const svg = parser.parseFromString(svgString, "image/svg+xml");
-  const svgElement = svg.documentElement;
-  if (!svgElement.hasAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', label || 'Descriptive label for SVG');
-  }
-  const serializer = new XMLSerializer();
-  return serializer.serializeToString(svg);
-}
-
-// Example usage of the function
-const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" dy="0.35em">Test</text></svg>';
-const modifiedSvgString = addAccessibleName(originalSvgString, 'Screeps Dashboard SVG');
-
-// Functionality added in the original commit
-async function validateTableAccessibility(tableData) {
-  // Your implementation for validating table accessibility goes here.
-  // ...
-}
-
-function validateTableStructure(tableData) {
-  // Implementation placeholder - function to be implemented
-  return true;
-}
-
-function function3() {
-  // TODO: Implement new function3 logic here
-  return "function3 implemented";
-}
-
-module.exports = {
-  ...accessibilityUtils,
-  renderDependencyGraph: renderDependencyGraph,
+  // From main object
   addAriaLabel,
-  addAccessibleName,
-  validateTableAccessibility,
-  validateTableStructure,
-  ensureElementId,
-  ensureElementHasId,
-  ensureElementHasIdWithPrefix,
-  getTables,
-  getConfig,
-  setConfig,
-  function3,
-  newFocusTrap,
-  initSkipLink,
-  trapFocus,
+  renderDependencyGraph,
+  ensureDependencyGraphARIA,
+  initiateAnnounceToScreenReader: main.initiateAnnounceToScreenReader,
+  announcementDelayHandler: main.announcementDelayHandler,
+  handleKeyboardNavKeyDownEvent: main.handleKeyboardNavKeyDownEvent,
+
+  // Additional functions
+  getLangAttribute,
+  addLangAttribute,
+  wrapPrimaryContentInMain,
+  setSvgAttributes,
+  addFixLandmarkIssues,
+  ensureUniqueLandmarks,
+  addMainLandmark,
+  validateLandmarkAttributes,
+  validateLandmarkOrigin,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  fixFakeLinkIssues,
+  createAccessibleLink,
+  validateLandmarkContainer,
+  validateLandmarkStructureHelpers,
+  renderIndexView,
+  ensureLandmarkStruct,
+  fixAccessibilityIssues,
+  checkIfBodyContainButton,
+  showModal,
+  spawnButtons,
+  setAccessibleNamesForSVGs,
+  upgrade,
+  getCurrentLanguage,
+  renderGraphIndex
 };
+
+export * from './AnotherModule';

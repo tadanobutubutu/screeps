@@ -327,23 +327,39 @@ const accessibilityUtils = {
 
   // Get language attribute
   getLangAttribute: () => {
-    if (typeof document === 'undefined') return 'en'
-    const htmlElement = document.documentElement
-    return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en'
+    if (typeof document === 'undefined') return 'en';
+    const htmlElement = document.documentElement;
+    return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
   },
 
-  // Get full language attribute (including region if available)
-  getFullLangAttribute: () => {
-    if (typeof document === 'undefined') return 'en-US'
-    const htmlElement = document.documentElement
-    if (!htmlElement) return 'en-US'
+  // NEW: Function to ensure dependencyGraph container has proper ARIA role
+  ensureDependencyGraphAccessibility: () => {
+    if (typeof document === 'undefined') return;
 
-    const lang = htmlElement.getAttribute('lang') || 'en'
-    // If lang is just 'en', add default region
-    if (lang === 'en') {
-      return 'en-US'
+    const dependencyGraph = document.querySelector('.dependencyGraph, [data-dependency-graph]');
+    if (dependencyGraph && !dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'tree');
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+
+      // Add ARIA attributes to child elements if they exist
+      const nodes = dependencyGraph.querySelectorAll('.node, [data-node]');
+      nodes.forEach((node, index) => {
+        if (!node.getAttribute('role')) {
+          node.setAttribute('role', 'treeitem');
+        }
+        if (!node.id) {
+          node.id = `dependency-node-${index}`;
+        }
+      });
+
+      // Add ARIA attributes to edges if they exist
+      const edges = dependencyGraph.querySelectorAll('.edge, [data-edge]');
+      edges.forEach((edge, index) => {
+        if (!edge.getAttribute('role')) {
+          edge.setAttribute('role', 'presentation');
+        }
+      });
     }
-    return lang
   }
 }
 
@@ -532,8 +548,11 @@ const initAccessibility = () => {
         ' ': () => element.click()
       })
     }
-  })
-}
+  });
+
+  // Ensure dependencyGraph container has proper ARIA role
+  accessibilityUtils.ensureDependencyGraphAccessibility();
+};
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
@@ -590,6 +609,7 @@ module.exports = {
   handleFakeLinks: accessibilityUtils.handleFakeLinks,
   addProperLandmarkRegions: accessibilityUtils.addProperLandmarkRegions,
   newFocusTrap: accessibilityUtils.newFocusTrap,
+  ensureDependencyGraphAccessibility: accessibilityUtils.ensureDependencyGraphAccessibility,
 
   // Export accessibility utils for direct access
   accessibilityUtils,

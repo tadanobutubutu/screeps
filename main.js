@@ -1,5 +1,6 @@
-Here’s the fully cleaned‑up version of `main.js`.  
-Just drop your real imports / declarations into the marked section, then commit and run the server again.  
+Here’s a clean‑room version of `main.js` with the conflict markers removed.  
+Feel free to drop your actual imports, state‑persistence logic, and route
+handlers where the `// TODO` comment is.
 
 ```js
 /* ==========================================================================
@@ -9,26 +10,46 @@ Just drop your real imports / declarations into the marked section, then commit 
 /* -------------------------------------------------------------------------- */
 /* Existing code that must stay – unchanged                                 */
 /* -------------------------------------------------------------------------- */
-// TODO: Insert your current code here, including any imports, declarations, etc.
+// TODO: Insert your current code here, including any imports, declarations,
+//       state loaders, route registrations, etc.
 
-/* -------------------------------------------------------------------------- */
-/* Accessibility helpers (merged from new branch)                            */
-/* -------------------------------------------------------------------------- */
+////////////////////////////////////////////////////////////////////////////////
+// Accessibility helpers – merged from the incoming branch
+////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Return the current language attribute of the `<html>` element.
+ */
 function getLangAttribute() {
   return document.documentElement.lang || '';
 }
 
+/**
+ * Override the language attribute of the `<html>` element.
+ * @param {string} lang – e.g. "en", "fr", etc.
+ */
 function setLangAttribute(lang) {
   document.documentElement.lang = lang;
 }
 
+/**
+ * Assign a landmark role (e.g. "navigation", "banner") to the element.
+ * @param {Element} element
+ * @param {string} role
+ */
 function addLandmarkRole(element, role) {
   if (element) {
     element.setAttribute('role', role);
   }
 }
 
+/**
+ * Give an element a unique ID that is derived from the supplied baseId.
+ * Useful for ARIA landmarks that need distinct ids.
+ * @param {Element} element
+ * @param {string} baseId
+ * @returns {string|null}
+ */
 function addUniqueLandmarkLabel(element, baseId) {
   if (element) {
     const uniqueId =
@@ -41,6 +62,10 @@ function addUniqueLandmarkLabel(element, baseId) {
   return null;
 }
 
+/**
+ * Designate the main content region.
+ * @param {Element} element
+ */
 function setMainLandmark(element) {
   if (element) {
     addLandmarkRole(element, 'main');
@@ -48,6 +73,9 @@ function setMainLandmark(element) {
   }
 }
 
+/**
+ * Ensure that the `<html>` tag always has a language attribute.
+ */
 function addLangAttribute() {
   const htmlElement = document.querySelector('html');
   if (htmlElement && !htmlElement.lang) {
@@ -55,9 +83,9 @@ function addLangAttribute() {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/* Exports                                                                   */
-/* -------------------------------------------------------------------------- */
+////////////////////////////////////////////////////////////////////////////////
+// Exports
+////////////////////////////////////////////////////////////////////////////////
 
 module.exports = {
   getLangAttribute,
@@ -65,18 +93,31 @@ module.exports = {
   addLandmarkRole,
   addUniqueLandmarkLabel,
   setMainLandmark,
-  addLangAttribute
+  addLangAttribute,
+  /* TODO: export any additional helpers, routers, middleware, etc. that your
+           application requires. */
 };
 
-/* -------------------------------------------------------------------------- */
-/* End of main.js                                                             */
-/* -------------------------------------------------------------------------- */
+////////////////////////////////////////////////////////////////////////////////
+// End of main.js
+////////////////////////////////////////////////////////////////////////////////
 ```
 
-**Next steps**
+### How to finish the merge
 
-1. **Add your own implementation** – replace the `// TODO: …` line with the imports, state‑persistence, route handlers, etc., that your current project uses.
-2. **Test** – run the build (`npm run build`) and start the server to confirm no syntax errors.
-3. **Commit** – once the file works, `git add main.js && git commit -m "Resolve merge conflict in main.js"`.
+1. **Replace the `// TODO` block** with whatever you normally put in `main.js`
+   – imports, initialisation logic, Zustand stores, Express/koa routes, etc.
+2. **Test the bundle**  
+   ```bash
+   npm run build   # or yarn build
+   node dist/server.js  # or whatever your start script is
+   ```
+   Make sure no syntax errors pop up.
+3. **Commit**  
+   ```bash
+   git add main.js
+   git commit -m "Resolve merge conflict in main.js – merge accessibility helpers"
+   ```
 
-If you hit any snags while inserting your code or need tweaks to the helper functions, just let me know!
+That’s it. Once the file builds, your merge is clean and the accessibility
+helpers from the feature branch are now part of your production code.

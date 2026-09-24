@@ -5,10 +5,21 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
-// Function to create in-page buttons with ARIA attributes for accessibility
-function createInPageButton(buttonText, onClickHandler, buttonId = null) {
+// TODO: Address accessibility issues from insight report:
+// TODO: This is the existing code that needs to be preserved
+module.exports = {
+  // Existing exports preserved
+};
+
+/**
+ * Main entry point for the application
+ */
+
+// Function to create in-page buttons
+function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
+  button.type = 'button';
   button.addEventListener('click', onClickHandler);
 
   // Add ARIA attributes for accessibility
@@ -25,7 +36,9 @@ function createInPageButton(buttonText, onClickHandler, buttonId = null) {
 
 // Existing exports preserved
 
-// Main entry point for the application
+// Example usage (if needed):
+// const btn = createInPageButton('Say Hello', () => console.log('Clicked'));
+// ...
 
 export { createInPageButton, createInPageButtonWithAriaLabel };
 

@@ -647,93 +647,19 @@ function displayModuleStructure (module) {
 function addAriaLabel(element) {
   // Combined and reconciled code from both branches
   if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', element.getAttribute('aria-label') || element.textContent.trim() || 'button');
+    element.setAttribute('aria-label', element.getAttribute('aria-label') || element.textContent.trim());
   }
 }
 
-// ----- END ORIGINAL CODE -----
-// TODO: Add new code below this line
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: fa9b7e33f0cdeb6096b301e6b8bb56dc7873f56e_
+//<!-- todo-hash: 3eddfd1e15d7d6ffc2416c3cad0dbbe05524d4ed -->
 
-// New function to handle accessibility mode activation
-function activateAccessibilityMode() {
-  // Trigger the accessibility mode
-  triggerAccessibilityMode();
-
-  // Initialize all accessibility features
-  initializeAccessibility();
-
-  // Make header focusable
-  makeHeaderFocusable();
-
-  // Initialize accessibility controls
-  initializeAccessibilityControls();
-
-  // Log activation
-  console.log('Accessibility mode activated successfully');
-}
-
-// New function to get accessibility status
-function getAccessibilityStatus() {
-  // Check if accessibility mode is active
-  const isActive = typeof triggerAccessibilityMode === 'function' && triggerAccessibilityMode();
-
-  // Return status object
-  return {
-    isActive,
-    features: {
-      langAttribute: !!getLangAttribute(),
-      tablesValidated: document.querySelectorAll('table').length > 0,
-      landmarksValidated: document.querySelectorAll('nav, main, aside, footer').length > 0,
-      svgsAccessible: document.querySelectorAll('svg').length > 0
-    }
-  };
-}
-
-// New utility function to validate all accessibility features
-function validateAllAccessibility() {
-  // Run all validation functions
-  const results = {
-    langAttribute: !!getLangAttribute(),
-    tables: Array.from(document.querySelectorAll('table')).map(table => ({
-      id: table.id,
-      isAccessible: validateTableAccessibility(table),
-      hasStructure: validateTableStructure(table)
-    })),
-    landmarks: {
-      isValid: validateLandmark(),
-      structureValid: validateLandmarkStructure(),
-      unique: ensureUniqueLandmarks()
-    },
-    svgs: Array.from(document.querySelectorAll('svg')).map(svg => ({
-      id: svg.id,
-      hasAccessibleName: !!getSvgAccessibleName(svg)
-    })),
-    links: validateLinkAccessibility()
-  };
-
-  return results;
-}
-
-// New function to generate accessibility report
-function generateAccessibilityReport() {
-  const status = getAccessibilityStatus();
-  const validation = validateAllAccessibility();
-
-  return {
-    status,
-    validation,
-    timestamp: new Date().toISOString(),
-    summary: {
-      issuesFound: Object.values(validation).some(v => !v),
-      featuresEnabled: Object.values(status.features).filter(Boolean).length
-    }
-  };
-}
-
-// Export new functions
-export {
-  activateAccessibilityMode,
-  getAccessibilityStatus,
-  validateAllAccessibility,
-  generateAccessibilityReport
-};
+//_Commit: 1c591f390e71ae9a2ebc4eeed75de13aa4275a22_
+//<!-- todo-hash: 978523af93bdd561783969f519bf00d65e202400 -->

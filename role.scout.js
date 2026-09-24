@@ -1,3 +1,4 @@
+const cache = require('./src/utils/cache');
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  * Screeps memory is limited to 2MB; unbounded objects can crash the AI.
@@ -60,11 +61,7 @@ const roleScout = {
         const hostiles = creep.room._hostileCreeps || [];
         const structures = creep.room._allStructures || [];
 
-        if (creep.room._droppedResourcesTick !== Game.time) {
-            creep.room._droppedResources = creep.room.find(FIND_DROPPED_RESOURCES);
-            creep.room._droppedResourcesTick = Game.time;
-        }
-        const resources = creep.room._droppedResources;
+        const resources = cache.getDroppedResources(creep.room);
 
         // Initialize visited memory if needed
         if (!creep.memory.visited) {

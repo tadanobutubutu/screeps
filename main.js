@@ -1,9 +1,33 @@
-function addSvgAccessibilityProps() {
-    if (typeof document === 'undefined') return;
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach((svg, index) => {
-        if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
-            svg.setAttribute('aria-label', 'Accessible SVG graphic');
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// main.js - Accessibility improvements implementation
+
+// Function to announce page updates for screen readers
+function announceToScreenReader(message, priority = 'polite') {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('role', 'status');
+  announcement.setAttribute('aria-live', priority);
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+  setTimeout(() => announcement.remove(), 1000);
+}
+
+// Focus management for modal dialogs
+function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          lastFocusable.focus();
+          e.preventDefault();
         }
         if (!svg.hasAttribute('role')) {
             svg.setAttribute('role', 'img');

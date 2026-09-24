@@ -112,14 +112,16 @@ function addBook () {
 
   // Add ARIA roles and labels to improve accessibility
   const addBookForm = document.getElementById('addBookForm')
-  addBookForm.setAttribute('role', 'form')
-  addBookForm.setAttribute('aria-labelledby', 'addBookLabel')
+  if (addBookForm) {
+    addBookForm.setAttribute('role', 'form')
+    addBookForm.setAttribute('aria-labelledby', 'addBookLabel')
 
-  const addBookLabel = document.createElement('label')
-  addBookLabel.id = 'addBookLabel'
-  addBookLabel.htmlFor = 'addBookForm'
-  addBookLabel.textContent = 'Add a new book'
-  addBookForm.insertBefore(addBookLabel, addBookForm.firstChild)
+    const addBookLabel = document.createElement('label')
+    addBookLabel.id = 'addBookLabel'
+    addBookLabel.htmlFor = 'addBookForm'
+    addBookLabel.textContent = 'Add a new book'
+    addBookForm.insertBefore(addBookLabel, addBookForm.firstChild)
+  }
 }
 
 // ... (rest of the existing code from main.js)
@@ -148,8 +150,5 @@ module.exports = {
   // Existing exports
   // ...
   newFunction, // Export the new function
-  addBook, // Export the addBook function
-  renderGraph, // Export the new graph rendering function
-  renderIndex, // Export the new index rendering function
-  existingFunction // Export the updated existing function
+  addBook // Export the addBook function
 }

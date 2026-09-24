@@ -16,8 +16,35 @@ const clearCache = () => {
   // Preserve existing functionality
 };
 
-function initializeApp() {
-  // Preserve existing functionality
+// New function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    express: express ? 'installed' : 'not installed',
+    'axe-core': axe ? 'installed' : 'not installed',
+    fs: fs ? 'installed' : 'not installed',
+    'fast-map': fastMap ? 'installed' : 'not installed',
+    path: path ? 'installed' : 'not installed',
+    react: React ? 'installed' : 'not installed',
+    './utils': true, // Assuming these are local files
+    './utils/accessibilityUtils': true,
+    './utils/tableAccessibilityUtils': true,
+    './utils/landmarkUtils': true,
+    './utils/svgAccessibilityUtils': true,
+    './utils/linkAccessibilityUtils': true,
+    './utils/constants': true
+  };
+
+  return dependencies;
+}
+
+// New function to generate a report based on accessibility issues
+function generateAccessibilityReport() {
+  const options = {
+    rules: [{ id: 'color-contrast' }, { id: 'aria-roles' }], // Customize allowed or ignored rules here
+  };
+
+  const report = axe.auditWebpage(document.body, options);
+  return report;
 }
 
 function addMainLandmark() {
@@ -68,11 +95,22 @@ export {
   initializeApp,
   addMainLandmark,
   validateLandmark,
-  getLangAttribute,
-  handleFakeLinks,
-  validateLinkAccessibility,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  validateInput,
+  processData,
+  formatResponse,
+  config: CONFIG,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  landmarkConfig: CONFIG,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
   ensureUniqueLandmarks,
-  getInsightReport
+  countDependencies // Add the new function to exports
 };

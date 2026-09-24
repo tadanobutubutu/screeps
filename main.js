@@ -212,27 +212,25 @@ function startApp() {
   return server;
 }
 
-// New function to handle accessibility concerns
-function enhanceAccessibility(server) {
-  // Example: Implementing a middleware to check for accessibility concerns
-  server.use((req, res, next) => {
-    // Simulate accessibility check
-    const accessibilityPassed = true; // This should be replaced with actual accessibility checks
-    if (!accessibilityPassed) {
-      res.writeHead(406, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'error', message: 'Accessibility issues detected' }));
-    } else {
-      next();
-    }
+/**
+ * Adds a new middleware function to the server
+ * @param {Function} middleware The middleware function to add
+ */
+function addMiddleware(middleware) {
+  const server = createServer();
+  server.on('request', middleware);
+  server.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
   });
+  return server;
 }
 
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  config,
-  validateAccessibilityReport
+  addMiddleware,
+  config
 };
 
 // Start the application if run directly

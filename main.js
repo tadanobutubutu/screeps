@@ -254,7 +254,6 @@ const a11yStore = {
     // New function implementation from origin/main
   },
 
-  // Assuming the new function is called `renderGraphIndex` and it should replace or integrate with the existing `renderDependencyGraphs` function.
   renderGraphIndex: function(graphData) {
     // Placeholder for the new rendering logic
     // This function should use the new functions for rendering the graph/index
@@ -291,34 +290,14 @@ const a11yStore = {
     return 'SVG graphic';
   },
 
-  /**
-   * Renders the dependency graph view
-   * @param {Object} deps - Dependencies object
-   * @param {Object} options - Rendering options
-   * @returns {string} Rendered dependency graph HTML
-   */
   renderDependencyGraph: function(deps, options = {}) {
     // Use dependencyGraphContent from the imported module
     return dependencyGraphContent(deps, options);
   },
 
-  /**
-   * Renders the main index view
-   * @param {Object} data - View data
-   * @param {Object} options - Rendering options
-   * @returns {string} Rendered index HTML
-   */
   renderIndex: function(data, options = {}) {
     // Use indexContent from the imported module
     return indexContent(data, options);
-  },
-
-  newFunction: function() {
-    // Implementation from origin/main
-  },
-
-  checkLandmarkElement: function(role, element) {
-    // (code for checkLandmarkElement remains the same)
   },
 
   wrapPrimaryContentInMain: function() {
@@ -353,10 +332,6 @@ const a11yStore = {
     // (code for checkLandmarks remains the same)
   },
 
-  /**
-   * Ensure unique main landmarks exist in the document.
-   * Logs a warning if multiple main landmarks are detected.
-   */
   ensureUniqueLandmarks: function() {
     const mains = document.querySelectorAll('main, [role="main"]');
     if (mains.length > 1) {
@@ -365,19 +340,10 @@ const a11yStore = {
     }
   },
 
-  /**
-   * Revoke a session
-   * @param {string} sessionId - The session ID to revoke
-   * @returns {boolean} - True if session was revoked
-   */
   revokeSession: function(sessionId) {
     return appState.sessions.delete(sessionId);
   },
 
-  /**
-   * Focus trap handler to keep focus within a container.
-   * @param {Element} element - Element to monitor for focus events
-   */
   handleFocusTrap: function(element) {
     if (!element || typeof element.querySelectorAll !== 'function') {
       return;
@@ -386,6 +352,137 @@ const a11yStore = {
     const focusableElements = Array.from(element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     ));
+
+    if (focusableElements.length === 0) {
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', function(event) {
+      if (event.key !== 'Tab') {
+        return;
+      }
+
+      if (event.shiftKey) {
+        if (document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    });
+  },
+
+  // Add lang attribute to HTML element if missing
+  addLangAttribute: function(container) {
+    const htmlElement = container.querySelector('html') || container.ownerDocument?.querySelector('html');
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', getLangAttribute(container));
+      return true;
+    }
+    return false;
+  },
+
+  // Add main landmark if missing
+  addMainLandmark: function(container) {
+    const mainElement = container.querySelector('main, [role="main"]');
+    if (!mainElement) {
+      const body = container.querySelector('body');
+      if (body) {
+        const newMain = document.createElement('main');
+        while (body.firstChild) {
+          newMain.appendChild(body.firstChild);
+        }
+        return true;
+      }
+    }
+    return false;
+  },
+
+  // Fix landmark issues by ensuring proper roles and accessible names
+  fixLandmarkIssues: function(container) {
+    const landmarkElements = container.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+    const processedLandmarks = new Set();
+    let fixesCount = 0;
+
+    landmarkElements.forEach(landmark => {
+      if (processedLandmarks.has(landmark)) return;
+      processedLandmarks.add(landmark);
+
+      if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+        const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+        const previousSibling = landmark.previousElementSibling;
+
+        if (previousSibling && previousSibling.textContent.trim()) {
+          const labelId = `landmark-label-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          const labelSpan = container.ownerDocument.createElement('span');
+          labelSpan.id = labelId;
+          labelSpan.textContent = previousSibling.textContent.trim();
+          labelSpan.style.display = 'none';
+          landmark.parentNode.insertBefore(labelSpan, landmark);
+          landmark.setAttribute('aria-labelledby', labelId);
+        } else {
+          const roleLabel = role.charAt(0).toUpperCase() + role.slice(1).replace(/[^a-zA-Z]/g, ' ');
+          landmark.setAttribute('aria-label', roleLabel);
+        }
+        fixesCount++;
+      }
+    });
+
+    return fixesCount;
+  },
+
+  // Fix fake link issues (elements that look like links but are missing href)
+  fixFakeLinkIssues: function(container) {
+    const uniqueFakeLinksFixed = new Set();
+    const fakeLinks = container.querySelectorAll('a:not([href]), [role="link"]:not([href])');
+    let fixesCount = 0;
+
+    fakeLinks.forEach(element => {
+      if (uniqueFakeLinksFixed.has(element)) return;
+
+      const isNavigation = element.closest('nav') !== null;
+
+      if (isNavigation || element.tagName.toLowerCase() === 'a') {
+        if (!element.hasAttribute('href')) {
+          element.setAttribute('href', '#' + (element.id || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`));
+          element.setAttribute('role', 'link');
+          uniqueFakeLinksFixed.add(element);
+          fixesCount++;
+        }
+      } else {
+        element.setAttribute('role', 'button');
+        if (!element.hasAttribute('tabindex')) {
+          element.setAttribute('tabindex', '0');
+        }
+        uniqueFakeLinksFixed.add(element);
+        fixesCount++;
+      }
+    });
+
+    return fixesCount;
+  },
+
+  // Validate accessibility report
+  validateAccessibilityReport: function(container) {
+    const report = validateAccessibilityReport(container);
+    if (report && report.length > 0) {
+      console.warn(`Accessibility report contains ${report.length} remaining issues`);
+    }
+    return report;
+  },
+
+  // Implement focus trap for keyboard navigation
+  focusTrap: function(container) {
+    this.handleFocusTrap(container);
+  }
+};
 
     if (focusableElements.length === 0) {
       return;
@@ -437,34 +534,46 @@ const a11yStore = {
 
     // Credential response endpoint
     if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
-      let body = '';
+        let body = '';
 
-      req.on('data', chunk => {
-        body += chunk.toString();
-      });
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
 
-      req.on('end', () => {
-        try {
-          const credentialResponse = JSON.parse(body);
-          const result = handleCredentialResponse(credentialResponse);
+        req.on('end', () => {
+            try {
+                const credentialResponse = JSON.parse(body);
+                const result = handleCredentialResponse(credentialResponse);
 
-          res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(result));
-        } catch (error) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
-        }
-      });
-      return;
+                res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(result));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
+            }
+        });
+        return;
     }
 
     // Session validation endpoint
     if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
-      const sessionId = parsedUrl.query.sessionId;
+        const sessionId = parsedUrl.query.sessionId;
 
-      if (!sessionId) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
+        if (!sessionId) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
+            return;
+        }
+
+        const session = validateSession(sessionId);
+
+        if (session) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'valid', user: session.user }));
+        } else {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
+        }
         return;
       }
 
@@ -482,25 +591,25 @@ const a11yStore = {
 
     // Session revocation endpoint
     if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
-      let body = '';
+        let body = '';
 
-      req.on('data', chunk => {
-        body += chunk.toString();
-      });
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
 
-      req.on('end', () => {
-        try {
-          const { sessionId } = JSON.parse(body);
-          const revoked = revokeSession(sessionId);
+        req.on('end', () => {
+            try {
+                const { sessionId } = JSON.parse(body);
+                const revoked = revokeSession(sessionId);
 
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
-        } catch (error) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
-        }
-      });
-      return;
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
+            }
+        });
+        return;
     }
 
     res.writeHead(404, { 'Content-Type': 'application/json' });
@@ -517,126 +626,6 @@ const a11yStore = {
     }
   },
 
-  // Add lang attribute to HTML element if missing
-  addLangAttribute: function(container) {
-    const htmlElement = container.querySelector('html') || container.ownerDocument?.querySelector('html');
-    if (htmlElement && !htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', this.getLangAttribute(container));
-      fixes.langAdded = true;
-    }
-  },
-
-  // Add main landmark if missing
-  addMainLandmark: function(container) {
-    const mainElement = container.querySelector('main, [role="main"]');
-    if (!mainElement) {
-      const body = container.querySelector('body');
-      if (body) {
-        const newMain = document.createElement('main');
-        while (body.firstChild) {
-          newMain.appendChild(body.firstChild);
-        }
-        fixes.mainLandmarkAdded = true;
-      }
-    }
-  },
-
-  // Fix landmark issues by ensuring proper roles and accessible names
-  fixLandmarkIssues: function(container) {
-    const landmarkElements = container.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-    const processedLandmarks = new Set();
-
-    landmarkElements.forEach(landmark => {
-      if (processedLandmarks.has(landmark)) return;
-      processedLandmarks.add(landmark);
-
-      if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
-        const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-        const previousSibling = landmark.previousElementSibling;
-
-        if (previousSibling && previousSibling.textContent.trim()) {
-          const labelId = `landmark-label-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-          const labelSpan = container.ownerDocument.createElement('span');
-          labelSpan.id = labelId;
-          labelSpan.textContent = previousSibling.textContent.trim();
-          labelSpan.style.display = 'none';
-          landmark.parentNode.insertBefore(labelSpan, landmark);
-          landmark.setAttribute('aria-labelledby', labelId);
-        } else {
-          const roleLabel = role.charAt(0).toUpperCase() + role.slice(1).replace(/[^a-zA-Z]/g, ' ');
-          landmark.setAttribute('aria-label', roleLabel);
-        }
-        fixes.landmarksFixed++;
-      }
-    });
-  },
-
-  // Fix fake link issues (elements that look like links but are missing href)
-  fixFakeLinkIssues: function(container) {
-    const uniqueFakeLinksFixed = new Set();
-    const fakeLinks = container.querySelectorAll('a:not([href]), [role="link"]:not([href])');
-    fakeLinks.forEach(element => {
-      if (uniqueFakeLinksFixed.has(element)) return;
-
-      const isNavigation = element.closest('nav') !== null;
-
-      if (isNavigation || element.tagName.toLowerCase() === 'a') {
-        if (!element.hasAttribute('href')) {
-          element.setAttribute('href', '#' + (element.id || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`));
-          element.setAttribute('role', 'link');
-          uniqueFakeLinksFixed.add(element);
-          fixes.fakeLinksFixed++;
-        }
-      } else {
-        element.setAttribute('role', 'button');
-        if (!element.hasAttribute('tabindex')) {
-          element.setAttribute('tabindex', '0');
-        }
-        uniqueFakeLinksFixed.add(element);
-        fixes.fakeLinksFixed++;
-      }
-    });
-  },
-
-  // Validate accessibility report
-  validateAccessibilityReport: function(container) {
-    const report = validateAccessibilityReport(container);
-    if (report && report.length > 0) {
-      log(`Accessibility report contains ${report.length} remaining issues`, 'warn');
-    }
-  },
-
-  // Implement focus trap for keyboard navigation
-  focusTrap: function(container) {
-    handleFocusTrap(container);
-  },
-
-  logFixes: function(fixes) {
-    if (fixes.langAdded) {
-      log('Lang attribute added to HTML element', 'info');
-    }
-
-    if (fixes.mainLandmarkAdded) {
-      log('Main landmark added', 'info');
-    }
-
-    const landmarkFixesCount = fixes.landmarksFixed || 0;
-    if (landmarkFixesCount > 0) {
-      log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info');
-    }
-
-    const svgFixes = fixes.svgNamesAdded || 0;
-    if (svgFixes > 0) {
-      log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
-    }
-
-    const fakeLinkFixes = fixes.fakeLinksFixed || 0;
-    if (fakeLinkFixes > 0) {
-      log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
-    }
-  }
-};
-
 // Export modules for testing
 exports: {
   createInPageButton,
@@ -645,16 +634,16 @@ exports: {
   validateLandmarkStructure,
   validateAccessibilityReport,
   validateTableAccessibility,
-  renderDependencyGraph: a11yStore.renderDependencyGraph.bind(a11yStore),
-  renderIndex: a11yStore.renderIndex.bind(a11yStore),
-  renderGraphIndex: a11yStore.renderGraphIndex.bind(a11yStore),
-  newFunction: a11yStore.newFunction.bind(a11yStore),
-  checkLandmarkElement: a11yStore.checkLandmarkElement.bind(a11yStore),
-  wrapPrimaryContentInMain: a11yStore.wrapPrimaryContentInMain.bind(a11yStore),
-  checkLandmarks: a11yStore.checkLandmarks.bind(a11yStore),
-  ensureUniqueLandmarks: a11yStore.ensureUniqueLandmarks.bind(a11yStore),
-  handleFocusTrap: a11yStore.handleFocusTrap.bind(a11yStore),
-  revokeSession: a11yStore.revokeSession.bind(a11yStore),
+  renderDependencyGraph: a11yStore.renderDependencyGraph,
+  renderIndex: a11yStore.renderIndex,
+  renderGraphIndex: a11yStore.renderGraphIndex,
+  newFunction: a11yStore.newFunction,
+  checkLandmarkElement: a11yStore.checkLandmarkElement,
+  wrapPrimaryContentInMain: a11yStore.wrapPrimaryContentInMain,
+  checkLandmarks: a11yStore.checkLandmarks,
+  ensureUniqueLandmarks: a11yStore.ensureUniqueLandmarks,
+  handleFocusTrap: a11yStore.handleFocusTrap,
+  revokeSession: a11yStore.revokeSession,
   functionA,
   functionB
 };

@@ -45,87 +45,11 @@ export function ... {
   });
 }
 
-/**
- * Address accessibility issues from insight report.
- * Handles REACT_015, REACT_017, REACT_025, REACT_027, REACT_036, REACT_041
- * @returns {Object} Report of addressed issues
- */
-export function addressAccessibilityIssuesFromReport() {
-  const report = {
-    addressed: [],
-    warnings: [],
-    errors: []
-  };
-
-  try {
-    // REACT_015: Ensure HTML element has a lang attribute
-    const htmlElement = document.documentElement;
-    if (htmlElement && !htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', 'en');
-      report.addressed.push('REACT_015: Added lang attribute to HTML element');
-    }
-
-    // REACT_017 & REACT_025: Validate landmark elements and ensure uniqueness
-    const landmarkElements = [...document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside, section')];
-    const landmarkNames = new Map();
-    landmarkElements.forEach((landmark, index) => {
-      // Ensure landmark has a unique ID
-      if (!landmark.id) {
-        landmark.id = `landmark-${index}`;
-      }
-
-      // Ensure unique accessible names for duplicate landmarks
-      const accessibleName = landmark.getAttribute('aria-label') ||
-                             landmark.getAttribute('aria-labelledby') ||
-                             landmark.tagName.toLowerCase();
-      const count = landmarkNames.get(accessibleName) || 0;
-      landmarkNames.set(accessibleName, count + 1);
-      if (count > 0 && landmark.hasAttribute('aria-label')) {
-        landmark.setAttribute('aria-label', `${accessibleName}-${count + 1}`);
-      }
-    });
-    report.addressed.push('REACT_017: Validated landmark elements');
-    report.addressed.push('REACT_025: Ensured unique landmarks');
-
-    // REACT_027: Validate table structures
-    const tables = document.querySelectorAll('table');
-    tables.forEach((table, tableIndex) => {
-      const hasCaption = table.querySelector('caption') !== null;
-      const hasHeaders = table.querySelectorAll('th').length > 0;
-      if (!hasCaption) {
-        report.warnings.push(`Table ${tableIndex}: Missing caption element`);
-      }
-      if (!hasHeaders) {
-        report.warnings.push(`Table ${tableIndex}: Missing th elements`);
-      }
-    });
-    report.addressed.push('REACT_027: Validated table structures');
-
-    // REACT_036: Fix fake link issues
-    const fakeLinks = document.querySelectorAll('.fake-link, a[role="button"]:not([href])');
-    fakeLinks.forEach(link => {
-      link.setAttribute('role', 'presentation');
-    });
-    report.addressed.push('REACT_036: Fixed fake link issues');
-
-    // REACT_041: Add accessible names to SVGs
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg, svgIndex) => {
-      if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-        svg.setAttribute('aria-label', `SVG content ${svgIndex + 1}`);
-        svg.setAttribute('role', 'img');
-      }
-    });
-    report.addressed.push('REACT_041: Added accessible names to SVGs');
-
-    // Run general link and button accessibility check
-    checkLinkAndButtonAccessibility();
-    report.addressed.push('General: Validated link and button accessibility');
-  } catch (error) {
-    report.errors.push(`Error addressing accessibility issues: ${error.message}`);
-  }
-
-  return report;
+// Function to prepare data for graph rendering
+function prepareDataForGraph() {
+  // Placeholder implementation - returns empty object
+  // Replace with actual data preparation logic
+  return {};
 }
 
 // Function to render graph/index using new functions
@@ -319,7 +243,50 @@ const a11yStore = {
 //_Commit: 8c3a9295a6bf382e113f3e8184d40223b3f3f8d5_
 //<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
-export { addLandmarkRegions };
+// Add proper landmark regions for accessibility
+export function addLandmarkRegions() {
+  // Add main landmark
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.hasAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  // Add banner landmark for header
+  const headerElement = document.querySelector('header');
+  if (headerElement && !headerElement.hasAttribute('role')) {
+    headerElement.setAttribute('role', 'banner');
+  }
+
+  // Add contentinfo landmark for footer
+  const footerElement = document.querySelector('footer');
+  if (footerElement && !footerElement.hasAttribute('role')) {
+    footerElement.setAttribute('role', 'contentinfo');
+  }
+
+  // Add navigation landmarks
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    if (!nav.hasAttribute('aria-label')) {
+      nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : `Navigation ${index + 1}`);
+    }
+  });
+}
+
+// Get lang attribute from HTML element
+export function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    return htmlElement.getAttribute('lang');
+  }
+  return null;
+}
+
+// Wrap primary content in main element for accessibility
+export function wrapPrimaryContentInMain(content) {
+  const main = document.createElement('main');
+  main.innerHTML = content;
+  return main;
+}
 
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 // export function calculateSum(a, b) { return a + b; }
@@ -473,6 +440,7 @@ export { addressAccessibilityIssues };
 module.exports.getLangAttribute = getLangAttribute;
 module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+module.exports.addLandmarkRegions = addLandmarkRegions;
 
 // ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
 
@@ -499,19 +467,5 @@ module.exports.loop = function() {
         var newName = 'Upgrader' + Game.time;
         Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
             {memory: {role: 'upgrader'}});
-    }
-
-    for(var name in Game.rooms) {
-        console.log('Room "'+name+'" has ' + Game.rooms[name].energyAvailable + ' energy');
-    }
-
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if (creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if (creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
     }
 };

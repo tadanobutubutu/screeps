@@ -550,6 +550,52 @@ function newFocusTrap() {
   // Implementation for focus trap to manage keyboard navigation
 }
 
+// Implement a new function to handle focus trap for keyboard navigation
+function newFocusTrap(element) {
+  let focusableElements;
+  let firstFocusableElement;
+  let lastFocusableElement;
+  let isTabbingForward;
+
+  function trapFocus(event) {
+    if (event.key === 'Tab') {
+      isTabbingForward = event.shiftKey ? false : true;
+
+      if (isTabbingForward && document.activeElement === lastFocusableElement) {
+        firstFocusableElement.focus();
+        event.preventDefault();
+      } else if (!isTabbingForward && document.activeElement === firstFocusableElement) {
+        lastFocusableElement.focus();
+        event.preventDefault();
+      }
+    }
+  }
+
+  function getFocusableElements() {
+    focusableElements = element.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  }
+
+  function getFirstFocusableElement() {
+    firstFocusableElement = focusableElements[0];
+  }
+
+  function getLastFocusableElement() {
+    lastFocusableElement = focusableElements[focusableElements.length - 1];
+  }
+
+  element.addEventListener('keydown', trapFocus);
+  getFocusableElements();
+  getFirstFocusableElement();
+  getLastFocusableElement();
+
+  return {
+    trapFocus: trapFocus,
+    getFocusableElements: getFocusableElements,
+    getFirstFocusableElement: getFirstFocusableElement,
+    getLastFocusableElement: getLastFocusableElement
+  };
+}
+
 // Ensure accessibility improvements are applied
 enhanceAddBookAccessibility();
 
@@ -561,4 +607,5 @@ function newFocusTrap() {
 // Export all functions for testing and external use
 module.exports = {
   // ... (export all functions)
+  newFocusTrap: newFocusTrap
 };

@@ -32,13 +32,6 @@ function newFunction() {
   return 'newFunction executed';
 }
 
-// Initialize accessibility features
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    addressAccessibilityIssues();
-  });
-}
-
 // Preserve existing code
 const preserveExistingCode = () => {
   return 'existing code preserved';
@@ -52,29 +45,13 @@ function prepareDataForGraph() {
   return { /* prepared data */ };
 }
 
+// Helper function for renderGraphIndex
+function prepareDataForGraph() {
+  // Placeholder for data preparation
+  return { nodes: [], edges: [] };
+}
+
 // Function to render graph/index using new functions
-function prepareDataForGraph() {
-  // JavaScript code to prepare data for the graph
-  return {};
-}
-
-// Render the graph using the new functions
-function renderGraph(data) {
-  console.log('Rendering graph with data:', data);
-}
-
-function renderGraph(data) {
-  // Render the graph using the data
-  console.log('Rendering graph with data:', data);
-}
-
-function prepareDataForGraph() {
-  // JavaScript code to prepare data for the graph
-  const data = { nodes: [], edges: [] };
-  return data;
-}
-
-// Function to render graph/index
 function renderGraphIndex() {
   // JavaScript code to prepare data for the graph
   const data = prepareDataForGraph();
@@ -324,7 +301,26 @@ module.exports = {
 
 // ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
 
-module.exports.loop = function() {
+// Default export for backwards compatibility
+const defaultExport = {
+  calculateSum,
+  calculateDifference,
+  calculateProduct,
+  isNumber,
+  clamp,
+  newFunction,
+  addressAccessibilityIssues,
+  preserveExistingCode,
+  initializeApp,
+  generateAccessibilityReport,
+  start() {
+    console.log('Application started');
+    return Promise.resolve();
+  }
+};
+
+// Screeps bot main loop
+function loop() {
     // Clear the memory of dead creeps
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
@@ -363,3 +359,39 @@ module.exports.loop = function() {
         }
     }
 }
+
+// Export all utility functions for both environments
+module.exports = {
+  // Math functions
+  calculateSum,
+  calculateDifference,
+  calculateProduct,
+  isNumber,
+  clamp,
+  divide,
+  
+  // Accessibility functions
+  checkAccessibilityAttribute,
+  ensureAccessibleLabel,
+  validateFocusableElement,
+  
+  // Core functions
+  renderDependencyGraph,
+  renderIndexView,
+  newFunction,
+  preserveExistingCode,
+  addressAccessibilityIssues,
+  renderGraphIndex,
+  prepareDataForGraph,
+  rotateBack,
+  
+  // Backwards compatibility
+  defaultExport,
+  logger,
+  initializeApp,
+  generateAccessibilityReport,
+  addressAccessibilityIssuesDOM,
+  
+  // Screeps
+  loop
+};

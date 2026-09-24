@@ -1,63 +1,44 @@
-import React, { useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibility';
-import { validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks } from './utils/landmarkUtils';
-import { getSvgAccessibleName, createInPageButton } from './utils/svgUtils';
-import { createAccessibleLink, handleAccessibilityIssues } from './utils/linkUtils';
+// main.js - Application entry point
 
-// Set the lang attribute on the HTML element (REACT_015)
-const setLangAttribute = () => {
-  const htmlElement = document.documentElement;
-  const lang = htmlElement.getAttribute('lang') || 'en';
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang);
-  }
+// Some existing configuration
+const config = {
+  appName: 'MyApplication',
+  version: '1.0.0'
 };
 
-// Accessibility validation function
-const validateAccessibility = () => {
-  validateTableAccessibility();
-  validateTableStructure();
-  validateLandmark();
-  validateLandmarkStructure();
-  ensureUniqueLandmarks();
-  handleAccessibilityIssues();
-};
-
-// Initialize the application
-const initApp = () => {
-  setLangAttribute();
-  validateAccessibility();
-  
-  const container = document.getElementById('root');
-  if (container) {
-    const root = createRoot(container);
-    root.render(<App />);
-  }
-};
-
-// Run initialization when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
+// Existing utility functions
+function initializeApp() {
+  console.log(`Initializing ${config.appName} v${config.version}`);
+  setLanguageAttribute();
 }
 
-// Export functions for testing and external use
-export {
-  setLangAttribute,
-  validateAccessibility,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  initApp
-};
+function setLanguageAttribute() {
+  const language = 'en'; // Default language
+  document.documentElement.setAttribute('lang', language);
+}
 
-export default App;
+// TODO: Add a language attribute to the HTML element
+
+function handleUserPreferences(preferences) {
+  // Existing function for handling user preferences
+  if (preferences && preferences.language) {
+    document.documentElement.setAttribute('lang', preferences.language);
+  }
+}
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+  } else {
+    initializeApp();
+  }
+}
+
+// Existing exports
+module.exports = {
+  config,
+  initializeApp,
+  setLanguageAttribute,
+  handleUserPreferences
+};

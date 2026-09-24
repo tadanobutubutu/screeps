@@ -360,19 +360,30 @@ function ... {
 function fixFakeLinks(html) {
     if (typeof html !== 'string') return html;
 
-    // Find spans or divs with onclick that act as links and convert to <a>
+    // Find <a href="#"> elements and convert them to <button> elements
+    // This fixes "React Fake Link" accessibility issues where hash-only hrefs
+    // don't navigate anywhere and cause screen readers to announce dead links
+    
+    // Pattern to match <a href="#"> or <a href="#" ...> tags with href="#" only
     html = html.replace(
-        ...
-        (match, before, onclick, after) => {
-            const hrefMatch = ...
-            if (hrefMatch) {
-                return `<a ...
-            }
-            return match;
+        /<a(\s+[^>]*)?\shref="#"([^>]*)>/gi,
+        (match, attrsBefore, attrsAfter) => {
+            // Extract all attributes and rebuild, removing href="#" but keeping other attributes
+            const allAttrs = (attrsBefore || '') + (attrsAfter || '');
+            // Remove href="#" from attributes
+            const cleanAttrs = allAttrs.replace(/\s*href="#"/gi, '').trim();
+            return cleanAttrs ? `<a${cleanAttrs}>` : '<button>';
         }
     );
 
-    html = ... '</a>');
+    // Convert closing </a> tags that follow button openings to </button>
+    html = html.replace(/<\/a>/gi, '</button>');
+
+    // Additional pattern: handle cases where href="#" is the only attribute
+    html = html.replace(
+        /<a\s+href="#"\s*>/gi,
+        '<button>'
+    );
 
     return html;
 }
@@ -396,89 +407,3 @@ function ... {
   }
   console.log('Addressing accessibility issues from insight report:', insightReport);
 }
-
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
-    ...
-}
-
-// New function to address accessibility issues
-function addressAccessibilityIssues() {
-  // Implement the changes required to address accessibility issues from the insight report
-  // For example, this could be calling existing utility functions to validate accessibility
-  const linkIssues = checkLinkAccessibility();
-  const tableIssues = validateTableAccessibility();
-  const tableStructureIssues = validateTableStructure();
-  const linkAccessibilityIssues = ...
-  const fakeLinkIssues = handleFakeLinks();
-
-  // Handle issues (e.g., log them, display warnings, etc.)
-  // For demonstration purposes, we will just log the issues to the console
-  console.log('Link Accessibility Issues:', linkIssues);
-  console.log('Table Accessibility Issues:', tableIssues);
-  console.log('Table Structure Issues:', tableStructureIssues);
-  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
-  console.log('Fake Link Issues:', fakeLinkIssues);
-
-  // Here you could add additional logic to address the issues
-  // For example, you might want to update the DOM or call other functions
-}
-
-// New functions for rendering graph/index
-/**
- * Renders a dependency graph visualization
- * @param {HTMLElement} container - The container element to render the graph in
- * @param {Object} data - The data to visualize in the graph
- * @param {Object} options - Configuration options for the graph
- */
-function renderDependencyGraph(container, data, options = {}) {
-    if (!container || !(container instanceof HTMLElement)) {
-        throw new Error('Invalid container element provided');
-    }
-
-// Export accessibility utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  checkLinkAccessibility,
-  newFunction,
-  addressAccessibilityIssues,
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarks,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinks,
-  applyAccessibilityFixes,
-  divide,
-  wrapPrimaryContentInMain,
-  spawnEntity,
-  calculateDiscount
-};
-
-    // Clear the container
-    container.innerHTML = '';
-
-    // Create a canvas element for the graph
-    const canvas = ...
-    canvas.width = options.width || 800;
-    canvas.height = options.height || 600;
-    ...
-
-    // Add accessibility attributes
-    ... 'img');
-    ... options.ariaLabel || 'Dependency graph visualization');
-
-    // Here you would typically use a graphing library to render the actual graph
-    // For demonstration purposes, we'll just draw a simple placeholder
-    const ctx = ...
-    ctx.fillStyle = '#f0f0f0';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle

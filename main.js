@@ -8,121 +8,45 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 /**
- * Gets the language attribute for the HTML element
- * @returns {string} The lang attribute value
+ * Adds accessibility attributes to an SVG element
+ * @param {SVGElement} svgElement - The SVG element to enhance
+ * @param {Object} options - Configuration options
+ * @param {string} options.title - Accessible title for the SVG
+ * @param {string} [options.desc] - Optional description for the SVG
+ * @param {boolean} [options.focusable=false] - Whether the SVG should be focusable
+ * @returns {SVGElement} The enhanced SVG element
  */
-function getLangAttribute() {
-  // Implementation to get language attribute
-  return 'en'; // Example implementation
+function addSvgAccessibilityProps(svgElement, { title, desc, focusable = false }) {
+  if (!svgElement || !(svgElement instanceof SVGElement)) {
+    console.warn('Invalid SVG element provided');
+    return svgElement;
+  }
+
+  // Add ARIA attributes
+  svgElement.setAttribute('role', 'img');
+  svgElement.setAttribute('aria-hidden', 'false');
+
+  // Add title if provided
+  if (title) {
+    const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    titleElement.textContent = title;
+    svgElement.insertBefore(titleElement, svgElement.firstChild);
+  }
+
+  // Add description if provided
+  if (desc) {
+    const descElement = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    descElement.textContent = desc;
+    svgElement.insertBefore(descElement, svgElement.firstChild);
+  }
+
+  // Set focusability
+  svgElement.setAttribute('focusable', focusable ? 'true' : 'false');
+
+  return svgElement;
 }
 
-/**
- * Gets the full language attribute including region if available
- * @returns {string} The full lang attribute value
- */
-function getFullLangAttribute() {
-  // Implementation to get full language attribute
-  return 'en-US'; // Example implementation
-}
-
-/**
- * Validates table accessibility
- * @param {HTMLElement} tableElement - The table element to validate
- * @returns {boolean} True if table is accessible
- */
-function validateTableAccessibility(tableElement) {
-  // Implementation to validate table accessibility
-  return true; // Example implementation
-}
-
-/**
- * Validates table structure
- * @param {HTMLElement} tableElement - The table element to validate
- * @returns {boolean} True if table structure is valid
- */
-function validateTableStructure(tableElement) {
-  // Implementation to validate table structure
-  return true; // Example implementation
-}
-
-/**
- * Validates landmark elements
- * @param {HTMLElement} element - The element to validate
- * @returns {boolean} True if landmark is valid
- */
-function validateLandmark(element) {
-  // Implementation to validate landmark
-  return true; // Example implementation
-}
-
-/**
- * Validates landmark structure
- * @param {HTMLElement} element - The element to validate
- * @returns {boolean} True if landmark structure is valid
- */
-function validateLandmarkStructure(element) {
-  // Implementation to validate landmark structure
-  return true; // Example implementation
-}
-
-/**
- * Ensures unique landmarks in the document
- * @returns {boolean} True if all landmarks are unique
- */
-function ensureUniqueLandmarks() {
-  // Implementation to ensure unique landmarks
-  return true; // Example implementation
-}
-
-/**
- * Gets accessible name for SVG elements
- * @param {HTMLElement} svgElement - The SVG element
- * @returns {string} The accessible name
- */
-function getSvgAccessibleName(svgElement) {
-  // Implementation to get SVG accessible name
-  return 'Accessible name'; // Example implementation
-}
-
-/**
- * Creates an accessible in-page button
- * @param {string} text - Button text
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(text) {
-  // Implementation to create accessible button
-  const button = document.createElement('button');
-  button.textContent = text;
-  button.setAttribute('aria-label', text);
-  return button;
-}
-
-/**
- * Creates an accessible link
- * @param {string} href - Link URL
- * @param {string} text - Link text
- * @returns {HTMLElement} The created link element
- */
-function createAccessibleLink(href, text) {
-  // Implementation to create accessible link
-  const link = document.createElement('a');
-  link.href = href;
-  link.textContent = text;
-  link.setAttribute('aria-label', text);
-  return link;
-}
-
-/**
- * Handles general accessibility issues
- * @param {HTMLElement} element - The element to check
- * @returns {boolean} True if issues were handled
- */
-function handleAccessibilityIssues(element) {
-  // Implementation to handle accessibility issues
-  return true; // Example implementation
-}
-
-// Export all functions
+// Export all existing functions
 export {
   getLangAttribute,
   getFullLangAttribute,
@@ -134,5 +58,6 @@ export {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-  handleAccessibilityIssues
+  handleAccessibilityIssues,
+  addSvgAccessibilityProps // New export
 };

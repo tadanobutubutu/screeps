@@ -19,14 +19,8 @@ import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessib
  */
 function function3(html) {
     if (typeof html !== 'string') return html;
-    return html;
-}
-
-// REACT_015: Add lang attribute to the <html> element
-function ... lang = 'en') {
-    if (typeof html !== 'string') return html;
-    return ... (match, attrs) => {
-        if ... return match;
+    return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+        if (/lang=/i.test(attrs)) return match;
         return `<html${attrs} lang="${lang}">`;
     });
 }
@@ -56,7 +50,7 @@ function ... {
         let tbody = restRows;
 
         if (!firstRowHasTh) {
-            thead = ... '<th ... '</th>')}</thead>`;
+            thead = `<thead><tr>${firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>')}</tr></thead>`;
         } else {
             thead = ...
         }
@@ -68,8 +62,8 @@ function ... {
     });
 
     // Add scope="col" to th elements that don't have it
-    html = ... (match, attrs) => {
-        if ... return match;
+    html = html.replace(/<th([^>]*)>/gi, (match, attrs) => {
+        if (/scope=/i.test(attrs)) return match;
         return `<th${attrs} scope="col">`;
     });
 
@@ -104,24 +98,24 @@ function fixLandmarks(html) {
     if (typeof html !== 'string') return html;
 
     // Ensure <main> landmark exists
-    if ... && ... {
-        html = ... '<body$1><main>');
-        html = ... '</main></body>');
+    if (!/<main/i.test(html) && /<body/i.test(html)) {
+        html = html.replace(/<body([^>]*)>/i, '<body$1><main>');
+        html = html.replace(/<\/body>/i, '</main></body>');
     }
 
     // Ensure <nav> landmark exists
-    if ... && ... {
-        html = ... '<nav aria-label="Main navigation"></nav><main>');
+    if (!/<nav/i.test(html) && /<body/i.test(html)) {
+        html = html.replace(/<body([^>]*)>/i, '<body$1><nav aria-label="Main navigation"></nav><main>');
     }
 
     // Ensure <aside> landmark exists if content suggests a sidebar
-    if ... && ... {
-        html = ... '<aside ...
+    if (!/<aside/i.test(html) && /sidebar|related|additional/i.test(html)) {
+        html = html.replace(/<body([^>]*)>/i, '<body$1><aside></aside>');
     }
 
     // Ensure <footer> landmark exists
-    if ... && ... {
-        html = ... '<footer></footer></body>');
+    if (!/<footer/i.test(html) && /<body/i.test(html)) {
+        html = html.replace(/<\/body>/i, '<footer></footer></body>');
     }
 
     return html;
@@ -131,10 +125,10 @@ function fixLandmarks(html) {
 function ... {
     if (typeof html !== 'string') return html;
 
-    const svgMatches = ...
+    const svgMatches = html.match(/<svg[^>]*>/gi);
     let offset = 0;
 
-    ... index) => {
+    (svgMatches || []).forEach((match, index) => {
         const fullMatch = match[0];
         const attrs = match[1];
         const svgStart = match.index + offset;
@@ -162,7 +156,7 @@ function ... {
 function checkLinkAccessibility() {
     // Implementation for checking link accessibility
     // This function will be used to validate the accessibility of links
-    const links = ...
+    const links = document.querySelectorAll('a');
     const issues = [];
 
     links.forEach((link) => {
@@ -230,7 +224,7 @@ function wrapPrimaryContentInMain() {
     }
 
     // Check if a <main> element already exists to avoid duplication
-    const existingMain = document.querySelector('main');
+    const existingMain = body.querySelector('main');
     if (existingMain) {
         return existingMain;
     }
@@ -263,8 +257,8 @@ function ensureUniqueLandmarks(html) {
         'form',
     ];
 
-    landmarkRoles.forEach((role) => {
-        const pattern = new RegExp(`role=["']${role}["']`, 'gi');
+    landmarkRoles.forEach(role => {
+        const pattern = new RegExp(`role="${role}"`, 'gi');
         const matches = html.match(pattern);
         if (matches && matches.length > 1) {
             // Keep first occurrence, change subsequent ones
@@ -279,8 +273,8 @@ function ensureUniqueLandmarks(html) {
 
     // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
     const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-    html5Landmarks.forEach((tag) => {
-        const pattern = new RegExp(`<${tag}[^>]*>`, 'gi');
+    html5Landmarks.forEach(tag => {
+        const pattern = new RegExp(`<${tag}`, 'gi');
         const matches = html.match(pattern);
         if (matches && matches.length > 1) {
             // Keep first, add role="region" to others
@@ -302,9 +296,9 @@ function fixFakeLinks(html) {
 
     // Find spans or divs with onclick that act as links and convert to <a>
     html = html.replace(
-        /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
-        (match, before, onclick, after) => {
-            const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
+        /<(span|div)([^>]*)onclick\s*=\s*["'][^"']*window\.location[^"']*["']([^>]*)>/gi,
+        (match, tag, before, after) => {
+            const hrefMatch = match.match(/window\.location(?:\s*\??\.)?\s*\(?['"]([^'"]+)['"]/);
             if (hrefMatch) {
                 return `<a href="${hrefMatch[1]}"${before}${after}>`;
             }
@@ -312,7 +306,7 @@ function fixFakeLinks(html) {
         }
     );
 
-    html = html.replace(/<\/span>/gi, '</a>');
+    html = html.replace(/(<(?:span|div)[^>]*>)([\s\S]*?)(<\/(?:span|div)>)/gi, '<a$2</a>');
 
     return html;
 }
@@ -325,66 +319,3 @@ function applyAccessibilityFixes(html) {
     result = fixLandmarks(result);
     result = addSvgAccessibleNames(result);
     result = ensureUniqueLandmarks(result);
-    result = fixFakeLinks(result);
-    return result;
-}
-
-// Address accessibility issues - handles both insight report and standalone usage
-function addressAccessibilityIssues(insightReport) {
-  // Handle case when called with insightReport parameter
-  if (insightReport && insightReport.html) {
-    insightReport.html = applyAccessibilityFixes(insightReport.html);
-    console.log('Addressing accessibility issues from insight report:', insightReport);
-    return;
-  }
-  
-  // Original standalone functionality
-  const linkIssues = checkLinkAccessibility();
-  const tableIssues = validateTableAccessibility();
-  const tableStructureIssues = validateTableStructure();
-  const linkAccessibilityIssues = validateLinkAccessibility();
-  const fakeLinkIssues = handleFakeLinks();
-
-  // Handle issues (e.g., log them, display warnings, etc.)
-  console.log('Link Accessibility Issues:', linkIssues);
-  console.log('Table Accessibility Issues:', tableIssues);
-  console.log('Table Structure Issues:', tableStructureIssues);
-  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
-  console.log('Fake Link Issues:', fakeLinkIssues);
-}
-
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
-    document.body.appendChild(button);
-}
-
-// Export accessibility utility functions
-module.exports = {
-    addLangAttribute,
-    fixTableStructure,
-    fixLandmarks,
-    addSvgAccessibleNames,
-    ensureUniqueLandmarks,
-    fixFakeLinks,
-    applyAccessibilityFixes,
-    addressAccessibilityIssues,
-    createInPageButton,
-    divide,
-    checkLinkAccessibility,
-    wrapPrimaryContentInMain,
-    getLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    newFunction,
-    function3,
-};
-
-// Run if executed directly
-if (require.main === module) {
-    main();
-}

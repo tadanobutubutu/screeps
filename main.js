@@ -268,15 +268,19 @@ function renderIndexView(data, options = {}) {
       if (!table.querySelector('thead') || !table.querySelector('tbody')) {
         const thead = document.createElement('thead');
         const tbody = document.createElement('tbody');
-        const rows = table.querySelectorAll('tr');
+        const firstRow = table.querySelector('tr');
 
-        if (rows.length > 0) {
-          thead.appendChild(rows[0]);
-          rows.forEach((row, index) => {
-            if (index > 0) tbody.appendChild(row);
-          });
+        if (firstRow) {
+          thead.appendChild(firstRow);
           table.insertBefore(thead, table.firstChild);
           table.appendChild(tbody);
+          // Move remaining rows to tbody
+          const rows = table.querySelectorAll('tr');
+          rows.forEach(row => {
+            if (row !== firstRow) {
+              tbody.appendChild(row);
+            }
+          });
         }
       }
     });
@@ -304,20 +308,18 @@ function renderIndexView(data, options = {}) {
     }
   },
 
-  addSvgAccessibleNames: (svgs) => {
+  addSvgAccessibility: (svgs) => {
     svgs.forEach(svg => {
-      if (!svg.hasAttribute('aria-label') && !svg.querySelector('title, desc')) {
-        const title = document.createElement('title');
-        title.textContent = 'Graphic element';
-        svg.insertBefore(title, svg.firstChild);
+      if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-hidden')) {
+        svg.setAttribute('aria-hidden', 'true');
       }
     });
   },
 
   ensureUniqueLandmarks: () => {
-    const landmarks = ['main', 'navigation', 'banner', 'contentinfo'];
-    landmarks.forEach(role => {
-      const elements = document.querySelectorAll(`[role="${role}"]`);
+    const landmarks = ['main', 'nav', 'header', 'footer'];
+    landmarks.forEach(landmark => {
+      const elements = document.querySelectorAll(`[role="${landmark}"]`);
       if (elements.length > 1) {
         elements.forEach((el, index) => {
           if (index > 0) {
@@ -330,8 +332,59 @@ function renderIndexView(data, options = {}) {
 
   fixFakeLinks: (links) => {
     links.forEach(link => {
-      if (link.getAttribute('href') === '#' && !link.hasAttribute('role')) {
+      if (link.getAttribute('href') === '#' || !link.getAttribute('href')) {
         link.setAttribute('role', 'button');
+        link.setAttribute('tabindex', '0');
+      }
+    });
+  },
+
+  // Function to validate all accessibility fixes
+  validateAccessibilityReport: () => {
+    // REACT_015: Check lang attribute
+    const htmlElement = document.querySelector('html');
+    if (!htmlElement || !htmlElement.hasAttribute('lang')) {
+      console.warn('REACT_015: Missing lang attribute on HTML element');
+    }
+
+    // REACT_027: Check table structure
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+        console.warn('REACT_027: Table missing thead or tbody structure');
+      }
+    });
+
+    // REACT_017: Check landmarks
+    const landmarks = ['main', 'nav', 'header', 'footer'];
+    landmarks.forEach(landmark => {
+      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+      if (elements.length === 0) {
+        console.warn(`REACT_017: Missing ${landmark} landmark`);
+      }
+    });
+
+    // REACT_041: Check SVGs
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-hidden')) {
+        console.warn('REACT_041: SVG missing accessibility attributes');
+      }
+    });
+
+    // REACT_025: Check unique landmarks
+    landmarks.forEach(landmark => {
+      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+      if (elements.length > 1) {
+        console.warn(`REACT_025: Multiple ${landmark} landmarks found`);
+      }
+    });
+
+    // REACT_036: Check fake links
+    const links = document.querySelectorAll('a');
+    links.forEach(link => {
+      if (link.getAttribute('href') === '#' || !link.getAttribute('href')) {
+        console.warn('REACT_036: Fake link found');
       }
     });
   }

@@ -1,35 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// main.js - Main application entry point
-// TODO: Address accessibility issues from insight report — FIXED
-// TODO: Add back any required exports that might have been removed.
-
-// main.js - Main application entry point
-// This file initializes the application and exports core modules
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// Main application entry point
-// This file initializes the application and exports core modules
-
-const { getDepGraph } = require('./depGraph');
-const {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableStructure,
-  createAccessibleLink,
-} = require('./accessibility-helpers');
-
-const { class1, address, Object1 } = require('./components');
-
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
 

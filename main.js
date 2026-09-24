@@ -180,16 +180,23 @@ function startApp() {
 }
 
 /**
- * Gets the health status of the server
- * @returns {Object} Health status object
+ * Adds a lang attribute to the HTML element if it's not present
  */
-function getHealthStatus() {
-  return {
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    environment: config.env,
-    uptime: process.uptime ? process.uptime() : 0
-  };
+function getLangAttribute() {
+  // Assuming 'document' is available in the context
+  if (!document.lang) {
+    document.lang = 'en'; // Default to English if lang attribute is missing
+  }
+}
+
+/**
+ * Creates an in-page button element with the appropriate attributes
+ */
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.textContent = 'Click me';
+  button.setAttribute('lang', 'en'); // Ensure the button has the lang attribute
+  document.body.appendChild(button);
 }
 
 // Export functions for testing
@@ -197,7 +204,8 @@ module.exports = {
   createServer,
   startApp,
   config,
-  newFunction // Add this new export for testing
+  getLangAttribute,
+  createInPageButton
 };
 
 // Function to render graph/index using new functions

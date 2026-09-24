@@ -242,4 +242,73 @@ let uniqueLandmarks = {};
 function fixUniqueLandmarks(insightReport = {}) {
   const issues = insightReport.issues || [];
 
-  main();
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_025') {
+      const element = document.querySelector(issue.selector);
+
+      if (element && issue.ariaRole) {
+        uniqueLandmarks[issue.ariaRole] = element;
+      }
+    }
+  });
+
+  uniqueLandmarks = Object.values(uniqueLandmarks);
+
+  // Check if all landmarks are unique and re-add if necessary
+  ensureUniqueLandmarks();
+}
+
+function implementNewFunction() {
+  addressAccessibilityIssues();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+  addLangAttribute();
+  fixTableStructureIssues();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixTableHeaderCellScope();
+  fixUniqueLandmarks();
+}
+
+function main() {
+  console.log('Running main application');
+  implementNewFunction(); // Address accessibility issues from insight report
+  return someFunction();
+}
+
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+function someFunction() {
+  return null;
+}
+
+module.exports = {
+  config,
+  logger,
+  improveAccessibility,
+  addressInsightReportIssues,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  fixLandmarkIssues,
+  addLandmarkRoles,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  implementNewFunction,
+  addLangAttribute,
+  main,
+  addressAccessibilityIssues,
+  renderDependencyGraphContent,
+  renderGraphContentWithOptions,
+  renderIndexContentWithOptions,
+  fixUniqueLandmarks,
+  capitalizeFirstLetter
+};
+
+main();

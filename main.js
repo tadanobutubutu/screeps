@@ -237,8 +237,11 @@ const {
   addressAccessibilityIssues
 } = ...
 
-// TODO: This is the existing code that needs to be preserved
-// Commit: 92f16398f621c21f54d5412797665a733930c872
+// Main entry point - renamed to avoid conflict with imported main
+function initializeApp() {
+  // Application initialization
+  return 'main function executed';
+}
 
 /**
  * Detects the language from content and sets it on the document's <html> element

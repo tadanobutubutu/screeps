@@ -121,6 +121,11 @@ function ensureThScope() {
 const landmarks = [];
 
 // TODO: This is the existing code that needs to be preserved
+// Line 7
+// Line 8
+// Line 9
+// Line 10
+
 // TODO: Implement spawning logic
 function spawnNewUser(name, age) {
     const newUser = new User(name, age);

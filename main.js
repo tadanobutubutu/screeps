@@ -703,113 +703,41 @@ export {
   createInPageButtons
 };
 
-// New accessibility functions added to address the issues
-
-// Function to ensure the document has a lang attribute
-function ensureDocumentLangAttribute() {
-  if (!document.documentElement.hasAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
+// New function to check landmark elements
+/**
+ * Checks if a landmark element exists in the document with the specified role.
+ * @param {string} role - The ARIA role of the landmark to check for.
+ * @returns {boolean} - Returns true if the landmark element exists, false otherwise.
+ */
+function checkLandmarkByRole(role) {
+  if (!role || typeof role !== 'string') {
+    console.error('Invalid role provided');
+    return false;
   }
-}
 
-// Function to add main landmark if missing
-function addMainLandmark() {
-  if (!document.querySelector('main') && !document.querySelector('[role="main"]')) {
-    const mainElement = document.createElement('main');
-    const firstChild = document.body.firstChild;
-    document.body.insertBefore(mainElement, firstChild);
+  // Check for the landmark by role attribute
+  const landmark = document.querySelector(`[role="${role}"]`);
 
-    // Move all content to the main element
-    while (document.body.children.length > 1) {
-      mainElement.appendChild(document.body.children[1]);
+  // Also check for semantic HTML elements that might have the role
+  const semanticElements = {
+    'main': 'main',
+    'navigation': 'nav',
+    'banner': 'header',
+    'contentinfo': 'footer',
+    'complementary': 'aside',
+    'search': 'form[role="search"]',
+    'form': 'form'
+  };
+
+  if (semanticElements[role]) {
+    const semanticElement = document.querySelector(semanticElements[role]);
+    if (semanticElement) {
+      return true;
     }
   }
+
+  return landmark !== null;
 }
 
-// Function to fix table accessibility issues
-function fixTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Ensure table has a caption
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table caption';
-      table.insertBefore(caption, table.firstChild);
-    }
-
-    // Ensure table has proper headers
-    const headers = table.querySelectorAll('th');
-    headers.forEach((header, index) => {
-      if (!header.getAttribute('scope')) {
-        header.setAttribute('scope', 'col');
-      }
-    });
-  });
-}
-
-// Function to add accessible names to SVGs
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
-      const title = document.createElement('title');
-      title.textContent = 'SVG image';
-      svg.insertBefore(title, svg.firstChild);
-    }
-  });
-}
-
-// Function to fix fake links
-function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
-  fakeLinks.forEach(link => {
-    if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
-      link.setAttribute('role', 'button');
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-      });
-    }
-  });
-}
-
-// Function to add proper landmark regions
-function addProperLandmarkRegions() {
-  const regions = ['main', 'navigation', 'banner', 'contentinfo', 'complementary'];
-
-  regions.forEach(role => {
-    if (!document.querySelector(`[role="${role}"]`)) {
-      const element = document.createElement('div');
-      element.setAttribute('role', role);
-      document.body.appendChild(element);
-    }
-  });
-}
-
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role]');
-  const landmarkRoles = new Set();
-
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (landmarkRoles.has(role)) {
-      landmark.setAttribute('role', `${role}-duplicate`);
-    } else {
-      landmarkRoles.add(role);
-    }
-  });
-}
-
-// Main function to address all accessibility issues
-function addressAccessibilityIssues() {
-  ensureDocumentLangAttribute();
-  addMainLandmark();
-  fixTableAccessibility();
-  addSvgAccessibleNames();
-  fixFakeLinks();
-  addProperLandmarkRegions();
-  ensureUniqueLandmarks();
-}
-
-// Call the main function to address accessibility issues
-addressAccessibilityIssues();
+// Add the new function to exports
+export { checkLandmarkByRole };

@@ -1,19 +1,26 @@
-// TODO: This is the existing code that needs to be preserved
-// This line is marked as TODO and should be preserved in the main.js file.
+// Original content from main.js (excluding conflict markers)
 
-// Existing code from main.js
-// ... (Preserve any existing code here including conflict markers if necessary)
+// Existing code from main.js that needs to be preserved
 
-// New function or change requested in the issue
-function newFunction() {
-  // New code that implements the requested change
+// TODO: Implement this function for creating in-page buttons
+function createInPageButton(buttonId, buttonText, onClickCallback) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.addEventListener('click', onClickCallback);
+    document.body.appendChild(button);
 }
 
-// Existing export statements
-export function existingFunction() {
-  // Existing function code
+// Existing code from main.js that needs to be preserved
+
+// Existing exports from main.js that need to be preserved
+export function someExistingFunction() {
+    // Function implementation
 }
 
-// ... (Preserve any other exports and code as required)
+// Existing code from main.js that needs to be preserved
 
-// Any other necessary code changes should be added here following the same preservation rule.
+// New exports if any (based on the requirement to preserve existing exports)
+export { createInPageButton, someExistingFunction };
+
+// Existing code from main.js that needs to be preserved

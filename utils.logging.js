@@ -113,9 +113,38 @@ function _redactPaths (str) {
     if (quote) {
       return p1 + p3 + quote[0] + '[REDACTED]' + quote[quote.length - 1]
     }
-    return p1 + p3 + '[REDACTED]'
-  })
-}
+
+    if (LEVELS[level] !== undefined && LEVELS[level] > currentLevel) return;
+
+    if (typeof message !== 'string') {
+        try {
+            message = typeof message === 'function' ? '[Function]' : String(message || '');
+        } catch (e) {
+            message = '[Unserializable Object]';
+        }
+    }
+    const truncated = message.substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const redacted = _redactPaths(truncated);
+
+    if (typeof Memory !== 'undefined') {
+        if (!Memory.logs || !Array.isArray(Memory.logs)) {
+            Memory.logs = [];
+        }
+        Memory.logs.push({
+            level,
+            message: redacted,
+            tick: typeof Game !== 'undefined' ? Game.time : 0,
+        });
+        if (Memory.logs.length > MAX_HISTORY) {
+            Memory.logs.shift();
+        }
+    }
+
+    const emoji = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+        ? LOG_EMOJIS[level]
+        : DEFAULT_EMOJI;
+    const escaped = _escapeHTML(redacted);
+    }
 
 function log (arg1, arg2) {
   let level = 'info'

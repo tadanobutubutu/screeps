@@ -682,3 +682,21 @@ export {
   renderAccessibilityReportHtml,
   generateAndDisplayReport
 };
+
+// Export ensureUniqueLandmarkId for ensuring unique landmark IDs
+export { ensureUniqueLandmarkId };
+
+// Export uniqueLandmarks for getting unique landmarks from a list
+export { uniqueLandmarks };
+
+// Export addAriaLabel for adding aria-label attributes to elements
+export { addAriaLabel };
+
+// Export addLangAttribute for adding lang attributes to elements
+export { addLangAttribute };
+
+// Export the internal set for tracking used landmark IDs
+export { _usedLandmarkIds };
+
+// TODO: Any additional changes requested in the issue
+// main.js - Accessibility improvements implementation

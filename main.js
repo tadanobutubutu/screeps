@@ -78,23 +78,23 @@ function implementAccessibilityFixesFromReport (container, report) {
 
   // Add lang attribute to HTML element if missing
   const htmlEl =
-    document.documentElement ||
-    (container.ownerDocument && container.ownerDocument.documentElement)
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en')
+    ... ||
+    (container.ownerDocument && ...
+  if (htmlEl && ... {
+    ... 'en')
     fixes.langAdded = true
   }
 
   // Add main landmark if missing
-  const mainElement = container.querySelector('main')
+  const mainElement = ...
   if (!mainElement) {
-    const body = container.ownerDocument ? container.ownerDocument.body : document.body
+    const body = ...
     if (body) {
       const newMain = document.createElement('main')
       while (body.firstChild) {
-        newMain.appendChild(body.firstChild)
+        ...
       }
-      body.appendChild(newMain)
+      ...
       fixes.mainLandmarkAdded = true
     }
   }
@@ -102,39 +102,39 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Update the existing function using the new functions for rendering graph/index
   renderDependencyGraphs(container)
   fixButtonIdentifiers(container)
-  checkAccessibility(container)
+  ...
 
   // Fix landmark issues
   validateLandmark(container)
-  validateLandmarkStructure(container)
+  ...
   fixes.landmarksFixed++
 
   // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach(svg => {
+  const svgElements = ...
+  ... => {
     const accessibleName = getSvgAccessibleName(svg)
     if (
       accessibleName &&
-      !svg.hasAttribute('aria-label') &&
-      !svg.getAttribute('aria-labelledby')
+            ... &&
+            ...
     ) {
-      addSvgAccessibleName(svg, accessibleName)
+      ... accessibleName)
       fixes.svgNamesAdded++
     }
   })
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('a:not([href])')
-  fakeLinks.forEach(link => {
-    link.setAttribute('href', '#' + (link.id || Math.random().toString(36).substr(2, 9)))
+  const fakeLinks = ...
+  ... => {
+    link.setAttribute('href', '#' + (link.id || ...
     link.setAttribute('role', 'link')
     fixes.fakeLinksFixed++
   })
 
   // Validate accessibility report
-  const accessibilityReport = validateAccessibilityReport(container)
+  const accessibilityReport = ...
   if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
+    log(`Accessibility report contains ... remaining issues`, 'warn')
   }
 
   // Implement focus trap for keyboard navigation
@@ -151,12 +151,12 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Check for new accessibility issues
   const newAccessibilityIssues = checkAccessibility(container)
   if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.map(i => i.message).join(', ')}`, 'error')
+    log(`New accessibility issues found: ... ')}`, 'error')
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0
   if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} landmarks with ${uniqueLandmarks} unique landmarks`, 'info')
+    log(`Fixed ... unique landmarks`, 'info')
   }
 
   const svgFixes = fixes.svgNamesAdded || 0
@@ -244,51 +244,26 @@ function newFunction(param1, param2) {
   return result;
 }
 
-// Accessibility utilities
-const accessibilityUtils = {
-  initSkipLink: function() {
-    const skipLink = document.querySelector('.skip-link')
-    if (skipLink) {
-      ... function(e) {
-        e.preventDefault()
-        const target = ...
-        if (target) {
-          target.setAttribute('tabindex', '-1')
-          target.focus()
-        }
-      })
-    }
-  },
-  
-  announceToScreenReader: function(message, priority) {
-    if (priority === undefined) {
-      priority = 'polite'
-    }
-    
-    const announcer = ...
-    ... priority)
-    ... 'true')
-    announcer.className = 'sr-only'
-    announcer.style.position = 'absolute'
-    announcer.style.left = '-9999px'
-    announcer.textContent = message
-    ...
-    
-    setTimeout(function() {
-      announcer.remove()
-    }, 1000)
-  }
-};
+// Helper to manage focus within a container
+function trapFocus(container) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, ...
+  )
+  const firstElement = focusableElements[0]
+  const lastElement = focusableElements[focusableElements.length - 1]
 
-// Create announcer function
-function createAnnouncer() {
-  let currentMessage = ''
-  let timeoutId = null
-  
-  return {
-    announce: function(message, priority = 'polite') {
-      if (timeoutId) {
-        clearTimeout(timeoutId)
+  return function(e) {
+    const isTab = e.key === 'Tab'
+    if (!isTab) return
+    if (e.shiftKey) {
+      if (document.activeElement === firstElement) {
+        e.preventDefault()
+        if (lastElement) lastElement.focus()
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        e.preventDefault()
+        if (firstElement) ...
       }
       
       const announcer = ...
@@ -390,102 +365,22 @@ export function addLangAttribute(element, lang = 'en') {
   if (!htmlElement) {
     return null
   }
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang)
+  if (htmlElement && ... {
+    ... lang)
   }
   return htmlElement
 }
 
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependency-graph')
-
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if ... {
-    ... 'region')
-  }
-
-  // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.getAttribute('aria-labelledby')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
-  }
-
-  // Ensure element has an ID if not present
-  if (!dependencyGraph.id) {
-    dependencyGraph.id = 'dependencyGraph'
-  }
-
-  // Ensure the container is focusable if it's interactive
-  if ... {
-    ... '0')
-  }
-}
-
-// Function to render dependency graph
-function renderDependencyGraph(element) {
-  console.log('Rendering dependency graph for element:', element)
-}
-
-// Function to render a simple dependency graph
-function renderSimpleDependencyGraph(element) {
-  console.log('Rendering simple dependency graph for element:', element)
-}
-
-// Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName (svgString) {
-  // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
-  // and returns the modified SVG string.
-  // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
-  const parser = new DOMParser()
-  const svgDoc = parser.parseFromString(svgString, 'image/svg+xml')
-  const svgElement = svgDoc.documentElement
-  if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
-    svgElement.setAttribute('aria-label', 'Descriptive label for SVG')
-  }
-  const serializer = new XMLSerializer()
-  return serializer.serializeToString(svgElement)
-}
-
-// Example usage of the function
-const originalSvgString = '<svg viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="12">Dashboard</text></svg>'
-const modifiedSvgString = addAccessibleName(originalSvgString)
-
-// Validates table accessibility
-function validateTableAccessibility (tableData) {
-  // Implementation placeholder - function to be implemented
-  return true
-}
-
-// Validates table structure
-function validateTableStructure (tableData) {
-  // Implementation placeholder - function to be implemented
-  return true
-}
-
-// Initialize accessibility features
-function initializeAccessibility() {
-  const announcer = createAnnouncer()
-  
-  const headers = tableElement.querySelectorAll('th')
-  headers.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      const row = th.closest('tr')
-      const cellIndex = Array.from(row.children).indexOf(th)
-      th.setAttribute('scope',
-
 /**
- * Creates an in-page button element with the specified label and click handler.
- * @param {string} label - The text for the button.
- * @param {Function} [onClick] - The click event handler.
- * @returns {HTMLButtonElement} The created button element.
+ * REACT_027: Fix table structure issues
+ * Ensures tables have proper structure with headers and captions
  */
-export function createInPageButton(label, onClick) {
-  const button = document.createElement('button');
-  button.textContent = label;
-  button.className = 'in-page-button';
-  if (typeof onClick === 'function') {
-    button.addEventListener('click', onClick);
-  }
-  return button;
-}
+export function ... {
+  if (!tableElement) return null
+  
+  const headers = ...
+  headers.forEach(th => {
+    if ... {
+      const row = th.closest('tr')
+      const cellIndex = ...
+      th.setAttribute('scope',

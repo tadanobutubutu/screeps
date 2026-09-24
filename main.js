@@ -363,8 +363,8 @@ function addBook(title, author, isbn) {
 
     // Title input
     const titleLabel = document.createElement('label');
-    titleLabel.setAttribute('for', 'book-title');
-    titleLabel.textContent = 'Book Title:';
+    ylabel.setAttribute('for', 'book-title');
+    ylabel.textContent = 'Book Title:';
     const titleInput = document.createElement('input');
     titleInput.id = 'book-title';
     titleInput.type = 'text';
@@ -428,4 +428,14 @@ function newFunctionForMain() {
 // export { addressAccessibilityIssues, createInPageButton, existingFunction, existingFunction1, existingFunction2, newFunctionForMain };
 // Assuming existingFunction is the name of another export in the codebase (you should replace this with its actual name)
 
+// TODO: Create or update the affected functions to be accessible
+//------ BEGIN CHANGES (added/updated)------
+function newFunctionForMain() {
+    console.log('New function is now accessible in main.js');
+}
+
+// Update or create any other necessary functions here
 //------ END CHANGES------
+
+// Address the TODO by ensuring all necessary exports are properly included
+export { addressAccessibilityIssues, createInPageButton, newFunctionForMain };

@@ -204,8 +204,8 @@ module.exports = {
   createServer,
   startApp,
   config,
-  getLangAttribute,
-  createInPageButton
+  http,
+  path
 };
 
 // Function to render graph/index using new functions

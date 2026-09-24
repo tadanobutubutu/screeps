@@ -134,133 +134,50 @@ function ... {
     return html;
 }
 
+// REACT_050: Check link and button accessibility
 function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  const links = document.querySelectorAll('a');
-  const issues = [];
+    const issues = [];
 
-    links.forEach((link) => {
-        const href = ...
+    // Check links for accessibility issues
+    const links = document.querySelectorAll('a[href]');
+    links.forEach(link => {
+        const href = link.getAttribute('href');
         const text = link.textContent.trim();
+        const ariaLabel = link.getAttribute('aria-label');
+        const ariaLabelledBy = link.getAttribute('aria-labelledby');
 
-    if (!text) {
-      issues.push('Link with href "' + href + '" has no accessible text');
-    }
-  });
-
-    if (typeof credentialResponse !== 'object') {
-        throw new Error('Credential response must be an object');
-    }
-
-    // Validate required fields in the credential response
-    const requiredFields = ['credential', 'clientId', 'select_by'];
-    for (const field of requiredFields) {
-        if ... {
-            throw new Error(`Credential response is missing required field: ${field}`);
+        // Check for missing accessible text
+        if (!text && !ariaLabel && !ariaLabelledBy) {
+            issues.push(`Link with href "${href}" has no accessible text`);
         }
-    }
 
-    // Process the credential data
-    const processedCredential = {
-        idToken: credentialResponse.credential,
-        clientId: credentialResponse.clientId,
-        selectedAccount: credentialResponse.select_by,
-        timestamp: new Date().toISOString()
-    };
-
-    // Additional processing can be added here as needed
-
-    return processedCredential;
-}
-
-/**
- * Harvests energy from sources and delivers it to spawns or storage
- * This function manages all harvester creeps in the game
- */
-function harvest() {
-    // Get all harvesting creeps
-    const harvesters = Object.values(Game.creeps).filter(creep => 
-        creep.memory && creep.memory.role === 'harvester'
-    );
-    
-    // Get all energy sources from all rooms
-    const sources = [];
-    for (const roomName in Game.rooms) {
-        const sourcesInRoom = Game.rooms[roomName].find(FIND_SOURCES);
-        sources.push(...sourcesInRoom);
-    }
-    
-    // If no sources found, exit early
-    if (sources.length === 0) return;
-    
-    // Assign harvesters to sources based on available capacity
-    harvesters.forEach((creep, index) => {
-        // Find the assigned source for this creep
-        const assignedSourceId = creep.memory.sourceId;
-        let targetSource = null;
-        
-        if (assignedSourceId) {
-            targetSource = Game.getObjectById(assignedSourceId);
-        }
-        
-        // If no assigned source or source no longer exists, assign a new one
-        if (!targetSource) {
-            targetSource = sources[index % sources.length];
-            if (targetSource) {
-                creep.memory.sourceId = targetSource.id;
-            }
-        }
-        
-        if (!targetSource) return;
-        
-        // Check if creep needs energy (is carrying something other than energy or is empty)
-        if (creep.carry.energy === 0) {
-            // Harvest energy from source
-            const harvestResult = creep.harvest(targetSource);
-            
-            if (harvestResult === ERR_NOT_IN_RANGE) {
-                // Move towards the source if not in range
-                creep.moveTo(targetSource, { visualizePathStyle: { stroke: '#ffaa00' } });
-            } else if (harvestResult === ERR_NOT_IN_TARGET) {
-                // Source might be depleted, try to find another one
-                delete creep.memory.sourceId;
-            }
-        } else {
-            // Creep is carrying energy, find a spawn or storage to deposit
-            const spawns = Object.values(Game.spawns);
-            const storages = Object.values(Game.structures).filter(
-                s => s.structureType === STRUCTURE_STORAGE
-            );
-            
-            // Prioritize spawns, then storage
-            let target = null;
-            
-            // Find a spawn that needs energy
-            for (const spawn of spawns) {
-                if (spawn.energy < spawn.energyCapacity) {
-                    target = spawn;
-                    break;
-                }
-            }
-            
-            // If no spawn needs energy, try storage
-            if (!target && storages.length > 0) {
-                const storage = storages[0];
-                if (storage.store[RESOURCE_ENERGY] < storage.storeCapacity) {
-                    target = storage;
-                }
-            }
-            
-            // If we have a target, transfer energy
-            if (target) {
-                const transferResult = creep.transfer(target, RESOURCE_ENERGY);
-                if (transferResult === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-                }
-            }
+        // Check for empty or placeholder href
+        if (!href || href === '' || href === '#') {
+            issues.push(`Link has empty or placeholder href`);
         }
     });
+
+    // Check buttons for accessibility issues
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+        const text = button.textContent.trim();
+        const ariaLabel = button.getAttribute('aria-label');
+        const ariaLabelledBy = button.getAttribute('aria-labelledby');
+        const ariaDescribedBy = button.getAttribute('aria-describedby');
+
+        // Check for missing accessible text
+        if (!text && !ariaLabel && !ariaLabelledBy && !ariaDescribedBy) {
+            issues.push(`Button has no accessible text`);
+        }
+
+        // Check for generic button text
+        const genericTexts = ['submit', 'click', 'button', 'ok', 'cancel'];
+        if (genericTexts.includes(text.toLowerCase())) {
+            issues.push(`Button has generic text: "${text}"`);
+        }
+    });
+
+    return issues;
 }
 
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic

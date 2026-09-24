@@ -367,11 +367,7 @@ function processAccessibilityIssues(insightReport) {
     // Existing function implementation
   }
 
-  // Exporting new functions to implement the solutions to the issues in lines 146 and 306
-  export { addressAccessibilityIssues, harvestAndUpgrade };
-
-  // If any other exports were previously in main.js, they should be preserved and added here
-  export { otherExport1, otherExport2 };
+  export { addressAccessibilityIssues, processAccessibilityIssues };
 }
 
 // Existng exports that must be preserved

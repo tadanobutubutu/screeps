@@ -182,22 +182,88 @@ function validateTableStructure() {
 }
 
 function fixTableStructure() {
-  console.log('Fixing table structure issues');
+  if (typeof document === 'undefined') return;
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    // Add caption if missing
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = `Table ${index + 1}`;
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    // Ensure proper table structure
+    const rows = table.querySelectorAll('tr');
+    if (rows.length > 0) {
+      // Check if first row contains headers
+      const firstRowCells = rows[0].querySelectorAll('th, td');
+      let hasHeaders = false;
+
+      firstRowCells.forEach(cell => {
+        if (cell.tagName === 'TH') {
+          hasHeaders = true;
+        }
+      });
+
+      // If no headers, add them
+      if (!hasHeaders && rows.length > 1) {
+        const headerRow = document.createElement('tr');
+        const secondRowCells = rows[1].querySelectorAll('td');
+
+        secondRowCells.forEach((cell, cellIndex) => {
+          const th = document.createElement('th');
+          th.textContent = `Column ${cellIndex + 1}`;
+          th.setAttribute('scope', 'col');
+          headerRow.appendChild(th);
+        });
+
+        table.insertBefore(headerRow, table.firstChild);
+      }
+    }
+
+    // Ensure proper scope attributes for headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
+
+    // Ensure all cells have proper headers attribute if needed
+    const cells = table.querySelectorAll('td');
+    cells.forEach(cell => {
+      if (!cell.hasAttribute('headers') && headers.length > 0) {
+        const rowIndex = Array.from(table.rows).indexOf(cell.parentNode);
+        const cellIndex = Array.from(cell.parentNode.cells).indexOf(cell);
+
+        if (rowIndex > 0 && cellIndex < headers.length) {
+          cell.setAttribute('headers', headers[cellIndex].id || `col-${cellIndex}`);
+        }
+      }
+    });
+  });
 }
 
 // Landmark functions
 function addMainLandmark() {
   if (typeof document === 'undefined') return;
 
-  const mainElement = document.querySelector('main');
-  if (!mainElement) {
-    const main = document.createElement('main');
-    main.setAttribute('role', 'main');
-    main.setAttribute('aria-label', 'Main content');
+  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+  const landmarkCounts = {};
 
-    // Insert main landmark at the beginning of the body
-    if (document.body) {
-      document.body.insertBefore(main, document.body.firstChild);
+  landmarkSelectors.forEach(selector => {
+    landmarkCounts[selector] = 0;
+  });
+
+  document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+
+    if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      landmarkCounts[tagName]++;
+      element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
+    } else if (landmarkCounts[tagName] === 0) {
+      landmarkCounts[tagName]++;
     }
   }
 }
@@ -261,96 +327,9 @@ function addSvgAccessibleNames() {
   });
 }
 
-// Get insight report
-function getInsightReport() {
-  const issues = [];
-
-  // Check for lang attribute on HTML element
-  const langAttribute = getLangAttribute();
-  if (!langAttribute) {
-    issues.push({
-      type: 'REACT_015',
-      description: 'HTML element is missing lang attribute',
-      severity: 'critical',
-      element: 'html'
-    });
-  }
-
-  // Check table accessibility
-  const tableAccessibilityIssues = validateTableAccessibility();
-  if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
-    tableAccessibilityIssues.forEach((issue) => {
-      issues.push({
-        type: 'REACT_027',
-        subtype: 'accessibility',
-        description: issue.description || 'Table accessibility issue',
-        severity: issue.severity || 'high',
-        element: issue.element,
-        table: issue.table
-      });
-    });
-  }
-
-  // Check table structure
-  const tableStructureIssues = validateTableStructure();
-  if (tableStructureIssues && tableStructureIssues.length > 0) {
-    tableStructureIssues.forEach((issue) => {
-      issues.push({
-        type: 'REACT_027',
-        subtype: 'structure',
-        description: issue.description || 'Table structure issue',
-        severity: issue.severity || 'high',
-        element: issue.element,
-        table: issue.table
-      });
-    });
-  }
-
-  // Check landmark issues
-  const landmarkIssues = validateLandmark();
-  if (landmarkIssues && landmarkIssues.length > 0) {
-    landmarkIssues.forEach((issue) => {
-      issues.push({
-        type: 'REACT_017',
-        description: issue.description || 'Landmark issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-
-  // Check landmark structure
-  const landmarkStructureIssues = validateLandmarkStructure();
-  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
-    landmarkStructureIssues.forEach((issue) => {
-      issues.push({
-        type: 'REACT_017',
-        structure: true,
-        description: issue.description || 'Landmark structure issue',
-        severity: issue.severity || 'medium',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-
-  // Check landmark attributes
-  const landmarkAttributeIssues = validateLandmarkAttributes();
-  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
-    landmarkAttributeIssues.forEach((issue) => {
-      issues.push({
-        type: 'REACT_017',
-        description: issue.description || 'Landmark attribute issue',
-        severity: issue.severity || 'low',
-        element: issue.element,
-        landmark: issue.landmark
-      });
-    });
-  }
-
-  // Check SVG accessibility
-  const svgAccessibleNames = getSvgAccessibleName();
+// REACT_036: Fix fake link issues (links without href or with javascript:void(0))
+function fixFakeLinks() {
+  if (typeof document === 'undefined') return;
 
   document.querySelectorAll('a').forEach(link => {
     const href = link.getAttribute('href');
@@ -365,50 +344,35 @@ function getInsightReport() {
   });
 }
 
-// Add book form accessibility improvements
-function addBookFormAccessibility(formElement) {
-  if (!formElement) return;
+// REACT_040: Replace my-button with actual button id for accessibility
+function replaceButtonIds() {
+  if (typeof document === 'undefined') return;
 
-  // Ensure form has proper ARIA attributes
-  formElement.setAttribute('role', 'form');
-  formElement.setAttribute('aria-labelledby', 'addBookFormTitle');
-
-  // Add accessible labels to form fields
-  const titleInput = formElement.querySelector('#bookTitle');
-  if (titleInput) {
-    titleInput.setAttribute('aria-label', 'Book Title');
-    titleInput.setAttribute('required', 'true');
-  }
-
-  const authorInput = formElement.querySelector('#bookAuthor');
-  if (authorInput) {
-    authorInput.setAttribute('aria-label', 'Book Author');
-    authorInput.setAttribute('required', 'true');
-  }
-
-  const submitButton = formElement.querySelector('button[type="submit"]');
-  if (submitButton) {
-    submitButton.setAttribute('aria-label', 'Add Book');
-  }
-
-  // Add keyboard navigation support
-  formElement.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
-      e.preventDefault();
-      const inputs = Array.from(formElement.querySelectorAll('input, button'));
-      const currentIndex = inputs.indexOf(e.target);
-      if (currentIndex < inputs.length - 1) {
-        inputs[currentIndex + 1].focus();
-      }
+  const fakeButtons = document.querySelectorAll('[id="my-button"], .my-button');
+  fakeButtons.forEach((button, index) => {
+    const newId = `accessible-button-${index + 1}`;
+    if (button.id === 'my-button') {
+      button.id = newId;
+    }
+    if (button.classList.contains('my-button')) {
+      button.classList.remove('my-button');
+      button.classList.add(newId);
     }
   });
 }
 
-// Add book function with accessibility improvements
-function addBook(bookData) {
-  if (!bookData || !bookData.title || !bookData.author) {
-    console.error('Invalid book data');
-    return false;
+// REACT_042: Ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphAriaRole() {
+  if (typeof document === 'undefined') return;
+
+  const dependencyGraph = document.querySelector('#dependencyGraph, .dependencyGraph, [data-dependency-graph]');
+  if (dependencyGraph) {
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    if (!dependencyGraph.getAttribute('aria-label')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
   }
 
   // Store book data
@@ -439,14 +403,37 @@ function addBook(bookData) {
   return true;
 }
 
-// Helper function to announce messages to screen readers
-function announceToScreenReader(message) {
-  const announcement = document.createElement('div');
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.setAttribute('aria-atomic', 'true');
-  announcement.className = 'sr-only';
-  announcement.textContent = message;
-  document.body.appendChild(announcement);
+// REACT_037: Google sign-in logic
+const googleSignIn = {
+  initialize: function(clientId) {
+    if (typeof google !== 'undefined' && google.accounts) {
+      google.accounts.id.initialize({
+        client_id: clientId,
+        callback: this.handleCredentialResponse.bind(this)
+      });
+      return true;
+    }
+    return false;
+  },
+
+  renderButton: function(elementId) {
+    const element = document.getElementById(elementId);
+    if (element && typeof google !== 'undefined' && google.accounts) {
+      google.accounts.id.renderButton(element, {
+        theme: 'outline',
+        size: 'large',
+        text: 'sign_in_with'
+      });
+      return true;
+    }
+    return false;
+  },
+
+  handleCredentialResponse: function(response) {
+    console.log('Google Sign-In successful');
+    return response;
+  }
+};
 
   // Remove after announcement is complete
   setTimeout(() => {

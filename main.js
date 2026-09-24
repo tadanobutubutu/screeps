@@ -60,6 +60,9 @@ function ensureUniqueLandmarks() {
     elements.forEach(el => {
       const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
       if (isUnique) {
+        if (!uniqueLandmarkMap[landmark]) {
+          uniqueLandmarkMap[landmark] = [];
+        }
         uniqueLandmarkMap[landmark].push(el);
       } else {
         el.removeAttribute('role');
@@ -307,12 +310,11 @@ function implementNewFunction() {
   fixTableStructureIssues();
   findTableHeaderCellScopeIssues();
   fixTableHeaderCellScope();
-  collectInsightReportIssues();
 }
 
 function main() {
   console.log('Running main application');
-  return someFunction();
+  return implementNewFunction();
 }
 
 // Re-add the required exports for functionA and functionB

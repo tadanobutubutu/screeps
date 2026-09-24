@@ -99,6 +99,37 @@ const accessibilityUtils = {
         });
     },
     // Add more accessibility-related functions here
+    // Example: Implementing a new function for focus trap
+    implementNewFocusTrap: function (element) {
+        const focusableElements = element.querySelectorAll('a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]');
+        if (focusableElements.length === 0) return originNewFocusTrap(element);
+        let focusedIndex = -1;
+        const focusableLength = focusableElements.length;
+
+        function trapFocus() {
+            const nextFocusedIndex = (focusedIndex + 1) % focusableLength;
+            focusableElements[nextFocusedIndex].focus();
+            focusedIndex = nextFocusedIndex;
+        }
+
+        function trapBackFocus() {
+            const prevFocusedIndex = (focusedIndex - 1 + focusableLength) % focusableLength;
+            focusableElements[prevFocusedIndex].focus();
+            focusedIndex = prevFocusedIndex;
+        }
+
+        element.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab' && e.shiftKey) {
+                trapBackFocus();
+            } else if (e.key === 'Tab') {
+                trapFocus();
+            }
+        });
+
+        element.addEventListener('focusin', function (e) {
+            focusedIndex = Array.from(focusableElements).indexOf(e.target);
+        });
+    }
 };
 
 const ensureElementId = (element) => {

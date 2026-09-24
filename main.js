@@ -262,6 +262,23 @@ function ensureUniqueLandmarks() {
   return { valid: errors.length === 0, errors };
 }
 
+// Function to create a button with correct accessibility properties for in-page linking
+function createInPageButton(labelText, targetSelector) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.setAttribute('aria-label', labelText);
+  button.setAttribute('aria-labelledby', labelText);
+  button.setAttribute('data-target', targetSelector);
+
+  return button;
+}
+
+// Required function implementations
+
 /**
  * Ensures the dependency graph container has proper accessibility attributes
  * @param {HTMLElement} container - The dependency graph container element
@@ -336,12 +353,5 @@ module.exports = {
   dependencyGraphContent,
   indexContent,
   main,
-  addressabilityIssues: AddressabilityIssues,
-  detectAndSetLang,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks
+  createInPageButton,
 };

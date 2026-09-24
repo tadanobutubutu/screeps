@@ -510,77 +510,53 @@ function addressAccessibilityIssues() {
   }
 }
 
-// Accessibility utilities
-const accessibilityUtils = {
-    // Function for addressing new accessibility issues
-    addressNewAccessibilityIssues: function(issues) {
-        // Implementation for handling new accessibility issues
-        if (!issues || !Array.isArray(issues)) {
-            return [];
-        }
+// TODO: Any additional changes requested in the issue should be added after this function
 
-        return issues.map(issue => {
-            return {
-                id: issue.id,
-                description: issue.description,
-                severity: issue.severity,
-                status: 'addressed',
-                addressedAt: new Date().toISOString()
-            };
-        });
-    },
-    // New function to validate landmark elements
-    validateLandmark: function() {
-      const requiredLandmarks = ['main', 'nav', 'footer'];
-      const missingLandmarks = [];
-
-      requiredLandmarks.forEach(landmark => {
-        const element = document.querySelector(`[role="${landmark}"]`) ||
-                       document.querySelector(`${landmark}`);
-        if (!element) {
-          missingLandmarks.push(landmark);
-        }
-      });
-
-      if (missingLandmarks.length > 0) {
-        console.warn('Missing required landmarks:', missingLandmarks.join(', '));
-        return false;
-      }
-      return true;
+/**
+ * Handles additional accessibility improvements and runtime fixes
+ */
+function handleAdditionalAccessibilityChanges() {
+  // Ensure all interactive elements are keyboard accessible
+  const interactiveElements = document.querySelectorAll('div[role="button"], span[role="button"], div[role="link"], span[role="link"]');
+  interactiveElements.forEach(element => {
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
     }
-};
+  });
 
-// Export the report generation function
-module.exports = {
-  generateAccessibilityReport: generateAccessibilityReport,
-  addressAccessibilityIssues,
-  getLangAttribute,
-  createInPageButton,
-  a11y,
-  accessibilityUtils,
-  // Export new necessary functions
-  addressNewAccessibilityIssues: accessibilityUtils.addressNewAccessibilityIssues,
-  validateLandmark: accessibilityUtils.validateLandmark
-};
-
-// Initialize the application with accessibility improvements
-function initialize() {
-    // Ensure the dependencyGraph container has a proper ARIA role
-    if (dependencyGraph) {
-        dependencyGraph.setAttribute('role', 'region');
-        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+  // Ensure all images have appropriate alt text
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    if (!img.hasAttribute('alt')) {
+      img.setAttribute('alt', '');
     }
+  });
 
-    // Address accessibility issues
-    addressAccessibilityIssues();
-
-    // Create the in-page button
-    createInPageButton();
-
-    // Initialize accessibility features from a11y utilities
-    if (a11y && a11y.init) {
-        a11y.init();
+  // Ensure all form controls have associated labels
+  const formControls = document.querySelectorAll('input, select, textarea');
+  formControls.forEach(control => {
+    const id = control.getAttribute('id');
+    const ariaLabel = control.getAttribute('aria-label');
+    const ariaLabelledBy = control.getAttribute('aria-labelledby');
+    const hasLabel = (id && document.querySelector(`label[for="${id}"]`)) || ariaLabel || ariaLabelledBy;
+    if (!hasLabel) {
+      control.setAttribute('aria-label', control.getAttribute('name') || control.getAttribute('placeholder') || 'Form field');
     }
+  });
+
+  // Ensure proper heading hierarchy
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  headings.forEach(heading => {
+    const currentLevel = parseInt(heading.tagName.substring(1));
+    if (previousLevel > 0 && currentLevel - previousLevel > 1) {
+      console.warn(`Accessibility warning: Heading hierarchy skip detected between h${previousLevel} and h${currentLevel}`);
+    }
+    previousLevel = currentLevel;
+  });
+
+  // Ensure sufficient color contrast is announced for dynamically loaded content
+  a11y.announce('Accessibility improvements applied', 'polite');
 }
 
 root.render(
@@ -591,7 +567,4 @@ root.render(
 
 reportWebVitals();
 
-export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport, accessibilityUtils, addressNewAccessibilityIssues, validateLandmark };
-
-// Initialize after React render to ensure DOM is updated
-initialize();
+export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport, handleAdditionalAccessibilityChanges };

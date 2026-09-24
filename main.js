@@ -12,46 +12,20 @@ import { List } from 'antd';
 import { useId } from '@react-aria/utils';
 import { ADD_BOOK, SORT_BY_TITLE, SORT_BY_AUTHOR } from './store/types';
 
-const getBooksList = useSelector(state => state.books.list);
-
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
-
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
-
-function generateKey(book) {
-  if (book.id) {
-    return book.id;
+// Input validation helper
+function isValidBookInput(input) {
+  // Perform input validation based on your accessibility insights
+  // Example check for empty input
+  if (!input.title || !input.author) {
+    return false;
   }
-  return Date.now();
+
+  // TODO: Add more checks based on your accessibility insights
+
+  return true;
 }
 
-function BookItem({ book }) {
-  return (
-    <List.Item key={generateKey(book)} role="listitem">
-      <List.Item.Meta
-        title={book.title}
-        description={book.author}
-      />
-    </List.Item>
-  );
-}
-
-const defaultSorting = 'title';
-
-function onTitleSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByTitle);
-  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
-}
-
-function onAuthorSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByAuthor);
-  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
-}
-
+// Action creator to add a book to the store
 function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   if (!book.title || !book.author) {
@@ -62,30 +36,56 @@ function addBook(book) {
   return { type: 'ADD_BOOK', payload: book };
 }
 
-// Function to improve accessibility for the addBook function or form
+// Sorting comparators
+function sortByTitle(a, b) {
+  return a.title.localeCompare(b.title);
+}
+
+function sortByAuthor(a, b) {
+  return b.author.localeCompare(a.author);
+}
+
+const defaultSorting = sortByTitle;
+
+// Generate a unique key for a book item
+function generateKey(book) {
+  return book.id ? `book-${book.id}` : `book-${book.title}-${book.author}`;
+}
+
+// Render a single book item
+function BookItem(book) {
+  return (
+    <List.Item key={generateKey(book)}>
+      <List.Item.Meta
+        title={book.title}
+        description={book.author}
+      />
+    </List.Item>
+  );
+}
+
+// Accessibility helper for the add book form
 function addBookAccessibly() {
-  const bookTitle = document.querySelector('#bookTitle');
-  const bookAuthor = document.querySelector('#bookAuthor');
+  const bookTitle = document.querySelector('#title');
+  const bookAuthor = document.querySelector('#author');
 
   // Set focus to the book title input field
-  bookTitle.focus();
+  if (bookTitle) {
+    bookTitle.focus();
+  }
 
   // Add a keyboard event listener to handle entering a new book
-  document.addEventListener('keypress', event => {
+  document.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      addBook({
-        id: Date.now(),
-        title: bookTitle.value.trim(),
-        author: bookAuthor.value.trim(),
-      });
-
-      // Reset the input fields after adding a book
-      bookTitle.value = '';
-      bookAuthor.value = '';
+      // Legacy keyboard-only accessibility handler
     }
   });
 }
+
+// Action creators for sorting
+const onTitleSort = () => ({ type: 'SORT_BY_TITLE' });
+const onAuthorSort = () => ({ type: 'SORT_BY_AUTHOR' });
 
 // Container for the dependency graph with proper ARIA role for accessibility
 function DependencyGraph({ nodes, edges }) {
@@ -104,87 +104,93 @@ function DependencyGraph({ nodes, edges }) {
       aria-label="Dependency graph showing relationships between books and authors"
       tabIndex={0}
     >
-      <div>
-        <label
-          htmlFor={titleId}
-          id={`${titleId}-label`}
-        >
-          Book Title:
-        </label>
-        <input
-          type="text"
-          id={titleId}
-          aria-labelledby={`${titleId}-label`}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          placeholder="Enter book title"
-          aria-required="true"
-        />
-      </div>
-      <div>
-        <label
-          htmlFor={authorId}
-          id={`${authorId}-label`}
-        >
-          Author:
-        </label>
-        <input
-          type="text"
-          id={authorId}
-          aria-labelledby={`${authorId}-label`}
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          required
-          placeholder="Enter author name"
-          aria-required="true"
-        />
-      </div>
-      <button
-        type="submit"
-        aria-label="Add book to collection"
-      >
-        Add Book
-      </button>
+      {/* Render graph nodes and edges */}
+      {/* Placeholder content */}
+      {nodes && edges ? (
+        <span>Graph with {nodes.length} nodes and {edges.length} edges</span>
+      ) : (
+        <span>No graph data</span>
+      )}
+    </div>
+  );
+}
+
+// Form component for adding a new book
+function AddBookForm() {
+  const [book, setBook] = useState({ title: '', author: '' });
+  const dispatch = useDispatch();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!isValidBookInput(book)) {
+      alert('Invalid input. Please check your entry and try again.');
+      return;
+    }
+
+    dispatch(addBook(book));
+    setBook({ title: '', author: '' });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label htmlFor="title">Title:</label>
+      <input
+        type="text"
+        id="title"
+        value={book.title}
+        onChange={(e) => setBook({ ...book, title: e.target.value })}
+        required
+      />
+      <label htmlFor="author">Author:</label>
+      <input
+        type="text"
+        id="author"
+        value={book.author}
+        onChange={(e) => setBook({ ...book, author: e.target.value })}
+        required
+      />
+      <button type="submit">Add Book</button>
     </form>
   );
 }
 
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
+// Main application component
+function Main() {
+  const dispatch = useDispatch();
+  const books = useSelector((state) => state.books.list);
+  const [sorting, setSorting] = useState(defaultSorting);
 
-// Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = getBooksList().sort(sortByTitle);
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  // Set up accessibility features on mount
+  useEffect(() => {
+    addBookAccessibly();
+  }, []);
+
+  // Dispatch sorting action when sorting option changes
+  useEffect(() => {
+    if (sorting === sortByTitle) {
+      dispatch(onTitleSort());
+    } else if (sorting === sortByAuthor) {
+      dispatch(onAuthorSort());
+    }
+  }, [sorting, dispatch]);
+
+  // Derive sorted list based on current sorting function
+  const sortedBooks = [...books].sort(sorting);
+
+  // Map books to BookItem components
+  const bookItems = sortedBooks.map((book) => BookItem(book));
+
+  return (
+    <div>
+      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <AddBookForm />
+      <List dataSource={bookItems} renderItem={(item) => item} />
+      <DependencyGraph nodes={[]} edges={[]} />
+    </div>
+  );
 }
 
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = getBooksList().sort(sortByAuthor);
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Export the Main component and utility functions
+// Export the Main component
 export default Main;
-export {
-  sortByTitle,
-  sortByAuthor,
-  generateKey,
-  BookItem,
-  addBook,
-  onTitleSort,
-  onAuthorSort,
-  defaultSorting,
-  addBookAccessibly
-};
-```
-
-In this example, I've preserved the existing code and added the conflicting changes:
-
-1. Imported the DependencyGraph component and created a container for it with an accurate ARIA role.
-2. Added a `useEffect` hook to re-render the DependencyGraph component whenever the dependencies change.
-3. Moved and modified the `addBookAccessibly` function to the end of the code instead of having it in a separate function.
-4. Exported the updated functions with the existing function `addBook`.
-
-The final export includes `sortByTitle`, `sortByAuthor`, `generateKey`, `BookItem`, `addBook`, `onTitleSort`, `onAuthorSort`, `defaultSorting`, and `addBookAccessibly`.

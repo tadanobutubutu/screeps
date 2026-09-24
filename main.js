@@ -312,3 +312,28 @@ function createAccessibleLink (text, href) {
   link.textContent = text;
   link.setAttribute('aria-label', text);
 }
+
+// Export all functions that need to be accessible in main.js
+export {
+  createLandmarkId,
+  uniqueLandmarks,
+  addAriaLabel,
+  addLangAttribute,
+  ensureElementHasId,
+  outputSafetyClassification,
+  classifyUserSafety,
+  classifyResponseSafety,
+  getFullLangAttribute,
+  getLangAttribute,
+  personName,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureElementsHaveIds,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  createAccessibleLink
+};

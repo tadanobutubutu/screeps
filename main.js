@@ -155,28 +155,9 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
-// New function to handle sorting the book list by year (ascending)
-function sortByYear(a, b) {
-  return a.year - b.year;
-}
-
-// Function to handle sorting the book list by year (ascending)
-function onYearSort() {
-  const sortedList = [...getBooksList].sort(sortByYear);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_YEAR', payload: sortedList });
-}
-
-// Function to handle sorting the book list by genre (ascending)
-function sortByGenre(a, b) {
-  return a.genre.localeCompare(b.genre);
-}
-
-// Function to handle sorting the book list by genre (ascending)
-function onGenreSort() {
-  const sortedList = [...getBooksList].sort(sortByGenre);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_GENRE', payload: sortedList });
+// Function to generate a report based on accessibility issues
+function generateAccessibilityReport() {
+  // TODO: Implement function for generating a report based on accessibility issues
 }
 
 // Render the main component containing the book list and sorting controls
@@ -230,6 +211,7 @@ function Main() {
       <button onClick={() => setSorting(sortByGenre)}>Sort by Genre</button>
       <List dataSource={bookItems} />
       <BookForm />
+      <Button onClick={generateAccessibilityReport}>Generate Accessibility Report</Button>
     </div>
   );
 }

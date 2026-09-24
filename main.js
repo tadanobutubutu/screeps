@@ -157,9 +157,14 @@ function additionalFunction() {
  */
 function createServer() {
   const server = http.createServer((req, res) => {
-    // Accessibility: Ensure that the response is appropriate for all users
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', config }));
+    // Add the following new function to simulate the server's behavior (for the proposed issue)
+    if (req.url === '/api/example') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', message: 'This is an example response' }));
+    } else {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', config }));
+    }
   });
 
   return {
@@ -179,33 +184,20 @@ function startApp() {
   return server;
 }
 
-/**
- * Adds a lang attribute to the HTML element if it's not present
- */
-function getLangAttribute() {
-  // Assuming 'document' is available in the context
-  if (!document.lang) {
-    document.lang = 'en'; // Default to English if lang attribute is missing
-  }
-}
-
-/**
- * Creates an in-page button element with the appropriate attributes
- */
-function createInPageButton() {
-  const button = document.createElement('button');
-  button.textContent = 'Click me';
-  button.setAttribute('lang', 'en'); // Ensure the button has the lang attribute
-  document.body.appendChild(button);
-}
-
-// Export functions for testing
+// Export functions for testing and the new function for testing
 module.exports = {
   createServer,
   startApp,
   config,
-  http,
-  path
+  // Add the new function to be tested
+  handleRequest: function(req) {
+    return new Promise(resolve => {
+      const server = createServer();
+      server.request(req, (res) => {
+        resolve(res);
+      });
+    });
+  }
 };
 
 // Start the application if run directly

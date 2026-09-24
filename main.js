@@ -338,6 +338,45 @@ function validateTableStructure(table) {
 }
 
 /**
+ * Check landmark elements for accessibility compliance
+ * @returns {Object} Validation result with issues array
+ */
+function checkLandmarkElements() {
+  const issues = [];
+  const landmarkElements = document.querySelectorAll(
+    'main, article, aside, header, footer, nav, section, [role="banner"], [role="main"], [role="navigation"], [role="search"], [role="contentinfo"], [role="complementary"], [role="region"], [role="form"]'
+  );
+
+  landmarkElements.forEach((element, index) => {
+    const validation = validateLandmark(element);
+
+    if (!validation.valid) {
+      issues.push({
+        type: 'REACT_017',
+        message: `Landmark element ${index + 1} is invalid: ${validation.error}`,
+        element: element.tagName
+      });
+    } else {
+      const structureValidation = validateLandmarkStructure(element);
+      if (!structureValidation.valid) {
+        structureValidation.issues.forEach(issue => {
+          issues.push({
+            ...issue,
+            elementIndex: index + 1
+          });
+        });
+      }
+    }
+  });
+
+  return {
+    valid: issues.length === 0,
+    issues,
+    landmarkCount: landmarkElements.length
+  };
+}
+
+/**
  * Validate landmark structure for accessibility
  * @param {HTMLElement} element - The element to validate
  * @returns {Object} Landmark validation result
@@ -465,7 +504,7 @@ if (typeof module !== 'undefined' && module.exports) {
     addressAccessibilityIssues,
     generateAccessibilityReport,
     calculateAccessibilityScore,
-    ensureUniqueLandmarksFromString,
+    ensureUniqueLandmarks,
     validateLandmark,
     spawnSomeCommand,
     createInPageButton,
@@ -479,8 +518,7 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmarkStructure,
     ensureUniqueLandmarks,
     addProperLandmarkRegions,
-    personName,
-    addSvgAccessibilityProps
+    checkLandmarkElements
   };
 }
 

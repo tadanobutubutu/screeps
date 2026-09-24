@@ -1,83 +1,181 @@
-Here is the resolved `main.js` file, integrating both changes and preserving comments and style as much as possible:
+const axe = require('axe-core');
 
-```javascript
-/**
- * Creates an in-page button element with the specified label and click handler.
- * 
- * @param {string} label - The text to display on the button.
- * @param {Function} onClick - The callback function to execute on click.
- * @param {Object} options - Additional styling or attribute options.
- * @returns {HTMLButtonElement} The created button element.
- */
-function createInPageButton(label, onClick, options = {}) {
-    const button = document.createElement('button');
-    button.innerText = label;
-    button.addEventListener('click', onClick);
-    
-    if (options.className) {
-        button.className = options.className;
-    }
-    
-    if (options.id) {
-        button.id = options.id;
-    }
-    
-    if (options.style) {
-        Object.assign(button.style, options.style);
-    }
-    
-    return button;
+// Function to handle the axe-core scan result
+function handleScanResult(result) {
+  // This is where you would write the logic to process the result
+  // and generate the report. For now, we'll just log the result.
+  console.log('Accessibility Report:', result);
 }
 
-// TODO: Implement this function for creating in-page buttons
-// (Now implemented)
+const generateAccessibilityReport = () => {
+  const htmlContent = `
+    <div>
+      <p>User Safety: unsafe</p>
+      <p>Safety Categories: Unauthorized Advice</p>
+    </div>
+  `;
 
-// REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html, lang = 'en') {
-    if (typeof html !== 'string') return html;
-    return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-        if (/\blang=/i.test(match)) return match;
-        return `<html${attrs} lang="${lang}">`;
-    });
+  axe.run(htmlContent, { /* options */ }, (error, result) => {
+    if (error) {
+      console.error('Error running axe-core:', error);
+    } else {
+      handleScanResult(result);
+    }
+  });
+};
+
+const fixFakeLinks = () => {
+  const fakeLinks = document.querySelectorAll('[href="#"]:not([aria-hidden])');
+  fakeLinks.forEach((link) => {
+    link.removeAttribute('href');
+  });
+};
+
+// Merged landmark roles function to include both implementations
+function addLandmarkRoles() {
+  // From HEAD: Navigation, Main, Header
+  const navElement = document.querySelector('nav');
+  if (navElement && !navElement.getAttribute('role')) {
+    navElement.setAttribute('role', 'navigation');
+  }
+
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.getAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  const headerElement = document.querySelector('header');
+  if (headerElement && !headerElement.getAttribute('role')) {
+    headerElement.setAttribute('role', 'banner');
+  }
+
+  // From origin/main: Footer and Main Content
+  const footerElement = document.querySelector('footer');
+  if (footerElement && !footerElement.getAttribute('role')) {
+    footerElement.setAttribute('role', 'contentinfo');
+  }
+
+  const mainContent = document.getElementById('main-content');
+  if (mainContent && !mainContent.getAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
 }
 
-// REACT_027: Fix table structure issues (add thead, tbody, th scope, caption)
-function fixTableStructure(html) {
-    if (typeof html !== 'string') return html;
+// Function to ensure unique landmarks (2 issues)
+function ensureUniqueLandmarks() {
+  // Define landmark roles - some should be unique per page
+  const uniqueLandmarkRoles = ['main', 'banner', 'contentinfo'];
+  const multipleAllowedRoles = ['navigation', 'complementary', 'region', 'search', 'form'];
+  const allLandmarkRoles = [...uniqueLandmarkRoles, ...multipleAllowedRoles];
 
-    // Ensure every table has a caption
-    html = html.replace(/<table([^>]*)>/gi, (match, attrs) => {
-        if (/<caption/i.test(match)) return match;
-        return `<table${attrs}><caption></caption>`;
-    });
+  // Find all elements with landmark roles
+  const landmarks = document.querySelectorAll(allLandmarkRoles.map(role => `[role="${role}"]`).join(', '));
 
-    // Close caption and wrap rows in thead/tbody where missing
-    html = html.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, content) => {
-        if (/<thead/i.test(content)) return match;
-        const rows = content.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
-        if (rows.length === 0) return match;
-        const firstRows = rows.slice(0, 1).join('');
-        const restRows = rows.slice(1).join('');
-        const thPattern = /<td>/gi;
-        const firstRowHasTh = thPattern.test(firstRows);
-        let thead = '';
-        let tbody = restRows;
+  // Group landmarks by role
+  const landmarksByRole = {};
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (!landmarksByRole[role]) {
+      landmarksByRole[role] = [];
+    }
+    landmarksByRole[role].push(landmark);
+  });
 
-        if (!firstRowHasTh) {
-            thead = `<thead>${firstRows.replace(/<td>/gi, '<th scope="col">').replace(/<\/td>/gi, '</th>')}</thead>`;
-        } else {
-            thead = `<thead>${firstRows}</thead>`;
+  // Check unique landmark roles - should only have one per page
+  uniqueLandmarkRoles.forEach(role => {
+    const elements = landmarksByRole[role] || [];
+    if (elements.length > 1) {
+      console.warn(`Multiple ${role} landmarks found. Only one is allowed per page.`);
+      // Keep the first one, remove role from others
+      elements.slice(1).forEach(el => {
+        el.removeAttribute('role');
+        console.warn(`Removed duplicate ${role} landmark role from element:`, el);
+      });
+    }
+  });
+
+  // For roles that allow multiples, ensure each has a unique accessible name
+  multipleAllowedRoles.forEach(role => {
+    const elements = landmarksByRole[role] || [];
+    if (elements.length > 1) {
+      const usedNames = new Set();
+      elements.forEach((el, index) => {
+        // Check for existing accessible name
+        const ariaLabel = el.getAttribute('aria-label');
+        const ariaLabelledBy = el.getAttribute('aria-labelledby');
+        let accessibleName = ariaLabel || (ariaLabelledBy ? document.getElementById(ariaLabelledBy)?.textContent : null);
+
+        if (!accessibleName) {
+          // Generate a unique name
+          accessibleName = `${role} ${index + 1}`;
+          el.setAttribute('aria-label', accessibleName);
         }
-        tbody = `<tbody>${tbody}</tbody>`;
-        return `<table${attrs}>${thead}${tbody}</table>`;
-    });
-    return html;
+
+        // Ensure uniqueness
+        let uniqueName = accessibleName;
+        let counter = 1;
+        while (usedNames.has(uniqueName)) {
+          uniqueName = `${accessibleName} ${counter}`;
+          counter++;
+        }
+        usedNames.add(uniqueName);
+
+        if (uniqueName !== accessibleName) {
+          el.setAttribute('aria-label', uniqueName);
+        }
+      });
+    } else if (elements.length === 1) {
+      // Single landmark of this type - ensure it has an accessible name if needed
+      const el = elements[0];
+      const ariaLabel = el.getAttribute('aria-label');
+      const ariaLabelledBy = el.getAttribute('aria-labelledby');
+      if (!ariaLabel && !ariaLabelledBy) {
+        el.setAttribute('aria-label', role);
+      }
+    }
+  });
 }
 
-// New function implementation for landmark regions accessibility
-function addProperLandmarkRegions() {
-    // Implementation details go here
-    // This is a placeholder for the actual implementation
-    console.log('Adding proper landmark regions...');
+// Function to fix 1 fake link issue
+function fixFakeLink() {
+  const fakeLink = document.getElementById('unrotate');
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const newButton = createUnrotateButton();
+    fakeLink.parentNode.replaceChild(newButton, fakeLink);
+  }
 }
-```
+
+// Initialize accessibility improvements
+function initializeAccessibility() {
+  // Replace fake links with proper buttons
+  fixFakeLink();
+
+  // Ensure table headers have proper scope
+  ensureThScope();
+
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-hidden') || svg.getAttribute('aria-hidden') !== 'true') {
+      svg.setAttribute('aria-label', `Icon ${index + 1}`);
+    }
+  });
+}
+
+// New function requested in the issue
+function newFunction() {
+  // Implementation of the new function
+  const button = createInPageButton('New Button', function() {
+    console.log('New Function clicked!');
+  });
+  document.body.appendChild(button);
+}
+
+module.exports = {
+  generateAccessibilityReport,
+  initializeAccessibility,
+  fixFakeLink,
+  addLandmarkRoles,
+  ensureUniqueLandmarks,
+  newFunction
+};

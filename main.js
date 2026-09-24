@@ -37,6 +37,8 @@ function detectAndSetLang(content) {
       lang = 'ar'; // Arabic
     } else if ... {
       lang = 'fr'; // French
+    } else if ... {
+      lang = 'fr'; // French
     } else if (/[äöüßÄÖÜ]/i.test(content)) {
       lang = 'de'; // German
     }
@@ -240,3 +242,138 @@ function getSvgAccessibleName(svg) {
   }
   
   // Check if SVG already has an accessible title
+  const title = ...
+  if (title) {
+    return title.textContent;
+  }
+  
+  // Check aria-label
+  const ariaLabel = ...
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check aria-labelledby reference
+  const ariaLabelledby = ...
+  if (ariaLabelledby) {
+    const titleElement = ...
+    if (titleElement) {
+      return titleElement.textContent;
+    }
+  }
+  
+  return '';
+}
+
+// New function to address REACT_025: Ensure unique landmarks (2 issues)
+function ensureUniqueLandmarks() {
+  const issues = [];
+  
+  if (typeof document === 'undefined') {
+    return issues;
+  }
+  
+  const landmarkLabels = {};
+  
+  // Collect all landmarks with their labels
+  const landmarks = ...
+  landmarks.forEach(landmark => {
+    const role = ...
+    const label = ... || 
+                  ... ||
+                  ... h2, h3, h4, h5, h6') || {}).textContent;
+    
+    if (label) {
+      const key = `${role}:${label}`;
+      if (landmarkLabels[key]) {
+        issues.push({
+          code: 'REACT_025',
+          message: `Duplicate landmark: role="${role}" with label "${label}" appears ${landmarkLabels[key] + 1} times`
+        });
+        landmarkLabels[key]++;
+      } else {
+        landmarkLabels[key] = 1;
+      }
+    }
+  });
+  
+  return issues;
+}
+
+// New function to address REACT_036: Fix 1 fake link issue
+function createAccessibleLink(href, text, options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  
+  const link = document.createElement('a');
+  link.href = href || '#';
+  link.textContent = text || '';
+  
+  // Set role="link" explicitly for accessibility
+  link.setAttribute('role', 'link');
+  
+  // Add aria-label if provided
+  if ... {
+    link.setAttribute('aria-label', ...
+  }
+  
+  // Handle onClick as button behavior - ensure it's properly announced
+  if (options.onClick && !href) {
+    ... '0');
+    ... (e) => {
+      e.preventDefault();
+      options.onClick(e);
+    });
+    
+    // Ensure keyboard accessibility
+    ... (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        options.onClick(e);
+      }
+    });
+  }
+  
+  // Ensure links have accessible names
+  if (!text && ... {
+    ... Link is missing accessible name');
+  }
+  
+  return link;
+}
+
+/**
+ * Creates an accessible in-page button and appends it to the given parent element.
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(parent = (typeof document !== 'undefined' ? document.body : null)) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = '[...]';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('tabindex', '0');
+  
+  if (parent) {
+    parent.appendChild(btn);
+  }
+  
+  return btn;
+}
+
+// Ensure the dependencyGraph container has a proper ARIA role
+/**
+ * Validates that the dependencyGraph container has a proper ARIA role for accessibility
+ * @param {HTMLElement|string} container - The container element or selector for the dependency graph
+ * @returns {Array} Array of issues found (empty if no issues)
+ */
+function validateDependencyGraphAccessibility(container) {
+  const issues = [];
+  
+  if (typeof document === 'undefined') {
+    return issues;
+  }

@@ -83,13 +83,10 @@ function validateInput(input) {
   if (!input) {
     return false;
   }
-  return true;
-}
 
-// Language attribute functions
-function getLangAttribute() {
-  if (typeof document !== 'undefined') {
-    return document.documentElement.getAttribute('lang') || 'en';
+  const navElement = document.querySelector('nav');
+  if (navElement && !navElement.getAttribute('role')) {
+    navElement.setAttribute('role', 'navigation');
   }
   return 'en';
 }
@@ -433,7 +430,77 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// The following functions and exports were also added to fulfill required functionality:
+// New function to improve accessibility for addBook form
+function enhanceAddBookFormAccessibility(formElement) {
+  if (!formElement) return;
+
+  // Add ARIA attributes to form elements
+  const inputs = formElement.querySelectorAll('input, textarea, select');
+  inputs.forEach(input => {
+    if (!input.id) {
+      input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+      const label = formElement.querySelector(`label[for="${input.id}"]`);
+      if (label) {
+        input.setAttribute('aria-labelledby', label.id || label.textContent.trim());
+      } else {
+        input.setAttribute('aria-label', input.placeholder || 'Form input');
+      }
+    }
+  });
+
+  // Add form role if not present
+  if (!formElement.getAttribute('role')) {
+    formElement.setAttribute('role', 'form');
+  }
+
+  // Add accessible name if missing
+  if (!formElement.getAttribute('aria-label') && !formElement.getAttribute('aria-labelledby')) {
+    formElement.setAttribute('aria-label', 'Add Book Form');
+  }
+
+  // Add submit button if missing
+  if (!formElement.querySelector('button[type="submit"]')) {
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Add Book';
+    submitButton.setAttribute('aria-label', 'Submit form to add a new book');
+    formElement.appendChild(submitButton);
+  }
+
+  // Add error handling for required fields
+  const requiredFields = formElement.querySelectorAll('[required]');
+  requiredFields.forEach(field => {
+    if (!field.getAttribute('aria-required')) {
+      field.setAttribute('aria-required', 'true');
+    }
+  });
+}
+
+const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+
+function wrapPrimaryContentInMain(parent) {
+  // ... original function implementation ...
+}
+
+const App = () => {
+  const [programData, setProgramData] = useState(null);
+  const someFunction = () => {
+    return 'some value';
+  };
+  const helper = (input) => {
+    return input ? input.toUpperCase() : '';
+  };
+  const formatDate = (date) => {
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+    return date.toISOString().split('T')[0];
+  };
+  return date.toISOString().split('T')[0];
+};
 
 function getInsightReport() {
   const issues = [];
@@ -535,7 +602,55 @@ function getInsightReport() {
     });
   }
 
-  return { issues };
+  // Check for unique landmarks
+  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
+    uniqueLandmarkIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_025',
+        description: issue.description || 'Duplicate or missing landmark',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check link accessibility
+  const linkIssues = validateLinkAccessibility();
+  if (linkIssues && linkIssues.length > 0) {
+    linkIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_036',
+        description: issue.description || 'Link accessibility issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        link: issue.link
+      });
+    });
+  }
+
+  // Generate the report
+  var report = {
+    issues: issues,
+    summary: {
+      totalIssues: issues.length,
+      langAttribute: issues.filter(function(i) { return i.type === 'REACT_015'; }).length,
+      tableIssues: issues.filter(function(i) { return i.type === 'REACT_027'; }).length,
+      landmarkIssues: issues.filter(function(i) { return i.type === 'REACT_017'; }).length,
+      svgIssues: issues.filter(function(i) { return i.type === 'REACT_041'; }).length,
+      uniqueLandmarkIssues: issues.filter(function(i) { return i.type === 'REACT_025'; }).length,
+      linkIssues: issues.filter(function(i) { return i.type === 'REACT_036'; }).length,
+      critical: issues.filter(function(i) { return i.severity === 'critical'; }).length,
+      high: issues.filter(function(i) { return i.severity === 'high'; }).length,
+      medium: issues.filter(function(i) { return i.severity === 'medium'; }).length,
+      low: issues.filter(function(i) { return i.severity === 'low'; }).length
+    },
+    timestamp: new Date().toISOString(),
+    generatedAt: new Date().toLocaleString()
+  };
+
+  return report;
 }
 
 function writeReport(report) {
@@ -552,8 +667,8 @@ function scanAccessibility() {
   };
 }
 
-// TODO: This is the existing code that needs to be preserved
-// Existing exports and functions would go here...
+// Export functions for testing
+export { ensureUniqueLandmarks, initApp, setLanguageAttribute, addLandmarkRoles, fixFakeLinks, landmarks, appData, enhanceAddBookFormAccessibility };
 
 const App = () => {
   const [programData, setProgramData] = useState(null);
@@ -563,35 +678,57 @@ const App = () => {
   const CONFIG = {
     apiUrl: process.env.API_URL || 'https://api.example.com',
     timeout: 5000
-  };
-  const helper = (input) => {
-    return input ? input.toUpperCase() : '';
-  };
-  const formatDate = (date) => {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-  };
-}
-
-module.exports = {
-  config: CONFIG,
-  App,
-  someFunction,
-  helper,
-  formatDate,
-  calculateSum,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  initializeApp,
-  checkLinkAccessibility,
-  handleFakeLinks,
+  },
+  initialize: initialize,
+  initializeApp: initializeApp,
+  processData: processData,
+  fetchUser: fetchUser,
+  clearCache: clearCache,
+  someFunction: someFunction,
+  helper: helper,
+  formatDate: formatDate,
+  validateInput: validateInput,
+  addressAccessibilityIssues: addressAccessibilityIssues,
+  processAccessibilityReport: processAccessibilityReport,
+  getInsightReport: getInsightReport,
+  getLangAttribute: getLangAttribute,
+  getFullLangAttribute: getFullLangAttribute,
+  addLangAttribute: addLangAttribute,
+  setLanguageAttribute: setLanguageAttribute,
+  addLandmarkRoles: addLandmarkRoles,
+  fixFakeLinks: fixFakeLinks,
+  validateTableAccessibility: validateTableAccessibility,
+  validateTableStructure: validateTableStructure,
+  fixTableStructure: fixTableStructure,
+  addMainLandmark: addMainLandmark,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  validateLandmarkAttributes: validateLandmarkAttributes,
+  addLandmarkRegions: addLandmarkRegions,
+  getSvgAccessibleName: getSvgAccessibleName,
+  setSvgAttributes: setSvgAttributes,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  createInPageButton: createInPageButton,
+  validateLinkAccessibility: validateLinkAccessibility,
+  handleFakeLinks: handleFakeLinks,
+  landmarks: landmarks,
+  appData: appData,
+  initApp: initApp,
+  getConfig: getConfig,
+  getVersion: getVersion,
+  App: App,
+  calculateSum: calculateSum,
+  generateAccessibilityReport: getInsightReport,
+  wrapPrimaryContentInMain: wrapPrimaryContentInMain,
+  isValidLandmark: validateLandmark,
+  loadLandmarks: function() { return landmarks; },
+  processLandmarks: function(l) { return l; },
+  sortLandmarks: function(l) { return l; },
+  getLandmarkById: function(id) { return landmarks.find(function(l) { return l.id === id; }); },
+  landmarkConfig: CONFIG,
+  checkLinkAccessibility: validateLinkAccessibility,
+  formatResponse: function(data) { return data; },
+  enhanceAddBookFormAccessibility: enhanceAddBookFormAccessibility
 };
 
 // ... (Preserve the existing express server setup, routes, and error handling middleware.)

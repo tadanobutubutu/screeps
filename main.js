@@ -320,7 +320,7 @@ function renderCart(cart) {
   return `
     <div class="cart">
       <h2>Shopping Cart</h2>
-      <p>Total: ${formatCurrency(total)}</p>
+      <p>Total: ${total}</p>
       <p>Date: ${formatDate(new Date())}</p>
     </div>
   `;
@@ -396,8 +396,8 @@ function checkLinkAccessibility() {
   const results = [];
   
   links.forEach((link, index) => {
-    const href = link.getAttribute('href') || '';
-    const isAccessible = href.length > 0 && href !== '#';
+    const href = link.getAttribute('href');
+    const isAccessible = href && href.length > 0 && href !== '#';
     const hasText = link.textContent.trim().length > 0 || link.getAttribute('aria-label');
     const hasUniqueText = checkUniqueLinkText(link);
     
@@ -420,9 +420,85 @@ function checkLinkAccessibility() {
  * @returns {boolean} True if link text is unique
  */
 function checkUniqueLinkText(link) {
-  const siblings = link.parentElement ? Array.from(link.parentElement.querySelectorAll('a')) : [];
+  const siblings = link.parentElement ? Array.from(link.parentElement.children) : [];
   const linkText = link.textContent.trim();
   
   let count = 0;
   siblings.forEach(sibling => {
-    if (sibling.textContent.trim
+    if (sibling.textContent.trim() === linkText) {
+      count++;
+    }
+  });
+  
+  return count === 1;
+}
+
+// Utilities for accessibility scores calculation and logging
+export {
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibility,
+};
+
+// Export utility functions
+export {
+  formatCurrency,
+  formatDate,
+  calculateDiscount,
+  validateInput
+};
+
+// Export component functions
+export {
+  renderHeader,
+  renderFooter,
+  renderProductCard
+};
+
+// Export state
+export {
+  state,
+  updateState
+};
+
+// Export UI / product functions
+export {
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage
+};
+
+// Export the new function
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, checkLandmarkElements };
+
+// ... other exports ...
+
+// Function to add a landmark, using the following order: validate and add to storage
+function addLandmark(landmark) {
+  if (validateLandmark(landmark)) {
+    landmarks.push(landmark);
+    return true;
+  }
+  return false;
+}
+
+// Function to get all landmarks
+function getLandmarks() {
+  return [...landmarks];
+}
+
+// Function to remove a landmark by ID
+function removeLandmark(id) {
+  const index = landmarks.findIndex(landmark => landmark.id === id);
+  if (index !== -1

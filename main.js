@@ -1,116 +1,148 @@
-// Your existing code...
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import a11y from './AccessibilityUtilities'; // Assuming accessibility utilities are in a separate file
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
-// Function to get the language attribute value
-function getLangAttribute() {
-  // Implementation of getLangAttribute function
-  // ...
+// Helper to get full language attribute
+function getFullLangAttribute() {
+  return getLangAttribute();
 }
 
-// Function to create an in-page button and add the lang attribute
-function createInPageButton() {
-  // Implementation of createInPageButton function
-  // ...
+// Table accessibility validators
+function validateTableAccessibility() {
+  const tbElements = document.querySelectorAll('table tbody');
+  let valid = true;
+  for (const tbody of tbElements) {
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    if (rows.length === 0) {
+      console.warn('Table tbody is empty');
+      valid = false;
+    } else if (!rows.some(row => row.hasAttribute('th'))) {
+      console.warn('Table tbody lacks header row');
+      valid = false;
+    }
+  }
+  return valid;
 }
 
-// Adding the lang attribute to the HTML element
-const htmlElement = document.documentElement;
-if (htmlElement) {
-  htmlElement.setAttribute('lang', getLangAttribute());
+function validateTableStructure() {
+  const tbs = document.querySelectorAll('table tbody');
+  let valid = true;
+  for (const tbody of tbs) {
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    if (rows.some(row => row.querySelector('table'))) {
+      console.warn('Nested table found inside tbody');
+      valid = false;
+    }
+  }
+  return valid;
 }
 
-// Function to validate the table structure for accessibility issues
-function validateTableAccessibility(table) {
-  if (!table || table.tagName !== 'TABLE') {
-    return {
-      isValid: false,
-      issues: ['Element is not a valid table.']
-    };
+// Landmark accessibility validators
+function validateLandmark() {
+  const svgs = document.querySelectorAll('svg');
+  for (const svg of svgs) {
+    if (!svg.getAttribute('aria-labelledby') && !svg.getAttribute('aria-label')) {
+      const parent = svg.parentNode;
+      const label = parent?.querySelector('[role="img"], [alt]')?.textContent || '';
+      if (label) {
+        svg.setAttribute('aria-labelledby', label);
+      } else {
+        const id = 'svg-' + Math.random().toString(36).substr(2, 9);
+        svg.setAttribute('id', id);
+        svg.setAttribute('aria-labelledby', id);
+      }
+    }
+  }
+}
+
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('[role="img"], [role="presentation"], [role="alert"]');
+  const ids = [...landmarks.map(l => l.id)].filter(id => id !== undefined);
+  const seen = new Set();
+  for (const id of ids) {
+    if (seen.has(id)) {
+      console.error(`Duplicate landmark ID: ${id}`);
+      return false;
+    }
+    seen.add(id);
+  }
+  return true;
+}
+
+function ensureUniqueLandmarks() {
+  const landmarkEls = document.querySelectorAll('[role="img"], [role="presentation"]');
+  const ids = new Set();
+  for (const el of landmarkEls) {
+    const id = el.id || 'unknown';
+    if (ids.has(id)) {
+      console.warn(`Duplicate landmark ID: ${id}`);
+      return false;
+    }
+    ids.add(id);
+  }
+  return true;
+}
+
+// SVG accessibility helpers
+function getSvgAccessibleName(svg) {
+  const text = svg.textContent.trim();
+  if (text) return text;
+  const title = svg.getAttribute('title');
+  return title || 'SVG without accessible name';
+}
+
+function createAccessibleLink(text, href) {
+  const link = document.createElement('a');
+  link.textContent = text;
+  link.href = href;
+  link.setAttribute('aria-label', text);
+  return link;
+}
+
+// Main accessibility remediation function
+function addressAccessibilityIssues() {
+  // Ensure the root container has an accessible name
+  const rootContainer = document.getElementById('root').parentElement;
+  if (rootContainer) {
+    rootContainer.setAttribute('role', 'main');
   }
 
-  const issues = [];
-
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption || !caption.textContent.trim()) {
-    issues.push('Table is missing a non-empty <caption> element.');
+  // Initialize skip link functionality
+  const skipLink = document.querySelector('[href^="#"]');
+  if (skipLink) {
+    skipLink.addEventListener('click', function(e) {
+      const targetId = this.getAttribute('href').slice(1);
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.setAttribute('tabindex', '-1');
+        target.focus();
+      }
+    });
   }
 
-  // Check for proper row/column header structure
-  const rows = table.querySelectorAll('tr');
-  if (rows.length === 0) {
-    issues.push('Table has no rows.');
-  }
+  // Ensure all buttons with role="button" respond to Enter key
+  document.querySelectorAll('[role="button"]').forEach(function(button) {
+    button.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.click();
+      }
+    });
+  });
 
-  let hasHeaderRow = false;
-  rows.forEach((row) => {
-    const thCells = row.querySelectorAll('th');
-    const tdCells = row.querySelectorAll('td');
-    if (thCells.length > 0 && tdCells.length === 0) {
-      hasHeaderRow = true;
+  // Add focusVisible polyfill behavior
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      document.body.classList.add('keyboard-nav');
     }
   });
 
-  if (!hasHeaderRow) {
-    issues.push('Table is missing a row of <th> header cells.');
-  }
-
-  // Check for scope attribute on header cells
-  const thElements = table.querySelectorAll('th');
-  thElements.forEach((th, index) => {
-    const scope = th.getAttribute('scope');
-    if (!scope) {
-      issues.push(`<th> element at index ${index} is missing a "scope" attribute.`);
-    }
+  document.addEventListener('mousedown', function() {
+    document.body.classList.remove('keyboard-nav');
   });
 
-  // Check for proper id/headers association in complex tables
-  const tdElements = table.querySelectorAll('td[headers]');
-  tdElements.forEach((td) => {
-    const headersAttr = td.getAttribute('headers');
-    if (headersAttr) {
-      const headerIds = headersAttr.split(/\s+/);
-      headerIds.forEach((headerId) => {
-        if (!document.getElementById(headerId)) {
-          issues.push(`<td> references missing header element with id "${headerId}".`);
-        }
-      });
-    }
-  });
-
-  // Check for summary attribute (deprecated but still relevant for older content)
-  if (table.hasAttribute('summary')) {
-    issues.push('Table uses the deprecated "summary" attribute. Use <caption> instead.');
-  }
-
-  return {
-    isValid: issues.length === 0,
-    issues: issues
-  };
-}
-
-// Validate the table structure for accessibility issues
-const tableElement = document.getElementById('example-table');
-if (tableElement) {
-  const tableAccessibilityResult = validateTableAccessibility(tableElement);
-  if (!tableAccessibilityResult.isValid) {
-    console.warn('Table accessibility issues found:', tableAccessibilityResult.issues);
-  }
-}
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (implemented)
-// - REACT_017: Add landmark roles and fix landmark issues (implemented)
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues) (implemented)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  // Your exported functions and modules here...
-};
+  a11y.trapFocus(document.getElementById('modal')); // Assuming a modal

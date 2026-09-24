@@ -2,12 +2,15 @@
 // TODO: Add lang attribute to HTML element (DONE: addLangAttribute)
 document.documentElement.lang = 'en';
 
+// Import required module(s) for DOM manipulation
+const { JSDOM } = require('jsdom') || {};
+
 /**
  * Checks accessibility of links and buttons within a given container
  * @param {HTMLElement} container - The container element to check for accessibility issues
  * @returns {Array} - Array of accessibility issues found
  */
-function checkAccessibilityIssues(container) {
+function checkAccessibility(container) {
   const issues = [];
   
   // Check links for accessibility
@@ -173,10 +176,10 @@ function renderAccessibilityIndex(issues, container) {
   let indexHTML = '<h3>Accessibility Issues Index</h3><ul class="index-list">';
   
   Object.entries(groupedIssues).forEach(([type, typeIssues]) => {
-    indexHTML += `<li class="issue-type">${type}: ${typeIssues.length} issue(s)
-    <ul class="issue-list">`;
-    typeIssues.forEach(issue => {
-      indexHTML += `<li class="issue-item" data-index="${issue.originalIndex}">${issue.message}</li>`;
+    indexHTML += `<li class="issue-group"><strong>${type}</strong>`;
+    indexHTML += '<ul class="issue-sublist">';
+    typeIssues.forEach((issue) => {
+      indexHTML += `<li class="issue-item" data-original-index="${issue.originalIndex}">${issue.message}</li>`;
     });
     indexHTML += '</ul></li>';
   });
@@ -191,7 +194,7 @@ function renderAccessibilityIndex(issues, container) {
  * Validates table structure for accessibility
  */
 function renderAccessibilityResults(container, outputContainer) {
-  const issues = checkAccessibilityIssues(container);
+  const issues = checkAccessibility(container);
   
   // ... existing implementation ...
 }
@@ -206,7 +209,7 @@ function renderIndexView() {
 // Example usage and export
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { 
-    checkAccessibilityIssues,
+    checkAccessibility,
     renderAccessibilityGraph,
     renderAccessibilityIndex,
     renderAccessibilityResults,
@@ -216,7 +219,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // If running in browser context
 if (typeof window !== 'undefined') {
-  window.checkAccessibilityIssues = checkAccessibilityIssues;
+  window.checkAccessibility = checkAccessibility;
   window.renderAccessibilityGraph = renderAccessibilityGraph;
   window.renderAccessibilityIndex = renderAccessibilityIndex;
   window.renderAccessibilityResults = renderAccessibilityResults;

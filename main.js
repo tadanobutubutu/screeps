@@ -253,44 +253,6 @@ function addProperLandmarkRegions() {
   // ... (omitted for brevity)
 }
 
-/**
- * Add proper landmark regions to the document.
- *
- * This function identifies all landmark elements and ensures they have
- * proper semantic HTML5 landmark roles and ARIA attributes where necessary.
- * It addresses the issue of ensuring proper landmark accessibility.
- *
- * @returns {Array<Object>} Array of results containing landmark information and status.
- */
-function addProperLandmarkRegionsDocument() {
-  const results = [];
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside, section');
-
-  landmarks.forEach(landmark => {
-    const result = { ...landmarkResults, elements: [] };
-
-    // ... (omitted for brevity)
-  });
-
-  return results;
-}
-
-/**
- * Checks if a specified landmark element is present in the document.
- * @param {string} id - The ID of the landmark element to check for.
- * @returns {boolean} True if the landmark element exists, false otherwise.
- */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return false;
-  }
-  // Check if element has appropriate landmark role
-  const landmarkRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'region'];
-  const role = element.getAttribute('role');
-  return landmarkRoles.includes(role) || element.tagName.toLowerCase() === 'MAIN';
-}
-
 // REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Ensure all landmarks have unique labels/IDs

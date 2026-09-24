@@ -48,9 +48,8 @@ function spawnProcess(command) {
 }
 
 // Example usage (if needed):
-// spawnProcess('echo', ['Hello, World!'])
-//   .then(stdout => console.log(stdout))
-//   .catch(error => console.error(error));
+// const btn = createInPageButton('Say Hello', () => console.log('Clicked'));
+// ...
 
 export { createInPageButton, spawnProcess };
 

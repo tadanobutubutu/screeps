@@ -77,14 +77,16 @@ function implementAccessibilityFixesFromReport (container, report) {
   }
 
   // Add lang attribute to HTML element if missing
-  const htmlEl = container.ownerDocument ? container.ownerDocument.documentElement : container.querySelector('html')
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
-    htmlEl.setAttribute('lang', 'en')
+  const htmlEl =
+    ... ||
+    (container.ownerDocument && ...
+  if (htmlEl && ... {
+    ... 'en')
     fixes.langAdded = true
   }
 
   // Add main landmark if missing
-  const mainElement = container.querySelector('main[role="main"]') || container.querySelector('main')
+  const mainElement = ...
   if (!mainElement) {
     const body = ...
     if (body) {
@@ -100,20 +102,28 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Update the existing function using the new functions for rendering graph/index
   renderDependencyGraphs(container)
   fixButtonIdentifiers(container)
+  ...
 
   // Fix landmark issues
   validateLandmark(container)
-  ...
+  // TODO: Validate the landmark structure for accessibility issues
+  const landmarkStructureIssues = validateLandmarkStructure(container)
+  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
+    landmarkStructureIssues.forEach(issue => {
+      log(`Landmark structure issue found: ${issue.type} - ${issue.message}`, 'warn')
+    })
+    fixes.landmarksFixed += landmarkStructureIssues.length
+  }
   fixes.landmarksFixed++
 
   // Fix SVG accessible names
-  const svgElements = container.querySelectorAll('svg')
-  svgElements.forEach(svg => {
+  const svgElements = ...
+  ... => {
     const accessibleName = getSvgAccessibleName(svg)
     if (
       accessibleName &&
-      !svg.hasAttribute('aria-label') &&
-      !svg.hasAttribute('aria-labelledby')
+            ... &&
+            ...
     ) {
       ... accessibleName)
       fixes.svgNamesAdded++
@@ -121,13 +131,11 @@ function implementAccessibilityFixesFromReport (container, report) {
   })
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('[role="link"]')
-  fakeLinks.forEach(link => {
-    if (!link.hasAttribute('href')) {
-      link.setAttribute('href', '#' + (link.id || Math.random().toString(36).substr(2, 9)))
-      link.setAttribute('role', 'link')
-      fixes.fakeLinksFixed++
-    }
+  const fakeLinks = ...
+  ... => {
+    link.setAttribute('href', '#' + (link.id || ...
+    link.setAttribute('role', 'link')
+    fixes.fakeLinksFixed++
   })
 
   // Validate accessibility report
@@ -150,7 +158,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Check for new accessibility issues
   const newAccessibilityIssues = checkAccessibility(container)
   if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error')
+    log(`New accessibility issues found: ... ')}`, 'error')
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0
@@ -381,140 +389,5 @@ export function ... {
   headers.forEach(th => {
     if ... {
       const row = th.closest('tr')
-      const cellIndex = Array.from(row.children).indexOf(th)
-      th.setAttribute('scope', cellIndex === 0 ? 'row' : 'col')
-    }
-  })
-  
-  return tableElement
-}
-
-/**
- * REACT_017: Add/fix landmark issues
- * Ensures proper landmark regions are present
- */
-export function addMainLandmark(container) {
-  const existingMain = container.querySelector('main[role="main"]') || container.querySelector('main')
-  if (existingMain) return existingMain
-  
-  const body = container.querySelector('body') || container
-  const main = document.createElement('main')
-  main.setAttribute('role', 'main')
-  
-  while (body.firstChild) {
-    main.appendChild(body.firstChild)
-  }
-  body.appendChild(main)
-  
-  return main
-}
-
-/**
- * REACT_017: Add landmark regions
- * Adds proper ARIA landmark regions
- */
-export function addLandmarkRegions(container) {
-  const regions = ['navigation', 'complementary', 'contentinfo', 'banner', 'search']
-  regions.forEach(role => {
-    const existing = container.querySelector(`[role="${role}"]`)
-    if (!existing) {
-      const region = document.createElement('div')
-      region.setAttribute('role', role)
-      region.setAttribute('aria-label', role)
-      region.style.display = 'none'
-      container.appendChild(region)
-    }
-  })
-}
-
-/**
- * REACT_025: Ensure unique landmarks
- * Ensures each landmark has a unique identifier
- */
-export function uniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role]')
-  const seenTypes = {}
-  
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role')
-    if (seenTypes[role]) {
-      const id = `${role}-${Object.keys(seenTypes).filter(k => k.startsWith(role)).length + 1}`
-      landmark.setAttribute('id', id)
-      seenTypes[role]++
-    } else {
-      seenTypes[role] = 1
-    }
-  })
-}
-
-/**
- * REACT_041: Add accessible names to SVGs
- * Ensures SVG elements have proper accessible names
- */
-export function getSvgAccessibleName(svg) {
-  if (!svg) return null
-  
-  // Check for existing aria-label or aria-labelledby
-  const ariaLabel = svg.getAttribute('aria-label')
-  if (ariaLabel) return ariaLabel
-  
-  // Check for title element within SVG
-  const title = svg.querySelector('title')
-  if (title) return title.textContent
-  
-  // Check for adjacent description
-  const id = svg.getAttribute('aria-describedby') || svg.id
-  if (id) {
-    const desc = document.getElementById(id)
-    if (desc) return desc.textContent
-  }
-  
-  return null
-}
-
-/**
- * REACT_036: Fix fake link issues
- * Ensures elements that look like links have proper href attributes
- */
-export function fixFakeLinkIssues(container) {
-  const fakeLinks = container.querySelectorAll('[role="link"]:not([href]), a:not([href])')
-  fakeLinks.forEach(link => {
-    if (!link.hasAttribute('href')) {
-      const id = link.id || `fake-link-${Math.random().toString(36).substr(2, 9)}`
-      link.id = id
-      link.setAttribute('href', `#${id}`)
-    }
-  })
-}
-
-/**
- * NEW: Focus trap for keyboard navigation
- * Traps focus within a container for modal/dialog accessibility
- */
-export function focusTrap(container) {
-  if (!container) return null
-  
-  const focusableSelectors = [
-    'button:not([disabled])',
-    'a[href]',
-    'input:not([disabled])',
-    'select:not([disabled])',
-    'textarea:not([disabled])',
-    '[tabindex]:not([tabindex="-1"])'
-  ].join(', ')
-  
-  const focusableElements = container.querySelectorAll(focusableSelectors)
-  const firstElement = focusableElements[0]
-  const lastElement = focusableElements[focusableElements.length - 1]
-  
-  const handleKeyDown = (e) => {
-    const isTab = e.key === 'Tab'
-    if (!isTab) return
-    
-    if (e.shiftKey) {
-      if (document.activeElement === firstElement) {
-        e.preventDefault()
-        if (lastElement) lastElement.focus()
-      }
-    } else {
-      if (document.activeElement === lastElement)
+      const cellIndex = ...
+      th.setAttribute('scope',

@@ -1,14 +1,10 @@
-Here is the resolved file content, integrating both changes:
+// TODO: This is the existing code that needs to be preserve
 
-```javascript
-const main = require('./utilities')
-
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
-    document.body.appendChild(button);
+function divide(a, b) {
+  if (b === 0) {
+    return 0;
+  }
+  return a / b;
 }
 
 function harvestResources() {

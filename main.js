@@ -4,9 +4,11 @@ const fs = require('fs');
 const express = require('express');
 const { exec } = require('child_process');
 const app = express();
-const { createServer: importedCreateServer, startApp: importedStartApp, config } = require('./');
 
-const port = PORT || 3000;
+const PORT = process.env.PORT || 3000;
+const config = {
+  port: PORT
+};
 
 ```javascript
 // TODO: This is the existing code that needs to be preserved
@@ -305,6 +307,10 @@ const AddressabilityIssues = {
     return issues;
   },
 
+  validateLandmark(element) {
+    // Implementation for validateLandmark
+    return true;
+  }
   // ... (other methods omitted for brevity)
 };
 
@@ -400,7 +406,8 @@ calculateAccessibilityScore = function(fixedIssues) {
 
 ensureUniqueLandmarksFromString = function(source) {
     // Update function logic to ensure unique landmarks from a string
-    return source || '';
+    const landmarks = source.match(/<header|<nav|<main|<aside|<footer|<section|<article/g) || [];
+    return landmarks;
 };
 
 spawnSomeCommand = function(callback) {

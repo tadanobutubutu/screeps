@@ -274,6 +274,46 @@ async function handleCredentialResponse (response) {
   throw new Error('Invalid credential response')
 }
 
+/**
+ * Creates an accessible button element with optional click handler
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {string} [options.id] - Optional button ID
+ * @param {string} [options.className] - Optional CSS class name
+ * @param {string} [options.ariaLabel] - Optional ARIA label for accessibility
+ * @param {Function} [options.onClick] - Click event handler
+ * @param {HTMLElement} [options.parent] - Parent element to append button to
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createButton ({ text, id, className, ariaLabel, onClick, parent }) {
+  const button = document.createElement('button')
+
+  // Set basic properties
+  button.textContent = text
+  if (id) button.id = id
+  if (className) button.className = className
+
+  // Set accessibility attributes
+  button.setAttribute('type', 'button')
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel)
+  } else {
+    button.setAttribute('aria-label', text)
+  }
+
+  // Add click handler if provided
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick)
+  }
+
+  // Append to parent if provided
+  if (parent && parent instanceof HTMLElement) {
+    parent.appendChild(button)
+  }
+
+  return button
+}
+
 // Export functionality with accessibility support
 const exportUtils = {
   exportData: (data, filename, mimeType) => {
@@ -362,5 +402,6 @@ module.exports = {
   renderDependencyGraphs,
   spawnProcess,
   focusTrap,
-  newFocusTrap
+  newFocusTrap,
+  createButton
 }

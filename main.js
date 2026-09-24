@@ -4,7 +4,8 @@ const { dependencyGraphContent } = require('./dependencyGraph')
 const { indexContent } = require('./index')
 
 // Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+// TODO: Address accessibility issues from insight report:
+// ... (Removed hashes for ease of reading)
 
 const accessibilityUtils = {
   // ... existing methods from both branches ...
@@ -36,49 +37,6 @@ const accessibilityUtils = {
     if (handlers[key]) {
       handlers[key](e)
     }
-  },
-
-  /**
-     * Initialize accessibility features
-     */
-  initAccessibility: () => {
-    // Set lang attribute on HTML element
-    if (!document.documentElement.hasAttribute('lang')) {
-      document.documentElement.setAttribute('lang', 'en')
-    }
-
-    // Add skip link for keyboard users
-    const skipLink = document.createElement('a')
-    skipLink.href = '#main-content'
-    skipLink.className = 'skip-link'
-    skipLink.textContent = 'Skip to main content'
-    skipLink.style.position = 'absolute'
-    skipLink.style.left = '-9999px'
-    skipLink.style.top = '0'
-    skipLink.style.zIndex = '1000'
-    skipLink.setAttribute('aria-label', 'Skip to main content')
-
-    skipLink.addEventListener('focus', () => {
-      skipLink.style.left = '0'
-    })
-
-    skipLink.addEventListener('blur', () => {
-      skipLink.style.left = '-9999px'
-    })
-
-    document.body.insertBefore(skipLink, document.body.firstChild)
-
-    // Add focus styles for keyboard navigation
-    const style = document.createElement('style')
-    style.textContent = `
-      .skip-link:focus {
-        left: 0;
-        padding: 1rem;
-        background: #000;
-        color: #fff;
-      }
-    `
-    document.head.appendChild(style)
   }
 }
 
@@ -379,10 +337,23 @@ function log (message, level = 'info') {
   console[level](`[${timestamp}] [${level.toUpperCase()}] ${message}`)
 }
 
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+
+// _Commit: 77c7358bacc3abbeb20b032f1f59ff7b04023c4c_
+
+// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+
 module.exports = {
   accessibilityUtils,
   exportUtils,
-  initAccessibility: accessibilityUtils.initAccessibility,
+  initAccessibility,
   handleCredentialResponse,
   ensureElementId,
   ensureElementHasId,

@@ -135,15 +135,20 @@ function personName(options = {}) {
   const { firstName = '', lastName = '', lang = 'en', container = null } = options;
   const fullName = `${firstName} ${lastName}`.trim();
 
-  const element = document.createElement('span');
-  element.setAttribute('aria-label', fullName);
-  element.textContent = fullName;
+  if (typeof document !== 'undefined') {
+    const nameElement = document.createElement('span');
+    nameElement.setAttribute('lang', lang);
+    nameElement.setAttribute('aria-label', fullName);
+    nameElement.textContent = fullName || 'Unknown';
 
-  if (container) {
-    container.appendChild(element);
+    if (container) {
+      container.appendChild(nameElement);
+    }
+
+    return nameElement;
   }
 
-  return element;
+  return fullName || 'Unknown';
 }
 
 /**

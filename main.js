@@ -343,14 +343,40 @@ const sampleInsightReport = {
   ]
 };
 
-function generateUniqueId(landmark) {
-  let uniqueId = landmark;
-  let counter = 0;
-  while (document.getElementById(uniqueId)) {
-    uniqueId = `${landmark}-${counter++}`;
+function countDependencies() {
+  const fs = require('fs');
+  const path = require('path');
+
+  try {
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+    const dependencies = Object.keys(packageJson.dependencies || {}).length;
+    const devDependencies = Object.keys(packageJson.devDependencies || {}).length;
+    const peerDependencies = Object.keys(packageJson.peerDependencies || {}).length;
+    const optionalDependencies = Object.keys(packageJson.optionalDependencies || {}).length;
+
+    return {
+      dependencies,
+      devDependencies,
+      peerDependencies,
+      optionalDependencies,
+      total: dependencies + devDependencies + peerDependencies + optionalDependencies
+    };
+  } catch (error) {
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      peerDependencies: 0,
+      optionalDependencies: 0,
+      total: 0,
+      error: error.message
+    };
   }
-  return uniqueId;
 }
+
+function init() {
+  // Accessibility-focused implementation functions
 
 function ensureUniqueIds() {
   const landmarks = document.querySelectorAll('[role="landmark"]');

@@ -132,10 +132,10 @@ function fixHeadingHierarchy(issue) {
 // Import required modules
 const http = require('http');
 const path = require('path');
+const { getRandomInt } = require('./utils'); // Assuming there's a utils.js file containing the getRandomInt function
 
 // Application configuration
 const config = {
-  port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development'
 };
 
@@ -234,6 +234,7 @@ function activateFocusTrap(container) {
  * @returns {http.Server} The created server instance
  */
 function createServer() {
+  const serverPort = getRandomInt(3000, 3050);
   const server = http.createServer((req, res) => {
     res.writeHead(200, { 
       'Content-Type': 'application/json',
@@ -255,8 +256,8 @@ function createServer() {
  */
 function startApp() {
   const server = createServer();
-  server.listen(config.port, () => {
-    console.log(`Server running on port ${config.port}`);
+  server.listen(serverPort, () => {
+    console.log(`Server running on port ${serverPort}`);
   });
   return server;
 }
@@ -293,13 +294,7 @@ module.exports = {
   FOCUSABLE_SELECTORS
 };
 
-// Start the application if run directly (with new functions)
-if (require.main === module) {
-  startApp();
-}
-
-// New function added as per the issue
-function newFunction() {
-  // Implementation of the new function
-  console.log('New function is running');
-}
+// Add the following line at the end of the file if you want to start the application if run directly
+// if (require.main === module) {
+//   startApp();
+// }

@@ -268,15 +268,13 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  // New function requested in the issue
-  updateAccessibilityFeatures() {
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
-    this.fixFakeLinks();
+  /**
+   * Ensure all interactive elements are accessible
+   */
+  ensureInteractiveElementsAccessible() {
     this.ensureInteractiveRoles();
     this.addFormControlLabels();
     this.ensureImageAccessibility();
-    this.updateLiveRegion("Accessibility features updated.");
   }
 };
 

@@ -462,6 +462,70 @@ const a11yStore = {
       }
     };
   },
+
+  fixFakeLinks() {
+    const fakeLinks = document.querySelectorAll('[href]:not(a)');
+    fakeLinks.forEach((link) => {
+      link.setAttribute('role', 'link');
+      link.setAttribute('tabindex', '0');
+      link.setAttribute('data-interactive', 'true');
+    });
+  },
+
+  /**
+   * Ensure all interactive elements have proper ARIA roles
+   */
+  ensureInteractiveRoles() {
+    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
+    interactiveElements.forEach((element) => {
+      if (!element.hasAttribute('role')) {
+        element.setAttribute('role', 'button');
+      }
+    });
+  },
+
+  /**
+   * Add ARIA labels to form controls if missing
+   */
+  addFormControlLabels() {
+    const formControls = document.querySelectorAll('input, select, textarea');
+    formControls.forEach((control, index) => {
+      if (!control.id) {
+        control.id = `form-control-${index}`;
+      }
+      const label = document.createElement('label');
+      label.setAttribute('for', control.id);
+      label.textContent = control.placeholder || 'Form control';
+      control.parentNode.insertBefore(label, control);
+    });
+  },
+
+  /**
+   * Ensure all images have alt text or ARIA attributes
+   */
+  ensureImageAccessibility() {
+    const images = document.querySelectorAll('img');
+    images.forEach((img) => {
+      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
+        img.setAttribute('alt', '');
+      }
+    });
+  },
+
+  // ... remaining a11yStore methods ...
+
+  // New function to ensure proper landmark usage
+  ensureSingleMainLandmark() {
+    const mainElements = document.querySelectorAll('[role="main"]');
+    if (mainElements.length > 1) {
+      console.warn('Multiple <main> elements found. Only one <main> element should be present.');
+      mainElements.forEach((element, index) => {
+        if (index > 0) {
+          element.remove();
+        }
+      });
+    }
+  }
 };
 
 // New functions
@@ -469,6 +533,7 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.ensureInteractiveRoles();
   a11yStore.addFormControlLabels();
   a11yStore.ensureImageAccessibility();
+  a11yStore.ensureSingleMainLandmark(); // Call the new function to check for multiple <main> elements
 }
 
 /**

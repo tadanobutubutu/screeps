@@ -4,27 +4,9 @@
 // TODO: This is the existing code that needs to be preserved
 
 // Import necessary dependencies
-import React from 'react'
-import { render } from 'react-dom'
-import {
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs
-} from './AccessibilityHelpers'
+import React from 'react';
+import { render } from 'react-dom';
+import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs, createAccessibleButton } from './AccessibilityHelpers';
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')
@@ -87,34 +69,7 @@ module.exports = {
   renderDependencyGraph,
   renderIndex,
   validateTableAccessibility,
-  validateTableStructure
-  // Preserve any other existing exports here
-}
-
-// New function or changes requested in the issue
-/**
- * New function to handle additional rendering logic
- * @param {Object} additionalData - Additional data for rendering
- * @returns {string} Rendered additional content HTML
- */
-function renderAdditionalContent (additionalData) {
-  // Implementation of the new function
-  // Placeholder for actual implementation
-  return `<div>${JSON.stringify(additionalData)}</div>`
-}
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent;
-
-// TODO: Update the existing function using the new functions for rendering graph/index
-function renderDependencyGraph() {
-  // Implementation using the new functions
-  // This is a placeholder - actual implementation should use the new rendering functions
-  return renderDependencyGraphs();
-}
-
-function renderIndex() {
-  // Implementation using the new functions
-  // This is a placeholder - actual implementation should use the new rendering functions
-  return renderAdditionalContent({});
-}
+  validateTableStructure,
+  renderAdditionalContent,
+  createAccessibleButton
+};

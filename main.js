@@ -343,4 +343,620 @@ function addSvgAccessibleNames() {
 }
 ```
 
-In the resolved version, I tried to integrate both sets of changes. The changes from both branches (HEAD and origin/main) are present in the code, and conflicts are resolved logically. Please review the resolved file to ensure that the functionality and style are preserved, as requested in your question.
+// REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// Ensure all <th> elements have scope attribute
+function ensureThScope() {
+  const thElements = document.querySelectorAll('th');
+  thElements.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      // Determine if it's a column header or row header based on context
+      const parent = th.parentElement;
+      const parentTagName = parent ? parent.tagName.toLowerCase() : '';
+      const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
+
+      if (isFirstCell && parentTagName === 'tr') {
+        th.setAttribute('scope', 'row');
+      } else if (parentTagName === 'thead' || !isFirstCell) {
+        th.setAttribute('scope', 'col');
+      }
+    }
+  });
+}
+
+/**
+ * Setup skip link functionality for keyboard navigation
+ */
+function setupSkipLinks() {
+  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
+  if (skipLink) {
+    skipLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById(skipLink.getAttribute('href').replace('#', ''));
+      if (target) {
+        target.focus();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+}
+
+/**
+ * Ensure buttons have proper accessibility attributes
+ */
+function setupButtonAccessibility() {
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button) => {
+    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+      button.setAttribute('aria-label', 'Action button');
+    }
+  });
+}
+
+/**
+ * Perform a task with the given parameters
+ * @param {string} task - The task to perform
+ */
+function performTask(task) {
+  console.log(`Performing task: ${task}`);
+  // Task implementation details would go here
+}
+
+/**
+ * Handle an event with the given parameters
+ * @param {string} event - The event to handle
+ */
+function handleEvent(event) {
+  console.log(`Handling event: ${event}`);
+  // Event handling logic would go here
+}
+
+// Merged landmark roles function to include both implementations
+function addLandmarkRoles() {
+  // From HEAD: Navigation, Main, Header
+  const navElement = document.querySelector('nav');
+  if (navElement && !navElement.getAttribute('role')) {
+    navElement.setAttribute('role', 'navigation');
+  }
+
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.getAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  const headerElement = document.querySelector('header');
+  if (headerElement && !headerElement.getAttribute('role')) {
+    headerElement.setAttribute('role', 'banner');
+  }
+
+  // From origin/main: Footer
+  const footerElement = document.querySelector('footer');
+  if (footerElement && !footerElement.getAttribute('role')) {
+    footerElement.setAttribute('role', 'contentinfo');
+  }
+
+  // From origin/main: Specific main-content ID
+  const mainContent = document.getElementById('main-content');
+  if (mainContent && !mainContent.getAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+}
+
+// Function to ensure unique landmarks (2 issues)
+function ensureUniqueLandmarks() {
+  // Define landmark roles - some should be unique per page
+  const uniqueLandmarkRoles = ['main', 'banner', 'contentinfo'];
+  const multipleAllowedRoles = ['navigation', 'complementary', 'region', 'search', 'form'];
+  const allLandmarkRoles = [...uniqueLandmarkRoles, ...multipleAllowedRoles];
+
+  // Find all elements with landmark roles
+  const landmarks = document.querySelectorAll(allLandmarkRoles.map(role => `[role="${role}"]`).join(', '));
+
+  // Group landmarks by role
+  const landmarksByRole = {};
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (!landmarksByRole[role]) {
+      landmarksByRole[role] = [];
+    }
+    landmarksByRole[role].push(landmark);
+  });
+
+  // Check unique landmark roles - should only have one per page
+  uniqueLandmarkRoles.forEach(role => {
+    const elements = landmarksByRole[role] || [];
+    if (elements.length > 1) {
+      console.warn(`Multiple ${role} landmarks found. Only one is allowed per page.`);
+      // Keep the first one, remove role from others
+      elements.slice(1).forEach(el => {
+        el.removeAttribute('role');
+        console.warn(`Removed duplicate ${role} landmark role from element:`, el);
+      });
+    }
+  });
+
+  // For roles that allow multiples, ensure each has a unique accessible name
+  multipleAllowedRoles.forEach(role => {
+    const elements = landmarksByRole[role] || [];
+    if (elements.length > 1) {
+      const usedNames = new Set();
+      elements.forEach((el, index) => {
+        // Check for existing accessible name
+        const ariaLabel = el.getAttribute('aria-label');
+        const ariaLabelledBy = el.getAttribute('aria-labelledby');
+        let accessibleName = ariaLabel || (ariaLabelledBy ? document.getElementById(ariaLabelledBy)?.textContent : null);
+
+        if (!accessibleName) {
+          // Generate a unique name
+          accessibleName = `${role} ${index + 1}`;
+          el.setAttribute('aria-label', accessibleName);
+        }
+
+        // Ensure uniqueness
+        let uniqueName = accessibleName;
+        let counter = 1;
+        while (usedNames.has(uniqueName)) {
+          uniqueName = `${accessibleName} ${counter}`;
+          counter++;
+        }
+        usedNames.add(uniqueName);
+
+        if (uniqueName !== accessibleName) {
+          el.setAttribute('aria-label', uniqueName);
+        }
+      });
+    } else if (elements.length === 1) {
+      // Single landmark of this type - ensure it has an accessible name if needed
+      const el = elements[0];
+      const ariaLabel = el.getAttribute('aria-label');
+      const ariaLabelledBy = el.getAttribute('aria-labelledby');
+      if (!ariaLabel && !ariaLabelledBy) {
+        el.setAttribute('aria-label', role);
+      }
+    }
+  });
+}
+
+// Function to fix 1 fake link issue
+function fixFakeLink() {
+  const fakeLinks = document.querySelectorAll('[href="#"]:not([aria-hidden])');
+  fakeLinks.forEach((link) => {
+    link.removeAttribute('href');
+  });
+}
+
+// Initialize accessibility improvements
+function initializeAccessibility() {
+  // Replace fake links with proper buttons
+  const fakeLink = document.getElementById('unrotate');
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    parent.replaceChild(newButton, fakeLink);
+  }
+
+  // Ensure table headers have proper scope
+  ensureThScope();
+
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-hidden') || svg.getAttribute('aria-hidden') !== 'true') {
+      svg.setAttribute('aria-label', `Icon ${index + 1}`);
+    }
+  });
+}
+
+// Initialize the application with accessibility improvements
+function initialize() {
+  // Existing initialization logic preserved
+  console.log('Application initialized');
+
+  // Accessibility: Ensure main content is keyboard accessible
+  const mainContent = document.querySelector('main') || document.getElementById('main');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.setAttribute('role', 'main');
+  }
+
+  // Accessibility: Add skip link functionality
+  setupSkipLinks();
+
+  // Accessibility: Ensure buttons have proper labels
+  setupButtonAccessibility();
+
+  // Accessibility: Add landmark roles and fix landmark issues
+  addLandmarkRoles();
+
+  // Accessibility: Add accessible names to 2 SVGs
+  addSvgAccessibleNames();
+
+  // Accessibility: Ensure unique landmarks (2 issues)
+  ensureUniqueLandmarks();
+
+  // Accessibility: Fix 1 fake link issue
+  fixFakeLink();
+}
+
+// New function requested in the issue
+function newFunction() {
+  // Implementation of the new function
+  const button = createInPageButton('New Button', function() {
+    console.log('New Function clicked!');
+  });
+  document.body.appendChild(button);
+}
+
+/**
+ * Handle credential response from authentication/authorization
+ * @param {Object|string} response - The credential response data (JSON string or object)
+ * @param {Object} options - Configuration options for handling the response
+ * @returns {Object} Processed credential information or validation result
+ */
+function handleCredentialResponse(response, options = {}) {
+  // Parse the response if it's a string
+  let parsedResponse;
+  if (typeof response === 'string') {
+    try {
+      parsedResponse = JSON.parse(response);
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Invalid JSON format in credential response',
+        details: error.message
+      };
+    }
+  } else {
+    parsedResponse = response;
+  }
+
+  // Default options
+  const defaultOptions = {
+    validate: true,
+    store: true,
+    validateToken: false,
+    ...options
+  };
+
+  // Validation step
+  if (defaultOptions.validate) {
+    const validation = validateCredentialResponse(parsedResponse);
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: 'Credential validation failed',
+        details: validation.errors
+      };
+    }
+  }
+
+  // Token validation step (if requested)
+  if (defaultOptions.validateToken && parsedResponse.token) {
+    const tokenValidation = validateToken(parsedResponse.token);
+    if (!tokenValidation.isValid) {
+      return {
+        success: false,
+        error: 'Token validation failed',
+        details: tokenValidation.errors
+      };
+    }
+  }
+
+  // Process and store credentials if requested
+  let processedCredentials = null;
+  if (defaultOptions.store) {
+    processedCredentials = processCredentials(parsedResponse);
+    
+    // Store credentials in state or secure storage
+    try {
+      storeCredentials(processedCredentials);
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Failed to store credentials',
+        details: error.message
+      };
+    }
+  } else {
+    processedCredentials = parsedResponse;
+  }
+
+  // Return success response
+  return {
+    success: true,
+    credentials: processedCredentials,
+    message: 'Credential response handled successfully'
+  };
+}
+
+/**
+ * Validate credential response structure and content
+ * @param {Object} credentialData - The credential data to validate
+ * @returns {Object} Validation result with isValid flag and errors
+ */
+function validateCredentialResponse(credentialData) {
+  const errors = [];
+  
+  // Check if credentialData is an object
+  if (typeof credentialData !== 'object' || credentialData === null) {
+    errors.push('Credential data must be a non-null object');
+    return {
+      isValid: false,
+      errors: errors
+    };
+  }
+
+  // Required fields validation
+  const requiredFields = ['token', 'userId', 'expiresAt'];
+  requiredFields.forEach(field => {
+    if (!credentialData.hasOwnProperty(field)) {
+      errors.push(`Missing required field: ${field}`);
+    } else if (credentialData[field] === null || credentialData[field] === undefined) {
+      errors.push(`Field ${field} cannot be null or undefined`);
+    }
+  });
+
+  // Token format validation
+  if (credentialData.token) {
+    if (typeof credentialData.token !== 'string') {
+      errors.push('Token must be a string');
+    } else if (credentialData.token.length < 10) {
+      errors.push('Token appears to be invalid (too short)');
+    }
+  }
+
+  // User ID validation
+  if (credentialData.userId) {
+    if (typeof credentialData.userId !== 'string' && typeof credentialData.userId !== 'number') {
+      errors.push('User ID must be a string or number');
+    }
+  }
+
+  // Expiration time validation
+  if (credentialData.expiresAt) {
+    const expiresAt = new Date(credentialData.expiresAt);
+    if (isNaN(expiresAt.getTime())) {
+      errors.push('Invalid expiration date format');
+    } else if (expiresAt <= new Date()) {
+      errors.push('Credential has already expired');
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Validate authentication token
+ * @param {string} token - The authentication token to validate
+ * @returns {Object} Validation result with isValid flag and errors
+ */
+function validateToken(token) {
+  const errors = [];
+  
+  if (!token) {
+    errors.push('Token is required');
+    return {
+      isValid: false,
+      errors: errors
+    };
+  }
+
+  // Basic token format validation (could be enhanced with JWT decoding)
+  if (typeof token !== 'string') {
+    errors.push('Token must be a string');
+  } else if (token.length < 20) {
+    errors.push('Token appears to be too short to be valid');
+  } else if (!/^[A-Za-z0-9\-_\.]+$/.test(token)) {
+    errors.push('Token contains invalid characters');
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Process credential data for storage and use
+ * @param {Object} credentialData - Raw credential data
+ * @returns {Object} Processed credential information
+ */
+function processCredentials(credentialData) {
+  // Create a sanitized copy of credential data
+  const processed = {
+    userId: credentialData.userId,
+    token: credentialData.token,
+    expiresAt: credentialData.expiresAt,
+    issuedAt: credentialData.issuedAt || new Date().toISOString(),
+    userAgent: navigator.userAgent,
+    lastUsed: new Date().toISOString()
+  };
+
+  // Add any additional metadata
+  if (credentialData.email) {
+    processed.email = credentialData.email;
+  }
+  
+  if (credentialData.roles) {
+    processed.roles = credentialData.roles;
+  }
+
+  return processed;
+}
+
+/**
+ * Store credentials in state or secure storage
+ * @param {Object} credentials - Processed credential information
+ * @throws {Error} If storage fails
+ */
+function storeCredentials(credentials) {
+  // Store in application state if available
+  if (typeof state !== 'undefined' && state.credentials) {
+    state.credentials = credentials;
+    if (typeof updateState === 'function') {
+      updateState();
+    }
+  }
+
+  // Store in localStorage as fallback
+  try {
+    localStorage.setItem('app_credentials', JSON.stringify(credentials));
+  } catch (error) {
+    // If localStorage fails, throw error
+    throw new Error('Failed to store credentials: ' + error.message);
+  }
+}
+
+// Tower Defense Implementation
+const TOWER_DEFENSE_CONFIG = {
+  boardSize: { rows: 8, cols: 8 },
+  towerCost: 100,
+  enemyHealth: 100,
+  enemySpeed: 50,
+  maxTowers: 10,
+  gameInterval: 1000
+};
+
+class TowerDefenseGame {
+  constructor(config = TOWER_DEFENSE_CONFIG) {
+    this.config = config;
+    this.board = this.createBoard();
+    this.towers = [];
+    this.enemies = [];
+    this.gameIntervalId = null;
+    this.isRunning = false;
+  }
+
+  createBoard() {
+    const { rows, cols } = this.config.boardSize;
+    return Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => ({ type: 'path', tower: null }))
+    );
+  }
+
+  placeTower(row, col) {
+    if (this.towers.length >= this.config.maxTowers) {
+      return false;
+    }
+    
+    if (this.board[row] && this.board[row][col]) {
+      const cell = this.board[row][col];
+      if (cell.type !== 'path' || cell.tower) {
+        return false;
+      }
+      
+      const tower = {
+        id: this.towers.length,
+        row,
+        col,
+        damage: 10,
+        range: 3,
+        cost: this.config.towerCost
+      };
+      
+      cell.tower = tower;
+      this.towers.push(tower);
+      return true;
+    }
+    return false;
+  }
+
+  spawnEnemy() {
+    const enemy = {
+      id: this.enemies.length,
+      health: this.config.enemyHealth,
+      position: { row: 0, col: 0 },
+      pathIndex: 0
+    };
+    this.enemies.push(enemy);
+  }
+
+  updateEnemies() {
+    this.enemies.forEach(enemy => {
+      // Simplified movement logic - move along path
+      if (enemy.position.col < this.config.boardSize.cols - 1) {
+        enemy.position.col++;
+      } else if (enemy.position.row < this.config.boardSize.rows - 1) {
+        enemy.position.row++;
+        enemy.position.col = 0;
+      } else {
+        // Enemy reached the end - remove from array
+        return false;
+      }
+      return true;
+    });
+    
+    // Remove enemies that reached the end
+    this.enemies = this.enemies.filter(enemy => 
+      enemy.position.row < this.config.boardSize.rows - 1
+    );
+  }
+
+  updateTowers() {
+    this.towers.forEach(tower => {
+      // Find enemies in range and attack
+      this.enemies.forEach(enemy => {
+        const distance = Math.abs(tower.row - enemy.position.row) + 
+                         Math.abs(tower.col - enemy.position.col);
+        
+        if (distance <= tower.range) {
+          enemy.health -= tower.damage;
+          if (enemy.health <= 0) {
+            // Mark enemy for removal
+            enemy.health = 0;
+          }
+        }
+      });
+    });
+    
+    // Remove dead enemies
+    this.enemies = this.enemies.filter(enemy => enemy.health > 0);
+  }
+
+  start() {
+    if (this.isRunning) return;
+    
+    this.isRunning = true;
+    this.spawnEnemy(); // Initial enemy
+    
+    this.gameIntervalId = setInterval(() => {
+      this.spawnEnemy();
+      this.updateEnemies();
+      this.updateTowers();
+    }, this.config.gameInterval);
+  }
+
+  stop() {
+    if (this.gameIntervalId) {
+      clearInterval(this.gameIntervalId);
+      this.gameIntervalId = null;
+    }
+    this.isRunning = false;
+  }
+
+  getGameState() {
+    return {
+      board: this.board,
+      towers: this.towers,
+      enemies: this.enemies,
+      isRunning: this.isRunning
+    };
+  }
+}
+
+// Export tower defense game class
+export { TowerDefenseGame, TOWER_DEFENSE_CONFIG };
+
+export function calculateDiscount(price, discount) {
+  if (typeof price !== 'number' || price < 0) {
+    throw new Error('Price must be a non-negative number');
+  }
+  if (typeof discount !== 'number' || discount < 0) {
+    throw new Error('Discount must be a non-negative number');
+  }
+  return price - (price * discount / 100);
+}
+
+export default main;

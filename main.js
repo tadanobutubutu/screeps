@@ -169,36 +169,145 @@ const a11yStore = {
   return 'SVG graphic';
 }
 
-/**
- * Validates table accessibility by checking structure and headers.
- * @param {HTMLElement} table - The table to validate
- * @returns {Object} - Validation result with success status and details
- */
-function validateTableAccessibility(table) {
-  if (!table) {
-    return { success: false, error: 'Table is required' };
+// Top-level jQuery implementation for accessibility enhancement
+$(document).ready(() => {
+  // Initialize skip links
+  if (typeof accessibilityUtils.initSkipLink === 'function') {
+    accessibilityUtils.initSkipLink();
   }
-
-  const hasCaption = !!table.querySelector('caption');
-  const headers = table.querySelectorAll('th');
-
-  const headerValidation = Array.from(headers).every(header => header.hasAttribute('scope'));
-
-  return {
-    success: hasCaption && headers.length > 0 && headerValidation,
-    details: {
-      hasCaption,
-      headerCount: headers.length,
-      headersHaveScope: headerValidation
-    }
-  };
-}
-
-function validateLandmark(container) {
-  // ... existing validateLandmark function implementation ...
-}
 
 // ... remaining function implementations ...
 ```
 
-This merged version of 'main.js' combines both the accessibility and math helper functionality. The accessibility functions are preserved and merged with some math helper functions. The existing rendering functions for the graph/index are updated to use the new functions for rendering.
+  // Add language attribute to document
+  if (typeof addLangAttribute === 'function') {
+    addLangAttribute(document.documentElement);
+  }
+
+  // Fix table structure issues
+  if (typeof fixTableStructure === 'function') {
+    fixTableStructure();
+  }
+
+  // Add main landmark
+  if (typeof addMainLandmark === 'function') {
+    addMainLandmark();
+  }
+
+  // Ensure unique landmarks
+  if (typeof ensureUniqueLandmarks === 'function') {
+    ensureUniqueLandmarks();
+  }
+
+  // Set SVG accessibility properties
+  if (typeof setSvgAccessibilityProps === 'function') {
+    setSvgAccessibilityProps();
+  }
+
+  // Add accessible names to SVGs
+  if (typeof addAccessibleNamesToSVGs === 'function') {
+    addAccessibleNamesToSVGs();
+  }
+
+  // Fix fake link issues
+  if (typeof fixFakeLinkIssue === 'function') {
+    fixFakeLinkIssue();
+  }
+
+  // Fix landmark issues
+  if (typeof fixLandmarkIssues === 'function') {
+    fixLandmarkIssues();
+  }
+
+  // Add landmark regions
+  if (typeof addLandmarkRegions === 'function') {
+    addLandmarkRegions();
+  }
+
+  // Fix button identifiers
+  if (typeof fixButtonIdentifiers === 'function') {
+    fixButtonIdentifiers();
+  }
+
+  // Fix dependency graph ARIA
+  if (typeof fixDependencyGraphAria === 'function') {
+    fixDependencyGraphAria();
+  }
+
+  // Add main landmark to index
+  if (typeof addMainLandmarkToIndex === 'function') {
+    addMainLandmarkToIndex();
+  }
+
+  // Fix image alt texts
+  if (typeof fixImageAltTexts === 'function') {
+    fixImageAltTexts();
+  }
+
+  // Ensure unique landmarks
+  if (typeof uniqueLandmarks === 'function') {
+    uniqueLandmarks();
+  }
+
+  // Initialize focus traps
+  const focusableContainers = document.querySelectorAll('[data-focus-trap]');
+  focusableContainers.forEach(container => {
+    focusTrap(container);
+  });
+});
+
+// Export modules for testing
+module.exports = {
+    accessibilityUtils,
+    CONFIG,
+    log,
+    validateInput,
+    parseJSONsafe,
+    formatResponse,
+    delay,
+    retryOperation,
+    sanitizeFilename,
+    readFileSafe,
+    processData,
+    filterValidItems,
+    groupByCategory,
+    myNewFunction,
+    calculateSum,
+    ensureElementId,
+    addAriaLabel,
+    renderDependencyGraphs,
+    handleCredentialResponse,
+    focusTrap,
+    generateSessionId,
+    renderGraphIndex,
+    wrapPrimaryContentInMain,
+    createInPageButton,
+    createWebResourceButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateAccessibilityReport,
+    getSvgAccessibleName,
+    getLangAttribute,
+    addAltAttribute,
+    replaceButtonId,
+    addAriaAttribute,
+    implementAccessibilityFixesFromReport,
+    ensureElementHasId,
+    ensureUniqueLandmarks,
+    addMainLandmark,
+    fixTableStructure,
+    addSvgAccessibleName,
+    fixFakeLinkIssue,
+    googleSignIn,
+    handleCredentialResponseAlt,
+    renderGraphIndex,
+    setSvgAccessibilityProps,
+    addAccessibleNamesToSVGs,
+    addSvgAccessibleNames,
+    fixButtonIdentifiers,
+    fixDependencyGraphAria,
+    addMainLandmarkToIndex,
+    validateTableAccessibility,
+    validateTableStructure,
+    transformInputData
+};

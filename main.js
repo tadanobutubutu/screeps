@@ -833,10 +833,156 @@ export {
 
 // Export UI / product functions
 export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  dependencyGraphContent
+  renderHeader,
+  renderFooter,
+  renderProductCard
+};
+
+// Exporting for CommonJS compatibility
+module.exports = {
+  specificFunctionThatRendersGraphOrIndex
+};
+
+// Export additional required functions
+export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute };
+
+// Report generation logic
+/**
+ * Generates an accessibility report based on the current document state.
+ * @returns {Object} An object containing the accessibility report data.
+ */
+function generateAccessibilityReport() {
+    const report = {
+        timestamp: new Date().toISOString(),
+        summary: {
+            totalIssues: 0,
+            critical: 0,
+            moderate: 0,
+            passed: 0
+        },
+        issues: [],
+        passed: []
+    };
+
+    // Check lang attribute
+    const htmlElement = document.querySelector('html');
+    if (htmlElement && htmlElement.hasAttribute('lang')) {
+        report.passed.push({
+            category: 'REACT_015',
+            message: 'HTML element has lang attribute',
+            status: 'passed'
+        });
+    } else {
+        report.issues.push({
+            category: 'REACT_015',
+            message: 'HTML element is missing lang attribute',
+            status: 'critical'
+        });
+        report.summary.critical++;
+        report.summary.totalIssues++;
+    }
+
+    // Check landmark uniqueness
+    const landmarks = document.querySelectorAll('[role]');
+    const landmarkIds = new Set();
+    let duplicateLandmarks = [];
+
+    landmarks.forEach(landmark => {
+        const id = landmark.id;
+        if (id) {
+            if (landmarkIds.has(id)) {
+                duplicateLandmarks.push(id);
+                report.issues.push({
+                    category: 'REACT_025',
+                    message: `Duplicate landmark ID: ${id}`,
+                    status: 'critical'
+                });
+                report.summary.critical++;
+                report.summary.totalIssues++;
+            }
+            landmarkIds.add(id);
+        }
+    });
+
+    if (duplicateLandmarks.length === 0) {
+        report.passed.push({
+            category: 'REACT_025',
+            message: 'All landmarks have unique IDs',
+            status: 'passed'
+        });
+    }
+
+    // Check table accessibility
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table, index) => {
+        const headers = table.querySelectorAll('th');
+        if (headers.length > 0) {
+            report.passed.push({
+                category: 'REACT_027',
+                message: `Table ${index + 1} has proper header cells`,
+                status: 'passed'
+            });
+        }
+    });
+
+    // Check SVG accessibility
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach((svg, index) => {
+        const title = svg.querySelector('title');
+        const desc = svg.querySelector('desc');
+        if (title && desc) {
+            report.passed.push({
+                category: 'REACT_041',
+                message: `SVG ${index + 1} has accessible title and description`,
+                status: 'passed'
+            });
+        } else {
+            report.issues.push({
+                category: 'REACT_041',
+                message: `SVG ${index + 1} is missing accessible name`,
+                status: 'moderate'
+            });
+            report.summary.moderate++;
+            report.summary.totalIssues++;
+        }
+    });
+
+    // Check link accessibility
+    const links = document.querySelectorAll('a');
+    links.forEach((link, index) => {
+        if (link.textContent.trim() === '') {
+            report.issues.push({
+                category: 'REACT_036',
+                message: `Link ${index + 1} has no accessible text`,
+                status: 'moderate'
+            });
+            report.summary.moderate++;
+            report.summary.totalIssues++;
+        } else {
+            report.passed.push({
+                category: 'REACT_036',
+                message: `Link ${index + 1} has accessible text`,
+                status: 'passed'
+            });
+        }
+    });
+
+    return report;
+}
+
+/**
+ * Renders the accessibility report as an HTML string.
+ * @param {Object} report - The accessibility report object.
+ * @returns {string} HTML string representing the report.
+ */
+function renderAccessibilityReportHtml(report) {
+    let html = `<div class="accessibility-report">
+        <h1>Accessibility Report</h1>
+        <p>Generated: ${report.timestamp}</p>
+        
+        <div class="summary">
+            <h2>Summary</h2>
+            <ul>
+                <li>Total Issues: ${report.summary.totalIssues}</li>
+                <li>Critical: ${report.summary.critical}</li>
+                <li>Moderate: ${report.summary.moderate}

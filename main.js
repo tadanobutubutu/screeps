@@ -56,9 +56,9 @@ function newFunction() {
 // Implement this function for ensuring unique landmarks
 function ensureUniqueLandmarks() {
   // Landmarks that should be unique on a page
-  const uniqueLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
+  const landmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
   
-  uniqueLandmarkSelectors.forEach(selector => {
+  landmarkSelectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       elements.forEach((element, index) => {
@@ -97,7 +97,7 @@ function ensureUniqueLandmarks() {
 function fixAccessibilityIssues() {
   // 1. REACT_015: Ensure lang attribute is set on the HTML element
   const lang = getLangAttribute();
-  document.documentElement.lang = lang;
+  createInPageButton(lang);
 
   // 2. REACT_027: Validate table accessibility and structure
   const table = document.querySelector('table');
@@ -227,7 +227,7 @@ function formatProductName(product) {
 
 function renderProductList(products) {
   const container = document.createElement('div');
-  container.innerHTML = products.map(product => `<div>${product.name}</div>`).join('');
+  container.innerHTML = products.map(product => renderProductCard(product)).join('');
   return container;
 }
 
@@ -271,7 +271,7 @@ function updateRenderingFunction() {
 }
 
 function renderProductCard(product) {
-  return `<div class="product-card">${product.name} - ${product.price}</div>`;
+  return `<div class="product-card">${product.name} - ${formatCurrency(product.price)}</div>`;
 }
 
 function calculateDiscount(subtotal) {
@@ -283,33 +283,4 @@ function calculateSum(a, b) {
   return a + b;
 }
 
-// Exporting if necessary (no exports were requested to be removed)
-export function someFunction() {
-  // ... implementation ...
-}
-
-function formatCurrency(amount) {
-  return `$${amount.toFixed(2)}`;
-}
-
-function formatDate(date) {
-  return date.toLocaleDateString();
-}
-
-function validateInput(input) {
-  return input && input.products && input.products.length > 0;
-}
-
-function validateLinkAccessibility() {
-  // Example link accessibility validation
-}
-
-function handleFakeLinks() {
-  // Example fake links handler
-}
-
-function handleAccessibilityIssues(content) {
-  // Example handler for accessibility issues
-}
-
-// Export
+// Exporting if necessary (no exports were requested to be removed

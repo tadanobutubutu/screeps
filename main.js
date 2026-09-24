@@ -125,253 +125,43 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
-// Add lang attribute to HTML element
-function addLangAttribute(doc, lang) {
-  if (doc && doc.documentElement) {
-    doc.documentElement.setAttribute('lang', lang);
-  }
-}
-
-// Fix table structure issues
-function fixTableStructure(doc) {
-  if (!doc) return;
-
-  const tables = doc.querySelectorAll('table');
-  tables.forEach(table => {
-    // Ensure table has proper structure
-    if (!table.querySelector('thead') || !table.querySelector('tbody')) {
-      // Create proper structure if missing
-      const thead = doc.createElement('thead');
-      const tbody = doc.createElement('tbody');
-
-      // Move existing rows to tbody
-      const rows = table.querySelectorAll('tr');
-      rows.forEach(row => {
-        tbody.appendChild(row);
-      });
-
-      // Add thead with empty row if needed
-      if (thead.children.length === 0) {
-        const headerRow = doc.createElement('tr');
-        const headers = table.querySelectorAll('th');
-        headers.forEach(header => {
-          headerRow.appendChild(header);
-        });
-        thead.appendChild(headerRow);
-      }
-
-      table.appendChild(thead);
-      table.appendChild(tbody);
-    }
-
-    // Ensure table has proper ARIA attributes
-    if (!table.getAttribute('role')) {
-      table.setAttribute('role', 'table');
-    }
-
-    // Ensure cells have proper ARIA roles
-    const cells = table.querySelectorAll('td, th');
-    cells.forEach(cell => {
-      if (!cell.getAttribute('role')) {
-        cell.setAttribute('role', cell.tagName.toLowerCase() === 'th' ? 'columnheader' : 'cell');
-      }
-    });
-  });
-}
-
-// Fix landmark issues
-function fixLandmarkIssues(doc) {
-  if (!doc) return;
-
-  // Ensure main landmark exists
-  if (!doc.querySelector('main')) {
-    const main = doc.createElement('main');
-    main.setAttribute('role', 'main');
-    doc.body.appendChild(main);
+/**
+ * Adds SVG accessibility attributes to an SVG element
+ * @param {SVGElement} svgElement - The SVG element to enhance
+ * @param {Object} options - Configuration options
+ * @param {string} [options.title] - Accessible title for the SVG
+ * @param {string} [options.desc] - Accessible description for the SVG
+ * @param {string} [options.role='img'] - ARIA role for the SVG
+ * @returns {SVGElement} The enhanced SVG element
+ */
+function addSvgAccessibility(svgElement, options = {}) {
+  if (!svgElement || !(svgElement instanceof SVGElement)) {
+    console.warn('Invalid SVG element provided');
+    return svgElement;
   }
 
-  // Ensure navigation landmark exists
-  if (!doc.querySelector('nav')) {
-    const nav = doc.createElement('nav');
-    nav.setAttribute('role', 'navigation');
-    doc.body.appendChild(nav);
+  // Set default ARIA role if not provided
+  const role = options.role || 'img';
+
+  // Add ARIA attributes
+  svgElement.setAttribute('role', role);
+  svgElement.setAttribute('focusable', 'false');
+
+  // Add title if provided
+  if (options.title) {
+    const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    titleElement.textContent = options.title;
+    svgElement.insertBefore(titleElement, svgElement.firstChild);
   }
 
-  // Ensure contentinfo landmark exists
-  if (!doc.querySelector('footer')) {
-    const footer = doc.createElement('footer');
-    footer.setAttribute('role', 'contentinfo');
-    doc.body.appendChild(footer);
-  }
-}
-
-// Add main landmark
-function addMainLandmark(doc) {
-  if (!doc) return;
-
-  if (!doc.querySelector('main')) {
-    const main = doc.createElement('main');
-    main.setAttribute('role', 'main');
-    doc.body.appendChild(main);
-  }
-}
-
-// Add landmark regions
-function addLandmarkRegions(doc) {
-  if (!doc) return;
-
-  // Add navigation landmark if missing
-  if (!doc.querySelector('nav')) {
-    const nav = doc.createElement('nav');
-    nav.setAttribute('role', 'navigation');
-    doc.body.appendChild(nav);
+  // Add description if provided
+  if (options.desc) {
+    const descElement = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    descElement.textContent = options.desc;
+    svgElement.insertBefore(descElement, svgElement.firstChild);
   }
 
-  // Add search landmark if missing
-  if (!doc.querySelector('[role="search"]')) {
-    const search = doc.createElement('div');
-    search.setAttribute('role', 'search');
-    doc.body.appendChild(search);
-  }
-
-  // Add contentinfo landmark if missing
-  if (!doc.querySelector('footer')) {
-    const footer = doc.createElement('footer');
-    footer.setAttribute('role', 'contentinfo');
-    doc.body.appendChild(footer);
-  }
-}
-
-// Ensure unique landmarks
-function ensureUniqueLandmarks(landmarksArray) {
-  if (!landmarksArray || landmarksArray.length === 0) {
-    return [];
-  }
-
-  const seen = new Set();
-  return landmarksArray.filter(landmark => {
-    const key = landmark.name + '_' + (landmark.role || 'default');
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
-}
-
-// Add accessible names to SVGs
-function addSvgAccessibleNames(doc) {
-  if (!doc) return;
-
-  const svgs = doc.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', 'Graphic element');
-    }
-  });
-}
-
-// Fix fake link issues
-function fixFakeLinkIssues(doc) {
-  if (!doc) return;
-
-  const elements = doc.querySelectorAll('[role="link"]');
-  elements.forEach(element => {
-    if (!element.getAttribute('href') && !element.getAttribute('tabindex')) {
-      element.setAttribute('tabindex', '0');
-    }
-  });
-}
-
-// Google sign-in logic
-function googleSignIn() {
-  // Implementation would go here
-  console.log('Google sign-in initiated');
-}
-
-// Fix button identifiers
-function fixButtonIdentifiers(doc) {
-  if (!doc) return;
-
-  const buttons = doc.querySelectorAll('button');
-  buttons.forEach((button, index) => {
-    if (!button.id) {
-      button.id = `button-${index}`;
-    }
-  });
-}
-
-// Ensure dependency graph container has proper ARIA role
-function ensureDependencyGraphAriaRole(doc) {
-  if (!doc) return;
-
-  const graphContainer = doc.querySelector('.dependency-graph-container');
-  if (graphContainer && !graphContainer.getAttribute('role')) {
-    graphContainer.setAttribute('role', 'region');
-    graphContainer.setAttribute('aria-label', 'Dependency Graph');
-  }
-}
-
-// Render the main component containing the book list, sorting controls, user safety checks, and authorization check
-function Main({ checkAllowed }) {
-  // ... previous code for state, dispatch, booksList, bookItems, handleSort, and handleAddBook
-  const [language, setLanguage] = useState('en');
-  useEffect(() => {
-    addLangAttribute(document, language);
-    setLanguageAttribute(document, language);
-    addressInsightIssues();
-  }, [language]);
-
-  // Validate required fields
-  const requiredFields = ['title', 'author', 'isbn'];
-  for (const field of requiredFields) {
-    if (!book[field] || typeof book[field] !== 'string' || book[field].trim() === '') {
-      console.error(`Book must have a valid ${field}`);
-      return false;
-    }
-  }
-
-  // Create accessible book element
-  const bookElement = document.createElement('div');
-  bookElement.className = 'book-item';
-  bookElement.setAttribute('role', 'article');
-  bookElement.setAttribute('aria-label', `Book: ${book.title} by ${book.author}`);
-
-  // Add accessible title
-  const titleElement = document.createElement('h3');
-  titleElement.textContent = book.title;
-  titleElement.setAttribute('aria-label', `Title: ${book.title}`);
-  bookElement.appendChild(titleElement);
-
-  // Add accessible author
-  const authorElement = document.createElement('p');
-  authorElement.textContent = `By ${book.author}`;
-  authorElement.setAttribute('aria-label', `Author: ${book.author}`);
-  bookElement.appendChild(authorElement);
-
-  // Add accessible ISBN
-  const isbnElement = document.createElement('p');
-  isbnElement.textContent = `ISBN: ${book.isbn}`;
-  isbnElement.setAttribute('aria-label', `ISBN: ${book.isbn}`);
-  bookElement.appendChild(isbnElement);
-
-  // Add description if available
-  if (book.description && typeof book.description === 'string' && book.description.trim() !== '') {
-    const descElement = document.createElement('p');
-    descElement.textContent = book.description;
-    descElement.setAttribute('aria-label', `Description: ${book.description}`);
-    bookElement.appendChild(descElement);
-  }
-
-  // Add to the DOM
-  const bookContainer = document.getElementById('book-container');
-  if (bookContainer) {
-    bookContainer.appendChild(bookElement);
-    return true;
-  }
-
-  console.error('Book container not found in the DOM');
-  return false;
+  return svgElement;
 }
 
 // Export functions for testing
@@ -399,14 +189,5 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   countDependencies,
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  addSvgAccessibleNames,
-  fixFakeLinkIssues,
-  googleSignIn,
-  fixButtonIdentifiers,
-  ensureDependencyGraphAriaRole
+  addSvgAccessibility
 };

@@ -49,7 +49,7 @@ const {
     fixFakeLinkIssue,
     addAriaAttribute,
     implementAccessibilityFixesFromReport,
-    addressAccessibilityIssues: addressAccessibilityIssuesUtil,
+    addressAccessibilityIssues,
     ensureElementHasId,
     fixButtonIdentifiers,
     fixDependencyGraphAria,
@@ -61,7 +61,7 @@ const {
     addAriaLabel: addAriaLabelAlt,
     googleSignIn,
     handleCredentialResponse: handleCredentialResponseAlt,
-    renderGraphIndex,
+    renderGraphIndex: renderGraphIndexUtil,
 } = require('./utilities');
 
 ```javascript
@@ -373,8 +373,8 @@ function renderGraphIndex(graphData) {
     const renderedGraph = renderDependencyGraphs(container, dependencies, options);
 
     // Apply accessibility enhancements
-    if (typeof addressAccessibilityIssuesUtil === 'function') {
-        addressAccessibilityIssuesUtil(renderedGraph);
+    if (typeof addressAccessibilityIssues === 'function') {
+        addressAccessibilityIssues(renderedGraph);
     }
 
     // Set SVG accessibility properties if available

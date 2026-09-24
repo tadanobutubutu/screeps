@@ -347,9 +347,9 @@ function ensureUniqueLandmarks() {
 
 // Function to fix 1 fake link issue
 function fixFakeLink() {
-  const fakeLinks = document.querySelectorAll && document.querySelectorAll('a[href="#"]');
-  fakeLinks && fakeLinks.forEach && fakeLinks.forEach(link => {
-    // Convert fake link to button
+  const fakeLinks = document.querySelectorAll('[href="#"]:not([aria-hidden])');
+  fakeLinks.forEach((link) => {
+    link.removeAttribute('href');
   });
 }
 

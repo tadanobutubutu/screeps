@@ -603,57 +603,14 @@ const a11yStore = {
     });
   },
 
-  getLangAttribute() {
-    const htmlElement = document.querySelector('html');
-    if (htmlElement && !htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', 'en');
-    }
-    return htmlElement ? htmlElement.getAttribute('lang') : null;
-  },
-
-  createInPageButton() {
-    const buttons = document.querySelectorAll('[data-in-page]');
-    buttons.forEach(button => {
-      button.setAttribute('role', 'button');
-      button.setAttribute('tabindex', '0');
-      if (!button.hasAttribute('aria-label')) {
-        button.setAttribute('aria-label', button.textContent || 'In-page action');
-      }
-    });
-  },
-
-  validateTableAccessibility() {
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      const headers = table.querySelectorAll('th');
-      if (headers.length === 0) {
-        console.warn('Table missing header cells');
-      }
-      
-      if (!table.hasAttribute('scope')) {
-        const caption = table.querySelector('caption');
-        if (!caption) {
-          console.warn('Table missing caption or summary');
-        }
-      }
-    });
-  },
-
-  validateTableStructure() {
-    const tables = document.querySelectorAll('table');
-    tables.forEach((table, tableIndex) => {
-      const rows = table.querySelectorAll('tr');
-      let cellCount = 0;
-      
-      rows.forEach((row, rowIndex) => {
-        const cells = row.querySelectorAll('td, th');
-        if (rowIndex === 0) {
-          cellCount = cells.length;
-        } else if (cells.length !== cellCount) {
-          console.warn(`Table ${tableIndex + 1}, Row ${rowIndex + 1}: Cell count mismatch`);
-        }
-      });
-    });
+  /**
+   * Extract the accessible name for an SVG from its content
+   * @param {SVGElement} svg The SVG element to extract the name from
+   * @returns {string} The accessible name of the SVG
+   */
+  extractSVGAccessibleName(svg) {
+    let titleElement = svg.querySelector('title');
+    return titleElement ? titleElement.textContent : 'Image';
   },
 
   // ... remaining a11yStore methods ...

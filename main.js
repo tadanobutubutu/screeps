@@ -614,8 +614,71 @@ function specificFunctionThatRendersGraphOrIndex() {
   renderIndex();
 }
 
+/**
+ * Wraps the primary content of the document in a <main> element if it isn't already.
+ * If a <main> element already exists, returns it. Otherwise, finds the primary
+ * content (e.g., element with id "main-content", or the largest content container)
+ * and wraps it in a <main> element. Adds an id of "main-content" if missing and
+ * ensures the main element is properly identified for accessibility purposes.
+ * @param {Document|HTMLElement} [root=document] - The root element to scan.
+ * @returns {HTMLElement|null} The main element, or null if no suitable content was found.
+ */
+function wrapPrimaryContentInMain(root = (typeof document !== 'undefined' ? document : null)) {
+    if (!root) {
+        return null;
+    }
+
+    // If a <main> element already exists, return the first one.
+    const existingMain = root.querySelector ? root.querySelector('main') : null;
+    if (existingMain) {
+        if (!existingMain.id) {
+            existingMain.id = 'main-content';
+        }
+        return existingMain;
+    }
+
+    // Find candidate primary content element.
+    let primaryContent = null;
+    if (root.getElementById) {
+        primaryContent = root.getElementById('main-content');
+    }
+    if (!primaryContent && root.querySelector) {
+        // Fallback: find the element with the most children/content
+        const candidates = root.querySelectorAll('div, section, article');
+        let maxScore = -1;
+        for (const candidate of candidates) {
+            // Skip elements that are themselves inside a landmark we'd convert
+            const score = (candidate.querySelectorAll('*').length || 0) + (candidate.textContent ? candidate.textContent.length : 0);
+            if (score > maxScore) {
+                maxScore = score;
+                primaryContent = candidate;
+            }
+        }
+    }
+
+    if (!primaryContent) {
+        return null;
+    }
+
+    // Create a new <main> element and wrap the primary content.
+    const main = (typeof document !== 'undefined') ? document.createElement('main') : null;
+    if (!main) {
+        return null;
+    }
+    main.id = primaryContent.id || 'main-content';
+
+    const parent = primaryContent.parentNode;
+    if (!parent) {
+        return null;
+    }
+    parent.insertBefore(main, primaryContent);
+    main.appendChild(primaryContent);
+
+    return main;
+}
+
 // Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, wrapPrimaryContentInMain };
 
 // Export utility functions
 export {
@@ -637,7 +700,9 @@ export {
   ensureUniqueLandmarks,
   createAccessibleLink,
   handleAccessibilityIssues,
-  addLangAttribute
+  addLangAttribute,
+  // Newly added wrap function
+  wrapPrimaryContentInMain
 };
 
 // Export component functions
@@ -713,7 +778,8 @@ export {
   ensureUniqueLandmarkId,
   uniqueLandmarks,
   addAriaLabel,
-  addLangAttribute
+  addLangAttribute,
+  wrapPrimaryContentInMain
 };
 
 // Export the internal set for tracking used landmark IDs
@@ -726,6 +792,245 @@ export {
   addAriaLabel,
   addLangAttribute
 };
+
+// Exporting for CommonJS compatibility
+module.exports = {
+  specificFunctionThatRendersGraphOrIndex,
+  wrapPrimaryContentInMain
+};
+
+// Export additional required functions
+export { ensureUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute, wrapPrimaryContentInMain };
+
+// Report generation logic
+/**
+ * Generates an accessibility report based on the current document state.
+ * @returns {Object} An object containing the accessibility report data.
+ */
+function generateAccessibilityReport() {
+    const report = {
+        timestamp: new Date().toISOString(),
+        summary: {
+            totalIssues: 0,
+            critical: 0,
+            moderate: 0,
+            passed: 0
+        },
+        issues: [],
+        passed: []
+    };
+
+    // Check lang attribute
+    const htmlElement = document.querySelector('html');
+    if (htmlElement && htmlElement.hasAttribute('lang')) {
+        report.passed.push({
+            category: 'REACT_015',
+            message: 'HTML element has lang attribute',
+            status: 'passed'
+        });
+    } else {
+        report.issues.push({
+            category: 'REACT_015',
+            message: 'HTML element is missing lang attribute',
+            status: 'critical'
+        });
+        report.summary.critical++;
+        report.summary.totalIssues++;
+    }
+
+    // Check landmark uniqueness
+    const landmarks = document.querySelectorAll('[role]');
+    const landmarkIds = new Set();
+    let duplicateLandmarks = [];
+
+    landmarks.forEach(landmark => {
+        const id = landmark.id;
+        if (id) {
+            if (landmarkIds.has(id)) {
+                duplicateLandmarks.push(id);
+                report.issues.push({
+                    category: 'REACT_025',
+                    message: `Duplicate landmark ID: ${id}`,
+                    status: 'critical'
+                });
+                report.summary.critical++;
+                report.summary.totalIssues++;
+            }
+            landmarkIds.add(id);
+        }
+    });
+
+    if (duplicateLandmarks.length === 0) {
+        report.passed.push({
+            category: 'REACT_025',
+            message: 'All landmarks have unique IDs',
+            status: 'passed'
+        });
+    }
+
+    // Check table accessibility
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table, index) => {
+        const headers = table.querySelectorAll('th');
+        if (headers.length > 0) {
+            report.passed.push({
+                category: 'REACT_027',
+                message: `Table ${index + 1} has proper header cells`,
+                status: 'passed'
+            });
+        }
+    });
+
+    // Check SVG accessibility
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach((svg, index) => {
+        const title = svg.querySelector('title');
+        const desc = svg.querySelector('desc');
+        if (title && desc) {
+            report.passed.push({
+                category: 'REACT_041',
+                message: `SVG ${index + 1} has accessible title and description`,
+                status: 'passed'
+            });
+        } else {
+            report.issues.push({
+                category: 'REACT_041',
+                message: `SVG ${index + 1} is missing accessible name`,
+                status: 'moderate'
+            });
+            report.summary.moderate++;
+            report.summary.totalIssues++;
+        }
+    });
+
+    // Check link accessibility
+    const links = document.querySelectorAll('a');
+    links.forEach((link, index) => {
+        if (link.textContent.trim() === '') {
+            report.issues.push({
+                category: 'REACT_036',
+                message: `Link ${index + 1} has no accessible text`,
+                status: 'moderate'
+            });
+            report.summary.moderate++;
+            report.summary.totalIssues++;
+        } else {
+            report.passed.push({
+                category: 'REACT_036',
+                message: `Link ${index + 1} has accessible text`,
+                status: 'passed'
+            });
+        }
+    });
+
+    return report;
+}
+
+/**
+ * Renders the accessibility report as an HTML string.
+ * @param {Object} report - The accessibility report object.
+ * @returns {string} HTML string representing the report.
+ */
+function renderAccessibilityReportHtml(report) {
+    let html = `<div class="accessibility-report">
+        <h1>Accessibility Report</h1>
+        <p>Generated: ${report.timestamp}</p>
+        
+        <div class="summary">
+            <h2>Summary</h2>
+            <ul>
+                <li>Total Issues: ${report.summary.totalIssues}</li>
+                <li>Critical: ${report.summary.critical}</li>
+                <li>Moderate: ${report.summary.moderate}</li>
+                <li>Passed: ${report.summary.passed}</li>
+            </ul>
+        </div>
+        
+        <div class="issues">
+            <h2>Issues Found</h2>`;
+    
+    if (report.issues.length === 0) {
+        html += '<p>No issues found!</p>';
+    } else {
+        report.issues.forEach(issue => {
+            html += `<div class="issue ${issue.status}">
+                <strong>${issue.category}</strong>: ${issue.message}
+            </div>`;
+        });
+    }
+    
+    html += `</div>
+        
+        <div class="passed">
+            <h2>Passed Checks</h2>`;
+    
+    if (report.passed.length === 0) {
+        html += '<p>No checks passed yet.</p>';
+    } else {
+        report.passed.forEach(item => {
+            html += `<div class="passed-item">
+                <strong>${item.category}</strong>: ${item.message}
+            </div>`;
+        });
+    }
+    
+    html += '</div></div>';
+    
+    return html;
+}
+
+/**
+ * Generates and displays the accessibility report in the console and returns the report object.
+ * @returns {Object} The accessibility report object.
+ */
+function generateAndDisplayReport() {
+    const report = generateAccessibilityReport();
+    
+    console.log('=== Accessibility Report ===');
+    console.log(`Generated: ${report.timestamp}`);
+    console.log(`Total Issues: ${report.summary.totalIssues}`);
+    console.log(`Critical: ${report.summary.critical}`);
+    console.log(`Moderate: ${report.summary.moderate}`);
+    console.log(`Passed: ${report.summary.passed}`);
+    
+    if (report.issues.length > 0) {
+        console.log('\n--- Issues ---');
+        report.issues.forEach(issue => {
+            console.log(`[${issue.status.toUpperCase()}] ${issue.category}: ${issue.message}`);
+        });
+    }
+    
+    if (report.passed.length > 0) {
+        console.log('\n--- Passed Checks ---');
+        report.passed.forEach(item => {
+            console.log(`[PASS] ${item.category}: ${item.message}`);
+        });
+    }
+    
+    return report;
+}
+
+// Export report generation functions
+export {
+  generateAccessibilityReport,
+  renderAccessibilityReportHtml,
+  generateAndDisplayReport
+};
+
+// Export ensureUniqueLandmarkId for ensuring unique landmark IDs
+export { ensureUniqueLandmarkId };
+
+// Export uniqueLandmarks for getting unique landmarks from a list
+export { uniqueLandmarks };
+
+// Export addAriaLabel for adding aria-label attributes to elements
+export { addAriaLabel };
+
+// Export addLangAttribute for adding lang attributes to elements
+export { addLangAttribute };
+
+// Export wrapPrimaryContentInMain for wrapping primary content in a main element
+export { wrapPrimaryContentInMain };
 
 // Export the internal set for tracking used landmark IDs
 export { _usedLandmarkIds };

@@ -43,6 +43,9 @@ const CONFIG = {
   env: process.env.NODE_ENV || 'development'
 };
 
+// Initialize _usedLandmarkIds set for tracking used landmark IDs
+const _usedLandmarkIds = new Set();
+
 /**
  * Creates a unique identifier for a landmark given a base name.
  * @param {string} baseName - Base name of the landmark.
@@ -84,9 +87,29 @@ function ensureElementHasId(elementId) {
   }
 }
 
-// Custom function to preserve both implementations of adding landmark roles
-function addLandmarkRoles() {
-  // From HEAD: Navigation, Main, Header
+/**
+ * Sets the language attribute on the HTML element.
+ *
+ * This ensures that screen readers and other assistive technologies
+ * can correctly interpret the language of the page.
+ *
+ * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
+ */
+const setLanguageAttribute = (lang = 'en') => {
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
+  }
+};
+
+/**
+ * Adds landmark roles to the main navigation and content sections.
+ *
+ * This addresses the REACT_017 issue by adding appropriate ARIA roles
+ * such as 'navigation', 'main', and 'banner' to relevant HTML elements.
+ */
+const addLandmarkRolesFn = () => {
+  // Navigation landmark
   const navElement = document.querySelector('nav');
   if (navElement && !navElement.getAttribute('role')) {
     navElement.setAttribute('role', 'navigation');
@@ -108,10 +131,169 @@ function addLandmarkRoles() {
     footerElement.setAttribute('role', 'contentinfo');
   }
 
-  // From origin/main: Specific main-content ID
-  const mainContent = document.getElementById('main-content');
-  if (mainContent && !mainContent.getAttribute('role')) {
-    mainContent.setAttribute('role', 'main');
+/**
+ * Ensures that landmarks are unique by adding unique ARIA labels where necessary.
+ *
+ * This addresses the REACT_025 issue by checking for duplicate landmarks
+ * and making them unique with appropriate aria-label or aria-labelledby attributes.
+ */
+const ensureUniqueLandmarkElements = () => {
+  // Navigation landmark uniqueness
+  const navElements = document.querySelectorAll('[role="navigation"]');
+  if (navElements.length > 1) {
+    navElements.forEach((nav, index) => {
+      if (index > 0) {
+        nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+      }
+    });
+  }
+
+  // Main content landmark uniqueness
+  const mainElements = document.querySelectorAll('[role="main"]');
+  if (mainElements.length > 1) {
+    mainElements.forEach((main, index) => {
+      if (index > 0) {
+        main.setAttribute('aria-label', `Main content ${index + 1}`);
+      }
+    });
+  }
+};
+
+/**
+ * Adds accessible names to SVG elements.
+ *
+ * This addresses the REACT_041 issue by ensuring that SVGs have appropriate
+ * accessible names, either through title or desc elements.
+ *
+ * @param {string} svgSelector - The CSS selector for the SVG element(s).
+ * @param {string} accessibleName - The accessible name to set.
+ */
+const addSVGAccessibleName = (svgSelector, accessibleName) => {
+  const svgs = document.querySelectorAll(svgSelector);
+  svgs.forEach((svg) => {
+    // Check if the SVG already has a title element
+    let titleElement = svg.querySelector('title');
+    if (!titleElement) {
+      titleElement = document.createElement('title');
+      svg.insertBefore(titleElement, svg.firstChild);
+    }
+    titleElement.textContent = accessibleName;
+  });
+};
+
+/**
+ * Fixes fake links (elements that look like links but are not semantic <a> tags).
+ *
+ * This addresses the REACT_036 issue by identifying elements that have
+ * click handlers but are not <a> tags and adding appropriate ARIA roles
+ * and attributes to make them accessible.
+ */
+const fixFakeLinks = () => {
+  const fakeLinks = document.querySelectorAll('[onclick]:not([role])');
+  fakeLinks.forEach((element) => {
+    if (element.tagName.toLowerCase() !== 'a') {
+      // Add role="button" and appropriate ARIA attributes
+      element.setAttribute('role', 'button');
+      if (!element.getAttribute('tabindex')) {
+        element.setAttribute('tabindex', '0');
+      }
+      if (!element.getAttribute('aria-label')) {
+        // Use the element's text content as the aria-label if not present
+        element.setAttribute('aria-label', element.textContent.trim() || 'Link');
+      }
+    }
+  });
+};
+
+// Define icons object
+const icons = {
+  icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
+};
+
+// Main module entry point
+const main = {
+  /**
+   * Sets the language attribute on the HTML element.
+   *
+   * This ensures that screen readers and other assistive technologies
+   * can correctly interpret the language of the page.
+   *
+   * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
+   */
+  setLanguageAttribute: setLanguageAttribute,
+
+  /**
+   * Adds landmark roles to the main navigation and content sections.
+   *
+   * This addresses the REACT_017 issue by adding appropriate ARIA roles
+   * such as 'navigation', 'main', and 'banner' to relevant HTML elements.
+   */
+  addLandmarkRolesFn: addLandmarkRolesFn,
+
+  /**
+   * Ensures that landmarks are unique by adding unique ARIA labels where necessary.
+   *
+   * This addresses the REACT_025 issue by checking for duplicate landmarks
+   * and making them unique with appropriate aria-label or aria-labelledby attributes.
+   */
+  ensureUniqueLandmarkElements: ensureUniqueLandmarkElements,
+
+  /**
+   * Adds accessible names to SVG elements.
+   *
+   * This addresses the REACT_041 issue by ensuring that SVGs have appropriate
+   * accessible names, either through title or desc elements.
+   *
+   * @param {string} svgSelector - The CSS selector for the SVG element(s).
+   * @param {string} accessibleName - The accessible name to set.
+   */
+  addSVGAccessibleName: addSVGAccessibleName,
+
+  /**
+   * Fixes fake links (elements that look like links but are not semantic <a> tags).
+   *
+   * This addresses the REACT_036 issue by identifying elements that have
+   * click handlers but are not <a> tags and adding appropriate ARIA roles
+   * and attributes to make them accessible.
+   */
+  fixFakeLinks: fixFakeLinks,
+
+  /**
+   * Creates an accessible in-page button element.
+   *
+   * @param {string} text - The text content of the button
+   * @param {Function} onClick - The click handler function
+   * @param {Object} [options] - Optional configuration
+   * @param {string} [options.id] - The ID for the button
+   * @param {string} [options.className] - The class name for the button
+   * @param {string} [options.ariaLabel] - The ARIA label for the button
+   * @param {boolean} [options.disabled=false] - Whether the button is disabled
+   * @returns {HTMLButtonElement} The created button element
+   */
+  createInPageButton: createInPageButton
+};
+
+function helloWorld() {
+  return 'Hello, World!';
+}
+
+// Function to initialize the dependency graph with accessibility support
+function initDependencyGraph(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.setAttribute('role', 'img');
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+  return container;
+}
+
+// Function to render the dependency graph
+function renderDependencyGraph(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    // Add the logic to render the dependency graph inside the container
+    // This is a placeholder for the actual rendering logic
+    container.innerHTML = 'Dependency Graph Data';
   }
 }
 
@@ -129,6 +311,27 @@ function ensureUniqueLandmarks() {
   }
 };
 
+// Function to add ARIA labels
+function addAriaLabel(elementId, label) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+// Placeholder function for initializeApp
+function initializeApp() {
+  console.log('App initialized');
+}
+
+// Placeholder function for createUnrotateButton
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.textContent = 'Unrotate';
+  button.setAttribute('aria-label', 'Unrotate button');
+  return button;
+}
+
 // Initialization function
 const initApp = () => {
   // Initialize the main application
@@ -136,18 +339,13 @@ const initApp = () => {
 
   // Apply accessibility fixes
   setLanguageAttribute(); // Default to 'en'
-  addLandmarkRoles();
-  ensureUniqueLandmarks();
+  addLandmarkRolesFn();
+  ensureUniqueLandmarkElements();
 
   // Add accessible names to SVGs (example selectors and names)
   addSVGAccessibleName('.home-icon', 'Home icon');
   addSVGAccessibleName('.settings-icon', 'Settings icon');
-
-  // Define icons object
-  icons = {
-    icon: '<svg viewBox="0 0 100 100" aria-label="Screeps icon"></svg>'
-  };
-}
+};
 
 // Add lang attribute to HTML element
 document.documentElement.setAttribute('lang', getLangAttribute());

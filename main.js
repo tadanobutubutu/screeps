@@ -1,12 +1,4 @@
-// TODO: Existing main.js content before the merge conflict...
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// TODO: Address accessibility issues from insight report — FIXED
 
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
@@ -245,7 +237,7 @@ function countDependencies(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html><head><title>Dependency Index</title></head><body>';
+    let html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Dependency Index</title></head><body>';
     html += '<h1>Dependency Index</h1>';
     html += '<ul>';
     

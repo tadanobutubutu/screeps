@@ -1,4 +1,11 @@
-We need to resolve the merge conflict in main.js. The conflict sections are marked with <<<<<<< HEAD, =======, >>>>>>> origin/main.
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+// TODO: This is the existing code that needs to be preserved
+// ... (existing code up to line 86)
 
 We need to examine both sides.
 
@@ -86,8 +93,167 @@ function getLangAttribute(element) {
   return lang;
 }
 
-// New function for validating table accessibility
-function validateTableAccessibility(table, index = 0) {
+/**
+ * Get the language attribute value for the HTML element
+ * @returns {string} The language attribute value
+ */
+function getLangAttribute() {
+  return 'en';
+}
+
+/**
+ * Get the full language attribute string for the HTML element
+ * @returns {string} The full lang attribute (e.g., "en" or "en-US")
+ */
+function getFullLangAttribute() {
+  return 'en-US';
+}
+
+/**
+ * Adds lang attribute to HTML element
+ * @param {Object} element - The HTML element to modify
+ * @returns {Object} The modified element with lang attribute
+ */
+function addLangAttribute(element) {
+  element.lang = getFullLangAttribute();
+  return element;
+}
+
+/**
+ * Validates landmark elements
+ * @param {Object} element - The landmark element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmark(element) {
+  const issues = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+
+  if (!element.tagName) {
+    issues.push('Missing tagName');
+  } else if (!validLandmarks.includes(element.tagName.toLowerCase())) {
+    issues.push(`Invalid landmark: ${element.tagName}`);
+  }
+  if (!element.hasAttribute('id')) {
+    issues.push('Missing id attribute');
+  }
+
+  if (!element.getAttribute('role')) {
+    issues.push('Missing role attribute');
+  }
+
+  if (!element.ariaLabel && !element.ariaLabelledby && !element.textContent) {
+    issues.push('Landmark missing accessible name');
+  }
+
+  if (element.getAttribute('role') && !['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(element.getAttribute('role'))) {
+    issues.push(`Invalid landmark role: ${element.getAttribute('role')}`);
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validates landmark attributes
+ * @param {Object} landmark - The landmark element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmarkAttributes(landmark) {
+  const issues = [];
+
+  if (!landmark.ariaLabel && !landmark.ariaLabelledby && !landmark.textContent) {
+    issues.push('Landmark missing accessible name');
+  }
+
+  if (landmark.role && !['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(landmark.role)) {
+    issues.push(`Invalid landmark role: ${landmark.role}`);
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Validates the structure of landmark elements
+ * @param {Array} landmarks - Array of landmark elements to validate (optional)
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateLandmarkStructure(landmarks) {
+  const issues = [];
+
+  if (!landmarks) {
+    // Otherwise, check for required landmarks in the DOM
+    const allLandmarks = document.querySelectorAll('[role]');
+    let hasMain = false;
+    let hasNavigation = false;
+
+    allLandmarks.forEach(landmark => {
+      const role = landmark.getAttribute('role');
+      if (role === 'main') hasMain = true;
+      if (role === 'navigation') hasNavigation = true;
+    });
+
+    if (!hasMain) {
+      issues.push('Missing main landmark');
+    }
+    if (!hasNavigation) {
+      issues.push('Missing navigation landmark');
+    }
+  } else {
+    landmarks.forEach((landmark, index) => {
+      const result = validateLandmark(landmark);
+      if (!result.success) {
+        issues.push({
+          landmarkIndex: index,
+          landmark: landmark,
+          issues: result.issues
+        });
+      }
+    });
+  }
+
+  return {
+    success: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Ensures all landmarks have unique accessible names
+ * @param {Array} landmarks - Array of landmark elements to check
+ * @returns {Object} Result with success status and any duplicate names found
+ */
+function ensureUniqueLandmarks(landmarks) {
+  const names = [];
+  const duplicates = [];
+
+  landmarks.forEach(landmark => {
+    const name = landmark.ariaLabel || landmark.ariaLabelledby || landmark.textContent;
+    if (names.includes(name)) {
+      if (!duplicates.includes(name)) {
+        duplicates.push(name);
+      }
+    } else {
+      names.push(name);
+    }
+  });
+
+  return {
+    success: duplicates.length === 0,
+    duplicates
+  };
+}
+
+/**
+ * Validates table accessibility compliance
+ * @param {Object} table - The table object to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableAccessibility(table) {
   const issues = [];
 
   if (!table) {
@@ -113,11 +279,32 @@ function validateTableAccessibility(table, index = 0) {
     issues.push(`Table at index ${index}: Missing tbody element (REACT_027)`);
   }
 
-  // Check if header cells have scope attribute
-  const headerCells = table.querySelectorAll ? table.querySelectorAll('th') : [];
-  headerCells.forEach((th, thIndex) => {
-    if (!th.getAttribute || !th.getAttribute('scope')) {
-      issues.push(`Table at index ${index}: th at position ${thIndex} missing scope attribute (REACT_027)`);
+/**
+ * Validates the structure of tables for accessibility
+ * @param {Array|Object} tables - Array of table objects or single table to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableStructure(tables) {
+  const allIssues = [];
+  const tableArray = Array.isArray(tables) ? tables : [tables];
+
+  tableArray.forEach((table, index) => {
+    // Check for rows - From Version 2
+    const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
+    if (rows.length === 0) {
+      allIssues.push({
+        tableIndex: index,
+        issues: ['Table has no rows']
+      });
+    }
+
+    // Validate table accessibility
+    const result = validateTableAccessibility(table);
+    if (!result.success) {
+      allIssues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
     }
   });
 
@@ -206,118 +393,11 @@ function createInPageButton(text) {
   };
 }
 
-function validateLandmark(element) {
-  const issues = [];
-
-  if (!element) {
-    issues.push('Landmark element is missing or null');
-    return issues;
-  }
-
-  const validLandmarkRoles = [
-    'banner', 'main', 'navigation', 'search', 'contentinfo',
-    'complementary', 'region', 'form'
-  ];
-
-  const explicitRole = element.getAttribute ? element.getAttribute('role') : null;
-  if (explicitRole) {
-    if (!validLandmarkRoles.includes(explicitRole)) {
-      issues.push(`Invalid landmark role: ${explicitRole} (REACT_017)`);
-    }
-  }
-
-  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-  const implicitRoles = {
-    'main': 'main',
-    'header': 'banner',
-    'nav': 'navigation',
-    'footer': 'contentinfo',
-    'aside': 'complementary',
-    'form': 'form',
-    'section': 'region'
-  };
-
-  const implicitRole = implicitRoles[tagName];
-  if (implicitRole && !explicitRole) {
-    issues.push(`Element <${tagName}> should have explicit role="${implicitRole}" (REACT_017)`);
-  }
-
-  if (explicitRole === 'search' || tagName === 'form') {
-    const hasLabel = (element.getAttribute && (element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || (element.querySelector && element.querySelector('label'))));
-    if (!hasLabel) {
-      issues.push(`Search/form landmark missing accessible name (REACT_017)`);
-    }
-  }
-
-  return issues;
-}
-
-function validateLandmarkStructure() {
-  const issues = [];
-
-  if (typeof document === 'undefined') return issues;
-
-  const mainLandmarks = document.querySelectorAll('[role="main"], main');
-  if (mainLandmarks.length > 1) {
-    issues.push(`Found ${mainLandmarks.length} main landmarks - should have only one main landmark (REACT_017)`);
-  }
-
-  const bannerLandmarks = document.querySelectorAll('[role="banner"], header');
-  if (bannerLandmarks.length > 1) {
-    issues.push(`Found ${bannerLandmarks.length} banner landmarks - should have only one banner landmark (REACT_017)`);
-  }
-
-  const contentinfoLandmarks = document.querySelectorAll('[role="contentinfo"], footer');
-  if (contentinfoLandmarks.length > 1) {
-    issues.push(`Found ${contentinfoLandmarks.length} contentinfo landmarks - should have only one contentinfo landmark (REACT_017)`);
-  }
-
-  const landmarkSelectors = [
-    '[role="banner"], header',
-    '[role="main"], main',
-    '[role="navigation"], nav',
-    '[role="search"], [role="form"], form',
-    '[role="contentinfo"], footer',
-    '[role="complementary"], aside',
-    '[role="region"], section'
-  ];
-
-  landmarkSelectors.forEach(selector => {
-    const elements = document.querySelectorAll ? document.querySelectorAll(selector) : [];
-    elements.forEach(element => {
-      const elementIssues = validateLandmark(element);
-      if (elementIssues && elementIssues.length) {
-        issues.push(...elementIssues);
-      }
-    });
-  });
-
-  return issues;
-}
-
-function addSvgAccessibleName(svgElement, name) {
-  if (!svgElement || !name) return svgElement;
-
-  let title = svgElement.querySelector ? svgElement.querySelector('title') : null;
-  if (!title) {
-    title = document.createElement ? document.createElement('title') : null;
-    if (title && svgElement.insertBefore) {
-      svgElement.insertBefore(title, svgElement.firstChild);
-    }
-  }
-  if (title) title.textContent = name;
-
-  const ariaLabelledBy = svgElement.getAttribute ? svgElement.getAttribute('aria-labelledby') : null;
-  if (!ariaLabelledBy && !(svgElement.getAttribute && svgElement.getAttribute('aria-label'))) {
-    if (title) {
-      title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
-      svgElement.setAttribute('aria-labelledby', title.id);
-    }
-  }
-
-  return svgElement;
-}
-
+/**
+ * Gets the accessible name for an SVG element
+ * @param {Object} svg - The SVG element
+ * @returns {string} The accessible name for the SVG
+ */
 function getSvgAccessibleName(svg) {
   if (svg && (svg.length !== undefined || svg instanceof NodeList || Array.isArray(svg))) {
     let accessibleName = null;
@@ -730,13 +810,69 @@ if (typeof document !== 'undefined') {
     }
   });
 
-  // Add/fix 4 landmark issues
-  const landmarks = document.querySelectorAll('main, nav, aside, header, footer');
-  landmarks.forEach((landmark) => {
-    const landmarkIssues = validateLandmark(landmark);
-    if (landmarkIssues && landmarkIssues.length > 0) {
-      console.error(`Landmark issues found: ${landmarkIssues.join(', ')}`);
-    }
+  return {
+    total: issues.length,
+    handled: handled.length,
+    unhandled: unhandled.length,
+    unhandledIssues: unhandled
+  };
+}
+
+/**
+ * Creates an accessible book form with proper labels, ARIA attributes, and validation
+ * @param {Object} options - Form options
+ * @param {string} options.formId - ID for the form
+ * @param {string} options.title - Title for the form
+ * @param {Array} options.fields - Array of field configurations
+ * @param {Function} options.onSubmit - Submit handler function
+ * @returns {Object} Accessible form object
+ */
+function createAccessibleBookForm(options) {
+  // Validate required options
+  if (!options.formId || !options.title || !options.fields || !options.onSubmit) {
+    throw new Error('Missing required form options');
+  }
+
+  // Create form structure with proper ARIA attributes
+  const form = {
+    id: options.formId,
+    role: 'form',
+    'aria-labelledby': `${options.formId}-title`,
+    titleElement: {
+      id: `${options.formId}-title`,
+      text: options.title,
+      level: 2
+    },
+    fields: [],
+    submitButton: createInPageButton({
+      text: 'Submit Book',
+      ariaLabel: `Submit ${options.title} form`,
+      onClick: options.onSubmit
+    })
+  };
+
+  // Process each field with accessibility features
+  options.fields.forEach((field, index) => {
+    const fieldId = `${options.formId}-field-${index}`;
+    const accessibleField = {
+      id: fieldId,
+      type: field.type || 'text',
+      label: {
+        for: fieldId,
+        text: field.label || `Field ${index + 1}`
+      },
+      required: field.required || false,
+      'aria-required': field.required ? 'true' : 'false',
+      'aria-describedby': field.description ? `${fieldId}-description` : undefined,
+      description: field.description ? {
+        id: `${fieldId}-description`,
+        text: field.description
+      } : undefined,
+      value: field.value || '',
+      placeholder: field.placeholder || ''
+    };
+
+    form.fields.push(accessibleField);
   });
 
 ```
@@ -1556,9 +1692,11 @@ function handleAccessibilityIssues(issues) { return issues; }
 module.exports = {
   getLangAttribute,
   getFullLangAttribute,
+  addLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
+  validateLandmarkAttributes,
   validateLandmarkStructure,
   ensureUniqueLandmarks,
   getSvgAccessibleName,

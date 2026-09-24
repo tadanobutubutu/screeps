@@ -1,10 +1,5 @@
-// Dependency imports
-const dependencyGraphContentModule = require('./dependencyGraphContent');
-const indexContentModule = require('./indexContent');
-const dependencyGraphContent = dependencyGraphContentModule.dependencyGraphContent || dependencyGraphContentModule;
-const indexContent = indexContentModule.indexContent || indexContentModule;
-
-// Existing rendering functions (preserving existing exports and functions)
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 /**
  * Renders the dependency graph view

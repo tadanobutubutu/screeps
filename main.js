@@ -16,6 +16,7 @@ export function existingFunction2() {
 // New Function
 export function newFunction() {
   // Implement the new functionality (as per the original commitment)
+  return "New function implemented successfully";
 }
 
 //------ BEGIN CHANGES (added/updated)------

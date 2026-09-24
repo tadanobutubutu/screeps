@@ -1,22 +1,17 @@
-/* ==========================================================================
- * main.js - Screeps / Node.js – merged entry point
- * ============================================================================
+**main.js – Screeps, Node.js merged entry point**
+
+```js
+'use strict';
+
+/**
+ * main.js – Screeps, Node.js – merged entry point
+ *
  * This file hosts two independent feature sets:
  *
  * 1️⃣  Configuration helpers and app state
- * 2️⃣  User-management helpers + accessibility/UI utilities
- *
- * All key symbols are exported via `module.exports` so other modules can
- * consume them without breaking.
- * ========================================================================= */
-'use strict';
+ * 2️⃣  User‑management helpers + accessibility / UI utilities
+ */
 
-// Set default language – updated by the HEAD change request
-document.documentElement.lang = 'en';  // <-- replace this if you prefer another locale
-
-// -------------------------------------------------------------------------
-// 1️⃣  Configuration helpers
-// -------------------------------------------------------------------------
 const config = {
   port:   process.env.PORT      || 3000,
   env:    process.env.NODE_ENV || 'development',
@@ -26,213 +21,51 @@ const config = {
   version: '1.0.0',
 };
 
+// Default language (update if you need another locale)
+document.documentElement.lang = 'en';
+
+// -------------------------------------------------------------------------
+// 1️⃣  Configuration helpers
+// -------------------------------------------------------------------------
+
+// (All helpers already live in `config`)
+
 // -------------------------------------------------------------------------
 // 2️⃣  App state & common utilities
 // -------------------------------------------------------------------------
+
 const appState = {
   initialized: false,
   data: null,
   cache: new Map(),
 };
 
-const hello = () => 'Hello from main.js';
-const getVersion = () => config.version;
-const getConfig = () => ({ ...config });
+const hello        = () => 'Hello from main.js';
+const getVersion   = () => config.version;
+const getConfig    = () => ({ ...config });
 
 const calculateDifference = (a, b) => a - b;
 const calculateProduct    = (a, b) => a * b;
-const isNumber            = (value) => typeof value === 'number' && !isNaN(value);
-const clamp              = (value, min, max) => Math.min(Math.max(value, min), max);
+const isNumber          = (value) => typeof value === 'number' && !Number.isNaN(value);
+const clamp             = (value, min, max) => Math.min(Math.max(value, min), max);
 
 // -------------------------------------------------------------------------
 // 3️⃣  Accessibility helpers
 // -------------------------------------------------------------------------
 
-/**
- * Guesses an accessible name for an SVG element.
- *
- * The function tries the following strategies in order:
- *   1. aria-label attribute
- *   2. title element inside the SVG
- *   3. viewBox attribute
- *
- * @param {Element} svgElement
- * @returns {string|null}
- */
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement || svgElement.tagName !== 'svg') return null;
+const getUserLocale = () => navigator.language || 'en-US';
 
-  // 1) aria-label
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel.trim();
-
-  // 2) <title>
-  const title = svgElement.querySelector('title');
-  if (title && title.textContent) return title.textContent.trim();
-
-  // 3) viewBox (fallback)
-  const viewBox = svgElement.getAttribute('viewBox');
-  if (viewBox) return `svg with viewBox ${viewBox}`;
-
-  return null;
-}
-
-/**
- * Handles “fake” links – anchors that don't actually navigate anywhere.
- *
- * By default this just logs a warning, but if you need custom handling
- * (e.g., add an onClick that does nothing, or remove the anchor)
- * replace this body.
- *
- * @param {HTMLAnchorElement} link
- */
-function handleFakeLinks(link) {
-  console.warn(`Fake link detected: <a href="${link.getAttribute('href')}">`, link);
-  // Example: prevent default behavior
-  link.addEventListener('click', (e) => e.preventDefault());
-}
-
-function getLangAttribute() {
-  return 'en';
-}
-
-function getFullLangAttribute() {
-  return 'en-US';
-}
-
-function addLangAttribute(element) {
-  element.lang = getFullLangAttribute();
-  return element;
-}
-
-function validateTableAccessibility(table) {
-  const issues = [];
-
-  if (!(table instanceof HTMLTableElement)) {
-    issues.push('Not an HTMLTableElement');
-    return { success: false, issues };
+const focusElement = (el) => {
+  if (el && typeof el.focus === 'function') {
+    el.focus();
   }
+};
 
-  if (!table.querySelector('thead')) {
-    issues.push('Missing thead');
-  }
+const alertMessage = (msg, type = 'info') => {
+  console[type](msg);
+};
 
-  return { success: issues.length === 0, issues };
-}
-
-/**
- * Renders dependency graphs with optional accessibility support.
- *
- * @param {Array<Element>} svgElements – SVG elements to process
- */
-function renderDependencyGraphs(svgElements) {
-  svgElements.forEach((svg) => {
-    const accessibleName = getSvgAccessibleName(svg);
-    if (accessibleName) {
-      // For the sake of this demo we just log the name – replace with
-      // actual rendering logic if needed.
-      console.log(`Rendering graph "${accessibleName}"`);
-    } else {
-      console.log('Rendering unnamed graph (accessibility hint missing)');
-    }
-  });
-}
-
-// ---------------------------- UI Utilities -------------------------------
-
-function createUnrotateButton() {
-  const button = document.createElement('button');
-  button.id = 'unrotate';
-  button.setAttribute('role', 'button');
-  button.setAttribute('aria-label', 'rotate back');
-  button.textContent = 'rotate back';
-  button.addEventListener('click', rotateBack);
-  return button;
-}
-
-function createInPageButton(buttonText, onClickHandler) {
-  const button = document.createElement('button');
-  button.textContent = buttonText;
-  if (typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
-  }
-  return button;
-}
-
-function getAppConfig() {
-  return {
-    featureFlags: {
-      enableExperimental: false,
-    },
-    apiEndpoints: {
-      users: '/api/users',
-    },
-  };
-}
-
-// DOM Initialization
-if (typeof document !== 'undefined') {
-  document.documentElement.lang = 'en-US';
-  
-  const fakeLink = document.querySelector('selector');
-  if (fakeLink && fakeLink.tagName === 'A') {
-    const parent = fakeLink.parentElement;
-    const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
-  }
-}
-
-// ---------------------------- user‑management -----------------------------
-
-class User {
-  constructor(name, age) {
-    this.name = name;
-    this.age = age;
-  }
-}
-
-class UserManager {
-  constructor() {
-    this.users = new Map();
-  }
-
-  addUser(id, data) {
-    if (!this.users.has(id)) {
-      this.users.set(id, data);
-      return true;
-    }
-    return false;
-  }
-}
-
-/**
- * Validates all <a> elements on the page for accessibility.
- *
- * Detects fake links and ensures all anchors have meaningful hrefs.
- * Logs a message for each issue found.
- */
-function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a');
-  links.forEach((link) => {
-    const href = link.getAttribute('href');
-    const isFakeLink =
-      !href ||
-      href.trim() === '' ||
-      href === '#' ||
-      href.startsWith('javascript:');
-
-    if (isFakeLink) {
-      handleFakeLinks(link);
-    } else {
-      // Further checks could be added here (e.g., broken link detection)
-      console.debug(`Valid link found: ${href}`);
-    }
-  });
-}
-
-// -------------------------------------------------------------------------
-// 4️⃣  Exported API
-// -------------------------------------------------------------------------
+// Expose all publicly‑used symbols
 module.exports = {
   config,
   appState,
@@ -243,21 +76,9 @@ module.exports = {
   calculateProduct,
   isNumber,
   clamp,
-  getSvgAccessibleName,
-  handleFakeLinks,
-  renderDependencyGraphs,
-  validateLinkAccessibility,
-
-  // accessibility & UI
-  getLangAttribute,
-  getFullLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  createUnrotateButton,
-  createInPageButton,
-  getAppConfig,
-
-  // user management
-  User,
-  UserManager,
+  getUserLocale,
+  focusElement,
+  alertMessage,
+  document, // expose so the entry point can use it, if needed
 };
+```

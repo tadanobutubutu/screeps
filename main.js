@@ -211,6 +211,8 @@ function ... {
     }
 }
 
+// TODO: Any additional changes requested in the issue should be added after this function
+
 /* ============================================================================
    Main Application Logic
    ============================================================================ */
@@ -254,16 +256,40 @@ module.exports = {
       const requiredLandmarks = ['main', 'nav', 'footer'];
       const missingLandmarks = [];
 
-      ... => {
-        const element = ...
-        if (!element) {
-          ...
+      requiredLandmarks.forEach(landmark => {
+        const selector = landmark === 'nav' ? 'nav, [role="navigation"]' : landmark;
+        if (!document.querySelector(selector)) {
+          missingLandmarks.push(landmark);
         }
       });
 
+      if (missingLandmarks.length > 0) {
+        console.warn(`Accessibility warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+        return {
+          valid: false,
+          missingLandmarks: missingLandmarks,
+          message: `Missing required landmarks: ${missingLandmarks.join(', ')}`
+        };
+      }
+
       return {
-        present: missingLandmarks.length === 0,
-        missing: missingLandmarks
+        valid: true,
+        missingLandmarks: [],
+        message: 'All required landmarks are present'
       };
+    },
+    // Function to add main landmark to root container
+    addMainLandmark: function() {
+      const rootContainer = document.getElementById('root');
+      if (rootContainer) {
+        rootContainer.setAttribute('role', 'main');
+      }
     }
+};
+
+// Export the accessibility utilities
+module.exports = {
+    accessibilityUtils,
+    validateLandmark,
+    addMainLandmark
 };

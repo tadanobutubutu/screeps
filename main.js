@@ -71,4 +71,11 @@ if (require.main === module) {
   startApp();
 }
 
-// TODO: Add the new functionalities here if required
+// New function as per the issue
+function newFunction() {
+  // TODO: Implement the new function as per the issue
+  return 'This is the new function implementation';
+}
+
+// Export the new function
+module.exports.newFunction = newFunction;

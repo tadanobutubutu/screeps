@@ -5,9 +5,25 @@ const addMainLandmark = (landmark) => {
   // Implementation for adding main landmark
 };
 
-const validateLandmark = (landmark) => {
-  // Implementation for validating landmark
-};
+// New function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    express: express ? 'installed' : 'not installed',
+    'axe-core': axe ? 'installed' : 'not installed',
+    fs: fs ? 'installed' : 'not installed',
+    'fast-map': fastMap ? 'installed' : 'not installed',
+    path: path ? 'installed' : 'not installed',
+    react: React ? 'installed' : 'not installed'
+  };
+
+  return dependencies;
+}
+
+// New function to generate a report based on accessibility issues
+function generateAccessibilityReport() {
+  const options = {
+    rules: [{ id: 'color-contrast' }, { id: 'aria-roles' }], // Customize allowed or ignored rules here
+  };
 
 const getLangAttribute = (element) => {
   // Implementation for getting language attribute
@@ -307,5 +323,55 @@ function getInsightReport() {
     });
   }
 
-  // Check SVG accessibility
-  const svgAccessibleNames = getSvgAccessibleName();
+  useEffect(() => {
+    const loadProgramData = async () => {
+      const filePath = path.join(CONFIG.dataPath, 'program.json');
+      try {
+        const data = await fs.promises.readFile(filePath, 'utf8');
+        const parsedData = JSON.parse(data);
+        setProgramData(parsedData);
+      } catch (error) {
+        console.error('Error loading program data:', error);
+      }
+    };
+    loadProgramData();
+  }, []);
+
+  return (
+    // ... Your accessible React Router setup ...
+  );
+};
+
+// ... Your accessibility functions (merged both parties)
+
+export default App;
+module.exports = {
+  ...module.exports, // Preserve existing functions
+  countDependencies,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  validateInput,
+  processData,
+  formatResponse,
+  config: CONFIG,
+  isValidLandmark,
+  loadLandmarks,
+  processLandmarks,
+  sortLandmarks,
+  getLandmarkById,
+  landmarkConfig: CONFIG,
+  generateAccessibilityReport,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks
+};

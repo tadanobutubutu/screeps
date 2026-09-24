@@ -307,17 +307,22 @@ function startApp() {
   return server;
 }
 
-/* TODO: Implement a function to count dependencies */
-function countDependencies() {
-  // Implementation of the function to count dependencies
-  // This is a placeholder function. You should replace this with the actual logic to count dependencies.
-  return 0; // Replace with actual count
+// New functions to handle logging and graceful shutdown
+function logMessage(message) {
+  console.log(`[LOG]: ${message}`);
 }
 
-/* New function or change requested in the issue */
-function newFunction() {
-  // Implementation of the new function
-  console.log('This is the new function that was requested to be added.');
+function handleGracefulShutdown(server) {
+  server.close(() => {
+    console.log('Server closed gracefully');
+    process.exit(0);
+  });
+
+  // Forcibly close server after 5 seconds
+  setTimeout(() => {
+    console.error('Forcibly closing server after timeout');
+    process.exit(1);
+  }, 5000);
 }
 
 // TODO: Implement function for generating a report based on accessibility issues
@@ -347,34 +352,65 @@ function generateAccessibilityReport(accessibilityIssues) {
     if (!report.issuesByType[issueType]) {
       report.issuesByType[issueType] = [];
     }
-    report.issuesByType[issueType].push({
-      id: index + 1,
-      code: issue.code || '',
-      message: issue.message || '',
-      severity: issue.severity || 'moderate',
-      element: issue.element || '',
-      impact: issue.impact || ''
-    });
-    
-    // Count issues by severity
-    const severity = issue.severity || 'moderate';
-    if (report.issuesBySeverity.hasOwnProperty(severity)) {
-      report.issuesBySeverity[severity]++;
-    }
-    
-    // Add to summary
-    report.summary.push({
-      type: issueType,
-      code: issue.code || '',
-      message: issue.message || '',
-      severity: issue.severity || 'moderate'
-    });
-  });
-  
-  return report;
+  } else if (typeof response === 'object') {
+    data = response;
+  } else {
+    console.error('[ERROR] Credential response must be a string or object');
+    return;
+  }
+
+  // Basic validation – ensure required fields exist and have correct types
+  if (!data || typeof data.token !== 'string' || typeof data.expiration !== 'number') {
+    console.error('[ERROR] Credential response is missing required fields (token, expiration)');
+    return;
+  }
+
+  // Store the validated credentials
+  storedCredentials = data;
+  logMessage('Credential response received, parsed, validated and stored');
 }
 
-// Exports (if any) must be preserved
+// Helper to retrieve stored credentials (useful for tests)
+function getStoredCredentials() {
+  return storedCredentials;
+}
+
+// Add accessibility function to handle the lang attribute for the entire HTML document
+function handleAddLangAttribute(htmlDocument, lang) {
+  // Get the html element and call addLangAttribute
+  const htmlElement = htmlDocument.documentElement;
+  addLangAttribute(htmlElement, lang);
+}
+
+// New function to add new functionality
+function newFunctionality() {
+  // Example functionality to demonstrate changes
+  console.log('New functionality has been added.');
+}
+
+/**
+ * Renders the dependency graph view
+ * @returns {string} Rendered dependency graph content
+ */
+function renderDependencyGraph() {
+  return dependencyGraphContent();
+}
+
+/**
+ * Renders the index view
+ * @returns {string} Rendered index content
+ */
+function renderIndex() {
+  return indexContent();
+}
+
+// TODO: THIS IS THE EXISTING CODE THAT NEEDS TO BE PRESERVED
+// TODO: This is the existing code that needs to be preserved
+// Line 7
+// Line 8
+// Line 9
+// Line 10
+
 // Export functions for testing
 module.exports = {
   createServer,

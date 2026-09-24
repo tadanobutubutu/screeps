@@ -44,10 +44,13 @@ function startApp() {
   return server;
 }
 
-// TODO: Implement this function for checking landmark elements
-function checkLandmarkElements() {
-  // Returns true if at least one element with class 'landmark' exists in the document
-  return !!document.querySelector('.landmark');
+/**
+ * Adds a new function to the main.js file
+ * This function will return a string with the server status
+ * @returns {string} The server status
+ */
+function getServerStatus() {
+  return `Server is running on port ${config.port}`;
 }
 
 // Export functions for testing
@@ -55,7 +58,7 @@ module.exports = {
   createServer,
   startApp,
   config,
-  checkLandmarkElements
+  getServerStatus
 };
 
 // New function added as per the issue

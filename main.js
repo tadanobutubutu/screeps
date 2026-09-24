@@ -188,82 +188,16 @@ const a11yStore = {
         svg.insertBefore(titleElement, svg.firstChild);
       }
 
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.random().toString(36).substr(2, 9) * 10000}`;
-      }
-
-      svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', titleElement.id);
-
-      if (!svg.hasAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        svg.setAttribute('role', 'img');
-      }
-    });
-  },
-
-  fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[onclick]');
-    fakeLinks.forEach(link => {
-      if (link.tagName === 'A' && !link.href) {
-        link.setAttribute('role', 'link');
-        link.setAttribute('tabindex', '0');
-        link.setAttribute('aria-disabled', 'true');
-      }
-    });
-  },
-
-  /**
-   * Ensure all interactive elements have proper ARIA roles
-   */
-  ensureInteractiveRoles() {
-    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach(element => {
-      if (!element.getAttribute('role') && !['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(element.tagName)) {
-        element.setAttribute('role', 'button');
-      }
-    });
-  },
-
-  /**
-   * Add ARIA labels to form controls if missing
-   */
-  addFormControlLabels() {
-    const formControls = document.querySelectorAll('input, button, select, textarea');
-    formControls.forEach((control, index) => {
-      if (!control.id) {
-        control.id = `form-control-${index}`;
-      }
-      const label = control.previousElementSibling;
-      if (label && label.tagName === 'LABEL') {
-        label.setAttribute('for', control.id);
-        label.textContent = control.placeholder || 'Form control';
-        control.parentNode.insertBefore(label, control);
-      }
-    });
-  },
-
-  /**
-   * Ensure all images have alt text or ARIA attributes
-   */
-  fixImageAccessibility() {
-    const images = document.querySelectorAll('img');
-    images.forEach((img) => {
-      if (!img.alt && !img.getAttribute('aria-label') && !img.getAttribute('aria-labelledby')) {
-        img.setAttribute('alt', '');
-      }
-    });
-  },
-
-  // ... remaining a11yStore methods ...
-
-  /**
-   * New method to ensure interactive elements are accessible
-   */
-  ensureInteractiveElementsAccessible() {
-    this.ensureInteractiveRoles();
-    this.addFormControlLabels();
-    this.ensureImageAccessibility();
-  }
-};
-
-// ... rest of the code ...
+/**
+ * REACT_025: Ensure unique landmarks
+ */
+export function ensureUniqueLandmarks(container) {
+  if (!container) return null;
+  
+  const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  
+  landmarks.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((el, index) => {
+      if (index > 0 && !el.getAttribute('aria-label')) {
+        const count = index +

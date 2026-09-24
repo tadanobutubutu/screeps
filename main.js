@@ -252,16 +252,52 @@ function ensureElementsHaveIds (elements) {
 function ensureUniqueLandmarks () {
   // Implementation for ensuring unique landmarks
   // Remove duplicate landmarks
-  const landmarks = ... [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"],
-  'footer[role="contentinfo"]'
-  .join(', ')
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], footer[role="contentinfo"]');
 
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
   // This is a simplified implementation
 }
 
-function getSvgAccessibleName () {
+// New function to handle focus trap for keyboard navigation
+function newFocusTrap(element) {
+  if (!element) return;
+
+  // Store the current focusable elements
+  const focusableElements = element.querySelectorAll(
+    'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+  );
+
+  // If no focusable elements, return
+  if (focusableElements.length === 0) return;
+
+  // Add event listener for tab key
+  element.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (e.shiftKey) {
+      // Shift + Tab: move focus to last element if at first
+      if (document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      // Tab: move focus to first element if at last
+      if (document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
+
+  // Set initial focus to first element
+  firstElement.focus();
+}
+
+function getSvgAccessibleName() {
   // Existing code...
 }
 
@@ -318,41 +354,50 @@ function createAccessibleLink (text, href) {
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
   // New code to fix accessibility issues...
-  // 1. Ensure all landmarks are unique
-  ensureUniqueLandmarks();
+  // Add lang attribute
+  addLangAttribute();
 
-  // 2. Add proper IDs to elements that need them
-  ensureElementHasId('myTable');
-  ensureElementHasId('myLogo');
-  ensureElementHasId('myMenu');
-
-  // 3. Add ARIA labels where needed
-  addAriaLabel('myTable', 'Product data table');
-  addAriaLabel('myLogo', 'Company logo');
-  addAriaLabel('myMenu', 'Accessibility menu');
-
-  // 4. Validate table accessibility
+  // Validate tables
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     validateTableAccessibility(table);
     validateTableStructure(table);
   });
 
-  // 5. Add lang attribute to HTML element
-  addLangAttribute();
+  // Validate landmarks
+  validateLandmark();
+  ensureUniqueLandmarks();
 
-  // 6. Ensure SVGs have accessible names
+  // Add accessible names to SVGs
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
     setSvgAttributes(svg, accessibleName);
   });
 
-  // 7. Validate link accessibility
+  // Ensure unique landmarks
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"]');
+  const landmarkIds = new Set();
+  landmarks.forEach(landmark => {
+    if (landmark.id) {
+      if (landmarkIds.has(landmark.id)) {
+        // Handle duplicate by adding suffix
+        landmark.id = `${landmark.id}-${Math.floor(Math.random() * 1000)}`;
+      }
+      landmarkIds.add(landmark.id);
+    }
+  });
+
+  // Validate link accessibility
   validateLinkAccessibility();
 
-  // 8. Handle fake links
-  handleFakeLinks();
+  // Fix button identifiers
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    if (!button.id) {
+      button.id = `button-${index}`;
+    }
+  });
 }
 
 // New function to calculate the sum of two numbers
@@ -398,11 +443,8 @@ function validateLinkAccessibility() {
 
 function handleFakeLinks() {
   // Implementation for handling fake links
-  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
+  const fakeLinks = document.querySelectorAll('[role="link"], [tabindex="0"]');
   fakeLinks.forEach(link => {
-    if (!link.getAttribute('tabindex')) {
-      link.setAttribute('tabindex', '0');
-    }
     if (!link.getAttribute('aria-label')) {
       link.setAttribute('aria-label', 'Link');
     }
@@ -417,8 +459,10 @@ createInPageButton();
 
 // Validate table structure and accessibility
 const table = document.querySelector('table');
-validateTableAccessibility(table);
-validateTableStructure(table);
+if (table) {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+}
 
 // Add/fix landmark issues
 validateLandmark();
@@ -426,18 +470,20 @@ ensureUniqueLandmarks();
 
 // Add accessible names to SVGs
 const svg = document.querySelector('svg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
+if (svg) {
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
+}
 
 // Ensure unique landmarks
 // Ensuring all landmarks have unique identifiers
-const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], footer[role="contentinfo"]');
+const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"]');
 const landmarkIds = new Set();
 landmarks.forEach(landmark => {
   if (landmark.id) {
     if (landmarkIds.has(landmark.id)) {
       // Handle duplicate
-      landmark.id = createLandmarkId(landmark.getAttribute('role'));
+      landmark.id = `${landmark.id}-${Math.floor(Math.random() * 1000)}`;
     } else {
       landmarkIds.add(landmark.id);
     }
@@ -459,7 +505,9 @@ buttons.forEach((button, index) => {
 });
 
 // Use the new function to add aria-labels to the appropriate elements
-...
+addAriaLabel('myTable', 'Product data table');
+addAriaLabel('myLogo', 'Company logo');
+addAriaLabel('myMenu', 'Accessibility menu');
 
 // End of file
 

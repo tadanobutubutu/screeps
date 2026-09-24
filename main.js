@@ -514,9 +514,19 @@ function log(message, level = 'info') {
     // ... existing code ...
 }
 
-// Make sure to preserve all existing exports
 module.exports = {
-    // existing exports...
-    newFunction, // Add the new function to exports
-    newFocusTrap, // Add the new function to exports
-};
+  // existing exports...
+  newFunction, // Add the new function to exports
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  personName,
+  createInPageButton,
+  validateLinks,
+  createFocusTrap
+}

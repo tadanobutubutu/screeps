@@ -157,13 +157,16 @@ function validateTableStructure(table) {
   if (!table || typeof table !== 'object' || !(table instanceof HTMLElement)) return false;
 
   // Check if table has proper structure
-  if ... || ... {
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  if (!thead || !tbody) {
     console.warn('Table is missing required thead or tbody elements');
     return false;
   }
 
   // Check if table has at least one row
-  if ... === 0) {
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) {
     console.warn('Table is missing rows');
     return false;
   }
@@ -208,7 +211,7 @@ function validateLandmark(element) {
 
   // Check if landmark is unique when required
   if (['banner', 'main', 'contentinfo'].includes(role)) {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const elements = document.querySelectorAll('[role="' + role + '"]');
     if (elements.length > 1) {
       return false;
     }
@@ -277,24 +280,10 @@ function extractSvgAccessibleNameFromContent(svg) {
  */
 function getSvgAccessibleName(svg) {
   if (!svg || typeof svg !== 'object') return '';
-  
-  // First check for aria-label attribute
   const ariaLabel = svg.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel;
-  
-  // Then check aria-labelledby attribute
   const ariaLabelledby = svg.getAttribute('aria-labelledby');
-  if (ariaLabelledby && typeof document !== 'undefined') {
-    const labelElement = document.getElementById(ariaLabelledby);
-    if (labelElement) return labelElement.textContent || '';
-  }
-  
-  // Then check title attribute
-  const titleAttr = svg.getAttribute('title');
-  if (titleAttr) return titleAttr;
-  
-  // Finally, extract accessible name from SVG content
-  return extractSvgAccessibleNameFromContent(svg);
+  const title = svg.querySelector('title');
+  return ariaLabel || (ariaLabelledby ? document.getElementById(ariaLabelledby)?.textContent : '') || (title ? title.textContent : '') || svg.getAttribute('title') || '';
 }
 
 /**
@@ -343,7 +332,7 @@ function ensureUniqueLandmarks() {
  */
 function validateLinkAccessibility(link) {
   if (!link || typeof link !== 'object') return true;
-  return link.textContent.trim() && link.getAttribute('href') !== '#';
+  return link.textContent.trim().length > 0 && link.getAttribute('href') !== '#';
 }
 
 /**
@@ -357,7 +346,7 @@ function handleFakeLinks(link) {
     const button = document.createElement('button');
     button.textContent = link.textContent;
     button.setAttribute('aria-label', link.getAttribute('aria-label') || link.textContent);
-    button.setAttribute('class', link.getAttribute('class') || '');
+    button.setAttribute('type', 'button');
     return button;
   }
   return null;

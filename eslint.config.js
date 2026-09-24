@@ -11,6 +11,8 @@ module.exports = [
             '.github/**',
             'dashboard/.next/**',
             'dashboard/node_modules/**',
+            'test_random.js',
+            'tutorial.auto.js',
         ],
     },
     {

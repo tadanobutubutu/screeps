@@ -659,43 +659,23 @@ export function loop() {
 
     if(harvesters.length < 2) {
         var newName = 'Harvester' + Game.time;
-        Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, { role: 'harvester' });
+        Game.spawns['Spawn1'].spawnCreep([WORK,CARRY,MOVE], newName,
+            {memory: {role: 'harvester'}});
     }
 
     if(upgraders.length < 2) {
         var newName = 'Upgrader' + Game.time;
-        Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, { role: 'upgrader' });
+        Game.spawns['Spawn1'].spawnCreep([WORK,CARRY,MOVE], newName,
+            {memory: {role: 'upgrader'}});
     }
 
     for(var name in Game.creeps) {
         var creep = Game.creeps[name];
         if(creep.memory.role == 'harvester') {
-            if(creep.carry.energy < creep.carryCapacity) {
-                var sources = creep.room.find(FIND_SOURCES);
-                if(sources.length > 0) {
-                    if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(sources[0]);
-                    }
-                }
-            } else {
-                if(creep.transfer(Game.spawns['Spawn1'], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(Game.spawns['Spawn1']);
-                }
-            }
+            roleHarvester.run(creep);
         }
         if(creep.memory.role == 'upgrader') {
-            if(creep.carry.energy > 0) {
-                if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(creep.room.controller);
-                }
-            } else {
-                var sources = creep.room.find(FIND_SOURCES);
-                if(sources.length > 0) {
-                    if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(sources[0]);
-                    }
-                }
-            }
+            roleUpgrader.run(creep);
         }
     }
-};
+}

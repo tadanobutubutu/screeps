@@ -119,16 +119,24 @@ function authorizeUser(callback) {
   callback();
 }
 
-// Accessibility preservation functions
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// Helper function to get landmark props for accessibility
+function getLandmarkProps(role, label) {
+  return {
+    role,
+    'aria-label': label,
+    'aria-labelledby': label.replace(/\s+/g, '-').toLowerCase()
+  };
+}
+
+// Helper function to get SVG accessibility props
+function getSvgProps(name) {
+  return {
+    'aria-hidden': 'true',
+    'focusable': 'false',
+    'role': 'img',
+    'aria-label': name
+  };
+}
 
 // Render the main component containing the book list, sorting controls, and authorization check
 function Main({ checkAllowed }) {
@@ -145,20 +153,36 @@ function Main({ checkAllowed }) {
 
   // Render the list of book items, sorting controls, and authorized AddBookForm
   return (
-    <main {...getLandmarkProps('main', 'Main content')}>
-      <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
-      <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
-      <List
-        itemLayout="vertical"
-        dataSource={booksList}
-        renderItem={book => (
-          <List.Item key={generateKey(book)}>
-            <BookItem book={book} />
-          </List.Item>
-        )}
-      />
-      <AuthorizedAddBookForm onAdd={handleAddBook} />
-    </main>
+    <div lang="en">
+      <header {...getLandmarkProps('banner', 'Site Header')}>
+        <h1>Book Dependency Manager</h1>
+      </header>
+      <nav {...getLandmarkProps('navigation', 'Main Navigation')}>
+        <button id="sort-by-title" onClick={handleSort(sortByTitle)}>Sort by Title</button>
+        <button id="sort-by-author" onClick={handleSort(sortByAuthor)}>Sort by Author</button>
+      </nav>
+      <main {...getLandmarkProps('main', 'Main content')}>
+        <div role="region" aria-labelledby="book-list-heading">
+          <h2 id="book-list-heading">Book List</h2>
+          <List
+            itemLayout="vertical"
+            dataSource={booksList}
+            renderItem={book => (
+              <List.Item key={generateKey(book)}>
+                <BookItem book={book} />
+              </List.Item>
+            )}
+          />
+        </div>
+        <div role="region" aria-labelledby="add-book-heading">
+          <h2 id="add-book-heading">Add New Book</h2>
+          <AuthorizedAddBookForm onAdd={handleAddBook} />
+        </div>
+      </main>
+      <footer {...getLandmarkProps('contentinfo', 'Footer')}>
+        <p>© 2023 Book Dependency Manager</p>
+      </footer>
+    </div>
   );
 }
 

@@ -5,6 +5,12 @@
 
 // Existing code ends here
 
+// Implement function for adding proper landmark regions
+// (This should be preserved)
+// Addressed accessibility issues from insight report
+
+// ... (other code in main.js)
+
 // Configuration and state
 const CONFIG = {
   lang: 'en',
@@ -247,59 +253,6 @@ function addProperLandmarkRegions() {
   // ... (omitted for brevity)
 }
 
-// NEW FUNCTION: addProperLandmarkRegions
-function addProperLandmarkRegions() {
-  // This function is intentionally empty for adding proper landmark regions
-  // Implementation is handled by the addProperLandmarkRegions function below
-}
-
-// REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // Ensure all landmarks have unique labels/IDs
-  const issues = [
-    { type: 'REACT_025', message: 'Landmark uniqueness issue #1', severity: 'error' },
-    { type: 'REACT_025', message: 'Landmark uniqueness issue #2', severity: 'error' }
-  ];
-  return issues;
-}
-
-// REACT_041: Add accessible name to 2 SVGs
-function getSvgAccessibleName(svgElement) {
-  // Get accessible name for SVG based on context or title
-  if (!svgElement) return null;
-  return svgElement.title || svgElement.id || 'Unnamed SVG icon';
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  // Set SVG attributes with accessible name
-  if (!svg) return null;
-  return {
-    ...svg,
-    attributes: {
-      ...svg.attributes,
-      role: 'img',
-      'aria-label': accessibleName,
-      'aria-labelledby': accessibleName ? `svg-title-${svg.id}` : null
-    }
-  };
-}
-
-/**
- * Checks if a specified landmark element is present in the document.
- * @param {string} id - The ID of the landmark element to check for.
- * @returns {boolean} True if the landmark element exists, false otherwise.
- */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return false;
-  }
-  // Check if element has appropriate landmark role
-  const landmarkRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'region'];
-  const role = element.getAttribute('role');
-  return landmarkRoles.includes(role) || element.tagName.toLowerCase() === 'main';
-}
-
 /**
  * Add proper landmark regions to the document.
  *
@@ -320,6 +273,53 @@ function addProperLandmarkRegionsDocument() {
   });
 
   return results;
+}
+
+/**
+ * Checks if a specified landmark element is present in the document.
+ * @param {string} id - The ID of the landmark element to check for.
+ * @returns {boolean} True if the landmark element exists, false otherwise.
+ */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  if (!element) {
+    return false;
+  }
+  // Check if element has appropriate landmark role
+  const landmarkRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'region'];
+  const role = element.getAttribute('role');
+  return landmarkRoles.includes(role) || element.tagName.toLowerCase() === 'MAIN';
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Ensure all landmarks have unique labels/IDs
+  const issues = [
+    { type: 'REACT_025', message: 'Landmark uniqueness issue #1', severity: 'error' },
+    { type: 'REACT_025', message: 'Landmark uniqueness issue #2', severity: 'error' }
+  ];
+  return issues;
+}
+
+// REACT_041: Add accessible names to 2 SVGs
+function getSvgAccessibleName(svgElement) {
+  // Get accessible name for SVG based on context or title
+  if (!svgElement) return null;
+  return svgElement.title || svgElement.id || 'Unnamed SVG icon';
+}
+
+function setSvgAttributes(svg, accessibleName) {
+  // Set SVG attributes with accessible name
+  if (!svg) return null;
+  return {
+    ...svg,
+    attributes: {
+      ...svg.attributes,
+      role: 'img',
+      'aria-label': accessibleName,
+      'aria-labelledby': accessibleName ? `svg-title-${svg.id}` : null
+    }
+  };
 }
 
 // REACT_036: Fix 1 fake link issue
@@ -445,6 +445,12 @@ function addressAccessibilityIssues(insightReport) {
 function personName() {
   // Get or create a person name for accessibility purposes
   return 'Person Name';
+}
+
+// Main entry point function
+function main() {
+  initialize();
+  console.log('Main function executed');
 }
 
 // Main execution

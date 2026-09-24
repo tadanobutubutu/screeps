@@ -231,45 +231,12 @@ function addressAccessibilityIssues() {
     });
   }
 
-  let uniqueLandmarks = {};
+// New function to add lang attribute to HTML element (REACT_015)
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
+}
 
-  // Updated function for REACT_025 (ensuring unique landmarks)
-  function fixUniqueLandmarks(insightReport) {
-    const issues = insightReport.issues || [];
-
-    issues.forEach(issue => {
-      if (issue.code === 'REACT_025') {
-        const element = document.querySelector(issue.selector);
-
-        if (element && issue.ariaRole) {
-          uniqueLandmarks[issue.ariaRole] = element;
-        }
-      }
-    });
-
-    uniqueLandmarks = Object.values(uniqueLandmarks);
-
-    // Check if all landmarks are unique and re-add if necessary
-    ensureUniqueLandmarks();
-  }
-
-  function implementNewFunction() {
-    addressAccessibilityIssues();
-    fixFakeLinks();
-    ensureUniqueLandmarks();
-    addLangAttribute();
-    fixTableStructureIssues();
-    addMainLandmark();
-    addSvgAccessibleNames();
-    fixTableHeaderCellScope();
-    fixUniqueLandmarks();
-  }
-
-  function main() {
-    console.log('Running main application');
-    implementNewFunction(); // Address accessibility issues from insight report
-    return someFunction();
-  }
+let uniqueLandmarks = {};
 
 // Updated function for REACT_025 (ensuring unique landmarks)
 function fixUniqueLandmarks(insightReport = {}) {

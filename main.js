@@ -15,8 +15,8 @@
 // Main module
 
 // Dependency imports
-const { dependencyGraphContent } = { dependencyGraphContent: '' };
-const { indexContent } = { indexContent: '' };
+const { dependencyGraphContent } = require('./graph');
+const { indexContent } = require('./index');
 
 const main = require('./utilities');
 
@@ -52,7 +52,38 @@ function getWelcomeMessage() {
   return greetingFunction() + " This is a new function that returns a welcome message.";
 }
 
-const { class1, function1, Object1 } = { class1: {}, function1: () => {}, Object1: {} };
+const { class1, function1, Object1 } = require('./components');
+
+// TODO: Update the existing function using the new functions for rendering graph/index
+// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+
+/**
+ * Render the dependency graph to a container element
+ * @param {HTMLElement|string} container - The container element or selector
+ */
+function renderGraph(container) {
+  const targetContainer = typeof container === 'string' 
+    ? document.querySelector(container) 
+    : container;
+  
+  if (targetContainer) {
+    targetContainer.innerHTML = dependencyGraphContent();
+  }
+}
+
+/**
+ * Render the index content to a container element
+ * @param {HTMLElement|string} container - The container element or selector
+ */
+function renderIndex(container) {
+  const targetContainer = typeof container === 'string' 
+    ? document.querySelector(container) 
+    : container;
+  
+  if (targetContainer) {
+    targetContainer.innerHTML = indexContent();
+  }
+}
 
 const a11yStore = {
   liveRegion: null,
@@ -74,43 +105,29 @@ const a11yStore = {
 
   updateLiveRegion(message, priority = 'polite') {
     if (!this.liveRegion) return;
-    this.liveRegion.textContent = '';
-    setTimeout(() => {
-      this.announce(message, priority);
-    }, 100);
-  },
-
-  announce(message, priority) {
-    const liveRegion = document.createElement('div');
-    liveRegion.setAttribute('role', 'status');
-    liveRegion.setAttribute('aria-live', priority);
-    liveRegion.setAttribute('aria-atomic', 'true');
-    liveRegion.textContent = message;
-    document.body.appendChild(liveRegion);
-    setTimeout(() => {
-      liveRegion.remove();
-    }, 1000);
+    this.liveRegion.setAttribute('aria-live', priority);
+    this.announce(message, priority);
   },
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
+    landmarkElements.forEach(element => {
       const landmarks = document.querySelectorAll(element);
       landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
-          landmark.id = `a11y-${element}-${index}`;
+          landmark.id = `${element}-${index}`;
         }
 
         if (landmarks.length > 1) {
-          if (landmark.id === `a11y-${element}-${index}`) {
-            landmark.id = `${element}-${index + 1}`;
+          if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
         }
       });
     });
   },
 
-  ensureSvgAccessibility() {
+  fixSvgAccessibility() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
       let titleElement = svg.querySelector('title');
@@ -127,18 +144,20 @@ const a11yStore = {
       svg.setAttribute('role', 'img');
       svg.setAttribute('aria-labelledby', titleElement.id);
 
-      if (svg.getAttribute('role') === 'img') {
+      if (!svg.hasAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
         svg.setAttribute('role', 'img');
       }
     });
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]');
-    fakeLinks.forEach((link) => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('aria-label', 'true');
+    const fakeLinks = document.querySelectorAll('[onclick]');
+    fakeLinks.forEach(link => {
+      if (link.tagName === 'A' && !link.href) {
+        link.setAttribute('role', 'link');
+        link.setAttribute('tabindex', '0');
+        link.setAttribute('aria-disabled', 'true');
+      }
     });
   },
 
@@ -147,8 +166,8 @@ const a11yStore = {
    */
   ensureInteractiveRoles() {
     const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach((element) => {
-      if (!element.getAttribute('role')) {
+    interactiveElements.forEach(element => {
+      if (!element.getAttribute('role') && !['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(element.tagName)) {
         element.setAttribute('role', 'button');
       }
     });
@@ -167,7 +186,7 @@ const a11yStore = {
       if (label && label.tagName === 'LABEL') {
         label.setAttribute('for', control.id);
         label.textContent = control.placeholder || 'Form control';
-        control.setAttribute('aria-labelledby', label.id);
+        control.parentNode.insertBefore(label, control);
       }
     });
   },
@@ -175,7 +194,7 @@ const a11yStore = {
   /**
    * Ensure all images have alt text or ARIA attributes
    */
-  checkImageAccessibility() {
+  fixImageAccessibility() {
     const images = document.querySelectorAll('img');
     images.forEach((img) => {
       if (!img.alt && !img.getAttribute('aria-label') && !img.getAttribute('aria-labelledby')) {
@@ -198,15 +217,35 @@ const a11yStore = {
 
 // New functions
 function ensureInteractiveElementsAccessible() {
-  a11yStore.init();
+  this.ensureInteractiveRoles();
+  this.addFormControlLabels();
+  this.fixImageAccessibility();
 }
 
 // ... rest of the code ...
 
 module.exports = {
+  // Existing exports
   greetingFunction,
   getWelcomeMessage,
-  ensureInteractiveElementsAccessible,
+  config,
+  renderGraph,
+  renderIndex,
   a11yStore,
-  config
+  ensureInteractiveElementsAccessible,
+  // Math functions
+  add,
+  subtract,
+  multiply,
+  divide,
+  power,
+  squareRoot,
+  factorial,
+  fibonacci,
+  sum,
+  average,
+  max,
+  min,
+  mode,
+  median,
 };

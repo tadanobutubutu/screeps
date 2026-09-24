@@ -183,90 +183,12 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  /**
-   * Wraps primary content in a 'main' element with an appropriate ARIA role
-   * @param {string} content - The primary content to wrap
-   * @returns {string} The wrapped content
-   */
-  wrapPrimaryContentInMain(content) {
-    const mainElement = document.createElement('main');
-    mainElement.setAttribute('role', 'main');
-    mainElement.innerHTML = content;
-    return mainElement.outerHTML;
+  // New function
+  ensureInteractiveElementsAccessible() {
+    a11yStore.ensureInteractiveRoles();
+    a11yStore.addFormControlLabels();
+    a11yStore.ensureImageAccessibility();
   }
 };
 
-// New functions to ensure interactive elements are accessible
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAltText();
-  a11yStore.fixFakeLinks();
-}
-
-// Export all functions and utilities
-module.exports = {
-  // Math operations
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-  
-  // Rendering functions
-  greetingFunction,
-  getWelcomeMessage,
-  
-  // Configuration
-  config,
-  
-  // Accessibility store
-  a11yStore,
-  
-  // New accessibility function
-  ensureInteractiveElementsAccessible,
-  
-  // Class and components
-  class1,
-  function1,
-  Object1,
-  
-  // Main utilities reference
-  main
-};
-
-// Make functions accessible in main.js scope
-module.exports = {
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-  greetingFunction,
-  getWelcomeMessage,
-  ensureInteractiveElementsAccessible,
-  a11yStore,
-  config,
-  class1,
-  function1,
-  Object1,
-  main
-};
+// ... rest of the code ...

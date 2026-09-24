@@ -14,12 +14,13 @@
 const requiredModule = require('required-module');
 
 // New function added to resolve issue
-function newFunction() {
-    // Implementation that uses the new functions for rendering graph/index
-    // Example: calling the newly available rendering utilities
-    const graphRenderer = new GraphRenderer();
-    const indexRenderer = new IndexRenderer();
-    return graphRenderer.render();
+function createButton(buttonText, buttonId, buttonClass, onClickHandler) {
+    let button = document.createElement('button');
+    button.textContent = buttonText;
+    button.id = buttonId;
+    button.className = buttonClass;
+    button.addEventListener('click', onClickHandler);
+    document.body.appendChild(button);
 }
 
 // Import and call the function from the required module
@@ -84,7 +85,12 @@ function focusTrap() {
     document.addEventListener('keydown', trapFocus);
 }
 
-// Export all functions
-export { newFunction };
-export { someFunction };
-export { importedFunction };
+// Export all
+module.exports = {
+    main,
+    newFunction,
+    someFunction,
+    existingFunction,
+    ExistingClass,
+    createButton // Export the new function
+};

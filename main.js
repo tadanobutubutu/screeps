@@ -241,6 +241,14 @@ function revokeSession (sessionId) {
  * Focus trap handler to keep focus within a container.
  * @param {Element} element - Element to monitor for focus events
  */
+function ensureUniqueLandmarksLocal() {
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) {
+    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
+    throw new Error('Document should have at most one main landmark');
+  }
+}
+
 function handleFocusTrap (element) {
   if (!element || typeof element.querySelectorAll !== 'function') {
     return
@@ -391,7 +399,8 @@ module.exports = {
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   checkLandmarks,
-  ensureUniqueMainLandmarks,
+  ensureUniqueLandmarks,
+  ensureUniqueLandmarksLocal,
   handleFocusTrap,
   revokeSession,
   functionA,

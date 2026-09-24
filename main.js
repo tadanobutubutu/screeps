@@ -252,6 +252,308 @@ function initializeAccessibility() {
   };
 }
 
+/**
+ * Adds accessibility properties to an SVG element
+ * @param {SVGElement} svgElement - The SVG element to add accessibility props to
+ * @param {Object} options - Accessibility options for the SVG
+ * @param {string} [options.role='img'] - The ARIA role for the SVG
+ * @param {string} [options.label] - The aria-label text
+ * @param {string} [options.labelledBy] - The ID of an element that labels this SVG
+ * @param {string} [options.description] - The aria-describedby text
+ * @param {boolean} [options.focusable=true] - Whether the SVG is focusable
+ * @param {boolean} [options.keyboardFocusable] - Whether the SVG can be focused via keyboard
+ * @returns {SVGElement} - The SVG element with accessibility props applied
+ */
+function addSvgAccessibilityProps(svgElement, options = {}) {
+  // Return null/undefined as-is if not a valid SVG element
+  if (!svgElement) {
+    return svgElement;
+  }
+
+  // Validate that we have an SVG element (check for tagName property)
+  const tagName = svgElement.tagName;
+  if (!tagName || tagName.toLowerCase() !== 'svg') {
+    return svgElement;
+  }
+
+  const {
+    role = 'img',
+    label,
+    labelledBy,
+    description,
+    focusable = true,
+    keyboardFocusable = false
+  } = options;
+
+  // Set the role attribute
+  if (role) {
+    svgElement.setAttribute('role', role);
+  }
+
+  // Set aria-label if provided
+  if (label && typeof label === 'string') {
+    svgElement.setAttribute('aria-label', label);
+  }
+
+  // Set aria-labelledby if provided
+  if (labelledBy && typeof labelledBy === 'string') {
+    svgElement.setAttribute('aria-labelledby', labelledBy);
+  }
+
+  // Set aria-describedby if provided
+  if (description && typeof description === 'string') {
+    svgElement.setAttribute('aria-describedby', description);
+  }
+
+  // Set focusable attribute (important for IE/older browsers)
+  if (typeof svgElement.setAttribute === 'function') {
+    svgElement.setAttribute('focusable', focusable ? 'true' : 'false');
+  }
+
+  // Add tabindex for keyboard focus if requested
+  if (keyboardFocusable && typeof svgElement.setAttribute === 'function') {
+    svgElement.setAttribute('tabindex', '0');
+  }
+
+  return svgElement;
+}
+
+/**
+ * Checks if a value is an empty string, null, or undefined
+ * @param {*} value - The value to check
+ * @returns {boolean} - True if the value is empty
+ */
+function isEmpty(value) {
+  return value === null || value === undefined || value === '';
+}
+
+/**
+ * Capitalizes the first letter of a string
+ * @param {string} str - The string to capitalize
+ * @returns {string} - The capitalized string
+ */
+function capitalize(str) {
+  if (typeof str !== 'string' || str.length === 0) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Generates a random integer between min and max (inclusive)
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Random integer
+ */
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Clamps a number between min and max values
+ * @param {number} num - Number to clamp
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Clamped number
+ */
+function clamp(num, min, max) {
+  return Math.min(Math.max(num, min), max);
+}
+
+/**
+ * Deep clones an object
+ * @param {*} obj - Object to clone
+ * @returns {*} - Cloned object
+ */
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj.getTime());
+  if (obj instanceof Array) return obj.map(item => deepClone(item));
+  if (obj instanceof Object) {
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        cloned[key] = deepClone(obj[key]);
+      }
+    }
+    return cloned;
+  }
+  return obj;
+}
+
+/**
+ * Renders a dependency graph visualization
+ * @param {Object} dependencies - Graph data structure with nodes and edges
+ * @param {string|HTMLElement} container - DOM element or selector to render the graph
+ * @param {Object} options - Visualization options
+ * @returns {Object} - Graph visualization control object
+ */
+function renderDependencyGraph(dependencies, container, options = {}) {
+  const defaultOptions = {
+    nodeWidth: 100,
+    nodeHeight: 40,
+    nodeColor: '#4a90e2',
+    nodeTextColor: '#ffffff',
+    edgeColor: '#999999',
+    animated: true,
+    ...options
+  };
+  
+  const containerEl = typeof container === 'string' 
+    ? document.querySelector(container) 
+    : container;
+  
+  if (!containerEl) {
+    throw new Error('Container element not found for dependency graph rendering');
+  }
+  
+  // Create SVG container
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.style.position = 'absolute';
+  svg.style.top = '0';
+  svg.style.left = '0';
+
+  // Apply accessibility properties to the SVG element
+  addSvgAccessibilityProps(svg, {
+    role: 'img',
+    label: 'Dependency graph visualization',
+    description: 'A graphical representation of dependencies between modules',
+    keyboardFocusable: true
+  });
+  
+  containerEl.style.position = 'relative';
+  containerEl.appendChild(svg);
+  
+  // Store graph data and control object
+  const graphControl = {
+    svg,
+    container: containerEl,
+    options: defaultOptions,
+    updateData: function(newDependencies) {
+      dependencies = newDependencies;
+      this.redraw();
+    },
+    redraw: function() {
+      // Clear existing content
+      svg.innerHTML = '';
+      
+      if (!dependencies || !dependencies.nodes || !dependencies.edges) {
+        console.warn('Invalid dependency graph structure');
+        return;
+      }
+      
+      // Calculate positions (simple circular layout for nodes)
+      const nodes = dependencies.nodes;
+      const edges = dependencies.edges;
+      const centerX = containerEl.clientWidth / 2;
+      const centerY = containerEl.clientHeight / 2;
+      const radius = Math.min(containerEl.clientWidth, containerEl.clientHeight) / 2 - 50;
+      
+      // Position nodes
+      const nodePositions = {};
+      nodes.forEach((node, index) => {
+        const angle = (index / nodes.length) * 2 * Math.PI;
+        nodePositions[node.id] = {
+          x: centerX + radius * Math.cos(angle),
+          y: centerY + radius * Math.sin(angle)
+        };
+      });
+      
+      // Draw edges
+      edges.forEach(edge => {
+        const start = nodePositions[edge.source];
+        const end = nodePositions[edge.target];
+        
+        if (start && end) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', start.x);
+          line.setAttribute('y1', start.y);
+          line.setAttribute('x2', end.x);
+          line.setAttribute('y2', end.y);
+          line.setAttribute('stroke', defaultOptions.edgeColor);
+          line.setAttribute('stroke-width', '2');
+          
+          if (defaultOptions.animated) {
+            line.style.animation = 'pulse 2s infinite';
+          }
+          
+          svg.appendChild(line);
+        }
+      });
+      
+      // Draw nodes
+      nodes.forEach(node => {
+        const pos = nodePositions[node.id];
+        if (!pos) return;
+        
+        // Create node group
+        const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        nodeGroup.setAttribute('transform', `translate(${pos.x - defaultOptions.nodeWidth/2}, ${pos.y - defaultOptions.nodeHeight/2})`);
+        
+        // Node rectangle
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('width', defaultOptions.nodeWidth);
+        rect.setAttribute('height', defaultOptions.nodeHeight);
+        rect.setAttribute('rx', '5');
+        rect.setAttribute('fill', defaultOptions.nodeColor);
+        rect.setAttribute('stroke', '#333');
+        rect.setAttribute('stroke-width', '1');
+        
+        // Node text
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', defaultOptions.nodeWidth / 2);
+        text.setAttribute('y', defaultOptions.nodeHeight / 2);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('fill', defaultOptions.nodeTextColor);
+        text.setAttribute('font-size', '12');
+        text.textContent = node.label || node.id;
+        
+        // Add hover interaction
+        nodeGroup.appendChild(rect);
+        nodeGroup.appendChild(text);
+        
+        // Add event listeners for accessibility
+        nodeGroup.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (node.onClick) node.onClick(node);
+          }
+        });
+        
+        nodeGroup.addEventListener('click', () => {
+          if (node.onClick) node.onClick(node);
+        });
+        
+        // Set tabindex for keyboard navigation
+        nodeGroup.setAttribute('tabindex', '0');
+        
+        svg.appendChild(nodeGroup);
+      });
+    }
+  };
+  
+  // Initial render
+  graphControl.redraw();
+  
+  // Add CSS animation for edges if needed
+  if (defaultOptions.animated) {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  return graphControl;
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
